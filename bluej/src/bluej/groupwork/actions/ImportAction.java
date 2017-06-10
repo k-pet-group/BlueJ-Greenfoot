@@ -77,7 +77,7 @@ public class ImportAction extends TeamAction
         // The team settings controller is not initially associated with the
         // project, so you can still modify the repository location
         final TeamSettingsController tsc = new TeamSettingsController(project.getProjectDir());
-        final Repository repository = tsc.getRepository(true);
+        final Repository repository = tsc.trytoEstablishRepository(true).getRepository();
         
         if (repository == null) {
             // user cancelled

@@ -25,10 +25,10 @@ import java.io.File;
 
 import bluej.Config;
 import bluej.groupwork.Repository;
+import bluej.groupwork.RepositoryOrError;
 import bluej.groupwork.TeamSettingsController;
 import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamworkCommand;
-import bluej.groupwork.TeamworkCommandError;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.ui.ModuleSelectDialog;
 import bluej.pkgmgr.Import;
@@ -67,6 +67,18 @@ public class CheckoutAction extends TeamAction
         final TeamSettingsController tsc = new TeamSettingsController(new File(".").getAbsoluteFile());
 
         if (tsc.getTeamSettingsDialog().showAndWait().isPresent()) {
+            RepositoryOrError repositoryOrError = tsc.trytoEstablishRepository(true);
+            if (repositoryOrError == null)
+                return; // user canceled
+
+            if (repositoryOrError.getRepository() == null) {
+                // The repository can't be established, so no need to establish the worker
+                TeamUtils.handleServerResponseFX(repositoryOrError.getError(), oldFrame.getFXWindow());
+                return;
+            }
+
+            Repository repository = repositoryOrError.getRepository();
+
             FXPlatformConsumer<File> finishCheckout = projectDir -> {
                 PkgMgrFrame newFrame;
                 if (oldFrame.isEmptyFrame())
@@ -79,12 +91,12 @@ public class CheckoutAction extends TeamAction
                     newFrame.setVisible(true);
                 }
 
-                new CheckoutWorker(newFrame, tsc.getRepository(true), projectDir, tsc).start();
+                new CheckoutWorker(newFrame, repository, projectDir, tsc).start();
             };
 
             if (!tsc.isDVCS()) {
                 //if not DVCS, we need to select module.
-                ModuleSelectDialog moduleDialog = new ModuleSelectDialog(oldFrame::getFXWindow, tsc.getRepository(true));
+                ModuleSelectDialog moduleDialog = new ModuleSelectDialog(oldFrame::getFXWindow, repository);
                 moduleDialog.setLocationRelativeTo(oldFrame.getFXWindow());
                 moduleDialog.showAndWait();
 
@@ -155,15 +167,10 @@ public class CheckoutAction extends TeamAction
         {
             newFrame.setStatus(Config.getString("team.checkingout"));
             newFrame.startProgress();
-            if (repository == null) {
-                @OnThread(Tag.Any)
-                String message = DialogManager.getMessage("team-noRepository-uri");
-                response = new TeamworkCommandError(message, message);
-            }
-            else {
-                TeamworkCommand checkoutCmd = repository.checkout(projDir);
-                response = checkoutCmd.getResult();
-            }
+
+            // Repository can't be null; checked before constructing the worker
+            TeamworkCommand checkoutCmd = repository.checkout(projDir);
+            response = checkoutCmd.getResult();
 
             failed = response.isError();
 

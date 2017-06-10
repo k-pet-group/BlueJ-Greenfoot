@@ -66,7 +66,7 @@ public interface TeamworkProvider
     /**
      * Get a repository from the given settings
      */
-    public Repository getRepository(File projectDir, TeamSettings settings);
+    RepositoryOrError getRepository(File projectDir, TeamSettings settings);
     
     /**
      * Checks if the repository needs the name of the user

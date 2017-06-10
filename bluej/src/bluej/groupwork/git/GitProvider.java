@@ -22,7 +22,7 @@
 package bluej.groupwork.git;
 
 import bluej.Config;
-import bluej.groupwork.Repository;
+import bluej.groupwork.RepositoryOrError;
 import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamworkCommandError;
 import bluej.groupwork.TeamworkCommandResult;
@@ -165,13 +165,15 @@ public class GitProvider implements TeamworkProvider
     }
     
     @Override
-    public Repository getRepository(File projectDir, TeamSettings settings)
+    public RepositoryOrError getRepository(File projectDir, TeamSettings settings)
     {
         try {
-            return new GitRepository(projectDir, settings.getProtocol(), makeGitUrl(settings), settings.getUserName(), settings.getPassword(), settings.getYourName(), settings.getYourEmail());
-        } catch (UnsupportedSettingException e) {
+            return new RepositoryOrError(new GitRepository(projectDir, settings.getProtocol(), makeGitUrl(settings),
+                    settings.getUserName(), settings.getPassword(), settings.getYourName(), settings.getYourEmail()));
+        }
+        catch (UnsupportedSettingException e) {
             Debug.reportError("GitProvider.getRepository", e);
-            return null;
+            return new RepositoryOrError(new TeamworkCommandError(e.getMessage(), e.getLocalizedMessage()));
         }
     }
 

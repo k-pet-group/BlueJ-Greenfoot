@@ -57,7 +57,7 @@ public class TeamSettingsController
     @OnThread(value = Tag.Any)
     private static final ArrayList<TeamworkProvider> teamProviders;
     static {
-        teamProviders = new ArrayList<TeamworkProvider>(2);
+        teamProviders = new ArrayList<>(2);
         try {
             teamProviders.add(loadProvider("bluej.groupwork.svn.SubversionProvider"));
         }
@@ -164,8 +164,10 @@ public class TeamSettingsController
      * Get the repository. Returns null if user credentials are required
      * but the user chooses to cancel.
      */
-    public Repository getRepository(boolean authRequired)
+    public RepositoryOrError trytoEstablishRepository(boolean authRequired)
     {
+        RepositoryOrError repositoryOrError = new RepositoryOrError(repository);
+
         if (authRequired && password == null) {
             // If we don't yet know the password, prompt the user
             if (!getTeamSettingsDialog().showAndWait().isPresent())
@@ -173,7 +175,8 @@ public class TeamSettingsController
 
             TeamSettings settings = teamSettingsDialog.getSettings();
             if (repository == null) {
-                repository = settings.getProvider().getRepository(projectDir, settings);
+                repositoryOrError = settings.getProvider().getRepository(projectDir, settings);
+                repository = repositoryOrError.getRepository();
             }
             else {
                 repository.setPassword(settings);
@@ -187,11 +190,12 @@ public class TeamSettingsController
             // We might have the password, but not yet have created
             // the repository
             if (repository == null) {
-                repository = settings.getProvider().getRepository(projectDir, settings);
+                repositoryOrError = settings.getProvider().getRepository(projectDir, settings);
+                repository = repositoryOrError.getRepository();
             }
         }
         
-        return repository;
+        return repositoryOrError;
     }
     
     /**
@@ -211,7 +215,7 @@ public class TeamSettingsController
                     return false;
                 }
             }
-            repository = provider.getRepository(projectDir, settings);
+            repository = provider.getRepository(projectDir, settings).getRepository();
         }
         return true;
     }
@@ -367,9 +371,12 @@ public class TeamSettingsController
      * be deleted, or false if the version control system will delete it either
      * immediately or at commit time.
      */
-    public boolean  prepareDeleteDir(File dir)
+    public boolean prepareDeleteDir(File dir)
     {
-        return getRepository(false).prepareDeleteDir(dir);
+        RepositoryOrError repositoryOrError = trytoEstablishRepository(false);
+        if (repositoryOrError.getRepository() == null)
+            return false;
+        return repositoryOrError.getRepository().prepareDeleteDir(dir);
     }
     
     /**
@@ -377,7 +384,9 @@ public class TeamSettingsController
      */
     public void prepareCreateDir(File dir)
     {
-        getRepository(false).prepareCreateDir(dir);
+        RepositoryOrError repositoryOrError = trytoEstablishRepository(false);
+        if (repositoryOrError.getRepository() != null)
+            repositoryOrError.getRepository().prepareCreateDir(dir);
     }
 
     /**

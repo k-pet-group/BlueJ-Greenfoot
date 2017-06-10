@@ -143,7 +143,7 @@ public class HistoryFrame extends FXCustomizedDialog<Void>
         Repository repository;
         if (project.getTeamSettingsController().isDVCS()){
             //don't connect to the remote repository if git.
-            repository = project.getTeamSettingsController().getRepository(false);
+            repository = project.getTeamSettingsController().trytoEstablishRepository(false).getRepository();
         } else {
             //we need to connect to the remote repository if svn.
             repository = project.getRepository();

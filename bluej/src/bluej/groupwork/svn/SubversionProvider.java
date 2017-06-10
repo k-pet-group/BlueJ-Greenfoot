@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2015,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,7 +28,7 @@ import java.lang.reflect.Method;
 import org.tigris.subversion.javahl.*;
 
 import bluej.Config;
-import bluej.groupwork.Repository;
+import bluej.groupwork.RepositoryOrError;
 import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamworkCommandError;
 import bluej.groupwork.TeamworkCommandResult;
@@ -136,17 +136,18 @@ public class SubversionProvider implements TeamworkProvider
         return protocolKey;
     }
     
-    public Repository getRepository(File projectDir, TeamSettings settings)
+    public RepositoryOrError getRepository(File projectDir, TeamSettings settings)
     {
         try {
             SVNClientInterface client = getClient();
             client.username(settings.getUserName());
             client.password(settings.getPassword());
-            return new SvnRepository(projectDir, settings.getProtocol(), makeSvnUrl(settings), client);
+            return new RepositoryOrError(
+                    new SvnRepository(projectDir, settings.getProtocol(), makeSvnUrl(settings), client));
         }
         catch (UnsupportedSettingException e) {
             Debug.reportError("SubversionProvider.getRepository", e);
-            return null;
+            return new RepositoryOrError(new TeamworkCommandError(e.getMessage(), e.getLocalizedMessage()));
         }
     }
     
