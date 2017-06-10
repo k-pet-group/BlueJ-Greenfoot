@@ -28,6 +28,7 @@ import bluej.groupwork.Repository;
 import bluej.groupwork.TeamSettingsController;
 import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamworkCommand;
+import bluej.groupwork.TeamworkCommandError;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.ui.ModuleSelectDialog;
 import bluej.pkgmgr.Import;
@@ -154,8 +155,15 @@ public class CheckoutAction extends TeamAction
         {
             newFrame.setStatus(Config.getString("team.checkingout"));
             newFrame.startProgress();
-            TeamworkCommand checkoutCmd = repository.checkout(projDir);
-            response = checkoutCmd.getResult();
+            if (repository == null) {
+                @OnThread(Tag.Any)
+                String message = DialogManager.getMessage("team-noRepository-uri");
+                response = new TeamworkCommandError(message, message);
+            }
+            else {
+                TeamworkCommand checkoutCmd = repository.checkout(projDir);
+                response = checkoutCmd.getResult();
+            }
 
             failed = response.isError();
 
