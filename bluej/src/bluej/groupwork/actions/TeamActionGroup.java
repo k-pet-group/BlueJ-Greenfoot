@@ -42,7 +42,7 @@ public class TeamActionGroup
     private UpdateDialogAction updateAction;
     private TeamSettingsAction teamSettingsAction;
     private CommitCommentAction commitCommentAction;
-    private ImportAction importAction;
+    private ShareAction shareAction;
     private ShowLogAction showLogAction;
     
     /**
@@ -81,7 +81,7 @@ public class TeamActionGroup
             updateAction = new UpdateDialogAction();
             teamSettingsAction = new TeamSettingsAction();
             commitCommentAction = new CommitCommentAction(commitLabel);
-            importAction = new ImportAction();
+            shareAction = new ShareAction();
             showLogAction = new ShowLogAction();
             setTeamMode(initialTeamMode, initialIsDVCS);
         }
@@ -111,10 +111,10 @@ public class TeamActionGroup
         return commitCommentAction;
     }
     
-    public ImportAction getImportAction()
+    public ShareAction getShareAction()
     {
         createAll();
-        return importAction;
+        return shareAction;
     }
     
     public ShowLogAction getShowLogAction()
@@ -138,7 +138,7 @@ public class TeamActionGroup
         commitCommentAction.setName(Config.getString(label), true);
         commitCommentAction.setEnabled(enabled);
         // import is allowed if we are not already shared
-        importAction.setEnabled(!enabled);
+        shareAction.setEnabled(!enabled);
     }
     
     public void setAllDisabled()
@@ -148,8 +148,7 @@ public class TeamActionGroup
         updateAction.setEnabled(false);
         teamSettingsAction.setEnabled(false);
         commitCommentAction.setEnabled(false);
-        importAction.setEnabled(false);
+        shareAction.setEnabled(false);
         showLogAction.setEnabled(false);
     }
-
 }

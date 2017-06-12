@@ -50,7 +50,7 @@ import bluej.extmgr.ToolsExtensionMenu;
 import bluej.extmgr.ViewExtensionMenu;
 import bluej.groupwork.actions.CheckoutAction;
 import bluej.groupwork.actions.CommitCommentAction;
-import bluej.groupwork.actions.ImportAction;
+import bluej.groupwork.actions.ShareAction;
 import bluej.groupwork.actions.StatusAction;
 import bluej.groupwork.actions.TeamAction;
 import bluej.groupwork.actions.TeamActionGroup;
@@ -1135,12 +1135,12 @@ public class PkgMgrFrame
         teamActions.getStatusAction().useButton(this, teamStatusButton);
         teamActions.getUpdateAction().useButton(this, updateButton);
         teamActions.getCommitCommentAction().useButton(this, commitButton);
-        teamActions.getImportAction().useButton(this, teamShareButton);
+        teamActions.getShareAction().useButton(this, teamShareButton);
         teamShareButton.textProperty().unbind();
         teamShareButton.setText(Config.getString("team.import.short"));
 
         teamActions.getTeamSettingsAction().useMenuItem(this, teamSettingsMenuItem);
-        teamActions.getImportAction().useMenuItem(this, shareProjectMenuItem);
+        teamActions.getShareAction().useMenuItem(this, shareProjectMenuItem);
         teamActions.getStatusAction().useMenuItem(this, statusMenuItem);
 
         teamActions.getCommitCommentAction().useMenuItem(this, commitMenuItem);
@@ -2851,7 +2851,7 @@ public class PkgMgrFrame
         UpdateDialogAction updateAction = teamActions.getUpdateAction();
         CommitCommentAction commitCommentAction = teamActions.getCommitCommentAction();
         StatusAction statusAction = teamActions.getStatusAction();
-        ImportAction shareAction = teamActions.getImportAction();
+        ShareAction shareAction = teamActions.getShareAction();
 
         endTestRecordAction.setEnabled(false);
         cancelTestRecordAction.setEnabled(false);
@@ -3111,7 +3111,7 @@ public class PkgMgrFrame
                 MenuItem checkoutMenuItem = new MenuItem();
                 checkoutAction.useMenuItem(this, checkoutMenuItem);
                 shareProjectMenuItem = new MenuItem();
-                teamActions.getImportAction().useMenuItem(this, shareProjectMenuItem);
+                teamActions.getShareAction().useMenuItem(this, shareProjectMenuItem);
 
                 updateMenuItem = new MenuItem();
                 teamActions.getUpdateAction().useMenuItem(this, updateMenuItem);

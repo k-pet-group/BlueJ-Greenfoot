@@ -48,14 +48,14 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * An action to perform an import into a repository, i.e. to share a project.
+ * An action to share a project into a repository.
  * 
  * @author Kasper
  */
 @OnThread(Tag.FXPlatform)
-public class ImportAction extends TeamAction 
+public class ShareAction extends TeamAction
 {
-    public ImportAction()
+    public ShareAction()
     {
         super("team.import", true);
     }
