@@ -34,9 +34,11 @@ import javafx.application.Platform;
 import bluej.Config;
 import bluej.collect.DataCollector;
 import bluej.groupwork.Repository;
+import bluej.groupwork.RepositoryOrError;
 import bluej.groupwork.TeamSettingsController;
 import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamworkCommand;
+import bluej.groupwork.TeamworkCommandError;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
@@ -69,18 +71,26 @@ public class ShareAction extends TeamAction
             return;
         }
 
-        doImport(pmf, project);
+        doShare(pmf, project);
     }
 
-    private void doImport(final PkgMgrFrame pmf, final Project project)
+    private void doShare(final PkgMgrFrame pmf, final Project project)
     {
         // The team settings controller is not initially associated with the
         // project, so you can still modify the repository location
         final TeamSettingsController tsc = new TeamSettingsController(project.getProjectDir());
-        final Repository repository = tsc.trytoEstablishRepository(true).getRepository();
-        
-        if (repository == null) {
+        RepositoryOrError repositoryOrError = tsc.trytoEstablishRepository(true);
+        if (repositoryOrError == null) {
             // user cancelled
+            return;
+        }
+
+        final Repository repository = repositoryOrError.getRepository();
+        if (repository == null) {
+            // There is a mistake in establishing the repository
+            TeamworkCommandError error = repositoryOrError.getError();
+            if (error != null)
+                TeamUtils.handleServerResponseFX(error, pmf.getFXWindow());
             return;
         }
 
