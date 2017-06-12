@@ -404,6 +404,7 @@ public class DocuGenerator
         }
         String[] javadocCall = call.toArray(new String[0]);
 
+        removeStylesheet();
         generateDoc(javadocCall, startPage, logFile, projectLogHeader, true);
 
         return "";
@@ -444,9 +445,26 @@ public class DocuGenerator
         File htmlFile = new File(getDocuPath(filename));
         File logFile = new File(docDir, "logfile.txt");
 
+        removeStylesheet();
         generateDoc(javadocCall, htmlFile, logFile, classLogHeader, false);
     }
-    
+
+    /**
+     * Removes the stylesheet (used before generating Javadoc).  Needed because versions
+     * before 4.1.0 would generate a stylesheet.css file that was different, but Javadoc
+     * does not do content comparison so in 4.1.0+ will not by itself regenerate the Javadoc,
+     * even though it may needs to replace the pre-4.1.0 version.  We just delete it every
+     * time to make sure the stylesheet.css is up-to-date.
+     */
+    private void removeStylesheet()
+    {
+        File stylesheet = new File(projectDir, "doc/stylesheet.css");
+        if (stylesheet.exists())
+        {
+            stylesheet.delete();
+        }
+    }
+
     private void addGeneralOptions(List<String> call)
     {
         String majorVersion = System.getProperty("java.specification.version");        

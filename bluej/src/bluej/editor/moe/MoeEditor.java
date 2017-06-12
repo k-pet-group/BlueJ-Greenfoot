@@ -131,6 +131,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Consumer;
@@ -2101,7 +2102,20 @@ public final class MoeEditor extends ScopeColorsBorderPane
             File urlFile = new File(getDocPath());
             URL myURL = urlFile.toURI().toURL();
 
-            htmlPane.getEngine().load(myURL.toString());
+            // We must use reload here if applicable, as that forces reloading the stylesheet.css asset
+            // (which may have changed if we initially loaded docs from a version older than 4.1.0,
+            // but have now regenerated them).  We compare URLs, not String versions, because you may
+            // get difference between e.g. file:/Users... and file:///Users... which URL comparison
+            // properly takes care of:
+            String location = htmlPane.getEngine().getLocation();
+            if (Objects.equals(location == null ? null : new URL(location), myURL))
+            {
+                htmlPane.getEngine().reload();
+            }
+            else
+            {
+                htmlPane.getEngine().load(myURL.toString());
+            }
 
             info.message(Config.getString("editor.info.docLoaded"));
         }
