@@ -664,8 +664,8 @@ team.history=Hist\u00F3rico do projeto
 team.history.title=Hist\u00F3rico do projeto
 team.history.filefilter=Mostrar arquivo:
 team.history.userfilter=Mostrar usu\u00E1rio:
-team.import=Compartilhar este projeto
-team.import.statusMessage=Compartilhando este projeto
+team.share=Compartilhar este projeto
+team.share.statusMessage=Compartilhando este projeto
 team.includeLayout=Incluir o diagrama quando fazendo o upload
 team.settings=Configura\u00E7\u00F5es de trabalho em grupo...
 team.status=Status
@@ -731,7 +731,7 @@ team.checkedout=Baixando o projeto... Pronto.
 team.checkout.filechooser.title=Escolha localiza\u00E7\u00E3o do projeto a ser baixado
 team.checkout.filechooser.button=Baixando
 
-team.import.initialMessage=Compartilhamento inicial do projeto
+team.share.initialMessage=Compartilhamento inicial do projeto
 
 team.sharing=Compartilhando projeto...
 team.shared=Compartilhando projeto... Pronto.

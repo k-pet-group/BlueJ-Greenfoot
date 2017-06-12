@@ -675,8 +675,8 @@ team.history=Cronologia progetto
 team.history.title=Cronologia progetto
 team.history.filefilter=Mostra file:
 team.history.userfilter=Mostra utente:
-team.import=Condividi questo progetto
-team.import.statusMessage=Condividi questo progetto
+team.share=Condividi questo progetto
+team.share.statusMessage=Condividi questo progetto
 team.includeLayout=Includi diagrammi layout quando aggiorni
 team.settings=Impostazioni del team di lavoro
 team.status=Stato
@@ -742,7 +742,7 @@ team.checkedout=progetto verificato...
 team.checkout.filechooser.title=Scegli l'ubicazione per la verifica
 team.checkout.filechooser.button=Verifica
 
-team.import.initialMessage=Condivisione del progetto iniziata...
+team.share.initialMessage=Condivisione del progetto iniziata...
 
 team.sharing=Condivi progetto...
 team.shared=Progetto condiviso...

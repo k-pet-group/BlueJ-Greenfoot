@@ -677,9 +677,9 @@ team.history=Zobraz historii projektu
 team.history.title=Historie projektu
 team.history.filefilter=Zobraz soubor:
 team.history.userfilter=Uka\u017e u\u017eivatele:
-team.import=Sd\u00edlej tento projekt
-team.import.short=Sd\u00edlet...
-team.import.statusMessage=Sd\u00edlen\u00ed projektu
+team.share=Sd\u00edlej tento projekt
+team.share.short=Sd\u00edlet...
+team.share.statusMessage=Sd\u00edlen\u00ed projektu
 team.includeLayout=Do aktualizac\u00ed zahr\u0148 diagramu t\u0159\u00edd
 team.settings=Nastaven\u00ed pro t\u00fdmovou pr\u00e1ci
 team.status=Stav
@@ -769,7 +769,7 @@ team.checkout.filechooser.title=Zadejte um\u00edst\u011bn\u00ed pracovn\u00ed ko
 team.checkout.DVCS.filechooser.title=Vytvo\u0159 projekt pro sta\u017een\u00ed (Checkout)
 team.checkout.filechooser.button=Z\u00edskat pracovn\u00ed kopii (Checkout)
 
-team.import.initialMessage=V\u00fdchoz\u00ed sd\u00edlen\u00ed projektu
+team.share.initialMessage=V\u00fdchoz\u00ed sd\u00edlen\u00ed projektu
 
 team.sharing=Sd\u00edlen\u00ed projekt\u016f ...
 team.shared=Sd\u00edlen\u00ed projekt\u016f ... Hotovo

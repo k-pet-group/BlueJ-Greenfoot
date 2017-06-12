@@ -1137,7 +1137,7 @@ public class PkgMgrFrame
         teamActions.getCommitCommentAction().useButton(this, commitButton);
         teamActions.getShareAction().useButton(this, teamShareButton);
         teamShareButton.textProperty().unbind();
-        teamShareButton.setText(Config.getString("team.import.short"));
+        teamShareButton.setText(Config.getString("team.share.short"));
 
         teamActions.getTeamSettingsAction().useMenuItem(this, teamSettingsMenuItem);
         teamActions.getShareAction().useMenuItem(this, shareProjectMenuItem);
@@ -2979,7 +2979,7 @@ public class PkgMgrFrame
         teamShareButton.visibleProperty().bind(teamShareButton.disableProperty().not());
         teamPanelItemsUnshared.getChildren().add(teamShareButton);
         teamShareButton.textProperty().unbind();
-        teamShareButton.setText(Config.getString("team.import.short"));
+        teamShareButton.setText(Config.getString("team.share.short"));
 
         // Don't reserve space for all three once-shared buttons if we are not yet shared:
         teamShowSharedButtons = teamShareButton.disableProperty().and(teamStatusButton.disableProperty().not());

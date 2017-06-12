@@ -57,7 +57,7 @@ public class ShareAction extends TeamAction
 {
     public ShareAction()
     {
-        super("team.import", true);
+        super("team.share", true);
     }
     
     @Override
@@ -131,7 +131,7 @@ public class ShareAction extends TeamAction
                         Set<File> newFiles = new LinkedHashSet<>(files);
                         Set<File> binFiles = TeamUtils.extractBinaryFilesFromSet(newFiles);
                         command = repository.commitAll(newFiles, binFiles, Collections.emptySet(),
-                                files, Config.getString("team.import.initialMessage"));
+                                files, Config.getString("team.share.initialMessage"));
                         result = command.getResult();
                         //In DVCS, we need an aditional command: pushChanges.
                         if (isDVCS){

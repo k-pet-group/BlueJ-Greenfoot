@@ -670,9 +670,9 @@ team.history=Zobraz hist\u00f3riu projektu
 team.history.title=Hist\u00f3ria projektu
 team.history.filefilter=Zobraz s\u00fabor:
 team.history.userfilter=Zobraz pou\u017e\u00edvate\u013ea:
-team.import=Spristupni tento projekt t\u00edmu
-team.import.short=Zria\u010fujem spolo\u010dn\u00fd pr\u00edstup\u2026
-team.import.statusMessage=Povolenie spolo\u010dn\u00e9ho pr\u00edstupu k\u00a0projektu
+team.share=Spristupni tento projekt t\u00edmu
+team.share.short=Zria\u010fujem spolo\u010dn\u00fd pr\u00edstup\u2026
+team.share.statusMessage=Povolenie spolo\u010dn\u00e9ho pr\u00edstupu k\u00a0projektu
 team.includeLayout=Vr\u00e1tane diagramu tried
 team.settings=Nastavenia t\u00edmovej pr\u00e1ce
 team.status=Stav
@@ -762,7 +762,7 @@ team.checkout.filechooser.title=Zadajte umiestnenie priestoru previerovania
 team.checkout.DVCS.filechooser.title=Vytvorte priestor na preverovanie projektu
 team.checkout.filechooser.button=Prever
 
-team.import.initialMessage=Zriadenie spolo\u010dn\u00e9ho pr\u00edstupu k\u00a0projektu
+team.share.initialMessage=Zriadenie spolo\u010dn\u00e9ho pr\u00edstupu k\u00a0projektu
 
 team.sharing=Odovzd\u00e1vanie projektu na spolo\u010dn\u00fd pr\u00edstup\u2026
 team.shared=Odovzd\u00e1vanie projektu na spolo\u010dn\u00fd pr\u00edstup\u2026 Hotov\u00e9.

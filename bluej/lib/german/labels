@@ -671,8 +671,8 @@ team.history=Projektverlauf
 team.history.title=Projektverlauf
 team.history.filefilter=Zeige Datei:
 team.history.userfilter=Zeige Benutzer:
-team.import=Projekt gemeinsam nutzen...
-team.import.statusMessage=Projekt wird gemeinsam genutzt
+team.share=Projekt gemeinsam nutzen...
+team.share.statusMessage=Projekt wird gemeinsam genutzt
 team.includeLayout=Ber\u00fccksichtige Diagrammlayout beim Aktualisieren
 team.settings=Teamarbeitseinstellungen...
 team.status=Status
@@ -738,7 +738,7 @@ team.checkedout=Erzeuge Arbeitskopie... Fertig.
 team.checkout.filechooser.title=Verzeichnis f\u00fcr Arbeitskopie w\u00e4hlen
 team.checkout.filechooser.button=Erzeugen
 
-team.import.initialMessage=Gemeinsames Projekt angelegt
+team.share.initialMessage=Gemeinsames Projekt angelegt
 
 team.sharing=Gemeinsames Projekt anlegen...
 team.shared=Gemeinsames Projekt anlegen... Fertig.

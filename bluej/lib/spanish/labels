@@ -667,8 +667,8 @@ team.history=Historia del Proyecto
 team.history.title=Historia del Proyecto
 team.history.filefilter=Mostrar archivo:
 team.history.userfilter=Mostrar usuario:
-team.import=Compartir este Proyecto
-team.import.statusMessage=Compartiendo este proyecto
+team.share=Compartir este Proyecto
+team.share.statusMessage=Compartiendo este proyecto
 team.includeLayout=Incluir dise\u00f1o del diagrama al actualizar
 team.settings=Ajustes para Trabajo Colaborativo...
 team.status=Estatus
@@ -734,7 +734,7 @@ team.checkedout=Revisando proyecto... Listo.
 team.checkout.filechooser.title=Escoga una ubicaci\u00f3n para revisi\u00f3n
 team.checkout.filechooser.button=Revisi\u00f3n
 
-team.import.initialMessage=Intercambio inicial de proyecto
+team.share.initialMessage=Intercambio inicial de proyecto
 
 team.sharing=Compartiendo proyecto...
 team.shared=Compartiendo proyecto... Listo.

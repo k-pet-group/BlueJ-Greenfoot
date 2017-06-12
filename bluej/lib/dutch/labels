@@ -543,8 +543,8 @@ menu.view.showTestDisplay=Test _Resultaten
 
 # TODO: vertalen van alle andere team.-eigenschappen
 team.project.marker=Gedeeld project
-team.import=Deel dit project
-team.import.statusMessage=Dit project wordt gedeeld
+team.share=Deel dit project
+team.share.statusMessage=Dit project wordt gedeeld
 team.checkout=Checkout project...
 
 menu.help=_Help

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -57,7 +57,7 @@ public class SvnShareCommand extends SvnCommand
             System.setProperty("svnkit.wc.17", "false");
             
             client.mkdir(new String[] {projUrl},
-                    Config.getString("team.import.initialMessage"));
+                    Config.getString("team.share.initialMessage"));
             
             client.checkout(projUrl, projectPath.getAbsolutePath(), Revision.HEAD, Revision.HEAD,
                     Depth.empty, false, true);

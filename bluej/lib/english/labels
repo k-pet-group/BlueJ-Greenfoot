@@ -687,9 +687,9 @@ team.history=Project History
 team.history.title=Project History
 team.history.filefilter=Show file:
 team.history.userfilter=Show user:
-team.import=Share this Project
-team.import.short=Share...
-team.import.statusMessage=Sharing this project
+team.share=Share this Project
+team.share.short=Share...
+team.share.statusMessage=Sharing this project
 team.includeLayout=Include diagram layout when updating
 team.settings=Teamwork Settings...
 team.status=Status
@@ -779,7 +779,7 @@ team.checkout.filechooser.title=Choose a checkout location
 team.checkout.DVCS.filechooser.title=Create a project for checkout
 team.checkout.filechooser.button=Checkout
 
-team.import.initialMessage=Initial sharing of project
+team.share.initialMessage=Initial sharing of project
 
 team.sharing=Sharing project...
 team.shared=Sharing project... Done.

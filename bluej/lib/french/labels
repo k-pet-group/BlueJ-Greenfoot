@@ -627,8 +627,8 @@ team.history=Historique Projet
 team.history.title=Historique projet
 team.history.filefilter=Voir fichier\:
 team.history.userfilter=Voir utilisateur\:
-team.import=Partager ce projet
-team.import.statusMessage=Partage de ce projet
+team.share=Partager ce projet
+team.share.statusMessage=Partage de ce projet
 team.includeLayout=Inclure l'agencement du diagramme lors des mises \u00E0 jour
 team.settings=Propri\u00E9t\u00E9s \u00C9quipe
 team.status=Etat
@@ -694,7 +694,7 @@ team.checkedout=Extraction projet...Termin\u00E9.
 team.checkout.filechooser.title=Choisir une localisation (d\u00E9p\u00F4t) pour extraction
 team.checkout.filechooser.button=Extraction
 
-team.import.initialMessage=Partage initial du projet
+team.share.initialMessage=Partage initial du projet
 
 team.sharing=Partage de projet...
 team.shared=Partage de projet...Termin\u00E9.
