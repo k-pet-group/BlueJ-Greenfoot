@@ -1038,7 +1038,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
      */
     public int snapToGrid(int x)
     {
-        int steps = x / PackageEditor.GRID_SIZE;
+        int steps = (int)Math.round((double)x / PackageEditor.GRID_SIZE);
         int new_x = steps * PackageEditor.GRID_SIZE;//new x-coor w/ respect to
         // grid
         return new_x;
