@@ -1659,6 +1659,7 @@ public class BlueJSyntaxView
         editorPane.showLineNumbersProperty().addListener(new ChangeListener<Boolean>()
         {
             @Override
+            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
             public void changed(ObservableValue<? extends Boolean> a, Boolean b, Boolean c)
             {
                 Label l = weakLabel.get();
