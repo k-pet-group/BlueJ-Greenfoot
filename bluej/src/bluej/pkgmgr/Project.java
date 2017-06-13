@@ -2323,10 +2323,6 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         return importScanner;
     }
 
-    /**
-     * Warning: this method executes on Swing thread, and expects to be able
-     * to wait for the FX thread.
-     */
     @OnThread(Tag.FXPlatform)
     public FXTabbedEditor createNewFXTabbedEditor()
     {
