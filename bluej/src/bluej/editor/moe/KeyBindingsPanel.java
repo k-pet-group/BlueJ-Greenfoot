@@ -279,7 +279,6 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
     {
         if(!actions.save())
             DialogManager.showErrorFX(parent.get(), "cannot-save-keys");
-        setVisible(false);
     }
     /**
      * Handle click on Add Key button.
