@@ -68,6 +68,16 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
     private final BooleanProperty showLineNumbers = new SimpleBooleanProperty(true);
     private final AtomicBoolean queuedRecalculation = new AtomicBoolean(false);
 
+    public boolean isShowLineNumbers()
+    {
+        return showLineNumbers.get();
+    }
+
+    public BooleanProperty showLineNumbersProperty()
+    {
+        return showLineNumbers;
+    }
+
     /**
      * Create an editor pane specifically for Moe.
      */

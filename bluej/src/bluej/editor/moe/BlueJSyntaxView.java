@@ -37,10 +37,13 @@ import com.google.common.collect.ImmutableSet;
 import javafx.application.Platform;
 import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -1606,9 +1609,12 @@ public class BlueJSyntaxView
         // RichTextFX numbers from 0, but javac numbers from 1:
         lineNumber += 1;
         Label label = new Label("" + lineNumber);
+        label.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         JavaFXUtil.setPseudoclass("bj-odd", (lineNumber & 1) == 1, label);
         JavaFXUtil.addStyleClass(label, "moe-line-label");
-        label.setGraphic(new StackPane(makeBreakpointIcon(), makeStepMarkIcon()));
+        Node stepMarkIcon = makeStepMarkIcon();
+        Node breakpointIcon = makeBreakpointIcon();
+        label.setGraphic(new StackPane(breakpointIcon, stepMarkIcon));
         label.setOnContextMenuRequested(e -> {
             CheckMenuItem checkMenuItem = new CheckMenuItem(Config.getString("prefmgr.edit.displaylinenumbers"));
             checkMenuItem.setSelected(PrefMgr.getFlag(PrefMgr.LINENUMBERS));
@@ -1635,10 +1641,42 @@ public class BlueJSyntaxView
                 {
                     JavaFXUtil.setPseudoclass(possibleAttribute.getPseudoclass(), attr.contains(possibleAttribute), l);
                 }
+                stepMarkIcon.setVisible(attr.contains(ParagraphAttribute.STEP_MARK));
+                breakpointIcon.setVisible(attr.contains(ParagraphAttribute.BREAKPOINT));
+                if (stepMarkIcon.isVisible() || breakpointIcon.isVisible() || !editorPane.isShowLineNumbers())
+                {
+                    l.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                }
+                else
+                {
+                    l.setContentDisplay(ContentDisplay.TEXT_ONLY);
+                }
             }
             else
                 paragraphAttributeListeners.remove(lineNumberFinal);
         };
+        // Have to use class because we want to remove ourselves later:
+        editorPane.showLineNumbersProperty().addListener(new ChangeListener<Boolean>()
+        {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> a, Boolean b, Boolean c)
+            {
+                Label l = weakLabel.get();
+                if (l != null)
+                {
+                    if (stepMarkIcon.isVisible() || breakpointIcon.isVisible() || !editorPane.isShowLineNumbers())
+                    {
+                        l.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                    }
+                    else
+                    {
+                        l.setContentDisplay(ContentDisplay.TEXT_ONLY);
+                    }
+                }
+                else
+                    editorPane.showLineNumbersProperty().removeListener(this);
+            }
+        });
         listener.accept(paragraphAttributes.getOrDefault(lineNumber, EnumSet.noneOf(ParagraphAttribute.class)));
         paragraphAttributeListeners.put(lineNumber, listener);
         AnchorPane.setLeftAnchor(label, 0.0);

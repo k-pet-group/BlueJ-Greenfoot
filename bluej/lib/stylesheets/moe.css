@@ -102,30 +102,11 @@
     -fx-background-color: gray, hsb(0, 0%, 75%);
     -fx-background-insets: -1 0 -1 0, -1 1 -1 0;
 }
-/* Line numbers or not, breakpoint or step overrides them: */
-.moe-editor-pane .moe-line-label:bj-breakpoint,
- .moe-editor-pane:bj-line-numbers .moe-line-label:bj-breakpoint,
- .moe-editor-pane .moe-line-label:bj-step-mark,
- .moe-editor-pane:bj-line-numbers .moe-line-label:bj-step-mark {
-    -fx-content-display: graphic-only;
+.moe-line-label:bj-breakpoint, .moe-line-label:bj-step-mark {
     -fx-label-padding: 0;
-}
-.moe-editor-pane .moe-line-label:bj-breakpoint .moe-breakpoint-icon {
-    visibility: visible;
-}
-.moe-editor-pane .moe-line-label:bj-step-mark .moe-step-mark-icon {
-    visibility: visible;
 }
 .moe-editor-pane:bj-uncompiled .moe-line-label:bj-error {
     -fx-background-color: hsb(0, 70%, 50%);
-}
-
-/* By default show no line number, unless bj-line-numbers pseudo-class present */
-.moe-editor-pane .moe-line-label {
-    -fx-content-display: graphic-only;
-}
-.moe-editor-pane:bj-line-numbers .moe-line-label {
-    -fx-content-display: text-only;
 }
 .moe-editor-pane {
     -fx-caret-blink-rate: 0s;
@@ -149,11 +130,6 @@
 /* Don't show when printing */
 .moe-editor-pane:bj-screen .moe-bracket-highlight {
     -rtfx-background-color: hsb(0, 0%, 70%);
-}
-
-/* By default icons are hidden, until pseudo-class applied to parent: */
-.moe-breakpoint-icon, .moe-step-mark-icon {
-    visibility: hidden;
 }
 
 /* colors are in java-colors.css */
