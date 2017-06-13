@@ -152,7 +152,9 @@ public abstract class FXAbstractAction
         prepareContextMenuItem(menuItem);
         boolean cmdPlusMinusOnMac = Config.isMacOS() && accelerator.get() != null &&
                 (accelerator.get().equals(new KeyCodeCombination(KeyCode.EQUALS, KeyCombination.SHORTCUT_DOWN))
-                        || accelerator.get().equals(new KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN)));
+                    || accelerator.get().equals(new KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN))
+                    || accelerator.get().equals(new KeyCodeCombination(KeyCode.EQUALS, KeyCombination.META_DOWN))
+                    || accelerator.get().equals(new KeyCodeCombination(KeyCode.MINUS, KeyCombination.META_DOWN)));
         // We don't set Cmd-+ or Cmd-- as a menu accelerator on Mac because a JavaFX bug
         // prevents them working as a menu item.  So we set them as a shortcut on the text pane
         // involved.  (See the caller of hasMenuItem).
