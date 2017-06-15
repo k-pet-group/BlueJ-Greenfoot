@@ -37,6 +37,7 @@ import com.google.common.collect.ImmutableSet;
 import javafx.beans.binding.BooleanExpression;
 import org.fxmisc.richtext.model.*;
 import org.fxmisc.richtext.model.TwoDimensional.Bias;
+import org.fxmisc.richtext.model.TwoDimensional.Position;
 import org.reactfx.Subscription;
 import org.reactfx.collection.LiveList;
 import threadchecker.OnThread;
@@ -99,6 +100,11 @@ public class MoeSyntaxDocument
     // Can be null if we are not being used for an editor pane:
     private final BlueJSyntaxView syntaxView;
     private boolean hasFindHighlights = false;
+    // null means not cached, non-null means cached
+    private String cachedContent = null;
+    // null means not cached, non-null means cached
+    // lineStarts[0] is 0, lineStarts[1] is the index of beginning of the next line (i.e. just after \n), and so on.
+    private int[] lineStarts = null;
     // package-visible:
     boolean notYetShown = true;
 
@@ -161,6 +167,85 @@ public class MoeSyntaxDocument
         document.replace(0, document.getLength(), from.document);
     }
 
+    public TwoDimensional.Position offsetToPosition(int startOffset)
+    {
+        if (lineStarts == null)
+        {
+            return document.offsetToPosition(startOffset, Bias.Forward);
+        }
+        else
+        {
+            // No need to check first line:
+            int line = 1;
+            for (; line < lineStarts.length; line++)
+            {
+                if (startOffset < lineStarts[line])
+                    break;
+
+            }
+            line -= 1; // We went just past it, so now go back one
+            int lineFinal = line;
+            int column = startOffset - lineStarts[lineFinal];
+            return new TwoDimensional.Position()
+            {
+                @Override
+                public TwoDimensional getTargetObject()
+                {
+                    return document;
+                }
+
+                @Override
+                public int getMajor()
+                {
+                    return lineFinal;
+                }
+
+                @Override
+                public int getMinor()
+                {
+                    return column;
+                }
+
+                @Override
+                public boolean sameAs(TwoDimensional.Position other)
+                {
+                    return getTargetObject() == other.getTargetObject() && getMajor() == other.getMajor() && getMinor() == other.getMinor();
+                }
+
+                @Override
+                public TwoDimensional.Position clamp()
+                {
+                    return this;
+                }
+
+                @Override
+                public TwoDimensional.Position offsetBy(int offset, Bias bias)
+                {
+                    // Just fall back to document, don't think we call this anyway:
+                    return document.offsetToPosition(startOffset + offset, Bias.Forward);
+                }
+
+                @Override
+                public int toOffset()
+                {
+                    return startOffset;
+                }
+            };
+        }
+    }
+
+    private int getAbsolutePosition(int lineIndex, int columnIndex)
+    {
+        if (lineStarts == null || lineIndex >= lineStarts.length) // Second part shouldn't happen, but just in case
+        {
+            return document.getAbsolutePosition(lineIndex, columnIndex);
+        }
+        else
+        {
+            return lineStarts[lineIndex] + columnIndex;
+        }
+    }
+
     @OnThread(Tag.Any)
     private static class EditEvent
     {
@@ -205,6 +290,7 @@ public class MoeSyntaxDocument
         this.syntaxView = makeSyntaxView.apply(this);
 
         document.plainChanges().subscribe(c -> {
+            invalidateCache();
             // Must fire remove before insert:
             if (!c.getRemoved().isEmpty())
             {
@@ -217,8 +303,37 @@ public class MoeSyntaxDocument
             // Apply backgrounds from simple update, as it may not even
             // trigger a reparse.  This must be done later, after the document has finished
             // doing all the updates to the content, before we can mess with paragraph styles:
-            JavaFXUtil.runAfterCurrent(() -> applyPendingScopeBackgrounds());
+            JavaFXUtil.runAfterCurrent(() -> {
+                invalidateCache();
+                applyPendingScopeBackgrounds();
+            });
         });
+    }
+
+    private void invalidateCache()
+    {
+        cachedContent = null;
+        lineStarts = null;
+    }
+
+    private void cacheContent()
+    {
+        if (cachedContent == null)
+            cachedContent = document.getText();
+        if (lineStarts == null)
+        {
+            lineStarts = new int[document.getParagraphs().size()];
+            lineStarts[0] = 0;
+            int curLine = 0;
+            for (int character = 0; character < cachedContent.length(); character++)
+            {
+                if (cachedContent.charAt(character) == '\n')
+                {
+                    curLine += 1;
+                    lineStarts[curLine] = character + 1;
+                }
+            }
+        }
     }
 
     public MoeSyntaxDocument()
@@ -415,6 +530,7 @@ public class MoeSyntaxDocument
     {
         if (syntaxView == null)
             return;
+        cacheContent();
         List<ScopeInfo> paragraphScopeInfo = syntaxView.recalculateScopes(firstLineIncl, lastLineIncl);
         if (paragraphScopeInfo.isEmpty())
             return; // Not initialised yet
@@ -800,8 +916,8 @@ public class MoeSyntaxDocument
      */
     public void repaintLines(int offset, int length)
     {
-        int startLine = document.offsetToPosition(offset, Bias.Forward).getMajor();
-        int endLine = document.offsetToPosition(offset + length, Bias.Forward).getMajor();
+        int startLine = offsetToPosition(offset).getMajor();
+        int endLine = offsetToPosition(offset + length).getMajor();
         recalculateScopesForLinesInRange(startLine, endLine);
     }
 
@@ -812,7 +928,14 @@ public class MoeSyntaxDocument
 
     public String getText(int start, int length)
     {
-        return document.getText(start, start + length);
+        if (cachedContent == null)
+        {
+            return document.getText(start, start + length);
+        }
+        else
+        {
+            return cachedContent.substring(start, start + length);
+        }
     }
 
     public void getText(int startOffset, int length, Segment segment)
@@ -863,16 +986,26 @@ public class MoeSyntaxDocument
 
     public Element getDefaultRootElement()
     {
+        // This is a different kind of element, which is only there to return a wrapper for the paragraphs:
         return new Element()
         {
             @Override
             public Element getElement(int index)
             {
-                if (index >= document.getParagraphs().size())
+                if (index >= (lineStarts != null ? lineStarts.length : document.getParagraphs().size()))
                     return null;
 
-                Paragraph<ScopeInfo, StyledText<ImmutableSet<String>>, ImmutableSet<String>> p = document.getParagraph(index);
-                int pos = document.getAbsolutePosition(index, 0);
+                boolean lastPara = lineStarts != null ? (index == lineStarts.length - 1) : (index == document.getParagraphs().size() - 1);
+                int paraLength;
+                if (lineStarts == null)
+                {
+                    paraLength = document.getParagraph(index).length() + (lastPara ? 0 : 1 /* newline */);
+                }
+                else
+                {
+                    paraLength = lastPara ? (document.getLength() - lineStarts[index]) : lineStarts[index + 1] - lineStarts[index];
+                }
+                int pos = getAbsolutePosition(index, 0);
                 return new Element()
                 {
                     @Override
@@ -890,7 +1023,7 @@ public class MoeSyntaxDocument
                     @Override
                     public int getEndOffset()
                     {
-                        return pos + p.length() + (index == document.getParagraphs().size() - 1 ? 0 : 1 /* newline */);
+                        return pos + paraLength;
                     }
 
                     @Override
@@ -922,13 +1055,16 @@ public class MoeSyntaxDocument
             @Override
             public int getElementIndex(int offset)
             {
-                return document.offsetToPosition(offset, Bias.Forward).getMajor();
+                return offsetToPosition(offset).getMajor();
             }
 
             @Override
             public int getElementCount()
             {
-                return document.getParagraphs().size();
+                if (lineStarts != null)
+                    return lineStarts.length;
+                else
+                    return document.getParagraphs().size();
             }
         };
     }

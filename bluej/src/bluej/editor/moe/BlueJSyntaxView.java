@@ -671,6 +671,10 @@ public class BlueJSyntaxView
     {
         if (editorPane == null)
             return OptionalInt.empty();
+        Position position = document.offsetToPosition(startOffset);
+
+        if (!editorPane.visibleLines.get(position.getMajor()))
+            return OptionalInt.empty();
 
         /*
          * So, if a character is on screen, it's trivial to calculate the indent in pixels, we just ask the
@@ -704,7 +708,7 @@ public class BlueJSyntaxView
          * think of any situation where that is not the case.  We clear the array when the font size changes.
          */
 
-        Position position = document.getDocument().offsetToPosition(startOffset, Bias.Forward);
+
         if (document.getDocument().getParagraph(position.getMajor()).getText().substring(0, position.getMinor()).chars().allMatch(c -> c == ' '))
         {
             // All spaces, we can use/update cached space indents

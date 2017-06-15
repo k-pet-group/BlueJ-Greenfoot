@@ -50,6 +50,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -67,6 +68,8 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
     // Disabled during printing if we don't want line numbers:
     private final BooleanProperty showLineNumbers = new SimpleBooleanProperty(true);
     private final AtomicBoolean queuedRecalculation = new AtomicBoolean(false);
+    // package-visible:
+    final BitSet visibleLines = new BitSet();
 
     public boolean isShowLineNumbers()
     {
@@ -141,6 +144,7 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
                 {
                     queuedRecalculation.set(false);
                     int earliestIncomplete = -1, latestIncomplete = -1;
+                    visibleLines.clear();
                     for (int i = 0; i < getParagraphs().size(); i++)
                     {
                         ScopeInfo paragraphStyle = getDocument().getParagraphStyle(i);
@@ -150,6 +154,7 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
                                 earliestIncomplete = i;
                             latestIncomplete = i;
                         }
+                        visibleLines.set(i, virtualFlow.getCellIfVisible(i).isPresent());
                     }
                     if (earliestIncomplete != -1)
                     {
