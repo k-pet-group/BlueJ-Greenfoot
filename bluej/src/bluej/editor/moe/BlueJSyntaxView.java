@@ -128,7 +128,7 @@ public class BlueJSyntaxView
 
 
     // Each item in the list maps the list index (as number of spaces) to indent amount
-    private final List<Integer> cachedSpaceSizes = new ArrayList<>();
+    private final List<Double> cachedSpaceSizes = new ArrayList<>();
 
     public static enum ParagraphAttribute
     {
@@ -673,7 +673,9 @@ public class BlueJSyntaxView
             return OptionalInt.empty();
         Position position = document.offsetToPosition(startOffset);
 
-        if (!editorPane.visibleLines.get(position.getMajor()))
+        boolean allSpaces = document.getDocument().getParagraph(position.getMajor()).getText().substring(0, position.getMinor()).chars().allMatch(c -> c == ' ');
+
+        if (!editorPane.visibleLines.get(position.getMajor()) && (!allSpaces || cachedSpaceSizes.size() <= 4))
             return OptionalInt.empty();
 
         /*
@@ -709,7 +711,8 @@ public class BlueJSyntaxView
          */
 
 
-        if (document.getDocument().getParagraph(position.getMajor()).getText().substring(0, position.getMinor()).chars().allMatch(c -> c == ' '))
+
+        if (allSpaces)
         {
             // All spaces, we can use/update cached space indents
             int numberOfSpaces = position.getMinor();
@@ -720,11 +723,20 @@ public class BlueJSyntaxView
                 // If the character isn't on screen, we're not going to be able to calculate indent,
                 // and we know we haven't got a cached indent, so give up:
                 if (!screenBounds.isPresent())
+                {
+                    // If we've got a few spaces, we can make a reasonable estimate, on the basis that space characters
+                    // are going to be the same width as each other.
+                    if (cachedSpaceSizes.size() >= 4)
+                    {
+                        int highestSpaces = cachedSpaceSizes.size() - 1;
+                        return OptionalInt.of((int)(cachedSpaceSizes.get(highestSpaces) / (double)highestSpaces * numberOfSpaces));
+                    }
                     return OptionalInt.empty();
+                }
                 double indent = editorPane.screenToLocal(screenBounds.get()).getMinX() - 24.0;
-                cachedSpaceSizes.add((int)indent);
+                cachedSpaceSizes.add(indent);
             }
-            return OptionalInt.of(cachedSpaceSizes.get(numberOfSpaces));
+            return OptionalInt.of(cachedSpaceSizes.get(numberOfSpaces).intValue());
         }
         else
         {
@@ -983,8 +995,16 @@ public class BlueJSyntaxView
         // hasn't been shown yet, so we recalculate whenever we find that indent value in the
         // hope that the editor is now visible:
         if (indent == null || indent <= 0) {
-            indent = getNodeIndent(doc, nap);
-            nodeIndents.put(nap.getNode(), indent);
+            // No point trying to re-calculate the indent if the line isn't on screen:
+            if (editorPane.visibleLines.get(doc.offsetToPosition(lineEl.getStartOffset()).getMajor()))
+            {
+                indent = getNodeIndent(doc, nap);
+                nodeIndents.put(nap.getNode(), indent);
+            }
+            else
+            {
+                indent = -1;
+            }
         }
 
         int xpos = indent;
@@ -1011,7 +1031,6 @@ public class BlueJSyntaxView
      */
     private int getNodeIndent(MoeSyntaxDocument doc, NodeAndPosition<ParsedNode> nap)
     {
-        
         try {
             int indent = Integer.MAX_VALUE;
 
