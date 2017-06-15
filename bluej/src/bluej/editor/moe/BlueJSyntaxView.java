@@ -34,13 +34,12 @@ import bluej.utility.javafx.FXCache;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import com.google.common.collect.ImmutableSet;
-import javafx.application.Platform;
+import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContentDisplay;
@@ -51,13 +50,11 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 import org.fxmisc.richtext.model.StyleSpans;
 import org.fxmisc.richtext.model.StyleSpansBuilder;
-import org.fxmisc.richtext.model.TwoDimensional.Bias;
 import org.fxmisc.richtext.model.TwoDimensional.Position;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -104,6 +101,7 @@ public class BlueJSyntaxView
     private final MoeSyntaxDocument document;
     private final FXCache<ScopeInfo, Image> imageCache;
     private final ScopeColors scopeColors;
+    private final BooleanExpression syntaxHighlighting;
     private int imageCacheLineHeight;
     private ReadOnlyDoubleProperty widthProperty; // width of editor view
     // package-protected:
@@ -164,12 +162,16 @@ public class BlueJSyntaxView
     public BlueJSyntaxView(MoeSyntaxDocument document, ScopeColors scopeColors)
     {
         this.document = document;
+        this.syntaxHighlighting = PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING);
         this.imageCache = new FXCache<>(s -> drawImageFor(s, imageCacheLineHeight), 200);
         this.scopeColors = scopeColors;
         resetColors();
         JavaFXUtil.addChangeListenerPlatform(PrefMgr.getScopeHighlightStrength(), str -> {
             resetColors();
             imageCache.clear();
+            document.recalculateAllScopes();
+        });
+        JavaFXUtil.addChangeListenerPlatform(syntaxHighlighting, syn -> {
             document.recalculateAllScopes();
         });
         JavaFXUtil.addChangeListenerPlatform(PrefMgr.getEditorFontSize(), sz -> {
@@ -205,7 +207,7 @@ public class BlueJSyntaxView
             if(id == TokenType.END)
                 break;
 
-            lineStyle.add(ImmutableSet.of(id.getCSSClass()), tokens.length);
+            lineStyle.add(syntaxHighlighting.get() ? ImmutableSet.of(id.getCSSClass()) : ImmutableSet.of(), tokens.length);
             addedAny = true;
 
             tokens = tokens.next;

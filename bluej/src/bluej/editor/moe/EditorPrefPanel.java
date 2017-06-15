@@ -106,7 +106,7 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
     public void beginEditing()
     {
         editorFontField.setText(String.valueOf(PrefMgr.getEditorFontSize().get()));
-        highlightingBox.setSelected(PrefMgr.getFlag(PrefMgr.HILIGHTING));
+        highlightingBox.setSelected(PrefMgr.getFlag(PrefMgr.HIGHLIGHTING));
         autoIndentBox.setSelected(PrefMgr.getFlag(PrefMgr.AUTO_INDENT));
         lineNumbersBox.setSelected(PrefMgr.getFlag(PrefMgr.LINENUMBERS));
         makeBackupBox.setSelected(PrefMgr.getFlag(PrefMgr.MAKE_BACKUP));
@@ -122,7 +122,7 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
         String fontText = editorFontField.getText();
         
 
-        PrefMgr.setFlag(PrefMgr.HILIGHTING, highlightingBox.isSelected());
+        PrefMgr.setFlag(PrefMgr.HIGHLIGHTING, highlightingBox.isSelected());
         PrefMgr.setFlag(PrefMgr.AUTO_INDENT, autoIndentBox.isSelected());
         PrefMgr.setFlag(PrefMgr.LINENUMBERS, lineNumbersBox.isSelected());
         PrefMgr.setFlag(PrefMgr.MAKE_BACKUP, makeBackupBox.isSelected());

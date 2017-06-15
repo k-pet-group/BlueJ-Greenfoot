@@ -57,7 +57,7 @@ import bluej.editor.EditorManager;
 public class PrefMgr
 {
     // publicly accessible names for flags
-    public static final String HILIGHTING = "bluej.editor.syntaxHilighting";
+    public static final String HIGHLIGHTING = "bluej.editor.syntaxHilighting";
     public static final String AUTO_INDENT = "bluej.editor.autoIndent";
     public static final String LINENUMBERS = "bluej.editor.displayLineNumbers";
     public static final String MAKE_BACKUP = "bluej.editor.makeBackup";
@@ -407,7 +407,7 @@ public class PrefMgr
         projectDirectory = Config.getPropString("bluej.projectPath", System.getProperty("user.home"));
         recentProjects = readRecentProjects();
         
-        flags.put(HILIGHTING, Config.getPropString(HILIGHTING, "true"));
+        flags.put(HIGHLIGHTING, Config.getPropString(HIGHLIGHTING, "true"));
         flags.put(AUTO_INDENT, Config.getPropString(AUTO_INDENT, "false"));
         flags.put(LINENUMBERS, Config.getPropString(LINENUMBERS, "false"));
         flags.put(MAKE_BACKUP, Config.getPropString(MAKE_BACKUP, "false"));
