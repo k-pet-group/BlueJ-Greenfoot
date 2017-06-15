@@ -2924,6 +2924,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
         // create toolbar
         ComboBox<String> interfaceSelector = createInterfaceSelector();
+        interfaceSelector.setDisable(!sourceIsCode);
         Region toolbar = createToolbar(interfaceSelector.heightProperty());
         BorderPane topBar = new BorderPane(null, null, interfaceSelector, null, toolbar);
         topBar.getStyleClass().add("moe-top-bar");
