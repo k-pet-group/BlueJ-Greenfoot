@@ -1120,7 +1120,7 @@ public final class MoeActions
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.ENTER, KeyCombination.SHIFT_DOWN), "insert-break");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.F, SHORTCUT_MASK), "find");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.G, SHORTCUT_MASK), "find-next");
-        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.G, KeyCombination.SHIFT_DOWN), "find-next-backward");
+        addKeyCombinationForAction(new KeyCodeCombination(KeyCode.G, SHORTCUT_MASK, KeyCombination.SHIFT_DOWN), "find-next-backward");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.R, SHORTCUT_MASK), "replace");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.L, SHORTCUT_MASK), "go-to-line");
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.K, SHORTCUT_MASK), "compile");
