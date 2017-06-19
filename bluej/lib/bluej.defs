@@ -363,8 +363,6 @@ bluej.print.scale=60
 #######################################################################
 ## Terminal settings. Height and width are in number of characters.
 #######################################################################
-bluej.terminal.height=22
-bluej.terminal.width=80
 
 bluej.terminal.clearscreen=false
 bluej.terminal.recordcalls=false
