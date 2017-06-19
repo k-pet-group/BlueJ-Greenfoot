@@ -151,6 +151,12 @@ public class BlueJSyntaxView
     private final Map<Integer, FXPlatformConsumer<EnumSet<ParagraphAttribute>>> paragraphAttributeListeners = new HashMap<>();
 
     /**
+     * This is those line labels which may currently be on-screen.  Weak references used so
+     * that old line labels can get GCed as we scroll up and down:
+     */
+    private final Set<WeakReference<Label>> lineLabels = new HashSet<>();
+
+    /**
      * Cached indents for ParsedNode items.  Maps a node to an indent (in pixels)
      * When this is zero, it means it is not yet fully valid as the editor has not
      * yet appeared on screen.
@@ -424,6 +430,28 @@ public class BlueJSyntaxView
         this.widthProperty = editorPane.widthProperty();
         JavaFXUtil.addChangeListenerPlatform(widthProperty, w -> {
             document.fireChangedUpdate(null);
+        });
+        JavaFXUtil.addChangeListenerPlatform(editorPane.showLineNumbersProperty(), showLineNumbers -> {
+            for (Iterator<WeakReference<Label>> iterator = lineLabels.iterator(); iterator.hasNext(); )
+            {
+                WeakReference<Label> weakLabel = iterator.next();
+                Label l = weakLabel.get();
+                if (l != null)
+                {
+                    if (((StackPane)l.getGraphic()).getChildren().stream().anyMatch(Node::isVisible) || !showLineNumbers)
+                    {
+                        l.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                    }
+                    else
+                    {
+                        l.setContentDisplay(ContentDisplay.TEXT_ONLY);
+                    }
+                }
+                else
+                {
+                    iterator.remove();
+                }
+            }
         });
     }
 
@@ -1671,6 +1699,7 @@ public class BlueJSyntaxView
             }
             e.consume();
         });
+
         WeakReference<Label> weakLabel = new WeakReference<>(label);
         FXPlatformConsumer<EnumSet<ParagraphAttribute>> listener = attr -> {
             Label l = weakLabel.get();
@@ -1694,30 +1723,13 @@ public class BlueJSyntaxView
             else
                 paragraphAttributeListeners.remove(lineNumberFinal);
         };
-        // Have to use class because we want to remove ourselves later:
-        editorPane.showLineNumbersProperty().addListener(new ChangeListener<Boolean>()
-        {
-            @Override
-            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
-            public void changed(ObservableValue<? extends Boolean> a, Boolean b, Boolean c)
-            {
-                Label l = weakLabel.get();
-                if (l != null)
-                {
-                    if (stepMarkIcon.isVisible() || breakpointIcon.isVisible() || !editorPane.isShowLineNumbers())
-                    {
-                        l.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-                    }
-                    else
-                    {
-                        l.setContentDisplay(ContentDisplay.TEXT_ONLY);
-                    }
-                }
-                else
-                    editorPane.showLineNumbersProperty().removeListener(this);
-            }
-        });
+        // Remove any old references to line labels which have been GCed:
+        lineLabels.removeIf(w -> w.get() == null);
+        // Add our line label, to be notified if labels get turned on or off:
+        lineLabels.add(weakLabel);
+
         listener.accept(paragraphAttributes.getOrDefault(lineNumber, EnumSet.noneOf(ParagraphAttribute.class)));
+        // By replacing the previous listener, it should get GCed:
         paragraphAttributeListeners.put(lineNumber, listener);
         AnchorPane.setLeftAnchor(label, 0.0);
         AnchorPane.setRightAnchor(label, 3.0);
