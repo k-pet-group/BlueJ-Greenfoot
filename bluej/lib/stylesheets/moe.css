@@ -73,7 +73,6 @@
 
 .moe-line-label {
     -fx-font-size: 10px;
-    -fx-text-overrun: clip;
     -fx-alignment: center-right;
     -fx-graphic-text-gap: 0;
     -fx-label-padding: 0 2 0 0;

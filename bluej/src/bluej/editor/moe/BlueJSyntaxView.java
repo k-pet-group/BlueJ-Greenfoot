@@ -45,6 +45,7 @@ import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.OverrunStyle;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
@@ -1635,6 +1636,8 @@ public class BlueJSyntaxView
         lineNumber += 1;
         Label label = new Label("" + lineNumber);
         label.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        label.setEllipsisString("\u2026");
+        label.setTextOverrun(OverrunStyle.LEADING_ELLIPSIS);
         JavaFXUtil.setPseudoclass("bj-odd", (lineNumber & 1) == 1, label);
         JavaFXUtil.addStyleClass(label, "moe-line-label");
         Node stepMarkIcon = makeStepMarkIcon();
