@@ -400,7 +400,7 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
         {
             if (document == null)
             {
-                document = new MoeSyntaxDocument(projectResolver, ScopeColors.dummy());
+                document = new MoeSyntaxDocument(projectResolver);
                 document.insertString(0, src);
                 document.enableParser(true);
             }

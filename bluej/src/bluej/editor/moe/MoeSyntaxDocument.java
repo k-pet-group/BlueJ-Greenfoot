@@ -366,6 +366,21 @@ public class MoeSyntaxDocument
     }
 
     /**
+     * Create an empty MoeSyntaxDocument, which uses the given entity resolver
+     * to resolve symbols.
+     */
+    @OnThread(Tag.FXPlatform)
+    public MoeSyntaxDocument(EntityResolver parentResolver)
+    {
+        this();
+        // parsedNode = new ParsedCUNode(this);
+        this.parentResolver = parentResolver;
+        if (parentResolver != null) {
+            reparseRecordTree = new NodeTree<ReparseRecord>();
+        }
+    }
+
+    /**
      * Access the parsed node structure of this document.
      */
     public ParsedCUNode getParser()

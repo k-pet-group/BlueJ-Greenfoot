@@ -632,7 +632,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         {
             if (document == null)
             {
-                document = new MoeSyntaxDocument(projectResolver, ScopeColors.dummy());
+                document = new MoeSyntaxDocument(projectResolver);
                 document.insertString(0, src);
                 document.enableParser(true);
             }
