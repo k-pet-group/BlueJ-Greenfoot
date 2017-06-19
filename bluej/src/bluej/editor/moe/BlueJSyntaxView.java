@@ -164,7 +164,7 @@ public class BlueJSyntaxView
     {
         this.document = document;
         this.syntaxHighlighting = PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING);
-        this.imageCache = new FXCache<>(s -> drawImageFor(s, imageCacheLineHeight), 200);
+        this.imageCache = new FXCache<>(s -> drawImageFor(s, imageCacheLineHeight), 40);
         this.scopeColors = scopeColors;
         resetColors();
         JavaFXUtil.addChangeListenerPlatform(PrefMgr.getScopeHighlightStrength(), str -> {
@@ -246,7 +246,18 @@ public class BlueJSyntaxView
             imageCache.clear();
             imageCacheLineHeight = lineHeight;
         }
-        return imageCache.get(s);
+
+        // Important to make a copy of the image.  If all lines with the same background
+        // use the same image object then they all end up setting a listener on the image
+        // in case it changes (even though we won't change it).  Then we get a memory leak
+        // where old ParagraphText items are kept in memory through the listeners
+        // even though they should be GCed.  So, take a copy:
+        return copy(imageCache.get(s));
+    }
+
+    private static Image copy(Image original)
+    {
+        return new WritableImage(original.getPixelReader(), (int)original.getWidth(), (int)original.getHeight());
     }
 
     @OnThread(Tag.FX)
