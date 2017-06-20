@@ -3308,6 +3308,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             String prefix = sourcePane.getText(originalPosition, sourcePane.getCaretPosition());
             suggestionList.calculateEligible(prefix, true, false);
             suggestionList.updateVisual(prefix);
+            suggestionList.highlightFirstEligible();
             suggestionList.show(sourcePane, spLoc);
 
         } else {
