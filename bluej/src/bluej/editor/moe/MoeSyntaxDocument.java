@@ -588,7 +588,8 @@ public class MoeSyntaxDocument
             }
 
             StyleSpans<ImmutableSet<String>> styleSpans = syntaxView.getTokenStylesFor(pending.getKey(), this);
-            if (styleSpans != null)
+            // Applying style spans is expensive, so don't do it if they're already correct:
+            if (styleSpans != null && !styleSpans.equals(document.getStyleSpans(pending.getKey())))
             {
                 document.setStyleSpans(pending.getKey(), 0, document.getStyleSpans(pending.getKey()).overlay(styleSpans, MoeSyntaxDocument::setTokenStyles));
             }
