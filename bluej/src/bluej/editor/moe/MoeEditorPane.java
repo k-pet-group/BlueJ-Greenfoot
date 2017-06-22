@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2017  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,12 +21,25 @@
  */
 package bluej.editor.moe;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+import java.util.BitSet;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.fxmisc.flowless.Cell;
+import org.fxmisc.flowless.VirtualFlow;
+import org.fxmisc.richtext.StyledTextArea;
+import org.fxmisc.richtext.model.StyledText;
+
+import com.google.common.collect.ImmutableSet;
+import com.google.common.io.CharStreams;
+
 import bluej.Config;
 import bluej.editor.moe.BlueJSyntaxView.ScopeInfo;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.javafx.JavaFXUtil;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.io.CharStreams;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.BooleanProperty;
@@ -40,22 +53,11 @@ import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
 import javafx.scene.paint.ImagePattern;
-import org.fxmisc.flowless.VirtualFlow;
-import org.fxmisc.richtext.StyledTextArea;
-import org.fxmisc.richtext.model.StyledText;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
-import java.util.BitSet;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 /**
- * MoeJEditorPane - a variation of JEditorPane for Moe. The preferred size
- * is adjusted to allow for the tag line.
+ * MoeJEditorPane - an editor pane implementation based on StyledTextArea from the RichTextFX library.
  *
  * @author Michael Kolling
  */
@@ -87,7 +89,6 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
     public MoeEditorPane(MoeEditor editor, org.fxmisc.richtext.model.EditableStyledDocument<ScopeInfo, StyledText<ImmutableSet<String>>, ImmutableSet<String>> doc, BlueJSyntaxView syntaxView, BooleanExpression compiledStatus)
     {
         super(null, (p, s) -> {
-            //Debug.message("Setting background for " + p.getChildren().stream().map(c -> c instanceof Text ? ((Text)c).getText() : "").collect(Collectors.joining()) + " to " + s);
             if (s == null)
             {
                 p.backgroundProperty().unbind();
@@ -96,7 +97,10 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
             else
             {
                 p.backgroundProperty().bind(Bindings.createObjectBinding(() ->
-                        new Background(new BackgroundImage(syntaxView.getImageFor(s, (int) p.getHeight()), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, new BackgroundPosition(Side.LEFT, 0, false, Side.TOP, 0, false), BackgroundSize.DEFAULT))
+                        new Background(new BackgroundImage(syntaxView.getImageFor(s, (int) p.getHeight()),
+                                BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
+                                new BackgroundPosition(Side.LEFT, 0, false, Side.TOP, 0, false),
+                                BackgroundSize.DEFAULT))
                     , p.heightProperty()));
             }
         }, ImmutableSet.of(), (t, s) -> {
@@ -121,8 +125,10 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
         JavaFXUtil.addStyleClass(this, "moe-editor-pane");
         showLineNumbers.bind(PrefMgr.flagProperty(PrefMgr.LINENUMBERS));
         JavaFXUtil.bindPseudoclass(this, "bj-line-numbers", showLineNumbers);
-        if (compiledStatus != null) // Can be null when printing
-            JavaFXUtil.addChangeListenerPlatform(compiledStatus, compiled -> JavaFXUtil.setPseudoclass("bj-uncompiled", !compiled, this));
+        if (compiledStatus != null) { // Can be null when printing
+            JavaFXUtil.addChangeListenerPlatform(compiledStatus,
+                    compiled -> JavaFXUtil.setPseudoclass("bj-uncompiled", !compiled, this));
+        }
         syntaxView.setEditorPane(this);
         setPrinting(false, true);
 
@@ -131,8 +137,13 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
         });
         // We must redraw any incomplete backgrounds once
         // they become visible:
-        VirtualFlow virtualFlow = (VirtualFlow) lookup(".virtual-flow");
-        virtualFlow.visibleCells().addListener((ListChangeListener) c -> {
+        VirtualFlow<?,?> virtualFlow = (VirtualFlow<?,?>) lookup(".virtual-flow");
+        setupRedrawListener(virtualFlow);
+    }
+
+    private <T,C extends Cell<T,?>> void setupRedrawListener(VirtualFlow<T,C> virtualFlow)
+    {
+        virtualFlow.visibleCells().addListener((ListChangeListener<? super C>) c -> {
             if (editor.getSourceDocument() == null)
                 return;
 
