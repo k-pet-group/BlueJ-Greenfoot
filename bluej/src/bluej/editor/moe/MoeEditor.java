@@ -211,9 +211,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     private Info info;                      // the info number label
     private StatusLabel saveState;          // the status label
     private ComboBox<String> interfaceToggle;
-    @OnThread(Tag.FXPlatform)
-    private GoToLineDialog goToLineDialog;
-    
+
     // find functionality
     private FindPanel finder;
     private MenuBar menubar;
@@ -1989,9 +1987,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     public void goToLine()
     {
         final int numberOfLines = numberOfLines();
-        if (goToLineDialog == null) {
-            goToLineDialog = new GoToLineDialog(fxTabbedEditor.getWindow());
-        }
+        GoToLineDialog goToLineDialog = new GoToLineDialog(fxTabbedEditor.getWindow());
         goToLineDialog.setRangeMax(numberOfLines);
         Optional<Integer> o = goToLineDialog.showAndWait();
         o.ifPresent(n -> {
