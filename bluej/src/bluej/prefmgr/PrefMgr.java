@@ -299,11 +299,6 @@ public class PrefMgr
     }
     
     /**
-     * The following methods are protected and should only be accessed by the
-     * code which implements the various preferences dialog panels
-     */
-
-    /**
      * Return the editor font size as an integer size
      * (use getStandardEditorFont() if access to the actual font is required)
      */
