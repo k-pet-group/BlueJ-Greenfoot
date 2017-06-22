@@ -279,6 +279,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                     Config.isGreenfoot() ? null : "javafx.scene.*",
                     Config.isGreenfoot() ? null : "javafx.scene.control.*",
                     Config.isGreenfoot() ? null : "javafx.scene.input.*",
+                    Config.isGreenfoot() ? null : "javafx.scene.layout.*",
                     Config.isGreenfoot() ? null : "javafx.stage.*",
                     Config.isGreenfoot() ? null : "javax.swing.*",
                     Config.isGreenfoot() ? null : "javax.swing.event.*"
