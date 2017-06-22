@@ -599,6 +599,7 @@ public class MoeSyntaxDocument
         // purge that layout request by executing it, before we restore the scroll Y:
         syntaxView.editorPane.layout();
         syntaxView.editorPane.setEstimatedScrollY(scrollY);
+        syntaxView.editorPane.layout();
 
         applyingScopeBackgrounds = false;
     }
