@@ -599,6 +599,9 @@ public class MoeSyntaxDocument
         // purge that layout request by executing it, before we restore the scroll Y:
         syntaxView.editorPane.layout();
         syntaxView.editorPane.setEstimatedScrollY(scrollY);
+        // Setting the estimated scroll Y requests a layout but does not perform it.  This seemed
+        // to lead to occasional scroll jumps, I think involving delayed layout passes.  So although
+        // it is getting silly, we enforce another layout to *actually* set the scroll position:
         syntaxView.editorPane.layout();
 
         applyingScopeBackgrounds = false;
