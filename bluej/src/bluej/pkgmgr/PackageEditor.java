@@ -988,15 +988,18 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
      */
     public void doNewInherits()
     {
-        arrowCreationTip = new Label(Config.getString("pkgmgr.chooseInhFrom"));
-        JavaFXUtil.addStyleClass(arrowCreationTip, "pmf-create-extends-tip");
-        overlay.addMouseTrackingOverlay(arrowCreationTip, false, new ReadOnlyDoubleWrapper(5.0), arrowCreationTip.heightProperty().negate().add(-5.0));
-        creatingExtends = true;
-        extendsSubClass = null;
-        JavaFXUtil.setPseudoclass("bj-drawing-extends", true, this);
-        for (Target t : pkg.getVertices())
-            t.setCreatingExtends(true);
-        repaint();
+        if (!creatingExtends) {
+            arrowCreationTip = new Label(Config.getString("pkgmgr.chooseInhFrom"));
+            JavaFXUtil.addStyleClass(arrowCreationTip, "pmf-create-extends-tip");
+            overlay.addMouseTrackingOverlay(arrowCreationTip, false, new ReadOnlyDoubleWrapper(5.0), arrowCreationTip.heightProperty().negate().add(-5.0));
+            creatingExtends = true;
+            extendsSubClass = null;
+            JavaFXUtil.setPseudoclass("bj-drawing-extends", true, this);
+            for (Target t : pkg.getVertices())
+                t.setCreatingExtends(true);
+            repaint();
+        }
+
     }
 
     /**
