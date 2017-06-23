@@ -217,8 +217,8 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
         java.prependJavadoc(documentation.getJavaCode());
 
         java.prependLine(Arrays.asList((JavaFragment) f(frame, "")), null);
-        // TODO What if the import is a specific class which isn't found? pop up imports dialog in this case?
         Utility.backwards(CodeElement.toJavaCodes(imports)).forEach(imp -> java.prepend(imp));
+        java.prependLine(Collections.singletonList(f(frame, "import lang.stride.*;")), null);
 
         if (!packageName.equals(""))
             java.prependLine(Arrays.asList(f(frame, "package " + packageName + ";")), null);
