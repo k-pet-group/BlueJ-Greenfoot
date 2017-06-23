@@ -39,6 +39,7 @@ import bluej.groupwork.ui.TeamSettingsDialog;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
+import bluej.utility.DialogManager;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -164,10 +165,8 @@ public class TeamSettingsController
      * Get the repository. Returns null if user credentials are required
      * but the user chooses to cancel.
      */
-    public RepositoryOrError trytoEstablishRepository(boolean authRequired)
+    public Repository trytoEstablishRepository(boolean authRequired)
     {
-        RepositoryOrError repositoryOrError = new RepositoryOrError(repository);
-
         if (authRequired && password == null) {
             // If we don't yet know the password, prompt the user
             if (!getTeamSettingsDialog().showAndWait().isPresent())
@@ -175,8 +174,13 @@ public class TeamSettingsController
 
             TeamSettings settings = teamSettingsDialog.getSettings();
             if (repository == null) {
-                repositoryOrError = settings.getProvider().getRepository(projectDir, settings);
-                repository = repositoryOrError.getRepository();
+                try {
+                    repository = settings.getProvider().getRepository(projectDir, settings);
+                }
+                catch (UnsupportedSettingException e)
+                {
+                    DialogManager.showErrorFX(teamSettingsDialog.asWindow(), e.getLocalizedMessage());
+                }
             }
             else {
                 repository.setPassword(settings);
@@ -184,18 +188,27 @@ public class TeamSettingsController
         }
         else if (!authRequired && password == null) {
             // We'll return a "temporary" repository.
-            return settings.getProvider().getRepository(projectDir, settings);
+            try {
+                return settings.getProvider().getRepository(projectDir, settings);
+            }
+            catch (UnsupportedSettingException e) {
+                DialogManager.showErrorFX(teamSettingsDialog.asWindow(), e.getLocalizedMessage());
+            }
         }
         else {
             // We might have the password, but not yet have created
             // the repository
             if (repository == null) {
-                repositoryOrError = settings.getProvider().getRepository(projectDir, settings);
-                repository = repositoryOrError.getRepository();
+                try {
+                    repository = settings.getProvider().getRepository(projectDir, settings);
+                }
+                catch (UnsupportedSettingException e) {
+                    DialogManager.showErrorFX(teamSettingsDialog.asWindow(), e.getLocalizedMessage());
+                }
             }
         }
         
-        return repositoryOrError;
+        return repository;
     }
     
     /**
@@ -215,7 +228,11 @@ public class TeamSettingsController
                     return false;
                 }
             }
-            repository = provider.getRepository(projectDir, settings).getRepository();
+            try {
+                repository = provider.getRepository(projectDir, settings);
+            } catch (UnsupportedSettingException e) {
+                DialogManager.showErrorFX(teamSettingsDialog.asWindow(), e.getLocalizedMessage());
+            }
         }
         return true;
     }
@@ -373,10 +390,10 @@ public class TeamSettingsController
      */
     public boolean prepareDeleteDir(File dir)
     {
-        RepositoryOrError repositoryOrError = trytoEstablishRepository(false);
-        if (repositoryOrError.getRepository() == null)
+        Repository repository = trytoEstablishRepository(false);
+        if (repository == null)
             return false;
-        return repositoryOrError.getRepository().prepareDeleteDir(dir);
+        return repository.prepareDeleteDir(dir);
     }
     
     /**
@@ -384,9 +401,9 @@ public class TeamSettingsController
      */
     public void prepareCreateDir(File dir)
     {
-        RepositoryOrError repositoryOrError = trytoEstablishRepository(false);
-        if (repositoryOrError.getRepository() != null)
-            repositoryOrError.getRepository().prepareCreateDir(dir);
+        Repository repository = trytoEstablishRepository(false);
+        if (repository != null)
+            repository.prepareCreateDir(dir);
     }
 
     /**

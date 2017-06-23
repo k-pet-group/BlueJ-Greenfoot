@@ -112,7 +112,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
     {
         super(owner, "team.commit.dcvs.title", "team-commit-push");
         project = proj;
-        repository = project.getTeamSettingsController().trytoEstablishRepository(false).getRepository();
+        repository = project.getTeamSettingsController().trytoEstablishRepository(false);
         getDialogPane().setContent(makeMainPane());
         prepareButtonPane();
         DialogManager.centreDialog(this);
@@ -223,7 +223,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
             pushAction.setEnabled(false);
             pushListModel.clear();
 
-            repository = project.getTeamSettingsController().trytoEstablishRepository(false).getRepository();
+            repository = project.getTeamSettingsController().trytoEstablishRepository(false);
 
             if (repository != null) {
                 try {

@@ -1107,7 +1107,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
             shared = isSharedProject.orElse(false);
         }
         if (shared) {
-            return getTeamSettingsController().trytoEstablishRepository(true).getRepository();
+            return getTeamSettingsController().trytoEstablishRepository(true);
         }
         else {
             return null;
