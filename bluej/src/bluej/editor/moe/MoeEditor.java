@@ -841,7 +841,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         int spos = line.getStartOffset();
         int epos = line.getEndOffset();
         int testPos = Math.min(epos - spos - 1, column - 1);
-        if (testPos == 0) {
+        if (testPos <= 0) {
             return spos;
         }
 
