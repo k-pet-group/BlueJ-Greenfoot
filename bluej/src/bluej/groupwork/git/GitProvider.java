@@ -22,7 +22,7 @@
 package bluej.groupwork.git;
 
 import bluej.Config;
-import bluej.groupwork.RepositoryOrError;
+import bluej.groupwork.Repository;
 import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamworkCommandError;
 import bluej.groupwork.TeamworkCommandResult;
@@ -97,7 +97,6 @@ public class GitProvider implements TeamworkProvider
     @Override
     public TeamworkCommandResult checkConnection(TeamSettings settings) 
     {
-
         try {
             gitUrlString = makeGitUrl(settings);
             //perform a lsRemote on the remote git repo.
@@ -165,15 +164,15 @@ public class GitProvider implements TeamworkProvider
     }
     
     @Override
-    public RepositoryOrError getRepository(File projectDir, TeamSettings settings)
+    public Repository getRepository(File projectDir, TeamSettings settings) throws UnsupportedSettingException
     {
         try {
-            return new RepositoryOrError(new GitRepository(projectDir, settings.getProtocol(), makeGitUrl(settings),
-                    settings.getUserName(), settings.getPassword(), settings.getYourName(), settings.getYourEmail()));
+            return new GitRepository(projectDir, settings.getProtocol(), makeGitUrl(settings),
+                    settings.getUserName(), settings.getPassword(), settings.getYourName(), settings.getYourEmail());
         }
         catch (UnsupportedSettingException e) {
-            Debug.reportError("GitProvider.getRepository", e);
-            return new RepositoryOrError(new TeamworkCommandError(e.getMessage(), e.getLocalizedMessage()));
+            Debug.reportError("Unsupported Git Repository Settings " + e.getMessage());
+            throw new UnsupportedSettingException(e.getLocalizedMessage());
         }
     }
 

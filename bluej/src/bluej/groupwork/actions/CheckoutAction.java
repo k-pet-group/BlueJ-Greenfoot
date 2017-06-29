@@ -25,7 +25,6 @@ import java.io.File;
 
 import bluej.Config;
 import bluej.groupwork.Repository;
-import bluej.groupwork.RepositoryOrError;
 import bluej.groupwork.TeamSettingsController;
 import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamworkCommand;
@@ -67,17 +66,11 @@ public class CheckoutAction extends TeamAction
         final TeamSettingsController tsc = new TeamSettingsController(new File(".").getAbsoluteFile());
 
         if (tsc.getTeamSettingsDialog().showAndWait().isPresent()) {
-            RepositoryOrError repositoryOrError = tsc.trytoEstablishRepository(true);
-            if (repositoryOrError == null)
-                return; // user canceled
-
-            if (repositoryOrError.getRepository() == null) {
+            Repository repository = tsc.trytoEstablishRepository(true);
+            if (repository == null) {
                 // The repository can't be established, so no need to establish the worker
-                TeamUtils.handleServerResponseFX(repositoryOrError.getError(), oldFrame.getFXWindow());
                 return;
             }
-
-            Repository repository = repositoryOrError.getRepository();
 
             FXPlatformConsumer<File> finishCheckout = projectDir -> {
                 PkgMgrFrame newFrame;

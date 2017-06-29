@@ -25,10 +25,9 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.tigris.subversion.javahl.*;
 
 import bluej.Config;
-import bluej.groupwork.RepositoryOrError;
+import bluej.groupwork.Repository;
 import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamworkCommandError;
 import bluej.groupwork.TeamworkCommandResult;
@@ -37,6 +36,7 @@ import bluej.groupwork.TeamworkProvider;
 import bluej.groupwork.UnsupportedSettingException;
 import bluej.utility.Debug;
 
+import org.tigris.subversion.javahl.*;
 import org.tigris.subversion.javahl.Revision;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.internal.wc2.SvnWcGeneration;
@@ -136,18 +136,17 @@ public class SubversionProvider implements TeamworkProvider
         return protocolKey;
     }
     
-    public RepositoryOrError getRepository(File projectDir, TeamSettings settings)
+    public Repository getRepository(File projectDir, TeamSettings settings) throws UnsupportedSettingException
     {
         try {
             SVNClientInterface client = getClient();
             client.username(settings.getUserName());
             client.password(settings.getPassword());
-            return new RepositoryOrError(
-                    new SvnRepository(projectDir, settings.getProtocol(), makeSvnUrl(settings), client));
+            return new SvnRepository(projectDir, settings.getProtocol(), makeSvnUrl(settings), client);
         }
         catch (UnsupportedSettingException e) {
-            Debug.reportError("SubversionProvider.getRepository", e);
-            return new RepositoryOrError(new TeamworkCommandError(e.getMessage(), e.getLocalizedMessage()));
+            Debug.reportError("Unsupported Subversion Repository Settings " + e.getMessage());
+            throw new UnsupportedSettingException(e.getLocalizedMessage());
         }
     }
     

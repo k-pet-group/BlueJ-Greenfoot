@@ -66,7 +66,7 @@ public interface TeamworkProvider
     /**
      * Get a repository from the given settings
      */
-    RepositoryOrError getRepository(File projectDir, TeamSettings settings);
+    Repository getRepository(File projectDir, TeamSettings settings) throws UnsupportedSettingException;
     
     /**
      * Checks if the repository needs the name of the user

@@ -244,6 +244,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
 
         java.prependLine(Arrays.asList((JavaFragment) f(frame, "")), null);
         Utility.backwards(CodeElement.toJavaCodes(imports)).forEach(imp -> java.prepend(imp));
+        java.prependLine(Collections.singletonList(f(frame, "import lang.stride.*;")), null);
 
         if (!packageName.equals(""))
             java.prependLine(Arrays.asList(f(frame, "package " + packageName + ";")), null);
