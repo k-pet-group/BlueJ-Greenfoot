@@ -521,7 +521,8 @@ public class BlueJSyntaxView
 
             while (curLine <= lastLine) {
 
-                ScopeInfo scope = new ScopeInfo(EnumSet.noneOf(ParagraphAttribute.class));
+                // curLine is zero-based, but getParagraphAttributes is one-based:
+                ScopeInfo scope = new ScopeInfo(getParagraphAttributes(curLine + 1));
                 scopes.add(scope);
 
                 if (prevScopeStack.isEmpty()) {
@@ -1577,6 +1578,7 @@ public class BlueJSyntaxView
         if (changes == null) {
             // Width has changed, so do it all:
             nodeIndents.clear();
+            imageCache.clear();
             document.recalculateAllScopes();
             return;
         }
@@ -1780,7 +1782,7 @@ public class BlueJSyntaxView
      */
     public Map<Integer, EnumSet<ParagraphAttribute>> setParagraphAttributes(int lineNumber, Map<ParagraphAttribute, Boolean> alterAttr)
     {
-        EnumSet<ParagraphAttribute> attr = getParaAttr(lineNumber);
+        EnumSet<ParagraphAttribute> attr = getParagraphAttributes(lineNumber);
         boolean changed = false;
         for (Entry<ParagraphAttribute, Boolean> alter : alterAttr.entrySet())
         {
@@ -1838,18 +1840,12 @@ public class BlueJSyntaxView
     /**
      * Gets the paragraph attributes for a particular line.  If none found, returns the empty set.
      * The set is the live set in the map, so updating it will affect the stored attributes for the line.
+     *
+     * First line is one.
      */
-    private EnumSet<ParagraphAttribute> getParaAttr(int lineNumber)
+    EnumSet<ParagraphAttribute> getParagraphAttributes(int lineNumber)
     {
         return paragraphAttributes.computeIfAbsent(lineNumber, k -> EnumSet.noneOf(ParagraphAttribute.class));
-    }
-
-    /**
-     * First line is one
-     */
-    public EnumSet<ParagraphAttribute> getParagraphAttributes(int lineNo)
-    {
-        return paragraphAttributes.getOrDefault(lineNo, EnumSet.noneOf(ParagraphAttribute.class));
     }
 
     /**
@@ -1943,6 +1939,7 @@ public class BlueJSyntaxView
 
         private final List<SingleNestedScope> nestedScopes = new ArrayList<>();
         private final EnumSet<ParagraphAttribute> attributes;
+        // If a scope needs repainting later, we mark as incomplete:
         private boolean incomplete = false;
 
         public ScopeInfo(EnumSet<ParagraphAttribute> attributes)
@@ -2024,6 +2021,17 @@ public class BlueJSyntaxView
             result = 31 * result + attributes.hashCode();
             result += isIncomplete() ? 1 : 0;
             return result;
+        }
+
+        // Mainly for debugging
+        @Override
+        public String toString()
+        {
+            return "ScopeInfo{" +
+                    "nestedScopes=" + nestedScopes +
+                    ", attributes=" + attributes +
+                    ", incomplete=" + incomplete +
+                    '}';
         }
     }
 
