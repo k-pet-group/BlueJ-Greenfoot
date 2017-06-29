@@ -367,9 +367,17 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
                         e.getCode() != KeyCode.ALT && e.getCode() != KeyCode.ALT_GRAPH && e.getCode() != KeyCode.META &&
                         e.getCode() != KeyCode.COMMAND)
                 {
-                    setResult(new KeyCodeCombination(e.getCode(), mod(e.isShiftDown()), mod(e.isControlDown()), mod(e.isAltDown()), mod(e.isMetaDown()), ModifierValue.ANY));
+                    // So, on Mac it seems that if we directly call setResult,
+                    // the JVM crashes!  It seems this can be avoided by doing the setResult
+                    // and hide in a runLater, so that's what we'll have to go with.
+                    // Do not remove unless you've tested on Mac using the application bundle
+                    // (JVM crash does not occur when running from IntelliJ, only from final built
+                    // and signed RC .app bundle):
+                    JavaFXUtil.runAfterCurrent(() -> {
+                        setResult(new KeyCodeCombination(e.getCode(), mod(e.isShiftDown()), mod(e.isControlDown()), mod(e.isAltDown()), mod(e.isMetaDown()), ModifierValue.ANY));
+                        hide();
+                    });
                     e.consume();
-                    hide();
                 }
 
             });
