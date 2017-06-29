@@ -467,7 +467,6 @@ public class SuggestionList
         docPane.setMinWidth(400.0);
         docPane.setMaxHeight(300.0);
         docPane.setBackground(null);
-        docPane.setMouseTransparent(true);
         
         BorderPane listAndDocBorderPane = new BorderPane();
         JavaFXUtil.addStyleClass(listAndDocBorderPane, "suggestion-top-level");
@@ -608,7 +607,12 @@ public class SuggestionList
             }
             e.consume();
         });
-        listBox.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+        // Add listener to listAndDocBorderPane not listBox, so that
+        // keypresses when the doc pane scroll is focused are still used
+        // to move the list, not the scroll bar.  Otherwise, once you click on
+        // the doc scroll bar, there's no obvious way to make up/down change
+        // back to scrolling the list (which is what the user expects in this window):
+        listAndDocBorderPane.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
             switch (e.getCode())
             {
                 case UP:
