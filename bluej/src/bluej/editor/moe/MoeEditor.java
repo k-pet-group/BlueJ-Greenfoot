@@ -1884,6 +1884,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
     FindNavigator doFind(String searchFor, boolean ignoreCase)
     {
         removeSearchHighlights();
+        // Deselect existing selection in case it's no longer a valid search result.
+        // Move back to beginning of selection:
+        sourcePane.moveTo(Math.min(sourcePane.getAnchor(), sourcePane.getCaretPosition()));
         lastSearchString = searchFor;
         String content = sourcePane.getText();
 
