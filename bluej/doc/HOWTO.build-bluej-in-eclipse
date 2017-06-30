@@ -162,7 +162,8 @@ Alternatively:
 
 4. Configuring and running ant
 
-   * Edit the bluej/build.properties file to set local paths.  
+   * Copy the bluej/build.properties.template file to
+     bluej/build.properties and set local paths.
 
      Eclipse likes to open the file build.properties with a "Build
      Configuration" editor - you don't want that.  Right-click and

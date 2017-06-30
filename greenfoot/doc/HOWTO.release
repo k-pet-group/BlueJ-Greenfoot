@@ -1,6 +1,7 @@
 Prerequisites:
  build.properties in both the greenfoot and bluej source directories should be 
- modified to match your configuration.
+ modified to match your configuration.  (For BlueJ, copy build.properties.template
+ to build.properties and then edit.)
 
 
 Building Greenfoot RC:
