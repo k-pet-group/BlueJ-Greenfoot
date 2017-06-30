@@ -1884,6 +1884,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
     FindNavigator doFind(String searchFor, boolean ignoreCase)
     {
         removeSearchHighlights();
+        // Deselect existing selection in case it's no longer a valid search result.
+        // Move back to beginning of selection:
+        sourcePane.moveTo(Math.min(sourcePane.getAnchor(), sourcePane.getCaretPosition()));
         lastSearchString = searchFor;
         String content = sourcePane.getText();
 
@@ -1926,6 +1929,11 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 int pos = sourcePane.getSelection().getStart();
                 sourceDocument.replace(pos, searchFor.length(), replacement);
                 sourcePane.setCaretPosition(pos + searchFor.length());
+                // For some reason, after a replacement, the request to follow caret doesn't
+                // work.  I think it's because the document content has changed.  A simple
+                // runAfterCurrent doesn't work either.  So although it's hacky, we use a delayed
+                // action.  We can queue it up now:
+                JavaFXUtil.runAfter(Duration.millis(200), () -> sourcePane.requestFollowCaret());
                 return doFind(searchFor, ignoreCase);
             }
 

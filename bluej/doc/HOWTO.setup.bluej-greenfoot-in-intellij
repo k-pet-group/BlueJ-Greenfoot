@@ -86,11 +86,9 @@ In Project tab on left-hand side (show by hovering over very bottom-left icon in
   find bluej/build.xml.  Right-click on it and select "Add as Ant build file" (near bottom).
   Do the same for greenfoot/build.xml.
 
-Edit bluej/build.properties to set build_java_home to be the path of your JDK.  On Windows,
-  use forward slashes in paths to avoid issues.  You will want to make sure you don't commit
-  build.properties; the easiest way to do this is once it is edited, select it in the Version Control
-  pane, right click and select "Move to Another Changelist..." then call the new change list "Ignore".
-  Then, just never commit the Ignore change list; always work from the Default or another change list.
+Copy bluej/build.properties.template to bluej/build.properties and edit
+  to set build_java_home to be the path of your JDK.  On Windows,
+  use forward slashes in paths to avoid issues.
 
 Finally, set up the run configurations.  Go to Run menu > Edit Configurations...
 Click the "+" in top-left to add new config, select Application from drop-down menu.
