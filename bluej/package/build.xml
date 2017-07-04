@@ -648,8 +648,7 @@
             <zipfileset dir="${bluej_home}" defaultexcludes="yes">
 	            <include name="src/**/*.java" />       
 	            <include name="boot/src/**/*.java" />       
-	            <include name="boot/src/bluej/splash.png" />
-                <include name="boot/src/bluej/splash@2x.png" />
+	            <include name="boot/src/bluej/*.png" />
                 <include name="threadchecker/src/**/*" />
                 <include name="threadchecker/pluginsrc/**/*" />
 	            <include name="doc/HOWTO.*" />    
@@ -687,8 +686,10 @@
 	            <exclude name="package/install_tmp/"/>
 	            <include name="test/**/*"/>
             	<exclude name="test/classes/**"/>
+            	<include name="util/**/*.java"/>
 	            <include name="build.properties"/>   
 	            <include name="build.xml"/>  
+	            <include name="shared.xml"/>  
 	            <exclude name="**/.*"/>
 	        </zipfileset>
         </zip>
