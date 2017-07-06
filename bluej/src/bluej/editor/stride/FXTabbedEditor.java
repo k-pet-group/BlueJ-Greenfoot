@@ -602,6 +602,11 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     @OnThread(Tag.FXPlatform)
     public void openWebViewTab(String url)
     {
+        openWebViewTab(url, false);
+    }
+    @OnThread(Tag.FXPlatform)
+    public void openWebViewTab(String url, boolean enableTutorial)
+    {
         // First, check if any tab is already showing that URL:
         try
         {
@@ -626,7 +631,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
             Debug.reportError("Error in URI when opening web view tab: \"" + url + "\"");
         }
 
-        addTab(new WebTab(url), true, true);
+        addTab(new WebTab(url, enableTutorial), true, true);
     }
 
     /**

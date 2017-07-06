@@ -21,12 +21,16 @@
  */
 package bluej.editor.stride;
 
-import javax.swing.*;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import bluej.pkgmgr.target.EditableTarget;
+import bluej.utility.Debug;
 import bluej.utility.Utility;
 import javafx.beans.value.ObservableStringValue;
+import javafx.collections.ObservableList;
+import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -35,12 +39,25 @@ import javafx.scene.control.Tab;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.StrokeType;
 import javafx.scene.web.WebView;
 
 import bluej.Config;
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.stage.Popup;
+import javafx.stage.PopupWindow;
+import javafx.stage.Window;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.events.EventTarget;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import javax.swing.*;
+
 
 /**
  * A tab in the FXTabbedEditor which just contains a WebView.
@@ -57,14 +74,16 @@ public class WebTab extends FXTab
      * @param url The initial URL to display in the WebView.
      */
     @OnThread(Tag.FXPlatform)
-    public WebTab(String url)
+    public WebTab(String url, boolean enableTutorial)
     {
         super(false);
         browser = new WebView();
+        if (enableTutorial)
+            setupTutorialMangler();
         browser.getEngine().load(url);
         // When user selects Open in New Window, make a new web tab and open there:
         browser.getEngine().setCreatePopupHandler(p -> {
-            WebTab newTab = new WebTab(null);
+            WebTab newTab = new WebTab(null, enableTutorial);
             parent.addTab(newTab, true, true);
             return newTab.browser.getEngine();
         });
@@ -158,5 +177,75 @@ public class WebTab extends FXTab
     public void notifyUnselected()
     {
         // Nothing to do
+    }
+
+    private void setupTutorialMangler()
+    {
+        JavaFXUtil.addChangeListenerPlatform(this.browser.getEngine().documentProperty(), doc -> {
+            if (doc != null)
+            {
+                // First find the anchors.
+                NodeList anchors = doc.getElementsByTagName("a");
+                for (int i = 0; i < anchors.getLength(); i++)
+                {
+                    org.w3c.dom.Node anchorItem = anchors.item(i);
+                    org.w3c.dom.Node anchorHref = anchorItem.getAttributes().getNamedItem("href");
+                    if (anchorHref != null && anchorHref.getNodeValue() != null)
+                    {
+                        if (anchorHref.getNodeValue().startsWith("class:"))
+                        {
+                            ((EventTarget) anchorItem).addEventListener("click", e ->
+                            {
+                                Debug.message("Anchor clicked");
+                                ((EditableTarget) parent.getProject().getTarget(anchorHref.getNodeValue().substring("class:".length()).trim())).getEditor().setEditorVisible(true);
+                                e.stopPropagation();
+                            }, true);
+                        }
+                        else if (anchorHref.getNodeValue().startsWith("guicss:"))
+                        {
+                            String nodeCSS = anchorHref.getNodeValue().substring("guicss:".length());
+                            ((EventTarget) anchorItem).addEventListener("click", e ->
+                            {
+                                @OnThread(Tag.FXPlatform) Window pkgMgrWindow = parent.getProject().getPackage("").getEditor().getFXWindow();
+                                Node n = pkgMgrWindow.getScene().lookup(nodeCSS);
+                                if (n != null)
+                                {
+                                    // We can't have one popup that's hollow in the middle, so we have one per side:
+                                    Bounds screenBounds = n.localToScreen(n.getBoundsInLocal());
+                                    Rectangle[] rects = new Rectangle[] {
+                                        new Rectangle(screenBounds.getWidth() + 20, 5), // top
+                                        new Rectangle(5, screenBounds.getHeight() + 20), // right
+                                        new Rectangle(screenBounds.getWidth() + 20, 5), // bottom
+                                        new Rectangle(5, screenBounds.getHeight() + 20) // left
+                                    };
+                                    Popup[] overlays = new Popup[4];
+                                    for (int j = 0; j < 4; j++)
+                                    {
+                                        rects[j].setFill(Color.RED);
+                                        overlays[j] = new Popup();
+                                        overlays[j].getContent().setAll(rects[j]);
+                                    }
+
+                                    overlays[0].show(pkgMgrWindow, screenBounds.getMinX() - 10, screenBounds.getMinY() - 10);
+                                    overlays[1].show(pkgMgrWindow, screenBounds.getMaxX() + 5, screenBounds.getMinY() - 10);
+                                    overlays[2].show(pkgMgrWindow, screenBounds.getMinX() - 10, screenBounds.getMaxY() + 5);
+                                    overlays[3].show(pkgMgrWindow, screenBounds.getMinX() - 10, screenBounds.getMinY() - 10);
+
+                                    n.addEventFilter(MouseEvent.MOUSE_PRESSED, ev -> {
+                                        for (Popup overlay : overlays)
+                                        {
+                                            overlay.hide();
+                                        }
+                                    });
+
+                                    //org.scenicview.ScenicView.show(overlay.getScene());
+                                }
+                                e.stopPropagation();
+                            }, true);
+                        }
+                    }
+                }
+            }
+        });
     }
 }

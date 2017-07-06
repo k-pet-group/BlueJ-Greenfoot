@@ -551,6 +551,19 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
 
         PrefMgr.addRecentProject(proj.getProjectDir());
 
+        File tutorialFile = new File(proj.getProjectDir(), "tutorial.html");
+        if (tutorialFile.exists())
+        {
+            try
+            {
+                proj.getDefaultFXTabbedEditor().openWebViewTab(tutorialFile.toURI().toURL().toString(), true);
+            }
+            catch (MalformedURLException e)
+            {
+                Debug.reportError(e);
+            }
+        }
+
         return proj;
     }
 
