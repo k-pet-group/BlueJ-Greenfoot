@@ -365,6 +365,7 @@ public class PkgMgrFrame
             //topPane.setMinHeight(minSize.getHeight());
             topPane.setLeft(toolPanel);
             TriangleArrow triangleLabel = new TriangleArrow(Orientation.HORIZONTAL);
+            JavaFXUtil.addStyleClass(triangleLabel, "codepad-fold-arrow");
             StackPane.setAlignment(triangleLabel, Pos.CENTER_RIGHT);
             StackPane.setMargin(triangleLabel, new Insets(0, 5, 0, 0));
             triangleLabel.setOnMouseClicked(e -> {

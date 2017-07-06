@@ -253,6 +253,7 @@ public class ClassTarget extends DependentTarget
         }
 
         JavaFXUtil.addStyleClass(pane, "class-target");
+        JavaFXUtil.addStyleClass(pane, "class-target-id-" + baseName);
 
         nameLabel = new Label(baseName);
         JavaFXUtil.addStyleClass(nameLabel, "class-target-name");

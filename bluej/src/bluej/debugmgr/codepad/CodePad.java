@@ -381,6 +381,7 @@ public class CodePad extends VBox
         JavaFXUtil.addStyleClass(this, "codepad");
         setMinWidth(100.0);
         inputField = new TextField();
+        JavaFXUtil.addStyleClass(inputField, "codepad-input");
         inputField.setFocusTraversable(true);
         inputField.setEditable(true);
         historyView = new ListView<>();

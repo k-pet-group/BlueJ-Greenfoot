@@ -206,6 +206,7 @@ public class WebTab extends FXTab
                             String nodeCSS = anchorHref.getNodeValue().substring("guicss:".length());
                             ((EventTarget) anchorItem).addEventListener("click", e ->
                             {
+                                // TODO clear all previous popups
                                 @OnThread(Tag.FXPlatform) Window pkgMgrWindow = parent.getProject().getPackage("").getEditor().getFXWindow();
                                 Node n = pkgMgrWindow.getScene().lookup(nodeCSS);
                                 if (n != null)
@@ -237,6 +238,8 @@ public class WebTab extends FXTab
                                             overlay.hide();
                                         }
                                     });
+
+                                    Utility.bringToFrontFX(pkgMgrWindow);
 
                                     //org.scenicview.ScenicView.show(overlay.getScene());
                                 }
