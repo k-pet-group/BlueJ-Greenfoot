@@ -25,6 +25,8 @@ import javax.swing.SwingUtilities;
 
 import bluej.Config;
 import bluej.pkgmgr.PkgMgrFrame;
+import bluej.utility.javafx.JavaFXUtil;
+import javafx.scene.control.Button;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -48,5 +50,13 @@ final public class EndTestRecordAction extends PkgMgrAction
     public void actionPerformed(PkgMgrFrame pmf)
     {
         pmf.doEndTest();
+    }
+
+    @Override
+    public Button makeButton()
+    {
+        Button b = super.makeButton();
+        JavaFXUtil.addStyleClass(b, "pmf-test-end-button");
+        return b;
     }
 }

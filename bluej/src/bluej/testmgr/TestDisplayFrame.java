@@ -272,6 +272,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         showSourceButton = new Button(Config.getString("testdisplay.showsource"));
         showSourceButton.setOnAction(e -> showSource(testNames.getSelectionModel().getSelectedItem()));
         showSourceButton.setDisable(true);
+        JavaFXUtil.addStyleClass(showSourceButton, "test-show-source");
 
         Button closeButton = new Button(Config.getString("close"));
         closeButton.setOnAction(e -> frame.hide());
