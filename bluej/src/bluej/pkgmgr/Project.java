@@ -556,7 +556,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         {
             try
             {
-                proj.getDefaultFXTabbedEditor().openWebViewTab(tutorialFile.toURI().toURL().toString(), true);
+                proj.createNewFXTabbedEditor().openWebViewTab(tutorialFile.toURI().toURL().toString(), true);
             }
             catch (MalformedURLException e)
             {
