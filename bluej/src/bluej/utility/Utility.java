@@ -366,8 +366,9 @@ public class Utility
         }
         else {
             Exception exception = null;
-            
-            if (Desktop.isDesktopSupported()) {
+
+            // Linux has a bug in Desktop class, see bug BLUEJ-1039, so don't use it.
+            if (!Config.isLinux() && Desktop.isDesktopSupported()) {
                 try {
                     Desktop.getDesktop().browse(url.toURI());
                 }
