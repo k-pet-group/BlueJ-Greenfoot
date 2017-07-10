@@ -117,7 +117,15 @@ class AboutBlueJ extends Dialog<Void>
         debugLogShow.setOnAction(e -> SwingUtilities.invokeLater(() -> {
             try
             {
-                Desktop.getDesktop().open(Config.getUserConfigDir());
+                // Linux has a bug in Desktop class, see bug BLUEJ-1039
+                if (!Config.isLinux() && Desktop.isDesktopSupported())
+                {
+                    Desktop.getDesktop().open(Config.getUserConfigDir());
+                }
+                else if (Config.isLinux())
+                {
+                    Runtime.getRuntime().exec(new String[] {"xdg-open", Config.getUserConfigDir().getAbsolutePath()});
+                }
             }
             catch (IOException ex)
             {
