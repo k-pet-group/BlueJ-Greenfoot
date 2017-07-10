@@ -2082,6 +2082,8 @@ public final class Package
     /**
      * A thread has hit a breakpoint, done a step or selected a frame in the debugger. Display the source
      * code with the relevant line highlighted.
+     *
+     * Note: source name is the unqualified name of the file (no path attached)
      */
     private boolean showSource(DebuggerThread thread, String sourcename, int lineNo, ShowSourceReason reason, String msg)
     {
@@ -2089,7 +2091,7 @@ public final class Package
         lastSourceName = sourcename;
 
         // showEditorMessage:
-        Editor targetEditor = editorForTarget(sourcename, bringToFront);
+        Editor targetEditor = editorForTarget(new File(getPath(), sourcename).getAbsolutePath(), bringToFront);
         if (targetEditor != null) {
             targetEditor.setStepMark(lineNo, msg, reason.isSuspension(), thread);
             return targetEditor instanceof FrameEditor;
@@ -2153,7 +2155,7 @@ public final class Package
      * currently visible. If the source file is in another package, a package editor frame will be
      * opened for that package.
      * 
-     * @param filename   The source file name
+     * @param filename   The source file name, which should be a full absolute path
      * @param bringToFront  True if the editor should be brought to the front of the window z-order
      * @return  The editor for the given source file, or null if there is no editor.
      */
