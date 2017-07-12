@@ -1823,6 +1823,11 @@ public final class MoeEditor extends ScopeColorsBorderPane
         return found;
     }
 
+    public void showPreferences(int paneIndex)
+    {
+        watcher.showPreferences(paneIndex);
+    }
+
 
     /**
      * An interface for dealing with search results.

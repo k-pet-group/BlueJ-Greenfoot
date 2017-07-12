@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import bluej.BlueJTheme;
+import bluej.pkgmgr.Project;
 import bluej.utility.Utility;
 import bluej.utility.javafx.SwingNodeFixed;
 import javafx.application.Platform;
@@ -79,14 +80,15 @@ public class PrefMgrDialog
     
     /** Indicates whether the dialog has been prepared for display. */
     private boolean prepared = false;
+    private Project curProject; // can be null
 
     /**
      * Show the preferences dialog when ready.  The dialog
      * may not be visible yet when this method returns.
      */
-    public static void showDialog()
+    public static void showDialog(Project project)
     {
-        getInstance().prepareDialogThen(() -> {
+        getInstance().prepareDialogThen(project, () -> {
             dialog.window.show();
             // Work around bug where every other time dialog is shown, it would have wrong size:
             dialog.tabbedPane.getScene().getWindow().sizeToScene();
@@ -99,8 +101,8 @@ public class PrefMgrDialog
      * 
      * @param paneNumber The index of the pane to show
      */
-    public static void showDialog(int paneNumber) {
-        getInstance().prepareDialogThen(() -> {
+    public static void showDialog(Project project, int paneNumber) {
+        getInstance().prepareDialogThen(project, () -> {
             dialog.selectTab(paneNumber);
             dialog.window.show();
             // Work around bug where every other time dialog is shown, it would have wrong size:
@@ -111,7 +113,7 @@ public class PrefMgrDialog
      * Prepare this dialog for display then run the given action.
      */
     @OnThread(Tag.FXPlatform)
-    private void prepareDialogThen(FXPlatformRunnable runnable)
+    private void prepareDialogThen(Project project, FXPlatformRunnable runnable)
     {
         if (!prepared)
         {
@@ -120,12 +122,12 @@ public class PrefMgrDialog
             else
             {
                 // Will only get called when it becomes true:
-                JavaFXUtil.addSelfRemovingListener(prefPanesCreated, b -> JavaFXUtil.runNowOrLater(() -> prepareDialogThen(runnable))); 
+                JavaFXUtil.addSelfRemovingListener(prefPanesCreated, b -> JavaFXUtil.runNowOrLater(() -> prepareDialogThen(project, runnable)));
                 return;
             }
             prepared = true;
         }
-        dialog.startEditing();
+        dialog.startEditing(project);
         runnable.run();
     }
 
@@ -222,11 +224,12 @@ public class PrefMgrDialog
         titles.add(index, title);
     }
 
-    private void startEditing()
+    private void startEditing(Project project)
     {
+        curProject = project;
         for (Iterator<PrefPanelListener> i = listeners.iterator(); i.hasNext(); ) {
             PrefPanelListener ppl = i.next();
-            ppl.beginEditing();
+            ppl.beginEditing(project);
         }        
     }
 
@@ -266,7 +269,7 @@ public class PrefMgrDialog
                 for (Iterator<PrefPanelListener> i = listeners.iterator(); i.hasNext(); )
                 {
                     PrefPanelListener ppl = i.next();
-                    ppl.commitEditing();
+                    ppl.commitEditing(curProject);
                 }
                 return null;
             }
@@ -274,7 +277,7 @@ public class PrefMgrDialog
             {
                 for (Iterator<PrefPanelListener> i = listeners.iterator(); i.hasNext(); ) {
                     PrefPanelListener ppl = i.next();
-                    ppl.revertEditing();
+                    ppl.revertEditing(curProject);
                 }
             }
             return null;

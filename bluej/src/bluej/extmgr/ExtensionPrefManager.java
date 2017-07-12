@@ -22,7 +22,6 @@
 package bluej.extmgr;
 
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -32,6 +31,7 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
+import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefPanelListener;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -174,14 +174,14 @@ public class ExtensionPrefManager implements PrefPanelListener
      * Needed only to satisfy the implements
      */
     @OnThread(Tag.FXPlatform)
-    public void beginEditing()  {  }
+    public void beginEditing(Project project)  {  }
     
     
     /*
      * Called by the system when it is time to reload the panel values
      */
     @OnThread(Tag.FXPlatform)
-    public void revertEditing() 
+    public void revertEditing(Project project)
     {
         SwingUtilities.invokeLater(() -> doWorkLoop(DO_loadValues));
     }
@@ -190,7 +190,7 @@ public class ExtensionPrefManager implements PrefPanelListener
      * Called by the system when the user has pressed the OK buton
      */
     @OnThread(Tag.FXPlatform)
-    public void commitEditing()
+    public void commitEditing(Project project)
     {
         SwingUtilities.invokeLater(() -> doWorkLoop(DO_saveValues));
     }

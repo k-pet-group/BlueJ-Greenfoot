@@ -125,4 +125,6 @@ public interface EditorWatcher
      * Notifies watcher whether we are showing the interface (docs) or not
      */
     void showingInterface(boolean showingInterface);
+
+    void showPreferences(int paneIndex);
 }

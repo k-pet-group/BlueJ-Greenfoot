@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.cell.TextFieldListCell;
@@ -243,16 +242,16 @@ implements PrefPanelListener
         }
     }
 
-    public void beginEditing()
+    public void beginEditing(Project project)
     {
     }
 
-    public synchronized void revertEditing()
+    public synchronized void revertEditing(Project project)
     {
         editingUserLibraries.setAll(savedUserLibraries);
     }
 
-    public void commitEditing()
+    public void commitEditing(Project project)
     {
         if (classPathModified) {
             DialogManager.showMessageFX(null, "classmgr-changes-no-effect");
