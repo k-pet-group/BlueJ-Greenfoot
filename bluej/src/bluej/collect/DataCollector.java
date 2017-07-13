@@ -135,8 +135,7 @@ public class DataCollector
             changeOptInOut(Boot.isTrialRecording());
         }
 
-        // Temporarily for 4.0.0-preview, do not send to Blackbox:
-        recordingThisSession = false; //uuidValidForRecording();
+        recordingThisSession = uuidValidForRecording();
         
         if (recordingThisSession)
         {
