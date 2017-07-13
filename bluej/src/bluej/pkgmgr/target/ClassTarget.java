@@ -33,6 +33,7 @@ import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerResult;
+import bluej.debugger.RunOnThread;
 import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.editor.Editor;
@@ -1919,6 +1920,16 @@ public class ClassTarget extends DependentTarget
                 menu.getItems().add(JavaFXUtil.withStyleClass(JavaFXUtil.makeMenuItem(launchFXStr,() -> {
                     PackageEditor ed = getPackage().getEditor();
                     Window fxWindow = ed.getFXWindow();
+                    if (getPackage().getProject().getRunOnThread() == null)
+                    {
+                        // We've never asked if they want to run on FX; ask now
+                        int result = DialogManager.askQuestionFX(fxWindow, "run-on-fx");
+                        if (result == 0)
+                            getPackage().getProject().setRunOnThread(RunOnThread.FX);
+                        else
+                            getPackage().getProject().setRunOnThread(RunOnThread.DEFAULT);
+                    }
+
                     CompletableFuture<FXPlatformSupplier<DebuggerResult>> result = getPackage().getDebugger().launchFXApp(cl.getName());
                     putFXLaunchResult(ed, fxWindow, result);
                 }, null), MENU_STYLE_INBUILT));

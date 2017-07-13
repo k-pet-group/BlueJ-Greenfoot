@@ -571,6 +571,12 @@ execution (or inspect a class) until the execution finishes. If
 the program is stuck in a loop, you can use the debugger to
 terminate it.
 
+run-on-fx
+This project uses JavaFX.  Would you like BlueJ to run all future method invocations in this project on the JavaFX thread, to avoid threading exceptions?  You can change this option later in the Preferences.  If unsure, say "Use JavaFX thread".
+Use JavaFX thread
+Use separate thread
+null
+
 SVNWorkingCopyNot16
 This project has Subversion meta-data in a format which BlueJ
 might not fully support. (This could be the case if the project
@@ -582,3 +588,4 @@ folder.
     
 If you continue to work with this project, some Teamwork functions
 (status, commit etc) may not function properly. 
+

@@ -302,7 +302,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         debugger.newClassLoader(getClassLoader());
         debugger.addDebuggerListener(this);
         // Note: this line must come after setProjectProperties (currently above):
-        debugger.setRunOnThread(getRunOnThread());
+        debugger.setRunOnThread(getRunOnThread() == null ? RunOnThread.DEFAULT : getRunOnThread());
         debugger.launch();
 
         // Check whether this is a shared project
