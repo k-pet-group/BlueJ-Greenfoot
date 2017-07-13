@@ -29,7 +29,7 @@
   \begin{center}
     \includegraphics[width=10cm]{../../lib/images/bluej-icon-256.png}\\
     \huge BlueJ Blackbox Data Collection\\~\\Researchers' Handbook
-    (version 1.7, ? January 2016)
+    (version 1.7, ? July 2017)
   \end{center}
 \end{titlepage}
 
@@ -506,7 +506,7 @@ appear some time after the actual relevant source code edit takes place.
 The event will always have exactly one associated entry in the
 \tabref{source_histories}, which will be a |rename| event.
 
-\subsection{\lstinline!"stride_converted_to_java"!}
+\subsection{\lstinline!"stride_converted_to_java"! (since BlueJ 4.x)}
 
 This event will have a |package_id|, which indicates which package the file
 was renamed in.
@@ -559,14 +559,13 @@ that entry in the |compile_events| table, will be linked to by one or more
 |compile_inputs| and zero or more |compile_outputs|, but see the
 \tabref{compile_events} for more details.)
 
-Note that compilation will undergo an overhaul in BlueJ 4.0.0, and has already
-changed in Greenfoot 3.0.0.  In Greenfoot 3.0.0 onwards, compilation is performed
+Note that compilation has undergone an overhaul in BlueJ 4.x.  In BlueJ 4.x onwards, compilation is performed
 automatically in a number of different cases.  This is/will be documented in the new
 reason column in the \tabref{compile_events}.
 
-\subsection{\lstinline!"shown_error_indicator"!}
+\subsection{\lstinline!"shown_error_indicator"! (since BlueJ 4.x)}
 
-Since BlueJ 4.0.0 (and in Greenfoot 3.0.0 onwards), error display has changed.  Errors
+Since BlueJ 4.x, error display has changed.  Errors
 are no longer shown one at a time in BlueJ in the bottom pane.  Instead, red underlines
 throughout the code (in Java and Stride editors) indicate an error.  So when compilation
 has finished, the user will see one red underline for each error located.  (Where error locations
@@ -580,9 +579,9 @@ the error message: that is recorded by the |"shown_error_message"| event, below.
 The |sub_event_type| of |"shown_error_message"| events will be |"CompileOutput"| and the |sub_event_id|
 will contain an |id| from an entry in the \tabref{compile_outputs}.
 
-\subsection{\lstinline!"shown_error_message"!}
+\subsection{\lstinline!"shown_error_message"! (since BlueJ 4.x)}
 
-For BlueJ 4.0.0 and Greenfoot, a |"shown_error_message"| master event is generated when the user is
+For BlueJ 4.x, a |"shown_error_message"| master event is generated when the user is
 actually shown the text of the error message, by using keyboard or mouse focus to hover in
 the location of the red underline.  Each error (which is stored in the \tabref{compile_outputs}, below)
 will only get an |"shown_error_message"| event generated once, the first time it is shown.  If another
@@ -597,7 +596,7 @@ correcting a typo in a variable name).  In this case, there will be entries reco
 \tabref{quick_fixes} table.  If one of these fixes is executed it will lead to a |"fix_executed"|
 event being generated.
 
-\subsection{\lstinline!"fix_executed"!}
+\subsection{\lstinline!"fix_executed"! (since BlueJ 4.x)}
 
 As described in the previous section, a Stride error may be shown along with some suggested quick
 fixes.  These are recorded in the \tabref{quick_fixes}.  If the user selects to execute one
@@ -612,8 +611,7 @@ The |compile_events| table records whether the compilation was a success
 %schema:compile_events
 
 The |compile_events| may then be linked to by entries in the |compile_inputs| and
-|compile_outputs| table.  Note that the reason column is not yet added to the main
-Blackbox project, but will be soon.  It is available for Greenfoot recordings.
+|compile_outputs| table.  The reason column was added in BlueJ 4.x.
 Possible values for reason are:
 
 \begin{itemize}
@@ -661,7 +659,7 @@ give start/end character locations within that item.  For Java errors in Stride 
 occur in compilation, the error points to the Java file, fills in the start/end line/column fields
 and fills in the |xpath|, |xml_start| and |xml_end| fields.
 
-Since BlueJ 4.0.0, which shows errors as a red underline, all Java errors are marked
+Since BlueJ 4.x, which shows errors as a red underline, all Java errors are marked
 as shown (unless there is an unexpected problem, such as an invalid location) in
 this table, but see the details on the |"shown_error_indicator"| and
 |"shown_error_message"| events above, especially for Stride.
@@ -1113,7 +1111,7 @@ project.  So files that are within packages will have a path with the
 parent package names as directories (which may use forward slash or
 backslash for separation).
 
-The forthcoming |source_type| field will be either |"java"| or |"stride"|.
+The |source_type| field will be either |"java"| or |"stride"|.
 In the case of a Stride class, there will be two entries in the source files
 table: one for the Stride file and one for the Java file.  They will be linked
 by the |generated_from_source_file_id| of the Java file pointing to the |id| of the
