@@ -1,0 +1,32 @@
+body {
+    font-family: 'Source Sans Pro';
+    font-size: 14pt;
+
+    margin: 0;
+}
+p {
+    margin: 10px;
+}
+h1, h2 {
+    margin: 1em 0 0.5em 10px;
+}
+
+code {font-family: 'Roboto Mono';}
+.menu {background-color: #eee;}
+a {color: cornflowerblue; text-decoration: none;}
+a:hover {text-decoration: underline;}
+a::after {content : "\00219D";}
+.part-links a::after { content: "";}
+a.part::after { content: "";}
+
+div.part-links {
+    background-color: steelblue;
+}
+div.part-links a {
+    display:inline-block;
+    padding: 1em 2em 1em 2em;
+    color: white;
+}
+div.part-links a:hover {
+    background-color: derive(steelblue, 10%);
+}
