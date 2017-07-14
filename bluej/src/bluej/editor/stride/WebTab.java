@@ -203,12 +203,21 @@ public class WebTab extends FXTab
                         }
                         else if (anchorHref.getNodeValue().startsWith("guicss:"))
                         {
-                            String nodeCSS = anchorHref.getNodeValue().substring("guicss:".length());
                             ((EventTarget) anchorItem).addEventListener("click", e ->
                             {
+                                String nodeCSS = anchorHref.getNodeValue().substring("guicss:".length());
                                 // TODO clear all previous popups
-                                @OnThread(Tag.FXPlatform) Window pkgMgrWindow = parent.getProject().getPackage("").getEditor().getFXWindow();
-                                Node n = pkgMgrWindow.getScene().lookup(nodeCSS);
+                                final Window targetWindow;
+                                if (nodeCSS.startsWith("Terminal"))
+                                {
+                                    targetWindow = parent.getProject().getTerminal().getWindow();
+                                    nodeCSS = nodeCSS.substring("Terminal".length());
+                                }
+                                else
+                                {
+                                    targetWindow = parent.getProject().getPackage("").getEditor().getFXWindow();
+                                }
+                                Node n = targetWindow.getScene().lookup(nodeCSS);
                                 if (n != null)
                                 {
                                     // We can't have one popup that's hollow in the middle, so we have one per side:
@@ -227,10 +236,10 @@ public class WebTab extends FXTab
                                         overlays[j].getContent().setAll(rects[j]);
                                     }
 
-                                    overlays[0].show(pkgMgrWindow, screenBounds.getMinX() - 10, screenBounds.getMinY() - 10);
-                                    overlays[1].show(pkgMgrWindow, screenBounds.getMaxX() + 5, screenBounds.getMinY() - 10);
-                                    overlays[2].show(pkgMgrWindow, screenBounds.getMinX() - 10, screenBounds.getMaxY() + 5);
-                                    overlays[3].show(pkgMgrWindow, screenBounds.getMinX() - 10, screenBounds.getMinY() - 10);
+                                    overlays[0].show(targetWindow, screenBounds.getMinX() - 10, screenBounds.getMinY() - 10);
+                                    overlays[1].show(targetWindow, screenBounds.getMaxX() + 5, screenBounds.getMinY() - 10);
+                                    overlays[2].show(targetWindow, screenBounds.getMinX() - 10, screenBounds.getMaxY() + 5);
+                                    overlays[3].show(targetWindow, screenBounds.getMinX() - 10, screenBounds.getMinY() - 10);
 
                                     n.addEventFilter(MouseEvent.MOUSE_PRESSED, ev -> {
                                         for (Popup overlay : overlays)
@@ -239,7 +248,7 @@ public class WebTab extends FXTab
                                         }
                                     });
 
-                                    Utility.bringToFrontFX(pkgMgrWindow);
+                                    Utility.bringToFrontFX(targetWindow);
 
                                     //org.scenicview.ScenicView.show(overlay.getScene());
                                 }
