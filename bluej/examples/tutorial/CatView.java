@@ -7,7 +7,9 @@ import javafx.scene.Scene;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.layout.GridPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 /**
@@ -18,47 +20,31 @@ import javafx.stage.Stage;
  */
 public class CatView extends Application
 {
-    // We keep track of the count, and label displaying the count:
-    private int count = 0;
-    private Label myLabel = new Label("0");
+    private Image[] images;
+    private ImageView imageView;
+    private int curImage = 0;
 
     @Override
     public void start(Stage stage) throws Exception
     {
-        // Create a Button or any control item
-        Button myButton = new Button("Count");
-
-        // Create a new grid pane
-        GridPane pane = new GridPane();
-        pane.setPadding(new Insets(10, 10, 10, 10));
-        pane.setMinSize(300, 300);
-        pane.setVgap(10);
-        pane.setHgap(10);
-
-        //set an action on the button using method reference
-        myButton.setOnAction(this::buttonClick);
-
-        // Add the button and label into the pane
-        pane.add(myLabel, 1, 0);
-        pane.add(myButton, 0, 0);
-
-        // JavaFX must have a Scene (window content) inside a Stage (window)
-        Scene scene = new Scene(pane, 300,100);
-        stage.setTitle("JavaFX Example");
+        /*
+        images = new Image[] {
+            new Image("images/cat1.jpg"),
+            new Image("images/cat2.jpg"),
+            new Image("images/cat3.jpg")
+        };
+        imageView = new ImageView(images[curImage]);
+*/
+        BorderPane pane = new BorderPane(imageView);
+        pane.getStyleClass().add("image-wrapper");
+        Scene scene = new Scene(pane);
+        stage.setTitle("Cat Pictures");
         stage.setScene(scene);
+        stage.sizeToScene();
 
         // Show the Stage (window)
         stage.show();
+        
     }
 
-    /**
-     * This will be executed when the button is clicked
-     * It increments the count by 1
-     */
-    private void buttonClick(ActionEvent event)
-    {
-        // Counts number of button clicks and shows the result on a label
-        count = count + 1;
-        myLabel.setText(Integer.toString(count));
-    }
 }
