@@ -5,19 +5,29 @@ body {
     margin: 0;
 }
 p {
-    margin: 10px;
+    margin: 1em 0px 1em 15px;
 }
-h1, h2 {
-    margin: 1em 0 0.5em 10px;
+p, ul, ol, h1, h2, h3 {
+    max-width: 30em;
+}
+h1, h2, h3 {
+    margin: 1.5em 0 1em 15px;
 }
 
-code {font-family: 'Roboto Mono';}
+code, code > pre {
+    display: block;
+    font-family: 'Roboto Mono';
+    margin: 20px 0px 20px 40px;
+}
 .menu {background-color: #eee;}
 a {color: cornflowerblue; text-decoration: none;}
 a:hover {text-decoration: underline;}
 a::after {content : "\00219D";}
 .part-links a::after { content: "";}
 a.part::after { content: "";}
+
+a.part-prev::before {content: "\0025C0\0000A0\0000A0";}
+a.part-next::after {content: "\0000A0\0000A0\0025B6";}
 
 div.part-links {
     background-color: steelblue;
@@ -26,7 +36,10 @@ div.part-links a {
     display:inline-block;
     padding: 1em 2em 1em 2em;
     color: white;
+    min-width: 6em;
+    text-align:center;
 }
 div.part-links a:hover {
-    background-color: derive(steelblue, 10%);
+    background-color: #7eaacd;
+    text-decoration: none;
 }

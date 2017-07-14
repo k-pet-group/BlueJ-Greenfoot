@@ -1,3 +1,4 @@
+import java.io.*;
 import java.util.*;
 
 /**
@@ -58,7 +59,7 @@ public class Cat
     public void play() throws IOException
     {
         System.out.println("What will you get " + name + " to chase?");
-        String item = new BufferedReader(System.in).readLine();
+        String item = new BufferedReader(new InputStreamReader(System.in)).readLine();
         System.out.println(name + " chases the " + item);
     }
 }
