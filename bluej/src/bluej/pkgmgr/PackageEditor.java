@@ -1166,7 +1166,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
                     else
                         pkg.userAddExtendsClassDependency(subClassFinal, superClass);
                 }
-                pkg.compile(subClassFinal, CompileReason.MODIFIED, CompileType.INDIRECT_USER_COMPILE);
+                pkg.compile(subClassFinal, CompileReason.MODIFIED_EXTENDS, CompileType.INDIRECT_USER_COMPILE);
                 
                 stopNewInherits();
             }
