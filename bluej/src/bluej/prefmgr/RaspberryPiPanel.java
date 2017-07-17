@@ -23,9 +23,10 @@ package bluej.prefmgr;
 
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.pkgmgr.Project;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-import static java.awt.Component.LEFT_ALIGNMENT;
+
 import java.awt.Font;
 import java.awt.GridLayout;
 import javax.swing.BorderFactory;
@@ -95,18 +96,18 @@ public class RaspberryPiPanel extends JPanel implements PrefPanelListener {
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public void beginEditing() {
+    public void beginEditing(Project project) {
         SwingUtilities.invokeLater(() -> useSudoBox.setSelected(PrefMgr.getFlag(PrefMgr.START_WITH_SUDO)));
     }
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public void revertEditing() {
+    public void revertEditing(Project project) {
     }
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public void commitEditing() {
+    public void commitEditing(Project project) {
         SwingUtilities.invokeLater(() -> PrefMgr.setFlag(PrefMgr.START_WITH_SUDO, useSudoBox.isSelected()));
     }
 

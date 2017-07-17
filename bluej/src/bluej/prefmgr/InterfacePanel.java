@@ -21,21 +21,19 @@
  */
 package bluej.prefmgr;
 
-import javax.swing.SwingUtilities;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import bluej.pkgmgr.Project;
 import javafx.collections.FXCollections;
 import javafx.scene.Node;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 import bluej.Config;
-import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -115,7 +113,7 @@ public class InterfacePanel extends VBox
     }
     
     @Override
-    public void beginEditing()
+    public void beginEditing(Project project)
     {
         String currentLang = Config.getPropString("bluej.language", "english");
         int curLangIndex = allLangsInternal.indexOf(currentLang);
@@ -128,7 +126,7 @@ public class InterfacePanel extends VBox
     }
 
     @Override
-    public void commitEditing()
+    public void commitEditing(Project project)
     {
         Config.putPropString("bluej.language", allLangsInternal.get(langDropdown.getSelectionModel().getSelectedIndex()));
         
@@ -136,7 +134,7 @@ public class InterfacePanel extends VBox
     }
     
     @Override
-    public void revertEditing()
+    public void revertEditing(Project project)
     {
     }
 }

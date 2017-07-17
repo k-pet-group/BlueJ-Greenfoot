@@ -125,4 +125,11 @@ public interface EditorWatcher
      * Notifies watcher whether we are showing the interface (docs) or not
      */
     void showingInterface(boolean showingInterface);
+
+    /**
+     * Shows the preferences pane, and makes the given pane index (i.e. given tab index
+     * in the preferences) the active showing tab.  0 is general, 1 is key bindings, and so on.
+     * If in doubt, pass 0.
+     */
+    void showPreferences(int paneIndex);
 }

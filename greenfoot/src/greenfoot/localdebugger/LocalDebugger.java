@@ -21,6 +21,7 @@
  */
 package greenfoot.localdebugger;
 
+import bluej.debugger.RunOnThread;
 import bluej.utility.javafx.FXPlatformSupplier;
 import greenfoot.core.Simulation;
 
@@ -340,7 +341,13 @@ public class LocalDebugger extends Debugger
     {
         throw new UnsupportedOperationException();
     }
-    
+
+    @Override
+    public void setRunOnThread(RunOnThread runOnThread)
+    {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Convert a Throwable into an ExceptionDescription.
      */

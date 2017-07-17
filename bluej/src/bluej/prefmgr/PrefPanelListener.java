@@ -21,6 +21,7 @@
  */
 package bluej.prefmgr;
 
+import bluej.pkgmgr.Project;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -32,7 +33,7 @@ import threadchecker.Tag;
 @OnThread(Tag.FXPlatform)
 public interface PrefPanelListener
 {
-    void beginEditing();
-    void revertEditing();
-    void commitEditing();
+    void beginEditing(Project project);
+    void revertEditing(Project project);
+    void commitEditing(Project project);
 }

@@ -36,6 +36,7 @@ import bluej.debugger.DebuggerListener;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerThread;
 import bluej.debugger.DebuggerThreadListener;
+import bluej.debugger.RunOnThread;
 import bluej.debugmgr.ExecControls;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.inspector.ClassInspector;
@@ -126,6 +127,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     /** Property specifying location of JDK source */
     private static final String JDK_SOURCE_PATH_PROPERTY = "bluej.jdk.source";
     private static final String PROJECT_CHARSET_PROP = "project.charset";
+    public static final String RUN_ON_THREAD_PROP = "project.invoke.thread";
     /**
      * Collection of all open projects. The canonical name of the project
      * directory (as a File object) is used as the key.
@@ -232,6 +234,8 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     private final FrameShelfStorage shelfStorage;
     private final BooleanProperty terminalShowing = new SimpleBooleanProperty(false);
     private final BooleanProperty debuggerShowing = new SimpleBooleanProperty(false);
+    // Which thread to run on.  null means we have never asked the user about it.
+    private RunOnThread runOnThread;
 
     /* ------------------- end of field declarations ------------------- */
 
@@ -297,6 +301,8 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         debugger.setUserLibraries(libraryUrls.toArray(new URL[libraryUrls.size()]));
         debugger.newClassLoader(getClassLoader());
         debugger.addDebuggerListener(this);
+        // Note: this line must come after setProjectProperties (currently above):
+        debugger.setRunOnThread(getRunOnThread() == null ? RunOnThread.DEFAULT : getRunOnThread());
         debugger.launch();
 
         // Check whether this is a shared project
@@ -767,6 +773,8 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     {
         Properties p = new Properties();
         p.put(PROJECT_CHARSET_PROP, characterSet.name());
+        if (runOnThread != null)
+            p.put(RUN_ON_THREAD_PROP, runOnThread.name());
         return p;
     }
 
@@ -791,6 +799,10 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
             characterSet = Charset.defaultCharset();
             props.put(PROJECT_CHARSET_PROP, characterSet.name());
         }
+
+        String runOnThreadProp = props.getProperty(RUN_ON_THREAD_PROP);
+        // It matters whether it was found or not, so store null if not found:
+        runOnThread = runOnThreadProp == null || runOnThreadProp.isEmpty() ? null : RunOnThread.valueOf(runOnThreadProp);
     }
 
     /**
@@ -2507,6 +2519,25 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     }
 
     /**
+     * Gets the setting for this project as to which thread constructor/method invocations will run on.
+     */
+    public RunOnThread getRunOnThread()
+    {
+        return runOnThread;
+    }
+
+    /**
+     * Sets the setting for this project as to which thread constructor/method invocations will run on.
+     * This is communicated to the currently running debug VM, and will also be remembered if the debug
+     * VM is restarted (and will be saved to the project properties on exit, for next load).
+     */
+    public void setRunOnThread(RunOnThread runOnThread)
+    {
+        this.runOnThread = runOnThread;
+        debugger.setRunOnThread(runOnThread == null ? RunOnThread.DEFAULT : runOnThread);
+    }
+
+    /**
      * We fetch the display details on the debugger thread,
      * not from the FX thread.  Although toString may
      * be thread-safe, the GUI doesn't update the item's
@@ -2561,4 +2592,5 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
             return debuggerThread;
         }
     }
+
 }

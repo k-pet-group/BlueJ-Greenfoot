@@ -43,6 +43,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -61,6 +62,9 @@ import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 
 import bluej.utility.Utility;
+
+import javax.swing.SwingUtilities;
+
 /**
  * Class that controls the runtime of code executed within BlueJ.
  * Sets up the initial thread state, etc.
@@ -82,8 +86,15 @@ public class ExecServer
     // a worker thread that we create
     public static final String WORKER_THREAD_NAME = "workerThread";
     public static Thread workerThread = null;
-    
+
+
+    // Parameter for which thread to run on:
+    public static final int RUN_ON_DEFAULT_THREAD = 0;
+    public static final int RUN_ON_FX_THREAD = 1;
+    public static final int RUN_ON_SWING_THREAD = 2;
+
     // Parameters for main thread actions
+    public static int threadToRunOn = RUN_ON_DEFAULT_THREAD;
     public static String classToRun;
     public static String methodToRun;
     public static String [] parameterTypes;
@@ -95,6 +106,7 @@ public class ExecServer
     public static Throwable exception;
     
     // These constant values must match the variable names declared above
+    public static final String RUN_ON_THREAD_NAME = "threadToRunOn";
     public static final String CLASS_TO_RUN_NAME = "classToRun";
     public static final String METHOD_TO_RUN_NAME = "methodToRun";
     public static final String PARAMETER_TYPES_NAME = "parameterTypes";
@@ -115,7 +127,6 @@ public class ExecServer
     public static final int INSTANTIATE_CLASS_ARGS = 7; // use constructor
         // with specified parameter types and arguments
     public static final int LAUNCH_FX_APP = 8;
-
 
     // Parameter for worker thread actions
     public static int workerAction = EXIT_VM;
@@ -708,6 +719,11 @@ public class ExecServer
         }
         catch(IOException ioe) { }
     }
+
+    private static interface RunnableThrows
+    {
+        public void run() throws Throwable;
+    }
     
     /**
      * Bug in the java debug VM means that exception events are unreliable 
@@ -748,12 +764,16 @@ public class ExecServer
                             executedClass = c;
                             // Class c = cloader.loadClass(classToRun);
                             Method m = c.getMethod("run", new Class[0]);
-                            try {
-                                methodReturn = m.invoke(null, new Object[0]);
-                            }
-                            catch(InvocationTargetException ite) {
-                                throw ite.getCause();
-                            }
+                            runOnTargetThread(() -> {
+                                try
+                                {
+                                    methodReturn = m.invoke(null, new Object[0]);
+                                }
+                                catch (InvocationTargetException ite)
+                                {
+                                    throw ite.getCause();
+                                }
+                            });
                             break;
                         }
                         case INSTANTIATE_CLASS:
@@ -764,12 +784,14 @@ public class ExecServer
                             Class<?> c = currentLoader.loadClass(classToRun);
                             Constructor<?> cons = c.getDeclaredConstructor(new Class[0]);
                             cons.setAccessible(true);
-                            try {
-                                methodReturn = cons.newInstance((Object []) null);
-                            }
-                            catch (InvocationTargetException ite) {
-                                throw ite.getCause();
-                            }
+                            runOnTargetThread(() -> {
+                                try {
+                                    methodReturn = cons.newInstance((Object []) null);
+                                }
+                                catch (InvocationTargetException ite) {
+                                    throw ite.getCause();
+                                }
+                            });
                             break;
                         }
                         case INSTANTIATE_CLASS_ARGS:
@@ -787,12 +809,14 @@ public class ExecServer
                             }
                             Constructor<?> cons = c.getDeclaredConstructor(paramClasses);
                             cons.setAccessible(true);
-                            try {
-                                methodReturn = cons.newInstance(arguments);
-                            }
-                            catch (InvocationTargetException ite) {
-                                throw ite.getCause();
-                            }
+                            runOnTargetThread(() -> {
+                                try {
+                                    methodReturn = cons.newInstance(arguments);
+                                }
+                                catch (InvocationTargetException ite) {
+                                    throw ite.getCause();
+                                }
+                            });
                             break;
                         }
                         case LAUNCH_FX_APP:
@@ -853,7 +877,44 @@ public class ExecServer
         };
         mainThread.start();
     }
-    
+
+    private static void runOnTargetThread(RunnableThrows runnable) throws Throwable
+    {
+        switch (threadToRunOn)
+        {
+            case RUN_ON_FX_THREAD:
+            case RUN_ON_SWING_THREAD:
+                {
+                    CompletableFuture<Optional<Throwable>> f = new CompletableFuture<>();
+                    Runnable wrapped = () ->
+                    {
+                        try
+                        {
+                            runnable.run();
+                            f.complete(Optional.empty());
+                        }
+                        catch (Throwable t)
+                        {
+                            f.complete(Optional.of(t));
+                        }
+                    };
+                    if (threadToRunOn == RUN_ON_FX_THREAD)
+                        Platform.runLater(wrapped);
+                    else
+                        SwingUtilities.invokeLater(wrapped);
+                    Optional<Throwable> t = f.get();
+                    if (t.isPresent())
+                    {
+                        throw t.get();
+                    }
+                }
+                break;
+            default:
+                runnable.run();
+                break;
+        }
+    }
+
     /**
      * Record that an exception occurred, as well as printing a filtered stack trace.
      * @param t  the exception which was caught

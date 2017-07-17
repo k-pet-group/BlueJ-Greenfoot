@@ -24,6 +24,7 @@ package bluej.editor.moe;
 import bluej.Config;
 import bluej.editor.moe.MoeActions.Category;
 import bluej.editor.moe.MoeActions.MoeAbstractAction;
+import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefPanelListener;
 import bluej.utility.DialogManager;
 import bluej.utility.Utility;
@@ -199,17 +200,17 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
     }
 
     @OnThread(Tag.FXPlatform)
-    public void beginEditing() {
+    public void beginEditing(Project project) {
        
     }
 
     @OnThread(Tag.FXPlatform)
-    public void commitEditing() {
+    public void commitEditing(Project project) {
        handleClose();
     }
 
     @OnThread(Tag.FXPlatform)
-    public void revertEditing() {
+    public void revertEditing(Project project) {
         
     }
 

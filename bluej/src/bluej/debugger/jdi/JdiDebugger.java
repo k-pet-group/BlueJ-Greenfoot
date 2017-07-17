@@ -142,6 +142,7 @@ public class JdiDebugger extends Debugger
     
     /** User libraries to be added to VM classpath */
     private URL[] libraries = {};
+    private RunOnThread runOnThread = RunOnThread.DEFAULT;
 
     /**
      * Construct an instance of the debugger.
@@ -1087,6 +1088,7 @@ public class JdiDebugger extends Debugger
                 // Do this outside of the synchronized blocks, mainly to avoid holding
                 // the monitor unnecessarily:
                 newVM.newClassLoader(lastLoader.getURLs());
+                newVM.setRunOnThread(JdiDebugger.this.runOnThread);
 
                 synchronized(JdiDebugger.this) {
                     vmRef = newVM;
@@ -1207,5 +1209,16 @@ public class JdiDebugger extends Debugger
     public void serverThreadResumed(ThreadReference serverThread)
     {
         allThreads.find(serverThread).notifyResumed();
+    }
+
+    @Override
+    public synchronized void setRunOnThread(RunOnThread runOnThread)
+    {
+        this.runOnThread = runOnThread;
+        // This method may be run before the VM launch, so check if VM is running before attempting to access it:
+        if (vmRef != null)
+        {
+            getVM().setRunOnThread(runOnThread);
+        }
     }
 }

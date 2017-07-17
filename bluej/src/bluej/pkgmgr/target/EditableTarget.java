@@ -27,6 +27,8 @@ import java.io.IOException;
 import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
 import bluej.pkgmgr.Package;
+import bluej.prefmgr.PrefMgr;
+import bluej.prefmgr.PrefMgrDialog;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -122,6 +124,12 @@ public abstract class EditableTarget extends Target
     { return null; }
 
     public void clearAllBreakpoints() { }
+
+    @Override
+    public void showPreferences(int paneIndex)
+    {
+        PrefMgrDialog.showDialog(getPackage().getProject(), paneIndex);
+    }
 
     // --- end of EditorWatcher interface ---
 }
