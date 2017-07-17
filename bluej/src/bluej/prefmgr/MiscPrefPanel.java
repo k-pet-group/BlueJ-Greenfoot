@@ -28,23 +28,24 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
 
+import bluej.pkgmgr.Project;
+import bluej.debugger.RunOnThread;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
 import bluej.Boot;
 import bluej.Config;
 import bluej.collect.DataCollector;
-import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -61,7 +62,7 @@ public class MiscPrefPanel extends VBox
 {
     private static final String bluejJdkURL = "bluej.url.javaStdLib";
     private static final String greenfootJdkURL = "greenfoot.url.javaStdLib";
-   
+
     private TextField jdkURLField;
     private CheckBox linkToLibBox;
     private CheckBox showUncheckedBox; // show "unchecked" compiler warning
@@ -70,7 +71,9 @@ public class MiscPrefPanel extends VBox
     private TextField participantIdentifierField;
     private TextField experimentIdentifierField;
     private Label statusLabel;
-     
+    private ComboBox<RunOnThread> runOnThread;
+    private Node threadRunSetting;
+
     /**
      * Setup the UI for the dialog and event handlers for the buttons.
      */
@@ -141,7 +144,10 @@ public class MiscPrefPanel extends VBox
     private Node makeVMPanel()
     {
         showUncheckedBox = new CheckBox(Config.getString("prefmgr.misc.showUnchecked"));
-        return PrefMgrDialog.headedVBox("prefmgr.misc.vm.title", Arrays.asList(showUncheckedBox));
+        ObservableList<RunOnThread> runOnThreadPoss = FXCollections.observableArrayList(RunOnThread.values());
+        runOnThread = new ComboBox<>(runOnThreadPoss);
+        threadRunSetting = PrefMgrDialog.labelledItem("prefmgr.misc.runOnThread", runOnThread);
+        return PrefMgrDialog.headedVBox("prefmgr.misc.vm.title", Arrays.asList(showUncheckedBox, threadRunSetting));
     }
 
     private Node makePlayerNamePanel()
@@ -191,12 +197,23 @@ public class MiscPrefPanel extends VBox
         return PrefMgrDialog.headedVBox("prefmgr.misc.documentation.title", contents);
     }
 
-    public void beginEditing()
+    public void beginEditing(Project project)
     {
         linkToLibBox.setSelected(PrefMgr.getFlag(PrefMgr.LINK_LIB));
         jdkURLField.setText(Config.getPropString(jdkURLPropertyName));
         if(!Config.isGreenfoot()) {
             showUncheckedBox.setSelected(PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED));
+            if (project == null)
+            {
+                threadRunSetting.setVisible(false);
+                threadRunSetting.setManaged(false);
+            }
+            else
+            {
+                runOnThread.getSelectionModel().select(project.getRunOnThread());
+                threadRunSetting.setVisible(true);
+                threadRunSetting.setManaged(true);
+            }
             statusLabel.setText(DataCollector.getOptInOutStatus());
             experimentIdentifierField.setText(DataCollector.getExperimentIdentifier());
             participantIdentifierField.setText(DataCollector.getParticipantIdentifier());
@@ -207,13 +224,18 @@ public class MiscPrefPanel extends VBox
         }
     }
 
-    public void revertEditing() { }
+    public void revertEditing(Project project) { }
 
-    public void commitEditing()
+    public void commitEditing(Project project)
     {
         PrefMgr.setFlag(PrefMgr.LINK_LIB, linkToLibBox.isSelected());
         if(!Config.isGreenfoot()) {
             PrefMgr.setFlag(PrefMgr.SHOW_UNCHECKED, showUncheckedBox.isSelected());
+            if (project != null)
+            {
+                // Important to use .name() because we overrode toString() for localized display:
+                project.setRunOnThread(runOnThread.getSelectionModel().getSelectedItem());
+            }
 
             String expId = experimentIdentifierField.getText();
             String partId = participantIdentifierField.getText();
