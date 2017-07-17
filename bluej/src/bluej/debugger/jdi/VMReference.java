@@ -2224,6 +2224,12 @@ class VMReference
         return thr;
     }
 
+    /**
+     * Sets which field future constructor/method invocations will run on.
+     *
+     * Communicates the change to the debug VM, but obviously will only affect
+     * future methods, not any already running.
+     */
     public void setRunOnThread(RunOnThread runOnThread)
     {
         int fieldValue;

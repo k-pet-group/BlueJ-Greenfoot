@@ -1823,6 +1823,11 @@ public final class MoeEditor extends ScopeColorsBorderPane
         return found;
     }
 
+    /**
+     * Shows the preferences pane, and makes the given pane index (i.e. given tab index
+     * in the preferences) the active showing tab.  0 is general, 1 is key bindings, and so on.
+     * If in doubt, pass 0.
+     */
     public void showPreferences(int paneIndex)
     {
         watcher.showPreferences(paneIndex);

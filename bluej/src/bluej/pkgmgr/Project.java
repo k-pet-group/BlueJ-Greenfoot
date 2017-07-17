@@ -2518,11 +2518,19 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         });
     }
 
+    /**
+     * Gets the setting for this project as to which thread constructor/method invocations will run on.
+     */
     public RunOnThread getRunOnThread()
     {
         return runOnThread;
     }
 
+    /**
+     * Sets the setting for this project as to which thread constructor/method invocations will run on.
+     * This is communicated to the currently running debug VM, and will also be remembered if the debug
+     * VM is restarted (and will be saved to the project properties on exit, for next load).
+     */
     public void setRunOnThread(RunOnThread runOnThread)
     {
         this.runOnThread = runOnThread;

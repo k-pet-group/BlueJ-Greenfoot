@@ -242,6 +242,7 @@ implements PrefPanelListener
         }
     }
 
+    @Override
     public void beginEditing(Project project)
     {
     }
@@ -251,6 +252,7 @@ implements PrefPanelListener
         editingUserLibraries.setAll(savedUserLibraries);
     }
 
+    @Override
     public void commitEditing(Project project)
     {
         if (classPathModified) {
