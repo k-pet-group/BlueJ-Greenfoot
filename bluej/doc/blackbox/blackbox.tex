@@ -671,6 +671,28 @@ quick fix, the |fix_order| gives the index in the list (0 being first item) as i
 to the user, and the |compile_output_id| points to the error (in the \tabref{compile_outputs})
 which these fixes were shown for.
 
+\section{Stride Editing Events}
+
+Some of the events that are recorded are Stride-specific editing events.  If you are solely interested
+in Java programming, you can safely ignore all these events.
+
+\subsection{\lstinline!"unknown_frame_command"!}
+
+This event occurs when the focus is on a frame cursor in the editor, and the user hits a key
+(which is a letter or a known symbol for frame keys, such as slash) which is not recognised as a
+frame insertion command at the given position (e.g. hitting w for while outside a method, or
+hitting q which is not bound to any frame).  The |event_type| field will be |"UnknownFrameCommand"|
+and the |event_id| will reference an entry in the \tabref{unknown_frame_commands}.
+
+%schema:unknown_frame_commands
+
+The \tabref{unknown_frame_commands} table has three fields.  The |command| field contains the key which
+was pressed but was not valid.  The |enclosing_xpath| field is the Xpath to the parent element of the
+ frame cursor and |enclosing_index| will be the index of the cursor position within that frame.  For
+ example, if you have the frame cursor in a while frame, and the cursor is at the top, the Xpath
+ will locate the while frame, and the index will be 0.  If you move the frame cursor down one
+ frame inside the while, the Xpath will be the same, and the index will be 1.
+
 \section{Miscellaneous Events}
 
 \subsection{\lstinline!"resetting_vm"!}
@@ -1018,7 +1040,7 @@ table, and also zero or more entries in the |version_control_files|
 table, with the |file| field filled in, and the |status| field filled
 in.
 
-\section{Greenfoot Events}
+\section{Greenfoot-Specific Events}
 
 Data collection is not enabled for the mainstream release of Greenfoot,
 so these events will only occur in specialised builds of Greenfoot
@@ -1029,6 +1051,30 @@ data set, but are documented here for completeness.
 
 Event occurs when the main Greenfoot window (with the world display) is
 focused, which will cause Greenfoot to attempt to instantiate the world.
+There are no further details associated with this event.
+
+\subsection{\lstinline!"greenfoot_world_reset"!}
+
+Event occurs when the world is reset in Greenfoot, for example
+by clicking the reset button.
+There are no further details associated with this event.
+
+\subsection{\lstinline!"greenfoot_world_act"!}
+
+Event occurs when the act action occurs in Greenfoot, for example
+by clicking the act button.
+There are no further details associated with this event.
+
+\subsection{\lstinline!"greenfoot_world_run"!}
+
+Event occurs when the run action occurs in Greenfoot, for example
+by clicking the run button.
+There are no further details associated with this event.
+
+\subsection{\lstinline!"greenfoot_world_pause"!}
+
+Event occurs when the pause action occurs in Greenfoot, for example
+by clicking the pause button.
 There are no further details associated with this event.
 
 \chapter{Other Database Tables}
