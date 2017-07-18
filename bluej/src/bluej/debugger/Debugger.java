@@ -314,4 +314,9 @@ public abstract class Debugger
      */
     public abstract String toggleBreakpoint(DebuggerClass debuggerClass, String method, boolean set,
             Map<String, String> properties);
+
+    /**
+     * Sets which thread invoked methods/constructors should be run on.
+     */
+    public abstract void setRunOnThread(RunOnThread runOnThread);
 }

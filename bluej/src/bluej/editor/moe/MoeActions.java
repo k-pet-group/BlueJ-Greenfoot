@@ -114,7 +114,7 @@ public final class MoeActions
     {
         this.editor = editor;
         // sort out modifier keys...
-        createActionTable(editor);
+        createActionTable();
         if (!load())
             setDefaultKeyBindings();
         lastActionWasCut = false;
@@ -945,7 +945,7 @@ public final class MoeActions
     /**
      * Create the table of action supported by this editor
      */
-    private void createActionTable(MoeEditor editor)
+    private void createActionTable()
     {
         compileOrNextErrorAction = compileOrNextErrorAction();
 
@@ -1889,12 +1889,12 @@ public final class MoeActions
 
     private MoeAbstractAction keyBindingsAction()
     {
-        return action("key-bindings", Category.MISC, () -> PrefMgrDialog.showDialog(1)); // 1 is the index of the key bindings pane in the pref dialog
+        return action("key-bindings", Category.MISC, () -> editor.showPreferences(1)); // 1 is the index of the key bindings pane in the pref dialog
     }
 
     private MoeAbstractAction preferencesAction()
     {
-        return action("preferences", Category.MISC, () -> PrefMgrDialog.showDialog(0)); // 0 is the index of the editor pane in the pref dialog
+        return action("preferences", Category.MISC, () -> editor.showPreferences(0)); // 0 is the index of the editor pane in the pref dialog
     }
 
     private MoeAbstractAction goToLineAction()

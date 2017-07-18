@@ -1964,7 +1964,7 @@ public class PkgMgrFrame
      */
     public void showPreferences()
     {
-        PrefMgrDialog.showDialog();
+        PrefMgrDialog.showDialog(getProject());
     }
 
     /**

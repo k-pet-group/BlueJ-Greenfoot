@@ -364,7 +364,10 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     @Override
     public void showPreferences() throws RemoteException
     {
-        Platform.runLater(() -> PrefMgrDialog.showDialog());
+        // null is not right for project, but
+        // (a) currently, this only affects a BlueJ-only setting (which thread to run on) and
+        // (b) this code should get removed anyway in the Greenfoot interface rewrite
+        Platform.runLater(() -> PrefMgrDialog.showDialog(null));
     }
 
     @Override

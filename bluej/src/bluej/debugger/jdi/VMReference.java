@@ -39,6 +39,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import bluej.debugger.RunOnThread;
 import bluej.utility.DialogManager;
 import bluej.utility.javafx.FXPlatformSupplier;
 import threadchecker.OnThread;
@@ -2221,6 +2222,35 @@ class VMReference
         thr.start();
 
         return thr;
+    }
+
+    /**
+     * Sets which field future constructor/method invocations will run on.
+     *
+     * Communicates the change to the debug VM, but obviously will only affect
+     * future methods, not any already running.
+     */
+    public void setRunOnThread(RunOnThread runOnThread)
+    {
+        int fieldValue;
+        switch (runOnThread)
+        {
+            case FX:
+                fieldValue = ExecServer.RUN_ON_FX_THREAD;
+                break;
+            case SWING:
+                fieldValue = ExecServer.RUN_ON_SWING_THREAD;
+                break;
+            default:
+                fieldValue = ExecServer.RUN_ON_DEFAULT_THREAD;
+                break;
+        }
+
+        synchronized(workerThread)
+        {
+            workerThreadReadyWait();
+            setStaticFieldValue(serverClass, ExecServer.RUN_ON_THREAD_NAME, machine.mirrorOf(fieldValue));
+        }
     }
 
     /**

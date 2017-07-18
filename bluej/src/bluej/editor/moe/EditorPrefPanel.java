@@ -23,6 +23,7 @@ package bluej.editor.moe;
 
 import bluej.Config;
 import bluej.editor.EditorManager;
+import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.prefmgr.PrefPanelListener;
@@ -103,7 +104,7 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
         getChildren().add(PrefMgrDialog.headedVBox("prefmgr.edit.editor.title", editorPanel));
     }
 
-    public void beginEditing()
+    public void beginEditing(Project project)
     {
         editorFontField.setText(String.valueOf(PrefMgr.getEditorFontSize().get()));
         highlightingBox.setSelected(PrefMgr.getFlag(PrefMgr.HIGHLIGHTING));
@@ -113,11 +114,11 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
         matchBracketsBox.setSelected(PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS));
     }
 
-    public void revertEditing()
+    public void revertEditing(Project project)
     {
     }
 
-    public void commitEditing()
+    public void commitEditing(Project project)
     {
         String fontText = editorFontField.getText();
         
