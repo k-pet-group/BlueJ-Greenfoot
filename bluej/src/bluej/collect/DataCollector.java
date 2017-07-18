@@ -435,16 +435,16 @@ public class DataCollector
         DataCollectorImpl.debuggerBreakpointToggle(pkg, sourceFile, lineNumber, newState);
     }
 
-    public static void renamedClass(Package pkg, File oldSourceFile, File newSourceFile)
+    public static void renamedClass(Package pkg, File oldSourceFile, File newSourceFile, File generatedFrom)
     {
         if (dontSend()) return;
-        DataCollectorImpl.renamedClass(pkg, oldSourceFile, newSourceFile);
+        DataCollectorImpl.renamedClass(pkg, oldSourceFile, newSourceFile, generatedFrom);
     }
 
-    public static void removeClass(Package pkg, File sourceFile)
+    public static void removeClass(Package pkg, File sourceFile, File generatedFrom)
     {
         if (dontSend()) return;
-        DataCollectorImpl.removeClass(pkg, sourceFile);
+        DataCollectorImpl.removeClass(pkg, sourceFile, generatedFrom);
     }
 
     public static void openClass(Package pkg, File sourceFile)
@@ -471,10 +471,10 @@ public class DataCollector
         DataCollectorImpl.convertStrideToJava(pkg, oldSourceFile, newSourceFile);
     }
 
-    public static void edit(Package pkg, File path, String source, boolean includeOneLineEdits, StrideEditReason reason)
+    public static void edit(Package pkg, File path, String source, boolean includeOneLineEdits, File generatedFrom, StrideEditReason reason)
     {
         if (dontSend()) return;
-        DataCollectorImpl.edit(pkg, path, source, includeOneLineEdits, reason);
+        DataCollectorImpl.edit(pkg, path, source, includeOneLineEdits, generatedFrom, reason);
     }
 
     public static void packageOpened(Package pkg)

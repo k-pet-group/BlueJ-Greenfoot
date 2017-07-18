@@ -315,11 +315,12 @@ public class DataCollectorImpl
                 }
                 String anonymisedContent = CollectUtility.readFileAndAnonymise(proj, fileInfo.file);
 
+                String generatedFrom = null;
+
                 // If this is the Java file and there was a Stride file, note the relation:
                 if (fileInfo.sourceType == SourceType.Java && ct.getSourceType() == SourceType.Stride)
                 {
-                    String relativeStride = CollectUtility.toPath(proj, ct.getSourceFile());
-                    mpe.addPart("project[source_files][][generated_from]", CollectUtility.toBody(relativeStride));
+                    generatedFrom = CollectUtility.toPath(proj, ct.getSourceFile());
                     // Java file won't have been saved yet, but that's ok, just treat it as
                     // empty but existing for now:
                     if (anonymisedContent == null)
@@ -328,9 +329,7 @@ public class DataCollectorImpl
 
                 if (anonymisedContent != null)
                 {
-                    mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("complete"));
-                    mpe.addPart("source_histories[][name]", CollectUtility.toBody(relative));
-                    mpe.addPart("source_histories[][content]", CollectUtility.toBody(anonymisedContent));
+                    addSourceHistoryItem(mpe, relative, "complete", anonymisedContent, generatedFrom);
                     versions.put(new FileKey(proj, relative), Arrays.asList(Utility.splitLines(anonymisedContent)));
                 }
             }
@@ -352,6 +351,27 @@ public class DataCollectorImpl
         });
     }
 
+    /**
+     * Adds a source history item to the MPE
+     * @param mpe The MPE we're sending to the server
+     * @param relativeName The name of the file (relative to project root)
+     * @param anonymisedContent The anonymised content of the file or diff.  May null for some types (e.g. file deletion)
+     * @param generatedFrom The Stride file this Java file was generated from.  May be null if this is a Stride file, or a Java file that has no Stride.
+     */
+    private static void addSourceHistoryItem(MultipartEntity mpe, String relativeName, String type, String anonymisedContent, String generatedFrom)
+    {
+        mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody(type));
+        mpe.addPart("source_histories[][name]", CollectUtility.toBody(relativeName));
+        if (generatedFrom != null)
+        {
+            mpe.addPart("source_histories[][generated_from]", CollectUtility.toBody(generatedFrom));
+        }
+        if (anonymisedContent != null)
+        {
+            mpe.addPart("source_histories[][content]", CollectUtility.toBody(anonymisedContent));
+        }
+    }
+
     public static void packageClosed(Package pkg)
     {
         submitEventNoData(pkg.getProject(), pkg, EventName.PACKAGE_CLOSING);
@@ -371,7 +391,7 @@ public class DataCollectorImpl
         submitEventNoData(project, null, EventName.RESETTING_VM);        
     }
 
-    public static void edit(final Package pkg, final File path, final String source, final boolean includeOneLineEdits, StrideEditReason reason)
+    public static void edit(final Package pkg, final File path, final String source, final boolean includeOneLineEdits, final File generatedFrom, StrideEditReason reason)
     {
         final Project proj = pkg.getProject();
         final ProjectDetails projDetails = new ProjectDetails(proj);
@@ -411,9 +431,7 @@ public class DataCollectorImpl
                 
                 String diff = makeDiff(patch);
                 
-                mpe.addPart("source_histories[][content]", CollectUtility.toBody(diff));
-                mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("diff"));
-                mpe.addPart("source_histories[][name]", CollectUtility.toBody(CollectUtility.toPath(projDetails, path)));
+                addSourceHistoryItem(mpe, CollectUtility.toPath(projDetails, path), "diff", diff, generatedFrom == null ? null : CollectUtility.toPath(projDetails, generatedFrom));
 
                 if (reason != null && reason.getText() != null)
                 {
@@ -552,13 +570,11 @@ public class DataCollectorImpl
     }
 
 
-    public static void renamedClass(Package pkg, final File oldSourceFile, final File newSourceFile)
+    public static void renamedClass(Package pkg, final File oldSourceFile, final File newSourceFile, final File generatedFrom)
     {
         final ProjectDetails projDetails = new ProjectDetails(pkg.getProject());
         MultipartEntity mpe = new MultipartEntity();
-        mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("rename"));
-        mpe.addPart("source_histories[][content]", CollectUtility.toBodyLocal(projDetails, oldSourceFile));
-        mpe.addPart("source_histories[][name]", CollectUtility.toBodyLocal(projDetails, newSourceFile));
+        addSourceHistoryItem(mpe, CollectUtility.toPath(projDetails, newSourceFile), "rename", CollectUtility.toPath(projDetails, oldSourceFile), generatedFrom == null ? null : CollectUtility.toPath(projDetails, generatedFrom));
         submitEvent(pkg.getProject(), pkg, EventName.RENAME, new PlainEvent(mpe) {
 
             @Override
@@ -577,12 +593,11 @@ public class DataCollectorImpl
         });
     }
 
-    public static void removeClass(Package pkg, final File sourceFile)
+    public static void removeClass(Package pkg, final File sourceFile, final File generatedFrom)
     {
         final ProjectDetails projDetails = new ProjectDetails(pkg.getProject());
         MultipartEntity mpe = new MultipartEntity();
-        mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("file_delete"));
-        mpe.addPart("source_histories[][name]", CollectUtility.toBodyLocal(projDetails, sourceFile));
+        addSourceHistoryItem(mpe, CollectUtility.toPath(projDetails, sourceFile), "file_delete", null, generatedFrom == null ? null : CollectUtility.toPath(projDetails, generatedFrom));
         submitEvent(pkg.getProject(), pkg, EventName.DELETE, new PlainEvent(mpe) {
 
             @Override
