@@ -1743,7 +1743,7 @@ public class ClassTarget extends DependentTarget
                 ExtensionBridge.changeBDependencyTargetName(bDependency, getQualifiedName());
             }
             
-            DataCollector.renamedClass(getPackage(), oldSourceFile, newSourceFile);
+            DataCollector.renamedClass(getPackage(), oldSourceFile, newSourceFile, getGeneratedFrom(sourceAvailable));
             
             // Inform all listeners about the name change
             ClassEvent event = new ClassEvent(ClassEvent.CHANGED_NAME, getPackage(), getBClass(), oldName);
@@ -2332,7 +2332,7 @@ public class ClassTarget extends DependentTarget
         
         // We must remove after the above, because it might involve saving, 
         // and thus recording edits to the file
-        DataCollector.removeClass(pkg, srcFile);
+        DataCollector.removeClass(pkg, srcFile, getGeneratedFrom(sourceAvailable));
 
 
         // In Greenfoot we don't do detailed dependency tracking, so we just recompile the whole
@@ -2475,20 +2475,39 @@ public class ClassTarget extends DependentTarget
     }
     
     @Override
-    public void recordEdit(SourceType sourceType, String latest, boolean includeOneLineEdits, StrideEditReason reason)
+    public void recordEdit(SourceType recordForSourceType, String latest, boolean includeOneLineEdits, StrideEditReason reason)
     {
-        if (sourceType == SourceType.Java)
+        if (recordForSourceType == SourceType.Java)
         {
-            DataCollector.edit(getPackage(), getJavaSourceFile(), latest, includeOneLineEdits, null);
+            DataCollector.edit(getPackage(), getJavaSourceFile(), latest, includeOneLineEdits, getGeneratedFrom(recordForSourceType), null);
         }
-        else if (sourceType == SourceType.Stride && this.sourceAvailable == SourceType.Stride)
+        else if (recordForSourceType == SourceType.Stride && this.sourceAvailable == SourceType.Stride)
         {
-            DataCollector.edit(getPackage(), getFrameSourceFile(), latest, includeOneLineEdits, reason);
+            DataCollector.edit(getPackage(), getFrameSourceFile(), latest, includeOneLineEdits, null, reason);
         }
         else
         {
-            Debug.message("Attempting to send " + sourceType + " source when available is: " + this.sourceAvailable);
+            Debug.message("Attempting to send " + recordForSourceType + " source when available is: " + this.sourceAvailable);
         }
+    }
+
+    /**
+     * Gets the File which the given source type parameter is generated from,
+     * or null if non-applicable.  Here's a table of the possible outcomes:
+     *
+     * This target | Parameter | Return
+     * --------------------------------
+     * Stride      | Stride    | null (Stride is not generated from anything else)
+     * Stride      | Java      | non-null (The path to the Stride file)
+     * Java        | Stride    | null (This call shouldn't happen anyway)
+     * Java        | Java      | null (Java source is not generated in this case)
+     */
+    private File getGeneratedFrom(SourceType recordForSourceType)
+    {
+        if (recordForSourceType == SourceType.Java && this.sourceAvailable == SourceType.Stride)
+            return getFrameSourceFile();
+        else
+            return null;
     }
 
     @Override
