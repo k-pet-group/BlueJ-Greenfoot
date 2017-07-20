@@ -130,10 +130,15 @@ public class FrameCatalogue extends VBox
      * This is used for the DataCollection.
      */
     public enum ShowReason {
-        // A user presses unknown command twice.
+        // The user presses unknown command twice.
         UNKNOWN_FRAME_COMMAND("unknown_frame_command"),
-        // A user explicitly presses the keyboard shortcut for the catalogue
+        // The user uses the catalogue showing/hiding check menu or its accelerator. We don't have a straightforward
+        // way to actually differentiate between the accelerator and actual clicking on the menu.
+        MENU("menu"),
+        // The user presses the keyboard shortcut for the catalogue, which is NOT the accelerator one.
         SHORTCUT("shortcut"),
+        // The user clicks on the catalogue's arrow to show/hide it.
+        ARROW("arrow"),
         // When loading the project, bluej tries to retrieve the previous catalogue state.
         PROPERTIES("properties");
 
