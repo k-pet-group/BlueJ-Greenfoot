@@ -506,15 +506,32 @@ appear some time after the actual relevant source code edit takes place.
 The event will always have exactly one associated entry in the
 \tabref{source_histories}, which will be a |rename| event.
 
-\subsection{\lstinline!"stride_converted_to_java"! (since BlueJ 4.x)}
+\subsection{\lstinline!"convert_stride_to_java"! (since BlueJ 4.x)}
 
 This event will have a |package_id|, which indicates which package the file
 was renamed in.
 
 This event is fired when the user permanently converts a Stride class to Java.
 
-The event will always have exactly one associated entry in the
-\tabref{source_histories}, which will be a |stride_to_java| event.
+The event will always have two associated entries in the
+\tabref{source_histories}.  One entry will be a |stride_to_java| event, which will
+be associated with the Java source file (i.e. the \textit{target} of the conversion).  The content
+  of this event will be a diff against the previous state of the Java file, as in a diff event.  Note that the Java file exists before and after the conversion, but switches from being auto-generated to being user-edited.
+The other source history entry will be a |file_delete| event, which will be associated with the Stride file (since it gets
+removed as part of the conversion).
+
+\subsection{\lstinline!"convert_java_to_stride"! (since BlueJ 4.x)}
+
+This event will have a |package_id|, which indicates which package the file
+was renamed in.
+
+This event is fired when the user permanently converts a Java class to Stride.
+
+The event will always have two associated entries in the
+\tabref{source_histories}.  One entry will be a |java_to_stride| event, which will
+be associated with the Stride source file (i.e. the \textit{target} of the conversion).  The content
+  of this event will the complete content of the new Stride file, as in a file creation event.
+The other source history entry will be a |java_gen_from_stride| event, which will be associated with the Java file, and contains a diff from the previous state of the Java file.  Note that the Java file exists before and after the conversion, but switches from being user-edited to being auto-generated.
 
 \subsection{\lstinline!"file_open"!, \lstinline!"file_select"! and \lstinline!"file_close"!}
 
@@ -1243,9 +1260,17 @@ Each entry in the |source_histories| table belongs to a particular
   id (in the |source_files| table) of the old file id before the rename.  |content| will be blank.
   Note that renames were broken at the start of the project; if |old_source_file_id| is null, you should
   treat the rename as broken and ignore it.
-\item |source_history_type| is |"stride_to_java"| -- |old_source_file_id| will contain the
-        id (in the |source_files| table) of the old Stride file id before the conversion.
-        |content| will be the new (Java) content of this source file.
+\item |source_history_type| is |"stride_to_java"| -- This is for the Java file that is
+  the destination of the conversion.  |old_source_file_id| will contain the
+  id (in the |source_files| table) of the old Stride file id before the conversion.
+  |content| will be the diff of the new Java content of this source file compared to the old Java content.
+\item |source_history_type| is |"java_to_stride"| -- This is for the Stride file that is
+  the destination of the conversion.  |old_source_file_id| will contain the
+  id (in the |source_files| table) of the old Java file id before the conversion.
+  |content| will be the complete new Stride content of this source file.
+\item |source_history_type| is |"java_gen_from_stride"| -- This is for the Java file when
+  a Java to Stride conversion is performed.  This conversion results in the Java file switching from user-edited to auto-generated.
+  |content| will be the diff against the previous version of this source file.
 \item |source_history_type| is |"file_delete"| -- |content| will be blank.
 \end{itemize}
 
