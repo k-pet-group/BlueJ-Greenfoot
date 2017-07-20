@@ -66,6 +66,12 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
 {
     public static final String ERROR_CLASS = "moe-code-error";
     private static final Image UNDERLINE_IMAGE = Config.getFixedImageAsFXImage("error-underline.png");
+    /**
+     * The editor associated with this editor pane.
+     *
+     * IMPORTANT: the editor can be null, when we are printing.
+     * (For printing, we create an off-screen temporary MoeEditorPane with null editor.)
+     */
     private final MoeEditor editor;
     // Disabled during printing if we don't want line numbers:
     private final BooleanProperty showLineNumbers = new SimpleBooleanProperty(true);
@@ -144,7 +150,7 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
     private <T,C extends Cell<T,?>> void setupRedrawListener(VirtualFlow<T,C> virtualFlow)
     {
         virtualFlow.visibleCells().addListener((ListChangeListener<? super C>) c -> {
-            if (editor.getSourceDocument() == null)
+            if (editor == null || editor.getSourceDocument() == null)
                 return;
 
             // Must run later so that we don't affect visible cells now (which may be during the layout pass):
@@ -223,7 +229,12 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
     public void read(Reader reader) throws IOException
     {
         setText(CharStreams.toString(reader));
-        editor.undoManager.forgetHistory();
+        // editor can be null when we're printing.  This method shouldn't
+        // get called then, but no harm in checking:
+        if (editor != null)
+        {
+            editor.undoManager.forgetHistory();
+        }
     }
 
     /**
@@ -248,6 +259,10 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
         bufferedWriter.flush();
     }
 
+    /**
+     * Gets the editor associated with this component.  IMPORTANT: this
+     * can be null if this is an off-screen copy for the purposes of printing.
+     */
     public MoeEditor getEditor()
     {
         return editor;
