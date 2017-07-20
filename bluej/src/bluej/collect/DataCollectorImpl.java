@@ -611,16 +611,38 @@ public class DataCollectorImpl
         });
     }
 
-    public static void convertStrideToJava(Package pkg, File oldSourceFile, File newSourceFile)
+    // See method of same name in DataCollector for docs
+    static void convertStrideToJava(Package pkg, File oldSourceFile, File newSourceFile)
+    {
+        conversion(pkg, EventName.CONVERT_STRIDE_TO_JAVA, "stride_to_java", oldSourceFile, newSourceFile, true);
+    }
+
+    // See method of same name in DataCollector for docs
+    static void convertJavaToStride(Package pkg, File oldSourceFile, File newSourceFile)
+    {
+        conversion(pkg, EventName.CONVERT_JAVA_TO_STRIDE, "java_to_stride", oldSourceFile, newSourceFile, false);
+    }
+
+    /**
+     * Send a conversion event (Stride to Java, or Java to Stride) to the server.
+     */
+    private static void conversion(Package pkg, EventName eventName, String conversionType, File oldSourceFile, File newSourceFile, boolean deleteOldFile)
     {
         final ProjectDetails projDetails = new ProjectDetails(pkg.getProject());
         MultipartEntity mpe = new MultipartEntity();
-        mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("stride_to_java"));
+        mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody(conversionType));
         mpe.addPart("source_histories[][content]", CollectUtility.toBodyLocal(projDetails, oldSourceFile));
         mpe.addPart("source_histories[][name]", CollectUtility.toBodyLocal(projDetails, newSourceFile));
         final String contents = CollectUtility.readFileAndAnonymise(projDetails, newSourceFile);
         mpe.addPart("source_histories[][converted]", CollectUtility.toBody(contents));
-        submitEvent(pkg.getProject(), pkg, EventName.CONVERT_TO_JAVA, new PlainEvent(mpe) {
+
+        if (deleteOldFile)
+        {
+            addSourceHistoryItem(mpe, CollectUtility.toPath(projDetails, oldSourceFile), "file_delete", null, null);
+        }
+
+
+        submitEvent(pkg.getProject(), pkg, eventName, new PlainEvent(mpe) {
 
             @Override
             public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)

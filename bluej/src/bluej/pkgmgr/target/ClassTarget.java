@@ -2176,7 +2176,7 @@ public class ClassTarget extends DependentTarget
                     return; // Abort
                 }
                 addStride((TopLevelCodeElement)elements.get(0));
-                //DataCollector.convertJavaToStride(getPackage(), srcFile, getSourceFile());
+                DataCollector.convertJavaToStride(getPackage(), javaSourceFile, getFrameSourceFile());
             }
             catch (IOException | ParseFailure pf)
             {
