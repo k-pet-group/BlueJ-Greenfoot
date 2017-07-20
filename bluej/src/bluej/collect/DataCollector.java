@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,6 +32,7 @@ import bluej.debugger.SourceLocation;
 import bluej.debugmgr.inspector.ClassInspector;
 import bluej.debugmgr.inspector.Inspector;
 import bluej.debugmgr.inspector.ObjectInspector;
+import bluej.editor.stride.FrameCatalogue;
 import bluej.extensions.SourceType;
 import bluej.extmgr.ExtensionWrapper;
 import bluej.groupwork.Repository;
@@ -645,6 +646,23 @@ public class DataCollector
     {
         if (dontSend()) return;
         DataCollectorImpl.unknownFrameCommandKey(ct.getPackage().getProject(), ct.getPackage(), enclosingFrameXpath, cursorIndex, key);
+    }
+
+    /**
+     * A proxy method to firstly check if data submission is active on this project, and then invoke
+     * the showHideFrameCatalogue method in DataCollectorImpl class, which will do the collection.
+     *
+     * @param project the current project
+     * @param show    true for showing and false for hiding
+     * @param reason  one of the values:
+     *               unkown_show_comand - A user presses unknown command twice,
+     *               shortcut           - A user explicitly presses the keyboard shortcut
+     *               properties         - Uploading loading the project; retrieve the previous catalogue state.
+     */
+    public static void showHideFrameCatalogue(Project project, boolean show, FrameCatalogue.ShowReason reason)
+    {
+        if (dontSend()) return;
+        DataCollectorImpl.showHideFrameCatalogue(project, show, reason);
     }
 
     public static boolean hasGivenUp()

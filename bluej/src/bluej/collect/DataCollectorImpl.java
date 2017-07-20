@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012,2013,2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,6 +36,7 @@ import java.util.Map;
 import bluej.Boot;
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileReason;
+import bluej.editor.stride.FrameCatalogue;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.target.ClassTarget.SourceFileInfo;
 import org.apache.http.entity.mime.MultipartEntity;
@@ -1140,7 +1141,6 @@ public class DataCollectorImpl
             mpe.addPart("event[code_completion][xml_index]", CollectUtility.toBody(subIndex));
     }
 
-
     public static void unknownFrameCommandKey(Project project, Package pkg, String enclosingFrameXpath, int cursorIndex, char key)
     {
         MultipartEntity mpe = new MultipartEntity();
@@ -1151,5 +1151,24 @@ public class DataCollectorImpl
         }
         mpe.addPart("event[unknown_frame_command][command]", CollectUtility.toBody(Character.toString(key)));
         submitEvent(project, pkg, EventName.UNKNOWN_FRAME_COMMAND, new PlainEvent(mpe));
+    }
+
+    /**
+     * DataCollector implementation of the showHideFrameCatalogue registration.
+     * It prepares the event and invoke submitEvent to send it to the server.
+     *
+     * @param project the current project
+     * @param show    true for showing and false for hiding
+     * @param reason  one of the values:
+     *               unkown_show_comand - A user presses unknown command twice,
+     *               shortcut           - A user explicitly presses the keyboard shortcut
+     *               properties         - Uploading loading the project; retrieve the previous catalogue state.
+     */
+    public static void showHideFrameCatalogue(Project project, boolean show, FrameCatalogue.ShowReason reason)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[frame_catalogue_showing][show]", CollectUtility.toBody(show));
+        mpe.addPart("event[frame_catalogue_showing][reason]", CollectUtility.toBody(reason.getText()));
+        submitEvent(project, null, EventName.FRAME_CATALOGUE_SHOWING, new PlainEvent(mpe));
     }
 }
