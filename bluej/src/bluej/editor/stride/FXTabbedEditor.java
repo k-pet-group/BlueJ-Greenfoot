@@ -24,6 +24,7 @@ package bluej.editor.stride;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.Main;
+import bluej.collect.DataCollector;
 import bluej.editor.stride.FrameCatalogue.Hint;
 import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
@@ -225,7 +226,11 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         showingCatalogue.bindBidirectional(collapsibleCatalogueScrollPane.expandedProperty());
         JavaFXUtil.addChangeListener(showingCatalogue, expanded -> PrefMgr.setFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING, expanded));
         // runLater, after it has been put in scene:
-        JavaFXUtil.runAfterCurrent(() -> showingCatalogue.set(PrefMgr.getFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING)));
+        JavaFXUtil.runAfterCurrent(() -> {
+            @OnThread(Tag.Any) boolean flag = PrefMgr.getFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING);
+            showingCatalogue.set(flag);
+            DataCollector.showHideFrameCatalogue(getProject(), flag, FrameCatalogue.ShowReason.PROPERTIES);
+        });
         JavaFXUtil.addStyleClass(collapsibleCatalogueScrollPane, "catalogue-scroll-collapsible");
         menuAndTabPane.setRight(collapsibleCatalogueScrollPane);
         scene = new Scene(new StackPane(menuAndTabPane, dragPane, dragCursorPane, overlayPane.getNode()), 800, 700);
