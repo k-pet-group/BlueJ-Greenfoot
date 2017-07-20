@@ -131,7 +131,7 @@ public class FrameCatalogue extends VBox
      */
     public enum ShowReason {
         // A user presses unknown command twice.
-        UNKNOWN_FRAME_COMMAND("unkown_show_comand"),
+        UNKNOWN_FRAME_COMMAND("unknown_frame_command"),
         // A user explicitly presses the keyboard shortcut for the catalogue
         SHORTCUT("shortcut"),
         // When loading the project, bluej tries to retrieve the previous catalogue state.

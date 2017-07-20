@@ -655,7 +655,7 @@ public class DataCollector
      * @param project the current project
      * @param show    true for showing and false for hiding
      * @param reason  one of the values:
-     *               unkown_show_comand - A user presses unknown command twice,
+     *               unknown_frame_command - A user presses unknown command twice,
      *               shortcut           - A user explicitly presses the keyboard shortcut
      *               properties         - Uploading loading the project; retrieve the previous catalogue state.
      */
