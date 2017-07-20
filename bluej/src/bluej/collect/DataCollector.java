@@ -474,7 +474,8 @@ public class DataCollector
     public static void convertStrideToJava(Package pkg, File oldSourceFile, File newSourceFile)
     {
         if (dontSend()) return;
-        DataCollectorImpl.convertStrideToJava(pkg, oldSourceFile, newSourceFile);
+        // Note the function takes Java, Stride rather than old or new.  Here, new is Java:
+        DataCollectorImpl.conversion(pkg, newSourceFile, oldSourceFile, true);
     }
 
     /**
@@ -486,7 +487,8 @@ public class DataCollector
     public static void convertJavaToStride(Package pkg, File oldSourceFile, File newSourceFile)
     {
         if (dontSend()) return;
-        DataCollectorImpl.convertJavaToStride(pkg, oldSourceFile, newSourceFile);
+        // Note the function takes Java, Stride rather than old or new.  Here, old is Java:
+        DataCollectorImpl.conversion(pkg, oldSourceFile, newSourceFile, false);
     }
 
 
