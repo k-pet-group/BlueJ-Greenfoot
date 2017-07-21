@@ -1159,10 +1159,8 @@ public class DataCollectorImpl
      *
      * @param project the current project
      * @param show    true for showing and false for hiding
-     * @param reason  one of the values:
-     *               unknown_frame_command - A user presses unknown command twice,
-     *               shortcut           - A user explicitly presses the keyboard shortcut
-     *               properties         - Uploading loading the project; retrieve the previous catalogue state.
+     * @param reason  The event which triggers the change.
+     *                It is one of the values in the FrameCatalogue.ShowReason enum.
      */
     public static void showHideFrameCatalogue(Project project, boolean show, FrameCatalogue.ShowReason reason)
     {
