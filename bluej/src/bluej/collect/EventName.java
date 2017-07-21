@@ -37,7 +37,8 @@ enum EventName
 
     ADD("file_add"),
     DELETE("file_delete"),
-    CONVERT_TO_JAVA("stride_converted_to_java"),
+    CONVERT_STRIDE_TO_JAVA("convert_stride_to_java"),
+    CONVERT_JAVA_TO_STRIDE("convert_java_to_stride"),
     RENAME("rename"),
     EDIT("edit"),
     COMPILE("compile"),

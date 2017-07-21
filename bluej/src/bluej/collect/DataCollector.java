@@ -464,12 +464,33 @@ public class DataCollector
         if (dontSend()) return;
         DataCollectorImpl.selectClass(pkg, sourceFile);
     }
-    
+
+    /**
+     * Record conversion from Stride to Java.
+     * @param pkg The package in which the files live.
+     * @param oldSourceFile The old Stride source file (which will be deleted by the caller)
+     * @param newSourceFile The Java source file (which will be retained by the caller)
+     */
     public static void convertStrideToJava(Package pkg, File oldSourceFile, File newSourceFile)
     {
         if (dontSend()) return;
-        DataCollectorImpl.convertStrideToJava(pkg, oldSourceFile, newSourceFile);
+        // Note the function takes Java, Stride rather than old or new.  Here, new is Java:
+        DataCollectorImpl.conversion(pkg, newSourceFile, oldSourceFile, true);
     }
+
+    /**
+     * Record conversion from Java to Stride.
+     * @param pkg The package in which the files live.
+     * @param oldSourceFile The old Java source file (which will now be generated, rather than edited directly)
+     * @param newSourceFile The new Stride source file (which will now be edited and used to generate the Java)
+     */
+    public static void convertJavaToStride(Package pkg, File oldSourceFile, File newSourceFile)
+    {
+        if (dontSend()) return;
+        // Note the function takes Java, Stride rather than old or new.  Here, old is Java:
+        DataCollectorImpl.conversion(pkg, oldSourceFile, newSourceFile, false);
+    }
+
 
     public static void edit(Package pkg, File path, String source, boolean includeOneLineEdits, File generatedFrom, StrideEditReason reason)
     {

@@ -611,25 +611,81 @@ public class DataCollectorImpl
         });
     }
 
-    public static void convertStrideToJava(Package pkg, File oldSourceFile, File newSourceFile)
+    /**
+     * Send a conversion event (Stride to Java, or Java to Stride) to the server.
+     * @param pkg The package that the files live in
+     * @param javaSourceFile The Java file involved in the conversion (may be source or destination depending on conversino direction)
+     * @param strideSourceFile The Stride file involved in the conversion (ditto: may be source or destination)
+     * @param strideToJava If true, conversion is Stride->Java.  If false, conversion is Java->Stride.
+     */
+    static void conversion(Package pkg, File javaSourceFile, File strideSourceFile, boolean strideToJava)
     {
         final ProjectDetails projDetails = new ProjectDetails(pkg.getProject());
         MultipartEntity mpe = new MultipartEntity();
-        mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("stride_to_java"));
-        mpe.addPart("source_histories[][content]", CollectUtility.toBodyLocal(projDetails, oldSourceFile));
-        mpe.addPart("source_histories[][name]", CollectUtility.toBodyLocal(projDetails, newSourceFile));
-        final String contents = CollectUtility.readFileAndAnonymise(projDetails, newSourceFile);
-        mpe.addPart("source_histories[][converted]", CollectUtility.toBody(contents));
-        submitEvent(pkg.getProject(), pkg, EventName.CONVERT_TO_JAVA, new PlainEvent(mpe) {
+        // The Java file will always be a diff against previous content, because no matter which direction
+        // the conversion is in, the Java file will exist before and after.
+        // The Stride file will either be deleted (Stride->Java), or added and thus complete (Java->Stride).
+
+        // First deal with Stride file:
+        String anonStride;
+        if (strideToJava)
+        {
+            addSourceHistoryItem(mpe, CollectUtility.toPath(projDetails, strideSourceFile), "file_delete", null, null);
+            anonStride = null;
+        }
+        else
+        {
+            anonStride = CollectUtility.readFileAndAnonymise(projDetails, strideSourceFile);
+            addSourceHistoryItem(mpe, CollectUtility.toPath(projDetails, strideSourceFile),  "java_to_stride",
+                    anonStride, null);
+            mpe.addPart("source_histories[][converted_from]", CollectUtility.toBodyLocal(projDetails, javaSourceFile));
+        }
+
+
+        // Then deal with the Java file:
+        mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody(strideToJava ? "stride_to_java" : "java_gen_from_stride"));
+        mpe.addPart("source_histories[][name]", CollectUtility.toBodyLocal(projDetails, javaSourceFile));
+        final List<String> anonJava = Arrays.asList(Utility.splitLines(CollectUtility.readFileAndAnonymise(projDetails, javaSourceFile)));
+        // We do not put the content in yet, that's done below because it's a diff...
+
+        if (strideToJava)
+        {
+            mpe.addPart("source_histories[][converted_from]", CollectUtility.toBodyLocal(projDetails, strideSourceFile));
+        }
+        else
+        {
+            // We converted Java to Stride, so now the Java file is generated from the Stride:
+            mpe.addPart("source_histories[][generated_from]", CollectUtility.toBodyLocal(projDetails, strideSourceFile));
+        }
+
+        final FileKey strideFileKey = new FileKey(projDetails, CollectUtility.toPath(projDetails, strideSourceFile));
+        final FileKey javaFileKey = new FileKey(projDetails, CollectUtility.toPath(projDetails, javaSourceFile));
+
+        submitEvent(pkg.getProject(), pkg, strideToJava ? EventName.CONVERT_STRIDE_TO_JAVA : EventName.CONVERT_JAVA_TO_STRIDE, new PlainEvent(mpe) {
 
             @Override
             public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
             {
-                // We need to change the fileVersions hash to remove the old content and add new content:
-                FileKey oldKey = new FileKey(projDetails, CollectUtility.toPath(projDetails, oldSourceFile));
-                FileKey newKey = new FileKey(projDetails, CollectUtility.toPath(projDetails, newSourceFile));
-                fileVersions.put(newKey, Arrays.asList(Utility.splitLines(contents)));
-                fileVersions.remove(oldKey);
+                List<String> previousDoc = fileVersions.get(javaFileKey);
+                if (previousDoc == null)
+                    previousDoc = new ArrayList<String>(); // Diff against empty file
+
+                MultipartEntity mpe = new MultipartEntity();
+
+                Patch patch = DiffUtils.diff(previousDoc, anonJava);
+                String diff = makeDiff(patch);
+                mpe.addPart("source_histories[][content]", CollectUtility.toBody(diff));
+
+                // We need to change the fileVersions hash to remove/add Stride and alter Java:
+                fileVersions.put(javaFileKey, anonJava);
+                if (strideToJava)
+                {
+                    fileVersions.remove(strideFileKey);
+                }
+                else
+                {
+                    fileVersions.put(strideFileKey, Arrays.asList(Utility.splitLines(anonStride)));
+                }
 
                 return super.makeData(sequenceNum, fileVersions);
             }

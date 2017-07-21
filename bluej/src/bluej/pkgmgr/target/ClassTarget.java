@@ -2125,7 +2125,7 @@ public class ClassTarget extends DependentTarget
         {
             if (JavaFXUtil.confirmDialog("convert.to.java.title", "convert.to.java.message", (Stage)ClassTarget.this.pane.getScene().getWindow(), true))
             {
-                removeStride();
+                convertStrideToJava();
             }
         }
     }
@@ -2136,13 +2136,23 @@ public class ClassTarget extends DependentTarget
         public ConvertToStrideAction()
         {
             super(convertToStrideStr);
-            setOnAction(e -> convertToStride());
+            setOnAction(e -> promptAndConvertJavaToStride());
             JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
         }
     }
-    
+
+    /**
+     * Converts this Java ClassTarget to Stride, as long as the user
+     * says yes to the dialog that this method shows.
+     *
+     * If warnings (e.g. package-private access converted to protected)
+     * are encountered during the conversion, a dialog is shown to the user
+     * explaining them.  Most conversion issues (e.g. unconvertable items)
+     * are warnings not errors.  Errors, which stop the process, mainly arise
+     * from unparseable Java source code.
+     */
     @OnThread(Tag.FXPlatform)
-    public void convertToStride()
+    public void promptAndConvertJavaToStride()
     {
         File javaSourceFile = getJavaSourceFile();
         Charset projectCharset = getPackage().getProject().getProjectCharset();
@@ -2166,6 +2176,7 @@ public class ClassTarget extends DependentTarget
                     return; // Abort
                 }
                 addStride((TopLevelCodeElement)elements.get(0));
+                DataCollector.convertJavaToStride(getPackage(), javaSourceFile, getFrameSourceFile());
             }
             catch (IOException | ParseFailure pf)
             {
@@ -2340,8 +2351,18 @@ public class ClassTarget extends DependentTarget
         if (Config.isGreenfoot())
             pkg.rebuild();
     }
-    
-    public void removeStride()
+
+    /**
+     * Converts this ClassTarget from Stride to Java, by simply
+     * deleting the Stride file and keeping the Java file which we've
+     * always been generating from Stride for compilation purposes.
+     *
+     * This method shows no confirmation dialog/prompt; the caller is expected
+     * to have taken care of that.
+     *
+     * Throws an exception if this is not a Stride ClassTarget.
+     */
+    public void convertStrideToJava()
     {
         if (sourceAvailable != SourceType.Stride)
             throw new IllegalStateException("Cannot convert non-Stride from Stride to Java");
@@ -2365,8 +2386,15 @@ public class ClassTarget extends DependentTarget
         // getSourceFile() will now return the Java file:
         DataCollector.convertStrideToJava(getPackage(), srcFile, getSourceFile());
     }
-    
-    public void addStride(TopLevelCodeElement element)
+
+    /**
+     * Adds the given stride code element as a Stride file for this
+     * class target, as part of a conversion from Java into Stride, or part
+     * of generating a new class from a template.
+     *
+     * @param element The source code content to put in the new .stride file.
+     */
+    private void addStride(TopLevelCodeElement element)
     {
         if (editor != null)
         {
@@ -2385,7 +2413,6 @@ public class ClassTarget extends DependentTarget
             return;
         }
         sourceAvailable = SourceType.Stride;
-        //DataCollector.convertJavaToStride(getPackage(), srcFile, getSourceFile());
     }
 
     @OnThread(Tag.FXPlatform)
