@@ -391,17 +391,50 @@ public class DataCollectorImpl
         submitEventNoData(project, null, EventName.RESETTING_VM);        
     }
 
-    public static void edit(final Package pkg, final File path, final String source, final boolean includeOneLineEdits, final File generatedFrom, StrideEditReason reason)
+    static class EditedFileInfo
+    {
+        // e.g. "diff" or "diff_generated"
+        private final String editType;
+        // Path to the relevant file
+        private final File path;
+        // The complete original (unanonymised) source
+        private final String source;
+        // Should we send the edit if it's only one line?
+        private final boolean includeOneLineEdits;
+        // The file which this one was generated from (or null if N/A)
+        private final File generatedFrom;
+        // The reason for the Stride edit being generated (null if unknown or N/A)
+        private final StrideEditReason strideEditReason;
+        // These get set after constructor:
+        private FileKey fileKey;
+        private List<String> anonSource;
+        // Keep track of whether we actually sent the edit or not:
+        public boolean dontReplace = false;
+
+        EditedFileInfo(String editType, File path, String source, boolean includeOneLineEdits, File generatedFrom, StrideEditReason strideEditReason)
+        {
+            this.editType = editType;
+            this.path = path;
+            this.source = source;
+            this.includeOneLineEdits = includeOneLineEdits;
+            this.generatedFrom = generatedFrom;
+            this.strideEditReason = strideEditReason;
+        }
+    }
+
+
+    static void edit(final Package pkg, List<EditedFileInfo> editedFiles)
     {
         final Project proj = pkg.getProject();
         final ProjectDetails projDetails = new ProjectDetails(proj);
-        final FileKey key = new FileKey(projDetails, CollectUtility.toPath(projDetails, path));
-        final String anonSource = CodeAnonymiser.anonymise(source);
-        final List<String> anonDoc = Arrays.asList(Utility.splitLines(anonSource));
+        // Generate FileKeys and anonymous source for all the files:
+        for (EditedFileInfo editedFile : editedFiles)
+        {
+            editedFile.fileKey = new FileKey(projDetails, CollectUtility.toPath(projDetails, editedFile.path));
+            editedFile.anonSource = Arrays.asList(Utility.splitLines(CodeAnonymiser.anonymise(editedFile.source)));
+        }
                 
         submitEvent(proj, pkg, EventName.EDIT, new Event() {
-
-            private boolean dontReplace = false;
             
             //Edit solely within one line
             private boolean isOneLineDiff(Patch patch)
@@ -415,38 +448,44 @@ public class DataCollectorImpl
             @Override
             public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
             {
-                List<String> previousDoc = fileVersions.get(key);
-                if (previousDoc == null)
-                    previousDoc = new ArrayList<String>(); // Diff against empty file
-                
                 MultipartEntity mpe = new MultipartEntity();
-                
-                Patch patch = DiffUtils.diff(previousDoc, anonDoc);
-                
-                if (patch.getDeltas().isEmpty() || (isOneLineDiff(patch) && !includeOneLineEdits))
+                for (EditedFileInfo editedFile : editedFiles)
                 {
-                    dontReplace = true;
-                    return null;
-                }
-                
-                String diff = makeDiff(patch);
-                
-                addSourceHistoryItem(mpe, CollectUtility.toPath(projDetails, path), "diff", diff, generatedFrom == null ? null : CollectUtility.toPath(projDetails, generatedFrom));
 
-                if (reason != null && reason.getText() != null)
-                {
-                    mpe.addPart("source_histories[][reason]", CollectUtility.toBody(reason.getText()));
+                    List<String> previousDoc = fileVersions.get(editedFile.fileKey);
+                    if (previousDoc == null)
+                        previousDoc = new ArrayList<String>(); // Diff against empty file
+
+
+                    Patch patch = DiffUtils.diff(previousDoc, editedFile.anonSource);
+
+                    if (patch.getDeltas().isEmpty() || (isOneLineDiff(patch) && !editedFile.includeOneLineEdits))
+                    {
+                        editedFile.dontReplace = true;
+                        continue;
+                    }
+
+                    String diff = makeDiff(patch);
+
+                    addSourceHistoryItem(mpe, CollectUtility.toPath(projDetails, editedFile.path), editedFile.editType, diff, editedFile.generatedFrom == null ? null : CollectUtility.toPath(projDetails, editedFile.generatedFrom));
+
+                    if (editedFile.strideEditReason != null && editedFile.strideEditReason.getText() != null)
+                    {
+                        mpe.addPart("source_histories[][reason]", CollectUtility.toBody(editedFile.strideEditReason.getText()));
+                    }
                 }
-                
                 return mpe;
             }
 
             @Override
             public void success(Map<FileKey, List<String>> fileVersions)
             {
-                if (!dontReplace)
+                for (EditedFileInfo editedFile : editedFiles)
                 {
-                    fileVersions.put(key, anonDoc);
+                    if (!editedFile.dontReplace)
+                    {
+                        fileVersions.put(editedFile.fileKey, editedFile.anonSource);
+                    }
                 }
             }
         });
@@ -643,7 +682,7 @@ public class DataCollectorImpl
 
 
         // Then deal with the Java file:
-        mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody(strideToJava ? "stride_to_java" : "java_gen_from_stride"));
+        mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody(strideToJava ? "stride_to_java" : "diff_generated"));
         mpe.addPart("source_histories[][name]", CollectUtility.toBodyLocal(projDetails, javaSourceFile));
         final List<String> anonJava = Arrays.asList(Utility.splitLines(CollectUtility.readFileAndAnonymise(projDetails, javaSourceFile)));
         // We do not put the content in yet, that's done below because it's a diff...

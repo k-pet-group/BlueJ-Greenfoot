@@ -463,8 +463,10 @@ or two events, auto-indent may appear as one edit or several edits, and many
 other such examples), but an edit event will never span a compiler event, and
 all edits will be flushed before a compile event.
 
-The event will always have exactly one associated entry in the
-\tabref{source_histories}, which will be a |"diff"| event.
+If a Java file was edited, the event will always have exactly one associated entry in the
+\tabref{source_histories}, which will be a |"diff"| event.  If a Stride file was edited,
+the event will have two associated entries \tabref{source_histories}, which will be a |"diff"| event
+for the Stride file and a |"diff_generated"| event for the generated Java file.
 
 \subsection{\lstinline!"file_add"!}
 
@@ -1255,7 +1257,11 @@ Each entry in the |source_histories| table belongs to a particular
   of the source file (anonymised).  This will be
   used by file additions, and source histories added on loading a package.
 \item |source_history_type| is |"diff"| -- |content| has the diff (in unified diff format) from
-  the previous version of the file.
+  the previous version of the file.  This event occurs when a file under the user's control
+  is modified (i.e. a Stride file, or a Java which is \textit{not} generated from Stride).
+\item |source_history_type| is |"diff_generated"| -- |content| has the diff (in unified diff format) from
+  the previous version of the file.  This event occurs when a file not under the user's control
+  is modified (i.e. a Java file which is currently generated from a Stride file of the same name).
 \item |source_history_type| is |"rename"| -- |old_source_file_id| will contain the
   id (in the |source_files| table) of the old file id before the rename.  |content| will be blank.
   Note that renames were broken at the start of the project; if |old_source_file_id| is null, you should
@@ -1268,9 +1274,6 @@ Each entry in the |source_histories| table belongs to a particular
   the destination of the conversion.  |old_source_file_id| will contain the
   id (in the |source_files| table) of the old Java file id before the conversion.
   |content| will be the complete new Stride content of this source file.
-\item |source_history_type| is |"java_gen_from_stride"| -- This is for the Java file when
-  a Java to Stride conversion is performed.  This conversion results in the Java file switching from user-edited to auto-generated.
-  |content| will be the diff against the previous version of this source file.
 \item |source_history_type| is |"file_delete"| -- |content| will be blank.
 \end{itemize}
 

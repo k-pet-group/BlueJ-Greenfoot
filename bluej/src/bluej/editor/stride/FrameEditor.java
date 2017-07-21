@@ -37,7 +37,6 @@ import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
 import bluej.editor.TextEditor;
 import bluej.editor.moe.MoeSyntaxDocument;
-import bluej.extensions.SourceType;
 import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.CodeSuggestions;
@@ -286,7 +285,7 @@ public class FrameEditor implements Editor
         
         setSaved();
         if (watcher != null)
-            watcher.recordEdit(SourceType.Stride, result.savedSource, true);
+            watcher.recordStrideEdit(result.javaResult.javaSourceStringContent, result.savedSource, null);
         if (result.javaResult != null)
             this.lastSavedJavaSwing = result.javaResult;
     }
@@ -385,11 +384,13 @@ public class FrameEditor implements Editor
     private class SaveJavaResult
     {
         private final JavaSource javaSource;
+        private final String javaSourceStringContent;
         private final LocationMap xpathLocations;
 
-        public SaveJavaResult(JavaSource javaSource, LocationMap xpathLocations)
+        public SaveJavaResult(JavaSource javaSource, String javaSourceStringContent, LocationMap xpathLocations)
         {
             this.javaSource = javaSource;
+            this.javaSourceStringContent = javaSourceStringContent;
             this.xpathLocations = xpathLocations;
         }
     }
@@ -415,9 +416,7 @@ public class FrameEditor implements Editor
         // to make sure all the source positions have been recorded.
         javaSource.set(js);
 
-        watcher.recordEdit(SourceType.Java, javaString, true);
-
-        return new SaveJavaResult(js, source.toXML().buildLocationMap());
+        return new SaveJavaResult(js, javaString, source.toXML().buildLocationMap());
     }
 
     /**
@@ -1340,7 +1339,7 @@ public class FrameEditor implements Editor
         SaveResult result = _saveFX();
         if (result.exception == null)
         {
-            watcher.recordEdit(SourceType.Stride, result.savedSource, true, reason);
+            watcher.recordStrideEdit(result.javaResult.javaSourceStringContent, result.savedSource, reason);
         }
         else
             Debug.reportError(result.exception);
