@@ -33,6 +33,7 @@ import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCursor;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
@@ -221,7 +222,9 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         catalogueBackground.setBottom(title);
         StackPane catalogueScrollPaneStacked = new StackPane(catalogueBackground, catalogueScrollPane);
         catalogueScrollPaneStacked.setMinWidth(0.0);
-        collapsibleCatalogueScrollPane = new UntitledCollapsiblePane(catalogueScrollPaneStacked, ArrowLocation.LEFT,  PrefMgr.getFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING));
+
+        FXConsumer<? super Boolean> frameCatalogueShownListener = show -> DataCollector.showHideFrameCatalogue(getProject(), show, FrameCatalogue.ShowReason.ARROW);
+        collapsibleCatalogueScrollPane = new UntitledCollapsiblePane(catalogueScrollPaneStacked, ArrowLocation.LEFT,  PrefMgr.getFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING), frameCatalogueShownListener);
         collapsibleCatalogueScrollPane.addArrowWrapperStyleClass("catalogue-collapse");
         showingCatalogue.bindBidirectional(collapsibleCatalogueScrollPane.expandedProperty());
         JavaFXUtil.addChangeListener(showingCatalogue, expanded -> PrefMgr.setFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING, expanded));
@@ -233,6 +236,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         });
         JavaFXUtil.addStyleClass(collapsibleCatalogueScrollPane, "catalogue-scroll-collapsible");
         menuAndTabPane.setRight(collapsibleCatalogueScrollPane);
+
         scene = new Scene(new StackPane(menuAndTabPane, dragPane, dragCursorPane, overlayPane.getNode()), 800, 700);
         stage.setScene(scene);
         Config.addEditorStylesheets(scene);

@@ -32,7 +32,6 @@ import bluej.stride.slots.SuggestionList.SuggestionListParent;
 import bluej.utility.BackgroundConsumer;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
-import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.FXSupplier;
 import javafx.beans.Observable;
 import javafx.beans.binding.DoubleExpression;
@@ -40,12 +39,10 @@ import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ObservableStringValue;
-import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Paint;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 import bluej.editor.stride.CodeOverlayPane;
 import bluej.editor.stride.FrameSelection;
@@ -67,7 +64,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
 
 @OnThread(Tag.FX)
 public interface InteractionManager extends SuggestionListParent
@@ -173,6 +169,17 @@ public interface InteractionManager extends SuggestionListParent
 
     @OnThread(Tag.FXPlatform)
     void recordUnknownCommandKey(Frame enclosingFrame, int index, char key);
+
+    /**
+     * A proxy method to firstly check if data submission is active on this project, and then invoke
+     * the showHideFrameCatalogue method in DataCollectorImpl class, which will do the collection.
+     *
+     * @param show    true for showing and false for hiding
+     * @param reason  The event which triggers the change.
+     *                It is one of the values in the FrameCatalogue.ShowReason enum.
+     */
+    @OnThread(Tag.FXPlatform)
+    void recordShowHideFrameCatalogue(boolean show, FrameCatalogue.ShowReason reason);
 
     public static enum ShortcutKey
     {

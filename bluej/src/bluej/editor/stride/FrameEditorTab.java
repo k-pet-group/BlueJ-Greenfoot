@@ -22,6 +22,7 @@
 package bluej.editor.stride;
 
 import bluej.Config;
+import bluej.collect.DataCollector;
 import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
@@ -2808,6 +2809,12 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         String xpath = (enclosingFrame instanceof CodeFrame) ? locationMap.locationFor(((CodeFrame<? extends CodeElement>)enclosingFrame).getCode()) : null;
 
         editor.getWatcher().recordUnknownCommandKey(xpath, cursorIndex, key);
+    }
+
+    @Override
+    public void recordShowHideFrameCatalogue(boolean show, FrameCatalogue.ShowReason reason)
+    {
+        DataCollector.showHideFrameCatalogue(getProject(), show, reason);
     }
 
     @Override
