@@ -1697,7 +1697,13 @@ public class BlueJSyntaxView
         label.setOnMouseClicked(e -> {
             if (e.getClickCount() == 1 && e.getButton() == MouseButton.PRIMARY)
             {
-                editorPane.getEditor().toggleBreakpoint(editorPane.getDocument().getAbsolutePosition(lineNumberFinal - 1, 0));
+                MoeEditor editor = editorPane.getEditor();
+                // Shouldn't be null because that's only for off-screen copies
+                // and we are in a click handler, but in case of future change:
+                if (editor != null)
+                {
+                    editor.toggleBreakpoint(editorPane.getDocument().getAbsolutePosition(lineNumberFinal - 1, 0));
+                }
             }
             e.consume();
         });
