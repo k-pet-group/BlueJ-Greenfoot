@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import bluej.compiler.Diagnostic.DiagnosticOrigin;
 import bluej.stride.framedjava.ast.StringSlotFragment;
 import bluej.stride.framedjava.errors.Correction.SimpleCorrectionInfo;
 import bluej.stride.framedjava.slots.ExpressionSlot;
@@ -40,7 +41,7 @@ public class UndeclaredVariableInExpressionError extends DirectSlotError
     
     public UndeclaredVariableInExpressionError(StringSlotFragment slotFragment, String varName, int startPosInSlot, int endPosInSlot, ExpressionSlot slot, Set<String> possibleCorrections)
     {
-        super(slotFragment);
+        super(slotFragment, DiagnosticOrigin.STRIDE_LATE);
         this.varName = varName;
         this.startPosInSlot = startPosInSlot;
         this.endPosInSlot = endPosInSlot;

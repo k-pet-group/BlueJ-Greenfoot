@@ -723,6 +723,13 @@ whether or not this error or warning was actually displayed to the user (but rea
 |is_error| flag indicates if it was an error (otherwise it was a warning), the
 |message| field shows the text that would be displayed to the user.
 
+The |origin| column indicates which tool generated the error.  For Java errors, this
+is always "javac".  For Stride errors, it may also be "javac" (if the error comes from
+feeding the generated Java to the javac compiler), or it may be "stride_early" (meaning the
+set of syntax checks performed before generating the Java) or "stride_late" (meaning the
+set of semantic checks performed after a Java compilation, to generate more helpful
+error messages if possible).
+
 For Java errors, the line and column fields indicate the error's location, as reported by the
 compiler  (lines and columns begin at 1, not 0), and the source file referenced is of
 course the Java file.  For pure-Stride errors (e.g. early errors, where a slot is marked as

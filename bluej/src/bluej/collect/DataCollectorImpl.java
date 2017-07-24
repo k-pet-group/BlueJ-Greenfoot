@@ -194,7 +194,7 @@ public class DataCollectorImpl
         });
     }
 
-    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, CompileReason compileReason, SourceType inputType)
+    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, CompileReason compileReason)
     {
         MultipartEntity mpe = new MultipartEntity();
         
@@ -204,7 +204,7 @@ public class DataCollectorImpl
         ProjectDetails projDetails = new ProjectDetails(proj);
         for (CompileInputFile src : sources)
         {
-            mpe.addPart("event[compile_input][][source_file_name]", CollectUtility.toBody(CollectUtility.toPath(projDetails, inputType == SourceType.Stride ? src.getUserSourceFile() : src.getJavaCompileInputFile())));
+            mpe.addPart("event[compile_input][][source_file_name]", CollectUtility.toBody(CollectUtility.toPath(projDetails, src.getUserSourceFile())));
         }        
         
         for (DiagnosticWithShown dws : diagnostics)
@@ -215,6 +215,7 @@ public class DataCollectorImpl
             mpe.addPart("event[compile_output][][shown]", CollectUtility.toBody(dws.wasShownToUser()));
             mpe.addPart("event[compile_output][][message]", CollectUtility.toBody(d.getMessage()));
             mpe.addPart("event[compile_output][][session_sequence]", CollectUtility.toBody(d.getIdentifier()));
+            mpe.addPart("event[compile_output][][origin]", CollectUtility.toBody(d.getOrigin()));
             if (d.getFileName() != null)
             {
                 if (d.getStartLine() >= 1)
@@ -234,7 +235,7 @@ public class DataCollectorImpl
                         mpe.addPart("event[compile_output][][xml_end]", CollectUtility.toBody(d.getXmlEnd()));
                 }
                 // Must make file name relative for anonymisation:
-                String relative = CollectUtility.toPath(projDetails, inputType == SourceType.Stride ? dws.getUserFileName() : new File(dws.getDiagnostic().getFileName()));
+                String relative = CollectUtility.toPath(projDetails, dws.getUserFileName());
                 mpe.addPart("event[compile_output][][source_file_name]", CollectUtility.toBody(relative));
             }
         }

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.compiler.Diagnostic.DiagnosticOrigin;
 import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
 import bluej.stride.framedjava.errors.Correction.CorrectionInfo;
@@ -46,7 +47,7 @@ public class UnknownTypeError extends DirectSlotError
     @OnThread(Tag.Any)
     public UnknownTypeError(SlotFragment slotFragment, String typeName, FXPlatformConsumer<String> replace, InteractionManager editor, Stream<AssistContentThreadSafe> possibleCorrections, Stream<AssistContentThreadSafe> possibleImports)
     {
-        super(slotFragment);
+        super(slotFragment, DiagnosticOrigin.STRIDE_LATE);
         this.typeName = typeName;
         this.editor = editor;
         

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import bluej.compiler.Diagnostic.DiagnosticOrigin;
 import bluej.stride.framedjava.ast.ASTUtility;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.NameDefSlotFragment;
@@ -48,7 +49,7 @@ public class UndeclaredVariableLvalueError extends DirectSlotError
 
     public UndeclaredVariableLvalueError(StringSlotFragment slotFragment, AssignFrame assignFrame, Set<String> possibleCorrections)
     {
-        super(slotFragment);
+        super(slotFragment, DiagnosticOrigin.STRIDE_LATE);
         this.assignFrame = assignFrame;
         this.corrections.addAll(Correction.winnowAndCreateCorrections(assignFrame.getLHS().getText(), possibleCorrections.stream().map(SimpleCorrectionInfo::new), s -> assignFrame.getLHS().setText(s)));
         this.varName = assignFrame.getLHS().getText();
