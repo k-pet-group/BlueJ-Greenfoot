@@ -24,7 +24,6 @@ package bluej.utility;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -41,8 +40,6 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-
-import javax.swing.SwingUtilities;
 
 import bluej.Config;
 import javafx.application.Platform;
@@ -485,7 +482,7 @@ public class ImportScanner
             }
         }
         catch (ParsingException | IOException e) {
-            Debug.reportError(e);
+            Debug.message(e.getClass().getName() + " while reading import cache: " + e.getMessage());
         }
     }
 

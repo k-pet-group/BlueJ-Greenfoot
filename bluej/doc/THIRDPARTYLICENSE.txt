@@ -150,7 +150,7 @@ version 1.0, as found in the "CPL-v1.0.txt" file.
 
 
 NSMenuFX library (3-clause BSD license)
------------------------------------
+---------------------------------------
 "nsmenufx-2.1.4.jar", the NSMenuFX library (https://github.com/codecentric/NSMenuFX),
 is a library to customize the OS X menu bar when it is on FX to be able to customize
 the auto-generated application menu. This version is distributed under the terms of
@@ -168,6 +168,14 @@ Flowless: Copyright (c) 2014, TomasMikula
 WellBehavedFX: Copyright (c) 2014, TomasMikula
 RichTextFX: Copyright (c) 2013-2017, Tomas Mikula and contributors
 
+
+Roboto Mono fonts (Apache License version 2.0)
+----------------------------------------------
+"RobotoMono-{Bold,BoldItalic,Italic,Regular}.ttf", the Roboto Mono font, is used in the Java
+editor. It is distributed under the terms of the Apache License version 2.0, as found in the
+"Apache-License-2.0.txt" file.
+
+
 Sequence Library (3-clause BSD license)
 ---------------------------------------
 "sequence-library-1.0.3.jar" is part of a sequence library, available in source form
@@ -181,6 +189,13 @@ SLF4J Simple Logging Facade for Java (MIT license)
 "slf4j-api-1.7.2.jar" and "slf4j-jdk14-1.7.2.jar" provides logging capabilities
 for JGit library, is used by Bluej. It is distributed under the terms of a MIT
 license, as found in the "slf4j-MIT.txt" file.
+
+
+Source Sans Pro fonts (SIL Open Font License version 1.1)
+---------------------------------------------------------
+"SourceSansPro-{Bold,BoldItalic,Italic,Regular}.ttf", the Source Sans Pro font, is used
+in the Stride editor. It is distributed under the terms of the SIL Open Font License
+as found in the "SIL-OFL-1.1.txt" file.
 
 
 SVNKit (TMate Open Source License)
@@ -216,7 +231,7 @@ XOM XML Object Modeller library (Lesser GNU Public License v2.1)
 ----------------------------------------------------------------
 "xom-1.2.9.jar" comprises the XOM library (http://www.cafeconleche.org/XOM/), used
 by BlueJ. It is distributed under the terms of the LGPL v2.1, as found in the
-"GNU-LGPL-v2.1.txt" file.
+"GNU-LGPL-v2.1.txt" file.refs/heads/*
 
 
 
