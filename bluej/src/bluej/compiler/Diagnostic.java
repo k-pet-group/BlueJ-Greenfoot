@@ -34,6 +34,18 @@ public class Diagnostic implements Serializable
     public static int WARNING = 1;
     public static int NOTE = 2;
 
+    public static enum DiagnosticOrigin
+    {
+        JAVAC("javac"), STRIDE_EARLY("stride_early"), STRIDE_LATE("stride_late"), UNKNOWN("unknown");
+
+        private String serverOrigin;
+
+        private DiagnosticOrigin(String serverOrigin)
+        {
+            this.serverOrigin = serverOrigin;
+        }
+    }
+
     // The type: ERROR, WARNING or NOTE as above
     private final int type;
     // The diagnostic message
@@ -54,8 +66,8 @@ public class Diagnostic implements Serializable
     private int xmlStart = -1;
     // The start index within the XPath-located item.  Negative if N/A.  Set after the constructor.
     private int xmlEnd = -1;
-    // The origin of the message, e.g. "javac" or "stride_late"
-    private final String origin;
+    // The origin of the message, e.g. JAVAC
+    private final DiagnosticOrigin origin;
     // The identifier of the diagnostic, used to tally up with later shown_error_message events.
     // May be -1 if it wasn't a compiler error with specific location
     private final int diagnosticIdentifier;
@@ -66,7 +78,7 @@ public class Diagnostic implements Serializable
      */
     public Diagnostic(int type, String message)
     {
-        this(type, message, null, -1, -1, -1, -1, "unknown", -1);
+        this(type, message, null, -1, -1, -1, -1, DiagnosticOrigin.UNKNOWN, -1);
     }
     
     /**
@@ -88,7 +100,7 @@ public class Diagnostic implements Serializable
      *                   about the same diagnostic, such as shown_error_message events.
      */
     public Diagnostic(int type, String message, String fileName,
-            long startLine, long startColumn, long endLine, long endColumn, String origin, int identifier)
+            long startLine, long startColumn, long endLine, long endColumn, DiagnosticOrigin origin, int identifier)
     {
         this.type = type;
         this.message = message;
@@ -209,6 +221,6 @@ public class Diagnostic implements Serializable
 
     public String getOrigin()
     {
-        return origin;
+        return origin.serverOrigin;
     }
 }

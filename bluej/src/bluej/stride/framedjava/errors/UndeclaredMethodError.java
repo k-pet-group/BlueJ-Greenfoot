@@ -23,6 +23,7 @@ package bluej.stride.framedjava.errors;
 
 import java.util.List;
 
+import bluej.compiler.Diagnostic.DiagnosticOrigin;
 import bluej.stride.framedjava.ast.StringSlotFragment;
 import bluej.stride.framedjava.errors.Correction.SimpleCorrectionInfo;
 import bluej.stride.framedjava.slots.ExpressionSlot;
@@ -39,7 +40,7 @@ public class UndeclaredMethodError extends DirectSlotError
 
     public UndeclaredMethodError(StringSlotFragment slotFragment, String methodName, int startPosInSlot, int endPosInSlot, ExpressionSlot slot, List<String> possibleCorrections)
     {
-        super(slotFragment, "stride_late");
+        super(slotFragment, DiagnosticOrigin.STRIDE_LATE);
         this.methodName = methodName;
         this.startPosInSlot = startPosInSlot;
         this.endPosInSlot = endPosInSlot;

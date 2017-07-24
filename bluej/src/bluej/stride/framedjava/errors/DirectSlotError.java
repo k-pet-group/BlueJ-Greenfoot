@@ -26,6 +26,7 @@ import java.io.File;
 import bluej.collect.DiagnosticWithShown;
 import bluej.compiler.CompilerAPICompiler;
 import bluej.compiler.Diagnostic;
+import bluej.compiler.Diagnostic.DiagnosticOrigin;
 import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.framedjava.ast.StringSlotFragment;
 import bluej.stride.slots.EditableSlot;
@@ -42,14 +43,14 @@ import javafx.application.Platform;
 public abstract class DirectSlotError extends CodeError
 {
     private final int identifier;
-    private final String origin;
+    private final DiagnosticOrigin origin;
 
     /**
      * Creates a new DirectSlotError
      * @param code The SlotFragment which this error refers to
-     * @param origin The origin of the error (typically, "stride_early" or "stride_late")
+     * @param origin The origin of the error (typically, STRIDE_EARLY or STRIDE_LATE)
      */
-    public DirectSlotError(SlotFragment code, String origin)
+    public DirectSlotError(SlotFragment code, DiagnosticOrigin origin)
     {
         super(code);
         this.identifier = CompilerAPICompiler.getNewErrorIdentifer();

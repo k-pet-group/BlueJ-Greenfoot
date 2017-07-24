@@ -27,6 +27,7 @@ import java.util.List;
 
 import bluej.collect.DiagnosticWithShown;
 import bluej.compiler.Diagnostic;
+import bluej.compiler.Diagnostic.DiagnosticOrigin;
 import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.framedjava.ast.StringSlotFragment;
@@ -46,7 +47,7 @@ public class SyntaxCodeError extends DirectSlotError
     @OnThread(Tag.Any)
     public SyntaxCodeError(SlotFragment slot, String msg)
     {
-        super(slot, "stride_early");
+        super(slot, DiagnosticOrigin.STRIDE_EARLY);
         this.message = msg;
     }
     

@@ -41,6 +41,7 @@ import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
 import bluej.Config;
+import bluej.compiler.Diagnostic.DiagnosticOrigin;
 
 /**
  * A compiler implementation using the Compiler API introduced in Java 6.
@@ -138,7 +139,7 @@ public class CompilerAPICompiler extends Compiler
                     else
                         bjDiagnostic = new bluej.compiler.Diagnostic(diagType,
                             message, src, diag.getLineNumber(), beginCol,
-                            diag.getLineNumber(), endCol, "javac", getNewErrorIdentifer());
+                            diag.getLineNumber(), endCol, DiagnosticOrigin.JAVAC, getNewErrorIdentifer());
                 }
                 else if (diag.getKind() == Diagnostic.Kind.WARNING) {
                     if (message.startsWith("bootstrap class path not set in conjunction with -source ")) {
@@ -160,7 +161,7 @@ public class CompilerAPICompiler extends Compiler
                     long endCol = diag.getEndPosition() - diag.getPosition() + beginCol;
                     bjDiagnostic = new bluej.compiler.Diagnostic(diagType,
                             message, src, diag.getLineNumber(), beginCol,
-                            diag.getLineNumber(), endCol, "javac", getNewErrorIdentifer());
+                            diag.getLineNumber(), endCol, DiagnosticOrigin.JAVAC, getNewErrorIdentifer());
                 }
                 else {
                     diagType = bluej.compiler.Diagnostic.NOTE;
