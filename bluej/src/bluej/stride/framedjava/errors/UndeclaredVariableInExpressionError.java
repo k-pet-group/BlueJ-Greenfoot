@@ -40,7 +40,7 @@ public class UndeclaredVariableInExpressionError extends DirectSlotError
     
     public UndeclaredVariableInExpressionError(StringSlotFragment slotFragment, String varName, int startPosInSlot, int endPosInSlot, ExpressionSlot slot, Set<String> possibleCorrections)
     {
-        super(slotFragment);
+        super(slotFragment, "stride_late");
         this.varName = varName;
         this.startPosInSlot = startPosInSlot;
         this.endPosInSlot = endPosInSlot;

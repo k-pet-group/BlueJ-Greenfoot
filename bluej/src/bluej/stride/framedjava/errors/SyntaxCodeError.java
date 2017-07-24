@@ -46,7 +46,7 @@ public class SyntaxCodeError extends DirectSlotError
     @OnThread(Tag.Any)
     public SyntaxCodeError(SlotFragment slot, String msg)
     {
-        super(slot);
+        super(slot, "stride_early");
         this.message = msg;
     }
     

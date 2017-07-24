@@ -39,7 +39,7 @@ public class UndeclaredMethodError extends DirectSlotError
 
     public UndeclaredMethodError(StringSlotFragment slotFragment, String methodName, int startPosInSlot, int endPosInSlot, ExpressionSlot slot, List<String> possibleCorrections)
     {
-        super(slotFragment);
+        super(slotFragment, "stride_late");
         this.methodName = methodName;
         this.startPosInSlot = startPosInSlot;
         this.endPosInSlot = endPosInSlot;

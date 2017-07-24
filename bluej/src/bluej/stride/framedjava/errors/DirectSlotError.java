@@ -42,11 +42,18 @@ import javafx.application.Platform;
 public abstract class DirectSlotError extends CodeError
 {
     private final int identifier;
+    private final String origin;
 
-    public DirectSlotError(SlotFragment code)
+    /**
+     * Creates a new DirectSlotError
+     * @param code The SlotFragment which this error refers to
+     * @param origin The origin of the error (typically, "stride_early" or "stride_late")
+     */
+    public DirectSlotError(SlotFragment code, String origin)
     {
         super(code);
         this.identifier = CompilerAPICompiler.getNewErrorIdentifer();
+        this.origin = origin;
     }
 
     @Override
@@ -59,7 +66,7 @@ public abstract class DirectSlotError extends CodeError
     @OnThread(Tag.Any)
     public synchronized DiagnosticWithShown toDiagnostic(String javaFileName, File strideFileName)
     {
-        final Diagnostic diagnostic = new Diagnostic(Diagnostic.ERROR, getMessage(), javaFileName, -1, -1, -1, -1, getIdentifier());
+        final Diagnostic diagnostic = new Diagnostic(Diagnostic.ERROR, getMessage(), javaFileName, -1, -1, -1, -1, origin, getIdentifier());
         diagnostic.setXPath(path, -1, -1);
         return new DiagnosticWithShown(diagnostic, false, strideFileName);
     }

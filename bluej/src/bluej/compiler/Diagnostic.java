@@ -33,29 +33,40 @@ public class Diagnostic implements Serializable
     public static int ERROR = 0;
     public static int WARNING = 1;
     public static int NOTE = 2;
-    
-    private int type;
-    private String message;
-    private String fileName;
-    private long startLine;
-    private long startColumn;
-    private long endLine;
-    private long endColumn;
-    private String xpath = null;
-    private int xmlStart = -1;
-    private int xmlEnd = -1;
 
+    // The type: ERROR, WARNING or NOTE as above
+    private final int type;
+    // The diagnostic message
+    private String message;
+    // The file name (may be null), without path.
+    private final String fileName;
+    // Start line (begins at 1, but may be 0 or negative if N/A)
+    private final long startLine;
+    // Start column (begins at 1, but may be 0 or negative if N/A)
+    private final long startColumn;
+    // End line (begins at 1, but may be 0 or negative if N/A)
+    private final long endLine;
+    // End column (begins at 1, but may be 0 or negative if N/A)
+    private final long endColumn;
+    // The XPath location of the error.  Null if N/A.  Set after the constructor.
+    private String xpath = null;
+    // The start index within the XPath-located item.  Negative if N/A.  Set after the constructor.
+    private int xmlStart = -1;
+    // The start index within the XPath-located item.  Negative if N/A.  Set after the constructor.
+    private int xmlEnd = -1;
+    // The origin of the message, e.g. "javac" or "stride_late"
+    private final String origin;
+    // The identifier of the diagnostic, used to tally up with later shown_error_message events.
     // May be -1 if it wasn't a compiler error with specific location
     private final int diagnosticIdentifier;
+
     
     /**
      * Constructor for Diagnostic objects representing notes. 
      */
     public Diagnostic(int type, String message)
     {
-        this.type = type;
-        this.message = message;
-        this.diagnosticIdentifier = -1;
+        this(type, message, null, -1, -1, -1, -1, "unknown", -1);
     }
     
     /**
@@ -72,9 +83,12 @@ public class Diagnostic implements Serializable
      *                    {@code startLine} is greater than 0
      * @param endColumn  The column where the error/problem ends; must be valid if
      *                    {@code startLine} is greater than 0. Tab stops are every 8 spaces.
+     * @param origin     The origin of the error message, e.g. "javac" or "stride_late".
+     * @param identifier The identifier of the diagnostic.  Used to match up with later events
+     *                   about the same diagnostic, such as shown_error_message events.
      */
     public Diagnostic(int type, String message, String fileName,
-            long startLine, long startColumn, long endLine, long endColumn, int identifier)
+            long startLine, long startColumn, long endLine, long endColumn, String origin, int identifier)
     {
         this.type = type;
         this.message = message;
@@ -83,7 +97,7 @@ public class Diagnostic implements Serializable
         this.startColumn = startColumn;
         this.endLine = endLine;
         this.endColumn = endColumn;
-        this.xpath = xpath;
+        this.origin = origin;
         this.diagnosticIdentifier = identifier;
     }
     
@@ -117,6 +131,8 @@ public class Diagnostic implements Serializable
     
     /**
      * Set the diagnostic message (the message to be presented to the end user).
+     * This can change because we try to make the message more helpful to the user,
+     * e.g. by suggesting likely mis-spellings.
      */
     public void setMessage(String message)
     {
@@ -171,6 +187,9 @@ public class Diagnostic implements Serializable
         return xpath;
     }
 
+    /**
+     * Sets the XPath, and start and end indexes within the item.
+     */
     public void setXPath(String XPath, int xmlStart, int xmlEnd)
     {
         this.xpath = XPath;
@@ -186,5 +205,10 @@ public class Diagnostic implements Serializable
     public int getXmlEnd()
     {
         return xmlEnd;
+    }
+
+    public String getOrigin()
+    {
+        return origin;
     }
 }

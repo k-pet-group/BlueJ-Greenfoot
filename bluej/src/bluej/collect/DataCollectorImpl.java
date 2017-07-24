@@ -215,6 +215,7 @@ public class DataCollectorImpl
             mpe.addPart("event[compile_output][][shown]", CollectUtility.toBody(dws.wasShownToUser()));
             mpe.addPart("event[compile_output][][message]", CollectUtility.toBody(d.getMessage()));
             mpe.addPart("event[compile_output][][session_sequence]", CollectUtility.toBody(d.getIdentifier()));
+            mpe.addPart("event[compile_output][][origin]", CollectUtility.toBody(d.getOrigin()));
             if (d.getFileName() != null)
             {
                 if (d.getStartLine() >= 1)

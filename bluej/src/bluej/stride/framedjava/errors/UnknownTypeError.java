@@ -46,7 +46,7 @@ public class UnknownTypeError extends DirectSlotError
     @OnThread(Tag.Any)
     public UnknownTypeError(SlotFragment slotFragment, String typeName, FXPlatformConsumer<String> replace, InteractionManager editor, Stream<AssistContentThreadSafe> possibleCorrections, Stream<AssistContentThreadSafe> possibleImports)
     {
-        super(slotFragment);
+        super(slotFragment, "stride_late");
         this.typeName = typeName;
         this.editor = editor;
         
