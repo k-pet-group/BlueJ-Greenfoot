@@ -59,7 +59,10 @@ public abstract class NonCodeEditableTarget extends EditableTarget
     public void setProperty(String key, String value) { }
 
     @Override
-    public void recordEdit(SourceType sourceType, String curSource, boolean includeOneLineEdits, StrideEditReason reason) { }
+    public void recordJavaEdit(String javaSource, boolean includeOneLineEdits) { }
+
+    @Override
+    public void recordStrideEdit(String javaSource, String strideSource, StrideEditReason reason) { }
 
     @Override
     public void recordClose() { }

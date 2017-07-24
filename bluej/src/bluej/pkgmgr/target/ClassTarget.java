@@ -2502,20 +2502,15 @@ public class ClassTarget extends DependentTarget
     }
     
     @Override
-    public void recordEdit(SourceType recordForSourceType, String latest, boolean includeOneLineEdits, StrideEditReason reason)
+    public void recordJavaEdit(String latest, boolean includeOneLineEdits)
     {
-        if (recordForSourceType == SourceType.Java)
-        {
-            DataCollector.edit(getPackage(), getJavaSourceFile(), latest, includeOneLineEdits, getGeneratedFrom(recordForSourceType), null);
-        }
-        else if (recordForSourceType == SourceType.Stride && this.sourceAvailable == SourceType.Stride)
-        {
-            DataCollector.edit(getPackage(), getFrameSourceFile(), latest, includeOneLineEdits, null, reason);
-        }
-        else
-        {
-            Debug.message("Attempting to send " + recordForSourceType + " source when available is: " + this.sourceAvailable);
-        }
+        DataCollector.editJava(getPackage(), getJavaSourceFile(), latest, includeOneLineEdits);
+    }
+
+    @Override
+    public void recordStrideEdit(String latestJava, String latestStride, StrideEditReason reason)
+    {
+        DataCollector.editStride(getPackage(), getJavaSourceFile(), latestJava, getFrameSourceFile(), latestStride, reason);
     }
 
     /**

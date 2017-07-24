@@ -3443,7 +3443,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     {
         if (watcher != null)
         {
-            watcher.recordEdit(SourceType.Java, sourceDocument.getText(0, sourceDocument.getLength()), includeOneLineEdits);
+            watcher.recordJavaEdit(sourceDocument.getText(0, sourceDocument.getLength()), includeOneLineEdits);
         }
     }
 

@@ -23,6 +23,7 @@ package bluej.collect;
 
 import bluej.Boot;
 import bluej.Config;
+import bluej.collect.DataCollectorImpl.EditedFileInfo;
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileReason;
 import bluej.debugger.DebuggerTestResult;
@@ -41,7 +42,9 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -492,10 +495,19 @@ public class DataCollector
     }
 
 
-    public static void edit(Package pkg, File path, String source, boolean includeOneLineEdits, File generatedFrom, StrideEditReason reason)
+    public static void editJava(Package pkg, File path, String source, boolean includeOneLineEdits)
     {
         if (dontSend()) return;
-        DataCollectorImpl.edit(pkg, path, source, includeOneLineEdits, generatedFrom, reason);
+        DataCollectorImpl.edit(pkg, Collections.singletonList(new EditedFileInfo("diff", path, source, includeOneLineEdits, null, null)));
+    }
+
+    public static void editStride(Package pkg, File javaPath, String javaSource, File stridePath, String strideSource, StrideEditReason reason)
+    {
+        if (dontSend()) return;
+        DataCollectorImpl.edit(pkg, Arrays.asList(
+            new EditedFileInfo("diff_generated", javaPath, javaSource, true, stridePath, null),
+            new EditedFileInfo("diff", stridePath, strideSource, true, null, reason)
+        ));
     }
 
     public static void packageOpened(Package pkg)

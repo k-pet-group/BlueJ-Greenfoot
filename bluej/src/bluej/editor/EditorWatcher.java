@@ -82,34 +82,73 @@ public interface EditorWatcher
      * Schedule compilation due to reload or modification
      * @param immediate  True if compilation should be performed immediately; false if compilation should be
      *                   postponed until the user VM is idle
-     * @param reason    Reason for compilation
+     * @param reason    Reason for compilation, used for data recording purposes
+     * @param type      The type of compilation, used to decide whether to keep or discard the generated .class files.
      */
     @OnThread(Tag.Any)
     public void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type);
-    
-    default void recordEdit(SourceType sourceType, String curSource, boolean includeOneLineEdits)
-    {
-        recordEdit(sourceType, curSource, includeOneLineEdits, null);
-    }
 
-    void recordEdit(SourceType sourceType, String curSource, boolean includeOneLineEdits, StrideEditReason reason);
+    /**
+     * Records an edit to the Java code.  Will only be called for Java classes, not for Stride classes.
+     * @param javaSource The current Java source
+     * @param includeOneLineEdits Whether to record if the edit (diff) only affects one line
+     */
+    void recordJavaEdit(String javaSource, boolean includeOneLineEdits);
+
+    /**
+     * Records an edit to the Stride code.  Will only be called for Stride classes, not for Java classes.
+     * @param javaSource The current Java source
+     * @param strideSource The current Stride source
+     * @param reason The reason for the edit (may be null if unknown)
+     */
+    void recordStrideEdit(String javaSource, String strideSource, StrideEditReason reason);
 
     void clearAllBreakpoints();
 
+    /**
+     * Record that the editor was opened
+     */
     void recordOpen();
 
+    /**
+     * Record that the editor was selected (i.e. its tab was made visible in the tabbed editor)
+     */
     void recordSelected();
 
+    /**
+     * Record that the editor was closed
+     */
     void recordClose();
 
+    /**
+     * Record that the given error indicator (i.e. red error underline) was shown in the editor,
+     * e.g. frame became non-fresh in Stride and so its underlines got shown.
+     * @param identifier Integer id of the error
+     */
     void recordShowErrorIndicator(int identifier);
 
+    /**
+     * Record that the given error message was shown to the user.
+     * @param identifier Integer id of the error
+     * @param quickFixes The quick fixes shown with the error, if any (empty list if none)
+     */
     void recordShowErrorMessage(int identifier, List<String> quickFixes);
 
+    /**
+     * Record a list of early errors that were found.
+     */
     void recordEarlyErrors(List<DiagnosticWithShown> diagnostics);
 
+    /**
+     * Record a list of late errors that were found.
+     */
     void recordLateErrors(List<DiagnosticWithShown> diagnostics);
 
+    /**
+     * Record that a given quick fix was selected
+     * @param errorIdentifier Integer id of the error
+     * @param fixIndex The index in the quick fix list, corresponding to the list passed earlier to recordShowErrorMessage for this error id
+     */
     void recordFix(int errorIdentifier, int fixIndex);
 
     // Either lineNumber and columnNumber are non-null and xpath and elementOffset are null,
