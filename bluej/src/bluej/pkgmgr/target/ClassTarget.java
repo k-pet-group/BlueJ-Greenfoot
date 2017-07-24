@@ -2605,7 +2605,7 @@ public class ClassTarget extends DependentTarget
         if (diagnostics.isEmpty())
             return;
 
-        DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, CompileReason.EARLY, SourceType.Stride);
+        DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, CompileReason.EARLY);
     }
 
     @Override
@@ -2614,7 +2614,7 @@ public class ClassTarget extends DependentTarget
         if (diagnostics.isEmpty())
             return;
 
-        DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, CompileReason.LATE, SourceType.Stride);
+        DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, CompileReason.LATE);
     }
 
     @Override

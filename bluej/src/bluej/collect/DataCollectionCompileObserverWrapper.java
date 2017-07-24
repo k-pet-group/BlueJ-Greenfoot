@@ -100,7 +100,7 @@ public class DataCollectionCompileObserverWrapper implements FXCompileObserver
         }
         bluej.pkgmgr.Package pkg = packages.size() == 1 ? project.getPackage(packages.iterator().next()) : null;
         
-        DataCollector.compiled(project, pkg, sources, diagnostics, successful, reason, SourceType.Java);
+        DataCollector.compiled(project, pkg, sources, diagnostics, successful, reason);
         wrapped.endCompile(sources, successful, type);
     }
 
