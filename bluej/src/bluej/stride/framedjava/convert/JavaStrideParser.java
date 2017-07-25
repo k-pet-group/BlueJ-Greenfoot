@@ -1712,7 +1712,7 @@ public class JavaStrideParser extends JavaParser
             warnUnsupportedModifiers("interface", modifiers);
             return new InterfaceElement(null, null, new NameDefSlotFragment(name),
                 extendsTypes.stream().map(t -> toType(t)).collect(Collectors.toList()), fields, methods,
-                new JavadocUnit(doc), pkg == null ? null : pkg, imports.stream().map(i -> new ImportElement(i, null, true)).collect(Collectors.toList()), true);
+                new JavadocUnit(doc), pkg == null ? null : pkg, importsForCU(), true);
         }
     }
     
@@ -1801,8 +1801,21 @@ public class JavaStrideParser extends JavaParser
                 toType(extendsType),
                 implementsTypes.stream().map(t -> toType(t)).collect(Collectors.toList()), fields,
                 constructors, methods,
-                new JavadocUnit(doc), pkg == null ? null : pkg, imports.stream().map(i -> new ImportElement(i, null, true)).collect(Collectors.toList()), true);
+                new JavadocUnit(doc), pkg == null ? null : pkg, importsForCU(), true);
         }
+    }
+
+    /**
+     * Gets the list of ImportElements found when processing this compilation unit.
+     * Any import of lang.stride.* will be ignored because that is already implicit in Stride.
+     * (This can happen in particular when you convert Stride to Java and back again)
+     */
+    private List<ImportElement> importsForCU()
+    {
+        return imports.stream()
+            .filter(imp -> !imp.equals("lang.stride.*"))
+            .map(imp -> new ImportElement(imp, null, true))
+            .collect(Collectors.toList());
     }
 
     private void withTypeDef(Consumer<CodeElement> handler, boolean inner)
