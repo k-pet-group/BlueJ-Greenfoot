@@ -659,7 +659,9 @@ public class DataCollector
      */
     public static void showHideFrameCatalogue(Project project, boolean show, FrameCatalogue.ShowReason reason)
     {
-        if (dontSend()) return;
+        if (dontSend()) {
+            return;
+        }
         DataCollectorImpl.showHideFrameCatalogue(project, show, reason);
     }
 
