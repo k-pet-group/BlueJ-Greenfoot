@@ -230,7 +230,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         JavaFXUtil.addChangeListener(showingCatalogue, expanded -> PrefMgr.setFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING, expanded));
         // runLater, after it has been put in scene:
         JavaFXUtil.runAfterCurrent(() -> {
-            @OnThread(Tag.Any) boolean flag = PrefMgr.getFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING);
+            boolean flag = PrefMgr.getFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING);
             showingCatalogue.set(flag);
             DataCollector.showHideFrameCatalogue(getProject(), flag, FrameCatalogue.ShowReason.PROPERTIES);
         });
