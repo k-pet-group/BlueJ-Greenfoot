@@ -92,9 +92,4 @@ public class AccessPermissionFragment extends ChoiceSlotFragment
     {
         return Stream.empty();
     }
-
-    public Future<List<CodeError>> findLateErrors(InteractionManager editor, CodeElement parent)
-    {
-        return null;
-    }
 }
