@@ -1360,9 +1360,7 @@ public class FrameEditor implements Editor
         if (panel == null) {
             createPanel(false, false);
         }
-        JavaFXUtil.onceTrue(panel.initialisedProperty(), p ->
-            JavaFXUtil.runPlatformLater( () -> panel.addExtends(className))
-        );
+        JavaFXUtil.onceTrue(panel.initialisedProperty(), p -> panel.addExtends(className));
     }
 
     @Override
