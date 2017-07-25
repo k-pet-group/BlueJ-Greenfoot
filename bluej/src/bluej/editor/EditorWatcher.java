@@ -137,12 +137,12 @@ public interface EditorWatcher
     /**
      * Record a list of early errors that were found.
      */
-    void recordEarlyErrors(List<DiagnosticWithShown> diagnostics);
+    void recordEarlyErrors(List<DiagnosticWithShown> diagnostics, int compilationIdentifier);
 
     /**
      * Record a list of late errors that were found.
      */
-    void recordLateErrors(List<DiagnosticWithShown> diagnostics);
+    void recordLateErrors(List<DiagnosticWithShown> diagnostics, int compilationIdentifier);
 
     /**
      * Record that a given quick fix was selected

@@ -282,7 +282,7 @@ public class DataCollector
         DataCollectorImpl.bluejClosed();
     }
     
-    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, CompileReason reason)
+    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, CompileReason reason, int compilationSequence)
     {
         if (dontSend()) return;
         diagnostics.forEach(dws -> {
@@ -296,7 +296,7 @@ public class DataCollector
 
             createdErrors.set(dws.getDiagnostic().getIdentifier());
         });
-        DataCollectorImpl.compiled(proj, pkg, sources, diagnostics, success, reason);
+        DataCollectorImpl.compiled(proj, pkg, sources, diagnostics, success, reason, compilationSequence);
     }
 
     public static void debuggerTerminate(Project project)

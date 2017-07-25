@@ -61,7 +61,7 @@ public class RJobQueueImpl extends java.rmi.server.UnicastRemoteObject
     {
         CompileObserver cobserver = new CompileObserver() {
             @Override
-            public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type)
+            public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type, int compilationSequence)
             {
                 try {
                     observer.startCompile(sources, reason, type);
@@ -77,7 +77,7 @@ public class RJobQueueImpl extends java.rmi.server.UnicastRemoteObject
                 }
             }
             @Override
-            public void endCompile(CompileInputFile[] sources, boolean successful, CompileType type)
+            public void endCompile(CompileInputFile[] sources, boolean successful, CompileType type, int compilationSequence)
             {
                 try {
                     observer.endCompile(sources, successful, type);

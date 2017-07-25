@@ -482,7 +482,7 @@ public class ClassTarget extends DependentTarget
         }
     }
 
-    public void markCompiling(boolean clearErrorState)
+    public void markCompiling(boolean clearErrorState, int compilationSequence)
     {
         if (clearErrorState && getState() == State.HAS_ERROR)
             setState(State.NEEDS_COMPILE);
@@ -492,7 +492,7 @@ public class ClassTarget extends DependentTarget
         }
         if (editor != null)
         {
-            if (editor.compileStarted()) {
+            if (editor.compileStarted(compilationSequence)) {
                 markKnownError(true);
             }
         }
@@ -2600,21 +2600,21 @@ public class ClassTarget extends DependentTarget
     }
 
     @Override
-    public void recordEarlyErrors(List<DiagnosticWithShown> diagnostics)
+    public void recordEarlyErrors(List<DiagnosticWithShown> diagnostics, int compilationIdentifier)
     {
         if (diagnostics.isEmpty())
             return;
 
-        DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, CompileReason.EARLY);
+        DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, CompileReason.EARLY, compilationIdentifier);
     }
 
     @Override
-    public void recordLateErrors(List<DiagnosticWithShown> diagnostics)
+    public void recordLateErrors(List<DiagnosticWithShown> diagnostics, int compilationIdentifier)
     {
         if (diagnostics.isEmpty())
             return;
 
-        DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, CompileReason.LATE);
+        DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, CompileReason.LATE, compilationIdentifier);
     }
 
     @Override

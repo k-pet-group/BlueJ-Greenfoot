@@ -1313,7 +1313,7 @@ public final class Package
             }
             else {
                 if (compObserver != null) {
-                    compObserver.endCompile(new CompileInputFile[0], true, type);
+                    compObserver.endCompile(new CompileInputFile[0], true, type, -1);
                 }
             }
         }
@@ -1324,7 +1324,7 @@ public final class Package
                 ct.setQueued(false);
             }
             if (compObserver != null) {
-                compObserver.endCompile(new CompileInputFile[0], false, type);
+                compObserver.endCompile(new CompileInputFile[0], false, type, -1);
             }
         }
     }
@@ -1345,9 +1345,9 @@ public final class Package
                     @Override
                     public void compilerMessage(Diagnostic diagnostic, CompileType type) {  }
                     @Override
-                    public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type) { }
+                    public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type, int compilationSequence) { }
                     @Override
-                    public void endCompile(CompileInputFile[] sources, boolean succesful, CompileType type2)
+                    public void endCompile(CompileInputFile[] sources, boolean succesful, CompileType type2, int compilationSequence)
                     {
                         // This will be called on the Swing thread.
                         currentlyCompiling = false;
@@ -2483,7 +2483,7 @@ public final class Package
             this.chainObserver = chainObserver;
         }
         
-        private void markAsCompiling(CompileInputFile[] sources, boolean clearErrorState)
+        private void markAsCompiling(CompileInputFile[] sources, boolean clearErrorState, int compilationSequence)
         {
             for (int i = 0; i < sources.length; i++) {
                 String fileName = sources[i].getJavaCompileInputFile().getPath();
@@ -2494,7 +2494,7 @@ public final class Package
 
                     if (t instanceof ClassTarget) {
                         ClassTarget ct = (ClassTarget) t;
-                        ct.markCompiling(clearErrorState);
+                        ct.markCompiling(clearErrorState, compilationSequence);
                     }
                 }
             }
@@ -2521,7 +2521,7 @@ public final class Package
          * currently compiled.
          */
         @Override
-        public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type)
+        public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type, int compilationSequence)
         {
             // Send a compilation starting event to extensions.
             CompileEvent aCompileEvent = new CompileEvent(CompileEvent.COMPILE_START_EVENT, type.keepClasses(), Utility.mapList(Arrays.asList(sources), CompileInputFile::getJavaCompileInputFile).toArray(new File[0]));
@@ -2534,7 +2534,7 @@ public final class Package
             }
 
             // Change view of source classes.
-            markAsCompiling(sources, true);
+            markAsCompiling(sources, true, compilationSequence);
         }
 
         @Override
@@ -2571,7 +2571,7 @@ public final class Package
          * again.
          */
         @Override
-        public void endCompile(CompileInputFile[] sources, boolean successful, CompileType type)
+        public void endCompile(CompileInputFile[] sources, boolean successful, CompileType type, int compilationSequence)
         {
             for (int i = 0; i < sources.length; i++) {
                 String filename = sources[i].getJavaCompileInputFile().getPath();
@@ -2652,7 +2652,7 @@ public final class Package
             ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
             
             if (chainObserver != null) {
-                chainObserver.endCompile(sources, successful, type);
+                chainObserver.endCompile(sources, successful, type, compilationSequence);
             }
         }
     }
@@ -2780,10 +2780,10 @@ public final class Package
         }
         
         @Override
-        public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type)
+        public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type, int compilationSequence)
         {
             numErrors = 0;
-            super.startCompile(sources, reason, type);
+            super.startCompile(sources, reason, type, compilationSequence);
         }
         
         @Override

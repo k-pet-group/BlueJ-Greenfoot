@@ -88,14 +88,14 @@ final public class EventqueueCompileObserverAdapter implements CompileObserver
     }
 
     @Override
-    public synchronized void startCompile(CompileInputFile[] csources, CompileReason reason, CompileType type)
+    public synchronized void startCompile(CompileInputFile[] csources, CompileReason reason, CompileType type, int compilationSequence)
     {
-        runOnEventQueue(() -> link.startCompile(csources, reason, type));
+        runOnEventQueue(() -> link.startCompile(csources, reason, type, compilationSequence));
     }
 
     @Override
-    public synchronized void endCompile(CompileInputFile[] sources, boolean successful, CompileType type)
+    public synchronized void endCompile(CompileInputFile[] sources, boolean successful, CompileType type, int compilationSequence)
     {
-        runOnEventQueue(() -> link.endCompile(sources, successful, type));
+        runOnEventQueue(() -> link.endCompile(sources, successful, type, compilationSequence));
     }
 }

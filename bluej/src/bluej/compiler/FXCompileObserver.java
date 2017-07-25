@@ -42,7 +42,7 @@ public interface FXCompileObserver
     /**
      * A compilation job has started.
      */
-    void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type);
+    void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type, int compilationSequence);
     
     /**
      * An error or warning message occurred during compilation
@@ -54,5 +54,5 @@ public interface FXCompileObserver
     /**
      * A Compilation job finished.
      */
-    void endCompile(CompileInputFile[] sources, boolean succesful, CompileType type);
+    void endCompile(CompileInputFile[] sources, boolean succesful, CompileType type, int compilationSequence);
 }

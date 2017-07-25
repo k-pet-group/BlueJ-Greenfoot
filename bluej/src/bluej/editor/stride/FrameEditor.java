@@ -179,6 +179,12 @@ public class FrameEditor implements Editor
      */
     @OnThread(Tag.FXPlatform)
     private boolean foundLateErrorsForMostRecentCompile;
+    /**
+     * Paired with foundLateErrorsForMostRecentCompile, this is the identifier
+     * for the most recent compile for data recording purposes, to allow the late
+     * errors to be associated with the most recent compile which triggered them.
+     */
+    private int mostRecentCompileIdentifier = -1;
 
     @OnThread(Tag.Any)
     public synchronized List<Integer> getBreakpoints()
@@ -245,7 +251,8 @@ public class FrameEditor implements Editor
                 // runLater so that the panel will have been added:
                 JavaFXUtil.runPlatformLater(() -> {
                     _saveFX();
-                    findLateErrors();
+                    // No relevant other compilation, so use -1 as identifier:
+                    findLateErrors(-1);
                 });
 
             }
@@ -688,9 +695,9 @@ public class FrameEditor implements Editor
 
             @Override
             @OnThread(Tag.FXPlatform)
-            public boolean compileStarted()
+            public boolean compileStarted(int compilationSequence)
             {
-                return FrameEditor.this.compileStarted();    
+                return FrameEditor.this.compileStarted(compilationSequence);
             }
 
             @Override
@@ -1100,7 +1107,9 @@ public class FrameEditor implements Editor
             if (!foundLateErrorsForMostRecentCompile)
             {
                 foundLateErrorsForMostRecentCompile = true;
-                findLateErrors();
+                findLateErrors(mostRecentCompileIdentifier);
+                // Shouldn't use the same one twice anyway as we are guarded by the boolean flag:
+                mostRecentCompileIdentifier = -1;
             }
             panel.compiled();
         }
@@ -1109,7 +1118,7 @@ public class FrameEditor implements Editor
     }
 
     @OnThread(Tag.FXPlatform)
-    private void findLateErrors()
+    private void findLateErrors(int compilationIdentifier)
     {
         panel.removeOldErrors();
         TopLevelCodeElement el = panel.getSource();
@@ -1134,14 +1143,15 @@ public class FrameEditor implements Editor
             }
             Platform.runLater(() -> panel.updateErrorOverviewBar(false));
             List<DiagnosticWithShown> diagnostics = Utility.mapList(allLates, e -> e.toDiagnostic(javaFilename.getName(), frameFilename));
-            Platform.runLater(() -> watcher.recordLateErrors(diagnostics));
+            Platform.runLater(() -> watcher.recordLateErrors(diagnostics, compilationIdentifier));
         });
     }
         
     @Override
-    public boolean compileStarted()
+    public boolean compileStarted(int compilationSequence)
     {
         foundLateErrorsForMostRecentCompile = false;
+        mostRecentCompileIdentifier = compilationSequence;
         if (panel != null)
             panel.flagErrorsAsOld();
         else
@@ -1149,7 +1159,7 @@ public class FrameEditor implements Editor
         // Note lastSourceRef may refer to a stale source, but this shouldn't cause any
         // significant issues.  In fact, it probably makes sense to use the source at
         // point of last save, rather than any modifications in the window since.
-        return earlyErrorCheck(lastSource.findEarlyErrors());
+        return earlyErrorCheck(lastSource.findEarlyErrors(), compilationSequence);
     }
 
     /**
@@ -1157,11 +1167,11 @@ public class FrameEditor implements Editor
      */
     //package-visible
     @OnThread(Tag.FXPlatform)
-    boolean earlyErrorCheck(Stream<SyntaxCodeError> earlyErrors)
+    boolean earlyErrorCheck(Stream<SyntaxCodeError> earlyErrors, int compilationIdentifier)
     {
         List<SyntaxCodeError> earlyList = earlyErrors.collect(Collectors.toList());
         List<DiagnosticWithShown> diagnostics = Utility.mapList(earlyList, e -> e.toDiagnostic(javaFilename.getName(), frameFilename));
-        watcher.recordEarlyErrors(diagnostics);
+        watcher.recordEarlyErrors(diagnostics, compilationIdentifier);
         return !earlyList.isEmpty();
     }
 
