@@ -281,7 +281,25 @@ public class DataCollector
         if (dontSend()) return;
         DataCollectorImpl.bluejClosed();
     }
-    
+
+    /**
+     * Record a compile event.  This may be a javac compile, but it may also be a Stride early or late error check.
+     *
+     *
+     * @param proj The project involved in the compilation
+     * @param pkg The package involved in the compilation.  Due to BlueJ's design, we only ever compile one package at a time.
+     *            May be null if it cannot be determined for some reason
+     * @param sources The collection of files fed to the compilation as input.
+     * @param diagnostics The diagnostics (i.e. errors and warnings) which were generated
+     *                    as a result of the compile.  May be empty, especially if compile was successful.
+     * @param success Was the compile a success?
+     * @param reason The reason for performing the compilation.  This is recorded on the server
+     * @param compilationSequence A sequence identifier (unique within this session) of the original trigger of the compilation event.
+     *                            If we compile Stride, we may get an early, normal and late compilation result passed to three
+     *                            separate calls of this method, but they will all have the same compilationSequence
+     *                            value, to allow them to be reassembled by a later researcher.  The special value -1
+     *                            means it is non-applicable or unknown, and in this case will not be sent to the server.
+     */
     public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, CompileReason reason, int compilationSequence)
     {
         if (dontSend()) return;
