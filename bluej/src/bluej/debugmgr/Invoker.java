@@ -550,7 +550,7 @@ public class Invoker
                 compileInvocationFile(shell);
             }
             else {
-                endCompile(new CompileInputFile[0], false, CompileType.INTERNAL_COMPILE);
+                endCompile(new CompileInputFile[0], false, CompileType.INTERNAL_COMPILE, -1);
             }
         }
     }
@@ -1030,7 +1030,7 @@ public class Invoker
 
     // not interested in these events:
     @Override
-    public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type) { }
+    public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type, int compilationSequence) { }
 
     /*
      * @see bluej.compiler.CompileObserver#compilerMessage(bluej.compiler.Diagnostic)
@@ -1069,7 +1069,7 @@ public class Invoker
      */
     @Override
     @OnThread(Tag.FXPlatform)
-    public synchronized void endCompile(CompileInputFile[] sources, boolean successful, CompileType type)
+    public synchronized void endCompile(CompileInputFile[] sources, boolean successful, CompileType type, int compilationSequence)
     {
         if (dialog != null)
         {

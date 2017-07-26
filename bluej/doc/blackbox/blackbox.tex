@@ -691,10 +691,10 @@ Possible values for reason are:
 \item |NULL| -- This indicates the compile event occurred in BlueJ 3.x, which predates
 the addition of the reason column.
 \item |"early"| -- A check in Stride for errors that can be spotted without full javac
- compilation, such as a slot being empty or having a parse error.
+ compilation, such as a slot being empty or having a parse error.  Early compiles are only recorded if they feature errors.
 \item |"late"| -- A post-compilation check in Stride for errors which will have shown
 a compiler error, but for which we can show a more helpful error message, for example if
- the user has typoed a variable name.
+ the user has typoed a variable name.  Late compiles are only recorded if they feature errors.
 \item |"invoke"| -- A compilation of some generated code, required to execute a user's
 invocation (e.g. when they right click on an object in the object bench to call a method).
 \item |"rebuild"| -- A full rebuild of a project
@@ -706,6 +706,8 @@ in Greenfoot where the system requests compilation.
 \item |"user"| -- Explicitly requested compilation by the user using the Compile button
 or keyboard shortcut.
 \end{itemize}
+
+Several of the entries in the compile events table may correspond to the same logical compile.  In particular, Stride compiles may have a normal compile (e.g. modified), but also an early and/or late if errors are detected there.  To allow these compiles to be associated again afterwards, you can use the |session_id| and |compile_sequence| columns which, when taken as a pair, uniquely identify the same logical compilation on the user's machine.
 
 %schema:compile_inputs
 

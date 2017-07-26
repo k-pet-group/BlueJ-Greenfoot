@@ -3592,7 +3592,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
 
     @Override
-    public boolean compileStarted()
+    public boolean compileStarted(int compilationSequence)
     {
         madeChangeOnCurrentLine = false;
         errorManager.removeAllErrorHighlights();

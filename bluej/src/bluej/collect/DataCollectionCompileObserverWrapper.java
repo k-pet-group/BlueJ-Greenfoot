@@ -58,12 +58,12 @@ public class DataCollectionCompileObserverWrapper implements FXCompileObserver
     }
 
     @Override
-    public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type)
+    public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type, int compilationSequence)
     {
         diagnostics.clear();
         this.sources = sources;
         this.reason = reason;
-        wrapped.startCompile(sources, reason, type);
+        wrapped.startCompile(sources, reason, type, compilationSequence);
 
     }
 
@@ -88,7 +88,7 @@ public class DataCollectionCompileObserverWrapper implements FXCompileObserver
     }
 
     @Override
-    public void endCompile(CompileInputFile[] sources, boolean successful, CompileType type)
+    public void endCompile(CompileInputFile[] sources, boolean successful, CompileType type, int compilationSequence)
     {
         // Heuristic: if all files are in the same package, record the compile as being with that package
         // (I'm fairly sure the BlueJ interface doesn't let you do cross-package compile,
@@ -100,8 +100,8 @@ public class DataCollectionCompileObserverWrapper implements FXCompileObserver
         }
         bluej.pkgmgr.Package pkg = packages.size() == 1 ? project.getPackage(packages.iterator().next()) : null;
         
-        DataCollector.compiled(project, pkg, sources, diagnostics, successful, reason);
-        wrapped.endCompile(sources, successful, type);
+        DataCollector.compiled(project, pkg, sources, diagnostics, successful, reason, compilationSequence);
+        wrapped.endCompile(sources, successful, type, compilationSequence);
     }
 
 }

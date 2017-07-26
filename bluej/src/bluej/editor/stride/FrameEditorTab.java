@@ -645,7 +645,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                     {
                         saved();
                         // Force generation of early errors on load:
-                        editor.earlyErrorCheck(getTopLevelFrame().getCode().findEarlyErrors());
+                        // No relevant compile sequence to use, so we use -1 meaning N/A:
+                        editor.earlyErrorCheck(getTopLevelFrame().getCode().findEarlyErrors(), -1);
                         Platform.runLater(FrameEditorTab.this::updateDisplays);
                     }
 

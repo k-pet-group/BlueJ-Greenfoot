@@ -77,10 +77,10 @@ public abstract class NonCodeEditableTarget extends EditableTarget
     public void recordShowErrorMessage(int identifier, List<String> quickFixes) { }
 
     @Override
-    public void recordEarlyErrors(List<DiagnosticWithShown> diagnostics) { }
+    public void recordEarlyErrors(List<DiagnosticWithShown> diagnostics, int compilationIdentifier) { }
 
     @Override
-    public void recordLateErrors(List<DiagnosticWithShown> diagnostics) { }
+    public void recordLateErrors(List<DiagnosticWithShown> diagnostics, int compilationIdentifier) { }
 
     @Override
     public void recordFix(int errorIdentifier, int fixIndex) { }
