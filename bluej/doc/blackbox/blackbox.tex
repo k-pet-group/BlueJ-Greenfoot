@@ -757,9 +757,42 @@ which these fixes were shown for.
 
 \section{Code Completion}
 
+When code completion (i.e. the window you get when you hit ctrl-space) is shown, or when an item is selected,
+a code completion event is sent to the database.
+
 %schema:code_completions
-\subsection{\lstinline!"code_completion_started"!} TODO
-\subsection{\lstinline!"code_completion_ended"!} TODO
+
+This table is used for start and end events for code completion (see below), and for Java or Stride.  The
+|line_number| and |column_number| are used to record the location of the caret when code completion was triggered or ended in Java,
+but are NULL for Stride.  Conversely, the |xpath| and |xml_index| (index within a slot) are set for Stride, but NULL for Java.
+
+The |session_id| and |completion_sequence|, when taken as a pair, uniquely identify one use of code completion.  This is so
+that you can easily pair together beginning and ending events of the same code completion.  Note that not every beginning
+has an end: if the user cancels, we do not record an ending event, only if they actually select an item.
+
+See below for description of other fields.
+
+\subsection{\lstinline!"code_completion_started"!}
+
+This event occurs when code completion is triggered.  It may not necessarily result in the window being shown;
+if there is exactly one matching completion available in BlueJ (e.g. ``hashC'' has been typed, and only ``hashCode()'' matches),
+the completion is automatically inserted without showing the window.  In this case, a started event will be immediately
+followed by an end event.
+
+There will be one matching item in the |code_completions| table, which will have |trigger| set to |"started"|.  The |stem| field
+will be the String used as the stem for code completion searching (roughly: the word to the left of the cursor position, if any).
+The |replacement| field will be NULL.
+
+\subsection{\lstinline!"code_completion_ended"!}
+
+This event occurs when code completion is ended by selecting an item to complete.  No ending event is sent if the user cancels code
+completion.  This may be done using a mouse-click, or keyboard selection, but we do not record the difference.
+
+The |stem| will be the stem at the time of completion (roughly: the word to the left of the cursor position, if any).  The
+|replacement| field will be the replacement text of the item chosen.  For Java, this text (e.g. |"setPosition(_x_, _y_)"|)is inserted verbatim
+into the editor.  For Stride, the parameters (if any) are not inserted as text; merely the separating comma is inserted and the
+parameters show as prompts (you'll understand if you do ctrl-space yourself in Stride for a multi-parameter method).  But the same text
+is recorded as for Java, to provide maximum detail on what the user selected.
 
 \section{Stride Editing Events}
 

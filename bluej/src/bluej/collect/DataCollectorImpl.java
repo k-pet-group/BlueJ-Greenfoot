@@ -1112,18 +1112,22 @@ public class DataCollectorImpl
             submitEvent(project, pkg, event, new PlainEvent(mpe));
     }
 
-    public static void codeCompletionStarted(Project project, Package pkg, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem)
+    public static void codeCompletionStarted(Project project, Package pkg, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem, int codeCompletionId)
     {
         MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[code_completion][trigger]", CollectUtility.toBody("start"));
+        mpe.addPart("event[code_completion][completion_sequence]", CollectUtility.toBody(codeCompletionId));
         addCodeCompletionLocation(mpe, lineNumber, columnNumber, xpath, subIndex);
         if (stem != null)
             mpe.addPart("event[code_completion][stem]", CollectUtility.toBody(stem));
         submitEvent(project, pkg, EventName.CODE_COMPLETION_STARTED, new PlainEvent(mpe));
     }
 
-    public static void codeCompletionEnded(Project project, Package pkg, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem, String replacement)
+    public static void codeCompletionEnded(Project project, Package pkg, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem, String replacement, int codeCompletionId)
     {
         MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[code_completion][trigger]", CollectUtility.toBody("selected"));
+        mpe.addPart("event[code_completion][completion_sequence]", CollectUtility.toBody(codeCompletionId));
         addCodeCompletionLocation(mpe, lineNumber, columnNumber, xpath, subIndex);
         if (stem != null)
             mpe.addPart("event[code_completion][stem]", CollectUtility.toBody(stem));

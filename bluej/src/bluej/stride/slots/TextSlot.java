@@ -208,9 +208,9 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             SuggestionListListener suggestionListener = new SuggestionListListener() {
                 @Override
                 @OnThread(Tag.FXPlatform)
-                public void suggestionListChoiceClicked(int highlighted)
+                public void suggestionListChoiceClicked(SuggestionList suggestionList, int highlighted)
                 {
-                    executeSuggestion(highlighted);
+                    executeSuggestion(suggestionList, highlighted);
                     row.focusRight(TextSlot.this);
                 }
 
@@ -219,7 +219,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                 public Response suggestionListKeyTyped(SuggestionList suggestionList, KeyEvent event, int highlighted)
                 {
                     // Space completes single selections and moves to next slot:
-                    if (event.getCharacter().equals(" ") && completeIfPossible(highlighted))
+                    if (event.getCharacter().equals(" ") && completeIfPossible(suggestionList, highlighted))
                     {
                         row.focusRight(TextSlot.this);
                         return Response.DISMISS;
@@ -230,23 +230,23 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                 }
 
                 @OnThread(Tag.FXPlatform)
-                private boolean completeIfPossible(int highlighted)
+                private boolean completeIfPossible(SuggestionList suggestionList, int highlighted)
                 {
                     // Pick a value if one was available to complete:
                     if (highlighted != -1)
                     {
-                        return executeSuggestion(highlighted);
+                        return executeSuggestion(suggestionList, highlighted);
                     }
                     else if (suggestionDisplayProperty.get().eligibleCount() == 1  && getText().length() > 0)
                     {
-                        return executeSuggestion(suggestionDisplayProperty.get().getFirstEligible());
+                        return executeSuggestion(suggestionList, suggestionDisplayProperty.get().getFirstEligible());
                     }
                     return false;
                 }
 
                 @Override
                 @OnThread(Tag.FXPlatform)
-                public Response suggestionListKeyPressed(KeyEvent event, int highlighted)
+                public Response suggestionListKeyPressed(SuggestionList suggestionList, KeyEvent event, int highlighted)
                 {
                     switch (event.getCode())
                     {
@@ -283,7 +283,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                             }
                             break;
                         case ENTER:
-                            if (executeSuggestion(highlighted))
+                            if (executeSuggestion(suggestionList, highlighted))
                             {
                                 row.focusRight(TextSlot.this);
                                 return Response.DISMISS;
@@ -299,7 +299,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                             else
                             {
                                 row.focusRight(TextSlot.this);
-                                completeIfPossible(highlighted);
+                                completeIfPossible(suggestionList, highlighted);
                             }
                             return Response.DISMISS;
                     }
@@ -566,8 +566,11 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             editor.afterRegenerateAndReparse(() -> {
                 final int stringPos = field.getCaretPosition();
                 //Debug.time("!!! Calculating suggestions");
-                completionCalculator.withCalculatedSuggestionList(getSlotElement().getPosInSourceDoc(stringPos), codeFrameParent.getCode(), listener, handler);
-                editor.recordCodeCompletionStarted(getSlotElement(), stringPos, getCurWord());
+                completionCalculator.withCalculatedSuggestionList(getSlotElement().getPosInSourceDoc(stringPos), codeFrameParent.getCode(), listener, suggList -> {
+                    editor.recordCodeCompletionStarted(getSlotElement(), stringPos, getCurWord(), suggList.getRecordingId());
+                    handler.accept(suggList);
+                });
+
             });
         }
 
@@ -840,14 +843,14 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
 
     // Returns true if should be dismissed
     @OnThread(Tag.FXPlatform)
-    private boolean executeSuggestion(int highlighted)
+    private boolean executeSuggestion(SuggestionList suggestionList, int highlighted)
     {
         final int position = getStartOfCurWord();
         String word = field.getCurWord();
         final boolean success = field.executeCompletion(completionCalculator, highlighted, position);
         if (success)
         {
-            editor.recordCodeCompletionEnded(getSlotElement(), position, word, getText());
+            editor.recordCodeCompletionEnded(getSlotElement(), position, word, getText(), suggestionList.getRecordingId());
         }
         return success;
     }
