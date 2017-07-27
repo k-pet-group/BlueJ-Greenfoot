@@ -2623,16 +2623,18 @@ public class ClassTarget extends DependentTarget
         DataCollector.fixExecuted(getPackage(), errorIdentifier, fixIndex);
     }
 
+    // See comment for DataCollector.codeCompletionStart
     @Override
-    public void recordCodeCompletionStarted(Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem)
+    public void recordCodeCompletionStarted(Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem, int codeCompletionId)
     {
-        DataCollector.codeCompletionStarted(this, lineNumber, columnNumber, xpath, subIndex, stem);
+        DataCollector.codeCompletionStarted(this, lineNumber, columnNumber, xpath, subIndex, stem, codeCompletionId);
     }
 
+    // See comment for DataCollector.codeCompletionEnded
     @Override
-    public void recordCodeCompletionEnded(Integer lineNumber, Integer columnNumber, String xpath, Integer elementOffset, String stem, String replacement)
+    public void recordCodeCompletionEnded(Integer lineNumber, Integer columnNumber, String xpath, Integer elementOffset, String stem, String replacement, int codeCompletionId)
     {
-        DataCollector.codeCompletionEnded(this, lineNumber, columnNumber, xpath, elementOffset, stem, replacement);
+        DataCollector.codeCompletionEnded(this, lineNumber, columnNumber, xpath, elementOffset, stem, replacement, codeCompletionId);
     }
 
     @Override

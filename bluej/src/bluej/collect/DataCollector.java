@@ -647,16 +647,39 @@ public class DataCollector
         DataCollectorImpl.greenfootEvent(project, project.getPackage(""), event);
     }
 
-    public static void codeCompletionStarted(ClassTarget ct, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem)
+    /**
+     * Record that code completion has been triggered.
+     *
+     * @param ct The class target in which code completion was triggered.
+     * @param lineNumber The Java line number, or null if Stride is being used
+     * @param columnNumber The Java column number, or null if Stride is being used
+     * @param xpath The XPath to the Stride element, or null if Java is being used
+     * @param subIndex The sub-index within the Stride element, or null if Java is being used
+     * @param stem The initial String stem used to decide initially eligible items
+     * @param codeCompletionId The ID of the code completion, unique to this session.  Used to match with later ending event.
+     */
+    public static void codeCompletionStarted(ClassTarget ct, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem, int codeCompletionId)
     {
         if (dontSend()) return;
-        DataCollectorImpl.codeCompletionStarted(ct.getPackage().getProject(), ct.getPackage(), lineNumber, columnNumber, xpath, subIndex, stem);
+        DataCollectorImpl.codeCompletionStarted(ct.getPackage().getProject(), ct.getPackage(), lineNumber, columnNumber, xpath, subIndex, stem, codeCompletionId);
     }
 
-    public static void codeCompletionEnded(ClassTarget ct, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem, String replacement)
+    /**
+     * Record that code completion has ended.
+     *
+     * @param ct The class target in which code completion was ended.
+     * @param lineNumber The Java line number, or null if Stride is being used
+     * @param columnNumber The Java column number, or null if Stride is being used
+     * @param xpath The XPath to the Stride element, or null if Java is being used
+     * @param subIndex The sub-index within the Stride element, or null if Java is being used
+     * @param stem The current String stem at the point where the code completion was ended.
+     * @param replacement The replacement which was chosen from the code completion list.
+     * @param codeCompletionId The ID of the code completion, unique to this session.  Used to match with later ending event.
+     */
+    public static void codeCompletionEnded(ClassTarget ct, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem, String replacement, int codeCompletionId)
     {
         if (dontSend()) return;
-        DataCollectorImpl.codeCompletionEnded(ct.getPackage().getProject(), ct.getPackage(), lineNumber, columnNumber, xpath, subIndex, stem, replacement);
+        DataCollectorImpl.codeCompletionEnded(ct.getPackage().getProject(), ct.getPackage(), lineNumber, columnNumber, xpath, subIndex, stem, replacement, codeCompletionId);
     }
 
     public static void unknownFrameCommandKey(ClassTarget ct, String enclosingFrameXpath, int cursorIndex, char key)
