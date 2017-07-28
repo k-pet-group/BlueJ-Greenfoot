@@ -112,7 +112,7 @@ public class FrameCursor implements RecallableFocus
         {
             boolean show = !editor.cheatSheetShowingProperty().get();
             editor.cheatSheetShowingProperty().set(show);
-            editor.recordShowHideFrameCatalogue(show, FrameCatalogue.ShowReason.SHORTCUT);
+            editor.recordShowHideFrameCatalogue(show, FrameCatalogue.ShowReason.MENU_OR_SHORTCUT);
             return true;
         }
 

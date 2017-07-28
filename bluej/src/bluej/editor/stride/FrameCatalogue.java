@@ -132,11 +132,10 @@ public class FrameCatalogue extends VBox
     public enum ShowReason {
         // The user presses unknown command twice.
         UNKNOWN_FRAME_COMMAND("unknown_frame_command"),
-        // The user uses the catalogue showing/hiding check menu or its accelerator. We don't have a straightforward
-        // way to actually differentiate between the accelerator and actual clicking on the menu.
-        MENU("menu"),
-        // The user presses the keyboard shortcut for the catalogue, which is NOT the accelerator one.
-        SHORTCUT("shortcut"),
+        // The check menu, its accelerator or the keyboard shortcut is used to show/hide the catalogue.
+        // They are merged as we don't have a straightforward way to actually differentiate between
+        // the accelerator and actual clicking on the menu. Also, there is no big need to differentiate.
+        MENU_OR_SHORTCUT("menu_or_shortcut"),
         // The user clicks on the catalogue's arrow to show/hide it.
         ARROW("arrow"),
         // When loading the project, bluej tries to retrieve the previous catalogue state.
