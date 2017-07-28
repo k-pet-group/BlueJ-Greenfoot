@@ -1,7 +1,7 @@
 Setting up BlueJ and Greenfoot in IntelliJ 2016.*:
 
 Go to File->New->Project from Version Control->Git
-URL: ssh://username@bluej.org/home/svn/git/bjgf.git
+URL: https://gitlab.bluej.org/gitlab-username/bjgf.git
 Check out to wherever.  In the past, IntelliJ prompted for creating new modules
   after check out, but it doesn't seem to now.  Either way, you'll want to do the
   module set up manually as follows.
