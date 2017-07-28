@@ -414,7 +414,7 @@ public class DataCollectorImpl
         private FileKey fileKey;
         private List<String> anonSource;
         // Keep track of whether we actually sent the edit or not:
-        public boolean dontReplace = false;
+        public boolean dontSend = false;
 
         EditedFileInfo(String editType, File path, String source, boolean includeOneLineEdits, File generatedFrom, StrideEditReason strideEditReason)
         {
@@ -466,7 +466,7 @@ public class DataCollectorImpl
 
                     if (patch.getDeltas().isEmpty() || (isOneLineDiff(patch) && !editedFile.includeOneLineEdits))
                     {
-                        editedFile.dontReplace = true;
+                        editedFile.dontSend = true;
                         continue;
                     }
 
@@ -479,7 +479,15 @@ public class DataCollectorImpl
                         mpe.addPart("source_histories[][reason]", CollectUtility.toBody(editedFile.strideEditReason.getText()));
                     }
                 }
-                return mpe;
+                // If no files to send, cancel sending the whole edit event:
+                if (editedFiles.stream().allMatch(f -> f.dontSend))
+                {
+                    return null;
+                }
+                else
+                {
+                    return mpe;
+                }
             }
 
             @Override
@@ -487,7 +495,7 @@ public class DataCollectorImpl
             {
                 for (EditedFileInfo editedFile : editedFiles)
                 {
-                    if (!editedFile.dontReplace)
+                    if (!editedFile.dontSend)
                     {
                         fileVersions.put(editedFile.fileKey, editedFile.anonSource);
                     }
