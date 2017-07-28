@@ -282,8 +282,26 @@ public class DataCollector
         if (dontSend()) return;
         DataCollectorImpl.bluejClosed();
     }
-    
-    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, CompileReason reason)
+
+    /**
+     * Record a compile event.  This may be a javac compile, but it may also be a Stride early or late error check.
+     *
+     *
+     * @param proj The project involved in the compilation
+     * @param pkg The package involved in the compilation.  Due to BlueJ's design, we only ever compile one package at a time.
+     *            May be null if it cannot be determined for some reason
+     * @param sources The collection of files fed to the compilation as input.
+     * @param diagnostics The diagnostics (i.e. errors and warnings) which were generated
+     *                    as a result of the compile.  May be empty, especially if compile was successful.
+     * @param success Was the compile a success?
+     * @param reason The reason for performing the compilation.  This is recorded on the server
+     * @param compilationSequence A sequence identifier (unique within this session) of the original trigger of the compilation event.
+     *                            If we compile Stride, we may get an early, normal and late compilation result passed to three
+     *                            separate calls of this method, but they will all have the same compilationSequence
+     *                            value, to allow them to be reassembled by a later researcher.  The special value -1
+     *                            means it is non-applicable or unknown, and in this case will not be sent to the server.
+     */
+    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, CompileReason reason, int compilationSequence)
     {
         if (dontSend()) return;
         diagnostics.forEach(dws -> {
@@ -297,7 +315,7 @@ public class DataCollector
 
             createdErrors.set(dws.getDiagnostic().getIdentifier());
         });
-        DataCollectorImpl.compiled(proj, pkg, sources, diagnostics, success, reason);
+        DataCollectorImpl.compiled(proj, pkg, sources, diagnostics, success, reason, compilationSequence);
     }
 
     public static void debuggerTerminate(Project project)
@@ -630,16 +648,39 @@ public class DataCollector
         DataCollectorImpl.greenfootEvent(project, project.getPackage(""), event);
     }
 
-    public static void codeCompletionStarted(ClassTarget ct, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem)
+    /**
+     * Record that code completion has been triggered.
+     *
+     * @param ct The class target in which code completion was triggered.
+     * @param lineNumber The Java line number, or null if Stride is being used
+     * @param columnNumber The Java column number, or null if Stride is being used
+     * @param xpath The XPath to the Stride element, or null if Java is being used
+     * @param subIndex The sub-index within the Stride element, or null if Java is being used
+     * @param stem The initial String stem used to decide initially eligible items
+     * @param codeCompletionId The ID of the code completion, unique to this session.  Used to match with later ending event.
+     */
+    public static void codeCompletionStarted(ClassTarget ct, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem, int codeCompletionId)
     {
         if (dontSend()) return;
-        DataCollectorImpl.codeCompletionStarted(ct.getPackage().getProject(), ct.getPackage(), lineNumber, columnNumber, xpath, subIndex, stem);
+        DataCollectorImpl.codeCompletionStarted(ct.getPackage().getProject(), ct.getPackage(), lineNumber, columnNumber, xpath, subIndex, stem, codeCompletionId);
     }
 
-    public static void codeCompletionEnded(ClassTarget ct, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem, String replacement)
+    /**
+     * Record that code completion has ended.
+     *
+     * @param ct The class target in which code completion was ended.
+     * @param lineNumber The Java line number, or null if Stride is being used
+     * @param columnNumber The Java column number, or null if Stride is being used
+     * @param xpath The XPath to the Stride element, or null if Java is being used
+     * @param subIndex The sub-index within the Stride element, or null if Java is being used
+     * @param stem The current String stem at the point where the code completion was ended.
+     * @param replacement The replacement which was chosen from the code completion list.
+     * @param codeCompletionId The ID of the code completion, unique to this session.  Used to match with later ending event.
+     */
+    public static void codeCompletionEnded(ClassTarget ct, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem, String replacement, int codeCompletionId)
     {
         if (dontSend()) return;
-        DataCollectorImpl.codeCompletionEnded(ct.getPackage().getProject(), ct.getPackage(), lineNumber, columnNumber, xpath, subIndex, stem, replacement);
+        DataCollectorImpl.codeCompletionEnded(ct.getPackage().getProject(), ct.getPackage(), lineNumber, columnNumber, xpath, subIndex, stem, replacement, codeCompletionId);
     }
 
     public static void unknownFrameCommandKey(ClassTarget ct, String enclosingFrameXpath, int cursorIndex, char key)

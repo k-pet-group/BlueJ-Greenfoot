@@ -799,8 +799,11 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             editor.afterRegenerateAndReparse(() -> {
                 final int stringPos = topLevel.caretPosToStringPos(topLevel.getCurrentPos(), true);
                 PosInSourceDoc posInFile = getSlotElement().getPosInSourceDoc(stringPos);
-                completionCalculator.withCalculatedSuggestionList(posInFile, this.asExpressionSlot(), parentCodeFrame.getCode(), StructuredSlot.this, (targetType == null /* || not at start getStartOfCurWord() != 0 */) ? null : targetType.get(), field == topLevel.getFirstField(), withSuggList);
-                editor.recordCodeCompletionStarted(getSlotElement(), stringPos, field.getText().substring(0, caretPosition));
+                completionCalculator.withCalculatedSuggestionList(posInFile, this.asExpressionSlot(), parentCodeFrame.getCode(), StructuredSlot.this, (targetType == null /* || not at start getStartOfCurWord() != 0 */) ? null : targetType.get(), field == topLevel.getFirstField(), suggList -> {
+                    editor.recordCodeCompletionStarted(getSlotElement(), stringPos, field.getText().substring(0, caretPosition), suggList.getRecordingId());
+                    withSuggList.accept(suggList);
+                });
+
             });
         }
         
@@ -853,7 +856,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     }
 
     @OnThread(Tag.FXPlatform)
-    private void executeSuggestion(int selected, ModificationToken token)
+    private void executeSuggestion(int selected, ModificationToken token, int codeCompletionId)
     {
         if (selected == -1)
             return;
@@ -877,7 +880,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         topLevel.insertSuggestion(suggestionLocation, name, opening, params, token);
         modified();
         String completion = name + (params == null ? "" : "(" + params.stream().collect(Collectors.joining(",")) + ")");
-        editor.recordCodeCompletionEnded(getSlotElement(), topLevel.caretPosToStringPos(suggestionLocation, false), getCurSuggestionWord(), completion);
+        editor.recordCodeCompletionEnded(getSlotElement(), topLevel.caretPosToStringPos(suggestionLocation, false), getCurSuggestionWord(), completion, codeCompletionId);
     }
     
     // Package-visible
@@ -1340,14 +1343,14 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public Response suggestionListKeyPressed(KeyEvent event, int highlighted)
+    public Response suggestionListKeyPressed(SuggestionList suggestionList, KeyEvent event, int highlighted)
     {
         switch (event.getCode())
         {
             case ENTER:
                 if (highlighted != -1)
                 {
-                    modificationPlatform(token -> executeSuggestion(highlighted, token));
+                    modificationPlatform(token -> executeSuggestion(highlighted, token, suggestionList.getRecordingId()));
                     return Response.DISMISS;
                 }
             case ESCAPE:
@@ -1372,7 +1375,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
                 else
                 {
                     row.focusRight(StructuredSlot.this);
-                    completeIfPossible(highlighted);
+                    completeIfPossible(highlighted, suggestionList);
                 }
                 return Response.DISMISS;
         }
@@ -1380,16 +1383,16 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     }
 
     @OnThread(Tag.FXPlatform)
-    private void completeIfPossible(int highlighted)
+    private void completeIfPossible(int highlighted, SuggestionList suggestionList)
     {
         // Pick a value if one was available to complete:
         if (highlighted != -1)
         {
-            modificationPlatform(token -> executeSuggestion(highlighted, token));
+            modificationPlatform(token -> executeSuggestion(highlighted, token, suggestionList.getRecordingId()));
         }
         else if (suggestionDisplay.eligibleCount() == 1  && getText().length() > 0)
         {
-            modificationPlatform(token -> executeSuggestion(suggestionDisplay.getFirstEligible(), token));
+            modificationPlatform(token -> executeSuggestion(suggestionDisplay.getFirstEligible(), token, suggestionList.getRecordingId()));
         }
     }
 
@@ -1422,9 +1425,9 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public void suggestionListChoiceClicked(int highlighted)
+    public void suggestionListChoiceClicked(SuggestionList suggestionList, int highlighted)
     {
-        modificationPlatform(token -> executeSuggestion(highlighted, token));
+        modificationPlatform(token -> executeSuggestion(highlighted, token, suggestionList.getRecordingId()));
     }
     
     

@@ -24,6 +24,7 @@ package bluej.compiler;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import bluej.Config;
 import bluej.classmgr.BPClassLoader;
@@ -49,6 +50,13 @@ class Job
     private Charset fileCharset;
     private CompileType type;
     private CompileReason reason;
+
+    /**
+     * Generator for unique ascending compilation identifiers.  It doesn't matter if it's shared between
+     * packages or between projects, it just needs to be unique and ascending.  An individual user won't manage
+     * 2 billion compilations in a single session, so integer is fine:
+     */
+    private static final AtomicInteger nextCompilationSequence = new AtomicInteger(1);
     
     /**
      * Create a job with a set of sources.
@@ -74,9 +82,11 @@ class Job
      */
     public void compile()
     {
+        int compilationSequence = nextCompilationSequence.getAndIncrement();
+
         try {
             if(observer != null) {
-                observer.startCompile(sources, reason, type);
+                observer.startCompile(sources, reason, type, compilationSequence);
             }
 
             if(destDir != null) {
@@ -97,13 +107,13 @@ class Job
             boolean successful = compiler.compile(actualSourceFiles, observer, internal, userCompileOptions, fileCharset, type);
 
             if(observer != null) {
-                observer.endCompile(sources, successful, type);
+                observer.endCompile(sources, successful, type, compilationSequence);
             }
         } catch(Exception e) {
             System.err.println(Config.getString("compileException") + ": " + e);
             e.printStackTrace();
             if (observer != null) {
-                observer.endCompile(sources, false, type);
+                observer.endCompile(sources, false, type, compilationSequence);
             }
         }
     }

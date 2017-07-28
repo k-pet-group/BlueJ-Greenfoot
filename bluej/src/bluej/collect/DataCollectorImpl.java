@@ -195,12 +195,16 @@ public class DataCollectorImpl
         });
     }
 
-    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, CompileReason compileReason)
+    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, CompileReason compileReason, int compileSequence)
     {
         MultipartEntity mpe = new MultipartEntity();
         
         mpe.addPart("event[compile_success]", CollectUtility.toBody(success));
         mpe.addPart("event[compile_reason]", CollectUtility.toBody(compileReason.getServerString()));
+        if (compileSequence != -1)
+        {
+            mpe.addPart("event[compile_sequence]", CollectUtility.toBody(compileSequence));
+        }
         
         ProjectDetails projDetails = new ProjectDetails(proj);
         for (CompileInputFile src : sources)
@@ -411,7 +415,7 @@ public class DataCollectorImpl
         private FileKey fileKey;
         private List<String> anonSource;
         // Keep track of whether we actually sent the edit or not:
-        public boolean dontReplace = false;
+        public boolean dontSend = false;
 
         EditedFileInfo(String editType, File path, String source, boolean includeOneLineEdits, File generatedFrom, StrideEditReason strideEditReason)
         {
@@ -463,7 +467,7 @@ public class DataCollectorImpl
 
                     if (patch.getDeltas().isEmpty() || (isOneLineDiff(patch) && !editedFile.includeOneLineEdits))
                     {
-                        editedFile.dontReplace = true;
+                        editedFile.dontSend = true;
                         continue;
                     }
 
@@ -476,7 +480,15 @@ public class DataCollectorImpl
                         mpe.addPart("source_histories[][reason]", CollectUtility.toBody(editedFile.strideEditReason.getText()));
                     }
                 }
-                return mpe;
+                // If no files to send, cancel sending the whole edit event:
+                if (editedFiles.stream().allMatch(f -> f.dontSend))
+                {
+                    return null;
+                }
+                else
+                {
+                    return mpe;
+                }
             }
 
             @Override
@@ -484,7 +496,7 @@ public class DataCollectorImpl
             {
                 for (EditedFileInfo editedFile : editedFiles)
                 {
-                    if (!editedFile.dontReplace)
+                    if (!editedFile.dontSend)
                     {
                         fileVersions.put(editedFile.fileKey, editedFile.anonSource);
                     }
@@ -1109,18 +1121,22 @@ public class DataCollectorImpl
             submitEvent(project, pkg, event, new PlainEvent(mpe));
     }
 
-    public static void codeCompletionStarted(Project project, Package pkg, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem)
+    public static void codeCompletionStarted(Project project, Package pkg, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem, int codeCompletionId)
     {
         MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[code_completion][trigger]", CollectUtility.toBody("start"));
+        mpe.addPart("event[code_completion][completion_sequence]", CollectUtility.toBody(codeCompletionId));
         addCodeCompletionLocation(mpe, lineNumber, columnNumber, xpath, subIndex);
         if (stem != null)
             mpe.addPart("event[code_completion][stem]", CollectUtility.toBody(stem));
         submitEvent(project, pkg, EventName.CODE_COMPLETION_STARTED, new PlainEvent(mpe));
     }
 
-    public static void codeCompletionEnded(Project project, Package pkg, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem, String replacement)
+    public static void codeCompletionEnded(Project project, Package pkg, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem, String replacement, int codeCompletionId)
     {
         MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[code_completion][trigger]", CollectUtility.toBody("selected"));
+        mpe.addPart("event[code_completion][completion_sequence]", CollectUtility.toBody(codeCompletionId));
         addCodeCompletionLocation(mpe, lineNumber, columnNumber, xpath, subIndex);
         if (stem != null)
             mpe.addPart("event[code_completion][stem]", CollectUtility.toBody(stem));

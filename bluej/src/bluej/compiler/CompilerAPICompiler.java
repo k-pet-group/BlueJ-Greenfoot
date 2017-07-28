@@ -50,7 +50,7 @@ import bluej.compiler.Diagnostic.DiagnosticOrigin;
  */
 public class CompilerAPICompiler extends Compiler
 {
-    private static AtomicInteger nextDiagnosticIdentifier = new AtomicInteger(1);
+    private static final AtomicInteger nextDiagnosticIdentifier = new AtomicInteger(1);
 
     public CompilerAPICompiler()
     {
@@ -74,7 +74,7 @@ public class CompilerAPICompiler extends Compiler
      */
     @Override
     public boolean compile(final File[] sources, final CompileObserver observer,
-            final boolean internal, List<String> userOptions, Charset fileCharset, CompileType type) 
+            final boolean internal, List<String> userOptions, Charset fileCharset, CompileType type)
     {
         boolean result = true;
         JavaCompiler jc = ToolProvider.getSystemJavaCompiler();

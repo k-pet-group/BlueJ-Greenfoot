@@ -5,3 +5,5 @@ blackbox.pdf: blackbox.tex inject_schema.rb
 
 clean:
 	rm -f *.aux *.log *.out blackbox.pdf out.pdf
+
+rebuild: clean blackbox.pdf

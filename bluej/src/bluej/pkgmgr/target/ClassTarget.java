@@ -482,7 +482,7 @@ public class ClassTarget extends DependentTarget
         }
     }
 
-    public void markCompiling(boolean clearErrorState)
+    public void markCompiling(boolean clearErrorState, int compilationSequence)
     {
         if (clearErrorState && getState() == State.HAS_ERROR)
             setState(State.NEEDS_COMPILE);
@@ -492,7 +492,7 @@ public class ClassTarget extends DependentTarget
         }
         if (editor != null)
         {
-            if (editor.compileStarted()) {
+            if (editor.compileStarted(compilationSequence)) {
                 markKnownError(true);
             }
         }
@@ -2600,21 +2600,21 @@ public class ClassTarget extends DependentTarget
     }
 
     @Override
-    public void recordEarlyErrors(List<DiagnosticWithShown> diagnostics)
+    public void recordEarlyErrors(List<DiagnosticWithShown> diagnostics, int compilationIdentifier)
     {
         if (diagnostics.isEmpty())
             return;
 
-        DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, CompileReason.EARLY);
+        DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, CompileReason.EARLY, compilationIdentifier);
     }
 
     @Override
-    public void recordLateErrors(List<DiagnosticWithShown> diagnostics)
+    public void recordLateErrors(List<DiagnosticWithShown> diagnostics, int compilationIdentifier)
     {
         if (diagnostics.isEmpty())
             return;
 
-        DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, CompileReason.LATE);
+        DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, CompileReason.LATE, compilationIdentifier);
     }
 
     @Override
@@ -2623,16 +2623,18 @@ public class ClassTarget extends DependentTarget
         DataCollector.fixExecuted(getPackage(), errorIdentifier, fixIndex);
     }
 
+    // See comment for DataCollector.codeCompletionStart
     @Override
-    public void recordCodeCompletionStarted(Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem)
+    public void recordCodeCompletionStarted(Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem, int codeCompletionId)
     {
-        DataCollector.codeCompletionStarted(this, lineNumber, columnNumber, xpath, subIndex, stem);
+        DataCollector.codeCompletionStarted(this, lineNumber, columnNumber, xpath, subIndex, stem, codeCompletionId);
     }
 
+    // See comment for DataCollector.codeCompletionEnded
     @Override
-    public void recordCodeCompletionEnded(Integer lineNumber, Integer columnNumber, String xpath, Integer elementOffset, String stem, String replacement)
+    public void recordCodeCompletionEnded(Integer lineNumber, Integer columnNumber, String xpath, Integer elementOffset, String stem, String replacement, int codeCompletionId)
     {
-        DataCollector.codeCompletionEnded(this, lineNumber, columnNumber, xpath, elementOffset, stem, replacement);
+        DataCollector.codeCompletionEnded(this, lineNumber, columnNumber, xpath, elementOffset, stem, replacement, codeCompletionId);
     }
 
     @Override

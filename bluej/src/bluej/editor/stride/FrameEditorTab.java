@@ -646,7 +646,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                     {
                         saved();
                         // Force generation of early errors on load:
-                        editor.earlyErrorCheck(getTopLevelFrame().getCode().findEarlyErrors());
+                        // No relevant compile sequence to use, so we use -1 meaning N/A:
+                        editor.earlyErrorCheck(getTopLevelFrame().getCode().findEarlyErrors(), -1);
                         Platform.runLater(FrameEditorTab.this::updateDisplays);
                     }
 
@@ -2776,24 +2777,24 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public void recordCodeCompletionStarted(SlotFragment element, int index, String stem)
+    public void recordCodeCompletionStarted(SlotFragment element, int index, String stem, int codeCompletionId)
     {
         recordEdits(StrideEditReason.FLUSH);
 
         LocationMap locationMap = getTopLevelFrame().getCode().toXML().buildLocationMap();
 
-        editor.getWatcher().recordCodeCompletionStarted(null, null, locationMap.locationFor(element), index, stem);
+        editor.getWatcher().recordCodeCompletionStarted(null, null, locationMap.locationFor(element), index, stem, codeCompletionId);
     }
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public void recordCodeCompletionEnded(SlotFragment element, int index, String stem, String replacement)
+    public void recordCodeCompletionEnded(SlotFragment element, int index, String stem, String replacement, int codeCompletionId)
     {
         recordEdits(StrideEditReason.CODE_COMPLETION);
 
         LocationMap locationMap = getTopLevelFrame().getCode().toXML().buildLocationMap();
 
-        editor.getWatcher().recordCodeCompletionEnded(null, null, locationMap.locationFor(element), index, stem, replacement);
+        editor.getWatcher().recordCodeCompletionEnded(null, null, locationMap.locationFor(element), index, stem, replacement, codeCompletionId);
     }
 
     @Override

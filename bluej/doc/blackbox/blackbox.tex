@@ -691,10 +691,10 @@ Possible values for reason are:
 \item |NULL| -- This indicates the compile event occurred in BlueJ 3.x, which predates
 the addition of the reason column.
 \item |"early"| -- A check in Stride for errors that can be spotted without full javac
- compilation, such as a slot being empty or having a parse error.
+ compilation, such as a slot being empty or having a parse error.  Early compiles are only recorded if they feature errors.
 \item |"late"| -- A post-compilation check in Stride for errors which will have shown
 a compiler error, but for which we can show a more helpful error message, for example if
- the user has typoed a variable name.
+ the user has typoed a variable name.  Late compiles are only recorded if they feature errors.
 \item |"invoke"| -- A compilation of some generated code, required to execute a user's
 invocation (e.g. when they right click on an object in the object bench to call a method).
 \item |"rebuild"| -- A full rebuild of a project
@@ -706,6 +706,8 @@ in Greenfoot where the system requests compilation.
 \item |"user"| -- Explicitly requested compilation by the user using the Compile button
 or keyboard shortcut.
 \end{itemize}
+
+Several of the entries in the compile events table may correspond to the same logical compile.  In particular, Stride compiles may have a normal compile (e.g. modified), but also an early and/or late if errors are detected there.  To allow these compiles to be associated again afterwards, you can use the |session_id| and |compile_sequence| columns which, when taken as a pair, uniquely identify the same logical compilation on the user's machine.
 
 %schema:compile_inputs
 
@@ -724,9 +726,9 @@ whether or not this error or warning was actually displayed to the user (but rea
 |message| field shows the text that would be displayed to the user.
 
 The |origin| column indicates which tool generated the error.  For Java errors, this
-is always "javac".  For Stride errors, it may also be "javac" (if the error comes from
-feeding the generated Java to the javac compiler), or it may be "stride_early" (meaning the
-set of syntax checks performed before generating the Java) or "stride_late" (meaning the
+is always |"javac"|.  For Stride errors, it may also be |"javac"| (if the error comes from
+feeding the generated Java to the javac compiler), or it may be |"stride_early"| (meaning the
+set of syntax checks performed before generating the Java) or |"stride_late"| (meaning the
 set of semantic checks performed after a Java compilation, to generate more helpful
 error messages if possible).
 
@@ -755,16 +757,49 @@ which these fixes were shown for.
 
 \section{Code Completion}
 
+When code completion (i.e. the window you get when you hit ctrl-space) is shown, or when an item is selected,
+a code completion event is sent to the database.
+
 %schema:code_completions
-\subsection{\lstinline!"code_completion_started"!} TODO
-\subsection{\lstinline!"code_completion_ended"!} TODO
+
+This table is used for start and end events for code completion (see below), and for Java or Stride.  The
+|line_number| and |column_number| are used to record the location of the caret when code completion was triggered or ended in Java,
+but are NULL for Stride.  Conversely, the |xpath| and |xml_index| (index within a slot) are set for Stride, but NULL for Java.
+
+The |session_id| and |completion_sequence|, when taken as a pair, uniquely identify one use of code completion.  This is so
+that you can easily pair together beginning and ending events of the same code completion.  Note that not every beginning
+has an end: if the user cancels, we do not record an ending event, only if they actually select an item.
+
+See below for description of other fields.
+
+\subsection{\lstinline!"code_completion_started"! (since BlueJ 4.x)}
+
+This event occurs when code completion is triggered.  It may not necessarily result in the window being shown;
+if there is exactly one matching completion available in BlueJ (e.g. ``hashC'' has been typed, and only ``hashCode()'' matches),
+the completion is automatically inserted without showing the window.  In this case, a started event will be immediately
+followed by an end event.
+
+There will be one matching item in the |code_completions| table, which will have |trigger| set to |"started"|.  The |stem| field
+will be the String used as the stem for code completion searching (roughly: the word to the left of the cursor position, if any).
+The |replacement| field will be NULL.
+
+\subsection{\lstinline!"code_completion_ended"! (since BlueJ 4.x)}
+
+This event occurs when code completion is ended by selecting an item to complete.  No ending event is sent if the user cancels code
+completion.  This may be done using a mouse-click, or keyboard selection, but we do not record the difference.
+
+The |stem| will be the stem at the time of completion (roughly: the word to the left of the cursor position, if any).  The
+|replacement| field will be the replacement text of the item chosen.  For Java, this text (e.g. |"setPosition(_x_, _y_)"|)is inserted verbatim
+into the editor.  For Stride, the parameters (if any) are not inserted as text; merely the separating comma is inserted and the
+parameters show as prompts (you'll understand if you do ctrl-space yourself in Stride for a multi-parameter method).  But the same text
+is recorded as for Java, to provide maximum detail on what the user selected.
 
 \section{Stride Editing Events}
 
 Some of the events that are recorded are Stride-specific editing events.  If you are solely interested
 in Java programming, you can safely ignore all these events.
 
-\subsection{\lstinline!"unknown_frame_command"!}
+\subsection{\lstinline!"unknown_frame_command"! (since BlueJ 4.x)}
 
 This event occurs when the focus is on a frame cursor in the editor, and the user hits a key
 (which is a letter or a known symbol for frame keys, such as slash) which is not recognised as a
@@ -780,6 +815,9 @@ was pressed but was not valid.  The |enclosing_xpath| field is the Xpath to the 
  example, if you have the frame cursor in a while frame, and the cursor is at the top, the Xpath
  will locate the while frame, and the index will be 0.  If you move the frame cursor down one
  frame inside the while, the Xpath will be the same, and the index will be 1.
+
+TODO:
+%schema:frame_catalogue_showings
 
 \section{Miscellaneous Events}
 
@@ -1392,6 +1430,34 @@ how they connect
 
 \includepdf[pages={1},landscape=true]{models.pdf}
 
+\chapter{Analysing Blackbox Subsets}
+
+Blackbox can be roughly divided into three parts:
+\begin{enumerate}
+\item Manual-Java: the events from BlueJ 3.x, which only featured Java as a source language, and where compilation was always manually triggered.
+\item Auto-Java: the Java-related events from BlueJ 4.x.  The editing events are almost identical to BlueJ 3.x, but error-check compilations are performed in the background, which means compilation needs to be analysed differently.
+\item Stride: the Stride-related events from BlueJ 4.x.  The editing events are similar to Java, and use the same tables, so need to be accounted for if you only want to analyse Java.  Compilation events also happen in the background, as for auto-Java.
+\end{enumerate}
+
+The following sections describe what to watch out for if you only want to analyse a particular subset of Blackbox data.
+
+\section{Only Java}
+
+The |source_type| column of the |source_files| table is either |"java"| or |"stride"|.  So if you only want Java files, you will need to perform a join with the |source_files| table (e.g. joining with |compile_outputs|) to filter on this column.
+
+\section{Only Stride}
+
+The |source_type| column of the |source_files| table is either |"java"| or |"stride"|.  So if you only want Stride files, you will need to perform a join with the |source_files| table (e.g. joining with |compile_outputs|) to filter on this column.
+
+\section{Only user compiles}
+
+The |compile_events| table has a |reason| column.  For BlueJ 3.x compiles, when compilation always happened by the user explicitly clicking compile, the |reason| column is NULL.  If you only want to analyse coding where the user sees no errors until they click the compile button, you can just look for |reason| being NULL.  You'll have a good four years of data and over 200 million compile events.
+
+BlueJ 4.x uses the |compile_events| table for recording several different types of compilation.  One type is when the user clicks compile, just as in 3.x.  In this case, the |reason| column will be |"user"|.  However, if you bundle together 3.x explicit compilations and 4.x explicit compilations, you're combining two different things.  In BlueJ 4.x, we also compile whenever the user leaves a modified line of code (same rule as when we send edits to Blackbox), and crucially we show the errors from this background compilation.  So in 3.x when the user clicks compile, they will either get success, or will get presented the first error from the compilation, which won't have been displayed (unless from a prior explicit compilation).  In BlueJ 4.x, they will either get success, or will be taken to the first error, which will likely already be showing because the background compilation found it.  They will also already be able to see any other errors in the file.  So the user is likely to click compile in different circumstances in 3.x (Do I have any errors?) to 4.x (Either: jump me to the error, or I'm finished and see no errors so do the real compilation now).
+
+Bottom line: if you choose to analyse 3.x and 4.x compiles together, make sure that
+ this makes sense for your analysis.
+
 \chapter{Locations}
 \label{sec:locations}
 
@@ -1583,6 +1649,10 @@ Unless otherwise noted below, the effects are the same each time: all sessions t
 \item 28 Jan 2015, approx 1543 to 1550 UTC (7 minutes), before master event 553795798
 \item 12 Jan 2016, approx 1627 to 1649 UTC (22 minutes), service intermittent between master event 1040343453 and 1040346172 exclusive
 \end{itemize}
+
+\section{Known Client Issues}
+
+Blackbox was added in version 3.1.0 (released June 2013).  All versions from 3.1.0 to 3.1.7 (released February 2016) had full support for Blackbox data recording.  BlueJ 4.0.0 (released March 2017) through 4.1.0 (released June 2017) did NOT have support for Blackbox; anyone using these versions would not send any data to Blackbox, although their opt-in/opt-out preference would be remembered.  Once they upgraded to BlueJ 4.1.1 (targeted for release August/September 2017) or later would once again start sending data to Blackbox.
 
 \section{Known Recording Bugs/Changes}
 

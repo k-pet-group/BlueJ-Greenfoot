@@ -137,12 +137,12 @@ public interface EditorWatcher
     /**
      * Record a list of early errors that were found.
      */
-    void recordEarlyErrors(List<DiagnosticWithShown> diagnostics);
+    void recordEarlyErrors(List<DiagnosticWithShown> diagnostics, int compilationIdentifier);
 
     /**
      * Record a list of late errors that were found.
      */
-    void recordLateErrors(List<DiagnosticWithShown> diagnostics);
+    void recordLateErrors(List<DiagnosticWithShown> diagnostics, int compilationIdentifier);
 
     /**
      * Record that a given quick fix was selected
@@ -152,11 +152,11 @@ public interface EditorWatcher
     void recordFix(int errorIdentifier, int fixIndex);
 
     // Either lineNumber and columnNumber are non-null and xpath and elementOffset are null,
-    // or vice versa
-    void recordCodeCompletionStarted(Integer lineNumber, Integer columnNumber, String xpath, Integer elementOffset, String stem);
+    // or vice versa.  See corresponding DataCollector methods for more parameter info.
+    void recordCodeCompletionStarted(Integer lineNumber, Integer columnNumber, String xpath, Integer elementOffset, String stem, int codeCompletionId);
 
-    // If replacement is null, it was cancelled
-    void recordCodeCompletionEnded(Integer lineNumber, Integer columnNumber, String xpath, Integer elementOffset, String stem, String replacement);
+    // See corresponding DataCollector methods for more parameter info.
+    void recordCodeCompletionEnded(Integer lineNumber, Integer columnNumber, String xpath, Integer elementOffset, String stem, String replacement, int codeCompletionId);
 
     void recordUnknownCommandKey(String enclosingFrameXpath, int cursorIndex, char key);
 

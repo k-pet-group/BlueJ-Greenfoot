@@ -153,11 +153,13 @@ public interface InteractionManager extends SuggestionListParent
 
     FrameEditor getFrameEditor();
 
+    // See corresponding DataCollector methods for more parameter info.
     @OnThread(Tag.FXPlatform)
-    void recordCodeCompletionStarted(SlotFragment position, int index, String stem);
+    void recordCodeCompletionStarted(SlotFragment position, int index, String stem, int codeCompletionId);
 
+    // See corresponding DataCollector methods for more parameter info.
     @OnThread(Tag.FXPlatform)
-    void recordCodeCompletionEnded(SlotFragment position, int index, String stem, String completion);
+    void recordCodeCompletionEnded(SlotFragment position, int index, String stem, String completion, int codeCompletionId);
 
     @OnThread(Tag.FXPlatform)
     void recordErrorIndicatorShown(int identifier);
