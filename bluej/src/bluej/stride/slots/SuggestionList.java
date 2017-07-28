@@ -570,24 +570,8 @@ public class SuggestionList
                 });
             }
         });
-        
-        // On Mac, we have to check for Ctrl-Space in KEY_PRESSED, not KEY_TYPED:
-        listBox.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
-            if (e.getCode() == KeyCode.SPACE && e.isControlDown())
-            {
-                // Consume either way, because otherwise we get an invalid character:
-                e.consume();
 
-                if (shownState.get() == SuggestionShown.COMMON)
-                {
-                    shownState.set(SuggestionShown.RARE);
-                    calculateEligible(lastPrefix, lastAllowSimilar, false);
-                    updateVisual(lastPrefix);
-                }
-            }
-        });
-
-        listBox.addEventFilter(KeyEvent.KEY_TYPED, e -> {
+        listAndDocBorderPane.addEventFilter(KeyEvent.KEY_TYPED, e -> {
             if (e.getCharacter().equals(" ") && e.isControlDown())
             {
                 if (shownState.get() == SuggestionShown.COMMON)
@@ -633,6 +617,22 @@ public class SuggestionList
                 case END:
                     end();
                     break;
+                case SPACE:
+                    // On Mac, we have to check for Ctrl-Space in KEY_PRESSED, not KEY_TYPED:
+                    if (e.isControlDown())
+                    {
+                        // Consume either way, because otherwise we get an invalid character:
+                        e.consume();
+
+                        if (shownState.get() == SuggestionShown.COMMON)
+                        {
+                            shownState.set(SuggestionShown.RARE);
+                            calculateEligible(lastPrefix, lastAllowSimilar, false);
+                            updateVisual(lastPrefix);
+                        }
+                        break;
+                    }
+                    // Otherwise, fall through:
                 default:
                     int selected = getHighlighted();
                     if (selected == -1 && eligibleCount() == 1)
