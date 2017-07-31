@@ -22,7 +22,6 @@
 package bluej.editor.stride;
 
 import bluej.Config;
-import bluej.collect.DataCollector;
 import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
@@ -2808,7 +2807,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     public void recordShowHideFrameCatalogue(int cursorIndex, boolean show, FrameCatalogue.ShowReason reason)
     {
         FrameCursor focusedCursor = getFocusedCursor();
-        editor.getWatcher().showHideFrameCatalogue(
+        editor.getWatcher().recordShowHideFrameCatalogue(
                 focusedCursor != null ? getXPath(focusedCursor.getEnclosingFrame()) : null,
                 cursorIndex,
                 show,
@@ -2881,13 +2880,25 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         }
     }
 
-    private String getXPath(Frame enclosingFrame)
+    /**
+     * It returns the path for a code frame. If it's not a code frame, then null is returned.
+     *
+     * @param frame The frame that its path is needed.
+     * @return      If the frame is a code frame, an XPath String identifying the location of that frame.
+     *              Otherwise, null.
+     */
+    private String getXPath(Frame frame)
     {
-        return (enclosingFrame instanceof CodeFrame)
-                ? getLocationMap().locationFor(((CodeFrame<? extends CodeElement>)enclosingFrame).getCode())
+        return (frame instanceof CodeFrame)
+                ? getLocationMap().locationFor(((CodeFrame<? extends CodeElement>)frame).getCode())
                 : null;
     }
 
+    /**
+     * It invokes the buildLocationMap method in the LocatableElement to build a location map.
+     *
+     * @return A map from JavaFragment to XPath String identifying the location of that fragment.
+     */
     private LocationMap getLocationMap()
     {
         return getTopLevelFrame().getCode().toXML().buildLocationMap();

@@ -400,6 +400,16 @@ public @OnThread(Tag.FX) class FXTabbedEditor
                 ," - ", projectTitle, titleStatus));
     }
 
+    /**
+     * It prepares the recordShowHideFrameCatalogue event and invoke the appropriate method to register it.
+     * If there is an appropriate selected tab, will invoke this tab method after looking for a possible focused cursor.
+     * If there is no an appropriate selected tab, will invoke the DataCollector's recordShowHideFrameCatalogue method,
+     * without any info about any editor or a focused cursor.
+     *
+     * @param show                 true for showing and false for hiding
+     * @param reason               The event which triggers the change.
+     *                             It is one of the values in the FrameCatalogue.ShowReason enum.
+     */
     private void recordShowHideFrameCatalogue(Boolean show, FrameCatalogue.ShowReason reason)
     {
         Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();

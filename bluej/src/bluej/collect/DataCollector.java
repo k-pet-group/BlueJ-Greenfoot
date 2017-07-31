@@ -693,10 +693,13 @@ public class DataCollector
      * A proxy method to firstly check if data submission is active on this project, and then invoke
      * the showHideFrameCatalogue method in DataCollectorImpl class, which will do the collection.
      *
-     * @param project the current project
-     * @param show    true for showing and false for hiding
-     * @param reason  The event which triggers the change.
-     *                It is one of the values in the FrameCatalogue.ShowReason enum.
+     * @param project              the current project
+     * @param pkg                  the current package
+     * @param enclosingFrameXpath  the path for the frame that include the focused cursor, if any.
+     * @param cursorIndex          the focused cursor's index (if any) within the enclosing frame.
+     * @param show                 true for showing and false for hiding
+     * @param reason               The event which triggers the change.
+     *                             It is one of the values in the FrameCatalogue.ShowReason enum.
      */
     public static void showHideFrameCatalogue(Project project, Package pkg, String enclosingFrameXpath, int cursorIndex,
                                               boolean show, FrameCatalogue.ShowReason reason)

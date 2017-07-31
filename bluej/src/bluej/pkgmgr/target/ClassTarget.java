@@ -2645,7 +2645,7 @@ public class ClassTarget extends DependentTarget
     }
 
     @Override
-    public void showHideFrameCatalogue(String enclosingFrameXpath, int cursorIndex, boolean show, FrameCatalogue.ShowReason reason)
+    public void recordShowHideFrameCatalogue(String enclosingFrameXpath, int cursorIndex, boolean show, FrameCatalogue.ShowReason reason)
     {
         DataCollector.showHideFrameCatalogue(getPackage().getProject(), getPackage(), enclosingFrameXpath, cursorIndex, show, reason);
     }

@@ -228,6 +228,11 @@ public class FrameCursor implements RecallableFocus
         return false;
     }
 
+    /**
+     * Gets the index of this cursor object, relative to the start of cursors' positions within the inclusive frame.
+     *
+     * @return Our relative position in the enclosing frame.
+     */
     public int getCursorIndex()
     {
         return parentCanvas.getCursors().indexOf(this);

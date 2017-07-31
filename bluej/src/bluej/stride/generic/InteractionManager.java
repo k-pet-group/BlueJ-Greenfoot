@@ -173,12 +173,12 @@ public interface InteractionManager extends SuggestionListParent
     void recordUnknownCommandKey(Frame enclosingFrame, int index, char key);
 
     /**
-     * A proxy method to firstly check if data submission is active on this project, and then invoke
-     * the showHideFrameCatalogue method in DataCollectorImpl class, which will do the collection.
+     * Records the reason and the focused cursor info, if any, when showing or hiding the FrameCatalogue of this editor.
      *
-     * @param show    true for showing and false for hiding
-     * @param reason  The event which triggers the change.
-     *                It is one of the values in the FrameCatalogue.ShowReason enum.
+     * @param cursorIndex          the focused cursor's index (if any) within the enclosing frame.
+     * @param show                 true for showing and false for hiding
+     * @param reason               The event which triggers the change.
+     *                             It is one of the values in the FrameCatalogue.ShowReason enum.
      */
     @OnThread(Tag.FXPlatform)
     void recordShowHideFrameCatalogue(int cursorIndex, boolean show, FrameCatalogue.ShowReason reason);
