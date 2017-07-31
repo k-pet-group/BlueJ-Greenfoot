@@ -112,7 +112,7 @@ public class FrameCursor implements RecallableFocus
         {
             boolean show = !editor.cheatSheetShowingProperty().get();
             editor.cheatSheetShowingProperty().set(show);
-            editor.recordShowHideFrameCatalogue(show, FrameCatalogue.ShowReason.MENU_OR_SHORTCUT);
+            editor.recordShowHideFrameCatalogue(getCursorIndex(), show, FrameCatalogue.ShowReason.MENU_OR_SHORTCUT);
             return true;
         }
 
@@ -212,20 +212,25 @@ public class FrameCursor implements RecallableFocus
                     BooleanProperty cheatSheetShowingProperty = editor.cheatSheetShowingProperty();
                     if ( ! cheatSheetShowingProperty.get() ) {
                         cheatSheetShowingProperty.set(true);
-                        editor.recordShowHideFrameCatalogue(true, FrameCatalogue.ShowReason.UNKNOWN_FRAME_COMMAND);
+                        editor.recordShowHideFrameCatalogue(getCursorIndex(), true, FrameCatalogue.ShowReason.UNKNOWN_FRAME_COMMAND);
                     }
                 }
-                editor.recordUnknownCommandKey(getEnclosingFrame(), parentCanvas.getCursors().indexOf(this), key);
+                editor.recordUnknownCommandKey(getEnclosingFrame(), getCursorIndex(), key);
                 //Ignore one-off mis-typing, just to stop every slip-up triggering a dialog
                 return true;
             }
         }
         else
         {
-            editor.recordUnknownCommandKey(getEnclosingFrame(), parentCanvas.getCursors().indexOf(this), key);
+            editor.recordUnknownCommandKey(getEnclosingFrame(), getCursorIndex(), key);
         }
         editor.getSelection().clear();
         return false;
+    }
+
+    public int getCursorIndex()
+    {
+        return parentCanvas.getCursors().indexOf(this);
     }
 
     public static void editorClosing(InteractionManager editor)

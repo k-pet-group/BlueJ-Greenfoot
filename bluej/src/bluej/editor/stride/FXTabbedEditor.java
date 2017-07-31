@@ -31,6 +31,7 @@ import bluej.prefmgr.PrefMgr;
 import bluej.stride.generic.ExtensionDescription;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCursor;
+import bluej.stride.generic.InteractionManager;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXConsumer;
@@ -223,8 +224,10 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         StackPane catalogueScrollPaneStacked = new StackPane(catalogueBackground, catalogueScrollPane);
         catalogueScrollPaneStacked.setMinWidth(0.0);
 
-        FXConsumer<? super Boolean> frameCatalogueShownListener = show -> DataCollector.showHideFrameCatalogue(getProject(), show, FrameCatalogue.ShowReason.ARROW);
-        collapsibleCatalogueScrollPane = new UntitledCollapsiblePane(catalogueScrollPaneStacked, ArrowLocation.LEFT,  PrefMgr.getFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING), frameCatalogueShownListener);
+        FXConsumer<? super Boolean> frameCatalogueShownListener =
+                show -> recordShowHideFrameCatalogue(show, FrameCatalogue.ShowReason.ARROW);
+        collapsibleCatalogueScrollPane = new UntitledCollapsiblePane(catalogueScrollPaneStacked, ArrowLocation.LEFT,
+                PrefMgr.getFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING), frameCatalogueShownListener);
         collapsibleCatalogueScrollPane.addArrowWrapperStyleClass("catalogue-collapse");
         showingCatalogue.bindBidirectional(collapsibleCatalogueScrollPane.expandedProperty());
         JavaFXUtil.addChangeListener(showingCatalogue, expanded -> PrefMgr.setFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING, expanded));
@@ -232,7 +235,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         JavaFXUtil.runAfterCurrent(() -> {
             boolean flag = PrefMgr.getFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING);
             showingCatalogue.set(flag);
-            DataCollector.showHideFrameCatalogue(getProject(), flag, FrameCatalogue.ShowReason.PROPERTIES);
+            recordShowHideFrameCatalogue(flag, FrameCatalogue.ShowReason.PROPERTIES);
         });
         JavaFXUtil.addStyleClass(collapsibleCatalogueScrollPane, "catalogue-scroll-collapsible");
         menuAndTabPane.setRight(collapsibleCatalogueScrollPane);
@@ -395,6 +398,22 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         stage.titleProperty().bind(Bindings.concat(
             JavaFXUtil.applyPlatform(tabPane.getSelectionModel().selectedItemProperty(), t -> ((FXTab)t).windowTitleProperty(), "Unknown")
                 ," - ", projectTitle, titleStatus));
+    }
+
+    private void recordShowHideFrameCatalogue(Boolean show, FrameCatalogue.ShowReason reason)
+    {
+        Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
+        if (selectedTab instanceof InteractionManager) {
+            InteractionManager editor = (InteractionManager) selectedTab;
+            FrameCursor focusedCursor = editor.getFocusedCursor();
+            editor.recordShowHideFrameCatalogue(
+                    focusedCursor != null ? focusedCursor.getCursorIndex() : -1,
+                    show,
+                    reason);
+        }
+        else {
+            DataCollector.showHideFrameCatalogue(getProject(), null, null, -1, show, reason);
+        }
     }
 
     @OnThread(Tag.FXPlatform)

@@ -698,12 +698,13 @@ public class DataCollector
      * @param reason  The event which triggers the change.
      *                It is one of the values in the FrameCatalogue.ShowReason enum.
      */
-    public static void showHideFrameCatalogue(Project project, boolean show, FrameCatalogue.ShowReason reason)
+    public static void showHideFrameCatalogue(Project project, Package pkg, String enclosingFrameXpath, int cursorIndex,
+                                              boolean show, FrameCatalogue.ShowReason reason)
     {
         if (dontSend()) {
             return;
         }
-        DataCollectorImpl.showHideFrameCatalogue(project, show, reason);
+        DataCollectorImpl.showHideFrameCatalogue(project, pkg, enclosingFrameXpath, cursorIndex, show, reason);
     }
 
     public static boolean hasGivenUp()

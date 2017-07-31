@@ -2780,10 +2780,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     public void recordCodeCompletionStarted(SlotFragment element, int index, String stem, int codeCompletionId)
     {
         recordEdits(StrideEditReason.FLUSH);
-
-        LocationMap locationMap = getTopLevelFrame().getCode().toXML().buildLocationMap();
-
-        editor.getWatcher().recordCodeCompletionStarted(null, null, locationMap.locationFor(element), index, stem, codeCompletionId);
+        editor.getWatcher().recordCodeCompletionStarted(null, null,
+                getLocationMap().locationFor(element), index, stem, codeCompletionId);
     }
 
     @Override
@@ -2791,10 +2789,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     public void recordCodeCompletionEnded(SlotFragment element, int index, String stem, String replacement, int codeCompletionId)
     {
         recordEdits(StrideEditReason.CODE_COMPLETION);
-
-        LocationMap locationMap = getTopLevelFrame().getCode().toXML().buildLocationMap();
-
-        editor.getWatcher().recordCodeCompletionEnded(null, null, locationMap.locationFor(element), index, stem, replacement, codeCompletionId);
+        editor.getWatcher().recordCodeCompletionEnded(null, null,
+                getLocationMap().locationFor(element), index, stem, replacement, codeCompletionId);
     }
 
     @Override
@@ -2805,17 +2801,18 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             return; // Don't worry about command keys
 
         recordEdits(StrideEditReason.FLUSH);
-        LocationMap locationMap = getTopLevelFrame().getCode().toXML().buildLocationMap();
-
-        String xpath = (enclosingFrame instanceof CodeFrame) ? locationMap.locationFor(((CodeFrame<? extends CodeElement>)enclosingFrame).getCode()) : null;
-
-        editor.getWatcher().recordUnknownCommandKey(xpath, cursorIndex, key);
+        editor.getWatcher().recordUnknownCommandKey(getXPath(enclosingFrame), cursorIndex, key);
     }
 
     @Override
-    public void recordShowHideFrameCatalogue(boolean show, FrameCatalogue.ShowReason reason)
+    public void recordShowHideFrameCatalogue(int cursorIndex, boolean show, FrameCatalogue.ShowReason reason)
     {
-        DataCollector.showHideFrameCatalogue(getProject(), show, reason);
+        FrameCursor focusedCursor = getFocusedCursor();
+        editor.getWatcher().showHideFrameCatalogue(
+                focusedCursor != null ? getXPath(focusedCursor.getEnclosingFrame()) : null,
+                cursorIndex,
+                show,
+                reason);
     }
 
     @Override
@@ -2882,5 +2879,17 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                 focusWhenShown();
             });
         }
+    }
+
+    private String getXPath(Frame enclosingFrame)
+    {
+        return (enclosingFrame instanceof CodeFrame)
+                ? getLocationMap().locationFor(((CodeFrame<? extends CodeElement>)enclosingFrame).getCode())
+                : null;
+    }
+
+    private LocationMap getLocationMap()
+    {
+        return getTopLevelFrame().getCode().toXML().buildLocationMap();
     }
 }

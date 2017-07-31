@@ -399,7 +399,7 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
     }
 
     @Override
-    public void recordShowHideFrameCatalogue(boolean show, FrameCatalogue.ShowReason reason)
+    public void recordShowHideFrameCatalogue(int cursorIndex, boolean show, FrameCatalogue.ShowReason reason)
     {
         // Not applicable
     }

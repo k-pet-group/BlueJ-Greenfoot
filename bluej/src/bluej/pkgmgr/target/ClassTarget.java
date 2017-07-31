@@ -39,6 +39,7 @@ import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.editor.Editor;
 import bluej.editor.EditorManager;
 import bluej.editor.TextEditor;
+import bluej.editor.stride.FrameCatalogue;
 import bluej.editor.stride.FrameEditor;
 import bluej.extensions.*;
 import bluej.extensions.event.ClassEvent;
@@ -2641,6 +2642,12 @@ public class ClassTarget extends DependentTarget
     public void recordUnknownCommandKey(String enclosingFrameXpath, int cursorIndex, char key)
     {
         DataCollector.unknownFrameCommandKey(this, enclosingFrameXpath, cursorIndex, key);
+    }
+
+    @Override
+    public void showHideFrameCatalogue(String enclosingFrameXpath, int cursorIndex, boolean show, FrameCatalogue.ShowReason reason)
+    {
+        DataCollector.showHideFrameCatalogue(getPackage().getProject(), getPackage(), enclosingFrameXpath, cursorIndex, show, reason);
     }
 
     @Override

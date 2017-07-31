@@ -1178,11 +1178,17 @@ public class DataCollectorImpl
      * @param reason  The event which triggers the change.
      *                It is one of the values in the FrameCatalogue.ShowReason enum.
      */
-    public static void showHideFrameCatalogue(Project project, boolean show, FrameCatalogue.ShowReason reason)
+    public static void showHideFrameCatalogue(Project project, Package pkg, String enclosingFrameXpath,
+                                              int cursorIndex, boolean show, FrameCatalogue.ShowReason reason)
     {
         MultipartEntity mpe = new MultipartEntity();
+        if (enclosingFrameXpath != null)
+        {
+            mpe.addPart("event[frame_catalogue_showing][enclosing_xpath]", CollectUtility.toBody(enclosingFrameXpath));
+            mpe.addPart("event[frame_catalogue_showing][enclosing_index]", CollectUtility.toBody(cursorIndex));
+        }
         mpe.addPart("event[frame_catalogue_showing][show]", CollectUtility.toBody(show));
         mpe.addPart("event[frame_catalogue_showing][reason]", CollectUtility.toBody(reason.getText()));
-        submitEvent(project, null, EventName.FRAME_CATALOGUE_SHOWING, new PlainEvent(mpe));
+        submitEvent(project, pkg, EventName.FRAME_CATALOGUE_SHOWING, new PlainEvent(mpe));
     }
 }

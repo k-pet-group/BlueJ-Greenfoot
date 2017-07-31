@@ -181,7 +181,7 @@ public interface InteractionManager extends SuggestionListParent
      *                It is one of the values in the FrameCatalogue.ShowReason enum.
      */
     @OnThread(Tag.FXPlatform)
-    void recordShowHideFrameCatalogue(boolean show, FrameCatalogue.ShowReason reason);
+    void recordShowHideFrameCatalogue(int cursorIndex, boolean show, FrameCatalogue.ShowReason reason);
 
     public static enum ShortcutKey
     {

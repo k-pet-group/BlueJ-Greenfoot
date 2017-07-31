@@ -27,8 +27,7 @@ import bluej.collect.DiagnosticWithShown;
 import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
-import bluej.editor.Editor;
-import bluej.extensions.SourceType;
+import bluej.editor.stride.FrameCatalogue;
 import bluej.pkgmgr.Package;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -93,6 +92,9 @@ public abstract class NonCodeEditableTarget extends EditableTarget
 
     @Override
     public void recordUnknownCommandKey(String enclosingFrameXpath, int cursorIndex, char key) { }
+
+    @Override
+    public void showHideFrameCatalogue(String enclosingFrameXpath, int cursorIndex, boolean show, FrameCatalogue.ShowReason reason) { }
 
     @Override
     public void recordShowErrorIndicator(int identifier) { }

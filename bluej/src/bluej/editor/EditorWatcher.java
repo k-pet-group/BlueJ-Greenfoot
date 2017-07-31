@@ -27,7 +27,7 @@ import bluej.collect.DiagnosticWithShown;
 import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
-import bluej.extensions.SourceType;
+import bluej.editor.stride.FrameCatalogue;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -159,6 +159,8 @@ public interface EditorWatcher
     void recordCodeCompletionEnded(Integer lineNumber, Integer columnNumber, String xpath, Integer elementOffset, String stem, String replacement, int codeCompletionId);
 
     void recordUnknownCommandKey(String enclosingFrameXpath, int cursorIndex, char key);
+
+    void showHideFrameCatalogue(String enclosingFrameXpath, int cursorIndex, boolean show, FrameCatalogue.ShowReason reason);
 
     /**
      * Notifies watcher whether we are showing the interface (docs) or not
