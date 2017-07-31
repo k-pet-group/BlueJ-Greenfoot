@@ -2896,6 +2896,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
 
     /**
      * It invokes the buildLocationMap method in the LocatableElement to build a location map.
+     * This location map is dependent on the latest version of the code, and will invalid as soon as the code changes in future.
      *
      * @return A map from JavaFragment to XPath String identifying the location of that fragment.
      */
