@@ -2804,12 +2804,12 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     @Override
-    public void recordShowHideFrameCatalogue(int cursorIndex, boolean show, FrameCatalogue.ShowReason reason)
+    public void recordShowHideFrameCatalogue(boolean show, FrameCatalogue.ShowReason reason)
     {
         FrameCursor focusedCursor = getFocusedCursor();
         editor.getWatcher().recordShowHideFrameCatalogue(
                 focusedCursor != null ? getXPath(focusedCursor.getEnclosingFrame()) : null,
-                cursorIndex,
+                focusedCursor != null ? focusedCursor.getCursorIndex() : -1,
                 show,
                 reason);
     }

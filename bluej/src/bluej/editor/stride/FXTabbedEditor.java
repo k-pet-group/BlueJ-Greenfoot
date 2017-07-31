@@ -414,12 +414,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     {
         Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
         if (selectedTab instanceof InteractionManager) {
-            InteractionManager editor = (InteractionManager) selectedTab;
-            FrameCursor focusedCursor = editor.getFocusedCursor();
-            editor.recordShowHideFrameCatalogue(
-                    focusedCursor != null ? focusedCursor.getCursorIndex() : -1,
-                    show,
-                    reason);
+            ((InteractionManager) selectedTab).recordShowHideFrameCatalogue(show, reason);
         }
         else {
             DataCollector.showHideFrameCatalogue(getProject(), null, null, -1, show, reason);

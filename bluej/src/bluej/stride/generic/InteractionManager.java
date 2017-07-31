@@ -175,13 +175,12 @@ public interface InteractionManager extends SuggestionListParent
     /**
      * Records the reason and the focused cursor info, if any, when showing or hiding the FrameCatalogue of this editor.
      *
-     * @param cursorIndex          the focused cursor's index (if any) within the enclosing frame.
      * @param show                 true for showing and false for hiding
      * @param reason               The event which triggers the change.
      *                             It is one of the values in the FrameCatalogue.ShowReason enum.
      */
     @OnThread(Tag.FXPlatform)
-    void recordShowHideFrameCatalogue(int cursorIndex, boolean show, FrameCatalogue.ShowReason reason);
+    void recordShowHideFrameCatalogue(boolean show, FrameCatalogue.ShowReason reason);
 
     public static enum ShortcutKey
     {
