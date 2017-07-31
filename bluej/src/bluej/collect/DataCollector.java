@@ -694,8 +694,8 @@ public class DataCollector
      * the showHideFrameCatalogue method in DataCollectorImpl class, which will do the collection.
      *
      * @param project              the current project
-     * @param pkg                  the current package
-     * @param enclosingFrameXpath  the path for the frame that include the focused cursor, if any.
+     * @param pkg                  the current package. May be <code>null</code>.
+     * @param enclosingFrameXpath  the path for the frame that include the focused cursor, if any. May be <code>null</code>.
      * @param cursorIndex          the focused cursor's index (if any) within the enclosing frame.
      * @param show                 true for showing and false for hiding
      * @param reason               The event which triggers the change.
