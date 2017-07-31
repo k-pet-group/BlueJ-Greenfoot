@@ -406,11 +406,11 @@ public @OnThread(Tag.FX) class FXTabbedEditor
      * If there is no an appropriate selected tab, will invoke the DataCollector's recordShowHideFrameCatalogue method,
      * without any info about any editor or a focused cursor.
      *
-     * @param show                 true for showing and false for hiding
-     * @param reason               The event which triggers the change.
-     *                             It is one of the values in the FrameCatalogue.ShowReason enum.
+     * @param show    true for showing and false for hiding
+     * @param reason  The event which triggers the change.
+     *                It is one of the values in the FrameCatalogue.ShowReason enum.
      */
-    private void recordShowHideFrameCatalogue(Boolean show, FrameCatalogue.ShowReason reason)
+    private void recordShowHideFrameCatalogue(boolean show, FrameCatalogue.ShowReason reason)
     {
         Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
         if (selectedTab instanceof InteractionManager) {
