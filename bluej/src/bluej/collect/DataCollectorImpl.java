@@ -362,6 +362,7 @@ public class DataCollectorImpl
      * @param anonymisedContent The anonymised content of the file or diff.  May null for some types (e.g. file deletion)
      * @param generatedFrom The Stride file this Java file was generated from.  May be null if this is a Stride file, or a Java file that has no Stride.
      */
+    @OnThread(Tag.Any)
     private static void addSourceHistoryItem(MultipartEntity mpe, String relativeName, String type, String anonymisedContent, String generatedFrom)
     {
         mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody(type));
