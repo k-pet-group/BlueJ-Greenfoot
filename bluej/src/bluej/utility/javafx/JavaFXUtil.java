@@ -860,7 +860,7 @@ public class JavaFXUtil
     }
 
     /**
-     * Makes a CheckMenuItem that has bidirectional listners to the given state.
+     * Makes a CheckMenuItem that has bidirectional listeners to the given state.
      *
      * @param text The content (label) for the CheckMenuItem.
      * @param state The boolean state to bind the check state to (bidirectionally).
