@@ -21,6 +21,7 @@
  */
 package bluej.pkgmgr.target;
 
+import java.util.Collection;
 import java.util.List;
 
 import bluej.collect.DiagnosticWithShown;
@@ -95,7 +96,7 @@ public abstract class NonCodeEditableTarget extends EditableTarget
     public void recordUnknownCommandKey(String enclosingFrameXpath, int cursorIndex, char key) { }
 
     @Override
-    public void recordShowErrorIndicator(int identifier) { }
+    public void recordShowErrorIndicators(Collection<Integer> identifiers) { }
 
     @Override
     @OnThread(Tag.Any)

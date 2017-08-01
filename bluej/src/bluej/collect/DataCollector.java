@@ -32,7 +32,6 @@ import bluej.debugger.SourceLocation;
 import bluej.debugmgr.inspector.ClassInspector;
 import bluej.debugmgr.inspector.Inspector;
 import bluej.debugmgr.inspector.ObjectInspector;
-import bluej.extensions.SourceType;
 import bluej.extmgr.ExtensionWrapper;
 import bluej.groupwork.Repository;
 import bluej.pkgmgr.Package;
@@ -42,13 +41,7 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * DataCollector for sending off data.
@@ -303,18 +296,30 @@ public class DataCollector
     public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, CompileReason reason, int compilationSequence)
     {
         if (dontSend()) return;
-        diagnostics.forEach(dws -> {
-            // If the error was shown to the user, store that in our set.  Conversely,
-            // if we have been told already that the error has been shown to the user,
-            // we want to reflect that in the event
-            if (dws.wasShownToUser())
+
+        // This bitset will be filled with all errors which we've already been told are shown,
+        // but which we couldn't send to the server because we hadn't yet sent the compilation
+        // event which notifies the server of their creation:
+        Set<Integer> pendingShow = new HashSet<>();
+
+        for (DiagnosticWithShown dws : diagnostics)
+        {
+            // If we have been told already that the error has been shown to the user,
+            // we want to send a new event afterwards with the shown:
+            // Or, if it's just been shown now:
+            if (shownErrorIndicators.get(dws.getDiagnostic().getIdentifier()) || dws.wasShownToUser())
+            {
+                pendingShow.add(dws.getDiagnostic().getIdentifier());
                 shownErrorIndicators.set(dws.getDiagnostic().getIdentifier());
-            else if (shownErrorIndicators.get(dws.getDiagnostic().getIdentifier()))
-                dws.markShownToUser();
+            }
 
             createdErrors.set(dws.getDiagnostic().getIdentifier());
-        });
+        }
         DataCollectorImpl.compiled(proj, pkg, sources, diagnostics, success, reason, compilationSequence);
+        if (!pendingShow.isEmpty())
+        {
+            DataCollectorImpl.showErrorIndicators(pkg, pendingShow);
+        }
     }
 
     public static void debuggerTerminate(Project project)
@@ -609,20 +614,82 @@ public class DataCollector
         DataCollectorImpl.inspectorClassShow(pkg, inspector, className);        
     }
 
-    public static void showErrorIndicator(Package pkg, int errorIdentifier)
+    public static void showErrorIndicators(Package pkg, Collection<Integer> errorIdentifiers)
     {
         if (dontSend()) return;
-        // Already know about this:
-        if (shownErrorIndicators.get(errorIdentifier))
-            return;
 
-        if (createdErrors.get(errorIdentifier))
+        HashSet<Integer> previouslyUnshown = new HashSet<>(errorIdentifiers);
+        previouslyUnshown.removeAll(asCollection(shownErrorIndicators));
+
+        if (previouslyUnshown.isEmpty())
         {
-            // Creation has already been sent, so fine to follow it up with a shown event:
-            DataCollectorImpl.showErrorIndicator(pkg, errorIdentifier);
+            // Already know about all of them:
+            return;
         }
-        // Otherwise, we haven't sent the creation yet, so do nothing but flag it in the bitset
-        shownErrorIndicators.set(errorIdentifier);
+        else
+        {
+            // We only send those that are  previously unshown, now shown, but have been sent as created:
+            HashSet<Integer> toSend = new HashSet<>(previouslyUnshown);
+            toSend.retainAll(asCollection(createdErrors));
+            if (!toSend.isEmpty())
+            {
+                // Creation has already been sent for the these events, so fine to follow it up with a shown event:
+                DataCollectorImpl.showErrorIndicators(pkg, toSend);
+            }
+            // Otherwise, we haven't sent the creation yet, so do nothing (will get sent later)
+
+
+            // Either way, flag it in the bitset as shown:
+            for (Integer id : previouslyUnshown)
+            {
+                shownErrorIndicators.set(id);
+            }
+        }
+    }
+
+    /**
+     * Mirrors a BitSet as a collection of integers (the indexes of the set bits).
+     * Surprisingly, there's no method in BitSet itself to support this.
+     *
+     * Rather than make a copy of the collection, we create a fake collection
+     * which is based on the original bitset.  Thus, if the original bitset changes,
+     * the returned collection will also change.  Hence why it's named asCollection
+     * rather than toCollection.
+     */
+    private static Collection<Integer> asCollection(BitSet bitSet)
+    {
+        return new AbstractCollection<Integer>()
+        {
+            @Override
+            public Iterator<Integer> iterator()
+            {
+                return new Iterator<Integer>()
+                {
+                    // -1 when there's no more bits
+                    int nextBit = bitSet.nextSetBit(0);
+
+                    @Override
+                    public boolean hasNext()
+                    {
+                        return nextBit != -1;
+                    }
+
+                    @Override
+                    public Integer next()
+                    {
+                        int retBit = nextBit;
+                        nextBit = bitSet.nextSetBit(nextBit + 1);
+                        return retBit;
+                    }
+                };
+            }
+
+            @Override
+            public int size()
+            {
+                return bitSet.cardinality();
+            }
+        };
     }
 
     public static void showErrorMessage(Package pkg, int errorIdentifier, List<String> quickFixes)

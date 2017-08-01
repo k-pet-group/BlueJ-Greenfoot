@@ -214,9 +214,8 @@ public class DataCollectorImpl
         for (DiagnosticWithShown dws : diagnostics)
         {
             final Diagnostic d = dws.getDiagnostic();
-            
+
             mpe.addPart("event[compile_output][][is_error]", CollectUtility.toBody(d.getType() == Diagnostic.ERROR));
-            mpe.addPart("event[compile_output][][shown]", CollectUtility.toBody(dws.wasShownToUser()));
             mpe.addPart("event[compile_output][][message]", CollectUtility.toBody(d.getMessage()));
             mpe.addPart("event[compile_output][][session_sequence]", CollectUtility.toBody(d.getIdentifier()));
             mpe.addPart("event[compile_output][][origin]", CollectUtility.toBody(d.getOrigin()));
@@ -1063,10 +1062,19 @@ public class DataCollectorImpl
         return mpe;
     }
 
-    public static void showErrorIndicator(Package pkg, int errorIdentifier)
+    public static void showErrorIndicators(Package pkg, Collection<Integer> errorIdentifiers)
     {
         MultipartEntity mpe = new MultipartEntity();
-        mpe.addPart("event[error_sequence]", CollectUtility.toBody(errorIdentifier));
+        // Sanity check -- don't send event if there's no sequences to send:
+        if (errorIdentifiers.isEmpty())
+        {
+            return;
+        }
+
+        for (Integer errorIdentifier : errorIdentifiers)
+        {
+            mpe.addPart("event[error_sequences][]", CollectUtility.toBody(errorIdentifier));
+        }
         submitEvent(pkg.getProject(), pkg, EventName.SHOWN_ERROR_INDICATOR, new PlainEvent(mpe));
     }
 

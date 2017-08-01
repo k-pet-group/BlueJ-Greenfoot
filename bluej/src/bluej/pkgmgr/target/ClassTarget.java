@@ -2594,9 +2594,9 @@ public class ClassTarget extends DependentTarget
     }
 
     @Override
-    public void recordShowErrorIndicator(int identifier)
+    public void recordShowErrorIndicators(Collection<Integer> identifiers)
     {
-        DataCollector.showErrorIndicator(getPackage(), identifier);
+        DataCollector.showErrorIndicators(getPackage(), identifiers);
     }
 
     @Override
