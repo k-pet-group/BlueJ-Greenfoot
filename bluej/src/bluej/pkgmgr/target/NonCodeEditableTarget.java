@@ -29,6 +29,7 @@ import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.pkgmgr.Package;
+import bluej.stride.generic.Frame;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -95,6 +96,9 @@ public abstract class NonCodeEditableTarget extends EditableTarget
 
     @Override
     public void recordShowHideFrameCatalogue(String enclosingFrameXpath, int cursorIndex, boolean show, FrameCatalogue.ShowReason reason) { }
+
+    @Override
+    public void recordViewModeChange(String enclosingFrameXpath, int cursorIndex, Frame.View oldView, Frame.View newView, Frame.ViewChangeReason reason) { }
 
     @Override
     public void recordShowErrorIndicator(int identifier) { }

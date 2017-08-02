@@ -1506,11 +1506,64 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
 
     public static enum ShowReason { EXCEPTION, LINK_TARGET }
 
-    public static enum View { NORMAL, JAVA_PREVIEW, BIRDSEYE_NODOC, BIRDSEYE_DOC;
+    /**
+     * Different view modes in Stride editor.
+     */
+    public enum View {
+        // The normal Stride preview
+        NORMAL("normal"),
+        // Java preview in Stride editor
+        JAVA_PREVIEW("java_preview"),
+        // Birdseye view without documentation
+        BIRDSEYE_NODOC("birdseye_nodoc"),
+        // Birdseye view with documentation
+        BIRDSEYE_DOC("birdseye_doc");
+
+        private final String text;
+
+        View(String text)
+        {
+            this.text = text;
+        }
+
+        public String getText()
+        {
+            return text;
+        }
 
         public boolean isBirdseye()
         {
             return this == BIRDSEYE_DOC || this == BIRDSEYE_NODOC;
+        }
+    }
+
+    /**
+     * Tracks the cause of a view mode change, i.e. what user interaction actually
+     * caused the change.  A mouse click, a shortcut key, etc.
+     */
+    public enum ViewChangeReason
+    {
+        // View has returned to Normal because user clicked on the mouse button.
+        MOUSE_CLICKED("mouse_clicked"),
+        // View has returned to Normal because user pressed Enter.
+        KEY_PRESSED_ENTER("key_pressed_enter"),
+        // View has returned to Normal because user pressed Escape.
+        KEY_PRESSED_ESCAPE("key_pressed_escape"),
+        // The check menu or its accelerator is used to toggle between view modes.
+        // We don't have a straightforward way to actually differentiate between the accelerator and
+        // actual clicking on the menu. Also, there is no big need to differentiate.
+        MENU_OR_SHORTCUT("menu_or_shortcut");
+
+        private final String text;
+
+        ViewChangeReason(String text)
+        {
+            this.text = text;
+        }
+
+        public String getText()
+        {
+            return text;
         }
     }
 

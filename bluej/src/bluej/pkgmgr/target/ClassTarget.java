@@ -68,6 +68,7 @@ import bluej.stride.framedjava.convert.ConversionWarning;
 import bluej.stride.framedjava.convert.ConvertResultDialog;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.TopLevelCodeElement;
+import bluej.stride.generic.Frame;
 import bluej.utility.*;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
@@ -2648,6 +2649,12 @@ public class ClassTarget extends DependentTarget
     public void recordShowHideFrameCatalogue(String enclosingFrameXpath, int cursorIndex, boolean show, FrameCatalogue.ShowReason reason)
     {
         DataCollector.showHideFrameCatalogue(getPackage().getProject(), getPackage(), enclosingFrameXpath, cursorIndex, show, reason);
+    }
+
+    @Override
+    public void recordViewModeChange(String enclosingFrameXpath, int cursorIndex, Frame.View oldView, Frame.View newView, Frame.ViewChangeReason reason)
+    {
+        DataCollector.viewModeChange(getPackage(), getSourceFile(), enclosingFrameXpath, cursorIndex, oldView, newView, reason);
     }
 
     @Override

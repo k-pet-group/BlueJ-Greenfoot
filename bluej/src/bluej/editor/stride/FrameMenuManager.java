@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Map;
 
 import bluej.Config;
+import bluej.stride.generic.Frame;
 import bluej.stride.generic.Frame.View;
-import bluej.stride.generic.FrameCursor;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import bluej.stride.slots.EditableSlot.SortedMenuItem;
 import bluej.utility.javafx.FXConsumer;
@@ -87,8 +87,8 @@ class FrameMenuManager extends TabMenuManager
         this.javaPreviewShowing = new SimpleBooleanProperty(editor.getView() == View.JAVA_PREVIEW);
         // I don't think this will cause a loop with notifyView because it converges (second listener sets property to current value):
         JavaFXUtil.addChangeListener(javaPreviewShowing, b -> {
-            if (b) JavaFXUtil.runNowOrLater(editor::enableJavaPreview);
-            else JavaFXUtil.runNowOrLater(editor::disableJavaPreview);
+            if (b) JavaFXUtil.runNowOrLater(() -> editor.enableJavaPreview(Frame.ViewChangeReason.MENU_OR_SHORTCUT));
+            else JavaFXUtil.runNowOrLater(() -> editor.disableJavaPreview(Frame.ViewChangeReason.MENU_OR_SHORTCUT));
         });
 
         defaultEditItems = Arrays.asList(
