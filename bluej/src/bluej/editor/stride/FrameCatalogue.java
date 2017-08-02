@@ -125,6 +125,34 @@ public class FrameCatalogue extends VBox
 
     public final static double CATALOGUE_FRAME_WIDTH = 220.0;
 
+    /**
+     * An enum to list all the cases in which the frame catalogue will be expanded.
+     * This is used for the DataCollection.
+     */
+    public enum ShowReason {
+        // The user presses unknown command twice.
+        UNKNOWN_FRAME_COMMAND("unknown_frame_command"),
+        // The check menu, its accelerator or the keyboard shortcut is used to show/hide the catalogue.
+        // They are merged as we don't have a straightforward way to actually differentiate between
+        // the accelerator and actual clicking on the menu. Also, there is no big need to differentiate.
+        MENU_OR_SHORTCUT("menu_or_shortcut"),
+        // The user clicks on the catalogue's arrow to show/hide it.
+        ARROW("arrow"),
+        // When loading the project, bluej tries to retrieve the previous catalogue state.
+        PROPERTIES("properties");
+
+        private final String text;
+
+        ShowReason(String text)
+        {
+            this.text = text;
+        }
+
+        public String getText()
+        {
+            return text;
+        }
+    }
 
     // package-visible
     FrameCatalogue()

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,6 +32,7 @@ import bluej.debugger.SourceLocation;
 import bluej.debugmgr.inspector.ClassInspector;
 import bluej.debugmgr.inspector.Inspector;
 import bluej.debugmgr.inspector.ObjectInspector;
+import bluej.editor.stride.FrameCatalogue;
 import bluej.extensions.SourceType;
 import bluej.extmgr.ExtensionWrapper;
 import bluej.groupwork.Repository;
@@ -686,6 +687,27 @@ public class DataCollector
     {
         if (dontSend()) return;
         DataCollectorImpl.unknownFrameCommandKey(ct.getPackage().getProject(), ct.getPackage(), enclosingFrameXpath, cursorIndex, key);
+    }
+
+    /**
+     * A proxy method to firstly check if data submission is active on this project, and then invoke
+     * the showHideFrameCatalogue method in DataCollectorImpl class, which will do the collection.
+     *
+     * @param project              the current project
+     * @param pkg                  the current package. May be <code>null</code>.
+     * @param enclosingFrameXpath  the path for the frame that include the focused cursor, if any. May be <code>null</code>.
+     * @param cursorIndex          the focused cursor's index (if any) within the enclosing frame.
+     * @param show                 true for showing and false for hiding
+     * @param reason               The event which triggers the change.
+     *                             It is one of the values in the FrameCatalogue.ShowReason enum.
+     */
+    public static void showHideFrameCatalogue(Project project, Package pkg, String enclosingFrameXpath, int cursorIndex,
+                                              boolean show, FrameCatalogue.ShowReason reason)
+    {
+        if (dontSend()) {
+            return;
+        }
+        DataCollectorImpl.showHideFrameCatalogue(project, pkg, enclosingFrameXpath, cursorIndex, show, reason);
     }
 
     public static boolean hasGivenUp()

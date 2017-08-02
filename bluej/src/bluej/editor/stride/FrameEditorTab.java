@@ -2779,10 +2779,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     public void recordCodeCompletionStarted(SlotFragment element, int index, String stem, int codeCompletionId)
     {
         recordEdits(StrideEditReason.FLUSH);
-
-        LocationMap locationMap = getTopLevelFrame().getCode().toXML().buildLocationMap();
-
-        editor.getWatcher().recordCodeCompletionStarted(null, null, locationMap.locationFor(element), index, stem, codeCompletionId);
+        editor.getWatcher().recordCodeCompletionStarted(null, null,
+                getLocationMap().locationFor(element), index, stem, codeCompletionId);
     }
 
     @Override
@@ -2790,10 +2788,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     public void recordCodeCompletionEnded(SlotFragment element, int index, String stem, String replacement, int codeCompletionId)
     {
         recordEdits(StrideEditReason.CODE_COMPLETION);
-
-        LocationMap locationMap = getTopLevelFrame().getCode().toXML().buildLocationMap();
-
-        editor.getWatcher().recordCodeCompletionEnded(null, null, locationMap.locationFor(element), index, stem, replacement, codeCompletionId);
+        editor.getWatcher().recordCodeCompletionEnded(null, null,
+                getLocationMap().locationFor(element), index, stem, replacement, codeCompletionId);
     }
 
     @Override
@@ -2804,11 +2800,18 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             return; // Don't worry about command keys
 
         recordEdits(StrideEditReason.FLUSH);
-        LocationMap locationMap = getTopLevelFrame().getCode().toXML().buildLocationMap();
+        editor.getWatcher().recordUnknownCommandKey(getXPath(enclosingFrame), cursorIndex, key);
+    }
 
-        String xpath = (enclosingFrame instanceof CodeFrame) ? locationMap.locationFor(((CodeFrame<? extends CodeElement>)enclosingFrame).getCode()) : null;
-
-        editor.getWatcher().recordUnknownCommandKey(xpath, cursorIndex, key);
+    @Override
+    public void recordShowHideFrameCatalogue(boolean show, FrameCatalogue.ShowReason reason)
+    {
+        FrameCursor focusedCursor = getFocusedCursor();
+        editor.getWatcher().recordShowHideFrameCatalogue(
+                focusedCursor != null ? getXPath(focusedCursor.getEnclosingFrame()) : null,
+                focusedCursor != null ? focusedCursor.getCursorIndex() : -1,
+                show,
+                reason);
     }
 
     @Override
@@ -2875,5 +2878,30 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                 focusWhenShown();
             });
         }
+    }
+
+    /**
+     * It returns the path for a code frame. If it's not a code frame, then null is returned.
+     *
+     * @param frame The frame that its path is needed.
+     * @return      If the frame is a code frame, an XPath String identifying the location of that frame.
+     *              Otherwise, null.
+     */
+    private String getXPath(Frame frame)
+    {
+        return (frame instanceof CodeFrame)
+                ? getLocationMap().locationFor(((CodeFrame<? extends CodeElement>)frame).getCode())
+                : null;
+    }
+
+    /**
+     * It invokes the buildLocationMap method in the LocatableElement to build a location map.
+     * This location map is dependent on the latest version of the code, and will invalid as soon as the code changes in future.
+     *
+     * @return A map from JavaFragment to XPath String identifying the location of that fragment.
+     */
+    private LocationMap getLocationMap()
+    {
+        return getTopLevelFrame().getCode().toXML().buildLocationMap();
     }
 }

@@ -124,6 +124,24 @@ public class UntitledCollapsiblePane extends Pane
         JavaFXUtil.addChangeListener(expanded, this::runAnimation);
     }
 
+    /**
+     * A constructor which takes the main parameters needed for the UntitledCollapsiblePane
+     * besides a consumer function to be executed when the arrow is clicked.
+     *
+     * @param content         A node has all contents to be added to the Pane
+     * @param arrowLocation   Where to place the arrow (e.g. Top, Left).
+     * @param startCollapsed  The initial folding state (true it is collapsed, false expanded)
+     * @param listener        A consumer function to be executed when the arrow is clicked
+     */
+    public UntitledCollapsiblePane(Node content, ArrowLocation arrowLocation, boolean startCollapsed, FXConsumer<? super Boolean> listener)
+    {
+        this(content, arrowLocation, startCollapsed);
+        arrowWrapper.setOnMouseClicked(e -> {
+            expanded.set(!expanded.get());
+            listener.accept(expanded.get());
+        });
+    }
+
     private boolean isVertical()
     {
         return arrowLocation == ArrowLocation.TOP;
