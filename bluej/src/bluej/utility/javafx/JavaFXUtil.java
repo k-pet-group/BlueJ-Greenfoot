@@ -850,13 +850,41 @@ public class JavaFXUtil
      * @param state The boolean state to bind the check state to (bidirectionally)
      * @param shortcut The shortcut to use.  May be null for none.
      */
-    
     public static CheckMenuItem makeCheckMenuItem(String text, Property<Boolean> state, KeyCombination shortcut)
     {
         CheckMenuItem item = new CheckMenuItem(text);
         item.selectedProperty().bindBidirectional(state);
         if (shortcut != null)
             item.setAccelerator(shortcut);
+        return item;
+    }
+
+    /**
+     * Makes a CheckMenuItem that has bidirectional listeners to the given state.
+     *
+     * @param text The content (label) for the CheckMenuItem.
+     * @param state The boolean state to bind the check state to (bidirectionally).
+     * @param shortcut The shortcut to use.  May be null for none.
+     * @param listener An FXConsumer to execute in case the checkMenuItem has been toggled.
+     */
+    public static CheckMenuItem makeCheckMenuItem(String text, Property<Boolean> state, KeyCombination shortcut, FXConsumer<? super Boolean> listener)
+    {
+        CheckMenuItem item = new CheckMenuItem(text);
+        item.setSelected(state.getValue());
+        if (shortcut != null)
+            item.setAccelerator(shortcut);
+
+        addChangeListener(item.selectedProperty(), selected -> {
+            if (!selected.equals(state.getValue())) {
+                state.setValue(selected);
+                listener.accept(selected);
+            }
+        });
+
+        addChangeListener(state, newValue -> {
+            item.setSelected(newValue);
+        });
+
         return item;
     }
 

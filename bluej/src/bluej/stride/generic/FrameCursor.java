@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 
 import bluej.Config;
 import bluej.collect.StrideEditReason;
+import bluej.editor.stride.FrameCatalogue;
 import bluej.stride.framedjava.frames.StrideCategory;
 import bluej.stride.framedjava.frames.StrideDictionary;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
@@ -45,6 +46,7 @@ import javafx.animation.Timeline;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.IntegerBinding;
 import javafx.beans.binding.NumberExpressionBase;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -108,7 +110,9 @@ public class FrameCursor implements RecallableFocus
 
         if (key == '?')
         {
-            editor.cheatSheetShowingProperty().set(!editor.cheatSheetShowingProperty().get());
+            boolean show = !editor.cheatSheetShowingProperty().get();
+            editor.cheatSheetShowingProperty().set(show);
+            editor.recordShowHideFrameCatalogue(show, FrameCatalogue.ShowReason.MENU_OR_SHORTCUT);
             return true;
         }
 
@@ -205,19 +209,33 @@ public class FrameCursor implements RecallableFocus
                 //There's no block matching this
                 consecutiveErrors++;
                 if (consecutiveErrors >= ERROR_COUNT_TRIGGER) {
-                    editor.cheatSheetShowingProperty().set(true);
+                    BooleanProperty cheatSheetShowingProperty = editor.cheatSheetShowingProperty();
+                    if ( ! cheatSheetShowingProperty.get() ) {
+                        cheatSheetShowingProperty.set(true);
+                        editor.recordShowHideFrameCatalogue(true, FrameCatalogue.ShowReason.UNKNOWN_FRAME_COMMAND);
+                    }
                 }
-                editor.recordUnknownCommandKey(getEnclosingFrame(), parentCanvas.getCursors().indexOf(this), key);
+                editor.recordUnknownCommandKey(getEnclosingFrame(), getCursorIndex(), key);
                 //Ignore one-off mis-typing, just to stop every slip-up triggering a dialog
                 return true;
             }
         }
         else
         {
-            editor.recordUnknownCommandKey(getEnclosingFrame(), parentCanvas.getCursors().indexOf(this), key);
+            editor.recordUnknownCommandKey(getEnclosingFrame(), getCursorIndex(), key);
         }
         editor.getSelection().clear();
         return false;
+    }
+
+    /**
+     * Gets the index of this cursor object, relative to the start of cursors' positions within the inclusive frame.
+     *
+     * @return Our relative position in the enclosing frame.
+     */
+    public int getCursorIndex()
+    {
+        return parentCanvas.getCursors().indexOf(this);
     }
 
     public static void editorClosing(InteractionManager editor)

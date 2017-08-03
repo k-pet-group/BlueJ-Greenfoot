@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 2012,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -51,6 +51,7 @@ enum EventName
     FIX_EXECUTED("fix_executed"),
 
     UNKNOWN_FRAME_COMMAND("unknown_frame_command"),
+    FRAME_CATALOGUE_SHOWING("frame_catalogue_showing"),
 
     CODE_COMPLETION_STARTED("code_completion_started"),
     CODE_COMPLETION_ENDED("code_completion_ended"),

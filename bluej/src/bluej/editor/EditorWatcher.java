@@ -28,7 +28,7 @@ import bluej.collect.DiagnosticWithShown;
 import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
-import bluej.extensions.SourceType;
+import bluej.editor.stride.FrameCatalogue;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -160,6 +160,17 @@ public interface EditorWatcher
     void recordCodeCompletionEnded(Integer lineNumber, Integer columnNumber, String xpath, Integer elementOffset, String stem, String replacement, int codeCompletionId);
 
     void recordUnknownCommandKey(String enclosingFrameXpath, int cursorIndex, char key);
+
+    /**
+     * Records the reason and other parameters when showing or hiding the FrameCatalogue of this object.
+     *
+     * @param enclosingFrameXpath  the path for the frame that include the focused cursor, if any.
+     * @param cursorIndex          the focused cursor's index (if any) within the enclosing frame.
+     * @param show                 true for showing and false for hiding
+     * @param reason               The event which triggers the change.
+     *                             It is one of the values in the FrameCatalogue.ShowReason enum.
+     */
+    void recordShowHideFrameCatalogue(String enclosingFrameXpath, int cursorIndex, boolean show, FrameCatalogue.ShowReason reason);
 
     /**
      * Notifies watcher whether we are showing the interface (docs) or not
