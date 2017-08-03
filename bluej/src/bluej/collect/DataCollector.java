@@ -687,6 +687,15 @@ public class DataCollector
             }
 
             @Override
+            public boolean contains(Object o)
+            {
+                if (o instanceof Integer)
+                    return bitSet.get((Integer)o);
+                else
+                    return false;
+            }
+
+            @Override
             public int size()
             {
                 return bitSet.cardinality();
