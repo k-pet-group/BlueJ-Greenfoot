@@ -2818,7 +2818,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     @OnThread(Tag.FXPlatform)
     public void recordErrorIndicatorShown(int identifier)
     {
-        editor.getWatcher().recordShowErrorIndicator(identifier);
+        editor.getWatcher().recordShowErrorIndicators(Collections.singletonList(identifier));
     }
 
     @Override

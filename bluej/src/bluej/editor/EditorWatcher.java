@@ -21,6 +21,7 @@
  */
 package bluej.editor;
 
+import java.util.Collection;
 import java.util.List;
 
 import bluej.collect.DiagnosticWithShown;
@@ -121,11 +122,11 @@ public interface EditorWatcher
     void recordClose();
 
     /**
-     * Record that the given error indicator (i.e. red error underline) was shown in the editor,
+     * Record that the given error indicator(s) (i.e. red error underlines) were shown in the editor,
      * e.g. frame became non-fresh in Stride and so its underlines got shown.
-     * @param identifier Integer id of the error
+     * @param identifiers Integer ids of the errors
      */
-    void recordShowErrorIndicator(int identifier);
+    void recordShowErrorIndicators(Collection<Integer> identifiers);
 
     /**
      * Record that the given error message was shown to the user.
