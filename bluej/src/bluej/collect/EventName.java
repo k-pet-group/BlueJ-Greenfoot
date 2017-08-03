@@ -52,6 +52,7 @@ enum EventName
 
     UNKNOWN_FRAME_COMMAND("unknown_frame_command"),
     FRAME_CATALOGUE_SHOWING("frame_catalogue_showing"),
+    VIEW_MODE_CHANGE("view_mode_change"),
 
     CODE_COMPLETION_STARTED("code_completion_started"),
     CODE_COMPLETION_ENDED("code_completion_ended"),

@@ -33,12 +33,12 @@ import bluej.debugmgr.inspector.ClassInspector;
 import bluej.debugmgr.inspector.Inspector;
 import bluej.debugmgr.inspector.ObjectInspector;
 import bluej.editor.stride.FrameCatalogue;
-import bluej.extensions.SourceType;
 import bluej.extmgr.ExtensionWrapper;
 import bluej.groupwork.Repository;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
+import bluej.stride.generic.Frame;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -767,16 +767,14 @@ public class DataCollector
     }
 
     /**
-     * A proxy method to firstly check if data submission is active on this project, and then invoke
-     * the showHideFrameCatalogue method in DataCollectorImpl class, which will do the collection.
+     * Records the Frame Catalogue's showing/hiding.
      *
-     * @param project              the current project
-     * @param pkg                  the current package. May be <code>null</code>.
-     * @param enclosingFrameXpath  the path for the frame that include the focused cursor, if any. May be <code>null</code>.
-     * @param cursorIndex          the focused cursor's index (if any) within the enclosing frame.
+     * @param project              The current project
+     * @param pkg                  The current package. May be <code>null</code>.
+     * @param enclosingFrameXpath  The path for the frame that include the focused cursor, if any. May be <code>null</code>.
+     * @param cursorIndex          The focused cursor's index (if any) within the enclosing frame.
      * @param show                 true for showing and false for hiding
-     * @param reason               The event which triggers the change.
-     *                             It is one of the values in the FrameCatalogue.ShowReason enum.
+     * @param reason               The user interaction which triggered the change.
      */
     public static void showHideFrameCatalogue(Project project, Package pkg, String enclosingFrameXpath, int cursorIndex,
                                               boolean show, FrameCatalogue.ShowReason reason)
@@ -785,6 +783,26 @@ public class DataCollector
             return;
         }
         DataCollectorImpl.showHideFrameCatalogue(project, pkg, enclosingFrameXpath, cursorIndex, show, reason);
+    }
+
+    /**
+     * Records a view mode change.
+     *
+     * @param pkg                  The current package. May be <code>null</code>.
+     * @param sourceFile           The Stride file that its view mode has changed.
+     * @param enclosingFrameXpath  The path for the frame that include the focused cursor, if any. May be <code>null</code>.
+     * @param cursorIndex          The focused cursor's index (if any) within the enclosing frame.
+     * @param oldView              The old view mode that been switch from.
+     * @param newView              The new view mode that been switch to.
+     * @param reason               The user interaction which triggered the change.
+     */
+    public static void viewModeChange(Package pkg, File sourceFile, String enclosingFrameXpath, int cursorIndex,
+                                      Frame.View oldView, Frame.View newView, Frame.ViewChangeReason reason)
+    {
+        if (dontSend()) {
+            return;
+        }
+        DataCollectorImpl.viewModeChange(pkg.getProject(), pkg, sourceFile, enclosingFrameXpath, cursorIndex, oldView, newView, reason);
     }
 
     public static boolean hasGivenUp()

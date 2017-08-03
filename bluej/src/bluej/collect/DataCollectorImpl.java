@@ -39,6 +39,7 @@ import bluej.compiler.CompileReason;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.target.ClassTarget.SourceFileInfo;
+import bluej.stride.generic.Frame;
 import org.apache.http.entity.mime.MultipartEntity;
 
 import threadchecker.OnThread;
@@ -1179,16 +1180,14 @@ public class DataCollectorImpl
     }
 
     /**
-     * DataCollector implementation of the showHideFrameCatalogue registration.
-     * It prepares the event and invoke submitEvent to send it to the server.
+     * Records the Frame Catalogue's showing/hiding.
      *
      * @param project              the current project
      * @param pkg                  the current package
      * @param enclosingFrameXpath  the path for the frame that include the focused cursor, if any.
      * @param cursorIndex          the focused cursor's index (if any) within the enclosing frame.
      * @param show                 true for showing and false for hiding
-     * @param reason               The event which triggers the change.
-     *                             It is one of the values in the FrameCatalogue.ShowReason enum.
+     * @param reason               the user interaction which triggered the change.
      */
     public static void showHideFrameCatalogue(Project project, Package pkg, String enclosingFrameXpath,
                                               int cursorIndex, boolean show, FrameCatalogue.ShowReason reason)
@@ -1202,5 +1201,33 @@ public class DataCollectorImpl
         mpe.addPart("event[frame_catalogue_showing][show]", CollectUtility.toBody(show));
         mpe.addPart("event[frame_catalogue_showing][reason]", CollectUtility.toBody(reason.getText()));
         submitEvent(project, pkg, EventName.FRAME_CATALOGUE_SHOWING, new PlainEvent(mpe));
+    }
+
+    /**
+     * Records a view mode change.
+     *
+     * @param project              The current project
+     * @param pkg                  The current package. May be <code>null</code>.
+     * @param sourceFile           The Stride file that its view mode has changed.
+     * @param enclosingFrameXpath  The path for the frame that include the focused cursor, if any. May be <code>null</code>.
+     * @param cursorIndex          The focused cursor's index (if any) within the enclosing frame.
+     * @param oldView              The old view mode that been switch from.
+     * @param newView              The new view mode that been switch to.
+     * @param reason               The user interaction which triggered the change.
+     */
+    public static void viewModeChange(Project project, Package pkg, File sourceFile, String enclosingFrameXpath,
+                                      int cursorIndex, Frame.View oldView, Frame.View newView, Frame.ViewChangeReason reason)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        final ProjectDetails projDetails = new ProjectDetails(pkg.getProject());
+        mpe.addPart("event[view_mode_change][source_file_name]", CollectUtility.toBodyLocal(projDetails, sourceFile));
+        if (enclosingFrameXpath != null) {
+            mpe.addPart("event[view_mode_change][enclosing_xpath]", CollectUtility.toBody(enclosingFrameXpath));
+            mpe.addPart("event[view_mode_change][enclosing_index]", CollectUtility.toBody(cursorIndex));
+        }
+        mpe.addPart("event[view_mode_change][old_view]", CollectUtility.toBody(oldView.getText()));
+        mpe.addPart("event[view_mode_change][new_view]", CollectUtility.toBody(newView.getText()));
+        mpe.addPart("event[view_mode_change][reason]", CollectUtility.toBody(reason.getText()));
+        submitEvent(project, pkg, EventName.VIEW_MODE_CHANGE, new PlainEvent(mpe));
     }
 }
