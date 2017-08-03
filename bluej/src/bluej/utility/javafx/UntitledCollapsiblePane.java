@@ -133,7 +133,7 @@ public class UntitledCollapsiblePane extends Pane
      * @param startCollapsed  The initial folding state (true it is collapsed, false expanded)
      * @param listener        A consumer function to be executed when the arrow is clicked
      */
-    public UntitledCollapsiblePane(Node content, ArrowLocation arrowLocation, boolean startCollapsed, FXConsumer<? super Boolean> listener)
+    public UntitledCollapsiblePane(Node content, ArrowLocation arrowLocation, boolean startCollapsed, FXPlatformConsumer<? super Boolean> listener)
     {
         this(content, arrowLocation, startCollapsed);
         arrowWrapper.setOnMouseClicked(e -> {
