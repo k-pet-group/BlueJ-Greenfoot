@@ -2804,6 +2804,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void recordShowHideFrameCatalogue(boolean show, FrameCatalogue.ShowReason reason)
     {
         FrameCursor focusedCursor = getFocusedCursor();

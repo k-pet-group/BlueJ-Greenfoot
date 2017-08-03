@@ -867,21 +867,22 @@ public class JavaFXUtil
      * @param shortcut The shortcut to use.  May be null for none.
      * @param listener An FXConsumer to execute in case the checkMenuItem has been toggled.
      */
-    public static CheckMenuItem makeCheckMenuItem(String text, Property<Boolean> state, KeyCombination shortcut, FXConsumer<? super Boolean> listener)
+    @OnThread(Tag.FXPlatform)
+    public static CheckMenuItem makeCheckMenuItem(String text, Property<Boolean> state, KeyCombination shortcut, FXPlatformConsumer<? super Boolean> listener)
     {
         CheckMenuItem item = new CheckMenuItem(text);
         item.setSelected(state.getValue());
         if (shortcut != null)
             item.setAccelerator(shortcut);
 
-        addChangeListener(item.selectedProperty(), selected -> {
+        addChangeListenerPlatform(item.selectedProperty(), selected -> {
             if (!selected.equals(state.getValue())) {
                 state.setValue(selected);
                 listener.accept(selected);
             }
         });
 
-        addChangeListener(state, newValue -> {
+        addChangeListenerPlatform(state, newValue -> {
             item.setSelected(newValue);
         });
 
