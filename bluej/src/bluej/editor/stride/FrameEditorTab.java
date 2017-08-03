@@ -1319,9 +1319,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
      * Records the change of the View mode and sets the view property to the new mode.
      *
      * @param newView              The new view mode that been switch to.
-     *                             It is one of the values in the Frame.View enum.
-     * @param reason               The event which triggers the change.
-     *                             It is one of the values in the Frame.ViewChangeReason enum.
+     * @param reason               The user interaction which triggered the change.
      */
     private void changeViewMode(View newView, Frame.ViewChangeReason reason)
     {
@@ -2838,10 +2836,9 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     /**
      * Records the reason, the old view and the current one, when switching between different show modes in the Stride editor.
      *
-     * @param oldView              The old view mode that been switch from. It is one of the values in the Frame.View enum.
-     * @param newView              The new view mode that been switch to. It is one of the values in the Frame.View enum.
-     * @param reason               The event which triggers the change.
-     *                             It is one of the values in the Frame.ViewChangeReason enum.
+     * @param oldView              The old view mode that been switch from.
+     * @param newView              The new view mode that been switch to.
+     * @param reason               The user interaction which triggered the change.
      */
     @OnThread(Tag.FXPlatform)
     public void recordViewChange(View oldView, View newView, Frame.ViewChangeReason reason)

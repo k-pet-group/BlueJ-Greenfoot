@@ -1202,8 +1202,8 @@ public class DataCollectorImpl
      * @param sourceFile           The Stride file that its view mode has changed.
      * @param enclosingFrameXpath  The path for the frame that include the focused cursor, if any. May be <code>null</code>.
      * @param cursorIndex          The focused cursor's index (if any) within the enclosing frame.
-     * @param oldView              The old view mode that been switch from. It is one of the values in the Frame.View enum.
-     * @param newView              The new view mode that been switch to. It is one of the values in the Frame.View enum.
+     * @param oldView              The old view mode that been switch from.
+     * @param newView              The new view mode that been switch to.
      * @param reason               The user interaction which triggered the change.
      */
     public static void viewModeChange(Project project, Package pkg, File sourceFile, String enclosingFrameXpath,
