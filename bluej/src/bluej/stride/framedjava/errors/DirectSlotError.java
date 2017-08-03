@@ -43,6 +43,7 @@ import javafx.application.Platform;
 public abstract class DirectSlotError extends CodeError
 {
     private final int identifier;
+    @OnThread(Tag.Any)
     private final DiagnosticOrigin origin;
 
     /**

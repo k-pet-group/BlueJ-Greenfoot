@@ -35,6 +35,7 @@ import bluej.stride.generic.InteractionManager;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
@@ -224,7 +225,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         StackPane catalogueScrollPaneStacked = new StackPane(catalogueBackground, catalogueScrollPane);
         catalogueScrollPaneStacked.setMinWidth(0.0);
 
-        FXConsumer<? super Boolean> frameCatalogueShownListener =
+        FXPlatformConsumer<? super Boolean> frameCatalogueShownListener =
                 show -> recordShowHideFrameCatalogue(show, FrameCatalogue.ShowReason.ARROW);
         collapsibleCatalogueScrollPane = new UntitledCollapsiblePane(catalogueScrollPaneStacked, ArrowLocation.LEFT,
                 PrefMgr.getFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING), frameCatalogueShownListener);
@@ -410,6 +411,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
      * @param reason  The event which triggers the change.
      *                It is one of the values in the FrameCatalogue.ShowReason enum.
      */
+    @OnThread(Tag.FXPlatform)
     private void recordShowHideFrameCatalogue(boolean show, FrameCatalogue.ShowReason reason)
     {
         Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();

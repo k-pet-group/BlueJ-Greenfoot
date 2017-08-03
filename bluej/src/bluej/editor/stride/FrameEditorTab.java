@@ -2823,6 +2823,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void recordShowHideFrameCatalogue(boolean show, FrameCatalogue.ShowReason reason)
     {
         FrameCursor focusedCursor = getFocusedCursor();
@@ -2856,7 +2857,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     @OnThread(Tag.FXPlatform)
     public void recordErrorIndicatorShown(int identifier)
     {
-        editor.getWatcher().recordShowErrorIndicator(identifier);
+        editor.getWatcher().recordShowErrorIndicators(Collections.singletonList(identifier));
     }
 
     @Override

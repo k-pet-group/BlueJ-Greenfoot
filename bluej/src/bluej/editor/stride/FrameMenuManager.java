@@ -32,6 +32,7 @@ import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import bluej.stride.slots.EditableSlot.SortedMenuItem;
 import bluej.utility.javafx.FXConsumer;
 
+import bluej.utility.javafx.FXPlatformConsumer;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -132,7 +133,7 @@ class FrameMenuManager extends TabMenuManager
                 }
             });
 
-            FXConsumer<? super Boolean> frameCatalogueShownListener = newValue ->
+            FXPlatformConsumer<? super Boolean> frameCatalogueShownListener = newValue ->
                     editor.recordShowHideFrameCatalogue(newValue, FrameCatalogue.ShowReason.MENU_OR_SHORTCUT);
             ObservableList<MenuItem> standardViewMenuItems = FXCollections.observableArrayList(
                     JavaFXUtil.makeMenuItem(Config.getString("frame.viewmenu.nextError"), editor::nextError, new KeyCharacterCombination("k", KeyCombination.SHORTCUT_DOWN))

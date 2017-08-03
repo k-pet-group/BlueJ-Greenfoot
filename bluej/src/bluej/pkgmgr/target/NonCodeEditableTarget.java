@@ -21,6 +21,7 @@
  */
 package bluej.pkgmgr.target;
 
+import java.util.Collection;
 import java.util.List;
 
 import bluej.collect.DiagnosticWithShown;
@@ -101,7 +102,7 @@ public abstract class NonCodeEditableTarget extends EditableTarget
     public void recordViewModeChange(String enclosingFrameXpath, int cursorIndex, Frame.View oldView, Frame.View newView, Frame.ViewChangeReason reason) { }
 
     @Override
-    public void recordShowErrorIndicator(int identifier) { }
+    public void recordShowErrorIndicators(Collection<Integer> identifiers) { }
 
     @Override
     @OnThread(Tag.Any)
