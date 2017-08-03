@@ -1171,16 +1171,14 @@ public class DataCollectorImpl
     }
 
     /**
-     * DataCollector implementation of the showHideFrameCatalogue registration.
-     * It prepares the event and invoke submitEvent to send it to the server.
+     * Records the Frame Catalogue's showing/hiding.
      *
      * @param project              the current project
      * @param pkg                  the current package
      * @param enclosingFrameXpath  the path for the frame that include the focused cursor, if any.
      * @param cursorIndex          the focused cursor's index (if any) within the enclosing frame.
      * @param show                 true for showing and false for hiding
-     * @param reason               The event which triggers the change.
-     *                             It is one of the values in the FrameCatalogue.ShowReason enum.
+     * @param reason               the user interaction which triggered the change.
      */
     public static void showHideFrameCatalogue(Project project, Package pkg, String enclosingFrameXpath,
                                               int cursorIndex, boolean show, FrameCatalogue.ShowReason reason)
@@ -1197,8 +1195,7 @@ public class DataCollectorImpl
     }
 
     /**
-     * DataCollector implementation of the viewModeChange registration.
-     * It prepares the event and invoke submitEvent to send it to the server.
+     * Records a view mode change.
      *
      * @param project              The current project
      * @param pkg                  The current package. May be <code>null</code>.
@@ -1207,8 +1204,7 @@ public class DataCollectorImpl
      * @param cursorIndex          The focused cursor's index (if any) within the enclosing frame.
      * @param oldView              The old view mode that been switch from. It is one of the values in the Frame.View enum.
      * @param newView              The new view mode that been switch to. It is one of the values in the Frame.View enum.
-     * @param reason               The event which triggers the change.
-     *                             It is one of the values in the Frame.ViewChangeReason enum.
+     * @param reason               The user interaction which triggered the change.
      */
     public static void viewModeChange(Project project, Package pkg, File sourceFile, String enclosingFrameXpath,
                                       int cursorIndex, Frame.View oldView, Frame.View newView, Frame.ViewChangeReason reason)

@@ -690,16 +690,14 @@ public class DataCollector
     }
 
     /**
-     * A proxy method to firstly check if data submission is active on this project, and then invoke
-     * the showHideFrameCatalogue method in DataCollectorImpl class, which will do the collection.
+     * Records the Frame Catalogue's showing/hiding.
      *
-     * @param project              the current project
-     * @param pkg                  the current package. May be <code>null</code>.
-     * @param enclosingFrameXpath  the path for the frame that include the focused cursor, if any. May be <code>null</code>.
-     * @param cursorIndex          the focused cursor's index (if any) within the enclosing frame.
+     * @param project              The current project
+     * @param pkg                  The current package. May be <code>null</code>.
+     * @param enclosingFrameXpath  The path for the frame that include the focused cursor, if any. May be <code>null</code>.
+     * @param cursorIndex          The focused cursor's index (if any) within the enclosing frame.
      * @param show                 true for showing and false for hiding
-     * @param reason               The event which triggers the change.
-     *                             It is one of the values in the FrameCatalogue.ShowReason enum.
+     * @param reason               The user interaction which triggered the change.
      */
     public static void showHideFrameCatalogue(Project project, Package pkg, String enclosingFrameXpath, int cursorIndex,
                                               boolean show, FrameCatalogue.ShowReason reason)
@@ -711,8 +709,7 @@ public class DataCollector
     }
 
     /**
-     * A proxy method to firstly check if data submission is active on this project, and then invoke
-     * the viewModeChange method in DataCollectorImpl class, which will do the collection.
+     * Records a view mode change.
      *
      * @param pkg                  The current package. May be <code>null</code>.
      * @param sourceFile           The Stride file that its view mode has changed.
@@ -720,8 +717,7 @@ public class DataCollector
      * @param cursorIndex          The focused cursor's index (if any) within the enclosing frame.
      * @param oldView              The old view mode that been switch from. It is one of the values in the Frame.View enum.
      * @param newView              The new view mode that been switch to. It is one of the values in the Frame.View enum.
-     * @param reason               The event which triggers the change.
-     *                             It is one of the values in the Frame.ViewChangeReason enum.
+     * @param reason               The user interaction which triggered the change.
      */
     public static void viewModeChange(Package pkg, File sourceFile, String enclosingFrameXpath, int cursorIndex,
                                       Frame.View oldView, Frame.View newView, Frame.ViewChangeReason reason)
