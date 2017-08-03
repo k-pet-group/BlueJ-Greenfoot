@@ -768,7 +768,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     /**
      * Get the project properties to be written to storage when the project is saved.
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public synchronized Properties getProjectProperties()
     {
         Properties p = new Properties();

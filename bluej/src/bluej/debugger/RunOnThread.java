@@ -23,6 +23,8 @@ package bluej.debugger;
 
 import bluej.Config;
 import bluej.pkgmgr.Project;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * An enum indicating which thread methods should be invoked on.
@@ -34,6 +36,7 @@ public enum RunOnThread
     // Easiest to do this in toString, even if it looks weird, because JavaFX ComboBox uses
     // toString to display, and it's awkward to make it use an outside method:
     @Override
+    @OnThread(Tag.Any)
     public String toString()
     {
         switch (this)
@@ -53,7 +56,8 @@ public enum RunOnThread
         try
         {
             return valueOf(name);
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             return DEFAULT;
         }
