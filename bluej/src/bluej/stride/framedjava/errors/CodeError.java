@@ -25,7 +25,6 @@ import java.util.List;
 
 import bluej.stride.slots.EditableSlot;
 import bluej.utility.javafx.JavaFXUtil;
-import javafx.application.Platform;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -63,26 +62,39 @@ public abstract class CodeError
     /** An expression for whether the red underline is actually drawn: requires the
      *  attached frame to be non-fresh, and for the showingIndicatorProperty to be true
      *  (i.e. for us to not be overlapped by another red underline error which takes precedence.)
-     *  Final, but can't be marked as such because we have to thread hop to initialise
      */
-    private BooleanExpression visible;
+    private final BooleanExpression visible;
     /**
      * The XML xpath for this error, used for data recording.
      */
     @OnThread(value = Tag.Any, requireSynchronized = true)
     protected String path;
+    /**
+     * The error identifier, for data recording purposes.
+     */
+    private final int identifier;
 
-    @OnThread(Tag.Any)
-    protected CodeError(JavaFragment code)
+    /**
+     * Creates a new CodeError (only called by subclasses, since we are an abstract class).
+     *
+     * Note for data recording: callers of this constructor are responsible for calling
+     * visibleProperty().get() after this constructor has complete, and if and only if
+     * the value is true, they should record the error.  If the value is false, this constructor
+     * is responsible for installing a listener to record the error later on.
+     *
+     * @param code The fragment which this error is attached to.
+     * @param errorIdentifier The identifier of the error (only for data recording purposes)
+     */
+    @OnThread(Tag.FXPlatform)
+    protected CodeError(JavaFragment code, int errorIdentifier)
     {
         if (code == null)
             throw new IllegalArgumentException("Slot for error cannot be null");
+        this.identifier = errorIdentifier;
         relevantSlot = code;
         // These parts must be run on the FX thread:
-        Platform.runLater(() -> {
-            visible = freshProperty.not().and(showingIndicatorProperty);
-            code.addError(this);
-        });
+        visible = freshProperty.not().and(showingIndicatorProperty);
+        code.addError(this);
     }
 
     /**
@@ -268,7 +280,10 @@ public abstract class CodeError
      * Gets the identifier of the error, for data recording purposes.
      */
     @OnThread(Tag.Any)
-    public abstract int getIdentifier();
+    public final int getIdentifier()
+    {
+        return identifier;
+    }
 
     /**
      * Gets the XML xpath of the error, for data recording purposes.

@@ -33,19 +33,17 @@ public class JavaCompileError extends CodeError
     private final int startPos;
     private final int endPos;
     private final String message;
-    private final int identifier;
     
     @OnThread(Tag.Any)
     public JavaCompileError(JavaFragment slotElement, int startPos, int endPos, String message, int identifier)
     {
-        super(slotElement);
+        super(slotElement, identifier);
         this.startPos = startPos;
         this.endPos = endPos;
         if (endPos < startPos) {
             throw new IllegalArgumentException("JavaCompileError ends before it begins");
         }
         this.message = message;
-        this.identifier = identifier;
     }
 
     @Override
@@ -82,12 +80,5 @@ public class JavaCompileError extends CodeError
     public boolean isJavaPos()
     {
         return true;
-    }
-
-    @Override
-    @OnThread(Tag.Any)
-    public int getIdentifier()
-    {
-        return identifier;
     }
 }
