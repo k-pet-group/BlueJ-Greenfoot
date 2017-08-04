@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import bluej.Boot;
 import bluej.compiler.CompileInputFile;
@@ -289,15 +290,35 @@ public class DataCollectorImpl
     {
         submitEventNoData(proj, null, EventName.PROJECT_CLOSING);
     }
-    
+
+    /**
+     * Records the EventName.PACKAGE_OPENING event for the given package, including sending relevant source histories.
+     */
     public static void packageOpened(Package pkg)
     {
-        addCompleteFiles(pkg, EventName.PACKAGE_OPENING, pkg.getClassTargets());
+        addCompleteFiles(pkg, EventName.PACKAGE_OPENING, pkg.getClassTargets(), null);
     }
 
-    private static void addCompleteFiles(Package pkg, EventName eventName, List<ClassTarget> classTargets)
+    /**
+     * Sends an event with a set of complete files.
+     *
+     * @param pkg The package that the set of files all belong to.
+     * @param eventName The event name to send with the event
+     * @param classTargets The class targets of the files to send.
+     *                     If there are Stride files, both Stride and Java
+     *                     will be sent.
+     * @param extra The extra action to run on the event before sending,
+     *              e.g. add an extra field to send.  May be null (meaning no
+     *              extra action to run).
+     */
+    private static void addCompleteFiles(Package pkg, EventName eventName, List<ClassTarget> classTargets, Consumer<MultipartEntity> extra)
     {
         final MultipartEntity mpe = new MultipartEntity();
+
+        if (extra != null)
+        {
+            extra.accept(mpe);
+        }
 
         final ProjectDetails proj = new ProjectDetails(pkg.getProject());
 
@@ -381,9 +402,14 @@ public class DataCollectorImpl
         }
     }
 
+    /**
+     * Records the EventName.PACKAGE_CLOSING event for the given package, including sending relevant source histories.
+     */
     public static void packageClosed(Package pkg)
     {
-        submitEventNoData(pkg.getProject(), pkg, EventName.PACKAGE_CLOSING);
+        addCompleteFiles(pkg, EventName.PACKAGE_CLOSING, pkg.getClassTargets(), mpe -> {
+            mpe.addPart("event[has_hash]", CollectUtility.toBody(true));
+        });
     }
 
     public static void bluejClosed()
@@ -752,9 +778,15 @@ public class DataCollectorImpl
         });
     }
 
+    /**
+     * Records the EventName.ADD event, indicating that the given class was added.
+     * @param pkg The package containing the class.
+     * @param ct The class involved.  Relevant source history (i.e. complete file) will be
+     *           sent, either just .java (for Java classes) or .stride and .java (for Stride classes)
+     */
     public static void addClass(Package pkg, ClassTarget ct)
     {
-        addCompleteFiles(pkg, EventName.ADD, Collections.singletonList(ct));
+        addCompleteFiles(pkg, EventName.ADD, Collections.singletonList(ct), null);
     }
 
     public static void openClass(Package pkg, File sourceFile)
