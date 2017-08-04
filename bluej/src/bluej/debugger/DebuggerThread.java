@@ -21,6 +21,9 @@
  */
 package bluej.debugger;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.util.List;
 
 /**
@@ -36,6 +39,7 @@ public abstract class DebuggerThread
 
     public abstract String getStatus();
 
+    @OnThread(Tag.Any)
     public abstract boolean isSuspended();
     public abstract boolean isAtBreakpoint();
 
