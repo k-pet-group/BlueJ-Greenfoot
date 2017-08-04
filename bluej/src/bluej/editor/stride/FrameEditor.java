@@ -786,7 +786,7 @@ public class FrameEditor implements Editor
     {
         if (lastSavedJavaSwing != null && lastSavedJavaSwing.javaSource != null && lastSavedJavaSwing.xpathLocations != null)
         {
-            JavaFragment fragment = lastSavedJavaSwing.javaSource.findError((int)diagnostic.getStartLine(), (int)diagnostic.getStartColumn(), (int)diagnostic.getEndLine(), (int)diagnostic.getEndColumn(), diagnostic.getMessage(), true);
+            JavaFragment fragment = lastSavedJavaSwing.javaSource.findError((int)diagnostic.getStartLine(), (int)diagnostic.getStartColumn(), (int)diagnostic.getEndLine(), (int)diagnostic.getEndColumn(), diagnostic.getMessage());
             if (fragment != null)
             {
                 String xpath = lastSavedJavaSwing.xpathLocations.locationFor(fragment);
@@ -803,7 +803,7 @@ public class FrameEditor implements Editor
         {
             JavaFXUtil.onceNotNull(javaSource, js ->
                     js.handleError((int) diagnostic.getStartLine(), (int) diagnostic.getStartColumn(),
-                        (int) diagnostic.getEndLine(), (int) diagnostic.getEndColumn(), diagnostic.getMessage(), true, diagnostic.getIdentifier())
+                        (int) diagnostic.getEndLine(), (int) diagnostic.getEndColumn(), diagnostic.getMessage(), diagnostic.getIdentifier())
             );
         }
         else
@@ -1059,11 +1059,8 @@ public class FrameEditor implements Editor
                         {
                             // Use runlater because we might be mid-save, so need to wait for current code to finish:
                             JavaFXUtil.runPlatformLater(() -> {
-                                if (!js.handleError((int) e.startLine, (int) e.startColumn,
-                                        (int) e.endLine, (int) e.endColumn, e.message, false, e.identifier))
-                                {
-                                    Debug.message("Could not display queued error");
-                                }
+                                js.handleError((int) e.startLine, (int) e.startColumn,
+                                        (int) e.endLine, (int) e.endColumn, e.message, e.identifier);
                             });
                         }
                         // We need to use runLater to account for the fact that adding errors uses a runLater:
@@ -1141,9 +1138,11 @@ public class FrameEditor implements Editor
             {
                 Debug.reportError(e);
             }
-            Platform.runLater(() -> panel.updateErrorOverviewBar(false));
-            List<DiagnosticWithShown> diagnostics = Utility.mapList(allLates, e -> e.toDiagnostic(javaFilename.getName(), frameFilename));
-            Platform.runLater(() -> watcher.recordLateErrors(diagnostics, compilationIdentifier));
+            Platform.runLater(() -> {
+                panel.updateErrorOverviewBar(false);
+                List<DiagnosticWithShown> diagnostics = Utility.mapList(allLates, e -> e.toDiagnostic(javaFilename.getName(), frameFilename));
+                watcher.recordLateErrors(diagnostics, compilationIdentifier);
+            });
         });
     }
         
