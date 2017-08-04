@@ -119,6 +119,17 @@ public abstract class JavaFragment
         return ErrorRelation.OVERLAPS_FRAGMENT;
     }
 
+    /**
+     * Shows a compile error for this Java fragment, either on the fragment
+     * itself or on its redirect (see getCompileErrorRedirect()).
+     *
+     * @param startLine The .java file error position.  Will be mapped back to position in Java editor.
+     * @param startColumn Ditto
+     * @param endLine Ditto
+     * @param endColumn Ditto
+     * @param message The error message
+     * @param identifier The error identifier (for data recording purposes).
+     */
     @OnThread(Tag.FX)
     public final void showCompileError(int startLine, int startColumn, int endLine, int endColumn, String message, int identifier)
     {
@@ -130,19 +141,25 @@ public abstract class JavaFragment
             new JavaCompileError(redirect, 0, redirect.len, message, identifier);
         }
         else
-            this.showCompileErrorDirect(startLine, startColumn, endLine, endColumn, message, identifier);
+        {
+            int startPos = getErrorStartPos(startLine, startColumn);
+            int endPos = getErrorEndPos(endLine, endColumn);
+
+            new JavaCompileError(this, startPos, endPos, message, identifier);
+        }
     }
 
+    /**
+     * Gets the compile error redirect target.  Some Java fragments
+     * (e.g. the class keyword of a class declaration) don't support
+     * showing errors, usually because they can't get keyboard focus
+     * in the Stride error (which would mean the error could only be
+     * read with the mouse: bad for accessibility).  So such fragments
+     * implement this method to return a nearby JavaFragment which can
+     * show an error.  Returns null if there's no redirect.
+     */
     @OnThread(Tag.FX)
     protected abstract JavaFragment getCompileErrorRedirect();
-
-    private void showCompileErrorDirect(int startLine, int startColumn, int endLine, int endColumn, String message, int identifier)
-    {
-        int startPos = getErrorStartPos(startLine, startColumn);
-        int endPos = getErrorEndPos(endLine, endColumn);
-
-        new JavaCompileError(this, startPos, endPos, message, identifier);
-    }
 
     public int getErrorEndPos(int endLine, int endColumn)
     {
