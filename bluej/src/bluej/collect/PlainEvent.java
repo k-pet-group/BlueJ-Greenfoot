@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.http.entity.mime.MultipartEntity;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 
 /**
@@ -40,6 +42,7 @@ class PlainEvent implements Event
     }
 
     @Override
+    @OnThread(Tag.Worker)
     public MultipartEntity makeData(int sequenceNum,
             Map<FileKey, List<String>> fileVersions)
     {

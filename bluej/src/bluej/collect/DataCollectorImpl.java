@@ -164,6 +164,7 @@ public class DataCollectorImpl
             }
             
             @Override
+            @OnThread(Tag.Worker)
             public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
             {
                 MultipartEntity mpe = evt.makeData(sequenceNum, fileVersions);
@@ -350,6 +351,7 @@ public class DataCollectorImpl
             }
 
             @Override
+            @OnThread(Tag.Worker)
             public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
             {
                 return mpe;
@@ -453,6 +455,7 @@ public class DataCollectorImpl
             }
             
             @Override
+            @OnThread(Tag.Worker)
             public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
             {
                 MultipartEntity mpe = new MultipartEntity();
@@ -632,6 +635,7 @@ public class DataCollectorImpl
         submitEvent(pkg.getProject(), pkg, EventName.RENAME, new PlainEvent(mpe) {
 
             @Override
+            @OnThread(Tag.Worker)
             public MultipartEntity makeData(int sequenceNum,
                     Map<FileKey, List<String>> fileVersions)
             {
@@ -655,6 +659,7 @@ public class DataCollectorImpl
         submitEvent(pkg.getProject(), pkg, EventName.DELETE, new PlainEvent(mpe) {
 
             @Override
+            @OnThread(Tag.Worker)
             public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
             {
                 // We should remove the old source from the fileVersions hash:
@@ -718,6 +723,7 @@ public class DataCollectorImpl
         submitEvent(pkg.getProject(), pkg, strideToJava ? EventName.CONVERT_STRIDE_TO_JAVA : EventName.CONVERT_JAVA_TO_STRIDE, new PlainEvent(mpe) {
 
             @Override
+            @OnThread(Tag.Worker)
             public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
             {
                 List<String> previousDoc = fileVersions.get(javaFileKey);

@@ -1321,6 +1321,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
      * @param newView              The new view mode that been switch to.
      * @param reason               The user interaction which triggered the change.
      */
+    @OnThread(Tag.FXPlatform)
     private void changeViewMode(View newView, Frame.ViewChangeReason reason)
     {
         recordViewChange(viewProperty.get(), newView, reason);
