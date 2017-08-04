@@ -38,7 +38,18 @@ public class UndeclaredVariableInExpressionError extends DirectSlotError
     private final int startPosInSlot;
     private final int endPosInSlot;
     private List<FixSuggestion> corrections = new ArrayList<>();
-    
+
+    /**
+     * Creates an error about an undeclared variable being used in an expression. The quick fixes
+     * will be to switch the variable name to another similarly spelt variable.
+     *
+     * @param slotFragment The fragment with the error.
+     * @param varName The name of the variable which is used, but not declared
+     * @param startPosInSlot The start position in the slot of the variable name (inclusive)
+     * @param endPosInSlot The end position in the slot of the variable name (exclusive)
+     * @param slot The slot with the error (which will contain slotFragment).
+     * @param possibleCorrections The possible other variable names (unfiltered: all variable names which are in scope)
+     */
     public UndeclaredVariableInExpressionError(StringSlotFragment slotFragment, String varName, int startPosInSlot, int endPosInSlot, ExpressionSlot slot, Set<String> possibleCorrections)
     {
         super(slotFragment, DiagnosticOrigin.STRIDE_LATE);

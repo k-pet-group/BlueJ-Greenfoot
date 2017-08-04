@@ -44,6 +44,19 @@ public class UnknownTypeError extends DirectSlotError
     private final InteractionManager editor;
     private final List<FixSuggestion> corrections = new ArrayList<>();
 
+    /**
+     * Creates an error about an unknown type being used in an expression.  The quick fixes
+     * will be to rename to another similarly spelt type name, or to add an import
+     * declaration to import the currently-named type from a common package (e.g. unknown type
+     * List would offer to import from java.util).
+     *
+     * @param slotFragment The fragment with the error.
+     * @param typeName The name of the type which is used, but was not declared
+     * @param replace An action which takes a replacement type name, and substitutes it for the errorneous type name in the original frame.
+     * @param editor The editor of the class (used to add imports)
+     * @param possibleCorrections The possible other type names (unfiltered: all type names which are in scope)
+     * @param possibleImports The possible packages that we could import a class of this name from.
+     */
     @OnThread(Tag.Any)
     public UnknownTypeError(SlotFragment slotFragment, String typeName, FXPlatformConsumer<String> replace, InteractionManager editor, Stream<AssistContentThreadSafe> possibleCorrections, Stream<AssistContentThreadSafe> possibleImports)
     {
