@@ -39,7 +39,6 @@ import bluej.stride.framedjava.errors.UnknownTypeError;
 import bluej.stride.framedjava.errors.UnneededSemiColonError;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.TypeSlot;
-import bluej.stride.generic.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -47,7 +46,8 @@ import threadchecker.Tag;
 public class TypeSlotFragment extends StructuredSlotFragment
 {
     private TypeSlot slot;
-    
+    private boolean hasEarlyErrors;
+
     public TypeSlotFragment(String content, String javaCode, TypeSlot slot)
     {
         super(content, javaCode);
@@ -78,6 +78,8 @@ public class TypeSlotFragment extends StructuredSlotFragment
     @Override
     public Stream<SyntaxCodeError> findEarlyErrors()
     {
+        // In all these cases, we will have an early error:
+        hasEarlyErrors = true;
         if (content != null && content.isEmpty())
             return Stream.of(new EmptyError(this, "Type cannot be empty"));
         else if (content != null && content.endsWith(";"))
@@ -86,6 +88,8 @@ public class TypeSlotFragment extends StructuredSlotFragment
         else if (content == null || !Parser.parseableAsType(content))
             return Stream.of(new SyntaxCodeError(this, "Invalid type"));
 
+        // If we reached here, no early error:
+        hasEarlyErrors = false;
         return Stream.empty();
     }
 
@@ -97,7 +101,7 @@ public class TypeSlotFragment extends StructuredSlotFragment
         
         // No point looking for a type that isn't syntactically valid:
         // Also, don't mess with arrays or generics or qualified types:
-        if (findEarlyErrors().count() > 0 || content.contains("[") || content.contains("<") || content.contains("."))
+        if (hasEarlyErrors || content.contains("[") || content.contains("<") || content.contains("."))
         {
             f.complete(Collections.emptyList());
             return f;
