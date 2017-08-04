@@ -290,7 +290,10 @@ public class DataCollectorImpl
     {
         submitEventNoData(proj, null, EventName.PROJECT_CLOSING);
     }
-    
+
+    /**
+     * Records the EventName.PACKAGE_OPENING event for the given package, including sending relevant source histories.
+     */
     public static void packageOpened(Package pkg)
     {
         addCompleteFiles(pkg, EventName.PACKAGE_OPENING, pkg.getClassTargets(), null);
@@ -399,6 +402,9 @@ public class DataCollectorImpl
         }
     }
 
+    /**
+     * Records the EventName.PACKAGE_CLOSING event for the given package, including sending relevant source histories.
+     */
     public static void packageClosed(Package pkg)
     {
         addCompleteFiles(pkg, EventName.PACKAGE_CLOSING, pkg.getClassTargets(), mpe -> {
@@ -772,6 +778,12 @@ public class DataCollectorImpl
         });
     }
 
+    /**
+     * Records the EventName.ADD event, indicating that the given class was added.
+     * @param pkg The package containing the class.
+     * @param ct The class involved.  Relevant source history (i.e. complete file) will be
+     *           sent, either just .java (for Java classes) or .stride and .java (for Stride classes)
+     */
     public static void addClass(Package pkg, ClassTarget ct)
     {
         addCompleteFiles(pkg, EventName.ADD, Collections.singletonList(ct), null);
