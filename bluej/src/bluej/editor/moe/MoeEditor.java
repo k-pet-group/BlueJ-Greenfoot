@@ -2547,8 +2547,10 @@ public final class MoeEditor extends ScopeColorsBorderPane
             doBracketMatch();
         }
         actions.userAction();
-        
-        if (oldCaretLineNumber != getLineNumberAt(caretPos))
+
+        // Only send caret moved event if we are open; caret moves while loading
+        // but we don't want to send an edit event because of that:
+        if (oldCaretLineNumber != getLineNumberAt(caretPos) && isOpen())
         {
             recordEdit(true);
 
