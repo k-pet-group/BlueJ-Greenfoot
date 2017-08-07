@@ -374,6 +374,14 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
             return scene.getWindow();
     }
 
+    /**
+     * Gets the list of files that would be pushed by a push.
+     */
+    public List<File> getFilesToPush()
+    {
+        return Utility.mapList(pushListModel, s -> s.getFile());
+    }
+
     class CommitAndPushWorker extends FXWorker implements StatusListener
     {
         List<TeamStatusInfo> response;
