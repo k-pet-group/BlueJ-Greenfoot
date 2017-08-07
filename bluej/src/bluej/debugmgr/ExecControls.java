@@ -277,10 +277,7 @@ public class ExecControls
         }
         else
         {
-            boolean isSuspended = dt.getThread().isSuspended();
-            cannotHalt.set(isSuspended);
-            cannotStepOrContinue.set(!isSuspended);
-            setThreadDetails(dt.getThread());
+            setThreadDetails(dt);
         }
     }
 
@@ -289,11 +286,15 @@ public class ExecControls
      * These details include showing the threads stack, and displaying 
      * the details for the top stack frame.
      */
-    private void setThreadDetails(DebuggerThread selectedThread)
+    private void setThreadDetails(DebuggerThreadDetails dt)
     {
         //Copy the list because we may alter it:
-        List<SourceLocation> stack = new ArrayList<>(selectedThread.getStack());
+        List<SourceLocation> stack = new ArrayList<>(dt.getThread().getStack());
         List<SourceLocation> filtered = Arrays.asList(getFilteredStack(stack));
+
+        boolean isSuspended = dt.isSuspended();
+        cannotHalt.set(isSuspended);
+        cannotStepOrContinue.set(!isSuspended);
 
         stackList.getItems().setAll(filtered);
         if (filtered.size() > 0)
@@ -456,7 +457,7 @@ public class ExecControls
         stackList.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         JavaFXUtil.addStyleClass(stackList, "debugger-stack");
         stackList.styleProperty().bind(PrefMgr.getEditorFontCSS(false));
-        JavaFXUtil.addChangeListenerPlatform(stackList.getSelectionModel().selectedIndexProperty(), index -> stackFrameSelectionChanged(getSelectedThread(), index.intValue()));
+        JavaFXUtil.addChangeListenerPlatform(stackList.getSelectionModel().selectedIndexProperty(), index -> stackFrameSelectionChanged((getSelectedThreadDetails() == null ? null : getSelectedThreadDetails().getThread()), index.intValue()));
         Label placeholder = new Label(removeHTML(Config.getString("debugger.threadRunning")));
         placeholder.setTextAlignment(TextAlignment.CENTER);
         stackList.setPlaceholder(placeholder);
@@ -531,14 +532,6 @@ public class ExecControls
         window.hide();
     }
 
-    private DebuggerThread getSelectedThread()
-    {
-        DebuggerThreadDetails debuggerThreadDetails = getSelectedThreadDetails();
-        if (debuggerThreadDetails == null)
-            return null;
-        return debuggerThreadDetails.getThread();
-    }
-
     public DebuggerThreadDetails getSelectedThreadDetails()
     {
         return threadList.getSelectionModel().getSelectedItem();
@@ -553,7 +546,7 @@ public class ExecControls
     {
         if (getSelectedThreadDetails().equals(thread))
         {
-            setThreadDetails(thread.getThread());
+            setThreadDetails(thread);
         }
     }
 
@@ -569,12 +562,12 @@ public class ExecControls
         
         public void actionPerformed()
         {
-            DebuggerThread selectedThread = getSelectedThread();
-            if (selectedThread == null)
+            DebuggerThreadDetails details = getSelectedThreadDetails();
+            if (details == null)
                 return;
             clearThreadDetails();
-            if (!selectedThread.isSuspended()) {
-                selectedThread.halt();
+            if (!details.isSuspended()) {
+                details.getThread().halt();
             }
         }
     }
@@ -591,13 +584,13 @@ public class ExecControls
         
         public void actionPerformed()
         {
-            DebuggerThread selectedThread = getSelectedThread();
-            if (selectedThread == null)
+            DebuggerThreadDetails details = getSelectedThreadDetails();
+            if (details == null)
                 return;
             clearThreadDetails();
             project.removeStepMarks();
-            if (selectedThread.isSuspended()) {
-                selectedThread.step();
+            if (details.isSuspended()) {
+                details.getThread().step();
             }
             project.updateInspectors();
         }
@@ -651,13 +644,13 @@ public class ExecControls
         
         public void actionPerformed()
         {
-            DebuggerThread selectedThread = getSelectedThread();
-            if (selectedThread == null)
+            DebuggerThreadDetails details = getSelectedThreadDetails();
+            if (details == null)
                 return;
             clearThreadDetails();
             project.removeStepMarks();
-            if (selectedThread.isSuspended()) {
-                selectedThread.stepInto();
+            if (details.isSuspended()) {
+                details.getThread().stepInto();
             }
         }
     }
@@ -685,15 +678,14 @@ public class ExecControls
         
         public void actionPerformed()
         {
-            DebuggerThread selectedThread = getSelectedThread();
-            selectedThread = getSelectedThread();
-            if (selectedThread == null)
+            DebuggerThreadDetails details = getSelectedThreadDetails();
+            if (details == null)
                 return;
             clearThreadDetails();
             project.removeStepMarks();
-            if (selectedThread.isSuspended()) {
-                selectedThread.cont();
-                DataCollector.debuggerContinue(project, selectedThread.getName());
+            if (details.isSuspended()) {
+                details.getThread().cont();
+                DataCollector.debuggerContinue(project, details.getThread().getName());
             }
         }
     }

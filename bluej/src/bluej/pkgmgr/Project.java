@@ -2539,22 +2539,25 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
 
     /**
      * We fetch the display details on the debugger thread,
-     * not from the FX thread.  Although toString may
-     * be thread-safe, the GUI doesn't update the item's
-     * text anyway unless you swap the item out, so we
-     * may as well make the display text constant for
-     * the item so that the GUI updates coherently.
+     * not from the FX thread, and this object allows us to capture some
+     * of the thread details at one point in time and keep
+     * the snapshot: namely the suspended state and the
+     * display string.  This prevents us seeing "future" updates
+     * which have happened in the debugger but not yet made
+     * their way to the GUI.
      */
     public static class DebuggerThreadDetails
     {
         private final DebuggerThread debuggerThread;
         private final String debuggerThreadDisplay;
+        private final boolean suspended;
 
         @OnThread(Tag.Any)
         public DebuggerThreadDetails(DebuggerThread dt)
         {
             this.debuggerThread = dt;
             this.debuggerThreadDisplay = dt.toString();
+            this.suspended = dt.isSuspended();
         }
 
         // Equality is solely dependent on the thread, not the display:
@@ -2585,6 +2588,19 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         public boolean isThread(DebuggerThread dt)
         {
             return debuggerThread.equals(dt);
+        }
+
+        /**
+         * Gets whether the thread was suspended when this DebuggerThreadDetails
+         * object was created.  Should be used in preference to getThread().isSuspended()
+         * because it is set once and will not change, whereas getThread().isSuspended()
+         * is live and may return in effect a "future" value (i.e. one which has
+         * occurred in the debugger but not yet reached the GUI, and is queued
+         * to be processed after this event).
+         */
+        public boolean isSuspended()
+        {
+            return suspended;
         }
 
         public DebuggerThread getThread()

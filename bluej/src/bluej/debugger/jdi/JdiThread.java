@@ -206,6 +206,7 @@ class JdiThread extends DebuggerThread
     /**
      * Return true if this thread is currently suspended.
      */
+    @OnThread(Tag.Any)
     public synchronized boolean isSuspended()
     {
         return isSuspended;
