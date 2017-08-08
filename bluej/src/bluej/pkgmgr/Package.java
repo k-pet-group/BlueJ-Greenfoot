@@ -150,6 +150,8 @@ public final class Package
     private final List<Dependency> pendingDeps = new ArrayList<>();
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private final List<Target> targetsToPlace = new ArrayList<>();
+    // Has this package been sent for data recording yet?
+    private boolean recorded = false;
 
     /** Reason code for displaying source line */
     private enum ShowSourceReason
@@ -758,6 +760,13 @@ public final class Package
             }
             addTarget(target);
         }
+
+        if (!recorded)
+        {
+            DataCollector.packageOpened(this);
+            recorded = true;
+        }
+
 
         List<Target> targetsCopy;
         synchronized (this)
