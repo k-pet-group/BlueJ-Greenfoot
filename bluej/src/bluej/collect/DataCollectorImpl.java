@@ -816,6 +816,23 @@ public class DataCollectorImpl
     {
         submitEvent(project, null, EventName.VCS_SHARE, new PlainEvent(DataCollectorImpl.getRepoMPE(repo)));    
     }
+
+    /**
+     * Records a VCS push event
+     * @param project The project which is in VCS
+     * @param repo The repository object for VCS
+     * @param pushedFiles The files involved in the push
+     */
+    public static void teamPushProject(Project project, Repository repo, Collection<File> pushedFiles)
+    {
+        final ProjectDetails projDetails = new ProjectDetails(project);
+        MultipartEntity mpe = DataCollectorImpl.getRepoMPE(repo);
+        for (File f : pushedFiles)
+        {
+            mpe.addPart("vcs_files[][file]", CollectUtility.toBodyLocal(projDetails, f));
+        }
+        submitEvent(project, null, EventName.VCS_PUSH, new PlainEvent(mpe));
+    }
     
     public static void teamCommitProject(Project project, Repository repo, Collection<File> committedFiles)
     {

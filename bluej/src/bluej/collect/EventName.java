@@ -99,6 +99,7 @@ enum EventName
     
     VCS_COMMIT("vcs_commit"),
     VCS_HISTORY("vcs_history"),
+    VCS_PUSH("vcs_push"),
     VCS_SHARE("vcs_share"),
     VCS_STATUS("vcs_status"),
     VCS_UPDATE("vcs_update"),

@@ -427,6 +427,18 @@ public class DataCollector
         DataCollectorImpl.teamCommitProject(project, repo, committedFiles);
     }
 
+    /**
+     * Records a VCS push event
+     * @param project The project which is in VCS
+     * @param repo The repository object for VCS
+     * @param pushedFiles The files involved in the push
+     */
+    public static void teamPushProject(Project project, Repository repo, Set<File> pushedFiles)
+    {
+        if (dontSend()) return;
+        DataCollectorImpl.teamPushProject(project, repo, pushedFiles);
+    }
+
     public static void teamShareProject(Project project, Repository repo)
     {
         if (dontSend()) return;
