@@ -817,6 +817,12 @@ public class DataCollectorImpl
         submitEvent(project, null, EventName.VCS_SHARE, new PlainEvent(DataCollectorImpl.getRepoMPE(repo)));    
     }
 
+    /**
+     * Records a VCS push event
+     * @param project The project which is in VCS
+     * @param repo The repository object for VCS
+     * @param pushedFiles The files involved in the push
+     */
     public static void teamPushProject(Project project, Repository repo, Collection<File> pushedFiles)
     {
         final ProjectDetails projDetails = new ProjectDetails(project);
