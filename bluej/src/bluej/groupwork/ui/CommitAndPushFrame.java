@@ -210,6 +210,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void setVisible(boolean show)
     {
         if (show) {
@@ -349,6 +350,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public Project getProject()
     {
         return project;
@@ -359,6 +361,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         includeLayout.setDisable(!hasChanged);
     }
 
+    @OnThread(Tag.FXPlatform)
     public void displayMessage(String msg)
     {
         progressBar.setMessage(msg);
