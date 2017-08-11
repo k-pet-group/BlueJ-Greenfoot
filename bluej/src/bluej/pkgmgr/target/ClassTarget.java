@@ -2338,14 +2338,15 @@ public class ClassTarget extends DependentTarget
     @Override
     public void remove()
     {
-        File srcFile = getSourceFile();
+        File frameSourceFile = getSourceType().equals(SourceType.Stride) ? getFrameSourceFile() : null;
+        File javaSourceFile = getJavaSourceFile();
         prepareForRemoval();
         Package pkg = getPackage();
         pkg.removeTarget(this);
         
         // We must remove after the above, because it might involve saving, 
         // and thus recording edits to the file
-        DataCollector.removeClass(pkg, srcFile, getGeneratedFrom(sourceAvailable));
+        DataCollector.removeClass(pkg, frameSourceFile, javaSourceFile);
 
 
         // In Greenfoot we don't do detailed dependency tracking, so we just recompile the whole

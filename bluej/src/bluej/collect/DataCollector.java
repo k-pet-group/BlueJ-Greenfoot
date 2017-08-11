@@ -481,10 +481,19 @@ public class DataCollector
         DataCollectorImpl.renamedClass(pkg, oldSourceFile, newSourceFile, generatedFrom);
     }
 
-    public static void removeClass(Package pkg, File sourceFile, File generatedFrom)
+    /**
+     * Records removing class files.
+     *
+     * @param pkg              The package in which the files live.
+     * @param frameSourceFile  The Stride source file, or <code>null</code> in case the source type is Java.
+     * @param javaSourceFile   The Java source file.
+     */
+    public static void removeClass(Package pkg, File frameSourceFile, File javaSourceFile)
     {
-        if (dontSend()) return;
-        DataCollectorImpl.removeClass(pkg, sourceFile, generatedFrom);
+        if (dontSend()) {
+            return;
+        }
+        DataCollectorImpl.removeClass(pkg, frameSourceFile, javaSourceFile);
     }
 
     public static void openClass(Package pkg, File sourceFile)

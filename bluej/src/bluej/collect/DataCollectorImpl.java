@@ -677,11 +677,28 @@ public class DataCollectorImpl
         });
     }
 
-    public static void removeClass(Package pkg, final File sourceFile, final File generatedFrom)
+    /**
+     * Records removing class files (Java, or Stride and its generated Java).
+     *
+     * @param pkg              The package in which the files live.
+     * @param frameSourceFile  The Stride source file, or <code>null</code> in case the source type is Java.
+     * @param javaSourceFile   The Java source file.
+     */
+    public static void removeClass(Package pkg, File frameSourceFile, File javaSourceFile)
     {
+        final String eventType = "file_delete";
         final ProjectDetails projDetails = new ProjectDetails(pkg.getProject());
+
+        final boolean isStrideFile = frameSourceFile != null;
+        final String strideFilePath = isStrideFile ? CollectUtility.toPath(projDetails, frameSourceFile) : null;
+        final String javaFilePath = CollectUtility.toPath(projDetails, javaSourceFile);
+
         MultipartEntity mpe = new MultipartEntity();
-        addSourceHistoryItem(mpe, CollectUtility.toPath(projDetails, sourceFile), "file_delete", null, generatedFrom == null ? null : CollectUtility.toPath(projDetails, generatedFrom));
+        if (isStrideFile) {
+            addSourceHistoryItem(mpe, strideFilePath, eventType,null, null);
+        }
+        addSourceHistoryItem(mpe, javaFilePath, eventType, null, strideFilePath);
+
         submitEvent(pkg.getProject(), pkg, EventName.DELETE, new PlainEvent(mpe) {
 
             @Override
@@ -689,7 +706,10 @@ public class DataCollectorImpl
             public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
             {
                 // We should remove the old source from the fileVersions hash:
-                fileVersions.remove(new FileKey(projDetails, CollectUtility.toPath(projDetails, sourceFile)));
+                if (isStrideFile) {
+                    fileVersions.remove(new FileKey(projDetails, strideFilePath));
+                }
+                fileVersions.remove(new FileKey(projDetails, javaFilePath));
                 return super.makeData(sequenceNum, fileVersions);
             }
 
