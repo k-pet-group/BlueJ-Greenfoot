@@ -475,10 +475,22 @@ public class DataCollector
         DataCollectorImpl.debuggerBreakpointToggle(pkg, sourceFile, lineNumber, newState);
     }
 
-    public static void renamedClass(Package pkg, File oldSourceFile, File newSourceFile, File generatedFrom)
+    /**
+     * Records renaming a class (Java, or Stride and its generated Java).
+     *
+     * @param pkg                The package in which the files live.
+     * @param oldFrameSourceFile The original Stride source file that has been deleted,
+     *                           or <code>null</code> in case the source type is Java.
+     * @param newFrameSourceFile The new created Stride source file, or <code>null</code> in case the source type is Java.
+     * @param oldJavaSourceFile  The original Java source file that has been deleted.
+     * @param newJavaSourceFile  The new created Java source file.
+     */
+    public static void renamedClass(Package pkg, File oldFrameSourceFile, File newFrameSourceFile, File oldJavaSourceFile, File newJavaSourceFile)
     {
-        if (dontSend()) return;
-        DataCollectorImpl.renamedClass(pkg, oldSourceFile, newSourceFile, generatedFrom);
+        if (dontSend()) {
+            return;
+        }
+        DataCollectorImpl.renamedClass(pkg, oldFrameSourceFile, newFrameSourceFile, oldJavaSourceFile, newJavaSourceFile);
     }
 
     /**

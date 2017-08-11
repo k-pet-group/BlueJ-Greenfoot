@@ -652,25 +652,55 @@ public class DataCollectorImpl
         submitEvent(pkg.getProject(), pkg, EventName.CODEPAD, new PlainEvent(mpe));
     }
 
-
-    public static void renamedClass(Package pkg, final File oldSourceFile, final File newSourceFile, final File generatedFrom)
+    /**
+     * Records renaming a class (Java, or Stride and its generated Java).
+     *
+     * @param pkg                The package in which the files live.
+     * @param oldFrameSourceFile The original Stride source file that has been deleted,
+     *                           or <code>null</code> in case the source type is Java.
+     * @param newFrameSourceFile The new created Stride source file, or <code>null</code> in case the source type is Java.
+     * @param oldJavaSourceFile  The original Java source file that has been deleted.
+     * @param newJavaSourceFile  The new created Java source file.
+     */
+    public static void renamedClass(Package pkg, final File oldFrameSourceFile, final File newFrameSourceFile,
+                                    final File oldJavaSourceFile, final File newJavaSourceFile)
     {
+        final String eventType = "rename";
         final ProjectDetails projDetails = new ProjectDetails(pkg.getProject());
+
+        final boolean isFrameFile = newFrameSourceFile != null;
+        final String oldFrameFilePath = isFrameFile ? CollectUtility.toPath(projDetails, oldFrameSourceFile) : null;
+        final String newFrameFilePath = isFrameFile ? CollectUtility.toPath(projDetails, newFrameSourceFile) : null;
+
+        final String oldJavaFilePath = CollectUtility.toPath(projDetails, oldJavaSourceFile);
+        final String newJavaFilePath = CollectUtility.toPath(projDetails, newJavaSourceFile);
+
         MultipartEntity mpe = new MultipartEntity();
-        addSourceHistoryItem(mpe, CollectUtility.toPath(projDetails, newSourceFile), "rename", CollectUtility.toPath(projDetails, oldSourceFile), generatedFrom == null ? null : CollectUtility.toPath(projDetails, generatedFrom));
+        if (isFrameFile) {
+            addSourceHistoryItem(mpe, newFrameFilePath, eventType, oldFrameFilePath, null);
+        }
+        addSourceHistoryItem(mpe, newJavaFilePath, eventType, oldJavaFilePath, newFrameFilePath);
+
         submitEvent(pkg.getProject(), pkg, EventName.RENAME, new PlainEvent(mpe) {
 
             @Override
             @OnThread(Tag.Worker)
-            public MultipartEntity makeData(int sequenceNum,
-                    Map<FileKey, List<String>> fileVersions)
+            public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
             {
-                // We need to change the fileVersions hash to move the content across from the old file
-                // to the new file:
-                FileKey oldKey = new FileKey(projDetails, CollectUtility.toPath(projDetails, oldSourceFile));
-                FileKey newKey = new FileKey(projDetails, CollectUtility.toPath(projDetails, newSourceFile));
-                fileVersions.put(newKey, fileVersions.get(oldKey));
-                fileVersions.remove(oldKey);
+                // We need to change the fileVersions hash to move the content across
+                // from the old file to the new file:
+                if (isFrameFile) {
+                    FileKey oldFrameKey = new FileKey(projDetails, oldFrameFilePath);
+                    FileKey newFrameKey = new FileKey(projDetails, newFrameFilePath);
+                    fileVersions.put(newFrameKey, fileVersions.get(oldFrameKey));
+                    fileVersions.remove(oldFrameKey);
+                }
+
+                FileKey oldJavaKey  = new FileKey(projDetails, oldJavaFilePath);
+                FileKey newJavaKey  = new FileKey(projDetails, newJavaFilePath);
+                fileVersions.put(newJavaKey, fileVersions.get(oldJavaKey));
+                fileVersions.remove(oldJavaKey);
+
                 return super.makeData(sequenceNum, fileVersions);
             }
             
