@@ -725,7 +725,7 @@ public class DataCollectorImpl
 
         MultipartEntity mpe = new MultipartEntity();
         if (isStrideFile) {
-            addSourceHistoryItem(mpe, strideFilePath, eventType,null, null);
+            addSourceHistoryItem(mpe, strideFilePath, eventType, null, null);
         }
         addSourceHistoryItem(mpe, javaFilePath, eventType, null, strideFilePath);
 
