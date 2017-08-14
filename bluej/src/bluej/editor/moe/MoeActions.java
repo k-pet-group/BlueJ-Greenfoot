@@ -131,6 +131,13 @@ public final class MoeActions
             builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.META_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionBeginLineAction));
             builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.META_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionEndLineAction));
         }
+        else
+        {
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.CONTROL_DOWN), actions.get(DefaultEditorKit.previousWordAction));
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.CONTROL_DOWN), actions.get(DefaultEditorKit.nextWordAction));
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionPreviousWordAction));
+            builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionNextWordAction));
+        }
 
         // RichTextFX has some default bindings for actions which we have on menu accelerators
         // (Plus, we want to allow users to override them.)
