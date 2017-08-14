@@ -112,6 +112,10 @@ public class MethodCompletion extends AssistContent
         if (jd == null && javadocResolver != null) {
             javadocResolver.getJavadoc(method);
             jd = method.getJavaDoc();
+            if (jd == null)
+            {
+                method.setJavaDoc(""); // prevent repeated attempts to retrieve unavailable doc
+            }
         }
         return jd;
     }
