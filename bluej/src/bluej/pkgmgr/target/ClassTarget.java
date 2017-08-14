@@ -1690,26 +1690,28 @@ public class ClassTarget extends DependentTarget
             return false;
         }
 
-        File newSourceFile = new File(getPackage().getPath(), newName + "." + getSourceType().toString().toLowerCase());
-        File oldSourceFile = getSourceFile();
-        
-        try {
-            FileUtility.copyFile(oldSourceFile, newSourceFile);
-            
-            getPackage().updateTargetIdentifier(this, getIdentifierName(), newName);
-            
-            String filename = newSourceFile.getAbsolutePath();
-            String javaFilename;
-            if (getSourceType().equals(SourceType.Stride)) {
-                final File javaFile = new File(getPackage().getPath(), newName + "." + SourceType.Java.toString().toLowerCase());
-                javaFilename = javaFile.getAbsolutePath();
+        File oldJavaSourceFile  = getJavaSourceFile();
+        File newJavaSourceFile = new File(getPackage().getPath(), newName + "." + SourceType.Java.toString().toLowerCase());
 
-                // Also copy the Java file across:
-                FileUtility.copyFile(getJavaSourceFile(), javaFile);
+        try {
+            String filename;
+            File oldFrameSourceFile = null;
+            File newFrameSourceFile = null;
+            getPackage().updateTargetIdentifier(this, getIdentifierName(), newName);
+
+            if (getSourceType().equals(SourceType.Stride)) {
+                newFrameSourceFile = new File(getPackage().getPath(), newName + "." + SourceType.Stride.toString().toLowerCase());
+                oldFrameSourceFile = getFrameSourceFile();
+                FileUtility.copyFile(oldFrameSourceFile, newFrameSourceFile);
+                filename = newFrameSourceFile.getAbsolutePath();
             }
             else {
-                javaFilename = filename;
+                filename = newJavaSourceFile.getAbsolutePath();
             }
+
+            // Also copy the Java file across, in all cases:
+            FileUtility.copyFile(oldJavaSourceFile, newJavaSourceFile);
+            String javaFilename = newJavaSourceFile.getAbsolutePath();
             String docFilename = getPackage().getProject().getDocumentationFile(javaFilename);
             getEditor().changeName(newName, filename, javaFilename, docFilename);
 
@@ -1744,9 +1746,9 @@ public class ClassTarget extends DependentTarget
                 BDependency bDependency = incomingDependency.getBDependency();
                 ExtensionBridge.changeBDependencyTargetName(bDependency, getQualifiedName());
             }
-            
-            DataCollector.renamedClass(getPackage(), oldSourceFile, newSourceFile, getGeneratedFrom(sourceAvailable));
-            
+
+            DataCollector.renamedClass(getPackage(), oldFrameSourceFile, newFrameSourceFile, oldJavaSourceFile, newJavaSourceFile);
+
             // Inform all listeners about the name change
             ClassEvent event = new ClassEvent(ClassEvent.CHANGED_NAME, getPackage(), getBClass(), oldName);
             ExtensionsManager.getInstance().delegateEvent(event);
@@ -2338,14 +2340,15 @@ public class ClassTarget extends DependentTarget
     @Override
     public void remove()
     {
-        File srcFile = getSourceFile();
+        File frameSourceFile = getSourceType().equals(SourceType.Stride) ? getFrameSourceFile() : null;
+        File javaSourceFile = getJavaSourceFile();
         prepareForRemoval();
         Package pkg = getPackage();
         pkg.removeTarget(this);
         
         // We must remove after the above, because it might involve saving, 
         // and thus recording edits to the file
-        DataCollector.removeClass(pkg, srcFile, getGeneratedFrom(sourceAvailable));
+        DataCollector.removeClass(pkg, frameSourceFile, javaSourceFile);
 
 
         // In Greenfoot we don't do detailed dependency tracking, so we just recompile the whole
