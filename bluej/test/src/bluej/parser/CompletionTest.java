@@ -32,6 +32,7 @@ import java.util.concurrent.Executor;
 import javax.swing.text.BadLocationException;
 
 import bluej.editor.moe.ScopeColors;
+import javafx.embed.swing.JFXPanel;
 import junit.framework.TestCase;
 import bluej.debugger.gentype.FieldReflective;
 import bluej.debugger.gentype.GenTypeClass;
@@ -54,6 +55,8 @@ public class CompletionTest extends TestCase
 {
     {
         InitConfig.init();
+        // Initialise JavaFX:
+        new JFXPanel();
     }
     
     private TestEntityResolver resolver;
@@ -811,10 +814,12 @@ public class CompletionTest extends TestCase
         AssistContent [] assists = ParseUtils.getPossibleCompletions(suggests, new JavadocResolver() {
             public String getJavadoc(String name) { throw new IllegalStateException(); }
             
-            public void getJavadoc(Collection<? extends ConstructorOrMethodReflective> method)
+            public void getJavadoc(Collection<? extends ConstructorOrMethodReflective> methods)
             {
                 // We want to check that the return type has an erased type.
-                assertNotNull(((MethodReflective)method.iterator().next()).getReturnType().getErasedType());
+                for (ConstructorOrMethodReflective method : methods) {
+                    assertNotNull(((MethodReflective)method).getReturnType().getErasedType());
+                }
             }
 
             @Override

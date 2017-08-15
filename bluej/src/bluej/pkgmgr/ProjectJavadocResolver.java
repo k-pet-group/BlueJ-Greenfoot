@@ -80,8 +80,9 @@ public class ProjectJavadocResolver implements JavadocResolver
     @Override
     public void getJavadoc(Collection<? extends ConstructorOrMethodReflective> targetMethods)
     {
-        if (targetMethods.isEmpty())
+        if (targetMethods.isEmpty()) {
             return; // Nothing to do
+        }
 
         Reflective declaring = targetMethods.iterator().next().getDeclaringType();
         String declName = declaring.getName();
@@ -116,8 +117,9 @@ public class ProjectJavadocResolver implements JavadocResolver
         catch (LinkageError e) {}
 
         // If we've found all methods, nothing more to do, so stop now:
-        if (methodSigs.isEmpty())
+        if (methodSigs.isEmpty()) {
             return;
+        }
         
         Properties comments = commentCache.get(declName);
         if (comments == null) {
@@ -155,8 +157,7 @@ public class ProjectJavadocResolver implements JavadocResolver
 
         // If we reach here and there's methods remaining, there's simply no Javadoc for those methods.
         // Must record this fact to prevent needlessly scanning them again:
-        for (ConstructorOrMethodReflective methodReflective : methodSigs.values())
-        {
+        for (ConstructorOrMethodReflective methodReflective : methodSigs.values()) {
             methodReflective.setJavaDoc("");
         }
     }

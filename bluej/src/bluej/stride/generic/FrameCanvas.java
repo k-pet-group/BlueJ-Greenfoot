@@ -657,8 +657,7 @@ public class FrameCanvas implements FrameContentItem
         // If too many children, can't sensibly animate nicely, and if we do then we get an exception
         // in JavaFX because of the canvas size needed to animate a VBox that high (e.g. > 16K pixels high)
         // So for large canvases, just jump to the end result:
-        if (canvas.getChildren().size() >= 100)
-        {
+        if (canvas.getChildren().size() >= 100) {
             Rectangle clipRect = new Rectangle(0.0, 0.0);
             canvas.setClip(clipRect);
             canvas.maxHeightProperty().set(0);

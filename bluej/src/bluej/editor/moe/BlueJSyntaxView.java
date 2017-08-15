@@ -1039,7 +1039,7 @@ public class BlueJSyntaxView
         // hope that the editor is now visible:
         if (indent == null || indent <= 0) {
             // No point trying to re-calculate the indent if the line isn't on screen:
-            if (editorPane.visibleLines.get(doc.offsetToPosition(lineEl.getStartOffset()).getMajor()))
+            if (editorPane != null && editorPane.visibleLines.get(doc.offsetToPosition(lineEl.getStartOffset()).getMajor()))
             {
                 indent = getNodeIndent(doc, nap);
                 nodeIndents.put(nap.getNode(), indent);

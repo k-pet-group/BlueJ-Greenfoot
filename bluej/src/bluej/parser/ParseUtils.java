@@ -215,11 +215,10 @@ public class ParseUtils
         return completions;
     }
     
-    
     /**
-     * Check whether the given method should be added to the set of possible code completions (i.e. if it has
-     * a unique signature), and do so if necessary. Returns an AssistContent object representing the method if
-     * it was added, or null otherwise.
+     * Check whether the given methods should be added to the set of possible code completions (i.e. if they have
+     * a unique signature), and do so if necessary. Returns a collection of AssistContent objects representing any methods that were added (methods which were not added
+     * because they were already present are not returned).
      *
      * @param javadocResolver The Javadoc resolver used to look up Javadoc for the method
      * @param contentSigs The set of existing method signatures.  The newly-found method will be
@@ -241,21 +240,19 @@ public class ParseUtils
         // Scan all methods for Javadoc in one go first (saves a lot of time):
         javadocResolver.getJavadoc(methods);
         List<AssistContent> allNewMethods = new ArrayList<>();
-        for (MethodCompletion completion : completions)
-        {
+
+        for (MethodCompletion completion : completions) {
             String sig = completion.getSignature();
-            if (contentSigs.add(sig))
-            {
-                if (consumer != null)
-                {
+
+            if (contentSigs.add(sig)) {
+                if (consumer != null) {
                     consumer.consume(completion, false /* not overridden */);
                 }
                 allNewMethods.add(completion);
             }
             else
             {
-                if (consumer != null)
-                {
+                if (consumer != null) {
                     consumer.consume(completion, true /* overridden */);
                 }
                 // Deliberately not added to allNewMethods

@@ -483,7 +483,13 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
             // We use empty list when params are absent (e.g. for fields), even though this isn't quite right as
             // then a field will compare equal to a no-param method of the same name.  But we're only sorting here,
             // not eliminating duplicates, so we don't mind particularly if those two items are ordered arbitrarily:
-            methodsByClass.forEach((k, v) -> v.sort(Comparator.comparing(AssistContentThreadSafe::getName).thenComparing(ac -> ac.getParams() == null ? Collections.emptyList() : Utility.mapList(ac.getParams(), ParamInfo::getUnqualifiedType), Utility.listComparator())));
+            Comparator<AssistContentThreadSafe> comparator =
+                Comparator.comparing(AssistContentThreadSafe::getName)
+                    .thenComparing(ac -> ac.getParams() == null ?
+                                    Collections.emptyList() :
+                                    Utility.mapList(ac.getParams(), ParamInfo::getUnqualifiedType)
+                            , Utility.listComparator());
+            methodsByClass.forEach((k, v) -> v.sort(comparator));
             handler.accept(methodsByClass);
         });
     }
