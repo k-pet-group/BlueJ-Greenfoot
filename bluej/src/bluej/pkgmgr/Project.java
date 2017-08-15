@@ -2061,8 +2061,8 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
                                       boolean includeDirs)
     {
         TeamSettingsController teamSettingsController = getTeamSettingsController();
-        File[] files = dir.listFiles(teamSettingsController == null ? null : teamSettingsController.getFileFilter(includePkgFiles));
-        if (files==null){
+        File[] files = dir.listFiles(teamSettingsController == null ? null : teamSettingsController.getFileFilter(includePkgFiles, true));
+        if (files==null) {
             return;
         }
         for(int i=0; i< files.length; i++ ){

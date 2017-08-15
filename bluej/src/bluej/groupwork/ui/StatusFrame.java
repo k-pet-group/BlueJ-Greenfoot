@@ -239,7 +239,8 @@ public class StatusFrame extends FXCustomizedDialog<Void>
         TeamworkCommand command;
         TeamworkCommandResult result;
         boolean aborted;
-        FileFilter filter = project.getTeamSettingsController().getFileFilter(true);
+        // If git, don't include directories
+        FileFilter filter = project.getTeamSettingsController().getFileFilter(true, !isDVCS);
 
         public StatusWorker()
         {

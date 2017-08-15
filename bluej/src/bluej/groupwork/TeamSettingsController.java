@@ -268,14 +268,14 @@ public class TeamSettingsController
      * Get a filename filter suitable for filtering out files which we don't want
      * to be under version control.
      */
-    public FileFilter getFileFilter(boolean includeLayout)
+    public FileFilter getFileFilter(boolean includeLayout, boolean includeDirectories)
     {
         initRepository();
         FileFilter repositoryFilter = null;
         if (repository != null) {
             repositoryFilter = repository.getMetadataFilter();
         }
-        return new CodeFileFilter(getIgnoreFiles(), includeLayout, projectDir, repositoryFilter);
+        return new CodeFileFilter(getIgnoreFiles(), includeLayout, includeDirectories, projectDir, repositoryFilter);
     }
     
     /**

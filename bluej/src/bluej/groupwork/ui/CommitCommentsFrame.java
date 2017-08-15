@@ -336,7 +336,7 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
         {
             super();
             response = new ArrayList<>();
-            FileFilter filter = project.getTeamSettingsController().getFileFilter(true);
+            FileFilter filter = project.getTeamSettingsController().getFileFilter(true, true);
             command = repository.getStatus(this, filter, false);
         }
 

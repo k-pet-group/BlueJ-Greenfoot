@@ -386,7 +386,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         {
             super();
             response = new ArrayList<>();
-            FileFilter filter = project.getTeamSettingsController().getFileFilter(true);
+            FileFilter filter = project.getTeamSettingsController().getFileFilter(true, false);
             command = repository.getStatus(this, filter, false);
         }
 

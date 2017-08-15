@@ -96,10 +96,13 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
     private boolean includeLayout = true;
     private boolean pullWithNoChanges = false;
 
+    private final boolean isDVCS;
+
     public UpdateFilesFrame(Project project, Window owner)
     {
         super(owner, "team.update.title", "team-update-files");
         this.project = project;
+        isDVCS = project.getTeamSettingsController().isDVCS();
         buildUI();
         prepareButtonPane();
         DialogManager.centreDialog(this);
@@ -123,7 +126,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
         updateListModel = FXCollections.observableArrayList();
         Label updateFilesLabel = new Label(Config.getString("team.update.files"));
         ListView<UpdateStatus> updateFiles = new ListView<>(updateListModel);
-        if (project.getTeamSettingsController().isDVCS()){
+        if (isDVCS) {
             updateFiles.setCellFactory(param -> new FileRendererCell(project, true));//
         } else {
             updateFiles.setCellFactory(param -> new FileRendererCell(project));//
@@ -339,7 +342,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
         {
             super();
             response = new ArrayList<>();
-            FileFilter filter = project.getTeamSettingsController().getFileFilter(true);
+            FileFilter filter = project.getTeamSettingsController().getFileFilter(true, !isDVCS);
             command = repository.getStatus(this, filter, true);
         }
 
@@ -432,7 +435,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
                         updateListModel.add(noFilesToUpdate);
                     }
                     else {
-                        if (project.getTeamSettingsController().isDVCS() && pullWithNoChanges && updateListModel.isEmpty()){
+                        if (isDVCS && pullWithNoChanges && updateListModel.isEmpty()) {
                             updateListModel.add(needUpdate);
                         }
                         updateAction.setEnabled(true);
@@ -457,7 +460,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
             TeamViewFilter viewFilter = new TeamViewFilter();
             for (TeamStatusInfo statusInfo : info) {
                 //update must look in the remoteStatus in a DVCS. if not DVCS, look into the local status.
-                Status status = project.getTeamSettingsController().isDVCS() ? statusInfo.getRemoteStatus() : statusInfo.getStatus();
+                Status status = isDVCS ? statusInfo.getRemoteStatus() : statusInfo.getStatus();
                 if (filter.accept(statusInfo)) {
                     if (!BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())) {
                         updateListModel.add(new UpdateStatus(statusInfo));

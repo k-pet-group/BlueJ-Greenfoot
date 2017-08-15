@@ -43,15 +43,18 @@ import bluej.utility.Debug;
 public class CodeFileFilter implements FileFilter, FilenameFilter
 {
     private boolean includePkgFiles;
+    private boolean includeDirectories;
     private List<Pattern> patterns = null;
     private FileFilter parentFilter = null;
     private File projectDir;
 
     /**
      * Construct a filter.
-     * @param ignore  List of file patterns to ignore
-     * @param includePkgFiles if true, pkg files are accepted
-     * @param 
+     *
+     * @param ignore          List of file patterns to ignore.
+     * @param includePkgFiles If true, pkg files are accepted.
+     * @param projectDir      The directory of the project.
+     * @param parent          The filter which will be applied on the parent directory
      */
     public CodeFileFilter(List<String> ignore, boolean includePkgFiles, File projectDir, FileFilter parent)
     {
@@ -59,6 +62,21 @@ public class CodeFileFilter implements FileFilter, FilenameFilter
         this.projectDir = projectDir;
         patterns = makePatterns(ignore);
         parentFilter = parent;
+    }
+
+    /**
+     * Construct a filter.
+     *
+     * @param ignore              List of file patterns to ignore.
+     * @param includePkgFiles     If true, pkg files are accepted.
+     * @param includeDirectories  If true, pkg files are accepted.
+     * @param projectDir          The directory of the project.
+     * @param parent              The filter which will be applied on the parent directory
+     */
+    public CodeFileFilter(List<String> ignore, boolean includePkgFiles, boolean includeDirectories, File projectDir, FileFilter parent)
+    {
+        this(ignore, includePkgFiles, projectDir, parent);
+        this.includeDirectories = includeDirectories;
     }
 
     private List<Pattern> makePatterns(List<String> ignore)
@@ -164,6 +182,9 @@ public class CodeFileFilter implements FileFilter, FilenameFilter
     public boolean accept(File pathname)
     {
         File parent = pathname.getParentFile();
+        if (!includeDirectories && pathname.isDirectory()) {
+            return false;
+        }
         return accept(parent, pathname.getName());
     }
 
