@@ -58,6 +58,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
@@ -246,6 +247,16 @@ public final class Terminal
                 InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN)), e -> Utility.decreaseFontSize(PrefMgr.getEditorFontSize())),
                 InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.DIGIT0, KeyCombination.SHORTCUT_DOWN)), e -> PrefMgr.getEditorFontSize().set(PrefMgr.DEFAULT_JAVA_FONT_SIZE))
         ));
+
+        // Make a single click on stdout area focus the input, to help users
+        // who are used to BlueJ 3 where you typed into the stdout area directly
+        text.setOnMouseClicked(e -> {
+            if (e.getButton() == MouseButton.PRIMARY)
+            {
+                input.requestFocus();
+                e.consume();
+            }
+        });
 
         splitPane = new SplitPane(new BorderPane(scrollPane, null, null, input, null));
         JavaFXUtil.addStyleClass(splitPane, "terminal-split");
