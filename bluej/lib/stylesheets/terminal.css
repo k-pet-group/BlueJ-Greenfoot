@@ -27,3 +27,7 @@
 .terminal-stack-foreign {
     -fx-fill: hsb(0, 0%, 70%);
 }
+
+.terminal-input-field {
+    -fx-prompt-text-fill: hsb(0, 0%, 70%);
+}

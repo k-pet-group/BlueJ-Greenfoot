@@ -228,6 +228,7 @@ public final class Terminal
         });
 
         input = new TextField();
+        input.getStyleClass().add("terminal-input-field");
         input.setOnAction(e -> {
             sendInput(false);
             e.consume();
@@ -236,7 +237,7 @@ public final class Terminal
         input.setEditable(false);
         // Mainly for visuals, we disable when not in use:
         input.disableProperty().bind(input.editableProperty().not());
-        input.promptTextProperty().bind(Bindings.when(input.editableProperty()).then("").otherwise(Config.getString("terminal.notRunning")));
+        input.promptTextProperty().bind(Bindings.when(input.editableProperty()).then(Config.getString("terminal.running")).otherwise(Config.getString("terminal.notRunning")));
 
         Nodes.addInputMap(input, InputMap.sequence(
                 // CTRL-D (unix/Mac EOF)
