@@ -28,6 +28,12 @@
     -fx-fill: hsb(0, 0%, 70%);
 }
 
+/* Show prompt text even when we are focused: */
 .terminal-input-field {
     -fx-prompt-text-fill: hsb(0, 0%, 70%);
+}
+
+/* Slightly darker than white to make input field stand out: */
+.terminal, .terminal-error {
+    -fx-background-color: rgb(251, 251, 251);
 }

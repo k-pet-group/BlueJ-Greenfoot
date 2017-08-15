@@ -731,6 +731,7 @@ public final class Terminal
 
         if(errorText == null) {
             errorText = new StyledTextArea<Void, StderrStyle>(null, (t, v) -> {}, StderrStyle.NORMAL, this::applyStyle);
+            errorText.getStyleClass().add("terminal-error");
             errorScrollPane = new VirtualizedScrollPane<>(errorText);
             errorText.styleProperty().bind(PrefMgr.getEditorFontCSS(true));
             errorText.setEditable(false);
