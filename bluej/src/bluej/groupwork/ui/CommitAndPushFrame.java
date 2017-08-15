@@ -658,19 +658,12 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
                          || status == Status.DELETED
                          || status == Status.CONFLICT_LDRM) {
                             // Package file which must be committed.
-                            if (filesToCommit.add(file.getParentFile())) {
-                                File otherPkgFile = modifiedLayoutDirs.remove(file.getParentFile());
-                                if (otherPkgFile != null) {
-                                    removeChangedLayoutFile(otherPkgFile);
-                                    filesToCommit.add(otherPkgFile);
-                                }
-                            }
                             filesToCommit.add(file);
                         }
                         else {
                             // add file to list of files that may be added to commit
                             File parentFile = file.getParentFile();
-                            if (!filesToCommit.contains(parentFile)) {
+                            if (!modifiedLayoutDirs.containsKey(parentFile)) {
                                 modifiedLayoutFiles.add(file);
                                 modifiedLayoutDirs.put(parentFile, file);
                                 // keep track of StatusInfo objects representing changed diagrams
