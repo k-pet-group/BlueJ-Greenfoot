@@ -50,25 +50,25 @@ public class TeamStatusInfo
     public enum Status
     {
         /** The file is up-to-date, the local revision is the same as in the repository */
-        UPTODATE("upToDate", "", "", UPTODATE_COLOR),
+        UP_TO_DATE("upToDate", "", "", UPTODATE_COLOR),
         /* File is up-to-date on the remote repository*/
-        // REMOTE_STATUS_UPTODATE = UPTODATE
+        // REMOTE_STATUS_UPTODATE = UP_TO_DATE
 
         /** The file doesn't exist locally, but is in the repository */
-        NEEDSCHECKOUT("needsCheckout", "", "dcvs.remote.needs.pull", NEEDSUPDATE_COLOR),
+        NEEDS_CHECKOUT("needsCheckout", "", "dcvs.remote.needs.pull", NEEDSUPDATE_COLOR),
         /** The file has been deleted locally, but the deletion hasn't been committed yet */
         DELETED("deleted", "dcvs.local.deleted", "dcvs.remote.deleted", DELETED_COLOR),
         /** The repository version is newer */
-        NEEDSUPDATE("needsUpdate", "", "dcvs.remote.needs.pull", NEEDSUPDATE_COLOR),
+        NEEDS_UPDATE("needsUpdate", "", "dcvs.remote.needs.pull", NEEDSUPDATE_COLOR),
         /* File has been modified on remote repository */
-        //REMOTE_STATUS_MODIFIED = NEEDSUPDATE
+        //REMOTE_STATUS_MODIFIED = NEEDS_UPDATE
 
         /** The local version has been modified */
-        NEEDSCOMMIT("needsCommit", "dcvs.local.modified", "dcvs.remote.modified", NEEDSCOMMIT_COLOR),
+        NEEDS_COMMIT("needsCommit", "dcvs.local.modified", "dcvs.remote.modified", NEEDSCOMMIT_COLOR),
         /** The repository version is newer, but the file is also locally modified */
-        NEEDSMERGE("needsMerge", "needsMerge", "needsMerge"),
+        NEEDS_MERGE("needsMerge", "needsMerge", "needsMerge"),
         /** The file exists locally, but not in the repository */
-        NEEDSADD("needsAdd", "dcvs.local.new", "dcvs.remote.new", NEEDSCOMMIT_COLOR),
+        NEEDS_ADD("needsAdd", "dcvs.local.new", "dcvs.remote.new", NEEDSCOMMIT_COLOR),
         /** The file exists locally, but has been removed in the repository */
         REMOVED("removed", "", "dcvs.remote.needs.pull", REMOVED_COLOR),
         /**
@@ -85,7 +85,7 @@ public class TeamStatusInfo
          * needs to be edited to resolve the conflicts. (This state occurs
          * after an update which merged changes from the repository).
          */
-        HASCONFLICTS("hasConflicts", "hasConflicts", "hasConflicts"),
+        HAS_CONFLICTS("hasConflicts", "hasConflicts", "hasConflicts"),
         /** Unknown */
         WEIRD("weird", "weird", "weird"),
         /** It has no status, only used for default constructor while waiting for cvs */
@@ -181,7 +181,7 @@ public class TeamStatusInfo
         this.status = status;
         //no information about the remote status, therefore assume it is up-to-date:
         //this will be re-writen by getStatus command, if necessary.
-        this.remoteStatus = Status.UPTODATE; //REMOTE_STATUS_UPTODATE
+        this.remoteStatus = Status.UP_TO_DATE; //REMOTE_STATUS_UPTODATE
     }
     
     public File getFile()

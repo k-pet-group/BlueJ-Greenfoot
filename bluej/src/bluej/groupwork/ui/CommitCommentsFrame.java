@@ -497,7 +497,7 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
                     if (!isPkgFile) {
                         commitListModel.add(statusInfo);
                         filesToCommit.add(file);
-                    } else if (status == Status.NEEDSADD
+                    } else if (status == Status.NEEDS_ADD
                             || status == Status.DELETED
                             || status == Status.CONFLICT_LDRM) {
                         // Package file which must be committed.
@@ -524,14 +524,14 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
                         }
                     }
 
-                    if (status == Status.NEEDSADD) {
+                    if (status == Status.NEEDS_ADD) {
                         filesToAdd.add(statusInfo.getFile());
                     } else if (status == Status.DELETED
                             || status == Status.CONFLICT_LDRM) {
                         filesToRemove.add(statusInfo.getFile());
                     }
                 } else if (!isPkgFile) {
-                    if (status == Status.HASCONFLICTS) {
+                    if (status == Status.HAS_CONFLICTS) {
                         mergeConflicts.add(statusInfo.getFile());
                     }
                     if (status == Status.UNRESOLVED
@@ -542,7 +542,7 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
                     if (status == Status.CONFLICT_LDRM) {
                         otherConflicts.add(statusInfo.getFile());
                     }
-                    if (status == Status.NEEDSMERGE) {
+                    if (status == Status.NEEDS_MERGE) {
                         needsMerge.add(statusInfo.getFile());
                     }
                 }

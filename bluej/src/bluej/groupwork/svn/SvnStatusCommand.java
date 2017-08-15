@@ -123,7 +123,7 @@ public class SvnStatusCommand extends SvnCommand
                     // https://issues.tmatesoft.com/issue/SVNKIT-643
                     if (filter.accept(file)) {
                         if (reposStat != StatusKind.added) {
-                            rinfo = new TeamStatusInfo(file, "", "", Status.NEEDSADD);
+                            rinfo = new TeamStatusInfo(file, "", "", Status.NEEDS_ADD);
                             if (file.isDirectory()) {
                                 statLocalDir(file);
                             }
@@ -137,7 +137,7 @@ public class SvnStatusCommand extends SvnCommand
                 else if (textStat == StatusKind.normal) {
                     if (reposStat == StatusKind.none && status[i].getRevisionNumber() == -1) {
                         // Bug in SVNKit
-                        rinfo = new TeamStatusInfo(file, "", "", Status.NEEDSCOMMIT);
+                        rinfo = new TeamStatusInfo(file, "", "", Status.NEEDS_COMMIT);
                     }
                     else if (filter.accept(file)) {
                         String rev = "" + status[i].getLastChangedRevisionNumber();
@@ -154,10 +154,10 @@ public class SvnStatusCommand extends SvnCommand
                         else if (reposStat == StatusKind.modified) {
                             rinfo = new TeamStatusInfo(file, rev,
                                     "" + status[i].getReposLastCmtRevisionNumber(),
-                                    Status.NEEDSUPDATE);
+                                    Status.NEEDS_UPDATE);
                         }
                         else {
-                            rinfo = new TeamStatusInfo(file, rev, rev, Status.UPTODATE);
+                            rinfo = new TeamStatusInfo(file, rev, rev, Status.UP_TO_DATE);
                         }
                     }
                 }
@@ -168,22 +168,22 @@ public class SvnStatusCommand extends SvnCommand
                             rinfo = new TeamStatusInfo(file, rev, "", Status.CONFLICT_LMRD);
                         }
                         else if (reposStat == StatusKind.modified) {
-                            rinfo = new TeamStatusInfo(file, rev, "", Status.NEEDSMERGE);
+                            rinfo = new TeamStatusInfo(file, rev, "", Status.NEEDS_MERGE);
                         }
                         else {
-                            rinfo = new TeamStatusInfo(file, rev, rev, Status.NEEDSCOMMIT);
+                            rinfo = new TeamStatusInfo(file, rev, rev, Status.NEEDS_COMMIT);
                         }
                     }
                 }
                 else if (textStat == StatusKind.none) {
                     if (reposStat == StatusKind.added) {
-                        rinfo = new TeamStatusInfo(file, "", "" + reposRev, Status.NEEDSCHECKOUT);
+                        rinfo = new TeamStatusInfo(file, "", "" + reposRev, Status.NEEDS_CHECKOUT);
                     }
                 }
                 else if (textStat == StatusKind.added) {
                     // shouldn't normally happen unless something went wrong
                     // or someone has done "svn add" from command line etc.
-                    rinfo = new TeamStatusInfo(file, "", "", Status.NEEDSCOMMIT);
+                    rinfo = new TeamStatusInfo(file, "", "", Status.NEEDS_COMMIT);
                 }
 
 //                if (filter.accept(file) || ! file.exists()) {
@@ -247,7 +247,7 @@ public class SvnStatusCommand extends SvnCommand
         File [] subFiles = dir.listFiles(filter);
         for (int i = 0; i < subFiles.length; i++) {
             listener.gotStatus(new TeamStatusInfo(subFiles[i], "", "",
-                    Status.NEEDSADD));
+                    Status.NEEDS_ADD));
             if (subFiles[i].isDirectory()) {
                 statLocalDir(subFiles[i]);
             }
@@ -280,24 +280,24 @@ public class SvnStatusCommand extends SvnCommand
                     // be removed also. One case we don't have to worry about
                     // is if the child has been locally deleted.
                     if (einfoStat != Status.DELETED
-                            && einfoStat != Status.NEEDSCHECKOUT) {
+                            && einfoStat != Status.NEEDS_CHECKOUT) {
                         // can these happen?
                         //if (einfoStat == Status.CONFLICT_LDRM)
                         //if (einfoStat == Status.CONFLICT_LMRD)
-                        if (einfoStat == Status.NEEDSADD) {
+                        if (einfoStat == Status.NEEDS_ADD) {
                             // what status to give here?
                             einfoStat = Status.CONFLICT_LMRD;
                         }
-                        else if (einfoStat == Status.NEEDSCOMMIT) {
+                        else if (einfoStat == Status.NEEDS_COMMIT) {
                             einfoStat = Status.CONFLICT_LMRD;
                         }
-                        else if (einfoStat == Status.NEEDSMERGE) {
+                        else if (einfoStat == Status.NEEDS_MERGE) {
                             einfoStat = Status.CONFLICT_LMRD;
                         }
-                        else if (einfoStat == Status.NEEDSUPDATE) {
+                        else if (einfoStat == Status.NEEDS_UPDATE) {
                             einfoStat = Status.REMOVED;
                         }
-                        else if (einfoStat == Status.UPTODATE) {
+                        else if (einfoStat == Status.UP_TO_DATE) {
                             einfoStat = Status.REMOVED;
                         }
 

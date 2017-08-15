@@ -558,7 +558,6 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
                         pushFiles.setPlaceholder(new Label(Config.getString("team.nopushfiles")));
                     }
                 }
-
             }
         }
 
@@ -636,7 +635,8 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
          */
         private void getCommitFileSets(List<TeamStatusInfo> info, Set<File> filesToCommit, Set<File> filesToAdd,
                                        Set<File> filesToRemove, Set<File> mergeConflicts, Set<File> deleteConflicts,
-                                       Set<File> otherConflicts, Set<File> needsMerge, Set<File> modifiedLayoutFiles, boolean remote)
+                                       Set<File> otherConflicts, Set<File> needsMerge, Set<File> modifiedLayoutFiles,
+                                       boolean remote)
         {
 
             CommitFilter filter = new CommitFilter();
@@ -645,63 +645,66 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
             for (TeamStatusInfo statusInfo : info) {
                 File file = statusInfo.getFile();
                 boolean isPkgFile = BlueJPackageFile.isPackageFileName(file.getName());
-                Status status;
                 //select status to use.
-                if (remote) {
-                    status = statusInfo.getRemoteStatus();
-                } else {
-                    status = statusInfo.getStatus();
-                }
+                Status status = remote ? statusInfo.getRemoteStatus() : statusInfo.getStatus();
 
                 if (filter.accept(statusInfo, !remote)) {
                     if (!isPkgFile) {
                         filesToCommit.add(file);
-                    } else if (status == Status.NEEDSADD
-                            || status == Status.DELETED
-                            || status == Status.CONFLICT_LDRM) {
-                        // Package file which must be committed.
-                        if (filesToCommit.add(statusInfo.getFile().getParentFile())) {
-                            File otherPkgFile = modifiedLayoutDirs.remove(file.getParentFile());
-                            if (otherPkgFile != null) {
-                                removeChangedLayoutFile(otherPkgFile);
-                                filesToCommit.add(otherPkgFile);
+                    }
+                    // It is a package file
+                    else {
+                        if (status == Status.NEEDS_ADD
+                         || status == Status.DELETED
+                         || status == Status.CONFLICT_LDRM) {
+                            // Package file which must be committed.
+                            if (filesToCommit.add(file.getParentFile())) {
+                                File otherPkgFile = modifiedLayoutDirs.remove(file.getParentFile());
+                                if (otherPkgFile != null) {
+                                    removeChangedLayoutFile(otherPkgFile);
+                                    filesToCommit.add(otherPkgFile);
+                                }
                             }
-                        }
-                        filesToCommit.add(statusInfo.getFile());
-                    } else {
-                        // add file to list of files that may be added to commit
-                        File parentFile = file.getParentFile();
-                        if (!filesToCommit.contains(parentFile)) {
-                            modifiedLayoutFiles.add(file);
-                            modifiedLayoutDirs.put(parentFile, file);
-                            // keep track of StatusInfo objects representing changed diagrams
-                            changedLayoutFiles.add(statusInfo);
-                        } else {
-                            // We must commit the file unconditionally
                             filesToCommit.add(file);
+                        }
+                        else {
+                            // add file to list of files that may be added to commit
+                            File parentFile = file.getParentFile();
+                            if (!filesToCommit.contains(parentFile)) {
+                                modifiedLayoutFiles.add(file);
+                                modifiedLayoutDirs.put(parentFile, file);
+                                // keep track of StatusInfo objects representing changed diagrams
+                                changedLayoutFiles.add(statusInfo);
+                            }
+                            else {
+                                // We must commit the file unconditionally
+                                filesToCommit.add(file);
+                            }
                         }
                     }
 
-                    if (status == Status.NEEDSADD) {
-                        filesToAdd.add(statusInfo.getFile());
-                    } else if (status == Status.DELETED
-                            || status == Status.CONFLICT_LDRM) {
-                        filesToRemove.add(statusInfo.getFile());
+                    if (status == Status.NEEDS_ADD) {
+                        filesToAdd.add(file);
                     }
-                } else if (!isPkgFile) {
-                    if (status == Status.HASCONFLICTS) {
-                        mergeConflicts.add(statusInfo.getFile());
+                    else if (status == Status.DELETED
+                            || status == Status.CONFLICT_LDRM) {
+                        filesToRemove.add(file);
+                    }
+                }
+                else if (!isPkgFile) {
+                    if (status == Status.HAS_CONFLICTS) {
+                        mergeConflicts.add(file);
                     }
                     if (status == Status.UNRESOLVED
                             || status == Status.CONFLICT_ADD
                             || status == Status.CONFLICT_LMRD) {
-                        deleteConflicts.add(statusInfo.getFile());
+                        deleteConflicts.add(file);
                     }
                     if (status == Status.CONFLICT_LDRM) {
-                        otherConflicts.add(statusInfo.getFile());
+                        otherConflicts.add(file);
                     }
-                    if (status == Status.NEEDSMERGE) {
-                        needsMerge.add(statusInfo.getFile());
+                    if (status == Status.NEEDS_MERGE) {
+                        needsMerge.add(file);
                     }
                 }
             }

@@ -43,38 +43,32 @@ public class CommitFilter
      */
     public boolean accept(TeamStatusInfo statusInfo, boolean local)
     {
-        Status stat;
-        if (local){
-            stat = statusInfo.getStatus();
-        } else {
-            stat = statusInfo.getRemoteStatus();
-        }
-        
-        if (stat == Status.DELETED) {
-            return true;
-        }
-        if (stat == Status.NEEDSADD) {
-            return true;
-        }
-        if (stat == Status.NEEDSCOMMIT) {
-            return true;
-        }
-        if (!local && stat == Status.NEEDSCHECKOUT){
-            return true;
-        }
-        if (!local && stat == Status.NEEDS_PUSH) {
-            return true;
-        }
-        
-        
-        if (BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())) {
-            boolean conflict = (stat == Status.CONFLICT_ADD);
-            conflict |= (stat == Status.NEEDSMERGE);
-            conflict |= (stat == Status.CONFLICT_LDRM);
-            conflict |= (stat == Status.UNRESOLVED);
-            if (conflict) {
+        Status stat = local ? statusInfo.getStatus() : statusInfo.getRemoteStatus();
+
+        switch (stat) {
+            case DELETED:
+            case NEEDS_ADD:
+            case NEEDS_COMMIT:
                 return true;
-            } 
+        }
+
+        if (!local) {
+            switch (stat) {
+                case NEEDS_CHECKOUT:
+                case NEEDS_PUSH:
+                    return true;
+            }
+        }
+
+        if (BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())) {
+            // If there is a conflict, return true
+            switch (stat) {
+                case CONFLICT_ADD:
+                case NEEDS_MERGE:
+                case CONFLICT_LDRM:
+                case UNRESOLVED:
+                    return true;
+            }
         }
 
         return false;

@@ -40,13 +40,13 @@ public class UpdateFilter
         Status stat = statusInfo.getStatus();
         Status remoteStat = statusInfo.getRemoteStatus();
         
-        if (stat == Status.NEEDSCHECKOUT || remoteStat == Status.NEEDSCHECKOUT) {
+        if (stat == Status.NEEDS_CHECKOUT || remoteStat == Status.NEEDS_CHECKOUT) {
             return true;
         }
-        if (stat == Status.NEEDSMERGE || remoteStat == Status.NEEDSMERGE) {
+        if (stat == Status.NEEDS_MERGE || remoteStat == Status.NEEDS_MERGE) {
             return ! isDir;
         }
-        if (stat == Status.NEEDSUPDATE || remoteStat == Status.NEEDSUPDATE) {
+        if (stat == Status.NEEDS_UPDATE || remoteStat == Status.NEEDS_UPDATE) {
             return ! isDir;
         }
         if (stat == Status.REMOVED || remoteStat == Status.REMOVED) {
@@ -61,7 +61,7 @@ public class UpdateFilter
             return true;
         }
         
-        if (remoteStat == Status.NEEDSUPDATE) { //REMOTE_STATUS_MODIFIED
+        if (remoteStat == Status.NEEDS_UPDATE) { //REMOTE_STATUS_MODIFIED
             return true;
         }
     
@@ -74,7 +74,7 @@ public class UpdateFilter
     public boolean updateAlways(TeamStatusInfo statusInfo)
     {
         Status remoteStatus = statusInfo.getRemoteStatus();
-        if (statusInfo.getStatus() == Status.NEEDSCHECKOUT || remoteStatus == Status.NEEDSCHECKOUT) {
+        if (statusInfo.getStatus() == Status.NEEDS_CHECKOUT || remoteStatus == Status.NEEDS_CHECKOUT) {
             return true;
         }
         if (statusInfo.getStatus() == Status.REMOVED || remoteStatus == Status.REMOVED) {
