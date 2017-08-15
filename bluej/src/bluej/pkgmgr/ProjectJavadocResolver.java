@@ -32,6 +32,7 @@ import bluej.parser.entity.PackageResolver;
 import bluej.parser.symtab.ClassInfo;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
+import bluej.utility.Utility;
 import bluej.views.CallableView;
 import bluej.views.Comment;
 import bluej.views.View;
@@ -44,11 +45,15 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -66,37 +71,53 @@ public class ProjectJavadocResolver implements JavadocResolver
     {
         this.project = project;
     }
-    
+
+    /**
+     * Retrieve the javadoc for the specified method, if possible. The javadoc and
+     * method parameter names will be added to the supplied MethodReflective(s).
+     * The collection of methods must all come from the same declaring type.
+     */
     @Override
-    public void getJavadoc(ConstructorOrMethodReflective method)
+    public void getJavadoc(Collection<? extends ConstructorOrMethodReflective> targetMethods)
     {
-        Reflective declaring = method.getDeclaringType();
+        if (targetMethods.isEmpty())
+            return; // Nothing to do
+
+        Reflective declaring = targetMethods.iterator().next().getDeclaringType();
         String declName = declaring.getName();
-        String methodSig = buildSig(method);
+        // The collection of reflectives (indexed by unique signature) which we still
+        // need to find Javadoc for.  As we find the Javadoc, we will remove from this collection:
+        Map<String, ConstructorOrMethodReflective> methodSigs = targetMethods.stream().collect(Collectors.toMap(ProjectJavadocResolver::buildSig, m -> m));
         
         try {
             Class<?> cl = project.getClassLoader().loadClass(declName);
             View clView = View.getView(cl);
-            CallableView[] methods = method instanceof MethodReflective ? clView.getAllMethods() : clView.getConstructors();
-            
-            for (int i = 0; i < methods.length; i++) {
-                if (methodSig.equals(methods[i].getSignature())) {
-                    Comment comment = methods[i].getComment();
+            List<CallableView> methods = Utility.concat(Arrays.asList(clView.getAllMethods()), Arrays.asList(clView.getConstructors()));
+
+            for (CallableView method : methods)
+            {
+                String signature = method.getSignature();
+                ConstructorOrMethodReflective methodReflective = methodSigs.get(signature);
+                if (methodReflective != null) {
+                    Comment comment = method.getComment();
                     if (comment != null) {
-                        method.setJavaDoc(comment.getText());
+                        methodReflective.setJavaDoc(comment.getText());
                         List<String> paramNames = new ArrayList<String>(comment.getParamCount());
                         for (int j = 0; j < comment.getParamCount(); j++) {
                             paramNames.add(comment.getParamName(j));
                         }
-                        method.setParamNames(paramNames);
-                        return;
+                        methodReflective.setParamNames(paramNames);
+                        methodSigs.remove(signature);
                     }
-                    break;
                 }
             }
         }
         catch (ClassNotFoundException cnfe) {}
         catch (LinkageError e) {}
+
+        // If we've found all methods, nothing more to do, so stop now:
+        if (methodSigs.isEmpty())
+            return;
         
         Properties comments = commentCache.get(declName);
         if (comments == null) {
@@ -114,20 +135,29 @@ public class ProjectJavadocResolver implements JavadocResolver
         // Find the comment for the particular method we want
         for (int i = 0; ; i++) {
             String comtarget = comments.getProperty("comment" + i + ".target");
+            // If there's no more method comments to scan, stop (otherwise we'll go on forever):
             if (comtarget == null) {
                 break;
             }
-            if (comtarget.equals(methodSig)) {
-                method.setJavaDoc(comments.getProperty("comment" + i + ".text"));
+            ConstructorOrMethodReflective methodReflective = methodSigs.get(comtarget);
+            if (methodReflective != null) {
+                methodReflective.setJavaDoc(comments.getProperty("comment" + i + ".text"));
                 String paramNames = comments.getProperty("comment" + i + ".params");
                 StringTokenizer tokenizer = new StringTokenizer(paramNames);
                 List<String> paramNamesList = new ArrayList<String>();
                 while (tokenizer.hasMoreTokens()) {
                     paramNamesList.add(tokenizer.nextToken());
                 }
-                method.setParamNames(paramNamesList);
-                break;
+                methodReflective.setParamNames(paramNamesList);
+                methodSigs.remove(comtarget);
             }
+        }
+
+        // If we reach here and there's methods remaining, there's simply no Javadoc for those methods.
+        // Must record this fact to prevent needlessly scanning them again:
+        for (ConstructorOrMethodReflective methodReflective : methodSigs.values())
+        {
+            methodReflective.setJavaDoc("");
         }
     }
         

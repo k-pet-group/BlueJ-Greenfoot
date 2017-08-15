@@ -26,6 +26,7 @@
 package bluej.parser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,7 +111,7 @@ public class MethodCompletion extends AssistContent
     {
         String jd = method.getJavaDoc();
         if (jd == null && javadocResolver != null) {
-            javadocResolver.getJavadoc(method);
+            javadocResolver.getJavadoc(Collections.singletonList(method));
             jd = method.getJavaDoc();
             if (jd == null)
             {

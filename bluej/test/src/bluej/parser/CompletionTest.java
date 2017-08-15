@@ -24,6 +24,7 @@ package bluej.parser;
 import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -810,10 +811,10 @@ public class CompletionTest extends TestCase
         AssistContent [] assists = ParseUtils.getPossibleCompletions(suggests, new JavadocResolver() {
             public String getJavadoc(String name) { throw new IllegalStateException(); }
             
-            public void getJavadoc(ConstructorOrMethodReflective method)
+            public void getJavadoc(Collection<? extends ConstructorOrMethodReflective> method)
             {
                 // We want to check that the return type has an erased type.
-                assertNotNull(((MethodReflective)method).getReturnType().getErasedType());
+                assertNotNull(((MethodReflective)method.iterator().next()).getReturnType().getErasedType());
             }
 
             @Override
@@ -889,7 +890,7 @@ public class CompletionTest extends TestCase
         
         AssistContent[] acontent = ParseUtils.getPossibleCompletions(suggests, new JavadocResolver() {
             @Override
-            public void getJavadoc(ConstructorOrMethodReflective method)
+            public void getJavadoc(Collection<? extends ConstructorOrMethodReflective> method)
             {
             }
             

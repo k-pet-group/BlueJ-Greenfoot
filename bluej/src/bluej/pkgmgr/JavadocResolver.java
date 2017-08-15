@@ -21,6 +21,7 @@
  */
 package bluej.pkgmgr;
 
+import java.util.Collection;
 import java.util.concurrent.Executor;
 
 import bluej.debugger.gentype.MethodReflective;
@@ -37,9 +38,10 @@ public interface JavadocResolver
 {
     /**
      * Retrieve the javadoc for the specified method, if possible. The javadoc and
-     * method parameter names will be added to the supplied MethodReflective.
+     * method parameter names will be added to the supplied MethodReflective(s).
+     * The collection of methods must all come from the same declaring type.
      */
-    public void getJavadoc(ConstructorOrMethodReflective method);
+    public void getJavadoc(Collection<? extends ConstructorOrMethodReflective> method);
 
     public String getJavadoc(String typeName);
 
