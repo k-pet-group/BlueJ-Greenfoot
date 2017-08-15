@@ -22,6 +22,7 @@
 package bluej.parser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -73,7 +74,7 @@ public class ConstructorCompletion extends AssistContent
     {
         String jd = con.getJavaDoc();
         if (jd == null && javadocResolver != null) {
-            javadocResolver.getJavadoc(con);
+            javadocResolver.getJavadoc(Collections.singletonList(con));
             jd = con.getJavaDoc();
         }
         return jd;

@@ -654,47 +654,65 @@ public class FrameCanvas implements FrameContentItem
     // Must be later followed by call to growUsing
     public void shrinkUsing(DoubleExpression animate)
     {
-        // After lots of experimentation, here's how we shrink.
-        // - We must set minimum height to 0
-        // - We must animate maximum height down to 0
-        // - We must set preferred height to maximum height
-        // - We must have set a clip rectangle that is bound to maximum size (we do this in constructor)
-        // If you do not have all three steps, it will not animate!
+        // If too many children, can't sensibly animate nicely, and if we do then we get an exception
+        // in JavaFX because of the canvas size needed to animate a VBox that high (e.g. > 16K pixels high)
+        // So for large canvases, just jump to the end result:
+        if (canvas.getChildren().size() >= 100) {
+            Rectangle clipRect = new Rectangle(0.0, 0.0);
+            canvas.setClip(clipRect);
+            canvas.maxHeightProperty().set(0);
+            canvas.prefHeightProperty().bind(canvas.maxHeightProperty());
+        }
+        else
+        {
+            // After lots of experimentation, here's how we shrink.
+            // - We must set minimum height to 0
+            // - We must animate maximum height down to 0
+            // - We must set preferred height to maximum height
+            // - We must have set a clip rectangle that is bound to maximum size (we do this in constructor)
+            // If you do not have all three steps, it will not animate!
 
-        // Force layout:
-        canvas.snapshot(null, null);
-        
-        // To support shrinking and growing, we need a clip rectangle bound to max height and width
-        Rectangle clipRect = new Rectangle();
-        clipRect.widthProperty().bind(canvas.widthProperty());
-        clipRect.heightProperty().bind(canvas.maxHeightProperty());
-        canvas.setClip(clipRect);
-        
-        canvas.maxHeightProperty().bind(animate.multiply(getHeight()));
-        canvas.prefHeightProperty().bind(canvas.maxHeightProperty());
-        
-        // Make the contents look like it is shrinking:
-        PerspectiveTransform pt = new PerspectiveTransform();
-        pt.setLlx(0.0);
-        pt.setUlx(0.0);
-        pt.setLrx(canvas.getWidth());
-        pt.setUrx(canvas.getWidth());
-        pt.setUly(0.0);
-        pt.setUry(0.0);
-        pt.llyProperty().bind(canvas.maxHeightProperty());
-        pt.lryProperty().bind(canvas.maxHeightProperty());
-        canvas.setEffect(pt);
+            // Force layout:
+            canvas.snapshot(null, null);
+
+            // To support shrinking and growing, we need a clip rectangle bound to max height and width
+            Rectangle clipRect = new Rectangle();
+            clipRect.widthProperty().bind(canvas.widthProperty());
+            clipRect.heightProperty().bind(canvas.maxHeightProperty());
+            canvas.setClip(clipRect);
+
+            canvas.maxHeightProperty().bind(animate.multiply(getHeight()));
+            canvas.prefHeightProperty().bind(canvas.maxHeightProperty());
+
+            // Make the contents look like it is shrinking:
+            PerspectiveTransform pt = new PerspectiveTransform();
+            pt.setLlx(0.0);
+            pt.setUlx(0.0);
+            pt.setLrx(canvas.getWidth());
+            pt.setUrx(canvas.getWidth());
+            pt.setUly(0.0);
+            pt.setUry(0.0);
+            pt.llyProperty().bind(canvas.maxHeightProperty());
+            pt.lryProperty().bind(canvas.maxHeightProperty());
+            canvas.setEffect(pt);
+        }
     }
     
     // Must have been preceded by call to shrinkUsing
     public void growUsing(DoubleExpression animate)
     {
-        // Reverse changes in shrinkUsing
-        double calcHeight = blockContents.stream().mapToDouble(f -> f.getRegion().getHeight()).sum();
-        calcHeight += cursors.stream().mapToDouble(f -> f.getNode().getHeight()).sum();
-        calcHeight += Math.max(0, blockContents.size() - 1) * canvas.spacingProperty().get(); 
-        
-        canvas.maxHeightProperty().bind(animate.multiply(calcHeight));
+        // If too many children, can't sensibly animate nicely, and if we do then we get an exception
+        // in JavaFX because of the canvas size needed to animate a VBox that high (e.g. > 16K pixels high)
+        // So only animate for small enough canvases.  For large, we will just jump to end result:
+        if (canvas.getChildren().size() < 100)
+        {
+            // Reverse changes in shrinkUsing
+            double calcHeight = blockContents.stream().mapToDouble(f -> f.getRegion().getHeight()).sum();
+            calcHeight += cursors.stream().mapToDouble(f -> f.getNode().getHeight()).sum();
+            calcHeight += Math.max(0, blockContents.size() - 1) * canvas.spacingProperty().get();
+
+            canvas.maxHeightProperty().bind(animate.multiply(calcHeight));
+        }
         // We keep on the previous effect and clip until we have reached full height
         
         animate.addListener((a, b, newVal) -> {

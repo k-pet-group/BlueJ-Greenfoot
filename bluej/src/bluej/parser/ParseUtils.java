@@ -21,15 +21,8 @@
  */
 package bluej.parser; 
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -134,6 +127,14 @@ public class ParseUtils
         return null; // no completions
     }
 
+    /**
+     * Gets the available completions for a given target: methods and fields (not constructors)
+     * @param exprType The target type from which to get completions.  This class and all super-types are scanned.
+     * @param suggests Information about the code suggestions
+     * @param javadocResolver Resolver for fetching Javadoc
+     * @param consumer The consumer to be called with each AssistContent, if non-null (may be null)
+     * @return The list of found completions.
+     */
     @OnThread(Tag.FXPlatform)
     private static List<AssistContent> getCompletionsForTarget(GenTypeClass exprType, CodeSuggestions suggests,
             JavadocResolver javadocResolver, AssistContentConsumer consumer)
@@ -162,17 +163,13 @@ public class ParseUtils
             Map<String, GenTypeParameter> typeArgs = exprType.getMap();
 
             for (String name : methods.keySet()) {
-                Set<MethodReflective> mset = methods.get(name);
-                for (MethodReflective method : mset) {
-                    if (accessReflective != null
+                Set<MethodReflective> mset = new HashSet<>(methods.get(name));
+                mset.removeIf(method -> accessReflective != null
                             && !JavaUtils.checkMemberAccess(method.getDeclaringType(),
                                     origExprType,
                                     suggests.getAccessType().getReflective(),
-                                    method.getModifiers(), suggests.isStatic())) {
-                        continue;
-                    }
-                    discoverElement(javadocResolver, contentSigs, completions, typeArgs, method, consumer);
-                }
+                                    method.getModifiers(), suggests.isStatic()));
+                completions.addAll(discoverElements(javadocResolver, contentSigs, typeArgs, mset, consumer));
             }
             
             Map<String, FieldReflective> fields = exprType.getReflective().getDeclaredFields();
@@ -218,38 +215,50 @@ public class ParseUtils
         return completions;
     }
     
-    
     /**
-     * Check whether the given method should be added to the set of possible code completions (i.e. if it has
-     * a unique signature), and do so if necessary. Returns an AssistContent object representing the method if
-     * it was added, or null otherwise. 
+     * Check whether the given methods should be added to the set of possible code completions (i.e. if they have
+     * a unique signature), and do so if necessary. Returns a collection of AssistContent objects representing any methods that were added (methods which were not added
+     * because they were already present are not returned).
+     *
+     * @param javadocResolver The Javadoc resolver used to look up Javadoc for the method
+     * @param contentSigs The set of existing method signatures.  The newly-found method will be
+     *                    added if and only if it is not already in the set.
+     * @param typeArgs The relevant type arguments (used for generic methods)
+     * @param methods The methods to be scanned.  Must all come from the same declaring class.
+     * @param consumer If non-null, it will be passed the completion (regardless of whether the completion
+     *                 was already in the set, but the overridden flag will be passed accordingly to the consumer)
+     * @return If the method was added to the set (and was not already there), it is returned.
+     *         If the method was already in the set, null will be returned.
      */
     @OnThread(Tag.FXPlatform)
-    private static AssistContent discoverElement(JavadocResolver javadocResolver, Set<String> contentSigs, List<AssistContent> completions, 
-            Map<String, GenTypeParameter> typeArgs, MethodReflective method, AssistContentConsumer consumer)
+    private static Collection<AssistContent> discoverElements(JavadocResolver javadocResolver, Set<String> contentSigs,
+                                                  Map<String, GenTypeParameter> typeArgs, Collection<MethodReflective> methods, AssistContentConsumer consumer)
     {
-        MethodCompletion completion = null;
-        completion = new MethodCompletion(method,
-                typeArgs, javadocResolver);
-        String sig = completion.getSignature();
-        if (contentSigs.add(sig)) {
-            completions.add(completion);
-            if (consumer != null)
-            {
-                consumer.consume(completion, false /* not overridden */);
+        List<MethodCompletion> completions = methods.stream()
+            .map(m -> new MethodCompletion(m, typeArgs, javadocResolver))
+            .collect(Collectors.toList());
+        // Scan all methods for Javadoc in one go first (saves a lot of time):
+        javadocResolver.getJavadoc(methods);
+        List<AssistContent> allNewMethods = new ArrayList<>();
+
+        for (MethodCompletion completion : completions) {
+            String sig = completion.getSignature();
+
+            if (contentSigs.add(sig)) {
+                if (consumer != null) {
+                    consumer.consume(completion, false /* not overridden */);
+                }
+                allNewMethods.add(completion);
             }
-            return completion;
-            // Sort the completions by name
-            //    Collections.sort(completions, new CompletionComparator());
-        }
-        else
-        {
-            if (consumer != null)
+            else
             {
-                consumer.consume(completion, true /* overridden */);
+                if (consumer != null) {
+                    consumer.consume(completion, true /* overridden */);
+                }
+                // Deliberately not added to allNewMethods
             }
-            return null;
         }
+        return allNewMethods;
     }
     
     /**
