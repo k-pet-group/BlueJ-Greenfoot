@@ -53,6 +53,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -725,10 +726,8 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
 
         private TeamStatusInfo getTeamStatusInfoFromFile(File file, List<TeamStatusInfo> infoList)
         {
-            if (file != null && !infoList.isEmpty()){
-               return infoList.stream().filter(info -> info.getFile().equals(file)).findFirst().get();
-            }
-            return null;
+            Optional<TeamStatusInfo> statusInfo = infoList.stream().filter(info -> info.getFile().equals(file)).findFirst();
+            return statusInfo.isPresent() ? statusInfo.get() : null;
         }
     }
 }
