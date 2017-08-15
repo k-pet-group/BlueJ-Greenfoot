@@ -171,7 +171,7 @@ public class ParseUtils
                                     method.getModifiers(), suggests.isStatic())) {
                         continue;
                     }
-                    discoverElement(javadocResolver, contentSigs, completions, typeArgs, method, consumer);
+                    completions.add(discoverElement(javadocResolver, contentSigs, typeArgs, method, consumer));
                 }
             }
             
@@ -217,30 +217,35 @@ public class ParseUtils
         }
         return completions;
     }
-    
-    
+
+
     /**
      * Check whether the given method should be added to the set of possible code completions (i.e. if it has
      * a unique signature), and do so if necessary. Returns an AssistContent object representing the method if
-     * it was added, or null otherwise. 
+     * it was added, or null otherwise.
+     *
+     * @param javadocResolver The Javadoc resolver used to look up Javadoc for the method
+     * @param contentSigs The set of existing method signatures.  The newly-found method will be
+     *                    added if and only if it is not already in the set.
+     * @param typeArgs The relevant type arguments (used for generic methods)
+     * @param method The method to be scanned
+     * @param consumer If non-null, it will be passed the completion (regardless of whether the completion
+     *                 was already in the set, but the overridden flag will be passed accordingly to the consumer)
+     * @return If the method was added to the set (and was not already there), it is returned.
+     *         If the method was already in the set, null will be returned.
      */
     @OnThread(Tag.FXPlatform)
-    private static AssistContent discoverElement(JavadocResolver javadocResolver, Set<String> contentSigs, List<AssistContent> completions, 
+    private static AssistContent discoverElement(JavadocResolver javadocResolver, Set<String> contentSigs,
             Map<String, GenTypeParameter> typeArgs, MethodReflective method, AssistContentConsumer consumer)
     {
-        MethodCompletion completion = null;
-        completion = new MethodCompletion(method,
-                typeArgs, javadocResolver);
+        MethodCompletion completion = new MethodCompletion(method, typeArgs, javadocResolver);
         String sig = completion.getSignature();
         if (contentSigs.add(sig)) {
-            completions.add(completion);
             if (consumer != null)
             {
                 consumer.consume(completion, false /* not overridden */);
             }
             return completion;
-            // Sort the completions by name
-            //    Collections.sort(completions, new CompletionComparator());
         }
         else
         {
