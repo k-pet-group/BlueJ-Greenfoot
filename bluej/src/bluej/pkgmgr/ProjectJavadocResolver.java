@@ -104,6 +104,8 @@ public class ProjectJavadocResolver implements JavadocResolver
             if (classInfo != null)
                 comments = classInfo.getComments(); 
             if (comments == null) {
+                // Record a blank so we don't bother looking next time:
+                commentCache.put(declName, new Properties());
                 return;
             }
             commentCache.put(declName, comments);
