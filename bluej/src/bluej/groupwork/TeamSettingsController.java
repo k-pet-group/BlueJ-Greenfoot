@@ -267,6 +267,9 @@ public class TeamSettingsController
     /**
      * Get a filename filter suitable for filtering out files which we don't want
      * to be under version control.
+     *
+     * @param includeLayout      A flag to indicate if layout files should be included or filtered out.
+     * @param includeDirectories A flag to indicate if directories should be included or filtered out.
      */
     public FileFilter getFileFilter(boolean includeLayout, boolean includeDirectories)
     {

@@ -2062,7 +2062,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     {
         TeamSettingsController teamSettingsController = getTeamSettingsController();
         File[] files = dir.listFiles(teamSettingsController == null ? null : teamSettingsController.getFileFilter(includePkgFiles, true));
-        if (files==null) {
+        if (files == null) {
             return;
         }
         for(int i=0; i< files.length; i++ ){

@@ -82,44 +82,52 @@ public class GitStatusCommand extends GitCommand
             //check local status
             org.eclipse.jgit.api.Status s = repo.status().call();
 
-            s.getMissing().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, Status.DELETED)).forEach((teamInfo) -> {
-                returnInfo.add(teamInfo);
-            });
+            s.getMissing().stream()
+                    .filter(p -> filter.accept(new File(gitPath, p)))
+                    .forEach(item -> {
+                        TeamStatusInfo teamInfo = new TeamStatusInfo(new File(gitPath, item), "", null, Status.DELETED);
+                        returnInfo.add(teamInfo);
+                    });
 
-            s.getUncommittedChanges().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, Status.NEEDS_COMMIT)).forEach((teamInfo) -> {
-                TeamStatusInfo existingStatusInfo = getTeamStatusInfo(returnInfo, teamInfo.getFile());
-                if (existingStatusInfo == null) {
-                    //add this new entry to the returnInfo.
-                    returnInfo.add(teamInfo);
-                }
-            });
+            s.getUncommittedChanges().stream()
+                    .filter(p -> filter.accept(new File(gitPath, p)))
+                    .forEach(item -> {
+                        TeamStatusInfo teamInfo = new TeamStatusInfo(new File(gitPath, item), "", null, Status.NEEDS_COMMIT);
+                        TeamStatusInfo existingStatusInfo = getTeamStatusInfo(returnInfo, teamInfo.getFile());
+                        if (existingStatusInfo == null) {
+                            //add this new entry to the returnInfo.
+                            returnInfo.add(teamInfo);
+                        }
+                    });
 
+            s.getUntracked().stream()
+                    .filter(p -> filter.accept(new File(gitPath, p)))
+                    .forEach(item -> returnInfo.add(new TeamStatusInfo(new File(gitPath, item), "", null, Status.NEEDS_ADD)));
 
-            s.getUntracked().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, Status.NEEDS_ADD)).forEach((teamInfo) -> {
-                returnInfo.add(teamInfo);
-            });
+            s.getUntrackedFolders().stream()
+                    .filter(p -> filter.accept(new File(gitPath, p)))
+                    .forEach(item -> returnInfo.add(new TeamStatusInfo(new File(gitPath, item), "", null, Status.NEEDS_ADD)));
 
-            s.getUntrackedFolders().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, Status.NEEDS_ADD)).forEach((teamInfo) -> {
-                returnInfo.add(teamInfo);
-            });
-
-            s.getRemoved().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, Status.REMOVED)).forEach((teamInfo) -> {
-                returnInfo.add(teamInfo);
-            });
+            s.getRemoved().stream()
+                    .filter(p -> filter.accept(new File(gitPath, p)))
+                    .forEach(item -> returnInfo.add(new TeamStatusInfo(new File(gitPath, item), "", null, Status.REMOVED)));
             
-            s.getConflicting().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, Status.NEEDS_MERGE)).forEach((teamInfo) -> {
-                TeamStatusInfo existingStatusInfo = getTeamStatusInfo(returnInfo, teamInfo.getFile());
-                if (existingStatusInfo == null){
-                    returnInfo.add(teamInfo);
-                }
-            });
+            s.getConflicting().stream()
+                    .filter(p -> filter.accept(new File(gitPath, p)))
+                    .forEach(item -> {
+                        TeamStatusInfo teamInfo = new TeamStatusInfo(new File(gitPath, item), "", null, Status.NEEDS_MERGE);
+                        TeamStatusInfo existingStatusInfo = getTeamStatusInfo(returnInfo, teamInfo.getFile());
+                        if (existingStatusInfo == null){
+                            returnInfo.add(teamInfo);
+                        }
+                    });
             
             Map<String, IndexDiff.StageState> conflictsMap = s.getConflictingStageState();
-            conflictsMap.keySet().stream().forEach(key -> {
-                File f = new File(gitPath, key);
-                TeamStatusInfo statusInfo = getTeamStatusInfo(returnInfo, f);
+            conflictsMap.keySet().forEach(key -> {
+                File file = new File(gitPath, key);
+                TeamStatusInfo statusInfo = getTeamStatusInfo(returnInfo, file);
                 if (statusInfo == null) {
-                    statusInfo = new TeamStatusInfo(f, "", null, Status.BLANK);
+                    statusInfo = new TeamStatusInfo(file, "", null, Status.BLANK);
                 }
                 IndexDiff.StageState state = conflictsMap.get(key);
                 switch (state) {
@@ -149,10 +157,7 @@ public class GitStatusCommand extends GitCommand
                         }
                         break;
                 }
-
             });
-                
-            
 
             //check for files to push to remote repository.
             List<DiffEntry> listOfDiffsLocal, listOfDiffsRemote;
@@ -205,7 +210,7 @@ public class GitStatusCommand extends GitCommand
             TeamStatusInfo itemStatus = getTeamStatusInfo(returnInfo, item);
             if (itemStatus == null) {
                 //file does not exist in the list, therefore it is up-to-date.
-                returnInfo.add(new TeamStatusInfo(item, "", null, Status.UP_TO_DATE, Status.UP_TO_DATE /*Status.REMOTE_STATUS_UPTODATE*/));
+                returnInfo.add(new TeamStatusInfo(item, "", null, Status.UP_TO_DATE, Status.UP_TO_DATE));
             }
         }
     }

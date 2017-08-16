@@ -181,9 +181,15 @@ public class TeamStatusInfo
         this.status = status;
         //no information about the remote status, therefore assume it is up-to-date:
         //this will be re-writen by getStatus command, if necessary.
-        this.remoteStatus = Status.UP_TO_DATE; //REMOTE_STATUS_UPTODATE
+        this.remoteStatus = Status.UP_TO_DATE;
     }
 
+    /**
+     * Returns either the local status of the file or the remote one, based on the invoker selection.
+     *
+     * @param local A flag to select which status is needed
+     * @return The local or remote status of the file
+     */
     public Status getStatus(boolean local)
     {
         return local ? status : remoteStatus;

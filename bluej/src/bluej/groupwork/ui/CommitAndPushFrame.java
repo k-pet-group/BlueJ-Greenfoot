@@ -652,27 +652,23 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
                     if (!isPkgFile) {
                         filesToCommit.add(file);
                     }
-                    // It is a package file
+                    // It is a package file. In case it's a change to its existence, it should be committed
+                    else if (status == Status.NEEDS_ADD || status == Status.DELETED || status == Status.CONFLICT_LDRM) {
+                        filesToCommit.add(file);
+                    }
+                    // It is a package file, without a change to its existence.
                     else {
-                        if (status == Status.NEEDS_ADD
-                         || status == Status.DELETED
-                         || status == Status.CONFLICT_LDRM) {
-                            // Package file which must be committed.
-                            filesToCommit.add(file);
+                        // add file to list of files that may be added to commit
+                        File parentFile = file.getParentFile();
+                        if (!modifiedLayoutDirs.containsKey(parentFile)) {
+                            modifiedLayoutFiles.add(file);
+                            modifiedLayoutDirs.put(parentFile, file);
+                            // keep track of StatusInfo objects representing changed diagrams
+                            changedLayoutFiles.add(statusInfo);
                         }
                         else {
-                            // add file to list of files that may be added to commit
-                            File parentFile = file.getParentFile();
-                            if (!modifiedLayoutDirs.containsKey(parentFile)) {
-                                modifiedLayoutFiles.add(file);
-                                modifiedLayoutDirs.put(parentFile, file);
-                                // keep track of StatusInfo objects representing changed diagrams
-                                changedLayoutFiles.add(statusInfo);
-                            }
-                            else {
-                                // We must commit the file unconditionally
-                                filesToCommit.add(file);
-                            }
+                            // We must commit the file unconditionally
+                            filesToCommit.add(file);
                         }
                     }
 
@@ -720,6 +716,14 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
                     .collect(Collectors.toList()));
         }
 
+        /**
+         * Returns the status info for a specific file from an info list.
+         *
+         * @param file     The file which its status info is needed.
+         * @param infoList The list which contains files info.
+         * @return         The team status info for the passed file,
+         *                 or null if either the passed file is null or the list doesn't include information about it.
+         */
         private TeamStatusInfo getTeamStatusInfoFromFile(File file, List<TeamStatusInfo> infoList)
         {
             Optional<TeamStatusInfo> statusInfo = infoList.stream().filter(info -> info.getFile().equals(file)).findFirst();
