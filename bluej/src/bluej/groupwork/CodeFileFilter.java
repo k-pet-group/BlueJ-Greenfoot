@@ -24,7 +24,6 @@ package bluej.groupwork;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -43,15 +42,18 @@ import bluej.utility.Debug;
 public class CodeFileFilter implements FileFilter, FilenameFilter
 {
     private boolean includePkgFiles;
+    private boolean includeDirectories;
     private List<Pattern> patterns = null;
     private FileFilter parentFilter = null;
     private File projectDir;
 
     /**
-     * Construct a filter.
-     * @param ignore  List of file patterns to ignore
-     * @param includePkgFiles if true, pkg files are accepted
-     * @param 
+     * Construct a filter, which has a flag to whether include Package Files.
+     *
+     * @param ignore          List of file patterns to ignore.
+     * @param includePkgFiles If true, pkg files are accepted.
+     * @param projectDir      The directory of the project.
+     * @param parent          The filter which will be applied on the parent directory
      */
     public CodeFileFilter(List<String> ignore, boolean includePkgFiles, File projectDir, FileFilter parent)
     {
@@ -61,15 +63,29 @@ public class CodeFileFilter implements FileFilter, FilenameFilter
         parentFilter = parent;
     }
 
+    /**
+     * Construct a filter, which has two flags to whether to include Directories and Package Files.
+     *
+     * @param ignore              List of file patterns to ignore.
+     * @param includePkgFiles     If true, pkg files are accepted.
+     * @param includeDirectories  If true, pkg files are accepted.
+     * @param projectDir          The directory of the project.
+     * @param parent              The filter which will be applied on the parent directory
+     */
+    public CodeFileFilter(List<String> ignore, boolean includePkgFiles, boolean includeDirectories, File projectDir, FileFilter parent)
+    {
+        this(ignore, includePkgFiles, projectDir, parent);
+        this.includeDirectories = includeDirectories;
+    }
+
     private List<Pattern> makePatterns(List<String> ignore)
     {
-        List<Pattern> patterns = new LinkedList<Pattern>();
-        for (Iterator<String> i = ignore.iterator(); i.hasNext();) {
-            String patternString = (String) i.next();
-            try{
-                Pattern p = Pattern.compile(patternString);
-                patterns.add(p);
-            } catch (PatternSyntaxException pse){
+        List<Pattern> patterns = new LinkedList<>();
+        for (String patternString: ignore) {
+            try {
+                patterns.add(Pattern.compile(patternString));
+            }
+            catch (PatternSyntaxException pse) {
                 Debug.message("Couldn't parse ignore pattern: " + patternString);
             }
         }
@@ -78,8 +94,7 @@ public class CodeFileFilter implements FileFilter, FilenameFilter
 
     private boolean matchesPatterns(String input)
     {
-        for (Iterator<Pattern> i = patterns.iterator(); i.hasNext();) {
-            Pattern pattern = i.next();
+        for (Pattern pattern: patterns) {
             Matcher matcher = pattern.matcher(input);
             if (matcher.matches()) {
                 return true;
@@ -90,81 +105,86 @@ public class CodeFileFilter implements FileFilter, FilenameFilter
 
     /**
      * Determines which files should be included
+     *
      * @param dir the directory in which the file was found.
      * @param name the name of the file.
      */
+    @Override
     public boolean accept(File dir, String name)
     {
-        boolean result = true;
+        File file = new File(dir, name);
+        if (!includeDirectories && file.isDirectory()) {
+            return false;
+        }
 
         // Exclude everything inside the "doc" top-level directory:
         File tdir = dir;
         String tname = name;
         while (! tdir.equals(projectDir)) {
-        	tname = tdir.getName();
-        	tdir = tdir.getParentFile();
-        	if (tdir == null) {
-        		return false;
-        	}
+            tname = tdir.getName();
+            tdir = tdir.getParentFile();
+            if (tdir == null) {
+                return false;
+            }
         }
         if (tname.equals("doc")) {
-        	return false;
+            return false;
         }
         
-        if (name.equals("CVS") || dir.getName().equals("CVS")){
-            result = false;
+        if (name.equals("CVS") || dir.getName().equals("CVS")) {
+            return false;
         }
-        if (name.equals("CVSROOT") || dir.getName().equalsIgnoreCase("CVSROOT")){
-            result = false;
+        if (name.equals("CVSROOT") || dir.getName().equalsIgnoreCase("CVSROOT")) {
+            return false;
         }
 
         /* when a package is first created. pkg files should be
          * added and committed. If we don't, BlueJ can't know which folders
          * are packages
          */ 
-        if (!includePkgFiles && BlueJPackageFile.isPackageFileName(name)){
-            result = false;
+        if (!includePkgFiles && BlueJPackageFile.isPackageFileName(name)) {
+            return false;
         }
         // the old bluej.pkg backup file
-        if (name.equals("bluej.pkh")){
-            result = false;
-        }	
-        if (name.equals("team.defs")){
-            result = false;
+        if (name.equals("bluej.pkh")) {
+            return false;
         }
-        if (name.equals(".DS_Store")){
-            result = false;
+        if (name.equals("team.defs")) {
+            return false;
         }
-        if (getFileType(name).equals("ctxt")){
-            result = false;
+        if (name.equals(".DS_Store")) {
+            return false;
         }
-        if (name.charAt(name.length() -1) == '~'){
-            result = false;
+        if (getFileType(name).equals("ctxt")) {
+            return false;
         }
-        if (name.charAt(name.length() -1) == '#'){
-            result = false;
+        if (name.charAt(name.length() -1) == '~') {
+            return false;
         }
-        if (name.endsWith("#backup")){
-            result = false;
+        if (name.charAt(name.length() -1) == '#') {
+            return false;
         }
-        if (name.startsWith(".#")){
-            result = false;
+        if (name.endsWith("#backup")) {
+            return false;
         }
-        if (matchesPatterns(name)){
-            result = false;
+        if (name.startsWith(".#")) {
+            return false;
         }
-
-        if (result && parentFilter != null) {
-            result = parentFilter.accept(new File(dir, name));
+        if (matchesPatterns(name)) {
+            return false;
         }
 
-        return result;
+        if (parentFilter != null) {
+            return parentFilter.accept(new File(dir, name));
+        }
+
+        return true;
     }
 
+    @Override
     public boolean accept(File pathname)
     {
-        File parent = pathname.getParentFile();
-        return accept(parent, pathname.getName());
+        return accept(pathname.getParentFile(), pathname.getName());
     }
 
     /**
@@ -175,7 +195,7 @@ public class CodeFileFilter implements FileFilter, FilenameFilter
     private String getFileType(String filename)
     {
         int lastDotIndex = filename.lastIndexOf('.');
-        if (lastDotIndex > -1 && lastDotIndex < filename.length()){
+        if (lastDotIndex > -1 && lastDotIndex < filename.length()) {
             return filename.substring(lastDotIndex + 1);
         }
         return "";

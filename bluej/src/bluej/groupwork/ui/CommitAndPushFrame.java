@@ -53,6 +53,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -385,7 +386,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         {
             super();
             response = new ArrayList<>();
-            FileFilter filter = project.getTeamSettingsController().getFileFilter(true);
+            FileFilter filter = project.getTeamSettingsController().getFileFilter(true, false);
             command = repository.getStatus(this, filter, false);
         }
 
@@ -557,7 +558,6 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
                         pushFiles.setPlaceholder(new Label(Config.getString("team.nopushfiles")));
                     }
                 }
-
             }
         }
 
@@ -635,7 +635,8 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
          */
         private void getCommitFileSets(List<TeamStatusInfo> info, Set<File> filesToCommit, Set<File> filesToAdd,
                                        Set<File> filesToRemove, Set<File> mergeConflicts, Set<File> deleteConflicts,
-                                       Set<File> otherConflicts, Set<File> needsMerge, Set<File> modifiedLayoutFiles, boolean remote)
+                                       Set<File> otherConflicts, Set<File> needsMerge, Set<File> modifiedLayoutFiles,
+                                       boolean remote)
         {
 
             CommitFilter filter = new CommitFilter();
@@ -644,63 +645,55 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
             for (TeamStatusInfo statusInfo : info) {
                 File file = statusInfo.getFile();
                 boolean isPkgFile = BlueJPackageFile.isPackageFileName(file.getName());
-                Status status;
                 //select status to use.
-                if (remote) {
-                    status = statusInfo.getRemoteStatus();
-                } else {
-                    status = statusInfo.getStatus();
-                }
+                Status status = statusInfo.getStatus(!remote);
 
                 if (filter.accept(statusInfo, !remote)) {
                     if (!isPkgFile) {
                         filesToCommit.add(file);
-                    } else if (status == Status.NEEDSADD
-                            || status == Status.DELETED
-                            || status == Status.CONFLICT_LDRM) {
-                        // Package file which must be committed.
-                        if (filesToCommit.add(statusInfo.getFile().getParentFile())) {
-                            File otherPkgFile = modifiedLayoutDirs.remove(file.getParentFile());
-                            if (otherPkgFile != null) {
-                                removeChangedLayoutFile(otherPkgFile);
-                                filesToCommit.add(otherPkgFile);
-                            }
-                        }
-                        filesToCommit.add(statusInfo.getFile());
-                    } else {
+                    }
+                    // It is a package file. In case it's a change to its existence, it should be committed
+                    else if (status == Status.NEEDS_ADD || status == Status.DELETED || status == Status.CONFLICT_LDRM) {
+                        filesToCommit.add(file);
+                    }
+                    // It is a package file, without a change to its existence.
+                    else {
                         // add file to list of files that may be added to commit
                         File parentFile = file.getParentFile();
-                        if (!filesToCommit.contains(parentFile)) {
+                        if (!modifiedLayoutDirs.containsKey(parentFile)) {
                             modifiedLayoutFiles.add(file);
                             modifiedLayoutDirs.put(parentFile, file);
                             // keep track of StatusInfo objects representing changed diagrams
                             changedLayoutFiles.add(statusInfo);
-                        } else {
+                        }
+                        else {
                             // We must commit the file unconditionally
                             filesToCommit.add(file);
                         }
                     }
 
-                    if (status == Status.NEEDSADD) {
-                        filesToAdd.add(statusInfo.getFile());
-                    } else if (status == Status.DELETED
-                            || status == Status.CONFLICT_LDRM) {
-                        filesToRemove.add(statusInfo.getFile());
+                    if (status == Status.NEEDS_ADD) {
+                        filesToAdd.add(file);
                     }
-                } else if (!isPkgFile) {
-                    if (status == Status.HASCONFLICTS) {
-                        mergeConflicts.add(statusInfo.getFile());
+                    else if (status == Status.DELETED
+                            || status == Status.CONFLICT_LDRM) {
+                        filesToRemove.add(file);
+                    }
+                }
+                else if (!isPkgFile) {
+                    if (status == Status.HAS_CONFLICTS) {
+                        mergeConflicts.add(file);
                     }
                     if (status == Status.UNRESOLVED
                             || status == Status.CONFLICT_ADD
                             || status == Status.CONFLICT_LMRD) {
-                        deleteConflicts.add(statusInfo.getFile());
+                        deleteConflicts.add(file);
                     }
                     if (status == Status.CONFLICT_LDRM) {
-                        otherConflicts.add(statusInfo.getFile());
+                        otherConflicts.add(file);
                     }
-                    if (status == Status.NEEDSMERGE) {
-                        needsMerge.add(statusInfo.getFile());
+                    if (status == Status.NEEDS_MERGE) {
+                        needsMerge.add(file);
                     }
                 }
             }
@@ -723,12 +716,18 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
                     .collect(Collectors.toList()));
         }
 
+        /**
+         * Returns the status info for a specific file from an info list.
+         *
+         * @param file     The file which its status info is needed.
+         * @param infoList The list which contains files info.
+         * @return         The team status info for the passed file,
+         *                 or null if either the passed file is null or the list doesn't include information about it.
+         */
         private TeamStatusInfo getTeamStatusInfoFromFile(File file, List<TeamStatusInfo> infoList)
         {
-            if (file != null && !infoList.isEmpty()){
-               return infoList.stream().filter(info -> info.getFile().equals(file)).findFirst().get();
-            }
-            return null;
+            Optional<TeamStatusInfo> statusInfo = infoList.stream().filter(info -> info.getFile().equals(file)).findFirst();
+            return statusInfo.isPresent() ? statusInfo.get() : null;
         }
     }
 }

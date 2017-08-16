@@ -57,17 +57,17 @@ public class ResourceDescriptor
                         case DELETED:
                             status += " (" + Config.getString("team.status.delete") + ")";
                             break;
-                        case NEEDSADD:
+                        case NEEDS_ADD:
                             status += " (" + Config.getString("team.status.add") + ")";
                             break;
-                        case NEEDSCHECKOUT:
+                        case NEEDS_CHECKOUT:
                             status += " (" + Config.getString("team.status.new") + ")";
                             break;
                         case REMOVED:
                         case CONFLICT_LMRD:
                             status += " (" + Config.getString("team.status.removed") + ")";
                             break;
-                        case NEEDSMERGE:
+                        case NEEDS_MERGE:
                             if (! isPkgFile) {
                                 status += " (" + Config.getString("team.status.needsmerge") + ")";
                             }
@@ -75,7 +75,7 @@ public class ResourceDescriptor
                         default:
                             break;
                     }
-                    if (info.getRemoteStatus() == Status.NEEDSCHECKOUT
+                    if (info.getRemoteStatus() == Status.NEEDS_CHECKOUT
                             || info.getRemoteStatus() == Status.DELETED) {
                         if (!isPkgFile) {
                             //file is ok in local repo, but needs to be pushed to remote repo.
@@ -110,20 +110,20 @@ public class ResourceDescriptor
         			status = Config.getString("team.commit.layout") + " " + project.getPackageForFile(info.getFile());
         		}
         		if (annotate) {
-        			Status infoStatus = remote ? info.getRemoteStatus() : info.getStatus();
+        			Status infoStatus = info.getStatus(!remote);
         			// file has been deleted
         			switch (infoStatus) {
         			case DELETED:
-        			case NEEDSADD:
-        			case NEEDSCHECKOUT:
+        			case NEEDS_ADD:
+        			case NEEDS_CHECKOUT:
         			case REMOVED:
         			case CONFLICT_LMRD:
-        			case NEEDSUPDATE:
-        			case NEEDSCOMMIT:
+        			case NEEDS_UPDATE:
+        			case NEEDS_COMMIT:
         				//substitute for the new labels from teamstatusinfo
         				status += " (" + infoStatus.getDCVSStatusString(remote) + ")";
         				break;
-        			case NEEDSMERGE:
+        			case NEEDS_MERGE:
         				if (!isPkgFile) {
         					status += " (" + infoStatus.getDCVSStatusString(remote) + ")";
         				}

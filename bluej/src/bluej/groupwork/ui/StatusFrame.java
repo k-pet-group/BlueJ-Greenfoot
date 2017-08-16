@@ -221,7 +221,7 @@ public class StatusFrame extends FXCustomizedDialog<Void>
             case 1:
                 return isDVCS ? info.getStatus() : info.getLocalVersion();
             case 2:
-                return isDVCS ? info.getRemoteStatus() : info.getStatus();
+                return info.getStatus(!isDVCS);
             default:
                 break;
         }
@@ -239,7 +239,8 @@ public class StatusFrame extends FXCustomizedDialog<Void>
         TeamworkCommand command;
         TeamworkCommandResult result;
         boolean aborted;
-        FileFilter filter = project.getTeamSettingsController().getFileFilter(true);
+        // If git, don't include directories
+        FileFilter filter = project.getTeamSettingsController().getFileFilter(true, !isDVCS);
 
         public StatusWorker()
         {

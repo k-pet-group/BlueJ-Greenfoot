@@ -82,51 +82,59 @@ public class GitStatusCommand extends GitCommand
             //check local status
             org.eclipse.jgit.api.Status s = repo.status().call();
 
-            s.getMissing().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, Status.DELETED)).forEach((teamInfo) -> {
-                returnInfo.add(teamInfo);
-            });
+            s.getMissing().stream()
+                    .filter(p -> filter.accept(new File(gitPath, p)))
+                    .forEach(item -> {
+                        TeamStatusInfo teamInfo = new TeamStatusInfo(new File(gitPath, item), "", null, Status.DELETED);
+                        returnInfo.add(teamInfo);
+                    });
 
-            s.getUncommittedChanges().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, Status.NEEDSCOMMIT)).forEach((teamInfo) -> {
-                TeamStatusInfo existingStatusInfo = getTeamStatusInfo(returnInfo, teamInfo.getFile());
-                if (existingStatusInfo == null) {
-                    //add this new entry to the returnInfo.
-                    returnInfo.add(teamInfo);
-                }
-            });
+            s.getUncommittedChanges().stream()
+                    .filter(p -> filter.accept(new File(gitPath, p)))
+                    .forEach(item -> {
+                        TeamStatusInfo teamInfo = new TeamStatusInfo(new File(gitPath, item), "", null, Status.NEEDS_COMMIT);
+                        TeamStatusInfo existingStatusInfo = getTeamStatusInfo(returnInfo, teamInfo.getFile());
+                        if (existingStatusInfo == null) {
+                            //add this new entry to the returnInfo.
+                            returnInfo.add(teamInfo);
+                        }
+                    });
 
+            s.getUntracked().stream()
+                    .filter(p -> filter.accept(new File(gitPath, p)))
+                    .forEach(item -> returnInfo.add(new TeamStatusInfo(new File(gitPath, item), "", null, Status.NEEDS_ADD)));
 
-            s.getUntracked().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, Status.NEEDSADD)).forEach((teamInfo) -> {
-                returnInfo.add(teamInfo);
-            });
+            s.getUntrackedFolders().stream()
+                    .filter(p -> filter.accept(new File(gitPath, p)))
+                    .forEach(item -> returnInfo.add(new TeamStatusInfo(new File(gitPath, item), "", null, Status.NEEDS_ADD)));
 
-            s.getUntrackedFolders().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, Status.NEEDSADD)).forEach((teamInfo) -> {
-                returnInfo.add(teamInfo);
-            });
-
-            s.getRemoved().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, Status.REMOVED)).forEach((teamInfo) -> {
-                returnInfo.add(teamInfo);
-            });
+            s.getRemoved().stream()
+                    .filter(p -> filter.accept(new File(gitPath, p)))
+                    .forEach(item -> returnInfo.add(new TeamStatusInfo(new File(gitPath, item), "", null, Status.REMOVED)));
             
-            s.getConflicting().stream().filter(p -> filter.accept(new File(gitPath, p))).map((item) -> new TeamStatusInfo(new File(gitPath, item), "", null, Status.NEEDSMERGE)).forEach((teamInfo) -> {
-                TeamStatusInfo existingStatusInfo = getTeamStatusInfo(returnInfo, teamInfo.getFile());
-                if (existingStatusInfo == null){
-                    returnInfo.add(teamInfo);
-                }
-            });
+            s.getConflicting().stream()
+                    .filter(p -> filter.accept(new File(gitPath, p)))
+                    .forEach(item -> {
+                        TeamStatusInfo teamInfo = new TeamStatusInfo(new File(gitPath, item), "", null, Status.NEEDS_MERGE);
+                        TeamStatusInfo existingStatusInfo = getTeamStatusInfo(returnInfo, teamInfo.getFile());
+                        if (existingStatusInfo == null){
+                            returnInfo.add(teamInfo);
+                        }
+                    });
             
             Map<String, IndexDiff.StageState> conflictsMap = s.getConflictingStageState();
-            conflictsMap.keySet().stream().forEach(key -> {
-                File f = new File(gitPath, key);
-                TeamStatusInfo statusInfo = getTeamStatusInfo(returnInfo, f);
+            conflictsMap.keySet().forEach(key -> {
+                File file = new File(gitPath, key);
+                TeamStatusInfo statusInfo = getTeamStatusInfo(returnInfo, file);
                 if (statusInfo == null) {
-                    statusInfo = new TeamStatusInfo(f, "", null, Status.BLANK);
+                    statusInfo = new TeamStatusInfo(file, "", null, Status.BLANK);
                 }
                 IndexDiff.StageState state = conflictsMap.get(key);
                 switch (state) {
                     case DELETED_BY_THEM:
                         if (statusInfo.getStatus() == Status.BLANK){
                             statusInfo.setStatus(Status.CONFLICT_LMRD);
-                        } else if (statusInfo.getStatus() == Status.NEEDSCOMMIT && !statusInfo.getFile().exists()){
+                        } else if (statusInfo.getStatus() == Status.NEEDS_COMMIT && !statusInfo.getFile().exists()){
                             //if the file doesn't exist, but git report as needs commit, it means that the file was in a LMRD state,
                             //but the user choose to delete it.
                             statusInfo.setStatus(Status.DELETED);
@@ -144,15 +152,12 @@ public class GitStatusCommand extends GitCommand
                         break;
                     case BOTH_MODIFIED:
                         //if status is needs commit, it means that the conflict was resolved.
-                        if (statusInfo.getStatus() != Status.NEEDSCOMMIT){
-                            statusInfo.setStatus(Status.NEEDSMERGE);
+                        if (statusInfo.getStatus() != Status.NEEDS_COMMIT){
+                            statusInfo.setStatus(Status.NEEDS_MERGE);
                         }
                         break;
                 }
-
             });
-                
-            
 
             //check for files to push to remote repository.
             List<DiffEntry> listOfDiffsLocal, listOfDiffsRemote;
@@ -205,7 +210,7 @@ public class GitStatusCommand extends GitCommand
             TeamStatusInfo itemStatus = getTeamStatusInfo(returnInfo, item);
             if (itemStatus == null) {
                 //file does not exist in the list, therefore it is up-to-date.
-                returnInfo.add(new TeamStatusInfo(item, "", null, Status.UPTODATE, Status.UPTODATE /*Status.REMOTE_STATUS_UPTODATE*/));
+                returnInfo.add(new TeamStatusInfo(item, "", null, Status.UP_TO_DATE, Status.UP_TO_DATE));
             }
         }
     }
@@ -242,7 +247,7 @@ public class GitStatusCommand extends GitCommand
             entry.setRemoteStatus(remoteStatus);
         } else {
             //needs to create an entry.
-            entry = new TeamStatusInfo(file, "", null, Status.UPTODATE, remoteStatus);
+            entry = new TeamStatusInfo(file, "", null, Status.UP_TO_DATE, remoteStatus);
             returnInfo.add(entry);
         }
     }
@@ -254,13 +259,13 @@ public class GitStatusCommand extends GitCommand
             File file = new File(gitPath, getFileNameFromDiff(localDiffItem));
             switch (localDiffItem.getChangeType()) {
                 case MODIFY:
-                    updateRemoteStatus(returnInfo, file, Status.NEEDSCOMMIT);
+                    updateRemoteStatus(returnInfo, file, Status.NEEDS_COMMIT);
                     break;
                 case DELETE:
                     updateRemoteStatus(returnInfo, file, Status.DELETED);
                     break;
                 case ADD:
-                    updateRemoteStatus(returnInfo, file, Status.NEEDSADD);
+                    updateRemoteStatus(returnInfo, file, Status.NEEDS_ADD);
                     break;
             }
         }
@@ -280,7 +285,7 @@ public class GitStatusCommand extends GitCommand
                                     //in the local status, the merge was committed and needs to be pushed.
                                     updateRemoteStatus(returnInfo, file, Status.NEEDS_PUSH);
                                 } else {
-                                    updateRemoteStatus(returnInfo, file, Status.NEEDSMERGE);
+                                    updateRemoteStatus(returnInfo, file, Status.NEEDS_MERGE);
                                 }
                                 break;
                             case DELETE:
@@ -292,7 +297,7 @@ public class GitStatusCommand extends GitCommand
                         }
                     } else {
                         //there is no localDiffItem. this means its status is unchanged.
-                        updateRemoteStatus(returnInfo, file, Status.NEEDSUPDATE);
+                        updateRemoteStatus(returnInfo, file, Status.NEEDS_UPDATE);
                     }
                     break;
                 case DELETE:
@@ -305,7 +310,7 @@ public class GitStatusCommand extends GitCommand
                                 updateRemoteStatus(returnInfo, file, Status.DELETED);
                                 break;
                             case ADD:
-                                updateRemoteStatus(returnInfo, file, Status.NEEDSCOMMIT);
+                                updateRemoteStatus(returnInfo, file, Status.NEEDS_COMMIT);
                                 break;
                         }
                     } else {
@@ -321,16 +326,14 @@ public class GitStatusCommand extends GitCommand
                                 break;
                         }
                     } else {
-                        updateRemoteStatus(returnInfo, file, Status.NEEDSCHECKOUT);
+                        updateRemoteStatus(returnInfo, file, Status.NEEDS_CHECKOUT);
                         if (!file.exists()){
                             //this file will be added, but does not exist in the local repository.
                             TeamStatusInfo tsi = getTeamStatusInfo(returnInfo, file);
-                            tsi.setStatus(Status.NEEDSCHECKOUT);
+                            tsi.setStatus(Status.NEEDS_CHECKOUT);
                         }
                     }
             }
         }
     }
-
-
 }
