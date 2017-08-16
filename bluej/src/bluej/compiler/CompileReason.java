@@ -28,7 +28,8 @@ package bluej.compiler;
 public enum CompileReason
 {
     EARLY("early"), LATE("late"), INVOKE("invoke"), REBUILD("rebuild"), EXTENSION("extension"),
-    LOADED("loaded"), MODIFIED("modified"), NEW_CLASS("new_class"), USER("user");
+    LOADED("loaded"), MODIFIED("modified"), MODIFIED_EXTENDS("modified_extends"),
+    NEW_CLASS("new_class"), USER("user");
 
     private final String serverString;
 

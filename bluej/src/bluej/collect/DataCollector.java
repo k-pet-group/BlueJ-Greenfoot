@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej.collect;
 
 import bluej.Boot;
 import bluej.Config;
+import bluej.collect.DataCollectorImpl.EditedFileInfo;
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileReason;
 import bluej.debugger.DebuggerTestResult;
@@ -31,21 +32,18 @@ import bluej.debugger.SourceLocation;
 import bluej.debugmgr.inspector.ClassInspector;
 import bluej.debugmgr.inspector.Inspector;
 import bluej.debugmgr.inspector.ObjectInspector;
-import bluej.extensions.SourceType;
+import bluej.editor.stride.FrameCatalogue;
 import bluej.extmgr.ExtensionWrapper;
 import bluej.groupwork.Repository;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
+import bluej.stride.generic.Frame;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.io.File;
-import java.util.BitSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * DataCollector for sending off data.
@@ -135,8 +133,7 @@ public class DataCollector
             changeOptInOut(Boot.isTrialRecording());
         }
 
-        // Temporarily for 4.0.0-preview, do not send to Blackbox:
-        recordingThisSession = false; //uuidValidForRecording();
+        recordingThisSession = uuidValidForRecording();
         
         if (recordingThisSession)
         {
@@ -279,22 +276,52 @@ public class DataCollector
         if (dontSend()) return;
         DataCollectorImpl.bluejClosed();
     }
-    
-    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, CompileReason reason, SourceType inputType)
+
+    /**
+     * Record a compile event.  This may be a javac compile, but it may also be a Stride early or late error check.
+     *
+     *
+     * @param proj The project involved in the compilation
+     * @param pkg The package involved in the compilation.  Due to BlueJ's design, we only ever compile one package at a time.
+     *            May be null if it cannot be determined for some reason
+     * @param sources The collection of files fed to the compilation as input.
+     * @param diagnostics The diagnostics (i.e. errors and warnings) which were generated
+     *                    as a result of the compile.  May be empty, especially if compile was successful.
+     * @param success Was the compile a success?
+     * @param reason The reason for performing the compilation.  This is recorded on the server
+     * @param compilationSequence A sequence identifier (unique within this session) of the original trigger of the compilation event.
+     *                            If we compile Stride, we may get an early, normal and late compilation result passed to three
+     *                            separate calls of this method, but they will all have the same compilationSequence
+     *                            value, to allow them to be reassembled by a later researcher.  The special value -1
+     *                            means it is non-applicable or unknown, and in this case will not be sent to the server.
+     */
+    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, CompileReason reason, int compilationSequence)
     {
         if (dontSend()) return;
-        diagnostics.forEach(dws -> {
-            // If the error was shown to the user, store that in our set.  Conversely,
-            // if we have been told already that the error has been shown to the user,
-            // we want to reflect that in the event
-            if (dws.wasShownToUser())
+
+        // This bitset will be filled with all errors which we've already been told are shown,
+        // but which we couldn't send to the server because we hadn't yet sent the compilation
+        // event which notifies the server of their creation:
+        Set<Integer> pendingShow = new HashSet<>();
+
+        for (DiagnosticWithShown dws : diagnostics)
+        {
+            // If we have been told already that the error has been shown to the user,
+            // we want to send a new event afterwards with the shown:
+            // Or, if it's just been shown now:
+            if (shownErrorIndicators.get(dws.getDiagnostic().getIdentifier()) || dws.wasShownToUser())
+            {
+                pendingShow.add(dws.getDiagnostic().getIdentifier());
                 shownErrorIndicators.set(dws.getDiagnostic().getIdentifier());
-            else if (shownErrorIndicators.get(dws.getDiagnostic().getIdentifier()))
-                dws.markShownToUser();
+            }
 
             createdErrors.set(dws.getDiagnostic().getIdentifier());
-        });
-        DataCollectorImpl.compiled(proj, pkg, sources, diagnostics, success, reason, inputType);
+        }
+        DataCollectorImpl.compiled(proj, pkg, sources, diagnostics, success, reason, compilationSequence);
+        if (!pendingShow.isEmpty())
+        {
+            DataCollectorImpl.showErrorIndicators(pkg, pendingShow);
+        }
     }
 
     public static void debuggerTerminate(Project project)
@@ -400,6 +427,18 @@ public class DataCollector
         DataCollectorImpl.teamCommitProject(project, repo, committedFiles);
     }
 
+    /**
+     * Records a VCS push event
+     * @param project The project which is in VCS
+     * @param repo The repository object for VCS
+     * @param pushedFiles The files involved in the push
+     */
+    public static void teamPushProject(Project project, Repository repo, Set<File> pushedFiles)
+    {
+        if (dontSend()) return;
+        DataCollectorImpl.teamPushProject(project, repo, pushedFiles);
+    }
+
     public static void teamShareProject(Project project, Repository repo)
     {
         if (dontSend()) return;
@@ -436,16 +475,37 @@ public class DataCollector
         DataCollectorImpl.debuggerBreakpointToggle(pkg, sourceFile, lineNumber, newState);
     }
 
-    public static void renamedClass(Package pkg, File oldSourceFile, File newSourceFile)
+    /**
+     * Records renaming a class (Java, or Stride and its generated Java).
+     *
+     * @param pkg                The package in which the files live.
+     * @param oldFrameSourceFile The original Stride source file that has been deleted,
+     *                           or <code>null</code> in case the source type is Java.
+     * @param newFrameSourceFile The new created Stride source file, or <code>null</code> in case the source type is Java.
+     * @param oldJavaSourceFile  The original Java source file that has been deleted.
+     * @param newJavaSourceFile  The new created Java source file.
+     */
+    public static void renamedClass(Package pkg, File oldFrameSourceFile, File newFrameSourceFile, File oldJavaSourceFile, File newJavaSourceFile)
     {
-        if (dontSend()) return;
-        DataCollectorImpl.renamedClass(pkg, oldSourceFile, newSourceFile);
+        if (dontSend()) {
+            return;
+        }
+        DataCollectorImpl.renamedClass(pkg, oldFrameSourceFile, newFrameSourceFile, oldJavaSourceFile, newJavaSourceFile);
     }
 
-    public static void removeClass(Package pkg, File sourceFile)
+    /**
+     * Records removing class files.
+     *
+     * @param pkg              The package in which the files live.
+     * @param frameSourceFile  The Stride source file, or <code>null</code> in case the source type is Java.
+     * @param javaSourceFile   The Java source file.
+     */
+    public static void removeClass(Package pkg, File frameSourceFile, File javaSourceFile)
     {
-        if (dontSend()) return;
-        DataCollectorImpl.removeClass(pkg, sourceFile);
+        if (dontSend()) {
+            return;
+        }
+        DataCollectorImpl.removeClass(pkg, frameSourceFile, javaSourceFile);
     }
 
     public static void openClass(Package pkg, File sourceFile)
@@ -465,17 +525,47 @@ public class DataCollector
         if (dontSend()) return;
         DataCollectorImpl.selectClass(pkg, sourceFile);
     }
-    
+
+    /**
+     * Record conversion from Stride to Java.
+     * @param pkg The package in which the files live.
+     * @param oldSourceFile The old Stride source file (which will be deleted by the caller)
+     * @param newSourceFile The Java source file (which will be retained by the caller)
+     */
     public static void convertStrideToJava(Package pkg, File oldSourceFile, File newSourceFile)
     {
         if (dontSend()) return;
-        DataCollectorImpl.convertStrideToJava(pkg, oldSourceFile, newSourceFile);
+        // Note the function takes Java, Stride rather than old or new.  Here, new is Java:
+        DataCollectorImpl.conversion(pkg, newSourceFile, oldSourceFile, true);
     }
 
-    public static void edit(Package pkg, File path, String source, boolean includeOneLineEdits, StrideEditReason reason)
+    /**
+     * Record conversion from Java to Stride.
+     * @param pkg The package in which the files live.
+     * @param oldSourceFile The old Java source file (which will now be generated, rather than edited directly)
+     * @param newSourceFile The new Stride source file (which will now be edited and used to generate the Java)
+     */
+    public static void convertJavaToStride(Package pkg, File oldSourceFile, File newSourceFile)
     {
         if (dontSend()) return;
-        DataCollectorImpl.edit(pkg, path, source, includeOneLineEdits, reason);
+        // Note the function takes Java, Stride rather than old or new.  Here, old is Java:
+        DataCollectorImpl.conversion(pkg, oldSourceFile, newSourceFile, false);
+    }
+
+
+    public static void editJava(Package pkg, File path, String source, boolean includeOneLineEdits)
+    {
+        if (dontSend()) return;
+        DataCollectorImpl.edit(pkg, Collections.singletonList(new EditedFileInfo("diff", path, source, includeOneLineEdits, null, null)));
+    }
+
+    public static void editStride(Package pkg, File javaPath, String javaSource, File stridePath, String strideSource, StrideEditReason reason)
+    {
+        if (dontSend()) return;
+        DataCollectorImpl.edit(pkg, Arrays.asList(
+            new EditedFileInfo("diff_generated", javaPath, javaSource, true, stridePath, null),
+            new EditedFileInfo("diff", stridePath, strideSource, true, null, reason)
+        ));
     }
 
     public static void packageOpened(Package pkg)
@@ -559,20 +649,91 @@ public class DataCollector
         DataCollectorImpl.inspectorClassShow(pkg, inspector, className);        
     }
 
-    public static void showErrorIndicator(Package pkg, int errorIdentifier)
+    public static void showErrorIndicators(Package pkg, Collection<Integer> errorIdentifiers)
     {
         if (dontSend()) return;
-        // Already know about this:
-        if (shownErrorIndicators.get(errorIdentifier))
-            return;
 
-        if (createdErrors.get(errorIdentifier))
+        HashSet<Integer> previouslyUnshown = new HashSet<>(errorIdentifiers);
+        previouslyUnshown.removeAll(asCollection(shownErrorIndicators));
+
+        if (previouslyUnshown.isEmpty())
         {
-            // Creation has already been sent, so fine to follow it up with a shown event:
-            DataCollectorImpl.showErrorIndicator(pkg, errorIdentifier);
+            // Already know about all of them:
+            return;
         }
-        // Otherwise, we haven't sent the creation yet, so do nothing but flag it in the bitset
-        shownErrorIndicators.set(errorIdentifier);
+        else
+        {
+            // We only send those that are  previously unshown, now shown, but have been sent as created:
+            HashSet<Integer> toSend = new HashSet<>(previouslyUnshown);
+            toSend.retainAll(asCollection(createdErrors));
+            if (!toSend.isEmpty())
+            {
+                // Creation has already been sent for the these events, so fine to follow it up with a shown event:
+                DataCollectorImpl.showErrorIndicators(pkg, toSend);
+            }
+            // Otherwise, we haven't sent the creation yet, so do nothing (will get sent later)
+
+
+            // Either way, flag it in the bitset as shown:
+            for (Integer id : previouslyUnshown)
+            {
+                shownErrorIndicators.set(id);
+            }
+        }
+    }
+
+    /**
+     * Mirrors a BitSet as a collection of integers (the indexes of the set bits).
+     * Surprisingly, there's no method in BitSet itself to support this.
+     *
+     * Rather than make a copy of the collection, we create a fake collection
+     * which is based on the original bitset.  Thus, if the original bitset changes,
+     * the returned collection will also change.  Hence why it's named asCollection
+     * rather than toCollection.
+     */
+    private static Collection<Integer> asCollection(BitSet bitSet)
+    {
+        return new AbstractCollection<Integer>()
+        {
+            @Override
+            public Iterator<Integer> iterator()
+            {
+                return new Iterator<Integer>()
+                {
+                    // -1 when there's no more bits
+                    int nextBit = bitSet.nextSetBit(0);
+
+                    @Override
+                    public boolean hasNext()
+                    {
+                        return nextBit != -1;
+                    }
+
+                    @Override
+                    public Integer next()
+                    {
+                        int retBit = nextBit;
+                        nextBit = bitSet.nextSetBit(nextBit + 1);
+                        return retBit;
+                    }
+                };
+            }
+
+            @Override
+            public boolean contains(Object o)
+            {
+                if (o instanceof Integer)
+                    return bitSet.get((Integer)o);
+                else
+                    return false;
+            }
+
+            @Override
+            public int size()
+            {
+                return bitSet.cardinality();
+            }
+        };
     }
 
     public static void showErrorMessage(Package pkg, int errorIdentifier, List<String> quickFixes)
@@ -597,22 +758,84 @@ public class DataCollector
         DataCollectorImpl.greenfootEvent(project, project.getPackage(""), event);
     }
 
-    public static void codeCompletionStarted(ClassTarget ct, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem)
+    /**
+     * Record that code completion has been triggered.
+     *
+     * @param ct The class target in which code completion was triggered.
+     * @param lineNumber The Java line number, or null if Stride is being used
+     * @param columnNumber The Java column number, or null if Stride is being used
+     * @param xpath The XPath to the Stride element, or null if Java is being used
+     * @param subIndex The sub-index within the Stride element, or null if Java is being used
+     * @param stem The initial String stem used to decide initially eligible items
+     * @param codeCompletionId The ID of the code completion, unique to this session.  Used to match with later ending event.
+     */
+    public static void codeCompletionStarted(ClassTarget ct, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem, int codeCompletionId)
     {
         if (dontSend()) return;
-        DataCollectorImpl.codeCompletionStarted(ct.getPackage().getProject(), ct.getPackage(), lineNumber, columnNumber, xpath, subIndex, stem);
+        DataCollectorImpl.codeCompletionStarted(ct.getPackage().getProject(), ct.getPackage(), lineNumber, columnNumber, xpath, subIndex, stem, codeCompletionId);
     }
 
-    public static void codeCompletionEnded(ClassTarget ct, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem, String replacement)
+    /**
+     * Record that code completion has ended.
+     *
+     * @param ct The class target in which code completion was ended.
+     * @param lineNumber The Java line number, or null if Stride is being used
+     * @param columnNumber The Java column number, or null if Stride is being used
+     * @param xpath The XPath to the Stride element, or null if Java is being used
+     * @param subIndex The sub-index within the Stride element, or null if Java is being used
+     * @param stem The current String stem at the point where the code completion was ended.
+     * @param replacement The replacement which was chosen from the code completion list.
+     * @param codeCompletionId The ID of the code completion, unique to this session.  Used to match with later ending event.
+     */
+    public static void codeCompletionEnded(ClassTarget ct, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem, String replacement, int codeCompletionId)
     {
         if (dontSend()) return;
-        DataCollectorImpl.codeCompletionEnded(ct.getPackage().getProject(), ct.getPackage(), lineNumber, columnNumber, xpath, subIndex, stem, replacement);
+        DataCollectorImpl.codeCompletionEnded(ct.getPackage().getProject(), ct.getPackage(), lineNumber, columnNumber, xpath, subIndex, stem, replacement, codeCompletionId);
     }
 
     public static void unknownFrameCommandKey(ClassTarget ct, String enclosingFrameXpath, int cursorIndex, char key)
     {
         if (dontSend()) return;
         DataCollectorImpl.unknownFrameCommandKey(ct.getPackage().getProject(), ct.getPackage(), enclosingFrameXpath, cursorIndex, key);
+    }
+
+    /**
+     * Records the Frame Catalogue's showing/hiding.
+     *
+     * @param project              The current project
+     * @param pkg                  The current package. May be <code>null</code>.
+     * @param enclosingFrameXpath  The path for the frame that include the focused cursor, if any. May be <code>null</code>.
+     * @param cursorIndex          The focused cursor's index (if any) within the enclosing frame.
+     * @param show                 true for showing and false for hiding
+     * @param reason               The user interaction which triggered the change.
+     */
+    public static void showHideFrameCatalogue(Project project, Package pkg, String enclosingFrameXpath, int cursorIndex,
+                                              boolean show, FrameCatalogue.ShowReason reason)
+    {
+        if (dontSend()) {
+            return;
+        }
+        DataCollectorImpl.showHideFrameCatalogue(project, pkg, enclosingFrameXpath, cursorIndex, show, reason);
+    }
+
+    /**
+     * Records a view mode change.
+     *
+     * @param pkg                  The current package. May be <code>null</code>.
+     * @param sourceFile           The Stride file that its view mode has changed.
+     * @param enclosingFrameXpath  The path for the frame that include the focused cursor, if any. May be <code>null</code>.
+     * @param cursorIndex          The focused cursor's index (if any) within the enclosing frame.
+     * @param oldView              The old view mode that been switch from.
+     * @param newView              The new view mode that been switch to.
+     * @param reason               The user interaction which triggered the change.
+     */
+    public static void viewModeChange(Package pkg, File sourceFile, String enclosingFrameXpath, int cursorIndex,
+                                      Frame.View oldView, Frame.View newView, Frame.ViewChangeReason reason)
+    {
+        if (dontSend()) {
+            return;
+        }
+        DataCollectorImpl.viewModeChange(pkg.getProject(), pkg, sourceFile, enclosingFrameXpath, cursorIndex, oldView, newView, reason);
     }
 
     public static boolean hasGivenUp()

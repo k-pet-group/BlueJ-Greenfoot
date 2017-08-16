@@ -774,7 +774,8 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
     @OnThread(Tag.FXPlatform)
     public void compiled()
     {
-        updateInheritedItems();
+        // The runAfterCurrent is added to solve BLUEJ-1040
+        JavaFXUtil.runAfterCurrent(() -> updateInheritedItems());
     }
 
     @Override

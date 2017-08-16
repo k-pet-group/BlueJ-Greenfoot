@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import bluej.compiler.Diagnostic.DiagnosticOrigin;
 import bluej.stride.framedjava.ast.ASTUtility;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.NameDefSlotFragment;
@@ -46,9 +47,18 @@ public class UndeclaredVariableLvalueError extends DirectSlotError
     private final List<Correction> corrections = new ArrayList<>();
     private final String varName;
 
+    /**
+     * Creates an error about an undeclared variable being used on the left-hand side of an assignment.
+     * The variable will occupy the entire left-hand side of an assignment frame, and will thus be
+     * a candidate for a quick fix which turns the assignment into a declaration+initialisation of that variable.
+     *
+     * @param slotFragment The fragment with the error.
+     * @param assignFrame The assignment frame with the error.
+     * @param possibleCorrections The possible other variable names (unfiltered: all variable names which are in scope)
+     */
     public UndeclaredVariableLvalueError(StringSlotFragment slotFragment, AssignFrame assignFrame, Set<String> possibleCorrections)
     {
-        super(slotFragment);
+        super(slotFragment, DiagnosticOrigin.STRIDE_LATE);
         this.assignFrame = assignFrame;
         this.corrections.addAll(Correction.winnowAndCreateCorrections(assignFrame.getLHS().getText(), possibleCorrections.stream().map(SimpleCorrectionInfo::new), s -> assignFrame.getLHS().setText(s)));
         this.varName = assignFrame.getLHS().getText();

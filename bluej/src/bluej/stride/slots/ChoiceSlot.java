@@ -199,7 +199,7 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
     public void showSuggestions(T curHighlight)
     {
         dropdown.set(new SuggestionList(editor, Utility.mapList(choices, t -> new SuggestionDetails(t.toString())), null, SuggestionList.SuggestionShown.RARE, i -> { i = i < 0 ? 0 : i; futureDisplay.setText(choices.get(i).toString()); }, new SuggestionListListener() {
-            public void suggestionListChoiceClicked(int highlighted)
+            public void suggestionListChoiceClicked(SuggestionList suggestionList, int highlighted)
             {
                 if (highlighted != -1)
                     setValue(choices.get(highlighted));
@@ -234,7 +234,7 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
             
 
             @Override
-            public Response suggestionListKeyPressed(KeyEvent event, int highlighted)
+            public Response suggestionListKeyPressed(SuggestionList suggestionList, KeyEvent event, int highlighted)
             {
                 switch (event.getCode())
                 {

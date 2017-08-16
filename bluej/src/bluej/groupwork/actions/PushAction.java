@@ -27,6 +27,7 @@ import bluej.groupwork.StatusHandle;
 import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
+import bluej.groupwork.ui.CommitAndPushFrame;
 import bluej.groupwork.ui.CommitAndPushInterface;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
@@ -47,31 +48,17 @@ import threadchecker.Tag;
 @OnThread(Tag.FXPlatform)
 public class PushAction extends TeamAction
 {
-    private CommitAndPushInterface commitCommentsFrame;
+    private CommitAndPushFrame commitCommentsFrame;
     private Set<File> filesToPush;
     private PushWorker worker;
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private StatusHandle statusHandle;
 
-    public PushAction(CommitAndPushInterface frame)
+    public PushAction(CommitAndPushFrame frame)
     {
         super(Config.getString("team.push"), false);
         commitCommentsFrame = frame;
         this.filesToPush = new HashSet<>();
-    }
-
-    /**
-     * Set the files which have to be pushed to remote repository.
-     * @param filesToPush set of files to push.
-     */
-    public void setFilesToPush(Set<File> filesToPush)
-    {
-        this.filesToPush = filesToPush;
-    }
-
-    public Set<File> getFilesToPush()
-    {
-        return this.filesToPush;
     }
 
     /**
@@ -105,6 +92,8 @@ public class PushAction extends TeamAction
             commitCommentsFrame.startProgress();
             commitCommentsFrame.displayMessage(Config.getString("team.push.statusMessage"));
             setEnabled(false);
+            this.filesToPush.clear();
+            filesToPush.addAll(commitCommentsFrame.getFilesToPush());
 
             //doCommit(project);
             worker = new PushAction.PushWorker(project);
@@ -173,7 +162,7 @@ public class PushAction extends TeamAction
                 commitCommentsFrame.stopProgress();
                 if (!result.isError()) {
                     if ( !result.wasAborted()) {
-                        DataCollector.teamCommitProject(project, statusHandle.getRepository(), filesToPush);
+                        DataCollector.teamPushProject(project, statusHandle.getRepository(), filesToPush);
                         commitCommentsFrame.displayMessage(Config.getString("team.push.statusDone"));
                     }
                 }

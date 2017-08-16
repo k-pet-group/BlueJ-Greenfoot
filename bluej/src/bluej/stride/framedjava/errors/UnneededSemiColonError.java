@@ -39,6 +39,12 @@ public class UnneededSemiColonError extends SyntaxCodeError
 {
     private final FXRunnable fix;
 
+    /**
+     * Creates an error about a semi-colon at the end of a slot, with a quick fix to remove it.
+     *
+     * @param slot The slot with the semi-colon
+     * @param fix An action which will remove the semi-colon
+     */
     @OnThread(Tag.Any)
     public UnneededSemiColonError(StringSlotFragment slot, FXRunnable fix)
     {

@@ -41,6 +41,7 @@ import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
 
 import bluej.Config;
+import bluej.compiler.Diagnostic.DiagnosticOrigin;
 
 /**
  * A compiler implementation using the Compiler API introduced in Java 6.
@@ -49,7 +50,7 @@ import bluej.Config;
  */
 public class CompilerAPICompiler extends Compiler
 {
-    private static AtomicInteger nextDiagnosticIdentifier = new AtomicInteger(1);
+    private static final AtomicInteger nextDiagnosticIdentifier = new AtomicInteger(1);
 
     public CompilerAPICompiler()
     {
@@ -73,7 +74,7 @@ public class CompilerAPICompiler extends Compiler
      */
     @Override
     public boolean compile(final File[] sources, final CompileObserver observer,
-            final boolean internal, List<String> userOptions, Charset fileCharset, CompileType type) 
+            final boolean internal, List<String> userOptions, Charset fileCharset, CompileType type)
     {
         boolean result = true;
         JavaCompiler jc = ToolProvider.getSystemJavaCompiler();
@@ -138,7 +139,7 @@ public class CompilerAPICompiler extends Compiler
                     else
                         bjDiagnostic = new bluej.compiler.Diagnostic(diagType,
                             message, src, diag.getLineNumber(), beginCol,
-                            diag.getLineNumber(), endCol, getNewErrorIdentifer());
+                            diag.getLineNumber(), endCol, DiagnosticOrigin.JAVAC, getNewErrorIdentifer());
                 }
                 else if (diag.getKind() == Diagnostic.Kind.WARNING) {
                     if (message.startsWith("bootstrap class path not set in conjunction with -source ")) {
@@ -160,7 +161,7 @@ public class CompilerAPICompiler extends Compiler
                     long endCol = diag.getEndPosition() - diag.getPosition() + beginCol;
                     bjDiagnostic = new bluej.compiler.Diagnostic(diagType,
                             message, src, diag.getLineNumber(), beginCol,
-                            diag.getLineNumber(), endCol, getNewErrorIdentifer());
+                            diag.getLineNumber(), endCol, DiagnosticOrigin.JAVAC, getNewErrorIdentifer());
                 }
                 else {
                     diagType = bluej.compiler.Diagnostic.NOTE;

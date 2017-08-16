@@ -49,13 +49,15 @@ public class LocalCompileObserverWrapper extends java.rmi.server.UnicastRemoteOb
     @Override
     public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type)
     {
-        observer.startCompile(sources, reason, type);
+        // Data recording not used with Greenfoot and we'll rewrite soon anyway, so -1 is fine:
+        observer.startCompile(sources, reason, type, -1);
     }
     
     @Override
     public void endCompile(CompileInputFile[] sources, boolean succesful, CompileType type)
     {
-        observer.endCompile(sources, succesful, type);
+        // Data recording not used with Greenfoot and we'll rewrite soon anyway, so -1 is fine:
+        observer.endCompile(sources, succesful, type, -1);
     }
     
     @Override

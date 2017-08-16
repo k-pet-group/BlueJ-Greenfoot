@@ -164,10 +164,13 @@ public interface Editor
     
     /**
      * Tells the editor that a compilation has begun
-     * 
+     *
+     * @param compilationSequence A sequence identifier for this compilation, for data recording purposes.
+     *                            This is to be passed to the DataCollector.compiled method for recording.
+     *                            It may be -1 if it is non-applicable or unknown.
      * @return True if there is a known error
      */
-    boolean compileStarted();
+    boolean compileStarted(int compilationSequence);
     
     /**
      * Informs the editor that a compilation requested via the EditorWatcher interface has finished.

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012,2013,2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,12 +32,15 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import bluej.Boot;
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileReason;
+import bluej.editor.stride.FrameCatalogue;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.target.ClassTarget.SourceFileInfo;
+import bluej.stride.generic.Frame;
 import org.apache.http.entity.mime.MultipartEntity;
 
 import threadchecker.OnThread;
@@ -162,6 +165,7 @@ public class DataCollectorImpl
             }
             
             @Override
+            @OnThread(Tag.Worker)
             public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
             {
                 MultipartEntity mpe = evt.makeData(sequenceNum, fileVersions);
@@ -194,27 +198,31 @@ public class DataCollectorImpl
         });
     }
 
-    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, CompileReason compileReason, SourceType inputType)
+    public static void compiled(Project proj, Package pkg, CompileInputFile[] sources, List<DiagnosticWithShown> diagnostics, boolean success, CompileReason compileReason, int compileSequence)
     {
         MultipartEntity mpe = new MultipartEntity();
         
         mpe.addPart("event[compile_success]", CollectUtility.toBody(success));
         mpe.addPart("event[compile_reason]", CollectUtility.toBody(compileReason.getServerString()));
+        if (compileSequence != -1)
+        {
+            mpe.addPart("event[compile_sequence]", CollectUtility.toBody(compileSequence));
+        }
         
         ProjectDetails projDetails = new ProjectDetails(proj);
         for (CompileInputFile src : sources)
         {
-            mpe.addPart("event[compile_input][][source_file_name]", CollectUtility.toBody(CollectUtility.toPath(projDetails, inputType == SourceType.Stride ? src.getUserSourceFile() : src.getJavaCompileInputFile())));
+            mpe.addPart("event[compile_input][][source_file_name]", CollectUtility.toBody(CollectUtility.toPath(projDetails, src.getUserSourceFile())));
         }        
         
         for (DiagnosticWithShown dws : diagnostics)
         {
             final Diagnostic d = dws.getDiagnostic();
-            
+
             mpe.addPart("event[compile_output][][is_error]", CollectUtility.toBody(d.getType() == Diagnostic.ERROR));
-            mpe.addPart("event[compile_output][][shown]", CollectUtility.toBody(dws.wasShownToUser()));
             mpe.addPart("event[compile_output][][message]", CollectUtility.toBody(d.getMessage()));
             mpe.addPart("event[compile_output][][session_sequence]", CollectUtility.toBody(d.getIdentifier()));
+            mpe.addPart("event[compile_output][][origin]", CollectUtility.toBody(d.getOrigin()));
             if (d.getFileName() != null)
             {
                 if (d.getStartLine() >= 1)
@@ -234,7 +242,7 @@ public class DataCollectorImpl
                         mpe.addPart("event[compile_output][][xml_end]", CollectUtility.toBody(d.getXmlEnd()));
                 }
                 // Must make file name relative for anonymisation:
-                String relative = CollectUtility.toPath(projDetails, inputType == SourceType.Stride ? dws.getUserFileName() : new File(dws.getDiagnostic().getFileName()));
+                String relative = CollectUtility.toPath(projDetails, dws.getUserFileName());
                 mpe.addPart("event[compile_output][][source_file_name]", CollectUtility.toBody(relative));
             }
         }
@@ -282,15 +290,35 @@ public class DataCollectorImpl
     {
         submitEventNoData(proj, null, EventName.PROJECT_CLOSING);
     }
-    
+
+    /**
+     * Records the EventName.PACKAGE_OPENING event for the given package, including sending relevant source histories.
+     */
     public static void packageOpened(Package pkg)
     {
-        addCompleteFiles(pkg, EventName.PACKAGE_OPENING, pkg.getClassTargets());
+        addCompleteFiles(pkg, EventName.PACKAGE_OPENING, pkg.getClassTargets(), null);
     }
 
-    private static void addCompleteFiles(Package pkg, EventName eventName, List<ClassTarget> classTargets)
+    /**
+     * Sends an event with a set of complete files.
+     *
+     * @param pkg The package that the set of files all belong to.
+     * @param eventName The event name to send with the event
+     * @param classTargets The class targets of the files to send.
+     *                     If there are Stride files, both Stride and Java
+     *                     will be sent.
+     * @param extra The extra action to run on the event before sending,
+     *              e.g. add an extra field to send.  May be null (meaning no
+     *              extra action to run).
+     */
+    private static void addCompleteFiles(Package pkg, EventName eventName, List<ClassTarget> classTargets, Consumer<MultipartEntity> extra)
     {
         final MultipartEntity mpe = new MultipartEntity();
+
+        if (extra != null)
+        {
+            extra.accept(mpe);
+        }
 
         final ProjectDetails proj = new ProjectDetails(pkg.getProject());
 
@@ -315,11 +343,12 @@ public class DataCollectorImpl
                 }
                 String anonymisedContent = CollectUtility.readFileAndAnonymise(proj, fileInfo.file);
 
+                String generatedFrom = null;
+
                 // If this is the Java file and there was a Stride file, note the relation:
                 if (fileInfo.sourceType == SourceType.Java && ct.getSourceType() == SourceType.Stride)
                 {
-                    String relativeStride = CollectUtility.toPath(proj, ct.getSourceFile());
-                    mpe.addPart("project[source_files][][generated_from]", CollectUtility.toBody(relativeStride));
+                    generatedFrom = CollectUtility.toPath(proj, ct.getSourceFile());
                     // Java file won't have been saved yet, but that's ok, just treat it as
                     // empty but existing for now:
                     if (anonymisedContent == null)
@@ -328,9 +357,7 @@ public class DataCollectorImpl
 
                 if (anonymisedContent != null)
                 {
-                    mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("complete"));
-                    mpe.addPart("source_histories[][name]", CollectUtility.toBody(relative));
-                    mpe.addPart("source_histories[][content]", CollectUtility.toBody(anonymisedContent));
+                    addSourceHistoryItem(mpe, relative, "complete", anonymisedContent, generatedFrom);
                     versions.put(new FileKey(proj, relative), Arrays.asList(Utility.splitLines(anonymisedContent)));
                 }
             }
@@ -345,6 +372,7 @@ public class DataCollectorImpl
             }
 
             @Override
+            @OnThread(Tag.Worker)
             public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
             {
                 return mpe;
@@ -352,9 +380,36 @@ public class DataCollectorImpl
         });
     }
 
+    /**
+     * Adds a source history item to the MPE
+     * @param mpe The MPE we're sending to the server
+     * @param relativeName The name of the file (relative to project root)
+     * @param anonymisedContent The anonymised content of the file or diff.  May null for some types (e.g. file deletion)
+     * @param generatedFrom The Stride file this Java file was generated from.  May be null if this is a Stride file, or a Java file that has no Stride.
+     */
+    @OnThread(Tag.Any)
+    private static void addSourceHistoryItem(MultipartEntity mpe, String relativeName, String type, String anonymisedContent, String generatedFrom)
+    {
+        mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody(type));
+        mpe.addPart("source_histories[][name]", CollectUtility.toBody(relativeName));
+        if (generatedFrom != null)
+        {
+            mpe.addPart("source_histories[][generated_from]", CollectUtility.toBody(generatedFrom));
+        }
+        if (anonymisedContent != null)
+        {
+            mpe.addPart("source_histories[][content]", CollectUtility.toBody(anonymisedContent));
+        }
+    }
+
+    /**
+     * Records the EventName.PACKAGE_CLOSING event for the given package, including sending relevant source histories.
+     */
     public static void packageClosed(Package pkg)
     {
-        submitEventNoData(pkg.getProject(), pkg, EventName.PACKAGE_CLOSING);
+        addCompleteFiles(pkg, EventName.PACKAGE_CLOSING, pkg.getClassTargets(), mpe -> {
+            mpe.addPart("event[has_hash]", CollectUtility.toBody(true));
+        });
     }
 
     public static void bluejClosed()
@@ -371,17 +426,50 @@ public class DataCollectorImpl
         submitEventNoData(project, null, EventName.RESETTING_VM);        
     }
 
-    public static void edit(final Package pkg, final File path, final String source, final boolean includeOneLineEdits, StrideEditReason reason)
+    static class EditedFileInfo
+    {
+        // e.g. "diff" or "diff_generated"
+        private final String editType;
+        // Path to the relevant file
+        private final File path;
+        // The complete original (unanonymised) source
+        private final String source;
+        // Should we send the edit if it's only one line?
+        private final boolean includeOneLineEdits;
+        // The file which this one was generated from (or null if N/A)
+        private final File generatedFrom;
+        // The reason for the Stride edit being generated (null if unknown or N/A)
+        private final StrideEditReason strideEditReason;
+        // These get set after constructor:
+        private FileKey fileKey;
+        private List<String> anonSource;
+        // Keep track of whether we actually sent the edit or not:
+        public boolean dontSend = false;
+
+        EditedFileInfo(String editType, File path, String source, boolean includeOneLineEdits, File generatedFrom, StrideEditReason strideEditReason)
+        {
+            this.editType = editType;
+            this.path = path;
+            this.source = source;
+            this.includeOneLineEdits = includeOneLineEdits;
+            this.generatedFrom = generatedFrom;
+            this.strideEditReason = strideEditReason;
+        }
+    }
+
+
+    static void edit(final Package pkg, List<EditedFileInfo> editedFiles)
     {
         final Project proj = pkg.getProject();
         final ProjectDetails projDetails = new ProjectDetails(proj);
-        final FileKey key = new FileKey(projDetails, CollectUtility.toPath(projDetails, path));
-        final String anonSource = CodeAnonymiser.anonymise(source);
-        final List<String> anonDoc = Arrays.asList(Utility.splitLines(anonSource));
+        // Generate FileKeys and anonymous source for all the files:
+        for (EditedFileInfo editedFile : editedFiles)
+        {
+            editedFile.fileKey = new FileKey(projDetails, CollectUtility.toPath(projDetails, editedFile.path));
+            editedFile.anonSource = Arrays.asList(Utility.splitLines(CodeAnonymiser.anonymise(editedFile.source)));
+        }
                 
         submitEvent(proj, pkg, EventName.EDIT, new Event() {
-
-            private boolean dontReplace = false;
             
             //Edit solely within one line
             private boolean isOneLineDiff(Patch patch)
@@ -393,42 +481,55 @@ public class DataCollectorImpl
             }
             
             @Override
+            @OnThread(Tag.Worker)
             public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
             {
-                List<String> previousDoc = fileVersions.get(key);
-                if (previousDoc == null)
-                    previousDoc = new ArrayList<String>(); // Diff against empty file
-                
                 MultipartEntity mpe = new MultipartEntity();
-                
-                Patch patch = DiffUtils.diff(previousDoc, anonDoc);
-                
-                if (patch.getDeltas().isEmpty() || (isOneLineDiff(patch) && !includeOneLineEdits))
+                for (EditedFileInfo editedFile : editedFiles)
                 {
-                    dontReplace = true;
+
+                    List<String> previousDoc = fileVersions.get(editedFile.fileKey);
+                    if (previousDoc == null)
+                        previousDoc = new ArrayList<String>(); // Diff against empty file
+
+
+                    Patch patch = DiffUtils.diff(previousDoc, editedFile.anonSource);
+
+                    if (patch.getDeltas().isEmpty() || (isOneLineDiff(patch) && !editedFile.includeOneLineEdits))
+                    {
+                        editedFile.dontSend = true;
+                        continue;
+                    }
+
+                    String diff = makeDiff(patch);
+
+                    addSourceHistoryItem(mpe, CollectUtility.toPath(projDetails, editedFile.path), editedFile.editType, diff, editedFile.generatedFrom == null ? null : CollectUtility.toPath(projDetails, editedFile.generatedFrom));
+
+                    if (editedFile.strideEditReason != null && editedFile.strideEditReason.getText() != null)
+                    {
+                        mpe.addPart("source_histories[][reason]", CollectUtility.toBody(editedFile.strideEditReason.getText()));
+                    }
+                }
+                // If no files to send, cancel sending the whole edit event:
+                if (editedFiles.stream().allMatch(f -> f.dontSend))
+                {
                     return null;
                 }
-                
-                String diff = makeDiff(patch);
-                
-                mpe.addPart("source_histories[][content]", CollectUtility.toBody(diff));
-                mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("diff"));
-                mpe.addPart("source_histories[][name]", CollectUtility.toBody(CollectUtility.toPath(projDetails, path)));
-
-                if (reason != null && reason.getText() != null)
+                else
                 {
-                    mpe.addPart("source_histories[][reason]", CollectUtility.toBody(reason.getText()));
+                    return mpe;
                 }
-                
-                return mpe;
             }
 
             @Override
             public void success(Map<FileKey, List<String>> fileVersions)
             {
-                if (!dontReplace)
+                for (EditedFileInfo editedFile : editedFiles)
                 {
-                    fileVersions.put(key, anonDoc);
+                    if (!editedFile.dontSend)
+                    {
+                        fileVersions.put(editedFile.fileKey, editedFile.anonSource);
+                    }
                 }
             }
         });
@@ -551,79 +652,191 @@ public class DataCollectorImpl
         submitEvent(pkg.getProject(), pkg, EventName.CODEPAD, new PlainEvent(mpe));
     }
 
-
-    public static void renamedClass(Package pkg, final File oldSourceFile, final File newSourceFile)
+    /**
+     * Records renaming a class (Java, or Stride and its generated Java).
+     *
+     * @param pkg                The package in which the files live.
+     * @param oldFrameSourceFile The original Stride source file that has been deleted,
+     *                           or <code>null</code> in case the source type is Java.
+     * @param newFrameSourceFile The new created Stride source file, or <code>null</code> in case the source type is Java.
+     * @param oldJavaSourceFile  The original Java source file that has been deleted.
+     * @param newJavaSourceFile  The new created Java source file.
+     */
+    public static void renamedClass(Package pkg, final File oldFrameSourceFile, final File newFrameSourceFile,
+                                    final File oldJavaSourceFile, final File newJavaSourceFile)
     {
+        final String eventType = "rename";
         final ProjectDetails projDetails = new ProjectDetails(pkg.getProject());
+
+        final boolean isFrameFile = newFrameSourceFile != null;
+        final String oldFrameFilePath = isFrameFile ? CollectUtility.toPath(projDetails, oldFrameSourceFile) : null;
+        final String newFrameFilePath = isFrameFile ? CollectUtility.toPath(projDetails, newFrameSourceFile) : null;
+
+        final String oldJavaFilePath = CollectUtility.toPath(projDetails, oldJavaSourceFile);
+        final String newJavaFilePath = CollectUtility.toPath(projDetails, newJavaSourceFile);
+
         MultipartEntity mpe = new MultipartEntity();
-        mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("rename"));
-        mpe.addPart("source_histories[][content]", CollectUtility.toBodyLocal(projDetails, oldSourceFile));
-        mpe.addPart("source_histories[][name]", CollectUtility.toBodyLocal(projDetails, newSourceFile));
+        if (isFrameFile) {
+            addSourceHistoryItem(mpe, newFrameFilePath, eventType, oldFrameFilePath, null);
+        }
+        addSourceHistoryItem(mpe, newJavaFilePath, eventType, oldJavaFilePath, newFrameFilePath);
+
         submitEvent(pkg.getProject(), pkg, EventName.RENAME, new PlainEvent(mpe) {
 
             @Override
-            public MultipartEntity makeData(int sequenceNum,
-                    Map<FileKey, List<String>> fileVersions)
+            @OnThread(Tag.Worker)
+            public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
             {
-                // We need to change the fileVersions hash to move the content across from the old file
-                // to the new file:
-                FileKey oldKey = new FileKey(projDetails, CollectUtility.toPath(projDetails, oldSourceFile));
-                FileKey newKey = new FileKey(projDetails, CollectUtility.toPath(projDetails, newSourceFile));
-                fileVersions.put(newKey, fileVersions.get(oldKey));
-                fileVersions.remove(oldKey);
+                // We need to change the fileVersions hash to move the content across
+                // from the old file to the new file:
+                if (isFrameFile) {
+                    FileKey oldFrameKey = new FileKey(projDetails, oldFrameFilePath);
+                    FileKey newFrameKey = new FileKey(projDetails, newFrameFilePath);
+                    fileVersions.put(newFrameKey, fileVersions.get(oldFrameKey));
+                    fileVersions.remove(oldFrameKey);
+                }
+
+                FileKey oldJavaKey  = new FileKey(projDetails, oldJavaFilePath);
+                FileKey newJavaKey  = new FileKey(projDetails, newJavaFilePath);
+                fileVersions.put(newJavaKey, fileVersions.get(oldJavaKey));
+                fileVersions.remove(oldJavaKey);
+
                 return super.makeData(sequenceNum, fileVersions);
             }
             
         });
     }
 
-    public static void removeClass(Package pkg, final File sourceFile)
+    /**
+     * Records removing class files (Java, or Stride and its generated Java).
+     *
+     * @param pkg              The package in which the files live.
+     * @param frameSourceFile  The Stride source file, or <code>null</code> in case the source type is Java.
+     * @param javaSourceFile   The Java source file.
+     */
+    public static void removeClass(Package pkg, File frameSourceFile, File javaSourceFile)
     {
+        final String eventType = "file_delete";
         final ProjectDetails projDetails = new ProjectDetails(pkg.getProject());
+
+        final boolean isStrideFile = frameSourceFile != null;
+        final String strideFilePath = isStrideFile ? CollectUtility.toPath(projDetails, frameSourceFile) : null;
+        final String javaFilePath = CollectUtility.toPath(projDetails, javaSourceFile);
+
         MultipartEntity mpe = new MultipartEntity();
-        mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("file_delete"));
-        mpe.addPart("source_histories[][name]", CollectUtility.toBodyLocal(projDetails, sourceFile));
+        if (isStrideFile) {
+            addSourceHistoryItem(mpe, strideFilePath, eventType, null, null);
+        }
+        addSourceHistoryItem(mpe, javaFilePath, eventType, null, strideFilePath);
+
         submitEvent(pkg.getProject(), pkg, EventName.DELETE, new PlainEvent(mpe) {
 
             @Override
+            @OnThread(Tag.Worker)
             public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
             {
                 // We should remove the old source from the fileVersions hash:
-                fileVersions.remove(new FileKey(projDetails, CollectUtility.toPath(projDetails, sourceFile)));
+                if (isStrideFile) {
+                    fileVersions.remove(new FileKey(projDetails, strideFilePath));
+                }
+                fileVersions.remove(new FileKey(projDetails, javaFilePath));
                 return super.makeData(sequenceNum, fileVersions);
             }
 
         });
     }
 
-    public static void convertStrideToJava(Package pkg, File oldSourceFile, File newSourceFile)
+    /**
+     * Send a conversion event (Stride to Java, or Java to Stride) to the server.
+     * @param pkg The package that the files live in
+     * @param javaSourceFile The Java file involved in the conversion (may be source or destination depending on conversino direction)
+     * @param strideSourceFile The Stride file involved in the conversion (ditto: may be source or destination)
+     * @param strideToJava If true, conversion is Stride->Java.  If false, conversion is Java->Stride.
+     */
+    static void conversion(Package pkg, File javaSourceFile, File strideSourceFile, boolean strideToJava)
     {
         final ProjectDetails projDetails = new ProjectDetails(pkg.getProject());
         MultipartEntity mpe = new MultipartEntity();
-        mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody("stride_to_java"));
-        mpe.addPart("source_histories[][content]", CollectUtility.toBodyLocal(projDetails, oldSourceFile));
-        mpe.addPart("source_histories[][name]", CollectUtility.toBodyLocal(projDetails, newSourceFile));
-        final String contents = CollectUtility.readFileAndAnonymise(projDetails, newSourceFile);
-        mpe.addPart("source_histories[][converted]", CollectUtility.toBody(contents));
-        submitEvent(pkg.getProject(), pkg, EventName.CONVERT_TO_JAVA, new PlainEvent(mpe) {
+        // The Java file will always be a diff against previous content, because no matter which direction
+        // the conversion is in, the Java file will exist before and after.
+        // The Stride file will either be deleted (Stride->Java), or added and thus complete (Java->Stride).
+
+        // First deal with Stride file:
+        String anonStride;
+        if (strideToJava)
+        {
+            addSourceHistoryItem(mpe, CollectUtility.toPath(projDetails, strideSourceFile), "file_delete", null, null);
+            anonStride = null;
+        }
+        else
+        {
+            anonStride = CollectUtility.readFileAndAnonymise(projDetails, strideSourceFile);
+            addSourceHistoryItem(mpe, CollectUtility.toPath(projDetails, strideSourceFile),  "java_to_stride",
+                    anonStride, null);
+            mpe.addPart("source_histories[][converted_from]", CollectUtility.toBodyLocal(projDetails, javaSourceFile));
+        }
+
+
+        // Then deal with the Java file:
+        mpe.addPart("source_histories[][source_history_type]", CollectUtility.toBody(strideToJava ? "stride_to_java" : "diff_generated"));
+        mpe.addPart("source_histories[][name]", CollectUtility.toBodyLocal(projDetails, javaSourceFile));
+        final List<String> anonJava = Arrays.asList(Utility.splitLines(CollectUtility.readFileAndAnonymise(projDetails, javaSourceFile)));
+        // We do not put the content in yet, that's done below because it's a diff...
+
+        if (strideToJava)
+        {
+            mpe.addPart("source_histories[][converted_from]", CollectUtility.toBodyLocal(projDetails, strideSourceFile));
+        }
+        else
+        {
+            // We converted Java to Stride, so now the Java file is generated from the Stride:
+            mpe.addPart("source_histories[][generated_from]", CollectUtility.toBodyLocal(projDetails, strideSourceFile));
+        }
+
+        final FileKey strideFileKey = new FileKey(projDetails, CollectUtility.toPath(projDetails, strideSourceFile));
+        final FileKey javaFileKey = new FileKey(projDetails, CollectUtility.toPath(projDetails, javaSourceFile));
+
+        submitEvent(pkg.getProject(), pkg, strideToJava ? EventName.CONVERT_STRIDE_TO_JAVA : EventName.CONVERT_JAVA_TO_STRIDE, new PlainEvent(mpe) {
 
             @Override
+            @OnThread(Tag.Worker)
             public MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String>> fileVersions)
             {
-                // We need to change the fileVersions hash to remove the old content and add new content:
-                FileKey oldKey = new FileKey(projDetails, CollectUtility.toPath(projDetails, oldSourceFile));
-                FileKey newKey = new FileKey(projDetails, CollectUtility.toPath(projDetails, newSourceFile));
-                fileVersions.put(newKey, Arrays.asList(Utility.splitLines(contents)));
-                fileVersions.remove(oldKey);
+                List<String> previousDoc = fileVersions.get(javaFileKey);
+                if (previousDoc == null)
+                    previousDoc = new ArrayList<String>(); // Diff against empty file
+
+                MultipartEntity mpe = new MultipartEntity();
+
+                Patch patch = DiffUtils.diff(previousDoc, anonJava);
+                String diff = makeDiff(patch);
+                mpe.addPart("source_histories[][content]", CollectUtility.toBody(diff));
+
+                // We need to change the fileVersions hash to remove/add Stride and alter Java:
+                fileVersions.put(javaFileKey, anonJava);
+                if (strideToJava)
+                {
+                    fileVersions.remove(strideFileKey);
+                }
+                else
+                {
+                    fileVersions.put(strideFileKey, Arrays.asList(Utility.splitLines(anonStride)));
+                }
 
                 return super.makeData(sequenceNum, fileVersions);
             }
         });
     }
 
+    /**
+     * Records the EventName.ADD event, indicating that the given class was added.
+     * @param pkg The package containing the class.
+     * @param ct The class involved.  Relevant source history (i.e. complete file) will be
+     *           sent, either just .java (for Java classes) or .stride and .java (for Stride classes)
+     */
     public static void addClass(Package pkg, ClassTarget ct)
     {
-        addCompleteFiles(pkg, EventName.ADD, Collections.singletonList(ct));
+        addCompleteFiles(pkg, EventName.ADD, Collections.singletonList(ct), null);
     }
 
     public static void openClass(Package pkg, File sourceFile)
@@ -652,6 +865,23 @@ public class DataCollectorImpl
     public static void teamShareProject(Project project, Repository repo)
     {
         submitEvent(project, null, EventName.VCS_SHARE, new PlainEvent(DataCollectorImpl.getRepoMPE(repo)));    
+    }
+
+    /**
+     * Records a VCS push event
+     * @param project The project which is in VCS
+     * @param repo The repository object for VCS
+     * @param pushedFiles The files involved in the push
+     */
+    public static void teamPushProject(Project project, Repository repo, Collection<File> pushedFiles)
+    {
+        final ProjectDetails projDetails = new ProjectDetails(project);
+        MultipartEntity mpe = DataCollectorImpl.getRepoMPE(repo);
+        for (File f : pushedFiles)
+        {
+            mpe.addPart("vcs_files[][file]", CollectUtility.toBodyLocal(projDetails, f));
+        }
+        submitEvent(project, null, EventName.VCS_PUSH, new PlainEvent(mpe));
     }
     
     public static void teamCommitProject(Project project, Repository repo, Collection<File> committedFiles)
@@ -940,10 +1170,19 @@ public class DataCollectorImpl
         return mpe;
     }
 
-    public static void showErrorIndicator(Package pkg, int errorIdentifier)
+    public static void showErrorIndicators(Package pkg, Collection<Integer> errorIdentifiers)
     {
         MultipartEntity mpe = new MultipartEntity();
-        mpe.addPart("event[error_sequence]", CollectUtility.toBody(errorIdentifier));
+        // Sanity check -- don't send event if there's no sequences to send:
+        if (errorIdentifiers.isEmpty())
+        {
+            return;
+        }
+
+        for (Integer errorIdentifier : errorIdentifiers)
+        {
+            mpe.addPart("event[error_sequences][]", CollectUtility.toBody(errorIdentifier));
+        }
         submitEvent(pkg.getProject(), pkg, EventName.SHOWN_ERROR_INDICATOR, new PlainEvent(mpe));
     }
 
@@ -997,18 +1236,22 @@ public class DataCollectorImpl
             submitEvent(project, pkg, event, new PlainEvent(mpe));
     }
 
-    public static void codeCompletionStarted(Project project, Package pkg, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem)
+    public static void codeCompletionStarted(Project project, Package pkg, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem, int codeCompletionId)
     {
         MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[code_completion][trigger]", CollectUtility.toBody("start"));
+        mpe.addPart("event[code_completion][completion_sequence]", CollectUtility.toBody(codeCompletionId));
         addCodeCompletionLocation(mpe, lineNumber, columnNumber, xpath, subIndex);
         if (stem != null)
             mpe.addPart("event[code_completion][stem]", CollectUtility.toBody(stem));
         submitEvent(project, pkg, EventName.CODE_COMPLETION_STARTED, new PlainEvent(mpe));
     }
 
-    public static void codeCompletionEnded(Project project, Package pkg, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem, String replacement)
+    public static void codeCompletionEnded(Project project, Package pkg, Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem, String replacement, int codeCompletionId)
     {
         MultipartEntity mpe = new MultipartEntity();
+        mpe.addPart("event[code_completion][trigger]", CollectUtility.toBody("selected"));
+        mpe.addPart("event[code_completion][completion_sequence]", CollectUtility.toBody(codeCompletionId));
         addCodeCompletionLocation(mpe, lineNumber, columnNumber, xpath, subIndex);
         if (stem != null)
             mpe.addPart("event[code_completion][stem]", CollectUtility.toBody(stem));
@@ -1029,7 +1272,6 @@ public class DataCollectorImpl
             mpe.addPart("event[code_completion][xml_index]", CollectUtility.toBody(subIndex));
     }
 
-
     public static void unknownFrameCommandKey(Project project, Package pkg, String enclosingFrameXpath, int cursorIndex, char key)
     {
         MultipartEntity mpe = new MultipartEntity();
@@ -1040,5 +1282,57 @@ public class DataCollectorImpl
         }
         mpe.addPart("event[unknown_frame_command][command]", CollectUtility.toBody(Character.toString(key)));
         submitEvent(project, pkg, EventName.UNKNOWN_FRAME_COMMAND, new PlainEvent(mpe));
+    }
+
+    /**
+     * Records the Frame Catalogue's showing/hiding.
+     *
+     * @param project              the current project
+     * @param pkg                  the current package
+     * @param enclosingFrameXpath  the path for the frame that include the focused cursor, if any.
+     * @param cursorIndex          the focused cursor's index (if any) within the enclosing frame.
+     * @param show                 true for showing and false for hiding
+     * @param reason               the user interaction which triggered the change.
+     */
+    public static void showHideFrameCatalogue(Project project, Package pkg, String enclosingFrameXpath,
+                                              int cursorIndex, boolean show, FrameCatalogue.ShowReason reason)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        if (enclosingFrameXpath != null)
+        {
+            mpe.addPart("event[frame_catalogue_showing][enclosing_xpath]", CollectUtility.toBody(enclosingFrameXpath));
+            mpe.addPart("event[frame_catalogue_showing][enclosing_index]", CollectUtility.toBody(cursorIndex));
+        }
+        mpe.addPart("event[frame_catalogue_showing][show]", CollectUtility.toBody(show));
+        mpe.addPart("event[frame_catalogue_showing][reason]", CollectUtility.toBody(reason.getText()));
+        submitEvent(project, pkg, EventName.FRAME_CATALOGUE_SHOWING, new PlainEvent(mpe));
+    }
+
+    /**
+     * Records a view mode change.
+     *
+     * @param project              The current project
+     * @param pkg                  The current package. May be <code>null</code>.
+     * @param sourceFile           The Stride file that its view mode has changed.
+     * @param enclosingFrameXpath  The path for the frame that include the focused cursor, if any. May be <code>null</code>.
+     * @param cursorIndex          The focused cursor's index (if any) within the enclosing frame.
+     * @param oldView              The old view mode that been switch from.
+     * @param newView              The new view mode that been switch to.
+     * @param reason               The user interaction which triggered the change.
+     */
+    public static void viewModeChange(Project project, Package pkg, File sourceFile, String enclosingFrameXpath,
+                                      int cursorIndex, Frame.View oldView, Frame.View newView, Frame.ViewChangeReason reason)
+    {
+        MultipartEntity mpe = new MultipartEntity();
+        final ProjectDetails projDetails = new ProjectDetails(pkg.getProject());
+        mpe.addPart("event[view_mode_change][source_file_name]", CollectUtility.toBodyLocal(projDetails, sourceFile));
+        if (enclosingFrameXpath != null) {
+            mpe.addPart("event[view_mode_change][enclosing_xpath]", CollectUtility.toBody(enclosingFrameXpath));
+            mpe.addPart("event[view_mode_change][enclosing_index]", CollectUtility.toBody(cursorIndex));
+        }
+        mpe.addPart("event[view_mode_change][old_view]", CollectUtility.toBody(oldView.getText()));
+        mpe.addPart("event[view_mode_change][new_view]", CollectUtility.toBody(newView.getText()));
+        mpe.addPart("event[view_mode_change][reason]", CollectUtility.toBody(reason.getText()));
+        submitEvent(project, pkg, EventName.VIEW_MODE_CHANGE, new PlainEvent(mpe));
     }
 }

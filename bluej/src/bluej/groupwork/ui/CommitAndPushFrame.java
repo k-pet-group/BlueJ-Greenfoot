@@ -211,6 +211,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void setVisible(boolean show)
     {
         if (show) {
@@ -350,6 +351,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public Project getProject()
     {
         return project;
@@ -360,6 +362,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         includeLayout.setDisable(!hasChanged);
     }
 
+    @OnThread(Tag.FXPlatform)
     public void displayMessage(String msg)
     {
         progressBar.setMessage(msg);
@@ -373,6 +376,14 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
             return null;
         else
             return scene.getWindow();
+    }
+
+    /**
+     * Gets the list of files that would be pushed by a push.
+     */
+    public List<File> getFilesToPush()
+    {
+        return Utility.mapList(pushListModel, s -> s.getFile());
     }
 
     class CommitAndPushWorker extends FXWorker implements StatusListener

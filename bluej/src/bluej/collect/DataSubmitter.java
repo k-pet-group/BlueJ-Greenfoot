@@ -47,6 +47,8 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * This class that handles submitting compilation data to the remote server.
@@ -58,8 +60,9 @@ import org.apache.http.util.EntityUtils;
  */
 class DataSubmitter
 {
-    private static final String submitUrl = "http://blackbox.bluej.org/master_events";
-        //For testing: "http://localhost:3000/master_events";
+    private static final String submitUrl = //"http://blackbox.bluej.org/master_events";
+        //For testing:
+        "http://localhost:3000/master_events";
 
     
     private static AtomicBoolean givenUp = new AtomicBoolean(false);
@@ -98,6 +101,7 @@ class DataSubmitter
             
             if (! isRunning) {
                 new Thread() {
+                    @OnThread(value = Tag.Worker, ignoreParent = true)
                     public void run()
                     {
                         processQueue();
@@ -111,6 +115,7 @@ class DataSubmitter
     /**
      * Process the queue of items to be posted to the server.
      */
+    @OnThread(Tag.Worker)
     private static void processQueue()
     {
         while (true) {
@@ -155,6 +160,7 @@ class DataSubmitter
      * 
      * Returns false if there was an error.
      */
+    @OnThread(Tag.Worker)
     private static boolean postData(Event evt)
     {   
         HttpParams params = new BasicHttpParams();

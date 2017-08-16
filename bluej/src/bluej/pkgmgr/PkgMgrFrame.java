@@ -1115,8 +1115,6 @@ public class PkgMgrFrame
 
             aPkg.getProject().scheduleCompilation(true, CompileReason.LOADED, Config.isGreenfoot() ? CompileType.INDIRECT_USER_COMPILE : CompileType.ERROR_CHECK_ONLY, aPkg);
         }
-        
-        DataCollector.packageOpened(aPkg);
 
         extMgr.packageOpened(aPkg);
     }

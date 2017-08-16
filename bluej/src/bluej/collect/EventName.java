@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 2012,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,7 +37,8 @@ enum EventName
 
     ADD("file_add"),
     DELETE("file_delete"),
-    CONVERT_TO_JAVA("stride_converted_to_java"),
+    CONVERT_STRIDE_TO_JAVA("convert_stride_to_java"),
+    CONVERT_JAVA_TO_STRIDE("convert_java_to_stride"),
     RENAME("rename"),
     EDIT("edit"),
     COMPILE("compile"),
@@ -50,6 +51,8 @@ enum EventName
     FIX_EXECUTED("fix_executed"),
 
     UNKNOWN_FRAME_COMMAND("unknown_frame_command"),
+    FRAME_CATALOGUE_SHOWING("frame_catalogue_showing"),
+    VIEW_MODE_CHANGE("view_mode_change"),
 
     CODE_COMPLETION_STARTED("code_completion_started"),
     CODE_COMPLETION_ENDED("code_completion_ended"),
@@ -96,6 +99,7 @@ enum EventName
     
     VCS_COMMIT("vcs_commit"),
     VCS_HISTORY("vcs_history"),
+    VCS_PUSH("vcs_push"),
     VCS_SHARE("vcs_share"),
     VCS_STATUS("vcs_status"),
     VCS_UPDATE("vcs_update"),

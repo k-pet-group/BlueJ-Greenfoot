@@ -37,7 +37,6 @@ import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
 import bluej.editor.TextEditor;
 import bluej.editor.moe.MoeSyntaxDocument;
-import bluej.extensions.SourceType;
 import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.CodeSuggestions;
@@ -180,6 +179,12 @@ public class FrameEditor implements Editor
      */
     @OnThread(Tag.FXPlatform)
     private boolean foundLateErrorsForMostRecentCompile;
+    /**
+     * Paired with foundLateErrorsForMostRecentCompile, this is the identifier
+     * for the most recent compile for data recording purposes, to allow the late
+     * errors to be associated with the most recent compile which triggered them.
+     */
+    private int mostRecentCompileIdentifier = -1;
 
     @OnThread(Tag.Any)
     public synchronized List<Integer> getBreakpoints()
@@ -246,7 +251,8 @@ public class FrameEditor implements Editor
                 // runLater so that the panel will have been added:
                 JavaFXUtil.runPlatformLater(() -> {
                     _saveFX();
-                    findLateErrors();
+                    // No relevant other compilation, so use -1 as identifier:
+                    findLateErrors(-1);
                 });
 
             }
@@ -286,7 +292,7 @@ public class FrameEditor implements Editor
         
         setSaved();
         if (watcher != null)
-            watcher.recordEdit(SourceType.Stride, result.savedSource, true);
+            watcher.recordStrideEdit(result.javaResult.javaSourceStringContent, result.savedSource, null);
         if (result.javaResult != null)
             this.lastSavedJavaSwing = result.javaResult;
     }
@@ -385,11 +391,13 @@ public class FrameEditor implements Editor
     private class SaveJavaResult
     {
         private final JavaSource javaSource;
+        private final String javaSourceStringContent;
         private final LocationMap xpathLocations;
 
-        public SaveJavaResult(JavaSource javaSource, LocationMap xpathLocations)
+        public SaveJavaResult(JavaSource javaSource, String javaSourceStringContent, LocationMap xpathLocations)
         {
             this.javaSource = javaSource;
+            this.javaSourceStringContent = javaSourceStringContent;
             this.xpathLocations = xpathLocations;
         }
     }
@@ -415,9 +423,7 @@ public class FrameEditor implements Editor
         // to make sure all the source positions have been recorded.
         javaSource.set(js);
 
-        watcher.recordEdit(SourceType.Java, javaString, true);
-
-        return new SaveJavaResult(js, source.toXML().buildLocationMap());
+        return new SaveJavaResult(js, javaString, source.toXML().buildLocationMap());
     }
 
     /**
@@ -689,9 +695,9 @@ public class FrameEditor implements Editor
 
             @Override
             @OnThread(Tag.FXPlatform)
-            public boolean compileStarted()
+            public boolean compileStarted(int compilationSequence)
             {
-                return FrameEditor.this.compileStarted();    
+                return FrameEditor.this.compileStarted(compilationSequence);
             }
 
             @Override
@@ -780,7 +786,7 @@ public class FrameEditor implements Editor
     {
         if (lastSavedJavaSwing != null && lastSavedJavaSwing.javaSource != null && lastSavedJavaSwing.xpathLocations != null)
         {
-            JavaFragment fragment = lastSavedJavaSwing.javaSource.findError((int)diagnostic.getStartLine(), (int)diagnostic.getStartColumn(), (int)diagnostic.getEndLine(), (int)diagnostic.getEndColumn(), diagnostic.getMessage(), true);
+            JavaFragment fragment = lastSavedJavaSwing.javaSource.findError((int)diagnostic.getStartLine(), (int)diagnostic.getStartColumn(), (int)diagnostic.getEndLine(), (int)diagnostic.getEndColumn(), diagnostic.getMessage());
             if (fragment != null)
             {
                 String xpath = lastSavedJavaSwing.xpathLocations.locationFor(fragment);
@@ -797,7 +803,7 @@ public class FrameEditor implements Editor
         {
             JavaFXUtil.onceNotNull(javaSource, js ->
                     js.handleError((int) diagnostic.getStartLine(), (int) diagnostic.getStartColumn(),
-                        (int) diagnostic.getEndLine(), (int) diagnostic.getEndColumn(), diagnostic.getMessage(), true, diagnostic.getIdentifier())
+                        (int) diagnostic.getEndLine(), (int) diagnostic.getEndColumn(), diagnostic.getMessage(), diagnostic.getIdentifier())
             );
         }
         else
@@ -1053,11 +1059,8 @@ public class FrameEditor implements Editor
                         {
                             // Use runlater because we might be mid-save, so need to wait for current code to finish:
                             JavaFXUtil.runPlatformLater(() -> {
-                                if (!js.handleError((int) e.startLine, (int) e.startColumn,
-                                        (int) e.endLine, (int) e.endColumn, e.message, false, e.identifier))
-                                {
-                                    Debug.message("Could not display queued error");
-                                }
+                                js.handleError((int) e.startLine, (int) e.startColumn,
+                                        (int) e.endLine, (int) e.endColumn, e.message, e.identifier);
                             });
                         }
                         // We need to use runLater to account for the fact that adding errors uses a runLater:
@@ -1101,7 +1104,9 @@ public class FrameEditor implements Editor
             if (!foundLateErrorsForMostRecentCompile)
             {
                 foundLateErrorsForMostRecentCompile = true;
-                findLateErrors();
+                findLateErrors(mostRecentCompileIdentifier);
+                // Shouldn't use the same one twice anyway as we are guarded by the boolean flag:
+                mostRecentCompileIdentifier = -1;
             }
             panel.compiled();
         }
@@ -1110,7 +1115,7 @@ public class FrameEditor implements Editor
     }
 
     @OnThread(Tag.FXPlatform)
-    private void findLateErrors()
+    private void findLateErrors(int compilationIdentifier)
     {
         panel.removeOldErrors();
         TopLevelCodeElement el = panel.getSource();
@@ -1133,16 +1138,19 @@ public class FrameEditor implements Editor
             {
                 Debug.reportError(e);
             }
-            Platform.runLater(() -> panel.updateErrorOverviewBar(false));
-            List<DiagnosticWithShown> diagnostics = Utility.mapList(allLates, e -> e.toDiagnostic(javaFilename.getName(), frameFilename));
-            Platform.runLater(() -> watcher.recordLateErrors(diagnostics));
+            Platform.runLater(() -> {
+                panel.updateErrorOverviewBar(false);
+                List<DiagnosticWithShown> diagnostics = Utility.mapList(allLates, e -> e.toDiagnostic(javaFilename.getName(), frameFilename));
+                watcher.recordLateErrors(diagnostics, compilationIdentifier);
+            });
         });
     }
         
     @Override
-    public boolean compileStarted()
+    public boolean compileStarted(int compilationSequence)
     {
         foundLateErrorsForMostRecentCompile = false;
+        mostRecentCompileIdentifier = compilationSequence;
         if (panel != null)
             panel.flagErrorsAsOld();
         else
@@ -1150,7 +1158,7 @@ public class FrameEditor implements Editor
         // Note lastSourceRef may refer to a stale source, but this shouldn't cause any
         // significant issues.  In fact, it probably makes sense to use the source at
         // point of last save, rather than any modifications in the window since.
-        return earlyErrorCheck(lastSource.findEarlyErrors());
+        return earlyErrorCheck(lastSource.findEarlyErrors(), compilationSequence);
     }
 
     /**
@@ -1158,11 +1166,11 @@ public class FrameEditor implements Editor
      */
     //package-visible
     @OnThread(Tag.FXPlatform)
-    boolean earlyErrorCheck(Stream<SyntaxCodeError> earlyErrors)
+    boolean earlyErrorCheck(Stream<SyntaxCodeError> earlyErrors, int compilationIdentifier)
     {
         List<SyntaxCodeError> earlyList = earlyErrors.collect(Collectors.toList());
         List<DiagnosticWithShown> diagnostics = Utility.mapList(earlyList, e -> e.toDiagnostic(javaFilename.getName(), frameFilename));
-        watcher.recordEarlyErrors(diagnostics);
+        watcher.recordEarlyErrors(diagnostics, compilationIdentifier);
         return !earlyList.isEmpty();
     }
 
@@ -1340,7 +1348,7 @@ public class FrameEditor implements Editor
         SaveResult result = _saveFX();
         if (result.exception == null)
         {
-            watcher.recordEdit(SourceType.Stride, result.savedSource, true, reason);
+            watcher.recordStrideEdit(result.javaResult.javaSourceStringContent, result.savedSource, reason);
         }
         else
             Debug.reportError(result.exception);
@@ -1361,9 +1369,7 @@ public class FrameEditor implements Editor
         if (panel == null) {
             createPanel(false, false);
         }
-        JavaFXUtil.onceTrue(panel.initialisedProperty(), p ->
-            JavaFXUtil.runPlatformLater( () -> panel.addExtends(className))
-        );
+        JavaFXUtil.onceTrue(panel.initialisedProperty(), p -> panel.addExtends(className));
     }
 
     @Override

@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.http.entity.mime.MultipartEntity;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * An Event to be submitted to the server.
@@ -41,6 +43,7 @@ interface Event
      * of lines in the file
      * @return A MultipartEntity to send to the server
      */
+    @OnThread(Tag.Worker)
     MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String> > fileVersions);
     
     /**

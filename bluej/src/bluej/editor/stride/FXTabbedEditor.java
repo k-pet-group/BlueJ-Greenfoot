@@ -24,14 +24,18 @@ package bluej.editor.stride;
 import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.Main;
+import bluej.collect.DataCollector;
 import bluej.editor.stride.FrameCatalogue.Hint;
 import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.stride.generic.ExtensionDescription;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCursor;
+import bluej.stride.generic.InteractionManager;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
@@ -220,14 +224,23 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         catalogueBackground.setBottom(title);
         StackPane catalogueScrollPaneStacked = new StackPane(catalogueBackground, catalogueScrollPane);
         catalogueScrollPaneStacked.setMinWidth(0.0);
-        collapsibleCatalogueScrollPane = new UntitledCollapsiblePane(catalogueScrollPaneStacked, ArrowLocation.LEFT,  PrefMgr.getFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING));
+
+        FXPlatformConsumer<? super Boolean> frameCatalogueShownListener =
+                show -> recordShowHideFrameCatalogue(show, FrameCatalogue.ShowReason.ARROW);
+        collapsibleCatalogueScrollPane = new UntitledCollapsiblePane(catalogueScrollPaneStacked, ArrowLocation.LEFT,
+                PrefMgr.getFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING), frameCatalogueShownListener);
         collapsibleCatalogueScrollPane.addArrowWrapperStyleClass("catalogue-collapse");
         showingCatalogue.bindBidirectional(collapsibleCatalogueScrollPane.expandedProperty());
         JavaFXUtil.addChangeListener(showingCatalogue, expanded -> PrefMgr.setFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING, expanded));
         // runLater, after it has been put in scene:
-        JavaFXUtil.runAfterCurrent(() -> showingCatalogue.set(PrefMgr.getFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING)));
+        JavaFXUtil.runAfterCurrent(() -> {
+            boolean flag = PrefMgr.getFlag(PrefMgr.STRIDE_SIDEBAR_SHOWING);
+            showingCatalogue.set(flag);
+            recordShowHideFrameCatalogue(flag, FrameCatalogue.ShowReason.PROPERTIES);
+        });
         JavaFXUtil.addStyleClass(collapsibleCatalogueScrollPane, "catalogue-scroll-collapsible");
         menuAndTabPane.setRight(collapsibleCatalogueScrollPane);
+
         scene = new Scene(new StackPane(menuAndTabPane, dragPane, dragCursorPane, overlayPane.getNode()), 800, 700);
         stage.setScene(scene);
         Config.addEditorStylesheets(scene);
@@ -386,6 +399,28 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         stage.titleProperty().bind(Bindings.concat(
             JavaFXUtil.applyPlatform(tabPane.getSelectionModel().selectedItemProperty(), t -> ((FXTab)t).windowTitleProperty(), "Unknown")
                 ," - ", projectTitle, titleStatus));
+    }
+
+    /**
+     * It prepares the recordShowHideFrameCatalogue event and invoke the appropriate method to register it.
+     * If there is an appropriate selected tab, will invoke this tab method after looking for a possible focused cursor.
+     * If there is no an appropriate selected tab, will invoke the DataCollector's recordShowHideFrameCatalogue method,
+     * without any info about any editor or a focused cursor.
+     *
+     * @param show    true for showing and false for hiding
+     * @param reason  The event which triggers the change.
+     *                It is one of the values in the FrameCatalogue.ShowReason enum.
+     */
+    @OnThread(Tag.FXPlatform)
+    private void recordShowHideFrameCatalogue(boolean show, FrameCatalogue.ShowReason reason)
+    {
+        Tab selectedTab = tabPane.getSelectionModel().getSelectedItem();
+        if (selectedTab instanceof InteractionManager) {
+            ((InteractionManager) selectedTab).recordShowHideFrameCatalogue(show, reason);
+        }
+        else {
+            DataCollector.showHideFrameCatalogue(getProject(), null, null, -1, show, reason);
+        }
     }
 
     @OnThread(Tag.FXPlatform)

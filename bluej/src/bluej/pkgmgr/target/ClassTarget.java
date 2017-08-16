@@ -39,6 +39,7 @@ import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.editor.Editor;
 import bluej.editor.EditorManager;
 import bluej.editor.TextEditor;
+import bluej.editor.stride.FrameCatalogue;
 import bluej.editor.stride.FrameEditor;
 import bluej.extensions.*;
 import bluej.extensions.event.ClassEvent;
@@ -67,6 +68,7 @@ import bluej.stride.framedjava.convert.ConversionWarning;
 import bluej.stride.framedjava.convert.ConvertResultDialog;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.TopLevelCodeElement;
+import bluej.stride.generic.Frame;
 import bluej.utility.*;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
@@ -482,7 +484,7 @@ public class ClassTarget extends DependentTarget
         }
     }
 
-    public void markCompiling(boolean clearErrorState)
+    public void markCompiling(boolean clearErrorState, int compilationSequence)
     {
         if (clearErrorState && getState() == State.HAS_ERROR)
             setState(State.NEEDS_COMPILE);
@@ -492,7 +494,7 @@ public class ClassTarget extends DependentTarget
         }
         if (editor != null)
         {
-            if (editor.compileStarted()) {
+            if (editor.compileStarted(compilationSequence)) {
                 markKnownError(true);
             }
         }
@@ -1688,26 +1690,28 @@ public class ClassTarget extends DependentTarget
             return false;
         }
 
-        File newSourceFile = new File(getPackage().getPath(), newName + "." + getSourceType().toString().toLowerCase());
-        File oldSourceFile = getSourceFile();
-        
-        try {
-            FileUtility.copyFile(oldSourceFile, newSourceFile);
-            
-            getPackage().updateTargetIdentifier(this, getIdentifierName(), newName);
-            
-            String filename = newSourceFile.getAbsolutePath();
-            String javaFilename;
-            if (getSourceType().equals(SourceType.Stride)) {
-                final File javaFile = new File(getPackage().getPath(), newName + "." + SourceType.Java.toString().toLowerCase());
-                javaFilename = javaFile.getAbsolutePath();
+        File oldJavaSourceFile  = getJavaSourceFile();
+        File newJavaSourceFile = new File(getPackage().getPath(), newName + "." + SourceType.Java.toString().toLowerCase());
 
-                // Also copy the Java file across:
-                FileUtility.copyFile(getJavaSourceFile(), javaFile);
+        try {
+            String filename;
+            File oldFrameSourceFile = null;
+            File newFrameSourceFile = null;
+            getPackage().updateTargetIdentifier(this, getIdentifierName(), newName);
+
+            if (getSourceType().equals(SourceType.Stride)) {
+                newFrameSourceFile = new File(getPackage().getPath(), newName + "." + SourceType.Stride.toString().toLowerCase());
+                oldFrameSourceFile = getFrameSourceFile();
+                FileUtility.copyFile(oldFrameSourceFile, newFrameSourceFile);
+                filename = newFrameSourceFile.getAbsolutePath();
             }
             else {
-                javaFilename = filename;
+                filename = newJavaSourceFile.getAbsolutePath();
             }
+
+            // Also copy the Java file across, in all cases:
+            FileUtility.copyFile(oldJavaSourceFile, newJavaSourceFile);
+            String javaFilename = newJavaSourceFile.getAbsolutePath();
             String docFilename = getPackage().getProject().getDocumentationFile(javaFilename);
             getEditor().changeName(newName, filename, javaFilename, docFilename);
 
@@ -1742,9 +1746,9 @@ public class ClassTarget extends DependentTarget
                 BDependency bDependency = incomingDependency.getBDependency();
                 ExtensionBridge.changeBDependencyTargetName(bDependency, getQualifiedName());
             }
-            
-            DataCollector.renamedClass(getPackage(), oldSourceFile, newSourceFile);
-            
+
+            DataCollector.renamedClass(getPackage(), oldFrameSourceFile, newFrameSourceFile, oldJavaSourceFile, newJavaSourceFile);
+
             // Inform all listeners about the name change
             ClassEvent event = new ClassEvent(ClassEvent.CHANGED_NAME, getPackage(), getBClass(), oldName);
             ExtensionsManager.getInstance().delegateEvent(event);
@@ -2125,7 +2129,7 @@ public class ClassTarget extends DependentTarget
         {
             if (JavaFXUtil.confirmDialog("convert.to.java.title", "convert.to.java.message", (Stage)ClassTarget.this.pane.getScene().getWindow(), true))
             {
-                removeStride();
+                convertStrideToJava();
             }
         }
     }
@@ -2136,13 +2140,23 @@ public class ClassTarget extends DependentTarget
         public ConvertToStrideAction()
         {
             super(convertToStrideStr);
-            setOnAction(e -> convertToStride());
+            setOnAction(e -> promptAndConvertJavaToStride());
             JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
         }
     }
-    
+
+    /**
+     * Converts this Java ClassTarget to Stride, as long as the user
+     * says yes to the dialog that this method shows.
+     *
+     * If warnings (e.g. package-private access converted to protected)
+     * are encountered during the conversion, a dialog is shown to the user
+     * explaining them.  Most conversion issues (e.g. unconvertable items)
+     * are warnings not errors.  Errors, which stop the process, mainly arise
+     * from unparseable Java source code.
+     */
     @OnThread(Tag.FXPlatform)
-    public void convertToStride()
+    public void promptAndConvertJavaToStride()
     {
         File javaSourceFile = getJavaSourceFile();
         Charset projectCharset = getPackage().getProject().getProjectCharset();
@@ -2166,6 +2180,7 @@ public class ClassTarget extends DependentTarget
                     return; // Abort
                 }
                 addStride((TopLevelCodeElement)elements.get(0));
+                DataCollector.convertJavaToStride(getPackage(), javaSourceFile, getFrameSourceFile());
             }
             catch (IOException | ParseFailure pf)
             {
@@ -2325,14 +2340,15 @@ public class ClassTarget extends DependentTarget
     @Override
     public void remove()
     {
-        File srcFile = getSourceFile();
+        File frameSourceFile = getSourceType().equals(SourceType.Stride) ? getFrameSourceFile() : null;
+        File javaSourceFile = getJavaSourceFile();
         prepareForRemoval();
         Package pkg = getPackage();
         pkg.removeTarget(this);
         
         // We must remove after the above, because it might involve saving, 
         // and thus recording edits to the file
-        DataCollector.removeClass(pkg, srcFile);
+        DataCollector.removeClass(pkg, frameSourceFile, javaSourceFile);
 
 
         // In Greenfoot we don't do detailed dependency tracking, so we just recompile the whole
@@ -2340,8 +2356,18 @@ public class ClassTarget extends DependentTarget
         if (Config.isGreenfoot())
             pkg.rebuild();
     }
-    
-    public void removeStride()
+
+    /**
+     * Converts this ClassTarget from Stride to Java, by simply
+     * deleting the Stride file and keeping the Java file which we've
+     * always been generating from Stride for compilation purposes.
+     *
+     * This method shows no confirmation dialog/prompt; the caller is expected
+     * to have taken care of that.
+     *
+     * Throws an exception if this is not a Stride ClassTarget.
+     */
+    public void convertStrideToJava()
     {
         if (sourceAvailable != SourceType.Stride)
             throw new IllegalStateException("Cannot convert non-Stride from Stride to Java");
@@ -2365,8 +2391,15 @@ public class ClassTarget extends DependentTarget
         // getSourceFile() will now return the Java file:
         DataCollector.convertStrideToJava(getPackage(), srcFile, getSourceFile());
     }
-    
-    public void addStride(TopLevelCodeElement element)
+
+    /**
+     * Adds the given stride code element as a Stride file for this
+     * class target, as part of a conversion from Java into Stride, or part
+     * of generating a new class from a template.
+     *
+     * @param element The source code content to put in the new .stride file.
+     */
+    private void addStride(TopLevelCodeElement element)
     {
         if (editor != null)
         {
@@ -2385,7 +2418,6 @@ public class ClassTarget extends DependentTarget
             return;
         }
         sourceAvailable = SourceType.Stride;
-        //DataCollector.convertJavaToStride(getPackage(), srcFile, getSourceFile());
     }
 
     @OnThread(Tag.FXPlatform)
@@ -2475,20 +2507,34 @@ public class ClassTarget extends DependentTarget
     }
     
     @Override
-    public void recordEdit(SourceType sourceType, String latest, boolean includeOneLineEdits, StrideEditReason reason)
+    public void recordJavaEdit(String latest, boolean includeOneLineEdits)
     {
-        if (sourceType == SourceType.Java)
-        {
-            DataCollector.edit(getPackage(), getJavaSourceFile(), latest, includeOneLineEdits, null);
-        }
-        else if (sourceType == SourceType.Stride && this.sourceAvailable == SourceType.Stride)
-        {
-            DataCollector.edit(getPackage(), getFrameSourceFile(), latest, includeOneLineEdits, reason);
-        }
+        DataCollector.editJava(getPackage(), getJavaSourceFile(), latest, includeOneLineEdits);
+    }
+
+    @Override
+    public void recordStrideEdit(String latestJava, String latestStride, StrideEditReason reason)
+    {
+        DataCollector.editStride(getPackage(), getJavaSourceFile(), latestJava, getFrameSourceFile(), latestStride, reason);
+    }
+
+    /**
+     * Gets the File which the given source type parameter is generated from,
+     * or null if non-applicable.  Here's a table of the possible outcomes:
+     *
+     * This target | Parameter | Return
+     * --------------------------------
+     * Stride      | Stride    | null (Stride is not generated from anything else)
+     * Stride      | Java      | non-null (The path to the Stride file)
+     * Java        | Stride    | null (This call shouldn't happen anyway)
+     * Java        | Java      | null (Java source is not generated in this case)
+     */
+    private File getGeneratedFrom(SourceType recordForSourceType)
+    {
+        if (recordForSourceType == SourceType.Java && this.sourceAvailable == SourceType.Stride)
+            return getFrameSourceFile();
         else
-        {
-            Debug.message("Attempting to send " + sourceType + " source when available is: " + this.sourceAvailable);
-        }
+            return null;
     }
 
     @Override
@@ -2553,27 +2599,27 @@ public class ClassTarget extends DependentTarget
     }
 
     @Override
-    public void recordShowErrorIndicator(int identifier)
+    public void recordShowErrorIndicators(Collection<Integer> identifiers)
     {
-        DataCollector.showErrorIndicator(getPackage(), identifier);
+        DataCollector.showErrorIndicators(getPackage(), identifiers);
     }
 
     @Override
-    public void recordEarlyErrors(List<DiagnosticWithShown> diagnostics)
+    public void recordEarlyErrors(List<DiagnosticWithShown> diagnostics, int compilationIdentifier)
     {
         if (diagnostics.isEmpty())
             return;
 
-        DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, CompileReason.EARLY, SourceType.Stride);
+        DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, CompileReason.EARLY, compilationIdentifier);
     }
 
     @Override
-    public void recordLateErrors(List<DiagnosticWithShown> diagnostics)
+    public void recordLateErrors(List<DiagnosticWithShown> diagnostics, int compilationIdentifier)
     {
         if (diagnostics.isEmpty())
             return;
 
-        DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, CompileReason.LATE, SourceType.Stride);
+        DataCollector.compiled(getPackage().getProject(), getPackage(), new CompileInputFile[] {getCompileInputFile()}, diagnostics, false, CompileReason.LATE, compilationIdentifier);
     }
 
     @Override
@@ -2582,22 +2628,36 @@ public class ClassTarget extends DependentTarget
         DataCollector.fixExecuted(getPackage(), errorIdentifier, fixIndex);
     }
 
+    // See comment for DataCollector.codeCompletionStart
     @Override
-    public void recordCodeCompletionStarted(Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem)
+    public void recordCodeCompletionStarted(Integer lineNumber, Integer columnNumber, String xpath, Integer subIndex, String stem, int codeCompletionId)
     {
-        DataCollector.codeCompletionStarted(this, lineNumber, columnNumber, xpath, subIndex, stem);
+        DataCollector.codeCompletionStarted(this, lineNumber, columnNumber, xpath, subIndex, stem, codeCompletionId);
     }
 
+    // See comment for DataCollector.codeCompletionEnded
     @Override
-    public void recordCodeCompletionEnded(Integer lineNumber, Integer columnNumber, String xpath, Integer elementOffset, String stem, String replacement)
+    public void recordCodeCompletionEnded(Integer lineNumber, Integer columnNumber, String xpath, Integer elementOffset, String stem, String replacement, int codeCompletionId)
     {
-        DataCollector.codeCompletionEnded(this, lineNumber, columnNumber, xpath, elementOffset, stem, replacement);
+        DataCollector.codeCompletionEnded(this, lineNumber, columnNumber, xpath, elementOffset, stem, replacement, codeCompletionId);
     }
 
     @Override
     public void recordUnknownCommandKey(String enclosingFrameXpath, int cursorIndex, char key)
     {
         DataCollector.unknownFrameCommandKey(this, enclosingFrameXpath, cursorIndex, key);
+    }
+
+    @Override
+    public void recordShowHideFrameCatalogue(String enclosingFrameXpath, int cursorIndex, boolean show, FrameCatalogue.ShowReason reason)
+    {
+        DataCollector.showHideFrameCatalogue(getPackage().getProject(), getPackage(), enclosingFrameXpath, cursorIndex, show, reason);
+    }
+
+    @Override
+    public void recordViewModeChange(String enclosingFrameXpath, int cursorIndex, Frame.View oldView, Frame.View newView, Frame.ViewChangeReason reason)
+    {
+        DataCollector.viewModeChange(getPackage(), getSourceFile(), enclosingFrameXpath, cursorIndex, oldView, newView, reason);
     }
 
     @Override

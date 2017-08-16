@@ -139,8 +139,6 @@ public interface TopLevelCodeElement
     @OnThread(Tag.FXPlatform)
     public Stream<SyntaxCodeError> findEarlyErrors();
 
-    public Stream<Future<List<DirectSlotError>>> findDirectLateErrors(InteractionManager editor, LocationMap rootPathMap);
-
     @OnThread(Tag.FXPlatform)
     public JavaSource toJavaSource();
 

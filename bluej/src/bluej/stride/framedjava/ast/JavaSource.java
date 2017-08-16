@@ -174,23 +174,45 @@ public class JavaSource
         }
         return sourceString.toString();
     }
-    
+
+    /**
+     * Handles a Java compile error.
+     *
+     * @param startLine Position of the compile error in the .java file.
+     * @param startColumn Position of the compile error in the .java file.
+     * @param endLine Position of the compile error in the .java file.
+     * @param endColumn Position of the compile error in the .java file.
+     * @param message Message of the compile error.
+     * @param identifier Error identifier for data recording purposes
+     */
     @OnThread(Tag.FX)
-    public boolean handleError(int startLine, int startColumn,
-            int endLine, int endColumn, String message, boolean force, int identifier)
+    public void handleError(int startLine, int startColumn,
+           int endLine, int endColumn, String message, int identifier)
     {
-        JavaFragment fragment = findError(startLine, startColumn, endLine, endColumn, message, force);
+        JavaFragment fragment = findError(startLine, startColumn, endLine, endColumn, message);
         if (fragment != null)
         {
             fragment.showCompileError(startLine, startColumn, endLine, endColumn, message, identifier);
-            return true;
         }
-        else
-            return false;
     }
 
+    /**
+     * Finds the JavaFragment which best corresponds to the given position range
+     * in the .java file.  (There may be multiple candidates as the error may span
+     * multiple fragments.  We pick the first fragment in the range which can
+     * show errors; i.e. excluding boilerplate keywords like the class keyword
+     * in a class declaration which can't be focused and thus cannot show an error.)
+     *
+     * @param startLine Position in the .java file.
+     * @param startColumn Position in the .java file.
+     * @param endLine Position in the .java file.
+     * @param endColumn Position in the .java file.
+     * @param message Compiler message.  Only used for debugging output if
+     *                we can't find the position
+     * @return The best JavaFragment for displaying error, or null if we can't find one.
+     */
     @OnThread(Tag.Any)
-    public JavaFragment findError(int startLine, int startColumn, int endLine, int endColumn, String message, boolean force)
+    public JavaFragment findError(int startLine, int startColumn, int endLine, int endColumn, String message)
     {
         // If it's on the last empty line, use handler from last line:
         if (startLine == lines.size() + 1) {
@@ -199,10 +221,6 @@ public class JavaSource
 
         if (startLine >= lines.size() || startLine == -1)
         {
-            // We'll retry in a minute anyway:
-            if (!force)
-                return null;
-
             // Just show on the very last fragment we can find:
             for (int i = lines.size() - 1; i >= 0; i--)
             {

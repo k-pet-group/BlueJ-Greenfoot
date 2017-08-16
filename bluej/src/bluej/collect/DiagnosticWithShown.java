@@ -36,9 +36,12 @@ import bluej.compiler.Diagnostic;
 // package-visible
 public class DiagnosticWithShown
 {
-    private Diagnostic diagnostic;
-    private boolean shownToUser;
-    private File userFileName;
+    // The wrapped Diagnostic
+    private final Diagnostic diagnostic;
+    // Was the error shown to the user already?
+    private final boolean shownToUser;
+    // File name of original file (.stride file for Stride, .java file for Java)
+    private final File userFileName;
 
     /**
      *
@@ -62,10 +65,5 @@ public class DiagnosticWithShown
     public File getUserFileName()
     {
         return userFileName;
-    }
-
-    public void markShownToUser()
-    {
-        shownToUser = true;
     }
 }

@@ -2547,8 +2547,10 @@ public final class MoeEditor extends ScopeColorsBorderPane
             doBracketMatch();
         }
         actions.userAction();
-        
-        if (oldCaretLineNumber != getLineNumberAt(caretPos))
+
+        // Only send caret moved event if we are open; caret moves while loading
+        // but we don't want to send an edit event because of that:
+        if (oldCaretLineNumber != getLineNumberAt(caretPos) && isOpen())
         {
             recordEdit(true);
 
@@ -3261,11 +3263,11 @@ public final class MoeEditor extends ScopeColorsBorderPane
             }, new SuggestionListListener()
             {
                 @Override
-                public @OnThread(Tag.FXPlatform) void suggestionListChoiceClicked(int highlighted)
+                public @OnThread(Tag.FXPlatform) void suggestionListChoiceClicked(SuggestionList suggestionList, int highlighted)
                 {
                     if (highlighted != -1)
                     {
-                        codeComplete(possibleCompletions[highlighted], originalPosition, sourcePane.getCaretPosition());
+                        codeComplete(possibleCompletions[highlighted], originalPosition, sourcePane.getCaretPosition(), suggestionList);
                     }
                 }
 
@@ -3278,7 +3280,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                     }
                     else if (event.getCharacter().equals("\n"))
                     {
-                        suggestionListChoiceClicked(highlighted);
+                        suggestionListChoiceClicked(suggestionList, highlighted);
                         return Response.DISMISS;
                     }
                     else
@@ -3293,7 +3295,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 }
 
                 @Override
-                public @OnThread(Tag.FXPlatform) SuggestionList.SuggestionListListener.Response suggestionListKeyPressed(KeyEvent event, int highlighted)
+                public @OnThread(Tag.FXPlatform) SuggestionList.SuggestionListListener.Response suggestionListKeyPressed(SuggestionList suggestionList, KeyEvent event, int highlighted)
                 {
                     switch (event.getCode())
                     {
@@ -3301,7 +3303,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                             return Response.DISMISS;
                         case ENTER:
                         case TAB:
-                            suggestionListChoiceClicked(highlighted);
+                            suggestionListChoiceClicked(suggestionList, highlighted);
                             return Response.DISMISS;
                         case BACK_SPACE:
                             sourcePane.deletePreviousChar();
@@ -3324,6 +3326,8 @@ public final class MoeEditor extends ScopeColorsBorderPane
             suggestionList.updateVisual(prefix);
             suggestionList.highlightFirstEligible();
             suggestionList.show(sourcePane, spLoc);
+            Position pos = sourcePane.offsetToPosition(originalPosition, Bias.Forward);
+            watcher.recordCodeCompletionStarted(pos.getMajor() + 1, pos.getMinor() + 1, null, null, prefix, suggestionList.getRecordingId());
 
         } else {
             /*
@@ -3340,7 +3344,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     /**
      * codeComplete prints the selected text in the editor
      */
-    private void codeComplete(AssistContent selected, int prefixBegin, int prefixEnd)
+    private void codeComplete(AssistContent selected, int prefixBegin, int prefixEnd, SuggestionList suggestionList)
     {
         String start = selected.getName();
         List<ParamInfo> params = selected.getParams();
@@ -3373,7 +3377,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 sourcePane.select(selLoc, selLoc + params.get(0).getDummyName().length());
         }
         Position prefixBeginPos = sourcePane.offsetToPosition(prefixBegin, Bias.Forward);
-        watcher.recordCodeCompletionEnded(prefixBeginPos.getMajor() + 1, prefixBeginPos.getMinor() + 1, null, null, prefix, inserted);
+        watcher.recordCodeCompletionEnded(prefixBeginPos.getMajor() + 1, prefixBeginPos.getMinor() + 1, null, null, prefix, inserted, suggestionList.getRecordingId());
         try
         {
             save();
@@ -3443,7 +3447,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     {
         if (watcher != null)
         {
-            watcher.recordEdit(SourceType.Java, sourceDocument.getText(0, sourceDocument.getLength()), includeOneLineEdits);
+            watcher.recordJavaEdit(sourceDocument.getText(0, sourceDocument.getLength()), includeOneLineEdits);
         }
     }
 
@@ -3592,7 +3596,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
 
     @Override
-    public boolean compileStarted()
+    public boolean compileStarted(int compilationSequence)
     {
         madeChangeOnCurrentLine = false;
         errorManager.removeAllErrorHighlights();
@@ -3600,6 +3604,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean isOpen()
     {
         return fxTabbedEditor != null && fxTabbedEditor.isWindowVisible();

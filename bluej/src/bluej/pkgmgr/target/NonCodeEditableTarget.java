@@ -21,15 +21,16 @@
  */
 package bluej.pkgmgr.target;
 
+import java.util.Collection;
 import java.util.List;
 
 import bluej.collect.DiagnosticWithShown;
 import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
-import bluej.editor.Editor;
-import bluej.extensions.SourceType;
+import bluej.editor.stride.FrameCatalogue;
 import bluej.pkgmgr.Package;
+import bluej.stride.generic.Frame;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -59,7 +60,10 @@ public abstract class NonCodeEditableTarget extends EditableTarget
     public void setProperty(String key, String value) { }
 
     @Override
-    public void recordEdit(SourceType sourceType, String curSource, boolean includeOneLineEdits, StrideEditReason reason) { }
+    public void recordJavaEdit(String javaSource, boolean includeOneLineEdits) { }
+
+    @Override
+    public void recordStrideEdit(String javaSource, String strideSource, StrideEditReason reason) { }
 
     @Override
     public void recordClose() { }
@@ -74,25 +78,31 @@ public abstract class NonCodeEditableTarget extends EditableTarget
     public void recordShowErrorMessage(int identifier, List<String> quickFixes) { }
 
     @Override
-    public void recordEarlyErrors(List<DiagnosticWithShown> diagnostics) { }
+    public void recordEarlyErrors(List<DiagnosticWithShown> diagnostics, int compilationIdentifier) { }
 
     @Override
-    public void recordLateErrors(List<DiagnosticWithShown> diagnostics) { }
+    public void recordLateErrors(List<DiagnosticWithShown> diagnostics, int compilationIdentifier) { }
 
     @Override
     public void recordFix(int errorIdentifier, int fixIndex) { }
 
     @Override
-    public void recordCodeCompletionStarted(Integer line, Integer column, String xpath, Integer index, String stem) { }
+    public void recordCodeCompletionStarted(Integer line, Integer column, String xpath, Integer index, String stem, int codeCompletionId) { }
 
     @Override
-    public void recordCodeCompletionEnded(Integer lineNumber, Integer columnNumber, String xpath, Integer elementOffset, String stem, String replacement) { }
+    public void recordCodeCompletionEnded(Integer lineNumber, Integer columnNumber, String xpath, Integer elementOffset, String stem, String replacement, int codeCompletionId) { }
 
     @Override
     public void recordUnknownCommandKey(String enclosingFrameXpath, int cursorIndex, char key) { }
 
     @Override
-    public void recordShowErrorIndicator(int identifier) { }
+    public void recordShowHideFrameCatalogue(String enclosingFrameXpath, int cursorIndex, boolean show, FrameCatalogue.ShowReason reason) { }
+
+    @Override
+    public void recordViewModeChange(String enclosingFrameXpath, int cursorIndex, Frame.View oldView, Frame.View newView, Frame.ViewChangeReason reason) { }
+
+    @Override
+    public void recordShowErrorIndicators(Collection<Integer> identifiers) { }
 
     @Override
     @OnThread(Tag.Any)

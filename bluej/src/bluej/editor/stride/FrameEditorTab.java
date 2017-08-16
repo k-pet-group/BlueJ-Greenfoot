@@ -645,7 +645,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                     {
                         saved();
                         // Force generation of early errors on load:
-                        editor.earlyErrorCheck(getTopLevelFrame().getCode().findEarlyErrors());
+                        // No relevant compile sequence to use, so we use -1 meaning N/A:
+                        editor.earlyErrorCheck(getTopLevelFrame().getCode().findEarlyErrors(), -1);
                         Platform.runLater(FrameEditorTab.this::updateDisplays);
                     }
 
@@ -667,9 +668,9 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             FrameCursor clickTarget = birdseyeManager.getClickedTarget(e.getSceneX(), e.getSceneY());
             // Clicked somewhere outside a selection or has expanded; either way, disable the view
             if (clickTarget == null)
-                disableBirdseyeView();
+                disableBirdseyeView(Frame.ViewChangeReason.MOUSE_CLICKED);
             else
-                disableBirdseyeView(clickTarget.getNode(), clickTarget::requestFocus);
+                disableBirdseyeView(clickTarget.getNode(), Frame.ViewChangeReason.MOUSE_CLICKED, clickTarget::requestFocus);
             e.consume();
         });
         birdseyeSelectionPane.setOnMouseMoved(e -> {
@@ -738,19 +739,19 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                     if (viewProperty.get().isBirdseye())
                     {
                         FrameCursor target = birdseyeManager.getCursorForCurrent();
-                        disableBirdseyeView(target.getNode(), target::requestFocus);
+                        disableBirdseyeView(target.getNode(), Frame.ViewChangeReason.KEY_PRESSED_ENTER, target::requestFocus);
                         event.consume();
                     }
                     break;
                 case ESCAPE:
                     if (viewProperty.get() == View.JAVA_PREVIEW)
                     {
-                        disableJavaPreview();
+                        disableJavaPreview(Frame.ViewChangeReason.KEY_PRESSED_ESCAPE);
                         event.consume();
                     }
                     else if (viewProperty.get().isBirdseye())
                     {
-                        disableBirdseyeView();
+                        disableBirdseyeView(Frame.ViewChangeReason.KEY_PRESSED_ESCAPE);
                         event.consume();
                     }
                     break;
@@ -1215,14 +1216,14 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             birdseyeDefaultRequestFocusAfter = () -> { if (birdseyeDefaultFocusAfter != null) birdseyeDefaultFocusAfter.requestFocus(); };
             birdseyeManager = getTopLevelFrame().prepareBirdsEyeView(viewChange);
 
-            viewProperty.set(View.BIRDSEYE_NODOC);
+            changeViewMode(View.BIRDSEYE_NODOC, Frame.ViewChangeReason.MENU_OR_SHORTCUT);
             setupAnimateViewTo(View.NORMAL, View.BIRDSEYE_NODOC, viewChange);
 
             viewChange.animateOver(Duration.millis(500));
         }
         else if (viewProperty.get() == View.JAVA_PREVIEW)
         {
-            disableJavaPreview();
+            disableJavaPreview(Frame.ViewChangeReason.MENU_OR_SHORTCUT);
             enableCycleBirdseyeView();
         }
         else if (viewProperty.get().isBirdseye())
@@ -1238,7 +1239,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             
             View oldView = viewProperty.get();
             View newView = viewProperty.get() == View.BIRDSEYE_DOC ? View.BIRDSEYE_NODOC : View.BIRDSEYE_DOC;
-            viewProperty.set(newView);
+            changeViewMode(newView, Frame.ViewChangeReason.MENU_OR_SHORTCUT);
             setupAnimateViewTo(oldView, newView, viewChange);
 
             viewChange.animateOver(Duration.millis(500));
@@ -1246,7 +1247,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     @OnThread(Tag.FXPlatform)
-    void disableBirdseyeView(Node viewTarget, FXRunnable requestFocus)
+    void disableBirdseyeView(Node viewTarget, Frame.ViewChangeReason reason, FXRunnable requestFocus)
     {
         if (viewProperty.get().isBirdseye())
         {
@@ -1268,20 +1269,20 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                 }
             });
             View oldView = viewProperty.get();
-            viewProperty.set(View.NORMAL);
+            changeViewMode(View.NORMAL, reason);
             setupAnimateViewTo(oldView, View.NORMAL, viewChange);
             viewChange.animateOver(Duration.millis(500));
         }
     }
 
     @OnThread(Tag.FXPlatform)
-    void disableBirdseyeView()
+    void disableBirdseyeView(Frame.ViewChangeReason reason)
     {
-        disableBirdseyeView(birdseyeDefaultFocusAfter, birdseyeDefaultRequestFocusAfter);
+        disableBirdseyeView(birdseyeDefaultFocusAfter, reason, birdseyeDefaultRequestFocusAfter);
     }
 
     @OnThread(Tag.FXPlatform)
-    void enableJavaPreview()
+    void enableJavaPreview(Frame.ViewChangeReason reason)
     {
         if (viewProperty.get() == View.NORMAL)
         {
@@ -1289,29 +1290,42 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             if (viewChange != null)
                 viewChange.stop();
             viewChange = new SharedTransition();
-            viewProperty.set(View.JAVA_PREVIEW);
+            changeViewMode(View.JAVA_PREVIEW, reason);
             setupAnimateViewTo(View.NORMAL, View.JAVA_PREVIEW, viewChange);
             viewChange.animateOver(Duration.millis(3000));
         }
         else if (viewProperty.get().isBirdseye())
         {
-            disableBirdseyeView();
-            enableJavaPreview();
+            disableBirdseyeView(reason);
+            enableJavaPreview(reason);
         }
     }
 
     @OnThread(Tag.FXPlatform)
-    void disableJavaPreview()
+    void disableJavaPreview(Frame.ViewChangeReason reason)
     {
         if (viewProperty.get() == View.JAVA_PREVIEW)
         {
             if (viewChange != null)
                 viewChange.stop();
             viewChange = new SharedTransition();
-            viewProperty.set(View.NORMAL);
+            changeViewMode(View.NORMAL, reason);
             setupAnimateViewTo(View.JAVA_PREVIEW, View.NORMAL, viewChange);
             viewChange.animateOver(Duration.millis(3000));
         }
+    }
+
+    /**
+     * Records the change of the View mode and sets the view property to the new mode.
+     *
+     * @param newView              The new view mode that been switch to.
+     * @param reason               The user interaction which triggered the change.
+     */
+    @OnThread(Tag.FXPlatform)
+    private void changeViewMode(View newView, Frame.ViewChangeReason reason)
+    {
+        recordViewChange(viewProperty.get(), newView, reason);
+        viewProperty.set(newView);
     }
 
     @OnThread(Tag.FXPlatform)
@@ -1750,10 +1764,17 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         List<ErrorInfo> errors = getAllErrors()
                 .filter(e -> e.getRelevantNode() != null)
                 .map(e -> new ErrorInfo(e.getMessage(), e.getRelevantNode(), e.visibleProperty(), e.focusedProperty(),
-                        () -> { if (getView().isBirdseye())
-                                    disableBirdseyeView(e.getRelevantNode(), () -> e.jumpTo(this));
-                                else
-                                    e.jumpTo(this); }))
+                        () -> {
+                            if (getView().isBirdseye()) {
+                                // This case is not practically reachable, as the mouse click should have already exited
+                                // the Birdseye view.
+                                disableBirdseyeView(e.getRelevantNode(), Frame.ViewChangeReason.MOUSE_CLICKED,
+                                        () -> e.jumpTo(this));
+                            }
+                            else {
+                                e.jumpTo(this);
+                            }
+                        }))
                 .collect(Collectors.toList());
         ErrorState state;
         if (waitingForCompile || getTopLevelFrame().getAllFrames().anyMatch(Frame::isFresh))
@@ -2775,24 +2796,20 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public void recordCodeCompletionStarted(SlotFragment element, int index, String stem)
+    public void recordCodeCompletionStarted(SlotFragment element, int index, String stem, int codeCompletionId)
     {
         recordEdits(StrideEditReason.FLUSH);
-
-        LocationMap locationMap = getTopLevelFrame().getCode().toXML().buildLocationMap();
-
-        editor.getWatcher().recordCodeCompletionStarted(null, null, locationMap.locationFor(element), index, stem);
+        editor.getWatcher().recordCodeCompletionStarted(null, null,
+                getLocationMap().locationFor(element), index, stem, codeCompletionId);
     }
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public void recordCodeCompletionEnded(SlotFragment element, int index, String stem, String replacement)
+    public void recordCodeCompletionEnded(SlotFragment element, int index, String stem, String replacement, int codeCompletionId)
     {
         recordEdits(StrideEditReason.CODE_COMPLETION);
-
-        LocationMap locationMap = getTopLevelFrame().getCode().toXML().buildLocationMap();
-
-        editor.getWatcher().recordCodeCompletionEnded(null, null, locationMap.locationFor(element), index, stem, replacement);
+        editor.getWatcher().recordCodeCompletionEnded(null, null,
+                getLocationMap().locationFor(element), index, stem, replacement, codeCompletionId);
     }
 
     @Override
@@ -2803,18 +2820,45 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             return; // Don't worry about command keys
 
         recordEdits(StrideEditReason.FLUSH);
-        LocationMap locationMap = getTopLevelFrame().getCode().toXML().buildLocationMap();
+        editor.getWatcher().recordUnknownCommandKey(getXPath(enclosingFrame), cursorIndex, key);
+    }
 
-        String xpath = (enclosingFrame instanceof CodeFrame) ? locationMap.locationFor(((CodeFrame<? extends CodeElement>)enclosingFrame).getCode()) : null;
+    @Override
+    @OnThread(Tag.FXPlatform)
+    public void recordShowHideFrameCatalogue(boolean show, FrameCatalogue.ShowReason reason)
+    {
+        FrameCursor focusedCursor = getFocusedCursor();
+        editor.getWatcher().recordShowHideFrameCatalogue(
+                focusedCursor != null ? getXPath(focusedCursor.getEnclosingFrame()) : null,
+                focusedCursor != null ? focusedCursor.getCursorIndex() : -1,
+                show,
+                reason);
+    }
 
-        editor.getWatcher().recordUnknownCommandKey(xpath, cursorIndex, key);
+    /**
+     * Records the reason, the old view and the current one, when switching between different show modes in the Stride editor.
+     *
+     * @param oldView              The old view mode that been switch from.
+     * @param newView              The new view mode that been switch to.
+     * @param reason               The user interaction which triggered the change.
+     */
+    @OnThread(Tag.FXPlatform)
+    public void recordViewChange(View oldView, View newView, Frame.ViewChangeReason reason)
+    {
+        FrameCursor focusedCursor = getFocusedCursor();
+        editor.getWatcher().recordViewModeChange(
+                focusedCursor != null ? getXPath(focusedCursor.getEnclosingFrame()) : null,
+                focusedCursor != null ? focusedCursor.getCursorIndex() : -1,
+                oldView,
+                newView,
+                reason);
     }
 
     @Override
     @OnThread(Tag.FXPlatform)
     public void recordErrorIndicatorShown(int identifier)
     {
-        editor.getWatcher().recordShowErrorIndicator(identifier);
+        editor.getWatcher().recordShowErrorIndicators(Collections.singletonList(identifier));
     }
 
     @Override
@@ -2874,5 +2918,30 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                 focusWhenShown();
             });
         }
+    }
+
+    /**
+     * It returns the path for a code frame. If it's not a code frame, then null is returned.
+     *
+     * @param frame The frame that its path is needed.
+     * @return      If the frame is a code frame, an XPath String identifying the location of that frame.
+     *              Otherwise, null.
+     */
+    private String getXPath(Frame frame)
+    {
+        return (frame instanceof CodeFrame)
+                ? getLocationMap().locationFor(((CodeFrame<? extends CodeElement>)frame).getCode())
+                : null;
+    }
+
+    /**
+     * It invokes the buildLocationMap method in the LocatableElement to build a location map.
+     * This location map is dependent on the latest version of the code, and will invalid as soon as the code changes in future.
+     *
+     * @return A map from JavaFragment to XPath String identifying the location of that fragment.
+     */
+    private LocationMap getLocationMap()
+    {
+        return getTopLevelFrame().getCode().toXML().buildLocationMap();
     }
 }
