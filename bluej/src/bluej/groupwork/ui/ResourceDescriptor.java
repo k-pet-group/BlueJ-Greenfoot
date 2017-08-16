@@ -110,7 +110,7 @@ public class ResourceDescriptor
         			status = Config.getString("team.commit.layout") + " " + project.getPackageForFile(info.getFile());
         		}
         		if (annotate) {
-        			Status infoStatus = remote ? info.getRemoteStatus() : info.getStatus();
+        			Status infoStatus = info.getStatus(!remote);
         			// file has been deleted
         			switch (infoStatus) {
         			case DELETED:

@@ -183,6 +183,11 @@ public class TeamStatusInfo
         //this will be re-writen by getStatus command, if necessary.
         this.remoteStatus = Status.UP_TO_DATE; //REMOTE_STATUS_UPTODATE
     }
+
+    public Status getStatus(boolean local)
+    {
+        return local ? status : remoteStatus;
+    }
     
     public File getFile()
     {

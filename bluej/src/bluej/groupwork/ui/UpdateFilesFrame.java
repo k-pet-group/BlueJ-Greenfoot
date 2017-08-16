@@ -460,7 +460,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
             TeamViewFilter viewFilter = new TeamViewFilter();
             for (TeamStatusInfo statusInfo : info) {
                 //update must look in the remoteStatus in a DVCS. if not DVCS, look into the local status.
-                Status status = isDVCS ? statusInfo.getRemoteStatus() : statusInfo.getStatus();
+                Status status = statusInfo.getStatus(!isDVCS);
                 if (filter.accept(statusInfo)) {
                     if (!BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())) {
                         updateListModel.add(new UpdateStatus(statusInfo));

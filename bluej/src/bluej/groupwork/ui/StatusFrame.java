@@ -221,7 +221,7 @@ public class StatusFrame extends FXCustomizedDialog<Void>
             case 1:
                 return isDVCS ? info.getStatus() : info.getLocalVersion();
             case 2:
-                return isDVCS ? info.getRemoteStatus() : info.getStatus();
+                return info.getStatus(!isDVCS);
             default:
                 break;
         }

@@ -43,7 +43,7 @@ public class CommitFilter
      */
     public boolean accept(TeamStatusInfo statusInfo, boolean local)
     {
-        Status stat = local ? statusInfo.getStatus() : statusInfo.getRemoteStatus();
+        Status stat = statusInfo.getStatus(local);
 
         switch (stat) {
             case DELETED:

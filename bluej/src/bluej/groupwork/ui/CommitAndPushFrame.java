@@ -646,7 +646,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
                 File file = statusInfo.getFile();
                 boolean isPkgFile = BlueJPackageFile.isPackageFileName(file.getName());
                 //select status to use.
-                Status status = remote ? statusInfo.getRemoteStatus() : statusInfo.getStatus();
+                Status status = statusInfo.getStatus(!remote);
 
                 if (filter.accept(statusInfo, !remote)) {
                     if (!isPkgFile) {

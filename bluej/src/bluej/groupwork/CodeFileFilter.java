@@ -81,13 +81,12 @@ public class CodeFileFilter implements FileFilter, FilenameFilter
 
     private List<Pattern> makePatterns(List<String> ignore)
     {
-        List<Pattern> patterns = new LinkedList<Pattern>();
-        for (Iterator<String> i = ignore.iterator(); i.hasNext();) {
-            String patternString = (String) i.next();
-            try{
-                Pattern p = Pattern.compile(patternString);
-                patterns.add(p);
-            } catch (PatternSyntaxException pse){
+        List<Pattern> patterns = new LinkedList<>();
+        for (String patternString: ignore) {
+            try {
+                patterns.add(Pattern.compile(patternString));
+            }
+            catch (PatternSyntaxException pse) {
                 Debug.message("Couldn't parse ignore pattern: " + patternString);
             }
         }
@@ -96,8 +95,7 @@ public class CodeFileFilter implements FileFilter, FilenameFilter
 
     private boolean matchesPatterns(String input)
     {
-        for (Iterator<Pattern> i = patterns.iterator(); i.hasNext();) {
-            Pattern pattern = i.next();
+        for (Pattern pattern: patterns) {
             Matcher matcher = pattern.matcher(input);
             if (matcher.matches()) {
                 return true;
@@ -108,6 +106,7 @@ public class CodeFileFilter implements FileFilter, FilenameFilter
 
     /**
      * Determines which files should be included
+     *
      * @param dir the directory in which the file was found.
      * @param name the name of the file.
      */
