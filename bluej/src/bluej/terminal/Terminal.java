@@ -58,6 +58,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
@@ -227,6 +228,7 @@ public final class Terminal
         });
 
         input = new TextField();
+        input.getStyleClass().add("terminal-input-field");
         input.setOnAction(e -> {
             sendInput(false);
             e.consume();
@@ -235,7 +237,7 @@ public final class Terminal
         input.setEditable(false);
         // Mainly for visuals, we disable when not in use:
         input.disableProperty().bind(input.editableProperty().not());
-        input.promptTextProperty().bind(Bindings.when(input.editableProperty()).then("").otherwise(Config.getString("terminal.notRunning")));
+        input.promptTextProperty().bind(Bindings.when(input.editableProperty()).then(Config.getString("terminal.running")).otherwise(Config.getString("terminal.notRunning")));
 
         Nodes.addInputMap(input, InputMap.sequence(
                 // CTRL-D (unix/Mac EOF)
@@ -246,6 +248,16 @@ public final class Terminal
                 InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.MINUS, KeyCombination.SHORTCUT_DOWN)), e -> Utility.decreaseFontSize(PrefMgr.getEditorFontSize())),
                 InputMap.consume(EventPattern.keyPressed(new KeyCodeCombination(KeyCode.DIGIT0, KeyCombination.SHORTCUT_DOWN)), e -> PrefMgr.getEditorFontSize().set(PrefMgr.DEFAULT_JAVA_FONT_SIZE))
         ));
+
+        // Make a single click on stdout area focus the input, to help users
+        // who are used to BlueJ 3 where you typed into the stdout area directly
+        text.setOnMouseClicked(e -> {
+            if (e.getButton() == MouseButton.PRIMARY)
+            {
+                input.requestFocus();
+                e.consume();
+            }
+        });
 
         splitPane = new SplitPane(new BorderPane(scrollPane, null, null, input, null));
         JavaFXUtil.addStyleClass(splitPane, "terminal-split");
@@ -719,6 +731,7 @@ public final class Terminal
 
         if(errorText == null) {
             errorText = new StyledTextArea<Void, StderrStyle>(null, (t, v) -> {}, StderrStyle.NORMAL, this::applyStyle);
+            errorText.getStyleClass().add("terminal-error");
             errorScrollPane = new VirtualizedScrollPane<>(errorText);
             errorText.styleProperty().bind(PrefMgr.getEditorFontCSS(true));
             errorText.setEditable(false);
