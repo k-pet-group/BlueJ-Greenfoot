@@ -3604,6 +3604,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean isOpen()
     {
         return fxTabbedEditor != null && fxTabbedEditor.isWindowVisible();
