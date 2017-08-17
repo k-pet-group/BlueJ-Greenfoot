@@ -61,7 +61,6 @@ import javafx.stage.Window;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.extensions.BDependency;
-import bluej.extensions.event.DependencyEvent;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.PackageExtensionMenu;
 import bluej.graph.SelectionController;
@@ -104,14 +103,6 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
     private final BooleanProperty showExtends;
     // Are we showing uses arrows?
     private final BooleanProperty showUses;
-
-    /** all the uses-arrows in a package */
-    @OnThread(value = Tag.Any,requireSynchronized = true)
-    private final List<UsesDependency> usesArrows = new ArrayList<>();
-
-    /** all the extends-arrows in a package */
-    @OnThread(value = Tag.Any,requireSynchronized = true)
-    private final List<Dependency> extendsArrows = new ArrayList<>();
 
     // Two class layers: one front (for normal classes),
     // and one back (for test classes)
@@ -568,7 +559,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         return creatingExtends;
     }
 
-    /** 
+    /**
      * A class caching the vital details needed to draw an extends dependency line,
      * which could be either real and finished, or in-progress of being created.
      */
@@ -635,14 +626,9 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
     private void actualRepaint()
     {
         aboutToRepaint = false;
-        List<Dependency> extendsDeps;
-        List<UsesDependency> usesDeps;
-        // Don't hold the monitor too long: access once and take copy.
-        synchronized (this)
-        {
-            extendsDeps = isShowExtends() ? new ArrayList<>(this.extendsArrows) : Collections.emptyList();
-            usesDeps = isShowUses() ? new ArrayList<>(this.usesArrows) : Collections.emptyList();
-        }
+        List<Dependency> extendsDeps = isShowExtends() ? new ArrayList<>(pkg.getExtendsArrows()) : Collections.emptyList();;
+        List<UsesDependency> usesDeps = isShowUses() ? new ArrayList<>(pkg.getUsesArrows()) : Collections.emptyList();
+
         List<ExtendsDepInfo> extendsLines = new ArrayList<>(Utility.mapList(extendsDeps, ExtendsDepInfo::new));
         if (extendsSubClass != null)
         {
@@ -808,9 +794,9 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         List<Dependency> deps = new ArrayList<>();
 
         if (isShowUses())
-            deps.addAll(usesArrows);
+            deps.addAll(pkg.getUsesArrows());
         if (isShowExtends())
-            deps.addAll(extendsArrows);
+            deps.addAll(pkg.getExtendsArrows());
 
         return deps;
     }
@@ -832,20 +818,20 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
      *         <code>target</code> and <code>type</code> or <code>null</code> if
      *         there is no such dependency.
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.SwingIsFX)
     public synchronized Dependency getDependency(DependentTarget origin, DependentTarget target, BDependency.Type type)
     {
-        List<? extends Dependency> dependencies = new ArrayList<Dependency>();
+        List<? extends Dependency> dependencies;
 
         switch (type) {
             case USES :
-                dependencies = usesArrows;
+                dependencies = pkg.getUsesArrows();
                 break;
             case IMPLEMENTS :
             case EXTENDS :
-                dependencies = extendsArrows;
+                dependencies = pkg.getExtendsArrows();
                 break;
-            case UNKNOWN :
+            default :
                 // If the type of the dependency is UNKNOWN, the requested
                 // dependency does not exist anymore. In this case the method
                 // returns null.
@@ -862,89 +848,6 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         }
 
         return null;
-    }
-
-    /**
-     * Add a dependency in this package. The dependency is also added to the
-     * individual targets involved.
-     */
-    @OnThread(Tag.FXPlatform)
-    // package-visible; see Package.addDependency proxy
-    void addDependency(Dependency d, boolean recalc)
-    {
-        DependentTarget from = d.getFrom();
-        DependentTarget to = d.getTo();
-
-        if (from == null || to == null)
-        {
-            // Debug.reportError("Found invalid dependency - ignored.");
-            return;
-        }
-
-        synchronized (this)
-        {
-            if (d instanceof UsesDependency)
-            {
-                int index = usesArrows.indexOf(d);
-                if (index != -1)
-                {
-                    return;
-                }
-                else
-                    usesArrows.add((UsesDependency) d);
-            } else
-            {
-                if (extendsArrows.contains(d))
-                    return;
-                else
-                    extendsArrows.add(d);
-            }
-        }
-        addDependencyHeadless(d, recalc, pkg);
-    }
-
-    @OnThread(Tag.FXPlatform)
-    public static void addDependencyHeadless(Dependency d, boolean recalc, Package thePkg)
-    {
-        DependentTarget from = d.getFrom();
-        DependentTarget to = d.getTo();
-        from.addDependencyOut(d, recalc);
-        to.addDependencyIn(d, recalc);
-
-        // Inform all listeners about the added dependency
-        DependencyEvent event = new DependencyEvent(d, thePkg, DependencyEvent.Type.DEPENDENCY_ADDED);
-        ExtensionsManager.getInstance().delegateEvent(event);
-    }
-
-    /**
-     * Remove a dependency from this package. The dependency is also removed
-     * from the individual targets involved.
-     */
-    @OnThread(Tag.FXPlatform)
-    public void removeDependency(Dependency d, boolean recalc)
-    {
-        synchronized (this)
-        {
-            if (d instanceof UsesDependency)
-                usesArrows.remove(d);
-            else
-                extendsArrows.remove(d);
-        }
-        removeDependencyHeadless(d, recalc, pkg);
-    }
-
-    @OnThread(Tag.FXPlatform)
-    public static void removeDependencyHeadless(Dependency d, boolean recalc, Package thePkg)
-    {
-        DependentTarget from = d.getFrom();
-        DependentTarget to = d.getTo();
-
-        from.removeDependencyOut(d, recalc);
-        to.removeDependencyIn(d, recalc);
-
-        // Inform all listeners about the removed dependency
-        DependencyEvent event = new DependencyEvent(d, thePkg, DependencyEvent.Type.DEPENDENCY_REMOVED);
-        ExtensionsManager.getInstance().delegateEvent(event);
     }
 
     public void setShowUses(boolean state)
@@ -965,13 +868,6 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
     public boolean isShowExtends()
     {
         return showExtends.get();
-    }
-
-
-    @OnThread(Tag.Any)
-    public synchronized List<Dependency> getUsesArrows()
-    {
-        return new ArrayList<>(usesArrows);
     }
 
     /**

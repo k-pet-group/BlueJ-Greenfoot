@@ -42,6 +42,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
+import bluej.extensions.event.DependencyEvent;
 import javafx.application.Platform;
 
 import bluej.compiler.CompileInputFile;
@@ -147,7 +148,6 @@ public final class Package
     public static final int CLASS_EXISTS = 4;
     /** error code */
     public static final int CREATE_ERROR = 5;
-    private final List<Dependency> pendingDeps = new ArrayList<>();
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private final List<Target> targetsToPlace = new ArrayList<>();
     // Has this package been sent for data recording yet?
@@ -217,6 +217,24 @@ public final class Package
     
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private PackageEditor editor;
+
+    //package-visible
+    List<UsesDependency> getUsesArrows()
+    {
+        return usesArrows;
+    }
+
+    //package-visible
+    List<Dependency> getExtendsArrows()
+    {
+        return extendsArrows;
+    }
+
+    @OnThread(value = Tag.FXPlatform)
+    private final List<UsesDependency> usesArrows = new ArrayList<>();
+
+    @OnThread(value = Tag.FXPlatform)
+    private final List<Dependency> extendsArrows = new ArrayList<>();
     
     /** True if we currently have a compile queued up waiting for debugger to become idle */
     @OnThread(Tag.FXPlatform)
@@ -502,14 +520,6 @@ public final class Package
      */
     void setEditor(PackageEditor ed)
     {
-        // If we are closing, save all our dependencies into pendingDeps
-        // so that they will get added should we re-open:
-        if (this.editor != null && ed == null)
-        {
-            pendingDeps.clear();
-            pendingDeps.addAll(this.editor.getVisibleEdges());
-        }
-
         synchronized (this)
         {
             this.editor = ed;
@@ -518,14 +528,15 @@ public final class Package
         // Note we use ed here, not editor, as editor needs synchronized access
         if (ed != null)
         {
-            for (Dependency d : pendingDeps)
-                ed.addDependency(d, d instanceof UsesDependency);
-            pendingDeps.clear();
             synchronized (this)
             {
                 for (Target t : targets)
+                {
                     if (t instanceof ParentPackageTarget)
+                    {
                         ed.findSpaceForVertex(t);
+                    }
+                }
                 // Find an empty spot for any targets which didn't already have
                 // a position
                 for (Target t : targetsToPlace)
@@ -1119,16 +1130,6 @@ public final class Package
         props.putAll(frameProperties);
 
         // save targets and dependencies in package
-        List<Dependency> usesArrows;
-        if (editor != null)
-            usesArrows = editor.getUsesArrows();
-        else
-        {
-            usesArrows = new ArrayList<>();
-            // Just add outbound dependencies to make sure we don't duplicate:
-            for (ClassTarget ct : getClassTargets())
-                usesArrows.addAll(ct.usesDependencies());
-        }
         props.put("package.numDependencies", String.valueOf(usesArrows.size()));
 
         int t_count = 0;
@@ -2943,25 +2944,69 @@ public final class Package
         addDependency(dependency, dependency instanceof UsesDependency);
     }
 
-    public void addDependency(Dependency dependency, boolean recalc)
+    public void addDependency(Dependency d, boolean recalc)
     {
-        PackageEditor ed = getEditor();
-        if (ed != null)
-            ed.addDependency(dependency, recalc);
-        else if (Config.isGreenfoot())
-            PackageEditor.addDependencyHeadless(dependency, recalc, this);
+        DependentTarget from = d.getFrom();
+        DependentTarget to = d.getTo();
+
+        if (from == null || to == null)
+        {
+            // Debug.reportError("Found invalid dependency - ignored.");
+            return;
+        }
+
+        if (d instanceof UsesDependency)
+        {
+            if (usesArrows.contains(d))
+            {
+                return;
+            }
+            else
+            {
+                usesArrows.add((UsesDependency) d);
+            }
+        }
         else
-            pendingDeps.add(dependency);
+        {
+            if (extendsArrows.contains(d))
+            {
+                return;
+            }
+            else
+            {
+                extendsArrows.add(d);
+            }
+        }
+
+        DependentTarget from1 = d.getFrom();
+        DependentTarget to1 = d.getTo();
+        from1.addDependencyOut(d, recalc);
+        to1.addDependencyIn(d, recalc);
+
+        // Inform all listeners about the added dependency
+        DependencyEvent event = new DependencyEvent(d, this, DependencyEvent.Type.DEPENDENCY_ADDED);
+        ExtensionsManager.getInstance().delegateEvent(event);
     }
     
     public void removeDependency(Dependency dependency, boolean recalc)
     {
-        PackageEditor ed = getEditor();
-        if (ed != null)
-            ed.removeDependency(dependency, recalc);
-        else if (Config.isGreenfoot())
-            PackageEditor.removeDependencyHeadless(dependency, recalc, this);
-        else if (!pendingDeps.remove(dependency))
-            Debug.printCallStack("Error: trying to remove non-existent dependency with no package editor available: " + dependency);
+        if (dependency instanceof UsesDependency)
+        {
+            usesArrows.remove(dependency);
+        }
+        else
+        {
+            extendsArrows.remove(dependency);
+        }
+
+        DependentTarget from = dependency.getFrom();
+        DependentTarget to = dependency.getTo();
+
+        from.removeDependencyOut(dependency, recalc);
+        to.removeDependencyIn(dependency, recalc);
+
+        // Inform all listeners about the removed dependency
+        DependencyEvent event = new DependencyEvent(dependency, this, DependencyEvent.Type.DEPENDENCY_REMOVED);
+        ExtensionsManager.getInstance().delegateEvent(event);
     }
 }
