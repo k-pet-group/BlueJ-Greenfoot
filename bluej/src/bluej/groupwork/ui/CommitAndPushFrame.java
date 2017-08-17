@@ -153,9 +153,6 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
             } // unselected
             else {
                 removeModifiedLayouts();
-                if (commitListModel.isEmpty()) {
-                    commitAction.setEnabled(false);
-                }
             }
         });
         includeLayout.setDisable(true);
