@@ -69,6 +69,8 @@ Use descriptive names for all identifiers (names of classes, variables and metho
 
     Use blank lines to separate logical blocks of code. This means at least between methods, but also between logical parts within a method.
 
+2.9 Avoid lines which are very long.  100+ characters (including indent) is already quite long, and at 110 characters you should break the line into a continuation line, or refactor out some of the sub-expressions into variables.
+
 3. Documentation
 
 3.1 Every class has a license comment and a class comment at the top.
