@@ -24,43 +24,43 @@ Use descriptive names for all identifiers (names of classes, variables and metho
 
 2.2 All statements within a block are indented one level.
 
-2.3 Braces for classes and methods are alone on one line.
+2.3 Braces for classes, methods, if statements, loops, sychronized blocks etc are alone on one line.
 
-    The braces for class and method blocks are on separate lines and are at the same indentation level, for example:
+    The braces for blocks are on separate lines and are at the same indentation level, for example:
 
     public int getAge()
     {
-        statements
+        while (true)
+        {
+            if (false)
+            {
+                try
+                {
+
+                }
+                catch (Exception e)
+                {
+
+                }
+                finally
+                {
+
+                }
+            }
+            else
+            {
+
+            }
+        }
     }
 
-2.4 For all other blocks, braces open at the end of a line.
-
-    All other blocks open with braces at the end of the line that contains the keyword defining the block. The closing brace is on a separate line, aligned under the keyword that defines the block. For example:
-
-    while(condition) {
-         statements
-    }
-
-    if(condition) {
-         statements
-    }
-    else {
-         statements
-    }
-
-    try {
-       statements
-    }
-    catch(exception) {
-       statements
-    }
-
+2.4 For lambdas, which are often inside expressions, use your best judgement.
 
 2.5 Always use braces in control structures.
 
     Braces are used in if-statements and loops even if the body is only a single statement.
 
-2.6 Use a space before the opening brace of a control structure's block.
+2.6 Use a space between the keyword and a control structure's condition, e.g. "if (true)".
 
 2.7 Use a space around operators.
     eg: 4 * 5
@@ -68,6 +68,8 @@ Use descriptive names for all identifiers (names of classes, variables and metho
 2.8 Use a blank line between methods (and constructors).
 
     Use blank lines to separate logical blocks of code. This means at least between methods, but also between logical parts within a method.
+
+2.9 Avoid lines which are very long.  100+ characters (including indent) is already quite long, and at 110 characters you should break the line into a continuation line, or refactor out some of the sub-expressions into variables.
 
 3. Documentation
 
@@ -78,10 +80,6 @@ Use descriptive names for all identifiers (names of classes, variables and metho
 
     The class comment contains at least
     - a general description of the class
-    - the author's name(s), specified by the @author javadoc tag.
-
-    Every person who has contributed to the class should be named as an author
-    (i.e. appropriately credited using @author javadoc tag).
 
 3.2 Every method has a method comment.
 
@@ -125,11 +123,10 @@ Use descriptive names for all identifiers (names of classes, variables and metho
 
     In constructors of subclasses, do not rely on automatic insertion of a superclass call. Include the super(...) call explicitly, even if it would work without it.
 
-4.7 Initialise all fields in the constructor.
+4.7 Initialise all fields in the constructor or by direct initialisation.
 
-5. Code idioms
+5. Edits and commits
 
-5.1 Use iterators with collections.
+5.1 Separate out each logical change into a different commit.  A bug fix should be separate to code clean-up, whenever possible.
 
-    To iterate over a collection, use iterators, not "int" indices.
-
+5.2 Do not edit more code than is necessary: do not clean up or change the style of code which you would otherwise not need to edit.
