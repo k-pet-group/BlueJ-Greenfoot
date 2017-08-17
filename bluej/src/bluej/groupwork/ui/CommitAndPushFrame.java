@@ -168,6 +168,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         pushAction.useButton(PkgMgrFrame.getMostRecent(), pushButton);
 
         Label pushFilesLabel = new Label(Config.getString("team.commitPush.push.files"));
+        pushFiles.setCellFactory(param -> new TeamStatusInfoCell(project));
         pushFiles.setDisable(true);
         ScrollPane pushFileScrollPane = new ScrollPane(pushFiles);
         pushFileScrollPane.setFitToWidth(true);
