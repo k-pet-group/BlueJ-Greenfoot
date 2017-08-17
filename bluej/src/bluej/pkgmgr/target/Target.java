@@ -134,7 +134,8 @@ public abstract class Target
             if (hasFocus && !isSelected())
                 pkg.getEditor().selectOnly(this);
 
-            if (!hasFocus)
+            // Editor can be null if we lose focus because window is closing:
+            if (!hasFocus && pkg.getEditor() != null)
                 pkg.getEditor().checkForLossOfFocus();
         });
 

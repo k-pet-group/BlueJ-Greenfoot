@@ -495,28 +495,47 @@ public final class Package
         PkgMgrFrame.displayMessage(this, msg);
     }
 
+    /**
+     * Sets the PackageEditor for this package.
+     * @param ed The PackageEditor.  Non-null when opening, null when
+     *           closing.
+     */
     void setEditor(PackageEditor ed)
     {
+        // If we are closing, save all our dependencies into pendingDeps
+        // so that they will get added should we re-open:
+        if (this.editor != null && ed == null)
+        {
+            pendingDeps.clear();
+            pendingDeps.addAll(this.editor.getVisibleEdges());
+        }
+
         synchronized (this)
         {
             this.editor = ed;
         }
-        for (Dependency d : pendingDeps)
-            ed.addDependency(d, d instanceof UsesDependency);
-        pendingDeps.clear();
-        synchronized (this)
+
+        // Note we use ed here, not editor, as editor needs synchronized access
+        if (ed != null)
         {
-            for (Target t : targets)
-                if (t instanceof ParentPackageTarget)
+            for (Dependency d : pendingDeps)
+                ed.addDependency(d, d instanceof UsesDependency);
+            pendingDeps.clear();
+            synchronized (this)
+            {
+                for (Target t : targets)
+                    if (t instanceof ParentPackageTarget)
+                        ed.findSpaceForVertex(t);
+                // Find an empty spot for any targets which didn't already have
+                // a position
+                for (Target t : targetsToPlace)
+                {
                     ed.findSpaceForVertex(t);
-            // Find an empty spot for any targets which didn't already have
-            // a position
-            for (Target t : targetsToPlace) {
-                ed.findSpaceForVertex(t);
+                }
+                targetsToPlace.clear();
             }
-            targetsToPlace.clear();
+            ed.graphChanged();
         }
-        ed.graphChanged();
     }
     
     @OnThread(Tag.Any)

@@ -1185,6 +1185,7 @@ public class PkgMgrFrame
         }
 
         getPackage().closeAllEditors();
+        getPackage().setEditor(null);
         
         DataCollector.packageClosed(thePkg);
 
