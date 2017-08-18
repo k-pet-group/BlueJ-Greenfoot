@@ -37,6 +37,14 @@ import threadchecker.Tag;
 @OnThread(Tag.FXPlatform)
 public class ResourceDescriptor
 {
+    /**
+     *  Builds and returns a team resource description for a file.
+     *
+     * @param project   The project that includes the file.
+     * @param info      Team status information for the file.
+     * @param annotate  Should annotation be added to the description.
+     * @return          A description for the file's team status.
+     */
     public static String getResource(Project project, TeamStatusInfo info, boolean annotate)
     {
         String status = info.toString();
@@ -81,6 +89,14 @@ public class ResourceDescriptor
         return status;
     }
 
+    /**
+     *  Builds and returns a team resource description for a file's update status.
+     *
+     * @param project       The project that includes the file.
+     * @param updateStatus  Update status information for the file.
+     * @param annotate      Should annotation be added to the description.
+     * @return              A description for the file's team status.
+     */
     public static String getResource(Project project, UpdateStatus updateStatus, boolean annotate)
     {
         if (updateStatus.infoStatus != null)
@@ -93,6 +109,15 @@ public class ResourceDescriptor
         }
     }
 
+    /**
+     *  Builds and returns a resource description for a file in a distributed version control system.
+     *
+     * @param project  The project that includes the file.
+     * @param info     Team status information for the file.
+     * @param annotate Should annotation be added to the description.
+     * @param remote   Which description is needed, the remote one (<code>true</code>) or the local one (<code>false</code>).
+     * @return         A description for the file's team status.
+     */
     public static String getDCVSResource(Project project, TeamStatusInfo info, boolean annotate, boolean remote)
     {
         String status = info.toString();
@@ -127,6 +152,15 @@ public class ResourceDescriptor
         return status;
     }
 
+    /**
+     *  Builds and returns a resource description for a file in a distributed version control system.
+     *
+     * @param project       The project that includes the file.
+     * @param updateStatus  Update status information for the file.
+     * @param annotate      Should annotation be added to the description.
+     * @param remote        Which description is needed, the remote one (<code>true</code>) or the local one (<code>false</code>).
+     * @return              A description for the file's team status.
+     */
     public static String getDCVSResource(Project project, UpdateStatus updateStatus, boolean annotate, boolean remote)
     {
         if (updateStatus.infoStatus != null)
