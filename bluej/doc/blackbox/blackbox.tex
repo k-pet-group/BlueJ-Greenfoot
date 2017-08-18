@@ -7,6 +7,7 @@
 \usepackage{hyperref}
 \hypersetup{colorlinks=true,linkcolor=blue}
 \usepackage{pdfpages}
+\usepackage{longtable}
 
 \usepackage{listings}
 \lstMakeShortInline{|}
@@ -15,6 +16,13 @@
 \def\sectionautorefname{Section}
 \def\subsectionautorefname{Section}
 \def\subsubsectionautorefname{Section}
+
+% Reduce space before chapter headings:
+% From https://tex.stackexchange.com/questions/63390/how-to-decrease-spacing-before-chapter-title
+\usepackage{titlesec}
+\titleformat{\chapter}[display]
+{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{0pt}{40pt}
 
 \newcommand{\myref}[1]{\autoref{#1} on page \pageref*{#1}}
 \newcommand{\tabref}[1]{\lstinline|#1| table (see \myref{tab:#1})}
@@ -29,7 +37,7 @@
   \begin{center}
     \includegraphics[width=10cm]{../../lib/images/bluej-icon-256.png}\\
     \huge BlueJ Blackbox Data Collection\\~\\Researchers' Handbook
-    (version 1.7, ? July 2017)
+    (version 2.0, 18 August 2017)
   \end{center}
 \end{titlepage}
 
@@ -44,15 +52,22 @@ bench and so on.
 Chapter \ref{sec:concepts} explains the concepts, assumptions and caveats
 associated with the data recording.  It is important to read this chapter
 before carrying out any detailed analysis, so that you do not proceed with
-false assumptions.  Chapters \ref{sec:master_events} and
+false assumptions.  Chapter \ref{sec:getting_started} provides some hints on
+how you might get started with the analysis.  Chapters \ref{sec:master_events} and
 \ref{sec:other_tables} contain technical detail on the data schema.
+
+Chapter \ref{sec:java-stride} explains how to analyse certain subsets of the
+data set: just Java, just Stride, just BlueJ 3.x and so on.  Chapter \ref{sec:locations}
+explains how to do analysis by geographical location.
 
 Chapter \ref{sec:data_access} contains details on how to actually access the
 data (MySQL details, etc), and chapter \ref{sec:data_use} contains the
-data-use policies which we expect all researchers to read.  Finally, chapter
-\ref{sec:example_codeview} has details on the example application we have
-provided, and chapter \ref{sec:postprocess} has some details on
+data-use policies which we expect all researchers to read.  Chapter \ref{sec:interruptions}
+lists all the bugs and recording interruptions in the data setthat we know about.
+Finally, chapter \ref{sec:postprocess} has some details on
 post-processing we have in place.
+
+\vspace{3cm}
 
 \begingroup
 \let\clearpage\relax
@@ -61,15 +76,13 @@ post-processing we have in place.
 
 \listoftables
 
-\begin{table}
+\clearpage
+\begin{longtable}{p{6cm}@{}l}
 \caption[Possible \lstinline!master_events.name! values]{List of different
   values allowed for the \lstinline!name! column in the \lstinline!master_events! column, with
-  links to sections in which that event is described.}
-\label{tab:event_names}
-\begin{center}
+  links to sections in which that event is described.}\label{tab:event_names}\\
 %table:event_names
-\end{center}
-\end{table}
+\end{longtable}
 
 \chapter{Concepts and Caveats}
 \label{sec:concepts}
@@ -77,7 +90,7 @@ post-processing we have in place.
 There are several concepts involved in the Blackbox project, and it is
 very important when doing analysis on the data to understand the concepts
 involved, and particularly the limitations of the data collection.  If you
-naively assume that one virtual user is one real person, you may draw false
+naively assume that one virtual user is one real person, for example, you may draw false
 conclusions from your analysis.
 
 \section{Users}
@@ -85,7 +98,8 @@ conclusions from your analysis.
 
 BlueJ stores its properties file in a per-user location.  For example, on
 Linux, it uses |~/.bluej/bluej.properties|, whereas on Windows 7 it is (on a typical
-home installation) |C:\Users\Joe\bluej\bluej.properties|.
+home installation) |C:\Users\Joe\bluej\bluej.properties|.  On Mac it is in
+|~/Library/Preferences/org.bluej/bluej.properties|.
 
 This properties file is the only mechanism that BlueJ has to have any sense of
 identity.  If two physical people use the same account, they will appear to
@@ -232,7 +246,8 @@ The BlueJ data collection project server is an open web server to which anyone
 can submit, and the BlueJ client is an open-source program.  There is no
 technical way to guarantee that the data coming in is from an unmodified BlueJ
 client -- it could be modified, or it could simply be made-up spam data being
-submitted.  It remains to be seen whether this will be an issue.
+submitted.  We do not believe this has been an issue yet, several years in, but
+we note the issue here for completeness.
 
 \section{Source Code Consistency}
 
@@ -284,7 +299,7 @@ prevent further use of the debug VM.
 BlueJ has an extension mechanism that allows programmatic operation of BlueJ
 from third-party extensions.  (Not to mention that BlueJ is open-source,
 anyway.)  The extensions can trigger many of the events described in this
-document.  We do not annotate which events are triggered by extensions and
+document.  We do not generally annotate which events are triggered by extensions and
 which are not.  This annotation would be a lot of extra technical work, and
 probably for not much purpose, since we do not believe many BlueJ users use
 extensions that will trigger these events.
@@ -324,6 +339,49 @@ server comes to add a record to these tables with duplicate data to a previous
 record, it \textit{may} reference the existing record instead, to save space, like
 interning strings.  This is a performance optimisation that should have no
 effect on the semantics.  Tables that do this are tagged as such.
+
+
+\chapter{Getting Started: Some Hints}
+\label{sec:getting_started}
+
+This document is intended to be a complete reference manual, but that is not much
+help when getting started out.  So here's some hints on how to begin.
+
+Log in to the white machine using your SSH details, run |mysql -u whitebox -p blackbox_production|
+Enter the SQL password you've been given.  That gives you a MySQL session in which
+to find things out.
+
+Find your own UUID.  In your own bluej.properties file (see section \ref{def:users}),
+look for the line |blackbox.uuid=...|  You can use that with the |users.uuid| field
+to find your own user.  You'll find that useful when you want to see what data occurs
+when you perform certain actions in BlueJ.  In normal operating circumstances, you should
+be able to see events from your own user within the database within a few seconds.
+(Delay comes from sending to the server, recording in server, mirroring to analysis machine.)
+You can find your user id using the query: |select id from users where uuid = "...";|
+
+Expanding on that tip: if you want to know how a certain action gets recorded, try doing
+it yourself and seeing what gets recorded.  You can see your master events using the query
+|select * from master_events where user_id = ...| (using the user id from the last step).
+
+Many Blackbox users want to do source code related analysis.  The scheme we describe later
+with diffs and so on is quite low-level, and not something you want to deal with yourself
+if you don't have to.  For this reason, we have two tools available to help you easily
+access source code states:
+\begin{itemize}
+\item |print-compile-input| will give you the source state of any file at the point
+of its compilation.  This is the faster tool because these states are calculated and cached
+by a post-processing tool.
+\item |print-source-state| will you the source state of any file at any chosen point in time
+but it is slower because it reconstructs the state from the diffs in the database every time
+you run it.
+\end{itemize}
+
+These tools and a couple more are documented in section \ref{sec:tools}.
+
+Most Blackbox analysis of source code will involve two aspects.  One is querying the SQL
+database to find events of interest, e.g. all compile errors with a certain message, or
+all projects where the debugger was used.  The second is fetching the source code (probably
+using the above tools) and doing some sort of analysis on it.
 
 \chapter{Master Events Table}
 \label{sec:master_events}
@@ -487,7 +545,7 @@ This event is fired whenever a class is added to the BlueJ project.  This may
 be via the New Class menu item, or via the Import Class menu item, or via
 version control.
 
-The event will always have either one or two associated entry in the
+The event will always have either one or two associated entries in the
 \tabref{source_histories}, which will be a |"complete"| event.  One, if this
 is Java file.  Two, if this is a Stride file (one for the Stride file, one
 for the generated Java file).
@@ -500,8 +558,10 @@ was deleted from.
 This event is fired whenever a class is removed from a BlueJ project.  This
 may be via the interface, or via version control.
 
-The event will always have exactly one associated entry in the
-\tabref{source_histories}, which will be a |"file_delete"| event.
+The event will always have either one or two associated entries in the
+\tabref{source_histories}, which will be a |"file_delete"| event.  One, if this
+is Java file.  Two, if this is a Stride file (one for the Stride file, one
+for the generated Java file).
 
 \subsection{\lstinline!"rename"!}
 
@@ -515,8 +575,10 @@ silently renames the file to match the class name.  But note that until this
 save occurs, many more edits may take place, so the rename of the file may
 appear some time after the actual relevant source code edit takes place.
 
-The event will always have exactly one associated entry in the
-\tabref{source_histories}, which will be a |rename| event.
+The event will always have either one or two associated entries in the
+\tabref{source_histories}, which will be a |"rename"| event.  One, if this
+is Java file.  Two, if this is a Stride file (one for the Stride file, one
+for the generated Java file).
 
 \subsection{\lstinline!"convert_stride_to_java"! (since BlueJ 4.x)}
 
@@ -526,10 +588,10 @@ was renamed in.
 This event is fired when the user permanently converts a Stride class to Java.
 
 The event will always have two associated entries in the
-\tabref{source_histories}.  One entry will be a |stride_to_java| event, which will
+\tabref{source_histories}.  One entry will be a |"stride_to_java"| event, which will
 be associated with the Java source file (i.e. the \textit{target} of the conversion).  The content
   of this event will be a diff against the previous state of the Java file, as in a diff event.  Note that the Java file exists before and after the conversion, but switches from being auto-generated to being user-edited.
-The other source history entry will be a |file_delete| event, which will be associated with the Stride file (since it gets
+The other source history entry will be a |"file_delete"| event, which will be associated with the Stride file (since it gets
 removed as part of the conversion).
 
 \subsection{\lstinline!"convert_java_to_stride"! (since BlueJ 4.x)}
@@ -540,18 +602,17 @@ was renamed in.
 This event is fired when the user permanently converts a Java class to Stride.
 
 The event will always have two associated entries in the
-\tabref{source_histories}.  One entry will be a |java_to_stride| event, which will
+\tabref{source_histories}.  One entry will be a |"java_to_stride"| event, which will
 be associated with the Stride source file (i.e. the \textit{target} of the conversion).  The content
   of this event will the complete content of the new Stride file, as in a file creation event.
-The other source history entry will be a |java_gen_from_stride| event, which will be associated with the Java file, and contains a diff from the previous state of the Java file.  Note that the Java file exists before and after the conversion, but switches from being user-edited to being auto-generated.
+The other source history entry will be a |"diff_generated"| event, which will be associated with the Java file, and contains a diff from the previous state of the Java file.  Note that the Java file exists before and after the conversion, but switches from being user-edited to being auto-generated.
 
-\subsection{\lstinline!"file_open"!, \lstinline!"file_select"! and \lstinline!"file_close"!}
+\subsection{\lstinline!"file_open"!, \lstinline!"file_select"! and \lstinline!"file_close"! (since BlueJ 4.x)}
 
 This event will have a |package_id|, which indicates which package the relevant file
 was in.
 
-These three events will only be recorded in versions of BlueJ from 4.0.0 onwards, and
-in Greenfoot.
+These three events will only be recorded in versions of BlueJ from 4.x onwards.
 
 These three events do not affect the content of a file, but instead correspond to
 GUI actions: opening a source file for editing, focusing the editor of a source file, and
@@ -568,7 +629,8 @@ A close event occurs when the tab is closed, either individually or because the 
 window was closed.  It may be possible for a BlueJ session to finish without all editors being
 closed first.
 
-Each event will always have exactly one associated entry in the \tabref{source_files},
+The master event for each will always have |event_type| set to |"SourceFile"|, and
+|event_id| will reference an entry in the \tabref{source_files},
 indicating the relevant file.
 
 \section{Compilation}
@@ -596,14 +658,13 @@ distinguish the automatic error check (which just shows
 errors, if any) from a compilation (which outputs new .class files if successful) in
 the user's mind.  In reality, both feed the users' code into the Java compiler, and the
 only difference is whether the class files are discarded (error check) or retained (compile)
-if the internal compile is successful.
+if the compile is successful.
 \item In Blackbox, both the automatic error check compilations and standard compilations
  are stored in the same compilation events table (as described later).
  Crucially, the new |compile_events.reason| field will let you distinguish between
  the different types.
-\item After either error check or manual compile has finished, if there are errors then
-all the errors are indicated on screen using a red underline.  For this reason, all
-errors are marked as shown, meaning the indicator was shown.  There is a new separate
+\item After either  anerror check or manual compile has finished, if there are errors then
+all the errors are indicated on screen using a red underline.  The old |shown| column is not used for this any more.  There is a new separate
 mechanism for recording when the actual error message was shown to the user.
 \end{itemize}
 
@@ -637,14 +698,14 @@ This event occurs whenever a compilation of the user's classes is triggered.
 (This does not include things like codepad interactions).
 
 This master event will always have |event_type| set to |"CompileEvent"|, and
-|event_id| will reference an entry in the \tabref{compile_events}.  (In turn,
+|event_id| will reference an entry in the \tabref{compile_events}.  In turn,
 that entry in the |compile_events| table, will be linked to by one or more
 |compile_inputs| and zero or more |compile_outputs|, but see the
-\tabref{compile_events} for more details.)
+\tabref{compile_events} for more details.
 
-Note that compilation has undergone an overhaul in BlueJ 4.x.  In BlueJ 4.x onwards, compilation is performed
-automatically in a number of different cases.  This is/will be documented in the new
-reason column in the \tabref{compile_events}.
+In BlueJ 4.x onwards, compilation is performed
+automatically in a number of different cases.  This is documented in the new
+reason column in the \tabref{compile_events}, which will be |NULL| for BlueJ 3.x compilations.
 
 \subsection{\lstinline!"shown_error_indicator"! (since BlueJ 4.x)}
 
@@ -654,13 +715,16 @@ throughout the code (in Java and Stride editors) indicate an error.  So when com
 has finished, the user will see one red underline for each error located.  (Where error locations
 overlap, only one is shown.)
 
-All Java errors are initially marked as shown, but in the sense that the red underline is shown.
-Stride errors are marked as not shown, but those that do get their red underlines shown will later (possibly near-instantly)
-get a |"shown_error_indicator"| event recorded.  This does not mean that the user has been shown
-the error message: that is recorded by the |"shown_error_message"| event, below.
+For BlueJ 4.x, the |shown| column in |compile_outputs| is not used (it is |NULL|).  Instead, when the red underline is shown for an error (usually immediately after compilation), a |"shown_error_indicator"| event is recorded.  This does not mean that the user has been shown
+the error \textit{message}: that is recorded by the |"shown_error_message"| event, below.
 
-The |sub_event_type| of |"shown_error_message"| events will be |"CompileOutput"| and the |sub_event_id|
-will contain an |id| from an entry in the \tabref{compile_outputs}.
+A |"shown_error_indicator"| master event will have one or more error indicators associated.
+This is done using the |shown_error_indicators| link table:
+
+%schema:shown_error_indicators
+
+This simply links compile outputs (the error which has had its indicator shown) to the
+|"shown_error_indicator"| master event when they were shown.
 
 \subsection{\lstinline!"shown_error_message"! (since BlueJ 4.x)}
 
@@ -671,8 +735,8 @@ will only get an |"shown_error_message"| event generated once, the first time it
 compilation occurs, an error with the same text at the same location will get a new entry in the
 \tabref{compile_outputs}, and thus be considered a new error.  This all applies to Java and Stride.
 
-The |sub_event_type| of |"shown_error_message"| events will be |"CompileOutput"| and the |sub_event_id|
-will contain an |id| from an entry in the \tabref{compile_outputs}.
+The |event_type| of |"shown_error_message"| events will be |"CompileOutput"| and the |event_id|
+will contain an |id| from an entry in the \tabref{compile_outputs} indicating which compile error had its message shown.
 
 In Stride, when an error is shown, it may be presented along with a list of quick fixes (e.g.
 correcting a typo in a variable name).  In this case, there will be entries recorded in the
@@ -683,8 +747,8 @@ event being generated.
 
 As described in the previous section, a Stride error may be shown along with some suggested quick
 fixes.  These are recorded in the \tabref{quick_fixes}.  If the user selects to execute one
-of the quick fixes, a |"fix_executed"| master event is generated, where the |sub_event_type| is |"QuickFix"|
-and the |sub_event_id| is the |id| of an item in the \tabref{quick_fixes}.
+of the quick fixes, a |"fix_executed"| master event is generated, where the |event_type| is |"QuickFix"|
+and the |event_id| is the |id| of an item in the \tabref{quick_fixes}.
 
 \subsection{Related Tables}
 
@@ -693,23 +757,22 @@ The |compile_events| table records whether the compilation was a success
 
 %schema:compile_events
 
-The |compile_events| may then be linked to by entries in the |compile_inputs| and
+The |compile_events| records may then be linked to by entries in the |compile_inputs| and
 |compile_outputs| table.  The reason column was added in BlueJ 4.x.
 Possible values for reason are:
 
 \begin{itemize}
 \item |NULL| -- This indicates the compile event occurred in BlueJ 3.x, which predates
 the addition of the reason column.
-\item |"early"| -- A check in Stride for errors that can be spotted without full javac
+\item |"early"| -- A pre-compilation check in Stride for errors that can be spotted without full javac
  compilation, such as a slot being empty or having a parse error.  Early compiles are only recorded if they feature errors.
 \item |"late"| -- A post-compilation check in Stride for errors which will have shown
-a compiler error, but for which we can show a more helpful error message, for example if
+a compiler error, but for which we can show a more helpful error message or quick fix, for example if
  the user has typoed a variable name.  Late compiles are only recorded if they feature errors.
 \item |"invoke"| -- A compilation of some generated code, required to execute a user's
 invocation (e.g. when they right click on an object in the object bench to call a method).
 \item |"rebuild"| -- A full rebuild of a project
-\item |"extension"| -- Compilation was requested by an extension.  This includes some cases
-in Greenfoot where the system requests compilation.
+\item |"extension"| -- Compilation was requested by an extension.
 \item |"loaded"| -- Compilation triggered after loading a project or a new class.
 \item |"modified"| -- Compilation caused by modifying code.  This is the most common case.
 \item |"new_class"| -- Compilation which happens after creating a new class.
@@ -727,11 +790,10 @@ event to many source files.
 %schema:compile_outputs
 
 The |compile_outputs| table has an entry for each warning and each error that
-occurred.  Note that these warnings and errors are reported from the standard Java
-compiler from the JDK.  However, BlueJ may alter the format of some messages,
-and will only display at most one error, and may ignore some warnings.  The
-message recorded here is the altered format, and the |shown| flag indicates
-whether or not this error or warning was actually displayed to the user (but read on).  The
+occurred.  They may be generated by BlueJ (e.g. Stride checks), by the standard Java
+compiler, or a mix: BlueJ may alter the format of some compiler messages.  In the latter
+case, The message recorded here is the altered format. The |shown| flag indicates
+whether or not this error or warning was actually displayed to the user in BlueJ 3.x.  The
 |is_error| flag indicates if it was an error (otherwise it was a warning), the
 |message| field shows the text that would be displayed to the user.
 
@@ -752,10 +814,8 @@ give start/end character locations within that item.  For Java errors in Stride 
 occur in compilation, the error points to the Java file, fills in the start/end line/column fields
 and fills in the |xpath|, |xml_start| and |xml_end| fields.
 
-Since BlueJ 4.x, which shows errors as a red underline, all Java errors are marked
-as shown (unless there is an unexpected problem, such as an invalid location) in
-this table, but see the details on the |"shown_error_indicator"| and
-|"shown_error_message"| events above, especially for Stride.  In events recored in client versions prior to 4.x,
+For BlueJ 4.x see the details on the |"shown_error_indicator"| and
+|"shown_error_message"| events, especially for Stride.  In events recorded in client versions prior to 4.x,
 the |session_id| and |session_sequence| columns will be NULL.
 
 %schema:quick_fixes
@@ -768,15 +828,17 @@ which these fixes were shown for.
 \section{Code Completion}
 
 When code completion (i.e. the window you get when you hit ctrl-space) is shown, or when an item is selected,
-a code completion event is sent to the database.
+a code completion event is sent to the database in BlueJ 4.x (this is not recorded in BlueJ 3.x).
 
 %schema:code_completions
 
-This table is used for start and end events for code completion (see below), and for Java or Stride.  The
+This table is used for start and end events for code completion (see below), for Java and Stride.  The
 |line_number| and |column_number| are used to record the location of the caret when code completion was triggered or ended in Java,
 but are NULL for Stride.  Conversely, the |xpath| and |xml_index| (index within a slot) are set for Stride, but NULL for Java.
 
-The |session_id| and |completion_sequence|, when taken as a pair, uniquely identify one use of code completion.  This is so
+The |event_type| of |"code_completion_started"| and |"code_completion_ended"| events will be |"CodeCompletion"| and the |event_id|
+will contain an |id| from an entry in the \tabref{code_completions}.  The start and end
+entries will be different entries, but the |session_id| and |completion_sequence|, when taken as a pair, uniquely identify one use of code completion.  This is so
 that you can easily pair together beginning and ending events of the same code completion.  Note that not every beginning
 has an end: if the user cancels, we do not record an ending event, only if they actually select an item.
 
@@ -789,7 +851,7 @@ if there is exactly one matching completion available in BlueJ (e.g. ``hashC'' h
 the completion is automatically inserted without showing the window.  In this case, a started event will be immediately
 followed by an end event.
 
-There will be one matching item in the |code_completions| table, which will have |trigger| set to |"started"|.  The |stem| field
+There will be one record in the |code_completions| table as described above, which will have |trigger| set to |"started"|.  The |stem| field
 will be the String used as the stem for code completion searching (roughly: the word to the left of the cursor position, if any).
 The |replacement| field will be NULL.
 
@@ -826,8 +888,55 @@ was pressed but was not valid.  The |enclosing_xpath| field is the Xpath to the 
  will locate the while frame, and the index will be 0.  If you move the frame cursor down one
  frame inside the while, the Xpath will be the same, and the index will be 1.
 
-TODO:
+
+\subsection{\lstinline!"frame_catalogue_showing"! (since BlueJ 4.x)}
+
+This event occurs when the cheat sheet (which we internally refer to as the frame catalogue)
+on the right-hand side of the Stride editor window is shown or hidden.  These events always
+point to an entry in the |frame_catalogue_showings| table:
+
 %schema:frame_catalogue_showings
+
+The |show| field says whether the catalogue was shown (true) or hidden (false).  The |reason| field
+says the cause of the catalogue showing:
+\begin{itemize}
+\item |"unknown_frame_command"| -- when a user presses a certain number (currently: two) of unknown
+frame insertion keys in a row, we automatically show the catalogue to guide them.
+\item |"menu_or_shortcut"| -- the user showed/hid the catalogue explicitly using the menu item or
+the shortcuts (currently: F1 or typing a question mark).
+\item |"arrow"| -- the user clicked on the divider between the editor and catalogue, which shows/hides it.
+\item |"properties"| -- the state is remembered between sessions using a stored property.  On editor load,
+this property is used to show/hide the catalogue, and an event with this reason is sent.
+\end{itemize}
+
+The |enclosing_xpath| and |enclosing_index| fields identify the frame cursor position when the change happened,
+or are NULL if a frame cursor was not focused at the time.
+
+\subsection{\lstinline!"view_mode_change"! (since BlueJ 4.x)}
+
+This event occurs when the user changes view between normal, Java preview, and bird's eye view.
+
+%schema:view_mode_changes
+
+The |old_view| and |new_view| fields identify which view is being switched from/to:
+\begin{itemize}
+\item |"normal"| -- The standard editing view.
+\item |"birdseye_doc"| -- Bird's eye view with method documentation showing.
+\item |"birdseye_nodoc"| -- Bird's eye view with method documentation hidden.
+\item |"java_preview"| -- Java preview mode.
+\end{itemize}
+
+The |reason| field details how the view was changed:
+\begin{itemize}
+\item |"mouse_clicked"| -- The user clicked the mouse, which exits bird's eye view.
+\item |"key_pressed_enter"| -- The user pressed the Enter key to select a method to jump to, exiting bird's eye view.
+\item |"key_pressed_escape"| -- The user pressed Escape, which resets the view to normal.
+\item |"menu_or_shortcut"| -- The user used a menu or keyboard shortcut to change views.
+\end{itemize}
+
+The |enclosing_xpath| and |enclosing_index| fields identify the frame cursor position when the view change happened,
+or are NULL if a frame cursor was not focused at the time.  The |source_file_id| field indicates which source file was being viewed.
+
 
 \section{Miscellaneous Events}
 
@@ -1156,14 +1265,14 @@ are created by this event.
 
 Each version control event has an associated entry in the
 |version_control_events| table, with a |vcs_type| (built-in options:
-|"CVS"|, |"SVN"|) and a |protocol| (e.g. |"http"| or |"svn+ssh"|).
+|"CVS"| [BlueJ 3.x only], |"SVN"|, |"Git"| [BlueJ 4.x only]) and a |protocol| (e.g. |"http"| or |"svn+ssh"|).
 
 \subsection{\lstinline!"vcs_history"! and \lstinline!"vcs_share"!}
 
 These events get an associated entry in the |version_control_events|
 table, but no more data than that.
 
-\subsection{\lstinline!"vcs_commit"! and \lstinline!"vcs_update"!}
+\subsection{\lstinline!"vcs_commit"!, \lstinline!"vcs_push"! and \lstinline!"vcs_update"!}
 
 These events get an associated entry in the |version_control_events|
 table, and also zero or more entries in the |version_control_files|
@@ -1332,6 +1441,12 @@ Each entry in the |source_histories| table belongs to a particular
 \item |source_history_type| is |"file_delete"| -- |content| will be blank.
 \end{itemize}
 
+The |generated_from_source_file_id| is NULL for Stride files.  For Java files,
+it is non-NULL if the Java file was generated from Stride at that point in time.
+Because of the conversions available between Java and Stride, |generated_from_source_file_id|
+may switch back and forth between NULL and non-NULL at different points in the history
+without limit.
+
 \section{Stack Entries}
 
 %schema:stack_entries
@@ -1441,6 +1556,7 @@ how they connect
 \includepdf[pages={1},landscape=true]{models.pdf}
 
 \chapter{Analysing Blackbox Subsets}
+\label{sec:java-stride}
 
 Blackbox can be roughly divided into three parts:
 \begin{enumerate}
@@ -1463,7 +1579,7 @@ The |source_type| column of the |source_files| table is either |"java"| or |"str
 
 The |compile_events| table has a |reason| column.  For BlueJ 3.x compiles, when compilation always happened by the user explicitly clicking compile, the |reason| column is NULL.  If you only want to analyse coding where the user sees no errors until they click the compile button, you can just look for |reason| being NULL.  You'll have a good four years of data and over 200 million compile events.
 
-BlueJ 4.x uses the |compile_events| table for recording several different types of compilation.  One type is when the user clicks compile, just as in 3.x.  In this case, the |reason| column will be |"user"|.  However, if you bundle together 3.x explicit compilations and 4.x explicit compilations, you're combining two different things.  In BlueJ 4.x, we also compile whenever the user leaves a modified line of code (same rule as when we send edits to Blackbox), and crucially we show the errors from this background compilation.  So in 3.x when the user clicks compile, they will either get success, or will get presented the first error from the compilation, which won't have been displayed (unless from a prior explicit compilation).  In BlueJ 4.x, they will either get success, or will be taken to the first error, which will likely already be showing because the background compilation found it.  They will also already be able to see any other errors in the file.  So the user is likely to click compile in different circumstances in 3.x (Do I have any errors?) to 4.x (Either: jump me to the error, or I'm finished and see no errors so do the real compilation now).
+BlueJ 4.x uses the |compile_events| table for recording several different types of compilation.  One type is when the user clicks compile, just as in 3.x.  In this case, the |reason| column will be |"user"|.  However, if you bundle together 3.x explicit compilations and 4.x explicit compilations, you're combining two different things.  In BlueJ 4.x, we also compile whenever the user leaves a modified line of code (same rule as when we send edits to Blackbox), and crucially we show the errors from this background compilation.  So in 3.x when the user clicks compile, they will either get success, or will get presented the first error from the compilation, which won't have been displayed before compilation (unless from a prior explicit compilation).  In BlueJ 4.x, they will either get success, or will be taken to the first error, which will likely already be showing because the background compilation found it.  They will also already be able to see any other errors in the file.  So the user is likely to click compile in different circumstances in 3.x (Do I have any errors?) to 4.x (Either: jump me to the error, or I'm finished and see no errors so do the real compilation now).
 
 Bottom line: if you choose to analyse 3.x and 4.x compiles together, make sure that
  this makes sense for your analysis.
@@ -1644,7 +1760,7 @@ that any individual case studies/vignettes will be manually anonymised, if
 necessary.
 
 \chapter{Blackbox Bugs and Interruptions}
-
+\label{sec:interruptions}
 \section{Known Interruptions}
 
 From time to time, the Blackbox data recording may be interrupted, for routine maintenance or to deploy changes/fixes to the data recording mechanism.
@@ -1658,11 +1774,13 @@ Unless otherwise noted below, the effects are the same each time: all sessions t
 \item 31 Dec 2013.  There was a DNS issue surrounding the bluej.org domain name, which affected Blackbox.  For a few days (approx 31 December 2013 to 3rd January 2014 inclusive), the DNS problem prevented most users sending data to Blackbox.  It is hard to pinpoint how many and for how long, as we can't know if they were able to use the cached DNS value, or when the new DNS arrived on their nameservers.
 \item 28 Jan 2015, approx 1543 to 1550 UTC (7 minutes), before master event 553795798
 \item 12 Jan 2016, approx 1627 to 1649 UTC (22 minutes), service intermittent between master event 1040343453 and 1040346172 exclusive
+\item 10 Aug 2017 1553 UTC to 16 Aug 2017 1643 UTC (approx 6 days), server down for
+ database changes between master event 1923150028 and 1923150029 exclusive
 \end{itemize}
 
 \section{Known Client Issues}
 
-Blackbox was added in version 3.1.0 (released June 2013).  All versions from 3.1.0 to 3.1.7 (released February 2016) had full support for Blackbox data recording.  BlueJ 4.0.0 (released March 2017) through 4.1.0 (released June 2017) did NOT have support for Blackbox; anyone using these versions would not send any data to Blackbox, although their opt-in/opt-out preference would be remembered.  Once they upgraded to BlueJ 4.1.1 (targeted for release August/September 2017) or later would once again start sending data to Blackbox.
+Blackbox was added in version 3.1.0 (released June 2013).  All versions from 3.1.0 to 3.1.7 (released February 2016) had full support for Blackbox data recording.  BlueJ 4.0.0 (released March 2017) through 4.1.0 (released June 2017) did NOT have support for Blackbox; anyone using these versions would not send any data to Blackbox, although their opt-in/opt-out preference would be remembered.  Once they upgraded to BlueJ 4.1.1 (targeted for release September 2017) or later they would once again start sending data to Blackbox.
 
 \section{Known Recording Bugs/Changes}
 
@@ -1782,37 +1900,37 @@ the next diff would be against the old destination file (the deleted/renamed one
 In each case, it should be possible to work around this issue during the analysis stage by looking up the state of the destination file.
 This problem will be fixed in versions of BlueJ after 3.1.1.
 
-\chapter{Analysis Example: CodeView}
-\label{sec:example_codeview}
-
-We have created a simple proof-of-concept analysis tool (``CodeView'') to give a quick idea
-of how analysis might work.  It appears to have a lot of code, but almost all
-of it (in the |bluej.*| packages) is ripped from BlueJ -- code for displaying
-the editor.
-
-In the default package are five classes.  |IdName| is a simple data holder,
-and |ListDialog| is a class to ask the user to pick an item from a list.  The
-class |DatabaseInterface| has some Java code for interfacing with the
-database.  It connects to localhost (assuming you are running the SSH tunnel
-as described in section \ref{sec:ssh-tunnel}).  It demonstrates running a few
-queries, given the UUID, to find a user's projects, and the files within a
-chosen project.  For that file, the full history of the file is pulled.
-
-The |SourceHistory| class uses the command-line |patch| application (available on all Unix-like systems) or any
-to put the histories back together.  The |Viewer| class ties all this
-together, and displays the source in a BlueJ editor window, and binds the
-scroll wheel to moving backwards and forwards through the version history.
-
-(Note: the sample has a slight irritation that the cursor is always moved to the end
-of the file during scrolling, but the point is to demonstrate the database
-queries and diffs and so on.)
+%\chapter{Analysis Example: CodeView}
+%\label{sec:example_codeview}
+%
+%We have created a simple proof-of-concept analysis tool (``CodeView'') to give a quick idea
+%of how analysis might work.  It appears to have a lot of code, but almost all
+%of it (in the |bluej.*| packages) is ripped from BlueJ -- code for displaying
+%the editor.
+%
+%In the default package are five classes.  |IdName| is a simple data holder,
+%and |ListDialog| is a class to ask the user to pick an item from a list.  The
+%class |DatabaseInterface| has some Java code for interfacing with the
+%database.  It connects to localhost (assuming you are running the SSH tunnel
+%as described in section \ref{sec:ssh-tunnel}).  It demonstrates running a few
+%queries, given the UUID, to find a user's projects, and the files within a
+%chosen project.  For that file, the full history of the file is pulled.
+%
+%The |SourceHistory| class uses the command-line |patch| application (available on all Unix-like systems) or any
+%to put the histories back together.  The |Viewer| class ties all this
+%together, and displays the source in a BlueJ editor window, and binds the
+%scroll wheel to moving backwards and forwards through the version history.
+%
+%(Note: the sample has a slight irritation that the cursor is always moved to the end
+%of the file during scrolling, but the point is to demonstrate the database
+%queries and diffs and so on.)
 
 \chapter{Additional Tools}
 \label{sec:postprocess}
 
-\textit{In time we will set up an area for this kind of information, but for
-now, here are some details on tools and postprocessing tasks that we have
-running on the ``white'' machine to aid analysis.}
+%\textit{In time we will set up an area for this kind of information, but for
+%now, here are some details on tools and postprocessing tasks that we have
+%running on the ``white'' machine to aid analysis.}
 
 \section{Extracted Compile Inputs}
 
@@ -1858,12 +1976,13 @@ id that you're looking for.  Obviously you can speed things up by
 preloading all the indexes and forming a few hash maps or whatever.
 
 \section{Tools}
+\label{sec:tools}
 
-In /tools/nccb/bin there are a couple of tools that you can use.
+In /tools/nccb/bin there are a few tools that you can use.
 
 \begin{itemize}
 \item |/tools/nccb/bin/print-source-hashes| takes a project name and then prints
-a frequency table of source hashes for projects with that name.  You can use the
+a frequency table of source hashes for opened projects with that name.  You can use the
 |--min-freq N| flag to set a minimum frequency (defaults to 5).
 For example:
 
@@ -1876,10 +1995,19 @@ event.  For example:
 
 |/tools/nccb/bin/print-compile-input /data/compile-inputs 1246 35238|
 
+\item |/tools/nccb/bin/print-source-state| takes a source file id and master event id.  It then prints out the exact state of the source file at that master
+event.  For example:
+
+|/tools/nccb/bin/print-source-state 1246 35238|
+
+The difference between |print-compile-input| and |print-source-state| is that the former
+is much faster, but only works for files at the point of compilation.  The latter works
+for all points in time, but is much slower as it dynamically processes the necessary diffs.
+
 \item |/tools/nccb/bin/view-source-history| takes a source file identifier and then
 allows you to scroll through the file, its source history and compile history.  For example:
 
-|view-source-historyview-source-history 1234|
+|/tools/nccb/bin/view-source-history 1234|
 
 \end{itemize}
 (Any other tools in /home/nccb/bin are irrelevant dependencies.)
