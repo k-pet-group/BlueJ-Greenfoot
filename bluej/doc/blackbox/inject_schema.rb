@@ -31,10 +31,11 @@ input_contents.each do |line|
     table_name = $1
     caption = $2
     shown_tables << table_name
-    puts "\\label{tab:#{table_name}}" # Label the section, not the figure
+
     puts "\\begin{table}[H]"
     puts "\\begin{center}"
     puts "\\caption[\\lstinline!#{table_name}! schema]{Schema for the \\lstinline!#{table_name}! table. #{caption}}"
+    puts "\\label{tab:#{table_name}}" # Label the table
     puts "\\begin{tabular}{l@{\\hspace{2cm}}l@{\\hspace{1cm}}l}"
     puts "Field Name & Type & Can Be Null?\\\\ \\hline"
     # Put view columns in manually, as they are not usually available on your local machine:
@@ -76,11 +77,9 @@ input_contents.each do |line|
     shown_tables << $1
     puts "\\label{tab:#{$1}}"
   elsif line =~ /^%table:event_names/
-    puts "\\begin{tabular}{p{6cm}@{}l}"
     mentioned_event_names.sort.each do |event_name|
       puts "|\"#{event_name}\"| \\dotfill & \\myref{evt:#{event_name}}\\\\"
     end
-    puts "\\end{tabular}"
   elsif line =~ /^\\\S*section\{/
     puts line
     line.scan(/\\lstinline\!"([^!"]+)"\!/).each do |groups|
