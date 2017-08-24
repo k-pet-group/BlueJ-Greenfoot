@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2017  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,43 +27,52 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.commons.httpclient.methods.multipart.FilePart;
+import org.apache.http.entity.mime.FormBodyPart;
+import org.apache.http.entity.mime.content.FileBody;
 
 /**
- * A FilePart which tracks upload progress.
+ * A FormBodyPart which tracks upload progress.
  * 
  * @author Davin McCall
  */
-public class ProgressTrackingPart extends FilePart
+public class ProgressTrackingPart extends FormBodyPart
 {
-    private MyGameClient listener;
-    
     public ProgressTrackingPart(String partName, File file, MyGameClient listener)
         throws FileNotFoundException
     {
-        super(partName, file);
-        this.listener = listener;
+        super(partName, new ProgressTrackingFileBody(file, listener));
     }
     
-    @Override
-    protected void sendData(OutputStream output) throws IOException
+    private static class ProgressTrackingFileBody extends FileBody
     {
-        if (lengthOfData() == 0) {
-            return;
+        private MyGameClient listener;
+        
+        public ProgressTrackingFileBody(File file, MyGameClient listener)
+        {
+            super(file);
+            this.listener = listener;
         }
         
-        byte [] buf = new byte[4096];
-        InputStream istream = getSource().createInputStream();
-        try {
-            int len = istream.read(buf);
-            while (len != -1) {
-                output.write(buf, 0, len);
-                listener.progress(len);
-                len = istream.read(buf);
+        @Override
+        public void writeTo(OutputStream output) throws IOException
+        {
+            if (getContentLength() == 0) {
+                return;
             }
-        }
-        finally {
-            istream.close();
+
+            byte [] buf = new byte[4096];
+            InputStream istream = getInputStream();
+            try {
+                int len = istream.read(buf);
+                while (len != -1) {
+                    output.write(buf, 0, len);
+                    listener.progress(len);
+                    len = istream.read(buf);
+                }
+            }
+            finally {
+                istream.close();
+            }
         }
     }
 }
