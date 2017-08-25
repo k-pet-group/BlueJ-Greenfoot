@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -34,15 +33,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import bluej.stride.framedjava.ast.JavaFragment;
-
-import javafx.application.Platform;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableStringValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -56,11 +51,6 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 
-import bluej.stride.framedjava.ast.links.PossibleLink;
-import bluej.stride.framedjava.ast.links.PossibleMethodUseLink;
-import bluej.stride.framedjava.ast.links.PossibleTypeLink;
-import bluej.stride.framedjava.ast.links.PossibleVarLink;
-import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.slots.StructuredSlot.SplitInfo;
 import bluej.stride.generic.Frame.View;
 import bluej.stride.generic.InteractionManager;
@@ -252,9 +242,8 @@ import threadchecker.Tag;
  *  So ultimately, the CaretPos is a list of integers where the last one applies to an StructuredSlotField, and the preceding
  *  ones are indexes into InfixStructured's "fields" arrays.
  */
-
-//package-visible
-abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX extends InfixStructured<SLOT, INFIX>> implements TextFieldDelegate<StructuredSlotField>
+public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX extends InfixStructured<SLOT, INFIX>>
+        implements TextFieldDelegate<StructuredSlotField>
 {
     // Regex matching JLS "Digits"; underscores can appear within
     private final static String DIGITS_REGEX = "\\d([0-9_]*\\d)?";
@@ -290,8 +279,7 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
     /**
      * Create top-level InfixStructured, just inside the StructuredSlot
      */
-    // package-visible
-    InfixStructured(InteractionManager editor, SLOT slot, StructuredSlot.ModificationToken token)
+    public InfixStructured(InteractionManager editor, SLOT slot, StructuredSlot.ModificationToken token)
     {
         this(editor, slot, "", null, token);
     }
@@ -303,8 +291,8 @@ abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, INFIX e
      *    StructuredSlotField; it should not contain any operators or brackets, etc.  If you need
      *    to add rich content, pass "" for this parameter and insert the rich content afterwards.
      */
-    //package-visible
-    InfixStructured(InteractionManager editor, SLOT slot, String initialContent, BracketedStructured wrapper, StructuredSlot.ModificationToken token, Character... closingChars)
+    public InfixStructured(InteractionManager editor, SLOT slot, String initialContent, BracketedStructured wrapper,
+            StructuredSlot.ModificationToken token, Character... closingChars)
     {
         this.editor = editor;
         this.parent = wrapper;
