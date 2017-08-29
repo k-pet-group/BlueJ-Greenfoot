@@ -452,14 +452,6 @@
         <delete file="boot/src/bluej/greenfoot-splash.png" />
         <delete dir="lib/greenfoot" />
         <delete quiet="false" file="${greenfoot-native.jar}" />
-        <!-- Commons libraries -->
-        <delete >
-            <fileset dir="lib">
-                <include name="commons-codec-*.jar"/>
-                <include name="commons-codec-httpclient-*.jar"/>
-                <exclude name="commons-logging-api-1.1.2.jar"/>
-            </fileset>
-        </delete>
         <delete dir="package/scenarios" />
         <delete>
             <fileset file="lib/extensions/greenfoot.jar"/>
@@ -553,10 +545,7 @@
                 <exclude name="slf4j-api-1.7.2.jar"/>
                 <exclude name="slf4j-jdk14-1.7.2.jar"/>
 
-
                 <!-- Greenfoot libraries: -->
-                <exclude name="commons-codec-1.3.jar"/>
-                <exclude name="commons-httpclient-3.1.jar"/>
                 <exclude name="jl1.0.1.jar"/>
                 <exclude name="opencsv-2.3.jar"/>
 

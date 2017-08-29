@@ -74,7 +74,6 @@
         <pathelement location="${bluej_home}/lib/junit-4.11.jar"/>
         <pathelement location="${bluej_home}/lib/hamcrest-core-1.3.jar"/>
         <pathelement location="${bluej_home}/lib/AppleJavaExtensions.jar"/>
-        <pathelement location="${bluej_home}/lib/commons-httpclient-3.1.jar"/>
         <pathelement location="${bluej_home}/lib/commons-logging-api-1.1.2.jar"/> 
         <pathelement location="${jlayer.jar.path}"/>
         <pathelement location="${bluej_home}/lib/opencsv-2.3.jar"/>
@@ -571,13 +570,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <delete file="imagelib/other/greenfoot.png"/>
         <!-- Greenfoot icon for application: greenfoot-16.png -->
         <delete file="images/greenfoot.png"/>
-        <!-- Commons libraries -->
-        <delete >
-            <fileset dir="${bluej_home}/lib">
-                <include name="commons-codec-*.jar"/>
-                <exclude name="commons-logging-api-*.jar"/>
-            </fileset>
-        </delete>
         <delete file="${jlayer.jar.path}"/>
         <delete file="${greenfoot-native.jar}"/>
         
@@ -816,7 +808,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         </jar>
     </target>
     
-    <target name="zip-source"  description="create a zip of all the sources and other resources needed to build BlueJ." >
+    <target name="zip-source"  description="create a zip of all the sources and other resources needed to build Greenfoot." >
         <!-- And build sources for BlueJ -->
         <property name="bluej.version.nodots" value="Greenfoot-${greenfoot.version.nodots}"/>
         <property name="bluej.rcsuffix" value="${greenfoot.rcsuffix}"/>

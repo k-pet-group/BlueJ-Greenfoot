@@ -91,9 +91,8 @@ public class Boot
     private static final String[] greenfootUserJars = {"extensions" + File.separatorChar + "greenfoot.jar", 
         "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
         "AppleJavaExtensions.jar", "junit-4.11.jar", "hamcrest-core-1.3.jar", "bluej.jar",
-        "diffutils-1.2.1.jar", 
-        "commons-httpclient-3.1.jar", "commons-logging-api-1.1.2.jar",
-        "commons-codec-1.3.jar", JLAYER_MP3_JAR, "opencsv-2.3.jar", "xom-1.2.9.jar",
+        "diffutils-1.2.1.jar", "commons-logging-api-1.1.2.jar",
+        JLAYER_MP3_JAR, "opencsv-2.3.jar", "xom-1.2.9.jar",
         "lang-stride.jar",
         // We don't add JNA to our JARs.  See GreenfootUtil class for more details
         //"jna-4.2.0.jar", "jna-platform-4.2.0.jar",
