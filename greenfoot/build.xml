@@ -836,9 +836,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <include name="labels/**/*"/>
                 <include name="lib/**/*"/>
                 <include name="native/**/*"/>
-                <include name="package/winlaunch/*" />
-                <include name="package/commons-*.jar"/>   
-                <include name="package/jl*.jar"/>
                 <include name="projects/**/*" />   
                 <include name="resources/**/*" />    
                 <include name="test/**/*.java" />
