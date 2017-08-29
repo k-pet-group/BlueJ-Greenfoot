@@ -665,8 +665,6 @@
 	            <include name="lib/**/*" />
 
             	<!-- exclude Greenfoot files -->
-	            <exclude name="lib/commons-httpclient-*"/>
-	            <exclude name="lib/commons-codec-*"/>
 	            <exclude name="lib/jl*"/>
 	            <exclude name="lib/bluej.jar"/>
 	            <exclude name="lib/bluejcore.jar"/>

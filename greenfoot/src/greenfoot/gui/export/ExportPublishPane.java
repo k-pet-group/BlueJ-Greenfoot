@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2017  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -20,12 +20,6 @@
  LICENSE.txt file that accompanied this code.
  */
 package greenfoot.gui.export;
-
-import greenfoot.core.GProject;
-import greenfoot.export.mygame.ExistingScenarioChecker;
-import greenfoot.export.mygame.MyGameClient;
-import greenfoot.export.mygame.ScenarioInfo;
-import greenfoot.util.GreenfootUtil;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -58,12 +52,17 @@ import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.apache.commons.httpclient.ConnectTimeoutException;
+import org.apache.http.conn.ConnectTimeoutException;
 
 import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.MiksGridLayout;
 import bluej.utility.SwingWorker;
+import greenfoot.core.GProject;
+import greenfoot.export.mygame.ExistingScenarioChecker;
+import greenfoot.export.mygame.MyGameClient;
+import greenfoot.export.mygame.ScenarioInfo;
+import greenfoot.util.GreenfootUtil;
 
 /**
  * Pane used for exporting to Greenfoot Gallery

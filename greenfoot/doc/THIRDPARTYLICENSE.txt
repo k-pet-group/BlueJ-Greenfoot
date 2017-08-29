@@ -56,8 +56,6 @@ Various components of the Apache Commons libraries (https://commons.apache.org/)
 used by Greenfoot:
   commons-logging-api-1.1.2.jar
   commons-vfs2-2.0.jar
-  commons-codec-1.3.txt
-  commons-httpclient-3.1.txt
 These components are distributed under the Apache License version 2.0. A copy of this
 license can be found in the "Apache-License-2.0.txt" file.  
 
@@ -259,8 +257,6 @@ to the terms of these licenses.
 
 commons-logging-api-1.1.2.jar            Apache License v2.0
 commons-vfs2-2.0.jar                     Apache License v2.0
-commons-codec-1.3.txt                    Apache License v2.0
-commons-httpclient-3.1.txt               Apache License v2.0
 diffutils-1.2.1.jar                      Apache License v2.0
 guava-17.0.jar                           Apache License v2.0
 hamcrest-core-1.3.jar                    BSD License

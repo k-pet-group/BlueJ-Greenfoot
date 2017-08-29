@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2017  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,14 +21,12 @@
  */
 package greenfoot.export.mygame;
 
-import greenfoot.event.PublishEvent;
-import greenfoot.event.PublishListener;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,18 +38,25 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.multipart.MultipartRequestEntity;
-import org.apache.commons.httpclient.methods.multipart.Part;
-import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.Header;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.entity.mime.FormBodyPart;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.util.EntityUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -59,6 +64,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import bluej.Config;
+import greenfoot.event.PublishEvent;
+import greenfoot.event.PublishListener;
 
 /**
  * MyGame client.
@@ -69,6 +76,11 @@ public class MyGameClient
 {
     private PublishListener listener;
     
+    /**
+     * Construct a MyGameClient instance, which issues updates/error responses to a specified listener.
+     * 
+     * @param listener  The listener to receive progress update / error notifications
+     */
     public MyGameClient(PublishListener listener)
     {
         this.listener = listener;
@@ -88,42 +100,52 @@ public class MyGameClient
         String updateDescription = info.getUpdateDescription();
         String gameUrl = info.getUrl();
         
-        HttpClient httpClient = getHttpClient();
-        httpClient.getHttpConnectionManager().getParams().setConnectionTimeout(20 * 1000); // 20s timeout
+        DefaultHttpClient httpClient = getHttpClient();
+        HttpConnectionParams.setConnectionTimeout(httpClient.getParams(), 20 * 1000); // 20s timeout
         
         // Authenticate user and initiate session
-        PostMethod postMethod = new PostMethod(hostAddress + "account/authenticate");
+        HttpPost postMethod = new HttpPost(hostAddress + "account/authenticate");
+       
+        MultipartEntity postParams = new MultipartEntity();
+        postParams.addPart(new FormBodyPart("user[username]", new StringBody(uid)));
+        postParams.addPart(new FormBodyPart("user[password]", new StringBody(password)));
+        postMethod.setEntity(postParams);
         
-        postMethod.addParameter("user[username]", uid);
-        postMethod.addParameter("user[password]", password);
-        
-        int response = httpClient.executeMethod(postMethod);
+        HttpResponse httpResponse = httpClient.execute(postMethod);
+        int response = httpResponse.getStatusLine().getStatusCode();
         
         if (response == 407 && listener != null) {
             // proxy auth required
             String[] authDetails = listener.needProxyAuth();
             if (authDetails != null) {
-                String proxyHost = httpClient.getHostConfiguration().getProxyHost();
-                int proxyPort = httpClient.getHostConfiguration().getProxyPort();
-                AuthScope authScope = new AuthScope(proxyHost, proxyPort);
-                Credentials proxyCreds =
-                    new UsernamePasswordCredentials(authDetails[0], authDetails[1]);
-                httpClient.getState().setProxyCredentials(authScope, proxyCreds);
+                Object defProxy = httpClient.getParams().getParameter(ConnRoutePNames.DEFAULT_PROXY);
+                if (defProxy instanceof HttpHost) {
+                    HttpHost proxy = (HttpHost) defProxy;
+                    AuthScope authScope = new AuthScope(proxy.getHostName(), proxy.getPort());
+                    Credentials proxyCreds =
+                            new UsernamePasswordCredentials(authDetails[0], authDetails[1]);
+                    httpClient.getCredentialsProvider().setCredentials(authScope, proxyCreds);
 
-                // Now retry:
-                response = httpClient.executeMethod(postMethod);
+                    // Now retry:
+                    httpResponse = httpClient.execute(postMethod);
+                    response = httpResponse.getStatusLine().getStatusCode();
+                }
             }
         }
         
         if (response > 400) {
             error(Config.getString("export.publish.errorResponse") + " - " + response);
+            httpClient.getConnectionManager().shutdown();
             return this;
         }
         
         // Check authentication result
-        if(! handleResponse(postMethod)) {
+        if(! handleResponse(httpResponse)) {
+            httpClient.getConnectionManager().shutdown();
             return this;
         }
+                
+        EntityUtils.consume(httpResponse.getEntity());
         
         // Send the scenario and associated info
         List<String> tagsList = info.getTags();
@@ -138,63 +160,59 @@ public class MyGameClient
             partsMap.put("scenario[long_description]", longDescription);
             partsMap.put("scenario[short_description]", shortDescription);
         }
-        int size = partsMap.size();
-       
-        if (screenshotFile!= null){
-            size=size+1;
-        }
 
-        //base number of parts is 6
-        int counter=6;
-        Part [] parts = new Part[ counter + size + tagsList.size() + (hasSource ? 1 : 0)];
-        parts[0] = new StringPart("scenario[title]", gameName, "UTF-8");
-        parts[1] = new StringPart("scenario[main_class]", "greenfoot.export.GreenfootScenarioViewer", "UTF-8");
-        parts[2] = new StringPart("scenario[width]", "" + width, "UTF-8");
-        parts[3] = new StringPart("scenario[height]", "" + height, "UTF-8");
-        parts[4] = new StringPart("scenario[url]", gameUrl, "UTF-8");
-        parts[5] = new ProgressTrackingPart("scenario[uploaded_data]", new File(jarFileName), this);
+        MultipartEntity mpe = new MultipartEntity();
+        Charset utf8 = Charset.forName("UTF-8");
+        mpe.addPart(new FormBodyPart("scenario[title]", new StringBody(gameName, utf8)));
+        mpe.addPart(new FormBodyPart("scenario[main_class]",
+                new StringBody("greenfoot.export.GreenfootScenarioViewer", utf8)));
+        mpe.addPart(new FormBodyPart("scenario[width]", new StringBody("" + width, utf8)));
+        mpe.addPart(new FormBodyPart("scenario[height]", new StringBody("" + height, utf8)));
+        mpe.addPart(new FormBodyPart("scenario[url]", new StringBody(gameUrl, utf8)));
+        mpe.addPart(new ProgressTrackingPart("scenario[uploaded_data]", new File(jarFileName), this));
         Iterator <String> mapIterator=partsMap.keySet().iterator();
         String key="";
         String obj="";
         while (mapIterator.hasNext()){
             key = mapIterator.next().toString();
             obj = partsMap.get(key).toString();
-            parts[counter]= new StringPart(key, obj, "UTF-8");
-            counter=counter+1;
+            mpe.addPart(new FormBodyPart(key, new StringBody(obj, utf8)));
         }
         
         if (hasSource) {
-            parts[counter] = new ProgressTrackingPart("scenario[source_data]", sourceFile, this);
-            counter=counter+1;
+            mpe.addPart(new ProgressTrackingPart("scenario[source_data]", sourceFile, this));
         }
         if (screenshotFile!= null){
-            parts[counter] = new ProgressTrackingPart("scenario[screenshot_data]", screenshotFile, this);
-            counter=counter+1;
+            mpe.addPart(new ProgressTrackingPart("scenario[screenshot_data]", screenshotFile, this));
         }
 
         int tagNum = 0;
         for (Iterator<String> i = tagsList.iterator(); i.hasNext(); ) {
-            parts[counter] = new StringPart("scenario[tag" + tagNum++ + "]", i.next());
-            counter=counter+1;
+            mpe.addPart(new FormBodyPart("scenario[tag" + tagNum++ + "]", new StringBody(i.next(), utf8)));
         }
         
-        postMethod = new PostMethod(hostAddress + "upload-scenario");
-        postMethod.setRequestEntity(new MultipartRequestEntity(parts,
-                postMethod.getParams()));
+        postMethod = new HttpPost(hostAddress + "upload-scenario");
+        postMethod.setEntity(mpe);
         
-        response = httpClient.executeMethod(postMethod);
+        httpResponse = httpClient.execute(postMethod);
+        response = httpResponse.getStatusLine().getStatusCode();
         if (response > 400) {
             error(Config.getString("export.publish.errorResponse") + " - " + response);
+            httpClient.getConnectionManager().shutdown();
             return this;
         }
         
-        if(! handleResponse(postMethod)) {
+        if(! handleResponse(httpResponse)) {
+            httpClient.getConnectionManager().shutdown();
             return this;
         }
+
+        EntityUtils.consume(httpResponse.getEntity());
         
         // Done.
         listener.uploadComplete(new PublishEvent(PublishEvent.STATUS));
         
+        httpClient.getConnectionManager().shutdown();
         return this;
     }
 
@@ -209,9 +227,9 @@ public class MyGameClient
      * @return True if the execution was successful, false otherwise.
      * @throws NumberFormatException
      */
-    private boolean handleResponse(PostMethod postMethod)
-    {
-        Header statusHeader = postMethod.getResponseHeader("X-mygame-status");
+    private boolean handleResponse(HttpResponse postMethod)
+    {        
+        Header statusHeader = postMethod.getLastHeader("X-mygame-status");
         if (statusHeader == null) {
             error(Config.getString("export.publish.errorResponse"));
             return false;
@@ -237,7 +255,7 @@ public class MyGameClient
             default :
                 // Unknown error - print it!
                 error(responseString.substring(spaceIndex + 1));
-            return false;
+                return false;
             }
         }
         catch (NumberFormatException nfe) {
@@ -249,14 +267,15 @@ public class MyGameClient
     /**
      * Get a http client, configured to use the proxy if specified in Greenfoot config
      */
-    protected HttpClient getHttpClient()
+    protected DefaultHttpClient getHttpClient()
     {
-        HttpClient httpClient = new HttpClient();
+        HttpParams params = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(params, 20 * 1000); // 20s timeout
+        DefaultHttpClient httpClient = new DefaultHttpClient(params);
         
         String proxyHost = Config.getPropString("proxy.host", null);
         String proxyPortStr = Config.getPropString("proxy.port", null);
         if (proxyHost != null && proxyHost.length() != 0 && proxyPortStr != null) {
-            HostConfiguration hostConfig = httpClient.getHostConfiguration();
 
             int proxyPort = 80;
             try {
@@ -264,14 +283,16 @@ public class MyGameClient
             }
             catch (NumberFormatException nfe) {}
 
-            hostConfig.setProxy(proxyHost, proxyPort);
+            HttpHost proxy = new HttpHost(proxyHost, proxyPort, "http");
+            httpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+            
             String proxyUser = Config.getPropString("proxy.user", null);
             String proxyPass = Config.getPropString("proxy.password", null);
             if (proxyUser != null) {
                 AuthScope authScope = new AuthScope(proxyHost, proxyPort);
                 Credentials proxyCreds =
                     new UsernamePasswordCredentials(proxyUser, proxyPass);
-                httpClient.getState().setProxyCredentials(authScope, proxyCreds);
+                httpClient.getCredentialsProvider().setCredentials(authScope, proxyCreds);
             }
         }
         
@@ -294,20 +315,21 @@ public class MyGameClient
         throws UnknownHostException, IOException
     {
         HttpClient client = getHttpClient();
-        client.getHttpConnectionManager().getParams().setConnectionTimeout(20 * 1000);
+        HttpConnectionParams.setConnectionTimeout(client.getParams(), 20 * 1000);
         // 20 second timeout is quite generous
         
         String encodedName = URLEncoder.encode(gameName, "UTF-8");
         encodedName = encodedName.replace("+", "%20");
-        GetMethod getMethod = new GetMethod(hostAddress +
+        HttpGet getMethod = new HttpGet(hostAddress +
                 "user/"+ uid + "/check_scenario/" + encodedName);
         
-        int response = client.executeMethod(getMethod);
+        HttpResponse httpResponse = client.execute(getMethod);
+        int response = httpResponse.getStatusLine().getStatusCode();
         if (response > 400) {
             throw new IOException("HTTP error response " + response + " from server.");
         }
         
-        Header statusHeader = getMethod.getResponseHeader("X-mygame-scenario");
+        Header statusHeader = httpResponse.getLastHeader("X-mygame-scenario");
         if (statusHeader == null) {
             // Weird.
             throw new IOException("X-mygame-scenario header missing from server response");
@@ -319,7 +341,7 @@ public class MyGameClient
 
         // found - now we can parse the response
         if (info != null) {
-            InputStream responseStream = getMethod.getResponseBodyAsStream();
+            InputStream responseStream = httpResponse.getEntity().getContent();
             parseScenarioXml(info, responseStream);
             info.setTitle(gameName);
         }
@@ -400,18 +422,18 @@ public class MyGameClient
         throws UnknownHostException, IOException
     {
         HttpClient client = getHttpClient();
-        client.getHttpConnectionManager().getParams().setConnectionTimeout(20 * 1000);
         
-        GetMethod getMethod = new GetMethod(hostAddress +
+        HttpGet getMethod = new HttpGet(hostAddress +
                 "common-tags/"+ maxNumberOfTags);
         
-        int response = client.executeMethod(getMethod);
+        HttpResponse httpResponse = client.execute(getMethod); 
+        int response = httpResponse.getStatusLine().getStatusCode();
         if (response > 400) {
             throw new IOException("HTTP error response " + response + " from server.");
         }
         
         // found - now we can parse the response
-        InputStream responseStream = getMethod.getResponseBodyAsStream();
+        InputStream responseStream = httpResponse.getEntity().getContent();
         
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
