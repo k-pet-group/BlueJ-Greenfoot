@@ -825,6 +825,10 @@ public final class MoeEditor extends ScopeColorsBorderPane
         // highlight the line
         sourceDocument.showStepLine(lineNumber);
 
+        // Scroll to the line:
+        sourcePane.setCaretPosition(getOffsetFromLineColumn(new SourceLocation(lineNumber, 1)));
+        sourcePane.requestFollowCaret();
+
         // display the message
 
         if (message != null) {
