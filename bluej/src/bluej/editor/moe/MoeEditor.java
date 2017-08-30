@@ -37,7 +37,6 @@ import bluej.editor.moe.PrintDialog.PrintChoices;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.FrameEditor;
 import bluej.editor.stride.MoeFXTab;
-import bluej.extensions.SourceType;
 import bluej.extensions.editor.Editor;
 import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.ParamInfo;
@@ -134,6 +133,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
@@ -1652,8 +1653,38 @@ public final class MoeEditor extends ScopeColorsBorderPane
         {
             // Scroll to make topLine actually at the top:
             virtualFlow.showAsFirst(topLine);
+
             // Take a copy to avoid any update problems:
             List<C> visibleCells = new ArrayList<>(virtualFlow.visibleCells());
+
+            // It seems that something in the virtual flow (possibly/probably our code)
+            // round-trips to the FX thread after a layout.  If visible cells is empty,
+            // wait for FX thread to be free before trying again:
+            if (visibleCells.isEmpty())
+            {
+                // Don't care about the result, just an easy way to wait for an event:
+                CompletableFuture<Object> f = new CompletableFuture<>();
+
+                // Complete the future on FX thread; a simple way to wait for pre-existing
+                // pending FX thread tasks to complete:
+                Platform.runLater(() -> f.complete(""));
+
+                try
+                {
+                    f.get();
+                }
+                catch (InterruptedException | ExecutionException e)
+                {
+                    // Don't really care if this happens...
+                }
+                visibleCells = new ArrayList<>(virtualFlow.visibleCells());
+                if (visibleCells.isEmpty())
+                {
+                    // If still empty, just give up gracefully rather than encounter an exception:
+                    return;
+                }
+            }
+
             C lastCell = visibleCells.get(visibleCells.size() - 1);
             // Last page if we can see the last editor line:
             lastPage = virtualFlow.getCellIfVisible(editorLines - 1).isPresent();
