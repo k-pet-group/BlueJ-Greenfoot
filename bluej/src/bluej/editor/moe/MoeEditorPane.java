@@ -229,6 +229,9 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
     public void read(Reader reader) throws IOException
     {
         setText(CharStreams.toString(reader));
+        // Position caret at start, not the end:
+        setCaretPosition(0);
+
         // editor can be null when we're printing.  This method shouldn't
         // get called then, but no harm in checking:
         if (editor != null)
