@@ -641,7 +641,14 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 JavaFXUtil.runAfter(Duration.millis(200), () -> {
                     sourceDocument.notYetShown = false;
                     sourceDocument.recalculateAllScopes();
+                    // Must be called after the editor is actually visible for first time:
+                    sourcePane.requestFollowCaret();
                 });
+            }
+            else
+            {
+                // Make sure caret is visible after open:
+                sourcePane.requestFollowCaret();
             }
         }
     }
