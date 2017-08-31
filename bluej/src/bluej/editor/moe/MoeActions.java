@@ -673,7 +673,16 @@ public final class MoeActions
             modifiers.add(KeyCombination.META_DOWN);
         if ((swing.getModifiers() & Event.ALT_MASK) != 0)
             modifiers.add(KeyCombination.ALT_DOWN);
-        return new KeyCodeCombination(JavaFXUtil.awtKeyCodeToFX(swing.getKeyCode()), modifiers.toArray(new Modifier[0]));
+
+        KeyCode code = JavaFXUtil.awtKeyCodeToFX(swing.getKeyCode());
+        if (code != null)
+        {
+            return new KeyCodeCombination(code, modifiers.toArray(new Modifier[0]));
+        }
+        else
+        {
+            return null;
+        }
     }
 
     // --------------------------------------------------------------------
