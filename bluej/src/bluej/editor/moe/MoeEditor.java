@@ -1604,6 +1604,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
     public FXRunnable printTo(PrinterJob printerJob, boolean printLineNumbers, boolean printBackground)
     {
         MoeSyntaxDocument doc = new MoeSyntaxDocument(new ScopeColorsBorderPane());
+        // Note: very important we make this call before copyFrom, as copyFrom is what triggers
+        // the run-later that marking as printing suppresses:
+        doc.markAsForPrinting();
         doc.copyFrom(sourceDocument);
         MoeEditorPane editorPane = doc.makeEditorPane(null, null);
         Scene scene = new Scene(editorPane);
@@ -1657,32 +1660,14 @@ public final class MoeEditor extends ScopeColorsBorderPane
             // Take a copy to avoid any update problems:
             List<C> visibleCells = new ArrayList<>(virtualFlow.visibleCells());
 
-            // It seems that something in the virtual flow (possibly/probably our code)
-            // round-trips to the FX thread after a layout.  If visible cells is empty,
-            // wait for FX thread to be free before trying again:
+            // Previously, we had a problem where a run-later task could race us and alter
+            // the scrolling which caused us to try to print an empty page.  That shouldn't happen
+            // any more, but we still guard against this just in case; better to handle it gracefully
+            // than risk running into an exception or infinite loop:
             if (visibleCells.isEmpty())
             {
-                // Don't care about the result, just an easy way to wait for an event:
-                CompletableFuture<Object> f = new CompletableFuture<>();
-
-                // Complete the future on FX thread; a simple way to wait for pre-existing
-                // pending FX thread tasks to complete:
-                Platform.runLater(() -> f.complete(""));
-
-                try
-                {
-                    f.get();
-                }
-                catch (InterruptedException | ExecutionException e)
-                {
-                    // Don't really care if this happens...
-                }
-                visibleCells = new ArrayList<>(virtualFlow.visibleCells());
-                if (visibleCells.isEmpty())
-                {
-                    // If still empty, just give up gracefully rather than encounter an exception:
-                    return;
-                }
+                // If visible cells empty, just give up gracefully rather than encounter an exception:
+                return;
             }
 
             C lastCell = visibleCells.get(visibleCells.size() - 1);

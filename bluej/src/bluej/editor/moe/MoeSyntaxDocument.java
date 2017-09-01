@@ -37,7 +37,6 @@ import com.google.common.collect.ImmutableSet;
 import javafx.beans.binding.BooleanExpression;
 import org.fxmisc.richtext.model.*;
 import org.fxmisc.richtext.model.TwoDimensional.Bias;
-import org.fxmisc.richtext.model.TwoDimensional.Position;
 import org.reactfx.Subscription;
 import org.reactfx.collection.LiveList;
 import threadchecker.OnThread;
@@ -107,6 +106,11 @@ public class MoeSyntaxDocument
     private int[] lineStarts = null;
     // package-visible:
     boolean notYetShown = true;
+
+    /**
+     * Is this pane an off-screen item just for printing?
+     */
+    private boolean thisDocIsForPrinting = false;
 
 
     public Position createPosition(int initialPos)
@@ -246,6 +250,16 @@ public class MoeSyntaxDocument
         }
     }
 
+    /**
+     * Marks this document as an off-screen copy for printing.  Note: you must call this before
+     * altering the content of the document, or else the run-later we are suppressing with this flag
+     * will already have been run.
+     */
+    public void markAsForPrinting()
+    {
+        thisDocIsForPrinting = true;
+    }
+
     @OnThread(Tag.Any)
     private static class EditEvent
     {
@@ -300,13 +314,18 @@ public class MoeSyntaxDocument
             {
                 fireInsertUpdate(c.getPosition(), c.getInsertionEnd() - c.getPosition());
             }
-            // Apply backgrounds from simple update, as it may not even
-            // trigger a reparse.  This must be done later, after the document has finished
-            // doing all the updates to the content, before we can mess with paragraph styles:
-            JavaFXUtil.runAfterCurrent(() -> {
-                invalidateCache();
-                applyPendingScopeBackgrounds();
-            });
+            // Don't attempt a run-later when printing as we'll be on a different thread, and we don't
+            // print the scopes anyway:
+            if (!thisDocIsForPrinting)
+            {
+                // Apply backgrounds from simple update, as it may not even
+                // trigger a reparse.  This must be done later, after the document has finished
+                // doing all the updates to the content, before we can mess with paragraph styles:
+                JavaFXUtil.runAfterCurrent(() -> {
+                    invalidateCache();
+                    applyPendingScopeBackgrounds();
+                });
+            }
         });
     }
 
