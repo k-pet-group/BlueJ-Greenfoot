@@ -2087,8 +2087,13 @@ public final class MoeEditor extends ScopeColorsBorderPane
                     watcher.generateDoc();
                 }
             }
+            else
+            {
+                // Only bother to refresh if we're not about to generate
+                // (if we do generate, we will refresh once completed)
+                refreshHtmlDisplay();
+            }
 
-            refreshHtmlDisplay();
             interfaceToggle.getSelectionModel().selectLast();
             viewingHTML.set(true);
             watcher.showingInterface(true);
@@ -2125,6 +2130,22 @@ public final class MoeEditor extends ScopeColorsBorderPane
         FileInputStream fis = null;
         try {
             File urlFile = new File(getDocPath());
+
+            // Check if docs file exists before attempting to load it.  There is a JDK behaviour where
+            // if you load a non-existent file in a webview, all future attempts to reload the page will
+            // fail even once the file exists.  So the file must be present before we attempt to load.
+            //
+            // There is an seeming timing hazard here where we could be called just at the moment the file
+            // is created but before it is finished.  In fact, we are called in one of two cases:
+            //  - One is where the interface is being switched to.  This method is called only if the
+            //    docs won't be regenerated, so no race hazard there.
+            //  - The other case is when the doc generation has definitely finished, so again we won't be in a
+            //    race with the generation:
+            if (!urlFile.exists())
+            {
+                return;
+            }
+
             URL myURL = urlFile.toURI().toURL();
 
             // We must use reload here if applicable, as that forces reloading the stylesheet.css asset
