@@ -164,6 +164,15 @@ public class BlueJSyntaxView
     private final Map<ParsedNode,Integer> nodeIndents = new HashMap<ParsedNode,Integer>();
 
     /**
+      * Are we in the middle of an update which comes from the RichTextFX stream of changes?
+      * If so, we must not ask for character bounds because the offset calculations
+      * are all wrong, and a layout may be forced resulting in inconsistent state in
+      * RichTextFX (and an exception being thrown: catching the exception is not enough
+      * to avoid the incorrect state).
+    */
+    private boolean duringUpdate;
+
+    /**
      * Creates a new BlueJSyntaxView.
      */
     public BlueJSyntaxView(MoeSyntaxDocument document, ScopeColors scopeColors)
@@ -198,6 +207,17 @@ public class BlueJSyntaxView
             });
         });
     }
+
+    /**
+     * Mark the syntax view as being during an update.  Don't forget
+     * to match every true call with a later false call.
+     * @param duringUpdate
+     */
+    public void setDuringUpdate(boolean duringUpdate)
+    {
+        this.duringUpdate = duringUpdate;
+    }
+
 
     /**
      * Gets the syntax token styles for a given line of code.
@@ -711,15 +731,10 @@ public class BlueJSyntaxView
      * Gets the left edge of the character at the given offset into the document, if we can calculate it.
      *
      * @param startOffset The offset into the document of the character we want the left edge for
-     * @param duringUpdate Are we in the middle of an update which comes from the RichTextFX stream of changes?
-     *                     If so, we must not ask for character bounds because the offset calculations
-     *                     are all wrong, and a layout may be forced resulting in inconsistent state in
-     *                     RichTextFX (and an exception being thrown: catching the exception is not enough
-     *                     to avoid the incorrect state).
      * @return If available, Optional.of(left-edge-X-in-pixels-in-local-coords).  If it is not available
      *         (which is very possible: *always* check for Optional.empty), then Optional.empty will be returned.
      */
-    private OptionalInt getLeftEdge(int startOffset, boolean duringUpdate)
+    private OptionalInt getLeftEdge(int startOffset)
     {
         if (editorPane == null)
             return OptionalInt.empty();
@@ -957,7 +972,7 @@ public class BlueJSyntaxView
         // node short so that the text does not appear to be part of the node.
         int nwsb = findNonWhitespaceComment(nap, lineEl, lineSeg, napEnd - lineEl.getStartOffset());
         if (nwsb != -1) {
-            OptionalInt eboundsX = getLeftEdge(napEnd, false);
+            OptionalInt eboundsX = getLeftEdge(napEnd);
             if (eboundsX.isPresent())
                 return Math.min(rbound, eboundsX.getAsInt());
             else
@@ -1076,7 +1091,7 @@ public class BlueJSyntaxView
             // we can do it without hitting non-whitespace (which must belong to another node).
             int nws = findNonWhitespaceBwards(segment, napPos - lineEl.getStartOffset() - 1, 0);
             if (nws != -1) {
-                OptionalInt lboundsX = getLeftEdge(lineEl.getStartOffset() + nws + 1, false);
+                OptionalInt lboundsX = getLeftEdge(lineEl.getStartOffset() + nws + 1);
                 if (lboundsX.isPresent())
                 {
                     xpos = Math.max(xpos, lboundsX.getAsInt());
@@ -1144,7 +1159,7 @@ public class BlueJSyntaxView
 
                 if (nws == lineOffset) {
                     // Ok, at this position we have non-white space and are not in an inner
-                    OptionalInt cboundsX = getLeftEdge(curpos, false);
+                    OptionalInt cboundsX = getLeftEdge(curpos);
                     if (cboundsX.isPresent())
                     {
                         indent = Math.min(indent, cboundsX.getAsInt());
@@ -1269,7 +1284,7 @@ public class BlueJSyntaxView
                 //   which start on or before the current line.
 
                 // Calculate/store indent
-                OptionalInt cboundsX = getLeftEdge(lineEl.getStartOffset() + nws, true);
+                OptionalInt cboundsX = getLeftEdge(lineEl.getStartOffset() + nws);
                 int indent = cboundsX.orElse(0);
                 for (j = scopeStack.listIterator(scopeStack.size()); j.hasPrevious(); ) {
                     NodeAndPosition<ParsedNode> next = j.previous();
@@ -1282,7 +1297,7 @@ public class BlueJSyntaxView
                         nws = findNonWhitespace(segment, next.getPosition() - lineEl.getStartOffset());
                         Integer oindent = nodeIndents.get(next.getNode());
                         if (oindent != null && nws != -1) {
-                            cboundsX = getLeftEdge(lineEl.getStartOffset() + nws, true);
+                            cboundsX = getLeftEdge(lineEl.getStartOffset() + nws);
                             indent = cboundsX.orElse(0);
                             updateNodeIndent(next, indent, oindent, dmgRange);
                         }
@@ -1316,7 +1331,7 @@ public class BlueJSyntaxView
                                 nws = findNonWhitespace(segment, spos);
                                 Integer oindent = nodeIndents.get(nap.getNode());
                                 if (oindent != null && nws != -1) {
-                                    cboundsX = getLeftEdge(lineEl.getStartOffset() + nws, true);
+                                    cboundsX = getLeftEdge(lineEl.getStartOffset() + nws);
                                     indent = cboundsX.orElse(0);
                                     updateNodeIndent(nap, indent, oindent, dmgRange);
                                 }
@@ -1395,7 +1410,7 @@ public class BlueJSyntaxView
 
             boolean doContinue = true;
 
-            OptionalInt cboundsX = getLeftEdge(dmgPoint, true);
+            OptionalInt cboundsX = getLeftEdge(dmgPoint);
             int dpI = cboundsX.orElse(0); // damage point indent
 
             while (doContinue && ! rscopeStack.isEmpty()) {
@@ -1444,7 +1459,7 @@ public class BlueJSyntaxView
                         continue;
                     }
 
-                    cboundsX = getLeftEdge(nws + lineEl.getStartOffset(), true);
+                    cboundsX = getLeftEdge(nws + lineEl.getStartOffset());
                     int newIndent = cboundsX.orElse(0);
 
                     if (newIndent < cachedIndent) {
