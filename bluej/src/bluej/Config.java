@@ -891,8 +891,14 @@ public final class Config
         try {
             props.load(new FileInputStream(propsFile));
         }
-        catch(IOException e) {
-            // ignore exception - this will hapen on first run of BlueJ
+        catch (IOException e) {
+            // ignore exception - this will happen when file doesn't yet exist
+        }
+        catch (Exception e) {
+            // We have seen IllegalArgumentException when the file has been corrupted and contains
+            // an invalid unicode escape sequence (backslash-u-XXXX). For safety we'll catch all
+            // exceptions and log an error rather than failing to start.
+            Debug.reportError("Exception while loading properties", e);
         }
     }
 
