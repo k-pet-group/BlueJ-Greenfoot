@@ -702,7 +702,12 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                     }
                     break;
                 case Z:
-                    if (event.isShortcutDown())
+                    // !Config.isMacOS() is added as a workaround for a macOS JDK bug. The bug makes an existing
+                    // accelerator to ignore that the event is consumed here. Thus, the undo/redo will be executed twice.
+                    // The whole case here is not removed as the accelerator alone is not being fired in some cases on
+                    // other systems (tested on Linux).
+                    //TODO Remove (!Config.isMacOS()) from the condition when the JDK bug is fixed.
+                    if (!Config.isMacOS() && event.isShortcutDown())
                     {
                         if (!event.isShiftDown())
                         {
@@ -712,6 +717,10 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                             undo();
                             event.consume();
                         }
+                        // Currently, the next check is always false, as we checked for !Config.isMacOS() in the outer if.
+                        // However, we should keep it so we don't end up with a bug when the jdk bug is solved and our
+                        // workaround is removed.
+                        // TODO Remove the above comment when the JDK bug is fixed and the (!Config.isMacOS()) above is removed.
                         else if (Config.isMacOS())
                         {
                             redo();
