@@ -706,7 +706,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                     // accelerator to ignore that the event is consumed here. Thus, the undo/redo will be executed twice.
                     // The whole case here is not removed as the accelerator alone is not being fired in some cases on
                     // other systems (tested on Linux).
-                    //TODO Remove (!Config.isMacOS()) from the condition when the JDK bug is fixed.
+                    // TODO Remove (!Config.isMacOS()) from the condition when the JDK bug is fixed.
                     if (!Config.isMacOS() && event.isShortcutDown())
                     {
                         if (!event.isShiftDown())
