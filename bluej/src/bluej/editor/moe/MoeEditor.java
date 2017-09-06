@@ -37,7 +37,6 @@ import bluej.editor.moe.PrintDialog.PrintChoices;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.FrameEditor;
 import bluej.editor.stride.MoeFXTab;
-import bluej.extensions.SourceType;
 import bluej.extensions.editor.Editor;
 import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.ParamInfo;
@@ -134,6 +133,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
@@ -1610,6 +1611,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
     public FXRunnable printTo(PrinterJob printerJob, boolean printLineNumbers, boolean printBackground)
     {
         MoeSyntaxDocument doc = new MoeSyntaxDocument(new ScopeColorsBorderPane());
+        // Note: very important we make this call before copyFrom, as copyFrom is what triggers
+        // the run-later that marking as printing suppresses:
+        doc.markAsForPrinting();
         doc.copyFrom(sourceDocument);
         MoeEditorPane editorPane = doc.makeEditorPane(null, null);
         Scene scene = new Scene(editorPane);
@@ -1659,8 +1663,20 @@ public final class MoeEditor extends ScopeColorsBorderPane
         {
             // Scroll to make topLine actually at the top:
             virtualFlow.showAsFirst(topLine);
+
             // Take a copy to avoid any update problems:
             List<C> visibleCells = new ArrayList<>(virtualFlow.visibleCells());
+
+            // Previously, we had a problem where a run-later task could race us and alter
+            // the scrolling which caused us to try to print an empty page.  That shouldn't happen
+            // any more, but we still guard against this just in case; better to handle it gracefully
+            // than risk running into an exception or infinite loop:
+            if (visibleCells.isEmpty())
+            {
+                // If visible cells empty, just give up gracefully rather than encounter an exception:
+                return;
+            }
+
             C lastCell = visibleCells.get(visibleCells.size() - 1);
             // Last page if we can see the last editor line:
             lastPage = virtualFlow.getCellIfVisible(editorLines - 1).isPresent();
