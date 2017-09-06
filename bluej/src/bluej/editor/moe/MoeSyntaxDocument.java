@@ -95,7 +95,6 @@ public class MoeSyntaxDocument
     private final Map<Integer, ScopeInfo> pendingScopeBackgrounds = new HashMap<>();
     private boolean applyingScopeBackgrounds = false;
 
-    protected boolean inNotification = false;
     // Can be null if we are not being used for an editor pane:
     private final BlueJSyntaxView syntaxView;
     private boolean hasFindHighlights = false;
@@ -800,7 +799,10 @@ public class MoeSyntaxDocument
      */
     protected void fireInsertUpdate(int offset, int length)
     {
-        inNotification = true;
+        if (syntaxView != null)
+        {
+            syntaxView.setDuringUpdate(true);
+        }
         if (reparseRecordTree != null) {
             NodeAndPosition<ReparseRecord> napRr = reparseRecordTree.findNodeAtOrAfter(offset);
             if (napRr != null) {
@@ -834,7 +836,10 @@ public class MoeSyntaxDocument
         int startLine = document.offsetToPosition(offset, Bias.Forward).getMajor();
         int endLine = document.offsetToPosition(offset + length, Bias.Forward).getMajor();
         recalculateScopesForLinesInRange(startLine, endLine);
-        inNotification = false;
+        if (syntaxView != null)
+        {
+            syntaxView.setDuringUpdate(false);
+        }
     }
     
     
@@ -843,7 +848,10 @@ public class MoeSyntaxDocument
      */
     protected void fireRemoveUpdate(int offset, int length)
     {
-        inNotification = true;
+        if (syntaxView != null)
+        {
+            syntaxView.setDuringUpdate(true);
+        }
         NodeAndPosition<ReparseRecord> napRr = (reparseRecordTree != null) ?
                 reparseRecordTree.findNodeAtOrAfter(offset) :
                     null;
@@ -925,7 +933,10 @@ public class MoeSyntaxDocument
         fireChangedUpdate(mse);
         int line = document.offsetToPosition(offset, Bias.Forward).getMajor();
         recalculateScopesForLinesInRange(line, line);
-        inNotification = false;
+        if (syntaxView != null)
+        {
+            syntaxView.setDuringUpdate(false);
+        }
     }
 
     /**
