@@ -711,9 +711,6 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                     {
                         if (!event.isShiftDown())
                         {
-                            if (undoRedoManager.isRecording()) {
-                                endRecordingState(focusedItem.get().getRecallableFocus());
-                            }
                             undo();
                             event.consume();
                         }
@@ -1898,6 +1895,11 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     @OnThread(Tag.FXPlatform)
     public void undo()
     {
+        if (undoRedoManager.isRecording()) {
+            CursorOrSlot cursorOrSlot = focusedItem.get();
+            endRecordingState(cursorOrSlot != null ? cursorOrSlot.getRecallableFocus() : null);
+        }
+
         editor.recordEdits(StrideEditReason.FLUSH);
         undoRedoManager.startRestoring();
         updateClassContents(undoRedoManager.undo());
