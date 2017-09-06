@@ -60,9 +60,9 @@ import threadchecker.Tag;
  */
 class DataSubmitter
 {
-    private static final String submitUrl = //"http://blackbox.bluej.org/master_events";
+    private static final String submitUrl = "http://blackbox.bluej.org/master_events";
         //For testing:
-        "http://localhost:3000/master_events";
+        //"http://localhost:3000/master_events";
 
     
     private static AtomicBoolean givenUp = new AtomicBoolean(false);
