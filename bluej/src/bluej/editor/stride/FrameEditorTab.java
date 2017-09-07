@@ -694,6 +694,9 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         contentRoot.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             switch (event.getCode())
             {
+                // Undo/Redo don't need to be handled here on mac as cmd+Z/cmd+shift+Z will fire the accelerator by
+                // default. This is different from Linux/Windows where not all cases cause the accelerator to be fired,
+                // so we have to handle the event on the key press on the later systems.
                 case Y:
                     if (!Config.isMacOS() && event.isShortcutDown() && !event.isShiftDown())
                     {
@@ -702,21 +705,10 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                     }
                     break;
                 case Z:
-                    if (event.isShortcutDown())
+                    if (!Config.isMacOS() && event.isShortcutDown() && !event.isShiftDown())
                     {
-                        if (!event.isShiftDown())
-                        {
-                            if (undoRedoManager.isRecording()) {
-                                endRecordingState(focusedItem.get().getRecallableFocus());
-                            }
-                            undo();
-                            event.consume();
-                        }
-                        else if (Config.isMacOS())
-                        {
-                            redo();
-                            event.consume();
-                        }
+                        undo();
+                        event.consume();
                     }
                     break;
                 case UP:
@@ -1889,6 +1881,11 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     @OnThread(Tag.FXPlatform)
     public void undo()
     {
+        if (undoRedoManager.isRecording()) {
+            CursorOrSlot cursorOrSlot = focusedItem.get();
+            endRecordingState(cursorOrSlot != null ? cursorOrSlot.getRecallableFocus() : null);
+        }
+
         editor.recordEdits(StrideEditReason.FLUSH);
         undoRedoManager.startRestoring();
         updateClassContents(undoRedoManager.undo());
