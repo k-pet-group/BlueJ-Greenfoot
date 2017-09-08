@@ -353,7 +353,8 @@ public class VarFrame extends SingleLineFrame
     private boolean isField(FrameCanvas parentCanvas)
     {
         if (parentCanvas == null) {
-            bluej.utility.Debug.printCallStack("parentCanvas shouldn't be null");
+            // This means that the frame is being deleted, so it has no parent.
+            // This shouldn't be reachable but it's not harmful. See: http://bugs.bluej.org/browse/BLUEJ-1068
             return false;
         }
         return parentCanvas.getParent().getChildKind(parentCanvas) == CanvasParent.CanvasKind.FIELDS;
