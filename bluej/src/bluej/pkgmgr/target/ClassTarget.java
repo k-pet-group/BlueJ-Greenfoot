@@ -873,11 +873,14 @@ public class ClassTarget extends DependentTarget
      */
     public void invalidate()
     {
-        markModified();
+        if (hasSourceCode())
+        {
+            markModified();
+        }
         for (Dependency d : dependents()) {
             ClassTarget dependent = (ClassTarget) d.getFrom();
             
-            if (dependent.isCompiled()) {
+            if (dependent.isCompiled() && dependent.hasSourceCode()) {
                 // Invalidate the dependent only if it is not already invalidated. 
                 // Will avoid going into an infinite circular loop.
                 dependent.invalidate();
