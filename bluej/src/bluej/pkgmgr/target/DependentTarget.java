@@ -514,6 +514,11 @@ public abstract class DependentTarget extends EditableTarget
         return state.get();
     }
 
+    /**
+     * Mark the class as needing a compile (if it is not marked thus already).
+     *
+     * Do not call this method on classes which lack source code.
+     */
     public void markModified()
     {
         // If it's already NEEDS_COMPILE or HAS_ERROR, no need to change:

@@ -852,7 +852,7 @@ public final class Package
                 DependentTarget dt = dependent.getFrom();
                 if (dt instanceof ClassTarget) {
                     ClassTarget dep = (ClassTarget) dt;
-                    if (dep.isCompiled()) {
+                    if (dep.isCompiled() && dep.hasSourceCode()) {
                         dep.setState(State.NEEDS_COMPILE);
                         invalidated.add(dep);
                     }
