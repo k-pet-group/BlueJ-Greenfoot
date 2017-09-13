@@ -21,23 +21,23 @@
  */
 package bluej.editor.stride;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 import bluej.Config;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.Frame.View;
+import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import bluej.stride.slots.EditableSlot.SortedMenuItem;
-import bluej.utility.javafx.FXConsumer;
-
+import bluej.utility.DialogManager;
+import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.FXRunnable;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.print.PrinterJob;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
@@ -45,13 +45,12 @@ import javafx.scene.input.KeyCharacterCombination;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-
-import bluej.stride.slots.EditableSlot;
-import bluej.utility.Utility;
-import bluej.utility.javafx.FXRunnable;
-import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A class to manage the menus for a frame editor.
@@ -158,7 +157,7 @@ class FrameMenuManager extends TabMenuManager
             menus = Arrays.asList(
                     JavaFXUtil.makeMenu(Config.getString("frame.classmenu.title")
                             , mainMoveMenu
-                            , JavaFXUtil.makeMenuItem(Config.getString("frame.classmenu.print"), () -> editor.getFrameEditor().printTo(null,false,false), new KeyCodeCombination(KeyCode.P, KeyCombination.SHORTCUT_DOWN))
+                            , JavaFXUtil.makeMenuItem(Config.getString("frame.classmenu.print"), () -> print(), new KeyCodeCombination(KeyCode.P, KeyCombination.SHORTCUT_DOWN))
                             , JavaFXUtil.makeMenuItem(Config.getString("frame.classmenu.close"), () -> editor.getParent().close(editor), new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN))
                     ),
                     editMenu,
@@ -170,6 +169,33 @@ class FrameMenuManager extends TabMenuManager
             updateMoveMenus();
         }
         return menus;
+    }
+
+    /**
+     * Print the Stride class of the associated editor.
+     */
+    @OnThread(Tag.FXPlatform)
+    private void print()
+    {
+        PrinterJob job = JavaFXUtil.createPrinterJob();
+        if (job == null)
+        {
+            DialogManager.showErrorFX(editor.getParent().getWindow(),"print-no-printers");
+        }
+        else if (job.showPrintDialog(editor.getParent().getWindow()))
+        {
+            FXRunnable printAction = editor.getFrameEditor().printTo(job, false, false);
+            new Thread()
+            {
+                @Override
+                @OnThread(value = Tag.FX, ignoreParent = true)
+                public void run()
+                {
+                    printAction.run();
+                    job.endJob();
+                }
+            }.start();
+        }
     }
 
     // Updates our menu items using binding.
