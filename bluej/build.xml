@@ -16,11 +16,11 @@
     <property name="bluej.version.major" value="4" />
     <property name="bluej.version.minor" value="1" />
     <property name="bluej.version.release" value="1" />
-    <property name="bluej.version.suffix" value="" />
+    <property name="bluej.version.suffix" value="-duke" />
     <!-- suffix with no spaces, eg "pre2" -->
-    <property name="bluej.version.nonspace.suffix" value="" />
+    <property name="bluej.version.nonspace.suffix" value="-duke" />
     <!-- Suffix added after version number in output files -->
-    <property name="bluej.rcsuffix" value="-rc3"/>
+    <property name="bluej.rcsuffix" value="-rc1"/>
     
     <property name="bluej.version" value="${bluej.version.major}.${bluej.version.minor}.${bluej.version.release}${bluej.version.suffix}" />
     <property name="bluej.version.nosuffix" value="${bluej.version.major}.${bluej.version.minor}.${bluej.version.release}" />
@@ -414,7 +414,7 @@
         <propertycopy name="msi.product.id" from="bluej-${bluej.version}"/>
 
         <!-- Update the WiX build files: -->
-        <replaceregexp byline="true" match="&lt;Product Version='.*' Id='.*'" replace="&lt;Product Version='${bluej.version.nosuffix}' Id='${msi.product.id}'">
+        <replaceregexp byline="true" match="&lt;Product Version='.*' Id='.*'" replace="&lt;Product Version='${bluej.version.nosuffix}.1' Id='${msi.product.id}'">
             <fileset dir="package/winsetup" includes="bluej.wxs" />
         </replaceregexp>
         <replaceregexp byline="true" match="(\s*&lt;Property\s+Id=&quot;SOFTWAREVERSION&quot;\s+Value=).*" replace="\1&quot;${bluej.version.nosuffix}&quot;/&gt;">

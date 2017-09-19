@@ -1,5 +1,5 @@
 
-BlueJ version 4.1.1       --        README.TXT
+BlueJ version 4.1.1-duke       --        README.TXT
 
 Information about BlueJ
 -----------------------
