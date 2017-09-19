@@ -145,6 +145,11 @@ bluej.url.versionCheck=http://www.bluej.org/version.info
 #bluej.help.myCustomLib.url=http://www.google.com/
 #bluej.help.courseInfo.label=CS1 course info
 #bluej.help.courseInfo.url=http://www.bluej.org/help/archive.html
+bluej.help.items=duke coursera
+bluej.help.duke.label=Duke/Coursera Class Documentation
+bluej.help.duke.url=http://www.dukelearntoprogram.com/javadoc/index.html
+bluej.help.coursera.label=Duke/Coursera Resources
+bluej.help.coursera.url=http://www.dukelearntoprogram.com/
 
 
 #####################################################################

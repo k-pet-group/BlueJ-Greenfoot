@@ -59,6 +59,9 @@
         <include name="lib/userlib/pi4j-gpio-extension.jar" />
         <include name="lib/userlib/pi4j-service.jar" />
         <include name="lib/userlib/pi4j-core.jar" />
+        <include name="lib/userlib/apache-csv.jar" />
+        <include name="lib/userlib/courserajava.jar" />
+
         <include name="lib/windowtofront.js" />
     </patternset>
 
@@ -147,7 +150,6 @@
             <fileset dir="${bluej_home}" >
                 <patternset refid="bluej.libfiles"/>
                 <patternset refid="bluej.libdirs"/>
-                <patternset refid="bluej.examples"/>
                 <patternset refid="bluej.icons" />
             </fileset>
             <fileset refid="bluej.license.files"/>
@@ -161,12 +163,6 @@
          <tstamp>
             <format property="touch.time" pattern="MM/dd/yyyy hh:mm aa" offset="5" unit="year"/>
         </tstamp>
-
-        <touch datetime="${touch.time}">
-            <fileset dir="install_tmp" >
-                <patternset refid="bluej.examples.classes"/>
-            </fileset>
-        </touch>
 
         <!-- make sure line endings are in unix format -->
         <fixcrlf srcdir="install_tmp" eol="lf" encoding="ISO-8859-1">
@@ -286,7 +282,6 @@
             <fileset dir="${bluej_home}">
                 <patternset refid="bluej.libfiles" />
                 <patternset refid="bluej.libdirs" />
-                <patternset refid="bluej.examples" />
             </fileset>
         </copy>
         
@@ -574,20 +569,8 @@
 		<delete dir="bluejdeb-lib-tmp" />
 		
 		<!-- examples and documentation -->
-		<mkdir dir="bluej-examples-tmp" />
-        <copy todir="bluej-examples-tmp">
-            <fileset dir="${bluej_home}">
-                <patternset refid="bluej.examples" />
-            </fileset>
-        </copy>
 		<mkdir dir="bluejdeb/usr/share/doc/BlueJ" />
-        <move todir="bluejdeb/usr/share/doc/BlueJ">
-            <fileset dir="bluej-examples-tmp/examples">
-                <patternset includes="**" />
-            </fileset>
-        </move>
-		<delete dir="bluej-examples-tmp" />
-		<copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/LICENSE.txt" />
+        <copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/LICENSE.txt" />
 		<copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/THIRDPARTYLICENSE.txt" />
 		<copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/README.TXT" />
 
@@ -660,7 +643,6 @@
                 <include name="doc/Pi4J-readme.txt"/>
             	<include name="doc/threading-issues.txt" />
                 <include name="doc/thirdpartylicenses/*" />
-	            <include name="examples/**/*" />          
 	            <include name="icons/**/*" />           
 	            <include name="lib/**/*" />
 
