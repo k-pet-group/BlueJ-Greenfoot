@@ -1,13 +1,5 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
 import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -125,16 +117,33 @@ public class GifImage
 
         for (int i=0 ; i<numFrames ; i++) {
             GreenfootImage image = new GreenfootImage(decode.getFrame(i).getWidth(), decode.getFrame(i).getHeight());
-            BufferedImage frame = image.getAwtImage();
-            Graphics2D g = (Graphics2D)frame.getGraphics();
-            g.drawImage(decode.getFrame(i), null, 0, 0);
+            image.drawImage(decode.getFrame(i), 0, 0);
             delay[i] = decode.getDelay(i);
             images[i] = image;
         }
         time = System.currentTimeMillis();
     }
 
-
+    /**
+     * The Rectangle class represents rectangles. This is essentially a re-implementation
+     * of the java.awt.Rectangle class, created in order to avoid any dependency on AWT.
+     */
+    private static class Rectangle
+    {
+        public int x;
+        public int y;
+        public int width;
+        public int height;
+        
+        public Rectangle(int x, int y, int width, int height)
+        {
+            this.x = x;
+            this.y = y;
+            this.width = width;
+            this.height = height;
+        }
+    }
+    
     /**
      * Class GifDecoder - Decodes a GIF file into one or more frames. <br><br>
      * 
@@ -162,8 +171,8 @@ public class GifImage
      * @version 1.03 November 2003
      * 
      */
-    private class GifDecoder {
-
+    private class GifDecoder
+    {
         /**
          * File read status: No errors.
          */
@@ -201,9 +210,9 @@ public class GifImage
 
         private int bgIndex; // background color index
 
-        private int bgColor; // background color
+        private Color bgColor; // background color
 
-        private int lastBgColor; // previous bg color
+        private Color lastBgColor; // previous bg color
 
         private int pixelAspect; // pixel aspect ratio
 
@@ -217,9 +226,9 @@ public class GifImage
 
         private Rectangle lastRect; // last image rect
 
-        private BufferedImage image; // current frame
+        private GreenfootImage image; // current frame
 
-        private BufferedImage lastImage; // previous frame
+        private GreenfootImage lastImage; // previous frame
 
         private byte[] block = new byte[256]; // current data block
 
@@ -258,16 +267,27 @@ public class GifImage
          * A single frame
          */
         private class GifFrame {
-            public GifFrame(BufferedImage im, int del) {
+            public GifFrame(GreenfootImage im, int del) {
                 image = im;
                 delay = del;
             }
 
-            private BufferedImage image;
+            private GreenfootImage image;
 
             private int delay;
         }
 
+        /**
+         * Convert an RGB integer value to a Color.
+         */
+        private Color colorFromInt(int rgb)
+        {
+            int r = (rgb & 0xFF0000) >> 16;
+            int g = (rgb & 0xFF00) >> 8;
+            int b = (rgb & 0xFF);
+            return new Color(r,g,b);
+        }
+        
         /**
          * Gets display duration for specified frame.
          * 
@@ -298,7 +318,7 @@ public class GifImage
          * 
          * @return BufferedImage containing first frame, or null if none.
          */
-        public BufferedImage getImage() {
+        public GreenfootImage getImage() {
             return getFrame(0);
         }
 
@@ -317,9 +337,6 @@ public class GifImage
          * by their disposition codes).
          */
         protected void setPixels() {
-            // expose destination image's pixels as int array
-            int[] dest = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
-
             // fill in starting image contents based on last image's dispose code
             if (lastDispose > 0) {
                 if (lastDispose == 3) {
@@ -333,23 +350,21 @@ public class GifImage
                 }
 
                 if (lastImage != null) {
-                    int[] prev = ((DataBufferInt) lastImage.getRaster().getDataBuffer()).getData();
-                    System.arraycopy(prev, 0, dest, 0, width * height);
+                    image.clear();
+                    image.drawImage(lastImage, 0, 0);
+                    
                     // copy pixels
 
                     if (lastDispose == 2) {
                         // fill last image rect area with background color
-                        Graphics2D g = image.createGraphics();
                         Color c = null;
                         if (transparency) {
                             c = new Color(0, 0, 0, 0); // assume background is transparent
                         } else {
-                            c = new Color(lastBgColor); // use given background color
+                            c = lastBgColor; // use given background color
                         }
-                        g.setColor(c);
-                        g.setComposite(AlphaComposite.Src); // replace area
-                        g.fill(lastRect);
-                        g.dispose();
+                        image.setColor(c);
+                        image.fillRect(lastRect.x, lastRect.y, lastRect.width, lastRect.height);
                     }
                 }
             }
@@ -382,20 +397,15 @@ public class GifImage
                 line += iy;
                 if (line < height) {
                     int k = line * width;
-                    int dx = k + ix; // start of line in dest
-                    int dlim = dx + iw; // end of dest line
-                    if ((k + width) < dlim) {
-                        dlim = k + width; // past dest edge
-                    }
-                    int sx = i * iw; // start of line in source
-                    while (dx < dlim) {
-                        // map color and insert in destination
+                    int dlim = Math.min(ix + iw, width);
+                    int sx = i * iw;
+                    
+                    for (int dx = ix; dx < dlim; dx++) {
                         int index = ((int) pixels[sx++]) & 0xff;
                         int c = act[index];
                         if (c != 0) {
-                            dest[dx] = c;
+                            image.setColorAt(dx, line, colorFromInt(c));
                         }
-                        dx++;
                     }
                 }
             }
@@ -406,8 +416,8 @@ public class GifImage
          * 
          * @return BufferedImage representation of frame, or null if n is invalid.
          */
-        public BufferedImage getFrame(int n) {
-            BufferedImage im = null;
+        public GreenfootImage getFrame(int n) {
+            GreenfootImage im = null;
             if ((n >= 0) && (n < frameCount)) {
                 im = ((GifFrame) frames.get(n)).image;
             }
@@ -417,10 +427,10 @@ public class GifImage
         /**
          * Gets image size.
          * 
-         * @return GIF image dimensions
+         * @return GIF image dimensions as an array - [0] = width, [1] = height
          */
-        public Dimension getFrameSize() {
-            return new Dimension(width, height);
+        public int[] getFrameSize() {
+            return new int[]{width, height};
         }
 
         /**
@@ -493,10 +503,10 @@ public class GifImage
             status = STATUS_OK;
             try {
                 URL url = this.getClass().getClassLoader().getResource(name);
-                if(url==null) {
+                if (url == null) {
                     name = "images/" + name;
                     url = this.getClass().getClassLoader().getResource(name);
-                    if(url==null) {
+                    if (url == null) {
                         throw new RuntimeException("The gif file \"" + name + "\" doesn't exist.");
                     }
                 }
@@ -775,13 +785,13 @@ public class GifImage
             read(); // block size
             int packed = read(); // packed fields
             dispose = (packed & 0x1c) >> 2; // disposal method
-                        if (dispose == 0) {
-                            dispose = 1; // elect to keep old image if discretionary
-                        }
-                        transparency = (packed & 1) != 0;
-                        delay = readShort() * 10; // delay in milliseconds
-                        transIndex = read(); // transparent color index
-                        read(); // block terminator
+            if (dispose == 0) {
+                dispose = 1; // elect to keep old image if discretionary
+            }
+            transparency = (packed & 1) != 0;
+            delay = readShort() * 10; // delay in milliseconds
+            transIndex = read(); // transparent color index
+            read(); // block terminator
         }
 
         /**
@@ -800,7 +810,7 @@ public class GifImage
             readLSD();
             if (gctFlag && !err()) {
                 gct = readColorTable(gctSize);
-                bgColor = gct[bgIndex];
+                bgColor = colorFromInt(gct[bgIndex]);
             }
         }
 
@@ -826,7 +836,7 @@ public class GifImage
             } else {
                 act = gct; // make global table active
                 if (bgIndex == transIndex)
-                    bgColor = 0;
+                    bgColor = colorFromInt(0);
             }
             int save = 0;
             if (transparency) {
@@ -850,7 +860,7 @@ public class GifImage
             frameCount++;
 
             // create new image to receive frame data
-            image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB_PRE);
+            image = new GreenfootImage(width, height);
 
             setPixels(); // transfer pixel data to image
 
