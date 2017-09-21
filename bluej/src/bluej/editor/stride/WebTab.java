@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 import bluej.pkgmgr.target.EditableTarget;
+import bluej.testmgr.TestDisplayFrame;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import javafx.beans.value.ObservableStringValue;
@@ -179,6 +180,7 @@ public class WebTab extends FXTab
         // Nothing to do
     }
 
+    @OnThread(Tag.FXPlatform)
     private void setupTutorialMangler()
     {
         JavaFXUtil.addChangeListenerPlatform(this.browser.getEngine().documentProperty(), doc -> {
@@ -212,6 +214,16 @@ public class WebTab extends FXTab
                                 {
                                     targetWindow = parent.getProject().getTerminal().getWindow();
                                     nodeCSS = nodeCSS.substring("Terminal".length());
+                                }
+                                else if (nodeCSS.startsWith("Editor"))
+                                {
+                                    targetWindow = parent.getProject().getDefaultFXTabbedEditor().getWindow();
+                                    nodeCSS = nodeCSS.substring("Editor".length());
+                                }
+                                else if (nodeCSS.startsWith("TestResults"))
+                                {
+                                    targetWindow = TestDisplayFrame.getTestDisplay().getWindow();
+                                    nodeCSS = nodeCSS.substring("TestResults".length());
                                 }
                                 else
                                 {

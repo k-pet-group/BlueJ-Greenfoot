@@ -47,4 +47,8 @@ public class CatView extends Application
         
     }
 
+    public void nextImage()
+    {
+        // TODO
+    }
 }

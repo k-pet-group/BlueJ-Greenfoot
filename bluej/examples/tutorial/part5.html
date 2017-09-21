@@ -5,9 +5,9 @@
 </head>
 <body>
 <div class="part-links">
-    <a href="part4.html" class="part-prev">Part 3</a>
+    <a href="part4.html" class="part-prev">Part 4</a>
     <a href="tutorial.html" class="part-toc">BlueJ Tutorial</a>
-    <a href="part6.html" class="part-next">Part 5</a>
+    <a href="part6.html" class="part-next">Part 6</a>
 </div>
 
 <h2>Testing</h2>
@@ -25,15 +25,15 @@
 
 <p>You can add a test by writing code in the CatTest class.  But BlueJ also allows you to create tests interactively, which we will do now.  Right-click on <a href="guicss:.class-target-id-CatTest">the CatTest class</a> (note: CatTest, not Cat) and select "Create Test Method...".  A dialog will pop up to ask for a name: call it <b>testHappy</b> and then press OK.  BlueJ then switches into recording mode: you will see that a new set of controls appears on the left hand side of the main window, including a red recording indicator.</p>
 
-<p>Create a new Cat object, by right-clicking <a href="guicss:.class-target-id-Cat">the Cat class</a> and selecting "new Cat()" as before.  Then right-click on <a href="guicss:.object-wrapper">the cat1 object</a>, and call the "boolean isHappy()" method.  You will see that this time, the result dialog has an extra section at the bottom, asking if you want to add an assertion (a check).  We want to check that the cat is not happy after creation, so we fill in <b>false</b> in <a href="guicss:.assert-field-data">the value field</a> and click OK.</p>
+<p>Create a new Cat object, by right-clicking <a href="guicss:.class-target-id-Cat">the Cat class</a> and selecting "new Cat()" as before.  Then right-click on <a href="guicss:.object-wrapper">the cat1 object</a>, and call the "boolean isHappy()" method.  You will see that this time, the result dialog has an extra section at the bottom, asking if you want to add an assertion (a check).  We want to check that the cat is not happy after creation, so we fill in <b>false</b> in the bottom-right value field and click Close.</p>
 
-<p>Next, we right click <a href="guicss:.object-wrapper">the cat1 object</a> and call the "void feed()" method.  Then call the isHappy() method again.  This time, fill in <b>true</b> in <a href="guicss:.assert-field-data">the value field</a>, as the intended behaviour is that the cat becomes happy after feeding.  Then click OK.</p>
+<p>Next, we right click <a href="guicss:.object-wrapper">the cat1 object</a> and call the "void feed()" method.  Then call the isHappy() method again.  This time, fill in <b>true</b> in the bottom-right value field, as the intended behaviour is that the cat becomes happy after feeding.  Then click Close.</p>
 
 <p>Our test is now finished, so on the left-hand side of the BlueJ window, click <a href="guicss:.pmf-test-end-button">the End button</a>.</p>
 
-<p>If you just want to run the individual test, you can right-click the individual test  class and run the individual test method.  More often though, you will want to run all tests.  To do this, click the <a href="guicss:.pmf-tests-run-all">"Run Tests" button</a> on the left-hand side of the main window.  This will bring up the test results window, showing which tests pass and fail.  Currently, our test fails, so the middle bar is red.</p>
+<p>If you just want to run the individual test, you can right-click the individual test  class and run the individual test method.  More often though, you will want to run all tests.  To do this, click the <a href="guicss:.pmf-tests-run-all">Run Tests button</a> on the left-hand side of the main window.  This will bring up the test results window, showing which tests pass and fail.  Currently, our test fails, so the middle bar is red.</p>
 
-<p>If you click on testHappy in <a href="guicss:.test-names">the top list of tests</a>, you can see the reason for this.  To get more information, click <a href=".guicss:.test-show-source">the Show Source button</a>.  This will show the CatTest class source code, and highlight the line where the test failed.  You can see that the problem is that the happy state is false after the feeding.  That's because our happy method always returns false.  Return to the source for the Cat class (not the CatTest class), and change the line inside method to be as follows:</p>
+<p>If you click on testHappy in <a href="guicss:TestResults .test-names">the top list of tests</a>, you can see the reason for this.  To get more information, click <a href="guicss:TestResults .test-show-source">the Show Source button</a>.  This will show the CatTest class source code, and highlight the line where the test failed.  You can see that the problem is that the happy state is false after the feeding.  That's because our happy method always returns false.  Return to the source for the Cat class (not the CatTest class), and change the line inside the method to be as follows:</p>
 
 <code><pre>
     public boolean isHappy()

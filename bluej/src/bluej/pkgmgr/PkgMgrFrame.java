@@ -2879,7 +2879,9 @@ public class PkgMgrFrame
         arrow.setStroke(Color.BLACK);
         imgExtendsButton.setGraphic(arrow);
         topButtons.getChildren().add(imgExtendsButton);
-        topButtons.getChildren().add(compileAction.makeButton());
+        Button compileButton = compileAction.makeButton();
+        JavaFXUtil.addStyleClass(compileButton, "compile-button");
+        topButtons.getChildren().add(compileButton);
         toolPanel.getChildren().add(topButtons);
 
         dummySwingNode = new SwingNode();
