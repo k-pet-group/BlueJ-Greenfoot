@@ -105,6 +105,7 @@
         <include name="examples/file-reader/" />
         <include name="examples/shapes/" />
         <include name="examples/LED-Button/" />
+        <include name="examples/tutorial/" />
     </patternset>
     
     <patternset id="bluej.icons">
@@ -113,6 +114,7 @@
 
     <patternset id="bluej.examples.classes">
         <include name="examples/people/*.class" />
+        <include name="examples/tutorial/*.class" />
     </patternset>
 
     <fileset id="bluej.license.files" dir="${bluej_home}/doc/">
