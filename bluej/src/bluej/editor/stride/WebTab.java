@@ -23,8 +23,10 @@ package bluej.editor.stride;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
 
+import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.EditableTarget;
 import bluej.testmgr.TestDisplayFrame;
 import bluej.utility.Debug;
@@ -69,6 +71,9 @@ public class WebTab extends FXTab
     private final WebView browser;
     private FXTabbedEditor parent;
     private final TabMenuManager menuManager;
+    // Red overlays used in tutorial.  We store because when we show a new
+    // overlay, we should hide previous one:
+    private final IdentityHashMap<Project, Popup[]> tutorialOverlays = new IdentityHashMap<>();
 
     /**
      * Constructs a WebTab with a WebView in it
@@ -207,8 +212,15 @@ public class WebTab extends FXTab
                         {
                             ((EventTarget) anchorItem).addEventListener("click", e ->
                             {
+                                // Hide previous overlays for project.  Do this even if link doesn't work,
+                                // as we don't want to confuse the user by still showing an old popup:
+                                for (Popup popup : tutorialOverlays.getOrDefault(parent.getProject(), new Popup[0]))
+                                {
+                                    popup.hide();
+                                }
+
                                 String nodeCSS = anchorHref.getNodeValue().substring("guicss:".length());
-                                // TODO clear all previous popups
+
                                 final Window targetWindow;
                                 if (nodeCSS.startsWith("Terminal"))
                                 {
@@ -240,6 +252,7 @@ public class WebTab extends FXTab
                                         new Rectangle(screenBounds.getWidth() + 20, 5), // bottom
                                         new Rectangle(5, screenBounds.getHeight() + 20) // left
                                     };
+
                                     Popup[] overlays = new Popup[4];
                                     for (int j = 0; j < 4; j++)
                                     {
@@ -259,6 +272,8 @@ public class WebTab extends FXTab
                                             overlay.hide();
                                         }
                                     });
+
+                                    tutorialOverlays.put(parent.getProject(), overlays);
 
                                     Utility.bringToFrontFX(targetWindow);
 
