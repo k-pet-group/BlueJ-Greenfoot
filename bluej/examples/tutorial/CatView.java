@@ -28,9 +28,9 @@ public class CatView extends Application
     public void start(Stage stage) throws Exception
     {
         images = new Image[] {
-            new Image("images/cat1.jpg"),
-            new Image("images/cat2.jpg"),
-            new Image("images/cat3.jpg")
+            new Image("cat1.jpg"),
+            new Image("cat2.jpg"),
+            new Image("cat3.jpg")
         };
         imageView = new ImageView(images[curImage]);
         stage.setScene(makeScene());
@@ -47,6 +47,7 @@ public class CatView extends Application
         BorderPane pane = new BorderPane(imageView);
         pane.getStyleClass().add("image-wrapper");
         Scene scene = new Scene(pane);
+        
         return scene;
     }
 
@@ -54,5 +55,6 @@ public class CatView extends Application
     {
         curImage = (curImage + 1) % images.length;
         imageView.setImage(images[curImage]);
+        imageView.getScene().getWindow().sizeToScene();
     }
 }
