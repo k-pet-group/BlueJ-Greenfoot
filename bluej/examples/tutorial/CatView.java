@@ -27,28 +27,32 @@ public class CatView extends Application
     @Override
     public void start(Stage stage) throws Exception
     {
-        /*
         images = new Image[] {
             new Image("images/cat1.jpg"),
             new Image("images/cat2.jpg"),
             new Image("images/cat3.jpg")
         };
         imageView = new ImageView(images[curImage]);
-*/
-        BorderPane pane = new BorderPane(imageView);
-        pane.getStyleClass().add("image-wrapper");
-        Scene scene = new Scene(pane);
+        stage.setScene(makeScene());
         stage.setTitle("Cat Pictures");
-        stage.setScene(scene);
         stage.sizeToScene();
 
         // Show the Stage (window)
         stage.show();
         
     }
+    
+    private Scene makeScene()
+    {
+        BorderPane pane = new BorderPane(imageView);
+        pane.getStyleClass().add("image-wrapper");
+        Scene scene = new Scene(pane);
+        return scene;
+    }
 
     public void nextImage()
     {
-        // TODO
+        curImage = (curImage + 1) % images.length;
+        imageView.setImage(images[curImage]);
     }
 }
