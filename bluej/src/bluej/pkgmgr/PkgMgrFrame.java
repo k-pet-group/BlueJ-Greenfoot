@@ -560,11 +560,13 @@ public class PkgMgrFrame
             {
                 JavaFXUtil.runNowOrLater(() ->
                 {
+                    // Remove the bidirectional binding from the old project, if there was one:
                     if (oldPkg != null)
                     {
-                        showingDebugger.bindBidirectional(oldPkg.getProject().debuggerShowing());
-                        showingTerminal.bindBidirectional(oldPkg.getProject().terminalShowing());
+                        showingDebugger.unbindBidirectional(oldPkg.getProject().debuggerShowing());
+                        showingTerminal.unbindBidirectional(oldPkg.getProject().terminalShowing());
                     }
+                    // Bind instead to new project, if there is one:
                     if (newPkg != null)
                     {
                         showingDebugger.bindBidirectional(newPkg.getProject().debuggerShowing());
