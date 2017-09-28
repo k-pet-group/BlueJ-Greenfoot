@@ -3360,7 +3360,17 @@ public final class MoeEditor extends ScopeColorsBorderPane
                             sourcePane.deleteNextChar();
                             break;
                     }
-                    return Response.CONTINUE;
+                    // If they delete to before the original position then
+                    // not only does it make sense to dismiss, but in fact
+                    // we must dismiss or we will encounter an exception:
+                    if (sourcePane.getCaretPosition() < originalPosition)
+                    {
+                        return Response.DISMISS;
+                    }
+                    else
+                    {
+                        return Response.CONTINUE;
+                    }
                 }
 
                 @Override
