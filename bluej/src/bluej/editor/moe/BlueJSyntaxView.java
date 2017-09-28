@@ -254,7 +254,8 @@ public class BlueJSyntaxView
     List<ScopeInfo> recalculateScopes(int firstLineIncl, int lastLineIncl)
     {
         List<ScopeInfo> scopes = new ArrayList<>();
-        paintScopeMarkers(scopes, widthProperty == null  || widthProperty.get() == 0 ? 200 : (int)widthProperty.get(), firstLineIncl, lastLineIncl, false);
+        // Subtract 24 which is width of paragraph graphic:
+        paintScopeMarkers(scopes, widthProperty == null  || widthProperty.get() == 0 ? 200 : ((int)widthProperty.get() - 24), firstLineIncl, lastLineIncl, false);
         return scopes;
     }
 
@@ -610,7 +611,7 @@ public class BlueJSyntaxView
             boolean onlyMethods, int nodeDepth)
     throws BadLocationException
     {
-        int rightMargin = small ? 0 : 20;
+        int rightMargin = small ? 0 : 10;
 
         ListIterator<NodeAndPosition<ParsedNode>> li = prevScopeStack.listIterator();
 
