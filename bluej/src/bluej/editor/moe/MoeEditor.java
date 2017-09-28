@@ -31,6 +31,7 @@ import bluej.debugger.DebuggerThread;
 import bluej.editor.EditorWatcher;
 import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
 import bluej.editor.moe.MoeActions.MoeAbstractAction;
+import bluej.editor.moe.PrintDialog.PrintSize;
 import bluej.editor.moe.MoeErrorManager.ErrorDetails;
 import bluej.editor.moe.MoeSyntaxDocument.Element;
 import bluej.editor.moe.PrintDialog.PrintChoices;
@@ -71,6 +72,7 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.FXSupplier;
@@ -86,6 +88,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.print.PrinterJob;
@@ -95,12 +98,15 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.scene.web.WebView;
@@ -133,8 +139,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
@@ -1608,7 +1612,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      */
     @Override
     @OnThread(Tag.FXPlatform)
-    public FXRunnable printTo(PrinterJob printerJob, boolean printLineNumbers, boolean printBackground)
+    public FXRunnable printTo(PrinterJob printerJob, PrintSize printSize, boolean printLineNumbers, boolean printBackground)
     {
         MoeSyntaxDocument doc = new MoeSyntaxDocument(new ScopeColorsBorderPane());
         // Note: very important we make this call before copyFrom, as copyFrom is what triggers
@@ -1627,7 +1631,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         // We could make page size match screen size by scaling font size by difference in DPIs:
         //editorPane.styleProperty().unbind();
         //editorPane.setStyle("-fx-font-size: " + PrefMgr.getEditorFontSize().getValue().doubleValue() * 0.75 + "pt;");
-        editorPane.setPrinting(true, printLineNumbers);
+        editorPane.setPrinting(true, printSize, printLineNumbers);
         editorPane.setWrapText(true);
         editorPane.requestLayout();
         editorPane.layout();
@@ -1720,7 +1724,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         }
         else if (job.showPrintDialog(getWindow()))
         {
-            FXRunnable printAction = printTo(job, choices.get().printLineNumbers, choices.get().printHighlighting);
+            FXRunnable printAction = printTo(job, choices.get().printSize, choices.get().printLineNumbers, choices.get().printHighlighting);
             new Thread()
             {
                 @Override

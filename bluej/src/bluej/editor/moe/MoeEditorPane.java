@@ -28,6 +28,7 @@ import java.io.Writer;
 import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import bluej.editor.moe.PrintDialog.PrintSize;
 import org.fxmisc.flowless.Cell;
 import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.richtext.StyledTextArea;
@@ -136,7 +137,7 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
                     compiled -> JavaFXUtil.setPseudoclass("bj-uncompiled", !compiled, this));
         }
         syntaxView.setEditorPane(this);
-        setPrinting(false, true);
+        setPrinting(false, null, false);
 
         JavaFXUtil.addChangeListenerPlatform(PrefMgr.getEditorFontSize(), sz -> {
             JavaFXUtil.runPlatformLater(() -> requestLayout());
@@ -184,11 +185,34 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
         });
     }
 
-    public void setPrinting(boolean printing, boolean showLineNumbers)
+    /**
+     * Sets the printing state on/off for this editor pane.  We adjust various style bits when
+     * printing, compared to when we are on-screen.
+     *
+     * @param printing Are we printing?  If false, the other parameters are ignored.
+     * @param printSize The size of font to print
+     * @param showLineNumbers Whether to print line numbers
+     */
+    public void setPrinting(boolean printing, PrintSize printSize, boolean showLineNumbers)
     {
         JavaFXUtil.selectPseudoClass(this, printing ? 1 : 0, "bj-screen", "bj-printing");
         if (printing)
         {
+            styleProperty().unbind();
+            // These sizes are picked by hand.  They are small because the Roboto Mono font
+            switch (printSize)
+            {
+                case SMALL:
+                    setStyle("-fx-font-size: 7pt;");
+                    break;
+                case STANDARD:
+                    setStyle("-fx-font-size: 9pt;");
+                    break;
+                case LARGE:
+                    setStyle("-fx-font-size: 12pt;");
+                    break;
+            }
+
             this.showLineNumbers.unbind();
             this.showLineNumbers.set(showLineNumbers);
         }

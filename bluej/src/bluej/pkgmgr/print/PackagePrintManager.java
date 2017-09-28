@@ -75,14 +75,14 @@ public class PackagePrintManager extends Thread
         {
             printActions.addAll(pkg.getAllClassnamesWithSource().stream()
                     .map(className -> ((ClassTarget) pkg.getTarget(className)).getEditor())
-                    .map(ed -> ed.printTo(job, printChoices.printLineNumbers, printChoices.printHighlighting))
+                    .map(ed -> ed.printTo(job, printChoices.printSize, printChoices.printLineNumbers, printChoices.printHighlighting))
                     .collect(Collectors.toList()));
         }
         if (printChoices.printReadme)
         {
             ReadmeTarget readmeTgt = pkg.getReadmeTarget();
             if (readmeTgt != null)
-                printActions.add(readmeTgt.getEditor().printTo(job, printChoices.printLineNumbers, printChoices.printHighlighting));
+                printActions.add(readmeTgt.getEditor().printTo(job, printChoices.printSize, printChoices.printLineNumbers, printChoices.printHighlighting));
         }
     }
 

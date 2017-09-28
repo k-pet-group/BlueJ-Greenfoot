@@ -237,6 +237,10 @@ editor.preferencesLabel = Preferences...
 editor.printDialog.title=BlueJ:  Print Source Code
 editor.printDialog.printLineNumbers=Print Line Numbers
 editor.printDialog.printHighlighting=Print with Syntax Highlighting
+editor.printDialog.fontSize=Font size
+editor.printDialog.fontSize.small=Small
+editor.printDialog.fontSize.standard=Standard
+editor.printDialog.fontSize.large=Large
 
 # Dialog titles and texts
 editor.functions.title = Editor Functions

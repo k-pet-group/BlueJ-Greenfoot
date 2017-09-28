@@ -22,9 +22,14 @@
 package bluej.editor.moe;
 
 import bluej.pkgmgr.Package;
+import javafx.collections.FXCollections;
+import javafx.geometry.Pos;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Window;
@@ -37,6 +42,18 @@ import threadchecker.Tag;
  */
 public class PrintDialog extends Dialog<PrintDialog.PrintChoices>
 {
+    public static enum PrintSize
+    {
+        SMALL, STANDARD, LARGE;
+
+
+        @Override
+        public String toString()
+        {
+            return Config.getString("editor.printDialog.fontSize." + this.name().toLowerCase());
+        }
+    }
+
     @OnThread(Tag.Any)
     public static class PrintChoices
     {
@@ -44,16 +61,18 @@ public class PrintDialog extends Dialog<PrintDialog.PrintChoices>
         public final boolean printDiagram;
         public final boolean printReadme;
         public final boolean printSource;
-        // These two apply for single class, or when
+        // These three apply for single class, or when
         // printSource is true for whole package:
+        public final PrintSize printSize;
         public final boolean printLineNumbers;
         public final boolean printHighlighting;
 
-        public PrintChoices(boolean printDiagram, boolean printReadme, boolean printSource, boolean printLineNumbers, boolean printHighlighting)
+        public PrintChoices(boolean printDiagram, boolean printReadme, boolean printSource, PrintSize printSize, boolean printLineNumbers, boolean printHighlighting)
         {
             this.printDiagram = printDiagram;
             this.printReadme = printReadme;
             this.printSource = printSource;
+            this.printSize = printSize;
             this.printLineNumbers = printLineNumbers;
             this.printHighlighting = printHighlighting;
         }
@@ -73,13 +92,20 @@ public class PrintDialog extends Dialog<PrintDialog.PrintChoices>
 
 
         getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, ButtonType.OK);
+
+        ComboBox<PrintSize> comboSize = new ComboBox<>(FXCollections.observableArrayList(PrintSize.values()));
+        comboSize.getSelectionModel().select(PrintSize.STANDARD);
+        HBox sizeRow = new HBox(new Label(Config.getString("editor.printDialog.fontSize")), comboSize);
+        sizeRow.setAlignment(Pos.BASELINE_LEFT);
+        sizeRow.setSpacing(10.0);
+
         CheckBox checkLineNumbers = new CheckBox(Config.getString("editor.printDialog.printLineNumbers"));
         checkLineNumbers.setSelected(true);
 
         CheckBox checkHighlighting = new CheckBox(Config.getString("editor.printDialog.printHighlighting"));
         checkHighlighting.setSelected(false);
 
-        VBox vBox = new VBox(checkLineNumbers, checkHighlighting);
+        VBox vBox = new VBox(sizeRow, checkLineNumbers, checkHighlighting);
         vBox.setSpacing(8);
 
         final CheckBox checkReadme;
@@ -120,6 +146,7 @@ public class PrintDialog extends Dialog<PrintDialog.PrintChoices>
                     checkDiagram == null ? false : checkDiagram.isSelected(),
                     checkReadme == null ? false : checkReadme.isSelected(),
                     checkSource == null ? false : checkSource.isSelected(),
+                    comboSize.getValue(),
                     checkLineNumbers.isSelected(),
                     checkHighlighting.isSelected());
             }

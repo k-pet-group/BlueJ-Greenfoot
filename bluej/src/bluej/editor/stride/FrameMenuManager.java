@@ -22,6 +22,7 @@
 package bluej.editor.stride;
 
 import bluej.Config;
+import bluej.editor.moe.PrintDialog.PrintSize;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.Frame.View;
 import bluej.stride.slots.EditableSlot;
@@ -184,7 +185,7 @@ class FrameMenuManager extends TabMenuManager
         }
         else if (job.showPrintDialog(editor.getParent().getWindow()))
         {
-            FXRunnable printAction = editor.getFrameEditor().printTo(job, false, false);
+            FXRunnable printAction = editor.getFrameEditor().printTo(job, PrintSize.STANDARD, false, false);
             new Thread()
             {
                 @Override
