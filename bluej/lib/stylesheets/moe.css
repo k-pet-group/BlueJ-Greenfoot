@@ -91,7 +91,7 @@
     /* -fx-background-color: rgb(245, 245, 245); */
 }
 .moe-editor-pane:bj-printing:bj-line-numbers .moe-line-label {
-    -fx-font-size: 6px;
+    -fx-font-size: 6pt;
 }
 .moe-editor-pane:bj-screen .moe-line-label, .moe-editor-pane:bj-printing:bj-line-numbers .moe-line-label {
     -fx-min-width: 24;
