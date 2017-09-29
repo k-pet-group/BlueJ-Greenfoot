@@ -31,6 +31,7 @@ import bluej.debugger.DebuggerThread;
 import bluej.editor.EditorWatcher;
 import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
 import bluej.editor.moe.MoeActions.MoeAbstractAction;
+import bluej.editor.moe.PrintDialog.PrintSize;
 import bluej.editor.moe.MoeErrorManager.ErrorDetails;
 import bluej.editor.moe.MoeSyntaxDocument.Element;
 import bluej.editor.moe.PrintDialog.PrintChoices;
@@ -71,6 +72,7 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.FXSupplier;
@@ -86,6 +88,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.print.PrinterJob;
@@ -95,12 +98,15 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.scene.web.WebView;
@@ -133,8 +139,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
@@ -1608,7 +1612,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      */
     @Override
     @OnThread(Tag.FXPlatform)
-    public FXRunnable printTo(PrinterJob printerJob, boolean printLineNumbers, boolean printBackground)
+    public FXRunnable printTo(PrinterJob printerJob, PrintSize printSize, boolean printLineNumbers, boolean printBackground)
     {
         MoeSyntaxDocument doc = new MoeSyntaxDocument(new ScopeColorsBorderPane());
         // Note: very important we make this call before copyFrom, as copyFrom is what triggers
@@ -1616,22 +1620,28 @@ public final class MoeEditor extends ScopeColorsBorderPane
         doc.markAsForPrinting();
         doc.copyFrom(sourceDocument);
         MoeEditorPane editorPane = doc.makeEditorPane(null, null);
-        Scene scene = new Scene(editorPane);
+        Label pageNumberLabel = new Label("");
+        BorderPane header = new BorderPane(null, null, pageNumberLabel, null, new Label(getTitle()));
+        header.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
+        header.setPadding(new Insets(5));
+        BorderPane rootPane = new BorderPane(editorPane, header, null, null, null);
+        rootPane.setBackground(null);
+        Scene scene = new Scene(rootPane);
         Config.addEditorStylesheets(scene);
         // JavaFX seems to always print at 72 DPI, regardless of printer DPI:
         // This means that that the point width (1/72 of an inch) is actually the pixel width, too:
         double pixelWidth = printerJob.getJobSettings().getPageLayout().getPrintableWidth();
         double pixelHeight = printerJob.getJobSettings().getPageLayout().getPrintableHeight();
-        editorPane.resize(pixelWidth, pixelHeight);
+        rootPane.resize(pixelWidth, pixelHeight);
 
         // We could make page size match screen size by scaling font size by difference in DPIs:
         //editorPane.styleProperty().unbind();
         //editorPane.setStyle("-fx-font-size: " + PrefMgr.getEditorFontSize().getValue().doubleValue() * 0.75 + "pt;");
-        editorPane.setPrinting(true, printLineNumbers);
+        editorPane.setPrinting(true, printSize, printLineNumbers);
         editorPane.setWrapText(true);
-        editorPane.requestLayout();
-        editorPane.layout();
-        editorPane.applyCss();
+        rootPane.requestLayout();
+        rootPane.layout();
+        rootPane.applyCss();
         // TODO: recalculate scopes to match width, either by
         //  - copying existing character indent levels, then redrawing
         //  - adjusting existing scopes by difference in widths from window to paper
@@ -1648,17 +1658,35 @@ public final class MoeEditor extends ScopeColorsBorderPane
         }
         VirtualFlow<?, ?> virtualFlow = (VirtualFlow<?, ?>) editorPane.lookup(".virtual-flow");
         // Run printing in another thread:
-        return () -> printPages(printerJob, editorPane, virtualFlow);
+        return () -> printPages(printerJob, rootPane, n -> pageNumberLabel.setText("Page " + n),
+                        editorPane, virtualFlow);
     }
 
+    /**
+     * Prints the editor, using multiple pages if necessary
+     *
+     * @param printerJob The overall printer job
+     * @param printNode The node to print, each page.  This may just be the
+     *                  editor pane, or it may be a wrapper around the editor
+     *                  pane that also shows a header and/or footer.
+     * @param updatePageNumber A callback to update the header/footer each time
+     *                         the page number changes.  Cannot be null.
+     * @param editorPane The editor pane to print
+     * @param virtualFlow The virtual flow inside the editor pane.
+     * @param <T> Parameter type of the VirtualFlow.  Will be inferred.
+     * @param <C> Parameter type of the VirtualFlow.  Will be inferred.
+     */
     @OnThread(Tag.FX)
-    public static <T, C extends org.fxmisc.flowless.Cell<T, ?>> void printPages(PrinterJob printerJob, GenericStyledArea<?, ?, ?> editorPane, VirtualFlow<T, C> virtualFlow)
+    public static <T, C extends org.fxmisc.flowless.Cell<T, ?>> void printPages(PrinterJob printerJob,
+        Node printNode, FXPlatformConsumer<Integer> updatePageNumber,
+        GenericStyledArea<?, ?, ?> editorPane, VirtualFlow<T, C> virtualFlow)
     {
         virtualFlow.scrollXToPixel(0);
         // We must manually scroll down the editor, one page's worth at a time.  We keep track of the top line visible:
         int topLine = 0;
         boolean lastPage = false;
         int editorLines = editorPane.getParagraphs().size();
+        int pageNumber = 1;
         while (topLine < editorLines && !lastPage)
         {
             // Scroll to make topLine actually at the top:
@@ -1699,7 +1727,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 editorPane.setClip(null);
                 editorPane.setTranslateY(-virtualFlow.cellToViewport(virtualFlow.getCell(topLine), 0, 0).getY());
             }
-            printerJob.printPage(editorPane);
+            updatePageNumber.accept(pageNumber);
+            printerJob.printPage(printNode);
+            pageNumber += 1;
         }
     }
 
@@ -1720,7 +1750,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         }
         else if (job.showPrintDialog(getWindow()))
         {
-            FXRunnable printAction = printTo(job, choices.get().printLineNumbers, choices.get().printHighlighting);
+            FXRunnable printAction = printTo(job, choices.get().printSize, choices.get().printLineNumbers, choices.get().printHighlighting);
             new Thread()
             {
                 @Override

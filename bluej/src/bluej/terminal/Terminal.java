@@ -443,7 +443,7 @@ public final class Terminal
                 @OnThread(value = Tag.FX, ignoreParent = true)
                 public void run()
                 {
-                    MoeEditor.printPages(job, offScreenEditor, virtualFlow);
+                    MoeEditor.printPages(job, offScreenEditor, n -> {}, offScreenEditor, virtualFlow);
                     job.endJob();
                 }
             }).start();

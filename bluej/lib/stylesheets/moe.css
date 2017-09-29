@@ -80,8 +80,18 @@
     /* Note there is an inset of 3 pixels to right of this item,
       but it's added in code */
 }
+/* Since lines can wrap when printing, move line numbers to top
+   alignment, otherwise they can get centered between the two parts
+   of the wrapped line, which looks weird: */
+.moe-editor-pane:bj-printing:bj-line-numbers .moe-line-label {
+    -fx-alignment: top-right;
+    -fx-label-padding: 4 2 0 0;
+}
 .moe-line-label:bj-odd {
     /* -fx-background-color: rgb(245, 245, 245); */
+}
+.moe-editor-pane:bj-printing:bj-line-numbers .moe-line-label {
+    -fx-font-size: 6pt;
 }
 .moe-editor-pane:bj-screen .moe-line-label, .moe-editor-pane:bj-printing:bj-line-numbers .moe-line-label {
     -fx-min-width: 24;
