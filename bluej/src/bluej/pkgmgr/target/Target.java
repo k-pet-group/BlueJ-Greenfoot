@@ -125,6 +125,15 @@ public abstract class Target
 
         pane.setFocusTraversable(true);
         JavaFXUtil.addFocusListener(pane, hasFocus -> {
+            PackageEditor pkgEditor = pkg.getEditor();
+
+            // Editor can be null if we lose focus because window is closing,
+            // in which case don't try to do anything with it:
+            if (pkgEditor == null)
+            {
+                return;
+            }
+
             // Here's the logic.  If we are focused after a mouse click,
             // the click listener will already have selected us before the
             // focus.  In which case this guard won't fire because we are selected.
@@ -132,11 +141,15 @@ public abstract class Target
             // which should only be via keyboard traversal (tab, or ctrl-tab),
             // in which case we should cancel the selection and only select the focused item:
             if (hasFocus && !isSelected())
-                pkg.getEditor().selectOnly(this);
+            {
+                pkgEditor.selectOnly(this);
+            }
 
-            // Editor can be null if we lose focus because window is closing:
-            if (!hasFocus && pkg.getEditor() != null)
-                pkg.getEditor().checkForLossOfFocus();
+
+            if (!hasFocus)
+            {
+                pkgEditor.checkForLossOfFocus();
+            }
         });
 
         pane.setOnMouseClicked(e -> {
