@@ -580,8 +580,21 @@ public class Main
 
     private static String getOperatingSystem()
     {
+        String osArch = System.getProperty("os.arch");
+        // On Windows, the 32-bit JDK will see x86 for the processor, even if the processor is
+        // 64-bit and the OS itself is 64-bit!  So we collect some extra info on Windows:
+        if (Config.isWinOS())
+        {
+            // Taken from https://stackoverflow.com/a/5940770/412908
+            String arch = System.getenv("PROCESSOR_ARCHITECTURE");
+            String wow64Arch = System.getenv("PROCESSOR_ARCHITEW6432");
+
+            osArch += (arch != null && arch.endsWith("64"))
+                    || (wow64Arch != null && wow64Arch.endsWith("64"))
+                    ? "(64)" : "(32)";
+        }
         return System.getProperty("os.name") +
-                "/" + System.getProperty("os.arch") +
+                "/" + osArch +
                 "/" + System.getProperty("os.version");
     }
 
