@@ -2543,14 +2543,17 @@ public class ClassTarget extends DependentTarget
     @Override
     public void recordClose()
     {
-        DataCollector.closeClass(getPackage(), getSourceFile());
+        if (hasSourceCode())
+        {
+            DataCollector.closeClass(getPackage(), getSourceFile());
+        }
         recordedAsOpen = false;
     }
 
     @Override
     public void recordOpen()
     {
-        if (recordedAsOpen == false)
+        if (recordedAsOpen == false && hasSourceCode())
         {
             DataCollector.openClass(getPackage(), getSourceFile());
             recordedAsOpen = true;
@@ -2560,7 +2563,10 @@ public class ClassTarget extends DependentTarget
     @Override
     public void recordSelected()
     {
-        DataCollector.selectClass(getPackage(), getSourceFile());
+        if (hasSourceCode())
+        {
+            DataCollector.selectClass(getPackage(), getSourceFile());
+        }
     }
 
     public CompileInputFile getCompileInputFile()
