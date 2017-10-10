@@ -1602,12 +1602,14 @@ public class ClassTarget extends DependentTarget
         for (Iterator<String> it = vect.iterator(); it.hasNext();) {
             String name = it.next();
             DependentTarget used = getPackage().getDependentTarget(name);
-            if (used != null) {
-                if (used.getAssociation() == this || this.getAssociation() == used) {
-                    continue;
+            if (used != null)
+            {
+                UsesDependency dependency = new UsesDependency(getPackage(), this, used);
+                if (used.getAssociation() == this || this.getAssociation() == used)
+                {
+                    dependency.setVisible(false);
                 }
-
-                getPackage().addDependency(new UsesDependency(getPackage(), this, used));
+                getPackage().addDependency(dependency);
             }
         }
     }
