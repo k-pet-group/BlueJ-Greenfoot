@@ -591,7 +591,7 @@ public class Main
 
             osArch += (arch != null && arch.endsWith("64"))
                     || (wow64Arch != null && wow64Arch.endsWith("64"))
-                    ? "(64)" : "(32)";
+                    ? "(64)" : "";
         }
         return System.getProperty("os.name") +
                 "/" + osArch +
