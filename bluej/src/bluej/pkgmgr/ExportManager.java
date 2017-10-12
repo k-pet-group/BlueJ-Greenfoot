@@ -62,7 +62,6 @@ import threadchecker.Tag;
 final class ExportManager
 {
     private static final String specifyJar = Config.getString("pkgmgr.export.specifyJar");
-    private static final String createJarText = Config.getString("pkgmgr.export.createJarText");
     
     private static final String sourceSuffix = "." + SourceType.Java.toString().toLowerCase();
     private static final String contextSuffix = ".ctxt";
