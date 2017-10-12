@@ -21,7 +21,6 @@
  */
 package bluej.pkgmgr;
 
-import javax.swing.SwingUtilities;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -31,7 +30,6 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -39,16 +37,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.jar.Attributes;
-import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
-import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 
-import javafx.application.Platform;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 
@@ -132,11 +126,6 @@ final class ExportManager
 
         File jarFile = new File(fileName);
             
-        if(jarFile.exists()) {
-            if (DialogManager.askQuestionFX(frame.getFXWindow(), "error-file-exists") != 0)
-                return;
-        }
-        
         OutputStream oStream = null;
         JarOutputStream jStream = null;
 
