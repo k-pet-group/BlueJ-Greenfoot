@@ -34,7 +34,6 @@ import bluej.stride.generic.FrameCursor;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXSupplier;
@@ -318,16 +317,6 @@ public @OnThread(Tag.FX) class FXTabbedEditor
                 ((FXTab)tabPane.getSelectionModel().getSelectedItem()).notifyUnselected();
         });
 
-        JavaFXUtil.addChangeListenerPlatform(tabPane.focusedProperty(), focused -> {
-            // Very specific work around for Moe editor inside JavaFX SwingNode on Linux:
-            // Must make sure focus doesn't remain in the tab header area.
-            if (focused)
-            {
-                FXTab tab = (FXTab)tabPane.getSelectionModel().getSelectedItem();
-                tab.focusWhenShown();
-            }
-        });
-        
         // Add shortcuts for Ctrl-1, Ctrl-2 etc and Ctrl-Tab and Ctrl-Shift-Tab to move between tabs
         // On Mac, it should still be Ctrl-Tab (not Cmd-Tab), but should it be Cmd-1?
         tabPane.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
