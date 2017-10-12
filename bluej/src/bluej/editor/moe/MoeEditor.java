@@ -378,6 +378,30 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
 
     /**
+     * Check whether the source file has changed on disk. If it has, reload.
+     */
+    private void checkForChangeOnDisk()
+    {
+        if (filename == null) {
+            return;
+        }
+        File file = new File(filename);
+        long modified = file.lastModified();
+        if(modified != lastModified) {
+            if (saveState.isChanged()) {
+                int answer = DialogManager.askQuestionFX(getWindow(), "changed-on-disk");
+                if (answer == 0)
+                    doReload();
+                else
+                    lastModified = modified; // don't ask again for this change
+            }
+            else {
+                doReload();
+            }
+        }
+    }
+
+    /**
      * Returns a list of names for the actions which are only valid in an editing
      * context, that is, when the display shows the source and not the documentation.
      *  
@@ -3737,16 +3761,25 @@ public final class MoeEditor extends ScopeColorsBorderPane
         }
     }
 
+    /**
+     * Notify this editor that it has gained focus, either because its tab was selected or it is the
+     * currently selected tab in a window that gained focus, or it has lost focus for the opposite
+     * reasons.
+     * 
+     * @param visible   true if the editor has focus, false otherwise
+     */
     public void notifyVisibleTab(boolean visible)
     {
-        if (!visible)
+        if (visible) {
+            if (watcher != null) {
+                watcher.recordSelected();
+            }
+            checkForChangeOnDisk();
+        }
+        else
         {
             // Hide any error tooltip:
             showErrorOverlay(null, 0);
-        }
-
-        if (visible && watcher != null) {
-            watcher.recordSelected();
         }
     }
 
