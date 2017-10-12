@@ -31,7 +31,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -51,6 +50,7 @@ import bluej.extensions.SourceType;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
+import bluej.utility.Utility;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -178,14 +178,10 @@ final class ExportManager
     @OnThread(Tag.Any)
     private void includeJarContent(File srcJarFile, JarOutput jarOutput) throws IOException
     {
-        ZipFile jar = new ZipFile(srcJarFile);
-        Enumeration<? extends ZipEntry> contents = jar.entries();
-        while (contents.hasMoreElements())
-        {
-            ZipEntry entry = contents.nextElement();
-            if (entry == null)
-                break;
-            jarOutput.writeJarEntry(jar.getInputStream(entry), entry.getName());
+        try (ZipFile jar = new ZipFile(srcJarFile)) {
+            for (ZipEntry entry : Utility.iterableStream(jar.stream())) {
+                jarOutput.writeJarEntry(jar.getInputStream(entry), entry.getName());
+            }
         }
     }
 
