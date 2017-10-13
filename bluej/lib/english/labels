@@ -486,7 +486,6 @@ pkgmgr.export.sourceLabel=Include source
 pkgmgr.export.pkgFilesLabel=Include Bluej project files
 pkgmgr.export.noClassText=none (cannot be executed)
 pkgmgr.export.specifyJar=Specify name for jar file
-pkgmgr.export.createJarText=Create
 
 # "open-non-bluej" mismatch dialog
 pkgmgr.importmismatch.title=BlueJ:  Package Line Mismatches

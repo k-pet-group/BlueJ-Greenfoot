@@ -21,7 +21,6 @@
  */
 package bluej.pkgmgr;
 
-import javax.swing.SwingUtilities;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -31,24 +30,18 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.jar.Attributes;
-import java.util.jar.JarInputStream;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
-import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 
-import javafx.application.Platform;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 
@@ -57,6 +50,7 @@ import bluej.extensions.SourceType;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
+import bluej.utility.Utility;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -68,7 +62,6 @@ import threadchecker.Tag;
 final class ExportManager
 {
     private static final String specifyJar = Config.getString("pkgmgr.export.specifyJar");
-    private static final String createJarText = Config.getString("pkgmgr.export.createJarText");
     
     private static final String sourceSuffix = "." + SourceType.Java.toString().toLowerCase();
     private static final String contextSuffix = ".ctxt";
@@ -132,11 +125,6 @@ final class ExportManager
 
         File jarFile = new File(fileName);
             
-        if(jarFile.exists()) {
-            if (DialogManager.askQuestionFX(frame.getFXWindow(), "error-file-exists") != 0)
-                return;
-        }
-        
         OutputStream oStream = null;
         JarOutputStream jStream = null;
 
@@ -189,14 +177,10 @@ final class ExportManager
     @OnThread(Tag.Any)
     private void includeJarContent(File srcJarFile, JarOutput jarOutput) throws IOException
     {
-        ZipFile jar = new ZipFile(srcJarFile);
-        Enumeration<? extends ZipEntry> contents = jar.entries();
-        while (contents.hasMoreElements())
-        {
-            ZipEntry entry = contents.nextElement();
-            if (entry == null)
-                break;
-            jarOutput.writeJarEntry(jar.getInputStream(entry), entry.getName());
+        try (ZipFile jar = new ZipFile(srcJarFile)) {
+            for (ZipEntry entry : Utility.iterableStream(jar.stream())) {
+                jarOutput.writeJarEntry(jar.getInputStream(entry), entry.getName());
+            }
         }
     }
 
