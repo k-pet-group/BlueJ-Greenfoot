@@ -35,6 +35,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.SortType;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Window;
@@ -113,27 +114,30 @@ public class StatusFrame extends FXCustomizedDialog<Void>
                 new StatusTableModelNonDVCS(project, estimateInitialEntries());
 
         statusTable = new TableView<>(statusModel.getResources());
-        //TODO implements the next line?
-        // statusTable.getTableHeader().setReorderingAllowed(false);
 
         TableColumn<TeamStatusInfo, String> firstColumn = new TableColumn<>(statusModel.getColumnName(0));
         JavaFXUtil.addStyleClass(firstColumn, "team-status-firstColumn");
+        firstColumn.prefWidthProperty().bind(statusTable.widthProperty().multiply(0.49));
         firstColumn.setCellValueFactory(v ->
                 new ReadOnlyStringWrapper(ResourceDescriptor.getResource(project, v.getValue(), false)));
 
         TableColumn<TeamStatusInfo, Object> secondColumn = new TableColumn<>(statusModel.getColumnName(1));
         JavaFXUtil.addStyleClass(secondColumn, "team-status-secondColumn");
+        secondColumn.prefWidthProperty().bind(statusTable.widthProperty().multiply(0.249));
         secondColumn.setCellValueFactory(v -> new ReadOnlyObjectWrapper<>(getValueAt(v.getValue(), 1)));
         secondColumn.setCellFactory(col -> new StatusTableCell(isDVCS, 1));
 
         TableColumn<TeamStatusInfo, Object> thirdColumn = new TableColumn<>(statusModel.getColumnName(2));
         JavaFXUtil.addStyleClass(thirdColumn, "team-status-thirdColumn");
+        thirdColumn.prefWidthProperty().bind(statusTable.widthProperty().multiply(0.249));
         thirdColumn.setCellValueFactory(v -> new ReadOnlyObjectWrapper<>(getValueAt(v.getValue(), 2)));
         thirdColumn.setCellFactory(col -> new StatusTableCell(isDVCS, 2));
 
         statusTable.getColumns().setAll(firstColumn, secondColumn, thirdColumn);
 
-        statusTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        // An unconstrained policy is necessary for the automatic column width calculation bindings
+        // to work. If set to constrained, column widths all come out as the same (for some reason).
+        statusTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
 
         statusTable.setBackground(null);
         JavaFXUtil.addStyleClass(statusTable, "status-table");
@@ -305,6 +309,12 @@ public class StatusFrame extends FXCustomizedDialog<Void>
                 }
                 statusTable.refresh();
                 statusTable.setItems(resources);
+                
+                // Sort by status, descending. The sort above actually does this, but this makes it visible
+                // in the UI by marking the second column header with an indicator:
+                TableColumn<TeamStatusInfo,?> secondColumn = statusTable.getColumns().get(1);
+                statusTable.getSortOrder().add(secondColumn);
+                secondColumn.setSortType(SortType.DESCENDING);
             }
         }
     }
