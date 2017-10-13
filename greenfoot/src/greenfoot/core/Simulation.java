@@ -138,12 +138,9 @@ public class Simulation extends Thread
     
     /** flag to indicate that we want to abort the simulation and never start it again. */
     private volatile boolean abort;
-    
+
     /**
      * Create new simulation. Leaves the simulation in paused state
-     * 
-     * @param worldHandler
-     *            The handler for the world that is simulated
      */
     private Simulation(SimulationDelegate simulationDelegate)
     {

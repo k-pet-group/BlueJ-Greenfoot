@@ -230,7 +230,7 @@ public class GreenfootScenarioViewer extends JApplet
      */
     private void guiSetup(boolean lockScenario, String worldClassName)
     {
-        canvas = new WorldCanvas(null);
+        canvas = new WorldCanvas(null, null, null);
         canvas.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e)

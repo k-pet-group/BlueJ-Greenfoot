@@ -58,7 +58,7 @@ public class GreenfootLauncherDebugVM
      * @param prjDir         The project directory
      * @param rmiServiceName  The name of the RMI service to connect to
      */
-    public GreenfootLauncherDebugVM(String prjDir, String rmiServiceName, String wizard, String sourceTypeName)
+    public GreenfootLauncherDebugVM(String prjDir, String rmiServiceName, String shmFilePath, String wizard, String sourceTypeName)
     {
         instance = this;
         if (BlueJRMIClient.instance() != null) {
@@ -104,7 +104,7 @@ public class GreenfootLauncherDebugVM
                     });
                     
                     GreenfootUtil.initialise(GreenfootUtilDelegateIDE.getInstance());
-                    GreenfootMain.initialize(blueJ, client.getPackage(), wizard.equals("true"), SourceType.getEnum(sourceTypeName));
+                    GreenfootMain.initialize(blueJ, client.getPackage(), shmFilePath, wizard.equals("true"), SourceType.getEnum(sourceTypeName));
                 }
                 catch (RemoteException re) {
                     re.printStackTrace();
