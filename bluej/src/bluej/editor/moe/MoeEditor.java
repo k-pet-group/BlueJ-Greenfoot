@@ -130,6 +130,7 @@ import javax.swing.text.BadLocationException;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -1621,7 +1622,8 @@ public final class MoeEditor extends ScopeColorsBorderPane
         doc.copyFrom(sourceDocument);
         MoeEditorPane editorPane = doc.makeEditorPane(null, null);
         Label pageNumberLabel = new Label("");
-        BorderPane header = new BorderPane(null, null, pageNumberLabel, null, new Label(getTitle()));
+        String timestamp = new SimpleDateFormat("yyyy-MMM-dd HH:mm").format(new Date());
+        BorderPane header = new BorderPane(new Label(timestamp), null, pageNumberLabel, null, new Label(getTitle()));
         header.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
         header.setPadding(new Insets(5));
         BorderPane rootPane = new BorderPane(editorPane, header, null, null, null);
