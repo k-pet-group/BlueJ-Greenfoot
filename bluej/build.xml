@@ -16,7 +16,7 @@
     <property name="bluej.version.major" value="4" />
     <property name="bluej.version.minor" value="1" />
     <property name="bluej.version.release" value="1" />
-    <property name="bluej.version.suffix" value="tutorial" />
+    <property name="bluej.version.suffix" value="" />
     <!-- suffix with no spaces, eg "pre2" -->
     <property name="bluej.version.nonspace.suffix" value="" />
     <!-- Suffix added after version number in output files -->
