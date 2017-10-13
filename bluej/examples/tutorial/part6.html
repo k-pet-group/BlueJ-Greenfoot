@@ -30,7 +30,7 @@
 
 <p>JavaFX uses Cascading Style Sheets (CSS) to style the interface, such as adjusting sizes, spacing, colors and so on.  BlueJ has support for creating and editing CSS files.  You can create a new CSS file by going to the Edit menu for the main window and clicking <span class="menu">New CSS File...</span>.  You will be asked for a name: type in <span class="entry">cats</span> and the .css extension will be added automatically.  Once you click OK, you will see that <a href="guicss:.css-target-id-cats-css">a silver CSS item named cats.css</a> gets added to the class diagram.</p>
 
-<p>There's two more steps needed: we need to tell the JavaFX GUI to use that CSS file, and we need to put some content in it.  To get JavaFX to use the CSS file, add the following line near the bottom of the <tt>makeScene</tt> method, before the last <tt>return scene;</tt> line:</p>
+<p>There are two more steps needed: we need to tell the JavaFX GUI to use that CSS file, and we need to put some content in it.  To get JavaFX to use the CSS file, add the following line near the bottom of the <tt>makeScene</tt> method, before the last <tt>return scene;</tt> line:</p>
 
 <code><pre>
 scene.getStylesheets().add("cats.css");
