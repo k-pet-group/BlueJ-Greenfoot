@@ -47,12 +47,9 @@ public class ResourceDescriptor
      */
     public static String getResource(Project project, TeamStatusInfo info, boolean annotate)
     {
-        String status = info.toString();
         boolean isPkgFile = BlueJPackageFile.isPackageFileName(info.getFile().getName());
-
-        if (isPkgFile) {
-            status = Config.getString("team.commit.layout") + " " + project.getPackageForFile(info.getFile());
-        }
+        String status = getStatusName(project, info, isPkgFile);
+        
         if (annotate) {
             Status infoStatus = info.getStatus();
             switch (infoStatus) {
@@ -105,6 +102,7 @@ public class ResourceDescriptor
         }
         else
         {
+            // This is the case for eg "No files to update" message
             return updateStatus.stringStatus;
         }
     }
@@ -120,12 +118,9 @@ public class ResourceDescriptor
      */
     public static String getDCVSResource(Project project, TeamStatusInfo info, boolean annotate, boolean remote)
     {
-        String status = info.toString();
         boolean isPkgFile = BlueJPackageFile.isPackageFileName(info.getFile().getName());
-
-        if (isPkgFile) {
-            status = Config.getString("team.commit.layout") + " " + project.getPackageForFile(info.getFile());
-        }
+        String status = getStatusName(project, info, isPkgFile);
+        
         if (annotate) {
             Status infoStatus = info.getStatus(!remote);
             switch (infoStatus) {
@@ -169,7 +164,37 @@ public class ResourceDescriptor
         }
         else
         {
+            // This is the case for eg "No files to update" message
             return updateStatus.stringStatus;
         }
+    }
+    
+    /**
+     * Get the display form of class/file name from a team status.
+     *  
+     * @param project  The project which the file belongs to
+     * @param info     The team status info for the file
+     * @param isPkgFile  Whether the file is a package file (project.bluej)
+     */
+    private static String getStatusName(Project project, TeamStatusInfo info, boolean isPkgFile)
+    {
+        String status;
+        String packageName = project.getPackageForFile(info.getFile());
+        packageName = packageName == null ? "" : packageName;
+        if (! packageName.isEmpty())
+        {
+            packageName = "[" + packageName + "] ";
+        }
+        
+        if (isPkgFile)
+        {
+            status = packageName + Config.getString("team.commit.layout");
+        }
+        else
+        {
+            status = packageName + info.getFile().getName();
+        }
+        
+        return status;
     }
 }
