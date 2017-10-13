@@ -943,6 +943,14 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         shelf.cleanup();
     }
 
+    /**
+     * Does one of the tabes in this window contain a tutorial web view tab?
+     */
+    public boolean hasTutorial()
+    {
+        return tabPane.getTabs().stream().anyMatch(t -> t instanceof FXTab && ((FXTab)t).isTutorial());
+    }
+
     public static enum CodeCompletionState
     {
         NOT_POSSIBLE, SHOWING, POSSIBLE;

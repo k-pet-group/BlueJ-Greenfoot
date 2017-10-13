@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.WeakHashMap;
 
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.EditableTarget;
@@ -69,11 +70,12 @@ import javax.swing.*;
 public class WebTab extends FXTab
 {
     private final WebView browser;
+    private final boolean tutorial;
     private FXTabbedEditor parent;
     private final TabMenuManager menuManager;
     // Red overlays used in tutorial.  We store because when we show a new
     // overlay, we should hide previous one:
-    private final IdentityHashMap<Project, Popup[]> tutorialOverlays = new IdentityHashMap<>();
+    private final WeakHashMap<Project, Popup[]> tutorialOverlays = new WeakHashMap<>();
 
     /**
      * Constructs a WebTab with a WebView in it
@@ -84,8 +86,12 @@ public class WebTab extends FXTab
     {
         super(false);
         browser = new WebView();
+        this.tutorial = enableTutorial;
         if (enableTutorial)
+        {
+            setClosable(false);
             setupTutorialMangler();
+        }
         browser.getEngine().load(url);
         // When user selects Open in New Window, make a new web tab and open there:
         browser.getEngine().setCreatePopupHandler(p -> {
@@ -183,6 +189,12 @@ public class WebTab extends FXTab
     public void notifyUnselected()
     {
         // Nothing to do
+    }
+
+    @Override
+    public boolean isTutorial()
+    {
+        return tutorial;
     }
 
     @OnThread(Tag.FXPlatform)

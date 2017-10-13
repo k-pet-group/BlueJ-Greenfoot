@@ -114,4 +114,12 @@ abstract class FXTab extends Tab
     {
         return showCatalogue;
     }
+
+    /**
+     * Is this tab showing a web view with a tutorial?
+     */
+    public boolean isTutorial()
+    {
+        return false;
+    }
 }
