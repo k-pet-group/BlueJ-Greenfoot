@@ -335,7 +335,6 @@ public class PkgMgrFrame
             makeFrame();
             setStatus(bluej.Boot.BLUEJ_VERSION_TITLE);
 
-
             Stage stage = new Stage();
             BlueJTheme.setWindowIconFX(stage);
 
@@ -1175,14 +1174,20 @@ public class PkgMgrFrame
             String uniqueId = getProject().getUniqueId();
             bench.removeAllObjects(uniqueId);
             clearTextEval();
-            if (codePad != null)
+            if (codePad != null) {
                 codePad.setDisable(true);
+            }
 
             // Take a copy because we're about to null it:
             PackageEditor oldEd = editor;
             oldEd.removeEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED, editorMousePressed);
             oldEd.graphClosed();
             pkgEditorScrollPane.setContent(null);
+
+            // Disassociate from the project team actions, so that we don't inadvertently disable the
+            // actions in other package frames:
+            teamActions = new TeamActionGroup(false);
+            
             enableFunctions(false);
         }
 
@@ -1774,8 +1779,8 @@ public class PkgMgrFrame
         if (frameCount() == 1) {
             if (keepLastFrame && !Config.isGreenfoot()) { // close package, leave frame, but not for greenfoot
                 closePackage();
-                testRecordingEnded(); // disable test controls
-                // Must do it after package has been closed:
+
+                // Must update window after package has been closed:
                 updateWindow();
 
                 // clear the codePad
@@ -3104,9 +3109,8 @@ public class PkgMgrFrame
             }
             mixedMenu.addFX(() -> testingMenu);
 
-            //team menu setup
+            // team menu setup
             teamMenu = new Menu(Config.getString("menu.tools.teamwork"));
-//            teamMenu.setMnemonic(Config.getMnemonicKey("menu.tools"));
             {
                 TeamAction checkoutAction = new CheckoutAction();
                 MenuItem checkoutMenuItem = new MenuItem();
@@ -3335,17 +3339,18 @@ public class PkgMgrFrame
     protected void enableFunctions(boolean enable)
     {
         if (! enable) {
+            testRecordingEnded();
             teamActions.setAllDisabled();
         }
-
-        for (Node component : itemsToDisable)
+        for (Node component : itemsToDisable) {
             component.setDisable(!enable);
-        for (MenuItem component : menuItemsToDisable)
+        }
+        for (MenuItem component : menuItemsToDisable) {
             component.setDisable(!enable);
-    
-        actionsToDisable.stream().forEach((action) -> {
+        }
+        for (PkgMgrAction action : actionsToDisable) {
             action.setEnabled(enable);
-        });
+        };
     }
     
     /**
