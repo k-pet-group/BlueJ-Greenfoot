@@ -77,7 +77,6 @@ import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
-import javafx.application.Platform;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.StringExpression;
@@ -125,7 +124,6 @@ import org.w3c.dom.events.EventTarget;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import java.io.*;
 import java.net.URL;
@@ -176,15 +174,10 @@ public final class MoeEditor extends ScopeColorsBorderPane
     // file suffixes
     private final static String CRASHFILE_SUFFIX = "#";
     private final static String BACKUP_SUFFIX = "~";
-    private final static int NAVIVIEW_WIDTH = 90;       // width of the "naviview" (min-source) box
 
     // -------- CLASS VARIABLES --------
     private static boolean matchBrackets = false;
-    /**
-     * list of actions that are dis/enabled depending on the selected view
-     * (source/documentation)
-     */
-    private static ArrayList<String> editActions;
+
     /**
      * list of actions that are disabled in the readme text file
      */
@@ -208,7 +201,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     /** Watcher - provides interface to BlueJ core. May be null (eg for README.txt file). */
     private final EditorWatcher watcher;
     
-    private boolean isShowingSrc = true;
     private final Properties resources;
     private MoeSyntaxDocument sourceDocument;
     private MoeActions actions;
@@ -235,9 +227,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     /** Used to obtain javadoc for arbitrary methods */
     private final JavadocResolver javadocResolver;
     private ReparseRunner reparseRunner;
-    /** Search highlight tags for both text panes */
-    private final List<Object> sourceSearchHighlightTags = new ArrayList<>();
-    private final List<Object> htmlSearchHighlightTags = new ArrayList<>();
     // The most recent active FindNavigator.  Returns null if there has been no search,
     // or if the document has been modified since the last search.
     private final ObjectProperty<FindNavigator> currentSearchResult = new SimpleObjectProperty<>(null);
@@ -252,7 +241,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     private boolean madeChangeOnCurrentLine = false;
     /** Manages display of compiler and parse errors */
     private final MoeErrorManager errorManager = new MoeErrorManager(this, enable -> {});
-    private Timer mouseHover;
     private int mouseCaretPos = -1;
 
 
@@ -337,18 +325,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
 
     /**
-     * Check if an item is in the reserved list for disabled interface options
-     *  
-     * @return boolean reflects if it is enabled ie false=disabled
-     * @param text  String with button text name
-     */
-    private static boolean isEditAction(String text)
-    {       
-        ArrayList<String> actions = getEditActions();
-        return actions.contains(text);
-    }
-
-    /**
      * Check whether an action is not valid for the project "readme" (i.e. if it is only
      * valid for source files).
      * 
@@ -379,121 +355,35 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
 
     /**
-     * Returns a list of names for the actions which are only valid in an editing
-     * context, that is, when the display shows the source and not the documentation.
-     *  
-     * @return list of editing action names
+     * Check whether the source file has changed on disk. If it has, reload.
      */
-    private static ArrayList<String> getEditActions()
+    private void checkForChangeOnDisk()
     {
-        if (editActions == null) {
-            editActions = new ArrayList<>();
-            editActions.add("save");
-            editActions.add("reload");
-            editActions.add("print");
-            editActions.add("compile");
-            editActions.add("cut-to-clipboard");
-            editActions.add("indent-block");
-            editActions.add("deindent-block");
-            editActions.add("comment-block");
-            editActions.add("uncomment-block");
-            editActions.add("insert-method");
-            editActions.add("add-javadoc");
-            editActions.add("replace");
-            editActions.add("go-to-line");
-            editActions.add("paste-from-clipboard");
-            editActions.add("toggle-breakpoint");
-            editActions.add("autoindent");
+        if (filename == null)
+        {
+            return;
         }
-
-        return editActions;
-    }
-
-    /**
-     * Tell whether we are currently matching brackets.
-     * 
-     * @return True, if we are matching brackets, otherwise false.
-     */
-    public static boolean matchBrackets()
-    {
-        return matchBrackets;
-    }
-
-
-    /**
-     * Removes the selection in the textpane specified
-     */
-    private void removeSelection()
-    {
-        if (sourcePane != null) {
-            int caretPos = sourcePane.getCaretPosition();
-            sourcePane.select(caretPos, caretPos);
-        }
-    }
-
-    /**
-     * Does some clever formatting to ensure that the replacement matches
-     * the original on the formatting eg upper/lower case
-     */
-    private static String smartFormat(String original, String replacement)
-    {
-        if(original == null || replacement == null) {
-            return replacement;
-        }
-
-        // only do smart stuff if search and replace strings were entered in lowercase.
-        // check here. if not lowercase, just return.
-
-        if( !isLowerCase(replacement) || !isLowerCase(original)) {
-            return replacement;
-        }
-        if(isUpperCase(original)) {
-            return replacement.toUpperCase();
-        }
-        if(isTitleCase(original)) {
-            return Character.toTitleCase(replacement.charAt(0)) + 
-                replacement.substring(1);
-        }
-        
-        return replacement;
-    }
-
-    /**
-     * True if the string is in lower case.
-     */
-    public static boolean isLowerCase(String s)
-    {
-        for(int i=0; i<s.length(); i++) {
-            if(! Character.isLowerCase(s.charAt(i))) {
-                return false;
+        File file = new File(filename);
+        long modified = file.lastModified();
+        if(modified != lastModified)
+        {
+            if (saveState.isChanged())
+            {
+                int answer = DialogManager.askQuestionFX(getWindow(), "changed-on-disk");
+                if (answer == 0)
+                {
+                    doReload();
+                }
+                else
+                {
+                    lastModified = modified; // don't ask again for this change
+                }
+            }
+            else
+            {
+                doReload();
             }
         }
-        return true;
-    }
-
-    /**
-     * True if the string is in Upper case.
-     */
-    public static boolean isUpperCase(String s)
-    {
-        for(int i=0; i<s.length(); i++) {
-            if(! Character.isUpperCase(s.charAt(i))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * True if the string is in title case.
-     */
-    public static boolean isTitleCase(String s)
-    {
-        if(s.length() < 2) {
-            return false;
-        }
-        return Character.isUpperCase(s.charAt(0)) &&
-                Character.isLowerCase(s.charAt(1));
     }
 
     /*
@@ -829,8 +719,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     {
         switchToSourceView();
 
-        Element line = getSourceLine(lineNumber);
-
         if (isBreak) {
             setStepMark(lineNumber);
         }
@@ -1094,10 +982,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         return viewingHTML.get();
     }
     
-    // --------------------------------------------------------------------
-    // ------------ end of interface inherited from Editor ----------------
-    // --------------------------------------------------------------------
-
     /**
      * Returns the current caret location within the edited text.
      * 
@@ -1365,8 +1249,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
         return lineElement.getEndOffset() - startOffset;
     }
-
-    // ==================== USER ACTION IMPLEMENTATIONS ===================
 
     // --------------------------------------------------------------------
     
@@ -1779,7 +1661,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
             watcher.closeEvent(this);
         }
     }
-    // --------------------------------------------------------------------
 
     // --------------------------------------------------------------------
     
@@ -2175,7 +2056,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
      */
     private void refreshHtmlDisplay()
     {
-        FileInputStream fis = null;
         try {
             File urlFile = new File(getDocPath());
 
@@ -2216,12 +2096,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         catch (IOException exc) {
             info.message (Config.getString("editor.info.docDisappeared"), getDocPath());
             Debug.reportError("loading class interface failed: " + exc);
-            if (fis != null) {
-                try {
-                    fis.close();
-                }
-                catch (Exception e) {}
-            }
         }
     }
 
@@ -2329,8 +2203,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
     // --------------------------------------------------------------------
 
-    // --------------------------------------------------------------------
-
     /**
      * Implementation of "toggle-breakpoint" user function.
      */
@@ -2342,8 +2214,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         }
         toggleBreakpoint(sourcePane.getCaretPosition());
     }
-
-    // ========================= SUPPORT ROUTINES ==========================
 
     // --------------------------------------------------------------------
 
@@ -2578,8 +2448,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
 
     /**
-     * Toggle the editor's 'compiled' status. If compiled, setEnabled the breakpoint
- function.
+     * Toggle the editor's 'compiled' status. If compiled, setEnabled the breakpoint function.
      */
     private void setCompileStatus(boolean compiled)
     {
@@ -2805,10 +2674,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         }
     }
 
-
-
-    // ======================= WINDOW INITIALISATION =======================
-
     /**
      * Returns the position of the matching bracket for the source pane's
      * current caret position. Returns -1 if not found or not valid/appropriate
@@ -2912,7 +2777,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
      */
     private void initWindow(EntityResolver projectResolver)
     {
-        
         // prepare the content pane (us)
 
         // create and add info and status areas
@@ -3030,8 +2894,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         sourcePane.setContextMenu(createPopupMenu());
     }
 
-
-
     // --------------------------------------------------------------------
 
     /**
@@ -3046,8 +2908,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
             createMenu("option", "increase-font decrease-font reset-font - key-bindings preferences")
         );
     }
-
-
 
     // --------------------------------------------------------------------
 
@@ -3739,16 +3599,25 @@ public final class MoeEditor extends ScopeColorsBorderPane
         }
     }
 
+    /**
+     * Notify this editor that it has gained focus, either because its tab was selected or it is the
+     * currently selected tab in a window that gained focus, or it has lost focus for the opposite
+     * reasons.
+     * 
+     * @param visible   true if the editor has focus, false otherwise
+     */
     public void notifyVisibleTab(boolean visible)
     {
-        if (!visible)
+        if (visible) {
+            if (watcher != null) {
+                watcher.recordSelected();
+            }
+            checkForChangeOnDisk();
+        }
+        else
         {
             // Hide any error tooltip:
             showErrorOverlay(null, 0);
-        }
-
-        if (visible && watcher != null) {
-            watcher.recordSelected();
         }
     }
 
@@ -3800,12 +3669,10 @@ public final class MoeEditor extends ScopeColorsBorderPane
         return watcher;
     }
 
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public void requestEditorFocus()
     {
-        Platform.runLater(() ->
-            sourcePane.requestFocus()
-        );
+        sourcePane.requestFocus();
     }
 
     @Override
@@ -4026,25 +3893,21 @@ public final class MoeEditor extends ScopeColorsBorderPane
         return fxTabbedEditor.getWindow();
     }
 
-    
     private static class ErrorDisplay
     {
         @OnThread(Tag.Swing)
         private final ErrorDetails details;
         private PopupControl popup;
 
-        
         public ErrorDisplay(ErrorDetails details)
         {
             this.details = details;
-
         }
 
         @OnThread(Tag.FXPlatform)
         public void createPopup()
         {
             this.popup = new PopupControl();
-
 
             Text text = new Text(ParserMessageHandler.getMessageForCode(details.message));
             TextFlow flow = new TextFlow(text);
