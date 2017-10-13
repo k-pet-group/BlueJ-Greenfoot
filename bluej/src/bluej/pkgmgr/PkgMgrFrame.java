@@ -2403,6 +2403,10 @@ public class PkgMgrFrame
         }
         Target target = new CSSTarget(getPackage(), cssFile);
         target.setPos((int)x, (int)y);
+        if (editor != null && x == -1)
+        {
+            editor.findSpaceForVertex(target);
+        }
         
         getPackage().addTarget(target);
     }
