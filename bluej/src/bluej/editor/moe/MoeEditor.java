@@ -382,20 +382,28 @@ public final class MoeEditor extends ScopeColorsBorderPane
      */
     private void checkForChangeOnDisk()
     {
-        if (filename == null) {
+        if (filename == null)
+        {
             return;
         }
         File file = new File(filename);
         long modified = file.lastModified();
-        if(modified != lastModified) {
-            if (saveState.isChanged()) {
+        if(modified != lastModified)
+        {
+            if (saveState.isChanged())
+            {
                 int answer = DialogManager.askQuestionFX(getWindow(), "changed-on-disk");
                 if (answer == 0)
+                {
                     doReload();
+                }
                 else
+                {
                     lastModified = modified; // don't ask again for this change
+                }
             }
-            else {
+            else
+            {
                 doReload();
             }
         }
