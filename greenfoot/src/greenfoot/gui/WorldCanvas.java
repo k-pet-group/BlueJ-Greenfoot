@@ -244,41 +244,8 @@ public class WorldCanvas extends JPanel
             if (lock.readLock().tryLock(timeout, TimeUnit.MILLISECONDS)) {
                 try {
                     Insets insets = getInsets();
-                    BufferedImage img = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
-                    //if (!Config.DRAW_SERVER)
-                        //clientRecorder.recordFrame(Simulation.getInstance().getSpeed());
-                    Graphics2D g2 = (Graphics2D)img.getGraphics();
-                    g.translate(insets.left, insets.top);
-                    paintBackground(g2);
-                    paintObjects(g2);
-                    paintDraggedObject(g2);
-                    WorldVisitor.paintDebug(world, g2);
-                    paintWorldText(g2, world);
                     g.translate(-insets.left, -insets.top);
-                    if (!sending)
-                    {
-                        sending = true;
-                        int [] raw = ((DataBufferInt) img.getData().getDataBuffer()).getData();
-                        try (FileLock fileLock = shmFileChannel.lock())
-                        {
-                            // If frame was read, delete the pending set of modified images:
-                            int recvSeq = sharedMemory.get(1);
-                            if (recvSeq < 0)
-                            {
-                                readKeyboardEvents();
-                            }
-                            sharedMemory.position(1);
-                            sharedMemory.put(this.seq++);
-                            sharedMemory.put(getWidth());
-                            sharedMemory.put(getHeight());
-                            sharedMemory.put(raw);
-                        }
-                        catch (IOException e)
-                        {
-                            Debug.reportError(e);
-                        }
-                        sending = false;
-                    }
+                    paintRemote();
                 }
                 finally {
                     lock.readLock().unlock();
@@ -292,6 +259,44 @@ public class WorldCanvas extends JPanel
         }
         catch (InterruptedException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void paintRemote()
+    {
+        BufferedImage img = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
+        //if (!Config.DRAW_SERVER)
+        //clientRecorder.recordFrame(Simulation.getInstance().getSpeed());
+        Graphics2D g2 = (Graphics2D)img.getGraphics();
+        paintBackground(g2);
+        paintObjects(g2);
+        paintDraggedObject(g2);
+        WorldVisitor.paintDebug(world, g2);
+        paintWorldText(g2, world);
+
+        if (!sending)
+        {
+            sending = true;
+            int [] raw = ((DataBufferInt) img.getData().getDataBuffer()).getData();
+            try (FileLock fileLock = shmFileChannel.lock())
+            {
+                // If frame was read, delete the pending set of modified images:
+                int recvSeq = sharedMemory.get(1);
+                if (recvSeq < 0)
+                {
+                    readKeyboardEvents();
+                }
+                sharedMemory.position(1);
+                sharedMemory.put(this.seq++);
+                sharedMemory.put(getWidth());
+                sharedMemory.put(getHeight());
+                sharedMemory.put(raw);
+            }
+            catch (IOException e)
+            {
+                Debug.reportError(e);
+            }
+            sending = false;
         }
     }
 
