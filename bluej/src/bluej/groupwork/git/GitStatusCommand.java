@@ -184,9 +184,10 @@ public class GitStatusCommand extends GitCommand
                 didFilesChange = false;
             }
 
-            //Git does not show any add up-to-date file. We need to add them maually to returnInfo.
-            addUpToDateFiles(returnInfo, gitPath);
             if (listener != null) {
+                // Git does not show any add up-to-date file. We need to add them manually to returnInfo.
+                addUpToDateFiles(returnInfo, gitPath);
+                
                 while (!returnInfo.isEmpty()) {
                     TeamStatusInfo teamInfo = returnInfo.removeFirst();
                     listener.gotStatus(teamInfo);
@@ -201,16 +202,28 @@ public class GitStatusCommand extends GitCommand
         return new TeamworkCommandResult();
     }
 
-    private void addUpToDateFiles(LinkedList<TeamStatusInfo> returnInfo, File gitPath)
+    /**
+     * Search a directory (recursively). For all files with no status currently recorded, add an
+     * "unchanged" status entry.
+     * 
+     * @param returnInfo  list of file status
+     * @param path        path to search
+     */
+    private void addUpToDateFiles(LinkedList<TeamStatusInfo> returnInfo, File path)
     {
-        for (File item : gitPath.listFiles()) {
-            if (!filter.accept(item)) {
-                continue; // only process acceptable files.
-            }
-            TeamStatusInfo itemStatus = getTeamStatusInfo(returnInfo, item);
-            if (itemStatus == null) {
-                //file does not exist in the list, therefore it is up-to-date.
-                returnInfo.add(new TeamStatusInfo(item, "", null, Status.UP_TO_DATE, Status.UP_TO_DATE));
+        for (File item : path.listFiles()) {
+            if (filter.accept(item)) {
+                if (item.isDirectory()) {
+                    addUpToDateFiles(returnInfo, item);
+                }
+                else {
+                    TeamStatusInfo itemStatus = getTeamStatusInfo(returnInfo, item);
+                    if (itemStatus == null) {
+                        //file does not exist in the list, therefore it is up-to-date.
+                        returnInfo.add(new TeamStatusInfo(item, "", null,
+                                Status.UP_TO_DATE, Status.UP_TO_DATE));
+                    }
+                }
             }
         }
     }
