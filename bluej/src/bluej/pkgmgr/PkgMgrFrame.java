@@ -3228,7 +3228,7 @@ public class PkgMgrFrame
             menu.getItems().add(new SeparatorMenuItem());
 
             menu.getItems().add(new WebsiteAction(this).makeMenuItem());
-            menu.getItems().add(new TutorialAction(this).makeMenuItem());
+            menu.getItems().add(new OnlineDocAction(this).makeMenuItem());
             menu.getItems().add(new StandardAPIHelpAction(this).makeMenuItem());
             addUserHelpItems(menu);
             menubar.add(new FXOnlyMenu(menu));

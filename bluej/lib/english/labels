@@ -823,7 +823,8 @@ menu.help.extensions=Installed E_xtensions
 menu.help.versionCheck=Check Version...
 menu.help.copyright=_Copyright
 menu.help.website=BlueJ _Web Site
-menu.help.tutorial=BlueJ _Tutorial
+menu.help.onlinedoc=Online _Documentation
+menu.help.tutorial=Interactive _Tutorial
 menu.help.standardApi=Java _Class Libraries
 
 # tool tips
