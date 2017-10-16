@@ -2709,6 +2709,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      */
     private void doBracketMatch()
     {
+        int originalPos = getSourcePane().getCaretPosition();
         int matchBracket = getBracketMatch();
 
         // This is a kludge.  Changing the style causes the node to be swapped out, which causes issues with mouse dragging
@@ -2719,9 +2720,11 @@ public final class MoeEditor extends ScopeColorsBorderPane
         {
             // remove existing bracket if needed
             removeBracketHighlight();
-            if(matchBracket != -1)
+            // Only highlight if we found a match, and the cursor hasn't moved since
+            // we started the run later:
+            if (matchBracket != -1 && originalPos > 0 && originalPos == getSourcePane().getCaretPosition())
             {
-                sourceDocument.addStyle(getSourcePane().getCaretPosition() - 1, getSourcePane().getCaretPosition(), MoeSyntaxDocument.MOE_BRACKET_HIGHLIGHT);
+                sourceDocument.addStyle(originalPos - 1, originalPos, MoeSyntaxDocument.MOE_BRACKET_HIGHLIGHT);
                 sourceDocument.addStyle(matchBracket, matchBracket + 1, MoeSyntaxDocument.MOE_BRACKET_HIGHLIGHT);
             }
         });
