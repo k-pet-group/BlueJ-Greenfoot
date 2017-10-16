@@ -120,6 +120,7 @@ abstract class FXTab extends Tab
      */
     public boolean isTutorial()
     {
+        // By default this is false; it's overridden by tabs which do show the tutorial:
         return false;
     }
 }

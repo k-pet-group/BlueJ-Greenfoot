@@ -604,8 +604,17 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     {
         openWebViewTab(url, false);
     }
+
+    /**
+     * Opens a web view tab to display the given URL.
+     *
+     * If a web view tab already exists which is displaying that URL (sans anchors),
+     * that tab is displayed and a new tab is not opened.
+     *
+     * @param isTutorial True if this is a special web tab containing the interactive tutorial
+     */
     @OnThread(Tag.FXPlatform)
-    public void openWebViewTab(String url, boolean enableTutorial)
+    public void openWebViewTab(String url, boolean isTutorial)
     {
         // First, check if any tab is already showing that URL:
         try
@@ -631,7 +640,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
             Debug.reportError("Error in URI when opening web view tab: \"" + url + "\"");
         }
 
-        addTab(new WebTab(url, enableTutorial), true, true);
+        addTab(new WebTab(url, isTutorial), true, true);
     }
 
     /**
@@ -944,7 +953,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     }
 
     /**
-     * Does one of the tabes in this window contain a tutorial web view tab?
+     * Does one of the tabs in this window contain a tutorial web view tab?
      */
     public boolean hasTutorial()
     {
