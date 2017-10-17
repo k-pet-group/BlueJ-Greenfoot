@@ -48,6 +48,7 @@ public class PrintDialog extends Dialog<PrintDialog.PrintChoices>
 
 
         @Override
+        @OnThread(value = Tag.FXPlatform, ignoreParent = true)
         public String toString()
         {
             return Config.getString("editor.printDialog.fontSize." + this.name().toLowerCase());
