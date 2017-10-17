@@ -5,7 +5,7 @@
      If you get a build failure here with a message about ${greenfoot-3.1.0} or similar not being a legal
       guid value, then it is because you failed to make a new GUID for this version: see the
       update-version-number task in ant for details on what to do. -->
-<Product Version='3.1.0' Id='205fc5eb-e05a-4044-a27f-dce3878dbda4'
+<Product Version='3.1.0' Id='13d21713-749e-4b7a-89f3-8067259a933e'
     Name='Greenfoot' UpgradeCode='3ec7b829-9e53-4132-b2bf-fb7d4c08aebc'
     Language='1033' Codepage='1252' Manufacturer='Greenfoot Team'>
     
