@@ -72,7 +72,7 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.FXSupplier;
@@ -1563,7 +1563,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      */
     @OnThread(Tag.FX)
     public static <T, C extends org.fxmisc.flowless.Cell<T, ?>> void printPages(PrinterJob printerJob,
-        Node printNode, FXPlatformConsumer<Integer> updatePageNumber,
+        Node printNode, FXConsumer<Integer> updatePageNumber,
         GenericStyledArea<?, ?, ?> editorPane, VirtualFlow<T, C> virtualFlow)
     {
         virtualFlow.scrollXToPixel(0);
