@@ -120,7 +120,7 @@ in the "Apache-License-2.0.txt" file.
 
 JGit library (Eclipse Distribution License version 1.0)
 -------------------------------------------------------
-"org.eclipse.jgit-4.1.0.jar" is part of the JGit library (https://eclipse.org/jgit/) used by BlueJ for
+"org.eclipse.jgit-4.9.0.jar" is part of the JGit library (https://eclipse.org/jgit/) used by BlueJ for
 Git support. It is distributed under the terms of the Eclipse Distribution License,
 as found in the "EDL-v1.0.txt" file.
 
@@ -287,7 +287,7 @@ jna-platform-4.2.0.jar                   Apache License v2.0
 jsch-0.1.53.jar                          BSD License
 junit-4.11.jar                           Common Public License v1.0
 nsmenufx-2.1.4.jar                       BSD license
-org.eclipse.jgit-4.1.0.jar               Eclipse Distribution License (EDL) v1.0
+org.eclipse.jgit-4.9.0.jar               Eclipse Distribution License (EDL) v1.0
 sequence-library-1.0.3.jar               BSD License
 slf4j-api-1.7.2.jar                      MIT
 slf4j-jdk14-1.7.2.jar                    MIT

@@ -121,7 +121,7 @@ public class Boot
         "junit-4.11.jar",
         "lang-stride.jar",
         "nsmenufx-2.1.4.jar",
-        "org.eclipse.jgit-4.1.0.jar",
+        "org.eclipse.jgit-4.9.0.jar",
         "richtextfx-fat-0.7-M5n.jar",
         "sequence-library-1.0.3.jar",
         "slf4j-api-1.7.2.jar",
