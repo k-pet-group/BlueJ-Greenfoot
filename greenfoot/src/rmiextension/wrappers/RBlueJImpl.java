@@ -325,31 +325,25 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     public void exit()
         throws RemoteException
     {
-        try {
-            EventQueue.invokeAndWait(new Runnable() {
-               public void run()
-                {
-                   BProject[] bProjects = blueJ.getOpenProjects();
-                   int length = bProjects.length;
-                   for (int i = 0; i < length; i++) {
-                       try {
-                           RProjectImpl rpImpl = WrapperPool.instance().getWrapper(bProjects[i]);
-                           rpImpl.notifyClosing();
-                       }
-                       catch (RemoteException re) {}
+        Platform.runLater(new Runnable() {
+           public void run()
+            {
+               BProject[] bProjects = blueJ.getOpenProjects();
+               int length = bProjects.length;
+               for (int i = 0; i < length; i++) {
+                   try {
+                       RProjectImpl rpImpl = WrapperPool.instance().getWrapper(bProjects[i]);
+                       rpImpl.notifyClosing();
                    }
-                   
-                   PkgMgrFrame [] frames = PkgMgrFrame.getAllFrames();
-                   for (int i = 0; i < frames.length; i++) {
-                       frames[i].doClose(false, true);
-                   }
-                } 
-            });
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
+                   catch (RemoteException re) {}
+               }
+
+               PkgMgrFrame [] frames = PkgMgrFrame.getAllFrames();
+               for (int i = 0; i < frames.length; i++) {
+                   frames[i].doClose(false, true);
+               }
+            }
+        });
     }
     
     /*
