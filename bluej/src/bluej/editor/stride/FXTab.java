@@ -118,6 +118,7 @@ abstract class FXTab extends Tab
     /**
      * Is this tab showing a web view with a tutorial?
      */
+    @OnThread(Tag.FX)
     public boolean isTutorial()
     {
         // By default this is false; it's overridden by tabs which do show the tutorial:

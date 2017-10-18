@@ -825,12 +825,10 @@ public final class Terminal
         return menubar;
     }
 
-
     public Stage getWindow()
     {
         return window;
     }
-
 
     /**
      * Cleanup any resources or listeners the terminal has created/registered.

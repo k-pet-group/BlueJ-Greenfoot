@@ -45,6 +45,7 @@ public class InteractiveTutorialAction extends PkgMgrAction
                 case FileUtility.DEST_EXISTS_NOT_DIR:
                     DialogManager.showErrorFX(null, "directory-exists-file");
                     break;
+
                 case FileUtility.DEST_EXISTS_NON_EMPTY:
                     DialogManager.showErrorFX(null, "directory-exists-non-empty");
                     break;
@@ -52,7 +53,6 @@ public class InteractiveTutorialAction extends PkgMgrAction
                 case FileUtility.SRC_NOT_DIRECTORY:
                 case FileUtility.COPY_ERROR:
                     DialogManager.showErrorFX(null, "cannot-save-project");
-
                     break;
             }
 

@@ -55,6 +55,7 @@ import bluej.utility.javafx.JavaFXUtil;
 import javafx.stage.Popup;
 import javafx.stage.PopupWindow;
 import javafx.stage.Window;
+import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.events.EventTarget;
 import threadchecker.OnThread;
@@ -90,7 +91,7 @@ public class WebTab extends FXTab
         if (enableTutorial)
         {
             setClosable(false);
-            setupTutorialMangler();
+            JavaFXUtil.addChangeListenerPlatform(this.browser.getEngine().documentProperty(), this::tutorialDocumentMangle);
         }
         browser.getEngine().load(url);
         // When user selects Open in New Window, make a new web tab and open there:
@@ -197,106 +198,107 @@ public class WebTab extends FXTab
         return tutorial;
     }
 
+    /**
+     * Modifies the HTML document to turn tutorial-specific links into actions which highlight or open items.
+     */
     @OnThread(Tag.FXPlatform)
-    private void setupTutorialMangler()
+    private void tutorialDocumentMangle(Document doc)
     {
-        JavaFXUtil.addChangeListenerPlatform(this.browser.getEngine().documentProperty(), doc -> {
-            if (doc != null)
+        if (doc != null)
+        {
+            // First find the anchors.
+            NodeList anchors = doc.getElementsByTagName("a");
+            for (int i = 0; i < anchors.getLength(); i++)
             {
-                // First find the anchors.
-                NodeList anchors = doc.getElementsByTagName("a");
-                for (int i = 0; i < anchors.getLength(); i++)
+                org.w3c.dom.Node anchorItem = anchors.item(i);
+                org.w3c.dom.Node anchorHref = anchorItem.getAttributes().getNamedItem("href");
+                if (anchorHref != null && anchorHref.getNodeValue() != null)
                 {
-                    org.w3c.dom.Node anchorItem = anchors.item(i);
-                    org.w3c.dom.Node anchorHref = anchorItem.getAttributes().getNamedItem("href");
-                    if (anchorHref != null && anchorHref.getNodeValue() != null)
+                    if (anchorHref.getNodeValue().startsWith("class:"))
                     {
-                        if (anchorHref.getNodeValue().startsWith("class:"))
+                        ((EventTarget) anchorItem).addEventListener("click", e ->
                         {
-                            ((EventTarget) anchorItem).addEventListener("click", e ->
-                            {
-                                Debug.message("Anchor clicked");
-                                ((EditableTarget) parent.getProject().getTarget(anchorHref.getNodeValue().substring("class:".length()).trim())).getEditor().setEditorVisible(true);
-                                e.stopPropagation();
-                            }, true);
-                        }
-                        else if (anchorHref.getNodeValue().startsWith("guicss:"))
+                            Debug.message("Anchor clicked");
+                            ((EditableTarget) parent.getProject().getTarget(anchorHref.getNodeValue().substring("class:".length()).trim())).getEditor().setEditorVisible(true);
+                            e.stopPropagation();
+                        }, true);
+                    }
+                    else if (anchorHref.getNodeValue().startsWith("guicss:"))
+                    {
+                        ((EventTarget) anchorItem).addEventListener("click", e ->
                         {
-                            ((EventTarget) anchorItem).addEventListener("click", e ->
+                            // Hide previous overlays for project.  Do this even if link doesn't work,
+                            // as we don't want to confuse the user by still showing an old popup:
+                            for (Popup popup : tutorialOverlays.getOrDefault(parent.getProject(), new Popup[0]))
                             {
-                                // Hide previous overlays for project.  Do this even if link doesn't work,
-                                // as we don't want to confuse the user by still showing an old popup:
-                                for (Popup popup : tutorialOverlays.getOrDefault(parent.getProject(), new Popup[0]))
+                                popup.hide();
+                            }
+
+                            String nodeCSS = anchorHref.getNodeValue().substring("guicss:".length());
+
+                            final Window targetWindow;
+                            if (nodeCSS.startsWith("Terminal"))
+                            {
+                                targetWindow = parent.getProject().getTerminal().getWindow();
+                                nodeCSS = nodeCSS.substring("Terminal".length());
+                            }
+                            else if (nodeCSS.startsWith("Editor"))
+                            {
+                                targetWindow = parent.getProject().getDefaultFXTabbedEditor().getWindow();
+                                nodeCSS = nodeCSS.substring("Editor".length());
+                            }
+                            else if (nodeCSS.startsWith("TestResults"))
+                            {
+                                targetWindow = TestDisplayFrame.getTestDisplay().getWindow();
+                                nodeCSS = nodeCSS.substring("TestResults".length());
+                            }
+                            else
+                            {
+                                targetWindow = parent.getProject().getPackage("").getEditor().getFXWindow();
+                            }
+                            Node n = targetWindow.getScene().lookup(nodeCSS);
+                            if (n != null)
+                            {
+                                // We can't have one popup that's hollow in the middle, so we have one per side:
+                                Bounds screenBounds = n.localToScreen(n.getBoundsInLocal());
+                                Rectangle[] rects = new Rectangle[] {
+                                    new Rectangle(screenBounds.getWidth() + 20, 5), // top
+                                    new Rectangle(5, screenBounds.getHeight() + 20), // right
+                                    new Rectangle(screenBounds.getWidth() + 20, 5), // bottom
+                                    new Rectangle(5, screenBounds.getHeight() + 20) // left
+                                };
+
+                                Popup[] overlays = new Popup[4];
+                                for (int j = 0; j < 4; j++)
                                 {
-                                    popup.hide();
+                                    rects[j].setFill(Color.RED);
+                                    overlays[j] = new Popup();
+                                    overlays[j].getContent().setAll(rects[j]);
                                 }
 
-                                String nodeCSS = anchorHref.getNodeValue().substring("guicss:".length());
+                                overlays[0].show(targetWindow, screenBounds.getMinX() - 10, screenBounds.getMinY() - 10);
+                                overlays[1].show(targetWindow, screenBounds.getMaxX() + 5, screenBounds.getMinY() - 10);
+                                overlays[2].show(targetWindow, screenBounds.getMinX() - 10, screenBounds.getMaxY() + 5);
+                                overlays[3].show(targetWindow, screenBounds.getMinX() - 10, screenBounds.getMinY() - 10);
 
-                                final Window targetWindow;
-                                if (nodeCSS.startsWith("Terminal"))
-                                {
-                                    targetWindow = parent.getProject().getTerminal().getWindow();
-                                    nodeCSS = nodeCSS.substring("Terminal".length());
-                                }
-                                else if (nodeCSS.startsWith("Editor"))
-                                {
-                                    targetWindow = parent.getProject().getDefaultFXTabbedEditor().getWindow();
-                                    nodeCSS = nodeCSS.substring("Editor".length());
-                                }
-                                else if (nodeCSS.startsWith("TestResults"))
-                                {
-                                    targetWindow = TestDisplayFrame.getTestDisplay().getWindow();
-                                    nodeCSS = nodeCSS.substring("TestResults".length());
-                                }
-                                else
-                                {
-                                    targetWindow = parent.getProject().getPackage("").getEditor().getFXWindow();
-                                }
-                                Node n = targetWindow.getScene().lookup(nodeCSS);
-                                if (n != null)
-                                {
-                                    // We can't have one popup that's hollow in the middle, so we have one per side:
-                                    Bounds screenBounds = n.localToScreen(n.getBoundsInLocal());
-                                    Rectangle[] rects = new Rectangle[] {
-                                        new Rectangle(screenBounds.getWidth() + 20, 5), // top
-                                        new Rectangle(5, screenBounds.getHeight() + 20), // right
-                                        new Rectangle(screenBounds.getWidth() + 20, 5), // bottom
-                                        new Rectangle(5, screenBounds.getHeight() + 20) // left
-                                    };
-
-                                    Popup[] overlays = new Popup[4];
-                                    for (int j = 0; j < 4; j++)
+                                n.addEventFilter(MouseEvent.MOUSE_PRESSED, ev -> {
+                                    for (Popup overlay : overlays)
                                     {
-                                        rects[j].setFill(Color.RED);
-                                        overlays[j] = new Popup();
-                                        overlays[j].getContent().setAll(rects[j]);
+                                        overlay.hide();
                                     }
+                                });
 
-                                    overlays[0].show(targetWindow, screenBounds.getMinX() - 10, screenBounds.getMinY() - 10);
-                                    overlays[1].show(targetWindow, screenBounds.getMaxX() + 5, screenBounds.getMinY() - 10);
-                                    overlays[2].show(targetWindow, screenBounds.getMinX() - 10, screenBounds.getMaxY() + 5);
-                                    overlays[3].show(targetWindow, screenBounds.getMinX() - 10, screenBounds.getMinY() - 10);
+                                tutorialOverlays.put(parent.getProject(), overlays);
 
-                                    n.addEventFilter(MouseEvent.MOUSE_PRESSED, ev -> {
-                                        for (Popup overlay : overlays)
-                                        {
-                                            overlay.hide();
-                                        }
-                                    });
+                                Utility.bringToFrontFX(targetWindow);
 
-                                    tutorialOverlays.put(parent.getProject(), overlays);
-
-                                    Utility.bringToFrontFX(targetWindow);
-
-                                    //org.scenicview.ScenicView.show(overlay.getScene());
-                                }
-                                e.stopPropagation();
-                            }, true);
-                        }
+                                //org.scenicview.ScenicView.show(overlay.getScene());
+                            }
+                            e.stopPropagation();
+                        }, true);
                     }
                 }
             }
-        });
+        }
     }
 }
