@@ -57,6 +57,7 @@ public class CSSTarget extends NonCodeEditableTarget
         this.file = file;
 
         JavaFXUtil.addStyleClass(pane, "css-target");
+        JavaFXUtil.addStyleClass(pane, "css-target-id-" + file.getName().replace(".", "-"));
         Label name = new Label(file.getName());
         BorderPane.setAlignment(name, Pos.CENTER);
         pane.setTop(name);

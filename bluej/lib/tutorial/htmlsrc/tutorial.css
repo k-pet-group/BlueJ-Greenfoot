@@ -1,0 +1,80 @@
+body {
+    font-family: 'Source Sans Pro';
+    font-size: 14pt;
+
+    margin: 0;
+}
+p {
+    margin: 1em 0px 1em 15px;
+}
+p, ul, ol, h1, h2, h3 {
+    max-width: 30em;
+}
+h1, h2, h3 {
+    margin: 1.5em 0 1em 15px;
+}
+
+code, code > pre {
+    display: block;
+    font-family: 'Roboto Mono';
+    margin: 20px 0px 20px 40px;
+}
+tt {
+    font-family: 'Roboto Mono';
+}
+
+.bluej-icon {
+    float:right;
+    margin: 2em;
+}
+
+.menu {
+    background-color: #eee;
+    padding: 0 0.2em 0 0.2em;
+    display: inline-block;
+}
+.button {
+    background-color: #eee;
+    padding: 0 0.2em 0 0.2em;
+    display: inline-block;
+    border-color: #444;
+    border-width: 1;
+    border-radius: 3;
+    border-style: solid;
+}
+.menu.red {
+    color: darkred;
+    font-style: italic;
+}
+.entry {
+    border-color: #ddd;
+    border-width: 1;
+    border-radius: 5;
+    border-style: solid;
+    padding: 0 0.2em 0 0.2em;
+    display: inline-block;
+}
+
+a {color: cornflowerblue; text-decoration: none;}
+a:hover {text-decoration: underline;}
+a::after {content : "\00219D";}
+a.part-toc::after, a.part-prev::after, a.part::after { content: "";}
+a.www::after {content: "";}
+
+a.part-prev::before {content: "\0025C0\0000A0\0000A0";}
+a.part-next::after {content: "\0000A0\0000A0\0025B6";}
+
+div.part-links, div.part-end {
+    background-color: steelblue;
+}
+div.part-links a, div.part-end a {
+    display:inline-block;
+    padding: 1em 2em 1em 2em;
+    color: white;
+    min-width: 6em;
+    text-align:center;
+}
+div.part-links a:hover, div.part-end a:hover {
+    background-color: #7eaacd;
+    text-decoration: none;
+}

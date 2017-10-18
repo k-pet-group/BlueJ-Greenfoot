@@ -1,0 +1,36 @@
+<html>
+<head>
+    <title>BlueJ Tutorial: Part 1</title>
+    <link rel="stylesheet" type="text/css" href="htmlsrc/tutorial.css">
+</head>
+<body>
+<div class="part-links">
+    <a href="tutorial.html" class="part-prev">Contents</a>
+    <a href="tutorial.html" class="part-toc">BlueJ Tutorial: Part 1</a>
+    <a href="part2.html" class="part-next">Part 2</a>
+</div>
+<h2>Object Bench and Method Invocation</h2>
+
+<p>This tutorial comes with two classes supplied: Cat and CatView.  Classes are represented by the yellow-ish boxes in the main window: for example, <a href="guicss:.class-target-id-Cat">click on this link to highlight the Cat class</a>.  (Clicking on any such link in this tutorial will highlight the item on screen that they refer to.)</p>
+
+<p>We will return to compilation later, but to begin with, click <a href="guicss:.compile-button">the Compile button</a> in the main window to make sure our classes are compiled and ready to use.</li></p>
+
+<h3>Creating an object from a class</h3>
+
+<p>Let's create an instance of one of our classes: the Cat class.  To create an instance, right-click on <a href="guicss:.class-target-id-Cat">the Cat class</a>.  (If you are on Mac and don't have a right click, hold control and click whenever this tutorial says to right-click.)  Then select the <span class="menu">new Cat()</span> option from the menu.  A dialog will appear asking for a name for the object.  This name is unrelated to the Java code; it is just a name that BlueJ will use to distinguish one object from another.  Leave it as <span class="entry">cat1</span>, and click OK.</p>
+
+<h3>Invoking an object's methods</h3>
+
+<p>You should now have a red cat1 object in the bottom part of the BlueJ window that we call <a href="guicss:.object-bench">the object bench</a>.  The cat gets a random name and color, which you can find out by right-clicking on the <a href="guicss:.object-wrapper">red cat1 object</a> and selecting <span class="menu">String getDescription()</span>.  This will show a pop-up with details of the cat.  (You may need to resize the window to be a bit wider to see it all.)</p>
+
+<p>You can change the color of the cat using the setColor method.  To invoke this, right-click on the <a href="guicss:.object-wrapper">cat1 object</a> and select <span class="menu">void setColor(String color)</span>.  A dialog will appear asking for the method's parameter.  You must use double-quotes around the value because it is a string: enter <span class="entry">"black and white"</span> for example, and click OK.  If you then call getDescription() again, you will see that the description will change.</p>
+
+<h3>View an object's state</h3>
+
+<p>You can see the internal details of the cat object by right-clicking on <a href="guicss:.object-wrapper">the object</a> and selecting <span class="menu red">Inspect</span>.  This shows a window with the fields of the object and their values.  The cat object is fairly straightforward, it has a field containing the name, one containing the color, and another showing if it's been fed.</p>
+
+<div class="part-end">
+<a class="part-next" href="part2.html">Part 2</a>
+</div>
+</body>
+</html>

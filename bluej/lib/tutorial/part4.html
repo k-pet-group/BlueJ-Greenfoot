@@ -1,0 +1,42 @@
+<html>
+<head>
+    <title>BlueJ Tutorial: Part 4</title>
+    <link rel="stylesheet" type="text/css" href="htmlsrc/tutorial.css">
+</head>
+<body>
+<div class="part-links">
+    <a href="part3.html" class="part-prev">Part 3</a>
+    <a href="tutorial.html" class="part-toc">BlueJ Tutorial: Part 4</a>
+    <a href="part5.html" class="part-next">Part 5</a>
+</div>
+
+<h2>The Codepad</h2>
+
+<p>The codepad in BlueJ allows you to execute Java code directly, without having to first add it to an editor and compile.  By default, the codepad is hidden in BlueJ.  To show it, you must click <a href="guicss:.codepad-fold-arrow">the triangular arrow on the right-hand side of the object bench</a>.  To hide it, simply click the arrow a second time.  (You can also go to the View menu and click Show Code Pad.)  Click in <a href="guicss:.codepad-input">the bottom row of the codepad</a> and write the following then press Enter:</p>
+
+<code>
+new Cat()
+</code>
+
+<p>Note that it's important to not put a semi-colon at the end of the line, even though you're used to doing so in Java.  The codepad accepts statements (with a semi-colon at the end, which return no value), or expressions (without a semi-colon, which return a value).  We want an expression, so we leave off the semi-colon.  You'll see a result line appear, with a tiny red object icon on the left side.  If you hover over the red box, you'll see an arrow appear indicating that if you click, the result will be added to the object bench.  Click, and you'll be asked for an object name.  Leave it as "cat1" and click OK.</p>
+
+<p>Now that cat1 is on the object bench, we can use it in the codepad.  Write the line below in the codepad and press Enter:</p>
+
+<code>
+cat1.listen();
+</code>
+
+<p>This time we do use a semi-colon, as it is a statement.  The terminal will pop up saying the cat meowed, just like last time we invoked the method; minimise or close it.  Enter the following two lines in the codepad, pressing Enter after each one:</p>
+
+<code><pre>
+cat1.feed();
+cat1.listen();
+</pre></code>
+
+<p>You will find that after being fed, the cat purrs instead.</p>
+
+<div class="part-end">
+<a class="part-next" href="part5.html">Part 5</a>
+</div>
+</body>
+</html>

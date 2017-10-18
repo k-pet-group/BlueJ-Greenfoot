@@ -90,6 +90,7 @@
         <include name="lib/swedish/" />
         <include name="lib/extensions/" />
         <include name="lib/stylesheets/" />
+        <include name="lib/tutorial/" />
     	<exclude name="lib/*/greenfoot-labels" />
     	<exclude name="lib/*/greenfootAPI" />
     </patternset>

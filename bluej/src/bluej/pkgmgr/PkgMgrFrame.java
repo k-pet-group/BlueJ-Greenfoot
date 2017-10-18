@@ -365,6 +365,7 @@ public class PkgMgrFrame
             //topPane.setMinHeight(minSize.getHeight());
             topPane.setLeft(toolPanel);
             TriangleArrow triangleLabel = new TriangleArrow(Orientation.HORIZONTAL);
+            JavaFXUtil.addStyleClass(triangleLabel, "codepad-fold-arrow");
             StackPane.setAlignment(triangleLabel, Pos.CENTER_RIGHT);
             StackPane.setMargin(triangleLabel, new Insets(0, 5, 0, 0));
             triangleLabel.setOnMouseClicked(e -> {
@@ -2402,6 +2403,10 @@ public class PkgMgrFrame
         }
         Target target = new CSSTarget(getPackage(), cssFile);
         target.setPos((int)x, (int)y);
+        if (editor != null && x == -1)
+        {
+            editor.findSpaceForVertex(target);
+        }
         
         getPackage().addTarget(target);
     }
@@ -2878,7 +2883,9 @@ public class PkgMgrFrame
         arrow.setStroke(Color.BLACK);
         imgExtendsButton.setGraphic(arrow);
         topButtons.getChildren().add(imgExtendsButton);
-        topButtons.getChildren().add(compileAction.makeButton());
+        Button compileButton = compileAction.makeButton();
+        JavaFXUtil.addStyleClass(compileButton, "compile-button");
+        topButtons.getChildren().add(compileButton);
         toolPanel.getChildren().add(topButtons);
 
         dummySwingNode = new SwingNode();
@@ -3221,7 +3228,8 @@ public class PkgMgrFrame
             menu.getItems().add(new SeparatorMenuItem());
 
             menu.getItems().add(new WebsiteAction(this).makeMenuItem());
-            menu.getItems().add(new TutorialAction(this).makeMenuItem());
+            menu.getItems().add(new OnlineDocAction(this).makeMenuItem());
+            menu.getItems().add(new InteractiveTutorialAction(this).makeMenuItem());
             menu.getItems().add(new StandardAPIHelpAction(this).makeMenuItem());
             addUserHelpItems(menu);
             menubar.add(new FXOnlyMenu(menu));

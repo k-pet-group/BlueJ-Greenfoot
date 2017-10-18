@@ -23,6 +23,8 @@ package bluej.pkgmgr.actions;
 
 import bluej.Config;
 import bluej.pkgmgr.PkgMgrFrame;
+import bluej.utility.javafx.JavaFXUtil;
+import javafx.scene.control.Button;
 
 /**
  * "Run all tests" action (test panel). Runs all the unit tests which have
@@ -42,5 +44,13 @@ final public class RunTestsAction extends PkgMgrAction
     public void actionPerformed(PkgMgrFrame pmf)
     {
         pmf.doTest();
+    }
+
+    @Override
+    public Button makeButton()
+    {
+        Button b = super.makeButton();
+        JavaFXUtil.addStyleClass(b, "pmf-tests-run-all");
+        return b;
     }
 }

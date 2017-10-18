@@ -54,6 +54,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -272,6 +273,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         showSourceButton = new Button(Config.getString("testdisplay.showsource"));
         showSourceButton.setOnAction(e -> showSource(testNames.getSelectionModel().getSelectedItem()));
         showSourceButton.setDisable(true);
+        JavaFXUtil.addStyleClass(showSourceButton, "test-show-source");
 
         Button closeButton = new Button(Config.getString("close"));
         closeButton.setOnAction(e -> frame.hide());
@@ -370,6 +372,11 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
 
         totalTimeMs.set(totalTimeMs.get() + dtr.getRunTimeMs());
         testEntries.add(dtr);
+    }
+
+    public Window getWindow()
+    {
+        return frame;
     }
 
     @OnThread(Tag.FX)

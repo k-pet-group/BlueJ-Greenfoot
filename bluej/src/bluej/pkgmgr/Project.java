@@ -551,6 +551,19 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
 
         PrefMgr.addRecentProject(proj.getProjectDir());
 
+        File tutorialFile = new File(proj.getProjectDir(), "tutorial.html");
+        if (tutorialFile.exists())
+        {
+            try
+            {
+                proj.createNewFXTabbedEditor().openWebViewTab(tutorialFile.toURI().toURL().toString(), true);
+            }
+            catch (MalformedURLException e)
+            {
+                Debug.reportError(e);
+            }
+        }
+
         return proj;
     }
 
@@ -2361,8 +2374,9 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
             fxCachedEditorSizes.add(0, null);
         fxCachedEditorSizes.set(fXTabbedEditors.size() - 1, new Rectangle(fxTabbedEditor.getX(), fxTabbedEditor.getY(), fxTabbedEditor.getWidth(), fxTabbedEditor.getHeight()));
 
-        // Only remove if we have other windows left, otherwise retain the last window standing:
-        if (fXTabbedEditors.size() > 1)
+        // Only remove if we have other non-tutorial windows left, otherwise retain us
+        // because we are the last window standing:
+        if (fXTabbedEditors.stream().anyMatch(ed -> ed != fxTabbedEditor && !ed.hasTutorial()))
         {
             fxTabbedEditor.cleanup();
             fXTabbedEditors.remove(fxTabbedEditor);

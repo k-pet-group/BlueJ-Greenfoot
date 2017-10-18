@@ -3053,6 +3053,8 @@ public final class MoeEditor extends ScopeColorsBorderPane
         button.prefHeightProperty().bind(buttonHeight);
         button.setMaxHeight(Double.MAX_VALUE);
 
+        button.getStyleClass().add("toolbar-" + key + "-button");
+
         return button;
     }
 

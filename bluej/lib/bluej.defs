@@ -104,7 +104,7 @@ bluej.language19=swedish:Swedish:swe
 #####################################################################
 
 bluej.url.bluej=http://www.bluej.org
-bluej.url.tutorial=http://www.bluej.org/doc/documentation.html
+bluej.url.onlinedoc=http://www.bluej.org/doc/documentation.html
 bluej.url.reference=http://www.bluej.org/reference/manual.pdf
 
 # The URL for the Java API documentation can be specified here, however

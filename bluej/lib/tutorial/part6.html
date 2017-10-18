@@ -1,0 +1,54 @@
+<html>
+<head>
+    <title>BlueJ Tutorial: Part 6</title>
+    <link rel="stylesheet" type="text/css" href="htmlsrc/tutorial.css">
+</head>
+<body>
+<div class="part-links">
+    <a href="part5.html" class="part-prev">Part 5</a>
+    <a href="tutorial.html" class="part-toc">BlueJ Tutorial: Part 6</a>
+    <a href="part7.html" class="part-next">Part 7</a>
+</div>
+
+<h2>GUIs with JavaFX</h2>
+
+<p>Java allows you to create Graphical User Interfaces (GUIs).  There are several systems for doing this, including one called Swing and one called JavaFX.  BlueJ allows development using either.  JavaFX is the newer of the two, and has some relevant BlueJ features so we will explore a JavaFX GUI.</p>
+
+<h3>Launching JavaFX</h3>
+
+<p>JavaFX expects that your whole application will be a JavaFX application, starting with a main class which extends JavaFX's Application class.  We provide a template class (available under the options when you click New Class) for getting started, but in this tutorial we have provided a pre-written application called CatView.</p>
+
+<p>To run any JavaFX Application sub-class, simply right-click it in BlueJ and you will see the <span class="menu red">Run JavaFX Application</span> menu item.  You should use this in favour of creating the class manually or using Application.launch.  BlueJ restarts the user virtual machine, and runs the target application.  Use this command now: right-click <a href="guicss:.class-target-id-CatView">the CatView class</a> and select <span class="menu red">Run JavaFX Application</span>.</p>
+
+<p>A dialog will appear, asking if you want to invoke all methods in this project on the JavaFX thread.  JavaFX requires that any interactions with the GUI happen on the JavaFX thread, so if you want to invoke any JavaFX-related methods (e.g. from the object bench or codepad), BlueJ needs to do this on the JavaFX thread.  Say <span class="button">Use JavaFX thread</span>.  You should then see a GUI window pop up with a picture of a cat.</p>
+
+<h3>Invoking JavaFX methods</h3>
+
+<p>You can invoke methods on the JavaFX application object as you would for any other object.  Right-click on <a href="guicss:.object-wrapper">the red catView1 object</a> and select <span class="menu">void nextImage()</span>.  Since we said "Use JavaFX thread" in the previous dialog, this method will be run on the JavaFX thread.  (If you need to change this, the option is specified per-project in the Preferences dialog, in the Miscellaneous tab.)</p>
+
+<h3>JavaFX CSS</h3>
+
+<p>JavaFX uses Cascading Style Sheets (CSS) to style the interface, such as adjusting sizes, spacing, colors and so on.  BlueJ has support for creating and editing CSS files.  You can create a new CSS file by going to the Edit menu for the main window and clicking <span class="menu">New CSS File...</span>.  You will be asked for a name: type in <span class="entry">cats</span> and the .css extension will be added automatically.  Once you click OK, you will see that <a href="guicss:.css-target-id-cats-css">a silver CSS item named cats.css</a> gets added to the class diagram.</p>
+
+<p>There are two more steps needed: we need to tell the JavaFX GUI to use that CSS file, and we need to put some content in it.  To get JavaFX to use the CSS file, add the following line near the bottom of the <tt>makeScene</tt> method, before the last <tt>return scene;</tt> line:</p>
+
+<code><pre>
+scene.getStylesheets().add("cats.css");
+</pre></code>
+
+<p>And lastly, we need to supply the content for the CSS file.  To edit the file, double-click on <a href="guicss:.css-target-id-cats-css">the silver cats.css file</a>, just like for classes.  Then add in the following CSS text:</p>
+
+<code><pre>
+.image-wrapper {
+    -fx-padding: 20px;
+    -fx-background-color: white;
+}
+</pre></code>
+
+<p>Now try running the JavaFX application again.  You should find that the image gets a white border around it because of the CSS file we have added.</p>
+
+<div class="part-end">
+<a class="part-next" href="part7.html">Part 7</a>
+</div>
+</body>
+</html>
