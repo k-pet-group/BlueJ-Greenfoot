@@ -33,7 +33,6 @@ import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.UnmergedPathException;
-import org.eclipse.jgit.api.Status;
 
 /**
  * A git command to commit all files.
@@ -70,17 +69,21 @@ public class GitCommitAllCommand extends GitCommand
             basePath = Paths.get(this.getRepository().getProjectPath().toString());
 
             //files for addition
-            for (File f : newFiles) {
-                String fileName = basePath.relativize(f.toPath()).toString();
-                if (!fileName.isEmpty() && !f.isDirectory()) {
+            for (File f : newFiles)
+            {
+                String fileName = getRelativeFileName(basePath, f);
+                if (!fileName.isEmpty() && !f.isDirectory())
+                {
                     repo.add().addFilepattern(fileName).call();
                 }
             }
 
             //files for removal
-            for (File f : deletedFiles) {
-                String fileName = basePath.relativize(f.toPath()).toString();
-                if (!fileName.isEmpty()) {
+            for (File f : deletedFiles)
+            {
+                String fileName = getRelativeFileName(basePath, f);
+                if (!fileName.isEmpty())
+                {
                     repo.rm().addFilepattern(fileName).call();
                 }
             }
@@ -94,10 +97,13 @@ public class GitCommitAllCommand extends GitCommand
             commit.setAll(false);
 
             //modified files
-            for (File f : files) {
-                String fileName = basePath.relativize(f.toPath()).toString();
-                if (!fileName.isEmpty() && !f.isDirectory()) {
-                    if (!deletedFiles.contains(f)) {
+            for (File f : files)
+            {
+                String fileName = getRelativeFileName(basePath, f);
+                if (!fileName.isEmpty() && !f.isDirectory())
+                {
+                    if (!deletedFiles.contains(f))
+                    {
                         repo.add().addFilepattern(fileName).call();
                     }
                 }
@@ -119,4 +125,22 @@ public class GitCommitAllCommand extends GitCommand
         return new TeamworkCommandResult();
     }
 
+    /**
+     * Calculates the path of a file relative to the project. It also makes sure that the
+     * separator is a Unix standard one, i.e. "/", as this is what jGit lib is expecting.
+     * see: http://bugs.bluej.org/browse/BLUEJ-1084
+     *
+     * @param basePath The project path
+     * @param file     The file which relative path is needed
+     * @return         The relative path of the file to the project
+     */
+    private String getRelativeFileName(Path basePath, File file)
+    {
+        String fileName = basePath.relativize(file.toPath()).toString();
+        if (!File.separator.equals("/"))
+        {
+            fileName = fileName.replace(File.separator, "/");
+        }
+        return fileName;
+    }
 }
