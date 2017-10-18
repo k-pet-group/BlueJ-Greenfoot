@@ -9,4 +9,4 @@ antbuild:
   stage: build
   script:
     - cd bluej && ant rebuild-ready
-    - cd greenfoot && ant clean && ant ready-to-run
+    - cd ../greenfoot && ant clean && ant ready-to-run
