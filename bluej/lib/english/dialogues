@@ -117,6 +117,10 @@ The project could not be saved to the specified
 location. Check that you have write access, or
 choose another location.
 
+cannot-save-inside-self
+Cannot save a project inside itself.
+Please choose a different location to save to.
+
 file-does-not-exist
 The specified file
 does not exist.

@@ -23,6 +23,7 @@ package bluej.pkgmgr.actions;
 
 import javax.swing.*;
 import java.io.File;
+import java.nio.file.Path;
 
 import javafx.application.Platform;
 
@@ -60,6 +61,17 @@ final public class SaveProjectAsAction extends PkgMgrAction
 
         if (newName != null)
         {
+            Path newPath = newName.toPath().toAbsolutePath();
+            Path existingPath = project.getProjectDir().toPath().toAbsolutePath();
+            // We need to block the case where new project is subdirectory of old path, as that will cause
+            // infinite copy.  It's odd but fine if new project is parent of old path, as it won't cause
+            // new files in old path, so copy will complete.
+            if (newPath.startsWith(existingPath))
+            {
+                DialogManager.showErrorFX(frame.getFXWindow(), "cannot-save-inside-self");
+                return;
+            }
+
             project.saveAll();
 
             int result = FileUtility.copyDirectory(project.getProjectDir(),
