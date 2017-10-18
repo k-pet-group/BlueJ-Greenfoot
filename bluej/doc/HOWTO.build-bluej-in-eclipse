@@ -148,7 +148,7 @@ Alternatively:
        - jsch-0.1.53
        - junit-4.11.jar
        - nsmenufx-2.1.4.jar
-       - org.eclipse.jgit-4.1.0.jar
+       - org.eclipse.jgit-4.9.0.jar
        - sequence-library-1.0.3.jar
        - sqljet-1.1.10.jar
        - svnkit-javahl.jar
