@@ -30,6 +30,7 @@
         <include name="lib/opencsv-2.3.jar" />
         <include name="lib/commons-vfs2-2.0.jar" />
         <include name="lib/guava-17.0.jar" />
+        <include name="lib/richtextfx-fat-0.7-M5n.jar"/>
         <include name="lib/jna-4.2.0.jar" />
         <include name="lib/jna-platform-4.2.0.jar" />
         <include name="lib/greenfoot-native.jar" />
