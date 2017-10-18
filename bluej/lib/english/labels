@@ -727,6 +727,7 @@ team.status.removed=delete
 team.status.needsmerge=merge updates
 team.status.needsupdate=update from repository
 
+team.commit.message=To be able to commit, write a commit message.
 team.nocommitfiles=No files to commit
 team.nopushfiles=No files to push (commit first)
 team.noupdatefiles=No files to update
