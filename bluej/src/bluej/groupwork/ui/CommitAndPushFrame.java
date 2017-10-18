@@ -136,6 +136,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
 
         commitText.setPrefRowCount(20);
         commitText.setPrefColumnCount(35);
+        commitText.setPromptText(Config.getString("team.commit.message"));
         VBox.setMargin(commitText, new Insets(0, 0, 10, 0));
 
         commitAction = new CommitAction(this);
