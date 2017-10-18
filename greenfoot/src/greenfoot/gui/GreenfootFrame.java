@@ -431,7 +431,7 @@ public class GreenfootFrame extends JFrame
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         // Some first-time initializations
-        worldCanvas = new WorldCanvas(null, classStateManager.getProject().getDir(), shmFilePath);
+        worldCanvas = new WorldCanvas(null, (classStateManager == null || classStateManager.getProject() == null) ? null : classStateManager.getProject().getDir(), shmFilePath);
         worldCanvas.setWorldSize(200, 100);
         worldCanvas.setVisible(false);
         

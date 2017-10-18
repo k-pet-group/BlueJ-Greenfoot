@@ -53,6 +53,8 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Implements the RBlueJ RMI interface.
@@ -262,17 +264,17 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     public RProject openProject(final File directory)
         throws RemoteException
     {
-        final RProjectRef projectRef = new RProjectRef();
+        final CompletableFuture<RProject> projectRef = new CompletableFuture<>();
         
         try {
-            EventQueue.invokeAndWait(new Runnable() {
+            Platform.runLater(new Runnable() {
                 @Override
                 public void run()
                 {
                     BProject bProject = blueJ.openProject(directory);
                     if (bProject != null) {
                         try {
-                            projectRef.rProject = WrapperPool.instance().getWrapper(bProject);
+                            projectRef.complete(WrapperPool.instance().getWrapper(bProject));
                         }
                         catch (RemoteException re) {
                             Debug.reportError("Error when opening project via RMI", re);
@@ -280,14 +282,15 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
                     }
                 }
             });
+            return projectRef.get();
         }
         catch (InterruptedException e) { }
-        catch (InvocationTargetException e) {
+        catch (ExecutionException e) {
             Debug.reportError("Error opening project", e);
             Debug.reportError("Error cause:", e.getCause());
         }
         
-        return projectRef.rProject;
+        return null;
     }
     
     /*

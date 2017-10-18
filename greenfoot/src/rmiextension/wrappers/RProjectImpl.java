@@ -116,14 +116,18 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     public void close()
     {
         notifyClosing();
-        
-        try {
-            getBProject().close();
-        }
-        catch (ProjectNotOpenException pnoe) {
-            // this isn't a big deal; after all, we were trying to close
-            // the project...
-        }
+
+        Platform.runLater(() -> {
+            try
+            {
+                getBProject().close();
+            }
+            catch (ProjectNotOpenException pnoe)
+            {
+                // this isn't a big deal; after all, we were trying to close
+                // the project...
+            }
+        });
     }
     
     /**
