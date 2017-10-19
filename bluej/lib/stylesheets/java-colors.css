@@ -14,7 +14,7 @@
 .token-comment-javadoc {
     -fx-fill: #000099;
 }
-.token-comment-standout {
+.token-comment-special {
     -fx-fill: #ee00bb;
 }
 
