@@ -290,7 +290,11 @@ public class WorldCanvas extends JPanel
                 sharedMemory.put(this.seq++);
                 sharedMemory.put(getWidth());
                 sharedMemory.put(getHeight());
-                sharedMemory.put(raw);
+                for (int i = 0; i < raw.length; i++)
+                {
+                    sharedMemory.put(raw[i] << 8 | 0xFF);
+                }
+
             }
             catch (IOException e)
             {

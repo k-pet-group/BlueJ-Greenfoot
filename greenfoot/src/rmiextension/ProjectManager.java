@@ -33,7 +33,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.IntBuffer;
+import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
 import java.nio.channels.FileLock;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -150,7 +152,8 @@ public class ProjectManager
         {
             File shmFile = File.createTempFile("greenfoot", "shm");
             FileChannel fc = new RandomAccessFile(shmFile, "rw").getChannel();
-            IntBuffer sharedMemory = fc.map(FileChannel.MapMode.READ_WRITE, 0, 10_000_000L).asIntBuffer();
+            MappedByteBuffer sharedMemoryByte = fc.map(MapMode.READ_WRITE, 0, 10_000_000L);
+            IntBuffer sharedMemory = sharedMemoryByte.asIntBuffer();
             Platform.runLater(() -> {
                 List<KeyEventInfo> keyEvents = new ArrayList<>();
                 List<MouseEventInfo> mouseEvents = new ArrayList<>();
@@ -233,7 +236,8 @@ public class ProjectManager
                                 {
                                     img = new WritableImage(width == 0 ? 1 : width, height == 0 ? 1 : height);
                                 }
-                                img.getPixelWriter().setPixels(0, 0, width, height, PixelFormat.getIntArgbPreInstance(), sharedMemory, width);
+                                sharedMemoryByte.position(sharedMemory.position() * 4);
+                                img.getPixelWriter().setPixels(0, 0, width, height, PixelFormat.getByteBgraPreInstance(), sharedMemoryByte, width * 4);
                                 imageView.setImage(img);
                                 writeEvents();
                                 sizeToScene = true;
