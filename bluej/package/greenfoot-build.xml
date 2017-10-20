@@ -279,6 +279,12 @@
         <copy todir="${zip_dir}/Greenfoot.app" preservelastmodified="true">
             <fileset dir="macfiles/Greenfoot.app"/>
         </copy>
+
+        <!-- build the native launcher -->
+        <exec dir="macfiles/nativelauncher/" executable="/bin/bash">
+            <arg value="compile.sh"/>
+            <env key="JAVA_HOME" value="${build_java_home}"/>
+        </exec>
     	
     	<!-- copy the native launcher into place -->
     	<copy file="macfiles/nativelauncher/JavaAppLauncher" todir="${zip_dir}/Greenfoot.app/Contents/MacOS" />
