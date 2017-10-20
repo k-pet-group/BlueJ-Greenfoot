@@ -323,6 +323,16 @@ public class PrefMgr
         return includeFamily ? editorFontCSS : editorFontSizeOnlyCSS;
     }
 
+    /**
+     * Get the CSS for setting the Java editor font family like {{{-fx-font-family: "Arial";}}}
+     * Note this can change later if the user changes style, so only
+     * use this for an instant query (e.g. for printing)
+     */
+    public static String getEditorFontFamilyCSS()
+    {
+        return "-fx-font-family: \"" + editorStandardFont.get() + "\";";
+    }
+
     @OnThread(Tag.FXPlatform)
     public static ObservableIntegerValue getScopeHighlightStrength()
     {
