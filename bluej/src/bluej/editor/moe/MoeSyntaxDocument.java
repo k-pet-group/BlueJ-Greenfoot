@@ -259,6 +259,11 @@ public class MoeSyntaxDocument
         thisDocIsForPrinting = true;
     }
 
+    public boolean isPrinting()
+    {
+        return thisDocIsForPrinting;
+    }
+
     @OnThread(Tag.Any)
     private static class EditEvent
     {
