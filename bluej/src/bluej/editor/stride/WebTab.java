@@ -21,39 +21,28 @@
  */
 package bluej.editor.stride;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.WeakHashMap;
-
+import bluej.Config;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.EditableTarget;
 import bluej.testmgr.TestDisplayFrame;
-import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.utility.javafx.JavaFXUtil;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableStringValue;
-import javafx.collections.ObservableList;
+import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
-import javafx.scene.control.Tab;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.StrokeType;
 import javafx.scene.web.WebView;
-
-import bluej.Config;
-import bluej.utility.javafx.JavaFXUtil;
 import javafx.stage.Popup;
-import javafx.stage.PopupWindow;
 import javafx.stage.Window;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
@@ -62,6 +51,9 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import javax.swing.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.WeakHashMap;
 
 
 /**
@@ -76,7 +68,7 @@ public class WebTab extends FXTab
     private final TabMenuManager menuManager;
     // Red overlays used in tutorial.  We store because when we show a new
     // overlay, we should hide previous one:
-    private final WeakHashMap<Project, Popup[]> tutorialOverlays = new WeakHashMap<>();
+    private final WeakHashMap<Project, OverlayInfo> tutorialOverlays = new WeakHashMap<>();
 
     /**
      * Constructs a WebTab with a WebView in it
@@ -218,7 +210,6 @@ public class WebTab extends FXTab
                     {
                         ((EventTarget) anchorItem).addEventListener("click", e ->
                         {
-                            Debug.message("Anchor clicked");
                             ((EditableTarget) parent.getProject().getTarget(anchorHref.getNodeValue().substring("class:".length()).trim())).getEditor().setEditorVisible(true);
                             e.stopPropagation();
                         }, true);
@@ -227,11 +218,12 @@ public class WebTab extends FXTab
                     {
                         ((EventTarget) anchorItem).addEventListener("click", e ->
                         {
-                            // Hide previous overlays for project.  Do this even if link doesn't work,
+                            // Hide previous overlays for project.  Do this even if new link doesn't work,
                             // as we don't want to confuse the user by still showing an old popup:
-                            for (Popup popup : tutorialOverlays.getOrDefault(parent.getProject(), new Popup[0]))
+                            OverlayInfo prevOverlay = tutorialOverlays.get(parent.getProject());
+                            if (prevOverlay != null)
                             {
-                                popup.hide();
+                                prevOverlay.hide();
                             }
 
                             String nodeCSS = anchorHref.getNodeValue().substring("guicss:".length());
@@ -281,16 +273,12 @@ public class WebTab extends FXTab
                                 overlays[2].show(targetWindow, screenBounds.getMinX() - 10, screenBounds.getMaxY() + 5);
                                 overlays[3].show(targetWindow, screenBounds.getMinX() - 10, screenBounds.getMinY() - 10);
 
-                                n.addEventFilter(MouseEvent.MOUSE_PRESSED, ev -> {
-                                    for (Popup overlay : overlays)
-                                    {
-                                        overlay.hide();
-                                    }
-                                });
+                                OverlayInfo overlayInfo = new OverlayInfo(targetWindow, n, overlays);
 
-                                tutorialOverlays.put(parent.getProject(), overlays);
+                                tutorialOverlays.put(parent.getProject(), overlayInfo);
 
                                 Utility.bringToFrontFX(targetWindow);
+                                targetWindow.requestFocus();
 
                                 //org.scenicview.ScenicView.show(overlay.getScene());
                             }
@@ -298,6 +286,80 @@ public class WebTab extends FXTab
                         }, true);
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * A class which keeps track of the red-line overlays, and on certain actions
+     * (clicking target, window losing focus, window changing size/position)
+     * hides the overlays.
+     */
+    private static class OverlayInfo implements EventHandler<MouseEvent>, ChangeListener<Object>
+    {
+        private final Popup[] overlays;
+        private final Node target;
+        private final Window targetWindow;
+
+        public OverlayInfo(Window targetWindow, Node target, Popup[] overlays)
+        {
+            this.targetWindow = targetWindow;
+            this.target = target;
+            this.overlays = overlays;
+            // Install listeners for clicking on target item, window losing focus, or being moved/resized:
+            target.addEventFilter(MouseEvent.MOUSE_PRESSED, this);
+            targetWindow.focusedProperty().addListener(this);
+            targetWindow.xProperty().addListener(this);
+            targetWindow.yProperty().addListener(this);
+            targetWindow.widthProperty().addListener(this);
+            targetWindow.heightProperty().addListener(this);
+        }
+
+        /**
+         * Implement EventHandler interface
+         */
+        @Override
+        public void handle(MouseEvent event)
+        {
+            // Mouse has been pressed on target item, hide us:
+            hide();
+        }
+
+        /**
+         * Hides the red line popups, and cleans up listeners.
+         */
+        public void hide()
+        {
+            for (Popup overlay : overlays)
+            {
+                overlay.hide();
+            }
+            // Need to clean up all the listeners:
+            target.removeEventFilter(MouseEvent.MOUSE_PRESSED, this);
+            targetWindow.focusedProperty().removeListener(this);
+            targetWindow.xProperty().removeListener(this);
+            targetWindow.yProperty().removeListener(this);
+            targetWindow.widthProperty().removeListener(this);
+            targetWindow.heightProperty().removeListener(this);
+        }
+
+        /**
+         * Implement ChangeListener interface:
+         */
+        @Override
+        public void changed(ObservableValue<? extends Object> observable, Object oldValue, Object newValue)
+        {
+            // Note we are a listener for several different observable properties, so we need to work out which one
+            // caused us to be called to take the appropriate action:
+            if (observable == targetWindow.focusedProperty() && ((Boolean)newValue) == false)
+            {
+                hide();
+            }
+            if (observable == targetWindow.xProperty() || observable == targetWindow.yProperty()
+                    || observable == targetWindow.widthProperty() || observable == targetWindow.heightProperty())
+            {
+                // If they move or resize the window, hide ourselves:
+                hide();
             }
         }
     }
