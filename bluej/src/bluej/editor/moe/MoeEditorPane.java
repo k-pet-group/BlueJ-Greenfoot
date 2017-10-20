@@ -200,18 +200,20 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
         {
             styleProperty().unbind();
             // These sizes are picked by hand.  They are small because the Roboto Mono font
+            String fontSize = "9pt";
             switch (printSize)
             {
                 case SMALL:
-                    setStyle("-fx-font-size: 7pt;");
+                    fontSize = "7pt";
                     break;
                 case STANDARD:
-                    setStyle("-fx-font-size: 9pt;");
+                    fontSize = "9pt";
                     break;
                 case LARGE:
-                    setStyle("-fx-font-size: 12pt;");
+                    fontSize = "12pt";
                     break;
             }
+            setStyle("-fx-font-size: " + fontSize + ";" + PrefMgr.getEditorFontFamilyCSS());
 
             this.showLineNumbers.unbind();
             this.showLineNumbers.set(showLineNumbers);
