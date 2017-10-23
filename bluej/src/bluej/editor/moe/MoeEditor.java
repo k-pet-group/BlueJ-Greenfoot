@@ -1498,7 +1498,8 @@ public final class MoeEditor extends ScopeColorsBorderPane
     @OnThread(Tag.FXPlatform)
     public FXRunnable printTo(PrinterJob printerJob, PrintSize printSize, boolean printLineNumbers, boolean printBackground)
     {
-        MoeSyntaxDocument doc = new MoeSyntaxDocument(new ScopeColorsBorderPane());
+        ScopeColorsBorderPane scopeColorsPane = new ScopeColorsBorderPane();
+        MoeSyntaxDocument doc = new MoeSyntaxDocument(scopeColorsPane);
         // Note: very important we make this call before copyFrom, as copyFrom is what triggers
         // the run-later that marking as printing suppresses:
         doc.markAsForPrinting();
@@ -1509,7 +1510,11 @@ public final class MoeEditor extends ScopeColorsBorderPane
         BorderPane header = new BorderPane(new Label(timestamp), null, pageNumberLabel, null, new Label(getTitle()));
         header.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
         header.setPadding(new Insets(5));
-        BorderPane rootPane = new BorderPane(editorPane, header, null, null, null);
+        BorderPane rootPane = new BorderPane(editorPane, header, null, scopeColorsPane, null);
+        // The scopeColorsPane needs to be in the scene to access the CSS colors.
+        // But we don't actually want it visible:
+        scopeColorsPane.setManaged(false);
+        scopeColorsPane.setVisible(false);
         rootPane.setBackground(null);
         Scene scene = new Scene(rootPane);
         Config.addEditorStylesheets(scene);
@@ -1527,12 +1532,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         rootPane.requestLayout();
         rootPane.layout();
         rootPane.applyCss();
-        // TODO: recalculate scopes to match width, either by
-        //  - copying existing character indent levels, then redrawing
-        //  - adjusting existing scopes by difference in widths from window to paper
-        //doc.enableParser(true);
-        //doc.getParser();
-        //doc.recalculateAllScopes();
         if (!printBackground)
         {
             // Remove styles:
@@ -1540,6 +1539,17 @@ public final class MoeEditor extends ScopeColorsBorderPane
             {
                 doc.getDocument().setParagraphStyle(i, null);
             }
+
+        }
+        else
+        {
+            // We have to reparse and recalculate scopes
+
+            // We must mark document as shown or else parsing terminates early:
+            doc.notYetShown = false;
+            doc.enableParser(true);
+            doc.getParser();
+            doc.recalculateAllScopes();
         }
         VirtualFlow<?, ?> virtualFlow = (VirtualFlow<?, ?>) editorPane.lookup(".virtual-flow");
         // Run printing in another thread:
