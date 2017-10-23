@@ -715,7 +715,7 @@ team.error.password.at=Your password has an @ character in it, which is unsuppor
 team.error.unknownProtocol=The informed protocol is unknown.
 team.error.cannotParseServer=Cannot identify server in the URI. Please check if URI is correct.
 team.error.cannotParsePath=Cannot identify repository path in the URI. Please check if URI is correct.
-team.error.needsPull=The repository is in a merge state, with uncommitted changes. You need to commit and pull those changes in order to proceeed.
+team.error.needsPull=The repository is in a merge state, with uncommitted changes. You need to commit and pull those changes in order to proceed.
 team.error.noHeadBranch=There was an error getting the local HEAD branch.
 
 # The following appear in brackets after a filename, in the
