@@ -2526,25 +2526,6 @@ public class ClassTarget extends DependentTarget
         DataCollector.editStride(getPackage(), getJavaSourceFile(), latestJava, getFrameSourceFile(), latestStride, reason);
     }
 
-    /**
-     * Gets the File which the given source type parameter is generated from,
-     * or null if non-applicable.  Here's a table of the possible outcomes:
-     *
-     * This target | Parameter | Return
-     * --------------------------------
-     * Stride      | Stride    | null (Stride is not generated from anything else)
-     * Stride      | Java      | non-null (The path to the Stride file)
-     * Java        | Stride    | null (This call shouldn't happen anyway)
-     * Java        | Java      | null (Java source is not generated in this case)
-     */
-    private File getGeneratedFrom(SourceType recordForSourceType)
-    {
-        if (recordForSourceType == SourceType.Java && this.sourceAvailable == SourceType.Stride)
-            return getFrameSourceFile();
-        else
-            return null;
-    }
-
     @Override
     public void recordClose()
     {
