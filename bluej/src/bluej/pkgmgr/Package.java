@@ -814,7 +814,6 @@ public final class Package
 
         // Fix up dependency information
         for (int i = 0; i < numDependencies; i++) {
-            Dependency dep = null;
             String type = lastSavedProps.getProperty("dependency" + (i + 1) + ".type");
 
             if ("UsesDependency".equals(type)) {
@@ -869,6 +868,7 @@ public final class Package
                     Class<?> cl = loadClass(ct.getQualifiedName());
                     ct.determineRole(cl);
                     ct.analyseDependencies(cl);
+                    ct.analyseTypeParams(cl);
                     if (cl == null) {
                         ct.setState(State.NEEDS_COMPILE);
                     }
