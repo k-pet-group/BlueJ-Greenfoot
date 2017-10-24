@@ -142,6 +142,14 @@ public class DataCollectorImpl
         submitEvent(project, null, eventName, new PlainEvent(mpe));
     }
 
+    /**
+     * Submit an event.
+     * 
+     * @param project   the associated project (may be null)
+     * @param pkg       the associated package (may be null)
+     * @param eventName  the name of the event type
+     * @param evt       the event to be submitted
+     */
     private static synchronized void submitEvent(final Project project, final Package pkg, final EventName eventName, final Event evt)
     {
         final String projectName = project == null ? null : project.getProjectName();
@@ -994,15 +1002,22 @@ public class DataCollectorImpl
         }
     }
 
-
-    public static void inspectorClassShow(Package pkg, Inspector inspector, String className)
+    /**
+     * A class inspector was shown.
+     * 
+     * @param proj  The project associated with the action
+     * @param pkg   The package associated with the action; may be null
+     * @param inspector  The inspector shown
+     * @param className  The name of the class associated with the inspector
+     */
+    public static void inspectorClassShow(Project proj, Package pkg, Inspector inspector, String className)
     {
         if (! false) {
             MultipartEntity mpe = new MultipartEntity();
             mpe.addPart("event[inspect][unique]", CollectUtility.toBody(inspector.getUniqueId()));
             mpe.addPart("event[inspect][static_class]", CollectUtility.toBody(className));
             inspectorPackages.put(inspector, pkg);
-            submitEvent(pkg.getProject(), pkg, EventName.INSPECTOR_SHOW, new PlainEvent(mpe));
+            submitEvent(proj, pkg, EventName.INSPECTOR_SHOW, new PlainEvent(mpe));
         }
     }
     

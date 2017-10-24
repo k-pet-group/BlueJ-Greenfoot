@@ -1009,17 +1009,18 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
      * Return a ClassInspector for a class. The inspector is visible.
      *
      * @param name
-     *            The name of this object or "null" if it is not on the object
-     *            bench
+     *            The name of this object or "null" if it is not on the object bench
      * @param getEnabled
      *            if false, the "get" button is permanently disabled
      * @param clss
      *            The class displayed by this viewer
      * @param pkg
-     *            The package all this belongs to
+     *            The package associated with the request (may be null)
      * @param parent
      *            The parent frame of this frame
      * @param animateFromCentre
+     *            A node representing the initiator of the inspect action for animation purposes
+     *            (may be null).
      * @return The Viewer value
      */
     @OnThread(Tag.FXPlatform)
@@ -1040,7 +1041,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
             updateInspector(inspector);
         }
 
-        DataCollector.inspectorClassShow(pkg, inspector, clss.getName());
+        DataCollector.inspectorClassShow(this, pkg, inspector, clss.getName());
 
         return inspector;
     }
