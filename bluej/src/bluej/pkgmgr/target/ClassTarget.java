@@ -722,14 +722,12 @@ public class ClassTarget extends DependentTarget
             setProperty(NAVIVIEW_EXPANDED_PROPERTY, String.valueOf(value));
         }
         
-        String typeParams = props.getProperty(prefix + ".typeParameters");
-        //typeParams is null only if the properties file is saved by an older
-        //version of Bluej, thus the type parameters have to fetched from the code
-        if (typeParams == null) {
-            analyseSource();    
-        }
-        else {
-            typeParameters = typeParams;
+        typeParameters = props.getProperty(prefix + ".typeParameters");
+        // typeParams is null only if the properties file is saved by an older
+        // version of Bluej, thus the type parameters have to fetched from the code
+        if (typeParameters == null) {
+            typeParameters = "";
+            // parameters will be corrected when source is analysed
         }
 
         cachedBreakpoints.clear();
@@ -1472,6 +1470,10 @@ public class ClassTarget extends DependentTarget
      * <p>
      * Also causes the class role (normal class, unit test, etc) to be
      * guessed based on the source.
+     * <p>
+     * Note: this should only be called once the containing package is loaded, not
+     * before. All classes must be present in the package or dependency information
+     * will be generated incorrectly during parsing.
      */
     public ClassInfo analyseSource()
     {
