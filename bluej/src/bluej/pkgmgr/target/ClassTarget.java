@@ -22,6 +22,31 @@
 package bluej.pkgmgr.target;
 
 
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.TypeVariable;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+import javax.swing.SwingUtilities;
+
 import bluej.Config;
 import bluej.collect.DataCollector;
 import bluej.collect.DiagnosticWithShown;
@@ -41,7 +66,11 @@ import bluej.editor.EditorManager;
 import bluej.editor.TextEditor;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.editor.stride.FrameEditor;
-import bluej.extensions.*;
+import bluej.extensions.BClass;
+import bluej.extensions.BClassTarget;
+import bluej.extensions.BDependency;
+import bluej.extensions.ExtensionBridge;
+import bluej.extensions.SourceType;
 import bluej.extensions.event.ClassEvent;
 import bluej.extensions.event.ClassTargetEvent;
 import bluej.extmgr.ClassExtensionMenu;
@@ -55,13 +84,22 @@ import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedTypeNode;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
-import bluej.pkgmgr.*;
+import bluej.pkgmgr.JavadocResolver;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PackageEditor;
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.Project;
+import bluej.pkgmgr.SourceInfo;
 import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.ExtendsDependency;
 import bluej.pkgmgr.dependency.ImplementsDependency;
 import bluej.pkgmgr.dependency.UsesDependency;
-import bluej.pkgmgr.target.role.*;
+import bluej.pkgmgr.target.role.AbstractClassRole;
+import bluej.pkgmgr.target.role.ClassRole;
+import bluej.pkgmgr.target.role.EnumClassRole;
+import bluej.pkgmgr.target.role.InterfaceClassRole;
+import bluej.pkgmgr.target.role.StdClassRole;
+import bluej.pkgmgr.target.role.UnitTestClassRole;
 import bluej.stride.framedjava.ast.Loader;
 import bluej.stride.framedjava.ast.Parser;
 import bluej.stride.framedjava.convert.ConversionWarning;
@@ -69,7 +107,14 @@ import bluej.stride.framedjava.convert.ConvertResultDialog;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.TopLevelCodeElement;
 import bluej.stride.generic.Frame;
-import bluej.utility.*;
+import bluej.utility.Debug;
+import bluej.utility.DialogManager;
+import bluej.utility.FileEditor;
+import bluej.utility.FileUtility;
+import bluej.utility.JavaNames;
+import bluej.utility.JavaReflective;
+import bluej.utility.JavaUtils;
+import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXPlatformSupplier;
@@ -77,22 +122,6 @@ import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.ResizableCanvas;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
-
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.lang.ClassNotFoundException;
-
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -108,11 +137,8 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-
 import threadchecker.OnThread;
 import threadchecker.Tag;
-
-import javax.swing.SwingUtilities;
 
 /**
  * A class target in a package, i.e. a target that is a class file built from
@@ -722,15 +748,8 @@ public class ClassTarget extends DependentTarget
             setProperty(NAVIVIEW_EXPANDED_PROPERTY, String.valueOf(value));
         }
         
-        String typeParams = props.getProperty(prefix + ".typeParameters");
-        //typeParams is null only if the properties file is saved by an older
-        //version of Bluej, thus the type parameters have to fetched from the code
-        if (typeParams == null) {
-            analyseSource();    
-        }
-        else {
-            typeParameters = typeParams;
-        }
+        typeParameters = "";
+        // parameters will be corrected when class is analysed
 
         cachedBreakpoints.clear();
         try
@@ -778,14 +797,13 @@ public class ClassTarget extends DependentTarget
         if (getProperty(NAVIVIEW_EXPANDED_PROPERTY) != null)
         {
             props.put(prefix + ".naviview.expanded", String.valueOf(getProperty(NAVIVIEW_EXPANDED_PROPERTY)));
-        } else if (isNaviviewExpanded.isPresent())
+        }
+        else if (isNaviviewExpanded.isPresent())
         {
             props.put(prefix + ".naviview.expanded", String.valueOf(isNaviviewExpanded()));
         }
-        props.put(prefix + ".typeParameters", getTypeParameters());
         
         props.put(prefix + ".showInterface", Boolean.valueOf(intf).toString());
-
 
         List<Integer> breakpoints;
         if (editor != null && editor instanceof FrameEditor)
@@ -1351,6 +1369,7 @@ public class ClassTarget extends DependentTarget
 
         determineRole(cl);
         analyseDependencies(cl);
+        analyseTypeParams(cl);
     }
 
     /**
@@ -1472,6 +1491,10 @@ public class ClassTarget extends DependentTarget
      * <p>
      * Also causes the class role (normal class, unit test, etc) to be
      * guessed based on the source.
+     * <p>
+     * Note: this should only be called once the containing package is loaded, not
+     * before. All classes must be present in the package or dependency information
+     * will be generated incorrectly during parsing.
      */
     public ClassInfo analyseSource()
     {
@@ -1636,6 +1659,31 @@ public class ClassTarget extends DependentTarget
         }
     }
     
+    /**
+     * Analyse the type parameters from the compiled class and update the display name.
+     */
+    public <T> void analyseTypeParams(Class<T> cl)
+    {
+        if (cl != null) {
+            TypeVariable<Class<T>> [] tvars = cl.getTypeParameters();
+            if (tvars.length == 0) {
+                typeParameters = "";
+            }
+            else
+            {
+                boolean isFirst = true;
+                typeParameters = "<";
+                for (TypeVariable<?> tvar : tvars) {
+                    if (! isFirst) {
+                        typeParameters += ",";
+                    }
+                    isFirst = false;
+                    typeParameters += tvar.getName();
+                }
+                typeParameters += ">";
+            }
+        }
+    }
     
     /**
      * Set the superclass. This adds an extends dependency to the appropriate class.
@@ -2522,25 +2570,6 @@ public class ClassTarget extends DependentTarget
     public void recordStrideEdit(String latestJava, String latestStride, StrideEditReason reason)
     {
         DataCollector.editStride(getPackage(), getJavaSourceFile(), latestJava, getFrameSourceFile(), latestStride, reason);
-    }
-
-    /**
-     * Gets the File which the given source type parameter is generated from,
-     * or null if non-applicable.  Here's a table of the possible outcomes:
-     *
-     * This target | Parameter | Return
-     * --------------------------------
-     * Stride      | Stride    | null (Stride is not generated from anything else)
-     * Stride      | Java      | non-null (The path to the Stride file)
-     * Java        | Stride    | null (This call shouldn't happen anyway)
-     * Java        | Java      | null (Java source is not generated in this case)
-     */
-    private File getGeneratedFrom(SourceType recordForSourceType)
-    {
-        if (recordForSourceType == SourceType.Java && this.sourceAvailable == SourceType.Stride)
-            return getFrameSourceFile();
-        else
-            return null;
     }
 
     @Override
