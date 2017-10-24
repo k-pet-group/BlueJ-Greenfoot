@@ -30,6 +30,7 @@ import bluej.utility.DialogManager;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.animation.RotateTransition;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -50,6 +51,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Window;
+import javafx.util.Duration;
 import javafx.util.StringConverter;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -94,6 +96,7 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
 
     private Properties help;
     private List<ActionInfo> functions;     // all user functions
+    private static Label errorLabel;
 
     private static class ActionInfo
     {
@@ -361,6 +364,9 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
         public KeyCaptureDialog()
         {
             TextField textField = new TextField();
+            errorLabel = JavaFXUtil.withStyleClass(new Label(), "dialog-error-label");
+            errorLabel.setText("");
+
             textField.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, (javafx.scene.input.KeyEvent e) -> {
                 // Let escape trigger the cancel button
                 // Also, ignore presses of modifier kyes
@@ -368,24 +374,43 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
                         e.getCode() != KeyCode.ALT && e.getCode() != KeyCode.ALT_GRAPH && e.getCode() != KeyCode.META &&
                         e.getCode() != KeyCode.COMMAND)
                 {
-                    // So, on Mac it seems that if we directly call setResult,
-                    // the JVM crashes!  It seems this can be avoided by doing the setResult
-                    // and hide in a runLater, so that's what we'll have to go with.
-                    // Do not remove unless you've tested on Mac using the application bundle
-                    // (JVM crash does not occur when running from IntelliJ, only from final built
-                    // and signed RC .app bundle):
-                    JavaFXUtil.runAfterCurrent(() -> {
-                        setResult(new KeyCodeCombination(e.getCode(), mod(e.isShiftDown()), mod(e.isControlDown()), mod(e.isAltDown()), mod(e.isMetaDown()), ModifierValue.ANY));
-                        hide();
-                    });
-                    e.consume();
-                }
+                   if ( e.getCode().isLetterKey())
+                   {
+                       if (!(e.isShiftDown() || e.isControlDown() || e.isAltDown() || e.isMetaDown()))
+                       {
+                           errorLabel.setText("Single Character is not allowed");
+                           RotateTransition animation = null;
+                           animation = new RotateTransition(Duration.millis(70), errorLabel);
+                           animation.setByAngle(5);
+                           // Rotate, rotate back, rotate, rotate back:
+                           animation.setAutoReverse(true);
+                           animation.setCycleCount(4);
+                           animation.play();
+                           return;
+                       }
 
+                   }
+
+                   // So, on Mac it seems that if we directly call setResult,
+                   // the JVM crashes!  It seems this can be avoided by doing the setResult
+                   // and hide in a runLater, so that's what we'll have to go with.
+                   // Do not remove unless you've tested on Mac using the application bundle
+                   // (JVM crash does not occur when running from IntelliJ, only from final built
+                   // and signed RC .app bundle):
+                   JavaFXUtil.runAfterCurrent(() -> {
+                     setResult(new KeyCodeCombination(e.getCode(), mod(e.isShiftDown()), mod(e.isControlDown()), mod(e.isAltDown()), mod(e.isMetaDown()), ModifierValue.ANY));
+                      hide();
+                   });
+                   e.consume();
+                }
             });
-            getDialogPane().setContent(new VBox(new Label("Press a key, or Escape to cancel"), textField));
+            VBox mainPanel=new VBox(new Label("Press a key, or Escape to cancel"), textField);
+            getDialogPane().setContent(mainPanel);
             setOnShown(e -> textField.requestFocus());
             // Cancel button on the dialog, or otherwise can't close:
+            Config.addDialogStylesheets(getDialogPane());
             getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL);
+            mainPanel.getChildren().add(errorLabel);
         }
 
         private static ModifierValue mod(boolean down)
