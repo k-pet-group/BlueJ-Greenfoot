@@ -476,8 +476,13 @@ public class PkgMgrFrame
                     if (e.getEventType() == MouseEvent.MOUSE_MOVED)
                     {
                         // Are we on top of the divider of the bottom pane?
-                        double sceneX = bottomPane.getItems().get(0).localToScene(bottomPane.getItems().get(0).getBoundsInLocal()).getMaxX();
-                        if (e.getSceneX() >= sceneX - 1 && e.getSceneX() <= sceneX + 8)
+                        Bounds bounds = bottomPane.getItems().get(0).localToScene(bottomPane.getItems().get(0).getBoundsInLocal());
+                        // Notice that we need the top-right corner, so max X and min Y.
+                        double sceneX = bounds.getMaxX();
+                        double sceneY = bounds.getMinY();
+                        if (e.getSceneX() >= sceneX - 1 && e.getSceneX() <= sceneX + 8
+                                &&
+                            e.getSceneY() >= sceneY - 5 && e.getSceneY() <= sceneY + 5)
                         {
                             isResizingBoth = true;
                             // Show four pointed arrow:
