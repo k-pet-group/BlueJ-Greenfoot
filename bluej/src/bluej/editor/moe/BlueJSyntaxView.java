@@ -201,13 +201,18 @@ public class BlueJSyntaxView
         });
         // We use class color as a proxy for listening to all colors:
         JavaFXUtil.addChangeListenerPlatform(scopeColors.scopeClassColorProperty(), str -> {
-            // runLater to make sure all colours have been set:
-            JavaFXUtil.runAfterCurrent(() ->
+            // If printing, don't run later as we're not on the main thread.
+            // Instead, the printing code will trigger the necessary recalculation.
+            if (!document.isPrinting())
             {
-                resetColors();
-                imageCache.clear();
-                document.recalculateAllScopes();
-            });
+                // runLater to make sure all colours have been set:
+                JavaFXUtil.runAfterCurrent(() ->
+                {
+                    resetColors();
+                    imageCache.clear();
+                    document.recalculateAllScopes();
+                });
+            }
         });
     }
 
@@ -1916,7 +1921,7 @@ public class BlueJSyntaxView
      * Sets up the colors based on the strength value 
      * (from strongest (20) to white (0)
      */
-    private void resetColors()
+    void resetColors()
     {
         BK = scopeColors.scopeBackgroundColorProperty().get();
         C1 = getReducedColor(scopeColors.scopeClassOuterColorProperty());

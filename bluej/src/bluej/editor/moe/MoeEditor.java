@@ -1516,19 +1516,25 @@ public final class MoeEditor extends ScopeColorsBorderPane
         scopeColorsPane.setManaged(false);
         scopeColorsPane.setVisible(false);
         rootPane.setBackground(null);
-        Scene scene = new Scene(rootPane);
-        Config.addEditorStylesheets(scene);
         // JavaFX seems to always print at 72 DPI, regardless of printer DPI:
         // This means that that the point width (1/72 of an inch) is actually the pixel width, too:
         double pixelWidth = printerJob.getJobSettings().getPageLayout().getPrintableWidth();
         double pixelHeight = printerJob.getJobSettings().getPageLayout().getPrintableHeight();
-        rootPane.resize(pixelWidth, pixelHeight);
+        Scene scene = new Scene(rootPane, pixelWidth, pixelHeight);
+        Config.addEditorStylesheets(scene);
 
         // We could make page size match screen size by scaling font size by difference in DPIs:
         //editorPane.styleProperty().unbind();
         //editorPane.setStyle("-fx-font-size: " + PrefMgr.getEditorFontSize().getValue().doubleValue() * 0.75 + "pt;");
         editorPane.setPrinting(true, printSize, printLineNumbers);
         editorPane.setWrapText(true);
+        editorPane.applyCss();
+        // Make sure the scroll bars in the editor are invisible when printing:
+        for (Node node : editorPane.lookupAll(".scroll-bar"))
+        {
+            node.setVisible(false);
+            node.setManaged(false);
+        }
         rootPane.requestLayout();
         rootPane.layout();
         rootPane.applyCss();
@@ -1552,9 +1558,14 @@ public final class MoeEditor extends ScopeColorsBorderPane
             doc.recalculateAllScopes();
         }
         VirtualFlow<?, ?> virtualFlow = (VirtualFlow<?, ?>) editorPane.lookup(".virtual-flow");
+        FXConsumer<Integer> updatePageNumber = n -> {
+            pageNumberLabel.setText("Page " + n);
+            rootPane.requestLayout();
+            rootPane.layout();
+            rootPane.applyCss();
+        };
         // Run printing in another thread:
-        return () -> printPages(printerJob, rootPane, n -> pageNumberLabel.setText("Page " + n),
-                        editorPane, virtualFlow);
+        return () -> printPages(printerJob, rootPane, updatePageNumber, editorPane, virtualFlow);
     }
 
     /**
@@ -1586,6 +1597,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
         {
             // Scroll to make topLine actually at the top:
             virtualFlow.showAsFirst(topLine);
+            virtualFlow.requestLayout();
+            virtualFlow.layout();
+            virtualFlow.applyCss();
 
             // Take a copy to avoid any update problems:
             List<C> visibleCells = new ArrayList<>(virtualFlow.visibleCells());
