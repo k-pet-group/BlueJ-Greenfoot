@@ -319,6 +319,7 @@ public class WebTab extends FXTab
          * Implement EventHandler interface
          */
         @Override
+        @OnThread(value = Tag.FXPlatform, ignoreParent = true)
         public void handle(MouseEvent event)
         {
             // Mouse has been pressed on target item, hide us:
@@ -328,6 +329,7 @@ public class WebTab extends FXTab
         /**
          * Hides the red line popups, and cleans up listeners.
          */
+        @OnThread(Tag.FXPlatform)
         public void hide()
         {
             for (Popup overlay : overlays)
@@ -347,6 +349,7 @@ public class WebTab extends FXTab
          * Implement ChangeListener interface:
          */
         @Override
+        @OnThread(value = Tag.FXPlatform, ignoreParent = true)
         public void changed(ObservableValue<? extends Object> observable, Object oldValue, Object newValue)
         {
             // Note we are a listener for several different observable properties, so we need to work out which one
