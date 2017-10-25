@@ -946,17 +946,6 @@ public final class Package
      */ 
     private void addImmovableTargets()
     {
-        // which goes to the parent package)
-        //        if (isUnnamedPackage()) {
-        //            Target t = new ReadmeTarget(this);
-        //            t.setPos(FIXED_TARGET_X,FIXED_TARGET_Y);
-        //            addTarget(t);
-        //        }
-        //        else {
-        //            Target t = new ParentPackageTarget(this);
-        //            t.setPos(FIXED_TARGET_X,FIXED_TARGET_Y);
-        //            addTarget(t);
-        //        }
         Target t = new ReadmeTarget(this);
         //Take special care of ReadmeTarget
         //see ReadmeTarget.isSaveable for explanation
@@ -1320,11 +1309,6 @@ public final class Package
             {
                 if (!ct.isCompiled() && !ct.isQueued())
                 {
-                    // Next line is to solve bugs caused when compile happens before saving,
-                    // e.g. when creating a new class, it will be marked with red strips.
-                    // It is commented out as it is added to ensureSaved() @ ClassTarget.
-                    // if it causes a problem there, delete it and uncomment it here.
-//                      ct.getEditor();
                     ct.ensureSaved();
                     toCompile.add(ct);
                     ct.setQueued(true);
