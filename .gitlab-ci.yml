@@ -1,0 +1,12 @@
+before_script:
+  - cp bluej/build.properties.template bluej/build.properties
+  - sed -i 's/build_java_home=.*/build_java_home=\/usr\/lib\/jvm\/java-8-oracle\//' bluej/build.properties
+
+stages:
+ - build
+
+antbuild:
+  stage: build
+  script:
+    - cd bluej && ant rebuild-ready
+    - cd ../greenfoot && ant clean && ant ready-to-run
