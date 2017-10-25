@@ -1080,7 +1080,7 @@ public class ClassTarget extends DependentTarget
     }
 
     /**
-     * Description of the Class
+     * A filter to find inner class files.
      */
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     class InnerClassFileFilter
