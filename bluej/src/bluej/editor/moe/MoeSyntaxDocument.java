@@ -560,6 +560,7 @@ public class MoeSyntaxDocument
         if (notYetShown)
             return;
 
+        syntaxView.resetColors();
         recalculateScopesForLinesInRange(0, document.getParagraphs().size() - 1);
         applyPendingScopeBackgrounds();
     }
