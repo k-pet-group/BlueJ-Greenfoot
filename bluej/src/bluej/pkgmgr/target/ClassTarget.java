@@ -1122,7 +1122,7 @@ public class ClassTarget extends DependentTarget
      *         there was a problem opening this editor.
      */
     @OnThread(Tag.FXPlatform)
-    private Editor getEditor(boolean showInterface) // TODO remove the ignoreParent = true, and tag calls properly
+    private Editor getEditor(boolean showInterface)
     {
         // ClassTarget must have source code if it is to provide an editor
         if (editor == null) {
