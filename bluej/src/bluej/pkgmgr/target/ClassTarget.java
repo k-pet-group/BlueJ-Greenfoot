@@ -877,8 +877,8 @@ public class ClassTarget extends DependentTarget
 
         File src = getSourceFile();
 
-        // if the src file has last-modified date greater than the class file's one, then
-        // set the last-modified date of the class file equal to the src file last-modified date,
+        // if the src file has last-modified date in the future, then set the last-modified date of
+        // the source file to the current time.
         long now = Instant.now().toEpochMilli();
         // Tiny bit of leeway just in case of clock syncs, etc:
         if (src.exists() && (src.lastModified() > now + 1000))
