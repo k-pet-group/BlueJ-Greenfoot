@@ -643,10 +643,17 @@ public class DataCollector
         DataCollectorImpl.inspectorHide(project, inspector);        
     }
 
-    public static void inspectorClassShow(Package pkg, ClassInspector inspector, String className)
+    /**
+     * A class inspector was shown.
+     * @param proj  The project associated with the action
+     * @param pkg   The package associated with the action; may be null
+     * @param inspector  The inspector shown
+     * @param className  The name of the class associated with the inspector
+     */
+    public static void inspectorClassShow(Project proj, Package pkg, ClassInspector inspector, String className)
     {
         if (dontSend()) return;
-        DataCollectorImpl.inspectorClassShow(pkg, inspector, className);        
+        DataCollectorImpl.inspectorClassShow(proj, pkg, inspector, className);        
     }
 
     public static void showErrorIndicators(Package pkg, Collection<Integer> errorIdentifiers)
