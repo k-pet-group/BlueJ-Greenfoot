@@ -327,8 +327,10 @@ public class ClassTarget extends DependentTarget
 
         }
         JavaFXUtil.addChangeListener(canvas.sceneProperty(), scene -> {
-            nameLabel.applyCss();
-            updateSize();
+            JavaFXUtil.runNowOrLater(() -> {
+                nameLabel.applyCss();
+                updateSize();
+            });
         });
     }
     
@@ -466,7 +468,7 @@ public class ClassTarget extends DependentTarget
     @Override
     public String getDisplayName()
     {
-        return super.getDisplayName() + getTypeParameters();
+        return getBaseName() + getTypeParameters();
     }
 
     /**
@@ -1363,6 +1365,7 @@ public class ClassTarget extends DependentTarget
      * We load the compiled class if possible and check it the compilation has
      * resulted in it taking a different role (ie abstract to applet)
      */
+    @OnThread(Tag.FXPlatform)
     public void endCompile()
     {
         Class<?> cl = getPackage().loadClass(getQualifiedName());
@@ -1546,7 +1549,7 @@ public class ClassTarget extends DependentTarget
      * 
      * @param info The new typeParameters value
      */
-    public void setTypeParameters(ClassInfo info)
+    private void setTypeParameters(ClassInfo info)
     {
         String newTypeParameters = "";
         if (info.hasTypeParameter()) {
@@ -1561,7 +1564,7 @@ public class ClassTarget extends DependentTarget
         if (!newTypeParameters.equals(typeParameters))
         {
             typeParameters = newTypeParameters;
-            updateSize();
+            updateDisplayName();
         }
     }
 
@@ -1588,7 +1591,7 @@ public class ClassTarget extends DependentTarget
      * Check whether the package name has been changed by comparing the package
      * name in the information from the parser with the current package name
      */
-    public boolean analysePackageName(ClassInfo info)
+    private boolean analysePackageName(ClassInfo info)
     {
         String newName = info.getPackage();
 
@@ -1599,7 +1602,7 @@ public class ClassTarget extends DependentTarget
      * Analyse the current dependencies in the source code and update the
      * dependencies in the graphical display accordingly.
      */
-    public void analyseDependencies(ClassInfo info)
+    private void analyseDependencies(ClassInfo info)
     {
         // Now that uses dependencies are calculated-only, we remove all of them
         // and add back those which remain:
@@ -1665,6 +1668,7 @@ public class ClassTarget extends DependentTarget
     public <T> void analyseTypeParams(Class<T> cl)
     {
         if (cl != null) {
+            String oldTypeParams = typeParameters;
             TypeVariable<Class<T>> [] tvars = cl.getTypeParameters();
             if (tvars.length == 0) {
                 typeParameters = "";
@@ -1681,6 +1685,10 @@ public class ClassTarget extends DependentTarget
                     typeParameters += tvar.getName();
                 }
                 typeParameters += ">";
+            }
+            
+            if (! typeParameters.equals(oldTypeParams)) {
+                updateDisplayName();
             }
         }
     }
@@ -1779,8 +1787,7 @@ public class ClassTarget extends DependentTarget
             // constructed and fix them up for new class name
             String oldName = getIdentifierName();
             setIdentifierName(newName);
-            setDisplayName(newName);
-            updateSize();
+            updateDisplayName();
             
             // Update the BClass object
             BClass bClass = getBClass();
@@ -1814,6 +1821,17 @@ public class ClassTarget extends DependentTarget
         }
     }
 
+    /**
+     * Update the displayed class name (which includes type parameters).
+     */
+    public void updateDisplayName()
+    {
+        String newDisplayName = getDisplayName();
+        updateSize();
+        nameLabel.setText(newDisplayName);
+        setDisplayName(newDisplayName);
+    }
+    
     /**
      * Delete all the source files (edited and generated) for this target.
      */
@@ -1890,15 +1908,13 @@ public class ClassTarget extends DependentTarget
      * Resizes the class so the entire classname + type parameter are visible
      *  
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     private void updateSize()
     {
-        Platform.runLater(() -> {
-            String displayName = getDisplayName();
-            int width = calculateWidth(nameLabel, displayName);
-            setSize(width, getHeight());
-            repaint();
-        });
+        String displayName = getDisplayName();
+        int width = calculateWidth(nameLabel, displayName);
+        setSize(width, getHeight());
+        repaint();
     }
 
     /**
@@ -2725,14 +2741,5 @@ public class ClassTarget extends DependentTarget
     {
         // Don't allow resize if we are picking an extends arrow:
         return super.cursorAtResizeCorner(e) && !drawingExtends;
-    }
-
-    @Override
-    public void setDisplayName(String name)
-    {
-        super.setDisplayName(name);
-        // Don't just use name; getDisplayName adds template params info
-        String newDisplayName = getDisplayName();
-        nameLabel.setText(newDisplayName);
     }
 }
