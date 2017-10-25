@@ -2618,63 +2618,66 @@ public final class Package
 
                 boolean newCompiledState = successful;
 
-                if (successful) {
-                    t.endCompile();
+                if (type.keepClasses()) {
+                    if (successful) {
+                        t.endCompile();
 
-                    //check if there already exists a class in a library with that name 
-                    Class<?> c = loadClass(getQualifiedName(t.getIdentifierName()));
-                    if (c!=null){
-                        if (! checkClassMatchesFile(c, t.getClassFile())) {
-                            String conflict=Package.getResourcePath(c);
-                            String ident = t.getIdentifierName()+":";
-                            DialogManager.showMessageWithPrefixTextFX(null, "compile-class-library-conflict", ident, conflict);
+                        //check if there already exists a class in a library with that name 
+                        Class<?> c = loadClass(getQualifiedName(t.getIdentifierName()));
+                        if (c!=null){
+                            if (! checkClassMatchesFile(c, t.getClassFile())) {
+                                String conflict=Package.getResourcePath(c);
+                                String ident = t.getIdentifierName()+":";
+                                DialogManager.showMessageWithPrefixTextFX(null, "compile-class-library-conflict", ident, conflict);
+                            }
                         }
-                    }
 
-                    /*
-                     * compute ctxt files (files with comments and parameters
-                     * names)
-                     */
-                    try {
-                        ClassInfo info = t.getSourceInfo().getInfo(t.getJavaSourceFile(), t.getPackage());
+                        /*
+                         * compute ctxt files (files with comments and parameters
+                         * names)
+                         */
+                        try {
+                            ClassInfo info = t.getSourceInfo().getInfo(t.getJavaSourceFile(), t.getPackage());
 
-                        if (info != null) {
-                            OutputStream out = new FileOutputStream(t.getContextFile());
-                            info.getComments().store(out, "BlueJ class context");
-                            out.close();
+                            if (info != null) {
+                                OutputStream out = new FileOutputStream(t.getContextFile());
+                                info.getComments().store(out, "BlueJ class context");
+                                out.close();
+                            }
                         }
+                        catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                        // If the src file has last-modified date in the future, fix the date.
+                        // this will remove uncompiled strips on the class
+                        t.fixSourceModificationDate();
+                        // Empty class files should not be marked compiled,
+                        // even though compilation is "successful".
+                        newCompiledState &= t.upToDate();
+                        newCompiledState &= !t.hasKnownError();
+
+                        t.markCompiled(newCompiledState);
                     }
-                    catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                    // If the src file has last-modified date in the future, fix the date.
-                    // this will remove uncompiled strips on the class
-                    t.fixSourceModificationDate();
-                    // Empty class files should not be marked compiled,
-                    // even though compilation is "successful".
-                    newCompiledState &= t.upToDate();
-                    newCompiledState &= !t.hasKnownError();
-                    // Only update the status to compiled if we actually
-                    // kept the resulting classes:
-                    newCompiledState &= type.keepClasses();
                 }
 
-                if (newCompiledState)
-                    t.markCompiled(type.keepClasses());
                 t.setQueued(false);
                 if (t.editorOpen())
                 {
                     t.getEditor().compileFinished(successful, type.keepClasses());
                 }
-                if (successful && t.editorOpen())
+                if (successful && t.editorOpen()) {
                     t.getEditor().setCompiled(true);
+                }
             }
+            
             if (type.keepClasses())
             {
                 setStatus(compileDone);
             }
-            if (editor != null)
+            if (editor != null) {
                 editor.graphChanged();
+            }
+            
             // Send a compilation done event to extensions.
             int eventId = successful ? CompileEvent.COMPILE_DONE_EVENT : CompileEvent.COMPILE_FAILED_EVENT;
             CompileEvent aCompileEvent = new CompileEvent(eventId, type.keepClasses(), Utility.mapList(Arrays.asList(sources), CompileInputFile::getJavaCompileInputFile).toArray(new File[0]));
