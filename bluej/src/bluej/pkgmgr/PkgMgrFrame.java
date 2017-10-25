@@ -485,8 +485,9 @@ public class PkgMgrFrame
                             e.getSceneY() >= sceneY - 5 && e.getSceneY() <= sceneY + 5)
                         {
                             isResizingBoth = true;
-                            // Show four pointed arrow:
-                            cursorProperty.set(Cursor.MOVE);
+                            // Show four pointed arrow.
+                            // To solve a bug on Mac where the MOVE cursor is not appearing, use the CROSSHAIR one
+                            cursorProperty.set(!Config.isMacOS() ? Cursor.MOVE : Cursor.CROSSHAIR);
                         }
                         else
                         {
