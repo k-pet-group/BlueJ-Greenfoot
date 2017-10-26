@@ -1508,6 +1508,12 @@ public final class MoeEditor extends ScopeColorsBorderPane
         Label pageNumberLabel = new Label("");
         String timestamp = new SimpleDateFormat("yyyy-MMM-dd HH:mm").format(new Date());
         BorderPane header = new BorderPane(new Label(timestamp), null, pageNumberLabel, null, new Label(getTitle()));
+        // If we let labels be default font, it can cause weird font corruption when printing.
+        // But setting labels to same font as editor seems to avoid the issue:
+        for (Node node : header.getChildren())
+        {
+            node.setStyle(PrefMgr.getEditorFontFamilyCSS());
+        }
         header.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
         header.setPadding(new Insets(5));
         BorderPane rootPane = new BorderPane(editorPane, header, null, scopeColorsPane, null);
