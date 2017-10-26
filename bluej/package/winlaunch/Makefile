@@ -7,13 +7,13 @@ ifeq ($(BUILD),bluej)
 APPNAME=\"BlueJ\"
 GREENFOOTDEF=
 EXECNAME=bjlaunch.exe
-REQUIREDJAVA=\"1.8\"
+REQUIREDJAVA=\"9\"
 else
 # For Greenfoot
 APPNAME=\"Greenfoot\"
 GREENFOOTDEF=-DGREENFOOT
 EXECNAME=gflaunch.exe
-REQUIREDJAVA=\"1.8\"
+REQUIREDJAVA=\"9\"
 endif
 
 # JDKDIR is set externally to something along the lines of:

@@ -224,8 +224,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <pathelement location="${threadchecker.pluginbuild}"/>
                 <pathelement location="${build_java_home}/lib/tools.jar"/>
             </classpath>
-            <compilerarg line="-target 1.8" />
-            <compilerarg line="-source 1.8" /> <!-- Otherwise Java 8 (and above) complains -->
+            <compilerarg line="-target 9" />
+            <compilerarg line="-source 9" /> <!-- Otherwise Java 8 (and above) complains -->
             <compilerarg line="-Xmaxerrs 1000"/>
             <compilerarg value="-Xplugin:threadchecker.TCPlugin"/>
         </compile>
@@ -243,7 +243,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <path refid="bluej.class.path"/>
                 <pathelement location="${threadchecker.build}"/>
             </classpath>
-            <compilerarg line="-target 8" />
+            <compilerarg line="-target 9" />
         </compile>
     </target>
 

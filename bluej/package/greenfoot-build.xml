@@ -189,8 +189,8 @@
                includeantruntime="false"
                debug="true"
         >
-            <compilerarg line="-source 1.3" />
-            <compilerarg line="-target 1.3" />
+            <compilerarg line="-source 9" />
+            <compilerarg line="-target 9" />
         </javac>
 
         <!-- bundle the resulting class into the final distribution jar file -->
