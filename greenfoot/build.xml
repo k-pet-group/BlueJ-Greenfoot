@@ -83,7 +83,6 @@
         <pathelement location="${bluej_home}/lib/opencsv-2.3.jar"/>
         <pathelement location="${bluej_home}/lib/xom-1.2.9.jar"/>
         <pathelement location="${bluej_home}/lib/diffutils-1.2.1.jar"/>
-        <pathelement location="${build_java_home}/jre/lib/ext/jfxrt.jar"/>
     </path>
     <!-- The sourcepath to the bluej classes-->
     <path id="bluej.src.path">
@@ -257,7 +256,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
             var logger = project.getBuildListeners().firstElement();
             logger.setMessageOutputLevel(2);
         </script>
-        
+
         <junit printsummary="yes" haltonfailure="yes">
             <classpath>
                 <pathelement location="${build}" />
@@ -657,7 +656,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <classpath>
                 <path refid="bluej.class.path"/>
                 <pathelement location="${bluej_home}/threadchecker/classes"/>
-                <pathelement location="${build_java_home}/lib/tools.jar"/>
             </classpath>
 
             <include name="greenfoot/core/WorldHandler.java"/>
@@ -672,7 +670,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <include name="greenfoot/actions/ResetWorldAction.java"/>
 
             <include name="greenfoot/collision/**/*.java"/>
-            
+
             <include name="greenfoot/core/ProjectProperties.java"/>
             <include name="greenfoot/core/Simulation.java"/>
             <include name="greenfoot/core/SimulationRunnable.java"/>
