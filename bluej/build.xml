@@ -118,7 +118,6 @@
 
             >
             <classpath>
-                <pathelement location="${build_java_home}/lib/tools.jar"/>
                 <pathelement location="${threadchecker.build}"/>
             </classpath>
         </compile>
@@ -145,7 +144,6 @@
                 <pathelement location="${threadchecker.build}"/>
                 <pathelement location="${threadchecker.pluginbuild}"/>
                 <pathelement location="${boot.jar}"/>
-                <pathelement location="${build_java_home}/lib/tools.jar"/>
             </classpath>
             <compilerarg value="-Xmaxerrs"/><compilerarg value="1000"/>
             <compilerarg value="-Xplugin:threadchecker.TCPlugin org.reflections"/>
@@ -166,7 +164,6 @@
                 <path refid="bluej.class.path"/>
                 <pathelement location="${boot.build}"/>
                 <pathelement location="${core.build}"/>
-                <pathelement location="${build_java_home}/lib/tools.jar"/>
             </classpath>
         </compile>
     </target>
@@ -262,7 +259,6 @@
             -->
             <classpath>
                 <pathelement location="${boot.jar}"/>
-                <pathelement location="${run_java_home}/lib/tools.jar"/>
                 <pathelement location="/System/Library/Java"/>
             </classpath>
             <jvmarg value="-Djavafx.embed.singleThread=true"/>
@@ -320,7 +316,6 @@
                 <pathelement location="${boot.jar}"/>
                 <pathelement location="${core.jar}"/>
                 <pathelement location="${extension.jar}"/>
-                <pathelement location="${run_java_home}/lib/tools.jar"/>
                 <pathelement location="${editor.jar}"/>
                 <pathelement location="${lang-stride.jar}"/>
                 <pathelement location="${test.build}"/>
@@ -357,7 +352,6 @@
             <classpath>
                 <path refid="bluej.class.path"/>
                 <pathelement location="${boot.jar}"/>
-                <pathelement location="${build_java_home}/lib/tools.jar"/>
             </classpath>
         </javadoc>
     </target>
