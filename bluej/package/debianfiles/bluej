@@ -28,6 +28,5 @@ if grep -q "BCM270" /proc/cpuinfo; then
 fi
 
 CP="/usr/share/bluej/bluej.jar:$JAVAPATH/lib/tools.jar"
-JFXRTOPT=""
 
 "$JAVAPATH/bin/java" -Djavafx.embed.singleThread=true -Dawt.useSystemAAFontSettings=on -Xmx512M -cp "$CP" bluej.Boot  "$@"

@@ -135,10 +135,7 @@ public class Boot
     private static String [] userJars = bluejUserJars;
     private static int numBuildJars = bluejBuildJars;
     private static int numUserBuildJars = bluejUserBuildJars;
-    
-    /** path of the JavaFX runtime Jar, if needed */
-    private static String jfxrtJar;
-    
+
     private static boolean isGreenfoot = false;
     private static File bluejLibDir;
     private static final ArrayList<File> macInitialProjects = new ArrayList<>();
@@ -240,8 +237,6 @@ public class Boot
             numUserBuildJars = greenfootUserBuildJars;
         }
 
-        jfxrtJar = commandLineProps.getProperty("jfxrt.jarpath");
-        
         try {
             instance = new Boot(commandLineProps, image);
             instance.bootBluej();
@@ -577,13 +572,7 @@ public class Boot
             if(toolsURL != null)
                 urlList.add(toolsURL);
         }
-        if (isGreenfoot)
-        {
-            if (jfxrtJar != null && jfxrtJar.length() != 0) {
-                urlList.add(new File(jfxrtJar).toURI().toURL());
-            }
-        }
-        return (URL[]) urlList.toArray(new URL[0]);
+        return urlList.toArray(new URL[0]);
     }
     
     /**
