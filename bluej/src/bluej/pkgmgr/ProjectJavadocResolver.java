@@ -88,7 +88,12 @@ public class ProjectJavadocResolver implements JavadocResolver
         String declName = declaring.getName();
         // The collection of reflectives (indexed by unique signature) which we still
         // need to find Javadoc for.  As we find the Javadoc, we will remove from this collection:
-        Map<String, ConstructorOrMethodReflective> methodSigs = targetMethods.stream().collect(Collectors.toMap(ProjectJavadocResolver::buildSig, m -> m));
+        Map<String, ConstructorOrMethodReflective> methodSigs =
+                targetMethods.stream().collect(
+                        Collectors.toMap(ProjectJavadocResolver::buildSig,  // map signature ...
+                                m -> m,                                     // ... to value
+                                (a,b) -> a)                                 // merging duplicate keys
+                        );
         
         try {
             Class<?> cl = project.getClassLoader().loadClass(declName);
