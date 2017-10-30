@@ -33,7 +33,6 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.stride.generic.InteractionManager.Kind;
 
-import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 /**
@@ -249,23 +248,6 @@ public abstract class AssistContent
         void gotJavadoc(AssistContent content);
     }
     
-    /**
-     * Get the javadoc for this member, with an asynchronous callback.
-     * (This method must be called from the event thread).
-     * 
-     * @param callback  Callback to be notified when the javadoc is available.
-     *             (Notification will be on event thread). The callback will
-     *             only be notified if the javadoc must be fetched asynchronously
-     *             i.e. if this method returns false.
-     * @param executor   The executor for any background tasks.
-     * 
-     * @return  true if the javadoc is already available, false otherwise
-     *           (notification is pending).
-     */
-    @OnThread(Tag.FXPlatform)
-    public abstract boolean getJavadocAsync(JavadocCallback callback, Executor executor);
-
-
     public static Access fromModifiers(int modifiers)
     {
         if (Modifier.isPrivate(modifiers)) {

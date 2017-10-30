@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2017 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,10 +22,7 @@
 package bluej.parser;
 
 import java.util.List;
-import java.util.concurrent.Executor;
 
-import bluej.parser.AssistContent.JavadocCallback;
-import bluej.stride.framedjava.ast.AccessPermission;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -70,12 +67,6 @@ public class PrefixCompletionWrapper extends AssistContent
     public String getJavadoc()
     {
         return wrapped.getJavadoc();
-    }
-    
-    @Override
-    public boolean getJavadocAsync(JavadocCallback callback, Executor executor)
-    {
-        return wrapped.getJavadocAsync(callback, executor);
     }
 
     @Override

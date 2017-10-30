@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.concurrent.Executor;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -115,28 +114,6 @@ public class MethodCompletion extends AssistContent
         return jd;
     }
 
-    @Override
-    @OnThread(Tag.FXPlatform)
-    public boolean getJavadocAsync(final JavadocCallback callback, Executor executor)
-    {
-        String jd = method.getJavaDoc();
-        if (jd == null && javadocResolver != null) {
-            return javadocResolver.getJavadocAsync(method, new JavadocResolver.AsyncCallback() {
-                @Override
-                public void gotJavadoc(ConstructorOrMethodReflective method)
-                {
-                    if (method.getJavaDoc() == null) {
-                        method.setJavaDoc(""); // prevent repeated attempts to retrieve unavailable doc
-                    }
-                    callback.gotJavadoc(MethodCompletion.this);
-                }
-            }, executor);
-        }
-        else {
-            return true;
-        }
-    }
-    
     private JavaType convertToSolid(JavaType type)
     {
         if (! type.isPrimitive()) {

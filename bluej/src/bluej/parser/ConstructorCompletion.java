@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 import bluej.debugger.gentype.ConstructorReflective;
@@ -76,28 +75,6 @@ public class ConstructorCompletion extends AssistContent
             jd = con.getJavaDoc();
         }
         return jd;
-    }
-
-    @Override
-    @OnThread(Tag.FXPlatform)
-    public boolean getJavadocAsync(final JavadocCallback callback, Executor executor)
-    {
-        String jd = con.getJavaDoc();
-        if (jd == null && javadocResolver != null) {
-            return javadocResolver.getJavadocAsync(con, new JavadocResolver.AsyncCallback() {
-                @Override
-                public void gotJavadoc(ConstructorOrMethodReflective method)
-                {
-                    if (method.getJavaDoc() == null) {
-                        method.setJavaDoc(""); // prevent repeated attempts to retrieve unavailable doc
-                    }
-                    callback.gotJavadoc(ConstructorCompletion.this);
-                }
-            }, executor);
-        }
-        else {
-            return true;
-        }
     }
 
     @Override

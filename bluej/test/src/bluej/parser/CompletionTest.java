@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2014,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -814,7 +814,7 @@ public class CompletionTest extends TestCase
         AssistContent [] assists = ParseUtils.getPossibleCompletions(suggests, new JavadocResolver() {
             public String getJavadoc(String name) { throw new IllegalStateException(); }
             
-            public void getJavadoc(GenTypeClass declType, Collection<? extends ConstructorOrMethodReflective> methods)
+            public void getJavadoc(Reflective declType, Collection<? extends ConstructorOrMethodReflective> methods)
             {
                 // We want to check that the return type has an erased type.
                 for (ConstructorOrMethodReflective method : methods) {
@@ -895,7 +895,7 @@ public class CompletionTest extends TestCase
         
         AssistContent[] acontent = ParseUtils.getPossibleCompletions(suggests, new JavadocResolver() {
             @Override
-            public void getJavadoc(GenTypeClass declType, Collection<? extends ConstructorOrMethodReflective> method)
+            public void getJavadoc(Reflective declType, Collection<? extends ConstructorOrMethodReflective> method)
             {
             }
 

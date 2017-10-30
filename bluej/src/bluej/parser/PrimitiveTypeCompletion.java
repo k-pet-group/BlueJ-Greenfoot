@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2017 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,7 +23,6 @@ package bluej.parser;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Executor;
 
 import bluej.stride.generic.InteractionManager.Kind;
 import threadchecker.OnThread;
@@ -84,12 +83,6 @@ public class PrimitiveTypeCompletion extends AssistContent
         return description;
     }
     
-    @Override
-    public boolean getJavadocAsync(JavadocCallback callback, Executor executor)
-    {
-        return true; // Already available
-    }
-
     public static PrimitiveTypeCompletion primByte = new PrimitiveTypeCompletion("byte",
             "The primitive byte type.  If you are unsure whether you want byte or Byte, then choose byte (this type).");
     public static PrimitiveTypeCompletion primShort = new PrimitiveTypeCompletion("short",
