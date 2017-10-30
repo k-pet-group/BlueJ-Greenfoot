@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2014,2015  Michael Kolling and John Rosenberg
+ Copyright (C) 2010,2014,2015,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,7 +24,7 @@ package bluej.pkgmgr;
 import java.util.Collection;
 import java.util.concurrent.Executor;
 
-import bluej.debugger.gentype.MethodReflective;
+import bluej.debugger.gentype.Reflective;
 import bluej.parser.ConstructorOrMethodReflective;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -40,8 +40,11 @@ public interface JavadocResolver
      * Retrieve the javadoc for the specified method, if possible. The javadoc and
      * method parameter names will be added to the supplied MethodReflective(s).
      * The collection of methods must all come from the same declaring type.
+     * 
+     * @param  declType   the declaring type from where the methods are found.
+     * @param  methods    the methods to resolve Javadoc for.
      */
-    public void getJavadoc(Collection<? extends ConstructorOrMethodReflective> method);
+    public void getJavadoc(Reflective declType, Collection<? extends ConstructorOrMethodReflective> methods);
 
     public String getJavadoc(String typeName);
 

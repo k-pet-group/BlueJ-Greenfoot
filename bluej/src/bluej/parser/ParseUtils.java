@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2013,2014,2015  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2013,2014,2015,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,7 +22,6 @@
 package bluej.parser; 
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -169,7 +168,8 @@ public class ParseUtils
                                     origExprType,
                                     suggests.getAccessType().getReflective(),
                                     method.getModifiers(), suggests.isStatic()));
-                completions.addAll(discoverElements(javadocResolver, contentSigs, typeArgs, mset, consumer));
+                completions.addAll(discoverElements(exprType, javadocResolver, contentSigs,
+                        typeArgs, mset, consumer));
             }
             
             Map<String, FieldReflective> fields = exprType.getReflective().getDeclaredFields();
@@ -216,29 +216,43 @@ public class ParseUtils
     }
     
     /**
-     * Check whether the given methods should be added to the set of possible code completions (i.e. if they have
-     * a unique signature), and do so if necessary. Returns a collection of AssistContent objects representing any methods that were added (methods which were not added
-     * because they were already present are not returned).
+     * Check whether the given methods should be added to the set of possible code completions (i.e. if they
+     * have a unique signature), and do so if necessary. Returns a collection of AssistContent objects
+     * representing any methods that were added (methods which were not added because they were already
+     * present are not returned).
      *
-     * @param javadocResolver The Javadoc resolver used to look up Javadoc for the method
-     * @param contentSigs The set of existing method signatures.  The newly-found method will be
-     *                    added if and only if it is not already in the set.
-     * @param typeArgs The relevant type arguments (used for generic methods)
-     * @param methods The methods to be scanned.  Must all come from the same declaring class.
-     * @param consumer If non-null, it will be passed the completion (regardless of whether the completion
-     *                 was already in the set, but the overridden flag will be passed accordingly to the consumer)
+     * @param gclass          The declaring class for the methods.
+     * @param javadocResolver The Javadoc resolver used to look up Javadoc for the method.
+     * @param contentSigs     The set of existing method signatures.  The newly-found method will be
+     *                        added if and only if it is not already in the set.
+     * @param typeArgs  The relevant type arguments (used for generic methods)
+     * @param methods   The methods to be scanned.  Must all come from the same declaring class.
+     * @param consumer  If non-null, it will be passed the completion (regardless of whether the completion
+     *                  was already in the set, but the overridden flag will be passed accordingly to the
+     *                  consumer)
      * @return If the method was added to the set (and was not already there), it is returned.
      *         If the method was already in the set, null will be returned.
      */
     @OnThread(Tag.FXPlatform)
-    private static Collection<AssistContent> discoverElements(JavadocResolver javadocResolver, Set<String> contentSigs,
-                                                  Map<String, GenTypeParameter> typeArgs, Collection<MethodReflective> methods, AssistContentConsumer consumer)
+    private static Collection<AssistContent> discoverElements(GenTypeClass gclass,
+            JavadocResolver javadocResolver, Set<String> contentSigs,
+            Map<String, GenTypeParameter> typeArgs,
+            Collection<MethodReflective> methods, AssistContentConsumer consumer)
     {
-        List<MethodCompletion> completions = methods.stream()
-            .map(m -> new MethodCompletion(m, typeArgs, javadocResolver))
-            .collect(Collectors.toList());
+        boolean resolveJavadoc = false;
+        Set<MethodCompletion> completions = new HashSet<>();
+        for (MethodReflective method : methods)
+        {
+            completions.add(new MethodCompletion(method, typeArgs, javadocResolver));
+            resolveJavadoc |= (method.getJavaDoc() == null);
+        }
+                
         // Scan all methods for Javadoc in one go first (saves a lot of time):
-        javadocResolver.getJavadoc(methods);
+        if (resolveJavadoc)
+        {
+            javadocResolver.getJavadoc(gclass.getReflective(), methods);
+        }
+        
         List<AssistContent> allNewMethods = new ArrayList<>();
 
         for (MethodCompletion completion : completions) {

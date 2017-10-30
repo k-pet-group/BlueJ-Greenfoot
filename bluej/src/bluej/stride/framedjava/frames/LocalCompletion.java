@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2017 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,13 +22,10 @@
 package bluej.stride.framedjava.frames;
 
 import java.util.List;
-import java.util.concurrent.Executor;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.parser.AssistContent;
-import bluej.parser.AssistContent.JavadocCallback;
-import bluej.stride.framedjava.ast.AccessPermission;
 import bluej.stride.framedjava.ast.Parser;
 
 @OnThread(Tag.FXPlatform)
@@ -86,12 +83,6 @@ public class LocalCompletion extends AssistContent
         return "";
     }
     
-    @Override
-    public boolean getJavadocAsync(JavadocCallback callback, Executor executor)
-    {
-        return true; // Already available
-    }
-
     @Override
     public List<ParamInfo> getParams()
     {

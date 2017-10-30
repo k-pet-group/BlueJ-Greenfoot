@@ -1,10 +1,6 @@
 /*
  This file is part of the BlueJ program. 
-<<<<<<< .working
- Copyright (C) 1999-2009,2014,2015  Michael Kolling and John Rosenberg 
-=======
- Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
->>>>>>> .merge-right.r13300
+ Copyright (C) 1999-2009,2014,2015,2017  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.concurrent.Executor;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -41,7 +36,6 @@ import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.pkgmgr.JavadocResolver;
-import bluej.stride.framedjava.ast.AccessPermission;
 import bluej.utility.JavaUtils;
 
 /**
@@ -111,7 +105,7 @@ public class MethodCompletion extends AssistContent
     {
         String jd = method.getJavaDoc();
         if (jd == null && javadocResolver != null) {
-            javadocResolver.getJavadoc(Collections.singletonList(method));
+            javadocResolver.getJavadoc(method.getDeclaringType(), Collections.singletonList(method));
             jd = method.getJavaDoc();
             if (jd == null) {
                 method.setJavaDoc(""); // prevent repeated attempts to retrieve unavailable doc
@@ -120,28 +114,6 @@ public class MethodCompletion extends AssistContent
         return jd;
     }
 
-    @Override
-    @OnThread(Tag.FXPlatform)
-    public boolean getJavadocAsync(final JavadocCallback callback, Executor executor)
-    {
-        String jd = method.getJavaDoc();
-        if (jd == null && javadocResolver != null) {
-            return javadocResolver.getJavadocAsync(method, new JavadocResolver.AsyncCallback() {
-                @Override
-                public void gotJavadoc(ConstructorOrMethodReflective method)
-                {
-                    if (method.getJavaDoc() == null) {
-                        method.setJavaDoc(""); // prevent repeated attempts to retrieve unavailable doc
-                    }
-                    callback.gotJavadoc(MethodCompletion.this);
-                }
-            }, executor);
-        }
-        else {
-            return true;
-        }
-    }
-    
     private JavaType convertToSolid(JavaType type)
     {
         if (! type.isPrimitive()) {
