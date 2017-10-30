@@ -10,29 +10,29 @@
 #####################################################################
 
 #####################################################################
-# the build_java_home is used to find the compiler to fork and the
-# tools.jar file to use with it. Note that in general all
-# compilation should be done on the minimum supported JDK for
-# BlueJ (which is currently Java 8)
+# the build_java_home is used to find the compiler to fork.
+# Note that in general all compilation should be done on the
+# minimum supported JDK for BlueJ (which is currently Java 9)
 #####################################################################
-build_java_home=/Library/Java/JavaVirtualMachines/jdk1.8.0_172.jdk/Contents/Home
+build_java_home=/Library/Java/JavaVirtualMachines/jdk-9.jdk/Contents/Home
 
 java_command_dir_name=bin
 
 #####################################################################
-# the run_java_home is used to find the jvm to run and the 
-# corresponding tools.jar file. Usually the same as above.
+# the run_java_home is used to find the jvm to run.
+# Usually the same as above.
 #####################################################################
 run_java_home=${build_java_home}
 
 #####################################################################
 # The JDK for bundling with Mac OS and Windows builds.
 #####################################################################
-mac_bundled_jdk_path=/Library/Java/JavaVirtualMachines/jdk1.8.0_172.jdk
+mac_bundled_jdk_path=/Library/Java/JavaVirtualMachines/jdk-9.jdk
 
-# NOTE: THIS MUST BE A 32-BIT JDK, or the resulting bundle will not
-# work properly on 32-bit Windows versions.
-win_bundled_jdk_path=c:/Program Files (x86)/Java/jdk1.8.0_172
+# NOTE: For Java 9, there will be only a 64-BIT JDK. If this changes
+# for any reason, we should use here a 32-BIT version, so the resulting
+# bundle can work properly on 32-bit Windows versions.
+win_bundled_jdk_path=c:/Program Files/Java/jdk-9
 
 #####################################################################
 # This property defines where the "Wix" bin directory (containing

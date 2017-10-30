@@ -24,15 +24,15 @@ install.exeName=greenfoot
 install.requiredJavaVersion=1.6
 
 # additional commands to be added to MacOS script before execution
-install.commands.mac = CP="$APPBASE/lib/bluej.jar:$JAVAPATH/lib/tools.jar:/System/Library/Java"
+install.commands.mac = CP="$APPBASE/lib/bluej.jar:/System/Library/Java"
 
 # additional commands to be added to Unix script before execution
-install.commands.unix = CP="$APPBASE/lib/bluej.jar:$JAVAPATH/lib/tools.jar"
+install.commands.unix = CP="$APPBASE/lib/bluej.jar"
 
 # additional commands to be added to Windows batch file before execution
 # (windows should not have quotes surrounding CP string -
 # the quotes around APPBASE are enough)
-install.commands.win = set CP=~\\lib\\bluej.jar;!\\lib\\tools.jar
+install.commands.win = set CP=~\\lib\\bluej.jar
 
 # java command-line options for unix (including MacOS)
 # (UNIX must have quotes around the $CP on the actual

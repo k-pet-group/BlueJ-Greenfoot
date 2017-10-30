@@ -56,10 +56,7 @@
 	<key>JavaProps</key>
 	<dict>
 		<key>ClassPath</key>
-		<array>
-			<string>$JAVAROOT/bluej.jar</string>
-			<string>$JVMROOT/Home/lib/tools.jar</string>
-		</array>
+		<string>$JAVAROOT/bluej.jar</string>
 		<key>MainClass</key>
 		<string>bluej.Boot</string>
 		<key>JVMRuntime</key>

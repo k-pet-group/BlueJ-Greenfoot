@@ -47,7 +47,8 @@ public class Installer extends JFrame
 
 
     // File to test for JDK (relative to javaPath):
-    static private String jdkFile = "/lib/tools.jar";
+    static private String jdkFile = "/bin/javac";
+    private String extension = "";
 
     static final int BUFFER_SIZE=8192;
 
@@ -116,8 +117,13 @@ public class Installer extends JFrame
     {
         super();
         currentDirectory = System.getProperty("user.dir");
-        
+
         osname = System.getProperty("os.name");
+        if (osname != null  && osname.startsWith("Windows"))
+        {
+            extension = ".exe";
+        }
+
         architecture = System.getProperty("os.arch");
         javaVersion = System.getProperty("java.specification.version");
         javaPath = findJavaPath();
@@ -371,7 +377,7 @@ public class Installer extends JFrame
         if(osname.startsWith("Mac"))
             return true;   // check disabled for MacOS system
 
-        String jdkFilePath = path + jdkFile;
+        String jdkFilePath = path + jdkFile + extension;
         if(new File(jdkFilePath).exists())
             return true;
         else {
@@ -423,8 +429,9 @@ public class Installer extends JFrame
            "The Java directory you have specified is not a valid \n" +
            "JDK directory. The JDK directory is the directory \n" +
            "that JDK (aka Java 2 SDK) was installed to. It must \n" +
-           "have a subdirectory \"lib\" with a file named \n" +
-           "\"tools.jar\" in it.");
+           "have a subdirectory \"bin\" with a file named \n" +
+           "\"javac" + extension + "\" in it."
+        );
     }
 
     /**
@@ -548,29 +555,6 @@ public class Installer extends JFrame
         browseJdkButton.addActionListener(this);
         jdkDirPanel.add(browseJdkButton);
         centrePanel.add(jdkDirPanel);
-
-        // jdk selection radio buttons - currently not used
-
-//         centrePanel.add(Box.createVerticalStrut(5));
-
-//         Box jdkPanel = new Box(BoxLayout.X_AXIS);
-//         jdkPanel.add(new JLabel("JDK version:", JLabel.LEFT));
-//         jdkPanel.add(Box.createHorizontalStrut(20));
-//         jdk12Button = new JRadioButton("jdk 1.2", isJDK12);
-//         jdk13Button = new JRadioButton("jdk 1.3", !isJDK12);
-//         jdk12Button.setBackground(backgroundColour);
-//         jdk13Button.setBackground(backgroundColour);
-
-//         ButtonGroup bGroup = new ButtonGroup();
-//         {
-//             bGroup.add(jdk12Button);
-//             bGroup.add(jdk13Button);
-//         }
-
-//         jdkPanel.add(jdk12Button);
-//         jdkPanel.add(jdk13Button);
-//         jdkPanel.add(Box.createHorizontalGlue());
-//         centrePanel.add(jdkPanel);
 
         centrePanel.add(Box.createVerticalStrut(24));
 

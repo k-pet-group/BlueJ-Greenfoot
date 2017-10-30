@@ -221,7 +221,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <path refid="bluej.class.path"/>
                 <pathelement location="${threadchecker.build}"/>
                 <pathelement location="${threadchecker.pluginbuild}"/>
-                <pathelement location="${build_java_home}/lib/tools.jar"/>
             </classpath>
             <compilerarg line="-target 9" />
             <compilerarg line="-source 9" /> <!-- Otherwise Java 8 (and above) complains -->
@@ -581,7 +580,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <!-- <path refid="bluej.class.path"/> -->
                 <path refid="bluej.src.path"/>
                 <pathelement location="${bluej_home}/lib" />
-                <pathelement location="${build_java_home}/lib/tools.jar"/>
                 <pathelement location="/System/Library/Java"/>
                 <!-- <pathelement location="${build}"/> -->
             </classpath>
@@ -607,7 +605,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <pathelement location="${bluej_home}/boot/classes" />
                 <!-- <path refid="bluej.class.path"/> -->
                 <path refid="bluej.src.path"/>
-                <pathelement location="${build_java_home}/lib/tools.jar"/>
                 <pathelement location="/System/Library/Java"/>
                 <!-- <pathelement location="${build}"/> -->
             </classpath>
@@ -637,7 +634,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
 
             <classpath>
                 <!--path refid="bluej.class.path"/>
-                <pathelement location="${build_java_home}/lib/tools.jar"/>
                 <pathelement location="/System/Library/Java"/-->
                 <pathelement location="${greenfoot.standalone.scenario}"/>
                 <pathelement location="${build}"/>

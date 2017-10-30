@@ -23,10 +23,9 @@
 /**
  * Routines to test for a JDK.
  *
- * We need a java.exe, and a tools.jar file before we
- * believe that we have a JDK.
+ * We need java.exe and javac.exe files before we believe that we have a JDK.
  */
- 
+
 #define UNICODE
 #include <windows.h>
 
@@ -49,7 +48,7 @@ bool testJdkPath(string jdkLocation, string *reason)
 	
 	DWORD binaryType = 0;
 	string javaExeLocation = jdkLocation + TEXT("bin\\java.exe");
-	
+
 	BOOL result = GetBinaryType(javaExeLocation.c_str(), &binaryType);
 	if (result == 0) {
 		// Not executable
@@ -58,16 +57,16 @@ bool testJdkPath(string jdkLocation, string *reason)
 		}
 		return false;
 	}
-	
-	string toolsJarLocation = jdkLocation + TEXT("lib\\tools.jar");
-	result = GetBinaryType(toolsJarLocation.c_str(), &binaryType);
-	if (result == 0 && GetLastError() != ERROR_BAD_EXE_FORMAT) {
-		// No tools.jar
+
+	string javaCExeLocation = jdkLocation + TEXT("bin\\javac.exe");
+	result = GetBinaryType(javaCExeLocation.c_str(), &binaryType);
+	if (result == 0) {
+		// No javaC or not executable
 		if (reason != NULL) {
-			*reason = TEXT("There is no tools.jar file - maybe this is just a JRE (and not a JDK).");
+			*reason = TEXT("javac.exe does not exist or is not executable - maybe this is a JRE (and not a JDK).");
 		}
 		return false;
 	}
-	
+
 	return true;
 }

@@ -81,9 +81,6 @@ Next, you need to set up a Greenfoot project.
      - hamcrest-core-1.3.jar (NOTE: add from bluej/lib if not in greenfoot/lib)
      - opencsv-2.3.jar
 
-   * "Add External JARs" (or Add Variable... if using classpath vars): 
-     add the "tools.jar" file from your JDK in [your jdk root]\lib
-      
 
 4. Configuring and running ant
 
@@ -177,10 +174,8 @@ Next, you need to set up a Greenfoot project.
    * The bootstrap entries should contain only the JRE Sytem Library
 
    * The user entries should contain the "bluej/boot/classes" folder
-     (Advanced..., Add folder), and the tools.jar from the JDK (Add
-     External Jars... or Advanced..., Add Classpath Var if using
-     classpath vars).  You do not need the "classes" folder nor any of
-     the other jar files.
+     (Advanced..., Add folder). You do not need the "classes" folder
+     nor any of the other jar files.
 
    * Apply the changes and run the configuration to test.
 
@@ -225,7 +220,7 @@ ant "ready-to-run target" right click on bluej/boot/src/bluej
 and choose "refresh". greenfoot-splash.png should now be listed in
 bluej/boot/src/bluej as a resource.
 
-
+// TODO Fix this for Java 9
 2. When attempting to run greenfoot runconfig, bluej.Boot can't find
    tools.jar.
 
@@ -265,9 +260,6 @@ isn't in the system path.
 Right click on build.xml->run as "ant build..." (ellipis important).
 Click on jre tab and make sure that the jdk (not just a jre) is
 selected.
-
-Alternative solution: add the tools.jar to the ant classpath in
-Window->Preferences->Ant->Runtime global settings.
 
 Alternative solution: make sure that javadoc is in the system path.
 
