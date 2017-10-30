@@ -2929,7 +2929,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         // create the text pane
         sourcePane = sourceDocument.makeEditorPane(this, compiledProperty);
         sourcePane.setCaretPosition(0);
-        sourcePane.setUndoManager(undoManager);
+        sourcePane.setUndoManager(undoManager.getUndoManager());
         JavaFXUtil.addChangeListenerPlatform(sourcePane.caretPositionProperty(), e -> caretMoved());
         JavaFXUtil.addChangeListenerPlatform(sourcePane.estimatedScrollYProperty(), d -> {
             // The caret won't have actually moved within the document,

@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import bluej.editor.moe.PrintDialog.PrintSize;
 import org.fxmisc.flowless.Cell;
 import org.fxmisc.flowless.VirtualFlow;
+import org.fxmisc.richtext.Caret.CaretVisibility;
 import org.fxmisc.richtext.StyledTextArea;
 import org.fxmisc.richtext.model.StyledText;
 
