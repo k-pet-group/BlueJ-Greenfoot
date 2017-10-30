@@ -183,11 +183,14 @@ public class ParseUtils
                                 field.getModifiers(), suggests.isStatic())) {
                     continue;
                 }
+                
+                // Determine field type from expression type:
                 Map<String,GenTypeParameter> declMap =
                         exprType.mapToSuper(field.getDeclaringType().getName()).getMap();
+                GenTypeParameter fieldType = field.getType().mapTparsToTypes(declMap).getUpperBound();
 
-                FieldCompletion completion = new FieldCompletion(field.getType().toString(), field.getName(),
-                        field.getModifiers(), field.getDeclaringType().getName() /* ,declMap */);
+                FieldCompletion completion = new FieldCompletion(fieldType.toString(true), field.getName(),
+                        field.getModifiers(), field.getDeclaringType().getName());
 
                 completions.add(completion);
 
