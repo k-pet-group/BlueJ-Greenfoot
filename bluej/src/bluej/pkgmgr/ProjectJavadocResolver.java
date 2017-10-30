@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011,2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 2010,2011,2014,2015,2016,2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -78,13 +78,13 @@ public class ProjectJavadocResolver implements JavadocResolver
      * The collection of methods must all come from the same declaring type.
      */
     @Override
-    public void getJavadoc(Collection<? extends ConstructorOrMethodReflective> targetMethods)
+    public void getJavadoc(Reflective declaring,
+            Collection<? extends ConstructorOrMethodReflective> targetMethods)
     {
         if (targetMethods.isEmpty()) {
             return; // Nothing to do
         }
 
-        Reflective declaring = targetMethods.iterator().next().getDeclaringType();
         String declName = declaring.getName();
         // The collection of reflectives (indexed by unique signature) which we still
         // need to find Javadoc for.  As we find the Javadoc, we will remove from this collection:

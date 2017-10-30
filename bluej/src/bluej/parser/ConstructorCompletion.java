@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2015 Michael Kölling and John Rosenberg
+ Copyright (C) 2015,2017 Michael Kölling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -31,9 +31,7 @@ import java.util.function.Supplier;
 import bluej.debugger.gentype.ConstructorReflective;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.JavaType;
-import bluej.debugger.gentype.MethodReflective;
 import bluej.pkgmgr.JavadocResolver;
-import bluej.stride.generic.InteractionManager;
 import bluej.utility.JavaUtils;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -74,7 +72,7 @@ public class ConstructorCompletion extends AssistContent
     {
         String jd = con.getJavaDoc();
         if (jd == null && javadocResolver != null) {
-            javadocResolver.getJavadoc(Collections.singletonList(con));
+            javadocResolver.getJavadoc(con.getDeclaringType(), Collections.singletonList(con));
             jd = con.getJavaDoc();
         }
         return jd;
