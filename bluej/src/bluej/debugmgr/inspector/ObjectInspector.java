@@ -467,7 +467,7 @@ public class ObjectInspector extends Inspector
         // mimic the public length field that arrays possess
         // according to the java spec...
         indexToSlotList = new LinkedList<Integer>();
-        indexToSlotList.add(0, new Integer(ARRAY_LENGTH_SLOT_VALUE));
+        indexToSlotList.add(0, ARRAY_LENGTH_SLOT_VALUE);
 
         // the +1 here is due to the fact that if we do not have at least one
         // more than
@@ -488,7 +488,7 @@ public class ObjectInspector extends Inspector
 
             // now the first of our expansion slots
             newArray.add(new FieldInfo("[...]", ""));
-            indexToSlotList.add(new Integer(ARRAY_QUERY_SLOT_VALUE));
+            indexToSlotList.add(ARRAY_QUERY_SLOT_VALUE);
 
             for (int i = VISIBLE_ARRAY_TAIL; i > 0; i--) {
                 // last 5 elements are displayed

@@ -195,7 +195,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         constructors = TopLevelCodeElement.fillChildrenElements(this, el, "constructors");
         methods = TopLevelCodeElement.fillChildrenElements(this, el, "methods");
        
-        enable = new Boolean(el.getAttributeValue("enable"));
+        enable = Boolean.valueOf(el.getAttributeValue("enable"));
         this.projectResolver = projectResolver;
         this.openingCurly = new FrameFragment(null, this, "{");
         this.closingCurly = new FrameFragment(null, this, "}");

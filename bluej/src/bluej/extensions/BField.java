@@ -269,28 +269,28 @@ public class BField
             return ((StringReference) val).value();
         }
         if (val instanceof BooleanValue) {
-            return new Boolean(((BooleanValue) val).value());
+            return ((BooleanValue) val).value();
         }
         if (val instanceof ByteValue) {
-            return new Byte(((ByteValue) val).value());
+            return ((ByteValue) val).value();
         }
         if (val instanceof CharValue) {
-            return new Character(((CharValue) val).value());
+            return ((CharValue) val).value();
         }
         if (val instanceof DoubleValue) {
-            return new Double(((DoubleValue) val).value());
+            return ((DoubleValue) val).value();
         }
         if (val instanceof FloatValue) {
-            return new Float(((FloatValue) val).value());
+            return ((FloatValue) val).value();
         }
         if (val instanceof IntegerValue) {
-            return new Integer(((IntegerValue) val).value());
+            return ((IntegerValue) val).value();
         }
         if (val instanceof LongValue) {
-            return new Long(((LongValue) val).value());
+            return ((LongValue) val).value();
         }
         if (val instanceof ShortValue) {
-            return new Short(((ShortValue) val).value());
+            return ((ShortValue) val).value();
         }
 
         if (unpackArray && val instanceof ArrayReference)
