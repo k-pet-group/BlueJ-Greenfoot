@@ -1006,12 +1006,6 @@ public class ClassTarget extends DependentTarget
 
     public void markCompiled(boolean classesKept)
     {
-        // Must do this even if state hasn't changed, because if state was HAS_ERROR
-        // and has now become HAS_ERROR then we still need to mark compile as finished:
-        if (editor != null) {
-            editor.compileFinished(false, classesKept);
-        }
-
         setState(State.COMPILED);
     }
 
@@ -2628,12 +2622,6 @@ public class ClassTarget extends DependentTarget
      */
     public void markKnownError(boolean classesKept)
     {
-        // Must do this even if state hasn't changed, because if state was HAS_ERROR
-        // and has now become HAS_ERROR then we still need to mark compile as finished:
-        if (editor != null) {
-            editor.compileFinished(false, classesKept);
-        }
-
         // Errors are marked as part of compilation, so we expect that a suitable ClassEvent
         // is generated when compilation finishes; no need for it here.
         setState(State.HAS_ERROR);
