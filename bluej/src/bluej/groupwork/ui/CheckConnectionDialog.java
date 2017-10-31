@@ -38,6 +38,7 @@ import bluej.utility.javafx.JavaFXUtil;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
+import java.util.Arrays;
 
 /**
  * A dialog which displays an activity indicator while connection settings are
@@ -93,11 +94,12 @@ public class CheckConnectionDialog extends FXCustomizedDialog<Void>
                     if (!res.isError()) {
                         connLabel.setText(Config.getString("team.checkconn.ok"));
                     } else {
+                        String[] strParts = res.getErrorMessage().split("\\r?\\n|\\r");
+                        String message = Arrays.toString(strParts).replace("[", "").replace("]", "").replace(" ,", "");
                         connLabel.setText(Config.getString("team.checkconn.bad")
                                 + System.getProperty("line.separator") + System.getProperty("line.separator")
-                                + res.getErrorMessage());
+                                + message);
                     }
-
                     activityIndicator.setProgress(1.0);
                 });
             }

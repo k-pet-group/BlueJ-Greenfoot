@@ -23,11 +23,7 @@ package bluej.groupwork;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javafx.stage.Window;
 
@@ -43,8 +39,7 @@ public class TeamUtils
      * indicates an error, then display an error dialog.
      * 
      * Call on the AWT event handling thread.
-     * 
-     * @param basicServerResponse  The response to handle
+     *
      */
     @OnThread(Tag.FXPlatform)
     public static void handleServerResponseFX(TeamworkCommandResult result, final Window window)
@@ -54,7 +49,8 @@ public class TeamUtils
                 DialogManager.showErrorFX(window, "team-authentication-problem");
             }
             else if (result.isError() && ! result.wasAborted()) {
-                String message = result.getErrorMessage();
+                String[] strParts = result.getErrorMessage().split("\\r?\\n|\\r");
+                String message = Arrays.toString(strParts).replace("[", "").replace("]", "").replace(" ,", "");
                 DialogManager.showErrorTextFX(window, message);
             }
         }
