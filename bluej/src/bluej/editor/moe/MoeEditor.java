@@ -240,6 +240,13 @@ public final class MoeEditor extends ScopeColorsBorderPane
     private int oldCaretLineNumber = -1;
     private ErrorDisplay errorDisplay;
     private boolean madeChangeOnCurrentLine = false;
+    private boolean compilationQueued = false;    // queued for compilation?
+    private boolean compilationQueuedExplicit = false;  // explicit compilation?
+    private boolean compilationStarted = false;
+    private boolean requeueForCompilation = false; // re-queue after current compile?
+    private CompileReason requeueReason;
+    private CompileType requeueType;
+    
     /** Manages display of compiler and parse errors */
     private final MoeErrorManager errorManager = new MoeErrorManager(this, enable -> {});
     private int mouseCaretPos = -1;
@@ -279,7 +286,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
         initWindow(parameters.getProjectResolver());
         if (watcher != null && parameters.isCode() && !parameters.isCompiled()) {
-            watcher.scheduleCompilation(false, CompileReason.LOADED, CompileType.ERROR_CHECK_ONLY);
+            scheduleCompilation(CompileReason.LOADED, CompileType.ERROR_CHECK_ONLY);
         }
         callbackOnOpen = parameters.getCallbackOnOpen();
 
@@ -866,10 +873,52 @@ public final class MoeEditor extends ScopeColorsBorderPane
             errorManager.removeAllErrorHighlights();
         }
     }
+    
+    /**
+     * Schedule an immediate compilation for the specified reason and of the specified type.
+     * @param reason  The reason for compilation
+     * @param ctype   The type of compilation
+     */
+    private void scheduleCompilation(CompileReason reason, CompileType ctype)
+    {
+        if (watcher != null)
+        {
+            // We can collapse multiple compiles, but we cannot collapse an explicit compilation
+            // (resulting class files kept) into a non-explicit compilation (result discarded).
+            if (! compilationQueued ||
+                    (ctype != CompileType.ERROR_CHECK_ONLY && ! compilationQueuedExplicit))
+            {
+                watcher.scheduleCompilation(true, reason, ctype);
+                compilationQueued = true;
+            }
+            else if (compilationStarted)
+            {
+                // since a previously queued compilation has already started, we need to queue a second
+                // compilation after it finishes. We override any currently queued ERROR_CHECK_ONLY
+                // since explicit compiles should take precedence:
+                if (! requeueForCompilation || ctype == CompileType.ERROR_CHECK_ONLY)
+                {
+                    requeueForCompilation = true;
+                    requeueReason = reason;
+                    requeueType = ctype;
+                }
+            }
+        }
+    }
 
     @Override
     public void compileFinished(boolean successful, boolean classesKept)
     {
+        compilationStarted = false;
+        if (requeueForCompilation) {
+            requeueForCompilation = false;
+            compilationQueuedExplicit = (requeueType != CompileType.ERROR_CHECK_ONLY);
+            watcher.scheduleCompilation(true, requeueReason, requeueType);
+        }
+        else {
+            compilationQueued = false;
+        }
+        
         compiledProperty.set(successful && classesKept);
         if (isVisible() && classesKept)
         {
@@ -1383,7 +1432,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             }
             
             if (sourceIsCode && watcher != null) {
-                watcher.scheduleCompilation(true, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
+                scheduleCompilation(CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
             }
 
             madeChangeOnCurrentLine = false; // Not since last compilation
@@ -2436,9 +2485,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             setSaved();  // notify watcher that we are saved
             
             scheduleReparseRunner();
-            if (watcher != null) {
-                watcher.scheduleCompilation(false, CompileReason.LOADED, CompileType.ERROR_CHECK_ONLY);
-            }
+            scheduleCompilation(CompileReason.LOADED, CompileType.ERROR_CHECK_ONLY);
         }
         catch (FileNotFoundException ex) {
             info.message (Config.getString("editor.info.fileDisappeared"));
@@ -2567,7 +2614,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     {
         if (sourceIsCode && madeChangeOnCurrentLine)
         {
-            watcher.scheduleCompilation(true, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
+            scheduleCompilation(CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
             madeChangeOnCurrentLine = false;
         }
         
@@ -3586,6 +3633,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     @Override
     public boolean compileStarted(int compilationSequence)
     {
+        compilationStarted = true;
         madeChangeOnCurrentLine = false;
         errorManager.removeAllErrorHighlights();
         return false;
@@ -3616,7 +3664,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                         DialogManager.showTextWithCopyButtonFX(getWindow(), Config.getString("pkgmgr.accessibility.compileDone"), "BlueJ");
                     }
                 }
-                watcher.scheduleCompilation(true, CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE);
+                scheduleCompilation( CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE);
                 madeChangeOnCurrentLine = false;
             }
             else
@@ -3682,7 +3730,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             // If we are closing, force a compilation in case there are pending changes:
             if (parent == null && madeChangeOnCurrentLine)
             {
-                watcher.scheduleCompilation(false, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
+                scheduleCompilation(CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
             }
         }
         
