@@ -452,6 +452,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 clear();
             }
             catch (IOException ex) {
+                // TODO display user-visible error
                 Debug.reportError("Couldn't open file", ex);
             }
         }
@@ -651,8 +652,10 @@ public final class MoeEditor extends ScopeColorsBorderPane
         try {
             save();
         }
-        catch (IOException ioe) {}
-        // TODO should really be done by watcher from outside
+        catch (IOException ioe) {
+            // TODO we should definitely show dialog here.
+        }
+        
         doClose();
     }
 
@@ -867,6 +870,12 @@ public final class MoeEditor extends ScopeColorsBorderPane
         this.docFilename = docFilename;
         windowTitle = title;
         setWindowTitle();
+    }
+    
+    @Override
+    public void dependencyChanged()
+    {
+        scheduleCompilation(CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
     }
 
     /**
@@ -1433,15 +1442,15 @@ public final class MoeEditor extends ScopeColorsBorderPane
             try
             {
                 save();
+
+                if (sourceIsCode && watcher != null) {
+                    scheduleCompilation(CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
+                }
             }
             catch (IOException e)
             {
-                // TODO report as user-visible error
+                // Note that status line displays error notice in save()
                 Debug.reportError(e);
-            }
-            
-            if (sourceIsCode && watcher != null) {
-                scheduleCompilation(CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
             }
         }
 
@@ -2628,7 +2637,8 @@ public final class MoeEditor extends ScopeColorsBorderPane
             }
             catch (IOException e)
             {
-                // TODO this should issue a user-visible error
+                // TODO this should issue a user-visible error, may need to
+                // propagate exception.
                 Debug.reportError(e);
             }
         }
