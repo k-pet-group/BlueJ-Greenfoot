@@ -86,8 +86,7 @@ public class TeamSettingsController
     private static TeamworkProvider loadProvider(String name) throws Throwable
     {
         Class<?> c = Class.forName(name);
-        Object instance = c.newInstance();
-        return (TeamworkProvider) instance;            
+        return (TeamworkProvider) c.getConstructor().newInstance();
     }
     
     private Project project;

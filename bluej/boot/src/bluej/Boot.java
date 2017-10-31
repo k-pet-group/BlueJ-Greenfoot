@@ -30,6 +30,7 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,7 +89,7 @@ public class Boot
     private static final String JLAYER_MP3_JAR = "jl1.0.1.jar";
     // Jars that should be included with exported scenarios
     public static final String[] GREENFOOT_EXPORT_JARS = {JLAYER_MP3_JAR, "lang-stride.jar"};
-    private static final String[] greenfootUserJars = {"extensions" + File.separatorChar + "greenfoot.jar", 
+    private static final String[] greenfootUserJars = {"extensions" + File.separatorChar + "greenfoot.jar",
         "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
         "AppleJavaExtensions.jar", "junit-4.11.jar", "hamcrest-core-1.3.jar", "bluej.jar",
         "diffutils-1.2.1.jar", "commons-logging-api-1.1.2.jar",
@@ -481,9 +482,11 @@ public class Boot
  
             // Construct a bluej.Main object. This starts BlueJ "proper".
             Class<?> mainClass = Class.forName("bluej.Main", true, runtimeLoader);
-            mainClass.newInstance();
+            mainClass.getConstructor().newInstance();
             
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException exc) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+                | NoSuchMethodException | InvocationTargetException exc)
+        {
             throw new RuntimeException(exc);
         }
     }

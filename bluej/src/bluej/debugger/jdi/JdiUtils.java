@@ -33,6 +33,8 @@ import com.sun.jdi.ReferenceType;
 import com.sun.jdi.StringReference;
 import com.sun.jdi.Value;
 
+import java.lang.reflect.InvocationTargetException;
+
 /**
  * Utility methods for Jdi. Used to abstract away differences between java
  * 1.4 and 1.5
@@ -55,11 +57,10 @@ public abstract class JdiUtils
         if(true) {
             try {
                 Class<?> J15Class = Class.forName("bluej.debugger.jdi.JdiUtils15");
-                jutils = (JdiUtils)J15Class.newInstance();
+                jutils = (JdiUtils)J15Class.getConstructor().newInstance();
             }
-            catch(ClassNotFoundException cnfe) { }
-            catch(IllegalAccessException iae) { }
-            catch(InstantiationException ie) { }
+            catch(ClassNotFoundException | IllegalAccessException | InstantiationException
+                    | InvocationTargetException | NoSuchMethodException  e) { }
         }
         else
             jutils = new JdiUtils14();
