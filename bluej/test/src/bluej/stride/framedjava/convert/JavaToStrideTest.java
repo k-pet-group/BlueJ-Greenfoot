@@ -575,10 +575,7 @@ public class JavaToStrideTest
             () -> new SwitchElement(null, genExpression(), some(() -> genCase()), rand() ? null : some(() -> genStatement(maxDepth - 1)), true)
         ));
         all.addAll(terminals);
-        if (maxDepth <= 1)
-            return genOneOf(terminals.toArray(new Supplier[0]));
-        else
-            return genOneOf(all.toArray(new Supplier[0]));
+        return genOneOf(maxDepth <= 1 ? terminals : all);
     }
 
     private static CaseElement genCase()
@@ -687,7 +684,12 @@ public class JavaToStrideTest
 
     private static <T> T genOneOf(Supplier<T>... items)
     {
-        return items[rand(0, items.length - 1)].get();
+        return genOneOf(Arrays.asList(items));
+    }
+
+    private static <T> T genOneOf(List<Supplier<T>> items)
+    {
+        return items.get(rand(0, items.size() - 1)).get();
     }
     
     private static <T> List<T> collapseComments(List<T> items)
