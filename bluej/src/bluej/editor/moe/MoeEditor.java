@@ -213,6 +213,10 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
     // find functionality
     private FindPanel finder;
+    // The most recent active FindNavigator.  Returns null if there has been no search,
+    // or if the document has been modified since the last search.
+    private final ObjectProperty<FindNavigator> currentSearchResult = new SimpleObjectProperty<>(null);
+    
     private MenuBar menubar;
     private String filename;                // name of file or null
     private long lastModified;              // time of last modification of file
@@ -225,12 +229,11 @@ public final class MoeEditor extends ScopeColorsBorderPane
     private boolean mayHaveBreakpoints;     // true if there were BP here
     private boolean ignoreChanges = false;
     private boolean tabsAreExpanded = false;
+    
     /** Used to obtain javadoc for arbitrary methods */
     private final JavadocResolver javadocResolver;
     private ReparseRunner reparseRunner;
-    // The most recent active FindNavigator.  Returns null if there has been no search,
-    // or if the document has been modified since the last search.
-    private final ObjectProperty<FindNavigator> currentSearchResult = new SimpleObjectProperty<>(null);
+    
     /**
      * Property map, allows BlueJ extensions to associate property values with
      * this editor instance; otherwise unused.
@@ -239,7 +242,8 @@ public final class MoeEditor extends ScopeColorsBorderPane
     // Blackbox data recording:
     private int oldCaretLineNumber = -1;
     private ErrorDisplay errorDisplay;
-    private boolean madeChangeOnCurrentLine = false;
+
+    // These variables track the validity of our compiled state.
     private boolean compilationQueued = false;    // queued for compilation?
     private boolean compilationQueuedExplicit = false;  // explicit compilation?
     private boolean compilationStarted = false;
@@ -1434,12 +1438,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
             if (sourceIsCode && watcher != null) {
                 scheduleCompilation(CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
             }
-
-            madeChangeOnCurrentLine = false; // Not since last compilation
-        }
-        else
-        {
-            madeChangeOnCurrentLine = true; // We've changed this line, but don't recompile yet
         }
 
         clearMessage();
@@ -2612,10 +2610,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
     @OnThread(Tag.FXPlatform)
     public void cancelFreshState()
     {
-        if (sourceIsCode && madeChangeOnCurrentLine)
+        if (sourceIsCode && saveState.isChanged())
         {
             scheduleCompilation(CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
-            madeChangeOnCurrentLine = false;
         }
         
         if (! saveState.isSaved())
@@ -3634,7 +3631,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     public boolean compileStarted(int compilationSequence)
     {
         compilationStarted = true;
-        madeChangeOnCurrentLine = false;
         errorManager.removeAllErrorHighlights();
         return false;
     }
@@ -3654,9 +3650,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
     public void compileOrShowNextError()
     {
         if (watcher != null) {
-            if (madeChangeOnCurrentLine || !errorManager.hasErrorHighlights())
+            if (saveState.isChanged() || !errorManager.hasErrorHighlights())
             {
-                if (!madeChangeOnCurrentLine)
+                if (! saveState.isChanged())
                 {
                     if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT))
                     {
@@ -3664,8 +3660,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                         DialogManager.showTextWithCopyButtonFX(getWindow(), Config.getString("pkgmgr.accessibility.compileDone"), "BlueJ");
                     }
                 }
-                scheduleCompilation( CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE);
-                madeChangeOnCurrentLine = false;
+                scheduleCompilation(CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE);
             }
             else
             {
@@ -3728,7 +3723,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             }
 
             // If we are closing, force a compilation in case there are pending changes:
-            if (parent == null && madeChangeOnCurrentLine)
+            if (parent == null && saveState.isChanged())
             {
                 scheduleCompilation(CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
             }
