@@ -1357,26 +1357,32 @@ public final class MoeEditor extends ScopeColorsBorderPane
         // shouldn't modify the document in this function.  But it seems like sometimes
         // the styled changes we make cause RichTextFX to generate a plain text change event:
         if (respondingToChange)
+        {
             return;
+        }
         respondingToChange = true;
 
+        if (!saveState.isChanged()) {
+            saveState.setState(StatusLabel.Status.CHANGED);
+            setChanged();
+        }
+        
         if (!singleLineChange) // For a multi-line change, always compile:
         {
             saveState.setState(StatusLabel.Status.CHANGED);
             setChanged();
-            // If we aren't code, just save the change:
-            if (!sourceIsCode)
+
+            try
             {
-                try
-                {
-                    save();
-                }
-                catch (IOException e)
-                {
-                    Debug.reportError(e);
-                }
+                save();
             }
-            else if (watcher != null) {
+            catch (IOException e)
+            {
+                // TODO report as user-visible error
+                Debug.reportError(e);
+            }
+            
+            if (sourceIsCode && watcher != null) {
                 watcher.scheduleCompilation(true, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
             }
 
@@ -1392,10 +1398,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         currentSearchResult.setValue(null);
         errorManager.removeAllErrorHighlights();
         errorManager.documentContentChanged();
-        if (!saveState.isChanged()) {
-            saveState.setState(StatusLabel.Status.CHANGED);
-            setChanged();
-        }
         actions.userAction();
         
         // This may handle re-indentation; as this mutates the
