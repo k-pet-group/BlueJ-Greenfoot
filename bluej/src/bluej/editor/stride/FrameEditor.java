@@ -465,6 +465,10 @@ public class FrameEditor implements Editor
 
             @Override
             @OnThread(Tag.FXPlatform)
+            public void dependencyChanged() { FrameEditor.this.dependencyChanged(); }
+            
+            @Override
+            @OnThread(Tag.FXPlatform)
             public void setCompiled(boolean compiled) { FrameEditor.this.setCompiled(compiled); }
 
             @Override
@@ -898,6 +902,12 @@ public class FrameEditor implements Editor
     {
         this.frameFilename = new File(filename);
         this.javaFilename = new File(javaFilename);
+    }
+    
+    @Override
+    public void dependencyChanged()
+    {
+        // TODO not handled yet
     }
 
     @Override

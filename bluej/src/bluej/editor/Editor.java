@@ -157,6 +157,12 @@ public interface Editor
     void changeName(String title, String filename, String javaFilename, String docFileName);
 
     /**
+     * Notify that a dependency of this class has changed, and re-compilation
+     * is necessary for updated diagnostics.
+     */
+    void dependencyChanged();
+    
+    /**
      * Set the "compiled" status
      * 
      * @param compiled    true if the class has been compiled

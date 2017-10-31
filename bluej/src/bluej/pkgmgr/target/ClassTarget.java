@@ -891,6 +891,17 @@ public class ClassTarget extends DependentTarget
             }
         }
     }
+    
+    /**
+     * A direct dependency of this class was modified. Any compiler diagnostics
+     * from the previous compile may now be invalid.
+     */
+    private void dependencyChanged()
+    {
+        if (editor != null) {
+            editor.dependencyChanged();
+        }
+    }
 
     /**
      * Verify whether this class target is an interface class
@@ -1217,6 +1228,11 @@ public class ClassTarget extends DependentTarget
     public void modificationEvent(Editor editor)
     {
         invalidate();
+        for (Dependency d : dependents()) {
+            ClassTarget dependent = (ClassTarget) d.getFrom();
+            dependent.dependencyChanged();
+        }
+        
         removeBreakpoints();
         if (getPackage().getProject().getDebugger() != null)
         {
