@@ -24,31 +24,26 @@
  */
 package bluej.utility.javafx;
 
-import javafx.css.SimpleStyleableDoubleProperty;
-import javafx.scene.layout.*;
-    import java.util.ArrayList;
-    import java.util.Collections;
-    import java.util.List;
-    import javafx.beans.property.DoubleProperty;
-    import javafx.beans.property.DoublePropertyBase;
-    import javafx.beans.property.ObjectProperty;
-    import javafx.css.CssMetaData;
-    import javafx.css.StyleableDoubleProperty;
-    import javafx.css.StyleableObjectProperty;
-    import javafx.css.StyleableProperty;
-    import javafx.geometry.HPos;
-    import javafx.geometry.Insets;
-    import javafx.geometry.Orientation;
-    import javafx.geometry.Pos;
-    import javafx.geometry.VPos;
-    import javafx.scene.Node;
-    import com.sun.javafx.css.converters.EnumConverter;
-    import com.sun.javafx.css.converters.SizeConverter;
-    import java.util.function.Function;
-    import javafx.css.Styleable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-    import static javafx.geometry.Orientation.*;
-    import javafx.util.Callback;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.DoublePropertyBase;
+import javafx.beans.property.ObjectProperty;
+import javafx.css.converter.EnumConverter;
+import javafx.css.CssMetaData;
+import javafx.css.SimpleStyleableDoubleProperty;
+import javafx.css.Styleable;
+import javafx.css.StyleableObjectProperty;
+import javafx.css.StyleableProperty;
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
+import javafx.geometry.VPos;
+import javafx.scene.layout.*;
+import javafx.scene.Node;
 
 /**
  * FlowPane lays out its children in a flow that wraps at the flowpane's boundary.
@@ -365,7 +360,7 @@ public class HangingFlowPane extends Pane {
             }
         }
         final Insets insets = getInsets();
-        return insets.getLeft() + snapSize(maxPref) + insets.getRight();
+        return insets.getLeft() + snapSizeX(maxPref) + insets.getRight();
     }
 
     @Override protected double computeMinHeight(double width)
@@ -380,7 +375,7 @@ public class HangingFlowPane extends Pane {
         List<Run> hruns = getRuns(maxRunWidth);
         double w = computeContentWidth(hruns);
         w = getPrefWrapLength() > w ? getPrefWrapLength() : w;
-        return insets.getLeft() + snapSize(w) + insets.getRight();
+        return insets.getLeft() + snapSizeX(w) + insets.getRight();
     }
 
     @Override protected double computePrefHeight(double forWidth) {
@@ -487,7 +482,7 @@ public class HangingFlowPane extends Pane {
         // horizontal
         ArrayList<Node> rownodes = new ArrayList();
         double hgap = 0;
-        run.width = (run.rects.size()-1)*snapSpace(hgap);
+        run.width = (run.rects.size() - 1) * snapSpaceX(hgap);
         for (int i=0, max=run.rects.size(); i<max; i++) {
             LayoutRect lrect = run.rects.get(i);
             rownodes.add(lrect.node);
@@ -510,7 +505,7 @@ public class HangingFlowPane extends Pane {
 
     private double computeContentHeight(List<Run> runs) {
         double vgap = rowSpacingProperty.get();
-        double cheight = (runs.size()-1)*snapSpace(vgap);
+        double cheight = (runs.size() - 1) * snapSpaceX(vgap);
         for (int i=0, max=runs.size(); i<max; i++) {
             Run run = runs.get(i);
             // horizontal
@@ -828,17 +823,17 @@ public class HangingFlowPane extends Pane {
                 height - top - bottom - baselineComplement :
                 height - top - bottom;
             if (fillHeight) {
-                alt = snapSize(boundedSize(
+                alt = snapSizeX(boundedSize(
                     child.minHeight(-1), contentHeight,
                     child.maxHeight(-1)));
             } else {
-                alt = snapSize(boundedSize(
+                alt = snapSizeX(boundedSize(
                     child.minHeight(-1),
                     child.prefHeight(-1),
                     Math.min(child.maxHeight(-1), contentHeight)));
             }
         }
-        return left + snapSize(boundedSize(child.minWidth(alt), child.prefWidth(alt), child.maxWidth(alt))) + right;
+        return left + snapSizeX(boundedSize(child.minWidth(alt), child.prefWidth(alt), child.maxWidth(alt))) + right;
     }
 
     double computeChildPrefAreaHeight(Node child, Insets margin) {
@@ -854,7 +849,7 @@ public class HangingFlowPane extends Pane {
         if (child.isResizable() && child.getContentBias() == Orientation.HORIZONTAL) { // height depends on width
             double left = margin != null ? snapSpace(margin.getLeft(), snap) : 0;
             double right = margin != null ? snapSpace(margin.getRight(), snap) : 0;
-            alt = snapSize(boundedSize(
+            alt = snapSizeX(boundedSize(
                 child.minWidth(-1), width != -1 ? width - left - right
                     : child.prefWidth(-1), child.maxWidth(-1)));
         }
@@ -864,7 +859,7 @@ public class HangingFlowPane extends Pane {
             if (child.isResizable() && baseline == BASELINE_OFFSET_SAME_AS_HEIGHT) {
                 // When baseline is same as height, the preferred height of the node will be above the baseline, so we need to add
                 // the preferred complement to it
-                return top + snapSize(boundedSize(child.minHeight(alt), child.prefHeight(alt), child.maxHeight(alt))) + bottom
+                return top + snapSizeX(boundedSize(child.minHeight(alt), child.prefHeight(alt), child.maxHeight(alt))) + bottom
                     + prefBaselineComplement;
             } else {
                 // For all other Nodes, it's just their baseline and the complement.
@@ -872,7 +867,7 @@ public class HangingFlowPane extends Pane {
                 return top + baseline + prefBaselineComplement + bottom;
             }
         } else {
-            return top + snapSize(boundedSize(child.minHeight(alt), child.prefHeight(alt), child.maxHeight(alt))) + bottom;
+            return top + snapSizeX(boundedSize(child.minHeight(alt), child.prefHeight(alt), child.maxHeight(alt))) + bottom;
         }
     }
 
@@ -890,17 +885,17 @@ public class HangingFlowPane extends Pane {
                 final Node child = children.get(i);
                 final double childWidth = Double.isNaN(singleChildWidth) ? childWidths[i] : singleChildWidth;
                 Insets margin = getMargin(child);
-                final double top = margin != null? snapSpace(margin.getTop()) : 0;
-                final double bottom = margin != null? snapSpace(margin.getBottom()) : 0;
+                final double top = margin != null ? snapSpaceX(margin.getTop()) : 0;
+                final double bottom = margin != null ? snapSpaceX(margin.getBottom()) : 0;
                 final double baseline = child.getBaselineOffset();
 
-                final double childHeight = minimum? snapSize(child.minHeight(childWidth)) : snapSize(child.prefHeight(childWidth));
+                final double childHeight = minimum ? snapSizeX(child.minHeight(childWidth)) : snapSizeX(child.prefHeight(childWidth));
                 if (baseline == BASELINE_OFFSET_SAME_AS_HEIGHT) {
                     maxAbove = Math.max(maxAbove, childHeight + top);
                 } else {
                     maxAbove = Math.max(maxAbove, baseline + top);
                     maxBelow = Math.max(maxBelow,
-                        snapSpace(minimum?snapSize(child.minHeight(childWidth)) : snapSize(child.prefHeight(childWidth))) -
+                        snapSpaceX(minimum ? snapSizeX(child.minHeight(childWidth)) : snapSizeX(child.prefHeight(childWidth))) -
                             baseline + bottom);
                 }
             }
@@ -928,7 +923,7 @@ public class HangingFlowPane extends Pane {
         if (child.isResizable() && child.getContentBias() == Orientation.HORIZONTAL) { // height depends on width
             double left = margin != null? snapSpace(margin.getLeft(), snap) : 0;
             double right = margin != null? snapSpace(margin.getRight(), snap) : 0;
-            alt = snapSize(width != -1? boundedSize(child.minWidth(-1), width - left - right, child.maxWidth(-1)) :
+            alt = snapSizeX(width != -1 ? boundedSize(child.minWidth(-1), width - left - right, child.maxWidth(-1)) :
                 child.maxWidth(-1));
         }
 
@@ -936,13 +931,13 @@ public class HangingFlowPane extends Pane {
         if (minBaselineComplement != -1) {
             double baseline = child.getBaselineOffset();
             if (child.isResizable() && baseline == BASELINE_OFFSET_SAME_AS_HEIGHT) {
-                return top + snapSize(child.minHeight(alt)) + bottom
+                return top + snapSizeX(child.minHeight(alt)) + bottom
                     + minBaselineComplement;
             } else {
                 return baseline + minBaselineComplement;
             }
         } else {
-            return top + snapSize(child.minHeight(alt)) + bottom;
+            return top + snapSizeX(child.minHeight(alt)) + bottom;
         }
     }
 

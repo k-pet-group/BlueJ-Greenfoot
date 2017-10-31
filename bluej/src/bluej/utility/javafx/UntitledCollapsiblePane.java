@@ -177,7 +177,7 @@ public class UntitledCollapsiblePane extends Pane
                                             final double w, final double h) {
 
         // header
-        final double arrowSize = snapSize(arrow.TRIANGLE_DEPTH + 2 * arrowPadding);
+        final double arrowSize = snapSizeX(arrow.TRIANGLE_DEPTH + 2 * arrowPadding);
 
         if (isVertical())
             arrowWrapper.resize(w, arrowSize);
@@ -187,7 +187,7 @@ public class UntitledCollapsiblePane extends Pane
             isVertical() ? w : arrowSize, isVertical() ? arrowSize : h, 0, HPos.CENTER, VPos.CENTER);
 
         // content size, in the dimension in which we collapse (height if arrow at top, else width)
-        final double contentSize = snapSize((isVertical() ? h : w) - arrowSize);
+        final double contentSize = snapSizeX((isVertical() ? h : w) - arrowSize);
 
         if (isVertical())
         {
