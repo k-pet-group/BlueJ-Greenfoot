@@ -758,35 +758,40 @@ public final class MoeEditor extends ScopeColorsBorderPane
         int spos = line.getStartOffset();
         int epos = line.getEndOffset();
         int testPos = Math.min(epos - spos - 1, column - 1);
-        if (testPos <= 0) {
+        if (testPos <= 0)
+        {
             return spos;
         }
 
-            int cpos = 0; // what the actual column is so far
-            int tpos = 0; // where we are in the string
-            String lineText = sourceDocument.getText(spos, testPos);
-            
-            while (cpos < column - 1) {
-                int tabPos = lineText.indexOf('\t', tpos);
-                if (tabPos == -1) {
-                    // No more tabs...
-                    tpos += column - cpos - 1;
-                    return Math.min(spos + tpos, epos - 1);
-                }
-                
-                int newcpos = cpos + (tabPos - tpos);
-                if (newcpos >= column) {
-                    tpos += column - cpos - 1;
-                    return spos + tpos;
-                }
+        int cpos = 0; // what the actual column is so far
+        int tpos = 0; // where we are in the string
+        String lineText = sourceDocument.getText(spos, testPos);
 
-                cpos = newcpos;
-                
-                cpos += 8; // hit tab
-                cpos -= cpos % 8;  // back to tab stop
-
-                tpos = tabPos + 1; // skip over the tab char
+        while (cpos < column - 1)
+        {
+            int tabPos = lineText.indexOf('\t', tpos);
+            if (tabPos == -1)
+            {
+                // No more tabs...
+                tpos += column - cpos - 1;
+                return Math.min(spos + tpos, epos - 1);
             }
+
+            int newcpos = cpos + (tabPos - tpos);
+            if (newcpos >= column)
+            {
+                tpos += column - cpos - 1;
+                return spos + tpos;
+            }
+
+            cpos = newcpos;
+
+            cpos += 8; // hit tab
+            cpos -= cpos % 8;  // back to tab stop
+
+            tpos = tabPos + 1; // skip over the tab char
+        }
+        
         return spos;
     }
 
