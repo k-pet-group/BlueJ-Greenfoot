@@ -2563,23 +2563,23 @@ public final class MoeEditor extends ScopeColorsBorderPane
     @OnThread(Tag.FXPlatform)
     public void cancelFreshState()
     {
-        if (madeChangeOnCurrentLine)
+        if (sourceIsCode && madeChangeOnCurrentLine)
         {
-            if (!sourceIsCode)
-            {
-                try
-                {
-                    save();
-                }
-                catch (IOException e)
-                {
-                    Debug.reportError(e);
-                }
-            }
-            else if (watcher != null) {
-                watcher.scheduleCompilation(true, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
-            }
+            watcher.scheduleCompilation(true, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
             madeChangeOnCurrentLine = false;
+        }
+        
+        if (! saveState.isSaved())
+        {
+            try
+            {
+                save();
+            }
+            catch (IOException e)
+            {
+                // TODO this should issue a user-visible error
+                Debug.reportError(e);
+            }
         }
     }
 
