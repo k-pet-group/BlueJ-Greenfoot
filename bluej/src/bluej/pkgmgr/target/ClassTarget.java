@@ -148,6 +148,7 @@ import threadchecker.Tag;
  * @author Michael Kolling
  * @author Bruce Quig
  */
+@OnThread(Tag.FXPlatform)
 public class ClassTarget extends DependentTarget
     implements InvokeListener
 {
@@ -176,12 +177,10 @@ public class ClassTarget extends DependentTarget
     // role should be accessed using getRole() and set using
     // setRole(). A role should not contain important state information
     // because role objects are thrown away at a whim.
-    @OnThread(value = Tag.FXPlatform)
     private ClassRole role = new StdClassRole();
 
     // a flag indicating whether an editor, when opened for the first
     // time, should display the interface of this class
-    @OnThread(value = Tag.FXPlatform)
     private boolean openWithInterface = false;
 
     // cached information obtained by parsing the source code
@@ -191,46 +190,36 @@ public class ClassTarget extends DependentTarget
     
     // caches whether the class is abstract. Only accurate when the
     // classtarget state is normal (ie. the class is compiled).
-    @OnThread(Tag.FXPlatform)
     private boolean isAbstract;
     
     // a flag indicating whether an editor should have the naviview expanded/collapsed
-    @OnThread(Tag.FXPlatform)
     private Optional<Boolean> isNaviviewExpanded = Optional.empty();
 
-    @OnThread(Tag.FXPlatform)
     private final List<Integer> cachedBreakpoints = new ArrayList<>();
     
     // flag to prevent recursive calls to analyseDependancies()
     private boolean analysing = false;
 
-    @OnThread(Tag.FXPlatform)
     private boolean isMoveable = true;
     private SourceType sourceAvailable;
     // Part of keeping track of number of editors opened, for Greenfoot phone home:
     private boolean hasBeenOpened = false;
 
-    @OnThread(Tag.FXPlatform)
     private String typeParameters = "";
     
     //properties map to store values used in the editor from the props (if necessary)
-    @OnThread(Tag.FXPlatform)
     private Map<String,String> properties = new HashMap<String,String>();
     // Keep track of whether the editor is open or not; we get a lot of
     // potential open events, and don't want to keep recording ourselves as re-opening
     private boolean recordedAsOpen = false;
-    @OnThread(Tag.FXPlatform)
     private boolean visible = true;
     public static final String MENU_STYLE_INBUILT = "class-action-inbuilt";
-    @OnThread(Tag.FXPlatform)
     private static String[] pseudos;
 
     // The body of the class target which goes hashed, etc:
     @OnThread(Tag.FX)
     private ResizableCanvas canvas;
-    @OnThread(Tag.FXPlatform)
     private Label stereotypeLabel;
-    @OnThread(Tag.FXPlatform)
     private boolean isFront = true;
     @OnThread(Tag.FX)
     private static Image greyStripeImage;
@@ -244,11 +233,8 @@ public class ClassTarget extends DependentTarget
     private static final Color RED_STRIPE = Color.rgb(170, 80, 60);
     @OnThread(Tag.FX)
     private static final Color GREY_STRIPE = Color.rgb(158, 139, 116);
-    @OnThread(Tag.FXPlatform)
     private boolean showingInterface;
-    @OnThread(Tag.FXPlatform)
     private boolean drawingExtends = false;
-    @OnThread(Tag.FXPlatform)
     private Label nameLabel;
 
     /**
@@ -477,7 +463,6 @@ public class ClassTarget extends DependentTarget
      * 
      * @return The typeParameters value
      */
-    @OnThread(Tag.FXPlatform)
     private String getTypeParameters()
     {
         return typeParameters;
@@ -534,7 +519,6 @@ public class ClassTarget extends DependentTarget
      * 
      * @return The role value
      */
-    @OnThread(Tag.FXPlatform)
     public ClassRole getRole()
     {
         return role;
@@ -780,7 +764,6 @@ public class ClassTarget extends DependentTarget
      *            properties in a properties file used by multiple targets.
      */
     @Override
-    @OnThread(Tag.FXPlatform)
     public void save(Properties props, String prefix)
     {
         super.save(props, prefix);
@@ -945,7 +928,6 @@ public class ClassTarget extends DependentTarget
      * 
      * The return is only valid if isCompiled() is true.
      */
-    @OnThread(Tag.FXPlatform)
     public boolean isAbstract()
     {
         return isAbstract;
@@ -998,7 +980,6 @@ public class ClassTarget extends DependentTarget
         return null;
     }
 
-    @OnThread(Tag.FXPlatform)
     public boolean isVisible()
     {
         return visible;
@@ -1099,7 +1080,6 @@ public class ClassTarget extends DependentTarget
      *         there was a problem opening this editor.
      */
     @Override
-    @OnThread(Tag.FXPlatform)
     public Editor getEditor()
     {
         boolean withInterface;
@@ -1115,7 +1095,6 @@ public class ClassTarget extends DependentTarget
      * @return the editor object associated with this target. May be null if
      *         there was a problem opening this editor.
      */
-    @OnThread(Tag.FXPlatform)
     private Editor getEditor(boolean showInterface)
     {
         // ClassTarget must have source code if it is to provide an editor
@@ -1359,7 +1338,6 @@ public class ClassTarget extends DependentTarget
      * We load the compiled class if possible and check it the compilation has
      * resulted in it taking a different role (ie abstract to applet)
      */
-    @OnThread(Tag.FXPlatform)
     public void endCompile()
     {
         Class<?> cl = getPackage().loadClass(getQualifiedName());
@@ -1902,7 +1880,6 @@ public class ClassTarget extends DependentTarget
      * Resizes the class so the entire classname + type parameter are visible
      *  
      */
-    @OnThread(Tag.FXPlatform)
     private void updateSize()
     {
         String displayName = getDisplayName();
@@ -1918,7 +1895,6 @@ public class ClassTarget extends DependentTarget
      * @param y  the y coordinate for the menu, relative to graph editor
      */
     @Override
-    @OnThread(Tag.FXPlatform)
     public void popupMenu(int x, int y, PackageEditor graphEditor)
     {
         Class<?> cl = null;
@@ -1973,7 +1949,6 @@ public class ClassTarget extends DependentTarget
      * @param cl class object associated with this class target
      * @return the created popup menu object
      */
-    @OnThread(Tag.FXPlatform)
     protected void withMenu(Class<?> cl, ClassRole roleRef, SourceType source, boolean docExists, FXPlatformConsumer<ContextMenu> withMenu, ExtensionsManager extMgr)
     {
         final ContextMenu menu = new ContextMenu();
@@ -2219,7 +2194,6 @@ public class ClassTarget extends DependentTarget
      * are warnings not errors.  Errors, which stop the process, mainly arise
      * from unparseable Java source code.
      */
-    @OnThread(Tag.FXPlatform)
     public void promptAndConvertJavaToStride()
     {
         File javaSourceFile = getJavaSourceFile();
@@ -2259,7 +2233,6 @@ public class ClassTarget extends DependentTarget
      * Process a double click on this target. That is: open its editor.
      */
     @Override
-    @OnThread(Tag.FXPlatform)
     public void doubleClick()
     {
         open();
@@ -2271,7 +2244,6 @@ public class ClassTarget extends DependentTarget
      * @param height The new size value
      */
     @Override
-    @OnThread(Tag.FXPlatform)
     public void setSize(int width, int height)
     {
         int w = Math.max(width, MIN_WIDTH);
@@ -2281,7 +2253,6 @@ public class ClassTarget extends DependentTarget
             assoc.setSize(w, h);
     }
     
-    @OnThread(Tag.FXPlatform)
     public void setVisible(boolean vis)
     {
         if (vis != this.visible) {
@@ -2484,7 +2455,6 @@ public class ClassTarget extends DependentTarget
         sourceAvailable = SourceType.Stride;
     }
 
-    @OnThread(Tag.FXPlatform)
     public boolean isMoveable()
     {
         return isMoveable;
@@ -2496,7 +2466,6 @@ public class ClassTarget extends DependentTarget
      * 
      * @see bluej.graph.Moveable#setIsMoveable(boolean)
      */
-    @OnThread(Tag.FXPlatform)
     public void setIsMoveable(boolean isMoveable)
     {
         this.isMoveable = isMoveable;
@@ -2536,7 +2505,6 @@ public class ClassTarget extends DependentTarget
      * Returns the naviview expanded value from the properties file
      * @return 
      */
-    @OnThread(Tag.FXPlatform)
     public boolean isNaviviewExpanded()
     {
         return isNaviviewExpanded.orElse(false);
@@ -2555,7 +2523,6 @@ public class ClassTarget extends DependentTarget
      * Retrieves a property from the editor
      */
     @Override
-    @OnThread(Tag.FXPlatform)
     public String getProperty(String key)
     {
         return properties.get(key);
@@ -2706,7 +2673,7 @@ public class ClassTarget extends DependentTarget
     }
 
     @Override
-    public @OnThread(Tag.FXPlatform) boolean isFront()
+    public boolean isFront()
     {
         return isFront;
     }
@@ -2718,14 +2685,14 @@ public class ClassTarget extends DependentTarget
     }
 
     @Override
-    public @OnThread(Tag.FXPlatform) void setCreatingExtends(boolean drawingExtends)
+    public void setCreatingExtends(boolean drawingExtends)
     {
         // Don't call super; we don't want to darken ourselves
         this.drawingExtends = drawingExtends;
     }
 
     @Override
-    public @OnThread(Tag.FXPlatform) boolean cursorAtResizeCorner(MouseEvent e)
+    public boolean cursorAtResizeCorner(MouseEvent e)
     {
         // Don't allow resize if we are picking an extends arrow:
         return super.cursorAtResizeCorner(e) && !drawingExtends;
