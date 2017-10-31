@@ -38,27 +38,20 @@ import org.fxmisc.undo.UndoManager;
  */
 public class MoeUndoManager
 {
+    private UndoManager undoManager;
+    private BooleanProperty canUndo;
+    private BooleanProperty canRedo;
+
+    public MoeUndoManager(MoeEditorPane editorPane)
+    {
+        undoManager = UndoUtils.richTextUndoManager(editorPane);
+    }
+
     public UndoManager getUndoManager()
     {
         return undoManager;
     }
 
-    private UndoManager undoManager;
-    private final MoeEditor editor;
-    private BooleanProperty canUndo;
-    private BooleanProperty canRedo;
-
-    public MoeUndoManager(MoeEditor editor)
-    {
-        this.editor = editor;
-        try {
-            undoManager = UndoUtils.richTextUndoManager(editor.getSourcePane());
-        }
-        catch (NullPointerException e)
-        {
-            Debug.reportError(e.getMessage());
-        }
-    }
 
     /**
      * Runs the given edit action.  See comment within.

@@ -71,7 +71,7 @@ import org.fxmisc.richtext.model.EditableStyledDocument;
 import org.fxmisc.richtext.model.GenericEditableStyledDocument;
 import org.fxmisc.richtext.model.NavigationActions.SelectionPolicy;
 import org.fxmisc.richtext.model.ReadOnlyStyledDocument;
-import org.fxmisc.richtext.model.StyledText;
+import org.fxmisc.richtext.model.SegmentOps;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
@@ -414,7 +414,7 @@ public final class Terminal
         }
         else if (job.showPrintDialog(window))
         {
-            EditableStyledDocument<Void, StyledText<StdoutStyle>, StdoutStyle> doc = new GenericEditableStyledDocument<>(null, StdoutStyle.OUTPUT, StyledText.textOps());
+            EditableStyledDocument<Void, String, StdoutStyle> doc = new GenericEditableStyledDocument<>(null, StdoutStyle.OUTPUT, SegmentOps.styledTextOps());
             doc.replace(0, 0, ReadOnlyStyledDocument.from(text.getDocument()));
             // Need to make a copy of the text pane for off-thread use:
             StyledTextArea<Void, StdoutStyle> offScreenEditor = new StyledTextArea<Void, StdoutStyle>(
@@ -518,9 +518,9 @@ public final class Terminal
         newMethodCall = true;
     }
 
-    private static <S> ReadOnlyStyledDocument<Void,StyledText<S>, S> styled(String text, S style)
+    private static <S> ReadOnlyStyledDocument<Void, String, S> styled(String text, S style)
     {
-        return ReadOnlyStyledDocument.fromString(text, null, style, StyledText.textOps());
+        return ReadOnlyStyledDocument.fromString(text, null, style, SegmentOps.styledTextOps());
     }
 
     private void constructorCall(InvokerRecord ir)

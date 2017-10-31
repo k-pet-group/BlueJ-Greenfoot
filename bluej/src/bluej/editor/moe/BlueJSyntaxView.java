@@ -1784,7 +1784,7 @@ public class BlueJSyntaxView
                 }
                 stepMarkIcon.setVisible(attr.contains(ParagraphAttribute.STEP_MARK));
                 breakpointIcon.setVisible(attr.contains(ParagraphAttribute.BREAKPOINT));
-                if (stepMarkIcon.isVisible() || breakpointIcon.isVisible() || !editorPane.isShowLineNumbers())
+                if (stepMarkIcon.isVisible() || breakpointIcon.isVisible() || (editorPane != null && !editorPane.isShowLineNumbers()))
                 {
                     l.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
                 }

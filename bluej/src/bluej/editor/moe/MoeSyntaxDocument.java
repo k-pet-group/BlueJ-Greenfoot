@@ -139,10 +139,10 @@ public class MoeSyntaxDocument
     public void removeStyleThroughout(String spanStyle)
     {
         // Goes paragraph by paragraph, and only alters the style if necessary.
-        LiveList<Paragraph<ScopeInfo, StyledText<ImmutableSet<String>>, ImmutableSet<String>>> paragraphs = document.getParagraphs();
+        LiveList<Paragraph<ScopeInfo, String, ImmutableSet<String>>> paragraphs = document.getParagraphs();
         for (int i = 0; i < paragraphs.size(); i++)
         {
-            Paragraph<ScopeInfo, StyledText<ImmutableSet<String>>, ImmutableSet<String>> para = paragraphs.get(i);
+            Paragraph<ScopeInfo, String, ImmutableSet<String>> para = paragraphs.get(i);
             StyleSpans<ImmutableSet<String>> styleSpans = para.getStyleSpans();
             boolean present = styleSpans.stream().anyMatch(s -> s.getStyle().contains(spanStyle));
             if (present)
@@ -616,7 +616,7 @@ public class MoeSyntaxDocument
         // The setParagraphStyle causes a layout-request with request-follow-caret.  We have to
         // purge that layout request by executing it, before we restore the scroll Y:
         syntaxView.editorPane.layout();
-        syntaxView.editorPane.setEstimatedScrollY(scrollY);
+        syntaxView.editorPane.estimatedScrollYProperty().setValue(scrollY);
         // Setting the estimated scroll Y requests a layout but does not perform it.  This seemed
         // to lead to occasional scroll jumps, I think involving delayed layout passes.  So although
         // it is getting silly, we enforce another layout to *actually* set the scroll position:
@@ -1003,7 +1003,7 @@ public class MoeSyntaxDocument
 
     public void replace(int start, int length, String text)
     {
-        document.replace(start, start + length, ReadOnlyStyledDocument.fromString(text, null, ImmutableSet.of(), StyledText.textOps()));
+        document.replace(start, start + length, ReadOnlyStyledDocument.fromString(text, null, ImmutableSet.of(), SegmentOps.styledTextOps()));
     }
 
     public void remove(int start, int length)
