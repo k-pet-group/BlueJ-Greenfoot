@@ -50,10 +50,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
-import com.sun.javafx.stage.StageHelper;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.application.Preloader;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.Stage;
@@ -1023,9 +1023,9 @@ public class ExecServer
         {
             // Add a listener for a new Stage appearing
 
-            // Must initialise Stage class before using StageHelper:
+            // Must initialise Stage class before using the windows:
             new Stage();
-            StageHelper.getStages().addListener((ListChangeListener<Stage>)c -> {
+            FXCollections.observableArrayList(Window.getWindows()).addListener((ListChangeListener<Window>) c -> {
                 boolean anyAdded = false;
                 while (c.next())
                     anyAdded |= c.wasAdded();
