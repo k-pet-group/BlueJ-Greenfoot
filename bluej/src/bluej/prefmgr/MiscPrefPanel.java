@@ -161,7 +161,7 @@ public class MiscPrefPanel extends VBox
         if (accelerator != null) {
             int modifiers = accelerator.getModifiers();
             if (modifiers > 0) {
-                shortcutText += KeyEvent.getKeyModifiersText(modifiers);
+                shortcutText += KeyEvent.getModifiersExText(modifiers);
                 shortcutText += Config.isMacOS() ? "" : "+";
             }
 

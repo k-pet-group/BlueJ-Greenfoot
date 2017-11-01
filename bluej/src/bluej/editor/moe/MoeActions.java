@@ -56,7 +56,7 @@ import threadchecker.Tag;
 
 import javax.swing.KeyStroke;
 import javax.swing.text.DefaultEditorKit;
-import java.awt.Event;
+import java.awt.event.InputEvent;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -660,13 +660,13 @@ public final class MoeActions
     private static KeyCodeCombination convertSwingBindingToFX(KeyStroke swing)
     {
         List<Modifier> modifiers = new ArrayList<>();
-        if ((swing.getModifiers() & Event.CTRL_MASK) != 0)
+        if ((swing.getModifiers() & InputEvent.CTRL_DOWN_MASK) != 0)
             modifiers.add(KeyCombination.CONTROL_DOWN);
-        if ((swing.getModifiers() & Event.SHIFT_MASK) != 0)
+        if ((swing.getModifiers() & InputEvent.SHIFT_DOWN_MASK) != 0)
             modifiers.add(KeyCombination.SHIFT_DOWN);
-        if ((swing.getModifiers() & Event.META_MASK) != 0)
+        if ((swing.getModifiers() & InputEvent.META_DOWN_MASK) != 0)
             modifiers.add(KeyCombination.META_DOWN);
-        if ((swing.getModifiers() & Event.ALT_MASK) != 0)
+        if ((swing.getModifiers() & InputEvent.ALT_DOWN_MASK) != 0)
             modifiers.add(KeyCombination.ALT_DOWN);
 
         KeyCode code = JavaFXUtil.awtKeyCodeToFX(swing.getKeyCode());

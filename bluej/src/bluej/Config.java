@@ -1046,7 +1046,7 @@ public final class Config
         index++;
         if(str.charAt(index) == '^') { //then the modifiers is CTRL + SHIFT
             index++;
-            modifiers |= InputEvent.SHIFT_MASK;
+            modifiers |= InputEvent.SHIFT_DOWN_MASK;
         }
         keyString = str.substring(index).toUpperCase();
         if(keyString.length() == 1) {
