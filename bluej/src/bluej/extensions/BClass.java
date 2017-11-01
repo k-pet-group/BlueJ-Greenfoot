@@ -684,6 +684,7 @@ public class BClass
      * @throws  PackageNotFoundException  if the package to which this class belongs has been deleted by the user.
      * @deprecated As of BlueJ 2.0, replaced by {@link Editor#setReadOnly(boolean readOnly)}
      */
+    @Deprecated
     public void beginChangeSource()
              throws ProjectNotOpenException, PackageNotFoundException
     {
@@ -712,6 +713,7 @@ public class BClass
      * @throws  PackageNotFoundException  if the package to which this class belongs has been deleted by the user.
      * @deprecated As of BlueJ 2.0, replaced by {@link Editor#setReadOnly(boolean readOnly)}
      */
+    @Deprecated
     public void endChangeSource()
              throws ProjectNotOpenException, PackageNotFoundException
     {

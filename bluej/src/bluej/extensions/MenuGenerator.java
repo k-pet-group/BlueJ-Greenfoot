@@ -141,6 +141,7 @@ public class MenuGenerator
      * Extensions should not retain references to the menu items created.
      * @deprecated As of BlueJ 1.3.5, replaced by {@link #getToolsMenuItem(BPackage bp)}
      */
+    @Deprecated
     public JMenuItem getMenuItem( )
     {
         return null;
