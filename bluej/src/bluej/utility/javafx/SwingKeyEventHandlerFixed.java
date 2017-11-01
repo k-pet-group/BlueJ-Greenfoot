@@ -26,11 +26,11 @@ import javafx.embed.swing.SwingNode;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import sun.swing.JLightweightFrame;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.awt.AWTEvent;
+import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.lang.reflect.Field;
@@ -92,7 +92,7 @@ public class SwingKeyEventHandlerFixed implements EventHandler<KeyEvent>
 
     public void handleSub(javafx.scene.input.KeyEvent event) throws IllegalAccessException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException
     {
-        JLightweightFrame frame = (JLightweightFrame) lwFrameField.get(swingNode);
+        Component frame = (Component) lwFrameField.get(swingNode);
         if (frame == null) {
             return;
         }
@@ -123,7 +123,7 @@ public class SwingKeyEventHandlerFixed implements EventHandler<KeyEvent>
 
 
         int swingModifiers = (Integer)fxKeyModsToKeyMods.invoke(null, event);
-        int swingKeyCode = event.getCode().impl_getCode();
+        int swingKeyCode = event.getCode().getCode();
         char swingChar = event.getCharacter().charAt(0);
 
         // A workaround. Some swing L&F's process mnemonics on KEY_PRESSED,
