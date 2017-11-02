@@ -447,13 +447,7 @@ public class MoeSyntaxDocument
      */
     public boolean pollReparseQueue()
     {
-        boolean wasParsed = pollReparseQueue(MAX_PARSE_PIECE);
-        // If queue is empty, apply backgrounds:
-        if (!wasParsed)
-        {
-            applyPendingScopeBackgrounds();
-        }
-        return wasParsed;
+        return pollReparseQueue(MAX_PARSE_PIECE);
     }
     
     /**
@@ -580,7 +574,7 @@ public class MoeSyntaxDocument
     }
 
     // Called if the reparse queue is empty:
-    private void applyPendingScopeBackgrounds()
+    public void applyPendingScopeBackgrounds()
     {
         // Prevent re-entry, which can it seems can occur when applying
         // token highlight styles:
