@@ -595,13 +595,11 @@ public class Boot
                     macInitialProjects.addAll(e.getFiles());
                 });
                 */
-                
-                // For now, we use this code to set the event handler, but I think it will
-                // stop working come JDK 9.
+
+                // For now, we use this code to set the event handler, but it may stop working with JDK 10.
                 // Note: this handler is only used during BlueJ load.  After the load, the open-files
-                // events still gets passed back to the com.eawt/AppleJavaExtensions handler, so this
-                // won't receive anything after load.  (At some point, the JDK developers are going to have
-                // to sort this mess out.)
+                // events still gets passed back to the AWT Desktop handler, so this won't receive anything
+                // after load.  (At some point, the JDK developers are going to have to sort this mess out.)
                 com.sun.glass.ui.Application glassApp = com.sun.glass.ui.Application.GetApplication();
                 glassApp.setEventHandler(new com.sun.glass.ui.Application.EventHandler() {
                     @Override
