@@ -148,6 +148,12 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
         setupRedrawListener(virtualFlow);
     }
 
+    /**
+     * Set up a listener to calculate scope backgrounds for newly visible lines,
+     * and schedule them to be painted if necessary.
+     * 
+     * @param virtualFlow  the virtual flow to listen to.
+     */
     private <T,C extends Cell<T,?>> void setupRedrawListener(VirtualFlow<T,C> virtualFlow)
     {
         virtualFlow.visibleCells().addListener((ListChangeListener<? super C>) c -> {
@@ -177,8 +183,7 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
                     if (earliestIncomplete != -1)
                     {
                         editor.getSourceDocument().recalculateScopesForLinesInRange(earliestIncomplete, latestIncomplete);
-                        // Must call this to apply pending scope backgrounds:
-                        editor.getSourceDocument().flushReparseQueue();
+                        editor.getSourceDocument().applyPendingScopeBackgrounds();
                     }
                 });
             }
