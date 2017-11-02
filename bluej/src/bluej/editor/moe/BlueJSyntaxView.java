@@ -2025,6 +2025,7 @@ public class BlueJSyntaxView
         {
             ScopeInfo scopeInfo = new ScopeInfo(attributes);
             scopeInfo.nestedScopes.addAll(nestedScopes);
+            scopeInfo.incomplete = incomplete;
             return scopeInfo;
         }
 
