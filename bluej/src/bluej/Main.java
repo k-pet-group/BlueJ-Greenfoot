@@ -30,19 +30,12 @@ import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.javafx.JavaFXUtil;
-import com.apple.eawt.AppEvent;
-import com.apple.eawt.Application;
-import com.apple.eawt.QuitResponse;
+
 import de.codecentric.centerdevice.MenuToolkit;
 import de.codecentric.centerdevice.dialogs.about.AboutStageBuilder;
-import javafx.application.Platform;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 
-import javax.swing.*;
+import java.awt.Desktop;
+import java.awt.desktop.QuitResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -52,6 +45,14 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
+import javafx.application.Platform;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javax.swing.*;
+
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * BlueJ starts here. The Boot class, which is responsible for dealing with
@@ -85,7 +86,7 @@ public class Main
      * later on the FX thread).
      */
     private static ClassLoader storedContextClassLoader;
-    
+
     /** The mechanism to show the initial GUI */
     private static GuiHandler guiHandler = null;
 
@@ -106,7 +107,7 @@ public class Main
         if (guiHandler == null) {
             guiHandler = new BlueJGuiHandler();
         }
-        
+
         // Note we must do this OFF the AWT dispatch thread. On MacOS X, if the
         // application was started by double-clicking a project file, an "open file"
         // event will be generated once we add a listener and will be delivered on
@@ -186,7 +187,7 @@ public class Main
         }
 
         guiHandler.initialOpenComplete(oneOpened);
-        
+
         Boot.getInstance().disposeSplashWindow();
         ExtensionsManager.getInstance().delegateEvent(new ApplicationEvent(ApplicationEvent.APP_READY_EVENT));
     }
@@ -199,19 +200,19 @@ public class Main
     {
         storedContextClassLoader = Thread.currentThread().getContextClassLoader();
         initialProjects = Boot.getMacInitialProjects();
-        Application macApp = Application.getApplication();
+        Desktop macApp = Desktop.getDesktop();
 
-        // Even though BlueJ is JavaFX, the open-files handling still goes
-        // through the com.eawt.*/AppleJavaExtensions handling, once it is loaded
-        // So we must do the handler set up for AWT/Swing even though we're running
-        // in JavaFX.  May need revisiting in Java 9 or whenever they fix the Mac
-        // open files handling issue:
+        // Even though BlueJ is JavaFX, the open-files handling still goes through
+        // the AWT Desktop handling, once it is loaded. So we must do the handler
+        // set up for AWT/Swing even though we're running in JavaFX.
+        // This needs revisiting whenever they fix the Mac open files handling issue.
         prepareMacOSMenuSwing(macApp);
 
         // We are using the NSMenuFX library to fix Mac Application menu only when it is a FX
         // menu. When the JDK APIs (i.e. handleAbout() etc) are fixed, both should go back to
         // the way as in prepareMacOSMenuSwing().
-        if (macApp != null) {
+        if (macApp != null)
+        {
             prepareMacOSMenuFX();
         }
 
@@ -271,53 +272,36 @@ public class Main
     /**
      * Prepare Mac Application Swing menu using the com.apple.eawt APIs.
      */
-    private static void prepareMacOSMenuSwing(Application macApp)
+    private static void prepareMacOSMenuSwing(Desktop macApp)
     {
-        if (macApp != null) {
-            macApp.setAboutHandler(new com.apple.eawt.AboutHandler() {
-                @Override
-                public void handleAbout(AppEvent.AboutEvent e)
-                {
-                    Platform.runLater(() -> guiHandler.handleAbout());
-                }
+        if (macApp != null)
+        {
+            macApp.setAboutHandler(e -> Platform.runLater(() -> guiHandler.handleAbout()));
+
+            macApp.setPreferencesHandler(e -> Platform.runLater(() -> guiHandler.handlePreferences()));
+
+            macApp.setQuitHandler((e, response) ->
+            {
+                macEventResponse = response;
+                Platform.runLater(() -> guiHandler.handleQuit());
+                // response.confirmQuit() does not need to be called, since System.exit(0) is called explicitly
+                // response.cancelQuit() is called to cancel (in wantToQuit())
             });
 
-            macApp.setPreferencesHandler(new com.apple.eawt.PreferencesHandler() {
-                @Override
-                public void handlePreferences(AppEvent.PreferencesEvent e)
-                {
-                    Platform.runLater(() -> guiHandler.handlePreferences());
-                }
-            });
-
-            macApp.setQuitHandler(new com.apple.eawt.QuitHandler() {
-                @Override
-                public void handleQuitRequestWith(AppEvent.QuitEvent e, QuitResponse response)
-                {
-                    macEventResponse = response;
-                    Platform.runLater(() -> guiHandler.handleQuit());
-                    // response.confirmQuit() does not need to be called, since System.exit(0) is called explcitly
-                    // response.cancelQuit() is called to cancel (in wantToQuit())
-                }
-            });
-
-            macApp.setOpenFileHandler(new com.apple.eawt.OpenFilesHandler() {
-                @Override
-                public void openFiles(AppEvent.OpenFilesEvent e)
-                {
-                    if (launched) {
-                        List<File> files = e.getFiles();
-                        Platform.runLater(() ->
+            macApp.setOpenFileHandler(e ->
+            {
+                if (launched) {
+                    List<File> files = e.getFiles();
+                    Platform.runLater(() ->
+                    {
+                        for (File file : files)
                         {
-                            for (File file : files)
-                            {
-                                PkgMgrFrame.doOpen(file, null);
-                            }
-                        });
-                    }
-                    else {
-                        initialProjects = e.getFiles();
-                    }
+                            PkgMgrFrame.doOpen(file, null);
+                        }
+                    });
+                }
+                else {
+                    initialProjects = e.getFiles();
                 }
             });
         }
@@ -526,7 +510,7 @@ public class Main
     {
         return storedContextClassLoader;
     }
-    
+
     /**
      * Set the inital GUI, created after the initial project is opened.
      * @param initialGUI  A consume which displays the GUI for the initial project.
