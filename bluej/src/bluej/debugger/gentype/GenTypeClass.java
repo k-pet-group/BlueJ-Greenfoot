@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2013,2014,2017  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -631,17 +631,23 @@ public class GenTypeClass extends GenTypeSolid
     public void mergeMap(Map<String, GenTypeParameter> m)
     {
         if (outer != null)
+        {
             outer.mergeMap(m);
+        }
 
         List<GenTypeDeclTpar> formalParams = reflective.getTypeParams();
         if( params == null )
+        {
             return;
+        }
+        
         Iterator<? extends GenTypeParameter> paramIterator = params.iterator();
         Iterator<GenTypeDeclTpar> formalIterator = formalParams.iterator();
         
         // go through each type parameter, assign it the type from our
         // params list.
-        while( paramIterator.hasNext() ) {
+        while (paramIterator.hasNext() && formalIterator.hasNext())
+        {
             GenTypeParameter paramType = paramIterator.next();
             GenTypeDeclTpar formalType = (GenTypeDeclTpar)formalIterator.next();
             
