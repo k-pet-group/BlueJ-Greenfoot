@@ -25,7 +25,6 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
-import java.util.BitSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import bluej.editor.moe.PrintDialog.PrintSize;
@@ -77,7 +76,8 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
     // Disabled during printing if we don't want line numbers:
     private final BooleanProperty showLineNumbers = new SimpleBooleanProperty(true);
     private final AtomicBoolean queuedRecalculation = new AtomicBoolean(false);
-    private final BitSet visibleLines = new BitSet();
+    private int firstVisible = -1;
+    private int lastVisible = -1;
 
     public boolean isShowLineNumbers()
     {
@@ -156,7 +156,7 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
      */
     public boolean lineIsVisible(int line)
     {
-        return visibleLines.get(line);
+        return line >= firstVisible && line <= lastVisible;
     }
     
     /**
@@ -179,17 +179,29 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
                 {
                     queuedRecalculation.set(false);
                     int earliestIncomplete = -1, latestIncomplete = -1;
-                    visibleLines.clear();
+                    firstVisible = -1;
+                    lastVisible = -1;
                     for (int i = 0; i < getParagraphs().size(); i++)
                     {
                         ScopeInfo paragraphStyle = getDocument().getParagraphStyle(i);
-                        if (paragraphStyle != null && paragraphStyle.isIncomplete() && virtualFlow.getCellIfVisible(i).isPresent())
+                        boolean lineVisible = virtualFlow.getCellIfVisible(i).isPresent();
+                        if (paragraphStyle != null && paragraphStyle.isIncomplete() && lineVisible)
                         {
                             if (earliestIncomplete == -1)
+                            {
                                 earliestIncomplete = i;
+                            }
                             latestIncomplete = i;
                         }
-                        visibleLines.set(i, virtualFlow.getCellIfVisible(i).isPresent());
+                        
+                        if (lineVisible)
+                        {
+                            if (firstVisible == -1)
+                            {
+                                firstVisible = i;
+                            }
+                            lastVisible = i;
+                        }
                     }
                     if (earliestIncomplete != -1)
                     {
