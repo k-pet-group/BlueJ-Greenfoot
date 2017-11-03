@@ -37,8 +37,6 @@ import com.google.common.collect.ImmutableSet;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.ReadOnlyDoubleProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -751,7 +749,7 @@ public class BlueJSyntaxView
 
         boolean allSpaces = document.getDocument().getParagraph(position.getMajor()).getText().substring(0, position.getMinor()).chars().allMatch(c -> c == ' ');
 
-        if (!editorPane.visibleLines.get(position.getMajor()) && (!allSpaces || cachedSpaceSizes.size() <= 4))
+        if (!editorPane.lineIsVisible(position.getMajor()) && (!allSpaces || cachedSpaceSizes.size() <= 4))
         {
             // If we are printing, we'll never be able to get the on-screen position
             // for our off-screen editor.  So we must make our best guess at positions
@@ -1102,7 +1100,7 @@ public class BlueJSyntaxView
         // hope that the editor is now visible:
         if (indent == null || indent <= 0) {
             // No point trying to re-calculate the indent if the line isn't on screen:
-            if (editorPane != null && (editorPane.visibleLines.get(doc.offsetToPosition(lineEl.getStartOffset()).getMajor()) || doc.isPrinting()))
+            if (editorPane != null && (editorPane.lineIsVisible(doc.offsetToPosition(lineEl.getStartOffset()).getMajor()) || doc.isPrinting()))
             {
                 indent = getNodeIndent(doc, nap);
                 nodeIndents.put(nap.getNode(), indent);

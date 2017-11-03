@@ -77,8 +77,7 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
     // Disabled during printing if we don't want line numbers:
     private final BooleanProperty showLineNumbers = new SimpleBooleanProperty(true);
     private final AtomicBoolean queuedRecalculation = new AtomicBoolean(false);
-    // package-visible:
-    final BitSet visibleLines = new BitSet();
+    private final BitSet visibleLines = new BitSet();
 
     public boolean isShowLineNumbers()
     {
@@ -148,6 +147,18 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
         setupRedrawListener(virtualFlow);
     }
 
+    /**
+     * Check whether the specified line is currently visible on screen. If a line is
+     * is visible its character positions can be determined. 
+     * 
+     * @param line  the line number, starting at 0
+     * @return  true if the specified line is visible
+     */
+    public boolean lineIsVisible(int line)
+    {
+        return visibleLines.get(line);
+    }
+    
     /**
      * Set up a listener to calculate scope backgrounds for newly visible lines,
      * and schedule them to be painted if necessary.
