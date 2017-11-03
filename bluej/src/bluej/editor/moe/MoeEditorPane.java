@@ -181,28 +181,80 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
                     int earliestIncomplete = -1, latestIncomplete = -1;
                     firstVisible = -1;
                     lastVisible = -1;
-                    for (int i = 0; i < getParagraphs().size(); i++)
+                    
+                    // Estimate first visible paragraph:
+                    int totalParas = getParagraphs().size();
+                    int estimatedPara = (int)(totalParas * getEstimatedScrollY() / getTotalHeightEstimate());
+                    boolean found = false;
+                    
+                    // In case the estimate falls short, look forward a number of cells to find
+                    // the first visible cell:
+                    for (int i = 0; i < 10 && estimatedPara < totalParas; i++)
+                    {
+                        if(virtualFlow.getCellIfVisible(estimatedPara).isPresent())
+                        {
+                            found = true;
+                            break;
+                        }
+                        estimatedPara++;
+                    }
+                    
+                    if (found)
+                    {
+                        // We found a visible cell: look backwards to make sure it's the
+                        // first visible cell
+                        int estimatedFirst = estimatedPara;
+                        firstVisible = estimatedFirst;
+                        while (firstVisible > 0)
+                        {
+                            estimatedFirst--;
+                            if (! virtualFlow.getCellIfVisible(estimatedFirst).isPresent())
+                            {
+                                break;
+                            }
+                            firstVisible = estimatedFirst;
+                        }
+                    }
+                    else {
+                        // Do it the slow way:
+                        for (int i = 0; i < totalParas; i++)
+                        {
+                            if (virtualFlow.getCellIfVisible(i).isPresent())
+                            {
+                                firstVisible = i;
+                                estimatedPara = i;
+                                break;
+                            }
+                        }
+                        
+                        if (firstVisible == -1)
+                        {
+                            return;
+                        }
+                    }
+                    
+                    for (int i = firstVisible; i < totalParas; i++)
                     {
                         ScopeInfo paragraphStyle = getDocument().getParagraphStyle(i);
                         boolean lineVisible = virtualFlow.getCellIfVisible(i).isPresent();
-                        if (paragraphStyle != null && paragraphStyle.isIncomplete() && lineVisible)
-                        {
-                            if (earliestIncomplete == -1)
-                            {
-                                earliestIncomplete = i;
-                            }
-                            latestIncomplete = i;
-                        }
-                        
                         if (lineVisible)
                         {
-                            if (firstVisible == -1)
+                            if (paragraphStyle != null && paragraphStyle.isIncomplete())
                             {
-                                firstVisible = i;
+                                if (earliestIncomplete == -1)
+                                {
+                                    earliestIncomplete = i;
+                                }
+                                latestIncomplete = i;
                             }
                             lastVisible = i;
                         }
+                        else
+                        {
+                            break;
+                        }
                     }
+                    
                     if (earliestIncomplete != -1)
                     {
                         editor.getSourceDocument().recalculateScopesForLinesInRange(earliestIncomplete, latestIncomplete);
@@ -247,18 +299,6 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
             this.showLineNumbers.set(showLineNumbers);
         }
     }
-
-    /*
-     * Make sure, when we are scrolling to follow the caret,
-     * that we can see the tag area as well.
-     */
-    /*
-    public void scrollRectToVisible(Rectangle rect)
-    {
-        super.scrollRectToVisible(new Rectangle(rect.x - (MoeSyntaxView.TAG_WIDTH + 4), rect.y,
-                                                rect.width + MoeSyntaxView.TAG_WIDTH + 4, rect.height));
-    }
-    */
 
     public void setText(String s)
     {
