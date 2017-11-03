@@ -1702,10 +1702,26 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 // up to the top.  (The editor pane won't show empty space beyond the bottom, so we cannot
                 // scroll as far as we would like.  Instead, we have the bottom of the content at the bottom
                 // of the window, and use translateY to do a fake scroll to move it up to the top of the page.)
-                editorPane.setClip(null);
+                editorPane.setClip(new javafx.scene.shape.Rectangle(editorPane.getWidth(), editorPane.getHeight()));
                 editorPane.setTranslateY(-virtualFlow.cellToViewport(virtualFlow.getCell(topLine), 0, 0).getY());
             }
             updatePageNumber.accept(pageNumber);
+            // NCCB: I have investigated the printing bug seen in 4.1.2rc2 for
+            // a long time, but my best guess is that the bug is not in our code.
+            // The way it now manifests, with the page cut off at an arbitrary
+            // point halfway through a line, just doesn't seem like it can be
+            // the fault of our code or RichTextFX (having seen it occur with the
+            // clip above disabled).  Putting a Thread.sleep here seems to avoid
+            // the problem, which I think suggests it may be a race hazard in the
+            // JDK which uses threading for JavaFX printing.  Not nice, but it
+            // does seem to fix the issue:
+            try
+            {
+                Thread.sleep(1000);
+            }
+            catch (InterruptedException e)
+            {
+            }
             printerJob.printPage(printNode);
             pageNumber += 1;
         }
