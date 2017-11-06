@@ -1,5 +1,6 @@
 SOURCE CODE STYLE GUIDE FOR BLUEJ
 
+
 1. Naming
 
 1.1 Use meaningful names.
@@ -17,6 +18,7 @@ Use descriptive names for all identifiers (names of classes, variables and metho
 1.5 Constants are written in UPPERCASE.
 
     Constants occasionally use underscores to indicate compound identifiers: MAXIMUM_SIZE
+
 
 2. Layout
 
@@ -71,9 +73,17 @@ Use descriptive names for all identifiers (names of classes, variables and metho
 
 2.9 Avoid lines which are very long.  100+ characters (including indent) is already quite long, and at 110 characters you should break the line into a continuation line, or refactor out some of the sub-expressions into variables.
 
-3. Documentation
 
-3.1 Every class has a license comment and a class comment at the top.
+3. General
+
+3.1 Prefer readable, comprehensible, maintainable code to compact code.
+
+3.2 Use loop constructs in favour of the streams API and lambdas except in cases where the latter is clearly more comprehensible.
+
+
+4. Documentation
+
+4.1 Every class has a license comment and a class comment at the top.
 
 	The copyright statement in the license comment should list years during which the file
 	was modified.
@@ -81,29 +91,29 @@ Use descriptive names for all identifiers (names of classes, variables and metho
     The class comment contains at least
     - a general description of the class
 
-3.2 Every method has a method comment.
+4.2 Every method has a method comment.
 
-3.3 Comments are Javadoc-readable.
+4.3 Comments are Javadoc-readable.
 
     Class and method comments must be recognised by Javadoc. In other words: they should start with the comment symbol /**.
 
-3.4 Code comments (only) where necessary.
+4.4 Code comments (only) where necessary.
 
     Comments in the code should be included where the code is not obvious or difficult to understand (while preference should be given to make the code obvious or easy to understand where possible), and where it helps understanding of a method.
 
-4. Language use restrictions
+5. Language use restrictions
 
-4.1 Order of declarations: fields, constructors, methods.
+5.1 Order of declarations: fields, constructors, methods.
 
     The elements of a class definition appear (if present) in the following order: package statement; import statements; class comment; class header; field definitions; constructors; methods.
 
-4.2 Fields may not be public (except for final fields).
+5.2 Fields may not be public (except for final fields).
 
-4.3 Always use an access modifier.
+5.3 Always use an access modifier.
 
     Specify all fields and methods as either private, public, or protected. Never use default (package private) access.
 
-4.4 Import classes separately.
+5.4 Import classes separately.
 
     Import statements explicitly naming every class are preferred over importing whole packages. E.g.
 
@@ -117,16 +127,17 @@ Use descriptive names for all identifiers (names of classes, variables and metho
     However if four classes are imported from a package, the import can be changed to 'package.*'.
     This can be configured in some IDE's. In Eclipse: Window/Preferences/Java/Organize Imports
  
-4.5 Always include a constructor (even if the body is empty).
+5.5 Always include a constructor (even if the body is empty).
 
-4.6 Always include superclass constructor call.
+5.6 Always include superclass constructor call.
 
     In constructors of subclasses, do not rely on automatic insertion of a superclass call. Include the super(...) call explicitly, even if it would work without it.
 
-4.7 Initialise all fields in the constructor or by direct initialisation.
+5.7 Initialise all fields in the constructor or by direct initialisation.
 
-5. Edits and commits
 
-5.1 Separate out each logical change into a different commit.  A bug fix should be separate to code clean-up, whenever possible.
+6. Edits and commits
 
-5.2 Do not edit more code than is necessary: do not clean up or change the style of code which you would otherwise not need to edit.
+6.1 Separate out each logical change into a different commit.  A bug fix should be separate to code clean-up, whenever possible.
+
+6.2 Do not edit more code than is necessary: do not clean up or change the style of code which you would otherwise not need to edit.
