@@ -53,7 +53,6 @@ import java.util.function.Consumer;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.application.Preloader;
-import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.Stage;
@@ -271,8 +270,7 @@ public class ExecServer
                     if (source instanceof Window) {
                         addWindow((Window) source);
                         Utility.bringToFront((Window) source);
-                        // To make sure that screen readers an
-                        // nounce the window being open,
+                        // To make sure that screen readers announce the window being open,
                         // we de-focus and re-focus it once the right application has focus:
                         // Disabling this code due to it causing issues, see ticket #516.
                         //     KeyboardFocusManager.getCurrentKeyboardFocusManager().clearGlobalFocusOwner();
@@ -1025,7 +1023,8 @@ public class ExecServer
 
             // Must initialise Stage class before using the windows:
             new Stage();
-            FXCollections.observableArrayList(Window.getWindows()).addListener((ListChangeListener<Window>) c -> {
+            javafx.stage.Window.getWindows().addListener((ListChangeListener<javafx.stage.Window>) c ->
+            {
                 boolean anyAdded = false;
                 while (c.next())
                     anyAdded |= c.wasAdded();
