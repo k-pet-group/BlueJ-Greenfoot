@@ -61,6 +61,8 @@ import org.fxmisc.richtext.model.TwoDimensional.Position;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.Map.Entry;
@@ -156,6 +158,8 @@ public class BlueJSyntaxView
      * that old line labels can get GCed as we scroll up and down:
      */
     private final Set<WeakReference<Label>> lineLabels = new HashSet<>();
+    
+    private final ReferenceQueue<Label> lineLabelsRefQ = new ReferenceQueue<>();
 
     /**
      * Cached indents for ParsedNode items.  Maps a node to an indent (in pixels)
@@ -1769,7 +1773,7 @@ public class BlueJSyntaxView
             e.consume();
         });
 
-        WeakReference<Label> weakLabel = new WeakReference<>(label);
+        WeakReference<Label> weakLabel = new WeakReference<>(label, lineLabelsRefQ);
         FXPlatformConsumer<EnumSet<ParagraphAttribute>> listener = attr -> {
             Label l = weakLabel.get();
             if (l != null)
@@ -1790,12 +1794,20 @@ public class BlueJSyntaxView
                 }
             }
             else
+            {
                 paragraphAttributeListeners.remove(lineNumberFinal);
+            }
         };
-        // Remove any old references to line labels which have been GCed:
-        lineLabels.removeIf(w -> w.get() == null);
+
         // Add our line label, to be notified if labels get turned on or off:
         lineLabels.add(weakLabel);
+        
+        // Remove any old references to line labels which have been GCed:
+        Reference<?> rlabel = lineLabelsRefQ.poll();
+        while (rlabel != null) {
+            lineLabels.remove(rlabel);
+            rlabel = lineLabelsRefQ.poll();
+        }
 
         listener.accept(paragraphAttributes.getOrDefault(lineNumber, EnumSet.noneOf(ParagraphAttribute.class)));
         // By replacing the previous listener, it should get GCed:
