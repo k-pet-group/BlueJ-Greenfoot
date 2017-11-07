@@ -37,8 +37,6 @@ import com.google.common.collect.ImmutableSet;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.ReadOnlyDoubleProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -63,6 +61,8 @@ import org.fxmisc.richtext.model.TwoDimensional.Position;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.Map.Entry;
@@ -158,6 +158,8 @@ public class BlueJSyntaxView
      * that old line labels can get GCed as we scroll up and down:
      */
     private final Set<WeakReference<Label>> lineLabels = new HashSet<>();
+    
+    private final ReferenceQueue<Label> lineLabelsRefQ = new ReferenceQueue<>();
 
     /**
      * Cached indents for ParsedNode items.  Maps a node to an indent (in pixels)
@@ -751,7 +753,7 @@ public class BlueJSyntaxView
 
         boolean allSpaces = document.getDocument().getParagraph(position.getMajor()).getText().substring(0, position.getMinor()).chars().allMatch(c -> c == ' ');
 
-        if (!editorPane.visibleLines.get(position.getMajor()) && (!allSpaces || cachedSpaceSizes.size() <= 4))
+        if (!editorPane.lineIsVisible(position.getMajor()) && (!allSpaces || cachedSpaceSizes.size() <= 4))
         {
             // If we are printing, we'll never be able to get the on-screen position
             // for our off-screen editor.  So we must make our best guess at positions
@@ -1102,7 +1104,7 @@ public class BlueJSyntaxView
         // hope that the editor is now visible:
         if (indent == null || indent <= 0) {
             // No point trying to re-calculate the indent if the line isn't on screen:
-            if (editorPane != null && (editorPane.visibleLines.get(doc.offsetToPosition(lineEl.getStartOffset()).getMajor()) || doc.isPrinting()))
+            if (editorPane != null && (editorPane.lineIsVisible(doc.offsetToPosition(lineEl.getStartOffset()).getMajor()) || doc.isPrinting()))
             {
                 indent = getNodeIndent(doc, nap);
                 nodeIndents.put(nap.getNode(), indent);
@@ -1771,7 +1773,7 @@ public class BlueJSyntaxView
             e.consume();
         });
 
-        WeakReference<Label> weakLabel = new WeakReference<>(label);
+        WeakReference<Label> weakLabel = new WeakReference<>(label, lineLabelsRefQ);
         FXPlatformConsumer<EnumSet<ParagraphAttribute>> listener = attr -> {
             Label l = weakLabel.get();
             if (l != null)
@@ -1792,12 +1794,20 @@ public class BlueJSyntaxView
                 }
             }
             else
+            {
                 paragraphAttributeListeners.remove(lineNumberFinal);
+            }
         };
-        // Remove any old references to line labels which have been GCed:
-        lineLabels.removeIf(w -> w.get() == null);
+
         // Add our line label, to be notified if labels get turned on or off:
         lineLabels.add(weakLabel);
+        
+        // Remove any old references to line labels which have been GCed:
+        Reference<?> rlabel = lineLabelsRefQ.poll();
+        while (rlabel != null) {
+            lineLabels.remove(rlabel);
+            rlabel = lineLabelsRefQ.poll();
+        }
 
         listener.accept(paragraphAttributes.getOrDefault(lineNumber, EnumSet.noneOf(ParagraphAttribute.class)));
         // By replacing the previous listener, it should get GCed:
