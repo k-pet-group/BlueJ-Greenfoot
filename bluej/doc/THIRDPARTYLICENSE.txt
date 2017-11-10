@@ -62,7 +62,7 @@ Apache Commons libraries (Apache License version 2.0)
 -----------------------------------------------------
 Various components of the Apache Commons libraries (https://commons.apache.org/) are
 used by BlueJ:
-  commons-logging-api-1.1.2.jar
+  commons-logging-api-1.2.jar
   commons-vfs2-2.0.jar
 These components are distributed under the Apache License version 2.0. A copy of this
 license can be found in the "Apache-License-2.0.txt" file.  
@@ -72,9 +72,9 @@ Apache HttpComponents library (Apache License version 2.0)
 ----------------------------------------------------------
 Various components of the Apache HttpComponents library (https://hc.apache.org/) are
 used by BlueJ:
-  httpclient-4.1.1.jar
-  httpcore-4.1.1.jar
-  httpmime-4.1.1.jar 
+  httpclient-4.5.3.jar
+  httpcore-4.4.8.jar
+  httpmime-4.5.3.jar
 These components are distributed under the Apache License version 2.0. A copy of this
 license can be found in the "Apache-License-2.0.txt" file.  
  
@@ -93,7 +93,7 @@ The library is distributed under the Apache License version 2.0, as found in the
 
 Guava - Google Core library (Apache License version 2.0)
 --------------------------------------------------------
-"guava-17.0.jar" is from the Google Core libraries for Java
+"guava-19.0.jar" is from the Google Core libraries for Java
 (https://github.com/google/guava) which BlueJ uses.
 It is distributed under the Apache License version 2.0, as found in the
 "Apache-License-2.0.txt" file.
@@ -101,7 +101,7 @@ It is distributed under the Apache License version 2.0, as found in the
 
 Hamcrest (3-clause BSD license)
 -------------------------------
-"hamcrest-core-1.3.jar" is part of the Hamcrest libary
+"hamcrest-core-1.3.jar" is part of the Hamcrest library
 (http://hamcrest.org/JavaHamcrest/) and is a dependency of JUnit, which
 is used by BlueJ.
 It is available under the "3 clause BSD" license as found in the
@@ -110,9 +110,9 @@ It is available under the "3 clause BSD" license as found in the
 
 Javassist library (Apache License version 2.0)
 ----------------------------------------------
-"javassist-3.18.0" is the Javassist library (http://jboss-javassist.github.io/javassist/),
+"javassist-3.22.0" is the Javassist library (http://jboss-javassist.github.io/javassist/),
 a bytecode engineering library used by BlueJ.
-Javassist is Copyright (C) 1999-2013, Shigeru Chiba.
+Javassist is Copyright (C) 1999-2017, Shigeru Chiba.
 The copyright holder allows distribution of Javassist under a choice of several licenses.
 In BlueJ it is distributed under the terms of the Apache License version 2.0, as found
 in the "Apache-License-2.0.txt" file.
@@ -127,21 +127,21 @@ as found in the "EDL-v1.0.txt" file.
 
 JSch Java Secure Channel (BSD-style license)
 --------------------------------------------------
-"jsch-0.1.53.jar" provides a pure java implementation of SSH2 for JGit library, 
+"jsch-0.1.54.jar" provides a pure java implementation of SSH2 for JGit library,
 which is used by Bluej. It is distributed under the terms of a BSD-style license, 
 as found in the "jsch-BSD.txt" file.
 
 
-JUnit (Common Public License v1.0)
+JUnit (Eclipse Public License v1.0)
 ----------------------------------
-"junit-4.11.jar" is part of the JUnit unit testing library (http://junit.org/) which is
-used by BlueJ. It is distributed under the terms of the Common Public License
-version 1.0, as found in the "CPL-v1.0.txt" file.
+"junit-4.12.jar" is part of the JUnit unit testing library (http://junit.org/) which is
+used by BlueJ. It is distributed under the terms of the Eclipse Public License
+version 1.0, as found in the "EPL-v1.0.txt" file.
 
 
 NSMenuFX library (3-clause BSD license)
 ---------------------------------------
-"nsmenufx-2.1.4.jar", the NSMenuFX library (https://github.com/codecentric/NSMenuFX),
+"nsmenufx-2.1.5.jar", the NSMenuFX library (https://github.com/codecentric/NSMenuFX),
 is a library to customize the OS X menu bar when it is on FX to be able to customize
 the auto-generated application menu. This version is distributed under the terms of
 the BSD license as found in the "nsmenufx-BSD.txt" file.
@@ -189,16 +189,10 @@ as found in the "SIL-OFL-1.1.txt" file.
 
 SVNKit (TMate Open Source License)
 ----------------------------------
-"svnkit.jar" is part of the SVNKit library (http://svnkit.com/) used by BlueJ for
-Subversion support. It is distributed under the terms of the TMate Open Source license,
-as found in the "svnkit.txt" file.
-
-
-SVNKit JavaHL bindings (Suvbersion 1.6 license)
--------------------------------------------
-"svnkit-javahl.jar", which provides Subversion "JavaHL"-compatible bindings for the
-SVNKit library, is used by BlueJ. It is distributed under the terms of the Subversion
-license, as found in the "svnkit-javahl.txt" file.
+"svnkit-1.9.0.jar" and "svnkit-javahl16-1.9.0.jar" are part of the SVNKit library
+(http://svnkit.com/). They are used by BlueJ for Subversion support. They are
+distributed under the terms of the TMate Open Source license, as found in the
+"TMate.txt" file.
 
 
 SQLJet library (TMate Open Source License)
@@ -218,7 +212,7 @@ version control. It is distributed under a BSD-like license as found in the
 
 XOM XML Object Modeller library (Lesser GNU Public License v2.1)
 ----------------------------------------------------------------
-"xom-1.2.9.jar" comprises the XOM library (http://www.cafeconleche.org/XOM/), used
+"xom-1.2.10.jar" comprises the XOM library (http://www.cafeconleche.org/XOM/), used
 by BlueJ. It is distributed under the terms of the LGPL v2.1, as found in the
 "GNU-LGPL-v2.1.txt" file.
 
@@ -260,29 +254,31 @@ primary BlueJ license).
 
 
 
-4. SUMMARY OF THIRD-PARTY JAR FILES AND LICENSES
+4. SUMMARY OF THIRD-PARTY JAR/FONT FILES AND LICENSES
 
 antlr-runtime-3.4.jar                    BSD License
 AppleJavaExtensions.jar                  BSD-like license
-commons-logging-api-1.1.2.jar            Apache License v2.0
+commons-logging-api-1.2.jar              Apache License v2.0
 commons-vfs2-2.0.jar                     Apache License v2.0
 diffutils-1.2.1.jar                      Apache License v2.0
-guava-17.0.jar                           Apache License v2.0
+guava-19.0.jar                           Apache License v2.0
 hamcrest-core-1.3.jar                    BSD License
-httpclient-4.1.1.jar                     Apache License v2.0
-httpcore-4.1.jar                         Apache License v2.0
-httpmime-4.1.1.jar                       Apache License v2.0
-javassist-3.18.0.jar                     Apache License v2.0
-jsch-0.1.53.jar                          BSD License
-junit-4.11.jar                           Common Public License v1.0
-nsmenufx-2.1.4.jar                       BSD license
+httpclient-4.5.3.jar                     Apache License v2.0
+httpcore-4.4.8.jar                       Apache License v2.0
+httpmime-4.5.3.jar                       Apache License v2.0
+javassist-3.22.0.jar                     Apache License v2.0
+jsch-0.1.54.jar                          BSD License
+junit-4.12.jar                           Eclipse Public License v1.0
+nsmenufx-2.1.5.jar                       BSD license
 org.eclipse.jgit-4.9.0.jar               Eclipse Distribution License (EDL) v1.0
 richtextfx-fat-0.9.0.jar                 BSD License
+RobotoMono-*.ttf                         Apache License v2.0
 sequence-library-1.0.3.jar               BSD License
 slf4j-api-1.7.2.jar                      MIT License
 slf4j-jdk14-1.7.2.jar                    MIT License
+SourceSansPro-*.ttf                      SIL Open Font License
 sqljet-1.1.10.jar                        TMate Open Source License
-svnkit-javahl.jar                        Subversion License
-svnkit.jar                               TMate Open Source License
+svnkit-javahl16-1.9.0.jar                TMate Open Source License
+svnkit-1.9.0.jar                         TMate Open Source License
 trilead.jar                              BSD-like license
-xom-1.2.9.jar                            Lesser GPL v2.1
+xom-1.2.10.jar                           Lesser GPL v2.1

@@ -72,16 +72,16 @@
         <pathelement location="${bluej_home}/classes"/>
         <pathelement location="${bluej_home}/boot/classes"/>
         <pathelement location="${bluej_home}/lib/antlr.jar"/>
-        <pathelement location="${bluej_home}/lib/junit-4.11.jar"/>
+        <pathelement location="${bluej_home}/lib/junit-4.12.jar"/>
         <pathelement location="${bluej_home}/lib/hamcrest-core-1.3.jar"/>
         <pathelement location="${bluej_home}/lib/AppleJavaExtensions.jar"/>
-        <pathelement location="${bluej_home}/lib/commons-logging-api-1.1.2.jar"/>
-        <pathelement location="${bluej_home}/lib/httpclient-4.1.1.jar"/>
-        <pathelement location="${bluej_home}/lib/httpcore-4.1.jar"/>
-        <pathelement location="${bluej_home}/lib/httpmime-4.1.1.jar"/>
+        <pathelement location="${bluej_home}/lib/commons-logging-api-1.2.jar"/>
+        <pathelement location="${bluej_home}/lib/httpclient-4.5.3.jar"/>
+        <pathelement location="${bluej_home}/lib/httpcore-4.4.8.jar"/>
+        <pathelement location="${bluej_home}/lib/httpmime-4.5.3.jar"/>
         <pathelement location="${jlayer.jar.path}"/>
         <pathelement location="${bluej_home}/lib/opencsv-2.3.jar"/>
-        <pathelement location="${bluej_home}/lib/xom-1.2.9.jar"/>
+        <pathelement location="${bluej_home}/lib/xom-1.2.10.jar"/>
         <pathelement location="${bluej_home}/lib/diffutils-1.2.1.jar"/>
     </path>
     <!-- The sourcepath to the bluej classes-->

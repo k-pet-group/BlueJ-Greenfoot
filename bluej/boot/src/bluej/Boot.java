@@ -80,7 +80,7 @@ public class Boot
     // The second group are available to user code (and to bluej)
     // bluejcore.jar is necessary as it contains the support runtime
     // (bluej.runtime.* classes).
-    private static final String[] bluejUserJars = { "bluejcore.jar", "junit-4.11.jar", "hamcrest-core-1.3.jar", "lang-stride.jar" };
+    private static final String[] bluejUserJars = { "bluejcore.jar", "junit-4.12.jar", "hamcrest-core-1.3.jar", "lang-stride.jar" };
     // The number of jar files in the user jars which are built from the
     // BlueJ classes directory
     private static final int bluejUserBuildJars = 1;
@@ -91,13 +91,13 @@ public class Boot
     public static final String[] GREENFOOT_EXPORT_JARS = {JLAYER_MP3_JAR, "lang-stride.jar"};
     private static final String[] greenfootUserJars = {"extensions" + File.separatorChar + "greenfoot.jar",
         "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
-        "AppleJavaExtensions.jar", "junit-4.11.jar", "hamcrest-core-1.3.jar", "bluej.jar",
-        "diffutils-1.2.1.jar", "commons-logging-api-1.1.2.jar",
-        JLAYER_MP3_JAR, "opencsv-2.3.jar", "xom-1.2.9.jar",
+        "AppleJavaExtensions.jar", "junit-4.12.jar", "hamcrest-core-1.3.jar", "bluej.jar",
+        "diffutils-1.2.1.jar", "commons-logging-api-1.2.jar",
+        JLAYER_MP3_JAR, "opencsv-2.3.jar", "xom-1.2.10.jar",
         "lang-stride.jar",
         "nsmenufx-2.1.4.jar", "richtextfx-fat-0.9.0.jar",
-        "guava-17.0.jar", "javassist-3.18.0.jar", "commons-vfs2-2.0.jar",
-        "httpclient-4.1.1.jar", "httpcore-4.1.jar", "httpmime-4.1.1.jar"};
+        "guava-19.0.jar", "javassist-3.22.0.jar", "commons-vfs2-2.0.jar",
+        "httpclient-4.5.3.jar", "httpcore-4.4.8.jar", "httpmime-4.5.3.jar"};
     private static final int greenfootUserBuildJars = 4;
     public static String GREENFOOT_VERSION = "3.5.0";
     public static String GREENFOOT_API_VERSION = "3.0.0";
@@ -108,29 +108,29 @@ public class Boot
     private static final String[] bluejJars = { "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
         "antlr-runtime-3.4.jar",
         "AppleJavaExtensions.jar",
-        "commons-logging-api-1.1.2.jar",
+        "commons-logging-api-1.2.jar",
         "commons-vfs2-2.0.jar",
         "diffutils-1.2.1.jar",
-        "guava-17.0.jar",
+        "guava-19.0.jar",
         "hamcrest-core-1.3.jar",
-        "httpclient-4.1.1.jar",
-        "httpcore-4.1.jar",
-        "httpmime-4.1.1.jar",
-        "javassist-3.18.0.jar",
-        "jsch-0.1.53.jar",
-        "junit-4.11.jar",
+        "httpclient-4.5.3.jar",
+        "httpcore-4.4.8.jar",
+        "httpmime-4.5.3.jar",
+        "javassist-3.22.0.jar",
+        "jsch-0.1.54.jar",
+        "junit-4.12.jar",
         "lang-stride.jar",
-        "nsmenufx-2.1.4.jar",
+        "nsmenufx-2.1.5.jar",
         "org.eclipse.jgit-4.9.0.jar",
         "richtextfx-fat-0.9.0.jar",
         "sequence-library-1.0.3.jar",
         "slf4j-api-1.7.2.jar",
         "slf4j-jdk14-1.7.2.jar",
         "sqljet-1.1.10.jar",
-        "svnkit.jar",
-        "svnkit-javahl.jar",
+        "svnkit-1.9.0.jar",
+        "svnkit-javahl16-1.9.0.jar",
         "trilead.jar",
-        "xom-1.2.9.jar" };
+        "xom-1.2.10.jar" };
     // The variable form of the above
     private static String [] runtimeJars = bluejJars;
     private static String [] userJars = bluejUserJars;
