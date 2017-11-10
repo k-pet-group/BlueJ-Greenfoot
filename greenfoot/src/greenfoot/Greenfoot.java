@@ -294,8 +294,12 @@ public class Greenfoot
     /**
      * Get input from the user (and freeze the scenario while we are waiting).
      * The prompt String parameter will be shown to the user (e.g. "How many players?"), and the answer will be returned as a String.
-     * If you want to ask for a number, you can use methods like Integer.parseInt to turn
+     * If you want to ask for a number, you can use methods like <tt>Integer.parseInt</tt> to turn
      * the returned String into a number.
+     * <p>
+     * This method can only be used when a world is in place and the scenario is running.
+     * It returns null if that is not the case, or if the scenario is reset while the prompt
+     * is being shown.
      *
      * @param prompt The prompt to show to the user.
      * @return The string that the user typed in.
