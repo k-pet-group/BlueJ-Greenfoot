@@ -234,7 +234,7 @@ public class WorldCanvas extends JPanel
                 try {
                     Insets insets = getInsets();
                     g.translate(-insets.left, -insets.top);
-                    paintRemote();
+                    //paintRemote();
                 }
                 finally {
                     lock.readLock().unlock();
@@ -264,7 +264,7 @@ public class WorldCanvas extends JPanel
         }
         lastPaintNanos = now;
 
-        BufferedImage img = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
+        BufferedImage img = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_BGR);
         Graphics2D g2 = (Graphics2D)img.getGraphics();
         paintBackground(g2);
         paintObjects(g2);
