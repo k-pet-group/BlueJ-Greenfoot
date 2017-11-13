@@ -22,6 +22,11 @@
 package bluej.editor.moe;
 
 import bluej.pkgmgr.Package;
+import bluej.prefmgr.PrefMgr;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
+import javafx.beans.binding.BooleanExpression;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.collections.FXCollections;
 import javafx.geometry.Pos;
 import javafx.scene.control.ButtonType;
@@ -79,6 +84,11 @@ public class PrintDialog extends Dialog<PrintDialog.PrintChoices>
         }
     }
 
+    // Has to be a field to make sure weak binding doesn't get GCed.
+    // Store as negative (cannot, rather than can) because we bind from this to
+    // disabledProperty (and there is no enabled property):
+    private final BooleanExpression cannotPrint;
+
     /**
      * Creates a new PrintDialog object.
      *
@@ -101,10 +111,10 @@ public class PrintDialog extends Dialog<PrintDialog.PrintChoices>
         sizeRow.setSpacing(10.0);
 
         CheckBox checkLineNumbers = new CheckBox(Config.getString("editor.printDialog.printLineNumbers"));
-        checkLineNumbers.setSelected(true);
+        checkLineNumbers.setSelected(PrefMgr.getFlag(PrefMgr.LINENUMBERS));
 
         CheckBox checkHighlighting = new CheckBox(Config.getString("editor.printDialog.printHighlighting"));
-        checkHighlighting.setSelected(false);
+        checkHighlighting.setSelected(PrefMgr.getScopeHighlightStrength().get() > 0);
 
         VBox vBox = new VBox(sizeRow, checkLineNumbers, checkHighlighting);
         vBox.setSpacing(8);
@@ -117,18 +127,30 @@ public class PrintDialog extends Dialog<PrintDialog.PrintChoices>
             checkSource = new CheckBox(Config.getString("pkgmgr.printDialog.printSource"));
             checkLineNumbers.disableProperty().bind(checkSource.selectedProperty().not());
             checkHighlighting.disableProperty().bind(checkSource.selectedProperty().not());
+            checkSource.setSelected(true);
             vBox.getChildren().add(0, checkSource);
 
+            checkDiagram = new CheckBox(Config.getString("pkgmgr.printDialog.printDiagram"));
+            checkDiagram.setSelected(true);
             if (pkg.isUnnamedPackage())
             {
                 checkReadme = new CheckBox(Config.getString("pkgmgr.printDialog.printReadme"));
+                checkReadme.setSelected(true);
                 vBox.getChildren().add(0, checkReadme);
+                cannotPrint = Bindings.createBooleanBinding(
+                    () -> !checkSource.isSelected() && !checkDiagram.isSelected() && !checkReadme.isSelected(),
+                    checkSource.selectedProperty(),
+                    checkDiagram.selectedProperty(),
+                    checkReadme.selectedProperty());
             }
             else
             {
                 checkReadme = null;
+                cannotPrint = Bindings.createBooleanBinding(
+                    () -> !checkSource.isSelected() && !checkDiagram.isSelected(),
+                    checkSource.selectedProperty(), checkDiagram.selectedProperty());
             }
-            checkDiagram = new CheckBox(Config.getString("pkgmgr.printDialog.printDiagram"));
+
             vBox.getChildren().add(0, checkDiagram);
         }
         else
@@ -136,8 +158,11 @@ public class PrintDialog extends Dialog<PrintDialog.PrintChoices>
             checkReadme = null;
             checkDiagram = null;
             checkSource = null;
+            // Should be able to print, so cannot-print is false:
+            cannotPrint = new ReadOnlyBooleanWrapper(false);
         }
 
+        getDialogPane().lookupButton(ButtonType.OK).disableProperty().bind(cannotPrint);
 
         getDialogPane().setContent(vBox);
         setResultConverter(bt -> {
