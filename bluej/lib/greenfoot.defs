@@ -147,4 +147,4 @@ greenfoot.image.create.height=150
 #greenfoot.windows.vm=X\:\\Programming Apps\\JDK_1.7.0_55
 
 # command line arguments, if any:
-greenfoot.windows.vm.args=-Xmx512M
+greenfoot.windows.vm.args=-Xmx512M -Djavafx.embed.singleThread=true

@@ -622,21 +622,21 @@ public class WorldHandler
             @Override
             public Actor getTopMostActorAt(MouseEvent e)
             {
-                Point p = SwingUtilities.convertPoint(e.getComponent(), e.getX(), e.getY(), worldCanvas);
+                Point p = new Point(e.getX(), e.getY());
                 return getObject(world, p.x, p.y);
             }
 
             @Override
             public int getTranslatedX(MouseEvent e)
             {
-                Point p = SwingUtilities.convertPoint(e.getComponent(), e.getX(), e.getY(), worldCanvas);
+                Point p = new Point(e.getX(), e.getY());
                 return WorldVisitor.toCellFloor(world, p.x);
             }
 
             @Override
             public int getTranslatedY(MouseEvent e)
             {
-                Point p = SwingUtilities.convertPoint(e.getComponent(), e.getX(), e.getY(), worldCanvas);
+                Point p = new Point(e.getX(), e.getY());
                 return WorldVisitor.toCellFloor(world, p.y);
             }
         });

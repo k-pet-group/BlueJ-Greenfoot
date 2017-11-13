@@ -47,6 +47,7 @@ import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.utility.Debug;
+import javafx.application.Platform;
 
 /**
  * Implementation of the remote class interface.
@@ -357,9 +358,26 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     @Override
     public void cancelFreshState() throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
-        Editor editor = bClass.getEditor();
-        if (editor != null)
-            editor.cancelFreshState();
+        Platform.runLater(() ->
+        {
+            Editor editor = null;
+            try
+            {
+                editor = bClass.getEditor();
+            }
+            catch (ProjectNotOpenException e)
+            {
+                e.printStackTrace();
+            }
+            catch (PackageNotFoundException e)
+            {
+                e.printStackTrace();
+            }
+            if (editor != null)
+            {
+                editor.cancelFreshState();
+            }
+        });
     }
 
     @Override

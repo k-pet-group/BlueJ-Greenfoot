@@ -165,15 +165,16 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      * 
      * @param rBlueJ   remote BlueJ instance
      * @param pkg      remote reference to the unnamed package of the project corresponding to this Greenfoot instance
+     * @param shmFilePath The path to the shared-memory file to be mmap-ed for communication
      * @param wizard   whether to run the "new project wizard"
      * @param sourceType  default source type for the new project
      */
-    public static void initialize(RBlueJ rBlueJ, RPackage pkg, boolean wizard, SourceType sourceType)
+    public static void initialize(RBlueJ rBlueJ, RPackage pkg, String shmFilePath, boolean wizard, SourceType sourceType)
     {
         System.setProperty("apple.laf.useScreenMenuBar", "true");
         if (instance == null) {
             try {
-                instance = new GreenfootMain(rBlueJ, pkg.getProject(), wizard, sourceType);
+                instance = new GreenfootMain(rBlueJ, pkg.getProject(), shmFilePath, wizard, sourceType);
             }
             catch (ProjectNotOpenException pnoe) {
                 // can't happen
@@ -200,7 +201,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      * Contructor is private. This class is initialised via the 'initialize'
      * method (above).
      */
-    private GreenfootMain(final RBlueJ rBlueJ, final RProject proj, boolean wizard, SourceType sourceType)
+    private GreenfootMain(final RBlueJ rBlueJ, final RProject proj, String shmFilePath, boolean wizard, SourceType sourceType)
     {
         instance = this;
         this.rBlueJ = rBlueJ;
@@ -232,7 +233,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     new JFXPanel();
                     Platform.setImplicitExit(false);
 
-                    frame = GreenfootFrame.getGreenfootFrame(rBlueJ, classStateManager);
+                    frame = GreenfootFrame.getGreenfootFrame(rBlueJ, classStateManager, shmFilePath);
 
                     // Config is initialized in GreenfootLauncherDebugVM
 

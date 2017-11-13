@@ -21,6 +21,8 @@
  */
 package greenfoot.gui;
 
+import bluej.utility.Debug;
+import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.Actor;
 import greenfoot.ActorVisitor;
 import greenfoot.GreenfootImage;
@@ -30,6 +32,8 @@ import greenfoot.WorldVisitor;
 import greenfoot.core.TextLabel;
 import greenfoot.core.WorldHandler;
 import greenfoot.util.GreenfootUtil;
+import javafx.scene.input.KeyCode;
+import rmiextension.ProjectManager;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -41,8 +45,17 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.IntBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -72,12 +85,32 @@ public class WorldCanvas extends JPanel
     /** Preferred size (not counting insets) */
     private Dimension size;
     private Image overrideImage;
-    
-    public WorldCanvas(World world)
+
+    private boolean sending = false;
+    private final IntBuffer sharedMemory;
+    private int seq = 1;
+    private final FileChannel shmFileChannel;
+    private long lastPaintNanos = System.nanoTime();
+
+    /**
+     * @param world The world which we are the canvas for.
+     * @param shmFilePath The path to the shared-memory file to be mmap-ed for communication
+     */
+    public WorldCanvas(World world, File projectDir, String shmFilePath)
     {
         setWorld(world);
         setBackground(Color.WHITE);
         setOpaque(true);
+        try
+        {
+            shmFileChannel = new RandomAccessFile(shmFilePath, "rw").getChannel();
+            MappedByteBuffer mbb = shmFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, 10_000_000L);
+            sharedMemory = mbb.asIntBuffer();
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
     
     /**
@@ -200,14 +233,8 @@ public class WorldCanvas extends JPanel
             if (lock.readLock().tryLock(timeout, TimeUnit.MILLISECONDS)) {
                 try {
                     Insets insets = getInsets();
-                    Graphics2D g2 = (Graphics2D) g;
-                    g.translate(insets.left, insets.top);
-                    paintBackground(g2);
-                    paintObjects(g2);
-                    paintDraggedObject(g2);
-                    WorldVisitor.paintDebug(world, g2);
-                    paintWorldText(g2, world);
                     g.translate(-insets.left, -insets.top);
+                    paintRemote();
                 }
                 finally {
                     lock.readLock().unlock();
@@ -221,6 +248,111 @@ public class WorldCanvas extends JPanel
         }
         catch (InterruptedException e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Paints the current world into the shared memory buffer so that the server VM can
+     * display it in the window there.
+     */
+    public void paintRemote()
+    {
+        long now = System.nanoTime();
+        if (now - lastPaintNanos <= 8_333_333L)
+        {
+            return; // No need to draw frame if less than 1/120th of sec between them
+        }
+        lastPaintNanos = now;
+
+        BufferedImage img = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
+        Graphics2D g2 = (Graphics2D)img.getGraphics();
+        paintBackground(g2);
+        paintObjects(g2);
+        paintDraggedObject(g2);
+        WorldVisitor.paintDebug(world, g2);
+        paintWorldText(g2, world);
+
+        if (!sending)
+        {
+            sending = true;
+            int [] raw = ((DataBufferInt) img.getData().getDataBuffer()).getData();
+            try (FileLock fileLock = shmFileChannel.lock())
+            {
+                // If frame was read, delete the pending set of modified images:
+                int recvSeq = sharedMemory.get(1);
+                if (recvSeq < 0)
+                {
+                    readKeyboardAndMouseEvents();
+                }
+                sharedMemory.position(1);
+                sharedMemory.put(this.seq++);
+                sharedMemory.put(getWidth());
+                sharedMemory.put(getHeight());
+                for (int i = 0; i < raw.length; i++)
+                {
+                    sharedMemory.put(raw[i] << 8 | 0xFF);
+                }
+
+            }
+            catch (IOException e)
+            {
+                Debug.reportError(e);
+            }
+            sending = false;
+        }
+    }
+
+    /**
+     * Reads keyboard events from the shared memory buffer.  Should only be called
+     * when we know that the shared memory buffer has been written to (and thus will
+     * have the keyboard/mouse event counts set correctly, which includes zero).
+     */
+    private void readKeyboardAndMouseEvents()
+    {
+        sharedMemory.position(2);
+        int keyEventCount = sharedMemory.get();
+        for (int i = 0; i < keyEventCount; i++)
+        {
+            int eventType = sharedMemory.get();
+            int fxCode = sharedMemory.get();
+            int awtCode = JavaFXUtil.fxKeyCodeToAWT(KeyCode.values()[fxCode]);
+            switch (eventType)
+            {
+                case ProjectManager.KEY_DOWN:
+                    WorldHandler.getInstance().getKeyboardManager().pressKey(awtCode);
+                    break;
+                case ProjectManager.KEY_UP:
+                    WorldHandler.getInstance().getKeyboardManager().releaseKey(awtCode);
+                    break;
+            }
+        }
+        int mouseEventCount = sharedMemory.get();
+        for (int i = 0; i < mouseEventCount; i++)
+        {
+            int eventType = sharedMemory.get();
+            int x = sharedMemory.get();
+            int y = sharedMemory.get();
+            int button = sharedMemory.get();
+            int clickCount = sharedMemory.get();
+            MouseEvent fakeEvent = new MouseEvent(new JPanel(), 1, 0, 0, x, y, clickCount, false, button);
+            switch (eventType)
+            {
+                case ProjectManager.MOUSE_CLICKED:
+                    WorldHandler.getInstance().getMouseManager().mouseClicked(fakeEvent);
+                    break;
+                case ProjectManager.MOUSE_PRESSED:
+                    WorldHandler.getInstance().getMouseManager().mousePressed(fakeEvent);
+                    break;
+                case ProjectManager.MOUSE_RELEASED:
+                    WorldHandler.getInstance().getMouseManager().mouseReleased(fakeEvent);
+                    break;
+                case ProjectManager.MOUSE_DRAGGED:
+                    WorldHandler.getInstance().getMouseManager().mouseDragged(fakeEvent);
+                    break;
+                case ProjectManager.MOUSE_MOVED:
+                    WorldHandler.getInstance().getMouseManager().mouseMoved(fakeEvent);
+                    break;
+            }
         }
     }
 

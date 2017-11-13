@@ -244,9 +244,9 @@ public class GreenfootFrame extends JFrame
     private AskPanel askPanel;
     private AskHandler askHandler;
     
-    public static GreenfootFrame getGreenfootFrame(final RBlueJ blueJ, ClassStateManager classStateManager)
+    public static GreenfootFrame getGreenfootFrame(final RBlueJ blueJ, ClassStateManager classStateManager, String shmFilePath)
     {
-        instance = new GreenfootFrame(blueJ, classStateManager);                        
+        instance = new GreenfootFrame(blueJ, classStateManager, shmFilePath);
         return instance;
     }
     
@@ -254,7 +254,7 @@ public class GreenfootFrame extends JFrame
      * Creates a new top level frame with all the GUI components.
      * @param classStateManager 
      */
-    private GreenfootFrame(RBlueJ blueJ, ClassStateManager classStateManager)
+    private GreenfootFrame(RBlueJ blueJ, ClassStateManager classStateManager, String shmFilePath)
         throws HeadlessException
     {
         super("Greenfoot");
@@ -267,7 +267,7 @@ public class GreenfootFrame extends JFrame
             setIconImage(icon);
         }
 
-        makeFrame(classStateManager);
+        makeFrame(classStateManager, shmFilePath);
         addWindowListener(this);
         
         restoreFrameState();
@@ -426,12 +426,12 @@ public class GreenfootFrame extends JFrame
      * This includes opening the project and displaying the project classes.
      * @param classStateManager 
      */
-    private void makeFrame(ClassStateManager classStateManager)
+    private void makeFrame(ClassStateManager classStateManager, String shmFilePath)
     {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         // Some first-time initializations
-        worldCanvas = new WorldCanvas(null);
+        worldCanvas = new WorldCanvas(null, (classStateManager == null || classStateManager.getProject() == null) ? null : classStateManager.getProject().getDir(), shmFilePath);
         worldCanvas.setWorldSize(200, 100);
         worldCanvas.setVisible(false);
         

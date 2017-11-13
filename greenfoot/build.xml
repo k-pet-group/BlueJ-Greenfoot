@@ -18,7 +18,7 @@
     <property name="greenfoot.version.major" value="3"/>
     <property name="greenfoot.version.minor" value="1"/>
     <property name="greenfoot.version.micro" value="0"/>
-    <property name="greenfoot.version.suffix" value="" />
+    <property name="greenfoot.version.suffix" value="-shm" />
     
     <!-- Greenfoot version to API mapping:        -->
     <!--    Greenfoot 2.3.0 = API version 2.5.0   -->
@@ -53,7 +53,7 @@
     <property name="greenfoot.version.nosuffix" value="${greenfoot.version.major}.${greenfoot.version.minor}.${greenfoot.version.micro}"/>
 
     <!-- Suffix added after version number in output files -->
-    <property name="greenfoot.rcsuffix" value="-rc8"/>
+    <property name="greenfoot.rcsuffix" value="-rc1"/>
 
     <!-- Location of the bluej lib dir -->
     <property name="bluej.lib.greenfoot"  location="${bluej_home}/lib/greenfoot"/>
@@ -82,6 +82,9 @@
         <pathelement location="${bluej_home}/lib/opencsv-2.3.jar"/>
         <pathelement location="${bluej_home}/lib/xom-1.2.9.jar"/>
         <pathelement location="${bluej_home}/lib/diffutils-1.2.1.jar"/>
+        <pathelement location="${bluej_home}/lib/httpmime-4.1.1.jar"/>
+        <pathelement location="${bluej_home}/lib/httpcore-4.1.jar"/>
+        <pathelement location="${bluej_home}/lib/httpclient-4.1.1.jar"/>
         <pathelement location="${build_java_home}/jre/lib/jfxrt.jar"/>
     </path>
     <!-- The sourcepath to the bluej classes-->
@@ -703,6 +706,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <classpath>
                 <path refid="bluej.class.path"/>
                 <pathelement location="${bluej_home}/threadchecker/classes"/>
+                <pathelement location="${build_java_home}/lib/tools.jar"/>
                 <pathelement location="${bluej_home}/lib/jna-4.2.0.jar"/>
                 <pathelement location="${bluej_home}/lib/jna-platform-4.2.0.jar"/>
             </classpath>

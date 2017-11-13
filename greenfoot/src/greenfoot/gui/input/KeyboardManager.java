@@ -250,7 +250,7 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
         pressKey(keyCode);
     }
 
-    private void pressKey(int keyCode)
+    public synchronized void pressKey(int keyCode)
     {
         keyCode = numLockTranslate(keyCode);
         checkKeyArrays(keyCode);
@@ -267,7 +267,7 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
         releaseKey(keyCode);
     }
 
-    private void releaseKey(int keyCode)
+    public synchronized void releaseKey(int keyCode)
     {
         keyCode = numLockTranslate(keyCode);
         checkKeyArrays(keyCode);

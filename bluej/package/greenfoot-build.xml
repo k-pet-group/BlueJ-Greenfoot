@@ -30,6 +30,7 @@
         <include name="lib/opencsv-2.3.jar" />
         <include name="lib/commons-vfs2-2.0.jar" />
         <include name="lib/guava-17.0.jar" />
+        <include name="lib/richtextfx-fat-0.8.0.jar"/>
         <include name="lib/jna-4.2.0.jar" />
         <include name="lib/jna-platform-4.2.0.jar" />
         <include name="lib/greenfoot-native.jar" />
@@ -278,6 +279,12 @@
         <copy todir="${zip_dir}/Greenfoot.app" preservelastmodified="true">
             <fileset dir="macfiles/Greenfoot.app"/>
         </copy>
+
+        <!-- build the native launcher -->
+        <exec dir="macfiles/nativelauncher/" executable="/bin/bash">
+            <arg value="compile.sh"/>
+            <env key="JAVA_HOME" value="${build_java_home}"/>
+        </exec>
     	
     	<!-- copy the native launcher into place -->
     	<copy file="macfiles/nativelauncher/JavaAppLauncher" todir="${zip_dir}/Greenfoot.app/Contents/MacOS" />

@@ -29,6 +29,7 @@ import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
+import greenfoot.gui.WorldCanvas;
 import greenfoot.platforms.SimulationDelegate;
 import greenfoot.util.HDTimer;
 
@@ -138,12 +139,9 @@ public class Simulation extends Thread
     
     /** flag to indicate that we want to abort the simulation and never start it again. */
     private volatile boolean abort;
-    
+
     /**
      * Create new simulation. Leaves the simulation in paused state
-     * 
-     * @param worldHandler
-     *            The handler for the world that is simulated
      */
     private Simulation(SimulationDelegate simulationDelegate)
     {
@@ -622,60 +620,15 @@ public class Simulation extends Thread
      */
     private void repaintIfNeeded()
     {
-        long currentTime = System.currentTimeMillis();
-        long timeSinceLast = Math.max(1, currentTime - lastRepaintTime);
-        
-        if ((1000 / timeSinceLast) <= MAX_FRAME_RATE) {
-            try {
-                synchronized(repaintLock) {
-                    
-                    // Current frame rate is less than maximum, so we'll at least request
-                    // a repaint at this time.
-                    if (! paintPending) {
-                        lastRepaintTime = currentTime;
-                        worldHandler.repaint();
-                        paintPending = true;
-                    }
-                    
-                    if ((1000 / timeSinceLast) <= MIN_FRAME_RATE) {
-                        // Waiting here makes sure the WorldCanvas gets a chance to
-                        // repaint. It also lets the rest of the UI be responsive, even if
-                        // we are running at maximum speed, by making sure events on the
-                        // event queue are processed.
-
-                        // Schedule a forced repaint, so that we don't deadlock while
-                        // waiting for a repaint if something stops the repaint from
-                        // occurring (no world for instance).
-                        EventQueue.invokeLater(new Runnable() {
-                            @Override
-                            public void run()
-                            {
-                                forcedRepaint();
-                            }
-                        });
-                        
-                        while (paintPending) {
-                            repaintLock.wait();
-                        }
-                    }
-                }
-            }
-            catch (InterruptedException ie) {}
-        }
+        forcedRepaint();
     }
     
     private void forcedRepaint()
     {
-        JComponent wcanvas = WorldHandler.getInstance().getWorldCanvas();
-        synchronized (repaintLock) {
-            if (WorldHandler.getInstance().hasWorld()) {
-                wcanvas.paintImmediately(wcanvas.getBounds());
-            }
-            
-            if (paintPending) {
-                paintPending = false;
-                repaintLock.notify();
-            }
+        WorldCanvas wcanvas = WorldHandler.getInstance().getWorldCanvas();
+        if (WorldHandler.getInstance().hasWorld())
+        {
+            wcanvas.paintRemote();
         }
     }
 
