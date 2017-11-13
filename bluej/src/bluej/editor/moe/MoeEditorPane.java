@@ -27,7 +27,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import bluej.editor.moe.PrintDialog.PrintSize;
+import bluej.prefmgr.PrefMgr.PrintSize;
 import org.fxmisc.flowless.Cell;
 import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.richtext.Caret.CaretVisibility;

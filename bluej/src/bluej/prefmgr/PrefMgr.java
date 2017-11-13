@@ -72,6 +72,14 @@ public class PrefMgr
     public static final String ACCESSIBILITY_SUPPORT = "bluej.accessibility.support";
     public static final String START_WITH_SUDO = "bluej.startWithSudo";
     public static final String STRIDE_SIDEBAR_SHOWING = "bluej.editor.stride.sidebarShowing";
+    public static final String PACKAGE_PRINT_SOURCE = "bluej.packagePrint.source";
+    public static final String PACKAGE_PRINT_DIAGRAM = "bluej.packagePrint.diagram";
+    public static final String PACKAGE_PRINT_README = "bluej.packagePrint.readme";
+    public static final String PRINT_LINE_NUMBERS = "bluej.print.lineNumbers";
+    public static final String PRINT_SCOPE_HIGHLIGHTING = "bluej.print.scopeHighlighting";
+    // This is stored as 4,5,6 for small, standard, large in case we later want to add a tiny size.
+    // (if we called it 0,1,2, tiny would be -1 which seems like a bad idea)
+    public static final String PRINT_FONT_SIZE = "bluej.print.fontSize";
     
     public static final int MIN_EDITOR_FONT_SIZE = 6;
     public static final int MAX_EDITOR_FONT_SIZE = 160;
@@ -94,6 +102,8 @@ public class PrefMgr
     private static final StringProperty editorStandardFont = new SimpleStringProperty("Roboto Mono");
     @OnThread(Tag.FX)
     private static IntegerProperty strideFontSize = null; // Setup in call to strideFontSizeProperty
+
+    private static PrintSize printFontSize = PrintSize.STANDARD;
 
     // preference variables: (other than fonts)
     
@@ -425,5 +435,69 @@ public class PrefMgr
         flags.put(ACCESSIBILITY_SUPPORT, Config.getPropString(ACCESSIBILITY_SUPPORT, "false"));
         flags.put(START_WITH_SUDO, Config.getPropString(START_WITH_SUDO, "true"));
         flags.put(STRIDE_SIDEBAR_SHOWING, Config.getPropString(STRIDE_SIDEBAR_SHOWING, "true"));
+
+        flags.put(PRINT_LINE_NUMBERS, Config.getPropString(PRINT_LINE_NUMBERS, "false"));
+        flags.put(PRINT_SCOPE_HIGHLIGHTING, Config.getPropString(PRINT_SCOPE_HIGHLIGHTING, "true"));
+        flags.put(PACKAGE_PRINT_DIAGRAM, Config.getPropString(PACKAGE_PRINT_DIAGRAM, "true"));
+        flags.put(PACKAGE_PRINT_README, Config.getPropString(PACKAGE_PRINT_README, "true"));
+        flags.put(PACKAGE_PRINT_SOURCE, Config.getPropString(PACKAGE_PRINT_SOURCE, "true"));
+
+        // See comments on PRINT_FONT_SIZE:
+        switch (Config.getPropInteger(PRINT_FONT_SIZE, 4))
+        {
+            case 3:
+                printFontSize = PrintSize.SMALL;
+                break;
+            case 5:
+                printFontSize = PrintSize.LARGE;
+                break;
+            case 4:
+            default:
+                printFontSize = PrintSize.STANDARD;
+                break;
+        }
+    }
+
+    /**
+     * Gets the saved preference for print font size.
+     */
+    public static PrintSize getPrintFontSize()
+    {
+        return printFontSize;
+    }
+
+    /**
+     * Saves a new value for the preferred print font size
+     */
+    public static void setPrintFontSize(PrintSize size)
+    {
+        printFontSize = size;
+        // See comments on PRINT_FONT_SIZE:
+        switch (size)
+        {
+            case SMALL:
+                Config.putPropInteger(PRINT_FONT_SIZE, 3);
+                break;
+            case STANDARD:
+                Config.putPropInteger(PRINT_FONT_SIZE, 4);
+                break;
+            case LARGE:
+                Config.putPropInteger(PRINT_FONT_SIZE, 5);
+                break;
+        }
+    }
+
+    public static enum PrintSize
+    {
+        SMALL, STANDARD, LARGE;
+
+
+        // The label to use when showing in the interface:
+        @Override
+        @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+        public String toString()
+        {
+            return Config.getString("editor.printDialog.fontSize." + this.name().toLowerCase());
+        }
     }
 }
