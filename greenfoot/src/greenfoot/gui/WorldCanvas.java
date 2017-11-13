@@ -264,6 +264,13 @@ public class WorldCanvas extends JPanel
 
     public void paintRemote()
     {
+        long now = System.nanoTime();
+        if (now - lastPaintNanos <= 8_333_333L)
+        {
+            return; // No need to draw frame if less than 1/120th of sec between them
+        }
+        lastPaintNanos = now;
+
         BufferedImage img = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
         //if (!Config.DRAW_SERVER)
         //clientRecorder.recordFrame(Simulation.getInstance().getSpeed());
