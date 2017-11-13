@@ -37,7 +37,7 @@ import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
 import bluej.editor.TextEditor;
 import bluej.editor.moe.MoeSyntaxDocument;
-import bluej.editor.moe.PrintDialog.PrintSize;
+import bluej.prefmgr.PrefMgr.PrintSize;
 import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.CodeSuggestions;

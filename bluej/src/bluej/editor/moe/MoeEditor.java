@@ -31,7 +31,7 @@ import bluej.debugger.DebuggerThread;
 import bluej.editor.EditorWatcher;
 import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
 import bluej.editor.moe.MoeActions.MoeAbstractAction;
-import bluej.editor.moe.PrintDialog.PrintSize;
+import bluej.prefmgr.PrefMgr.PrintSize;
 import bluej.editor.moe.MoeErrorManager.ErrorDetails;
 import bluej.editor.moe.MoeSyntaxDocument.Element;
 import bluej.editor.moe.PrintDialog.PrintChoices;

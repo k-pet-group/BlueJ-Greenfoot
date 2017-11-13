@@ -23,8 +23,8 @@ package bluej.editor.moe;
 
 import bluej.pkgmgr.Package;
 import bluej.prefmgr.PrefMgr;
+import bluej.prefmgr.PrefMgr.PrintSize;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.collections.FXCollections;
@@ -47,19 +47,6 @@ import threadchecker.Tag;
  */
 public class PrintDialog extends Dialog<PrintDialog.PrintChoices>
 {
-    public static enum PrintSize
-    {
-        SMALL, STANDARD, LARGE;
-
-
-        @Override
-        @OnThread(value = Tag.FXPlatform, ignoreParent = true)
-        public String toString()
-        {
-            return Config.getString("editor.printDialog.fontSize." + this.name().toLowerCase());
-        }
-    }
-
     @OnThread(Tag.Any)
     public static class PrintChoices
     {
@@ -104,17 +91,17 @@ public class PrintDialog extends Dialog<PrintDialog.PrintChoices>
 
         getDialogPane().getButtonTypes().setAll(ButtonType.CANCEL, ButtonType.OK);
 
-        ComboBox<PrintSize> comboSize = new ComboBox<>(FXCollections.observableArrayList(PrintSize.values()));
-        comboSize.getSelectionModel().select(PrintSize.STANDARD);
+        ComboBox<PrintSize> comboSize = new ComboBox<>(FXCollections.observableArrayList(PrefMgr.PrintSize.values()));
+        comboSize.getSelectionModel().select(PrefMgr.getPrintFontSize());
         HBox sizeRow = new HBox(new Label(Config.getString("editor.printDialog.fontSize")), comboSize);
         sizeRow.setAlignment(Pos.BASELINE_LEFT);
         sizeRow.setSpacing(10.0);
 
         CheckBox checkLineNumbers = new CheckBox(Config.getString("editor.printDialog.printLineNumbers"));
-        checkLineNumbers.setSelected(PrefMgr.getFlag(PrefMgr.LINENUMBERS));
+        checkLineNumbers.setSelected(PrefMgr.getFlag(PrefMgr.PRINT_LINE_NUMBERS));
 
         CheckBox checkHighlighting = new CheckBox(Config.getString("editor.printDialog.printHighlighting"));
-        checkHighlighting.setSelected(PrefMgr.getScopeHighlightStrength().get() > 0);
+        checkHighlighting.setSelected(PrefMgr.getFlag(PrefMgr.PRINT_SCOPE_HIGHLIGHTING));
 
         VBox vBox = new VBox(sizeRow, checkLineNumbers, checkHighlighting);
         vBox.setSpacing(8);
@@ -127,15 +114,15 @@ public class PrintDialog extends Dialog<PrintDialog.PrintChoices>
             checkSource = new CheckBox(Config.getString("pkgmgr.printDialog.printSource"));
             checkLineNumbers.disableProperty().bind(checkSource.selectedProperty().not());
             checkHighlighting.disableProperty().bind(checkSource.selectedProperty().not());
-            checkSource.setSelected(true);
+            checkSource.setSelected(PrefMgr.getFlag(PrefMgr.PACKAGE_PRINT_SOURCE));
             vBox.getChildren().add(0, checkSource);
 
             checkDiagram = new CheckBox(Config.getString("pkgmgr.printDialog.printDiagram"));
-            checkDiagram.setSelected(true);
+            checkDiagram.setSelected(PrefMgr.getFlag(PrefMgr.PACKAGE_PRINT_DIAGRAM));
             if (pkg.isUnnamedPackage())
             {
                 checkReadme = new CheckBox(Config.getString("pkgmgr.printDialog.printReadme"));
-                checkReadme.setSelected(true);
+                checkReadme.setSelected(PrefMgr.getFlag(PrefMgr.PACKAGE_PRINT_README));
                 vBox.getChildren().add(0, checkReadme);
                 cannotPrint = Bindings.createBooleanBinding(
                     () -> !checkSource.isSelected() && !checkDiagram.isSelected() && !checkReadme.isSelected(),
@@ -168,6 +155,16 @@ public class PrintDialog extends Dialog<PrintDialog.PrintChoices>
         setResultConverter(bt -> {
             if (bt == ButtonType.OK)
             {
+                if (checkDiagram != null)
+                    PrefMgr.setFlag(PrefMgr.PACKAGE_PRINT_DIAGRAM, checkDiagram.isSelected());
+                if (checkReadme != null)
+                    PrefMgr.setFlag(PrefMgr.PACKAGE_PRINT_README, checkReadme.isSelected());
+                if (checkSource != null)
+                    PrefMgr.setFlag(PrefMgr.PACKAGE_PRINT_SOURCE, checkSource.isSelected());
+                PrefMgr.setFlag(PrefMgr.PRINT_LINE_NUMBERS, checkLineNumbers.isSelected());
+                PrefMgr.setFlag(PrefMgr.PRINT_SCOPE_HIGHLIGHTING, checkHighlighting.isSelected());
+                PrefMgr.setPrintFontSize(comboSize.getValue());
+                
                 return new PrintChoices(
                     checkDiagram == null ? false : checkDiagram.isSelected(),
                     checkReadme == null ? false : checkReadme.isSelected(),

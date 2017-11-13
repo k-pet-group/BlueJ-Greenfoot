@@ -28,7 +28,7 @@ import java.util.function.Consumer;
 import bluej.compiler.CompileType;
 import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerThread;
-import bluej.editor.moe.PrintDialog.PrintSize;
+import bluej.prefmgr.PrefMgr.PrintSize;
 import bluej.editor.stride.FrameEditor;
 import bluej.parser.symtab.ClassInfo;
 import bluej.stride.framedjava.elements.CallElement;
