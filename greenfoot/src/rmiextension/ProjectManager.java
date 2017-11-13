@@ -146,7 +146,15 @@ public class ProjectManager
     {
     }
 
-    public File initialiseServerDraw(File projectDir)
+    /**
+     * Creates a shared memory buffer (using a file mmap-ed into memory), and constructs
+     * a graphical window to show the outcome of the drawing on each animation pulse,
+     * as well as forwarding the events received to the shared memory buffer.
+     *
+     * This functionality will become part of the main Greenfoot window's code once
+     * that gets moved across to the server VM.
+     */
+    public File initialiseServerDraw()
     {
         try
         {
@@ -457,7 +465,7 @@ public class ProjectManager
                     greenfootLaunchFailed(project);
                 }
             };
-            File shmFile = initialiseServerDraw(project.getDir());
+            File shmFile = initialiseServerDraw();
             ObjectBench.createObject(pkg, launchClass, launcherName,
                     new String[] {project.getDir().getPath(),
                     BlueJRMIServer.getBlueJService(), shmFile == null ? "" : shmFile.getAbsolutePath(), String.valueOf(wizard), String.valueOf(sourceType)}, watcher);

@@ -621,14 +621,13 @@ public class Simulation extends Thread
     private void repaintIfNeeded()
     {
         forcedRepaint();
-
-
     }
     
     private void forcedRepaint()
     {
         WorldCanvas wcanvas = WorldHandler.getInstance().getWorldCanvas();
-        if (WorldHandler.getInstance().hasWorld()) {
+        if (WorldHandler.getInstance().hasWorld())
+        {
             wcanvas.paintRemote();
         }
     }

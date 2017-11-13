@@ -21,7 +21,6 @@
  */
 package greenfoot.gui;
 
-import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.Actor;
@@ -30,7 +29,6 @@ import greenfoot.GreenfootImage;
 import greenfoot.ImageVisitor;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
-import greenfoot.core.Simulation;
 import greenfoot.core.TextLabel;
 import greenfoot.core.WorldHandler;
 import greenfoot.util.GreenfootUtil;
@@ -47,28 +45,19 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferInt;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -262,6 +251,10 @@ public class WorldCanvas extends JPanel
         }
     }
 
+    /**
+     * Paints the current world into the shared memory buffer so that the server VM can
+     * display it in the window there.
+     */
     public void paintRemote()
     {
         long now = System.nanoTime();
@@ -272,8 +265,6 @@ public class WorldCanvas extends JPanel
         lastPaintNanos = now;
 
         BufferedImage img = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
-        //if (!Config.DRAW_SERVER)
-        //clientRecorder.recordFrame(Simulation.getInstance().getSpeed());
         Graphics2D g2 = (Graphics2D)img.getGraphics();
         paintBackground(g2);
         paintObjects(g2);
@@ -291,7 +282,7 @@ public class WorldCanvas extends JPanel
                 int recvSeq = sharedMemory.get(1);
                 if (recvSeq < 0)
                 {
-                    readKeyboardEvents();
+                    readKeyboardAndMouseEvents();
                 }
                 sharedMemory.position(1);
                 sharedMemory.put(this.seq++);
@@ -311,7 +302,12 @@ public class WorldCanvas extends JPanel
         }
     }
 
-    private void readKeyboardEvents()
+    /**
+     * Reads keyboard events from the shared memory buffer.  Should only be called
+     * when we know that the shared memory buffer has been written to (and thus will
+     * have the keyboard/mouse event counts set correctly, which includes zero).
+     */
+    private void readKeyboardAndMouseEvents()
     {
         sharedMemory.position(2);
         int keyEventCount = sharedMemory.get();
