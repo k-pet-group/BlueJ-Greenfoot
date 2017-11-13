@@ -3524,9 +3524,28 @@ public class PkgMgrFrame
         // It seems to print corrupted (though I don't know why),
         // so we thread hop to take a screenshot and print that;
         JavaFXUtil.runPlatformLater(() -> {
-            WritableImage image = new WritableImage((int)editor.getWidth(), (int)editor.getHeight());
-            this.editor.snapshot(null, image);
-            printJob.printPage(new ImageView(image));
+            WritableImage snapshotImage = new WritableImage((int)editor.getWidth(), (int)editor.getHeight());
+            this.editor.snapshot(null, snapshotImage);
+
+            // We want to print landscape so we need to rotate the snapshow.
+            // No amount of rotate transforms during snapshot or on ImageView seem to produce
+            // the right result layout-wise, so we just rotate the image ourselves:
+            int rotatedWidth = (int) snapshotImage.getHeight();
+            int rotatedHeight = (int) snapshotImage.getWidth();
+            WritableImage rotatedImage = new WritableImage(rotatedWidth, rotatedHeight);
+            for (int y = 0; y < rotatedHeight; y++)
+            {
+                for (int x = 0; x < rotatedWidth; x++)
+                {
+                    rotatedImage.getPixelWriter().setColor(x, y, snapshotImage.getPixelReader().getColor( rotatedHeight - 1 - y, x));
+                }
+            }
+
+            ImageView imageView = new ImageView(rotatedImage);
+            imageView.setPreserveRatio(true);
+            imageView.setFitWidth(printJob.getJobSettings().getPageLayout().getPrintableWidth());
+            imageView.setFitHeight(printJob.getJobSettings().getPageLayout().getPrintableHeight());
+            printJob.printPage(imageView);
             done.complete(true);
         });
         try

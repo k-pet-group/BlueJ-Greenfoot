@@ -135,6 +135,11 @@
 .class-diagram:bj-drawing-extends {
     -fx-background-color: derive(class-diagram, -15%);
 }
+.class-diagram {
+    /* Without this padding, classes in the diagram appear up against the very edge in right/bottom.
+       This padding leaves a little space below/right of them: */
+    -fx-padding: 0 10 10 0;
+}
 .package-target-preview-wrapper {
     -fx-padding: 5;
 }
