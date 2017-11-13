@@ -216,7 +216,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     // The most recent active FindNavigator.  Returns null if there has been no search,
     // or if the document has been modified since the last search.
     private final ObjectProperty<FindNavigator> currentSearchResult = new SimpleObjectProperty<>(null);
-    
+
     private MenuBar menubar;
     private String filename;                // name of file or null
     private long lastModified;              // time of last modification of file
@@ -229,11 +229,11 @@ public final class MoeEditor extends ScopeColorsBorderPane
     private boolean mayHaveBreakpoints;     // true if there were BP here
     private boolean ignoreChanges = false;
     private boolean tabsAreExpanded = false;
-    
+
     /** Used to obtain javadoc for arbitrary methods */
     private final JavadocResolver javadocResolver;
     private ReparseRunner reparseRunner;
-    
+
     /**
      * Property map, allows BlueJ extensions to associate property values with
      * this editor instance; otherwise unused.
@@ -250,7 +250,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     private boolean requeueForCompilation = false; // re-queue after current compile?
     private CompileReason requeueReason;
     private CompileType requeueType;
-    
+
     /** Manages display of compiler and parse errors */
     private final MoeErrorManager errorManager = new MoeErrorManager(this, enable -> {});
     private int mouseCaretPos = -1;
@@ -286,7 +286,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         currentStepLineNumber = -1;
         mayHaveBreakpoints = false;
         matchBrackets = PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS);
-        undoManager = new MoeUndoManager(this);
 
         initWindow(parameters.getProjectResolver());
         if (watcher != null && parameters.isCode() && !parameters.isCompiled()) {
@@ -655,7 +654,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         catch (IOException ioe) {
             // TODO we should definitely show dialog here.
         }
-        
+
         doClose();
     }
 
@@ -794,7 +793,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
             tpos = tabPos + 1; // skip over the tab char
         }
-        
+
         return spos;
     }
 
@@ -871,7 +870,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         windowTitle = title;
         setWindowTitle();
     }
-    
+
     @Override
     public void dependencyChanged()
     {
@@ -891,7 +890,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             errorManager.removeAllErrorHighlights();
         }
     }
-    
+
     /**
      * Schedule an immediate compilation for the specified reason and of the specified type.
      * @param reason  The reason for compilation
@@ -936,7 +935,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         else {
             compilationQueued = false;
         }
-        
+
         compiledProperty.set(successful && classesKept);
         if (isVisible() && classesKept)
         {
@@ -1433,7 +1432,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             saveState.setState(StatusLabel.Status.CHANGED);
             setChanged();
         }
-        
+
         if (!singleLineChange) // For a multi-line change, always compile:
         {
             saveState.setState(StatusLabel.Status.CHANGED);
@@ -1589,7 +1588,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         // This means that that the point width (1/72 of an inch) is actually the pixel width, too:
         double pixelWidth = printerJob.getJobSettings().getPageLayout().getPrintableWidth();
         double pixelHeight = printerJob.getJobSettings().getPageLayout().getPrintableHeight();
-        Scene scene = new Scene(rootPane, pixelWidth, pixelHeight);
+        Scene scene = new Scene(rootPane, pixelWidth, pixelHeight, Color.GRAY);
         Config.addEditorStylesheets(scene);
 
         // We could make page size match screen size by scaling font size by difference in DPIs:
@@ -1745,7 +1744,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         else if (job.showPrintDialog(getWindow()))
         {
             FXRunnable printAction = printTo(job, choices.get().printSize, choices.get().printLineNumbers, choices.get().printHighlighting);
-            new Thread()
+            new Thread("PRINT")
             {
                 @Override
                 @OnThread(value = Tag.FX, ignoreParent = true)
@@ -2644,7 +2643,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         {
             scheduleCompilation(CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
         }
-        
+
         if (! saveState.isSaved())
         {
             try
@@ -2929,7 +2928,8 @@ public final class MoeEditor extends ScopeColorsBorderPane
         // create the text pane
         sourcePane = sourceDocument.makeEditorPane(this, compiledProperty);
         sourcePane.setCaretPosition(0);
-        sourcePane.setUndoManager(undoManager);
+        undoManager = new MoeUndoManager(sourcePane);
+        sourcePane.setUndoManager(undoManager.getUndoManager());
         JavaFXUtil.addChangeListenerPlatform(sourcePane.caretPositionProperty(), e -> caretMoved());
         JavaFXUtil.addChangeListenerPlatform(sourcePane.estimatedScrollYProperty(), d -> {
             // The caret won't have actually moved within the document,

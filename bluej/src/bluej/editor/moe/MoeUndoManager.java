@@ -21,23 +21,13 @@
  */
 package bluej.editor.moe;
 
+import bluej.utility.Debug;
 import bluej.utility.javafx.FXPlatformRunnable;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import org.fxmisc.richtext.model.EditableStyledDocument;
+import org.fxmisc.richtext.util.UndoUtils;
 import org.fxmisc.undo.UndoManager;
-import org.fxmisc.undo.UndoManagerFactory;
-import org.reactfx.EventStream;
-import org.reactfx.Guard;
-import threadchecker.OnThread;
-import threadchecker.Tag;
-
-import java.util.Optional;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
 
 /**
  * An undo/redo manager for the editor. A stack of compound edits is maintained;
@@ -46,19 +36,22 @@ import java.util.function.Function;
  * 
  * @author Davin McCall
  */
-public class MoeUndoManager implements UndoManagerFactory
+public class MoeUndoManager
 {
-    private final UndoManagerFactory delegate;
     private UndoManager undoManager;
-    private final MoeEditor editor;
     private BooleanProperty canUndo;
     private BooleanProperty canRedo;
 
-    public MoeUndoManager(MoeEditor editor)
+    public MoeUndoManager(MoeEditorPane editorPane)
     {
-        this.editor = editor;
-        delegate = UndoManagerFactory.fixedSizeHistoryFactory(100);
+        undoManager = UndoUtils.richTextUndoManager(editorPane);
     }
+
+    public UndoManager getUndoManager()
+    {
+        return undoManager;
+    }
+
 
     /**
      * Runs the given edit action.  See comment within.
@@ -114,22 +107,6 @@ public class MoeUndoManager implements UndoManagerFactory
     public void redo()
     {
         undoManager.redo();
-    }
-
-    @Override
-    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
-    public <C> UndoManager create(EventStream<C> eventStream, Function<? super C, ? extends C> function, Consumer<C> consumer)
-    {
-        undoManager = delegate.create(eventStream, function, consumer);
-        return undoManager;
-    }
-
-    @Override
-    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
-    public <C> UndoManager create(EventStream<C> eventStream, Function<? super C, ? extends C> function, Consumer<C> consumer, BiFunction<C, C, Optional<C>> biFunction)
-    {
-        undoManager = delegate.create(eventStream, function, consumer, biFunction);
-        return undoManager;
     }
 
     public void forgetHistory()

@@ -30,8 +30,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import bluej.editor.moe.PrintDialog.PrintSize;
 import org.fxmisc.flowless.Cell;
 import org.fxmisc.flowless.VirtualFlow;
+import org.fxmisc.richtext.Caret.CaretVisibility;
 import org.fxmisc.richtext.StyledTextArea;
-import org.fxmisc.richtext.model.StyledText;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
@@ -92,7 +92,7 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
     /**
      * Create an editor pane specifically for Moe.
      */
-    public MoeEditorPane(MoeEditor editor, org.fxmisc.richtext.model.EditableStyledDocument<ScopeInfo, StyledText<ImmutableSet<String>>, ImmutableSet<String>> doc, BlueJSyntaxView syntaxView, BooleanExpression compiledStatus)
+    public MoeEditorPane(MoeEditor editor, org.fxmisc.richtext.model.EditableStyledDocument<ScopeInfo, String, ImmutableSet<String>> doc, BlueJSyntaxView syntaxView, BooleanExpression compiledStatus)
     {
         super(null, (p, s) -> {
             if (s == null)

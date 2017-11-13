@@ -159,7 +159,7 @@ the BSD license as found in the "nsmenufx-BSD.txt" file.
 
 RichTextFX (2-clause BSD license)
 ---------------------------------
-"richtextfx-fat-0.7-M5n.jar" is the RichTextFX library (https://github.com/TomasMikula/RichTextFX)
+"richtextfx-fat-0.8.0.jar" is the RichTextFX library (https://github.com/TomasMikula/RichTextFX)
 and its dependencies, which all have the option to be licensed under the BSD 2-clause
 license (see the BSD-2clause.txt file), with the following copyrights:
 ReactFX: Copyright (c) 2013-2014, Tomas Mikula
