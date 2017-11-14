@@ -271,9 +271,18 @@ public class Simulation extends Thread
      */
     private void simulationWait() throws InterruptedException
     {
-        this.wait();
+        simulationWaitContent();
     }
-    
+
+    private void simulationWaitContent() throws InterruptedException
+    {
+        this.wait(500);
+        // For now, forcedRepaint() is used to access and act on the commands
+        // from the server VM (such as Run).  Later in the Greenfoot rewrite,
+        // this should get refactored:
+        forcedRepaint();
+    }
+
     public final static String WORLD_STARTED = "worldStarted";
     
     private static void worldStarted(World world)

@@ -29,6 +29,7 @@ import greenfoot.GreenfootImage;
 import greenfoot.ImageVisitor;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
+import greenfoot.core.Simulation;
 import greenfoot.core.TextLabel;
 import greenfoot.core.WorldHandler;
 import greenfoot.guifx.GreenfootStage;
@@ -279,11 +280,11 @@ public class WorldCanvas extends JPanel
             int [] raw = ((DataBufferInt) img.getData().getDataBuffer()).getData();
             try (FileLock fileLock = shmFileChannel.lock())
             {
-                // If frame was read, delete the pending set of modified images:
                 int recvSeq = sharedMemory.get(1);
                 if (recvSeq < 0)
                 {
                     readKeyboardAndMouseEvents();
+                    readCommands();
                 }
                 sharedMemory.position(1);
                 sharedMemory.put(this.seq++);
@@ -300,6 +301,27 @@ public class WorldCanvas extends JPanel
                 Debug.reportError(e);
             }
             sending = false;
+        }
+    }
+
+    /**
+     * Read commands from the server VM.  Eventually, at the end of the Greenfoot
+     * rewrite, this should live elsewhere (probably in WorldHandler or similar)
+     */
+    private void readCommands()
+    {
+        int commandCount = sharedMemory.get();
+        for (int i = 0; i < commandCount; i++)
+        {
+            int commandLength = sharedMemory.get();
+            int data[] = new int[commandLength];
+            sharedMemory.get(data);
+            switch (data[0])
+            {
+                case GreenfootStage.COMMAND_RUN:
+                    Simulation.getInstance().setPaused(false);
+                    break;
+            }
         }
     }
 
