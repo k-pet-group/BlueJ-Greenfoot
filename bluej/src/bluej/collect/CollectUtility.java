@@ -30,6 +30,7 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.content.StringBody;
 
 import threadchecker.OnThread;
@@ -145,13 +146,7 @@ class CollectUtility
      */
     static StringBody toBody(String s)
     {
-        try {
-            return new StringBody(s == null ? "" : s, utf8);
-        }
-        catch (UnsupportedEncodingException e) {
-            // Shouldn't happen, because UTF-8 is required to be supported
-            return null;
-        }
+        return new StringBody(s == null ? "" : s, ContentType.create(null, utf8));
     }
 
     /**
