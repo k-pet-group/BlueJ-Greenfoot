@@ -114,7 +114,7 @@ public class WorldCanvas extends JPanel
      *        W * H pixels one row at a time with no gaps, each pixel is one
      *        integer, in BGRA form, i.e. blue is highest 8 bits, alpha is lowest.
      *
-     * When positive frame counter in position 1, interpret rest as follows:
+     * When negative frame counter in position 1, interpret rest as follows:
      * Pos 2: Count of keyboard events (K), can be zero
      * Pos 3 incl to 3+(2*K) excl:
      *        Keyboard events.  Each event is 2 integers: the event type (e.g.
