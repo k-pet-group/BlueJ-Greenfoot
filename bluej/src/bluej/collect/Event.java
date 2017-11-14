@@ -24,7 +24,7 @@ package bluej.collect;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -41,10 +41,10 @@ interface Event
      * @param fileVersions Our local version of the files, as we have last
      * successfully sent them to the server.  Maps a file identifier to a list
      * of lines in the file
-     * @return A MultipartEntity to send to the server
+     * @return A MultipartEntityBuilder to send to the server
      */
     @OnThread(Tag.Worker)
-    MultipartEntity makeData(int sequenceNum, Map<FileKey, List<String> > fileVersions);
+    MultipartEntityBuilder makeData(int sequenceNum, Map<FileKey, List<String> > fileVersions);
     
     /**
      * A callback that is called after the event has been successfully sent to

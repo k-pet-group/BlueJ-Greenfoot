@@ -50,7 +50,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.entity.mime.FormBodyPart;
-import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
@@ -100,11 +100,11 @@ public class MyGameClient
         // Authenticate user and initiate session
         HttpPost postMethod = new HttpPost(hostAddress + "account/authenticate");
        
-        MultipartEntity postParams = new MultipartEntity();
+        MultipartEntityBuilder postParams = MultipartEntityBuilder.create();
         Charset utf8 = StandardCharsets.UTF_8;
         postParams.addPart(new FormBodyPart("user[username]", new StringBody(uid, utf8)));
         postParams.addPart(new FormBodyPart("user[password]", new StringBody(password, utf8)));
-        postMethod.setEntity(postParams);
+        postMethod.setEntity(postParams.build());
         
         HttpResponse httpResponse = httpClient.execute(postMethod);
         int response = httpResponse.getStatusLine().getStatusCode();
@@ -158,7 +158,7 @@ public class MyGameClient
             partsMap.put("scenario[short_description]", info.getShortDescription());
         }
 
-        MultipartEntity mpe = new MultipartEntity();
+        MultipartEntityBuilder mpe = MultipartEntityBuilder.create();
         mpe.addPart(new FormBodyPart("scenario[title]", new StringBody(info.getTitle(), utf8)));
         mpe.addPart(new FormBodyPart("scenario[main_class]",
                 new StringBody("greenfoot.export.GreenfootScenarioViewer", utf8)));
@@ -188,7 +188,7 @@ public class MyGameClient
         }
         
         postMethod = new HttpPost(hostAddress + "upload-scenario");
-        postMethod.setEntity(mpe);
+        postMethod.setEntity(mpe.build());
         
         httpResponse = httpClient.execute(postMethod);
         response = httpResponse.getStatusLine().getStatusCode();

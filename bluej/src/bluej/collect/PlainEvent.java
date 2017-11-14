@@ -24,7 +24,7 @@ package bluej.collect;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -34,16 +34,16 @@ import threadchecker.Tag;
  */
 class PlainEvent implements Event
 {
-    private MultipartEntity mpe;
+    private MultipartEntityBuilder mpe;
     
-    public PlainEvent(MultipartEntity mpe)
+    public PlainEvent(MultipartEntityBuilder mpe)
     {
         this.mpe = mpe;
     }
 
     @Override
     @OnThread(Tag.Worker)
-    public MultipartEntity makeData(int sequenceNum,
+    public MultipartEntityBuilder makeData(int sequenceNum,
             Map<FileKey, List<String>> fileVersions)
     {
         return mpe;

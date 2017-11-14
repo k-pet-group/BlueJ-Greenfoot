@@ -41,7 +41,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
@@ -171,15 +171,15 @@ class DataSubmitter
         try {
             HttpPost post = new HttpPost(submitUrl);
 
-            MultipartEntity mpe = evt.makeData(sequenceNum, fileVersions);
+            MultipartEntityBuilder mpe = evt.makeData(sequenceNum, fileVersions);
             if (mpe == null)
             {
                 return true; // nothing to send, no error
             }
-            
+
             //Only increment sequence number if we actually send data:
             sequenceNum += 1;
-            post.setEntity(mpe);
+            post.setEntity(mpe.build());
             HttpResponse response = client.execute(post);
             
             for (Header h : response.getAllHeaders())
