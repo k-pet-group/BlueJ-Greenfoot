@@ -388,7 +388,6 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
                             animation.play();
                             return;
                         }
-
                     }
 
                     // So, on Mac it seems that if we directly call setResult,
@@ -398,7 +397,8 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
                     // (JVM crash does not occur when running from IntelliJ, only from final built
                     // and signed RC .app bundle):
                     JavaFXUtil.runAfterCurrent(() -> {
-                        setResult(new KeyCodeCombination(e.getCode(), mod(e.isShiftDown()), mod(e.isControlDown()), mod(e.isAltDown()), mod(e.isMetaDown()), ModifierValue.ANY));
+                        setResult(new KeyCodeCombination(e.getCode(), mod(e.isShiftDown()),
+                                mod(e.isControlDown()), mod(e.isAltDown()), mod(e.isMetaDown()), ModifierValue.ANY));
                         hide();
                     });
                     e.consume();
