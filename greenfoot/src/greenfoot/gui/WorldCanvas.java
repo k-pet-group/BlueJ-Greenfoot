@@ -31,6 +31,7 @@ import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.core.TextLabel;
 import greenfoot.core.WorldHandler;
+import greenfoot.guifx.GreenfootStage;
 import greenfoot.util.GreenfootUtil;
 import javafx.scene.input.KeyCode;
 import rmiextension.ProjectManager;
@@ -234,7 +235,7 @@ public class WorldCanvas extends JPanel
                 try {
                     Insets insets = getInsets();
                     g.translate(-insets.left, -insets.top);
-                    paintRemote();
+                    //paintRemote();
                 }
                 finally {
                     lock.readLock().unlock();
@@ -264,7 +265,7 @@ public class WorldCanvas extends JPanel
         }
         lastPaintNanos = now;
 
-        BufferedImage img = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB_PRE);
+        BufferedImage img = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_BGR);
         Graphics2D g2 = (Graphics2D)img.getGraphics();
         paintBackground(g2);
         paintObjects(g2);
@@ -318,10 +319,10 @@ public class WorldCanvas extends JPanel
             int awtCode = JavaFXUtil.fxKeyCodeToAWT(KeyCode.values()[fxCode]);
             switch (eventType)
             {
-                case ProjectManager.KEY_DOWN:
+                case GreenfootStage.KEY_DOWN:
                     WorldHandler.getInstance().getKeyboardManager().pressKey(awtCode);
                     break;
-                case ProjectManager.KEY_UP:
+                case GreenfootStage.KEY_UP:
                     WorldHandler.getInstance().getKeyboardManager().releaseKey(awtCode);
                     break;
             }
@@ -337,19 +338,19 @@ public class WorldCanvas extends JPanel
             MouseEvent fakeEvent = new MouseEvent(new JPanel(), 1, 0, 0, x, y, clickCount, false, button);
             switch (eventType)
             {
-                case ProjectManager.MOUSE_CLICKED:
+                case GreenfootStage.MOUSE_CLICKED:
                     WorldHandler.getInstance().getMouseManager().mouseClicked(fakeEvent);
                     break;
-                case ProjectManager.MOUSE_PRESSED:
+                case GreenfootStage.MOUSE_PRESSED:
                     WorldHandler.getInstance().getMouseManager().mousePressed(fakeEvent);
                     break;
-                case ProjectManager.MOUSE_RELEASED:
+                case GreenfootStage.MOUSE_RELEASED:
                     WorldHandler.getInstance().getMouseManager().mouseReleased(fakeEvent);
                     break;
-                case ProjectManager.MOUSE_DRAGGED:
+                case GreenfootStage.MOUSE_DRAGGED:
                     WorldHandler.getInstance().getMouseManager().mouseDragged(fakeEvent);
                     break;
-                case ProjectManager.MOUSE_MOVED:
+                case GreenfootStage.MOUSE_MOVED:
                     WorldHandler.getInstance().getMouseManager().mouseMoved(fakeEvent);
                     break;
             }

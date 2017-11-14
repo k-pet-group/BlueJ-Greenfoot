@@ -44,6 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import greenfoot.guifx.GreenfootStage;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.scene.Group;
@@ -106,42 +107,6 @@ public class ProjectManager
     boolean wizard;
     SourceType sourceType;
 
-
-
-    public static final int KEY_DOWN = 1;
-    public static final int KEY_UP = 2;
-    public static final int KEY_TYPED = 3;
-    public static final int FOCUS_LOST = 4;
-    public static final int MOUSE_CLICKED = 5;
-    public static final int MOUSE_PRESSED = 6;
-    public static final int MOUSE_DRAGGED = 7;
-    public static final int MOUSE_RELEASED = 8;
-    public static final int MOUSE_MOVED = 9;
-
-    private static class KeyEventInfo
-    {
-        public final int eventType;
-        public final int extraInfo;
-
-        public KeyEventInfo(int eventType, int extraInfo)
-        {
-            this.eventType = eventType;
-            this.extraInfo = extraInfo;
-        }
-    }
-
-    private static class MouseEventInfo
-    {
-        public final int eventType;
-        public final int[] extraInfo;
-
-        public MouseEventInfo(int eventType, int... extraInfo)
-        {
-            this.eventType = eventType;
-            this.extraInfo = extraInfo;
-        }
-    }
-
     private ProjectManager()
     {
     }
@@ -161,128 +126,8 @@ public class ProjectManager
             File shmFile = File.createTempFile("greenfoot", "shm");
             FileChannel fc = new RandomAccessFile(shmFile, "rw").getChannel();
             MappedByteBuffer sharedMemoryByte = fc.map(MapMode.READ_WRITE, 0, 10_000_000L);
-            IntBuffer sharedMemory = sharedMemoryByte.asIntBuffer();
             Platform.runLater(() -> {
-                List<KeyEventInfo> keyEvents = new ArrayList<>();
-                List<MouseEventInfo> mouseEvents = new ArrayList<>();
-                Stage s = new Stage();
-                ImageView imageView = new ImageView();
-                Group root = new Group(imageView);
-                s.setScene(new Scene(root));
-                s.getScene().addEventFilter(KeyEvent.ANY, e -> {
-                    int eventType;
-                    if (e.getEventType() == KeyEvent.KEY_PRESSED)
-                    {
-                        eventType = KEY_DOWN;
-                    }
-                    else if (e.getEventType() == KeyEvent.KEY_RELEASED)
-                    {
-                        eventType = KEY_UP;
-                    }
-                    else if (e.getEventType() == KeyEvent.KEY_TYPED)
-                    {
-                        eventType = KEY_TYPED;
-                    }
-                    else
-                    {
-                        return;
-                    }
-
-                    keyEvents.add(new KeyEventInfo(eventType, e.getCode().ordinal()));
-                    e.consume();
-                });
-                s.getScene().addEventFilter(MouseEvent.ANY, e -> {
-                    int eventType;
-                    if (e.getEventType() == MouseEvent.MOUSE_CLICKED)
-                    {
-                        eventType = MOUSE_CLICKED;
-                    }
-                    else if (e.getEventType() == MouseEvent.MOUSE_PRESSED)
-                    {
-                        eventType = MOUSE_PRESSED;
-                    }
-                    else if (e.getEventType() == MouseEvent.MOUSE_RELEASED)
-                    {
-                        eventType = MOUSE_RELEASED;
-                    }
-                    else if (e.getEventType() == MouseEvent.MOUSE_DRAGGED)
-                    {
-                        eventType = MOUSE_DRAGGED;
-                    }
-                    else if (e.getEventType() == MouseEvent.MOUSE_MOVED)
-                    {
-                        eventType = MOUSE_MOVED;
-                    }
-                    else
-                    {
-                        return;
-                    }
-                    mouseEvents.add(new MouseEventInfo(eventType, (int)e.getX(), (int)e.getY(), e.getButton().ordinal(), e.getClickCount()));
-                });
-
-                new AnimationTimer()
-                {
-                    int lastSeq = 0;
-                    WritableImage img;
-                    @Override
-                    public void handle(long now)
-                    {
-                        boolean sizeToScene = false;
-                        try (FileLock fileLock = fc.lock())
-                        {
-                            //Debug.message("Time to lock: " + (after - before));
-                            int seq = sharedMemory.get(1);
-                            if (seq > lastSeq)
-                            {
-                                lastSeq = seq;
-                                sharedMemory.put(1, -seq);
-                                sharedMemory.position(2);
-                                int width = sharedMemory.get();
-                                int height = sharedMemory.get();
-                                //Debug.message("Size: " + width + "x" + height);
-                                if (img == null || img.getWidth() != width || img.getHeight() != height)
-                                {
-                                    img = new WritableImage(width == 0 ? 1 : width, height == 0 ? 1 : height);
-                                }
-                                sharedMemoryByte.position(sharedMemory.position() * 4);
-                                img.getPixelWriter().setPixels(0, 0, width, height, PixelFormat.getByteBgraPreInstance(), sharedMemoryByte, width * 4);
-                                imageView.setImage(img);
-                                writeEvents();
-                                sizeToScene = true;
-                            }
-                        }
-                        catch (IOException ex)
-                        {
-                            Debug.reportError(ex);
-                        }
-                        // WARNING: sizeToScene can actually re-enter AnimationTimer.handle!
-                        // In future, we should only size to scene if the world image size changes.
-                        if (sizeToScene)
-                        {
-                            s.sizeToScene();
-                        }
-                    }
-
-                    private void writeEvents()
-                    {
-                        sharedMemory.position(2);
-                        sharedMemory.put(keyEvents.size());
-                        for (KeyEventInfo event : keyEvents)
-                        {
-                            sharedMemory.put(event.eventType);
-                            sharedMemory.put(event.extraInfo);
-                        }
-                        keyEvents.clear();
-                        sharedMemory.put(mouseEvents.size());
-                        for (MouseEventInfo mouseEvent : mouseEvents)
-                        {
-                            sharedMemory.put(mouseEvent.eventType);
-                            sharedMemory.put(mouseEvent.extraInfo);
-                        }
-                        mouseEvents.clear();
-                    }
-                }.start();
-                s.show();
+                new GreenfootStage(fc, sharedMemoryByte).show();
             });
             return shmFile;
         }
