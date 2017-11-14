@@ -2,13 +2,16 @@ package greenfoot.guifx;
 
 import bluej.utility.Debug;
 import javafx.animation.AnimationTimer;
-import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -36,6 +39,8 @@ public class GreenfootStage extends Stage
     public static final int MOUSE_DRAGGED = 7;
     public static final int MOUSE_RELEASED = 8;
     public static final int MOUSE_MOVED = 9;
+
+    public static final int COMMAND_RUN = 1;
 
     /**
      * A key event.  The eventType is one of KEY_DOWN etc from the
@@ -71,6 +76,22 @@ public class GreenfootStage extends Stage
         }
     }
 
+    /**
+     * A command from the server VM to the debug VM, such
+     * as Run, Reset, etc
+     */
+    private static class Command
+    {
+        public final int commandType;
+        public final int[] extraInfo;
+
+        private Command(int commandType, int... extraInfo)
+        {
+            this.commandType = commandType;
+            this.extraInfo = extraInfo;
+        }
+    }
+
 
     /**
      * Creates a GreenfootStage which receives a world image to draw from the
@@ -81,10 +102,19 @@ public class GreenfootStage extends Stage
     public GreenfootStage(FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte)
     {
         ImageView imageView = new ImageView();
-        Group root = new Group(imageView);
+        BorderPane imageViewWrapper = new BorderPane(imageView);
+        imageViewWrapper.setMinWidth(200);
+        imageViewWrapper.setMinHeight(200);
+        Button runButton = new Button("Run");
+        Node buttonAndSpeedPanel = new HBox(runButton);
+        List<Command> pendingCommands = new ArrayList<>();
+        runButton.setOnAction(e -> {
+            pendingCommands.add(new Command(COMMAND_RUN));
+        });
+        BorderPane root = new BorderPane(imageViewWrapper, null, null /*TODO class diagram */, buttonAndSpeedPanel, null);
         setScene(new Scene(root));
 
-        setupWorldDrawingAndEvents(sharedMemoryLock, sharedMemoryByte, imageView);
+        setupWorldDrawingAndEvents(sharedMemoryLock, sharedMemoryByte, imageView, pendingCommands);
     }
 
     /**
@@ -95,7 +125,7 @@ public class GreenfootStage extends Stage
      * @param sharedMemoryByte The shared memory buffer to read/write from/to
      * @param imageView The ImageView to draw the remote-sent image to
      */
-    private void setupWorldDrawingAndEvents(FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte, ImageView imageView)
+    private void setupWorldDrawingAndEvents(FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte, ImageView imageView, List<Command> pendingCommands)
     {
         IntBuffer sharedMemory = sharedMemoryByte.asIntBuffer();
 
@@ -182,6 +212,7 @@ public class GreenfootStage extends Stage
                         img.getPixelWriter().setPixels(0, 0, width, height, PixelFormat.getByteBgraPreInstance(), sharedMemoryByte, width * 4);
                         imageView.setImage(img);
                         writeKeyboardAndMouseEvents();
+                        writeCommands(pendingCommands);
                     }
                 }
                 catch (IOException ex)
@@ -195,6 +226,20 @@ public class GreenfootStage extends Stage
                 {
                     sizeToScene();
                 }
+            }
+
+            private void writeCommands(List<Command> pendingCommands)
+            {
+                // Number of commands:
+                sharedMemory.put(pendingCommands.size());
+                for (Command pendingCommand : pendingCommands)
+                {
+                    // Put size, including command type:
+                    sharedMemory.put(pendingCommand.extraInfo.length + 1);
+                    sharedMemory.put(pendingCommand.commandType);
+                    sharedMemory.put(pendingCommand.extraInfo);
+                }
+                pendingCommands.clear();
             }
 
             /**

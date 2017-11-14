@@ -29,6 +29,7 @@ import greenfoot.GreenfootImage;
 import greenfoot.ImageVisitor;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
+import greenfoot.core.Simulation;
 import greenfoot.core.TextLabel;
 import greenfoot.core.WorldHandler;
 import greenfoot.guifx.GreenfootStage;
@@ -88,6 +89,49 @@ public class WorldCanvas extends JPanel
     private Image overrideImage;
 
     private boolean sending = false;
+    /**
+     * Shared memory documentation (this comment may get moved to somewhere more appropriate later).
+     *
+     * The shared memory is a single lump of memory.  Its format is as follows, where
+     * each position is an integer position (i.e. bytes times four):
+     *
+     * Pos 0: Reserved, in case we want to switch back to using an atomic integer as lock.
+     * Pos 1: When the number is positive, it is a strictly increasing counter set by the
+     *        debug VM to indicate a frame index.  That way the server VM can see the counter
+     *        and see if it increased to determine if there's a new frame to paint.
+     *        (Even at 1000FPS, the scenario could run for 20+ solid days before counter
+     *        wraps so not too fussed by that possibility.)
+     *
+     *        When the number is negative, it indicates that the server VM has sent back
+     *        information to the debug VM to read.  This includes keyboard and mouse events,
+     *        as shown below.
+     *
+     *
+     * When positive frame counter in position 1, interpret rest as follows:
+     * Pos 2: Width of world image in pixels (W)
+     * Pos 3: Height of world image in pixels (H)
+     * Pos 4 incl to 3+(W*H) excl:
+     *        W * H pixels one row at a time with no gaps, each pixel is one
+     *        integer, in BGRA form, i.e. blue is highest 8 bits, alpha is lowest.
+     *
+     * When negative frame counter in position 1, interpret rest as follows:
+     * Pos 2: Count of keyboard events (K), can be zero
+     * Pos 3 incl to 3+(2*K) excl:
+     *        Keyboard events.  Each event is 2 integers: the event type (e.g.
+     *        GreenfootStage.KEY_DOWN) and the key code (ordinal of JavaFX KeyCode enum)
+     * Pos 3+(2*K): Count of mouse events (M), can be zero
+     * Pos 4+(2*K) incl to 4+(2*K)+(5*M) excl:
+     *        Mouse events.  Each mouse event is 5 integers: the event type (e.g.
+     *        GreenfootStage.MOUSE_CLICKED), the X position in pixels (relative
+     *        to the world, so 0,0 is top-left pixel of world), the Y position in
+     *        pixels (ditto), the button index, and the click count (which be N/A in some cases).
+     * Pos 4+(2*K)+(5*M): Count of commands (C), can be zero
+     * Pos .... onwards:
+     *        Commands.  Each command begins with an integer length (L), followed by
+     *        L integers (L >= 1).  The first integer of the L integers is always the
+     *        command type, and the amount of other integers depend on the command.  For example,
+     *        GreenfootStage.COMMAND_RUN just has the command type integer and no more.
+     */
     private final IntBuffer sharedMemory;
     private int seq = 1;
     private final FileChannel shmFileChannel;
@@ -279,11 +323,11 @@ public class WorldCanvas extends JPanel
             int [] raw = ((DataBufferInt) img.getData().getDataBuffer()).getData();
             try (FileLock fileLock = shmFileChannel.lock())
             {
-                // If frame was read, delete the pending set of modified images:
                 int recvSeq = sharedMemory.get(1);
                 if (recvSeq < 0)
                 {
                     readKeyboardAndMouseEvents();
+                    readCommands();
                 }
                 sharedMemory.position(1);
                 sharedMemory.put(this.seq++);
@@ -300,6 +344,27 @@ public class WorldCanvas extends JPanel
                 Debug.reportError(e);
             }
             sending = false;
+        }
+    }
+
+    /**
+     * Read commands from the server VM.  Eventually, at the end of the Greenfoot
+     * rewrite, this should live elsewhere (probably in WorldHandler or similar)
+     */
+    private void readCommands()
+    {
+        int commandCount = sharedMemory.get();
+        for (int i = 0; i < commandCount; i++)
+        {
+            int commandLength = sharedMemory.get();
+            int data[] = new int[commandLength];
+            sharedMemory.get(data);
+            switch (data[0])
+            {
+                case GreenfootStage.COMMAND_RUN:
+                    Simulation.getInstance().setPaused(false);
+                    break;
+            }
         }
     }
 
