@@ -56,6 +56,17 @@ Use descriptive names for all identifiers (names of classes, variables and metho
         }
     }
 
+2.3.1 A single statement that extends over multiple lines should have the second and  subsequent lines indented by two levels (or more for neatness of appearance). For a control statement this should not affect placement of curly braces or the block.
+
+    Example:
+    
+    if (firstCondition() && secondCondition() && thirdCondition()
+            && fourthCondition())  // two levels of indentation in line continuation
+    {
+        doSomething();  // ONE level of indentation inside the block
+    }
+
+
 2.4 For lambdas, which are often inside expressions, use your best judgement.
 
 2.5 Always use braces in control structures.
