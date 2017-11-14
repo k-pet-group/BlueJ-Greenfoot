@@ -94,8 +94,7 @@ public class CheckConnectionDialog extends FXCustomizedDialog<Void>
                     if (!res.isError()) {
                         connLabel.setText(Config.getString("team.checkconn.ok"));
                     } else {
-                        String[] strParts = res.getErrorMessage().split("\\r?\\n|\\r");
-                        String message = Arrays.toString(strParts).replace("[", "").replace("]", "").replace(" ,", "");
+                        String message = res.getErrorMessage().replaceAll("\r?\n|\r", "");
                         connLabel.setText(Config.getString("team.checkconn.bad")
                                 + System.getProperty("line.separator") + System.getProperty("line.separator")
                                 + message);

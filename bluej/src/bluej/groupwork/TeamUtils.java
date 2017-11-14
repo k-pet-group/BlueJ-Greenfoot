@@ -49,9 +49,8 @@ public class TeamUtils
                 DialogManager.showErrorFX(window, "team-authentication-problem");
             }
             else if (result.isError() && ! result.wasAborted()) {
-                String[] strParts = result.getErrorMessage().split("\\r?\\n|\\r");
-                String message = Arrays.toString(strParts).replace("[", "").replace("]", "").replace(" ,", "");
-                DialogManager.showErrorTextFX(window, message);
+                     String message = result.getErrorMessage().replaceAll("\r?\n|\r", "");
+                     DialogManager.showErrorTextFX(window, message);
             }
         }
     }
