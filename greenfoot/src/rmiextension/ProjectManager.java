@@ -22,6 +22,7 @@
 package rmiextension;
 
 import bluej.extensions.BClass;
+import bluej.extensions.ExtensionBridge;
 import bluej.extensions.editor.Editor;
 import bluej.extensions.editor.EditorBridge;
 import greenfoot.core.GreenfootLauncherDebugVM;
@@ -119,7 +120,7 @@ public class ProjectManager
      * This functionality will become part of the main Greenfoot window's code once
      * that gets moved across to the server VM.
      */
-    public File initialiseServerDraw()
+    private File initialiseServerDraw(Project project)
     {
         try
         {
@@ -127,7 +128,7 @@ public class ProjectManager
             FileChannel fc = new RandomAccessFile(shmFile, "rw").getChannel();
             MappedByteBuffer sharedMemoryByte = fc.map(MapMode.READ_WRITE, 0, 10_000_000L);
             Platform.runLater(() -> {
-                new GreenfootStage(fc, sharedMemoryByte).show();
+                new GreenfootStage(project, fc, sharedMemoryByte).show();
             });
             return shmFile;
         }
@@ -310,7 +311,7 @@ public class ProjectManager
                     greenfootLaunchFailed(project);
                 }
             };
-            File shmFile = initialiseServerDraw();
+            File shmFile = initialiseServerDraw(ExtensionBridge.getProject(project));
             ObjectBench.createObject(pkg, launchClass, launcherName,
                     new String[] {project.getDir().getPath(),
                     BlueJRMIServer.getBlueJService(), shmFile == null ? "" : shmFile.getAbsolutePath(), String.valueOf(wizard), String.valueOf(sourceType)}, watcher);

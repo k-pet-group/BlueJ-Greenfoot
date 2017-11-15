@@ -1,5 +1,6 @@
 package greenfoot.guifx;
 
+import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 import javafx.animation.AnimationTimer;
 import javafx.scene.Node;
@@ -99,7 +100,7 @@ public class GreenfootStage extends Stage
      * @param sharedMemoryLock The lock to claim before accessing sharedMemoryByte
      * @param sharedMemoryByte The shared memory buffer used to communicate with the debug VM
      */
-    public GreenfootStage(FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte)
+    public GreenfootStage(Project project, FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte)
     {
         ImageView imageView = new ImageView();
         BorderPane imageViewWrapper = new BorderPane(imageView);
@@ -111,7 +112,7 @@ public class GreenfootStage extends Stage
         runButton.setOnAction(e -> {
             pendingCommands.add(new Command(COMMAND_RUN));
         });
-        BorderPane root = new BorderPane(imageViewWrapper, null, null /*TODO class diagram */, buttonAndSpeedPanel, null);
+        BorderPane root = new BorderPane(imageViewWrapper, null, new ClassDiagram(project), buttonAndSpeedPanel, null);
         setScene(new Scene(root));
 
         setupWorldDrawingAndEvents(sharedMemoryLock, sharedMemoryByte, imageView, pendingCommands);
