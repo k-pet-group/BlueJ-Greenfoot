@@ -192,13 +192,6 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
     }
 
     @OnThread(Tag.FXPlatform)
-    public void callMethod(Object src, CallableView cv)
-    {
-        // user has initiated method call or constructor
-        pmf.callMethod(cv);
-    }
-
-    @OnThread(Tag.FXPlatform)
     public void benchToFixture(ClassTarget t)
     {
         // put objects on object bench into fixtures

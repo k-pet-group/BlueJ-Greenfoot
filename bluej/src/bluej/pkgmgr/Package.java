@@ -43,6 +43,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import bluej.extensions.event.DependencyEvent;
+import bluej.views.CallableView;
 import javafx.application.Platform;
 
 import bluej.compiler.CompileInputFile;
@@ -152,6 +153,7 @@ public final class Package
     private final List<Target> targetsToPlace = new ArrayList<>();
     // Has this package been sent for data recording yet?
     private boolean recorded = false;
+    private PkgMgrFrame pmf;
 
     /** Reason code for displaying source line */
     private enum ShowSourceReason
@@ -2996,4 +2998,22 @@ public final class Package
         DependencyEvent event = new DependencyEvent(dependency, this, DependencyEvent.Type.DEPENDENCY_REMOVED);
         ExtensionsManager.getInstance().delegateEvent(event);
     }
+
+    /**
+     * Call the given method or constructor.
+     */
+    public void callMethodOrConstructor(CallableView view)
+    {
+        pmf.callMethod(view);
+    }
+
+    /**
+     * Stores a reference to the PkgMgrFrame associated with
+     * this Package
+     */
+    public void setPkgMgrFrame(PkgMgrFrame pkgMgrFrame)
+    {
+        this.pmf = pkgMgrFrame;
+    }
+
 }
