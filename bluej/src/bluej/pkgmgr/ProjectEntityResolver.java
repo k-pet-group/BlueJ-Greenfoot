@@ -77,7 +77,7 @@ public class ProjectEntityResolver implements EntityResolver
             Target target = pkg.getTarget(baseName);
             if (target instanceof ClassTarget) {
                 ClassTarget ct = (ClassTarget) target;
-                Reflective ref = ct.getTypeRefelective();
+                Reflective ref = ct.getTypeReflective();
                 if (ref != null) {
                     return new TypeEntity(ref);
                 }

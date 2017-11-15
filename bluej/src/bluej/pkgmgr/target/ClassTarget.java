@@ -412,7 +412,7 @@ public class ClassTarget extends DependentTarget
      * 
      * @return  A suitable reflective, or null.
      */
-    public Reflective getTypeRefelective()
+    public Reflective getTypeReflective()
     {
         // If compiled, return a reflective based on actual reflection
         if (isCompiled()) {
