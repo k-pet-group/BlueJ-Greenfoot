@@ -718,10 +718,10 @@ public class UnitTestClassRole extends ClassRole
     @OnThread(Tag.FXPlatform)
     private abstract class TargetAbstractAction extends MenuItem
     {
-        protected Target t;
+        protected ClassTarget t;
         protected PackageEditor ped;
 
-        public TargetAbstractAction(String name, PackageEditor ped, Target t)
+        public TargetAbstractAction(String name, PackageEditor ped, ClassTarget t)
         {
             super(name);
             this.ped = ped;
@@ -744,13 +744,13 @@ public class UnitTestClassRole extends ClassRole
     {
         private String testName;
 
-        public TestAction(String actionName, PackageEditor ped, Target t)
+        public TestAction(String actionName, PackageEditor ped, ClassTarget t)
         {
             super(actionName, ped, t);
             this.testName = null;
         }
                     
-        public TestAction(String actionName, PackageEditor ped, Target t, String testName)
+        public TestAction(String actionName, PackageEditor ped, ClassTarget t, String testName)
         {
             super(actionName, ped, t);
             this.testName = testName;
@@ -760,14 +760,14 @@ public class UnitTestClassRole extends ClassRole
         @OnThread(Tag.FXPlatform)
         public void actionPerformed(ActionEvent e)
         {
-            ped.raiseRunTargetEvent(t, testName);
+            ped.runTest(t, testName);
         }
     }
 
     @OnThread(Tag.FXPlatform)
     private class MakeTestCaseAction extends TargetAbstractAction
     {
-        public MakeTestCaseAction(String name, PackageEditor ped, Target t)
+        public MakeTestCaseAction(String name, PackageEditor ped, ClassTarget t)
         {
             super(name, ped, t);
         }
@@ -776,14 +776,14 @@ public class UnitTestClassRole extends ClassRole
         @OnThread(Tag.FXPlatform)
         public void actionPerformed(ActionEvent e)
         {
-            ped.raiseMakeTestCaseEvent(t);
+            ped.makeTestCase(t);
         }
     }
 
     @OnThread(Tag.FXPlatform)
     private class BenchToFixtureAction extends TargetAbstractAction
     {
-        public BenchToFixtureAction(String name, PackageEditor ped, Target t)
+        public BenchToFixtureAction(String name, PackageEditor ped, ClassTarget t)
         {
             super(name, ped, t);
         }
@@ -792,14 +792,14 @@ public class UnitTestClassRole extends ClassRole
         @OnThread(Tag.FXPlatform)
         public void actionPerformed(ActionEvent e)
         {
-            ped.raiseBenchToFixtureEvent(t);
+            ped.benchToFixture(t);
         }
     }
 
     @OnThread(Tag.FXPlatform)
     private class FixtureToBenchAction extends TargetAbstractAction
     {
-        public FixtureToBenchAction(String name, PackageEditor ped, Target t)
+        public FixtureToBenchAction(String name, PackageEditor ped, ClassTarget t)
         {
             super(name, ped, t);
         }
@@ -808,7 +808,7 @@ public class UnitTestClassRole extends ClassRole
         @OnThread(Tag.FXPlatform)
         public void actionPerformed(ActionEvent e)
         {
-            ped.raiseFixtureToBenchEvent(t);
+            ped.fixtureToBench(t);
         }
     }
 

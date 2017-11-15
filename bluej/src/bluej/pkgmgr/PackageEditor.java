@@ -96,7 +96,6 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
     public static final int GRID_SIZE = 10;
     
     private final PkgMgrFrame pmf;
-    private final PackageEditorListener listener;
     private final Package pkg;
     private final SelectionController selectionController;
     // Are we showing extends/inherits arrows?
@@ -148,11 +147,10 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
      * Construct a package editor for the given package.
      */
     @OnThread(Tag.FXPlatform)
-    public PackageEditor(PkgMgrFrame pmf, Package pkg, PackageEditorListener listener, BooleanProperty showUses, BooleanProperty showInherits, MouseTrackingOverlayPane overlay)
+    public PackageEditor(PkgMgrFrame pmf, Package pkg, BooleanProperty showUses, BooleanProperty showInherits, MouseTrackingOverlayPane overlay)
     {
         this.pmf = pmf;
         this.pkg = pkg;
-        this.listener = listener;
         this.selectionController = new SelectionController(this);
         this.showUses = showUses;
         this.showExtends = showInherits;
@@ -193,65 +191,46 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         });
     }
 
-    /**
-     * Notify listener of an event.
-     */
     @OnThread(Tag.FXPlatform)
-    protected void fireTargetEvent(PackageEditorEvent e)
+    public void callMethod(Object src, CallableView cv)
     {
-        if (listener != null) {
-            listener.targetEvent(e);
-        }
+        // user has initiated method call or constructor
+        pmf.callMethod(cv);
     }
 
     @OnThread(Tag.FXPlatform)
-    public void raiseMethodCallEvent(Object src, CallableView cv)
+    public void benchToFixture(ClassTarget t)
     {
-        fireTargetEvent(
-            new PackageEditorEvent(src, PackageEditorEvent.TARGET_CALLABLE, cv));
+        // put objects on object bench into fixtures
+        pmf.objectBenchToTestFixture(t);
     }
 
     @OnThread(Tag.FXPlatform)
-    public void raiseRemoveTargetEvent(Target t)
+    public void fixtureToBench(ClassTarget t)
     {
-        fireTargetEvent(
-            new PackageEditorEvent(t, PackageEditorEvent.TARGET_REMOVE));
+        // put objects on object bench into fixtures
+        pmf.testFixtureToObjectBench(t);
     }
 
     @OnThread(Tag.FXPlatform)
-    public void raiseBenchToFixtureEvent(Target t)
+    public void makeTestCase(ClassTarget t)
     {
-        fireTargetEvent(
-            new PackageEditorEvent(t, PackageEditorEvent.TARGET_BENCHTOFIXTURE));
+        // start recording a new test case
+        pmf.makeTestCase(t);
     }
 
     @OnThread(Tag.FXPlatform)
-    public void raiseFixtureToBenchEvent(Target t)
+    public void runTest(ClassTarget ct, String name)
     {
-        fireTargetEvent(
-            new PackageEditorEvent(t, PackageEditorEvent.TARGET_FIXTURETOBENCH));
+        // user has initiated a run operation
+        ct.getRole().run(pmf, ct, name);
     }
 
     @OnThread(Tag.FXPlatform)
-    public void raiseMakeTestCaseEvent(Target t)
+    public void openPackage(String packageName)
     {
-        fireTargetEvent(
-            new PackageEditorEvent(t, PackageEditorEvent.TARGET_MAKETESTCASE));
-    }
-
-    @OnThread(Tag.FXPlatform)
-    public void raiseRunTargetEvent(Target t, String name)
-    {
-        fireTargetEvent(
-            new PackageEditorEvent(t, PackageEditorEvent.TARGET_RUN, name));
-    }
-
-    @OnThread(Tag.FXPlatform)
-    public void raiseOpenPackageEvent(Target t, String packageName)
-    {
-        fireTargetEvent(
-            new PackageEditorEvent(t, PackageEditorEvent.TARGET_OPEN,
-                                    packageName));
+        // user has initiated a package open operation
+        pmf.openPackageTarget(packageName);
     }
 
     /**
@@ -266,8 +245,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
     @OnThread(Tag.FXPlatform)
     public void raisePutOnBenchEvent(Window src, DebuggerObject obj, GenTypeClass iType, InvokerRecord ir, boolean askForName, Optional<Point2D> animateFromScenePoint)
     {
-        fireTargetEvent(
-            new PackageEditorEvent(src, PackageEditorEvent.OBJECT_PUTONBENCH, obj, iType, ir, askForName, animateFromScenePoint));
+        pmf.putObjectOnBench(src, obj, iType, ir, askForName, animateFromScenePoint);
     }
     
     /**
@@ -276,7 +254,7 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
     @OnThread(Tag.FXPlatform)
     public void recordInteraction(InvokerRecord ir)
     {
-        listener.recordInteraction(ir);
+        pmf.recordInteraction(ir);
     }
     
     private boolean popupMenu(double screenX, double screenY)
