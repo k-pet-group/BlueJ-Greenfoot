@@ -197,7 +197,7 @@ public class PackageTarget extends Target
     @OnThread(Tag.FXPlatform)
     public void doubleClick()
     {
-        getPackage().getEditor().raiseOpenPackageEvent(this, getOpenPkgName());
+        getPackage().getEditor().openPackage(getOpenPkgName());
     }
 
     /**
@@ -222,7 +222,7 @@ public class PackageTarget extends Target
     {
         MenuItem open = new MenuItem(openStr);
         open.setOnAction(e -> {
-            getPackage().getEditor().raiseOpenPackageEvent(this, getOpenPkgName());
+            getPackage().getEditor().openPackage(getOpenPkgName());
         });
         JavaFXUtil.addStyleClass(open, "class-action-inbuilt");
         ContextMenu contextMenu = new ContextMenu(open);
@@ -232,7 +232,7 @@ public class PackageTarget extends Target
             MenuItem remove = new MenuItem(removeStr);
             remove.setOnAction(e ->
             {
-                getPackage().getEditor().raiseRemoveTargetEvent(this);
+                remove();
             });
             JavaFXUtil.addStyleClass(remove, "class-action-inbuilt");
             contextMenu.getItems().add(remove);

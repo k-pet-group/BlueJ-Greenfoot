@@ -21,10 +21,9 @@
  */
 package bluej.pkgmgr.target;
 
-import javax.swing.*;
 import java.io.File;
 import java.util.Properties;
-import javafx.application.Platform;
+
 import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -99,7 +98,7 @@ public class CSSTarget extends NonCodeEditableTarget
         MenuItem remove = new MenuItem(removeStr);
         remove.setOnAction(e ->
         {
-            getPackage().getEditor().raiseRemoveTargetEvent(this);
+            remove();
         });
         JavaFXUtil.addStyleClass(remove, "class-action-inbuilt");
         contextMenu.getItems().add(remove);

@@ -2142,7 +2142,7 @@ public class ClassTarget extends DependentTarget
             PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
             if (pmf.askRemoveClass())
             {
-                    getPackage().getEditor().raiseRemoveTargetEvent(ClassTarget.this);
+                remove();
             }
         }
     }
@@ -2493,7 +2493,7 @@ public class ClassTarget extends DependentTarget
     @Override
     public void executeMethod(MethodView mv)
     {
-        getPackage().getEditor().raiseMethodCallEvent(this, mv);
+        getPackage().getEditor().callMethod(this, mv);
     }
     
     /**
@@ -2502,7 +2502,7 @@ public class ClassTarget extends DependentTarget
     @Override
     public void callConstructor(ConstructorView cv)
     {
-        getPackage().getEditor().raiseMethodCallEvent(this, cv);
+        getPackage().getEditor().callMethod(this, cv);
     }
     
     /**
