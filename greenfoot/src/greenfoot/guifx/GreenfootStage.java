@@ -11,18 +11,19 @@ import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.utility.Debug;
 import bluej.utility.JavaReflective;
-import bluej.utility.javafx.JavaFXUtil;
-import greenfoot.util.GreenfootUtil;
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -65,6 +66,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     private final Pane glassPane;
     // Details of the new actor while it is being placed (null otherwise):
     private final ObjectProperty<NewActor> newActorProperty = new SimpleObjectProperty<>(null);
+    private final BorderPane worldView;
 
     /**
      * Details for a new actor being added to the world, after you have made it
@@ -147,16 +149,16 @@ public class GreenfootStage extends Stage implements BlueJEventListener
         BlueJEvent.addListener(this);
 
         ImageView imageView = new ImageView();
-        BorderPane imageViewWrapper = new BorderPane(imageView);
-        imageViewWrapper.setMinWidth(200);
-        imageViewWrapper.setMinHeight(200);
+        worldView = new BorderPane(imageView);
+        worldView.setMinWidth(200);
+        worldView.setMinHeight(200);
         Button runButton = new Button("Run");
         Node buttonAndSpeedPanel = new HBox(runButton);
         List<Command> pendingCommands = new ArrayList<>();
         runButton.setOnAction(e -> {
             pendingCommands.add(new Command(COMMAND_RUN));
         });
-        BorderPane root = new BorderPane(imageViewWrapper, null, new ClassDiagram(project), buttonAndSpeedPanel, null);
+        BorderPane root = new BorderPane(worldView, null, new ClassDiagram(project), buttonAndSpeedPanel, null);
         glassPane = new Pane();
         glassPane.setMouseTransparent(true);
         StackPane stackPane = new StackPane(root, glassPane);
@@ -180,6 +182,21 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                 // TranslateX/Y seems to have a bit less lag than LayoutX/Y:
                 newActorProperty.get().imageView.setTranslateX(e.getX() - newActorProperty.get().imageView.getImage().getWidth() / 2.0);
                 newActorProperty.get().imageView.setTranslateY(e.getY() - newActorProperty.get().imageView.getImage().getHeight() / 2.0);
+            }
+        });
+        stackPane.setOnMouseClicked(e -> {
+            if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 1 && newActorProperty.get() != null)
+            {
+                Point2D dest = worldView.parentToLocal(e.getX(), e.getY());
+                if (worldView.contains(dest))
+                {
+                    // Bit hacky to pass positions as strings, but mirroring the values as integers
+                    // would have taken a lot of code changes to route through to VMReference:
+                    DebuggerObject xObject = project.getDebugger().getMirror("" + (int) dest.getX());
+                    DebuggerObject yObject = project.getDebugger().getMirror("" + (int) dest.getY());
+                    project.getDebugger().instantiateClass("greenfoot.core.AddToWorldHelper", new String[]{"java.lang.Object", "java.lang.String", "java.lang.String"}, new DebuggerObject[]{newActorProperty.get().debugVMActorReference, xObject, yObject});
+                    newActorProperty.set(null);
+                }
             }
         });
         newActorProperty.addListener((prop, oldVal, newVal) -> {
@@ -217,6 +234,12 @@ public class GreenfootStage extends Stage implements BlueJEventListener
             int eventType;
             if (e.getEventType() == KeyEvent.KEY_PRESSED)
             {
+                if (e.getCode() == KeyCode.ESCAPE && newActorProperty.get() != null)
+                {
+                    newActorProperty.set(null);
+                    return;
+                }
+
                 eventType = KEY_DOWN;
             }
             else if (e.getEventType() == KeyEvent.KEY_RELEASED)
