@@ -1,20 +1,39 @@
 package greenfoot.guifx;
 
+import bluej.BlueJEvent;
+import bluej.BlueJEventListener;
+import bluej.Config;
+import bluej.debugger.DebuggerObject;
+import bluej.debugger.gentype.Reflective;
+import bluej.debugmgr.ExecutionEvent;
+import bluej.pkgmgr.Project;
+import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.Target;
 import bluej.utility.Debug;
+import bluej.utility.JavaReflective;
 import javafx.animation.AnimationTimer;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -25,7 +44,7 @@ import java.util.List;
 /**
  * Greenfoot's main window: a JavaFX replacement for GreenfootFrame which lives on the server VM.
  */
-public class GreenfootStage extends Stage
+public class GreenfootStage extends Stage implements BlueJEventListener
 {
     // These are the constants passed in the shared memory between processes,
     // hence they cannot be enums.  They are not persisted anywhere, so can
@@ -41,6 +60,31 @@ public class GreenfootStage extends Stage
     public static final int MOUSE_MOVED = 9;
 
     public static final int COMMAND_RUN = 1;
+
+    private final Project project;
+    // The glass pane used to show a new actor while it is being placed:
+    private final Pane glassPane;
+    // Details of the new actor while it is being placed (null otherwise):
+    private final ObjectProperty<NewActor> newActorProperty = new SimpleObjectProperty<>(null);
+    private final BorderPane worldView;
+
+    /**
+     * Details for a new actor being added to the world, after you have made it
+     * but before it is ready to be placed.
+     */
+    private static class NewActor
+    {
+        // The actual image node (will be a child of glassPane)
+        private final ImageView imageView;
+        // The object reference if the actor has already been created:
+        private final DebuggerObject debugVMActorReference;
+
+        private NewActor(ImageView imageView, DebuggerObject debugVMActorReference)
+        {
+            this.imageView = imageView;
+            this.debugVMActorReference = debugVMActorReference;
+        }
+    }
 
     /**
      * A key event.  The eventType is one of KEY_DOWN etc from the
@@ -99,22 +143,75 @@ public class GreenfootStage extends Stage
      * @param sharedMemoryLock The lock to claim before accessing sharedMemoryByte
      * @param sharedMemoryByte The shared memory buffer used to communicate with the debug VM
      */
-    public GreenfootStage(FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte)
+    public GreenfootStage(Project project, FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte)
     {
+        this.project = project;
+        BlueJEvent.addListener(this);
+
         ImageView imageView = new ImageView();
-        BorderPane imageViewWrapper = new BorderPane(imageView);
-        imageViewWrapper.setMinWidth(200);
-        imageViewWrapper.setMinHeight(200);
+        worldView = new BorderPane(imageView);
+        worldView.setMinWidth(200);
+        worldView.setMinHeight(200);
         Button runButton = new Button("Run");
         Node buttonAndSpeedPanel = new HBox(runButton);
         List<Command> pendingCommands = new ArrayList<>();
         runButton.setOnAction(e -> {
             pendingCommands.add(new Command(COMMAND_RUN));
         });
-        BorderPane root = new BorderPane(imageViewWrapper, null, null /*TODO class diagram */, buttonAndSpeedPanel, null);
-        setScene(new Scene(root));
+        BorderPane root = new BorderPane(worldView, null, new ClassDiagram(project), buttonAndSpeedPanel, null);
+        glassPane = new Pane();
+        glassPane.setMouseTransparent(true);
+        StackPane stackPane = new StackPane(root, glassPane);
+        setupMouseForPlacingNewActor(stackPane);
+        setScene(new Scene(stackPane));
 
         setupWorldDrawingAndEvents(sharedMemoryLock, sharedMemoryByte, imageView, pendingCommands);
+    }
+
+    /**
+     * Setup mouse listeners for showing a new actor underneath the mouse cursor
+     */
+    private void setupMouseForPlacingNewActor(StackPane stackPane)
+    {
+        double[] lastMousePos = new double[2];
+        stackPane.setOnMouseMoved(e -> {
+            lastMousePos[0] = e.getX();
+            lastMousePos[1] = e.getY();
+            if (newActorProperty.get() != null)
+            {
+                // TranslateX/Y seems to have a bit less lag than LayoutX/Y:
+                newActorProperty.get().imageView.setTranslateX(e.getX() - newActorProperty.get().imageView.getImage().getWidth() / 2.0);
+                newActorProperty.get().imageView.setTranslateY(e.getY() - newActorProperty.get().imageView.getImage().getHeight() / 2.0);
+            }
+        });
+        stackPane.setOnMouseClicked(e -> {
+            if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 1 && newActorProperty.get() != null)
+            {
+                Point2D dest = worldView.parentToLocal(e.getX(), e.getY());
+                if (worldView.contains(dest))
+                {
+                    // Bit hacky to pass positions as strings, but mirroring the values as integers
+                    // would have taken a lot of code changes to route through to VMReference:
+                    DebuggerObject xObject = project.getDebugger().getMirror("" + (int) dest.getX());
+                    DebuggerObject yObject = project.getDebugger().getMirror("" + (int) dest.getY());
+                    project.getDebugger().instantiateClass("greenfoot.core.AddToWorldHelper", new String[]{"java.lang.Object", "java.lang.String", "java.lang.String"}, new DebuggerObject[]{newActorProperty.get().debugVMActorReference, xObject, yObject});
+                    newActorProperty.set(null);
+                }
+            }
+        });
+        newActorProperty.addListener((prop, oldVal, newVal) -> {
+            if (oldVal != null)
+            {
+                glassPane.getChildren().remove(oldVal.imageView);
+            }
+
+            if (newVal != null)
+            {
+                glassPane.getChildren().add(newVal.imageView);
+                newVal.imageView.setTranslateX(lastMousePos[0] - newVal.imageView.getImage().getWidth() / 2.0);
+                newVal.imageView.setTranslateY(lastMousePos[1] - newVal.imageView.getImage().getHeight() / 2.0);
+            }
+        });
     }
 
     /**
@@ -137,6 +234,12 @@ public class GreenfootStage extends Stage
             int eventType;
             if (e.getEventType() == KeyEvent.KEY_PRESSED)
             {
+                if (e.getCode() == KeyCode.ESCAPE && newActorProperty.get() != null)
+                {
+                    newActorProperty.set(null);
+                    return;
+                }
+
                 eventType = KEY_DOWN;
             }
             else if (e.getEventType() == KeyEvent.KEY_RELEASED)
@@ -265,4 +368,81 @@ public class GreenfootStage extends Stage
             }
         }.start();
     }
+
+    /**
+     * Overrides BlueJEventListener method
+     */
+    @Override
+    public void blueJEvent(int eventId, Object arg)
+    {
+        // Look for results of actor construction:
+        if (eventId == BlueJEvent.EXECUTION_RESULT)
+        {
+            ExecutionEvent executionEvent = (ExecutionEvent)arg;
+            // Was it a constructor of a class in the default package?
+            if (executionEvent.getMethodName() == null && executionEvent.getPackage().getQualifiedName().equals(""))
+            {
+                String className = executionEvent.getClassName();
+                Target t = project.getTarget(className);
+                // Should always be a ClassTarget but just in case:
+                if (t instanceof ClassTarget)
+                {
+                    ClassTarget ct = (ClassTarget) t;
+                    Reflective typeReflective = ct.getTypeReflective();
+                    if (typeReflective != null && getActorReflective().isAssignableFrom(typeReflective))
+                    {
+                        // It's an actor!
+                        File file = getImageFilename(typeReflective);
+                        // If no image, use the default:
+                        if (file == null)
+                        {
+                            file = new File(getGreenfootLogoPath());
+                        }
+
+                        try
+                        {
+                            newActorProperty.set(new NewActor(new ImageView(file.toURI().toURL().toExternalForm()), executionEvent.getResultObject()));
+                        }
+                        catch (MalformedURLException e)
+                        {
+                            Debug.reportError(e);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static String getGreenfootLogoPath()
+    {
+        File libDir = Config.getGreenfootLibDir();
+        return libDir.getAbsolutePath() + "/imagelib/other/greenfoot.png";
+    }
+
+    /**
+     * Returns a file name for the image of the first class
+     * in the given class' class hierarchy that has an image set.
+     */
+    private File getImageFilename(Reflective type)
+    {
+        while (type != null) {
+            String className = type.getName();
+            String imageFileName = project.getUnnamedPackage().getLastSavedProperties().getProperty("class." + className + ".image");
+            if (imageFileName != null) {
+                File imageDir = new File(project.getProjectDir(), "images");
+                return new File(imageDir, imageFileName);
+            }
+            type = type.getSuperTypesR().stream().filter(t -> !t.isInterface()).findFirst().orElse(null);
+        }
+        return null;
+    }
+
+    /**
+     * Gets a Reflective for the Actor class.
+     */
+    private Reflective getActorReflective()
+    {
+        return new JavaReflective(project.loadClass("greenfoot.Actor"));
+    }
+
 }

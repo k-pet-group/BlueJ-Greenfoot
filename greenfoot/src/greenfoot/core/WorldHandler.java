@@ -811,7 +811,7 @@ public class WorldHandler
      * @return  true if the Actor was added into the world; false if the co-ordinates were
      *          outside the world.
      */
-    private boolean addActorAtPixel(final Actor actor, int xPixel, int yPixel)
+    public boolean addActorAtPixel(final Actor actor, int xPixel, int yPixel)
     {
         final World world = this.world;
         final int x = WorldVisitor.toCellFloor(world, xPixel);

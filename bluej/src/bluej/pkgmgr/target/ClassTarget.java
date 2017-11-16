@@ -412,7 +412,7 @@ public class ClassTarget extends DependentTarget
      * 
      * @return  A suitable reflective, or null.
      */
-    public Reflective getTypeRefelective()
+    public Reflective getTypeReflective()
     {
         // If compiled, return a reflective based on actual reflection
         if (isCompiled()) {
@@ -2493,7 +2493,7 @@ public class ClassTarget extends DependentTarget
     @Override
     public void executeMethod(MethodView mv)
     {
-        getPackage().getEditor().callMethod(this, mv);
+        getPackage().callMethodOrConstructor(mv);
     }
     
     /**
@@ -2502,7 +2502,7 @@ public class ClassTarget extends DependentTarget
     @Override
     public void callConstructor(ConstructorView cv)
     {
-        getPackage().getEditor().callMethod(this, cv);
+        getPackage().callMethodOrConstructor(cv);
     }
     
     /**

@@ -983,6 +983,7 @@ public class PkgMgrFrame
         }
 
         this.pkg.set(aPkg);
+        aPkg.setPkgMgrFrame(this);
 
         if(! Config.isGreenfoot()) {
             this.editor = new PackageEditor(this, aPkg, showUsesProperty, showInheritsProperty, topOverlay);
@@ -1358,7 +1359,9 @@ public class PkgMgrFrame
      */
     public void setWaitCursor(boolean wait)
     {
-        stageProperty.getValue().getScene().setCursor(wait ? Cursor.WAIT : null);
+        Stage stage = stageProperty.getValue();
+        if (stage != null)
+            stage.getScene().setCursor(wait ? Cursor.WAIT : null);
     }
 
     /**
@@ -2586,7 +2589,7 @@ public class PkgMgrFrame
         libraryCallDialog.requestfocus();
         Optional<CallableView> result = libraryCallDialog.showAndWait();
         result.ifPresent(viewToCall -> {
-            pkgRef.getEditor().callMethod(pkgRef, viewToCall);
+            pkgRef.callMethodOrConstructor(viewToCall);
         });
     }
 
