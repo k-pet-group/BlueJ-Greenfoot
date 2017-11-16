@@ -146,7 +146,7 @@ class CollectUtility
      */
     static StringBody toBody(String s)
     {
-        return new StringBody(s == null ? "" : s, ContentType.create(null, utf8));
+        return new StringBody(s == null ? "" : s, ContentType.create("text/plain", utf8));
     }
 
     /**
