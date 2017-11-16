@@ -299,11 +299,13 @@ public class WorldCanvas extends JPanel
     /**
      * Paints the current world into the shared memory buffer so that the server VM can
      * display it in the window there.
+     *
+     * @param forcePaint Always paint.  If false, painting may be skipped if it's close to a recent paint.
      */
-    public void paintRemote()
+    public void paintRemote(boolean forcePaint)
     {
         long now = System.nanoTime();
-        if (now - lastPaintNanos <= 8_333_333L)
+        if (!forcePaint && now - lastPaintNanos <= 8_333_333L)
         {
             return; // No need to draw frame if less than 1/120th of sec between them
         }

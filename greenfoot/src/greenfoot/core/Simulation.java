@@ -33,7 +33,6 @@ import greenfoot.gui.WorldCanvas;
 import greenfoot.platforms.SimulationDelegate;
 import greenfoot.util.HDTimer;
 
-import java.awt.EventQueue;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -42,7 +41,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import javax.swing.JComponent;
 import javax.swing.event.EventListenerList;
 
 /**
@@ -277,10 +275,10 @@ public class Simulation extends Thread
     private void simulationWaitContent() throws InterruptedException
     {
         this.wait(500);
-        // For now, forcedRepaint() is used to access and act on the commands
+        // For now, paintRemote() is used to access and act on the commands
         // from the server VM (such as Run).  Later in the Greenfoot rewrite,
         // this should get refactored:
-        forcedRepaint();
+        paintRemote(false);
     }
 
     public final static String WORLD_STARTED = "worldStarted";
@@ -629,15 +627,15 @@ public class Simulation extends Thread
      */
     private void repaintIfNeeded()
     {
-        forcedRepaint();
+        paintRemote(false);
     }
     
-    private void forcedRepaint()
+    protected void paintRemote(boolean forcePaint)
     {
         WorldCanvas wcanvas = WorldHandler.getInstance().getWorldCanvas();
         if (WorldHandler.getInstance().hasWorld())
         {
-            wcanvas.paintRemote();
+            wcanvas.paintRemote(forcePaint);
         }
     }
 

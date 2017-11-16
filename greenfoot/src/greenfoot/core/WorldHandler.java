@@ -818,7 +818,12 @@ public class WorldHandler
         final int y = WorldVisitor.toCellFloor(world, yPixel);
         if (x < WorldVisitor.getWidthInCells(world) && y < WorldVisitor.getHeightInCells(world)
                 && x >= 0 && y >= 0) {
-            Simulation.getInstance().runLater(() -> world.addObject(actor, x, y));
+            Simulation.getInstance().runLater(() -> {
+                world.addObject(actor, x, y);
+                // Make sure we repaint after user adds something to the world,
+                // otherwise will look like lag:
+                Simulation.getInstance().paintRemote(true);
+            });
             handlerDelegate.addActor(actor, x, y);
             return true;
         }
