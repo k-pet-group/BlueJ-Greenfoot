@@ -40,12 +40,10 @@ import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
+import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -162,14 +160,17 @@ class DataSubmitter
      */
     @OnThread(Tag.Worker)
     private static boolean postData(Event evt)
-    {   
-        HttpParams params = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(params, Boot.isTrialRecording() ? 30000 : 10000);
-        HttpConnectionParams.setSoTimeout(params, Boot.isTrialRecording() ? 30000 : 10000);
-        HttpClient client = new DefaultHttpClient(params);
-        
-        try {
+    {
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setConnectTimeout(Boot.isTrialRecording() ? 30000 : 10000)
+                .setSocketTimeout(Boot.isTrialRecording() ? 30000 : 10000)
+                .build();
+        HttpClient client = HttpClients.createDefault();
+
+        try
+        {
             HttpPost post = new HttpPost(submitUrl);
+            post.setConfig(requestConfig);
 
             MultipartEntityBuilder mpe = evt.makeData(sequenceNum, fileVersions);
             if (mpe == null)
@@ -199,16 +200,18 @@ class DataSubmitter
                 
             EntityUtils.consume(response.getEntity());
         }
-        catch (ClientProtocolException cpe) {
+        catch (ClientProtocolException cpe)
+        {
             return false;
         }
-        catch (IOException ioe) {
+        catch (IOException ioe)
+        {
             //For now:
             ioe.printStackTrace();
             
             return false;
         }
-        
+
         return true;
     }
     
