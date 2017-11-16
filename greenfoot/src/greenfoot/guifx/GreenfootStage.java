@@ -417,6 +417,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                         // Not a good idea to call back debugger from a listener, so runLater:
                         JavaFXUtil.runAfterCurrent(() -> project.getDebugger().instantiateClass("greenfoot.core.SetWorldHelper", new String[]{"java.lang.Object"}, new DebuggerObject[]{executionEvent.getResultObject()}));
                     }
+                    else
+                    {
+                        // If neither actor nor world, we just inspect the constructed object:
+                        project.getInspectorInstance(executionEvent.getResultObject(), "<object>", executionEvent.getPackage(), null, this, null);
+                    }
                 }
             }
         }
