@@ -11,7 +11,9 @@ import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.utility.Debug;
 import bluej.utility.JavaReflective;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
@@ -375,7 +377,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     @Override
     public void blueJEvent(int eventId, Object arg)
     {
-        // Look for results of actor construction:
+        // Look for results of actor/world/other-object construction:
         if (eventId == BlueJEvent.EXECUTION_RESULT)
         {
             ExecutionEvent executionEvent = (ExecutionEvent)arg;
@@ -407,6 +409,13 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                         {
                             Debug.reportError(e);
                         }
+                    }
+                    else if (typeReflective != null && getWorldReflective().isAssignableFrom(typeReflective))
+                    {
+                        // It's a world
+
+                        // Not a good idea to call back debugger from a listener, so runLater:
+                        JavaFXUtil.runAfterCurrent(() -> project.getDebugger().instantiateClass("greenfoot.core.SetWorldHelper", new String[]{"java.lang.Object"}, new DebuggerObject[]{executionEvent.getResultObject()}));
                     }
                 }
             }
@@ -445,4 +454,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener
         return new JavaReflective(project.loadClass("greenfoot.Actor"));
     }
 
+    /**
+     * Gets a Reflective for the World class.
+     */
+    private Reflective getWorldReflective()
+    {
+        return new JavaReflective(project.loadClass("greenfoot.World"));
+    }
 }
