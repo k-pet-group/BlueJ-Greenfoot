@@ -14,9 +14,12 @@ import bluej.utility.JavaReflective;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -30,6 +33,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -77,13 +81,18 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     private static class NewActor
     {
         // The actual image node (will be a child of glassPane)
-        private final ImageView imageView;
+        private final Region previewNode;
+        // Property tracking whether current location is valid or not
+        private final BooleanProperty cannotDrop = new SimpleBooleanProperty(true);
         // The object reference if the actor has already been created:
         private final DebuggerObject debugVMActorReference;
 
         private NewActor(ImageView imageView, DebuggerObject debugVMActorReference)
         {
-            this.imageView = imageView;
+            ImageView cannotDropIcon = new ImageView(this.getClass().getClassLoader().getResource("noParking.png").toExternalForm());
+            cannotDropIcon.visibleProperty().bind(cannotDrop);
+            StackPane.setAlignment(cannotDropIcon, Pos.TOP_RIGHT);
+            this.previewNode = new StackPane(imageView, cannotDropIcon);
             this.debugVMActorReference = debugVMActorReference;
         }
     }
@@ -182,8 +191,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener
             if (newActorProperty.get() != null)
             {
                 // TranslateX/Y seems to have a bit less lag than LayoutX/Y:
-                newActorProperty.get().imageView.setTranslateX(e.getX() - newActorProperty.get().imageView.getImage().getWidth() / 2.0);
-                newActorProperty.get().imageView.setTranslateY(e.getY() - newActorProperty.get().imageView.getImage().getHeight() / 2.0);
+                newActorProperty.get().previewNode.setTranslateX(e.getX() - newActorProperty.get().previewNode.getWidth() / 2.0);
+                newActorProperty.get().previewNode.setTranslateY(e.getY() - newActorProperty.get().previewNode.getHeight() / 2.0);
+
+                Point2D worldDest = worldView.parentToLocal(e.getX(), e.getY());
+                newActorProperty.get().cannotDrop.set(!worldView.contains(worldDest));
             }
         });
         stackPane.setOnMouseClicked(e -> {
@@ -204,14 +216,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener
         newActorProperty.addListener((prop, oldVal, newVal) -> {
             if (oldVal != null)
             {
-                glassPane.getChildren().remove(oldVal.imageView);
+                glassPane.getChildren().remove(oldVal.previewNode);
             }
 
             if (newVal != null)
             {
-                glassPane.getChildren().add(newVal.imageView);
-                newVal.imageView.setTranslateX(lastMousePos[0] - newVal.imageView.getImage().getWidth() / 2.0);
-                newVal.imageView.setTranslateY(lastMousePos[1] - newVal.imageView.getImage().getHeight() / 2.0);
+                glassPane.getChildren().add(newVal.previewNode);
+                newVal.previewNode.setTranslateX(lastMousePos[0] - newVal.previewNode.getWidth() / 2.0);
+                newVal.previewNode.setTranslateY(lastMousePos[1] - newVal.previewNode.getHeight() / 2.0);
             }
         });
     }
