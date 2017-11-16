@@ -2180,6 +2180,7 @@ public class JavaFXUtil
             case CLOSE_BRACKET: return java.awt.event.KeyEvent.VK_CLOSE_BRACKET;
             case LEFT_PARENTHESIS: return java.awt.event.KeyEvent.VK_LEFT_PARENTHESIS;
             case RIGHT_PARENTHESIS: return java.awt.event.KeyEvent.VK_RIGHT_PARENTHESIS;
+            case ESCAPE: return java.awt.event.KeyEvent.VK_ESCAPE;
 
         }
         Debug.message("Unknown key code: " + code);

@@ -382,14 +382,17 @@ public class WorldCanvas extends JPanel
             int eventType = sharedMemory.get();
             int fxCode = sharedMemory.get();
             int awtCode = JavaFXUtil.fxKeyCodeToAWT(KeyCode.values()[fxCode]);
-            switch (eventType)
+            if (awtCode != -1)
             {
-                case GreenfootStage.KEY_DOWN:
-                    WorldHandler.getInstance().getKeyboardManager().pressKey(awtCode);
-                    break;
-                case GreenfootStage.KEY_UP:
-                    WorldHandler.getInstance().getKeyboardManager().releaseKey(awtCode);
-                    break;
+                switch (eventType)
+                {
+                    case GreenfootStage.KEY_DOWN:
+                        WorldHandler.getInstance().getKeyboardManager().pressKey(awtCode);
+                        break;
+                    case GreenfootStage.KEY_UP:
+                        WorldHandler.getInstance().getKeyboardManager().releaseKey(awtCode);
+                        break;
+                }
             }
         }
         int mouseEventCount = sharedMemory.get();
