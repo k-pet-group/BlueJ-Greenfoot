@@ -374,34 +374,34 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
                         e.getCode() != KeyCode.ALT && e.getCode() != KeyCode.ALT_GRAPH && e.getCode() != KeyCode.META &&
                         e.getCode() != KeyCode.COMMAND)
                 {
-                   if ( e.getCode().isLetterKey())
-                   {
-                       if (!(e.isShiftDown() || e.isControlDown() || e.isAltDown() || e.isMetaDown()))
-                       {
-                           errorLabel.setText("Single Character is not allowed");
-                           RotateTransition animation = null;
-                           animation = new RotateTransition(Duration.millis(70), errorLabel);
-                           animation.setByAngle(5);
-                           // Rotate, rotate back, rotate, rotate back:
-                           animation.setAutoReverse(true);
-                           animation.setCycleCount(4);
-                           animation.play();
-                           return;
-                       }
+                    if ( e.getCode().isLetterKey())
+                    {
+                        if (!(e.isShiftDown() || e.isControlDown() || e.isAltDown() || e.isMetaDown()))
+                        {
+                            errorLabel.setText("Single Character is not allowed");
+                            RotateTransition animation = null;
+                            animation = new RotateTransition(Duration.millis(70), errorLabel);
+                            animation.setByAngle(5);
+                            // Rotate, rotate back, rotate, rotate back:
+                            animation.setAutoReverse(true);
+                            animation.setCycleCount(4);
+                            animation.play();
+                            return;
+                        }
+                    }
 
-                   }
-
-                   // So, on Mac it seems that if we directly call setResult,
-                   // the JVM crashes!  It seems this can be avoided by doing the setResult
-                   // and hide in a runLater, so that's what we'll have to go with.
-                   // Do not remove unless you've tested on Mac using the application bundle
-                   // (JVM crash does not occur when running from IntelliJ, only from final built
-                   // and signed RC .app bundle):
-                   JavaFXUtil.runAfterCurrent(() -> {
-                     setResult(new KeyCodeCombination(e.getCode(), mod(e.isShiftDown()), mod(e.isControlDown()), mod(e.isAltDown()), mod(e.isMetaDown()), ModifierValue.ANY));
-                      hide();
-                   });
-                   e.consume();
+                    // So, on Mac it seems that if we directly call setResult,
+                    // the JVM crashes!  It seems this can be avoided by doing the setResult
+                    // and hide in a runLater, so that's what we'll have to go with.
+                    // Do not remove unless you've tested on Mac using the application bundle
+                    // (JVM crash does not occur when running from IntelliJ, only from final built
+                    // and signed RC .app bundle):
+                    JavaFXUtil.runAfterCurrent(() -> {
+                        setResult(new KeyCodeCombination(e.getCode(), mod(e.isShiftDown()),
+                                mod(e.isControlDown()), mod(e.isAltDown()), mod(e.isMetaDown()), ModifierValue.ANY));
+                        hide();
+                    });
+                    e.consume();
                 }
             });
             VBox mainPanel=new VBox(new Label("Press a key, or Escape to cancel"), textField);
