@@ -271,13 +271,12 @@ public class WorldHandler
     @Override
     public void mousePressed(MouseEvent e)
     {
-        World world = this.world;
         boolean isPopUp = handlerDelegate.maybeShowPopup(e);
         if (world != null && SwingUtilities.isLeftMouseButton(e) && !isPopUp) {
             Actor actor = getObject(e.getX(), e.getY());
             if (actor != null) {
                 Point p = e.getPoint();
-                startDrag(actor, p, world);
+                startDrag(actor, p);
             }
         }
     }
@@ -285,7 +284,7 @@ public class WorldHandler
     /**
      * Drag operation starting. Called on the Swing event dispatch thread.
      */
-    private void startDrag(Actor actor, Point p, World world)
+    private void startDrag(Actor actor, Point p)
     {
         dragActor = actor;
         dragActorMoved = false;
@@ -1031,8 +1030,6 @@ public class WorldHandler
     @Override
     public void listeningStarted(Object obj)
     {
-        World world = this.world;
-        
         // If the obj is not null, it means we have to activate the dragging of that object.
         if (world != null && obj != null && obj != dragActor && obj instanceof Actor) {
             Actor actor = (Actor) obj;
@@ -1041,7 +1038,7 @@ public class WorldHandler
             int x = (int) Math.floor(WorldVisitor.getCellCenter(world, ax));
             int y = (int) Math.floor(WorldVisitor.getCellCenter(world, ay));
             Point p = new Point(x, y);
-            startDrag(actor, p, world);
+            startDrag(actor, p);
         }
     }
     
