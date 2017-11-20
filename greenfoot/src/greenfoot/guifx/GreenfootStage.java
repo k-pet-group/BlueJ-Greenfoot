@@ -62,17 +62,30 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     // These are the constants passed in the shared memory between processes,
     // hence they cannot be enums.  They are not persisted anywhere, so can
     // be changed at will (as long as they don't overlap).
+
+    /*
+     * Key events.  Followed by one integer which is the key code
+     * (using the JavaFX KeyCode enum's ordinal method).
+     */
     public static final int KEY_DOWN = 1;
     public static final int KEY_UP = 2;
     public static final int KEY_TYPED = 3;
-    public static final int FOCUS_LOST = 4;
-    public static final int MOUSE_CLICKED = 5;
-    public static final int MOUSE_PRESSED = 6;
-    public static final int MOUSE_DRAGGED = 7;
-    public static final int MOUSE_RELEASED = 8;
-    public static final int MOUSE_MOVED = 9;
 
-    public static final int COMMAND_RUN = 1;
+    /**
+     * Mouse events.  Followed by four integers:
+     * X pos, Y pos, button index, click count
+     */
+    public static final int MOUSE_CLICKED = 11;
+    public static final int MOUSE_PRESSED = 12;
+    public static final int MOUSE_DRAGGED = 13;
+    public static final int MOUSE_RELEASED = 14;
+    public static final int MOUSE_MOVED = 15;
+
+    /**
+     * Commands or requests.  Unless otherwise specified,
+     * followed by no integers.
+     */
+    public static final int COMMAND_RUN = 21;
 
     private final Project project;
     // The glass pane used to show a new actor while it is being placed:
@@ -123,51 +136,23 @@ public class GreenfootStage extends Stage implements BlueJEventListener
         }
     }
 
-    /**
-     * A key event.  The eventType is one of KEY_DOWN etc from the
-     * integer constants above, and extraInfo is the key code
-     * (using the JavaFX KeyCode enum's ordinal method).
-     */
-    private static class KeyEventInfo
-    {
-        public final int eventType;
-        public final int extraInfo;
-
-        public KeyEventInfo(int eventType, int extraInfo)
-        {
-            this.eventType = eventType;
-            this.extraInfo = extraInfo;
-        }
-    }
 
     /**
-     * A mouse event.  They eventType is one of MOUSE_CLICKED etc
-     * from the integer constants above, and extraInfo is an array
-     * of information: X pos, Y pos, button index, click count
-     */
-    private static class MouseEventInfo
-    {
-        public final int eventType;
-        public final int[] extraInfo;
-
-        public MouseEventInfo(int eventType, int... extraInfo)
-        {
-            this.eventType = eventType;
-            this.extraInfo = extraInfo;
-        }
-    }
-
-    /**
-     * A command from the server VM to the debug VM, such
-     * as Run, Reset, etc
+     * A command or event from the server VM to the debug VM, such
+     * as keyboard/mouse event, Run, Reset, etc
      */
     private static class Command
     {
+        // Commands are assigned a stricly increasing ID:
+        private static int nextCommandSequence = 1;
+
+        public final int commandSequence;
         public final int commandType;
         public final int[] extraInfo;
 
         private Command(int commandType, int... extraInfo)
         {
+            this.commandSequence = nextCommandSequence++;
             this.commandType = commandType;
             this.extraInfo = extraInfo;
         }
@@ -297,10 +282,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     {
         IntBuffer sharedMemory = sharedMemoryByte.asIntBuffer();
 
-        List<KeyEventInfo> keyEvents = new ArrayList<>();
-        List<MouseEventInfo> mouseEvents = new ArrayList<>();
-
-
         getScene().addEventFilter(KeyEvent.ANY, e -> {
             int eventType;
             if (e.getEventType() == KeyEvent.KEY_PRESSED)
@@ -340,7 +321,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                 return;
             }
 
-            keyEvents.add(new KeyEventInfo(eventType, e.getCode().ordinal()));
+            pendingCommands.add(new Command(eventType, e.getCode().ordinal()));
             e.consume();
         });
 
@@ -375,7 +356,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
             {
                 return;
             }
-            mouseEvents.add(new MouseEventInfo(eventType, (int)e.getX(), (int)e.getY(), e.getButton().ordinal(), e.getClickCount()));
+            pendingCommands.add(new Command(eventType, (int)e.getX(), (int)e.getY(), e.getButton().ordinal(), e.getClickCount()));
         });
 
         new AnimationTimer()
@@ -391,9 +372,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                     int seq = sharedMemory.get(1);
                     if (seq > lastSeq)
                     {
+                        // The client VM has painted a new frame for us:
                         lastSeq = seq;
-                        sharedMemory.put(1, -seq);
-                        sharedMemory.position(2);
+                        sharedMemory.position(1);
+                        sharedMemory.put(-seq);
                         int width = sharedMemory.get();
                         int height = sharedMemory.get();
                         if (img == null || img.getWidth() != width || img.getHeight() != height)
@@ -403,8 +385,24 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                         }
                         sharedMemoryByte.position(sharedMemory.position() * 4);
                         img.getPixelWriter().setPixels(0, 0, width, height, PixelFormat.getByteBgraPreInstance(), sharedMemoryByte, width * 4);
+                        // Have to move sharedMemory position manually because
+                        // the sharedMemory buffer doesn't share position with sharedMemoryByte buffer:
+                        sharedMemory.position(sharedMemory.position() + width * height);
+                        int lastAckCommand = sharedMemory.get();
+                        // Get rid of all commands that the client has confirmed it has seen:
+                        if (lastAckCommand != -1)
+                        {
+                            pendingCommands.removeIf(c -> c.commandSequence <= lastAckCommand);
+                        }
                         imageView.setImage(img);
-                        writeKeyboardAndMouseEvents();
+                        sharedMemory.position(2);
+                        writeCommands(pendingCommands);
+                    }
+                    else if (!pendingCommands.isEmpty())
+                    {
+                        // The debug VM hasn't painted a new frame, but we have new commands to send:
+                        sharedMemory.position(1);
+                        sharedMemory.put(-lastSeq);
                         writeCommands(pendingCommands);
                     }
                 }
@@ -427,34 +425,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                 sharedMemory.put(pendingCommands.size());
                 for (Command pendingCommand : pendingCommands)
                 {
-                    // Put size, including command type:
+                    // Start with sequence ID:
+                    sharedMemory.put(pendingCommand.commandSequence);
+                    // Put size of this command (measured in integers), including command type:
                     sharedMemory.put(pendingCommand.extraInfo.length + 1);
+                    // Then put that many integers:
                     sharedMemory.put(pendingCommand.commandType);
                     sharedMemory.put(pendingCommand.extraInfo);
                 }
-                pendingCommands.clear();
-            }
-
-            /**
-             * Writes keyboard and mouse events to the shared memory.
-             */
-            private void writeKeyboardAndMouseEvents()
-            {
-                sharedMemory.position(2);
-                sharedMemory.put(keyEvents.size());
-                for (KeyEventInfo event : keyEvents)
-                {
-                    sharedMemory.put(event.eventType);
-                    sharedMemory.put(event.extraInfo);
-                }
-                keyEvents.clear();
-                sharedMemory.put(mouseEvents.size());
-                for (MouseEventInfo mouseEvent : mouseEvents)
-                {
-                    sharedMemory.put(mouseEvent.eventType);
-                    sharedMemory.put(mouseEvent.extraInfo);
-                }
-                mouseEvents.clear();
             }
         }.start();
     }

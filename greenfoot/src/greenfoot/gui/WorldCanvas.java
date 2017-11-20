@@ -110,32 +110,26 @@ public class WorldCanvas extends JPanel
      * When positive frame counter in position 1, interpret rest as follows:
      * Pos 2: Width of world image in pixels (W)
      * Pos 3: Height of world image in pixels (H)
-     * Pos 4 incl to 3+(W*H) excl:
+     * Pos 4 incl to 3+(W*H) excl, if W and H are both greater than zero:
      *        W * H pixels one row at a time with no gaps, each pixel is one
      *        integer, in BGRA form, i.e. blue is highest 8 bits, alpha is lowest.
+     * Pos 3+(W*H): Sequence ID of most recently processed command, or -1 if N/A.
      *
      * When negative frame counter in position 1, interpret rest as follows:
-     * Pos 2: Count of keyboard events (K), can be zero
-     * Pos 3 incl to 3+(2*K) excl:
-     *        Keyboard events.  Each event is 2 integers: the event type (e.g.
-     *        GreenfootStage.KEY_DOWN) and the key code (ordinal of JavaFX KeyCode enum)
-     * Pos 3+(2*K): Count of mouse events (M), can be zero
-     * Pos 4+(2*K) incl to 4+(2*K)+(5*M) excl:
-     *        Mouse events.  Each mouse event is 5 integers: the event type (e.g.
-     *        GreenfootStage.MOUSE_CLICKED), the X position in pixels (relative
-     *        to the world, so 0,0 is top-left pixel of world), the Y position in
-     *        pixels (ditto), the button index, and the click count (which be N/A in some cases).
-     * Pos 4+(2*K)+(5*M): Count of commands (C), can be zero
-     * Pos .... onwards:
-     *        Commands.  Each command begins with an integer length (L), followed by
-     *        L integers (L >= 1).  The first integer of the L integers is always the
+     * Pos 2: Count of commands (C), can be zero
+     * Pos 3 onwards:
+     *        Commands.  Each command begins with an integer sequence ID, then has
+     *        an integer length (L), followed by L integers (L >= 1).
+     *        The first integer of the L integers is always the
      *        command type, and the amount of other integers depend on the command.  For example,
-     *        GreenfootStage.COMMAND_RUN just has the command type integer and no more.
+     *        GreenfootStage.COMMAND_RUN just has the command type integer and no more, whereas
+     *        mouse events have four integers.
      */
     private final IntBuffer sharedMemory;
     private int seq = 1;
     private final FileChannel shmFileChannel;
     private long lastPaintNanos = System.nanoTime();
+    private int lastAckCommand = -1;
 
     /**
      * @param world The world which we are the canvas for.
@@ -325,11 +319,15 @@ public class WorldCanvas extends JPanel
             int [] raw = ((DataBufferInt) img.getData().getDataBuffer()).getData();
             try (FileLock fileLock = shmFileChannel.lock())
             {
-                int recvSeq = sharedMemory.get(1);
+                sharedMemory.position(1);
+                int recvSeq = sharedMemory.get();
                 if (recvSeq < 0)
                 {
-                    readKeyboardAndMouseEvents();
-                    readCommands();
+                    int latest = readCommands();
+                    if (latest != -1)
+                    {
+                        lastAckCommand = latest;
+                    }
                 }
                 sharedMemory.position(1);
                 sharedMemory.put(this.seq++);
@@ -339,7 +337,7 @@ public class WorldCanvas extends JPanel
                 {
                     sharedMemory.put(raw[i] << 8 | 0xFF);
                 }
-
+                sharedMemory.put(lastAckCommand);
             }
             catch (IOException e)
             {
@@ -351,13 +349,17 @@ public class WorldCanvas extends JPanel
 
     /**
      * Read commands from the server VM.  Eventually, at the end of the Greenfoot
-     * rewrite, this should live elsewhere (probably in WorldHandler or similar)
+     * rewrite, this should live elsewhere (probably in WorldHandler or similar).
+     *
+     * @return The command acknowledge to write back to the buffer
      */
-    private void readCommands()
+    private int readCommands()
     {
+        int lastSeqID = -1;
         int commandCount = sharedMemory.get();
         for (int i = 0; i < commandCount; i++)
         {
+            lastSeqID = sharedMemory.get();
             int commandLength = sharedMemory.get();
             int data[] = new int[commandLength];
             sharedMemory.get(data);
@@ -366,65 +368,45 @@ public class WorldCanvas extends JPanel
                 case GreenfootStage.COMMAND_RUN:
                     Simulation.getInstance().setPaused(false);
                     break;
-            }
-        }
-    }
-
-    /**
-     * Reads keyboard events from the shared memory buffer.  Should only be called
-     * when we know that the shared memory buffer has been written to (and thus will
-     * have the keyboard/mouse event counts set correctly, which includes zero).
-     */
-    private void readKeyboardAndMouseEvents()
-    {
-        sharedMemory.position(2);
-        int keyEventCount = sharedMemory.get();
-        for (int i = 0; i < keyEventCount; i++)
-        {
-            int eventType = sharedMemory.get();
-            int fxCode = sharedMemory.get();
-            int awtCode = JavaFXUtil.fxKeyCodeToAWT(KeyCode.values()[fxCode]);
-            if (awtCode != -1)
-            {
-                switch (eventType)
-                {
-                    case GreenfootStage.KEY_DOWN:
-                        WorldHandler.getInstance().getKeyboardManager().pressKey(awtCode);
-                        break;
-                    case GreenfootStage.KEY_UP:
-                        WorldHandler.getInstance().getKeyboardManager().releaseKey(awtCode);
-                        break;
-                }
-            }
-        }
-        int mouseEventCount = sharedMemory.get();
-        for (int i = 0; i < mouseEventCount; i++)
-        {
-            int eventType = sharedMemory.get();
-            int x = sharedMemory.get();
-            int y = sharedMemory.get();
-            int button = sharedMemory.get();
-            int clickCount = sharedMemory.get();
-            MouseEvent fakeEvent = new MouseEvent(new JPanel(), 1, 0, 0, x, y, clickCount, false, button);
-            switch (eventType)
-            {
+                case GreenfootStage.KEY_DOWN:
+                case GreenfootStage.KEY_UP:
+                    int awtCode = JavaFXUtil.fxKeyCodeToAWT(KeyCode.values()[data[1]]);
+                    if (awtCode != -1)
+                    {
+                        if (data[0] == GreenfootStage.KEY_DOWN)
+                            WorldHandler.getInstance().getKeyboardManager().pressKey(awtCode);
+                        else
+                            WorldHandler.getInstance().getKeyboardManager().releaseKey(awtCode);
+                    }
+                    break;
                 case GreenfootStage.MOUSE_CLICKED:
-                    WorldHandler.getInstance().getMouseManager().mouseClicked(fakeEvent);
-                    break;
                 case GreenfootStage.MOUSE_PRESSED:
-                    WorldHandler.getInstance().getMouseManager().mousePressed(fakeEvent);
-                    break;
                 case GreenfootStage.MOUSE_RELEASED:
-                    WorldHandler.getInstance().getMouseManager().mouseReleased(fakeEvent);
-                    break;
                 case GreenfootStage.MOUSE_DRAGGED:
-                    WorldHandler.getInstance().getMouseManager().mouseDragged(fakeEvent);
-                    break;
                 case GreenfootStage.MOUSE_MOVED:
-                    WorldHandler.getInstance().getMouseManager().mouseMoved(fakeEvent);
+                    MouseEvent fakeEvent = new MouseEvent(new JPanel(), 1, 0, 0, data[1], data[2], data[3], false, data[4]);
+                    switch (data[0])
+                    {
+                        case GreenfootStage.MOUSE_CLICKED:
+                            WorldHandler.getInstance().getMouseManager().mouseClicked(fakeEvent);
+                            break;
+                        case GreenfootStage.MOUSE_PRESSED:
+                            WorldHandler.getInstance().getMouseManager().mousePressed(fakeEvent);
+                            break;
+                        case GreenfootStage.MOUSE_RELEASED:
+                            WorldHandler.getInstance().getMouseManager().mouseReleased(fakeEvent);
+                            break;
+                        case GreenfootStage.MOUSE_DRAGGED:
+                            WorldHandler.getInstance().getMouseManager().mouseDragged(fakeEvent);
+                            break;
+                        case GreenfootStage.MOUSE_MOVED:
+                            WorldHandler.getInstance().getMouseManager().mouseMoved(fakeEvent);
+                            break;
+                    }
                     break;
             }
         }
+        return lastSeqID;
     }
 
     /**
