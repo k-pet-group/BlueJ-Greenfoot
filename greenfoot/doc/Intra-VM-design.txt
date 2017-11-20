@@ -1,0 +1,77 @@
+Intra-VM Design
+===============
+
+This document describes how various cross-VM activities take place in Greenfoot, such as dragging
+actors in the world display, right-clicking on them, starting the simulation, drawing the world,
+sending keyboard and mouse events and so on.  This code is necessarily split in the Greenfoot
+source (since sender and receiver will always be in different classes in different VMs), so this
+document serves as a way to document per functionality in one place.
+
+Types of cross-VM communication
+===============================
+
+The server VM and debug VM are connected via the Java Debug Interface (JDI) and share a memory
+buffer.  The shared memory buffer is fast and good for transferring a lot of byte-level data
+synchronously (i.e. when both VMs are free and ready to communicate), but JDI is useful where
+more complex values (e.g. object references) need to be transferred or asynchronous communication
+may be needed.
+
+There are two main ways for the server VM to communicate to the debug VM:
+ - Inserting some commands into the shared memory buffer
+ - Using BlueJ's existing worker mechanism to execute code remotely in the debug VM.
+
+Correspondingly, there are two main ways for the debug VM to communicate to the server VM:
+ - Inserting some data into the shared memory buffer
+ - Hitting a special breakpoint, at which point the server VM knows to inspect certain values
+
+Shared memory is good for simple commands, the worker/JDI mechanism is good for more complex items.
+In general, shared memory should be used for everything, unless there is a reason it cannot be.
+
+Run
+---
+
+When the server VM wants to issue a Run order, it puts a command into shared memory.  When the debug
+VM sees this, it changes the simulation state.
+
+World display
+-------------
+
+When the debug VM is ready to display a new frame, it draws it into the shared memory, and the server
+VM copies it out on to the screen.
+
+Keyboard and mouse events
+-------------------------
+
+When the user clicks or presses keys on the display window (on the server VM), the server VM puts
+corresponding commands into the shared memory which are read by the debug VM.
+
+Object creation
+--------------
+
+When the user makes a new object using the context menus in the interface, the server VM makes a
+worker call to instantiate the class.  Via a BlueJ event listener on the server VM, it listens for
+a successful result, and then uses the class hierarchy to decide what happens:
+ - In the case of a world, a further worker call is issued to create a SetWorldHelper to
+   pass the new world to Greenfoot.setWorld
+ - In the case of an actor, the reference is stored, and then the image for that actor class is shown
+   as a hovering preview while the user mouses around.  Once they click to place the actor, a
+   worker call is issued to create an AddToWorldHelper to call addObject on the debug VM.
+ - In the case of non-actor/world classes, an inspector is created to inspect the object.
+
+(Shared memory can't be used here because we need to act on the reference of the new object)
+
+Right-clicking on actor
+-----------------------
+
+When the user right-clicks in the display window (on the server VM), we need to find out which
+actor they have clicked on.  The debug VM has this information, so the server VM issues a worker call
+to create a PickActorHelper which finds out the reference(s) of any actor(s) at that location.
+PickActorHelper has a special breakpoint set which it then runs into.  At this point, the server VM
+interrogates the PickActorHelper's fields to access the reference.  It then uses BlueJ's existing
+code to create a right-click menu with that object's methods, which may then be called on that
+actor using BlueJ's existing worker mechanisms.
+
+(Shared memory can't be used here because we need to act on the reference of the clicked object)
+
+TODO: I think BlueJ will call the methods on an arbitrary thread, but we may want to call them on the simulation thread?
+
