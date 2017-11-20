@@ -274,7 +274,8 @@ public class Simulation extends Thread
 
     private void simulationWaitContent() throws InterruptedException
     {
-        this.wait(500);
+        // Can't wait too long as this makes dragging-while-paused too laggy:
+        this.wait(100);
         // For now, paintRemote() is used to access and act on the commands
         // from the server VM (such as Run).  Later in the Greenfoot rewrite,
         // this should get refactored:

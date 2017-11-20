@@ -414,6 +414,14 @@ public class WorldCanvas extends JPanel
                     case GreenfootStage.COMMAND_RUN:
                         Simulation.getInstance().setPaused(false);
                         break;
+                    case GreenfootStage.COMMAND_CONTINUE_DRAG:
+                        // Will be drag-ID, X, Y:
+                        WorldHandler.getInstance().continueDragging(data[1], data[2], data[3]);
+                        break;
+                    case GreenfootStage.COMMAND_END_DRAG:
+                        // Will be drag-ID:
+                        WorldHandler.getInstance().finishDrag(data[1]);
+                        break;
                 }
             }
         }
