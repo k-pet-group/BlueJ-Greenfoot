@@ -299,11 +299,13 @@ public class WorldCanvas extends JPanel
     /**
      * Paints the current world into the shared memory buffer so that the server VM can
      * display it in the window there.
+     *
+     * @param forcePaint Always paint.  If false, painting may be skipped if it's close to a recent paint.
      */
-    public void paintRemote()
+    public void paintRemote(boolean forcePaint)
     {
         long now = System.nanoTime();
-        if (now - lastPaintNanos <= 8_333_333L)
+        if (!forcePaint && now - lastPaintNanos <= 8_333_333L)
         {
             return; // No need to draw frame if less than 1/120th of sec between them
         }
@@ -382,14 +384,17 @@ public class WorldCanvas extends JPanel
             int eventType = sharedMemory.get();
             int fxCode = sharedMemory.get();
             int awtCode = JavaFXUtil.fxKeyCodeToAWT(KeyCode.values()[fxCode]);
-            switch (eventType)
+            if (awtCode != -1)
             {
-                case GreenfootStage.KEY_DOWN:
-                    WorldHandler.getInstance().getKeyboardManager().pressKey(awtCode);
-                    break;
-                case GreenfootStage.KEY_UP:
-                    WorldHandler.getInstance().getKeyboardManager().releaseKey(awtCode);
-                    break;
+                switch (eventType)
+                {
+                    case GreenfootStage.KEY_DOWN:
+                        WorldHandler.getInstance().getKeyboardManager().pressKey(awtCode);
+                        break;
+                    case GreenfootStage.KEY_UP:
+                        WorldHandler.getInstance().getKeyboardManager().releaseKey(awtCode);
+                        break;
+                }
             }
         }
         int mouseEventCount = sharedMemory.get();

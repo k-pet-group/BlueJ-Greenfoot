@@ -7,6 +7,7 @@ import bluej.utility.Utility;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 
 /**
@@ -16,6 +17,8 @@ import javafx.scene.layout.VBox;
  */
 public class ClassDiagram extends VBox
 {
+    private ClassTarget selected = null;
+
     public ClassDiagram(Project project)
     {
         getChildren().setAll(Utility.mapList(
@@ -38,6 +41,26 @@ public class ClassDiagram extends VBox
                 contextMenu.show(label, e.getScreenX(), e.getScreenY());
             }
         });
+        label.setOnMouseClicked(e -> {
+            if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 1)
+            {
+                selected = classTarget;
+                // Hacky, for now until we sort out graphics for class diagram:
+                for (Node other : getChildren())
+                {
+                    other.setStyle("");
+                }
+                label.setStyle("-fx-underline: true;");
+            }
+        });
         return label;
+    }
+
+    /**
+     * Gets the currently selected class in the diagram.  May be null if no selection
+     */
+    public ClassTarget getSelectedClass()
+    {
+        return selected;
     }
 }

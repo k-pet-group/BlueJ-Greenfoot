@@ -4,6 +4,7 @@ import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.DebuggerResult;
 import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.ExecutionEvent;
 import bluej.pkgmgr.Project;
@@ -11,10 +12,15 @@ import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.utility.Debug;
 import bluej.utility.JavaReflective;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -28,11 +34,13 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
@@ -67,6 +75,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     // Details of the new actor while it is being placed (null otherwise):
     private final ObjectProperty<NewActor> newActorProperty = new SimpleObjectProperty<>(null);
     private final BorderPane worldView;
+    private final ClassDiagram classDiagram;
 
     /**
      * Details for a new actor being added to the world, after you have made it
@@ -75,14 +84,34 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     private static class NewActor
     {
         // The actual image node (will be a child of glassPane)
-        private final ImageView imageView;
+        private final Region previewNode;
+        // Property tracking whether current location is valid or not
+        private final BooleanProperty cannotDrop = new SimpleBooleanProperty(true);
         // The object reference if the actor has already been created:
         private final DebuggerObject debugVMActorReference;
+        // The type name if the actor has not been constructed:
+        private final String typeName;
 
-        private NewActor(ImageView imageView, DebuggerObject debugVMActorReference)
+        private Region makePreviewNode(ImageView imageView)
         {
-            this.imageView = imageView;
+            ImageView cannotDropIcon = new ImageView(this.getClass().getClassLoader().getResource("noParking.png").toExternalForm());
+            cannotDropIcon.visibleProperty().bind(cannotDrop);
+            StackPane.setAlignment(cannotDropIcon, Pos.TOP_RIGHT);
+            return new StackPane(imageView, cannotDropIcon);
+        }
+
+        public NewActor(ImageView imageView, DebuggerObject debugVMActorReference)
+        {
+            this.previewNode = makePreviewNode(imageView);
             this.debugVMActorReference = debugVMActorReference;
+            this.typeName = null;
+        }
+
+        public NewActor(ImageView imageView, String typeName)
+        {
+            this.previewNode = makePreviewNode(imageView);
+            this.debugVMActorReference = null;
+            this.typeName = typeName;
         }
     }
 
@@ -158,7 +187,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener
         runButton.setOnAction(e -> {
             pendingCommands.add(new Command(COMMAND_RUN));
         });
-        BorderPane root = new BorderPane(worldView, null, new ClassDiagram(project), buttonAndSpeedPanel, null);
+        classDiagram = new ClassDiagram(project);
+        BorderPane root = new BorderPane(worldView, null, classDiagram, buttonAndSpeedPanel, null);
         glassPane = new Pane();
         glassPane.setMouseTransparent(true);
         StackPane stackPane = new StackPane(root, glassPane);
@@ -180,8 +210,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener
             if (newActorProperty.get() != null)
             {
                 // TranslateX/Y seems to have a bit less lag than LayoutX/Y:
-                newActorProperty.get().imageView.setTranslateX(e.getX() - newActorProperty.get().imageView.getImage().getWidth() / 2.0);
-                newActorProperty.get().imageView.setTranslateY(e.getY() - newActorProperty.get().imageView.getImage().getHeight() / 2.0);
+                newActorProperty.get().previewNode.setTranslateX(e.getX() - newActorProperty.get().previewNode.getWidth() / 2.0);
+                newActorProperty.get().previewNode.setTranslateY(e.getY() - newActorProperty.get().previewNode.getHeight() / 2.0);
+
+                Point2D worldDest = worldView.parentToLocal(e.getX(), e.getY());
+                newActorProperty.get().cannotDrop.set(!worldView.contains(worldDest));
             }
         });
         stackPane.setOnMouseClicked(e -> {
@@ -194,22 +227,51 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                     // would have taken a lot of code changes to route through to VMReference:
                     DebuggerObject xObject = project.getDebugger().getMirror("" + (int) dest.getX());
                     DebuggerObject yObject = project.getDebugger().getMirror("" + (int) dest.getY());
-                    project.getDebugger().instantiateClass("greenfoot.core.AddToWorldHelper", new String[]{"java.lang.Object", "java.lang.String", "java.lang.String"}, new DebuggerObject[]{newActorProperty.get().debugVMActorReference, xObject, yObject});
-                    newActorProperty.set(null);
+                    DebuggerObject actor = null;
+                    if (newActorProperty.get().debugVMActorReference != null)
+                    {
+                        // Place the already-constructed actor:
+                        actor = newActorProperty.get().debugVMActorReference;
+                        // Can't place same instance twice:
+                        newActorProperty.set(null);
+                    }
+                    else
+                    {
+                        // Must be shift-clicking; will need to make a new instance:
+                        DebuggerResult result = project.getDebugger().instantiateClass(newActorProperty.get().typeName).get();
+                        if (result.getResultObject() != null)
+                        {
+                            actor = result.getResultObject();
+                        }
+                    }
+                    if (actor != null)
+                    {
+                        project.getDebugger().instantiateClass(
+                                "greenfoot.core.AddToWorldHelper",
+                                new String[]{"java.lang.Object", "java.lang.String", "java.lang.String"},
+                                new DebuggerObject[]{actor, xObject, yObject});
+                    }
+
                 }
             }
         });
         newActorProperty.addListener((prop, oldVal, newVal) -> {
             if (oldVal != null)
             {
-                glassPane.getChildren().remove(oldVal.imageView);
+                glassPane.getChildren().remove(oldVal.previewNode);
             }
 
             if (newVal != null)
             {
-                glassPane.getChildren().add(newVal.imageView);
-                newVal.imageView.setTranslateX(lastMousePos[0] - newVal.imageView.getImage().getWidth() / 2.0);
-                newVal.imageView.setTranslateY(lastMousePos[1] - newVal.imageView.getImage().getHeight() / 2.0);
+                glassPane.getChildren().add(newVal.previewNode);
+                // Need to do a layout to get the correct width and height:
+                glassPane.requestLayout();
+                glassPane.layout();
+
+                newVal.previewNode.setTranslateX(lastMousePos[0] - newVal.previewNode.getWidth() / 2.0);
+                newVal.previewNode.setTranslateY(lastMousePos[1] - newVal.previewNode.getHeight() / 2.0);
+                Point2D dest = worldView.parentToLocal(lastMousePos[0], lastMousePos[1]);
+                newVal.cannotDrop.set(!worldView.contains(dest));
             }
         });
     }
@@ -239,12 +301,26 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                     newActorProperty.set(null);
                     return;
                 }
+                if (e.getCode() == KeyCode.SHIFT && newActorProperty.get() == null && classDiagram.getSelectedClass() != null)
+                {
+                    // Holding shift, so show actor preview if it is an actor with no-arg constructor:
+                    Reflective type = classDiagram.getSelectedClass().getTypeReflective();
+                    if (getActorReflective().isAssignableFrom(type) && type.getDeclaredConstructors().stream().anyMatch(c -> c.getParamTypes().isEmpty() && !Modifier.isPrivate(c.getModifiers())))
+                    {
+                        newActorProperty.set(new NewActor(getImageViewForClass(type), classDiagram.getSelectedClass().getBaseName()));
+                    }
+                }
 
                 eventType = KEY_DOWN;
             }
             else if (e.getEventType() == KeyEvent.KEY_RELEASED)
             {
                 eventType = KEY_UP;
+
+                if (e.getCode() == KeyCode.SHIFT && newActorProperty.get() != null && newActorProperty.get().debugVMActorReference == null)
+                {
+                    newActorProperty.set(null);
+                }
             }
             else if (e.getEventType() == KeyEvent.KEY_TYPED)
             {
@@ -375,7 +451,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     @Override
     public void blueJEvent(int eventId, Object arg)
     {
-        // Look for results of actor construction:
+        // Look for results of actor/world/other-object construction:
         if (eventId == BlueJEvent.EXECUTION_RESULT)
         {
             ExecutionEvent executionEvent = (ExecutionEvent)arg;
@@ -392,25 +468,52 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                     if (typeReflective != null && getActorReflective().isAssignableFrom(typeReflective))
                     {
                         // It's an actor!
-                        File file = getImageFilename(typeReflective);
-                        // If no image, use the default:
-                        if (file == null)
+                        ImageView imageView = getImageViewForClass(typeReflective);
+                        if (imageView != null)
                         {
-                            file = new File(getGreenfootLogoPath());
+                            newActorProperty.set(new NewActor(imageView, executionEvent.getResultObject()));
                         }
+                    }
+                    else if (typeReflective != null && getWorldReflective().isAssignableFrom(typeReflective))
+                    {
+                        // It's a world
 
-                        try
-                        {
-                            newActorProperty.set(new NewActor(new ImageView(file.toURI().toURL().toExternalForm()), executionEvent.getResultObject()));
-                        }
-                        catch (MalformedURLException e)
-                        {
-                            Debug.reportError(e);
-                        }
+                        // Not a good idea to call back debugger from a listener, so runLater:
+                        JavaFXUtil.runAfterCurrent(() -> project.getDebugger().instantiateClass("greenfoot.core.SetWorldHelper", new String[]{"java.lang.Object"}, new DebuggerObject[]{executionEvent.getResultObject()}));
+                    }
+                    else
+                    {
+                        // If neither actor nor world, we just inspect the constructed object:
+                        project.getInspectorInstance(executionEvent.getResultObject(), "<object>", executionEvent.getPackage(), null, this, null);
                     }
                 }
             }
         }
+    }
+
+    /**
+     * Get an ImageView with the appropriate preview image for this class type.
+     * If no suitable image found, the Greenfoot icon will be used.
+     */
+    private ImageView getImageViewForClass(Reflective typeReflective)
+    {
+        File file = getImageFilename(typeReflective);
+        // If no image, use the default:
+        if (file == null)
+        {
+            file = new File(getGreenfootLogoPath());
+        }
+
+        ImageView imageView = null;
+        try
+        {
+            imageView = new ImageView(file.toURI().toURL().toExternalForm());
+        }
+        catch (MalformedURLException e)
+        {
+            Debug.reportError(e);
+        }
+        return imageView;
     }
 
     private static String getGreenfootLogoPath()
@@ -445,4 +548,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener
         return new JavaReflective(project.loadClass("greenfoot.Actor"));
     }
 
+    /**
+     * Gets a Reflective for the World class.
+     */
+    private Reflective getWorldReflective()
+    {
+        return new JavaReflective(project.loadClass("greenfoot.World"));
+    }
 }
