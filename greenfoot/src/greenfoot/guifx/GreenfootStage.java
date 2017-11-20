@@ -487,7 +487,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     public void pickResults(int pickId, List<DebuggerObject> actors)
     {
         if (curPickRequest != pickId)
+        {
             return; // Pick has been cancelled by a more recent pick, so ignore
+        }
 
         // If single actor, show simple context menu:
         if (actors.size() == 1)
