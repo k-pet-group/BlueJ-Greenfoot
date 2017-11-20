@@ -7,6 +7,7 @@ import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerResult;
 import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.ExecutionEvent;
+import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
@@ -24,6 +25,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
@@ -37,6 +39,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import rmiextension.GreenfootDebugHandler;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,7 +50,9 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Greenfoot's main window: a JavaFX replacement for GreenfootFrame which lives on the server VM.
@@ -76,6 +81,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     private final ObjectProperty<NewActor> newActorProperty = new SimpleObjectProperty<>(null);
     private final BorderPane worldView;
     private final ClassDiagram classDiagram;
+    private int nextPickId = 1;
+    private int curPickRequest;
+    private Point2D curPickPoint;
 
     /**
      * Details for a new actor being added to the world, after you have made it
@@ -172,10 +180,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener
      * @param sharedMemoryLock The lock to claim before accessing sharedMemoryByte
      * @param sharedMemoryByte The shared memory buffer used to communicate with the debug VM
      */
-    public GreenfootStage(Project project, FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte)
+    public GreenfootStage(Project project, GreenfootDebugHandler greenfootDebugHandler, FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte)
     {
         this.project = project;
         BlueJEvent.addListener(this);
+        greenfootDebugHandler.setPickListener(this::pickResults);
 
         ImageView imageView = new ImageView();
         worldView = new BorderPane(imageView);
@@ -335,10 +344,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener
             e.consume();
         });
 
-        getScene().addEventFilter(MouseEvent.ANY, e -> {
+        worldView.addEventFilter(MouseEvent.ANY, e -> {
             int eventType;
             if (e.getEventType() == MouseEvent.MOUSE_CLICKED)
             {
+                boolean isRunning = false; // TODO actually have this state correctly in future.
+                if (e.getButton() == MouseButton.SECONDARY && !isRunning)
+                {
+                    worldRightClick(e.getX(), e.getY());
+                }
                 eventType = MOUSE_CLICKED;
             }
             else if (e.getEventType() == MouseEvent.MOUSE_PRESSED)
@@ -443,6 +457,55 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                 mouseEvents.clear();
             }
         }.start();
+    }
+
+    /**
+     * Handle a right-click on the world at the given world coordinates.
+     */
+    private void worldRightClick(double x, double y)
+    {
+        // Bit hacky to pass positions as strings, but mirroring the values as integers
+        // would have taken a lot of code changes to route through to VMReference:
+        DebuggerObject xObject = project.getDebugger().getMirror("" + (int) x);
+        DebuggerObject yObject = project.getDebugger().getMirror("" + (int) y);
+        int thisPickId = nextPickId++;
+        DebuggerObject pickIdObject = project.getDebugger().getMirror("" + thisPickId);
+        // One pick at a time only:
+        curPickRequest = thisPickId;
+        curPickPoint = new Point2D(x, y);
+
+        // Need to find out which actors are at the point:
+        project.getDebugger().instantiateClass("greenfoot.core.PickActorHelper", new String[]{"java.lang.String", "java.lang.String", "java.lang.String"}, new DebuggerObject[]{xObject, yObject, pickIdObject});
+        // Once that completes, pickResults(..) will be called.
+    }
+
+    /**
+     * Callback when a pick has completed (i.e. a request to find actors at given position)
+     * @param pickId The ID of the pick has requested
+     * @param actors The list of actors found.  May be any size.
+     */
+    public void pickResults(int pickId, List<DebuggerObject> actors)
+    {
+        if (curPickRequest != pickId)
+        {
+            return; // Pick has been cancelled by a more recent pick, so ignore
+        }
+
+        // If single actor, show simple context menu:
+        if (actors.size() == 1)
+        {
+            ContextMenu contextMenu = new ContextMenu();
+            Target target = project.getTarget(actors.get(0).getClassName());
+            // Should always be ClassTarget, but check in case:
+            if (target instanceof ClassTarget)
+            {
+                ClassTarget classTarget = (ClassTarget)target;
+                ObjectWrapper.createMethodMenuItems(contextMenu.getItems(), project.loadClass(actors.get(0).getClassName()), classTarget, actors.get(0), "", true);
+            }
+            Point2D screenLocation = worldView.localToScreen(curPickPoint);
+            contextMenu.show(worldView, screenLocation.getX(), screenLocation.getY());
+        }
+        // TODO handle cases for multiple actors, and for zero actors
     }
 
     /**

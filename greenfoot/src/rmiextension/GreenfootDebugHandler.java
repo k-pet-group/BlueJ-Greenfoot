@@ -21,18 +21,22 @@
  */
 package rmiextension;
 
+import bluej.utility.javafx.FXPlatformBiConsumer;
 import greenfoot.actions.ResetWorldAction;
+import greenfoot.core.PickActorHelper;
 import greenfoot.core.Simulation;
 import greenfoot.core.SimulationDebugMonitor;
 
 import java.awt.EventQueue;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javafx.application.Platform;
 import rmiextension.wrappers.RProjectImpl;
 import rmiextension.wrappers.WrapperPool;
 import bluej.debugger.Debugger;
@@ -78,7 +82,11 @@ public class GreenfootDebugHandler implements DebuggerListener
     private static final String RESET_CLASS = ResetWorldAction.class.getName();
     private static final String RESET_METHOD = ResetWorldAction.RESET_WORLD;
     private static final String RESET_KEY = "RESET_WORLD";
-    
+
+    private static final String PICK_HELPER_CLASS = PickActorHelper.class.getName();
+    private static final String PICK_HELPER_KEY = "PICK_HELPER_PICKED";
+    private FXPlatformBiConsumer<Integer, List<DebuggerObject>> pickListener;
+
     private BProject project;
     private DebuggerThread simulationThread;
     private DebuggerClass simulationClass;
@@ -105,11 +113,20 @@ public class GreenfootDebugHandler implements DebuggerListener
                 // The VM may have already started by the time the listener was added. If so,
                 // we need to kick off Greenfoot on the other VM here:
                 handler.addRunResetBreakpoints(proj.getDebugger());
-                ProjectManager.instance().openGreenfoot(project);
+                ProjectManager.instance().openGreenfoot(project, handler);
             }
         } catch (ProjectNotOpenException ex) {
             Debug.reportError("Project not open when adding debugger listener in Greenfoot", ex);
         }
+    }
+
+    /**
+     * Set the listener which will be called when a pick request completes.
+     * @param pickListener Will be called with the pickId and list of actors at that position.
+     */
+    public void setPickListener(FXPlatformBiConsumer<Integer, List<DebuggerObject>> pickListener)
+    {
+        this.pickListener = pickListener;
     }
 
     private void addRunResetBreakpoints(Debugger debugger)
@@ -128,6 +145,11 @@ public class GreenfootDebugHandler implements DebuggerListener
             resetBreakpointProperties.put(RESET_KEY, "yes");
             resetBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
             debugger.toggleBreakpoint(RESET_CLASS, RESET_METHOD, true, resetBreakpointProperties);
+
+            Map<String, String> pickHelperBreakpointProperties = new HashMap<>();
+            pickHelperBreakpointProperties.put(PICK_HELPER_KEY, "TRUE");
+            pickHelperBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
+            debugger.toggleBreakpoint(PICK_HELPER_CLASS, "picked", true, pickHelperBreakpointProperties);
         }
         catch (ClassNotFoundException cnfe) {
             Debug.reportError("Simulation class could not be located. Possible installation problem.", cnfe);
@@ -169,8 +191,40 @@ public class GreenfootDebugHandler implements DebuggerListener
             }
             e.getThread().cont();
             return true;
-            
-        } else if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT
+        }
+        else if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT
+                && e.getThread() != null &&
+                atPickedBreakpoint(e.getBreakpointProperties()))
+        {
+            List<DebuggerField> fields = e.getThread().getCurrentObject(0).getFields();
+            DebuggerField picksField = fields.stream().filter(f -> f.getName().equals("picks")).findFirst().orElse(null);
+            DebuggerField pickIdField = fields.stream().filter(f -> f.getName().equals("pickId")).findFirst().orElse(null);
+            // Should always be non-null, but check in case:
+            if (picksField != null && pickIdField != null)
+            {
+                DebuggerObject picksValue = picksField.getValueObject(null);
+                int pickIdValue = Integer.parseInt(pickIdField.getValueString());
+                // Should always be true, but check in case:
+                if (picksValue != null && picksValue.isArray())
+                {
+                    List<DebuggerObject> picksElements = new ArrayList<>(picksValue.getElementCount());
+                    for (int i = 0; i < picksValue.getElementCount(); i++)
+                    {
+                        picksElements.add(picksValue.getElementObject(i));
+                    }
+                    Platform.runLater(() -> {
+                        if (pickListener != null)
+                        {
+                            pickListener.accept(pickIdValue, picksElements);
+                        }
+                    });
+                }
+            }
+            // Must resume the thread afterwards:
+            e.getThread().cont();
+            return true;
+        }
+        else if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT
                 && atResetBreakpoint(e.getBreakpointProperties())) {
             // The user has clicked reset,
             // Set the simulation thread going if it's suspended:
@@ -250,7 +304,7 @@ public class GreenfootDebugHandler implements DebuggerListener
                     public void run()
                     {
                         addRunResetBreakpoints((Debugger) e.getSource());
-                        ProjectManager.instance().openGreenfoot(project);
+                        ProjectManager.instance().openGreenfoot(project, GreenfootDebugHandler.this);
                     }
                 });
             }
@@ -314,6 +368,14 @@ public class GreenfootDebugHandler implements DebuggerListener
         }
         
         return false;
+    }
+
+    /**
+     * Works out if they are at the breakpoint triggered by having picked actors
+     */
+    private static boolean atPickedBreakpoint(BreakpointProperties props)
+    {
+        return props != null && props.get(PICK_HELPER_KEY) != null;
     }
     
     /**

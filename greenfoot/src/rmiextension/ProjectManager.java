@@ -120,7 +120,7 @@ public class ProjectManager
      * This functionality will become part of the main Greenfoot window's code once
      * that gets moved across to the server VM.
      */
-    private File initialiseServerDraw(Project project)
+    private File initialiseServerDraw(Project project, GreenfootDebugHandler greenfootDebugHandler)
     {
         try
         {
@@ -128,7 +128,7 @@ public class ProjectManager
             FileChannel fc = new RandomAccessFile(shmFile, "rw").getChannel();
             MappedByteBuffer sharedMemoryByte = fc.map(MapMode.READ_WRITE, 0, 10_000_000L);
             Platform.runLater(() -> {
-                new GreenfootStage(project, fc, sharedMemoryByte).show();
+                new GreenfootStage(project, greenfootDebugHandler, fc, sharedMemoryByte).show();
             });
             return shmFile;
         }
@@ -257,7 +257,7 @@ public class ProjectManager
      * 
      * @param project  A just-opened project
      */
-    public void openGreenfoot(final BProject project)
+    public void openGreenfoot(final BProject project, GreenfootDebugHandler greenfootDebugHandler)
     {
         try {
             final BPackage pkg = project.getPackage("");
@@ -311,7 +311,7 @@ public class ProjectManager
                     greenfootLaunchFailed(project);
                 }
             };
-            File shmFile = initialiseServerDraw(ExtensionBridge.getProject(project));
+            File shmFile = initialiseServerDraw(ExtensionBridge.getProject(project), greenfootDebugHandler);
             ObjectBench.createObject(pkg, launchClass, launcherName,
                     new String[] {project.getDir().getPath(),
                     BlueJRMIServer.getBlueJService(), shmFile == null ? "" : shmFile.getAbsolutePath(), String.valueOf(wizard), String.valueOf(sourceType)}, watcher);

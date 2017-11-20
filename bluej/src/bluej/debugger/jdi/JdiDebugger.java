@@ -37,6 +37,7 @@ import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.debugger.*;
 import bluej.utility.javafx.FXPlatformSupplier;
+import com.sun.jdi.*;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -44,17 +45,6 @@ import bluej.classmgr.BPClassLoader;
 import bluej.debugmgr.Invoker;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
-
-import com.sun.jdi.ArrayReference;
-import com.sun.jdi.Field;
-import com.sun.jdi.InvocationException;
-import com.sun.jdi.ObjectReference;
-import com.sun.jdi.ReferenceType;
-import com.sun.jdi.StringReference;
-import com.sun.jdi.ThreadReference;
-import com.sun.jdi.VMDisconnectedException;
-import com.sun.jdi.VMOutOfMemoryException;
-import com.sun.jdi.Value;
 
 /**
  * A class implementing the execution and debugging primitives needed by BlueJ.
@@ -454,7 +444,25 @@ public class JdiDebugger extends Debugger
         VMReference vmr = getVM();
         if (vmr != null) {
             try {
-                return JdiObject.getDebuggerObject(vmr.getMirror(value));
+                StringReference stringReference;
+                // When passed directly to getDebuggerObject, I've seen this collected
+                // before the point where we disable collection, so we do it in a loop here
+                // until we manage to disable collection before the item is collected:
+                do
+                {
+                    stringReference = vmr.getMirror(value);
+                    try
+                    {
+                        stringReference.disableCollection();
+                    }
+                    catch (ObjectCollectedException e)
+                    {
+                        // Try again...
+                    }
+                }
+                while (stringReference.isCollected());
+
+                return JdiObject.getDebuggerObject(stringReference);
             }
             catch (VMDisconnectedException vde) { }
             catch (VMOutOfMemoryException vmoome) { }
