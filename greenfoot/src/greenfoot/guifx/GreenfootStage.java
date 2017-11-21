@@ -500,8 +500,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener
      * Callback when a pick has completed (i.e. a request to find actors at given position)
      * @param pickId The ID of the pick has requested
      * @param actors The list of actors found.  May be any size.
+     * @param world The world -- only relevant if actors list is empty.
      */
-    public void pickResults(int pickId, List<DebuggerObject> actors)
+    public void pickResults(int pickId, List<DebuggerObject> actors, DebuggerObject world)
     {
         if (curPickRequest != pickId)
         {
@@ -542,7 +543,19 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                 Point2D screenLocation = worldView.localToScreen(curPickPoint);
                 contextMenu.show(worldView, screenLocation.getX(), screenLocation.getY());
             }
-            // TODO handle case for zero actors
+            else
+            {
+                Target target = project.getTarget(world.getClassName());
+                // Should always be ClassTarget, but check in case:
+                if (target instanceof ClassTarget)
+                {
+                    ClassTarget classTarget = (ClassTarget) target;
+                    ContextMenu contextMenu = new ContextMenu();
+                    ObjectWrapper.createMethodMenuItems(contextMenu.getItems(), project.loadClass(world.getClassName()), classTarget, world, "", true);
+                    Point2D screenLocation = worldView.localToScreen(curPickPoint);
+                    contextMenu.show(worldView, screenLocation.getX(), screenLocation.getY());
+                }
+            }
         }
         else if (!actors.isEmpty())
         {
