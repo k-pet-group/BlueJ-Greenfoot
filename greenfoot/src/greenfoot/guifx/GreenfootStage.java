@@ -25,6 +25,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Menu;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
@@ -509,22 +510,39 @@ public class GreenfootStage extends Stage implements BlueJEventListener
 
         if (curPickIsRightClick)
         {
-
             // If single actor, show simple context menu:
-            if (actors.size() == 1)
+            if (!actors.isEmpty())
             {
-                ContextMenu contextMenu = new ContextMenu();
-                Target target = project.getTarget(actors.get(0).getClassName());
-                // Should always be ClassTarget, but check in case:
-                if (target instanceof ClassTarget)
+                // This is a list of menus; if there's only one we'll display
+                // directly in context menu.  If there's more than one, we'll
+                // have a higher level menu to pick between them.
+                List<Menu> actorMenus = new ArrayList<>();
+                for (DebuggerObject actor : actors)
                 {
-                    ClassTarget classTarget = (ClassTarget) target;
-                    ObjectWrapper.createMethodMenuItems(contextMenu.getItems(), project.loadClass(actors.get(0).getClassName()), classTarget, actors.get(0), "", true);
+                    Target target = project.getTarget(actor.getClassName());
+                    // Should always be ClassTarget, but check in case:
+                    if (target instanceof ClassTarget)
+                    {
+                        ClassTarget classTarget = (ClassTarget) target;
+                        Menu menu = new Menu(actor.getClassName());
+                        ObjectWrapper.createMethodMenuItems(menu.getItems(), project.loadClass(actor.getClassName()), classTarget, actor, "", true);
+                        actorMenus.add(menu);
+                    }
+                }
+                ContextMenu contextMenu = new ContextMenu();
+                if (actorMenus.size() == 1)
+                {
+                    // No point showing higher-level menu with one item, collapse:
+                    contextMenu.getItems().addAll(actorMenus.get(0).getItems());
+                }
+                else
+                {
+                    contextMenu.getItems().addAll(actorMenus);
                 }
                 Point2D screenLocation = worldView.localToScreen(curPickPoint);
                 contextMenu.show(worldView, screenLocation.getX(), screenLocation.getY());
             }
-            // TODO handle cases for multiple actors, and for zero actors
+            // TODO handle case for zero actors
         }
         else if (!actors.isEmpty())
         {
