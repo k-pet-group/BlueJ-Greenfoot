@@ -11,6 +11,8 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
+import bluej.testmgr.record.InvokerRecord;
+import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.JavaReflective;
 import bluej.utility.javafx.JavaFXUtil;
@@ -26,6 +28,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
@@ -51,6 +54,8 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.List;
+
+import static bluej.pkgmgr.target.ClassTarget.MENU_STYLE_INBUILT;
 
 /**
  * Greenfoot's main window: a JavaFX replacement for GreenfootFrame which lives on the server VM.
@@ -527,6 +532,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                         ClassTarget classTarget = (ClassTarget) target;
                         Menu menu = new Menu(actor.getClassName());
                         ObjectWrapper.createMethodMenuItems(menu.getItems(), project.loadClass(actor.getClassName()), classTarget, actor, "", true);
+                        menu.getItems().add(makeInspectMenuItem(actor));
+
                         actorMenus.add(menu);
                     }
                 }
@@ -552,6 +559,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                     ClassTarget classTarget = (ClassTarget) target;
                     ContextMenu contextMenu = new ContextMenu();
                     ObjectWrapper.createMethodMenuItems(contextMenu.getItems(), project.loadClass(world.getClassName()), classTarget, world, "", true);
+                    contextMenu.getItems().add(makeInspectMenuItem(world));
+
                     Point2D screenLocation = worldView.localToScreen(curPickPoint);
                     contextMenu.show(worldView, screenLocation.getX(), screenLocation.getY());
                 }
@@ -563,6 +572,20 @@ public class GreenfootStage extends Stage implements BlueJEventListener
             curDragRequest = pickId;
         }
 
+    }
+
+    /**
+     * Makes a MenuItem with an Inspect command for the given debugger object
+     */
+    private MenuItem makeInspectMenuItem(DebuggerObject debuggerObject)
+    {
+        MenuItem inspectItem = new MenuItem(Config.getString("debugger.objectwrapper.inspect"));
+        JavaFXUtil.addStyleClass(inspectItem, MENU_STYLE_INBUILT);
+        inspectItem.setOnAction(e -> {
+            InvokerRecord ir = new ObjectInspectInvokerRecord(debuggerObject.getClassName());
+            project.getInspectorInstance(debuggerObject, debuggerObject.getClassName(), project.getUnnamedPackage(), ir, this, null);  // shows the inspector
+        });
+        return inspectItem;
     }
 
     /**
