@@ -46,7 +46,7 @@ corresponding commands into the shared memory which are read by the debug VM.
 
 
 Object creation
---------------
+---------------
 When the user makes a new object using the context menus in the interface, the server VM makes a
 worker call to instantiate the class.  Via a BlueJ event listener on the server VM, it listens for
 a successful result, and then uses the class hierarchy to decide what happens:
@@ -60,8 +60,17 @@ a successful result, and then uses the class hierarchy to decide what happens:
 (Shared memory can't be used here because we need to act on the reference of the new object)
 
 
-Right-clicking on actor
------------------------
+Object removal
+--------------
+When the user selects to delete an object from the world from the interface, we create a
+RemoveFromWorldHelper instance which, upon construction, contacts the world to remove
+the passed object reference.
+
+(Shared memory can't be used here because we need to act on the reference of the object being removed)
+
+
+Right-clicking on actor/world
+-----------------------------
 When the user right-clicks in the display window (on the server VM), we need to find out which
 actor they have clicked on.  The debug VM has this information, so the server VM issues a worker call
 to create a PickActorHelper which finds out the reference(s) of any actor(s) at that location.
@@ -70,12 +79,12 @@ interrogates the PickActorHelper's fields to access the reference.  It then uses
 code to create a right-click menu with that object's methods, which may then be called on that
 actor using BlueJ's existing worker mechanisms.
 
+Right-clicking on the world works exactly the same way, but PickActorHelper stores a reference to
+the world object instead, in that case.
+
 (Shared memory can't be used here because we need to act on the reference of the clicked object)
 
 TODO: I think BlueJ will call the methods on an arbitrary thread, but we may want to call them on the simulation thread?
-
-TODO: we need to cover the case for multiple actors (nested menu)
-TODO: we need to cover the case for no actor (which counts as right-click on world)
 
 Dragging an actor
 -----------------

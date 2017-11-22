@@ -11,6 +11,8 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
+import bluej.testmgr.record.InvokerRecord;
+import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.JavaReflective;
 import bluej.utility.javafx.JavaFXUtil;
@@ -25,6 +27,8 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
@@ -50,6 +54,8 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.List;
+
+import static bluej.pkgmgr.target.ClassTarget.MENU_STYLE_INBUILT;
 
 /**
  * Greenfoot's main window: a JavaFX replacement for GreenfootFrame which lives on the server VM.
@@ -499,8 +505,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener
      * Callback when a pick has completed (i.e. a request to find actors at given position)
      * @param pickId The ID of the pick has requested
      * @param actors The list of actors found.  May be any size.
+     * @param world The world -- only relevant if actors list is empty.
      */
-    public void pickResults(int pickId, List<DebuggerObject> actors)
+    public void pickResults(int pickId, List<DebuggerObject> actors, DebuggerObject world)
     {
         if (curPickRequest != pickId)
         {
@@ -509,22 +516,64 @@ public class GreenfootStage extends Stage implements BlueJEventListener
 
         if (curPickIsRightClick)
         {
-
             // If single actor, show simple context menu:
-            if (actors.size() == 1)
+            if (!actors.isEmpty())
             {
-                ContextMenu contextMenu = new ContextMenu();
-                Target target = project.getTarget(actors.get(0).getClassName());
-                // Should always be ClassTarget, but check in case:
-                if (target instanceof ClassTarget)
+                // This is a list of menus; if there's only one we'll display
+                // directly in context menu.  If there's more than one, we'll
+                // have a higher level menu to pick between them.
+                List<Menu> actorMenus = new ArrayList<>();
+                for (DebuggerObject actor : actors)
                 {
-                    ClassTarget classTarget = (ClassTarget) target;
-                    ObjectWrapper.createMethodMenuItems(contextMenu.getItems(), project.loadClass(actors.get(0).getClassName()), classTarget, actors.get(0), "", true);
+                    Target target = project.getTarget(actor.getClassName());
+                    // Should always be ClassTarget, but check in case:
+                    if (target instanceof ClassTarget)
+                    {
+                        ClassTarget classTarget = (ClassTarget) target;
+                        Menu menu = new Menu(actor.getClassName());
+                        ObjectWrapper.createMethodMenuItems(menu.getItems(), project.loadClass(actor.getClassName()), classTarget, actor, "", true);
+                        menu.getItems().add(makeInspectMenuItem(actor));
+
+                        MenuItem removeItem = new MenuItem(Config.getString("world.handlerDelegate.remove"));
+                        JavaFXUtil.addStyleClass(removeItem, MENU_STYLE_INBUILT);
+                        removeItem.setOnAction(e -> {
+                            project.getDebugger().instantiateClass(
+                                "greenfoot.core.RemoveFromWorldHelper",
+                                new String[]{"java.lang.Object"},
+                                new DebuggerObject[]{actor});
+                        });
+                        menu.getItems().add(removeItem);
+                        actorMenus.add(menu);
+                    }
+                }
+                ContextMenu contextMenu = new ContextMenu();
+                if (actorMenus.size() == 1)
+                {
+                    // No point showing higher-level menu with one item, collapse:
+                    contextMenu.getItems().addAll(actorMenus.get(0).getItems());
+                }
+                else
+                {
+                    contextMenu.getItems().addAll(actorMenus);
                 }
                 Point2D screenLocation = worldView.localToScreen(curPickPoint);
                 contextMenu.show(worldView, screenLocation.getX(), screenLocation.getY());
             }
-            // TODO handle cases for multiple actors, and for zero actors
+            else
+            {
+                Target target = project.getTarget(world.getClassName());
+                // Should always be ClassTarget, but check in case:
+                if (target instanceof ClassTarget)
+                {
+                    ClassTarget classTarget = (ClassTarget) target;
+                    ContextMenu contextMenu = new ContextMenu();
+                    ObjectWrapper.createMethodMenuItems(contextMenu.getItems(), project.loadClass(world.getClassName()), classTarget, world, "", true);
+                    contextMenu.getItems().add(makeInspectMenuItem(world));
+
+                    Point2D screenLocation = worldView.localToScreen(curPickPoint);
+                    contextMenu.show(worldView, screenLocation.getX(), screenLocation.getY());
+                }
+            }
         }
         else if (!actors.isEmpty())
         {
@@ -532,6 +581,20 @@ public class GreenfootStage extends Stage implements BlueJEventListener
             curDragRequest = pickId;
         }
 
+    }
+
+    /**
+     * Makes a MenuItem with an Inspect command for the given debugger object
+     */
+    private MenuItem makeInspectMenuItem(DebuggerObject debuggerObject)
+    {
+        MenuItem inspectItem = new MenuItem(Config.getString("debugger.objectwrapper.inspect"));
+        JavaFXUtil.addStyleClass(inspectItem, MENU_STYLE_INBUILT);
+        inspectItem.setOnAction(e -> {
+            InvokerRecord ir = new ObjectInspectInvokerRecord(debuggerObject.getClassName());
+            project.getInspectorInstance(debuggerObject, debuggerObject.getClassName(), project.getUnnamedPackage(), ir, this, null);  // shows the inspector
+        });
+        return inspectItem;
     }
 
     /**

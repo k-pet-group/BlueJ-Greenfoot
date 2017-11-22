@@ -85,7 +85,7 @@ public class GreenfootDebugHandler implements DebuggerListener
 
     private static final String PICK_HELPER_CLASS = PickActorHelper.class.getName();
     private static final String PICK_HELPER_KEY = "PICK_HELPER_PICKED";
-    private FXPlatformBiConsumer<Integer, List<DebuggerObject>> pickListener;
+    private PickListener pickListener;
 
     private BProject project;
     private DebuggerThread simulationThread;
@@ -122,9 +122,9 @@ public class GreenfootDebugHandler implements DebuggerListener
 
     /**
      * Set the listener which will be called when a pick request completes.
-     * @param pickListener Will be called with the pickId and list of actors at that position.
+     * @param pickListener Will be called with the pickId and list of actors and world at that position.
      */
-    public void setPickListener(FXPlatformBiConsumer<Integer, List<DebuggerObject>> pickListener)
+    public void setPickListener(PickListener pickListener)
     {
         this.pickListener = pickListener;
     }
@@ -197,25 +197,27 @@ public class GreenfootDebugHandler implements DebuggerListener
                 atPickedBreakpoint(e.getBreakpointProperties()))
         {
             List<DebuggerField> fields = e.getThread().getCurrentObject(0).getFields();
-            DebuggerField picksField = fields.stream().filter(f -> f.getName().equals("picks")).findFirst().orElse(null);
+            DebuggerField actorPicksField = fields.stream().filter(f -> f.getName().equals("actorPicks")).findFirst().orElse(null);
+            DebuggerField worldPickField = fields.stream().filter(f -> f.getName().equals("worldPick")).findFirst().orElse(null);
             DebuggerField pickIdField = fields.stream().filter(f -> f.getName().equals("pickId")).findFirst().orElse(null);
             // Should always be non-null, but check in case:
-            if (picksField != null && pickIdField != null)
+            if (actorPicksField != null && worldPickField != null && pickIdField != null)
             {
-                DebuggerObject picksValue = picksField.getValueObject(null);
+                DebuggerObject actorPicksValue = actorPicksField.getValueObject(null);
+                DebuggerObject worldPickValue = worldPickField.getValueObject(null);
                 int pickIdValue = Integer.parseInt(pickIdField.getValueString());
                 // Should always be true, but check in case:
-                if (picksValue != null && picksValue.isArray())
+                if (actorPicksValue != null && actorPicksValue.isArray() && worldPickValue != null)
                 {
-                    List<DebuggerObject> picksElements = new ArrayList<>(picksValue.getElementCount());
-                    for (int i = 0; i < picksValue.getElementCount(); i++)
+                    List<DebuggerObject> picksElements = new ArrayList<>(actorPicksValue.getElementCount());
+                    for (int i = 0; i < actorPicksValue.getElementCount(); i++)
                     {
-                        picksElements.add(picksValue.getElementObject(i));
+                        picksElements.add(actorPicksValue.getElementObject(i));
                     }
                     Platform.runLater(() -> {
                         if (pickListener != null)
                         {
-                            pickListener.accept(pickIdValue, picksElements);
+                            pickListener.picked(pickIdValue, picksElements, worldPickValue);
                         }
                     });
                 }
@@ -544,5 +546,11 @@ public class GreenfootDebugHandler implements DebuggerListener
                 new Thread (new SendNextEvent(debugger)).start();
             }                
         }
+    }
+
+    public static interface PickListener
+    {
+        // World is only relevant if actors list is empty.
+        public void picked(int pickId, List<DebuggerObject> actors, DebuggerObject world);
     }
 }
