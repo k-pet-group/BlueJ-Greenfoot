@@ -15,7 +15,6 @@ import bluej.utility.Debug;
 import bluej.utility.JavaReflective;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.animation.AnimationTimer;
-import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -50,9 +49,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Greenfoot's main window: a JavaFX replacement for GreenfootFrame which lives on the server VM.
@@ -94,6 +91,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener
      * followed by no integers.
      */
     public static final int COMMAND_RUN = 21;
+    public static final int COMMAND_CONTINUE_DRAG = 22;
+    public static final int COMMAND_END_DRAG = 23;
 
     private final Project project;
     // The glass pane used to show a new actor while it is being placed:
@@ -102,9 +101,19 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     private final ObjectProperty<NewActor> newActorProperty = new SimpleObjectProperty<>(null);
     private final BorderPane worldView;
     private final ClassDiagram classDiagram;
+
+    // Details for pick requests that we have sent to the debug VM:
+
+    // The next free pick ID that we will use
     private int nextPickId = 1;
+    // The most recent pick ID that we are waiting on from the debug VM.
     private int curPickRequest;
+    // The point at which the most recent pick happened.
     private Point2D curPickPoint;
+    // If true, most recent pick was for right-click menu.  If false, was for a left-click drag.
+    private boolean curPickIsRightClick;
+    // The current drag request ID, or -1 if not currently dragging:
+    private int curDragRequest;
 
     /**
      * Details for a new actor being added to the world, after you have made it
@@ -334,13 +343,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener
         });
 
         worldView.addEventFilter(MouseEvent.ANY, e -> {
+            boolean isRunning = false; // TODO actually have this state correctly in future.
             int eventType;
             if (e.getEventType() == MouseEvent.MOUSE_CLICKED)
             {
-                boolean isRunning = false; // TODO actually have this state correctly in future.
                 if (e.getButton() == MouseButton.SECONDARY && !isRunning)
                 {
-                    worldRightClick(e.getX(), e.getY());
+
+                    pickRequest(e.getX(), e.getY(), true);
                 }
                 eventType = MOUSE_CLICKED;
             }
@@ -351,9 +361,21 @@ public class GreenfootStage extends Stage implements BlueJEventListener
             else if (e.getEventType() == MouseEvent.MOUSE_RELEASED)
             {
                 eventType = MOUSE_RELEASED;
+                // Finish any current drag:
+                if (curDragRequest != -1)
+                {
+                    pendingCommands.add(new Command(COMMAND_END_DRAG, curDragRequest));
+                    curDragRequest = -1;
+                }
             }
             else if (e.getEventType() == MouseEvent.MOUSE_DRAGGED)
             {
+                // Continue the drag if one is going:
+                if (e.getButton() == MouseButton.PRIMARY && !isRunning && curDragRequest != -1)
+                {
+                    pendingCommands.add(new Command(COMMAND_CONTINUE_DRAG, curDragRequest, (int)e.getX(), (int)e.getY()));
+                }
+
                 eventType = MOUSE_DRAGGED;
             }
             else if (e.getEventType() == MouseEvent.MOUSE_MOVED)
@@ -362,6 +384,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener
             }
             else
             {
+                if (e.getEventType() == MouseEvent.DRAG_DETECTED)
+                {
+                    // Begin a drag:
+                    pickRequest(e.getX(), e.getY(), false);
+                }
                 return;
             }
             pendingCommands.add(new Command(eventType, (int)e.getX(), (int)e.getY(), e.getButton().ordinal(), e.getClickCount()));
@@ -446,22 +473,25 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     }
 
     /**
-     * Handle a right-click on the world at the given world coordinates.
+     * Performs a pick request on the debug VM at given coordinates.
+     * If rightClick is false, was the beginning of a left-click drag.
      */
-    private void worldRightClick(double x, double y)
+    private void pickRequest(double x, double y, boolean rightClick)
     {
+        curPickIsRightClick = rightClick;
         // Bit hacky to pass positions as strings, but mirroring the values as integers
         // would have taken a lot of code changes to route through to VMReference:
         DebuggerObject xObject = project.getDebugger().getMirror("" + (int) x);
         DebuggerObject yObject = project.getDebugger().getMirror("" + (int) y);
         int thisPickId = nextPickId++;
         DebuggerObject pickIdObject = project.getDebugger().getMirror("" + thisPickId);
+        DebuggerObject requestTypeObject = project.getDebugger().getMirror(rightClick ? "" : "drag");
         // One pick at a time only:
         curPickRequest = thisPickId;
         curPickPoint = new Point2D(x, y);
 
         // Need to find out which actors are at the point:
-        project.getDebugger().instantiateClass("greenfoot.core.PickActorHelper", new String[]{"java.lang.String", "java.lang.String", "java.lang.String"}, new DebuggerObject[]{xObject, yObject, pickIdObject});
+        project.getDebugger().instantiateClass("greenfoot.core.PickActorHelper", new String[]{"java.lang.String", "java.lang.String", "java.lang.String", "java.lang.String"}, new DebuggerObject[]{xObject, yObject, pickIdObject, requestTypeObject});
         // Once that completes, pickResults(..) will be called.
     }
 
@@ -477,21 +507,31 @@ public class GreenfootStage extends Stage implements BlueJEventListener
             return; // Pick has been cancelled by a more recent pick, so ignore
         }
 
-        // If single actor, show simple context menu:
-        if (actors.size() == 1)
+        if (curPickIsRightClick)
         {
-            ContextMenu contextMenu = new ContextMenu();
-            Target target = project.getTarget(actors.get(0).getClassName());
-            // Should always be ClassTarget, but check in case:
-            if (target instanceof ClassTarget)
+
+            // If single actor, show simple context menu:
+            if (actors.size() == 1)
             {
-                ClassTarget classTarget = (ClassTarget)target;
-                ObjectWrapper.createMethodMenuItems(contextMenu.getItems(), project.loadClass(actors.get(0).getClassName()), classTarget, actors.get(0), "", true);
+                ContextMenu contextMenu = new ContextMenu();
+                Target target = project.getTarget(actors.get(0).getClassName());
+                // Should always be ClassTarget, but check in case:
+                if (target instanceof ClassTarget)
+                {
+                    ClassTarget classTarget = (ClassTarget) target;
+                    ObjectWrapper.createMethodMenuItems(contextMenu.getItems(), project.loadClass(actors.get(0).getClassName()), classTarget, actors.get(0), "", true);
+                }
+                Point2D screenLocation = worldView.localToScreen(curPickPoint);
+                contextMenu.show(worldView, screenLocation.getX(), screenLocation.getY());
             }
-            Point2D screenLocation = worldView.localToScreen(curPickPoint);
-            contextMenu.show(worldView, screenLocation.getX(), screenLocation.getY());
+            // TODO handle cases for multiple actors, and for zero actors
         }
-        // TODO handle cases for multiple actors, and for zero actors
+        else if (!actors.isEmpty())
+        {
+            // Left-click drag, and there is an actor there, so begin drag:
+            curDragRequest = pickId;
+        }
+
     }
 
     /**

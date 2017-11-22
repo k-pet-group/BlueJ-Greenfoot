@@ -21,6 +21,7 @@
  */
 package greenfoot.core;
 
+import bluej.utility.Debug;
 import greenfoot.Actor;
 import greenfoot.ActorVisitor;
 import greenfoot.World;
@@ -86,12 +87,6 @@ public class WorldHandler
     private int dragBeginX;
     private int dragBeginY;
 
-    /**
-     * Whether the object was dropped, or more specifically, whether it does not
-     * need to be replaced if the drop is cancelled.
-     */
-    private boolean objectDropped = true; // true if the object was dropped
-
     private KeyboardManager keyboardManager;
     private static WorldHandler instance;
     private EventListenerList listenerList = new EventListenerList();
@@ -105,6 +100,7 @@ public class WorldHandler
     // The actor being dragged
     private Actor dragActor;
     private boolean dragActorMoved;
+    private int dragId;
     private Cursor defaultCursor;
     
     /** Lock used for world manipulation */
@@ -271,20 +267,12 @@ public class WorldHandler
     @Override
     public void mousePressed(MouseEvent e)
     {
-        boolean isPopUp = handlerDelegate.maybeShowPopup(e);
-        if (world != null && SwingUtilities.isLeftMouseButton(e) && !isPopUp) {
-            Actor actor = getObject(e.getX(), e.getY());
-            if (actor != null) {
-                Point p = e.getPoint();
-                startDrag(actor, p);
-            }
-        }
     }
 
     /**
-     * Drag operation starting. Called on the Swing event dispatch thread.
+     * Drag operation starting.
      */
-    private void startDrag(Actor actor, Point p)
+    public void startDrag(Actor actor, Point p, int dragId)
     {
         dragActor = actor;
         dragActorMoved = false;
@@ -292,9 +280,7 @@ public class WorldHandler
         dragBeginY = ActorVisitor.getY(actor) * world.getCellSize() + world.getCellSize() / 2;
         dragOffsetX = dragBeginX - p.x;
         dragOffsetY = dragBeginY - p.y;
-        objectDropped = false;
-        SwingUtilities.getWindowAncestor(worldCanvas).toFront();
-        worldCanvas.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        this.dragId = dragId;
         drag(actor, p);
     }
     
@@ -311,25 +297,7 @@ public class WorldHandler
         handlerDelegate.maybeShowPopup(e);
         if (SwingUtilities.isLeftMouseButton(e)) {
             if (dragActor != null && dragActorMoved) {
-                // This makes sure that a single (final) setLocation
-                // call is received by the actor when dragging ends.
-                // This matters if the actor has overridden setLocation
-                Simulation.getInstance().runLater(new Runnable() {
-                    private Actor dragActor = WorldHandler.this.dragActor;
-                    @Override
-                    public void run()
-                    {
-                        int ax = ActorVisitor.getX(dragActor);
-                        int ay = ActorVisitor.getY(dragActor);
-                        // First we set the position to be the pre-drag position.
-                        // This means that if the user overrides setLocation and 
-                        // chooses not to call the inherited setLocation, the position
-                        // will be as if the drag never happened:
-                        ActorVisitor.setLocationInPixels(dragActor, dragBeginX, dragBeginY);
-                        dragActor.setLocation(ax, ay);
-                        handlerDelegate.actorDragged(dragActor, ax, ay);
-                    }
-                });
+
             }
             dragActor = null;
             worldCanvas.setCursor(defaultCursor);
@@ -696,14 +664,12 @@ public class WorldHandler
             final ObjectDragProxy to = (ObjectDragProxy) o;
             to.createRealObject();
             Simulation.getInstance().runLater(() -> world.removeObject(to));
-            objectDropped = true;
             return true;
         }
         else if (o instanceof Actor && ActorVisitor.getWorld((Actor) o) == null) {
             // object received from the inspector via the Get button.
             Actor actor = (Actor) o;
             addActorAtPixel(actor, x, y);
-            objectDropped = true;
             return true;
         }
         else if (o instanceof Actor) {
@@ -716,7 +682,6 @@ public class WorldHandler
             }
             Simulation.getInstance().runLater(() -> ActorVisitor.setLocationInPixels(actor, x, y));
             dragActorMoved = true;
-            objectDropped = true;
             return true;
         }
         else {
@@ -841,7 +806,6 @@ public class WorldHandler
 
     public void dragFinished(Object o)
     {
-        finishDrag(o);
     }
 
     protected void fireWorldCreatedEvent(World newWorld)
@@ -922,19 +886,37 @@ public class WorldHandler
     }
 
     /**
-     * Method that cleans up after a drag, and re-enables the worldhandler to
-     * receive events. It also puts the object back in its original place if it
-     * was not dropped.
+     * Completes the current drag if it is the given drag ID
      */
-    public void finishDrag(Object o)
+    public void finishDrag(int dragId)
     {
         // if the operation was cancelled, add the object back into the
         // world at its original position
-        if (!objectDropped && o instanceof Actor) {
-            final Actor actor = (Actor) o;
-            objectDropped = true;
-            dragActorMoved = false;
-            Simulation.getInstance().runLater(() -> ActorVisitor.setLocationInPixels(actor, dragBeginX, dragBeginY));
+        if (this.dragId == dragId)
+        {
+            if (dragActorMoved)
+            {
+                // This makes sure that a single (final) setLocation
+                // call is received by the actor when dragging ends.
+                // This matters if the actor has overridden setLocation
+                Simulation.getInstance().runLater(new Runnable() {
+                    private Actor dragActor = WorldHandler.this.dragActor;
+                    @Override
+                    public void run()
+                    {
+                        int ax = ActorVisitor.getX(dragActor);
+                        int ay = ActorVisitor.getY(dragActor);
+                        // First we set the position to be the pre-drag position.
+                        // This means that if the user overrides setLocation and
+                        // chooses not to call the inherited setLocation, the position
+                        // will be as if the drag never happened:
+                        ActorVisitor.setLocationInPixels(dragActor, dragBeginX, dragBeginY);
+                        dragActor.setLocation(ax, ay);
+                        handlerDelegate.actorDragged(dragActor, ax, ay);
+                    }
+                });
+            }
+            dragActor = null;
         }
     }
 
@@ -969,19 +951,11 @@ public class WorldHandler
     @Override
     public void mouseDragged(MouseEvent e)
     {
-        if (SwingUtilities.isLeftMouseButton(e)) {
-            objectDropped = false;
-            drag(dragActor, e.getPoint());
-        }
     }
 
     @Override
     public void mouseMoved(MouseEvent e)
     {
-        objectDropped = false;
-        if (dragActor != null) {
-            drag(dragActor, e.getPoint());
-        }
         handlerDelegate.mouseMoved(e);
     }
 
@@ -1030,16 +1004,6 @@ public class WorldHandler
     @Override
     public void listeningStarted(Object obj)
     {
-        // If the obj is not null, it means we have to activate the dragging of that object.
-        if (world != null && obj != null && obj != dragActor && obj instanceof Actor) {
-            Actor actor = (Actor) obj;
-            int ax = ActorVisitor.getX(actor);
-            int ay = ActorVisitor.getY(actor);
-            int x = (int) Math.floor(WorldVisitor.getCellCenter(world, ax));
-            int y = (int) Math.floor(WorldVisitor.getCellCenter(world, ay));
-            Point p = new Point(x, y);
-            startDrag(actor, p);
-        }
     }
     
     /**
@@ -1064,5 +1028,17 @@ public class WorldHandler
         if (held)
             lock.writeLock().lock();
         return answer;
+    }
+
+    public void continueDragging(int dragId, int x, int y)
+    {
+        if (dragId == this.dragId)
+        {
+            drag(dragActor, new Point(x, y));
+            // We're gonna need another paint after this:
+            Simulation.getInstance().runLater(() -> {
+                Simulation.getInstance().paintRemote(true);
+            });
+        }
     }
 }
