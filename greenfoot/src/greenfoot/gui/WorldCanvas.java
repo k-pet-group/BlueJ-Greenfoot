@@ -32,6 +32,8 @@ import greenfoot.WorldVisitor;
 import greenfoot.core.Simulation;
 import greenfoot.core.TextLabel;
 import greenfoot.core.WorldHandler;
+import greenfoot.gui.input.KeyboardManager;
+import greenfoot.gui.input.mouse.MousePollingManager;
 import greenfoot.guifx.GreenfootStage;
 import greenfoot.util.GreenfootUtil;
 import javafx.scene.input.KeyCode;
@@ -363,47 +365,56 @@ public class WorldCanvas extends JPanel
             int commandLength = sharedMemory.get();
             int data[] = new int[commandLength];
             sharedMemory.get(data);
-            switch (data[0])
+            if (GreenfootStage.isKeyEvent(data[0]))
             {
-                case GreenfootStage.COMMAND_RUN:
-                    Simulation.getInstance().setPaused(false);
-                    break;
-                case GreenfootStage.KEY_DOWN:
-                case GreenfootStage.KEY_UP:
-                    int awtCode = JavaFXUtil.fxKeyCodeToAWT(KeyCode.values()[data[1]]);
-                    if (awtCode != -1)
+                int awtCode = JavaFXUtil.fxKeyCodeToAWT(KeyCode.values()[data[1]]);
+                if (awtCode != -1)
+                {
+                    KeyboardManager keyboardManager = WorldHandler.getInstance().getKeyboardManager();
+                    switch(data[0])
                     {
-                        if (data[0] == GreenfootStage.KEY_DOWN)
-                            WorldHandler.getInstance().getKeyboardManager().pressKey(awtCode);
-                        else
-                            WorldHandler.getInstance().getKeyboardManager().releaseKey(awtCode);
+                        case GreenfootStage.KEY_DOWN:
+                            keyboardManager.pressKey(awtCode);
+                            break;
+                        case GreenfootStage.KEY_UP:
+                            keyboardManager.releaseKey(awtCode);
+                            break;
+                        // KEY_TYPED is not processed
                     }
-                    break;
-                case GreenfootStage.MOUSE_CLICKED:
-                case GreenfootStage.MOUSE_PRESSED:
-                case GreenfootStage.MOUSE_RELEASED:
-                case GreenfootStage.MOUSE_DRAGGED:
-                case GreenfootStage.MOUSE_MOVED:
-                    MouseEvent fakeEvent = new MouseEvent(new JPanel(), 1, 0, 0, data[1], data[2], data[3], false, data[4]);
-                    switch (data[0])
-                    {
-                        case GreenfootStage.MOUSE_CLICKED:
-                            WorldHandler.getInstance().getMouseManager().mouseClicked(fakeEvent);
-                            break;
-                        case GreenfootStage.MOUSE_PRESSED:
-                            WorldHandler.getInstance().getMouseManager().mousePressed(fakeEvent);
-                            break;
-                        case GreenfootStage.MOUSE_RELEASED:
-                            WorldHandler.getInstance().getMouseManager().mouseReleased(fakeEvent);
-                            break;
-                        case GreenfootStage.MOUSE_DRAGGED:
-                            WorldHandler.getInstance().getMouseManager().mouseDragged(fakeEvent);
-                            break;
-                        case GreenfootStage.MOUSE_MOVED:
-                            WorldHandler.getInstance().getMouseManager().mouseMoved(fakeEvent);
-                            break;
-                    }
-                    break;
+                }
+            }
+            else if (GreenfootStage.isMouseEvent(data[0]))
+            {
+                MouseEvent fakeEvent = new MouseEvent(new JPanel(), 1, 0, 0, data[1], data[2], data[3], false, data[4]);
+                MousePollingManager mouseManager = WorldHandler.getInstance().getMouseManager();
+                switch (data[0])
+                {
+                    case GreenfootStage.MOUSE_CLICKED:
+                        mouseManager.mouseClicked(fakeEvent);
+                        break;
+                    case GreenfootStage.MOUSE_PRESSED:
+                        mouseManager.mousePressed(fakeEvent);
+                        break;
+                    case GreenfootStage.MOUSE_RELEASED:
+                        mouseManager.mouseReleased(fakeEvent);
+                        break;
+                    case GreenfootStage.MOUSE_DRAGGED:
+                        mouseManager.mouseDragged(fakeEvent);
+                        break;
+                    case GreenfootStage.MOUSE_MOVED:
+                        mouseManager.mouseMoved(fakeEvent);
+                        break;
+                }
+            }
+            else
+            {
+                // Commands which are not keyboard or mouse events:
+                switch (data[0])
+                {
+                    case GreenfootStage.COMMAND_RUN:
+                        Simulation.getInstance().setPaused(false);
+                        break;
+                }
             }
         }
         return lastSeqID;

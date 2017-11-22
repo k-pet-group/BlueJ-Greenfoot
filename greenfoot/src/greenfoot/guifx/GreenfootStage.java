@@ -70,6 +70,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     public static final int KEY_DOWN = 1;
     public static final int KEY_UP = 2;
     public static final int KEY_TYPED = 3;
+    public static boolean isKeyEvent(int event)
+    {
+        return event >= KEY_DOWN && event <= KEY_TYPED;
+    }
 
     /**
      * Mouse events.  Followed by four integers:
@@ -80,6 +84,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     public static final int MOUSE_DRAGGED = 13;
     public static final int MOUSE_RELEASED = 14;
     public static final int MOUSE_MOVED = 15;
+    public static boolean isMouseEvent(int event)
+    {
+        return event >= MOUSE_CLICKED && event <= MOUSE_MOVED;
+    }
 
     /**
      * Commands or requests.  Unless otherwise specified,

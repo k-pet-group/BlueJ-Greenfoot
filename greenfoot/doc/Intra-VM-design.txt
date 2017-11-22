@@ -1,15 +1,14 @@
 Intra-VM Design
 ===============
-
 This document describes how various cross-VM activities take place in Greenfoot, such as dragging
 actors in the world display, right-clicking on them, starting the simulation, drawing the world,
 sending keyboard and mouse events and so on.  This code is necessarily split in the Greenfoot
 source (since sender and receiver will always be in different classes in different VMs), so this
 document serves as a way to document per functionality in one place.
 
+
 Types of cross-VM communication
 ===============================
-
 The server VM and debug VM are connected via the Java Debug Interface (JDI) and share a memory
 buffer.  The shared memory buffer is fast and good for transferring a lot of byte-level data
 synchronously (i.e. when both VMs are free and ready to communicate), but JDI is useful where
@@ -27,27 +26,27 @@ Correspondingly, there are two main ways for the debug VM to communicate to the 
 Shared memory is good for simple commands, the worker/JDI mechanism is good for more complex items.
 In general, shared memory should be used for everything, unless there is a reason it cannot be.
 
+
 Run
 ---
-
 When the server VM wants to issue a Run order, it puts a command into shared memory.  When the debug
 VM sees this, it changes the simulation state.
 
+
 World display
 -------------
-
 When the debug VM is ready to display a new frame, it draws it into the shared memory, and the server
 VM copies it out on to the screen.
 
+
 Keyboard and mouse events
 -------------------------
-
 When the user clicks or presses keys on the display window (on the server VM), the server VM puts
 corresponding commands into the shared memory which are read by the debug VM.
 
+
 Object creation
 --------------
-
 When the user makes a new object using the context menus in the interface, the server VM makes a
 worker call to instantiate the class.  Via a BlueJ event listener on the server VM, it listens for
 a successful result, and then uses the class hierarchy to decide what happens:
@@ -60,9 +59,9 @@ a successful result, and then uses the class hierarchy to decide what happens:
 
 (Shared memory can't be used here because we need to act on the reference of the new object)
 
+
 Right-clicking on actor
 -----------------------
-
 When the user right-clicks in the display window (on the server VM), we need to find out which
 actor they have clicked on.  The debug VM has this information, so the server VM issues a worker call
 to create a PickActorHelper which finds out the reference(s) of any actor(s) at that location.
