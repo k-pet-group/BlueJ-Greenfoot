@@ -534,6 +534,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                         ObjectWrapper.createMethodMenuItems(menu.getItems(), project.loadClass(actor.getClassName()), classTarget, actor, "", true);
                         menu.getItems().add(makeInspectMenuItem(actor));
 
+                        MenuItem removeItem = new MenuItem(Config.getString("world.handlerDelegate.remove"));
+                        JavaFXUtil.addStyleClass(removeItem, MENU_STYLE_INBUILT);
+                        removeItem.setOnAction(e -> {
+                            project.getDebugger().instantiateClass(
+                                "greenfoot.core.RemoveFromWorldHelper",
+                                new String[]{"java.lang.Object"},
+                                new DebuggerObject[]{actor});
+                        });
+                        menu.getItems().add(removeItem);
                         actorMenus.add(menu);
                     }
                 }
