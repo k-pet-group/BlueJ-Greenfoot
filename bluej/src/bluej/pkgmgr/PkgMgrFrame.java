@@ -3216,7 +3216,10 @@ public class PkgMgrFrame
             synchronized (this)
             {
                 PackageEditor pkgEd = pkg.get().getEditor();
-                pkgEd.clearState();
+                if (pkgEd != null)
+                {
+                    pkgEd.clearState();
+                }
             }
         }
         clearStatus();

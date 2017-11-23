@@ -183,11 +183,6 @@ public class WorldHandler
             public void setWorldHandler(WorldHandler handler)
             {
             }
-            
-            @Override
-            public void addActor(Actor actor, int x, int y)
-            {
-            }
 
             @Override
             public void actorDragged(Actor actor, int xCell, int yCell)
@@ -788,7 +783,6 @@ public class WorldHandler
                 // otherwise will look like lag:
                 Simulation.getInstance().paintRemote(true);
             });
-            handlerDelegate.addActor(actor, x, y);
             return true;
         }
         else {

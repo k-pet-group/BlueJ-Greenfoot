@@ -5,6 +5,7 @@ import bluej.BlueJEventListener;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerResult;
+import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.ExecutionEvent;
 import bluej.debugmgr.objectbench.ObjectWrapper;
@@ -16,6 +17,7 @@ import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.JavaReflective;
 import bluej.utility.javafx.JavaFXUtil;
+import greenfoot.record.GreenfootRecorder;
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -121,6 +123,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     // The current drag request ID, or -1 if not currently dragging:
     private int curDragRequest;
 
+    private final GreenfootRecorder saveTheWorldRecorder;
+
     /**
      * Details for a new actor being added to the world, after you have made it
      * but before it is ready to be placed.
@@ -131,8 +135,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener
         private final Region previewNode;
         // Property tracking whether current location is valid or not
         private final BooleanProperty cannotDrop = new SimpleBooleanProperty(true);
-        // The object reference if the actor has already been created:
-        private final DebuggerObject debugVMActorReference;
+        // The execution event that created the actor, if the actor has already been created:
+        private final ExecutionEvent creationEvent;
         // The type name if the actor has not been constructed:
         private final String typeName;
 
@@ -144,17 +148,17 @@ public class GreenfootStage extends Stage implements BlueJEventListener
             return new StackPane(imageView, cannotDropIcon);
         }
 
-        public NewActor(ImageView imageView, DebuggerObject debugVMActorReference)
+        public NewActor(ImageView imageView, ExecutionEvent creationEvent)
         {
             this.previewNode = makePreviewNode(imageView);
-            this.debugVMActorReference = debugVMActorReference;
+            this.creationEvent = creationEvent;
             this.typeName = null;
         }
 
         public NewActor(ImageView imageView, String typeName)
         {
             this.previewNode = makePreviewNode(imageView);
-            this.debugVMActorReference = null;
+            this.creationEvent = null;
             this.typeName = typeName;
         }
     }
@@ -193,6 +197,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
         this.project = project;
         BlueJEvent.addListener(this);
         greenfootDebugHandler.setPickListener(this::pickResults);
+        this.saveTheWorldRecorder = new GreenfootRecorder();
 
         ImageView imageView = new ImageView();
         worldView = new BorderPane(imageView);
@@ -245,12 +250,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                     DebuggerObject xObject = project.getDebugger().getMirror("" + (int) dest.getX());
                     DebuggerObject yObject = project.getDebugger().getMirror("" + (int) dest.getY());
                     DebuggerObject actor = null;
-                    if (newActorProperty.get().debugVMActorReference != null)
+                    ExecutionEvent executionEvent = newActorProperty.get().creationEvent;
+                    if (executionEvent != null)
                     {
                         // Place the already-constructed actor:
-                        actor = newActorProperty.get().debugVMActorReference;
+                        actor = executionEvent.getResultObject();
                         // Can't place same instance twice:
                         newActorProperty.set(null);
+                        saveTheWorldRecorder.createActor(executionEvent.getResultObject(), executionEvent.getParameters(), executionEvent.getSignature());
                     }
                     else
                     {
@@ -259,10 +266,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                         if (result.getResultObject() != null)
                         {
                             actor = result.getResultObject();
+                            saveTheWorldRecorder.createActor(actor, new String[0], new JavaType[0]);
                         }
                     }
                     if (actor != null)
                     {
+                        // TODO these coordinates aren't right for cell-based worlds (>1 pixel per cell)
+                        saveTheWorldRecorder.addActorToWorld(actor, (int)dest.getX(), (int)dest.getY());
+
                         project.getDebugger().instantiateClass(
                                 "greenfoot.core.AddToWorldHelper",
                                 new String[]{"java.lang.Object", "java.lang.String", "java.lang.String"},
@@ -330,7 +341,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
             {
                 eventType = KEY_UP;
 
-                if (e.getCode() == KeyCode.SHIFT && newActorProperty.get() != null && newActorProperty.get().debugVMActorReference == null)
+                if (e.getCode() == KeyCode.SHIFT && newActorProperty.get() != null && newActorProperty.get().creationEvent == null)
                 {
                     newActorProperty.set(null);
                 }
@@ -541,6 +552,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                                 "greenfoot.core.RemoveFromWorldHelper",
                                 new String[]{"java.lang.Object"},
                                 new DebuggerObject[]{actor});
+                            saveTheWorldRecorder.removeActor(actor);
                         });
                         menu.getItems().add(removeItem);
                         actorMenus.add(menu);
@@ -569,6 +581,22 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                     ContextMenu contextMenu = new ContextMenu();
                     ObjectWrapper.createMethodMenuItems(contextMenu.getItems(), project.loadClass(world.getClassName()), classTarget, world, "", true);
                     contextMenu.getItems().add(makeInspectMenuItem(world));
+
+                    MenuItem saveTheWorld = new MenuItem(Config.getString("save.world"));
+                    // Temporary while developing - print out saved world to Terminal window:
+                    saveTheWorld.setOnAction(e -> {
+                        project.getTerminal().showHide(true);
+                        new Thread(() -> {
+                            try
+                            {
+                                project.getTerminal().getWriter().write("Prepare:" + saveTheWorldRecorder.getPrepareMethod().toJavaSource().toTemporaryJavaCodeString());
+                            }
+                            catch (IOException e1)
+                            {
+                            }
+                        }).start();
+                    });
+                    contextMenu.getItems().add(saveTheWorld);
 
                     Point2D screenLocation = worldView.localToScreen(curPickPoint);
                     contextMenu.show(worldView, screenLocation.getX(), screenLocation.getY());
@@ -623,7 +651,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                         ImageView imageView = getImageViewForClass(typeReflective);
                         if (imageView != null)
                         {
-                            newActorProperty.set(new NewActor(imageView, executionEvent.getResultObject()));
+                            newActorProperty.set(new NewActor(imageView, executionEvent));
                         }
                     }
                     else if (typeReflective != null && getWorldReflective().isAssignableFrom(typeReflective))
