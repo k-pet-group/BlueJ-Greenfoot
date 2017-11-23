@@ -21,6 +21,7 @@
  */
 package greenfoot.record;
 
+import bluej.debugger.DebuggerObject;
 import greenfoot.Actor;
 import greenfoot.ObjectTracker;
 import greenfoot.World;
@@ -28,6 +29,7 @@ import greenfoot.World;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,8 +49,7 @@ import bluej.utility.Debug;
 public class GreenfootRecorder
 {
     /** A map of known objects to their name as it appears in the code */
-    private final IdentityHashMap<Object, String> objectNames;
-    private final ArrayList<Object> actorNameQueue;
+    private final HashMap<DebuggerObject, String> objectNames;
     private final ArrayList<CodeElement> code;
     private World world;
     
@@ -61,8 +62,7 @@ public class GreenfootRecorder
      */
     public GreenfootRecorder()
     {
-        objectNames = new IdentityHashMap<>();
-        actorNameQueue = new ArrayList<>();
+        objectNames = new HashMap<>();
         code = new ArrayList<>();
     }
 
@@ -72,12 +72,12 @@ public class GreenfootRecorder
      * @param args     The arguments supplied to the actor's constructor, as Java expresssions
      * @param paramTypes  The parameter types of the called constructor
      */
-    public synchronized void createActor(Object actor, String[] args, JavaType[] paramTypes)
+    public synchronized void createActor(DebuggerObject actor, String[] args, JavaType[] paramTypes)
     {
-        Class<?> theClass = actor.getClass();
+        String className = actor.getGenType().toString(true);
         String name = nameActor(actor);
         if (name != null) {
-            code.add(new VarElement(null, theClass.getCanonicalName(), name,  "new " + theClass.getCanonicalName()
+            code.add(new VarElement(null, className, name,  "new " + className
                     + "(" + withCommas(args, paramTypes, false) + ")"));
         }
     }
@@ -89,35 +89,30 @@ public class GreenfootRecorder
      * <p>This is called from the simulation thread (with the world locked), or from the createActor method
      * above, which is called from the Swing EDT.
      */
-    public synchronized String nameActor(Object actor)
+
+    public synchronized String nameActor(DebuggerObject actor)
     {
-        try {
-            String name = ObjectTracker.getRObjectName(actor);
-            if (name != null) {
-                objectNames.put(actor, name);
-                return name;
-            } else {
-                return null;
-            }
+        if (objectNames.containsKey(actor))
+            return objectNames.get(actor);
+
+        String root = actor.getClassName().replace("." , "").replace("$", "");
+        root = root.substring(0, 1).toLowerCase() + root.substring(1);
+        String name = root;
+        for (int i = 1; objectNames.values().contains(name); i++)
+        {
+            name = root + i;
         }
-        catch (RemoteException e) {
-            Debug.reportError("Error naming actor", e);
+        if (name != null) {
+            objectNames.put(actor, name);
+            return name;
+        } else {
             return null;
         }
     }
 
-    private synchronized void nameActors(List<Object> actors)
+    private synchronized void nameActors(List<DebuggerObject> actors)
     {
-        try {
-            List<String> names = ObjectTracker.getRObjectNames(actors);
-            if (names != null && names.size() == actors.size()) {
-                for (int i = 0; i < actors.size(); i++)
-                    objectNames.put(actors.get(i), names.get(i));
-            }
-        }
-        catch (RemoteException e) {
-            Debug.reportError("Error naming actors", e);
-        }
+        actors.forEach(this::nameActor);
     }
     
     /**
@@ -161,7 +156,7 @@ public class GreenfootRecorder
      * @param x       The actor's x position
      * @param y       The actor's y position
      */
-    public synchronized void addActorToWorld(Actor actor, int x, int y)
+    public synchronized void addActorToWorld(DebuggerObject actor, int x, int y)
     {
         String actorObjectName = objectNames.get(actor);
         if (null == actorObjectName) {
@@ -234,7 +229,6 @@ public class GreenfootRecorder
     public synchronized void reset()
     {
         objectNames.clear();
-        actorNameQueue.clear();
         clearCode(false);
     }
     
@@ -307,14 +301,4 @@ public class GreenfootRecorder
         return new CallElement(content, content);
     }
 
-    public void initialised()
-    {
-        nameActors(actorNameQueue);
-        actorNameQueue.clear();
-    }
-
-    public void queueNameActor(Actor object)
-    {
-        actorNameQueue.add(object);
-    }
 }

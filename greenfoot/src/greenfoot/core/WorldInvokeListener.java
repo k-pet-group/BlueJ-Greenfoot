@@ -184,7 +184,6 @@ public class WorldInvokeListener
                     else {
                         WorldHandler worldHandler = WorldHandler.getInstance();
                         if(o instanceof Actor) {
-                            interactionListener.createdActor(o, ir.getArgumentValues(), paramTypes);
                             worldHandler.addObjectAtEvent((Actor) o, event);
                             worldHandler.repaint();
                         }

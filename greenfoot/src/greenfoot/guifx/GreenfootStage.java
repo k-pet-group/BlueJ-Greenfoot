@@ -5,6 +5,7 @@ import bluej.BlueJEventListener;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerResult;
+import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.ExecutionEvent;
 import bluej.debugmgr.objectbench.ObjectWrapper;
@@ -16,6 +17,7 @@ import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.JavaReflective;
 import bluej.utility.javafx.JavaFXUtil;
+import greenfoot.record.GreenfootRecorder;
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -121,6 +123,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     // The current drag request ID, or -1 if not currently dragging:
     private int curDragRequest;
 
+    private final GreenfootRecorder saveTheWorldRecorder;
+
     /**
      * Details for a new actor being added to the world, after you have made it
      * but before it is ready to be placed.
@@ -193,6 +197,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
         this.project = project;
         BlueJEvent.addListener(this);
         greenfootDebugHandler.setPickListener(this::pickResults);
+        this.saveTheWorldRecorder = new GreenfootRecorder();
 
         ImageView imageView = new ImageView();
         worldView = new BorderPane(imageView);
@@ -259,10 +264,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                         if (result.getResultObject() != null)
                         {
                             actor = result.getResultObject();
+                            saveTheWorldRecorder.createActor(actor, new String[0], new JavaType[0]);
                         }
                     }
                     if (actor != null)
                     {
+                        // TODO these coordinates aren't right for cell-based worlds (>1 pixel per cell)
+                        saveTheWorldRecorder.addActorToWorld(actor, (int)dest.getX(), (int)dest.getY());
+
                         project.getDebugger().instantiateClass(
                                 "greenfoot.core.AddToWorldHelper",
                                 new String[]{"java.lang.Object", "java.lang.String", "java.lang.String"},
@@ -569,6 +578,22 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                     ContextMenu contextMenu = new ContextMenu();
                     ObjectWrapper.createMethodMenuItems(contextMenu.getItems(), project.loadClass(world.getClassName()), classTarget, world, "", true);
                     contextMenu.getItems().add(makeInspectMenuItem(world));
+
+                    MenuItem saveTheWorld = new MenuItem(Config.getString("save.world"));
+                    // Temporary while developing - print out saved world to Terminal window:
+                    saveTheWorld.setOnAction(e -> {
+                        project.getTerminal().showHide(true);
+                        new Thread(() -> {
+                            try
+                            {
+                                project.getTerminal().getWriter().write("Prepare:" + saveTheWorldRecorder.getPrepareMethod().toJavaSource().toTemporaryJavaCodeString());
+                            }
+                            catch (IOException e1)
+                            {
+                            }
+                        }).start();
+                    });
+                    contextMenu.getItems().add(saveTheWorld);
 
                     Point2D screenLocation = worldView.localToScreen(curPickPoint);
                     contextMenu.show(worldView, screenLocation.getX(), screenLocation.getY());

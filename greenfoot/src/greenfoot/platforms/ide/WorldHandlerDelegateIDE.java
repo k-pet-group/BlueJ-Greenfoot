@@ -463,7 +463,6 @@ public class WorldHandlerDelegateIDE
             }
             EventQueue.invokeLater(() -> {
                 worldInitialising = false;
-                greenfootRecorder.initialised();
                 frame.endExecution();
             });
         });
@@ -536,18 +535,6 @@ public class WorldHandlerDelegateIDE
             project.setLastWorldClassName(world.getClass().getName());
         }
     }
-    
-    @Override
-    public void addActor(Actor actor, int x, int y)
-    {
-        greenfootRecorder.addActorToWorld(actor, x, y);
-    }
-
-    @Override
-    public void createdActor(Object actor, String[] args, JavaType[] argTypes)
-    {
-        greenfootRecorder.createActor(actor, args, argTypes);
-    }
 
     @Override
     public void methodCall(Object obj, String actorName, Method method, String[] args, JavaType[] argTypes)
@@ -605,7 +592,6 @@ public class WorldHandlerDelegateIDE
                         item.getClassName().equals(lastWorldClassName)) {
                     // This call gives the object a name,
                     // which will be necessary for appending operations with the object to the world's code:
-                    greenfootRecorder.queueNameActor(object);
                     return;
                 }
 

@@ -257,7 +257,6 @@ public class ClassView extends ClassButton
                     constructor.setAccessible(true);
 
                     Object newObject = Simulation.newInstance(constructor);
-                    interactionListener.createdActor(newObject, new String[0], null);
                     ActorInstantiationListener invocationListener = GreenfootMain.getInstance().getInvocationListener();
                     if(invocationListener != null) {
                         invocationListener.localObjectCreated(newObject, LocationTracker.instance().getMouseButtonEvent());

@@ -36,13 +36,6 @@ public interface InteractionListener
      * An interactive method/constructor call has begun execution.
      */
     public void beginCallExecution(CallableView callableView);
-    
-    /**
-     * Notify that an actor was constructed interactively by the user.
-     * @param actor   The actor object
-     * @param String[] args   The constructor arguments (as Java expressions)
-     */
-    public void createdActor(Object actor, String[] args, JavaType[] argTypes);
 
     /**
      * A world was constructed interactively. This would normally, but not necessarily,

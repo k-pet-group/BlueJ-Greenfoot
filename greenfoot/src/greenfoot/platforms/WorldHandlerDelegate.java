@@ -55,9 +55,7 @@ public interface WorldHandlerDelegate
     void setWorld(World oldWorld, World newWorld);
 
     void setWorldHandler(WorldHandler handler);
-    
-    void addActor(Actor actor, int x, int y); 
-    
+
     /**
      * Instantiate a new world and do any initialisation needed to activate that world.
      */
