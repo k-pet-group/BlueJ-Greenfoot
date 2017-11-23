@@ -260,7 +260,7 @@ public class GreenfootRecorder
     /**
      * Record a remove actor interaction.
      */
-    public void removeActor(Actor obj)
+    public void removeActor(DebuggerObject obj)
     {
         String actorObjectName = objectNames.get(obj);
         if (null == actorObjectName) {

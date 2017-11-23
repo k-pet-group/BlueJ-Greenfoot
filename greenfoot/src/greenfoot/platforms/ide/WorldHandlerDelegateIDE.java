@@ -135,7 +135,6 @@ public class WorldHandlerDelegateIDE
             m = new JMenuItem(Config.getString("world.handlerDelegate.remove"));
             m.addActionListener(e -> {
                 worldHandler.getWorld().removeObject(obj);
-                removedActor(obj);
                 worldHandler.repaint();
             });
             m.setFont(PrefMgr.getStandoutMenuFont());
@@ -551,12 +550,6 @@ public class WorldHandlerDelegateIDE
     public void actorDragged(Actor actor, int xCell, int yCell)
     {
         greenfootRecorder.moveActor(actor, xCell, yCell);
-    }
-
-    @Override
-    public void removedActor(Actor obj)
-    {
-        greenfootRecorder.removeActor(obj);        
     }
 
     @Override

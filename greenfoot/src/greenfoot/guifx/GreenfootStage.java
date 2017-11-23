@@ -552,6 +552,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                                 "greenfoot.core.RemoveFromWorldHelper",
                                 new String[]{"java.lang.Object"},
                                 new DebuggerObject[]{actor});
+                            saveTheWorldRecorder.removeActor(actor);
                         });
                         menu.getItems().add(removeItem);
                         actorMenus.add(menu);

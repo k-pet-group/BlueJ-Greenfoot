@@ -56,8 +56,4 @@ public interface InteractionListener
      * @param argTypes   The argument types of the method. For a varargs method the last type will be an array.
      */
     public void methodCall(Object obj, String targetName, Method method, String[] args, JavaType[] argTypes);
-
-    public void removedActor(Actor obj);
-
-    public void objectAddedToWorld(Actor object);
 }
