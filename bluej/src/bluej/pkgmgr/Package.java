@@ -3002,9 +3002,9 @@ public final class Package
     /**
      * Call the given method or constructor.
      */
-    public void callMethodOrConstructor(CallableView view)
+    public void callStaticMethodOrConstructor(CallableView view)
     {
-        pmf.callMethod(view);
+        pmf.callStaticMethodOrConstructor(view);
     }
 
     /**

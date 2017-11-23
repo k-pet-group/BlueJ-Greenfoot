@@ -1952,7 +1952,7 @@ public class PkgMgrFrame
     /**
      * Interactively call a class (ie static) method or a class constructor
      */
-    protected void callMethod(final CallableView cv)
+    protected void callStaticMethodOrConstructor(final CallableView cv)
     {
         ResultWatcher watcher = null;
 
@@ -2589,7 +2589,7 @@ public class PkgMgrFrame
         libraryCallDialog.requestfocus();
         Optional<CallableView> result = libraryCallDialog.showAndWait();
         result.ifPresent(viewToCall -> {
-            pkgRef.callMethodOrConstructor(viewToCall);
+            pkgRef.callStaticMethodOrConstructor(viewToCall);
         });
     }
 
