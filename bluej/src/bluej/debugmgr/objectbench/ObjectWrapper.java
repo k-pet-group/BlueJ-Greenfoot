@@ -394,7 +394,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         menu = new ContextMenu();
 
         // add the menu items to call the methods
-        createMethodMenuItems(menu.getItems(), cl, iType, this, obj, pkg.getQualifiedName(), true);
+        createMethodMenuItems(menu.getItems(), cl, iType, this, pkg.getQualifiedName(), true);
 
         // add inspect and remove options
         MenuItem item;
@@ -417,17 +417,16 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
      * @param menu  The menu to add the menu items to
      * @param cl    The class whose methods to add
      * @param il    The invoke listener to notify when a method is called
-     * @param obj   The object to apply the methods to
      * @param currentPackageName Name of the package that this object will be
      *            shown from (used to determine wheter to show package protected
      *            methods)
      * @param showObjectMethods Whether to show the submenu with methods from java.lang.Object
      */
-    public static void createMethodMenuItems(ObservableList<MenuItem> menu, Class<?> cl, InvokeListener il, DebuggerObject obj,
+    public static void createMethodMenuItems(ObservableList<MenuItem> menu, Class<?> cl, InvokeListener il,
                                              String currentPackageName, boolean showObjectMethods)
     {
         GenTypeClass gt = new GenTypeClass(new JavaReflective(cl));
-        createMethodMenuItems(menu, cl, gt, il, obj, currentPackageName, showObjectMethods);
+        createMethodMenuItems(menu, cl, gt, il, currentPackageName, showObjectMethods);
     }
 
     /**
@@ -437,13 +436,12 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
      * @param cl    The class whose methods to add
      * @param gtype  The generic type of the class
      * @param il    The invoke listener to notify when a method is called
-     * @param obj   The object to apply the methods to
      * @param currentPackageName Name of the package that this object will be
      *            shown from (used to determine wheter to show package protected
      *            methods)
      * @param showObjectMethods Whether to show the submenu for methods inherited from java.lang.Object
      */
-    public static void createMethodMenuItems(ObservableList<MenuItem> menu, Class<?> cl, GenTypeClass gtype, InvokeListener il, DebuggerObject obj,
+    public static void createMethodMenuItems(ObservableList<MenuItem> menu, Class<?> cl, GenTypeClass gtype, InvokeListener il,
                                              String currentPackageName, boolean showObjectMethods)
     {
         if (cl != null) {

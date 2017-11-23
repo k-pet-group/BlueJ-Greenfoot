@@ -542,7 +542,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                     {
                         ClassTarget classTarget = (ClassTarget) target;
                         Menu menu = new Menu(actor.getClassName());
-                        ObjectWrapper.createMethodMenuItems(menu.getItems(), project.loadClass(actor.getClassName()), classTarget, actor, "", true);
+                        ObjectWrapper.createMethodMenuItems(menu.getItems(), project.loadClass(actor.getClassName()), classTarget, "", true);
                         menu.getItems().add(makeInspectMenuItem(actor));
 
                         MenuItem removeItem = new MenuItem(Config.getString("world.handlerDelegate.remove"));
@@ -579,7 +579,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                 {
                     ClassTarget classTarget = (ClassTarget) target;
                     ContextMenu contextMenu = new ContextMenu();
-                    ObjectWrapper.createMethodMenuItems(contextMenu.getItems(), project.loadClass(world.getClassName()), classTarget, world, "", true);
+                    ObjectWrapper.createMethodMenuItems(contextMenu.getItems(), project.loadClass(world.getClassName()), classTarget, "", true);
                     contextMenu.getItems().add(makeInspectMenuItem(world));
 
                     MenuItem saveTheWorld = new MenuItem(Config.getString("save.world"));
