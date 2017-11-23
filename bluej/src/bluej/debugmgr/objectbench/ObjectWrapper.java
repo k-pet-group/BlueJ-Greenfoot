@@ -429,15 +429,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         GenTypeClass gt = new GenTypeClass(new JavaReflective(cl));
         createMethodMenuItems(menu, cl, gt, il, obj, currentPackageName, showObjectMethods);
     }
-    // Swing version, needed by Greenfoot:
-    @OnThread(Tag.SwingIsFX)
-    public static void createMethodMenuItems(JPopupMenu jmenu, Class<?> cl, InvokeListener il, DebuggerObject obj,
-                                             String currentPackageName, boolean showObjectMethods)
-    {
-        GenTypeClass gt = new GenTypeClass(new JavaReflective(cl));
-        createMethodMenuItems(jmenu, cl, gt, il, obj, currentPackageName, showObjectMethods);
-    }
-    
+
     /**
      * Creates the menu items for all the methods in the class
      * 
@@ -526,86 +518,6 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
             menu.add(new SeparatorMenuItem());
         }
     }
-    // Swing version, needed by Greenfoot:
-    @OnThread(Tag.SwingIsFX)
-    public static void createMethodMenuItems(JPopupMenu jmenu, Class<?> cl, GenTypeClass gtype, InvokeListener il, DebuggerObject obj,
-                                             String currentPackageName, boolean showObjectMethods)
-    {
-        if (cl != null) {
-            View view = View.getView(cl);
-            Hashtable<String, String> methodsUsed = new Hashtable<>();
-            List<Class<?>> classes = getClassHierarchy(cl);
-
-            // define two view filters for different package visibility
-            ViewFilter samePackageFilter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
-            ViewFilter otherPackageFilter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PUBLIC);
-
-            // define a view filter
-            ViewFilter filter;
-            if (currentPackageName != null && currentPackageName.equals(view.getPackageName()))
-                filter = samePackageFilter;
-            else
-                filter = otherPackageFilter;
-
-            jmenu.addSeparator();
-
-            // get declared methods for the class
-            MethodView[] declaredMethods = view.getDeclaredMethods();
-
-            // create method entries for locally declared methods
-            GenTypeClass curType = gtype;
-            if (curType == null) {
-                curType = new GenTypeClass(new JavaReflective(cl));
-            }
-
-            // HACK to make it work in greenfoot.
-            if(itemsOnScreen <= 0 ) {
-                itemsOnScreen = 30;
-            }
-
-            int itemLimit = itemsOnScreen - 8 - classes.size();
-
-            createMenuItems(jmenu, declaredMethods, il, filter, itemLimit, curType.getMap(), methodsUsed);
-
-            // create submenus for superclasses
-            for(int i = 1; i < classes.size(); i++ ) {
-                Class<?> currentClass = classes.get(i);
-                view = View.getView(currentClass);
-
-                // Determine visibility of package private / protected members
-                if (currentPackageName != null && currentPackageName.equals(view.getPackageName()))
-                    filter = samePackageFilter;
-                else
-                    filter = otherPackageFilter;
-
-                // map generic type paramaters to the current superclass
-                curType = curType.mapToSuper(currentClass.getName());
-
-                if (!"java.lang.Object".equals(currentClass.getName()) || showObjectMethods) {
-                    declaredMethods = view.getDeclaredMethods();
-                    JMenu subMenu = new JMenu(inheritedFrom + " "
-                        + JavaNames.stripPrefix(currentClass.getName()));
-                    subMenu.setFont(PrefMgr.getStandoutMenuFont());
-                    createMenuItems(subMenu, declaredMethods, il, filter, (itemsOnScreen / 2), curType.getMap(), methodsUsed);
-                    jmenu.insert(subMenu, 0);
-                }
-            }
-            // Create submenus for interfaces which have default methods:
-            for (Class<?> iface : getInterfacesWithDefaultMethods(cl))
-            {
-                view = View.getView(iface);
-                declaredMethods = view.getDeclaredMethods();
-                JMenu subMenu = new JMenu(inheritedFrom + " "
-                    + JavaNames.stripPrefix(iface.getName()));
-                subMenu.setFont(PrefMgr.getStandoutMenuFont());
-                createMenuItems(subMenu, declaredMethods, il, filter, (itemsOnScreen / 2), curType.getMap(), methodsUsed);
-                jmenu.insert(subMenu, 0);
-            }
-
-            jmenu.addSeparator();
-        }
-    }
-    
     /**
      * creates the individual menu items for an object's popup menu.
      * The method checks for previously defined methods with the same signature
@@ -672,72 +584,6 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
             MenuItem mi = new MenuItem(Config.getString("debugger.objectwrapper.noMethods"));
             mi.setDisable(true);
             menu.add(mi);
-        }
-    }
-    // Swing version, needed by Greenfoot:
-    @OnThread(Tag.SwingIsFX)
-    private static void createMenuItems(JComponent jmenu, MethodView[] methods, InvokeListener il, ViewFilter filter,
-                                        int sizeLimit, Map<String,GenTypeParameter> genericParams, Hashtable<String, String> methodsUsed)
-    {
-        JMenuItem item;
-        boolean menuEmpty = true;
-
-        Arrays.sort(methods);
-        for (MethodView method : methods) {
-            try {
-                if (!filter.accept(method))
-                    continue;
-
-                menuEmpty = false;
-                String methodSignature = method.getCallSignature();   // uses types for params
-                String methodDescription = method.getLongDesc(genericParams); // uses names for params
-
-                // check if method signature has already been added to a menu
-                if (methodsUsed.containsKey(methodSignature)) {
-                    methodDescription = methodDescription
-                        + "   [ " + redefinedIn + " "
-                        + JavaNames.stripPrefix(
-                        methodsUsed.get(methodSignature))
-                        + " ]";
-                }
-                else {
-                    methodsUsed.put(methodSignature, method.getClassName());
-                }
-
-                Action a = new InvokeAction(method, il, methodDescription);
-                item = new JMenuItem(a);
-
-                item.setFont(PrefMgr.getPopupMenuFont());
-
-                // check whether it's time for a submenu
-
-                int itemCount;
-                if (jmenu instanceof JMenu)
-                    itemCount = ((JMenu) jmenu).getMenuComponentCount();
-                else
-                    itemCount = jmenu.getComponentCount();
-                if (itemCount >= sizeLimit) {
-                    JMenu subMenu = new JMenu(Config.getString("debugger.objectwrapper.moreMethods"));
-                    subMenu.setFont(PrefMgr.getStandoutMenuFont());
-                    subMenu.setForeground(envOpColour);
-                    jmenu.add(subMenu);
-                    jmenu = subMenu;
-                    sizeLimit = itemsOnScreen / 2;
-                }
-                jmenu.add(item);
-            } catch (Exception e) {
-                Debug.reportError(methodException + e);
-                e.printStackTrace();
-            }
-        }
-
-        // If there are no accessible methods, insert a message which says so.
-        if (menuEmpty) {
-            JMenuItem mi = new JMenuItem(Config.getString("debugger.objectwrapper.noMethods"));
-            mi.setFont(PrefMgr.getStandoutMenuFont());
-            mi.setForeground(envOpColour);
-            mi.setEnabled(false);
-            jmenu.add(mi);
         }
     }
 

@@ -496,24 +496,7 @@ public class GreenfootFrame extends JFrame
         
         JPanel canvasPanel = new JPanel(new CenterLayout());
         canvasPanel.setBorder(BorderFactory.createEtchedBorder());        
-        canvasPanel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e)
-            {
-                if (e.isPopupTrigger()) {
-                    worldHandlerDelegate.showWorldPopupMenu(e);
-                }
-            }
-            
-            @Override
-            public void mouseReleased(MouseEvent e)
-            {
-                if (e.isPopupTrigger()) {
-                    worldHandlerDelegate.showWorldPopupMenu(e);
-                }
-            }
-        });
-        
+
         messagePanel = new JPanel(new CenterLayout());
         JPanel subPanel = new JPanel();
         subPanel.setLayout(new BoxLayout(subPanel, BoxLayout.Y_AXIS));
