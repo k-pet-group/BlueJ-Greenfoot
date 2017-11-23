@@ -135,8 +135,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener
         private final Region previewNode;
         // Property tracking whether current location is valid or not
         private final BooleanProperty cannotDrop = new SimpleBooleanProperty(true);
-        // The object reference if the actor has already been created:
-        private final DebuggerObject debugVMActorReference;
+        // The execution event that created the actor, if the actor has already been created:
+        private final ExecutionEvent creationEvent;
         // The type name if the actor has not been constructed:
         private final String typeName;
 
@@ -148,17 +148,17 @@ public class GreenfootStage extends Stage implements BlueJEventListener
             return new StackPane(imageView, cannotDropIcon);
         }
 
-        public NewActor(ImageView imageView, DebuggerObject debugVMActorReference)
+        public NewActor(ImageView imageView, ExecutionEvent creationEvent)
         {
             this.previewNode = makePreviewNode(imageView);
-            this.debugVMActorReference = debugVMActorReference;
+            this.creationEvent = creationEvent;
             this.typeName = null;
         }
 
         public NewActor(ImageView imageView, String typeName)
         {
             this.previewNode = makePreviewNode(imageView);
-            this.debugVMActorReference = null;
+            this.creationEvent = null;
             this.typeName = typeName;
         }
     }
@@ -250,12 +250,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                     DebuggerObject xObject = project.getDebugger().getMirror("" + (int) dest.getX());
                     DebuggerObject yObject = project.getDebugger().getMirror("" + (int) dest.getY());
                     DebuggerObject actor = null;
-                    if (newActorProperty.get().debugVMActorReference != null)
+                    ExecutionEvent executionEvent = newActorProperty.get().creationEvent;
+                    if (executionEvent != null)
                     {
                         // Place the already-constructed actor:
-                        actor = newActorProperty.get().debugVMActorReference;
+                        actor = executionEvent.getResultObject();
                         // Can't place same instance twice:
                         newActorProperty.set(null);
+                        saveTheWorldRecorder.createActor(executionEvent.getResultObject(), executionEvent.getParameters(), executionEvent.getSignature());
                     }
                     else
                     {
@@ -339,7 +341,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
             {
                 eventType = KEY_UP;
 
-                if (e.getCode() == KeyCode.SHIFT && newActorProperty.get() != null && newActorProperty.get().debugVMActorReference == null)
+                if (e.getCode() == KeyCode.SHIFT && newActorProperty.get() != null && newActorProperty.get().creationEvent == null)
                 {
                     newActorProperty.set(null);
                 }
@@ -648,7 +650,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                         ImageView imageView = getImageViewForClass(typeReflective);
                         if (imageView != null)
                         {
-                            newActorProperty.set(new NewActor(imageView, executionEvent.getResultObject()));
+                            newActorProperty.set(new NewActor(imageView, executionEvent));
                         }
                     }
                     else if (typeReflective != null && getWorldReflective().isAssignableFrom(typeReflective))
