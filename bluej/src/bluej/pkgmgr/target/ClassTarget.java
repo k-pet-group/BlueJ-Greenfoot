@@ -2493,7 +2493,7 @@ public class ClassTarget extends DependentTarget
     @Override
     public void executeMethod(MethodView mv)
     {
-        getPackage().callMethodOrConstructor(mv);
+        getPackage().callStaticMethodOrConstructor(mv);
     }
     
     /**
@@ -2502,7 +2502,7 @@ public class ClassTarget extends DependentTarget
     @Override
     public void callConstructor(ConstructorView cv)
     {
-        getPackage().callMethodOrConstructor(cv);
+        getPackage().callStaticMethodOrConstructor(cv);
     }
     
     /**

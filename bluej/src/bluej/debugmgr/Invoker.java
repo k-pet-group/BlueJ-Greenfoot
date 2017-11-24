@@ -254,7 +254,7 @@ public class Invoker
      * @param watcher
      *            an object interested in the result of the invocation
      */
-    public Invoker(PkgMgrFrame pmf, MethodView member, ObjectWrapper objWrapper, ResultWatcher watcher)
+    public Invoker(PkgMgrFrame pmf, MethodView member, String objName, DebuggerObject debuggerObject, ResultWatcher watcher)
     {
         // We want a map of all the type parameters that may appear in the
         // method signature to the corresponding instantiation types from the
@@ -263,7 +263,7 @@ public class Invoker
         // Tpar names in the method signature however correspond to names from
         // the class in which the method was declared. So we need to map tpars
         // from the object's class to that class.
-        this(pmf, member, objWrapper.getName(), objWrapper.getObject().getGenType().mapToSuper(member.getClassName()).getMap());
+        this(pmf, member, objName, debuggerObject.getGenType().mapToSuper(member.getClassName()).getMap());
         
         this.watcher = watcher;
         this.shellName = getShellName();

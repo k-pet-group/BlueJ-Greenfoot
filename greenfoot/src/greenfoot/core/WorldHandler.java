@@ -159,12 +159,6 @@ public class WorldHandler
             }
 
             @Override
-            public boolean maybeShowPopup(MouseEvent e)
-            {
-                return false;
-            }
-
-            @Override
             public void mouseClicked(MouseEvent e)
             {
             }
@@ -289,7 +283,6 @@ public class WorldHandler
      */
     public void mouseReleased(MouseEvent e)
     {
-        handlerDelegate.maybeShowPopup(e);
         if (SwingUtilities.isLeftMouseButton(e)) {
             if (dragActor != null && dragActorMoved) {
 

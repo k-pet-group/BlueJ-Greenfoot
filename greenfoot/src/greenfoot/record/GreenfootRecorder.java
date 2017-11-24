@@ -23,14 +23,10 @@ package greenfoot.record;
 
 import bluej.debugger.DebuggerObject;
 import greenfoot.Actor;
-import greenfoot.ObjectTracker;
-import greenfoot.World;
 
 import java.lang.reflect.Method;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -40,7 +36,6 @@ import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.elements.VarElement;
-import bluej.utility.Debug;
 
 /**
  * Builder for code sequences representing a recording of what the user has
@@ -51,7 +46,7 @@ public class GreenfootRecorder
     /** A map of known objects to their name as it appears in the code */
     private final HashMap<DebuggerObject, String> objectNames;
     private final ArrayList<CodeElement> code;
-    private World world;
+    private DebuggerObject world;
     
     public static final String METHOD_ACCESS = "private";
     public static final String METHOD_RETURN = "void";
@@ -176,20 +171,20 @@ public class GreenfootRecorder
      * @param args       The arguments to the method, as Java expressions
      * @param paramTypes  The parameter types of the method
      */
-    public synchronized void callActorMethod(Object obj, String actorName, Method method,
-            String[] args, JavaType[] paramTypes)
+    public synchronized void callActorOrWorldMethod(DebuggerObject obj, Method method,
+                                                    String[] args, JavaType[] paramTypes)
     {
-        if (obj != null && null == objectNames.get(obj) && obj != world) {
+        if (obj != null && !objectNames.containsKey(obj) && !obj.equals(world)) {
             //Method is being called on an actor we don't know about: ignore
             return;
         }
         String name;
-        if (world != null && world == obj) {
+        if (world != null && world.equals(obj)) {
             // Called on the world, so don't use the world's object name before the call:
             name = method.getName();
         }
         else {
-            name = actorName + "." + method.getName();
+            name = objectNames.get(obj) + "." + method.getName();
         }
         code.add(callElement(name + "(" + withCommas(args, paramTypes, method.isVarArgs()) + ")"));
     }
@@ -206,7 +201,8 @@ public class GreenfootRecorder
     public void callStaticMethod(String className, Method method, String[] args, JavaType[] argTypes)
     {
         // No difference in syntax, so no need to replicate the code:
-        callActorMethod(null, className, method, args, argTypes);
+        // TODO get static method calls working again
+        //callActorOrWorldMethod(null, className, method, args, argTypes);
     }
     
     /**
@@ -236,7 +232,7 @@ public class GreenfootRecorder
      * Notify the recorder that a new world has become the current world.
      * Called from the simulation thread.
      */
-    public synchronized void setWorld(World newWorld)
+    public synchronized void setWorld(DebuggerObject newWorld)
     {
         world = newWorld;
     }

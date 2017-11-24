@@ -38,11 +38,6 @@ import java.util.concurrent.Callable;
  */
 public interface WorldHandlerDelegate
 {
-    /**
-     * Show the popup menu if the MouseEvent is a popup trigger.
-     */
-    boolean maybeShowPopup(MouseEvent e);
-
     void mouseClicked(MouseEvent e);
 
     void mouseMoved(MouseEvent e);

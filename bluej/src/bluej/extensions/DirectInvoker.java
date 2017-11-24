@@ -168,7 +168,7 @@ class DirectInvoker
             invoker = new Invoker(pkgFrame, callable, watcher);
         }
         else {
-            invoker = new Invoker(pkgFrame, (MethodView) callable, onThisObjectInstance, watcher);
+            invoker = new Invoker(pkgFrame, (MethodView) callable, onThisObjectInstance.getName(), onThisObjectInstance.getObject(), watcher);
         }
         String [] argStrings = convObjToString(args);
         invoker.invokeDirect(convObjToString(args));
