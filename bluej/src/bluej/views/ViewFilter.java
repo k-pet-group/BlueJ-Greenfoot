@@ -32,7 +32,7 @@ import java.lang.reflect.Modifier;
  * parts are static methods or instance methods, and public-only
  * vs package-private&protected&public.
  */
-@OnThread(Tag.Any)
+@OnThread(Tag.FXPlatform)
 public final class ViewFilter
 {
     public static enum StaticOrInstance { STATIC, INSTANCE; }
