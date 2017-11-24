@@ -8,7 +8,12 @@ import bluej.debugger.DebuggerResult;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.ExecutionEvent;
+import bluej.debugmgr.Invoker;
+import bluej.debugmgr.ResultWatcher;
+import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.debugmgr.objectbench.ObjectResultWatcher;
+import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
@@ -17,6 +22,8 @@ import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.JavaReflective;
 import bluej.utility.javafx.JavaFXUtil;
+import bluej.views.ConstructorView;
+import bluej.views.MethodView;
 import greenfoot.record.GreenfootRecorder;
 import javafx.animation.AnimationTimer;
 import javafx.beans.property.BooleanProperty;
@@ -542,7 +549,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                     {
                         ClassTarget classTarget = (ClassTarget) target;
                         Menu menu = new Menu(actor.getClassName());
-                        ObjectWrapper.createMethodMenuItems(menu.getItems(), project.loadClass(actor.getClassName()), classTarget, "", true);
+                        ObjectWrapper.createMethodMenuItems(menu.getItems(), project.loadClass(actor.getClassName()), new RecordInvoke(actor), "", true);
                         menu.getItems().add(makeInspectMenuItem(actor));
 
                         MenuItem removeItem = new MenuItem(Config.getString("world.handlerDelegate.remove"));
@@ -579,7 +586,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                 {
                     ClassTarget classTarget = (ClassTarget) target;
                     ContextMenu contextMenu = new ContextMenu();
-                    ObjectWrapper.createMethodMenuItems(contextMenu.getItems(), project.loadClass(world.getClassName()), classTarget, "", true);
+                    ObjectWrapper.createMethodMenuItems(contextMenu.getItems(), project.loadClass(world.getClassName()), new RecordInvoke(world), "", true);
                     contextMenu.getItems().add(makeInspectMenuItem(world));
 
                     MenuItem saveTheWorld = new MenuItem(Config.getString("save.world"));
@@ -734,5 +741,48 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     private Reflective getWorldReflective()
     {
         return new JavaReflective(project.loadClass("greenfoot.World"));
+    }
+
+    /**
+     * An InvokeListener which also records the invocation for save-the-world purposes
+     */
+    private class RecordInvoke implements InvokeListener
+    {
+        private final DebuggerObject target;
+
+        public RecordInvoke(DebuggerObject target)
+        {
+            this.target = target;
+        }
+
+        @Override
+        public void executeMethod(MethodView mv)
+        {
+            PkgMgrFrame pmf = PkgMgrFrame.findFrame(project.getUnnamedPackage());
+
+            // We must put the object on the bench so that it has a name on the debug VM
+            // side.  Without a name, you can't call a method on it using the BlueJ workers.
+            // Also, the object bench gets cleared on compile, so that takes care of clean-up:
+            String objInstanceName = pmf.putObjectOnBench(target.getClassName().toLowerCase(), target, target.getGenType(), null, null);
+
+            ResultWatcher watcher = new ObjectResultWatcher(target, objInstanceName, project.getUnnamedPackage(), pmf, mv) {
+                @Override
+                protected void addInteraction(InvokerRecord ir)
+                {
+                    saveTheWorldRecorder.callActorOrWorldMethod(target, mv.getMethod(), ir.getArgumentValues(), mv.getParamTypes(false));
+                }
+            };
+            if (pmf.checkDebuggerState()) {
+                Invoker invoker = new Invoker(pmf, mv, objInstanceName, target, watcher);
+                invoker.invokeInteractive();
+            }
+
+        }
+
+        @Override
+        public void callConstructor(ConstructorView cv)
+        {
+            //We are not used for constructors, so this won't get called.
+        }
     }
 }
