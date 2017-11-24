@@ -205,6 +205,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
         BlueJEvent.addListener(this);
         greenfootDebugHandler.setPickListener(this::pickResults);
         this.saveTheWorldRecorder = new GreenfootRecorder();
+        greenfootDebugHandler.setWorldListener(saveTheWorldRecorder);
 
         ImageView imageView = new ImageView();
         worldView = new BorderPane(imageView);

@@ -80,6 +80,7 @@ public class WorldHandler
     private boolean worldIsSet;
 
     private World initialisingWorld;
+    // Note: this field is used by name in GreenfootDebugHandler, so don't rename/remove without altering that code.
     private volatile World world;
     private WorldCanvas worldCanvas;
 
@@ -603,6 +604,16 @@ public class WorldHandler
             }
             fireWorldCreatedEvent(world);
         });
+
+        worldChanged();
+    }
+
+    /**
+     * This is a special method which will have a breakpoint set by the GreenfootDebugHandler
+     * class.  Do not remove or rename without also changing that class.
+     */
+    private void worldChanged()
+    {
     }
 
     /**

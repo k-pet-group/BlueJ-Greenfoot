@@ -36,6 +36,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import greenfoot.core.WorldHandler;
 import javafx.application.Platform;
 import rmiextension.wrappers.RProjectImpl;
 import rmiextension.wrappers.WrapperPool;
@@ -83,6 +84,9 @@ public class GreenfootDebugHandler implements DebuggerListener
     private static final String RESET_METHOD = ResetWorldAction.RESET_WORLD;
     private static final String RESET_KEY = "RESET_WORLD";
 
+    private static final String WORLD_HANDLER_CLASS = WorldHandler.class.getName();
+    private static final String WORLD_CHANGED_KEY = "WORLD_CHANGED";
+
     private static final String PICK_HELPER_CLASS = PickActorHelper.class.getName();
     private static final String PICK_HELPER_KEY = "PICK_HELPER_PICKED";
     private PickListener pickListener;
@@ -90,7 +94,8 @@ public class GreenfootDebugHandler implements DebuggerListener
     private BProject project;
     private DebuggerThread simulationThread;
     private DebuggerClass simulationClass;
-    
+    private WorldListener worldListener;
+
     private GreenfootDebugHandler(BProject project)
     {
         this.project = project;
@@ -146,6 +151,11 @@ public class GreenfootDebugHandler implements DebuggerListener
             resetBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
             debugger.toggleBreakpoint(RESET_CLASS, RESET_METHOD, true, resetBreakpointProperties);
 
+            Map<String, String> worldChangedBreakpointProperties = new HashMap<>();
+            worldChangedBreakpointProperties.put(WORLD_CHANGED_KEY, "TRUE");
+            worldChangedBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
+            debugger.toggleBreakpoint(WORLD_HANDLER_CLASS, "worldChanged", true, worldChangedBreakpointProperties);
+
             Map<String, String> pickHelperBreakpointProperties = new HashMap<>();
             pickHelperBreakpointProperties.put(PICK_HELPER_KEY, "TRUE");
             pickHelperBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
@@ -188,6 +198,23 @@ public class GreenfootDebugHandler implements DebuggerListener
             }
             catch (RemoteException re) {
                 Debug.reportError("Unexpected exception getting project wrapper: ", re);
+            }
+            e.getThread().cont();
+            return true;
+        }
+        else if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT
+                && e.getThread() != null &&
+                atWorldChangedBreakpoint(e.getBreakpointProperties()))
+        {
+            List<DebuggerField> fields = e.getThread().getCurrentObject(0).getFields();
+            DebuggerField worldField = fields.stream().filter(f -> f.getName().equals("world")).findFirst().orElse(null);
+            if (worldField != null)
+            {
+                DebuggerObject worldValue = worldField.getValueObject(null);
+                if (worldListener != null)
+                {
+                    worldListener.setWorld(worldValue);
+                }
             }
             e.getThread().cont();
             return true;
@@ -379,7 +406,16 @@ public class GreenfootDebugHandler implements DebuggerListener
     {
         return props != null && props.get(PICK_HELPER_KEY) != null;
     }
-    
+
+    /**
+     * Are they at the worldChanged() breakpoint in WorldHandler indicating a new
+     * world has been set?
+     */
+    private boolean atWorldChangedBreakpoint(BreakpointProperties props)
+    {
+        return props != null && props.get(WORLD_CHANGED_KEY) != null;
+    }
+
     /**
      * Works out if they are at the breakpoint triggered by the user clicking
      * the Reset button.
@@ -443,7 +479,12 @@ public class GreenfootDebugHandler implements DebuggerListener
             Debug.reportError("Problem setting special breakpoint: " + err);
         }
     }
-    
+
+    public void setWorldListener(WorldListener worldListener)
+    {
+        this.worldListener = worldListener;
+    }
+
     /**
      * A second debug listener that only worries about enabling and disabling the
      * Act/Run/Pause buttons according to whether the Simulation thread is currently at
@@ -552,5 +593,10 @@ public class GreenfootDebugHandler implements DebuggerListener
     {
         // World is only relevant if actors list is empty.
         public void picked(int pickId, List<DebuggerObject> actors, DebuggerObject world);
+    }
+
+    public static interface WorldListener
+    {
+        public void setWorld(DebuggerObject world);
     }
 }

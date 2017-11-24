@@ -36,12 +36,13 @@ import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.elements.VarElement;
+import rmiextension.GreenfootDebugHandler.WorldListener;
 
 /**
  * Builder for code sequences representing a recording of what the user has
  * done interactively to the world.
  */
-public class GreenfootRecorder
+public class GreenfootRecorder implements WorldListener
 {
     /** A map of known objects to their name as it appears in the code */
     private final HashMap<DebuggerObject, String> objectNames;
@@ -230,10 +231,10 @@ public class GreenfootRecorder
     
     /**
      * Notify the recorder that a new world has become the current world.
-     * Called from the simulation thread.
      */
     public synchronized void setWorld(DebuggerObject newWorld)
     {
+        reset();
         world = newWorld;
     }
 
