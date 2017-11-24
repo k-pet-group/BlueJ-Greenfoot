@@ -32,12 +32,10 @@ import greenfoot.core.GProject;
 import greenfoot.core.ImageCache;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
-import greenfoot.core.WorldInvokeListener;
 import greenfoot.event.SimulationUIListener;
 import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.input.InputManager;
-import greenfoot.localdebugger.LocalObject;
 import greenfoot.platforms.WorldHandlerDelegate;
 import greenfoot.record.GreenfootRecorder;
 import greenfoot.record.InteractionListener;
@@ -89,7 +87,6 @@ public class WorldHandlerDelegateIDE
     private GProject project;
     
     private GreenfootFrame frame;
-    private InspectorManager inspectorManager;
     
     // Records actions manually performed on the world:
     private GreenfootRecorder greenfootRecorder;
@@ -99,41 +96,13 @@ public class WorldHandlerDelegateIDE
     private boolean worldInvocationError;
     private boolean missingConstructor;
     
-    public WorldHandlerDelegateIDE(GreenfootFrame frame, InspectorManager inspectorManager,
+    public WorldHandlerDelegateIDE(GreenfootFrame frame,
             ClassStateManager classStateManager)
     {
         this.frame = frame;
-        this.inspectorManager = inspectorManager;
         greenfootRecorder = new GreenfootRecorder();
         saveWorldAction = new SaveWorldAction(greenfootRecorder, classStateManager);
         saveWorldAction.setRecordingValid(false);
-    }
-
-    /**
-     * Create a menu item to inspect an object.
-     */
-    private JMenuItem getInspectMenuItem(final Object obj)
-    {
-        JMenuItem m = new JMenuItem(Config.getString("world.handlerDelegate.inspect"));
-        m.addActionListener(e -> {
-            DebuggerObject dObj = LocalObject.getLocalObject(obj);
-            String instanceName = "";
-            try {
-                instanceName = ObjectTracker.getRObjectName(obj);
-                if (instanceName == null)
-                    instanceName = "";
-            }
-            catch (RemoteException e1) {
-                Debug.reportError("Could not get instance name for inspection", e1);
-            }
-            String instanceNameFinal = instanceName;
-            Platform.runLater(() -> {
-                inspectorManager.getInspectorInstance(dObj, instanceNameFinal, null, null, null, null);
-            });
-        });
-        m.setFont(PrefMgr.getStandoutMenuFont());
-        m.setForeground(envOpColour);
-        return m;
     }
 
     /**

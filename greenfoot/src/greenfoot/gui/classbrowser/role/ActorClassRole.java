@@ -59,24 +59,6 @@ public class ActorClassRole extends ImageClassRole
         super(project);
     }
     
-    /*
-     * Need to overide this method in order to delay the invocation of the
-     * constructor until the object is placed into the world.
-     */
-    @Override
-    public List<Action> createConstructorActions(Class<?> realClass, GProject project,
-            InteractionListener interactionListener)
-    {
-        List<Action> realActions = super.createConstructorActions(realClass, project, interactionListener);
-        constructorItems = new ArrayList<Action>();
-        for (Action realAction : realActions) {
-            Action tempAction = createDragProxyAction(realAction);
-            tempAction.setEnabled(enableConstructors);
-            constructorItems.add(tempAction);
-        }
- 
-        return constructorItems;
-    }
         
     @Override
     public void addPopupMenuItems(JPopupMenu menu, boolean coreClass)
