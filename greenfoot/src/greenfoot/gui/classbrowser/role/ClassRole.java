@@ -104,7 +104,7 @@ public abstract class ClassRole implements WorldListener
             try {
                 ConstructorView m = constructors[constructors.length - i - 1];
 
-                ViewFilter filter = new ViewFilter(StaticOrInstance.INSTANCE, false);
+                ViewFilter filter = new ViewFilter(StaticOrInstance.INSTANCE, "");
                 if (!filter.accept(m))
                     continue;
 
@@ -165,7 +165,7 @@ public abstract class ClassRole implements WorldListener
             }
 
             // Static methods
-            ViewFilter filter = new ViewFilter(StaticOrInstance.STATIC, false);
+            ViewFilter filter = new ViewFilter(StaticOrInstance.STATIC, "");
             View view = View.getView(realClass);
             MethodView[] allMethods = view.getAllMethods();
 

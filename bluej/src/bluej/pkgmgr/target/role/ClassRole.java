@@ -213,7 +213,7 @@ public abstract class ClassRole
         View view = View.getView(cl);
 
         if (!java.lang.reflect.Modifier.isAbstract(cl.getModifiers())) {
-            ViewFilter filter = new ViewFilter(StaticOrInstance.INSTANCE, true);
+            ViewFilter filter = new ViewFilter(StaticOrInstance.INSTANCE, ct.getPackage().getQualifiedName());
             ConstructorView[] constructors = view.getConstructors();
 
             if (createMenuItems(menu, constructors, filter, 0, constructors.length, "new ", ct))
@@ -228,7 +228,7 @@ public abstract class ClassRole
     {
         View view = View.getView(cl);
 
-        ViewFilter filter = new ViewFilter(StaticOrInstance.STATIC, true);
+        ViewFilter filter = new ViewFilter(StaticOrInstance.STATIC, ct.getPackage().getQualifiedName());
         MethodView[] allMethods = view.getAllMethods();
         if (createMenuItems(menu, allMethods, filter, 0, allMethods.length, "", ct))
             return true;

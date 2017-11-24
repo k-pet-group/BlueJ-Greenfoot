@@ -437,7 +437,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
             List<Class<?>> classes = getClassHierarchy(cl);
 
             // define a view filter
-            ViewFilter filter = new ViewFilter(StaticOrInstance.INSTANCE, currentPackageName != null && currentPackageName.equals(view.getPackageName()));
+            ViewFilter filter = new ViewFilter(StaticOrInstance.INSTANCE, currentPackageName);
 
             menu.add(new SeparatorMenuItem());
 
@@ -465,7 +465,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
                 view = View.getView(currentClass);
                 
                 // Determine visibility of package private / protected members
-                filter = new ViewFilter(StaticOrInstance.INSTANCE, currentPackageName != null && currentPackageName.equals(view.getPackageName()));
+                filter = new ViewFilter(StaticOrInstance.INSTANCE, currentPackageName);
                 
                 // map generic type paramaters to the current superclass
                 curType = curType.mapToSuper(currentClass.getName());

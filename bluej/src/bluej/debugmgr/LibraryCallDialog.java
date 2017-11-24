@@ -188,15 +188,12 @@ public class LibraryCallDialog extends Dialog<CallableView>
         ViewFilter filter;
 
         ConstructorView[] constructors = classView.getConstructors();
-        
-        // Determine visibility of package private / protected members
-        boolean includePackageProtected = classView.getPackageName().equals(pkg.getQualifiedName()); 
 
-        filter = new ViewFilter(StaticOrInstance.INSTANCE, includePackageProtected);
+        filter = new ViewFilter(StaticOrInstance.INSTANCE, pkg.getQualifiedName());
         Arrays.stream(constructors).filter(filter::accept).forEach(currentViews::add);
 
         MethodView[] methods = classView.getAllMethods();
-        filter = new ViewFilter(StaticOrInstance.STATIC, includePackageProtected);
+        filter = new ViewFilter(StaticOrInstance.STATIC, pkg.getQualifiedName());
         Arrays.stream(methods).filter(filter::accept).forEach(currentViews::add);
 
         textOverlay.setVisible(false);

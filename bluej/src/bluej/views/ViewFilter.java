@@ -38,13 +38,20 @@ public final class ViewFilter
     public static enum StaticOrInstance { STATIC, INSTANCE; }
     
     private final StaticOrInstance staticOrInstance;
-    // If true, only public items.  If false, include package-private and protected.
-    private final boolean includePackageProtected;
+    // Show only items callable from another class in the given
+    // package.  If null, only show public items.
+    private final String callingPackage;
 
-    public ViewFilter(StaticOrInstance staticOrInstance, boolean includePackageProtected)
+    /**
+     * Create a View filter.
+     * @param staticOrInstance Do you want only-static, or only-instance?
+     * @param callingPackage Show only items callable from another class in the given package.
+     *                       If null, only show public items. 
+     */
+    public ViewFilter(StaticOrInstance staticOrInstance, String callingPackage)
     {
         this.staticOrInstance = staticOrInstance;
-        this.includePackageProtected = includePackageProtected;
+        this.callingPackage = callingPackage;
     }
     
     public boolean accept(MemberView member)
@@ -58,10 +65,11 @@ public final class ViewFilter
         // If public, definitely in:
         if ((member.getModifiers() & Modifier.PUBLIC) != 0)
             return true;
-        // If it's not public, and we're only admitting public, not in:
-        if (!includePackageProtected)
+        // If it's not the same package (and already know it's not public), can't include it:
+        boolean samePackage = member.getDeclaringView().getPackageName().equals(callingPackage);
+        if (!samePackage)
             return false;
-        // Otherwise, we include if not private:
+        // Otherwise, same package, so we include if not private:
         return (member.getModifiers() & Modifier.PRIVATE) == 0;
     }
 }
