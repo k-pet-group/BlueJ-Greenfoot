@@ -474,7 +474,7 @@ public class RPackageImpl extends java.rmi.server.UnicastRemoteObject
         if (ow == null)
             invoker = new Invoker(pmf, cv, watcher);
         else
-            invoker = new Invoker(pmf, (MethodView) cv, ow, watcher);
+            invoker = new Invoker(pmf, (MethodView) cv, ow.getName(), ow.getObject(), watcher);
 
         synchronized (watcher) {
             invoker.invokeDirect(argVals);

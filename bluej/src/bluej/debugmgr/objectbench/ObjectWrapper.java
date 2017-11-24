@@ -31,17 +31,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.swing.Action;
-import javax.swing.JComponent;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
-
 import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
-import javafx.application.Platform;
 import javafx.beans.binding.When;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
@@ -59,15 +51,11 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
-import bluej.BlueJEvent;
 import bluej.Config;
 import bluej.debugger.DebuggerObject;
-import bluej.debugger.ExceptionDescription;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.JavaType;
-import bluej.debugmgr.ExecutionEvent;
-import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ResultWatcher;
@@ -80,7 +68,6 @@ import bluej.extmgr.ObjectExtensionMenu;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
-import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.Debug;
@@ -692,74 +679,17 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
 
         pkg.forgetLastSource();
 
-        watcher = new ResultWatcher() {
-            private ExpressionInformation expressionInformation = new ExpressionInformation(method,getName(),obj.getGenType());
-            
-            @Override
-            public void beginCompile()
-            {
-                pmf.setWaitCursor(true);
-            }
-            
-            @Override
-            public void beginExecution(InvokerRecord ir)
-            {
-                BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir);
-                pmf.setWaitCursor(false);
-            }
-            
-            @Override
-            public void putResult(DebuggerObject result, String name, InvokerRecord ir)
-            {
-                ExecutionEvent executionEvent = new ExecutionEvent(pkg, obj.getClassName(), objInstanceName);
-                executionEvent.setMethodName(method.getName());
-                executionEvent.setParameters(method.getParamTypes(false), ir.getArgumentValues());
-                executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
-                executionEvent.setResultObject(result);
-                BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
-                
-                pkg.getProject().updateInspectors();
-                expressionInformation.setArgumentValues(ir.getArgumentValues());
-                ob.addInteraction(ir);
-                
-                // a void result returns a name of null
-                if (result != null && ! result.isNullObject()) {
-                    pkg.getProject().getResultInspectorInstance(result, name, pkg,
-                            ir, expressionInformation, pmf.getFXWindow());
-                }
-            }
-            
-            @Override
-            public void putError(String msg, InvokerRecord ir)
-            {
-                pmf.setWaitCursor(false);
-            }
-            
-            @Override
-            public void putException(ExceptionDescription exception, InvokerRecord ir)
-            {
-                ExecutionEvent executionEvent = new ExecutionEvent(pkg, obj.getClassName(), objInstanceName);
-                executionEvent.setParameters(method.getParamTypes(false), ir.getArgumentValues());
-                executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
-                executionEvent.setException(exception);
-                BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
+        watcher = new ObjectResultWatcher(obj, objInstanceName, pkg, pmf, method) {
 
-                pkg.getProject().updateInspectors();
-                pkg.exceptionMessage(exception);
-            }
-            
             @Override
-            public void putVMTerminated(InvokerRecord ir)
+            protected void addInteraction(InvokerRecord ir)
             {
-                ExecutionEvent executionEvent = new ExecutionEvent(pkg, obj.getClassName(), objInstanceName);
-                executionEvent.setParameters(method.getParamTypes(false), ir.getArgumentValues());
-                executionEvent.setResult(ExecutionEvent.TERMINATED_EXIT);
-                BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
+                ob.addInteraction(ir);
             }
         };
 
         if (pmf.checkDebuggerState()) {
-            Invoker invoker = new Invoker(pmf, method, this, watcher);
+            Invoker invoker = new Invoker(pmf, method, objInstanceName, obj, watcher);
             invoker.invokeInteractive();
         }
     }
