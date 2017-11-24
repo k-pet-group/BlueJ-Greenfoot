@@ -153,7 +153,7 @@ public class WorldHandlerDelegateIDE
     {
         worldInvocationError = false;
         greenfootRecorder.clearCode(false);
-        greenfootRecorder.setWorld(newWorld);
+        //greenfootRecorder.setWorld(newWorld);
         if (oldWorld != null) {
             discardWorld(oldWorld);
         }
@@ -416,17 +416,6 @@ public class WorldHandlerDelegateIDE
         worldInitialising = false;
         if (project != null) {
             project.setLastWorldClassName(world.getClass().getName());
-        }
-    }
-
-    @Override
-    public void methodCall(Object obj, String actorName, Method method, String[] args, JavaType[] argTypes)
-    {
-        if (obj != null) {
-            greenfootRecorder.callActorMethod(obj, actorName, method, args, argTypes);
-        }
-        else {
-            greenfootRecorder.callStaticMethod(actorName, method, args, argTypes);
         }
     }
     

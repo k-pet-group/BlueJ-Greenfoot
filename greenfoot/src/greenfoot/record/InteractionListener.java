@@ -44,16 +44,5 @@ public interface InteractionListener
      * @param world  The newly constructed world
      */
     public void worldConstructed(Object world);
-    
-    /**
-     * A method was called and successfully returned (no exception was
-     * thrown).
-     * 
-     * @param obj  The target of the method call - will be null for a static method
-     * @param targetName   The name of the target object or class 
-     * @param methodName   The name of the called method
-     * @param args       The method arguments (as java expressions)
-     * @param argTypes   The argument types of the method. For a varargs method the last type will be an array.
-     */
-    public void methodCall(Object obj, String targetName, Method method, String[] args, JavaType[] argTypes);
+
 }
