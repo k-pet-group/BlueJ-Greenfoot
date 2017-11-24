@@ -21,6 +21,7 @@
  */
 package greenfoot.gui.classbrowser.role;
 
+import bluej.views.ViewFilter.StaticOrInstance;
 import greenfoot.actions.ConvertToJavaClassAction;
 import greenfoot.actions.ConvertToStrideClassAction;
 import greenfoot.actions.DuplicateClassAction;
@@ -103,7 +104,7 @@ public abstract class ClassRole implements WorldListener
             try {
                 ConstructorView m = constructors[constructors.length - i - 1];
 
-                ViewFilter filter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PUBLIC);
+                ViewFilter filter = new ViewFilter(StaticOrInstance.INSTANCE, false);
                 if (!filter.accept(m))
                     continue;
 
@@ -164,7 +165,7 @@ public abstract class ClassRole implements WorldListener
             }
 
             // Static methods
-            ViewFilter filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PUBLIC);
+            ViewFilter filter = new ViewFilter(StaticOrInstance.STATIC, false);
             View view = View.getView(realClass);
             MethodView[] allMethods = view.getAllMethods();
 
