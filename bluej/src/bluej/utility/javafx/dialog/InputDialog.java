@@ -53,7 +53,7 @@ public abstract class InputDialog<R>
     // The actual GUI dialog.  Encapsulated to give better control of its properties
     private final Dialog<R> dialog;
     // The input text field
-    private final TextField field;
+    protected final TextField field;
     // The label above the text field, telling the user what is expected
     private final Label prompt;
     // The optional (invisible unless addErrorTextLabel is called) label below the field

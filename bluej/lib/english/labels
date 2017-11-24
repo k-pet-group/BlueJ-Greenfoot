@@ -393,6 +393,7 @@ pkgmgr.classmenu.edit=Open Editor
 pkgmgr.classmenu.compile=Compile
 pkgmgr.classmenu.inspect=Inspect
 pkgmgr.classmenu.remove=Delete
+pkgmgr.classmenu.duplicate=Duplicate...
 pkgmgr.classmenu.convertToJava=Convert to Java
 pkgmgr.classmenu.convertToStride=Convert to Stride
 pkgmgr.classmenu.createTest=Create Test Class
@@ -464,6 +465,10 @@ pkgmgr.newCSS.label=CSS File:
 pkgmgr.newCSS.prompt=Filename
 pkgmgr.newCSS.newCSS=CSS
 pkgmgr.newCSS.error=Invalid filename
+
+# "duplicate class" dialog
+pkgmgr.duplicate.title=BlueJ: Duplicate a Class
+pkgmgr.duplicate.error.notValidClassName=Not a valid class name
 
 
 # "Use Library Class" dialog

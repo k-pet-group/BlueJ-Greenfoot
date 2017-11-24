@@ -67,6 +67,7 @@ import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
 import bluej.testmgr.TestDisplayFrame;
 import bluej.testmgr.record.InvokerRecord;
+import bluej.utility.BlueJFileReader;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
@@ -1562,6 +1563,43 @@ public class PkgMgrFrame
         DataCollector.addClass(thePkg, target);
         
         return true;
+    }
+
+    /**
+     * Creates a duplicate for a class
+     *
+     * @param originalClassName the name of the class to be copied
+     * @param newClassName      the name of the new class
+     * @param originalFile      the source file of the class to be copied
+     * @param sourceType        the source of the classes. It is the same
+     *                          for the original and the new one
+     */
+    public void duplicateClass(String originalClassName, String newClassName, File originalFile, SourceType sourceType)
+    {
+        try
+        {
+            String extension = sourceType.getExtension();
+            File newFile = new File(originalFile.getParentFile(), newClassName + "." + extension);
+
+            Dictionary<String, String> translations = new Hashtable<>();
+            translations.put(originalClassName, newClassName);
+            BlueJFileReader.duplicateFile(originalFile, newFile, translations);
+
+            ClassTarget target = getPackage().addClass(newClassName);
+            getPackage().addTarget(target);
+            if (editor != null)
+            {
+                editor.findSpaceForVertex(target);
+                JavaFXUtil.scrollTo(pkgEditorScrollPane, target.getNode());
+            }
+            target.analyseSource();
+
+            DataCollector.addClass(getPackage(), target);
+        }
+        catch (IOException e)
+        {
+            Debug.reportError("Error in duplicating a class: ", e);
+        }
     }
 
     /**
