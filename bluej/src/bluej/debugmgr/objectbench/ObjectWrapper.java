@@ -679,7 +679,8 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
 
         pkg.forgetLastSource();
 
-        watcher = new ObjectResultWatcher(obj, objInstanceName, pkg, pmf, method) {
+        String instanceName = getName();
+        watcher = new ObjectResultWatcher(obj, instanceName, pkg, pmf, method) {
 
             @Override
             protected void addInteraction(InvokerRecord ir)
@@ -689,7 +690,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         };
 
         if (pmf.checkDebuggerState()) {
-            Invoker invoker = new Invoker(pmf, method, objInstanceName, obj, watcher);
+            Invoker invoker = new Invoker(pmf, method, instanceName, obj, watcher);
             invoker.invokeInteractive();
         }
     }
