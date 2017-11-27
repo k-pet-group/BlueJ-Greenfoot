@@ -58,7 +58,7 @@ public class DuplicateClassDialog extends InputDialog<String>
     {
         newInput = newInput.trim();
         
-        if (!newInput.isEmpty() && JavaNames.isQualifiedIdentifier(newInput))
+        if (!newInput.isEmpty() && JavaNames.isIdentifier(newInput))
         {
             setOKEnabled(true);
             setErrorText("");
