@@ -84,6 +84,7 @@ import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedTypeNode;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
+import bluej.pkgmgr.DuplicateClassDialog;
 import bluej.pkgmgr.JavadocResolver;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
@@ -160,6 +161,7 @@ public class ClassTarget extends DependentTarget
     private final static String removeStr = Config.getString("pkgmgr.classmenu.remove");
     private final static String convertToJavaStr = Config.getString("pkgmgr.classmenu.convertToJava");
     private final static String convertToStrideStr = Config.getString("pkgmgr.classmenu.convertToStride");
+    private final static String duplicateClassStr = Config.getString("pkgmgr.classmenu.duplicate");
     private final static String createTestStr = Config.getString("pkgmgr.classmenu.createTest");
     private final static String launchFXStr = Config.getString("pkgmgr.classmenu.launchFX");
 
@@ -1399,14 +1401,21 @@ public class ClassTarget extends DependentTarget
     }
 
     /**
-     * Description of the Method
+     * Inserts a package deceleration in the source file of this class, only if it
+     * is not correct or if it does't exist. Also, the default package will be ignored.
      * 
-     * @param packageName Description of the Parameter
-     * @exception IOException Description of the Exception
+     * @param packageName the package's name
+     * @exception IllegalArgumentException if the package name is not a valid java identifier
      */
     public void enforcePackage(String packageName)
         throws IOException
     {
+        if (getSourceType() != SourceType.Java)
+        {
+            // Only force packages in Java files
+            return;
+        }
+
         if (!JavaNames.isQualifiedIdentifier(packageName)) {
             throw new IllegalArgumentException();
         }
@@ -2007,6 +2016,7 @@ public class ClassTarget extends DependentTarget
         menu.getItems().add(new CompileAction(source != SourceType.NONE));
         menu.getItems().add(new InspectAction(cl != null));
         menu.getItems().add(new RemoveAction());
+        menu.getItems().add(new DuplicateClassAction());
         if (source == SourceType.Stride)
             menu.getItems().add(new ConvertToJavaAction());
         else if (source == SourceType.Java && roleRef.canConvertToStride())
@@ -2196,6 +2206,21 @@ public class ClassTarget extends DependentTarget
         {
             super(convertToStrideStr);
             setOnAction(e -> promptAndConvertJavaToStride());
+            JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
+        }
+    }
+
+    /**
+     * A menu item to invoke a class duplication. This is valid for
+     * Java and Stride classes.
+     */
+    @OnThread(Tag.FXPlatform)
+    private class DuplicateClassAction extends MenuItem
+    {
+        public DuplicateClassAction()
+        {
+            super(duplicateClassStr);
+            setOnAction(event -> duplicate());
             JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
         }
     }
@@ -2441,6 +2466,20 @@ public class ClassTarget extends DependentTarget
 
         // getSourceFile() will now return the Java file:
         DataCollector.convertStrideToJava(getPackage(), srcFile, getSourceFile());
+    }
+
+    /**
+     * Duplicates the class which is represented by this class target
+     */
+    private void duplicate()
+    {
+        String originalClassName = getBaseName();
+        SourceType sourceType = getSourceType();
+        PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
+
+        DuplicateClassDialog dialog = new DuplicateClassDialog(pmf.getFXWindow(), "CopyOf" + originalClassName, sourceType);
+        Optional<String> duplicateClassName = dialog.showAndWait();
+        duplicateClassName.ifPresent(name -> pmf.duplicateClass(originalClassName, name, getSourceFile(), sourceType));
     }
 
     /**
