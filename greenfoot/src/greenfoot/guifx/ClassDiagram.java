@@ -7,6 +7,7 @@ import bluej.utility.Utility;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 
@@ -38,6 +39,11 @@ public class ClassDiagram extends VBox
             {
                 ContextMenu contextMenu = new ContextMenu();
                 classTarget.getRole().createClassConstructorMenu(contextMenu.getItems(), classTarget, cl);
+                if (!contextMenu.getItems().isEmpty())
+                {
+                    contextMenu.getItems().add(new SeparatorMenuItem());
+                }
+                classTarget.getRole().createClassStaticMenu(contextMenu.getItems(), classTarget, classTarget.hasSourceCode(), cl);
                 contextMenu.show(label, e.getScreenX(), e.getScreenY());
             }
         });
