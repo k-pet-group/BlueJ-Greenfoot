@@ -164,7 +164,7 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     {
         final Editor e = bClass.getEditor();
         EventQueue.invokeLater(() ->
-                EditorBridge.getEditor(e).insertAppendMethod(e, (NormalMethodElement) loadElement(method), inserted -> {
+                EditorBridge.getEditor(e).insertAppendMethod( (NormalMethodElement) loadElement(method), inserted -> {
                     //Appended to existing method:
                     if (inserted && showEditorOnAppend) {
                         EventQueue.invokeLater(() -> e.setVisible(true));
@@ -188,7 +188,7 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
         final Editor e = bClass.getEditor();
         final String className = bClass.getName();
         EventQueue.invokeLater(() ->
-                EditorBridge.getEditor(e).insertMethodCallInConstructor(e, className, 
+                EditorBridge.getEditor(e).insertMethodCallInConstructor(className, 
                         (CallElement) loadElement(methodCall), inserted -> {
                     if (showEditor && inserted) {
                         EventQueue.invokeLater(() -> e.setVisible(true));

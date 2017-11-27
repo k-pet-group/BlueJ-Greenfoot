@@ -677,16 +677,16 @@ public class FrameEditor implements Editor
 
             @Override
             @OnThread(Tag.FXPlatform)
-            public void insertAppendMethod(bluej.extensions.editor.Editor e, NormalMethodElement method, Consumer<Boolean> after)
+            public void insertAppendMethod(NormalMethodElement method, Consumer<Boolean> after)
             {
-                FrameEditor.this.insertAppendMethod(e, method, after);
+                FrameEditor.this.insertAppendMethod(method, after);
             }
 
             @Override
             @OnThread(Tag.FXPlatform)
-            public void insertMethodCallInConstructor(bluej.extensions.editor.Editor e, String className, CallElement methodName, Consumer<Boolean> after)
+            public void insertMethodCallInConstructor(String className, CallElement methodName, Consumer<Boolean> after)
             {
-                FrameEditor.this.insertMethodCallInConstructor(e, className, methodName, after);
+                FrameEditor.this.insertMethodCallInConstructor(className, methodName, after);
             }
 
             @Override
@@ -1247,7 +1247,7 @@ public class FrameEditor implements Editor
     }
 
     @Override
-    public void insertAppendMethod(bluej.extensions.editor.Editor e, NormalMethodElement method, Consumer<Boolean> after)
+    public void insertAppendMethod(NormalMethodElement method, Consumer<Boolean> after)
     {
         if (panel == null)
         {
@@ -1257,13 +1257,13 @@ public class FrameEditor implements Editor
     }
 
     @Override
-    public void insertMethodCallInConstructor(bluej.extensions.editor.Editor e, String className, CallElement methodName, Consumer<Boolean> after)
+    public void insertMethodCallInConstructor(String className, CallElement methodName, Consumer<Boolean> after)
     {
         if (panel == null)
         {
             createPanel(false, false);
         }
-        panel.insertMethodCallInConstructor(className, methodName, after);
+        panel.insertMethodCallInConstructor(methodName, after);
     }
 
     @Override

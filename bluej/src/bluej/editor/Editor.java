@@ -263,22 +263,19 @@ public interface Editor
     
     /**
      * Create a new method, or appending the contents if the method already exists
-     *   
-     * @param e extensions editor
+     *
      * @param method element
      * @param after will be passed true if the method existed already, false otherwise (will always be run)
      */
-    void insertAppendMethod(bluej.extensions.editor.Editor e, NormalMethodElement method, Consumer<Boolean> after);
+    void insertAppendMethod(NormalMethodElement method, Consumer<Boolean> after);
 
     /**
      * Insert a method call in constructor, if it does not already exists
-     *   
-     * @param e extensions editor
-     * @param className string
+     * 
      * @param methodCall element 
      * @param after will be passed true if the call existed already
      */
-    void insertMethodCallInConstructor(bluej.extensions.editor.Editor e, String className, CallElement methodCall, Consumer<Boolean> after);
+    void insertMethodCallInConstructor(String className, CallElement methodCall, Consumer<Boolean> after);
 
     void cancelFreshState();
 

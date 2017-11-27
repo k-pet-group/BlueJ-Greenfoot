@@ -2163,7 +2163,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         }));
     }
     
-    public void insertMethodCallInConstructor(String className, CallElement methodCall, Consumer<Boolean> after)
+    public void insertMethodCallInConstructor(CallElement methodCall, Consumer<Boolean> after)
     {
         // TODO maybe we have to insert it into the element not the frames.
         withTopLevelFrame(topLevelFrame -> JavaFXUtil.runNowOrLater(() -> {

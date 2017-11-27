@@ -3509,7 +3509,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
     
     @Override
-    public void insertAppendMethod(bluej.extensions.editor.Editor e, NormalMethodElement method, Consumer<Boolean> after)
+    public void insertAppendMethod(NormalMethodElement method, Consumer<Boolean> after)
     {
         NodeAndPosition<ParsedNode> classNode = findClassNode();
         if (classNode != null) {
@@ -3521,32 +3521,32 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 for (CodeElement codeElement : method.getContents()) {
                     text += codeElement.toJavaSource().toTemporaryJavaCodeString();
                 }
-                appendTextToNode(e, existingMethodNode, text);
+                appendTextToNode(existingMethodNode, text);
                 after.accept(true);
                 return;
             }
             
             //Make a new method:
-            appendTextToNode(e, classNode, method.toJavaSource().toTemporaryJavaCodeString());
+            appendTextToNode(classNode, method.toJavaSource().toTemporaryJavaCodeString());
         }
         after.accept(false);
     }
  
     @Override
-    public void insertMethodCallInConstructor(bluej.extensions.editor.Editor e, String className, CallElement callElement, Consumer<Boolean> after)
+    public void insertMethodCallInConstructor(String className, CallElement callElement, Consumer<Boolean> after)
     {
         NodeAndPosition<ParsedNode> classNode = findClassNode();
         if (classNode != null) {
             NodeAndPosition<ParsedNode> constructor = findMethodNode(className, classNode);
             if (constructor == null) {
-                addDefaultConstructor(e, className, callElement);
+                addDefaultConstructor(className, callElement);
             }
             else {
                 String methodName = callElement.toJavaSource().toTemporaryJavaCodeString();
                 methodName = methodName.substring(0, methodName.indexOf('('));
                 if (!hasMethodCall(methodName, constructor, true)) {
                     //Add at the end of the constructor:
-                    appendTextToNode(e, constructor, callElement.toJavaSource().toTemporaryJavaCodeString());
+                    appendTextToNode(constructor, callElement.toJavaSource().toTemporaryJavaCodeString());
                     after.accept(true);
                     return;
                 }
@@ -3555,40 +3555,40 @@ public final class MoeEditor extends ScopeColorsBorderPane
         after.accept(false);
     }
     
-    private void addDefaultConstructor(Editor e, String className, CallElement callElement)
+    private void addDefaultConstructor(String className, CallElement callElement)
     {
         NodeAndPosition<ParsedNode> classNode = findClassNode();
         if (classNode != null) {
             //Make a new method:
-            appendTextToNode(e, classNode, "public " + className + "()\n{\n" + callElement.toJavaSource().toTemporaryJavaCodeString() + "}\n");
+            appendTextToNode(classNode, "public " + className + "()\n{\n" + callElement.toJavaSource().toTemporaryJavaCodeString() + "}\n");
         }
     }
     
     /**
      * Appends text to a node that ends in a curly bracket
      */
-    private void appendTextToNode(Editor e, NodeAndPosition<ParsedNode> node, String text)
+    private void appendTextToNode(NodeAndPosition<ParsedNode> node, String text)
     {
         //The node may have whitespace at the end, so we look for the last closing brace and
         //insert before that:
         for (int pos = node.getEnd() - 1; pos >= 0; pos--) {
-            if ("}".equals(e.getText(e.getTextLocationFromOffset(pos), e.getTextLocationFromOffset(pos+1)))) {
+            if ("}".equals(getText(getLineColumnFromOffset(pos), getLineColumnFromOffset(pos+1)))) {
                 int posFinal = pos;
                 undoManager.compoundEdit(() -> {
                     int originalLength = node.getSize();
                     // First insert the text:
-                    e.setText(e.getTextLocationFromOffset(posFinal), e.getTextLocationFromOffset(posFinal), text);
+                    setText(getLineColumnFromOffset(posFinal), getLineColumnFromOffset(posFinal), text);
                     // Then auto-indent the method to make sure our indents were correct:
                     int oldPos = getSourcePane().getCaretPosition();
                     MoeIndent.calculateIndentsAndApply(sourceDocument, node.getPosition(),
                             node.getPosition() + originalLength + text.length(), oldPos);
                 });
-                e.setCaretLocation(e.getTextLocationFromOffset(pos));
+                setCaretLocation(getLineColumnFromOffset(pos));
                 return;
             }
         }
-        Debug.message("Could not find end of node to append to: \"" + e.getText(e.getTextLocationFromOffset(
-                node.getPosition()), e.getTextLocationFromOffset(node.getEnd())) + "\"");
+        Debug.message("Could not find end of node to append to: \"" + getText(getLineColumnFromOffset(
+                node.getPosition()), getLineColumnFromOffset(node.getEnd())) + "\"");
     }
     
     private NodeAndPosition<ParsedNode> findClassNode()
