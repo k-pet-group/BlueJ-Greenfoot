@@ -22,6 +22,8 @@
 package greenfoot.record;
 
 import bluej.debugger.DebuggerObject;
+import bluej.editor.Editor;
+import bluej.utility.javafx.FXPlatformFunction;
 import greenfoot.Actor;
 
 import java.lang.reflect.Method;
@@ -52,7 +54,8 @@ public class GreenfootRecorder implements WorldListener
     public static final String METHOD_ACCESS = "private";
     public static final String METHOD_RETURN = "void";
     public static final String METHOD_NAME = "prepare";
-    
+    private String lastWorldClass;
+
     /**
      * Construct a new GreenfootRecorder instance.
      */
@@ -236,6 +239,7 @@ public class GreenfootRecorder implements WorldListener
     {
         reset();
         world = newWorld;
+        lastWorldClass = newWorld.getClassName();
     }
 
     /**
@@ -298,4 +302,25 @@ public class GreenfootRecorder implements WorldListener
         return new CallElement(content, content);
     }
 
+    public void writeCode(FXPlatformFunction<String, Editor> getEditor)
+    {
+        NormalMethodElement method = getPrepareMethod();
+        CallElement methodCall = getPrepareMethodCall();
+
+        Editor editor = getEditor.apply(lastWorldClass);
+        editor.insertMethodCallInConstructor(lastWorldClass, methodCall, inserted -> {});
+        editor.insertAppendMethod(method, inserted -> {
+            if (inserted)
+            {
+                editor.setEditorVisible(true);
+            }
+        });
+        // Now that we've inserted the code, we must reset the recorder,
+        // so that if the user saves the world again before re-compiling,
+        // it doesn't insert the same code twice.  If the user scrubs our method
+        // and saves the world before re-compiling this will then go wrong
+        // (by inserting code depending on objects no longer there) but that
+        // seems less likely:
+        clearCode(false);
+    }
 }

@@ -74,6 +74,7 @@ import bluej.stride.generic.InteractionManager.Kind;
 import bluej.utility.Debug;
 import bluej.utility.JavaReflective;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
@@ -677,14 +678,14 @@ public class FrameEditor implements Editor
 
             @Override
             @OnThread(Tag.FXPlatform)
-            public void insertAppendMethod(NormalMethodElement method, Consumer<Boolean> after)
+            public void insertAppendMethod(NormalMethodElement method, FXPlatformConsumer<Boolean> after)
             {
                 FrameEditor.this.insertAppendMethod(method, after);
             }
 
             @Override
             @OnThread(Tag.FXPlatform)
-            public void insertMethodCallInConstructor(String className, CallElement methodName, Consumer<Boolean> after)
+            public void insertMethodCallInConstructor(String className, CallElement methodName, FXPlatformConsumer<Boolean> after)
             {
                 FrameEditor.this.insertMethodCallInConstructor(className, methodName, after);
             }
@@ -1247,7 +1248,7 @@ public class FrameEditor implements Editor
     }
 
     @Override
-    public void insertAppendMethod(NormalMethodElement method, Consumer<Boolean> after)
+    public void insertAppendMethod(NormalMethodElement method, FXPlatformConsumer<Boolean> after)
     {
         if (panel == null)
         {
@@ -1257,7 +1258,7 @@ public class FrameEditor implements Editor
     }
 
     @Override
-    public void insertMethodCallInConstructor(String className, CallElement methodName, Consumer<Boolean> after)
+    public void insertMethodCallInConstructor(String className, CallElement methodName, FXPlatformConsumer<Boolean> after)
     {
         if (panel == null)
         {

@@ -73,6 +73,7 @@ import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.FXSupplier;
@@ -1069,6 +1070,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      *             does not exist in the text.
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public void setCaretLocation(SourceLocation location)
     {
         sourcePane.setCaretPosition(getOffsetFromLineColumn(location));
@@ -1180,10 +1182,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * @throws IllegalArgumentException
      *             if either of the specified SourceLocation represent a position
      *             which does not exist in the text.
-     * @throws BadLocationException
-     *             if internally the text points outside a location in the text.
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public void setText(SourceLocation begin, SourceLocation end, String newText)
     {
         int start = getOffsetFromLineColumn(begin);
@@ -3509,7 +3510,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
     
     @Override
-    public void insertAppendMethod(NormalMethodElement method, Consumer<Boolean> after)
+    public void insertAppendMethod(NormalMethodElement method, FXPlatformConsumer<Boolean> after)
     {
         NodeAndPosition<ParsedNode> classNode = findClassNode();
         if (classNode != null) {
@@ -3533,7 +3534,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
  
     @Override
-    public void insertMethodCallInConstructor(String className, CallElement callElement, Consumer<Boolean> after)
+    public void insertMethodCallInConstructor(String className, CallElement callElement, FXPlatformConsumer<Boolean> after)
     {
         NodeAndPosition<ParsedNode> classNode = findClassNode();
         if (classNode != null) {

@@ -258,65 +258,6 @@ public class GClass
             return null;
         }
     }
-    
-    /**
-     * Used for adding code to a void method with no parameters -- creating it if necessary
-     * 
-     * <p>Comment should include the delimiters and be fully formed (and end in a newline).
-     * Method name should have no parameters, it should just be "foo" or similar.
-     * Method body should have no curly braces, it should just be
-     * "foo.bar();\n        if(true) return;\n" or similar, and should end in a newline
-     */
-    public void insertAppendMethod(String method, boolean showEditorOnCreate, boolean showEditorOnAppend, boolean compileAfter)
-    {
-        try {
-            rmiClass.insertAppendMethod(method, showEditorOnCreate, showEditorOnAppend, compileAfter);
-        }
-        catch (ProjectNotOpenException e) {
-            Debug.reportError("Could not insert code", e);
-        }
-        catch (PackageNotFoundException e) {
-            Debug.reportError("Could not insert code", e);
-        }
-        catch (RemoteException e) {
-            Debug.reportError("Could not insert code", e);
-        }
-    }
-    
-    public void insertMethodCallInConstructor(String methodCall, boolean showEditor)
-    {
-        try {
-            rmiClass.insertMethodCallInConstructor(methodCall, showEditor);
-        }
-        catch (ProjectNotOpenException e) {
-            Debug.reportError("Could not insert code", e);
-        }
-        catch (PackageNotFoundException e) {
-            Debug.reportError("Could not insert code", e);
-        }
-        catch (RemoteException e) {
-            Debug.reportError("Could not insert code", e);
-        }
-    }
-    
-    /**
-     * Display a message in the status area of the editor window for this class.
-     */
-    public void showMessage(String message)
-    {
-        try {
-            rmiClass.showMessage(message);
-        }
-        catch (ProjectNotOpenException e) {
-            Debug.reportError("Could not display editor message", e);
-        }
-        catch (PackageNotFoundException e) {
-            Debug.reportError("Could not display editor message", e);
-        }
-        catch (RemoteException e) {
-            Debug.reportError("Could not display editor message", e);
-        }
-    }
 
     public void remove()
     {

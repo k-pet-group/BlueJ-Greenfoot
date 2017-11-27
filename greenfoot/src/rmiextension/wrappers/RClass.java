@@ -56,12 +56,6 @@ public interface RClass
     void closeEditor()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
     
-    void insertAppendMethod(String method, boolean showEditorOnCreate, boolean showEditorOnAppend, boolean compileAfter)
-        throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
-
-    void insertMethodCallInConstructor(String methodCall, boolean showEditor)
-        throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
-
     RPackage getPackage()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 
@@ -80,10 +74,6 @@ public interface RClass
     String getQualifiedName()
         throws RemoteException;
 
-  
-    File getJavaFile()
-        throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
-
     void remove()
         throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException;
 
@@ -94,12 +84,6 @@ public interface RClass
      */
     void setReadOnly(boolean b)
         throws RemoteException, ProjectNotOpenException, PackageNotFoundException ;
-
-    /**
-     * Show a message in the editor status area for this class.
-     */
-    void showMessage(String message)
-        throws RemoteException, ProjectNotOpenException, PackageNotFoundException;
 
     /**
      * Check whether this class has a source file.
