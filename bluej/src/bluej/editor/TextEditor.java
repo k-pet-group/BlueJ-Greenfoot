@@ -27,7 +27,6 @@ import bluej.parser.nodes.ParsedCUNode;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javax.swing.text.BadLocationException;
 import java.nio.charset.Charset;
 
 @OnThread(Tag.FXPlatform)
@@ -153,8 +152,7 @@ public interface TextEditor extends Editor
      * represent a position which does not exist in the text.
      * @throws  BadLocationException  if internally the text points outside a location in the text.
      */
-    public void setText(SourceLocation begin, SourceLocation end, String newText)
-        throws BadLocationException;
+    public void setText(SourceLocation begin, SourceLocation end, String newText);
         
     /**
      * Returns the LineColumn object from the given offset in the text.

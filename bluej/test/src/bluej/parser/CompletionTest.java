@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
-import javax.swing.text.BadLocationException;
 
 import bluej.editor.moe.ScopeColors;
 import javafx.embed.swing.JFXPanel;
@@ -1060,7 +1059,7 @@ public class CompletionTest extends TestCase
         assertEquals("java.lang.Runnable", suggests.getSuggestionType().toString());
     }
 
-    public void testRegression571() throws BadLocationException
+    public void testRegression571()
     {
         // Exception when completing on invalid code:
         

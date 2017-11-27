@@ -83,7 +83,6 @@ import javafx.print.PrinterJob;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javax.swing.text.BadLocationException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -555,8 +554,7 @@ public class FrameEditor implements Editor
 
             @Override
             @OnThread(Tag.FXPlatform)
-            public void setText(SourceLocation begin, SourceLocation end, String newText)
-                    throws BadLocationException {
+            public void setText(SourceLocation begin, SourceLocation end, String newText) {
                 throw new UnsupportedOperationException();
 
             }

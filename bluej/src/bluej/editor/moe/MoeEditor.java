@@ -124,7 +124,6 @@ import org.w3c.dom.events.EventTarget;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javax.swing.text.BadLocationException;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -1185,7 +1184,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      *             if internally the text points outside a location in the text.
      */
     @Override
-    public void setText(SourceLocation begin, SourceLocation end, String newText) throws BadLocationException
+    public void setText(SourceLocation begin, SourceLocation end, String newText)
     {
         int start = getOffsetFromLineColumn(begin);
         int finish = getOffsetFromLineColumn(end);
@@ -2790,21 +2789,11 @@ public final class MoeEditor extends ScopeColorsBorderPane
     public int getBracketMatch()
     {
         int pos = -1;
-        try {
-            int caretPos = sourcePane.getCaretPosition();
-            if (caretPos != 0) {
-                caretPos--;
-            }
-            pos = TextUtilities.findMatchingBracket(sourceDocument, caretPos);
+        int caretPos = sourcePane.getCaretPosition();
+        if (caretPos != 0) {
+            caretPos--;
         }
-        catch (BadLocationException ble) {
-            Debug.reportError("Bad document location reached while trying to match brackets");
-            Debug.log("Caret position: " + sourcePane.getCaretPosition());
-            Debug.log("Document length: " + sourcePane.getText().length());
-            Debug.log("Source code: ---begin---");
-            Debug.log(sourcePane.getText());
-            Debug.log("---end---");
-        }
+        pos = TextUtilities.findMatchingBracket(sourceDocument, caretPos);
         return pos;
     }
 

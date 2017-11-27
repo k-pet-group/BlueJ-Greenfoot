@@ -66,7 +66,6 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.Map.Entry;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.Segment;
 
 /**
@@ -521,72 +520,69 @@ public class BlueJSyntaxView
         int aboveLine = firstLine - 1;
         List<NodeAndPosition<ParsedNode>> prevScopeStack = new LinkedList<NodeAndPosition<ParsedNode>>();
         int curLine = firstLine;
+        
+        ThreeLines lines = new ThreeLines();
+        lines.aboveLineSeg = new Segment();
+        lines.thisLineSeg = new Segment();
+        lines.belowLineSeg = new Segment();
 
-        try {
-            ThreeLines lines = new ThreeLines();
-            lines.aboveLineSeg = new Segment();
-            lines.thisLineSeg = new Segment();
-            lines.belowLineSeg = new Segment();
+        lines.aboveLineEl = null;
+        if (aboveLine >= 0) {
+            lines.aboveLineEl = map.getElement(aboveLine);
+            document.getText(lines.aboveLineEl.getStartOffset(),
+                    lines.aboveLineEl.getEndOffset() - lines.aboveLineEl.getStartOffset(),
+                    lines.aboveLineSeg);
+        }
+        lines.belowLineEl = null;
+        if (firstLine + 1 < map.getElementCount()) {
+            lines.belowLineEl = map.getElement(firstLine + 1);
+            document.getText(lines.belowLineEl.getStartOffset(),
+                    lines.belowLineEl.getEndOffset() - lines.belowLineEl.getStartOffset(),
+                    lines.belowLineSeg);
+        }
 
-            lines.aboveLineEl = null;
-            if (aboveLine >= 0) {
-                lines.aboveLineEl = map.getElement(aboveLine);
-                document.getText(lines.aboveLineEl.getStartOffset(),
-                        lines.aboveLineEl.getEndOffset() - lines.aboveLineEl.getStartOffset(),
-                        lines.aboveLineSeg);
+        lines.thisLineEl = map.getElement(firstLine);
+        document.getText(lines.thisLineEl.getStartOffset(),
+                lines.thisLineEl.getEndOffset() - lines.thisLineEl.getStartOffset(),
+                lines.thisLineSeg);
+
+        getScopeStackAfter(rootNode, 0, lines.thisLineEl.getStartOffset(), prevScopeStack);
+
+        while (curLine <= lastLine) {
+
+            // curLine is zero-based, but getParagraphAttributes is one-based:
+            ScopeInfo scope = new ScopeInfo(getParagraphAttributes(curLine + 1));
+            scopes.add(scope);
+
+            if (prevScopeStack.isEmpty()) {
+                break;
             }
-            lines.belowLineEl = null;
-            if (firstLine + 1 < map.getElementCount()) {
-                lines.belowLineEl = map.getElement(firstLine + 1);
-                document.getText(lines.belowLineEl.getStartOffset(),
-                        lines.belowLineEl.getEndOffset() - lines.belowLineEl.getStartOffset(),
-                        lines.belowLineSeg);
-            }
 
-            lines.thisLineEl = map.getElement(firstLine);
-            document.getText(lines.thisLineEl.getStartOffset(),
-                    lines.thisLineEl.getEndOffset() - lines.thisLineEl.getStartOffset(),
-                    lines.thisLineSeg);
+            drawScopes(fullWidth, scope, document, lines, prevScopeStack, small, onlyMethods, 0);
 
-            getScopeStackAfter(rootNode, 0, lines.thisLineEl.getStartOffset(), prevScopeStack);
-
-            while (curLine <= lastLine) {
-
-                // curLine is zero-based, but getParagraphAttributes is one-based:
-                ScopeInfo scope = new ScopeInfo(getParagraphAttributes(curLine + 1));
-                scopes.add(scope);
-
-                if (prevScopeStack.isEmpty()) {
-                    break;
+            // Next line
+            curLine++;
+            if (curLine <= lastLine) {
+                lines.aboveLineEl = lines.thisLineEl;
+                lines.thisLineEl = lines.belowLineEl; 
+                if (curLine + 1 < map.getElementCount()) {
+                    lines.belowLineEl = map.getElement(curLine + 1);
                 }
+                else {
+                    lines.belowLineEl = null;
+                }
+                Segment oldAbove = lines.aboveLineSeg;
+                lines.aboveLineSeg = lines.thisLineSeg;
+                lines.thisLineSeg = lines.belowLineSeg;
+                lines.belowLineSeg = oldAbove; // recycle the object
 
-                drawScopes(fullWidth, scope, document, lines, prevScopeStack, small, onlyMethods, 0);
-
-                // Next line
-                curLine++;
-                if (curLine <= lastLine) {
-                    lines.aboveLineEl = lines.thisLineEl;
-                    lines.thisLineEl = lines.belowLineEl; 
-                    if (curLine + 1 < map.getElementCount()) {
-                        lines.belowLineEl = map.getElement(curLine + 1);
-                    }
-                    else {
-                        lines.belowLineEl = null;
-                    }
-                    Segment oldAbove = lines.aboveLineSeg;
-                    lines.aboveLineSeg = lines.thisLineSeg;
-                    lines.thisLineSeg = lines.belowLineSeg;
-                    lines.belowLineSeg = oldAbove; // recycle the object
-
-                    if (lines.belowLineEl != null) {
-                        document.getText(lines.belowLineEl.getStartOffset(),
-                                lines.belowLineEl.getEndOffset() - lines.belowLineEl.getStartOffset(),
-                                lines.belowLineSeg);
-                    }
+                if (lines.belowLineEl != null) {
+                    document.getText(lines.belowLineEl.getStartOffset(),
+                            lines.belowLineEl.getEndOffset() - lines.belowLineEl.getStartOffset(),
+                            lines.belowLineSeg);
                 }
             }
         }
-        catch (BadLocationException ble) {}
     }
 
     private class DrawInfo
@@ -619,7 +615,6 @@ public class BlueJSyntaxView
     private void drawScopes(int fullWidth, ScopeInfo scopes, MoeSyntaxDocument document, ThreeLines lines,
             List<NodeAndPosition<ParsedNode>> prevScopeStack, boolean small,
             boolean onlyMethods, int nodeDepth)
-    throws BadLocationException
     {
         int rightMargin = small ? 0 : 10;
 
@@ -989,7 +984,7 @@ public class BlueJSyntaxView
      * @param lineSeg  Segment containing text of the current line
      */
     private int getNodeRBound(NodeAndPosition<ParsedNode> nap, int fullWidth, int nodeDepth,
-            Element lineEl, Segment lineSeg) throws BadLocationException
+            Element lineEl, Segment lineSeg)
     {
         int napEnd = nap.getEnd();
         int rbound = fullWidth - nodeDepth * RIGHT_SCOPE_MARGIN;
@@ -1074,7 +1069,6 @@ public class BlueJSyntaxView
      */
     private int getNodeIndent(MoeSyntaxDocument doc, NodeAndPosition<ParsedNode> nap, Element lineEl,
             Segment segment)
-        throws BadLocationException
     {
 
         if (lineEl == null) {

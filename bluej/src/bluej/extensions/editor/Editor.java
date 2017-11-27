@@ -23,7 +23,6 @@ package bluej.extensions.editor;
 
 import java.io.IOException;
 
-import javax.swing.text.BadLocationException;
 
 import bluej.parser.SourceLocation;
 
@@ -180,12 +179,7 @@ public class Editor
      */
     public void setText(TextLocation begin, TextLocation end, String newText)
     {
-        try {
-            bjEditor.setText(convertLocation(begin), convertLocation(end), newText);
-        }
-        catch (BadLocationException exc) {
-            throw new IllegalArgumentException(exc.getMessage());
-        }
+        bjEditor.setText(convertLocation(begin), convertLocation(end), newText);
     }
 
 
