@@ -38,6 +38,13 @@ import threadchecker.Tag;
 @OnThread(Tag.FXPlatform)
 public class DuplicateClassDialog extends InputDialog<String>
 {
+    /**
+     * Creates a DuplicateClassDialog, which prompts the user to enter (or confirm a suggested) name for the new class.
+     *
+     * @param parent      the PkgMgrFrame's window which represents the package working on.
+     * @param name        the suggested name for the duplicated class.
+     * @param sourceType  the type of the class's source; currently, Java or Stride.
+     */
     public DuplicateClassDialog(Window parent, String name, SourceType sourceType)
     {
         super(Config.getString("pkgmgr.duplicate.title"), Config.getString("pkgmgr.newClass.label"),
