@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import bluej.views.ViewFilter.StaticOrInstance;
 import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
@@ -436,16 +437,8 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
             Hashtable<String, String> methodsUsed = new Hashtable<>();
             List<Class<?>> classes = getClassHierarchy(cl);
 
-            // define two view filters for different package visibility
-            ViewFilter samePackageFilter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
-            ViewFilter otherPackageFilter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PUBLIC);
-            
             // define a view filter
-            ViewFilter filter;
-            if (currentPackageName != null && currentPackageName.equals(view.getPackageName()))
-                filter = samePackageFilter;
-            else
-                filter = otherPackageFilter;
+            ViewFilter filter = new ViewFilter(StaticOrInstance.INSTANCE, currentPackageName);
 
             menu.add(new SeparatorMenuItem());
 
@@ -473,10 +466,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
                 view = View.getView(currentClass);
                 
                 // Determine visibility of package private / protected members
-                if (currentPackageName != null && currentPackageName.equals(view.getPackageName()))
-                    filter = samePackageFilter;
-                else
-                    filter = otherPackageFilter;
+                filter = new ViewFilter(StaticOrInstance.INSTANCE, currentPackageName);
                 
                 // map generic type paramaters to the current superclass
                 curType = curType.mapToSuper(currentClass.getName());

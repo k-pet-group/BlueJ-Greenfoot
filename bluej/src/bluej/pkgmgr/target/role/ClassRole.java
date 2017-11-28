@@ -38,6 +38,7 @@ import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import bluej.views.View;
 import bluej.views.ViewFilter;
+import bluej.views.ViewFilter.StaticOrInstance;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -209,11 +210,10 @@ public abstract class ClassRole
     @OnThread(Tag.FXPlatform)
     public boolean createClassConstructorMenu(ObservableList<MenuItem> menu, ClassTarget ct, Class<?> cl)
     {
-        ViewFilter filter;
         View view = View.getView(cl);
 
         if (!java.lang.reflect.Modifier.isAbstract(cl.getModifiers())) {
-            filter = new ViewFilter(ViewFilter.INSTANCE | ViewFilter.PACKAGE);
+            ViewFilter filter = new ViewFilter(StaticOrInstance.INSTANCE, ct.getPackage().getQualifiedName());
             ConstructorView[] constructors = view.getConstructors();
 
             if (createMenuItems(menu, constructors, filter, 0, constructors.length, "new ", ct))
@@ -226,10 +226,9 @@ public abstract class ClassRole
     @OnThread(Tag.FXPlatform)
     public boolean createClassStaticMenu(ObservableList<MenuItem> menu, ClassTarget ct, boolean hasSource, Class<?> cl)
     {
-        ViewFilter filter;
         View view = View.getView(cl);
 
-        filter = new ViewFilter(ViewFilter.STATIC | ViewFilter.PACKAGE);
+        ViewFilter filter = new ViewFilter(StaticOrInstance.STATIC, ct.getPackage().getQualifiedName());
         MethodView[] allMethods = view.getAllMethods();
         if (createMenuItems(menu, allMethods, filter, 0, allMethods.length, "", ct))
             return true;

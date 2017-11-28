@@ -33,7 +33,7 @@ import java.lang.reflect.Modifier;
  */
 public abstract class MemberView
 {
-    private View view;
+    private final View view;
     private Comment comment;
 
     protected MemberView(View view)

@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import bluej.views.ViewFilter.StaticOrInstance;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
@@ -187,17 +188,12 @@ public class LibraryCallDialog extends Dialog<CallableView>
         ViewFilter filter;
 
         ConstructorView[] constructors = classView.getConstructors();
-        
-        // Determine visibility of package private / protected members
-        int visibilityMod = ViewFilter.PUBLIC;
-        if (classView.getPackageName().equals(pkg.getQualifiedName()))
-            visibilityMod = ViewFilter.PACKAGE;
 
-        filter = new ViewFilter(ViewFilter.INSTANCE | visibilityMod);
+        filter = new ViewFilter(StaticOrInstance.INSTANCE, pkg.getQualifiedName());
         Arrays.stream(constructors).filter(filter::accept).forEach(currentViews::add);
 
         MethodView[] methods = classView.getAllMethods();
-        filter = new ViewFilter(ViewFilter.STATIC | visibilityMod);
+        filter = new ViewFilter(StaticOrInstance.STATIC, pkg.getQualifiedName());
         Arrays.stream(methods).filter(filter::accept).forEach(currentViews::add);
 
         textOverlay.setVisible(false);

@@ -21,64 +21,55 @@
  */
 package bluej.views;
 
-import java.lang.reflect.*;
-
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.lang.reflect.Modifier;
+
 /**
- ** @version $Id: ViewFilter.java 16001 2016-06-09 15:35:27Z nccb $
- ** @author Michael Cahill
- **
- ** A filter for views - allows only certain parts of a view to be seen.
- ** Used to implement BlueJ's "public", "package" and "inherited" views.
- **/
-@OnThread(Tag.Any)
+ * A View Filter specifying whether, for a given method,
+ * it should be included in an operation.  The two configurable
+ * parts are static methods or instance methods, and public-only
+ * vs package-private&protected&public.
+ */
+@OnThread(Tag.FXPlatform)
 public final class ViewFilter
 {
-    public static final int PUBLIC = Modifier.PUBLIC;
-    public static final int PROTECTED = PUBLIC | Modifier.PROTECTED;
-    public static final int PACKAGE = PROTECTED | 0x10000;
-    public static final int PRIVATE = PACKAGE | Modifier.PRIVATE;
+    public static enum StaticOrInstance { STATIC, INSTANCE; }
     
-    public static final int STATIC = Modifier.STATIC;
-    public static final int INSTANCE = 0x20000;
-    
-    public static final int ABSTRACT = Modifier.ABSTRACT;
-    public static final int CONCRETE = 0x40000;
-    
-    static final int allbits = PRIVATE | STATIC | INSTANCE | ABSTRACT | CONCRETE;
-    
-    int modifiers;
-    
-    public ViewFilter(int modifiers)
+    private final StaticOrInstance staticOrInstance;
+    // Show only items callable from another class in the given
+    // package.  If null, only show public items.
+    private final String callingPackage;
+
+    /**
+     * Create a View filter.
+     * @param staticOrInstance Do you want only-static, or only-instance?
+     * @param callingPackage Show only items callable from another class in the given package.
+     *                       If null, only show public items. 
+     */
+    public ViewFilter(StaticOrInstance staticOrInstance, String callingPackage)
     {
-        if(((modifiers & STATIC) == 0) && ((modifiers & INSTANCE) == 0))
-            modifiers |= STATIC | INSTANCE;
-            
-        if(((modifiers & ABSTRACT) == 0) && ((modifiers & CONCRETE) == 0))
-            modifiers |= ABSTRACT | CONCRETE;
-            
-        this.modifiers = modifiers;
-    }
-    
-    public boolean accept(int othermods)
-    {
-        if((othermods & 7) == 0)
-            othermods |= 0x10000;
-        if((othermods & STATIC ) == 0)
-            othermods |= INSTANCE;
-            
-        return ((allbits & othermods & ~modifiers) == 0);
-    }
-    
-    public boolean accept(Member member)
-    {
-        return accept(member.getModifiers());
+        this.staticOrInstance = staticOrInstance;
+        this.callingPackage = callingPackage;
     }
     
     public boolean accept(MemberView member)
     {
-        return accept(member.getModifiers());
+        boolean wantStatic = staticOrInstance == StaticOrInstance.STATIC;
+        boolean isStatic = member.isStatic();
+        // We either want static or instance, member must match that:
+        if (wantStatic != isStatic)
+            return false;
+        
+        // If public, definitely in:
+        if ((member.getModifiers() & Modifier.PUBLIC) != 0)
+            return true;
+        // If it's not the same package (and already know it's not public), can't include it:
+        boolean samePackage = member.getDeclaringView().getPackageName().equals(callingPackage);
+        if (!samePackage)
+            return false;
+        // Otherwise, same package, so we include if not private:
+        return (member.getModifiers() & Modifier.PRIVATE) == 0;
     }
 }
