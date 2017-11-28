@@ -531,6 +531,7 @@ public class WorldHandler
     public void setInitialisingWorld(World world)
     {
         this.initialisingWorld = world;
+        handlerDelegate.initialisingWorld();
     }
 
     /** 

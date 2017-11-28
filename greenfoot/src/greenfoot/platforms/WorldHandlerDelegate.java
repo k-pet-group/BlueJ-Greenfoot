@@ -74,4 +74,6 @@ public interface WorldHandlerDelegate
      * Show a text prompt asking for input, with given prompt string
      */
     public String ask(String prompt);
+
+    public default void initialisingWorld() {};
 }

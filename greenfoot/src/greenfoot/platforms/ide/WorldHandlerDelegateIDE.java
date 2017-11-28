@@ -49,6 +49,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
@@ -95,7 +96,8 @@ public class WorldHandlerDelegateIDE
     private boolean worldInitialising;
     private boolean worldInvocationError;
     private boolean missingConstructor;
-    
+    private final List<Actor> actorsToName = new ArrayList<>();
+
     public WorldHandlerDelegateIDE(GreenfootFrame frame,
             ClassStateManager classStateManager)
     {
@@ -120,6 +122,8 @@ public class WorldHandlerDelegateIDE
     @Override
     public void setWorld(final World oldWorld, final World newWorld)
     {
+        nameActors(actorsToName.toArray(new Actor[0]));
+        
         worldInvocationError = false;
         greenfootRecorder.clearCode(false);
         //greenfootRecorder.setWorld(newWorld);
@@ -228,6 +232,12 @@ public class WorldHandlerDelegateIDE
     public void setWorldHandler(WorldHandler handler)
     {
         this.worldHandler = handler;
+    }
+
+    @Override
+    public void initialisingWorld()
+    {
+        actorsToName.clear();
     }
 
     @Override
@@ -427,7 +437,7 @@ public class WorldHandlerDelegateIDE
                         item.getClassName().equals(lastWorldClassName)) {
                     // This call gives the object a name,
                     // which will be necessary for appending operations with the object to the world's code:
-                    nameActor(object);
+                    actorsToName.add(object);
                     return;
                 }
 
@@ -447,7 +457,7 @@ public class WorldHandlerDelegateIDE
      * by GreenfootDebugHandler to watch out for actors which should
      * be named.  Do not remove or rename without also editing that code.
      */
-    private void nameActor(Actor actor)
+    private void nameActors(Actor[] actor)
     {
     }
 

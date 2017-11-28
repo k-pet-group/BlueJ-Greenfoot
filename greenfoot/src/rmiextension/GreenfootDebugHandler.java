@@ -171,7 +171,7 @@ public class GreenfootDebugHandler implements DebuggerListener
             Map<String, String> nameActorBreakpointProperties = new HashMap<>();
             nameActorBreakpointProperties.put(NAME_ACTOR_KEY, "TRUE");
             nameActorBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
-            debugger.toggleBreakpoint(NAME_ACTOR_CLASS, "nameActor", true, nameActorBreakpointProperties);
+            debugger.toggleBreakpoint(NAME_ACTOR_CLASS, "nameActors", true, nameActorBreakpointProperties);
 
             Map<String, String> pickHelperBreakpointProperties = new HashMap<>();
             pickHelperBreakpointProperties.put(PICK_HELPER_KEY, "TRUE");
@@ -224,7 +224,7 @@ public class GreenfootDebugHandler implements DebuggerListener
                 atNameActorBreakpoint(e.getBreakpointProperties()))
         {
             VarDisplayInfo varDisplayInfo = e.getThread().getLocalVariables(0).get(0);
-            greenfootRecorder.nameActor(varDisplayInfo.getFetchObject().get());
+            greenfootRecorder.nameActors(fetchArray(varDisplayInfo.getFetchObject().get()));
             e.getThread().cont();
             return true;
         }
@@ -270,11 +270,7 @@ public class GreenfootDebugHandler implements DebuggerListener
                 // Should always be true, but check in case:
                 if (actorPicksValue != null && actorPicksValue.isArray() && worldPickValue != null)
                 {
-                    List<DebuggerObject> picksElements = new ArrayList<>(actorPicksValue.getElementCount());
-                    for (int i = 0; i < actorPicksValue.getElementCount(); i++)
-                    {
-                        picksElements.add(actorPicksValue.getElementObject(i));
-                    }
+                    List<DebuggerObject> picksElements = fetchArray(actorPicksValue);
                     Platform.runLater(() -> {
                         if (pickListener != null)
                         {
@@ -346,7 +342,23 @@ public class GreenfootDebugHandler implements DebuggerListener
 
         return false;
     }
-    
+
+    /**
+     * Fetches all the objects in a debug VM array into
+     * a server VM list of debug objects (the array elements).
+     * @param arrayValue
+     * @return
+     */
+    private List<DebuggerObject> fetchArray(DebuggerObject arrayValue)
+    {
+        List<DebuggerObject> elements = new ArrayList<>(arrayValue.getElementCount());
+        for (int i = 0; i < arrayValue.getElementCount(); i++)
+        {
+            elements.add(arrayValue.getElementObject(i));
+        }
+        return elements;
+    }
+
     /**
      * Processes a debugger event.  This is called after examineDebuggerEvent, with a second
      * parameter that effectively corresponds to the return result of examineDebuggerEvent.

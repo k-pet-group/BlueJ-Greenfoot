@@ -86,8 +86,7 @@ public class GreenfootRecorder
      * 
      * This is called from the debugger thread.
      */
-
-    public synchronized String nameActor(DebuggerObject actor)
+    private synchronized String nameActor(DebuggerObject actor)
     {
         if (objectNames.containsKey(actor))
             return objectNames.get(actor);
@@ -104,6 +103,17 @@ public class GreenfootRecorder
             return name;
         } else {
             return null;
+        }
+    }
+
+    /**
+     * Names all the actors in the list, in order (first to last)
+     */
+    public synchronized void nameActors(List<DebuggerObject> actors)
+    {
+        for (DebuggerObject actor : actors)
+        {
+            nameActor(actor);
         }
     }
     
