@@ -237,7 +237,7 @@ public class WorldHandlerDelegateIDE
             return;
         }
         
-        greenfootRecorder.reset();
+        //greenfootRecorder.reset();
         worldInitialising = true;
         worldInvocationError = false;
         Class<? extends World> cls = getLastWorldClass();
@@ -374,7 +374,7 @@ public class WorldHandlerDelegateIDE
     {
         if (callableView.isConstructor() && World.class.isAssignableFrom(callableView.getDeclaringView().getViewClass())) {
             worldInitialising = true;
-            greenfootRecorder.reset();
+            //greenfootRecorder.reset();
             saveWorldAction.setRecordingValid(true);            
         }
     }
@@ -427,6 +427,7 @@ public class WorldHandlerDelegateIDE
                         item.getClassName().equals(lastWorldClassName)) {
                     // This call gives the object a name,
                     // which will be necessary for appending operations with the object to the world's code:
+                    nameActor(object);
                     return;
                 }
 
@@ -439,6 +440,15 @@ public class WorldHandlerDelegateIDE
                 gonePastUs = gonePastUs || "objectAddedToWorld".equals(item.getMethodName());
             }
         }
+    }
+
+    /**
+     * This is a special method that will have a breakpoint set on it
+     * by GreenfootDebugHandler to watch out for actors which should
+     * be named.  Do not remove or rename without also editing that code.
+     */
+    private void nameActor(Actor actor)
+    {
     }
 
     /**

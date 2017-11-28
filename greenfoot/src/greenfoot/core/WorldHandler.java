@@ -524,8 +524,9 @@ public class WorldHandler
     }
 
     /**
-     * Notify that construction of a new world has started.
-     * @see #setWorld(World)
+     * Notify that construction of a new world has started.  Note that this method
+     * has a special breakpoint set by GreenfootDebugHandler, so do not remove/rename
+     * without also editing that code.
      */
     public void setInitialisingWorld(World world)
     {
