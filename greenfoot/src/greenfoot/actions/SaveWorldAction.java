@@ -71,8 +71,8 @@ public class SaveWorldAction extends AbstractAction implements CompiledStateList
         CallElement methodCall = recorder.getPrepareMethodCall();
 
         GClass lastWorld = getLastWorldGClass();
-        lastWorld.insertMethodCallInConstructor(methodCall.toXML().toXML(), false);
-        lastWorld.insertAppendMethod(method.toXML().toXML(), true, false, true);
+        //lastWorld.insertMethodCallInConstructor(methodCall.toXML().toXML(), false);
+        //lastWorld.insertAppendMethod(method.toXML().toXML(), true, false, true);
         // Now that we've inserted the code, we must reset the recorder,
         // so that if the user saves the world again before re-compiling,
         // it doesn't insert the same code twice.  If the user scrubs our method

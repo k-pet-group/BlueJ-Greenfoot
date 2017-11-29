@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 import javax.swing.JOptionPane;
-import javax.swing.text.BadLocationException;
 
 import bluej.Config;
 import bluej.editor.moe.MoeEditor;

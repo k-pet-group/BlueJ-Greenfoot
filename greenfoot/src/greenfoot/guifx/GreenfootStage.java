@@ -593,16 +593,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                     MenuItem saveTheWorld = new MenuItem(Config.getString("save.world"));
                     // Temporary while developing - print out saved world to Terminal window:
                     saveTheWorld.setOnAction(e -> {
-                        project.getTerminal().showHide(true);
-                        new Thread(() -> {
-                            try
-                            {
-                                project.getTerminal().getWriter().write("Prepare:" + saveTheWorldRecorder.getPrepareMethod().toJavaSource().toTemporaryJavaCodeString());
-                            }
-                            catch (IOException e1)
-                            {
-                            }
-                        }).start();
+                        saveTheWorldRecorder.writeCode(className -> ((ClassTarget)project.getUnnamedPackage().getTarget(className)).getEditor());
                     });
                     contextMenu.getItems().add(saveTheWorld);
 

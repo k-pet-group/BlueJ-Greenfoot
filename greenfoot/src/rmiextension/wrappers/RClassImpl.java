@@ -151,58 +151,6 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     }
     
     @Override
-    public void showMessage(final String message) throws RemoteException,
-            ProjectNotOpenException, PackageNotFoundException
-    {
-        final Editor e = bClass.getEditor();
-        EventQueue.invokeLater(() -> EditorBridge.getEditor(e).writeMessage(message));
-    }
-
-    @Override
-    public void insertAppendMethod(final String method, final boolean showEditorOnCreate, final boolean showEditorOnAppend, final boolean compileAfter)
-            throws ProjectNotOpenException, PackageNotFoundException, RemoteException
-    {
-        final Editor e = bClass.getEditor();
-        EventQueue.invokeLater(() ->
-                EditorBridge.getEditor(e).insertAppendMethod(e, (NormalMethodElement) loadElement(method), inserted -> {
-                    //Appended to existing method:
-                    if (inserted && showEditorOnAppend) {
-                        EventQueue.invokeLater(() -> e.setVisible(true));
-                    }
-                    //Made a new method:
-                    else if (!inserted && showEditorOnCreate) {
-                        EventQueue.invokeLater(() -> e.setVisible(true));
-                    }
-
-                    if (compileAfter)
-                        compile(false, true);
-                })
-        );
-    }
-    
-    @Override
-    public void insertMethodCallInConstructor(final String methodCall, final boolean showEditor)
-            throws ProjectNotOpenException, PackageNotFoundException,
-            RemoteException
-    {
-        final Editor e = bClass.getEditor();
-        final String className = bClass.getName();
-        EventQueue.invokeLater(() ->
-                EditorBridge.getEditor(e).insertMethodCallInConstructor(e, className, 
-                        (CallElement) loadElement(methodCall), inserted -> {
-                    if (showEditor && inserted) {
-                        EventQueue.invokeLater(() -> e.setVisible(true));
-                    }
-                })
-        );
-    }
-
-    private CodeElement loadElement(String elementString)
-    {
-        return Loader.loadElement(elementString);
-    }
-
-    @Override
     public RPackage getPackage()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {

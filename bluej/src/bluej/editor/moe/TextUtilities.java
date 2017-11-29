@@ -49,7 +49,6 @@ public class TextUtilities
      * was attempted on the document text
      */
     public static int findMatchingBracket(MoeSyntaxDocument doc, int offset)
-    throws BadLocationException
     {
         if(doc.getLength() == 0) {
             return -1;

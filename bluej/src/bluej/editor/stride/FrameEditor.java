@@ -74,6 +74,7 @@ import bluej.stride.generic.InteractionManager.Kind;
 import bluej.utility.Debug;
 import bluej.utility.JavaReflective;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
@@ -83,7 +84,6 @@ import javafx.print.PrinterJob;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javax.swing.text.BadLocationException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -555,8 +555,7 @@ public class FrameEditor implements Editor
 
             @Override
             @OnThread(Tag.FXPlatform)
-            public void setText(SourceLocation begin, SourceLocation end, String newText)
-                    throws BadLocationException {
+            public void setText(SourceLocation begin, SourceLocation end, String newText) {
                 throw new UnsupportedOperationException();
 
             }
@@ -679,16 +678,16 @@ public class FrameEditor implements Editor
 
             @Override
             @OnThread(Tag.FXPlatform)
-            public void insertAppendMethod(bluej.extensions.editor.Editor e, NormalMethodElement method, Consumer<Boolean> after)
+            public void insertAppendMethod(NormalMethodElement method, FXPlatformConsumer<Boolean> after)
             {
-                FrameEditor.this.insertAppendMethod(e, method, after);
+                FrameEditor.this.insertAppendMethod(method, after);
             }
 
             @Override
             @OnThread(Tag.FXPlatform)
-            public void insertMethodCallInConstructor(bluej.extensions.editor.Editor e, String className, CallElement methodName, Consumer<Boolean> after)
+            public void insertMethodCallInConstructor(String className, CallElement methodName, FXPlatformConsumer<Boolean> after)
             {
-                FrameEditor.this.insertMethodCallInConstructor(e, className, methodName, after);
+                FrameEditor.this.insertMethodCallInConstructor(className, methodName, after);
             }
 
             @Override
@@ -1249,7 +1248,7 @@ public class FrameEditor implements Editor
     }
 
     @Override
-    public void insertAppendMethod(bluej.extensions.editor.Editor e, NormalMethodElement method, Consumer<Boolean> after)
+    public void insertAppendMethod(NormalMethodElement method, FXPlatformConsumer<Boolean> after)
     {
         if (panel == null)
         {
@@ -1259,13 +1258,13 @@ public class FrameEditor implements Editor
     }
 
     @Override
-    public void insertMethodCallInConstructor(bluej.extensions.editor.Editor e, String className, CallElement methodName, Consumer<Boolean> after)
+    public void insertMethodCallInConstructor(String className, CallElement methodName, FXPlatformConsumer<Boolean> after)
     {
         if (panel == null)
         {
             createPanel(false, false);
         }
-        panel.insertMethodCallInConstructor(className, methodName, after);
+        panel.insertMethodCallInConstructor(methodName, after);
     }
 
     @Override
