@@ -18,7 +18,9 @@ czech           4.0.0                x               all                 Rudolf 
 danish          3.0.3
 dutch           3.0.7*               x     labels+dialog, Rev: 15010     Kris Coolsaet   <kris.coolsaet@UGent.be>
 french          2.2.0				 x	   labels+dialog, Rev: 15010     Laurent Pierron <laurent.pierron@inria.fr>
-german          3.1.6                x     labels+dialog, Rev: 14925     Michael Kolling
+german          3.1.6                x     labels+dialog, Rev: 14925     Martin Schleyer sent updates after 4.1.2 for BJ and
+                                                                          GF but we are not sure which en-labels they match
+                                                                         Michael Kolling
  																		 stefan mueller <stefan.mueller@hof-university.de> offered help translation to German,
                                                                           but given the GF side labels. However, name should be mentioned if he does them.
 greek           2.1.1

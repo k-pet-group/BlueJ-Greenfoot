@@ -2,7 +2,7 @@
 frame.catalogue.title=Spickzettel
 frame.catalogue.commands=Kommandos
 frame.catalogue.shortcuts=Tastenk\u00fcrzel
-frame.catalogue.selection=Auswahl einschliessen
+frame.catalogue.selection=Auswahl einschlie\u00dfen
 frame.catalogue.codecompletion=Code Vervollst\u00e4ndigung
 frame.catalogue.codecompletion.hide=Code Vervollst\u00e4ndigung verbergen
 frame.catalogue.codecompletion.up=Nach oben
@@ -23,6 +23,23 @@ frame.error.overview.bar.error.plural=Fehler
 frame.error.overview.bar.error.none=keine Fehler
 frame.error.overview.bar.error.editing=Editieren
 
+# Class menu:
+frame.classmenu.title=Klasse
+frame.classmenu.close=Schlie\u00dfen
+frame.classmenu.move=Tab verschieben...
+frame.classmenu.move.new=In neues Fenster
+frame.classmenu.move.existing=Fenster
+frame.classmenu.print=Drucken
+frame.classmenu.compile=Kompilieren
+
+# Web/documentation menu
+frame.webmenu.title=Dokumentation
+frame.webmenu.open.external=Im Web-Browser \u00dfffnen...
+
+
+# Edit menu:
+frame.editmenu.title=Bearbeiten
+
 # Slot menu:
 frame.slot.cut=Ausschneiden
 frame.slot.copy=Kopieren
@@ -36,6 +53,38 @@ frame.viewmenu.nextError=N\u00e4chster Fehler
 frame.viewmenu.cheatsheet=Spickzettel
 frame.viewmenu.birdseye=Vogelperspektive
 frame.viewmenu.java=Java Vorschau
-frame.viewmenu.fontbigger=erh\u00f6he Schriftgr\u00f6\u00dfe
-frame.viewmenu.fontsmaller=verkleinere Schriftgr\u00f6\u00dfe
+frame.viewmenu.fontbigger=Erh\u00f6he Schriftgr\u00f6\u00dfe
+frame.viewmenu.fontsmaller=Verkleinere Schriftgr\u00f6\u00dfe
 frame.viewmenu.fontdefault=Setze Schriftgr\u00f6\u00dfe zur\u00fcck
+
+
+# Information:
+# The '$' will be replaced by the name of the superclass:
+frame.class.inherited.from=geerbt von $
+
+frame.undobanner.text=Sie haben gerade sehr viel Quelltext gel\u00dfscht. Wenn dies keine Absicht war, k\u00dfnnen Sie...
+frame.undobanner.button=Die \u00c4nderungen r\u00fcckg\u00e4ngig machen
+frame.undobanner.close=Schlie\u00dfen
+
+stride.convert.unsupported.feature=Nicht-unterst\u00fctzte Anweisung in Stride
+stride.convert.unsupported.modifier=Nicht-unterst\u00fctzter Modifier in Stride
+stride.convert.warnings.title=Java zu Stride: Nicht-unterst\u00fctzte Anweisungen
+stride.convert.warnings=Umwandlung von Java zu Stride erfolgreich, mit folgenden Warnungen:
+stride.convert.paste.errors.title=Einf\u00fcgen von Stride: Fehler
+stride.convert.paste.errors=Die Zwischenablage konnte nicht verarbeitet werden, mit folgenden Fehlern
+stride.convert.whole.errors.title=Umwandlung zu Stride: Fehler
+stride.convert.whole.errors=Umwandlung von Java zu Stride fehlgeschlagen, mit folgenden Fehlern:
+stride.convert.error.stride=Fehler beim Umwandeln der Stride-Anweisungen
+stride.convert.error.java=Fehler beim Versuch, Java f\u00fcr die Umwandlung zu Stride einzulesen
+convert.to.stride.class=Zu Stride umwandeln
+convert.to.java.title=Zu Java umwandeln?
+convert.to.java.message=Die Stride-Klasse wird zu Java konvertiert. Fortfahren?
+convert.to.stride.title=Zu Stride umwandeln?
+convert.to.stride.message=Die Java-Klasse wird zu Stride konvertiert. Sie k\u00dfnnen diesen Vorgang eventuell nicht r\u00fcckg\u00e4ngig machen, wenn der Java-Code Anweisungen enth\u00e4lt, die in Stride nicht unterst\u00fctzt werden. Fortfahren?
+convert.to.stride.error.title=Ein Fehler trat auf
+convert.to.stride.error.message=Ein Fehler trat w\u00e4hrend der Unwandlung von Java zu Stride auf.
+
+# Editor
+frame.editor.toplevel.doc.prompt=Erg\u00e4nzen Sie hier eine Beschreibung f\u00fcr die Klasse $CLASSNAME $CAPTION...
+frame.editor.toplevel.package.prompt=Package-Name
+frame.editor.param.prompt=$CAPTION name
