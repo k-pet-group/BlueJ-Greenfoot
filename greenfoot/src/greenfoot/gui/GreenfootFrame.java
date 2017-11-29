@@ -155,7 +155,6 @@ public class GreenfootFrame extends JFrame
 
     private RBlueJ rBlueJ;
     private GProject project;
-    private GreenfootInspectorManager inspectorManager = new GreenfootInspectorManager();
         
     private WorldCanvas worldCanvas;
     private WorldHandler worldHandler;
@@ -435,7 +434,7 @@ public class GreenfootFrame extends JFrame
         worldCanvas.setWorldSize(200, 100);
         worldCanvas.setVisible(false);
         
-        worldHandlerDelegate = new WorldHandlerDelegateIDE(this, inspectorManager, classStateManager);
+        worldHandlerDelegate = new WorldHandlerDelegateIDE(this, classStateManager);
         WorldHandler.initialise(worldCanvas, worldHandlerDelegate);
         worldHandler = WorldHandler.getInstance();
         worldHandler.addWorldListener(this);
@@ -1295,7 +1294,6 @@ public class GreenfootFrame extends JFrame
     @Override
     public void worldRemoved(WorldEvent e)
     {
-        inspectorManager.removeAllInspectors();
         updateBackgroundMessage();
     }
 
@@ -1328,14 +1326,6 @@ public class GreenfootFrame extends JFrame
     }
     
     // ------------- end of SelectionListener interface --------
-
-    /**
-     * Get a reference to the inspector manager for the project shown in this frame.
-     */
-    public GreenfootInspectorManager getInspectorManager()
-    {
-        return inspectorManager;
-    }
     
     /**
      * Asks the user to input a String.  Should be called from the EDT.  Returns a Callable

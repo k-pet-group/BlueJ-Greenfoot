@@ -35,13 +35,11 @@ import greenfoot.core.GClass;
 import greenfoot.core.GProject;
 import greenfoot.core.GreenfootMain;
 import greenfoot.core.WorldHandler;
-import greenfoot.core.WorldInvokeListener;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
 import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
-import greenfoot.localdebugger.LocalClass;
 import greenfoot.record.InteractionListener;
 
 import java.awt.Color;
@@ -89,43 +87,6 @@ public abstract class ClassRole implements WorldListener
      * Get the name for the template file used to create the initial source for a new class.
      */
     public abstract String getTemplateFileName(boolean useInterface, SourceType language);
-
-    /**
-     * Create a list of actions for invoking the constructors of the given class
-     */
-    public List<Action> createConstructorActions(Class<?> realClass, GProject project,
-            InteractionListener interactionListener)
-    {
-        View view = View.getView(realClass);
-        List<Action> actions = new ArrayList<Action>();
-        ConstructorView[] constructors = view.getConstructors();
-
-        for (int i = 0; i < constructors.length; i++) {
-            try {
-                ConstructorView m = constructors[constructors.length - i - 1];
-
-                ViewFilter filter = new ViewFilter(StaticOrInstance.INSTANCE, "");
-                if (!filter.accept(m))
-                    continue;
-
-                ObjectBenchInterface ob = WorldHandler.getInstance().getObjectBench();
-                GreenfootFrame frame = GreenfootMain.getInstance().getFrame();
-                InspectorManager inspectorManager = frame.getInspectorManager();
-                
-                WorldInvokeListener invocListener = new WorldInvokeListener(frame, realClass, ob,
-                        inspectorManager, interactionListener, project);
-
-                String prefix = "new ";
-                Action callAction = new ConstructAction(m, invocListener, prefix + m.getLongDesc());
-                actions.add(callAction);
-            }
-            catch (Exception e) {
-                Debug.reportError("Exception accessing methods: " + e);
-                e.printStackTrace();
-            }
-        }
-        return actions;
-    }
     
     /**
      * Create the popup menu for the given class
@@ -150,7 +111,7 @@ public abstract class ClassRole implements WorldListener
 
             // Constructors
             if (!java.lang.reflect.Modifier.isAbstract(realClass.getModifiers())) {
-                List<Action> constructorItems = createConstructorActions(realClass, project, interactionListener);
+                List<Action> constructorItems = new ArrayList<>();
 
                 boolean hasEntries = false;
                 for (Action callAction : constructorItems) {
@@ -171,14 +132,7 @@ public abstract class ClassRole implements WorldListener
 
             ObjectBenchInterface ob = WorldHandler.getInstance().getObjectBench();
             GreenfootFrame frame = GreenfootMain.getInstance().getFrame();
-            InspectorManager inspectorManager = frame.getInspectorManager();
             
-            WorldInvokeListener invocListener = new WorldInvokeListener(frame, realClass, ob,
-                    inspectorManager, interactionListener, project);
-            if (bluej.pkgmgr.target.role.ClassRole.createMenuItems(popupMenu, allMethods, filter, 0,
-                    allMethods.length, "", invocListener)) {
-                popupMenu.addSeparator();
-            }
         }
 
 
@@ -190,11 +144,6 @@ public abstract class ClassRole implements WorldListener
             }
 
             addPopupMenuItems(popupMenu, false);
-
-            if (classView.getRealClass() != null) {
-                popupMenu.add(createMenuItem(new InspectClassAction(new LocalClass(classView.getRealClass()), null,
-                        classBrowser.getFrame().getInspectorManager(), classBrowser.getFrame())));
-            }
 
             popupMenu.addSeparator();
             popupMenu.add(createMenuItem(new DuplicateClassAction(classView, classBrowser, interactionListener)));

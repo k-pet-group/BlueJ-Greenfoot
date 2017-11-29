@@ -105,3 +105,14 @@ communication of the new position is done via a shared memory command.
 
 The third aspect is stopping the drag.  This happens when the mouse is released on the server VM.
 This communication is also done via a shared memory command.
+
+setWorld
+--------
+
+When a new world is set, either by creating one in the interface, or by some user code calling
+Greenfoot.setWorld, the code reaches a special breakpoint in WorldHandler.worldChanged in the debug VM.
+This is seen by GreenfootDebugHandler on the server VM side, and the world reference is taken
+and passed to GreenfootRecorder, which needs to know it for spotting method calls on the world
+(as opposed to actors).
+
+(Shared memory can't be used here because we need the reference of the world object)
