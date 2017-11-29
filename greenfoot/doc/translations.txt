@@ -16,7 +16,9 @@ dutch			3.0.0            x             all Rev: 14946               Renske Smets
                                           labels+frames, Rev: 16028           Filip Declercq <filip_declercq@yahoo.com> (offered help translation)
 
 french          1.5.0            x    labels+dialog+frames, Rev: 14946      Pierre Lefebvre and Denis Bureau <D.Bureau@esiee.fr>
-german          3.0.0            x             all Rev: 14946               stefan mueller <stefan.mueller@hof-university.de>; Michael Kolling
+german          3.0.0            x             all Rev: 14946               Martin Schleyer sent updates after BJ 4.1.2 for BJ and
+                                                                             GF but not sure which en-labels they match
+                                                                            stefan mueller <stefan.mueller@hof-university.de>; Michael Kolling
                                                                              Matthias Taulien <mail@m-taulien.de> offered help translation
 
 greek           1.5.0            x    labels+dialog+frames, Rev: 14946      Elevtherios Chrysochoidis <it1370@uom.edu.gr>

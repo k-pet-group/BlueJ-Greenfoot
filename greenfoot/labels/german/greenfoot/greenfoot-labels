@@ -1,6 +1,7 @@
 # German Greenfoot interface labels. Not yet complete. (Translation: mik, Oct 2007)
 # Translation completet and corrected, matt, Oct 2010
 # Translation updated and corrected, smueller, Nov 2015
+# Translations updated and corrected, mschleyer, Nov 2017
 
 greenfoot.nyi=Noch nicht implementiert - Schade.
 greenfoot.preferences=Einstellungen...
@@ -15,6 +16,7 @@ greenfoot.launchFailed=Greenfoot konnte nicht gestartet werden. Hilfe unter http
 about.title=\u00DCber Greenfoot
 about.moreInfo=Mehr Informationen unter www.greenfoot.org
 
+
 # Greenfoot project version info
 project.version.none=Das ge\u00F6ffnete Szenario ist mit einer \u00E4lteren Greenfoot-Version erstellt worden. Es ist m\u00F6glich, dass Fehler auftreten, die von Hand korrigiert werden m\u00FCssen.
 project.version.notGreenfoot=Dies ist kein Greenfoot Szenario:
@@ -23,7 +25,7 @@ project.version.older.part1=Das ge\u00F6ffnete Szenario ist mit einer \u00E4lter
 # project version inserted here by Greenfoot
 project.version.older.part2=). Das Szenario wird an die aktuelle Version angepa\u00DFt werden (API-Version
 # api version inserted here by Greenfoot
-project.version.older.part3=). Die folgenden \u00c4nderungen am Greenfoot API k\u00f6nnen das Scenario abbrechen:
+project.version.older.part3=). Die folgenden \u00c4nderungen am Greenfoot API k\u00f6nnen das Szenario abbrechen:
 
 project.version.changes.1=2.1.0 Die Methoden 'stopSimulation', 'startSimulation' und 'setSimulationSpeed' aus der Greenfoot Klasse wurden  in 'start', 'stop' und 'setSpeed' umbenannt.
 project.version.changes.2=2.1.0 Die Actor-Methoden 'getWidth' und 'getHeight' wurden entfernt. Benutzen Sie statt dessen 'getImage().getWidth()' und 'getImage().getHeight()'.
@@ -39,10 +41,11 @@ project.version.changes.11=2.5.0 Die 'isTouching' und 'removeTouching' Methoden 
 project.version.changes.12=2.6.0 Die 'showText' Methode wurde in der World erg\u00e4nzt und ein neuer Konstruktor wurde zu GreenfootImage hinzugef\u00fcgt.
 project.version.changes.13=2.7.0 Die 'ask' Methode wurde zur Greenfoot Klasse hinzugef\u00fcgt.
 project.version.changes.14=2.8.0 Die 'getWorldOfType' Methode wurde in der Actor Klasse erg\u00e4nzt und 'generics' wurden zum API hinzugef\u00fcgt.
+project.version.changes.15=3.0.0 Die greenfoot.Color und greenfoot.Font Klassen wurden erg\u00e4nzt, um die java.awt Klassen zu ersetzen.
 
 project.version.newer.part1=Das ge\u00F6ffnete Szenario wurde unter Verwendung einer neueren Greenfoot-Version erstellt (API-Version
 # project version inserted here by Greenfoot
-project.version.newer.part2=). Das \u00d6ffnen des Scenarios in Ihrer aktuellen Greenfoot-Version kann zu einigen Fehlern f\u00fchren, die von Ihnen von Hand angepasst werden m\u00fcssen.\n\nM\u00F6chten Sie das Szenario trotzdem \u00F6ffnen?
+project.version.newer.part2=). Das \u00d6ffnen des Szenarios in Ihrer aktuellen Greenfoot-Version kann zu einigen Fehlern f\u00fchren, die von Ihnen von Hand angepasst werden m\u00fcssen.\n\nM\u00F6chten Sie das Szenario trotzdem \u00F6ffnen?
 
 project.close=Schlie\u00DFen
 
@@ -88,7 +91,7 @@ convert.to.java.confirm.text2=Klasse von Stride nach Java.
 convert.to.java.confirm.text3=Diese Operation kann nicht r\u00fcckg\u00e4ngig gemacht werden, trotzdem fortfahren?
 
 # Save As project dialog
-project.saveAs.title=Speichere das Scenario als
+project.saveAs.title=Speichere das Szenario als
 
 # Export scenario dialog
 export.project=Teilen...
@@ -102,7 +105,7 @@ export.publish.fail=Fehler beim Publizieren:
 export.publish.unknownHost=Fehler beim Publizieren: Unbekannter 'Host'-Rechner
 export.publish.errorResponse=Server antwortet nicht.
 export.publish.errorPassword=Falscher Benutzername oder falsches Kennwort
-export.publish.errorTooLarge=Das Scenario ist zu gro\u00df
+export.publish.errorTooLarge=Das Szenario ist zu gro\u00df
 export.publish.complete=Publizieren beendet.
 export.publish.proxyAuth=Proxy-Server Authentifizierung
 export.publish.needProxyAuth=Proxy-Server Authentifizierung erforderlich.
@@ -119,7 +122,7 @@ export.dialog.update=Aktualisieren
 export.lock.label=Szenario einfrieren
 export.controls.label=Steuerelemente ausblenden
 export.fullScreen.label=Vollbild
-export.fullScreen.description=Scenario im Vollbildmodus \u00f6ffnen
+export.fullScreen.description=Szenario im Vollbildmodus \u00f6ffnen
 export.controls.description=Ausblenden der Anzeigeleiste, die die Play/Pause und Reset Steuerkn\u00f6pfe enth\u00e4lt.
 export.snapshot.label=Bildschirmfoto beibehalten:
 export.lock.description=Verhindert die \u00E4nderung der Geschwindigkeit, Bet\u00e4tigung des 'ACT'-Steuerknopfes und eine Verlagerung des Actors im Pausenzustand.
