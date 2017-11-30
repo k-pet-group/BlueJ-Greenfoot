@@ -356,14 +356,10 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             frame.openProject(project);
             return;
         }
-        
-        // Used for some imports:
-        boolean autoIndentAllFiles = false;
 
         if (!projectDirFile.isDirectory() && !Project.isProject(projectDirFile.toString())) {
             if (projectDirFile.getName().endsWith(".sb")) {
                 projectDirFile = ScratchImport.convert(projectDirFile);
-                autoIndentAllFiles = true;
             }
             else {
                 projectDirFile = Utility.maybeExtractArchive(projectDirFile, null);
@@ -379,35 +375,10 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             }
         }
                 
-        VersionCheckInfo versionStatus = GreenfootMain.updateApi(projectDirFile, frame, getAPIVersion().toString());
-        boolean doOpen = versionStatus.versionInfo != VersionInfo.VERSION_BAD;
-        if (doOpen) {
-            RProject proj = rBlueJ.openProject(projectDirFile);
-
-            if (autoIndentAllFiles || versionStatus.removeAWTImports) {
-                try {
-                    for (RPackage pkg : proj.getPackages()) {
-                        for (RClass cls : pkg.getRClasses()) {
-                            if (autoIndentAllFiles)
-                                cls.autoIndent();
-                            if (versionStatus.removeAWTImports)
-                            {
-                                cls.removeImports(Arrays.asList("java.awt.Color", "java.awt.Font"));
-                            }
-                        }
-                    }
-                    proj.getPackage("").compileAll();
-                // If there any problems, never mind about it:
-                }
-                catch(ProjectNotOpenException e) { }
-                catch (PackageNotFoundException e) { }
-                catch (CompilationNotStartedException e) { }
-            }
-
-            // if this is the dummy startup project and there is a valid project to open, close it now
-            if (proj != null && frame.getProject() == null) {
-                project.close();
-            }
+        RProject proj = rBlueJ.openProject(projectDirFile);
+        // if this is the dummy startup project and there is a valid project to open, close it now
+        if (proj != null && frame.getProject() == null) {
+            project.close();
         }
     }
 

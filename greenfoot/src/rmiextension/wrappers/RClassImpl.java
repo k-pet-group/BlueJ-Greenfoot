@@ -292,18 +292,6 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     }
 
     @Override
-    public void autoIndent() throws ProjectNotOpenException, PackageNotFoundException
-    {
-        final Editor e = bClass.getEditor();
-        EventQueue.invokeLater(() -> {
-            MoeEditor bje = (MoeEditor) EditorBridge.getEditor(e);
-            MoeSyntaxDocument doc = bje.getSourceDocument();
-            
-            MoeIndent.calculateIndentsAndApply(doc,0);
-        });
-    }
-
-    @Override
     public void cancelFreshState() throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
         Platform.runLater(() ->
@@ -326,19 +314,5 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
                 editor.cancelFreshState();
             }
         });
-    }
-
-    @Override
-    public void removeImports(List<String> importTargets) throws ProjectNotOpenException, PackageNotFoundException, RemoteException
-    {
-        final Editor bClassEditor = bClass.getEditor();
-        if (bClassEditor != null)
-        {
-            EventQueue.invokeLater(() ->
-            {
-                bluej.editor.Editor ed = EditorBridge.getEditor(bClassEditor);
-                ed.removeImports(importTargets);
-            });
-        }
     }
 }
