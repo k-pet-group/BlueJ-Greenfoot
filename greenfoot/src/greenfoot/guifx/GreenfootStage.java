@@ -141,6 +141,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     private final ClassDiagram classDiagram;
 
     // Details for pick requests that we have sent to the debug VM:
+    private static enum PickType
+    {
+        CONTEXT_MENU, DRAG;
+    }
 
     // The next free pick ID that we will use
     private int nextPickId = 1;
@@ -149,7 +153,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     // The point at which the most recent pick happened.
     private Point2D curPickPoint;
     // If true, most recent pick was for right-click menu.  If false, was for a left-click drag.
-    private boolean curPickIsRightClick;
+    private PickType curPickType;
     // The current drag request ID, or -1 if not currently dragging:
     private int curDragRequest;
 
@@ -399,8 +403,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
             {
                 if (e.getButton() == MouseButton.SECONDARY && !isRunning)
                 {
-
-                    pickRequest(e.getX(), e.getY(), true);
+                    pickRequest(e.getX(), e.getY(), PickType.CONTEXT_MENU);
                 }
                 eventType = MOUSE_CLICKED;
             }
@@ -437,7 +440,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                 if (e.getEventType() == MouseEvent.DRAG_DETECTED)
                 {
                     // Begin a drag:
-                    pickRequest(e.getX(), e.getY(), false);
+                    pickRequest(e.getX(), e.getY(), PickType.DRAG);
                 }
                 return;
             }
@@ -524,18 +527,18 @@ public class GreenfootStage extends Stage implements BlueJEventListener
 
     /**
      * Performs a pick request on the debug VM at given coordinates.
-     * If rightClick is false, was the beginning of a left-click drag.
      */
-    private void pickRequest(double x, double y, boolean rightClick)
+    private void pickRequest(double x, double y, PickType pickType)
     {
-        curPickIsRightClick = rightClick;
+        curPickType = pickType;
         // Bit hacky to pass positions as strings, but mirroring the values as integers
         // would have taken a lot of code changes to route through to VMReference:
         DebuggerObject xObject = project.getDebugger().getMirror("" + (int) x);
         DebuggerObject yObject = project.getDebugger().getMirror("" + (int) y);
         int thisPickId = nextPickId++;
         DebuggerObject pickIdObject = project.getDebugger().getMirror("" + thisPickId);
-        DebuggerObject requestTypeObject = project.getDebugger().getMirror(rightClick ? "" : "drag");
+        String requestTypeString = pickType == PickType.DRAG ? "drag" : "";
+        DebuggerObject requestTypeObject = project.getDebugger().getMirror(requestTypeString);
         // One pick at a time only:
         curPickRequest = thisPickId;
         curPickPoint = new Point2D(x, y);
@@ -558,7 +561,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
             return; // Pick has been cancelled by a more recent pick, so ignore
         }
 
-        if (curPickIsRightClick)
+        if (curPickType == PickType.CONTEXT_MENU)
         {
             // If single actor, show simple context menu:
             if (!actors.isEmpty())
