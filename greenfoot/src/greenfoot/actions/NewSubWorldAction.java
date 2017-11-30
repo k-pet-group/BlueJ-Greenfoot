@@ -23,7 +23,6 @@ package greenfoot.actions;
 
 import bluej.extensions.SourceType;
 import greenfoot.gui.GreenfootFrame;
-import greenfoot.record.InteractionListener;
 
 import java.awt.event.ActionEvent;
 
@@ -48,13 +47,12 @@ public class NewSubWorldAction extends NewSubclassAction
      *            The listener to be notified of interactions (instance creation, method calls)
      *            which occur on the new class.
      */
-    public NewSubWorldAction(GreenfootFrame gfFrame, boolean wizard, SourceType sourceType, InteractionListener interactionListener)
+    public NewSubWorldAction(GreenfootFrame gfFrame, boolean wizard, SourceType sourceType)
     {
         super();
         this.gfFrame = gfFrame;
         this.wizard = wizard;
         this.sourceType = sourceType;
-        this.interactionListener = interactionListener;
     }
     
     @Override

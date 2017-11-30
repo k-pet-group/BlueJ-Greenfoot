@@ -25,7 +25,6 @@ import greenfoot.actions.SelectImageAction;
 import greenfoot.actions.ShowApiDocAction;
 import greenfoot.core.GProject;
 import greenfoot.event.WorldEvent;
-import greenfoot.record.InteractionListener;
 
 import java.awt.Color;
 import java.util.ArrayList;

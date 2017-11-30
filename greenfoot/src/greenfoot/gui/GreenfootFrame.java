@@ -714,13 +714,13 @@ public class GreenfootFrame extends JFrame
                 GClass[] classes = pkg.getClasses(false);
                 //add the system classes
                 classBrowser.quickAddClass(new ClassView(classBrowser,
-                        new GCoreClass(World.class, project), worldHandlerDelegate));
+                        new GCoreClass(World.class, project)));
                 classBrowser.quickAddClass(new ClassView(classBrowser,
-                        new GCoreClass(Actor.class, project), worldHandlerDelegate));
+                        new GCoreClass(Actor.class, project)));
 
                 for (int i = 0; i < classes.length; i++) {
                     GClass gClass = classes[i];
-                    classBrowser.quickAddClass(new ClassView(classBrowser, gClass, worldHandlerDelegate));
+                    classBrowser.quickAddClass(new ClassView(classBrowser, gClass));
                 }
 
                 classBrowser.updateLayout();
@@ -734,7 +734,7 @@ public class GreenfootFrame extends JFrame
 
     private void setupActions()
     {
-        newClassAction = new NewClassAction(this, worldHandlerDelegate);
+        newClassAction = new NewClassAction(this);
         saveProjectAction = new SaveProjectAction(this);
         saveAsAction = new SaveAsAction(this, rBlueJ);
         showReadMeAction = new ShowReadMeAction(this);
@@ -742,7 +742,7 @@ public class GreenfootFrame extends JFrame
         setPlayerAction = new SetPlayerAction(this);
         exportProjectAction = new ExportProjectAction(this, false);
         shareAction = new ExportProjectAction(this, true);
-        importClassAction = new ImportClassAction(this, worldHandlerDelegate);
+        importClassAction = new ImportClassAction(this);
         closeProjectAction = new CloseProjectAction(this);
         removeSelectedClassAction = new RemoveSelectedClassAction(this);
         convertToJavaSelectedClassAction = new ConvertToJavaSelectedClassAction(this);

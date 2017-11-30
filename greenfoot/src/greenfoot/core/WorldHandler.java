@@ -74,7 +74,7 @@ import bluej.debugmgr.objectbench.ObjectBenchInterface;
  * @author Poul Henriksen
  */
 public class WorldHandler
-    implements TriggeredMouseListener, TriggeredMouseMotionListener, TriggeredKeyListener, DropTarget, DragListener, SimulationListener
+    implements TriggeredKeyListener, DropTarget, DragListener, SimulationListener
 {
     /** A flag to check whether a world has been set. Can be tested/cleared by callers. */
     private boolean worldIsSet;
@@ -160,27 +160,12 @@ public class WorldHandler
             }
 
             @Override
-            public void mouseClicked(MouseEvent e)
-            {
-            }
-            
-            @Override
-            public void mouseMoved(MouseEvent e)
-            {
-            }
-
-            @Override
             public void setWorld(World oldWorld, World newWorld)
             {
             }
 
             @Override
             public void setWorldHandler(WorldHandler handler)
-            {
-            }
-
-            @Override
-            public void actorDragged(Actor actor, int xCell, int yCell)
             {
             }
             
@@ -244,19 +229,6 @@ public class WorldHandler
     public MousePollingManager getMouseManager()
     {
         return mousePollingManager;
-    }
-
-    /*
-     * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
-     */
-    public void mouseClicked(MouseEvent e)
-    {
-        handlerDelegate.mouseClicked(e);
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e)
-    {
     }
 
     /**
@@ -729,7 +701,6 @@ public class WorldHandler
                             ActorVisitor.setLocationInPixels(actor, dragBeginX, dragBeginY);
                             x = WorldVisitor.toCellFloor(getWorld(), dragBeginX);
                             y = WorldVisitor.toCellFloor(getWorld(), dragBeginY);
-                            handlerDelegate.actorDragged(actor, x, y);
                             writeLock.unlock();
                             
                             dragActorMoved = false; // Pinged back to where it was
@@ -912,7 +883,6 @@ public class WorldHandler
                         // will be as if the drag never happened:
                         ActorVisitor.setLocationInPixels(dragActor, dragBeginX, dragBeginY);
                         dragActor.setLocation(ax, ay);
-                        handlerDelegate.actorDragged(dragActor, ax, ay);
                     }
                 });
             }
@@ -946,17 +916,6 @@ public class WorldHandler
     public InputManager getInputManager()
     {
         return inputManager;
-    }
-
-    @Override
-    public void mouseDragged(MouseEvent e)
-    {
-    }
-
-    @Override
-    public void mouseMoved(MouseEvent e)
-    {
-        handlerDelegate.mouseMoved(e);
     }
 
     /**

@@ -26,7 +26,6 @@ import greenfoot.core.GProject;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassButton;
 import greenfoot.gui.classbrowser.ClassView;
-import greenfoot.record.InteractionListener;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.BorderLayout;
@@ -93,12 +92,10 @@ public class ImportClassWindow extends JFrame
     private JLabel classPicture;
     private JLabel classLabel;
     private GreenfootFrame gfFrame;
-    private InteractionListener interactionListener;
 
-    public ImportClassWindow(GreenfootFrame gfFrame, InteractionListener interactionListener)
+    public ImportClassWindow(GreenfootFrame gfFrame)
     {
         this.gfFrame = gfFrame;
-        this.interactionListener = interactionListener;
         buttonGroup = new ButtonGroup();
         buildUI();
     }
@@ -521,7 +518,7 @@ public class ImportClassWindow extends JFrame
             }
             
             //Finally, update the class browser:
-            classBrowser.addClass(new ClassView(classBrowser, gclass, interactionListener));
+            classBrowser.addClass(new ClassView(classBrowser, gclass));
             classBrowser.updateLayout();
         
             if (librariesImportedFlag) {

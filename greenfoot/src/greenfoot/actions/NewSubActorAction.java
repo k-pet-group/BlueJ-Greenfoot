@@ -22,7 +22,6 @@
 package greenfoot.actions;
 
 import greenfoot.gui.GreenfootFrame;
-import greenfoot.record.InteractionListener;
 
 import java.awt.event.ActionEvent;
 
@@ -46,12 +45,11 @@ public class NewSubActorAction extends NewSubclassAction
      *            The listener to be notified of interactions (instance creation, method calls)
      *            which occur on the new class.
      */
-    public NewSubActorAction(GreenfootFrame gfFrame, boolean wizard, InteractionListener interactionListener)
+    public NewSubActorAction(GreenfootFrame gfFrame, boolean wizard)
     {
         super();
         this.gfFrame = gfFrame;
         this.wizard = wizard;
-        this.interactionListener = interactionListener;
     }
     
     

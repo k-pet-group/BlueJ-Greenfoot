@@ -38,7 +38,6 @@ import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.input.InputManager;
 import greenfoot.platforms.WorldHandlerDelegate;
 import greenfoot.record.GreenfootRecorder;
-import greenfoot.record.InteractionListener;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
@@ -79,7 +78,7 @@ import javafx.application.Platform;
  * @author Poul Henriksen
  */
 public class WorldHandlerDelegateIDE
-    implements WorldHandlerDelegate, ObjectBenchInterface, InteractionListener, SimulationUIListener
+    implements WorldHandlerDelegate, SimulationUIListener
 {
     protected final Color envOpColour = new Color(152,32,32);
 
@@ -143,83 +142,6 @@ public class WorldHandlerDelegateIDE
     }
     
     /**
-     * Fire an object event for the named object. This will
-     * notify all listeners that have registered interest for
-     * notification on this event type.
-     */
-    public void fireObjectEvent(Actor actor)
-    {
-        GNamedValue value =null;
-        try {
-            String instanceName = ObjectTracker.getRObjectName(actor);
-            if (instanceName != null) {
-                value =  new GNamedValue(instanceName, null);
-            }
-        }
-        catch (RemoteException e) {
-            Debug.reportError("Error when trying to get object instance name", e);
-        }
-        
-        if (value != null) {
-            // guaranteed to return a non-null array
-            Object[] listeners = worldHandler.getListenerList().getListenerList();
-            // process the listeners last to first, notifying
-            // those that are interested in this event
-            for (int i = listeners.length-2; i>=0; i-=2) { 
-                if (listeners[i] == ObjectBenchListener.class) {
-                    ((ObjectBenchListener)listeners[i+1]).objectEvent(
-                            new ObjectBenchEvent(this,
-                                    ObjectBenchEvent.OBJECT_SELECTED, value));
-                }
-            }
-        }
-    }
-    
-    @Override
-    public void addObjectBenchListener(ObjectBenchListener listener)
-    {
-        worldHandler.getListenerList().add(ObjectBenchListener.class, listener);
-    }
-    
-    @Override
-    public void removeObjectBenchListener(ObjectBenchListener listener)
-    {
-        worldHandler.getListenerList().remove(ObjectBenchListener.class, listener);
-    }
-    
-    @Override
-    public boolean hasObject(String name)
-    {
-        return false;
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e)
-    {
-        if (SwingUtilities.isLeftMouseButton(e)) {
-            Actor actor = worldHandler.getObject(e.getX(), e.getY());
-            if (actor != null) {
-                fireObjectEvent(actor);
-            }
-        }
-    }
-    
-    @Override
-    public void mouseMoved(MouseEvent e)
-    {
-        // While dragging, other methods set the mouse cursor instead:
-        if (!worldHandler.isDragging()) {
-            Actor actor = worldHandler.getObject(e.getX(), e.getY());
-            if (actor == null) {
-                worldHandler.getWorldCanvas().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            }
-            else {
-                worldHandler.getWorldCanvas().setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            }
-        }
-    }
-
-    /**
      * Attach to a particular project. This should be called whenever the project
      * changes.
      */
@@ -237,6 +159,7 @@ public class WorldHandlerDelegateIDE
     @Override
     public void initialisingWorld()
     {
+        worldInitialising = true;
         actorsToName.clear();
     }
 
@@ -372,36 +295,11 @@ public class WorldHandlerDelegateIDE
         DragGlassPane.getInstance().addMouseListener(inputManager);
         DragGlassPane.getInstance().addMouseMotionListener(inputManager);
         DragGlassPane.getInstance().addKeyListener(inputManager);        
-        inputManager.setIdleListeners(worldHandler, worldHandler, worldHandler);
+        inputManager.setIdleListeners(worldHandler, null, null);
         inputManager.setDragListeners(null, DragGlassPane.getInstance(), DragGlassPane.getInstance());
-        inputManager.setMoveListeners(worldHandler, worldHandler, worldHandler);
+        inputManager.setMoveListeners(worldHandler, null, null);
         
         return inputManager;
-    }
-    
-    @Override
-    public void beginCallExecution(CallableView callableView)
-    {
-        if (callableView.isConstructor() && World.class.isAssignableFrom(callableView.getDeclaringView().getViewClass())) {
-            worldInitialising = true;
-            //greenfootRecorder.reset();
-            saveWorldAction.setRecordingValid(true);            
-        }
-    }
-    
-    @Override
-    public void worldConstructed(Object world)
-    {
-        worldInitialising = false;
-        if (project != null) {
-            project.setLastWorldClassName(world.getClass().getName());
-        }
-    }
-    
-    @Override
-    public void actorDragged(Actor actor, int xCell, int yCell)
-    {
-        greenfootRecorder.moveActor(actor, xCell, yCell);
     }
 
     @Override

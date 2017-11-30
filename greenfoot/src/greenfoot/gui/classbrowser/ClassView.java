@@ -34,7 +34,6 @@ import greenfoot.gui.classbrowser.role.NormalClassRole;
 import greenfoot.gui.classbrowser.role.WorldClassRole;
 import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
-import greenfoot.record.InteractionListener;
 
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -60,15 +59,13 @@ public class ClassView extends ClassButton
     private ClassRole role;
     ClassBrowser classBrowser;
     private String superclass; //Holds the current superclass. Used to determine wether the superclass has changed.
-    private InteractionListener interactionListener;
         
     /**
      * Creates a new ClassView with the role determined from gClass.
      */
-    public ClassView(ClassBrowser classBrowser, GClass gClass, InteractionListener interactionListener)
+    public ClassView(ClassBrowser classBrowser, GClass gClass)
     {
         this.classBrowser = classBrowser;
-        this.interactionListener = interactionListener;
         init(gClass);
     }    
     
@@ -163,7 +160,7 @@ public class ClassView extends ClassButton
 
     private JPopupMenu getPopupMenu()
     {
-        JPopupMenu popupMenu = role.createPopupMenu(classBrowser, this, interactionListener, isUncompiled(), hasKnownError());
+        JPopupMenu popupMenu = role.createPopupMenu(classBrowser, this, isUncompiled(), hasKnownError());
         popupMenu.setInvoker(this);
         return popupMenu;
     }

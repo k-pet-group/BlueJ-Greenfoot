@@ -40,7 +40,6 @@ import greenfoot.event.WorldListener;
 import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
-import greenfoot.record.InteractionListener;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -92,7 +91,7 @@ public abstract class ClassRole implements WorldListener
      * Create the popup menu for the given class
      */
     public JPopupMenu createPopupMenu(ClassBrowser classBrowser, ClassView classView,
-            InteractionListener interactionListener, boolean isUncompiled, boolean hasKnownError)
+            boolean isUncompiled, boolean hasKnownError)
     {
         GClass gClass = classView.getGClass();
         JPopupMenu popupMenu = new JPopupMenu();
@@ -146,7 +145,7 @@ public abstract class ClassRole implements WorldListener
             addPopupMenuItems(popupMenu, false);
 
             popupMenu.addSeparator();
-            popupMenu.add(createMenuItem(new DuplicateClassAction(classView, classBrowser, interactionListener)));
+            popupMenu.add(createMenuItem(new DuplicateClassAction(classView, classBrowser)));
             
             if (srcType != null)
             {
@@ -165,14 +164,14 @@ public abstract class ClassRole implements WorldListener
         
         NewSubclassAction action;
         if (gClass.isActorClass()) {
-            action = new NewSubActorAction(classBrowser.getFrame(), false, interactionListener);
+            action = new NewSubActorAction(classBrowser.getFrame(), false);
         }
         else if (gClass.isWorldClass()) {
             // The sourceType is null as it will be decided internally based on the other files in the scenario.
-            action = new NewSubWorldAction(classBrowser.getFrame(), false, null, interactionListener);
+            action = new NewSubWorldAction(classBrowser.getFrame(), false, null);
         }
         else {
-            action = new NewSubclassAction(classView, classBrowser, interactionListener);
+            action = new NewSubclassAction(classView, classBrowser);
         }
         popupMenu.add(createMenuItem(action));
 
