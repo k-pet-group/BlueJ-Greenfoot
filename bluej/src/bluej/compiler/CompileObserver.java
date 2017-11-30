@@ -21,6 +21,9 @@
  */
 package bluej.compiler;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.io.File;
 
 /**
@@ -35,15 +38,18 @@ public interface CompileObserver
     /**
      * A compilation job has started.
      */
+    @OnThread(Tag.Any)
     void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type, int compilationSequence);
     
     /**
      * An error or warning message occurred during compilation
      */
+    @OnThread(Tag.Any)
     void compilerMessage(Diagnostic diagnostic, CompileType type);
     
     /**
      * A Compilation job finished.
      */
+    @OnThread(Tag.Any)
     void endCompile(CompileInputFile[] sources, boolean succesful, CompileType type, int compilationSequence);
 }

@@ -1295,7 +1295,7 @@ public final class Package
      *                  methods may not be called if the compilation is aborted
      *                  (sources cannot be saved etc).
      */
-    public void compile(CompileObserver compObserver, CompileReason reason, CompileType type)
+    public void compile(FXCompileObserver compObserver, CompileReason reason, CompileType type)
     {
         Set<ClassTarget> toCompile = new HashSet<ClassTarget>();
 
@@ -1356,23 +1356,30 @@ public final class Package
     {
         if (! currentlyCompiling) { 
             currentlyCompiling = true;
-            compile(new CompileObserver() {
-                    @Override
-                    public void compilerMessage(Diagnostic diagnostic, CompileType type) {  }
-                    @Override
-                    public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type, int compilationSequence) { }
-                    @Override
-                    public void endCompile(CompileInputFile[] sources, boolean succesful, CompileType type2, int compilationSequence)
-                    {
-                        // This will be called on the Swing thread.
-                        currentlyCompiling = false;
-                        if (queuedCompile) {
-                            queuedCompile = false;
-                            compile(queuedReason, type);
-                            queuedReason = null;
-                        }
+            compile(new FXCompileObserver() {
+                // The return of this method will be ignored,
+                // as PackageCompileObserver which chains to us, ignores it
+                @Override
+                @OnThread(Tag.FXPlatform)
+                public boolean compilerMessage(Diagnostic diagnostic, CompileType type) { return false; }
+                
+                @Override
+                @OnThread(Tag.FXPlatform)
+                public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type, int compilationSequence) { }
+                
+                @Override
+                @OnThread(Tag.FXPlatform)
+                public void endCompile(CompileInputFile[] sources, boolean succesful, CompileType type2, int compilationSequence)
+                {
+                    // This will be called on the Swing thread.
+                    currentlyCompiling = false;
+                    if (queuedCompile) {
+                        queuedCompile = false;
+                        compile(queuedReason, type);
+                        queuedReason = null;
                     }
-                }, reason, type);
+                }
+            }, reason, type);
         }
         else {
             queuedCompile = true;
@@ -1391,7 +1398,7 @@ public final class Package
     /**
      * Compile a single class.
      */
-    public void compile(ClassTarget ct, boolean forceQuiet, CompileObserver compObserver, CompileReason reason, CompileType type)
+    public void compile(ClassTarget ct, boolean forceQuiet, FXCompileObserver compObserver, CompileReason reason, CompileType type)
     {
         if (!checkCompile()) {
             return;
@@ -2487,13 +2494,13 @@ public final class Package
     private class QuietPackageCompileObserver
         implements FXCompileObserver
     {
-        protected CompileObserver chainObserver;
+        protected FXCompileObserver chainObserver;
         
         /**
          * Construct a new QuietPackageCompileObserver. The chained observer (if
          * specified) is notified when the compilation ends.
          */
-        public QuietPackageCompileObserver(CompileObserver chainObserver)
+        public QuietPackageCompileObserver(FXCompileObserver chainObserver)
         {
             this.chainObserver = chainObserver;
         }
@@ -2792,7 +2799,7 @@ public final class Package
          * Construct a new PackageCompileObserver. The chained observer (if specified)
          * is notified when the compilation ends.
          */
-        public PackageCompileObserver(CompileObserver chainObserver)
+        public PackageCompileObserver(FXCompileObserver chainObserver)
         {
             super(chainObserver);
         }

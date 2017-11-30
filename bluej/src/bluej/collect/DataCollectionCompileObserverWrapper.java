@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Set;
 
 import bluej.compiler.CompileInputFile;
-import bluej.compiler.CompileObserver;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.compiler.Diagnostic;
@@ -37,7 +36,7 @@ import bluej.extensions.SourceType;
 import bluej.pkgmgr.Project;
 
 /**
- * A wrapper for a {@link CompileObserver} that also logs the
+ * A wrapper for a {@link FXCompileObserver} that also logs the
  * error messages to the data collector.
  * 
  * @author Neil Brown
