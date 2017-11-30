@@ -38,13 +38,12 @@ import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.elements.VarElement;
-import rmiextension.GreenfootDebugHandler.WorldListener;
 
 /**
  * Builder for code sequences representing a recording of what the user has
  * done interactively to the world.
  */
-public class GreenfootRecorder implements WorldListener
+public class GreenfootRecorder
 {
     /** A map of known objects to their name as it appears in the code */
     private final HashMap<DebuggerObject, String> objectNames;
@@ -85,11 +84,9 @@ public class GreenfootRecorder implements WorldListener
      * Called when the prepare method is replayed to indicate that the actor's name should be recorded.
      * Returns the name assigned to the actor (or null on failure).
      * 
-     * <p>This is called from the simulation thread (with the world locked), or from the createActor method
-     * above, which is called from the Swing EDT.
+     * This is called from the debugger thread.
      */
-
-    public synchronized String nameActor(DebuggerObject actor)
+    private synchronized String nameActor(DebuggerObject actor)
     {
         if (objectNames.containsKey(actor))
             return objectNames.get(actor);
@@ -109,9 +106,15 @@ public class GreenfootRecorder implements WorldListener
         }
     }
 
-    private synchronized void nameActors(List<DebuggerObject> actors)
+    /**
+     * Names all the actors in the list, in order (first to last)
+     */
+    public synchronized void nameActors(List<DebuggerObject> actors)
     {
-        actors.forEach(this::nameActor);
+        for (DebuggerObject actor : actors)
+        {
+            nameActor(actor);
+        }
     }
     
     /**
@@ -212,32 +215,22 @@ public class GreenfootRecorder implements WorldListener
     /**
      * Notify the recorder that it should clear its recording.
      * 
-     * @param simulationStarted  Whether the simulation is now running.
+     * @param clearObjectNames Whether to clear the object names
      */
-    public synchronized void clearCode(boolean simulationStarted)
+    public synchronized void clearCode(boolean clearObjectNames)
     {
         code.clear();
-        if (simulationStarted) {
+        if (clearObjectNames)
+        {
             objectNames.clear();
         }
     }
 
     /**
-     * Notify the recorder that a new world is being initialised. This is currently called from the
-     * simulation thread (with the current world locked).
-     */
-    public synchronized void reset()
-    {
-        objectNames.clear();
-        clearCode(false);
-    }
-    
-    /**
      * Notify the recorder that a new world has become the current world.
      */
     public synchronized void setWorld(DebuggerObject newWorld)
     {
-        reset();
         world = newWorld;
         lastWorldClass = newWorld.getClassName();
     }

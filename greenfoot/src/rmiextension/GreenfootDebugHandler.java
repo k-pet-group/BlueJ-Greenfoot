@@ -21,7 +21,7 @@
  */
 package rmiextension;
 
-import bluej.utility.javafx.FXPlatformBiConsumer;
+import bluej.debugger.VarDisplayInfo;
 import greenfoot.actions.ResetWorldAction;
 import greenfoot.core.PickActorHelper;
 import greenfoot.core.Simulation;
@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Map;
 
 import greenfoot.core.WorldHandler;
+import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
+import greenfoot.record.GreenfootRecorder;
 import javafx.application.Platform;
 import rmiextension.wrappers.RProjectImpl;
 import rmiextension.wrappers.WrapperPool;
@@ -86,6 +88,10 @@ public class GreenfootDebugHandler implements DebuggerListener
 
     private static final String WORLD_HANDLER_CLASS = WorldHandler.class.getName();
     private static final String WORLD_CHANGED_KEY = "WORLD_CHANGED";
+    private static final String WORLD_INITIALISING_KEY = "WORLD_INITIALISING";
+
+    private static final String NAME_ACTOR_CLASS = WorldHandlerDelegateIDE.class.getName();
+    private static final String NAME_ACTOR_KEY = "NAME_ACTOR";
 
     private static final String PICK_HELPER_CLASS = PickActorHelper.class.getName();
     private static final String PICK_HELPER_KEY = "PICK_HELPER_PICKED";
@@ -94,7 +100,7 @@ public class GreenfootDebugHandler implements DebuggerListener
     private BProject project;
     private DebuggerThread simulationThread;
     private DebuggerClass simulationClass;
-    private WorldListener worldListener;
+    private GreenfootRecorder greenfootRecorder;
 
     private GreenfootDebugHandler(BProject project)
     {
@@ -151,10 +157,21 @@ public class GreenfootDebugHandler implements DebuggerListener
             resetBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
             debugger.toggleBreakpoint(RESET_CLASS, RESET_METHOD, true, resetBreakpointProperties);
 
+            Map<String, String> worldInitialisingBreakpointProperties = new HashMap<>();
+            worldInitialisingBreakpointProperties.put(WORLD_INITIALISING_KEY, "TRUE");
+            worldInitialisingBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
+            debugger.toggleBreakpoint(WORLD_HANDLER_CLASS, "setInitialisingWorld", true, worldInitialisingBreakpointProperties);
+
             Map<String, String> worldChangedBreakpointProperties = new HashMap<>();
             worldChangedBreakpointProperties.put(WORLD_CHANGED_KEY, "TRUE");
             worldChangedBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
             debugger.toggleBreakpoint(WORLD_HANDLER_CLASS, "worldChanged", true, worldChangedBreakpointProperties);
+            
+
+            Map<String, String> nameActorBreakpointProperties = new HashMap<>();
+            nameActorBreakpointProperties.put(NAME_ACTOR_KEY, "TRUE");
+            nameActorBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
+            debugger.toggleBreakpoint(NAME_ACTOR_CLASS, "nameActors", true, nameActorBreakpointProperties);
 
             Map<String, String> pickHelperBreakpointProperties = new HashMap<>();
             pickHelperBreakpointProperties.put(PICK_HELPER_KEY, "TRUE");
@@ -204,6 +221,23 @@ public class GreenfootDebugHandler implements DebuggerListener
         }
         else if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT
                 && e.getThread() != null &&
+                atNameActorBreakpoint(e.getBreakpointProperties()))
+        {
+            VarDisplayInfo varDisplayInfo = e.getThread().getLocalVariables(0).get(0);
+            greenfootRecorder.nameActors(fetchArray(varDisplayInfo.getFetchObject().get()));
+            e.getThread().cont();
+            return true;
+        }
+        else if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT
+                && e.getThread() != null &&
+                atWorldInitalisingBreakpoint(e.getBreakpointProperties()))
+        {
+            greenfootRecorder.clearCode(true);
+            e.getThread().cont();
+            return true;
+        }
+        else if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT
+                && e.getThread() != null &&
                 atWorldChangedBreakpoint(e.getBreakpointProperties()))
         {
             List<DebuggerField> fields = e.getThread().getCurrentObject(0).getFields();
@@ -211,9 +245,9 @@ public class GreenfootDebugHandler implements DebuggerListener
             if (worldField != null)
             {
                 DebuggerObject worldValue = worldField.getValueObject(null);
-                if (worldListener != null)
+                if (greenfootRecorder != null)
                 {
-                    worldListener.setWorld(worldValue);
+                    greenfootRecorder.setWorld(worldValue);
                 }
             }
             e.getThread().cont();
@@ -236,11 +270,7 @@ public class GreenfootDebugHandler implements DebuggerListener
                 // Should always be true, but check in case:
                 if (actorPicksValue != null && actorPicksValue.isArray() && worldPickValue != null)
                 {
-                    List<DebuggerObject> picksElements = new ArrayList<>(actorPicksValue.getElementCount());
-                    for (int i = 0; i < actorPicksValue.getElementCount(); i++)
-                    {
-                        picksElements.add(actorPicksValue.getElementObject(i));
-                    }
+                    List<DebuggerObject> picksElements = fetchArray(actorPicksValue);
                     Platform.runLater(() -> {
                         if (pickListener != null)
                         {
@@ -312,7 +342,23 @@ public class GreenfootDebugHandler implements DebuggerListener
 
         return false;
     }
-    
+
+    /**
+     * Fetches all the objects in a debug VM array into
+     * a server VM list of debug objects (the array elements).
+     * @param arrayValue
+     * @return
+     */
+    private List<DebuggerObject> fetchArray(DebuggerObject arrayValue)
+    {
+        List<DebuggerObject> elements = new ArrayList<>(arrayValue.getElementCount());
+        for (int i = 0; i < arrayValue.getElementCount(); i++)
+        {
+            elements.add(arrayValue.getElementObject(i));
+        }
+        return elements;
+    }
+
     /**
      * Processes a debugger event.  This is called after examineDebuggerEvent, with a second
      * parameter that effectively corresponds to the return result of examineDebuggerEvent.
@@ -408,6 +454,24 @@ public class GreenfootDebugHandler implements DebuggerListener
     }
 
     /**
+     * Are they at the nameActor() breakpoint in WorldHandlerDelegateIDE indicating a new
+     * world has been set?
+     */
+    private boolean atNameActorBreakpoint(BreakpointProperties props)
+    {
+        return props != null && props.get(NAME_ACTOR_KEY) != null;
+    }
+
+    /**
+     * Are they at the setInitialisingWorld() breakpoint in WorldHandler indicating a new
+     * world has been set?
+     */
+    private boolean atWorldInitalisingBreakpoint(BreakpointProperties props)
+    {
+        return props != null && props.get(WORLD_INITIALISING_KEY) != null;
+    }
+
+    /**
      * Are they at the worldChanged() breakpoint in WorldHandler indicating a new
      * world has been set?
      */
@@ -480,9 +544,9 @@ public class GreenfootDebugHandler implements DebuggerListener
         }
     }
 
-    public void setWorldListener(WorldListener worldListener)
+    public void setGreenfootRecorder(GreenfootRecorder greenfootRecorder)
     {
-        this.worldListener = worldListener;
+        this.greenfootRecorder = greenfootRecorder;
     }
 
     /**
@@ -593,10 +657,5 @@ public class GreenfootDebugHandler implements DebuggerListener
     {
         // World is only relevant if actors list is empty.
         public void picked(int pickId, List<DebuggerObject> actors, DebuggerObject world);
-    }
-
-    public static interface WorldListener
-    {
-        public void setWorld(DebuggerObject world);
     }
 }
