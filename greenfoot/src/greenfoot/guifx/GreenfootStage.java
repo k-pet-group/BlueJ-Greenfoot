@@ -146,7 +146,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     // Details for pick requests that we have sent to the debug VM:
     private static enum PickType
     {
-        CONTEXT_MENU, DRAG;
+        LEFT_CLICK, CONTEXT_MENU, DRAG;
     }
 
     // The next free pick ID that we will use
@@ -414,6 +414,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                 if (e.getButton() == MouseButton.PRIMARY)
                 {
                     hideContextMenu();
+                    if (!isRunning)
+                    {
+                        pickRequest(e.getX(), e.getY(), PickType.LEFT_CLICK);
+                    }
                 }
                 eventType = MOUSE_CLICKED;
             }
@@ -644,10 +648,20 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                 }
             }
         }
-        else if (!actors.isEmpty())
+        else if (curPickType == PickType.DRAG && !actors.isEmpty())
         {
             // Left-click drag, and there is an actor there, so begin drag:
             curDragRequest = pickId;
+        }
+        else if (curPickType == PickType.LEFT_CLICK && !actors.isEmpty())
+        {
+            DebuggerObject target = actors.get(0);
+            PkgMgrFrame pmf = PkgMgrFrame.findFrame(project.getUnnamedPackage());
+
+            // We must put the object on the bench so that it has a name and wrapper:
+            String objInstanceName = pmf.putObjectOnBench(target.getClassName().toLowerCase(), target, target.getGenType(), null, null);
+            // Then we can issue the event saying that it has been clicked:
+            pmf.getObjectBench().fireObjectSelectedEvent(pmf.getObjectBench().getObject(objInstanceName));
         }
 
     }
