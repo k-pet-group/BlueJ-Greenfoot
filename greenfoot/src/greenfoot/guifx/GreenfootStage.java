@@ -1,3 +1,24 @@
+/*
+ This file is part of the Greenfoot program. 
+ Copyright (C) 2017  Poul Henriksen and Michael Kolling 
+ 
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+ 
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+ 
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ 
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package greenfoot.guifx;
 
 import bluej.BlueJEvent;
@@ -38,6 +59,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
@@ -50,6 +72,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import rmiextension.GreenfootDebugHandler;
 
@@ -116,8 +139,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     private final ObjectProperty<NewActor> newActorProperty = new SimpleObjectProperty<>(null);
     private final BorderPane worldView;
     private final ClassDiagram classDiagram;
+    // The currently-showing context menu, or null if none
+    private ContextMenu contextMenu;
+
 
     // Details for pick requests that we have sent to the debug VM:
+    private static enum PickType
+    {
+        LEFT_CLICK, CONTEXT_MENU, DRAG;
+    }
 
     // The next free pick ID that we will use
     private int nextPickId = 1;
@@ -126,7 +156,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     // The point at which the most recent pick happened.
     private Point2D curPickPoint;
     // If true, most recent pick was for right-click menu.  If false, was for a left-click drag.
-    private boolean curPickIsRightClick;
+    private PickType curPickType;
     // The current drag request ID, or -1 if not currently dragging:
     private int curDragRequest;
 
@@ -152,7 +182,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener
             ImageView cannotDropIcon = new ImageView(this.getClass().getClassLoader().getResource("noParking.png").toExternalForm());
             cannotDropIcon.visibleProperty().bind(cannotDrop);
             StackPane.setAlignment(cannotDropIcon, Pos.TOP_RIGHT);
-            return new StackPane(imageView, cannotDropIcon);
+            StackPane stackPane = new StackPane(imageView, cannotDropIcon);
+            stackPane.setEffect(new DropShadow(10.0, 3.0, 3.0, Color.BLACK));
+            return stackPane;
         }
 
         public NewActor(ImageView imageView, ExecutionEvent creationEvent)
@@ -367,15 +399,25 @@ public class GreenfootStage extends Stage implements BlueJEventListener
             e.consume();
         });
 
+        boolean isRunning = false; // TODO actually have this state correctly in future.
+        worldView.setOnContextMenuRequested(e -> {
+            if (!isRunning)
+            {
+                pickRequest(e.getX(), e.getY(), PickType.CONTEXT_MENU);
+            }
+        });
         worldView.addEventFilter(MouseEvent.ANY, e -> {
-            boolean isRunning = false; // TODO actually have this state correctly in future.
+            
             int eventType;
             if (e.getEventType() == MouseEvent.MOUSE_CLICKED)
             {
-                if (e.getButton() == MouseButton.SECONDARY && !isRunning)
+                if (e.getButton() == MouseButton.PRIMARY)
                 {
-
-                    pickRequest(e.getX(), e.getY(), true);
+                    hideContextMenu();
+                    if (!isRunning)
+                    {
+                        pickRequest(e.getX(), e.getY(), PickType.LEFT_CLICK);
+                    }
                 }
                 eventType = MOUSE_CLICKED;
             }
@@ -412,7 +454,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                 if (e.getEventType() == MouseEvent.DRAG_DETECTED)
                 {
                     // Begin a drag:
-                    pickRequest(e.getX(), e.getY(), false);
+                    pickRequest(e.getX(), e.getY(), PickType.DRAG);
                 }
                 return;
             }
@@ -499,18 +541,18 @@ public class GreenfootStage extends Stage implements BlueJEventListener
 
     /**
      * Performs a pick request on the debug VM at given coordinates.
-     * If rightClick is false, was the beginning of a left-click drag.
      */
-    private void pickRequest(double x, double y, boolean rightClick)
+    private void pickRequest(double x, double y, PickType pickType)
     {
-        curPickIsRightClick = rightClick;
+        curPickType = pickType;
         // Bit hacky to pass positions as strings, but mirroring the values as integers
         // would have taken a lot of code changes to route through to VMReference:
         DebuggerObject xObject = project.getDebugger().getMirror("" + (int) x);
         DebuggerObject yObject = project.getDebugger().getMirror("" + (int) y);
         int thisPickId = nextPickId++;
         DebuggerObject pickIdObject = project.getDebugger().getMirror("" + thisPickId);
-        DebuggerObject requestTypeObject = project.getDebugger().getMirror(rightClick ? "" : "drag");
+        String requestTypeString = pickType == PickType.DRAG ? "drag" : "";
+        DebuggerObject requestTypeObject = project.getDebugger().getMirror(requestTypeString);
         // One pick at a time only:
         curPickRequest = thisPickId;
         curPickPoint = new Point2D(x, y);
@@ -533,7 +575,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
             return; // Pick has been cancelled by a more recent pick, so ignore
         }
 
-        if (curPickIsRightClick)
+        if (curPickType == PickType.CONTEXT_MENU)
         {
             // If single actor, show simple context menu:
             if (!actors.isEmpty())
@@ -566,7 +608,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                         actorMenus.add(menu);
                     }
                 }
-                ContextMenu contextMenu = new ContextMenu();
+                hideContextMenu();
+                contextMenu = new ContextMenu();
+                contextMenu.setOnHidden(e -> { contextMenu = null;});
                 if (actorMenus.size() == 1)
                 {
                     // No point showing higher-level menu with one item, collapse:
@@ -586,7 +630,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                 if (target instanceof ClassTarget)
                 {
                     ClassTarget classTarget = (ClassTarget) target;
-                    ContextMenu contextMenu = new ContextMenu();
+                    hideContextMenu();
+                    contextMenu = new ContextMenu();
+                    contextMenu.setOnHidden(e -> { contextMenu = null; });
                     ObjectWrapper.createMethodMenuItems(contextMenu.getItems(), project.loadClass(world.getClassName()), new RecordInvoke(world), "", true);
                     contextMenu.getItems().add(makeInspectMenuItem(world));
 
@@ -602,12 +648,34 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                 }
             }
         }
-        else if (!actors.isEmpty())
+        else if (curPickType == PickType.DRAG && !actors.isEmpty())
         {
             // Left-click drag, and there is an actor there, so begin drag:
             curDragRequest = pickId;
         }
+        else if (curPickType == PickType.LEFT_CLICK && !actors.isEmpty())
+        {
+            DebuggerObject target = actors.get(0);
+            PkgMgrFrame pmf = PkgMgrFrame.findFrame(project.getUnnamedPackage());
 
+            // We must put the object on the bench so that it has a name and wrapper:
+            String objInstanceName = pmf.putObjectOnBench(target.getClassName().toLowerCase(), target, target.getGenType(), null, null);
+            // Then we can issue the event saying that it has been clicked:
+            pmf.getObjectBench().fireObjectSelectedEvent(pmf.getObjectBench().getObject(objInstanceName));
+        }
+
+    }
+
+    /**
+     * Hide the context menu if one is currently showing on the world.
+     */
+    private void hideContextMenu()
+    {
+        if (contextMenu != null)
+        {
+            // The onHidden handler sets the contextMenu field back to null:
+            contextMenu.hide();
+        }
     }
 
     /**

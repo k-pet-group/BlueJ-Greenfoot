@@ -356,7 +356,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
      * notification on this event type.
      */
     @OnThread(Tag.FXPlatform)
-    public void fireObjectEvent(ObjectWrapper wrapper)
+    public void fireObjectSelectedEvent(ObjectWrapper wrapper)
     {
         synchronized (listenerList)
         {
