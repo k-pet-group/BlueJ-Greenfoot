@@ -42,6 +42,7 @@ import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.JavaReflective;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
@@ -60,6 +61,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
@@ -137,7 +139,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     private final Pane glassPane;
     // Details of the new actor while it is being placed (null otherwise):
     private final ObjectProperty<NewActor> newActorProperty = new SimpleObjectProperty<>(null);
-    private final BorderPane worldView;
+    private final WorldDisplay worldView;
     private final ClassDiagram classDiagram;
     // The currently-showing context menu, or null if none
     private ContextMenu contextMenu;
@@ -239,10 +241,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
         this.saveTheWorldRecorder = new GreenfootRecorder();
         greenfootDebugHandler.setGreenfootRecorder(saveTheWorldRecorder);
 
-        ImageView imageView = new ImageView();
-        worldView = new BorderPane(imageView);
-        worldView.setMinWidth(200);
-        worldView.setMinHeight(200);
+        worldView = new WorldDisplay();
         Button runButton = new Button("Run");
         Node buttonAndSpeedPanel = new HBox(runButton);
         List<Command> pendingCommands = new ArrayList<>();
@@ -257,7 +256,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
         setupMouseForPlacingNewActor(stackPane);
         setScene(new Scene(stackPane));
 
-        setupWorldDrawingAndEvents(sharedMemoryLock, sharedMemoryByte, imageView, pendingCommands);
+        setupWorldDrawingAndEvents(sharedMemoryLock, sharedMemoryByte, worldView::setImage, pendingCommands);
     }
 
     /**
@@ -350,9 +349,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener
      *
      * @param sharedMemoryLock The lock to use to lock the shared memory buffer before access.
      * @param sharedMemoryByte The shared memory buffer to read/write from/to
-     * @param imageView The ImageView to draw the remote-sent image to
+     * @param setImage The function to call to set the new image
+     * @param pendingCommands The list of pending commands to send to the debug VM
      */
-    private void setupWorldDrawingAndEvents(FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte, ImageView imageView, List<Command> pendingCommands)
+    private void setupWorldDrawingAndEvents(FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte, FXPlatformConsumer<Image> setImage, List<Command> pendingCommands)
     {
         IntBuffer sharedMemory = sharedMemoryByte.asIntBuffer();
 
@@ -496,7 +496,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                         {
                             pendingCommands.removeIf(c -> c.commandSequence <= lastAckCommand);
                         }
-                        imageView.setImage(img);
+                        setImage.accept(img);
                         sharedMemory.position(2);
                         writeCommands(pendingCommands);
                     }
