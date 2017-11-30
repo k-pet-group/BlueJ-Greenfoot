@@ -59,6 +59,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
@@ -71,6 +72,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import rmiextension.GreenfootDebugHandler;
 
@@ -173,7 +175,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener
             ImageView cannotDropIcon = new ImageView(this.getClass().getClassLoader().getResource("noParking.png").toExternalForm());
             cannotDropIcon.visibleProperty().bind(cannotDrop);
             StackPane.setAlignment(cannotDropIcon, Pos.TOP_RIGHT);
-            return new StackPane(imageView, cannotDropIcon);
+            StackPane stackPane = new StackPane(imageView, cannotDropIcon);
+            stackPane.setEffect(new DropShadow(10.0, 3.0, 3.0, Color.BLACK));
+            return stackPane;
         }
 
         public NewActor(ImageView imageView, ExecutionEvent creationEvent)
