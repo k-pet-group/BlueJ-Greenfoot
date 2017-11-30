@@ -396,15 +396,18 @@ public class GreenfootStage extends Stage implements BlueJEventListener
             e.consume();
         });
 
+        boolean isRunning = false; // TODO actually have this state correctly in future.
+        worldView.setOnContextMenuRequested(e -> {
+            if (!isRunning)
+            {
+                pickRequest(e.getX(), e.getY(), PickType.CONTEXT_MENU);
+            }
+        });
         worldView.addEventFilter(MouseEvent.ANY, e -> {
-            boolean isRunning = false; // TODO actually have this state correctly in future.
+            
             int eventType;
             if (e.getEventType() == MouseEvent.MOUSE_CLICKED)
             {
-                if (e.getButton() == MouseButton.SECONDARY && !isRunning)
-                {
-                    pickRequest(e.getX(), e.getY(), PickType.CONTEXT_MENU);
-                }
                 eventType = MOUSE_CLICKED;
             }
             else if (e.getEventType() == MouseEvent.MOUSE_PRESSED)
