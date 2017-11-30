@@ -139,6 +139,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     private final ObjectProperty<NewActor> newActorProperty = new SimpleObjectProperty<>(null);
     private final BorderPane worldView;
     private final ClassDiagram classDiagram;
+    // The currently-showing context menu, or null if none
+    private ContextMenu contextMenu;
+
 
     // Details for pick requests that we have sent to the debug VM:
     private static enum PickType
@@ -408,6 +411,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener
             int eventType;
             if (e.getEventType() == MouseEvent.MOUSE_CLICKED)
             {
+                if (e.getButton() == MouseButton.PRIMARY)
+                {
+                    hideContextMenu();
+                }
                 eventType = MOUSE_CLICKED;
             }
             else if (e.getEventType() == MouseEvent.MOUSE_PRESSED)
@@ -597,7 +604,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                         actorMenus.add(menu);
                     }
                 }
-                ContextMenu contextMenu = new ContextMenu();
+                hideContextMenu();
+                contextMenu = new ContextMenu();
+                contextMenu.setOnHidden(e -> { contextMenu = null;});
                 if (actorMenus.size() == 1)
                 {
                     // No point showing higher-level menu with one item, collapse:
@@ -617,7 +626,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                 if (target instanceof ClassTarget)
                 {
                     ClassTarget classTarget = (ClassTarget) target;
-                    ContextMenu contextMenu = new ContextMenu();
+                    hideContextMenu();
+                    contextMenu = new ContextMenu();
+                    contextMenu.setOnHidden(e -> { contextMenu = null; });
                     ObjectWrapper.createMethodMenuItems(contextMenu.getItems(), project.loadClass(world.getClassName()), new RecordInvoke(world), "", true);
                     contextMenu.getItems().add(makeInspectMenuItem(world));
 
@@ -639,6 +650,18 @@ public class GreenfootStage extends Stage implements BlueJEventListener
             curDragRequest = pickId;
         }
 
+    }
+
+    /**
+     * Hide the context menu if one is currently showing on the world.
+     */
+    private void hideContextMenu()
+    {
+        if (contextMenu != null)
+        {
+            // The onHidden handler sets the contextMenu field back to null:
+            contextMenu.hide();
+        }
     }
 
     /**
