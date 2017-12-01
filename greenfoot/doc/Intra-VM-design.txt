@@ -27,11 +27,19 @@ Shared memory is good for simple commands, the worker/JDI mechanism is good for 
 In general, shared memory should be used for everything, unless there is a reason it cannot be.
 
 
-Run
----
+Run and Pause
+-------------
 When the server VM wants to issue a Run order, it puts a command into shared memory.  When the debug
-VM sees this, it changes the simulation state.
+VM sees this, it changes the simulation state.  The same happens for the Pause order.
 
+Simulation State
+----------------
+
+Simulation state is changed on the debug VM, where the simulation thread changes between running
+user code, pausing and so on.  The server VM needs to track this state for the purposes of updating
+the GUI, e.g. changing the Run button to a Pause button, disabling Act while running, setting the
+buttons enabled after the world is ready.  This was perhaps a bit marginal choice between using
+SHM to send notifications, and using JDI with special breakpoints.  For now, it uses JDI. 
 
 World display
 -------------
