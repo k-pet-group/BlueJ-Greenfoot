@@ -67,25 +67,18 @@ public class DebuggerEvent extends EventObject
     private int oldState, newState;
     private BreakpointProperties props;
 
-    public DebuggerEvent(Object source, int id)
-    {
-        super(source);
-
-        this.id = id;
-    }
-
     public DebuggerEvent(Debugger source, int id, DebuggerThread thr, BreakpointProperties props)
     {
-        this(source, id);
-
+        super(source);
+        this.id = id;
         this.thr = thr;
         this.props = props;
     }
 
     public DebuggerEvent(Object source, int id, int oldState, int newState)
     {
-        this(source, id);
-
+        super(source);
+        this.id = id;
         this.oldState = oldState;
         this.newState = newState;
     }
@@ -100,6 +93,9 @@ public class DebuggerEvent extends EventObject
         return id == THREAD_BREAKPOINT || id == THREAD_HALT_STEP_INTO || id == THREAD_HALT_STEP_OVER || id == THREAD_HALT_UNKNOWN;
     }
 
+    /**
+     * Get the thread involved in the event.  This is null for event DebuggerEvent.DEBUGGER_STATECHANGED
+     */
     public DebuggerThread getThread()
     {
         return thr;
