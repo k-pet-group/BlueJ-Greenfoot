@@ -24,6 +24,11 @@ package greenfoot.guifx;
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.Config;
+import bluej.compiler.CompileInputFile;
+import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
+import bluej.compiler.Diagnostic;
+import bluej.compiler.FXCompileObserver;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerResult;
 import bluej.debugger.gentype.JavaType;
@@ -94,7 +99,7 @@ import static bluej.pkgmgr.target.ClassTarget.MENU_STYLE_INBUILT;
 /**
  * Greenfoot's main window: a JavaFX replacement for GreenfootFrame which lives on the server VM.
  */
-public class GreenfootStage extends Stage implements BlueJEventListener
+public class GreenfootStage extends Stage implements BlueJEventListener, FXCompileObserver
 {
     // These are the constants passed in the shared memory between processes,
     // hence they cannot be enums.  They are not persisted anywhere, so can
@@ -143,7 +148,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     private final ClassDiagram classDiagram;
     // The currently-showing context menu, or null if none
     private ContextMenu contextMenu;
-
 
     // Details for pick requests that we have sent to the debug VM:
     private static enum PickType
@@ -237,6 +241,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     {
         this.project = project;
         BlueJEvent.addListener(this);
+        project.getUnnamedPackage().addCompileObserver(this);
         greenfootDebugHandler.setPickListener(this::pickResults);
         this.saveTheWorldRecorder = new GreenfootRecorder();
         greenfootDebugHandler.setGreenfootRecorder(saveTheWorldRecorder);
@@ -786,6 +791,26 @@ public class GreenfootStage extends Stage implements BlueJEventListener
         }
         return null;
     }
+
+
+    @Override
+    public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type, int compilationSequence)
+    {
+        // Grey out the world display until compilation finishes:
+        worldView.greyOutWorld();
+    }
+
+    @Override
+    public boolean compilerMessage(Diagnostic diagnostic, CompileType type)
+    {
+        return false;
+    }
+
+    @Override
+    public void endCompile(CompileInputFile[] sources, boolean succesful, CompileType type, int compilationSequence)
+    {
+    }
+
 
     /**
      * Gets a Reflective for the Actor class.

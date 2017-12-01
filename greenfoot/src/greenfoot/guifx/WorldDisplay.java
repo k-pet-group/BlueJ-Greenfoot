@@ -21,6 +21,8 @@
  */
 package greenfoot.guifx;
 
+import javafx.scene.effect.ColorAdjust;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -38,9 +40,26 @@ class WorldDisplay extends BorderPane
         setMinWidth(200);
         setMinHeight(200);
     }
-    
+
+    /**
+     * Sets the world image.  Turns off any greying effect.
+     */
     public void setImage(Image image)
     {
         imageView.setImage(image);
-    }    
+        // Now that world is valid again, turn off any greying effect:
+        imageView.setEffect(null);
+    }
+
+    /**
+     * Greys out the world to indicate it isn't in a valid state.
+     * Turned off by next setImage call.
+     */
+    public void greyOutWorld()
+    {
+        ColorAdjust grey = new ColorAdjust(0.0, -1.0, -0.1, 0.0);
+        GaussianBlur blur = new GaussianBlur();
+        blur.setInput(grey);
+        imageView.setEffect(blur);
+    }
 }
