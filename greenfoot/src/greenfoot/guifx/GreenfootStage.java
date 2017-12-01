@@ -112,6 +112,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public static final int KEY_DOWN = 1;
     public static final int KEY_UP = 2;
     public static final int KEY_TYPED = 3;
+    private final Button runButton;
+
     public static boolean isKeyEvent(int event)
     {
         return event >= KEY_DOWN && event <= KEY_TYPED;
@@ -149,6 +151,12 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     // The currently-showing context menu, or null if none
     private ContextMenu contextMenu;
 
+    public static enum State
+    {
+        RUNNING, RUNNING_REQUESTED_PAUSE, PAUSED, PAUSED_REQUESTED_ACT_OR_RUN, UNCOMPILED;
+    }
+    private final ObjectProperty<State> stateProperty = new SimpleObjectProperty<>(State.PAUSED);
+    
     // Details for pick requests that we have sent to the debug VM:
     private static enum PickType
     {
@@ -247,11 +255,12 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         greenfootDebugHandler.setGreenfootRecorder(saveTheWorldRecorder);
 
         worldView = new WorldDisplay();
-        Button runButton = new Button("Run");
+        runButton = new Button(Config.getString("controls.run.button"));
         Node buttonAndSpeedPanel = new HBox(runButton);
         List<Command> pendingCommands = new ArrayList<>();
         runButton.setOnAction(e -> {
             pendingCommands.add(new Command(COMMAND_RUN));
+            stateProperty.set(State.PAUSED_REQUESTED_ACT_OR_RUN);
         });
         classDiagram = new ClassDiagram(project);
         BorderPane root = new BorderPane(worldView, null, classDiagram, buttonAndSpeedPanel, null);
@@ -262,6 +271,12 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         setScene(new Scene(stackPane));
 
         setupWorldDrawingAndEvents(sharedMemoryLock, sharedMemoryByte, worldView::setImage, pendingCommands);
+        JavaFXUtil.addChangeListenerPlatform(stateProperty, this::updateGUIState);
+    }
+
+    private void updateGUIState(State newState)
+    {
+        runButton.setDisable(newState != State.PAUSED && newState != State.RUNNING);
     }
 
     /**
@@ -370,7 +385,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     newActorProperty.set(null);
                     return;
                 }
-                if (e.getCode() == KeyCode.SHIFT && newActorProperty.get() == null && classDiagram.getSelectedClass() != null)
+                
+                // We only want fully paused; if they've requested a run, don't allow a shift-click:
+                boolean paused = stateProperty.get() == State.PAUSED;
+                if (e.getCode() == KeyCode.SHIFT && newActorProperty.get() == null && classDiagram.getSelectedClass() != null && paused)
                 {
                     // Holding shift, so show actor preview if it is an actor with no-arg constructor:
                     Reflective type = classDiagram.getSelectedClass().getTypeReflective();
@@ -404,22 +422,22 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             e.consume();
         });
 
-        boolean isRunning = false; // TODO actually have this state correctly in future.
         worldView.setOnContextMenuRequested(e -> {
-            if (!isRunning)
+            boolean paused = stateProperty.get() == State.PAUSED;
+            if (paused)
             {
                 pickRequest(e.getX(), e.getY(), PickType.CONTEXT_MENU);
             }
         });
         worldView.addEventFilter(MouseEvent.ANY, e -> {
-            
+            boolean paused = stateProperty.get() == State.PAUSED;
             int eventType;
             if (e.getEventType() == MouseEvent.MOUSE_CLICKED)
             {
                 if (e.getButton() == MouseButton.PRIMARY)
                 {
                     hideContextMenu();
-                    if (!isRunning)
+                    if (paused)
                     {
                         pickRequest(e.getX(), e.getY(), PickType.LEFT_CLICK);
                     }
@@ -443,7 +461,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             else if (e.getEventType() == MouseEvent.MOUSE_DRAGGED)
             {
                 // Continue the drag if one is going:
-                if (e.getButton() == MouseButton.PRIMARY && !isRunning && curDragRequest != -1)
+                if (e.getButton() == MouseButton.PRIMARY && paused && curDragRequest != -1)
                 {
                     pendingCommands.add(new Command(COMMAND_CONTINUE_DRAG, curDragRequest, (int)e.getX(), (int)e.getY()));
                 }
@@ -456,7 +474,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             }
             else
             {
-                if (e.getEventType() == MouseEvent.DRAG_DETECTED)
+                if (e.getEventType() == MouseEvent.DRAG_DETECTED && paused)
                 {
                     // Begin a drag:
                     pickRequest(e.getX(), e.getY(), PickType.DRAG);
@@ -798,6 +816,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         // Grey out the world display until compilation finishes:
         worldView.greyOutWorld();
+        stateProperty.set(State.UNCOMPILED);
     }
 
     @Override
