@@ -487,8 +487,6 @@ public class WorldHandler
     /**
      * Instantiate a new world and do any initialisation needed to activate that
      * world.
-     * 
-     * @return The new World or null if an error occured
      */
     public void instantiateNewWorld()
     {

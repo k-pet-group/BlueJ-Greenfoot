@@ -423,6 +423,14 @@ public class WorldCanvas extends JPanel
                     case GreenfootStage.COMMAND_ACT:
                         Simulation.getInstance().runOnce();
                         break;
+                    case GreenfootStage.COMMAND_RESET:
+                        // This seems to deadlock without a run later, although I'm not 100% sure why.
+                        // We may be able to remove this after the FX rewrite is complete:
+                        Simulation.getInstance().runLater(() -> {
+                            WorldHandler.getInstance().discardWorld();
+                            WorldHandler.getInstance().instantiateNewWorld();
+                        });
+                        break;
                     case GreenfootStage.COMMAND_CONTINUE_DRAG:
                         // Will be drag-ID, X, Y:
                         WorldHandler.getInstance().continueDragging(data[1], data[2], data[3]);

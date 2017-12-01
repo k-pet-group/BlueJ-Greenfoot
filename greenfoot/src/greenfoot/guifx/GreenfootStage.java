@@ -145,6 +145,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public static final int COMMAND_END_DRAG = 23;
     public static final int COMMAND_PAUSE = 24;
     public static final int COMMAND_ACT = 25;
+    public static final int COMMAND_RESET = 26;
 
     private final Project project;
     // The glass pane used to show a new actor while it is being placed:
@@ -158,6 +159,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
     private final Button actButton;
     private final Button runButton;
+    private final Button resetButton;
 
     public static enum State
     {
@@ -266,7 +268,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         worldView = new WorldDisplay();
         actButton = new Button(Config.getString("run.once"));
         runButton = new Button(Config.getString("controls.run.button"));
-        Node buttonAndSpeedPanel = new HBox(actButton, runButton);
+        resetButton = new Button(Config.getString("reset.world"));
+        Node buttonAndSpeedPanel = new HBox(actButton, runButton, resetButton);
         List<Command> pendingCommands = new ArrayList<>();
         actButton.setOnAction(e -> {
             if (stateProperty.get() == State.PAUSED)
@@ -285,6 +288,13 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             {
                 pendingCommands.add(new Command(COMMAND_PAUSE));
                 stateProperty.set(State.RUNNING_REQUESTED_PAUSE);
+            }
+        });
+        resetButton.setOnAction(e -> {
+            if (stateProperty.get() != State.UNCOMPILED)
+            {
+                pendingCommands.add(new Command(COMMAND_RESET));
+                stateProperty.set(State.UNCOMPILED);
             }
         });
         classDiagram = new ClassDiagram(project);
