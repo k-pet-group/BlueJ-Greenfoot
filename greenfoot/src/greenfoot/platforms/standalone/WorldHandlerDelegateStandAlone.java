@@ -93,8 +93,8 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
             inputManager.setMoveListeners(null, null, null);
         }
         else {
-            inputManager.setIdleListeners(worldHandler, worldHandler, worldHandler);
-            inputManager.setMoveListeners(worldHandler, worldHandler, worldHandler);
+            inputManager.setIdleListeners(worldHandler, null, null);
+            inputManager.setMoveListeners(worldHandler, null, null);
         }
         return inputManager;
     }
@@ -109,11 +109,6 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         // Nothing to be done
     }
 
-    @Override
-    public void actorDragged(Actor actor, int xCell, int yCell)
-    {
-    }
-    
     @Override
     public void objectAddedToWorld(Actor actor)
     {

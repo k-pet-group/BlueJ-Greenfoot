@@ -27,7 +27,6 @@ import greenfoot.gui.NewClassDialog;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
-import greenfoot.record.InteractionListener;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -49,7 +48,6 @@ public class DuplicateClassAction extends AbstractAction
 {
     private ClassView originalClass;
     private ClassBrowser classBrowser;
-    private InteractionListener interactionListener;
 
     /**
      * Construct a CopyClassAction instance.
@@ -62,12 +60,11 @@ public class DuplicateClassAction extends AbstractAction
      *            The listener to be notified of interactions (instance creation, method calls) which
      *            occur on the new class.
      */
-    public DuplicateClassAction(ClassView view, ClassBrowser classBrowser, InteractionListener interactionListener)
+    public DuplicateClassAction(ClassView view, ClassBrowser classBrowser)
     {
         super(Config.getString("duplicate.class"));
         this.originalClass = view;
         this.classBrowser = classBrowser;
-        this.interactionListener = interactionListener;
     }
 
     @Override
@@ -100,7 +97,7 @@ public class DuplicateClassAction extends AbstractAction
 
             GClass newClass = pkg.newClass(className, language, false);
 
-            ClassView classView = new ClassView(classBrowser, newClass, interactionListener);
+            ClassView classView = new ClassView(classBrowser, newClass);
             classBrowser.addClass(classView);
         }
         catch (RemoteException re) {

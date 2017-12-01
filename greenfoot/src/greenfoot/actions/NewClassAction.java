@@ -29,7 +29,6 @@ import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.role.NormalClassRole;
 import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
-import greenfoot.record.InteractionListener;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -50,17 +49,15 @@ import bluej.extensions.SourceType;
 public class NewClassAction extends AbstractAction
 {
     private GreenfootFrame gfFrame;
-    private InteractionListener interactionListener;
 
     /**
      * Construct a NewClassAction instance.
      */
-    public NewClassAction(GreenfootFrame gfFrame, InteractionListener interactionListener)
+    public NewClassAction(GreenfootFrame gfFrame)
     {
         super(Config.getString("new.other.class"));
         setEnabled(false);
         this.gfFrame = gfFrame;
-        this.interactionListener = interactionListener;
     }
 
     @Override
@@ -89,7 +86,7 @@ public class NewClassAction extends AbstractAction
 
             GClass newClass = pkg.newClass(className, language, false);
 
-            ClassView classView = new ClassView(classBrowser, newClass, interactionListener);
+            ClassView classView = new ClassView(classBrowser, newClass);
             classBrowser.addClass(classView);
         }
         catch (RemoteException re) {

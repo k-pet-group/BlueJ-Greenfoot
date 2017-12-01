@@ -29,7 +29,6 @@ import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.role.ImageClassRole;
 import greenfoot.gui.images.ImageLibFrame;
-import greenfoot.record.InteractionListener;
 
 import java.awt.event.ActionEvent;
 import java.util.List;
@@ -51,7 +50,6 @@ public class NewSubclassAction extends AbstractAction
 {
     protected ClassView superclass;
     protected ClassBrowser classBrowser;
-    protected InteractionListener interactionListener;
 
     /**
      * Creates a new subclass of the class represented by the view
@@ -64,12 +62,11 @@ public class NewSubclassAction extends AbstractAction
      *            The listener to be notified of interactions (instance creation, method calls) which
      *            occur on the new class.
      */
-    public NewSubclassAction(ClassView view, ClassBrowser classBrowser, InteractionListener interactionListener)
+    public NewSubclassAction(ClassView view, ClassBrowser classBrowser)
     {
         this();
         this.superclass = view;
         this.classBrowser = classBrowser;
-        this.interactionListener = interactionListener;
     }
     
     protected NewSubclassAction()
@@ -127,7 +124,7 @@ public class NewSubclassAction extends AbstractAction
         ClassView classView = null;
         GClass gClass = superclass.createSubclass(className, selectedLanguage);
         if (gClass != null) {
-            classView = new ClassView(classBrowser, gClass, interactionListener);
+            classView = new ClassView(classBrowser, gClass);
             classBrowser.addClass(classView);
         }
         return classView;

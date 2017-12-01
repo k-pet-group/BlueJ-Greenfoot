@@ -23,7 +23,6 @@ package greenfoot.actions;
 
 import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.ImportClassWindow;
-import greenfoot.record.InteractionListener;
 
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
@@ -40,15 +39,13 @@ import bluej.Config;
 public class ImportClassAction extends AbstractAction
 {   
     private GreenfootFrame gfFrame;
-    private InteractionListener interactionListener;
     private ImportClassWindow dlg;
 
-    public ImportClassAction(GreenfootFrame gfFrame, InteractionListener interactionListener)
+    public ImportClassAction(GreenfootFrame gfFrame)
     {
         super(Config.getString("import.action"));
         setEnabled(false);
         this.gfFrame = gfFrame;
-        this.interactionListener = interactionListener;
     }   
     
     @Override
@@ -56,7 +53,7 @@ public class ImportClassAction extends AbstractAction
     {
         if (dlg == null)
         {
-            dlg = new ImportClassWindow(gfFrame, interactionListener);
+            dlg = new ImportClassWindow(gfFrame);
         }
         
         dlg.setVisible(true);

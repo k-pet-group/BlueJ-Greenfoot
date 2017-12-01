@@ -37,11 +37,7 @@ import java.util.concurrent.Callable;
  * @author Poul Henriksen
  */
 public interface WorldHandlerDelegate
-{
-    void mouseClicked(MouseEvent e);
-
-    void mouseMoved(MouseEvent e);
-    
+{    
     /**
      * A new world has been set as the active world.
      * @param oldWorld   The previously active world
@@ -59,11 +55,6 @@ public interface WorldHandlerDelegate
     InputManager getInputManager();
 
     void discardWorld(World world);
-    
-    /**
-     * An actor was dragged to a new location. Called with the world locked.
-     */
-    public void actorDragged(Actor actor, int xCell, int yCell);
     
     /**
      * An actor was added into the world (by any means, possibly programmatically). Called with the world locked.

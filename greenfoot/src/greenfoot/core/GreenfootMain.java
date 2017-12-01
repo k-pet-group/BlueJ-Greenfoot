@@ -280,7 +280,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     
                     EventQueue.invokeLater(() -> {
                         if (wizard) {
-                            new NewSubWorldAction(frame, true, sourceType, frame.getWorldHandlerDelegate()).actionPerformed(null);
+                            new NewSubWorldAction(frame, true, sourceType).actionPerformed(null);
                         }
                     });
 
