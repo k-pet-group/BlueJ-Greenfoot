@@ -58,6 +58,8 @@ import bluej.extensions.ProjectNotOpenException;
 import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A class that does several things:
@@ -78,7 +80,8 @@ public class GreenfootDebugHandler implements DebuggerListener
     private static final String SIMULATION_INVOKE_KEY = SIMULATION_CLASS + "INTERNAL";
     
     private static final String PAUSED_METHOD = Simulation.PAUSED;
-    private static final String SIMULATION_THREAD_PAUSED_KEY = "SIMULATION_THREAD_PAUSED"; 
+    private static final String SIMULATION_THREAD_PAUSED_KEY = "SIMULATION_THREAD_PAUSED";
+    private static final String SIMULATION_THREAD_RESUMED_KEY = "SIMULATION_THREAD_RESUMED";
         
     private static final String SIMULATION_THREAD_RUN_KEY = "SIMULATION_THREAD_RUN";
     
@@ -101,6 +104,7 @@ public class GreenfootDebugHandler implements DebuggerListener
     private DebuggerThread simulationThread;
     private DebuggerClass simulationClass;
     private GreenfootRecorder greenfootRecorder;
+    private SimulationStateListener simulationListener;
 
     private GreenfootDebugHandler(BProject project)
     {
@@ -148,7 +152,9 @@ public class GreenfootDebugHandler implements DebuggerListener
             simulationClass = debugger.getClass(SIMULATION_CLASS, true).get();
 
             setBreakpoint(debugger, SIMULATION_CLASS, "run", SIMULATION_THREAD_RUN_KEY);
+            setBreakpoint(debugger, SIMULATION_CLASS, PAUSED_METHOD, SIMULATION_THREAD_PAUSED_KEY);
 
+            setBreakpoint(debugger, SIMULATION_CLASS, "resumeRunning", SIMULATION_THREAD_RESUMED_KEY);
             setBreakpoint(debugger, RESET_CLASS, RESET_METHOD, RESET_KEY);
             setBreakpoint(debugger, WORLD_HANDLER_CLASS, "setInitialisingWorld", WORLD_INITIALISING_KEY);
             setBreakpoint(debugger, WORLD_HANDLER_CLASS, "worldChanged", WORLD_CHANGED_KEY);
@@ -192,7 +198,6 @@ public class GreenfootDebugHandler implements DebuggerListener
         final Debugger debugger = (Debugger)e.getSource();
         List<SourceLocation> stack = e.getThread().getStack();
         boolean atBreakpoint = e.getID() == DebuggerEvent.THREAD_BREAKPOINT && e.getThread() != null && e.getBreakpointProperties() != null;
-
         if (atBreakpoint && e.getBreakpointProperties().get(SIMULATION_THREAD_RUN_KEY) != null)
         {
             // This is the breakpoint at the very beginning of the simulation thread;
@@ -204,6 +209,15 @@ public class GreenfootDebugHandler implements DebuggerListener
             }
             catch (RemoteException re) {
                 Debug.reportError("Unexpected exception getting project wrapper: ", re);
+            }
+            e.getThread().cont();
+            return true;
+        }
+        else if (atBreakpoint && e.getBreakpointProperties().get(SIMULATION_THREAD_RESUMED_KEY) != null)
+        {
+            if (simulationListener != null)
+            {
+                simulationListener.simulationStartedRunning();
             }
             e.getThread().cont();
             return true;
@@ -231,6 +245,11 @@ public class GreenfootDebugHandler implements DebuggerListener
                 if (greenfootRecorder != null)
                 {
                     greenfootRecorder.setWorld(worldValue);
+                }
+                boolean byUserCode = e.getThread().getLocalVariables(0).get(0).getValue().equals("true");
+                if (simulationListener != null && !byUserCode)
+                {
+                    simulationListener.simulationInitialisedWorld();
                 }
             }
             e.getThread().cont();
@@ -292,7 +311,11 @@ public class GreenfootDebugHandler implements DebuggerListener
             if (e.getBreakpointProperties().get(SIMULATION_THREAD_PAUSED_KEY) != null) {
                 // They are going to pause; remove all special breakpoints and set them going
                 // (so that they actually hit the pause):
-                debugger.removeBreakpointsForClass(SIMULATION_CLASS);
+                removeSpecialBreakpoints(debugger);
+                if (simulationListener != null)
+                {
+                    simulationListener.simulationPaused();
+                }
                 e.getThread().cont();
                 return true;
             } else if (insideUserCode(stack)) {
@@ -458,16 +481,27 @@ public class GreenfootDebugHandler implements DebuggerListener
                 Debug.reportError("Problem setting special breakpoint: " + err);
             }
         }
-        
-        String err = debugger.toggleBreakpoint(simulationClass, PAUSED_METHOD, true, Collections.singletonMap(SIMULATION_THREAD_PAUSED_KEY, "yes"));
-        if (err != null) {
-            Debug.reportError("Problem setting special breakpoint: " + err);
+    }
+
+    /**
+     * Removes the breakpoints added by setSpecialBreakpoints
+     */
+    private void removeSpecialBreakpoints(Debugger debugger)
+    {
+        for (String method : INVOKE_METHODS)
+        {
+            debugger.toggleBreakpoint(simulationClass, method, false, Collections.singletonMap(SIMULATION_INVOKE_KEY, "yes"));
         }
     }
 
     public void setGreenfootRecorder(GreenfootRecorder greenfootRecorder)
     {
         this.greenfootRecorder = greenfootRecorder;
+    }
+
+    public void setSimulationListener(SimulationStateListener simulationListener)
+    {
+        this.simulationListener = simulationListener;
     }
 
     /**
@@ -574,9 +608,28 @@ public class GreenfootDebugHandler implements DebuggerListener
         }
     }
 
+    /**
+     * A listener for results of pick requests.
+     */
     public static interface PickListener
     {
         // World is only relevant if actors list is empty.
+        @OnThread(Tag.Any)
         public void picked(int pickId, List<DebuggerObject> actors, DebuggerObject world);
+    }
+
+    /**
+     * A listener to the simulation's state
+     */
+    public static interface SimulationStateListener
+    {
+        @OnThread(Tag.Any)
+        public void simulationStartedRunning();
+        
+        @OnThread(Tag.Any)
+        public void simulationPaused();
+
+        @OnThread(Tag.Any)
+        public void simulationInitialisedWorld();
     }
 }
