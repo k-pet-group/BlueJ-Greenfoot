@@ -147,42 +147,31 @@ public class GreenfootDebugHandler implements DebuggerListener
             // exception, seemingly in error.
             simulationClass = debugger.getClass(SIMULATION_CLASS, true).get();
 
-            Map<String, String> simulationRunBreakpointProperties = new HashMap<String, String>();
-            simulationRunBreakpointProperties.put(SIMULATION_THREAD_RUN_KEY, "TRUE");
-            simulationRunBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
-            debugger.toggleBreakpoint(simulationClass, "run", true, simulationRunBreakpointProperties);
+            setBreakpoint(debugger, SIMULATION_CLASS, "run", SIMULATION_THREAD_RUN_KEY);
 
-            Map<String, String> resetBreakpointProperties = new HashMap<String, String>();
-            resetBreakpointProperties.put(RESET_KEY, "yes");
-            resetBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
-            debugger.toggleBreakpoint(RESET_CLASS, RESET_METHOD, true, resetBreakpointProperties);
-
-            Map<String, String> worldInitialisingBreakpointProperties = new HashMap<>();
-            worldInitialisingBreakpointProperties.put(WORLD_INITIALISING_KEY, "TRUE");
-            worldInitialisingBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
-            debugger.toggleBreakpoint(WORLD_HANDLER_CLASS, "setInitialisingWorld", true, worldInitialisingBreakpointProperties);
-
-            Map<String, String> worldChangedBreakpointProperties = new HashMap<>();
-            worldChangedBreakpointProperties.put(WORLD_CHANGED_KEY, "TRUE");
-            worldChangedBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
-            debugger.toggleBreakpoint(WORLD_HANDLER_CLASS, "worldChanged", true, worldChangedBreakpointProperties);
-            
-
-            Map<String, String> nameActorBreakpointProperties = new HashMap<>();
-            nameActorBreakpointProperties.put(NAME_ACTOR_KEY, "TRUE");
-            nameActorBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
-            debugger.toggleBreakpoint(NAME_ACTOR_CLASS, "nameActors", true, nameActorBreakpointProperties);
-
-            Map<String, String> pickHelperBreakpointProperties = new HashMap<>();
-            pickHelperBreakpointProperties.put(PICK_HELPER_KEY, "TRUE");
-            pickHelperBreakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
-            debugger.toggleBreakpoint(PICK_HELPER_CLASS, "picked", true, pickHelperBreakpointProperties);
+            setBreakpoint(debugger, RESET_CLASS, RESET_METHOD, RESET_KEY);
+            setBreakpoint(debugger, WORLD_HANDLER_CLASS, "setInitialisingWorld", WORLD_INITIALISING_KEY);
+            setBreakpoint(debugger, WORLD_HANDLER_CLASS, "worldChanged", WORLD_CHANGED_KEY);
+            setBreakpoint(debugger, NAME_ACTOR_CLASS, "nameActors", NAME_ACTOR_KEY);
+            setBreakpoint(debugger, PICK_HELPER_CLASS, "picked", PICK_HELPER_KEY);
         }
         catch (ClassNotFoundException cnfe) {
             Debug.reportError("Simulation class could not be located. Possible installation problem.", cnfe);
         }
     }
-    
+
+    /**
+     * Sets a breakpoint in the given class and method, and identifies it by setting a
+     * breakpoint point property with breakpointKey mapped to "TRUE"
+     */
+    private void setBreakpoint(Debugger debugger, String className, String methodName, String breakpointKey)
+    {
+        Map<String, String> breakpointProperties = new HashMap<String, String>();
+        breakpointProperties.put(breakpointKey, "TRUE");
+        breakpointProperties.put(Debugger.PERSIST_BREAKPOINT_PROPERTY, "TRUE");
+        debugger.toggleBreakpoint(className, methodName, true, breakpointProperties);
+    }
+
     private boolean isSimulationThread(DebuggerThread dt)
     {
         return dt != null && simulationThread != null && simulationThread.sameThread(dt);
