@@ -191,8 +191,8 @@ public class GreenfootDebugHandler implements DebuggerListener
     {
         final Debugger debugger = (Debugger)e.getSource();
         List<SourceLocation> stack = e.getThread().getStack();
-        boolean atBreakpoint = e.getID() == DebuggerEvent.THREAD_BREAKPOINT && e.getThread() != null; 
-        
+        boolean atBreakpoint = e.getID() == DebuggerEvent.THREAD_BREAKPOINT && e.getThread() != null && e.getBreakpointProperties() != null;
+
         if (atBreakpoint && e.getBreakpointProperties().get(SIMULATION_THREAD_RUN_KEY) != null)
         {
             // This is the breakpoint at the very beginning of the simulation thread;
@@ -208,20 +208,20 @@ public class GreenfootDebugHandler implements DebuggerListener
             e.getThread().cont();
             return true;
         }
-        else if (atBreakpoint && atNameActorBreakpoint(e.getBreakpointProperties()))
+        else if (atBreakpoint && e.getBreakpointProperties().get(NAME_ACTOR_KEY) != null)
         {
             VarDisplayInfo varDisplayInfo = e.getThread().getLocalVariables(0).get(0);
             greenfootRecorder.nameActors(fetchArray(varDisplayInfo.getFetchObject().get()));
             e.getThread().cont();
             return true;
         }
-        else if (atBreakpoint && atWorldInitalisingBreakpoint(e.getBreakpointProperties()))
+        else if (atBreakpoint && e.getBreakpointProperties().get(WORLD_INITIALISING_KEY) != null)
         {
             greenfootRecorder.clearCode(true);
             e.getThread().cont();
             return true;
         }
-        else if (atBreakpoint && atWorldChangedBreakpoint(e.getBreakpointProperties()))
+        else if (atBreakpoint && e.getBreakpointProperties().get(WORLD_CHANGED_KEY) != null)
         {
             List<DebuggerField> fields = e.getThread().getCurrentObject(0).getFields();
             DebuggerField worldField = fields.stream().filter(f -> f.getName().equals("world")).findFirst().orElse(null);
@@ -236,7 +236,7 @@ public class GreenfootDebugHandler implements DebuggerListener
             e.getThread().cont();
             return true;
         }
-        else if (atBreakpoint && atPickedBreakpoint(e.getBreakpointProperties()))
+        else if (atBreakpoint && e.getBreakpointProperties().get(PICK_HELPER_KEY) != null)
         {
             List<DebuggerField> fields = e.getThread().getCurrentObject(0).getFields();
             DebuggerField actorPicksField = fields.stream().filter(f -> f.getName().equals("actorPicks")).findFirst().orElse(null);
@@ -264,7 +264,7 @@ public class GreenfootDebugHandler implements DebuggerListener
             e.getThread().cont();
             return true;
         }
-        else if (atBreakpoint && atResetBreakpoint(e.getBreakpointProperties()))
+        else if (atBreakpoint && e.getBreakpointProperties().get(RESET_KEY) != null)
         {
             // The user has clicked reset,
             // Set the simulation thread going if it's suspended:
@@ -289,7 +289,7 @@ public class GreenfootDebugHandler implements DebuggerListener
         }
         else if (e.isHalt() && isSimulationThread(e.getThread()))
         {
-            if (atPauseBreakpoint(e.getBreakpointProperties())) {
+            if (e.getBreakpointProperties().get(SIMULATION_THREAD_PAUSED_KEY) != null) {
                 // They are going to pause; remove all special breakpoints and set them going
                 // (so that they actually hit the pause):
                 debugger.removeBreakpointsForClass(SIMULATION_CLASS);
@@ -303,7 +303,7 @@ public class GreenfootDebugHandler implements DebuggerListener
                         
                 // If they have just hit the breakpoint and are in InvokeAct itself,
                 // step-into the World/Actor:
-                if (atInvokeBreakpoint(e.getBreakpointProperties())) {
+                if (e.getBreakpointProperties().get(SIMULATION_INVOKE_KEY) != null) {
                     e.getThread().stepInto();
                     return true;
                 } else if (inInvokeMethods(stack, 0)) {
@@ -429,59 +429,6 @@ public class GreenfootDebugHandler implements DebuggerListener
     }
 
     /**
-     * Works out if they are at the breakpoint triggered by having picked actors
-     */
-    private static boolean atPickedBreakpoint(BreakpointProperties props)
-    {
-        return props != null && props.get(PICK_HELPER_KEY) != null;
-    }
-
-    /**
-     * Are they at the nameActor() breakpoint in WorldHandlerDelegateIDE indicating a new
-     * world has been set?
-     */
-    private boolean atNameActorBreakpoint(BreakpointProperties props)
-    {
-        return props != null && props.get(NAME_ACTOR_KEY) != null;
-    }
-
-    /**
-     * Are they at the setInitialisingWorld() breakpoint in WorldHandler indicating a new
-     * world has been set?
-     */
-    private boolean atWorldInitalisingBreakpoint(BreakpointProperties props)
-    {
-        return props != null && props.get(WORLD_INITIALISING_KEY) != null;
-    }
-
-    /**
-     * Are they at the worldChanged() breakpoint in WorldHandler indicating a new
-     * world has been set?
-     */
-    private boolean atWorldChangedBreakpoint(BreakpointProperties props)
-    {
-        return props != null && props.get(WORLD_CHANGED_KEY) != null;
-    }
-
-    /**
-     * Works out if they are at the breakpoint triggered by the user clicking
-     * the Reset button.
-     */
-    private static boolean atResetBreakpoint(BreakpointProperties props)
-    {
-        return props != null && props.get(RESET_KEY) != null;
-    }
-    
-    /**
-     * Works out if they are currently in the Simulation.PAUSED method by looking 
-     * for the special breakpoint property
-     */
-    private static boolean atPauseBreakpoint(BreakpointProperties props)
-    {
-        return props != null && props.get(SIMULATION_THREAD_PAUSED_KEY) != null;
-    }
-    
-    /**
      * Works out if they are currently paused by looking at the call stack
      * while they are suspended.
      */
@@ -494,16 +441,7 @@ public class GreenfootDebugHandler implements DebuggerListener
         }
         return false;
     }
-    
-    /**
-     * Checks if the given breakpoint is an invoke breakpoint set by 
-     * the setSpecialBreakpoints call, below  
-     */
-    private static boolean atInvokeBreakpoint(BreakpointProperties props)
-    {
-        return props != null && props.get(SIMULATION_INVOKE_KEY) != null;
-    }
-    
+
     /**
      * Sets breakpoints in the special invoke-act methods that call the World and Actor's
      * act() methods, and the method that constructs new objects, and the method called when
