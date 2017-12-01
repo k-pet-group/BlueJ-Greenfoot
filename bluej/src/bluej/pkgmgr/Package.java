@@ -249,6 +249,8 @@ public final class Package
     private boolean queuedCompile = false;
     private CompileReason queuedReason;
     
+    private final List<FXCompileObserver> compileObservers = new ArrayList<>();
+    
     /** File pointing at the directory for this package */
     @OnThread(Tag.Any)
     private File dir;
@@ -1324,7 +1326,12 @@ public final class Package
                     project.removeClassLoader();
                     project.newRemoteClassLoaderLeavingBreakpoints();
                 }
-                doCompile(toCompile, new PackageCompileObserver(compObserver), reason, type);
+                ArrayList<FXCompileObserver> observers = new ArrayList<>(compileObservers);
+                if (compObserver != null)
+                {
+                    observers.add(compObserver);
+                }
+                doCompile(toCompile, new PackageCompileObserver(observers), reason, type);
             }
             else {
                 if (compObserver != null) {
@@ -1423,11 +1430,16 @@ public final class Package
             }
 
             if (ct != null) {
+                ArrayList<FXCompileObserver> chainedObservers = new ArrayList<>(compileObservers);
+                if (compObserver != null)
+                {
+                    chainedObservers.add(compObserver);
+                }
                 FXCompileObserver observer;
                 if (forceQuiet) {
-                    observer = new QuietPackageCompileObserver(compObserver);
+                    observer = new QuietPackageCompileObserver(chainedObservers);
                 } else {
-                    observer = new PackageCompileObserver(compObserver);
+                    observer = new PackageCompileObserver(chainedObservers);
                 }
                 searchCompile(ct, observer, reason, type);
             }
@@ -1493,7 +1505,7 @@ public final class Package
                 project.removeClassLoader();
                 project.newRemoteClassLoader();
 
-                doCompile(compileTargets, new PackageCompileObserver(null), CompileReason.REBUILD, CompileType.EXPLICIT_USER_COMPILE);
+                doCompile(compileTargets, new PackageCompileObserver(compileObservers), CompileReason.REBUILD, CompileType.EXPLICIT_USER_COMPILE);
             }
         }
         catch (IOException ioe) {
@@ -2494,15 +2506,15 @@ public final class Package
     private class QuietPackageCompileObserver
         implements FXCompileObserver
     {
-        protected FXCompileObserver chainObserver;
+        protected List<FXCompileObserver> chainedObservers;
         
         /**
-         * Construct a new QuietPackageCompileObserver. The chained observer (if
-         * specified) is notified when the compilation ends.
+         * Construct a new QuietPackageCompileObserver. The chained observers (if
+         * non-empty list) are notified about each event.
          */
-        public QuietPackageCompileObserver(FXCompileObserver chainObserver)
+        public QuietPackageCompileObserver(List<FXCompileObserver> chainedObservers)
         {
-            this.chainObserver = chainObserver;
+            this.chainedObservers = new ArrayList<>(chainedObservers);
         }
         
         private void markAsCompiling(CompileInputFile[] sources, boolean clearErrorState, int compilationSequence)
@@ -2557,6 +2569,11 @@ public final class Package
 
             // Change view of source classes.
             markAsCompiling(sources, true, compilationSequence);
+
+            for (FXCompileObserver chainedObserver : chainedObservers)
+            {
+                chainedObserver.startCompile(sources, reason, type, compilationSequence);
+            }
         }
 
         @Override
@@ -2573,7 +2590,17 @@ public final class Package
             else {
                 warningMessage(diagnostic.getFileName(), errorPosition, diagnostic.getMessage(), type);
             }
-            return false;
+
+            boolean shown = false;
+            for (FXCompileObserver chainedObserver : chainedObservers)
+            {
+                // Don't inline the next two lines, as we
+                // always want to call compilerMessage even if
+                // a previous observer showed the method:
+                boolean s = chainedObserver.compilerMessage(diagnostic, type);
+                shown = shown || s;
+            }
+            return shown;
         }
         
         private void errorMessage(String filename, int [] errorPosition, String message, CompileType type)
@@ -2675,9 +2702,10 @@ public final class Package
             int eventId = successful ? CompileEvent.COMPILE_DONE_EVENT : CompileEvent.COMPILE_FAILED_EVENT;
             CompileEvent aCompileEvent = new CompileEvent(eventId, type.keepClasses(), Utility.mapList(Arrays.asList(sources), CompileInputFile::getJavaCompileInputFile).toArray(new File[0]));
             ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
-            
-            if (chainObserver != null) {
-                chainObserver.endCompile(sources, successful, type, compilationSequence);
+
+            for (FXCompileObserver chainedObserver : chainedObservers)
+            {
+                chainedObserver.endCompile(sources, successful, type, compilationSequence);
             }
         }
     }
@@ -2799,9 +2827,9 @@ public final class Package
          * Construct a new PackageCompileObserver. The chained observer (if specified)
          * is notified when the compilation ends.
          */
-        public PackageCompileObserver(FXCompileObserver chainObserver)
+        public PackageCompileObserver(List<FXCompileObserver> chainedObservers)
         {
-            super(chainObserver);
+            super(chainedObservers);
         }
         
         @Override
@@ -3023,4 +3051,11 @@ public final class Package
         this.pmf = pkgMgrFrame;
     }
 
+    /**
+     * Add an observer to listen to all compilations of this package.
+     */
+    public void addCompileObserver(FXCompileObserver fxCompileObserver)
+    {
+        compileObservers.add(fxCompileObserver);
+    }
 }
