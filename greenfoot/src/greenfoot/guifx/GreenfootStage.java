@@ -24,6 +24,11 @@ package greenfoot.guifx;
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.Config;
+import bluej.compiler.CompileInputFile;
+import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
+import bluej.compiler.Diagnostic;
+import bluej.compiler.FXCompileObserver;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerResult;
 import bluej.debugger.gentype.JavaType;
@@ -42,6 +47,7 @@ import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.JavaReflective;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
@@ -60,6 +66,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
@@ -92,7 +99,7 @@ import static bluej.pkgmgr.target.ClassTarget.MENU_STYLE_INBUILT;
 /**
  * Greenfoot's main window: a JavaFX replacement for GreenfootFrame which lives on the server VM.
  */
-public class GreenfootStage extends Stage implements BlueJEventListener
+public class GreenfootStage extends Stage implements BlueJEventListener, FXCompileObserver
 {
     // These are the constants passed in the shared memory between processes,
     // hence they cannot be enums.  They are not persisted anywhere, so can
@@ -137,11 +144,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     private final Pane glassPane;
     // Details of the new actor while it is being placed (null otherwise):
     private final ObjectProperty<NewActor> newActorProperty = new SimpleObjectProperty<>(null);
-    private final BorderPane worldView;
+    private final WorldDisplay worldView;
     private final ClassDiagram classDiagram;
     // The currently-showing context menu, or null if none
     private ContextMenu contextMenu;
-
 
     // Details for pick requests that we have sent to the debug VM:
     private static enum PickType
@@ -235,14 +241,12 @@ public class GreenfootStage extends Stage implements BlueJEventListener
     {
         this.project = project;
         BlueJEvent.addListener(this);
+        project.getUnnamedPackage().addCompileObserver(this);
         greenfootDebugHandler.setPickListener(this::pickResults);
         this.saveTheWorldRecorder = new GreenfootRecorder();
         greenfootDebugHandler.setGreenfootRecorder(saveTheWorldRecorder);
 
-        ImageView imageView = new ImageView();
-        worldView = new BorderPane(imageView);
-        worldView.setMinWidth(200);
-        worldView.setMinHeight(200);
+        worldView = new WorldDisplay();
         Button runButton = new Button("Run");
         Node buttonAndSpeedPanel = new HBox(runButton);
         List<Command> pendingCommands = new ArrayList<>();
@@ -257,7 +261,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
         setupMouseForPlacingNewActor(stackPane);
         setScene(new Scene(stackPane));
 
-        setupWorldDrawingAndEvents(sharedMemoryLock, sharedMemoryByte, imageView, pendingCommands);
+        setupWorldDrawingAndEvents(sharedMemoryLock, sharedMemoryByte, worldView::setImage, pendingCommands);
     }
 
     /**
@@ -350,9 +354,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener
      *
      * @param sharedMemoryLock The lock to use to lock the shared memory buffer before access.
      * @param sharedMemoryByte The shared memory buffer to read/write from/to
-     * @param imageView The ImageView to draw the remote-sent image to
+     * @param setImage The function to call to set the new image
+     * @param pendingCommands The list of pending commands to send to the debug VM
      */
-    private void setupWorldDrawingAndEvents(FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte, ImageView imageView, List<Command> pendingCommands)
+    private void setupWorldDrawingAndEvents(FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte, FXPlatformConsumer<Image> setImage, List<Command> pendingCommands)
     {
         IntBuffer sharedMemory = sharedMemoryByte.asIntBuffer();
 
@@ -496,7 +501,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener
                         {
                             pendingCommands.removeIf(c -> c.commandSequence <= lastAckCommand);
                         }
-                        imageView.setImage(img);
+                        setImage.accept(img);
                         sharedMemory.position(2);
                         writeCommands(pendingCommands);
                     }
@@ -786,6 +791,26 @@ public class GreenfootStage extends Stage implements BlueJEventListener
         }
         return null;
     }
+
+
+    @Override
+    public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type, int compilationSequence)
+    {
+        // Grey out the world display until compilation finishes:
+        worldView.greyOutWorld();
+    }
+
+    @Override
+    public boolean compilerMessage(Diagnostic diagnostic, CompileType type)
+    {
+        return false;
+    }
+
+    @Override
+    public void endCompile(CompileInputFile[] sources, boolean succesful, CompileType type, int compilationSequence)
+    {
+    }
+
 
     /**
      * Gets a Reflective for the Actor class.
