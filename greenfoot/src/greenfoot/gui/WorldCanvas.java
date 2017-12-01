@@ -38,6 +38,8 @@ import greenfoot.guifx.GreenfootStage;
 import greenfoot.util.GreenfootUtil;
 import javafx.scene.input.KeyCode;
 import rmiextension.ProjectManager;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -355,6 +357,7 @@ public class WorldCanvas extends JPanel
      *
      * @return The command acknowledge to write back to the buffer
      */
+    @OnThread(Tag.Simulation)
     private int readCommands()
     {
         int lastSeqID = -1;
@@ -416,6 +419,9 @@ public class WorldCanvas extends JPanel
                         break;
                     case GreenfootStage.COMMAND_PAUSE:
                         Simulation.getInstance().setPaused(true);
+                        break;
+                    case GreenfootStage.COMMAND_ACT:
+                        Simulation.getInstance().runOnce();
                         break;
                     case GreenfootStage.COMMAND_CONTINUE_DRAG:
                         // Will be drag-ID, X, Y:

@@ -116,8 +116,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public static final int KEY_DOWN = 1;
     public static final int KEY_UP = 2;
     public static final int KEY_TYPED = 3;
-    private final Button runButton;
-
+    
     public static boolean isKeyEvent(int event)
     {
         return event >= KEY_DOWN && event <= KEY_TYPED;
@@ -145,6 +144,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public static final int COMMAND_CONTINUE_DRAG = 22;
     public static final int COMMAND_END_DRAG = 23;
     public static final int COMMAND_PAUSE = 24;
+    public static final int COMMAND_ACT = 25;
 
     private final Project project;
     // The glass pane used to show a new actor while it is being placed:
@@ -155,6 +155,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private final ClassDiagram classDiagram;
     // The currently-showing context menu, or null if none
     private ContextMenu contextMenu;
+
+    private final Button actButton;
+    private final Button runButton;
 
     public static enum State
     {
@@ -261,9 +264,17 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         greenfootDebugHandler.setGreenfootRecorder(saveTheWorldRecorder);
 
         worldView = new WorldDisplay();
+        actButton = new Button(Config.getString("run.once"));
         runButton = new Button(Config.getString("controls.run.button"));
-        Node buttonAndSpeedPanel = new HBox(runButton);
+        Node buttonAndSpeedPanel = new HBox(actButton, runButton);
         List<Command> pendingCommands = new ArrayList<>();
+        actButton.setOnAction(e -> {
+            if (stateProperty.get() == State.PAUSED)
+            {
+                pendingCommands.add(new Command(COMMAND_ACT));
+                stateProperty.set(State.PAUSED_REQUESTED_ACT_OR_RUN);
+            }
+        });
         runButton.setOnAction(e -> {
             if (stateProperty.get() == State.PAUSED)
             {
@@ -290,6 +301,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
     private void updateGUIState(State newState)
     {
+        actButton.setDisable(newState != State.PAUSED);
         runButton.setDisable(newState != State.PAUSED && newState != State.RUNNING);
         if (newState == State.RUNNING || newState == State.RUNNING_REQUESTED_PAUSE)
         {
