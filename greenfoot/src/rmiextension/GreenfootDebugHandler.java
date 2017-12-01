@@ -202,10 +202,10 @@ public class GreenfootDebugHandler implements DebuggerListener
     {
         final Debugger debugger = (Debugger)e.getSource();
         List<SourceLocation> stack = e.getThread().getStack();
+        boolean atBreakpoint = e.getID() == DebuggerEvent.THREAD_BREAKPOINT && e.getThread() != null; 
         
-        if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT
-            && e.getThread() != null &&
-            e.getBreakpointProperties().get(SIMULATION_THREAD_RUN_KEY) != null) {
+        if (atBreakpoint && e.getBreakpointProperties().get(SIMULATION_THREAD_RUN_KEY) != null)
+        {
             // This is the breakpoint at the very beginning of the simulation thread;
             // record this thread as being the simulation thread and set it running again:
             simulationThread = e.getThread();
@@ -219,26 +219,20 @@ public class GreenfootDebugHandler implements DebuggerListener
             e.getThread().cont();
             return true;
         }
-        else if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT
-                && e.getThread() != null &&
-                atNameActorBreakpoint(e.getBreakpointProperties()))
+        else if (atBreakpoint && atNameActorBreakpoint(e.getBreakpointProperties()))
         {
             VarDisplayInfo varDisplayInfo = e.getThread().getLocalVariables(0).get(0);
             greenfootRecorder.nameActors(fetchArray(varDisplayInfo.getFetchObject().get()));
             e.getThread().cont();
             return true;
         }
-        else if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT
-                && e.getThread() != null &&
-                atWorldInitalisingBreakpoint(e.getBreakpointProperties()))
+        else if (atBreakpoint && atWorldInitalisingBreakpoint(e.getBreakpointProperties()))
         {
             greenfootRecorder.clearCode(true);
             e.getThread().cont();
             return true;
         }
-        else if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT
-                && e.getThread() != null &&
-                atWorldChangedBreakpoint(e.getBreakpointProperties()))
+        else if (atBreakpoint && atWorldChangedBreakpoint(e.getBreakpointProperties()))
         {
             List<DebuggerField> fields = e.getThread().getCurrentObject(0).getFields();
             DebuggerField worldField = fields.stream().filter(f -> f.getName().equals("world")).findFirst().orElse(null);
@@ -253,9 +247,7 @@ public class GreenfootDebugHandler implements DebuggerListener
             e.getThread().cont();
             return true;
         }
-        else if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT
-                && e.getThread() != null &&
-                atPickedBreakpoint(e.getBreakpointProperties()))
+        else if (atBreakpoint && atPickedBreakpoint(e.getBreakpointProperties()))
         {
             List<DebuggerField> fields = e.getThread().getCurrentObject(0).getFields();
             DebuggerField actorPicksField = fields.stream().filter(f -> f.getName().equals("actorPicks")).findFirst().orElse(null);
@@ -283,8 +275,8 @@ public class GreenfootDebugHandler implements DebuggerListener
             e.getThread().cont();
             return true;
         }
-        else if (e.getID() == DebuggerEvent.THREAD_BREAKPOINT
-                && atResetBreakpoint(e.getBreakpointProperties())) {
+        else if (atBreakpoint && atResetBreakpoint(e.getBreakpointProperties()))
+        {
             // The user has clicked reset,
             // Set the simulation thread going if it's suspended:
             if (simulationThread.isSuspended()) {
@@ -305,7 +297,9 @@ public class GreenfootDebugHandler implements DebuggerListener
             });
             
             return true;
-        } else if (e.isHalt() && isSimulationThread(e.getThread())) {
+        }
+        else if (e.isHalt() && isSimulationThread(e.getThread()))
+        {
             if (atPauseBreakpoint(e.getBreakpointProperties())) {
                 // They are going to pause; remove all special breakpoints and set them going
                 // (so that they actually hit the pause):
