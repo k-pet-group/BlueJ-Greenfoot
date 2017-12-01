@@ -12,6 +12,6 @@ public class SetWorldHelper
     public SetWorldHelper(Object param)
     {
         World w = (World)param;
-        Simulation.getInstance().runLater(() -> WorldHandler.getInstance().setWorld(w));
+        Simulation.getInstance().runLater(() -> WorldHandler.getInstance().setWorld(w, false));
     }
 }
