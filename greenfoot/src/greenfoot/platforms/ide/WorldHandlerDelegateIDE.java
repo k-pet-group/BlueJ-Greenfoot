@@ -215,7 +215,7 @@ public class WorldHandlerDelegateIDE
                 World newWorld = (World) Simulation.newInstance(cons);
                 if (! WorldHandler.getInstance().checkWorldSet()) {
                     ImageCache.getInstance().clearImageCache();
-                    WorldHandler.getInstance().setWorld(newWorld);
+                    WorldHandler.getInstance().setWorld(newWorld, false);
                 }
                 saveWorldAction.setRecordingValid(true);
                 project.setLastWorldClassName(icls.getName());

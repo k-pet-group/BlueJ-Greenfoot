@@ -70,7 +70,7 @@ public class Greenfoot
             throw new NullPointerException("The given world cannot be null.");
         }
 
-        WorldHandler.getInstance().setWorld( world );
+        WorldHandler.getInstance().setWorld(world, true);
     }
 
     /**

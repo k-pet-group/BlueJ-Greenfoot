@@ -77,7 +77,7 @@ Then to set up Greenfoot, add these two further modules:
        Also select test/src, and mark that as a tests directory.
        Under Paths, select "Use module compile path" and enter bjgf/greenfoot/classes for both paths.
        Under Dependencies, click "+" and select "Module Dependency..." and select
-       "bluej-boot", "bluej" and "greenfoot-native".
+       "threadchecker", ""bluej-boot", "bluej" and "greenfoot-native".
        Click the "+" again and select Library and select "bluej-lib" and "greenfoot-lib".
 
 After adding these modules, try compiling again (Build menu -> Build Project).  It should be successful.

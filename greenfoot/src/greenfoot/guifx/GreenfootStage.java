@@ -53,6 +53,7 @@ import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import greenfoot.record.GreenfootRecorder;
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -82,6 +83,9 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import rmiextension.GreenfootDebugHandler;
+import rmiextension.GreenfootDebugHandler.SimulationStateListener;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.io.File;
 import java.io.IOException;
@@ -99,7 +103,7 @@ import static bluej.pkgmgr.target.ClassTarget.MENU_STYLE_INBUILT;
 /**
  * Greenfoot's main window: a JavaFX replacement for GreenfootFrame which lives on the server VM.
  */
-public class GreenfootStage extends Stage implements BlueJEventListener, FXCompileObserver
+public class GreenfootStage extends Stage implements BlueJEventListener, FXCompileObserver, SimulationStateListener
 {
     // These are the constants passed in the shared memory between processes,
     // hence they cannot be enums.  They are not persisted anywhere, so can
@@ -112,6 +116,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public static final int KEY_DOWN = 1;
     public static final int KEY_UP = 2;
     public static final int KEY_TYPED = 3;
+    private final Button runButton;
+
     public static boolean isKeyEvent(int event)
     {
         return event >= KEY_DOWN && event <= KEY_TYPED;
@@ -138,6 +144,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public static final int COMMAND_RUN = 21;
     public static final int COMMAND_CONTINUE_DRAG = 22;
     public static final int COMMAND_END_DRAG = 23;
+    public static final int COMMAND_PAUSE = 24;
 
     private final Project project;
     // The glass pane used to show a new actor while it is being placed:
@@ -149,6 +156,12 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     // The currently-showing context menu, or null if none
     private ContextMenu contextMenu;
 
+    public static enum State
+    {
+        RUNNING, RUNNING_REQUESTED_PAUSE, PAUSED, PAUSED_REQUESTED_ACT_OR_RUN, UNCOMPILED;
+    }
+    private final ObjectProperty<State> stateProperty = new SimpleObjectProperty<>(State.PAUSED);
+    
     // Details for pick requests that we have sent to the debug VM:
     private static enum PickType
     {
@@ -243,15 +256,25 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         BlueJEvent.addListener(this);
         project.getUnnamedPackage().addCompileObserver(this);
         greenfootDebugHandler.setPickListener(this::pickResults);
+        greenfootDebugHandler.setSimulationListener(this);
         this.saveTheWorldRecorder = new GreenfootRecorder();
         greenfootDebugHandler.setGreenfootRecorder(saveTheWorldRecorder);
 
         worldView = new WorldDisplay();
-        Button runButton = new Button("Run");
+        runButton = new Button(Config.getString("controls.run.button"));
         Node buttonAndSpeedPanel = new HBox(runButton);
         List<Command> pendingCommands = new ArrayList<>();
         runButton.setOnAction(e -> {
-            pendingCommands.add(new Command(COMMAND_RUN));
+            if (stateProperty.get() == State.PAUSED)
+            {
+                pendingCommands.add(new Command(COMMAND_RUN));
+                stateProperty.set(State.PAUSED_REQUESTED_ACT_OR_RUN);
+            }
+            else if (stateProperty.get() == State.RUNNING)
+            {
+                pendingCommands.add(new Command(COMMAND_PAUSE));
+                stateProperty.set(State.RUNNING_REQUESTED_PAUSE);
+            }
         });
         classDiagram = new ClassDiagram(project);
         BorderPane root = new BorderPane(worldView, null, classDiagram, buttonAndSpeedPanel, null);
@@ -262,6 +285,20 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         setScene(new Scene(stackPane));
 
         setupWorldDrawingAndEvents(sharedMemoryLock, sharedMemoryByte, worldView::setImage, pendingCommands);
+        JavaFXUtil.addChangeListenerPlatform(stateProperty, this::updateGUIState);
+    }
+
+    private void updateGUIState(State newState)
+    {
+        runButton.setDisable(newState != State.PAUSED && newState != State.RUNNING);
+        if (newState == State.RUNNING || newState == State.RUNNING_REQUESTED_PAUSE)
+        {
+            runButton.setText(Config.getString("controls.pause.button"));
+        }
+        else
+        {
+            runButton.setText(Config.getString("controls.run.button"));
+        }
     }
 
     /**
@@ -370,7 +407,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     newActorProperty.set(null);
                     return;
                 }
-                if (e.getCode() == KeyCode.SHIFT && newActorProperty.get() == null && classDiagram.getSelectedClass() != null)
+                
+                // We only want fully paused; if they've requested a run, don't allow a shift-click:
+                boolean paused = stateProperty.get() == State.PAUSED;
+                if (e.getCode() == KeyCode.SHIFT && newActorProperty.get() == null && classDiagram.getSelectedClass() != null && paused)
                 {
                     // Holding shift, so show actor preview if it is an actor with no-arg constructor:
                     Reflective type = classDiagram.getSelectedClass().getTypeReflective();
@@ -404,22 +444,22 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             e.consume();
         });
 
-        boolean isRunning = false; // TODO actually have this state correctly in future.
         worldView.setOnContextMenuRequested(e -> {
-            if (!isRunning)
+            boolean paused = stateProperty.get() == State.PAUSED;
+            if (paused)
             {
                 pickRequest(e.getX(), e.getY(), PickType.CONTEXT_MENU);
             }
         });
         worldView.addEventFilter(MouseEvent.ANY, e -> {
-            
+            boolean paused = stateProperty.get() == State.PAUSED;
             int eventType;
             if (e.getEventType() == MouseEvent.MOUSE_CLICKED)
             {
                 if (e.getButton() == MouseButton.PRIMARY)
                 {
                     hideContextMenu();
-                    if (!isRunning)
+                    if (paused)
                     {
                         pickRequest(e.getX(), e.getY(), PickType.LEFT_CLICK);
                     }
@@ -443,7 +483,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             else if (e.getEventType() == MouseEvent.MOUSE_DRAGGED)
             {
                 // Continue the drag if one is going:
-                if (e.getButton() == MouseButton.PRIMARY && !isRunning && curDragRequest != -1)
+                if (e.getButton() == MouseButton.PRIMARY && paused && curDragRequest != -1)
                 {
                     pendingCommands.add(new Command(COMMAND_CONTINUE_DRAG, curDragRequest, (int)e.getX(), (int)e.getY()));
                 }
@@ -456,7 +496,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             }
             else
             {
-                if (e.getEventType() == MouseEvent.DRAG_DETECTED)
+                if (e.getEventType() == MouseEvent.DRAG_DETECTED && paused)
                 {
                     // Begin a drag:
                     pickRequest(e.getX(), e.getY(), PickType.DRAG);
@@ -573,102 +613,108 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      * @param actors The list of actors found.  May be any size.
      * @param world The world -- only relevant if actors list is empty.
      */
+    @OnThread(Tag.Any)
     public void pickResults(int pickId, List<DebuggerObject> actors, DebuggerObject world)
     {
-        if (curPickRequest != pickId)
-        {
-            return; // Pick has been cancelled by a more recent pick, so ignore
-        }
-
-        if (curPickType == PickType.CONTEXT_MENU)
-        {
-            // If single actor, show simple context menu:
-            if (!actors.isEmpty())
+        Platform.runLater(() -> {
+            if (curPickRequest != pickId)
             {
-                // This is a list of menus; if there's only one we'll display
-                // directly in context menu.  If there's more than one, we'll
-                // have a higher level menu to pick between them.
-                List<Menu> actorMenus = new ArrayList<>();
-                for (DebuggerObject actor : actors)
+                return; // Pick has been cancelled by a more recent pick, so ignore
+            }
+
+            if (curPickType == PickType.CONTEXT_MENU)
+            {
+                // If single actor, show simple context menu:
+                if (!actors.isEmpty())
                 {
-                    Target target = project.getTarget(actor.getClassName());
+                    // This is a list of menus; if there's only one we'll display
+                    // directly in context menu.  If there's more than one, we'll
+                    // have a higher level menu to pick between them.
+                    List<Menu> actorMenus = new ArrayList<>();
+                    for (DebuggerObject actor : actors)
+                    {
+                        Target target = project.getTarget(actor.getClassName());
+                        // Should always be ClassTarget, but check in case:
+                        if (target instanceof ClassTarget)
+                        {
+                            ClassTarget classTarget = (ClassTarget) target;
+                            Menu menu = new Menu(actor.getClassName());
+                            ObjectWrapper.createMethodMenuItems(menu.getItems(), project.loadClass(actor.getClassName()), new RecordInvoke(actor), "", true);
+                            menu.getItems().add(makeInspectMenuItem(actor));
+
+                            MenuItem removeItem = new MenuItem(Config.getString("world.handlerDelegate.remove"));
+                            JavaFXUtil.addStyleClass(removeItem, MENU_STYLE_INBUILT);
+                            removeItem.setOnAction(e -> {
+                                project.getDebugger().instantiateClass(
+                                        "greenfoot.core.RemoveFromWorldHelper",
+                                        new String[]{"java.lang.Object"},
+                                        new DebuggerObject[]{actor});
+                                saveTheWorldRecorder.removeActor(actor);
+                            });
+                            menu.getItems().add(removeItem);
+                            actorMenus.add(menu);
+                        }
+                    }
+                    hideContextMenu();
+                    contextMenu = new ContextMenu();
+                    contextMenu.setOnHidden(e -> {
+                        contextMenu = null;
+                    });
+                    if (actorMenus.size() == 1)
+                    {
+                        // No point showing higher-level menu with one item, collapse:
+                        contextMenu.getItems().addAll(actorMenus.get(0).getItems());
+                    }
+                    else
+                    {
+                        contextMenu.getItems().addAll(actorMenus);
+                    }
+                    Point2D screenLocation = worldView.localToScreen(curPickPoint);
+                    contextMenu.show(worldView, screenLocation.getX(), screenLocation.getY());
+                }
+                else
+                {
+                    Target target = project.getTarget(world.getClassName());
                     // Should always be ClassTarget, but check in case:
                     if (target instanceof ClassTarget)
                     {
                         ClassTarget classTarget = (ClassTarget) target;
-                        Menu menu = new Menu(actor.getClassName());
-                        ObjectWrapper.createMethodMenuItems(menu.getItems(), project.loadClass(actor.getClassName()), new RecordInvoke(actor), "", true);
-                        menu.getItems().add(makeInspectMenuItem(actor));
-
-                        MenuItem removeItem = new MenuItem(Config.getString("world.handlerDelegate.remove"));
-                        JavaFXUtil.addStyleClass(removeItem, MENU_STYLE_INBUILT);
-                        removeItem.setOnAction(e -> {
-                            project.getDebugger().instantiateClass(
-                                "greenfoot.core.RemoveFromWorldHelper",
-                                new String[]{"java.lang.Object"},
-                                new DebuggerObject[]{actor});
-                            saveTheWorldRecorder.removeActor(actor);
+                        hideContextMenu();
+                        contextMenu = new ContextMenu();
+                        contextMenu.setOnHidden(e -> {
+                            contextMenu = null;
                         });
-                        menu.getItems().add(removeItem);
-                        actorMenus.add(menu);
+                        ObjectWrapper.createMethodMenuItems(contextMenu.getItems(), project.loadClass(world.getClassName()), new RecordInvoke(world), "", true);
+                        contextMenu.getItems().add(makeInspectMenuItem(world));
+
+                        MenuItem saveTheWorld = new MenuItem(Config.getString("save.world"));
+                        // Temporary while developing - print out saved world to Terminal window:
+                        saveTheWorld.setOnAction(e -> {
+                            saveTheWorldRecorder.writeCode(className -> ((ClassTarget) project.getUnnamedPackage().getTarget(className)).getEditor());
+                        });
+                        contextMenu.getItems().add(saveTheWorld);
+
+                        Point2D screenLocation = worldView.localToScreen(curPickPoint);
+                        contextMenu.show(worldView, screenLocation.getX(), screenLocation.getY());
                     }
                 }
-                hideContextMenu();
-                contextMenu = new ContextMenu();
-                contextMenu.setOnHidden(e -> { contextMenu = null;});
-                if (actorMenus.size() == 1)
-                {
-                    // No point showing higher-level menu with one item, collapse:
-                    contextMenu.getItems().addAll(actorMenus.get(0).getItems());
-                }
-                else
-                {
-                    contextMenu.getItems().addAll(actorMenus);
-                }
-                Point2D screenLocation = worldView.localToScreen(curPickPoint);
-                contextMenu.show(worldView, screenLocation.getX(), screenLocation.getY());
             }
-            else
+            else if (curPickType == PickType.DRAG && !actors.isEmpty())
             {
-                Target target = project.getTarget(world.getClassName());
-                // Should always be ClassTarget, but check in case:
-                if (target instanceof ClassTarget)
-                {
-                    ClassTarget classTarget = (ClassTarget) target;
-                    hideContextMenu();
-                    contextMenu = new ContextMenu();
-                    contextMenu.setOnHidden(e -> { contextMenu = null; });
-                    ObjectWrapper.createMethodMenuItems(contextMenu.getItems(), project.loadClass(world.getClassName()), new RecordInvoke(world), "", true);
-                    contextMenu.getItems().add(makeInspectMenuItem(world));
-
-                    MenuItem saveTheWorld = new MenuItem(Config.getString("save.world"));
-                    // Temporary while developing - print out saved world to Terminal window:
-                    saveTheWorld.setOnAction(e -> {
-                        saveTheWorldRecorder.writeCode(className -> ((ClassTarget)project.getUnnamedPackage().getTarget(className)).getEditor());
-                    });
-                    contextMenu.getItems().add(saveTheWorld);
-
-                    Point2D screenLocation = worldView.localToScreen(curPickPoint);
-                    contextMenu.show(worldView, screenLocation.getX(), screenLocation.getY());
-                }
+                // Left-click drag, and there is an actor there, so begin drag:
+                curDragRequest = pickId;
             }
-        }
-        else if (curPickType == PickType.DRAG && !actors.isEmpty())
-        {
-            // Left-click drag, and there is an actor there, so begin drag:
-            curDragRequest = pickId;
-        }
-        else if (curPickType == PickType.LEFT_CLICK && !actors.isEmpty())
-        {
-            DebuggerObject target = actors.get(0);
-            PkgMgrFrame pmf = PkgMgrFrame.findFrame(project.getUnnamedPackage());
+            else if (curPickType == PickType.LEFT_CLICK && !actors.isEmpty())
+            {
+                DebuggerObject target = actors.get(0);
+                PkgMgrFrame pmf = PkgMgrFrame.findFrame(project.getUnnamedPackage());
 
-            // We must put the object on the bench so that it has a name and wrapper:
-            String objInstanceName = pmf.putObjectOnBench(target.getClassName().toLowerCase(), target, target.getGenType(), null, null);
-            // Then we can issue the event saying that it has been clicked:
-            pmf.getObjectBench().fireObjectSelectedEvent(pmf.getObjectBench().getObject(objInstanceName));
-        }
-
+                // We must put the object on the bench so that it has a name and wrapper:
+                String objInstanceName = pmf.putObjectOnBench(target.getClassName().toLowerCase(), target, target.getGenType(), null, null);
+                // Then we can issue the event saying that it has been clicked:
+                pmf.getObjectBench().fireObjectSelectedEvent(pmf.getObjectBench().getObject(objInstanceName));
+            }
+        });
     }
 
     /**
@@ -798,6 +844,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         // Grey out the world display until compilation finishes:
         worldView.greyOutWorld();
+        stateProperty.set(State.UNCOMPILED);
     }
 
     @Override
@@ -809,6 +856,28 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     @Override
     public void endCompile(CompileInputFile[] sources, boolean succesful, CompileType type, int compilationSequence)
     {
+    }
+
+
+    @Override
+    @OnThread(Tag.Any)
+    public void simulationStartedRunning()
+    {
+        Platform.runLater(() -> stateProperty.set(State.RUNNING));
+    }
+
+    @Override
+    @OnThread(Tag.Any)
+    public void simulationPaused()
+    {
+        Platform.runLater(() -> stateProperty.set(State.PAUSED));
+    }
+
+    @Override
+    public @OnThread(Tag.Any) void simulationInitialisedWorld()
+    {
+        // This shows that compilation has finished, and we are back in the compiled but paused state:
+        Platform.runLater(() -> stateProperty.set(State.PAUSED));
     }
 
 

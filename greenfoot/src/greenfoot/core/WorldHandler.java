@@ -542,8 +542,12 @@ public class WorldHandler
      * Sets a new world.
      * 
      * @param world  The new world. Must not be null.
+     * @param byUserCode Was this world set by a call to Greenfoot.setWorld (which thus would
+     *                   have come from the user's code)?  If false, it means it was set by our own
+     *                   internal code, e.g. initialisation during standalone, or GUI interactions
+     *                   in the IDE.
      */
-    public synchronized void setWorld(final World world)
+    public synchronized void setWorld(final World world, boolean byUserCode)
     {
         worldIsSet = true;
         
@@ -579,14 +583,20 @@ public class WorldHandler
             fireWorldCreatedEvent(world);
         });
 
-        worldChanged();
+        worldChanged(byUserCode);
     }
 
     /**
      * This is a special method which will have a breakpoint set by the GreenfootDebugHandler
      * class.  Do not remove or rename without also changing that class.
+     * 
+     * @param byUserCode Was this world set by a call to Greenfoot.setWorld (which thus would
+     *                   have come from the user's code)?  If false, it means it was set by our own
+     *                   internal code, e.g. initialisation during standalone, or GUI interactions
+     *                   in the IDE.  This param is marked unused but actually
+     *                   GreenfootDebugHandler will inspect it via JDI
      */
-    private void worldChanged()
+    private void worldChanged(boolean byUserCode)
     {
     }
 

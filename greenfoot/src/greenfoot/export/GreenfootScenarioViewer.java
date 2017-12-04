@@ -211,7 +211,7 @@ public class GreenfootScenarioViewer extends JApplet
             worldConstructor = worldClass.getConstructor(new Class[]{});
             World world = instantiateNewWorld();
             if (! worldHandler.checkWorldSet()) {
-                worldHandler.setWorld(world);
+                worldHandler.setWorld(world, false);
             }
             
             EventQueue.invokeAndWait(() -> {

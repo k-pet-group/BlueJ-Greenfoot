@@ -80,7 +80,7 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         WorldHandler.getInstance().clearWorldSet();
         World newWorld = viewer.instantiateNewWorld();
         if (! WorldHandler.getInstance().checkWorldSet()) {
-            WorldHandler.getInstance().setWorld(newWorld);
+            WorldHandler.getInstance().setWorld(newWorld, false);
         }
     }
 
