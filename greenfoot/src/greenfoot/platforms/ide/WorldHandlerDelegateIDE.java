@@ -24,7 +24,6 @@ package greenfoot.platforms.ide;
 import greenfoot.Actor;
 import greenfoot.ObjectTracker;
 import greenfoot.World;
-import greenfoot.actions.SaveWorldAction;
 import greenfoot.core.ClassStateManager;
 import greenfoot.core.GClass;
 import greenfoot.core.GNamedValue;
@@ -35,6 +34,7 @@ import greenfoot.core.WorldHandler;
 import greenfoot.event.SimulationUIListener;
 import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.GreenfootFrame;
+import greenfoot.gui.WorldCanvas;
 import greenfoot.gui.input.InputManager;
 import greenfoot.platforms.WorldHandlerDelegate;
 import greenfoot.record.GreenfootRecorder;
@@ -88,10 +88,6 @@ public class WorldHandlerDelegateIDE
     
     private GreenfootFrame frame;
     
-    // Records actions manually performed on the world:
-    private GreenfootRecorder greenfootRecorder;
-    private SaveWorldAction saveWorldAction;
-
     private boolean worldInitialising;
     private boolean worldInvocationError;
     private boolean missingConstructor;
@@ -101,9 +97,6 @@ public class WorldHandlerDelegateIDE
             ClassStateManager classStateManager)
     {
         this.frame = frame;
-        greenfootRecorder = new GreenfootRecorder();
-        saveWorldAction = new SaveWorldAction(greenfootRecorder, classStateManager);
-        saveWorldAction.setRecordingValid(false);
     }
 
     /**
@@ -124,21 +117,10 @@ public class WorldHandlerDelegateIDE
         nameActors(actorsToName.toArray(new Actor[0]));
         
         worldInvocationError = false;
-        greenfootRecorder.clearCode(false);
         //greenfootRecorder.setWorld(newWorld);
         if (oldWorld != null) {
             discardWorld(oldWorld);
         }
-        
-        GClass lastWorld = null;
-        if (project != null && newWorld != null) {
-            String lastWorldClass = newWorld.getClass().getName();
-            if (lastWorldClass != null) {
-                lastWorld = project.getDefaultPackage().getClass(lastWorldClass);
-            }
-        }
-
-        saveWorldAction.setLastWorldGClass(lastWorld);
     }
     
     /**
@@ -217,7 +199,6 @@ public class WorldHandlerDelegateIDE
                     ImageCache.getInstance().clearImageCache();
                     WorldHandler.getInstance().setWorld(newWorld, false);
                 }
-                saveWorldAction.setRecordingValid(true);
                 project.setLastWorldClassName(icls.getName());
             }
             catch (LinkageError e) { }
@@ -366,13 +347,6 @@ public class WorldHandlerDelegateIDE
     @Override
     public void simulationActive()
     {
-        greenfootRecorder.clearCode(true);
-        saveWorldAction.setRecordingValid(false);
-    }
-
-    public SaveWorldAction getSaveWorldAction()
-    {
-        return saveWorldAction;
     }
     
     /**
