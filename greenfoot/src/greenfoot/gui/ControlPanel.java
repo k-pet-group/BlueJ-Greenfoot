@@ -190,12 +190,6 @@ public class ControlPanel extends Box
     public void simulationChanged(SimulationEvent e)
     {        
         final int etype = e.getType();
-        if (etype == SimulationEvent.DEBUGGER_PAUSED
-              || etype == SimulationEvent.DEBUGGER_RESUMED) {
-            // we don't care about these events here so we want to avoid
-            // creating a new thread below.
-            return;
-        }
 
         if (etype == SimulationEvent.STARTED) {
             EventQueue.invokeLater(() -> {

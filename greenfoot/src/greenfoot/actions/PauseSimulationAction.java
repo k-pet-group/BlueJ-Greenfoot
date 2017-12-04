@@ -107,17 +107,6 @@ public class PauseSimulationAction extends AbstractAction
                 setEnabled(stateOnDebugResume = false);
             });
         }
-        else if (eventType == SimulationEvent.DEBUGGER_PAUSED) {
-            EventQueue.invokeLater(() -> {
-                stateOnDebugResume = isEnabled();
-                setEnabled(false);                        
-            });
-        }
-        else if (eventType == SimulationEvent.DEBUGGER_RESUMED) {
-            EventQueue.invokeLater(() -> {
-                setEnabled(stateOnDebugResume);
-            });
-        }
     }
 
     public void setActionListener(Runnable actionListener)

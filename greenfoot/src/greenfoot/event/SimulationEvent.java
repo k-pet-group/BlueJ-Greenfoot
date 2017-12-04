@@ -47,22 +47,6 @@ public class SimulationEvent extends EventObject
      * until a STOPPED event is received.
      */
     public final static int DISABLED = 3; 
-
-    /** The simulation thread is paused because it hit a breakpoint,
-     *  or the debugger has otherwise stopped its execution.
-     *  
-     *  Obviously, this event will not be processed in the
-     *  Simulation thread.
-     */
-    public final static int DEBUGGER_PAUSED = 5;
-    
-    /** The opposite of DEBUGGER_PAUSED; the debugger has set
-     * the Simulation going again.
-     * 
-     * Like DEBUGGER_PAUSED, this will not be processed in the Simulation
-     * thread.
-     */
-    public final static int DEBUGGER_RESUMED = 6;
     
     /**
      * Execution of a new "Act" round has commenced.
@@ -104,10 +88,6 @@ public class SimulationEvent extends EventObject
                 return "CHANGED_SPEED";
             case DISABLED:
                 return "DISABLED";
-            case DEBUGGER_PAUSED:
-                return "DEBUGGER_PAUSED";
-            case DEBUGGER_RESUMED:
-                return "DEBUGGER_RESUMED";
         }
         return super.toString();
     }
