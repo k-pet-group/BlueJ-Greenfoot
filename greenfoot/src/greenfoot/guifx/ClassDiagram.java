@@ -79,6 +79,10 @@ public class ClassDiagram extends VBox
                 }
                 label.setStyle("-fx-underline: true;");
             }
+            else if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 2)
+            {
+                classTarget.open();
+            }
         });
         return label;
     }
