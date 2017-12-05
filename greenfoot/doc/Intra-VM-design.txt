@@ -124,3 +124,16 @@ and passed to GreenfootRecorder, which needs to know it for spotting method call
 (as opposed to actors).
 
 (Shared memory can't be used here because we need the reference of the world object)
+
+Greenfoot.ask
+-------------
+
+When the user code calls Greenfoot.ask, it needs to block until it gets an answer.  So we use
+a technique similar to GUI frameworks when they show a modal dialog: we enter a nested
+server VM polling loop until we get an answer (see WorldHandlerDelegateIDE.ask).  The communication
+is a little weird, because ask is the only situation where the debug VM needs to send a request
+to the server VM, and we don't have a command list+ack from debug to server VM like we do in the
+opposite direction.  So we just include the request in every frame from the debug VM until it
+is answered, using an ask ID to identify ask requests so that the server VM can tell if it's
+a new request or a stale request.  The answer is sent as a command from server VM to debug VM,
+which will get acknowledged as usual. 

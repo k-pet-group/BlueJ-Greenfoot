@@ -21,22 +21,24 @@
  */
 package greenfoot.guifx;
 
+import bluej.utility.javafx.FXPlatformConsumer;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 
 /**
  * A class for handling the world part of the main GreenfootStage window.
  */
-class WorldDisplay extends BorderPane
+class WorldDisplay extends StackPane
 {
     private final ImageView imageView = new ImageView();
+    private final AskPaneFX askPane = new AskPaneFX();
     
     public WorldDisplay()
     {
-        setCenter(imageView);
+        getChildren().addAll(imageView, askPane);
         setMinWidth(200);
         setMinHeight(200);
     }
@@ -61,5 +63,35 @@ class WorldDisplay extends BorderPane
         GaussianBlur blur = new GaussianBlur();
         blur.setInput(grey);
         imageView.setEffect(blur);
+    }
+
+    /**
+     * Show the ask panel with the given prompt, and call the given callback once
+     * the user gives an answer.  It is safe to call this method repeatedly for the
+     * same ask request without disturbing the GUI.
+     */
+    public void ensureAsking(String prompt, FXPlatformConsumer<String> withAnswer)
+    {
+        // Remember, all of this should be fine to call multiple times:
+        imageView.setDisable(true);
+        greyOutWorld();
+        askPane.setVisible(true);
+        askPane.setPrompt(prompt);
+        askPane.focusTextEntry();
+        askPane.setWithAnswer(ans -> {
+            // Reverse the above GUI changes then pass it on:
+            askPane.setVisible(false);
+            imageView.setDisable(false);
+            imageView.setEffect(null);
+            withAnswer.accept(ans);
+        });
+    }
+
+    /**
+     * Is the ask pane currently showing?
+     */
+    public boolean isAsking()
+    {
+        return askPane.isVisible();
     }
 }
