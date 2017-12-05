@@ -58,7 +58,7 @@ public class NeighbourTest extends TestCase
         world = WorldCreator.createWorld(10, 10, 10);
 
         WorldHandler.initialise();
-        WorldHandler.getInstance().setWorld(world);
+        WorldHandler.getInstance().setWorld(world, false);
         
         int xStart = 9;
         int yStart = 9;

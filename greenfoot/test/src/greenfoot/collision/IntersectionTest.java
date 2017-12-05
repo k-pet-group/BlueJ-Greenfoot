@@ -76,7 +76,7 @@ public class IntersectionTest extends TestCase
         world = WorldCreator.createWorld(70, 70, 1);
 
         WorldHandler.initialise();
-        WorldHandler.getInstance().setWorld(world);
+        WorldHandler.getInstance().setWorld(world, false);
         
         TestObject o1 = new TestObject(7,7);
         world.addObject(o1, 0 ,0);
