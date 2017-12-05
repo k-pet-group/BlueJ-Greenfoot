@@ -25,6 +25,7 @@ import greenfoot.Actor;
 import greenfoot.World;
 import greenfoot.core.WorldHandler;
 import greenfoot.export.GreenfootScenarioViewer;
+import greenfoot.gui.WorldCanvas;
 import greenfoot.gui.input.InputManager;
 import greenfoot.platforms.WorldHandlerDelegate;
 
@@ -115,7 +116,7 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     }
 
     @Override
-    public String ask(String prompt)
+    public String ask(String prompt, WorldCanvas worldCanvas)
     {
         return viewer.ask(prompt);
     }

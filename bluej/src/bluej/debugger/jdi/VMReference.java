@@ -2232,6 +2232,11 @@ class VMReference
      */
     public void setRunOnThread(RunOnThread runOnThread)
     {
+        // In Greenfoot, we run on the Simulation thread, which is handled on the debug VM,
+        // so we don't want to mess with the setting from the server VM.  Just ignore:
+        if (Config.isGreenfoot())
+            return;
+
         int fieldValue;
         switch (runOnThread)
         {

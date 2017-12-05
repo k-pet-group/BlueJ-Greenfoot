@@ -632,7 +632,7 @@ public class Simulation extends Thread
         WorldCanvas wcanvas = WorldHandler.getInstance().getWorldCanvas();
         if (WorldHandler.getInstance().hasWorld())
         {
-            wcanvas.paintRemote(forcePaint);
+            wcanvas.paintRemote(forcePaint, -1, null);
         }
     }
 

@@ -28,7 +28,7 @@ public class WorldCreator
     public static World createWorld(int width, int height, int cellSize) {
         World world = new World(width, height, cellSize) {};
         WorldHandler.initialise();
-        WorldHandler.getInstance().setWorld(world);
+        WorldHandler.getInstance().setWorld(world, false);
         return world;
     }
 }

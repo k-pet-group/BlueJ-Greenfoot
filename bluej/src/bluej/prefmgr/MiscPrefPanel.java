@@ -141,10 +141,11 @@ public class MiscPrefPanel extends VBox
         return PrefMgrDialog.headedVBox("prefmgr.collection.title", dataCollectionPanel);
     }
 
+    // Not called in Greenfoot
     private Node makeVMPanel()
     {
         showUncheckedBox = new CheckBox(Config.getString("prefmgr.misc.showUnchecked"));
-        ObservableList<RunOnThread> runOnThreadPoss = FXCollections.observableArrayList(RunOnThread.values());
+        ObservableList<RunOnThread> runOnThreadPoss = FXCollections.observableArrayList(RunOnThread.DEFAULT, RunOnThread.FX, RunOnThread.SWING);
         runOnThread = new ComboBox<>(runOnThreadPoss);
         threadRunSetting = PrefMgrDialog.labelledItem("prefmgr.misc.runOnThread", runOnThread);
         return PrefMgrDialog.headedVBox("prefmgr.misc.vm.title", Arrays.asList(showUncheckedBox, threadRunSetting));

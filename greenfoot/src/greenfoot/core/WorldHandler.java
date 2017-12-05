@@ -175,7 +175,7 @@ public class WorldHandler
             }
 
             @Override
-            public String ask(String prompt)
+            public String ask(String prompt, WorldCanvas worldCanvas)
             {
                 return "";
             }
@@ -987,7 +987,7 @@ public class WorldHandler
         boolean held = lock.isWriteLockedByCurrentThread();
         if (held)
             lock.writeLock().unlock();
-        String answer = handlerDelegate.ask(prompt);
+        String answer = handlerDelegate.ask(prompt, worldCanvas);
         // Must refocus canvas after panel disappears:
         EventQueue.invokeLater(new Runnable() {public void run() {
             worldCanvas.requestFocusInWindow();

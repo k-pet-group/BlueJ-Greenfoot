@@ -142,11 +142,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      * followed by no integers.
      */
     public static final int COMMAND_RUN = 21;
+    // Followed by drag-ID, X, Y:
     public static final int COMMAND_CONTINUE_DRAG = 22;
+    // Followed by drag-ID:
     public static final int COMMAND_END_DRAG = 23;
     public static final int COMMAND_PAUSE = 24;
     public static final int COMMAND_ACT = 25;
     public static final int COMMAND_RESET = 26;
+    // Followed by one integer per character in String answer.
+    public static final int COMMAND_ANSWERED = 27;
 
     private final Project project;
     // The glass pane used to show a new actor while it is being placed:
@@ -185,6 +189,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private PickType curPickType;
     // The current drag request ID, or -1 if not currently dragging:
     private int curDragRequest;
+
+    /**
+     * Because the ask request is sent as a continuous status rather than
+     * a one-off event that we explicitly acknowledge, we keep track of the
+     * last answer we sent so that we know if an ask request is newer than
+     * the last answer or not.  That way we don't accidentally ask again
+     * after the answer has been sent.
+     */
+    private int lastAnswer = -1;
 
     private final GreenfootRecorder saveTheWorldRecorder;
 
@@ -423,6 +436,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         IntBuffer sharedMemory = sharedMemoryByte.asIntBuffer();
 
         getScene().addEventFilter(KeyEvent.ANY, e -> {
+            // Ignore keypresses if we are currently waiting for an ask-answer:
+            if (worldView.isAsking())
+                return;
+            
             int eventType;
             if (e.getEventType() == KeyEvent.KEY_PRESSED)
             {
@@ -558,6 +575,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                         }
                         sharedMemoryByte.position(sharedMemory.position() * 4);
                         img.getPixelWriter().setPixels(0, 0, width, height, PixelFormat.getByteBgraPreInstance(), sharedMemoryByte, width * 4);
+                        setImage.accept(img);
                         // Have to move sharedMemory position manually because
                         // the sharedMemory buffer doesn't share position with sharedMemoryByte buffer:
                         sharedMemory.position(sharedMemory.position() + width * height);
@@ -567,7 +585,23 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                         {
                             pendingCommands.removeIf(c -> c.commandSequence <= lastAckCommand);
                         }
-                        setImage.accept(img);
+                        
+                        int askId = sharedMemory.get();
+                        if (askId >= 0 && askId > lastAnswer)
+                        {
+                            // Length followed by codepoints for the prompt string:
+                            int askLength = sharedMemory.get();
+                            int[] promptCodepoints = new int[askLength];
+                            sharedMemory.get(promptCodepoints);
+                            
+                            // Tell worldView to ask:
+                            worldView.ensureAsking(new String(promptCodepoints, 0, promptCodepoints.length), (String s) -> {
+                                Command answerCommand = new Command(COMMAND_ANSWERED, s.codePoints().toArray());
+                                pendingCommands.add(answerCommand);
+                                // Remember that we've now answered:
+                                lastAnswer = answerCommand.commandSequence;
+                            });
+                        }
                         sharedMemory.position(2);
                         writeCommands(pendingCommands);
                     }

@@ -114,10 +114,13 @@ public class WorldCanvas extends JPanel
      * When positive frame counter in position 1, interpret rest as follows:
      * Pos 2: Width of world image in pixels (W)
      * Pos 3: Height of world image in pixels (H)
-     * Pos 4 incl to 3+(W*H) excl, if W and H are both greater than zero:
+     * Pos 4 incl to 4+(W*H) excl, if W and H are both greater than zero:
      *        W * H pixels one row at a time with no gaps, each pixel is one
      *        integer, in BGRA form, i.e. blue is highest 8 bits, alpha is lowest.
-     * Pos 3+(W*H): Sequence ID of most recently processed command, or -1 if N/A.
+     * Pos 4+(W*H): Sequence ID of most recently processed command, or -1 if N/A.
+     * Pos 5+(W*H): -1 if not currently awaiting a Greenfoot.ask() answer.
+     *              If awaiting, it is count (P) of following codepoints which make up prompt.
+     * Pos 6+(W*H) to 6+(W*H)+P excl: codepoints making up ask prompt.
      *
      * When negative frame counter in position 1, interpret rest as follows:
      * Pos 2: Count of commands (C), can be zero
@@ -299,13 +302,17 @@ public class WorldCanvas extends JPanel
      * display it in the window there.
      *
      * @param forcePaint Always paint.  If false, painting may be skipped if it's close to a recent paint.
+     * @param askId If non-negative, an ID for the ask request to pass to the server VM
+     * @param askPrompt If askId is non-negative, a prompt for answer from Greenfoot.ask().
+     * @return Answer from Greenfoot.ask() if available, null otherwise
      */
-    public void paintRemote(boolean forcePaint)
+    @OnThread(Tag.Simulation)
+    public String paintRemote(boolean forcePaint, int askId, String askPrompt)
     {
         long now = System.nanoTime();
         if (!forcePaint && now - lastPaintNanos <= 8_333_333L)
         {
-            return; // No need to draw frame if less than 1/120th of sec between them
+            return null; // No need to draw frame if less than 1/120th of sec between them
         }
         lastPaintNanos = now;
 
@@ -317,6 +324,8 @@ public class WorldCanvas extends JPanel
         WorldVisitor.paintDebug(world, g2);
         paintWorldText(g2, world);
 
+        // One element array to allow a reference to be set by readCommands:
+        String[] answer = new String[] {null};
         if (!sending)
         {
             sending = true;
@@ -327,7 +336,7 @@ public class WorldCanvas extends JPanel
                 int recvSeq = sharedMemory.get();
                 if (recvSeq < 0)
                 {
-                    int latest = readCommands();
+                    int latest = readCommands(answer);
                     if (latest != -1)
                     {
                         lastAckCommand = latest;
@@ -342,6 +351,19 @@ public class WorldCanvas extends JPanel
                     sharedMemory.put(raw[i] << 8 | 0xFF);
                 }
                 sharedMemory.put(lastAckCommand);
+                // If not asking, put -1
+                if (askPrompt == null || answer[0] != null)
+                {
+                    sharedMemory.put(-1);
+                }
+                else
+                {
+                    // Asking, so put the ask ID, and the prompt string:
+                    int[] codepoints = askPrompt.codePoints().toArray();
+                    sharedMemory.put(askId);
+                    sharedMemory.put(codepoints.length);
+                    sharedMemory.put(codepoints);
+                }
             }
             catch (IOException e)
             {
@@ -349,16 +371,18 @@ public class WorldCanvas extends JPanel
             }
             sending = false;
         }
+        return answer[0];
     }
 
     /**
      * Read commands from the server VM.  Eventually, at the end of the Greenfoot
      * rewrite, this should live elsewhere (probably in WorldHandler or similar).
      *
+     * @param answer A one-element array in which to store an ask-answer, if received
      * @return The command acknowledge to write back to the buffer
      */
     @OnThread(Tag.Simulation)
-    private int readCommands()
+    private int readCommands(String[] answer)
     {
         int lastSeqID = -1;
         int commandCount = sharedMemory.get();
@@ -438,6 +462,10 @@ public class WorldCanvas extends JPanel
                     case GreenfootStage.COMMAND_END_DRAG:
                         // Will be drag-ID:
                         WorldHandler.getInstance().finishDrag(data[1]);
+                        break;
+                    case GreenfootStage.COMMAND_ANSWERED:
+                        // Store the codepoints we received:
+                        answer[0] = new String(data, 1, data.length - 1);
                         break;
                 }
             }
@@ -664,5 +692,14 @@ public class WorldCanvas extends JPanel
     {
         this.overrideImage = snapshot;
         repaint();
+    }
+
+    /**
+     * Gets a suitable ask ID.  This needs to be a sequence number which will be
+     * newer than the last answer, so we just use the last command we received.
+     */
+    public int getAskId()
+    {
+        return lastAckCommand;
     }
 }

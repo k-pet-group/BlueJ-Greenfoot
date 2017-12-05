@@ -387,30 +387,36 @@ public class WorldHandlerDelegateIDE
     }
 
     @Override
-    public String ask(final String prompt)
+    public String ask(final String prompt, WorldCanvas worldCanvas)
     {
-        final AtomicReference<Callable<String>> c = new AtomicReference<>();
-        try
-        {
-            EventQueue.invokeAndWait(() -> c.set(frame.ask(prompt)));
-        }
-        catch (InvocationTargetException e)
-        {
-            Debug.reportError(e);
-        }
-        catch (InterruptedException e)
-        {
-            Debug.reportError(e);
-        }
+        // As I accidentally discovered while developing, this method
+        // will go wrong if called off the simulation thread.
+        // That should be fine, because Greenfoot methods should always
+        // be called from the simulation thread, but it's worth an
+        // explicit exception rather than getting stuck in a loop:
+        if (!Simulation.getInstance().equals(Thread.currentThread()))
+            throw new RuntimeException("Greenfoot.ask can only be called from the main simulation thread");
         
-        try
+        // Make a new ID for the ask request:
+        int askId = worldCanvas.getAskId();
+        // Keeping polling the server VM until we get an answer.
+        // This will block the simulation thread until we get an answer,
+        // but that is the semantics of Greenfoot.ask so it's fine:
+        while (true)
         {
-            return c.get().call();
-        }
-        catch (Exception e)
-        {
-            Debug.reportError(e);
-            return null;
+            String answer = worldCanvas.paintRemote(true, askId, prompt);
+            if (answer != null)
+            {
+                return answer;
+            }
+
+            try
+            {
+                Thread.sleep(200);
+            }
+            catch (InterruptedException e)
+            {
+            }
         }
     }
 }

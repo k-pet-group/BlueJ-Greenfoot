@@ -24,6 +24,7 @@ package greenfoot.platforms;
 import greenfoot.Actor;
 import greenfoot.World;
 import greenfoot.core.WorldHandler;
+import greenfoot.gui.WorldCanvas;
 import greenfoot.gui.input.InputManager;
 
 import java.awt.event.MouseEvent;
@@ -64,7 +65,7 @@ public interface WorldHandlerDelegate
     /**
      * Show a text prompt asking for input, with given prompt string
      */
-    public String ask(String prompt);
+    public String ask(String prompt, WorldCanvas worldCanvas);
 
     public default void initialisingWorld() {};
 }
