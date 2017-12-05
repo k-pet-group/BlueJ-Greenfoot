@@ -85,14 +85,14 @@ to create a PickActorHelper which finds out the reference(s) of any actor(s) at 
 PickActorHelper has a special breakpoint set which it then runs into.  At this point, the server VM
 interrogates the PickActorHelper's fields to access the reference.  It then uses BlueJ's existing
 code to create a right-click menu with that object's methods, which may then be called on that
-actor using BlueJ's existing worker mechanisms.
+actor using BlueJ's existing worker mechanisms, using a custom runner in ExecServer to run on
+the simulation thread.
 
 Right-clicking on the world works exactly the same way, but PickActorHelper stores a reference to
 the world object instead, in that case.
 
 (Shared memory can't be used here because we need to act on the reference of the clicked object)
 
-TODO: I think BlueJ will call the methods on an arbitrary thread, but we may want to call them on the simulation thread?
 
 Dragging an actor
 -----------------

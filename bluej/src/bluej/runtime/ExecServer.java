@@ -48,6 +48,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
 
 import com.sun.javafx.stage.StageHelper;
 import javafx.application.Application;
@@ -92,9 +93,14 @@ public class ExecServer
     public static final int RUN_ON_DEFAULT_THREAD = 0;
     public static final int RUN_ON_FX_THREAD = 1;
     public static final int RUN_ON_SWING_THREAD = 2;
+    public static final int RUN_ON_CUSTOM_THREAD = 3;
 
     // Parameters for main thread actions
     public static int threadToRunOn = RUN_ON_DEFAULT_THREAD;
+    // If threadToRunOn == RUN_ON_CUSTOM_THREAD, then this runner will be used as the "runLater".
+    // Currently used by Greenfoot to run on the simulation thread, but without introducing a dependency
+    // from ExecServer (which exists in BlueJ) to Greenfoot code.
+    private static Consumer<Runnable> customThreadRunner;
     public static String classToRun;
     public static String methodToRun;
     public static String [] parameterTypes;
@@ -880,38 +886,36 @@ public class ExecServer
 
     private static void runOnTargetThread(RunnableThrows runnable) throws Throwable
     {
-        switch (threadToRunOn)
+        if (threadToRunOn == RUN_ON_DEFAULT_THREAD)
         {
-            case RUN_ON_FX_THREAD:
-            case RUN_ON_SWING_THREAD:
+            runnable.run();
+        }
+        else
+        {
+            CompletableFuture<Optional<Throwable>> f = new CompletableFuture<>();
+            Runnable wrapped = () ->
+            {
+                try
                 {
-                    CompletableFuture<Optional<Throwable>> f = new CompletableFuture<>();
-                    Runnable wrapped = () ->
-                    {
-                        try
-                        {
-                            runnable.run();
-                            f.complete(Optional.empty());
-                        }
-                        catch (Throwable t)
-                        {
-                            f.complete(Optional.of(t));
-                        }
-                    };
-                    if (threadToRunOn == RUN_ON_FX_THREAD)
-                        Platform.runLater(wrapped);
-                    else
-                        SwingUtilities.invokeLater(wrapped);
-                    Optional<Throwable> t = f.get();
-                    if (t.isPresent())
-                    {
-                        throw t.get();
-                    }
+                    runnable.run();
+                    f.complete(Optional.empty());
                 }
-                break;
-            default:
-                runnable.run();
-                break;
+                catch (Throwable t)
+                {
+                    f.complete(Optional.of(t));
+                }
+            };
+            if (threadToRunOn == RUN_ON_FX_THREAD)
+                Platform.runLater(wrapped);
+            else if (threadToRunOn == RUN_ON_SWING_THREAD)
+                SwingUtilities.invokeLater(wrapped);
+            else if (threadToRunOn == RUN_ON_CUSTOM_THREAD && customThreadRunner != null)
+                customThreadRunner.accept(wrapped);
+            Optional<Throwable> t = f.get();
+            if (t.isPresent())
+            {
+                throw t.get();
+            }
         }
     }
 
@@ -974,7 +978,16 @@ public class ExecServer
     {
         return getScope(scopeId);
     }
-    
+
+    /**
+     * Execute user code using the custom "runLater" action.
+     */
+    public static void setCustomRunOnThread(Consumer<Runnable> customThreadRunner)
+    {
+        ExecServer.threadToRunOn = RUN_ON_CUSTOM_THREAD;
+        ExecServer.customThreadRunner = customThreadRunner;
+    }
+
     /**
      * Get the current class loader used to load user classes.
      * 

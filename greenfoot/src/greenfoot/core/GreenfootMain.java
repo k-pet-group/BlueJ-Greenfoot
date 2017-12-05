@@ -235,6 +235,9 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
                     frame = GreenfootFrame.getGreenfootFrame(rBlueJ, classStateManager, shmFilePath);
 
+                    // Want to execute this after the simulation has been initialised:
+                    ExecServer.setCustomRunOnThread(r -> Simulation.getInstance().runLater(r));
+
                     // Config is initialized in GreenfootLauncherDebugVM
 
                     if (!isStartupProject()) {
