@@ -92,8 +92,6 @@ public class Simulation extends Thread
     private SimulationEvent stoppedEvent;
     private SimulationEvent disabledEvent;
     private SimulationEvent speedChangeEvent;
-    private SimulationEvent debuggerPausedEvent;
-    private SimulationEvent debuggerResumedEvent;
     private SimulationEvent newActRoundEvent;
     private SimulationEvent taskBeginEvent;
     private SimulationEvent taskEndEvent;
@@ -149,8 +147,6 @@ public class Simulation extends Thread
         stoppedEvent = new SimulationEvent(this, SimulationEvent.STOPPED);
         speedChangeEvent = new SimulationEvent(this, SimulationEvent.CHANGED_SPEED);
         disabledEvent = new SimulationEvent(this, SimulationEvent.DISABLED);
-        debuggerPausedEvent = new SimulationEvent(this, SimulationEvent.DEBUGGER_PAUSED);
-        debuggerResumedEvent = new SimulationEvent(this, SimulationEvent.DEBUGGER_RESUMED);
         newActRoundEvent = new SimulationEvent(this, SimulationEvent.NEW_ACT_ROUND);
         taskBeginEvent = new SimulationEvent(this, SimulationEvent.QUEUED_TASK_BEGIN);
         taskEndEvent = new SimulationEvent(this, SimulationEvent.QUEUED_TASK_END);
@@ -796,20 +792,6 @@ public class Simulation extends Thread
                     ((SimulationListener) listeners[i + 1]).simulationChanged(event);
                 }
             }
-        }
-    }
-    
-    /**
-     * Notify that the simulation thread has been halted or resumed by the debugger.
-     */
-    public void notifyThreadStatus(boolean halted)
-    {
-        if (halted) {
-            fireSimulationEvent(debuggerPausedEvent);
-        }
-        else {
-            // resumed
-            fireSimulationEvent(debuggerResumedEvent);
         }
     }
 

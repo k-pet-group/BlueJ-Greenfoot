@@ -47,6 +47,7 @@ import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.JavaReflective;
+import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.ConstructorView;
@@ -166,6 +167,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         RUNNING, RUNNING_REQUESTED_PAUSE, PAUSED, PAUSED_REQUESTED_ACT_OR_RUN, UNCOMPILED;
     }
     private final ObjectProperty<State> stateProperty = new SimpleObjectProperty<>(State.PAUSED);
+    private boolean atBreakpoint = false;
     
     // Details for pick requests that we have sent to the debug VM:
     private static enum PickType
@@ -311,8 +313,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
     private void updateGUIState(State newState)
     {
-        actButton.setDisable(newState != State.PAUSED);
-        runButton.setDisable(newState != State.PAUSED && newState != State.RUNNING);
+        actButton.setDisable(newState != State.PAUSED || atBreakpoint);
+        runButton.setDisable((newState != State.PAUSED && newState != State.RUNNING) || atBreakpoint);
         if (newState == State.RUNNING || newState == State.RUNNING_REQUESTED_PAUSE)
         {
             runButton.setText(Config.getString("controls.pause.button"));
@@ -470,7 +472,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             boolean paused = stateProperty.get() == State.PAUSED;
             if (paused)
             {
-                pickRequest(e.getX(), e.getY(), PickType.CONTEXT_MENU);
+                // We don't want to block GUI while waiting for pick: 
+                Utility.runBackground(() -> pickRequest(e.getX(), e.getY(), PickType.CONTEXT_MENU));
             }
         });
         worldView.addEventFilter(MouseEvent.ANY, e -> {
@@ -483,7 +486,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     hideContextMenu();
                     if (paused)
                     {
-                        pickRequest(e.getX(), e.getY(), PickType.LEFT_CLICK);
+                        // We don't want to block GUI while waiting for pick:
+                        Utility.runBackground(() -> pickRequest(e.getX(), e.getY(), PickType.LEFT_CLICK));
                     }
                 }
                 eventType = MOUSE_CLICKED;
@@ -609,6 +613,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     /**
      * Performs a pick request on the debug VM at given coordinates.
      */
+    @OnThread(Tag.Worker)
     private void pickRequest(double x, double y, PickType pickType)
     {
         curPickType = pickType;
@@ -902,6 +907,19 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         Platform.runLater(() -> stateProperty.set(State.PAUSED));
     }
 
+    @Override
+    public @OnThread(Tag.Any) void simulationDebugHalted()
+    {
+        atBreakpoint = true;
+        updateGUIState(stateProperty.get());
+    }
+
+    @Override
+    public @OnThread(Tag.Any) void simulationDebugResumed()
+    {
+        atBreakpoint = false;
+        updateGUIState(stateProperty.get());
+    }
 
     /**
      * Gets a Reflective for the Actor class.

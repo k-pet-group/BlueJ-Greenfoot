@@ -25,7 +25,6 @@ import bluej.debugger.VarDisplayInfo;
 import greenfoot.actions.ResetWorldAction;
 import greenfoot.core.PickActorHelper;
 import greenfoot.core.Simulation;
-import greenfoot.core.SimulationDebugMonitor;
 
 import java.awt.EventQueue;
 import java.rmi.RemoteException;
@@ -119,11 +118,8 @@ public class GreenfootDebugHandler implements DebuggerListener
         try {
             Project proj = Project.getProject(project.getDir());
 
-            // Technically I could collapse the two listeners into one, but they
-            // perform orthogonal tasks so it's nicer to keep the code separate:
             GreenfootDebugHandler handler = new GreenfootDebugHandler(project);
             int mstate = proj.getDebugger().addDebuggerListener(handler);
-            proj.getDebugger().addDebuggerListener(handler.new GreenfootDebugControlsLink());
             if (mstate == Debugger.IDLE) {
                 // The VM may have already started by the time the listener was added. If so,
                 // we need to kick off Greenfoot on the other VM here:
@@ -390,6 +386,18 @@ public class GreenfootDebugHandler implements DebuggerListener
                 });
             }
         }
+
+        if (!skipUpdate)
+        {
+            if (e.isHalt() && isSimulationThread(e.getThread())&& simulationListener != null)
+            {
+                simulationListener.simulationDebugHalted();
+            }
+            else if (e.getID() == DebuggerEvent.THREAD_CONTINUE && isSimulationThread(e.getThread()) && simulationListener != null)
+            {
+                simulationListener.simulationDebugResumed();
+            }
+        }
     }
 
     /**
@@ -505,110 +513,6 @@ public class GreenfootDebugHandler implements DebuggerListener
     }
 
     /**
-     * A second debug listener that only worries about enabling and disabling the
-     * Act/Run/Pause buttons according to whether the Simulation thread is currently at
-     * a breakpoint.
-     */
-    private class GreenfootDebugControlsLink implements DebuggerListener
-    {
-        private LinkedList<String> queuedStateVars = new LinkedList<String>();
-        private Object SEND_EVENT = new Object();
-        private String CLASS_NAME = SimulationDebugMonitor.class.getName();
-        
-        private void simplifyEvents()
-        {
-            // If there is more than one event, it must be made redundant by the latest
-            // event:
-            while (queuedStateVars.size() > 1) {
-                queuedStateVars.removeFirst();
-            }
-        }
-        
-        private class SendNextEvent implements Runnable
-        {
-            private Debugger debugger;
-            
-            public SendNextEvent(Debugger debugger)
-            {
-                this.debugger = debugger;
-            }
-
-            @Override
-            public void run()
-            {
-                // We hold the monitor until the object has been instantiated, to prevent race hazards:
-                synchronized (SEND_EVENT) {
-                    String stateVar;
-                    synchronized (queuedStateVars) {
-                        simplifyEvents();
-                        if (queuedStateVars.isEmpty()) {
-                            return;
-                        }
-                        stateVar = queuedStateVars.removeFirst();
-                    }
-                    try {
-                        DebuggerClass simMonClass = debugger.getClass(CLASS_NAME, true).get();
-                        DebuggerObject stateObject = null;
-                        for (int i = 0; ; i++) {
-                            DebuggerField simMonField = simMonClass.getStaticField(i);
-                            if (simMonField.getName().equals(stateVar)) {
-                                stateObject = simMonField.getValueObject(null);
-                                break;
-                            }
-                        }
-                        debugger.instantiateClass(CLASS_NAME, new String[] {"java.lang.Object"},
-                                new DebuggerObject[] {stateObject});
-                    } catch (ClassNotFoundException ex) {
-                        Debug.reportError("Could not find internal class " + CLASS_NAME, ex);
-                    }
-                }
-            }
-        }
-
-        @Override
-        public synchronized void processDebuggerEvent(DebuggerEvent e, boolean skipUpdate)
-        {
-            final String stateVar;
-            if (e.isHalt()) {
-                if (isSimulationThread(e.getThread())) {
-                    stateVar = "NOT_RUNNING";
-                }
-                else {
-                    return;
-                }
-            }
-            else if (e.getID() == DebuggerEvent.THREAD_CONTINUE) {
-                if (isSimulationThread(e.getThread())) {
-                    stateVar = "RUNNING";
-                }
-                else {
-                    return;
-                }
-            } else {
-                return;
-            }
-            
-            final Debugger debugger = (Debugger) e.getSource();
-            
-            /* We are on the BlueJ VM, but we need to adjust the state of the buttons
-             * on the Greenfoot VM (aka Debug VM).  We use this slight hack of constructing
-             * an object on the Greenfoot VM that will do the work for us there.
-             * 
-             * For a parameter, we pass one of the static objects that the class holds
-             * (this was more obviously do-able than passing a boolean constant, fix it if you know how)
-             * 
-             * We must do this in a new thread because we'll deadlock if we try to directly
-             * create the object from a debug handler as we are. 
-             */
-
-            synchronized (queuedStateVars) {
-                queuedStateVars.addLast(stateVar);
-                new Thread (new SendNextEvent(debugger)).start();
-            }                
-        }
-    }
-
-    /**
      * A listener for results of pick requests.
      */
     public static interface PickListener
@@ -623,13 +527,35 @@ public class GreenfootDebugHandler implements DebuggerListener
      */
     public static interface SimulationStateListener
     {
+        /**
+         * Called when the simulation starts running
+         */
         @OnThread(Tag.Any)
         public void simulationStartedRunning();
-        
+
+        /**
+         * Called when the simulation has been paused in a normal manner
+         * (i.e. either user hit pause, or called Greenfoot.stop)
+         */
         @OnThread(Tag.Any)
         public void simulationPaused();
 
+        /**
+         * Called once the world has been initialised
+         */
         @OnThread(Tag.Any)
         public void simulationInitialisedWorld();
+
+        /**
+         * Called when the simulation thread has hit a (user) breakpoint
+         */
+        @OnThread(Tag.Any)
+        public void simulationDebugHalted();
+
+        /**
+         * Called when the simulation thread has resumed from a (user) breakpoint
+         */
+        @OnThread(Tag.Any)
+        public void simulationDebugResumed();
     }
 }

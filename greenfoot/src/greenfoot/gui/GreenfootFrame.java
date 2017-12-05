@@ -42,7 +42,6 @@ import greenfoot.actions.RunOnceSimulationAction;
 import greenfoot.actions.RunSimulationAction;
 import greenfoot.actions.SaveAsAction;
 import greenfoot.actions.SaveProjectAction;
-import greenfoot.actions.SaveWorldAction;
 import greenfoot.actions.SetPlayerAction;
 import greenfoot.actions.ShowApiDocAction;
 import greenfoot.actions.ShowCopyrightAction;
@@ -185,7 +184,6 @@ public class GreenfootFrame extends JFrame
     private CloseProjectAction closeProjectAction;
     private RemoveSelectedClassAction removeSelectedClassAction;
     private ConvertToJavaSelectedClassAction convertToJavaSelectedClassAction;
-    private SaveWorldAction saveWorldAction;
     private SetPlayerAction setPlayerAction;
     
     private ToggleDebuggerAction toggleDebuggerAction;
@@ -738,7 +736,6 @@ public class GreenfootFrame extends JFrame
         saveProjectAction = new SaveProjectAction(this);
         saveAsAction = new SaveAsAction(this, rBlueJ);
         showReadMeAction = new ShowReadMeAction(this);
-        saveWorldAction = worldHandlerDelegate.getSaveWorldAction();
         setPlayerAction = new SetPlayerAction(this);
         exportProjectAction = new ExportProjectAction(this, false);
         shareAction = new ExportProjectAction(this, true);
@@ -813,7 +810,6 @@ public class GreenfootFrame extends JFrame
         
         toggleSoundAction = new ToggleSoundAction(Config.getString("menu.soundRecorder"), project);
         createCheckboxMenuItem(toggleSoundAction, false, ctrlMenu, KeyEvent.VK_U, false, KeyEvent.VK_U);
-        addMenuItem(saveWorldAction, ctrlMenu, -1, false, KeyEvent.VK_W);
         
         JMenu helpMenu = addMenu(Config.getString("menu.help"), menuBar, 'h');
         
@@ -944,7 +940,6 @@ public class GreenfootFrame extends JFrame
         newClassAction.setEnabled(state);
         importClassAction.setEnabled(state);
         showReadMeAction.setEnabled(state);
-        saveWorldAction.setEnabled(state);
         exportProjectAction.setEnabled(state);
         shareAction.setEnabled(state);
         
