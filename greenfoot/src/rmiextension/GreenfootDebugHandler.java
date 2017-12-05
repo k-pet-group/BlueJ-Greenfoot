@@ -389,25 +389,13 @@ public class GreenfootDebugHandler implements DebuggerListener
 
         if (!skipUpdate)
         {
-            if (e.isHalt())
+            if (e.isHalt() && isSimulationThread(e.getThread())&& simulationListener != null)
             {
-                if (isSimulationThread(e.getThread()))
-                {
-                    if (simulationListener != null)
-                    {
-                        simulationListener.simulationDebugHalted();
-                    }
-                }
+                simulationListener.simulationDebugHalted();
             }
-            else if (e.getID() == DebuggerEvent.THREAD_CONTINUE)
+            else if (e.getID() == DebuggerEvent.THREAD_CONTINUE && isSimulationThread(e.getThread()) && simulationListener != null)
             {
-                if (isSimulationThread(e.getThread()))
-                {
-                    if (simulationListener != null)
-                    {
-                        simulationListener.simulationDebugResumed();
-                    }
-                }
+                simulationListener.simulationDebugResumed();
             }
         }
     }
@@ -522,36 +510,6 @@ public class GreenfootDebugHandler implements DebuggerListener
     public void setSimulationListener(SimulationStateListener simulationListener)
     {
         this.simulationListener = simulationListener;
-    }
-
-    class Foo
-    {
-        //@Override
-        public synchronized void processDebuggerEvent(DebuggerEvent e, boolean skipUpdate)
-        {
-            final String stateVar;
-            if (e.isHalt()) {
-                if (isSimulationThread(e.getThread())) {
-                    stateVar = "NOT_RUNNING";
-                }
-                else {
-                    return;
-                }
-            }
-            else if (e.getID() == DebuggerEvent.THREAD_CONTINUE) {
-                if (isSimulationThread(e.getThread())) {
-                    stateVar = "RUNNING";
-                }
-                else {
-                    return;
-                }
-            } else {
-                return;
-            }
-            
-            final Debugger debugger = (Debugger) e.getSource();
-           
-        }
     }
 
     /**
