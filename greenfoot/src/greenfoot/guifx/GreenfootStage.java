@@ -49,6 +49,7 @@ import bluej.utility.Debug;
 import bluej.utility.JavaReflective;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
@@ -66,6 +67,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
@@ -73,6 +75,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -287,11 +291,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         Node buttonAndSpeedPanel = new HBox(actButton, runButton, resetButton);
         List<Command> pendingCommands = new ArrayList<>();
         actButton.setOnAction(e -> {
-            if (stateProperty.get() == State.PAUSED)
-            {
-                pendingCommands.add(new Command(COMMAND_ACT));
-                stateProperty.set(State.PAUSED_REQUESTED_ACT_OR_RUN);
-            }
+            act(pendingCommands);
         });
         runButton.setOnAction(e -> {
             if (stateProperty.get() == State.PAUSED)
@@ -313,7 +313,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             }
         });
         classDiagram = new ClassDiagram(project);
-        BorderPane root = new BorderPane(worldView, null, classDiagram, buttonAndSpeedPanel, null);
+        BorderPane root = new BorderPane(worldView, makeMenu(pendingCommands), classDiagram, buttonAndSpeedPanel, null);
         glassPane = new Pane();
         glassPane.setMouseTransparent(true);
         StackPane stackPane = new StackPane(root, glassPane);
@@ -322,6 +322,48 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
         setupWorldDrawingAndEvents(sharedMemoryLock, sharedMemoryByte, worldView::setImage, pendingCommands);
         JavaFXUtil.addChangeListenerPlatform(stateProperty, this::updateGUIState);
+    }
+
+    /**
+     * Perform a single act step, if paused, by adding to the list of pending commands.
+     */
+    private void act(List<Command> pendingCommands)
+    {
+        if (stateProperty.get() == State.PAUSED)
+        {
+            pendingCommands.add(new Command(COMMAND_ACT));
+            stateProperty.set(State.PAUSED_REQUESTED_ACT_OR_RUN);
+        }
+    }
+
+    /**
+     * Make the menu bar for the whole window.
+     */
+    private MenuBar makeMenu(List<Command> pendingCommands)
+    {
+        return new MenuBar(
+            new Menu(Config.getString("menu.controls"), null,
+                makeMenuItem("run.once", new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN), () -> act(pendingCommands))
+            )
+        );
+    }
+
+    /**
+     * Make a single menu item
+     * @param nameKey The key to lookup via Config.getString for the name
+     * @param accelerator The accelerator if any (null if none)
+     * @param action The action to perform when the menu item is activated
+     * @return The MenuItem combining all these items.
+     */
+    private MenuItem makeMenuItem(String nameKey, KeyCombination accelerator, FXPlatformRunnable action)
+    {
+        MenuItem menuItem = new MenuItem(Config.getString(nameKey));
+        if (accelerator != null)
+        {
+            menuItem.setAccelerator(accelerator);
+        }
+        menuItem.setOnAction(e -> action.run());
+        return menuItem;
     }
 
     private void updateGUIState(State newState)
