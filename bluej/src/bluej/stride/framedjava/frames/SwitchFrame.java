@@ -29,6 +29,7 @@ package bluej.stride.framedjava.frames;
 import java.util.ArrayList;
 import java.util.List;
 
+import bluej.Config;
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.HighlightedBreakpoint;
@@ -48,13 +49,13 @@ import bluej.stride.generic.FrameFactory;
 import bluej.stride.generic.FrameTypeCheck;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.MultiCanvasFrame;
-import bluej.stride.operations.FrameOperation;
 import bluej.stride.operations.PullUpContentsOperation;
 import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.SlotLabel;
 import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -405,12 +406,12 @@ public class SwitchFrame extends MultiCanvasFrame
 
         if (canvas == casesCanvas)
         {
-            result.add(new ExtensionDescription('\b', "Remove switch/cases, keep contents", () ->
-                    new PullUpContentsOperation(editor).activate(getFrame()), false, ExtensionSource.INSIDE_FIRST));
+            result.add(new ExtensionDescription('\b', Config.getString("frame.switch.remove.switch"),
+                    () -> new PullUpContentsOperation(editor).activate(getFrame()), false, ExtensionSource.INSIDE_FIRST));
         }
         if (defaultCanvas != null && canvas == defaultCanvas)
         {
-            result.add(new ExtensionDescription('\b', "Remove default, keep contents",
+            result.add(new ExtensionDescription('\b', Config.getString("frame.switch.remove.default"),
                     SwitchFrame.this::pullUpDefaultContents, false, ExtensionSource.INSIDE_FIRST));
         }
 

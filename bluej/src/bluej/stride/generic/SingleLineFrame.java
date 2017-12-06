@@ -21,6 +21,7 @@
  */
 package bluej.stride.generic;
 
+import bluej.Config;
 import bluej.collect.StrideEditReason;
 import bluej.stride.framedjava.ast.Loader;
 import bluej.stride.framedjava.elements.CodeElement;
@@ -33,7 +34,6 @@ import bluej.stride.slots.SlotLabel;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
@@ -132,7 +132,7 @@ public abstract class SingleLineFrame extends Frame
                     @Override
                     public List<ItemLabel> getLabels()
                     {
-                        return Arrays.asList(l("Recent Values", MenuItemOrder.RECENT_VALUES), l("0", MenuItemOrder.RECENT_VALUES));
+                        return Arrays.asList(l(Config.getString("frame.slot.recent"), MenuItemOrder.RECENT_VALUES), l("0", MenuItemOrder.RECENT_VALUES));
                     }
 
                     @Override

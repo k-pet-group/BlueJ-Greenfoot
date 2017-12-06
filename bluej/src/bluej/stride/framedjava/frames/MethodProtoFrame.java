@@ -25,14 +25,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import bluej.stride.framedjava.slots.TypeSlot;
-import bluej.stride.generic.ExtensionDescription.ExtensionSource;
-import bluej.stride.slots.EditableSlot;
-import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 
+import bluej.Config;
 import bluej.stride.framedjava.ast.AccessPermission;
 import bluej.stride.framedjava.ast.AccessPermissionFragment;
 import bluej.stride.framedjava.ast.JavadocUnit;
@@ -42,14 +39,18 @@ import bluej.stride.framedjava.ast.ThrowsTypeFragment;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
 import bluej.stride.framedjava.elements.MethodProtoElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
+import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.DocumentedSingleLineFrame;
 import bluej.stride.generic.ExtensionDescription;
+import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.generic.FrameCanvas;
 import bluej.stride.generic.FrameCursor;
 import bluej.stride.generic.FrameFactory;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
+import bluej.stride.slots.EditableSlot;
+import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import bluej.stride.slots.FormalParameters;
 import bluej.stride.slots.MethodNameDefTextSlot;
 import bluej.stride.slots.SlotLabel;
@@ -182,7 +183,7 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
     public List<ExtensionDescription> getAvailableExtensions(FrameCanvas innerCanvas, FrameCursor cursorInCanvas)
     {
         ArrayList<ExtensionDescription> extensions = new ArrayList<>(super.getAvailableExtensions(innerCanvas, cursorInCanvas));
-        extensions.add(new ExtensionDescription('t', "Add throws declaration",
+        extensions.add(new ExtensionDescription('t', Config.getString("frame.class.add.throw"),
                 () -> throwsPane.addTypeSlotAtEnd("", true), true, ExtensionSource.BEFORE, ExtensionSource.AFTER, ExtensionSource.MODIFIER));
         return extensions;
     }

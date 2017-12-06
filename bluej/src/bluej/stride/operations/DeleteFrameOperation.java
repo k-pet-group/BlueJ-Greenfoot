@@ -24,10 +24,10 @@ package bluej.stride.operations;
 import java.util.Arrays;
 import java.util.List;
 
+import bluej.Config;
 import bluej.collect.StrideEditReason;
 import bluej.stride.generic.FrameCursor;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
-import javafx.beans.value.ObservableValue;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
 import threadchecker.OnThread;
@@ -47,7 +47,7 @@ public class DeleteFrameOperation extends FrameOperation
     @Override
     public List<ItemLabel> getLabels()
     {
-        return Arrays.asList(l("Delete", MenuItemOrder.DELETE));
+        return Arrays.asList(l(Config.getString("frame.operation.delete"), MenuItemOrder.DELETE));
     }
 
     @OnThread(Tag.FXPlatform)

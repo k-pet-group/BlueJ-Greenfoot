@@ -8,12 +8,10 @@ frame.catalogue.codecompletion.hide=Hide code completion
 frame.catalogue.codecompletion.up=Move up
 frame.catalogue.codecompletion.down=Move down
 frame.catalogue.codecompletion.select=Select
-
 frame.catalogue.birdseye.exit=Exit view
 frame.catalogue.birdseye.up=Move up
 frame.catalogue.birdseye.down=Move down
 frame.catalogue.birdseye.select=Select
-
 frame.catalogue.examples=Examples
 
 
@@ -59,11 +57,13 @@ stride.dictionary.throw.description=Throws an exception
 stride.dictionary.try.name=Try/catch
 stride.dictionary.try.description=Try block
 
+
 # Error Bar:
 frame.error.overview.bar.error.single=error
 frame.error.overview.bar.error.plural=errors
 frame.error.overview.bar.error.none=No errors
 frame.error.overview.bar.error.editing=Editing
+
 
 # Class menu:
 frame.classmenu.title=Class
@@ -74,6 +74,7 @@ frame.classmenu.move.existing=Window
 frame.classmenu.print=Print
 frame.classmenu.compile=Compile
 
+
 # Web/documentation menu
 frame.webmenu.title=Documentation
 frame.webmenu.open.external=Open In External Browser
@@ -82,11 +83,13 @@ frame.webmenu.open.external=Open In External Browser
 # Edit menu:
 frame.editmenu.title=Edit
 
+
 # Slot menu:
 frame.slot.cut=Cut
 frame.slot.copy=Copy
 frame.slot.paste=Paste
 frame.slot.recent=Recent Values
+frame.slot.goto=Go to definition of $
 
 
 # View menu:
@@ -99,6 +102,7 @@ frame.viewmenu.java=Java preview
 frame.viewmenu.fontbigger=Increase font size
 frame.viewmenu.fontsmaller=Decrease font size
 frame.viewmenu.fontdefault=Reset font size
+
 
 # Information:
 # The '$' will be replaced by the name of the superclass:
@@ -126,7 +130,47 @@ convert.to.stride.message=This will convert the Java class to Stride.  This oper
 convert.to.stride.error.title=Unexpected error
 convert.to.stride.error.message=Unexpected error during Java to Stride conversion.
 
+
 # Editor
 frame.editor.toplevel.doc.prompt=Write a description of your $CLASSNAME $CAPTION here...
 frame.editor.toplevel.package.prompt=package name
 frame.editor.param.prompt=$CAPTION name
+frame.editor.label.imports=Imports
+frame.editor.label.fields=Fields
+frame.editor.label.constructors=Constructors
+frame.editor.label.methods=Methods
+
+frame.class.add.extends=Add 'extends'
+frame.class.add.extends.declaration=Add extends declaration
+frame.class.add.implements=Add 'implements'
+frame.class.add.super=Add super(..) call
+frame.class.add.this=Add this(..) call
+frame.class.add.throw=Add throws declaration
+frame.class.constructor.doc.prompt=Describe your constructor here...
+frame.class.method.doc.prompt=Describe your method here...
+frame.class.overrides.from=overrides method in $
+frame.class.remove.extends.from=Remove 'extends $'
+frame.class.remove.implements=Remove 'implements $'
+frame.class.remove.super=Remove super/this call
+frame.class.toggle.abstract=Toggle abstract
+frame.switch.remove.default=Remove default, keep contents
+frame.switch.remove.switch=Remove switch/cases, keep contents
+
+
+# Operations
+frame.operation.change=Change
+frame.operation.change.to.abstract=to abstract
+frame.operation.change.to.constructor=to constructor
+frame.operation.change.to.method=to normal method
+frame.operation.copy=Copy
+frame.operation.copy.as.image=Copy As Image
+frame.operation.copy.as.java=Copy As Java
+frame.operation.cut=Cut
+frame.operation.delete=Delete
+frame.operation.delete.outer=Delete outer frame
+frame.operation.disable=Disable
+frame.operation.enable=Enable
+frame.operation.make=Make $
+frame.operation.paste=Paste
+frame.operation.remove=Remove $
+frame.operation.toggle=Toggle $

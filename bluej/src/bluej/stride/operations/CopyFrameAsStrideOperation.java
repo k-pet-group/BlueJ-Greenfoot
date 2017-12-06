@@ -24,6 +24,7 @@ package bluej.stride.operations;
 import java.util.Arrays;
 import java.util.List;
 
+import bluej.Config;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import bluej.stride.framedjava.frames.GreenfootFrameUtil;
 import bluej.stride.generic.Frame;
@@ -49,6 +50,6 @@ public class CopyFrameAsStrideOperation extends FrameOperation
     @Override
     public List<ItemLabel> getLabels()
     {
-        return Arrays.asList(l("Copy", MenuItemOrder.COPY));
+        return Arrays.asList(l(Config.getString("frame.operation.copy"), MenuItemOrder.COPY));
     }
 }

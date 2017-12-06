@@ -24,6 +24,7 @@ package bluej.stride.operations;
 import java.util.Arrays;
 import java.util.List;
 
+import bluej.Config;
 import bluej.collect.StrideEditReason;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import bluej.stride.generic.Frame;
@@ -59,6 +60,6 @@ public class CutFrameOperation extends FrameOperation
     @Override
     public List<ItemLabel> getLabels()
     {
-        return Arrays.asList(l("Cut", MenuItemOrder.CUT));
+        return Arrays.asList(l(Config.getString("frame.operation.cut"), MenuItemOrder.CUT));
     }
 }
