@@ -21,10 +21,10 @@
  */
 package bluej.stride.operations;
 
+import bluej.Config;
 import bluej.collect.StrideEditReason;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.frames.GreenfootFrameUtil;
-import bluej.stride.framedjava.frames.TopLevelFrame;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCursor;
 import bluej.stride.generic.InteractionManager;
@@ -32,7 +32,6 @@ import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javafx.beans.value.ObservableValue;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -83,6 +82,6 @@ public class PasteFrameOperation extends FrameOperation
     @Override
     public List<ItemLabel> getLabels()
     {
-        return Arrays.asList(l("Paste", MenuItemOrder.PASTE));
+        return Arrays.asList(l(Config.getString("frame.operation.paste"), MenuItemOrder.PASTE));
     }
 }

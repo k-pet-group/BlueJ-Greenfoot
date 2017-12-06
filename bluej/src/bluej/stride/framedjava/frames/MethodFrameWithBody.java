@@ -26,19 +26,36 @@
 package bluej.stride.framedjava.frames;
 
 
+import bluej.Config;
+import bluej.stride.framedjava.ast.AccessPermission;
+import bluej.stride.framedjava.ast.HighlightedBreakpoint;
+import bluej.stride.framedjava.ast.ParamFragment;
+import bluej.stride.framedjava.canvases.JavaCanvas;
+import bluej.stride.framedjava.elements.CodeElement;
+import bluej.stride.framedjava.elements.MethodWithBodyElement;
+import bluej.stride.framedjava.slots.TypeSlot;
+import bluej.stride.generic.DocumentedSingleCanvasFrame;
+import bluej.stride.generic.ExtensionDescription;
+import bluej.stride.generic.ExtensionDescription.ExtensionSource;
+import bluej.stride.generic.Frame;
+import bluej.stride.generic.FrameCanvas;
+import bluej.stride.generic.FrameContentRow;
+import bluej.stride.generic.FrameCursor;
+import bluej.stride.generic.InteractionManager;
+import bluej.stride.slots.AccessPermissionSlot;
+import bluej.stride.slots.ChoiceSlot;
+import bluej.stride.slots.EditableSlot;
+import bluej.stride.slots.FormalParameters;
+import bluej.stride.slots.HeaderItem;
+import bluej.stride.slots.Throws;
+import bluej.utility.javafx.FXRunnable;
+import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.SharedTransition;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import bluej.stride.framedjava.elements.MethodWithBodyElement;
-import bluej.stride.framedjava.slots.TypeSlot;
-import bluej.stride.generic.ExtensionDescription.ExtensionSource;
-import bluej.stride.generic.FrameContentRow;
-import bluej.stride.generic.FrameCursor;
-import bluej.stride.slots.AccessPermissionSlot;
-import bluej.stride.slots.EditableSlot;
-import bluej.stride.slots.HeaderItem;
-import bluej.utility.javafx.FXRunnable;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -53,22 +70,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import bluej.stride.framedjava.ast.AccessPermission;
-import bluej.stride.framedjava.ast.HighlightedBreakpoint;
-import bluej.stride.framedjava.ast.ParamFragment;
-import bluej.stride.framedjava.canvases.JavaCanvas;
-import bluej.stride.framedjava.elements.CodeElement;
-import bluej.stride.generic.DocumentedSingleCanvasFrame;
-import bluej.stride.generic.ExtensionDescription;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.FrameCanvas;
-import bluej.stride.generic.InteractionManager;
-import bluej.stride.operations.FrameOperation;
-import bluej.stride.slots.ChoiceSlot;
-import bluej.stride.slots.FormalParameters;
-import bluej.stride.slots.Throws;
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.SharedTransition;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -400,7 +402,8 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
     {
         ArrayList<ExtensionDescription> extensions = new ArrayList<>(super.getAvailableExtensions(canvas, cursorInCanvas));
         extensions.add(new ExtensionDescription(StrideDictionary.THROWS_EXTENSION_CHAR,
-                "Add throws declaration", () -> throwsPane.addTypeSlotAtEnd("", true), true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER));
+                Config.getString("frame.class.add.throw"), () -> throwsPane.addTypeSlotAtEnd("", true), true,
+                ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER));
         return extensions;
     }
 

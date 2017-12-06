@@ -1305,7 +1305,8 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
                     FXPlatformConsumer<Optional<LinkedIdentifier>> withLink = optLink -> {
                         removeScanning();
                         optLink.ifPresent(defLink -> {
-                            items.add(MenuItemOrder.GOTO_DEFINITION.item(JavaFXUtil.makeMenuItem("Go to definition of \"" + defLink.getName() + "\"", defLink.getOnClick(), null)));
+                            items.add(MenuItemOrder.GOTO_DEFINITION.item(JavaFXUtil.makeMenuItem(Config.getString("frame.slot.goto")
+                                    .replace("$", defLink.getName()), defLink.getOnClick(), null)));
                         });
                     };
 

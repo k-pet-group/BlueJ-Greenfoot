@@ -21,14 +21,13 @@
  */
 package bluej.stride.operations;
 
+import bluej.Config;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCursor;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-
-import javafx.beans.value.ObservableValue;
 
 import java.util.Arrays;
 import java.util.List;
@@ -48,7 +47,7 @@ public class PullUpContentsOperation extends FrameOperation
     @Override
     public List<ItemLabel> getLabels()
     {
-        return Arrays.asList(l("Delete outer frame", MenuItemOrder.DELETE));
+        return Arrays.asList(l(Config.getString("frame.operation.delete.outer"), MenuItemOrder.DELETE));
     }
 
     @Override

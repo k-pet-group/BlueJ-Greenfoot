@@ -21,6 +21,7 @@
  */
 package bluej.stride.framedjava.frames;
 
+import bluej.Config;
 import bluej.debugger.gentype.Reflective;
 import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.AssistContent.ParamInfo;
@@ -109,7 +110,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
     private NormalMethodFrame(InteractionManager editor)
     {
         super(editor);
-        setDocumentationPromptText("Describe your method here...");
+        setDocumentationPromptText(Config.getString("frame.class.method.doc.prompt"));
 
         methodName = new MethodNameDefTextSlot(editor, this, getHeaderRow(), new MethodOverrideCompletionCalculator(), "method-name-");
         methodName.addValueListener(new SlotTraversalChars(
@@ -276,9 +277,9 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         InteractionManager editor = getEditor();
         
         operations.add(new CustomFrameOperation(editor, "method->constructor",
-                Arrays.asList("Change", "to constructor"), MenuItemOrder.TRANSFORM, this, () -> {
-                    
-                    // TODO AA enhance the code
+                Arrays.asList(Config.getString("frame.operation.change"), Config.getString("frame.operation.change.to.constructor")),
+                MenuItemOrder.TRANSFORM, this,
+                () -> {
                     Frame parent = getParentCanvas().getParent().getFrame();
                     if (parent instanceof ClassFrame) {
                         FrameCanvas p = ((ClassFrame)parent).getConstructorsCanvas();
@@ -292,14 +293,16 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         ));
         
         operations.add(new CustomFrameOperation(editor, "concrete->abstract",
-                Arrays.asList("Change", "to abstract"), MenuItemOrder.TRANSFORM, this, () -> {
-            FrameCursor c = getCursorBefore();
-            
-            MethodProtoElement el = new MethodProtoElement(null, returnType.getSlotElement(), methodName.getSlotElement(),
-                    generateParams(), throwsPane.getTypes(), new JavadocUnit(getDocumentation()), frameEnabledProperty.get());
-            c.insertBlockAfter(el.createFrame(getEditor()));
-            c.getParentCanvas().removeBlock(this);
-        }));
+                Arrays.asList(Config.getString("frame.operation.change"), Config.getString("frame.operation.change.to.abstract")),
+                MenuItemOrder.TRANSFORM, this,
+                () -> {
+                    FrameCursor c = getCursorBefore();
+                    MethodProtoElement el = new MethodProtoElement(null, returnType.getSlotElement(), methodName.getSlotElement(),
+                        generateParams(), throwsPane.getTypes(), new JavadocUnit(getDocumentation()), frameEnabledProperty.get());
+                    c.insertBlockAfter(el.createFrame(getEditor()));
+                    c.getParentCanvas().removeBlock(this);
+                }
+        ));
 
         operations.addAll(getStaticFinalOperations());
 
@@ -350,7 +353,7 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
             if (curOverrideSource == null || !curOverrideSource.equals(nameFinal))
             {
                 curOverrideSource = nameFinal;
-                overrideLabel.setText("overrides method in " + nameFinal);
+                overrideLabel.setText(Config.getString("frame.class.overrides.from").replace("$", nameFinal));
             }
         }
         else

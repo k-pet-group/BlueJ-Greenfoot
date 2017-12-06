@@ -21,6 +21,7 @@
  */
 package bluej.stride.framedjava.frames;
 
+import bluej.Config;
 import bluej.editor.stride.BirdseyeManager;
 import bluej.parser.entity.EntityResolver;
 import bluej.stride.framedjava.ast.JavadocUnit;
@@ -124,7 +125,7 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
         ops.add(new CopyFrameAsStrideOperation(editor));
         ops.add(new CopyFrameAsImageOperation(editor));
         ops.add(new CopyFrameAsJavaOperation(editor));
-        ops.add(new CustomFrameOperation(getEditor(), "addExtends", Arrays.asList("Add 'extends'"),
+        ops.add(new CustomFrameOperation(getEditor(), "addExtends", Arrays.asList(Config.getString("frame.class.add.extends")),
                 EditableSlot.MenuItemOrder.TOGGLE_EXTENDS, this, () -> extendsList.addTypeSlotAtEnd("", true)));
 
         final List<TypeSlotFragment> types = extendsList.getTypes();
@@ -133,7 +134,7 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
             final int index = i;
             TypeSlotFragment type = types.get(i);
             CustomFrameOperation removeOp = new CustomFrameOperation(getEditor(), "removeExtends",
-                    Arrays.asList("Remove 'extends " + type.getContent() + "'"), EditableSlot.MenuItemOrder.TOGGLE_EXTENDS,
+                    Arrays.asList(Config.getString("frame.class.remove.extends.from").replace("$", type.getContent())), EditableSlot.MenuItemOrder.TOGGLE_EXTENDS,
                     this, () -> extendsList.removeIndex(index));
             removeOp.setWideCustomItem(true);
             ops.add(removeOp);
@@ -148,7 +149,7 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
         // We deliberately don't include super.getAvailableExtensions; we can't be disabled
         ExtensionDescription extendsExtension = null;
         if (fieldsCanvas.equals(canvas) || canvas == null) {
-            extendsExtension = new ExtensionDescription(StrideDictionary.EXTENDS_EXTENSION_CHAR, "Add extends declaration",
+            extendsExtension = new ExtensionDescription(StrideDictionary.EXTENDS_EXTENSION_CHAR,  Config.getString("frame.class.add.extends.declaration"),
                     () -> extendsList.addTypeSlotAtEnd("", true), true, ExtensionDescription.ExtensionSource.INSIDE_FIRST,
                     ExtensionDescription.ExtensionSource.MODIFIER);
         }

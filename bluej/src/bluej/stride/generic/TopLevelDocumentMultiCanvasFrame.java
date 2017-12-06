@@ -195,9 +195,9 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
         }
 
 
-        importsLabel = makeLabel("Imports");
-        fieldsLabel = makeLabel("Fields");
-        methodsLabel = makeLabel("Methods");
+        importsLabel = makeLabel(Config.getString("frame.editor.label.imports"));
+        fieldsLabel = makeLabel(Config.getString("frame.editor.label.fields"));
+        methodsLabel = makeLabel(Config.getString("frame.editor.label.methods"));
 
         importCanvas = createImportsCanvas(imports);// TODO delete this and uncomment it in saved() if it cause NPE in future
         //importCanvas.addToLeftMargin(10.0);

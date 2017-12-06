@@ -27,29 +27,28 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import bluej.stride.framedjava.ast.SuperThisParamsExpressionFragment;
-import bluej.stride.framedjava.elements.CodeElement;
-
-import bluej.stride.generic.ExtensionDescription.ExtensionSource;
-import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import javafx.beans.binding.DoubleExpression;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 
+import bluej.Config;
 import bluej.stride.framedjava.ast.AccessPermissionFragment;
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
 import bluej.stride.framedjava.ast.JavadocUnit;
 import bluej.stride.framedjava.ast.NameDefSlotFragment;
 import bluej.stride.framedjava.ast.ParamFragment;
 import bluej.stride.framedjava.ast.SuperThis;
+import bluej.stride.framedjava.ast.SuperThisParamsExpressionFragment;
 import bluej.stride.framedjava.ast.SuperThisFragment;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
+import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.ConstructorElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.SuperThisParamsExpressionSlot;
 import bluej.stride.generic.ExtensionDescription;
+import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCanvas;
 import bluej.stride.generic.FrameContentRow;
@@ -60,6 +59,7 @@ import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.ChoiceSlot;
 import bluej.stride.slots.EditableSlot;
+import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import bluej.stride.slots.FormalParameters;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
@@ -81,7 +81,7 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
 
     private ConstructorFrame(InteractionManager editor) {
         super(editor);
-        setDocumentationPromptText("Describe your constructor here...");
+        setDocumentationPromptText(Config.getString("frame.class.constructor.doc.prompt"));
         headerLabel = new SlotLabel("<constructor>");
         JavaFXUtil.addStyleClass(headerLabel, "constructor-name-caption");
 
@@ -207,18 +207,17 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
         if (callRow == null) {
             List<ExtensionDescription> extensions = new ArrayList(super.getAvailableExtensions(canvas, cursorInCanvas));
 
-            extensions.addAll(Arrays.asList(new ExtensionDescription(StrideDictionary.SUPER_EXTENSION_CHAR, "Add super(..) call", () -> {
-                addSuperThis(new SuperThisFragment(SuperThis.SUPER), null);
-            }, true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER), new ExtensionDescription(StrideDictionary.THIS_EXTENSION_CHAR, "Add this(..) call", () -> {
-                addSuperThis(new SuperThisFragment(SuperThis.THIS), null);
-            }, true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER)));
+            extensions.addAll(Arrays.asList(new ExtensionDescription(StrideDictionary.SUPER_EXTENSION_CHAR,
+                    Config.getString("frame.class.add.super"), () -> addSuperThis(new SuperThisFragment(SuperThis.SUPER), null),
+                    true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER), new ExtensionDescription(StrideDictionary.THIS_EXTENSION_CHAR,
+                    Config.getString("frame.class.add.this"), () -> addSuperThis(new SuperThisFragment(SuperThis.THIS), null),
+                    true, ExtensionSource.INSIDE_FIRST, ExtensionSource.MODIFIER)));
 
             return extensions;
         }
         else {
-            return Arrays.asList(new ExtensionDescription('\b', "Remove super/this call", () -> {
-                removeSuperThis();
-            }, true, ExtensionSource.INSIDE_FIRST));
+            return Arrays.asList(new ExtensionDescription('\b', Config.getString("frame.class.remove.super"),
+                    () -> removeSuperThis(), true, ExtensionSource.INSIDE_FIRST));
         }
     }
 
@@ -229,8 +228,8 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
         List<FrameOperation> r = new ArrayList<>(super.getContextOperations());
 
         r.add(new CustomFrameOperation(getEditor(), "constructor->method",
-                Arrays.asList("Change", "to normal method"), MenuItemOrder.TRANSFORM, this, () -> {
-
+                Arrays.asList(Config.getString("frame.operation.change"), Config.getString("frame.operation.change.to.method")),
+                MenuItemOrder.TRANSFORM, this, () -> {
                     // TODO AA enhance the code
                     Frame parent = getParentCanvas().getParent().getFrame();
                     if (parent instanceof ClassFrame) {

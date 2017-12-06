@@ -23,10 +23,9 @@ package bluej.stride.operations;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
+import bluej.Config;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
-import javafx.beans.value.ObservableValue;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
 import threadchecker.OnThread;
@@ -66,7 +65,7 @@ public class DisableFrameOperation extends FrameOperation
     @Override
     public List<ItemLabel> getLabels()
     {
-        return Arrays.asList(l("Disable", MenuItemOrder.DISABLE_FRAME));
+        return Arrays.asList(l(Config.getString("frame.operation.disable"), MenuItemOrder.DISABLE_FRAME));
     }
 
     @Override

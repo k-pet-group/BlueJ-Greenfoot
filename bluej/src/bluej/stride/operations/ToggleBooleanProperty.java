@@ -21,6 +21,7 @@
  */
 package bluej.stride.operations;
 
+import bluej.Config;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.slots.EditableSlot;
@@ -29,8 +30,6 @@ import threadchecker.Tag;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.CustomMenuItem;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
 
 import java.util.Arrays;
 import java.util.List;
@@ -50,7 +49,7 @@ public class ToggleBooleanProperty extends FrameOperation
     {
         super(editor, identifier, Combine.ALL, null);
         this.name = name;
-        this.label = new SimpleStringProperty("Toggle " + name);
+        this.label = new SimpleStringProperty(Config.getString("frame.operation.toggle").replace("$", name));
         this.key = key;
     }
 
@@ -86,7 +85,9 @@ public class ToggleBooleanProperty extends FrameOperation
     @OnThread(Tag.FXPlatform)
     private void updateName()
     {
-        label.set(targetedAllTrue(editor.getSelection().getSelected()) ? "Remove " + name : "Make " + name);
+        label.set(targetedAllTrue(editor.getSelection().getSelected()) ?
+                Config.getString("frame.operation.remove").replace("$", name) :
+                Config.getString("frame.operation.make").replace("$", name));
     }
 
     private boolean targetedAllTrue(List<Frame> frames)
