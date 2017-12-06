@@ -445,7 +445,6 @@ public class GreenfootFrame extends JFrame
         buildClassBrowser();
         setupActions();
         setJMenuBar(buildMenu(classStateManager));
-        setGlassPane(DragGlassPane.getInstance());
 
         // build the centre panel. this includes the world and the controls
         
@@ -697,7 +696,6 @@ public class GreenfootFrame extends JFrame
     {
         classBrowser = new ClassBrowser(project, this);
         classBrowser.getSelectionManager().addSelectionChangeListener(this);
-        DragGlassPane.getInstance().setSelectionManager(classBrowser.getSelectionManager());
     }
 
     /**

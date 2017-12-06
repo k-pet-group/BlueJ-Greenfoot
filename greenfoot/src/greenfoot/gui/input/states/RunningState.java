@@ -64,9 +64,6 @@ public class RunningState extends State
             case SIMULATION_STOPPED :
                 switchAndActivateState(IdleState.getInstance(), obj);
                 break;
-            case CONSTRUCTOR_INVOKED :
-                switchAndActivateState(ConstructorDragWhileRunningState.getInstance(), obj);
-                break;
         }
     }
 }

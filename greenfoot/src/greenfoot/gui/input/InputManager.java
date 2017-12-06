@@ -32,12 +32,9 @@ import greenfoot.event.TriggeredMouseMotionAdapter;
 import greenfoot.event.TriggeredMouseMotionListener;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
-import greenfoot.gui.input.states.ConstructorDragState;
-import greenfoot.gui.input.states.ConstructorDragWhileRunningState;
 import greenfoot.gui.input.states.DisabledState;
 import greenfoot.gui.input.states.IdleState;
 import greenfoot.gui.input.states.MoveState;
-import greenfoot.gui.input.states.QuickAddDragState;
 import greenfoot.gui.input.states.RunningState;
 import greenfoot.gui.input.states.State;
 
@@ -115,20 +112,6 @@ public class InputManager
     }
 
     /**
-     * Set the listeners that should be active when dragging a newly created
-     * object around.
-     * 
-     * @see #init()
-     */
-    public void setDragListeners(TriggeredKeyListener dragKeyListener, TriggeredMouseListener dragMouseListener,
-            TriggeredMouseMotionListener dragMouseMotionListener)
-    {
-        QuickAddDragState.initialize(this, dragKeyListener, dragMouseListener, dragMouseMotionListener);
-        ConstructorDragState.initialize(this, dragKeyListener, dragMouseListener, dragMouseMotionListener);
-        ConstructorDragWhileRunningState.initialize(this, dragKeyListener, dragMouseListener, dragMouseMotionListener);;
-    }
-
-    /**
      * Set the listeners that should be active when moving an actor around that
      * has been added to the world previously.
      * 
@@ -156,9 +139,6 @@ public class InputManager
         DisabledState.getInstance();
         RunningState.getInstance();
         MoveState.getInstance();
-        QuickAddDragState.getInstance();
-        ConstructorDragState.getInstance();
-        ConstructorDragWhileRunningState.getInstance();
         
         switchAndActivateState(IdleState.getInstance(), null);
     }
@@ -262,13 +242,11 @@ public class InputManager
 
     public void mouseClicked(MouseEvent e)
     {
-        checkShift(e);
         activeMouseListener.mouseClicked(e);
     }
 
     public void mousePressed(MouseEvent e)
     {
-        checkShift(e);
         activeMouseListener.mousePressed(e);
         if (SwingUtilities.isLeftMouseButton(e) && !e.isShiftDown()) {
             state.switchToNextState(State.Event.MOUSE_PRESSED, null);
@@ -277,43 +255,27 @@ public class InputManager
 
     public void mouseReleased(MouseEvent e)
     {
-        checkShift(e);
         activeMouseListener.mouseReleased(e);
         state.switchToNextState(State.Event.MOUSE_RELEASED, null);
     }
 
     public void mouseEntered(MouseEvent e)
     {
-        checkShift(e);
         activeMouseListener.mouseEntered(e);
     }
 
     public void mouseExited(MouseEvent e)
     {
-        checkShift(e);
         activeMouseListener.mouseExited(e);
-    }
-
-    /**
-     * Method that checks whether shift has been released without us noticing.
-     * It will then simulate that the shift key has been released.
-     */
-    private void checkShift(MouseEvent e)
-    {
-        if (state == QuickAddDragState.getInstance() && !e.isShiftDown()) {
-            state.switchToNextState(State.Event.SHIFT_RELEASED, null);
-        }
     }
 
     public void mouseDragged(MouseEvent e)
     {
-        checkShift(e);
         activeMouseMotionListener.mouseDragged(e);
     }
 
     public void mouseMoved(MouseEvent e)
     {
-        checkShift(e);
         activeMouseMotionListener.mouseMoved(e);
     }
 
