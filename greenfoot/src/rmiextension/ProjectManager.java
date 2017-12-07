@@ -27,33 +27,27 @@ import bluej.extensions.editor.Editor;
 import bluej.extensions.editor.EditorBridge;
 import greenfoot.core.GreenfootLauncherDebugVM;
 import greenfoot.core.GreenfootMain;
+import greenfoot.core.GreenfootMain.ProjectAPIVersionAccess;
 import greenfoot.core.ProjectProperties;
 
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
-import java.nio.channels.FileLock;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import greenfoot.guifx.GreenfootStage;
-import javafx.animation.AnimationTimer;
+import greenfoot.util.Version;
 import javafx.application.Platform;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.image.*;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.stage.Stage;
 import rmiextension.wrappers.RProjectImpl;
 import rmiextension.wrappers.WrapperPool;
 import bluej.Boot;
@@ -170,13 +164,33 @@ public class ProjectManager
     private void launchProject(final BProject project)
     {
         File projectDir;
+        Project unwrapped;
         try {
             projectDir = project.getDir();
+            unwrapped = ExtensionBridge.getProject(project);
         } catch (ProjectNotOpenException pnoe) {
             // The project must have closed in the meantime
             return;
         }
-        GreenfootMain.VersionCheckInfo versionOK = checkVersion(projectDir);
+        ProjectAPIVersionAccess projectAPIVersionAccess = new ProjectAPIVersionAccess()
+        {
+            @Override
+            public Version getAPIVersion()
+            {
+                String versionString = unwrapped.getUnnamedPackage().getLastSavedProperties().getProperty("version");
+                return new Version(versionString);
+            }
+
+            @Override
+            public void setAPIVersionAndSave(String version)
+            {
+                Properties props = new Properties(unwrapped.getUnnamedPackage().getLastSavedProperties());
+                props.put("version", version);
+                unwrapped.getUnnamedPackage().save(props);
+            }
+        };
+        
+        GreenfootMain.VersionCheckInfo versionOK = checkVersion(projectDir, projectAPIVersionAccess);
         if (versionOK.versionInfo != GreenfootMain.VersionInfo.VERSION_BAD) {
             try {
                 if (versionOK.versionInfo == GreenfootMain.VersionInfo.VERSION_UPDATED) {
@@ -341,14 +355,13 @@ public class ProjectManager
      * @param projectDir Directory of the project.
      * @return one of GreenfootMain.VERSION_OK, VERSION_UPDATED or VERSION_BAD
      */
-    private GreenfootMain.VersionCheckInfo checkVersion(File projectDir)
+    private GreenfootMain.VersionCheckInfo checkVersion(File projectDir, ProjectAPIVersionAccess projectAPIVersionAccess)
     {
-        if(isNewProject(projectDir)) {
-            ProjectProperties newProperties = new ProjectProperties(projectDir);
-            newProperties.setApiVersion(Boot.GREENFOOT_API_VERSION);
-            newProperties.save();
+        if(isNewProject(projectDir))
+        {
+            projectAPIVersionAccess.setAPIVersionAndSave(Boot.GREENFOOT_API_VERSION);
         }        
-        return GreenfootMain.updateApi(projectDir, null, Boot.GREENFOOT_API_VERSION); 
+        return GreenfootMain.updateApi(projectDir, projectAPIVersionAccess, null, Boot.GREENFOOT_API_VERSION); 
     }
 
     /**
