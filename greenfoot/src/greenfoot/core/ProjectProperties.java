@@ -44,15 +44,6 @@ import java.util.Properties;
  */
 public interface ProjectProperties extends ReadOnlyProjectProperties
 {
-    /** String printed in the top of the properties file. */
-    //private static final String FILE_HEADER = "Greenfoot properties";
-
-    /**
-     * Name of the greenfoot package file that holds information specific to a
-     * package/project
-     */
-    //public static final String GREENFOOT_PKG_NAME = "project.greenfoot";
-
     /**
      * Sets a property as in Java's Properties class. Thread-safe. 
      */
