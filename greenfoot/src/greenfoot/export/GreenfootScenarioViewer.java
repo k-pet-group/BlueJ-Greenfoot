@@ -22,6 +22,7 @@
 package greenfoot.export;
 
 import greenfoot.World;
+import greenfoot.core.ExportedProjectProperties;
 import greenfoot.core.ProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
@@ -75,7 +76,7 @@ public class GreenfootScenarioViewer extends JApplet
 
     private boolean isApplet;
     private boolean showControls;
-    private ProjectProperties properties;
+    private ExportedProjectProperties properties;
     private Simulation sim;
     private WorldCanvas canvas;
     private AskPanel askPanel;
@@ -193,7 +194,7 @@ public class GreenfootScenarioViewer extends JApplet
 
         try {
             GreenfootUtil.initialise(new GreenfootUtilDelegateStandAlone(storageStandalone, storageHost, storagePort, storagePasscode, storageScenarioId, storageUserId, storageUserName));
-            properties = new ProjectProperties();
+            properties = new ExportedProjectProperties();
 
             ActorDelegateStandAlone.setupAsActorDelegate();
             ActorDelegateStandAlone.initProperties(properties);

@@ -42,7 +42,7 @@ import java.util.Properties;
  * 
  * @author Poul Henriksen
  */
-public class ProjectProperties
+public class ProjectProperties implements ReadOnlyProjectProperties
 {
     /** String printed in the top of the properties file. */
     private static final String FILE_HEADER = "Greenfoot properties";
@@ -69,44 +69,6 @@ public class ProjectProperties
     {
         properties = new Properties();
         load(projectDir);
-    }
-    
-    /**
-     * Creates a new properties instance with the file loaded from the root of this class loader.
-     * 
-     * @param projectDir
-     */
-    public ProjectProperties()
-    {
-        properties = new Properties();
-        load();
-    }
-
-    /**
-     * Tries to load the project-file with the default class loader.
-     */
-    private void load()
-    {
-        URL probsFile = this.getClass().getResource("/" + GREENFOOT_PKG_NAME);
-        InputStream is = null;
-        try {
-            is = probsFile.openStream();
-            properties.load(is);
-        }
-        catch (IOException ioe) {
-            // if it does not exist, we will create it later if something needs
-            // to be written to it. This makes it work with scenarios created
-            // with earlier versions of greenfoot that does not contain a
-            // greenfoot project properties file.
-        }
-        finally {
-            if (is != null) {
-                try {
-                    is.close();
-                }
-                catch (IOException e) {}
-            }
-        }
     }
 
     /**
@@ -180,9 +142,9 @@ public class ProjectProperties
     /**
      * Gets a property as in Java's Properties class. Thread-safe.
      */
-    public synchronized String getString(String key)
+    public synchronized String getString(String key, String defaultValue)
     {
-        return properties.getProperty(key);
+        return properties.getProperty(key, defaultValue);
     }
 
 
@@ -192,16 +154,6 @@ public class ProjectProperties
     public synchronized void setInt(String key, int value)
     {
         properties.setProperty(key, Integer.toString(value));
-    }
-
-
-    /**
-     * Gets an int property as in Java's Properties class. Thread-safe.
-     */
-    public synchronized int getInt(String key) throws NumberFormatException
-    {
-        String number = properties.getProperty(key);
-        return Integer.parseInt(number);
     }
     
     /**
@@ -213,16 +165,6 @@ public class ProjectProperties
     }
     
     /**
-     * Gets a boolean property as in Java's Properties class. 
-     * Allows the specification of a default value. Thread-safe.
-     */
-    public synchronized boolean getBoolean(String key, String defaultValue)
-    {
-        String bool = properties.getProperty(key, defaultValue);
-        return Boolean.parseBoolean(bool);
-    }
-    
-    /**
      * Remove a property; return its old value. Thread-safe.
      * @param key  The property name
      */
@@ -231,17 +173,4 @@ public class ProjectProperties
         return (String) properties.remove(key);
     }
 
-    /**
-     * Gets an image for the given class. The images are cached to avoid loading
-     * images several times. This method is thread-safe.
-     * 
-     * @param className If it is a qualified name, the package is ignored.
-     *            Returns null, if there is no entry for this class in the
-     *            properties.
-     * @return The image.
-     */
-    public GreenfootImage getImage(String className)
-    {
-        return GreenfootUtil.getGreenfootImage(className, getString("class." + className + ".image"));
-    }
 }
