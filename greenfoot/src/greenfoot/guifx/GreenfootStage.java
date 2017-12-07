@@ -102,6 +102,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import static bluej.pkgmgr.target.ClassTarget.MENU_STYLE_INBUILT;
 
@@ -155,6 +156,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public static final int COMMAND_RESET = 26;
     // Followed by one integer per character in String answer.
     public static final int COMMAND_ANSWERED = 27;
+    // Followed by an integer count of key size, then that many integer codepoints,
+    // Then same again for value.  If value count is -1,
+    // that means value is null (and thus was removed)
+    public static final int COMMAND_PROPERTY_CHANGED = 28;
 
     private final Project project;
     // The glass pane used to show a new actor while it is being placed:
@@ -321,7 +326,30 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         setScene(new Scene(stackPane));
 
         setupWorldDrawingAndEvents(sharedMemoryLock, sharedMemoryByte, worldView::setImage, pendingCommands);
+        loadAndMirrorProperties(pendingCommands);
+        // We send a reset to make a new world after the project properties have been sent across:
+        pendingCommands.add(new Command(COMMAND_RESET));
         JavaFXUtil.addChangeListenerPlatform(stateProperty, this::updateGUIState);
+    }
+
+    private void loadAndMirrorProperties(List<Command> pendingCommands)
+    {
+        Properties props = project.getUnnamedPackage().getLastSavedProperties();
+        props.forEach((key, value) -> {
+            if (key instanceof String && (value == null || value instanceof String))
+            {
+                // We need an array with key-length, key codepoints, value-length (-1 if null), value codepoints
+                int[] keyCodepoints = ((String) key).codePoints().toArray();
+                int[] valueCodepoints = value == null ? new int[0] : ((String)value).codePoints().toArray();
+                int[] combined = new int[1 + keyCodepoints.length + 1 + valueCodepoints.length];
+                combined[0] = keyCodepoints.length;
+                System.arraycopy(keyCodepoints, 0, combined, 1, keyCodepoints.length);
+                combined[1 + keyCodepoints.length] = value == null ? -1 : valueCodepoints.length;
+                System.arraycopy(valueCodepoints, 0, combined, 2 + keyCodepoints.length, valueCodepoints.length);
+                pendingCommands.add(new Command(COMMAND_PROPERTY_CHANGED, combined));
+            }
+        });
+        
     }
 
     /**

@@ -50,16 +50,8 @@ import greenfoot.actions.ShowWebsiteAction;
 import greenfoot.actions.ToggleAction;
 import greenfoot.actions.ToggleDebuggerAction;
 import greenfoot.actions.ToggleSoundAction;
-import greenfoot.core.ClassStateManager;
-import greenfoot.core.GClass;
-import greenfoot.core.GCoreClass;
-import greenfoot.core.GPackage;
-import greenfoot.core.GProject;
+import greenfoot.core.*;
 import bluej.collect.GreenfootInterfaceEvent;
-import greenfoot.core.GreenfootMain;
-import greenfoot.core.ProjectProperties;
-import greenfoot.core.Simulation;
-import greenfoot.core.WorldHandler;
 import greenfoot.event.CompileListener;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
@@ -241,9 +233,9 @@ public class GreenfootFrame extends JFrame
     private AskPanel askPanel;
     private AskHandler askHandler;
     
-    public static GreenfootFrame getGreenfootFrame(final RBlueJ blueJ, ClassStateManager classStateManager, String shmFilePath)
+    public static GreenfootFrame getGreenfootFrame(final RBlueJ blueJ, ClassStateManager classStateManager, ShadowProjectProperties projectProperties, String shmFilePath)
     {
-        instance = new GreenfootFrame(blueJ, classStateManager, shmFilePath);
+        instance = new GreenfootFrame(blueJ, classStateManager, projectProperties, shmFilePath);
         return instance;
     }
     
@@ -251,7 +243,7 @@ public class GreenfootFrame extends JFrame
      * Creates a new top level frame with all the GUI components.
      * @param classStateManager 
      */
-    private GreenfootFrame(RBlueJ blueJ, ClassStateManager classStateManager, String shmFilePath)
+    private GreenfootFrame(RBlueJ blueJ, ClassStateManager classStateManager, ShadowProjectProperties projectProperties, String shmFilePath)
         throws HeadlessException
     {
         super("Greenfoot");
@@ -264,7 +256,7 @@ public class GreenfootFrame extends JFrame
             setIconImage(icon);
         }
 
-        makeFrame(classStateManager, shmFilePath);
+        makeFrame(classStateManager, projectProperties, shmFilePath);
         addWindowListener(this);
         
         restoreFrameState();
@@ -365,10 +357,6 @@ public class GreenfootFrame extends JFrame
             
             Simulation.getInstance().setPaused(true);
             wasRestarted = project.isVmRestarted();
-
-            if (! wasRestarted) {  
-                worldHandlerDelegate.instantiateNewWorld();
-            }
         }
         updateBackgroundMessage();
     }
@@ -423,12 +411,12 @@ public class GreenfootFrame extends JFrame
      * This includes opening the project and displaying the project classes.
      * @param classStateManager 
      */
-    private void makeFrame(ClassStateManager classStateManager, String shmFilePath)
+    private void makeFrame(ClassStateManager classStateManager, ShadowProjectProperties projectProperties, String shmFilePath)
     {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         // Some first-time initializations
-        worldCanvas = new WorldCanvas(null, (classStateManager == null || classStateManager.getProject() == null) ? null : classStateManager.getProject().getDir(), shmFilePath);
+        worldCanvas = new WorldCanvas(projectProperties, shmFilePath);
         worldCanvas.setWorldSize(200, 100);
         worldCanvas.setVisible(false);
         

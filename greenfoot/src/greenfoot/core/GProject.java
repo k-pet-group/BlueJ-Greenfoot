@@ -56,7 +56,7 @@ public class GProject extends RProjectListenerImpl
     
     private RProject rProject;
 
-    private ProjectProperties projectProperties;
+    private ShadowProjectProperties projectProperties;
     
     private List<CompileListener> compileListeners = new LinkedList<CompileListener>();
     
@@ -86,7 +86,7 @@ public class GProject extends RProjectListenerImpl
         this.rProject = rmiProject;
         try {
             rmiProject.addListener(this);
-            projectProperties = new ProjectProperties(getDir());
+            projectProperties = new ShadowProjectProperties();
         }
         catch (RemoteException re) {
             Debug.reportError("Could not instantiate Greenfoot project", re);
@@ -200,7 +200,7 @@ public class GProject extends RProjectListenerImpl
     /**
      * Retrieve the properties for a package. Loads the properties if necessary.
      */
-    public ProjectProperties getProjectProperties()
+    public ShadowProjectProperties getProjectProperties()
     {
         return projectProperties;
     }

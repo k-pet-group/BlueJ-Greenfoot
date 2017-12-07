@@ -29,6 +29,7 @@ import greenfoot.GreenfootImage;
 import greenfoot.ImageVisitor;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
+import greenfoot.core.ShadowProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.TextLabel;
 import greenfoot.core.WorldHandler;
@@ -92,6 +93,7 @@ public class WorldCanvas extends JPanel
     private Dimension size;
     private Image overrideImage;
 
+    private final ShadowProjectProperties projectProperties;
     private boolean sending = false;
     /**
      * Shared memory documentation (this comment may get moved to somewhere more appropriate later).
@@ -142,8 +144,9 @@ public class WorldCanvas extends JPanel
      * @param world The world which we are the canvas for.
      * @param shmFilePath The path to the shared-memory file to be mmap-ed for communication
      */
-    public WorldCanvas(World world, File projectDir, String shmFilePath)
+    public WorldCanvas(ShadowProjectProperties projectProperties, String shmFilePath)
     {
+        this.projectProperties = projectProperties;
         setWorld(world);
         setBackground(Color.WHITE);
         setOpaque(true);
@@ -466,6 +469,13 @@ public class WorldCanvas extends JPanel
                     case GreenfootStage.COMMAND_ANSWERED:
                         // Store the codepoints we received:
                         answer[0] = new String(data, 1, data.length - 1);
+                        break;
+                    case GreenfootStage.COMMAND_PROPERTY_CHANGED:
+                        int keyLength = data[1];
+                        String key = new String(data, 2, keyLength);
+                        int valueLength = data[2+keyLength];
+                        String value = valueLength < 0 ? null : new String(data, 3 + keyLength, valueLength);
+                        projectProperties.propertyChangedOnServerVM(key, value);
                         break;
                 }
             }

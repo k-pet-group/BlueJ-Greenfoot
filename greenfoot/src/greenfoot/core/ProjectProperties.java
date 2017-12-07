@@ -42,135 +42,43 @@ import java.util.Properties;
  * 
  * @author Poul Henriksen
  */
-public class ProjectProperties implements ReadOnlyProjectProperties
+public interface ProjectProperties extends ReadOnlyProjectProperties
 {
     /** String printed in the top of the properties file. */
-    private static final String FILE_HEADER = "Greenfoot properties";
+    //private static final String FILE_HEADER = "Greenfoot properties";
 
     /**
      * Name of the greenfoot package file that holds information specific to a
      * package/project
      */
-    public static final String GREENFOOT_PKG_NAME = "project.greenfoot";
-
-    /** Holds the actual properties */
-    private Properties properties;
-
-    /** Reference to the file that holds the properties */
-    private File propsFile;
-
-    /**
-     * Creates a new properties instance for the project in the given directory.
-     * The directory has to exist.
-     * 
-     * @param projectDir
-     */
-    public ProjectProperties(File projectDir)
-    {
-        properties = new Properties();
-        load(projectDir);
-    }
-
-    /**
-     * Loads the properties from the greenfoot properties file in the given
-     * directory.
-     * 
-     * @param projectDir The project dir.
-     * @throws IllegalArgumentException If directory can't be read or written.
-     */
-    private void load(File projectDir)
-    {
-        propsFile = new File(projectDir, GREENFOOT_PKG_NAME);
-
-        InputStream is = null;
-        try {
-            is = new FileInputStream(propsFile);
-            properties.load(is);
-        }
-        catch (IOException ioe) {
-            // if it does not exist, we will create it later if something needs
-            // to be written to it. This makes it work with scenarios created
-            // with earlier versions of greenfoot that does not contain a
-            // greenfoot project properties file.
-        }
-        finally {
-            if (is != null) {
-                try {
-                    is.close();
-                }
-                catch (IOException e) {}
-            }
-        }
-    }
-    
-    
-    /**
-     * Stores these properties to the file.
-     * 
-     * @throws IOException If the properties can't be written to the properties
-     *             file.
-     */
-    public synchronized void save()
-    {
-        OutputStream os = null;
-        try {
-            os = new FileOutputStream(propsFile);
-            properties.store(os, FILE_HEADER);
-        }
-        catch (FileNotFoundException e) {}
-        catch (IOException e) {}
-        finally {
-            if (os != null) {
-                try {
-                    os.close();
-                }
-                catch (IOException e) {}
-            }
-        }
-    }
-
+    //public static final String GREENFOOT_PKG_NAME = "project.greenfoot";
 
     /**
      * Sets a property as in Java's Properties class. Thread-safe. 
      */
-    public synchronized void setString(String key, String value)
-    {
-        properties.setProperty(key, value);
-    }
-
-
-    /**
-     * Gets a property as in Java's Properties class. Thread-safe.
-     */
-    public synchronized String getString(String key, String defaultValue)
-    {
-        return properties.getProperty(key, defaultValue);
-    }
-
+    public void setString(String key, String value);
 
     /**
      * Sets an int property as in Java's Properties class. Thread-safe.
      */
-    public synchronized void setInt(String key, int value)
+    public default void setInt(String key, int value)
     {
-        properties.setProperty(key, Integer.toString(value));
+        setString(key, Integer.toString(value));
     }
     
     /**
      * Sets a boolean property as in Java's Properties class. Thread-safe. 
      */
-    public synchronized void setBoolean(String key, boolean value)
+    public default void setBoolean(String key, boolean value)
     {
-        properties.setProperty(key, Boolean.toString(value));        
+        setString(key, Boolean.toString(value));        
     }
     
     /**
      * Remove a property; return its old value. Thread-safe.
      * @param key  The property name
      */
-    public synchronized String removeProperty(String key)
-    {
-        return (String) properties.remove(key);
-    }
-
+    public String removeProperty(String key);
+    
+    public void save();
 }
