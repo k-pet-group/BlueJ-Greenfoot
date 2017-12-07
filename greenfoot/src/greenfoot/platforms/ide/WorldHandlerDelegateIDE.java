@@ -32,7 +32,6 @@ import greenfoot.core.ImageCache;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.SimulationUIListener;
-import greenfoot.gui.DragGlassPane;
 import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.WorldCanvas;
 import greenfoot.gui.input.InputManager;
@@ -273,11 +272,7 @@ public class WorldHandlerDelegateIDE
     public InputManager getInputManager()
     {
         InputManager inputManager = new InputManager();       
-        DragGlassPane.getInstance().addMouseListener(inputManager);
-        DragGlassPane.getInstance().addMouseMotionListener(inputManager);
-        DragGlassPane.getInstance().addKeyListener(inputManager);        
         inputManager.setIdleListeners(worldHandler, null, null);
-        inputManager.setDragListeners(null, DragGlassPane.getInstance(), DragGlassPane.getInstance());
         inputManager.setMoveListeners(worldHandler, null, null);
         
         return inputManager;

@@ -22,10 +22,8 @@
 package greenfoot.gui.classbrowser.role;
 
 import greenfoot.GreenfootImage;
-import greenfoot.actions.DragProxyAction;
 import greenfoot.core.GClass;
 import greenfoot.core.GProject;
-import greenfoot.core.ObjectDragProxy;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.util.GreenfootUtil;
 
@@ -119,26 +117,6 @@ public abstract class ImageClassRole extends ClassRole
             imageIcons.put(gCls, icon);     
         }
         return icon;
-    }
-
-    public ObjectDragProxy createObjectDragProxy()
-    {
-        GreenfootImage greenfootImage = getGreenfootImage(gClass);
-        Action dropAction = new AbstractAction() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent arg0)
-            {
-                classView.createInstance();
-            }
-        };
-        ObjectDragProxy object = new ObjectDragProxy(greenfootImage, dropAction);
-        return object;
-    }
-
-    protected Action createDragProxyAction(Action realAction)
-    {
-        GreenfootImage greenfootImage = getGreenfootImage(gClass);
-        return new DragProxyAction(greenfootImage, realAction);
     }
 
     /**

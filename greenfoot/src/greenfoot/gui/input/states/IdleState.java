@@ -62,9 +62,6 @@ public class IdleState extends State
     {
         super.switchToNextState(event, obj);
         switch(event) {
-            case CONSTRUCTOR_INVOKED :
-                switchAndActivateState(ConstructorDragState.getInstance(), obj);
-                break;
             case OBJECT_MOVED :
                 switchAndActivateState(MoveState.getInstance(), obj);
                 break;
@@ -73,9 +70,6 @@ public class IdleState extends State
                 break;
             case MOUSE_PRESSED :
                 switchAndActivateState(MoveState.getInstance(), obj);
-                break;
-            case SHIFT_PRESSED :
-                switchAndActivateState(QuickAddDragState.getInstance(), obj);
                 break;
         }
     }

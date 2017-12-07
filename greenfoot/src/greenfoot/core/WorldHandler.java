@@ -640,13 +640,6 @@ public class WorldHandler
         if (x >= maxWidth || y >= maxHeight || x < 0 || y < 0) {
             return false;
         }
-        else if (o instanceof ObjectDragProxy) {
-            // create the real object
-            final ObjectDragProxy to = (ObjectDragProxy) o;
-            to.createRealObject();
-            Simulation.getInstance().runLater(() -> world.removeObject(to));
-            return true;
-        }
         else if (o instanceof Actor && ActorVisitor.getWorld((Actor) o) == null) {
             // object received from the inspector via the Get button.
             Actor actor = (Actor) o;

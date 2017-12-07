@@ -573,20 +573,6 @@ public class WorldCanvas extends JPanel
         this.dropTargetListener = dropTargetListener;
     }
 
-    @Override
-    public boolean drop(Object o, Point p)
-    {
-        Insets insets = getInsets();
-        Point p2 = new Point(p.x - insets.left, p.y - insets.top);
-        clearDragInfo();
-        if (dropTargetListener != null) {
-            return dropTargetListener.drop(o, p2);
-        }
-        else {
-            return false;
-        }
-    }
-
     /**
      * If it is a new actor, that has not been added to the world yet, the
      * dragging is handled here.
@@ -614,26 +600,6 @@ public class WorldCanvas extends JPanel
         else {        
             return false;
         }
-    }
-    
-    public void dragEnded(Object o)
-    {
-        clearDragInfo();
-        if (dropTargetListener != null) {
-            dropTargetListener.dragEnded(o);
-        }
-        
-    }
-
-    /** 
-     * End the drag by setting all the drag information to null. And request repaint to update the graphics.
-     */
-    private void clearDragInfo()
-    {
-        dragLocation = null;
-        dragActor = null;
-        dragImage = null;
-        repaint();
     }
 
     public Dimension getPreferredScrollableViewportSize()

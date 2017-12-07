@@ -88,7 +88,6 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     public InputManager getInputManager()
     {
         InputManager inputManager = new InputManager();
-        inputManager.setDragListeners(null, null, null);
         if (lockScenario) {
             inputManager.setIdleListeners(null, null, null);
             inputManager.setMoveListeners(null, null, null);
