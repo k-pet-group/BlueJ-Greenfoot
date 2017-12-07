@@ -288,7 +288,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
 
         unnamedPackage = new Package(this);
         Properties props = unnamedPackage.getLastSavedProperties();
-        setProjectProperties(props);
+        loadProjectProperties(props);
         packages.put("", unnamedPackage);
 
         shelfStorage = new FrameShelfStorage(this.projectDir);
@@ -301,7 +301,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         debugger.setUserLibraries(libraryUrls.toArray(new URL[libraryUrls.size()]));
         debugger.newClassLoader(getClassLoader());
         debugger.addDebuggerListener(this);
-        // Note: this line must come after setProjectProperties (currently above):
+        // Note: this line must come after loadProjectProperties (currently above):
         debugger.setRunOnThread(getRunOnThread() == null ? RunOnThread.DEFAULT : getRunOnThread());
         debugger.launch();
 
@@ -782,7 +782,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
      * Get the project properties to be written to storage when the project is saved.
      */
     @OnThread(Tag.FXPlatform)
-    public synchronized Properties getProjectProperties()
+    public synchronized Properties getProjectPropertiesCopy()
     {
         Properties p = new Properties();
         p.put(PROJECT_CHARSET_PROP, characterSet.name());
@@ -794,7 +794,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     /**
      * Restore project properties (called just after project is opened). 
      */
-    private synchronized void setProjectProperties(Properties props)
+    private synchronized void loadProjectProperties(Properties props)
     {
         String charsetName = props.getProperty(PROJECT_CHARSET_PROP);
         if (charsetName != null) {

@@ -133,7 +133,7 @@ public class GClass
             ProjectProperties props = pkg.getProject().getProjectProperties();
             String superClass = props.removeProperty("class." + oldName + ".superclass");
             String classImage = props.removeProperty("class." + oldName + ".image");
-            props.removeCachedImage(oldName);
+            GreenfootUtil.removeCachedImage(oldName);
             
             setClassProperty("superclass", superClass);
             if(classImage != null ) {
@@ -264,7 +264,7 @@ public class GClass
         ProjectProperties props = pkg.getProject().getProjectProperties();
         props.removeProperty("class." + getName() + ".superclass");
         props.removeProperty("class." + getName() + ".image");
-        props.removeCachedImage(getName());
+        GreenfootUtil.removeCachedImage(getName());
         try {
             rmiClass.remove();
         }
@@ -400,7 +400,8 @@ public class GClass
             return null;
         }
         superclassName = GreenfootUtil.extractClassName(superclassName);
-        GClass superClass = pkg.getClass(superclassName);
+        // This line seems to cause deadlock at the moment, so commenting out during Greenfoot rewrite:
+        GClass superClass = null; // pkg.getClass(superclassName);
         return superClass;
     }
 

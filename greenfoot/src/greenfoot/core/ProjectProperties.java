@@ -231,30 +231,6 @@ public class ProjectProperties
         return (String) properties.remove(key);
     }
 
-
-    /**
-     * Stores the API version. Thread-safe.
-     */
-    public void setApiVersion(String version)
-    {
-        properties.setProperty("version", version);
-    }
-
-
-    /**
-     * Attempts to find the version number the greenfoot API that a greenfoot
-     * project was created with. If it can not find a version number, it will
-     * return Version.NO_VERSION. Thread-safe.
-     * 
-     * @return API version
-     */
-    public Version getAPIVersion()
-    {
-        String versionString = properties.getProperty("version");
-        Version version = new Version(versionString);
-        return version;
-    }
-    
     /**
      * Gets an image for the given class. The images are cached to avoid loading
      * images several times. This method is thread-safe.
@@ -268,14 +244,4 @@ public class ProjectProperties
     {
         return GreenfootUtil.getGreenfootImage(className, getString("class." + className + ".image"));
     }
-    
-    /**
-     * Remove the cached version of an image for a particular class. This should be
-     * called when the image for the class is changed. Thread-safe.
-     */
-    public void removeCachedImage(String className)
-    {
-       GreenfootUtil.removeCachedImage(className);
-    }
-
 }

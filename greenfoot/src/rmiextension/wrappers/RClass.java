@@ -90,12 +90,6 @@ public interface RClass
      */
     SourceType getSourceType()
         throws RemoteException, ProjectNotOpenException, PackageNotFoundException;
-    
-    /**
-     * Auto-indents the code for this class.
-     */
-    void autoIndent()
-        throws RemoteException, ProjectNotOpenException, PackageNotFoundException;
 
     void convertStrideToJava()
         throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException;
@@ -104,8 +98,5 @@ public interface RClass
         throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException;
 
     void cancelFreshState()
-        throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
-
-    void removeImports(List<String> importTargets)
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 }

@@ -23,7 +23,6 @@ package greenfoot.core;
 
 import bluej.Boot;
 import bluej.collect.DataSubmissionFailedDialog;
-import bluej.extensions.CompilationNotStartedException;
 import greenfoot.ObjectTracker;
 import greenfoot.actions.NewSubWorldAction;
 import greenfoot.event.ActorInstantiationListener;
@@ -41,16 +40,10 @@ import java.awt.Frame;
 import java.awt.Point;
 import java.io.File;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.lang.reflect.Field;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.PathMatcher;
 import java.rmi.RemoteException;
 import java.rmi.ServerError;
 import java.rmi.ServerException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -60,7 +53,6 @@ import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 
 import rmiextension.wrappers.RBlueJ;
-import rmiextension.wrappers.RClass;
 import rmiextension.wrappers.RPackage;
 import rmiextension.wrappers.RProject;
 import rmiextension.wrappers.event.RApplicationListenerImpl;
@@ -68,7 +60,6 @@ import rmiextension.wrappers.event.RCompileEvent;
 import rmiextension.wrappers.event.RProjectListener;
 import bluej.Config;
 import bluej.debugmgr.CallHistory;
-import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.GreenfootProjectFile;
@@ -356,14 +347,10 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             frame.openProject(project);
             return;
         }
-        
-        // Used for some imports:
-        boolean autoIndentAllFiles = false;
 
         if (!projectDirFile.isDirectory() && !Project.isProject(projectDirFile.toString())) {
             if (projectDirFile.getName().endsWith(".sb")) {
                 projectDirFile = ScratchImport.convert(projectDirFile);
-                autoIndentAllFiles = true;
             }
             else {
                 projectDirFile = Utility.maybeExtractArchive(projectDirFile, null);
@@ -379,35 +366,10 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             }
         }
                 
-        VersionCheckInfo versionStatus = GreenfootMain.updateApi(projectDirFile, frame, getAPIVersion().toString());
-        boolean doOpen = versionStatus.versionInfo != VersionInfo.VERSION_BAD;
-        if (doOpen) {
-            RProject proj = rBlueJ.openProject(projectDirFile);
-
-            if (autoIndentAllFiles || versionStatus.removeAWTImports) {
-                try {
-                    for (RPackage pkg : proj.getPackages()) {
-                        for (RClass cls : pkg.getRClasses()) {
-                            if (autoIndentAllFiles)
-                                cls.autoIndent();
-                            if (versionStatus.removeAWTImports)
-                            {
-                                cls.removeImports(Arrays.asList("java.awt.Color", "java.awt.Font"));
-                            }
-                        }
-                    }
-                    proj.getPackage("").compileAll();
-                // If there any problems, never mind about it:
-                }
-                catch(ProjectNotOpenException e) { }
-                catch (PackageNotFoundException e) { }
-                catch (CompilationNotStartedException e) { }
-            }
-
-            // if this is the dummy startup project and there is a valid project to open, close it now
-            if (proj != null && frame.getProject() == null) {
-                project.close();
-            }
+        RProject proj = rBlueJ.openProject(projectDirFile);
+        // if this is the dummy startup project and there is a valid project to open, close it now
+        if (proj != null && frame.getProject() == null) {
+            project.close();
         }
     }
 
@@ -616,7 +578,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      *            needing a recompile in the Greenfoot class browser.
      */
     private static void prepareGreenfootProject(File greenfootLibDir, File projectDir,
-            ProjectProperties p, boolean deleteClassFiles, String greenfootApiVersion)
+                                                ProjectAPIVersionAccess p, boolean deleteClassFiles, String greenfootApiVersion)
     {
         if (isStartupProject(greenfootLibDir, projectDir)) {
             return;
@@ -660,8 +622,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             Debug.reportError("SecurityException when trying to create images/sounds directories", e);
         }
         
-        p.setApiVersion(greenfootApiVersion);
-        p.save();
+        p.setAPIVersionAndSave(greenfootApiVersion);
     }
 
     private static void deleteGreenfootDir(File greenfootDir) 
@@ -725,6 +686,24 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             }
         }
     }
+    
+    public static interface ProjectAPIVersionAccess
+    {
+        /**
+         * Attempts to find the version number the greenfoot API that a greenfoot
+         * project was created with. If it can not find a version number, it will
+         * return Version.NO_VERSION. Thread-safe.
+         *
+         * @return API version
+         */
+        Version getAPIVersion();
+
+        /**
+         * Sets the API version and saves this to the project file.
+         * @param version
+         */
+        void setAPIVersionAndSave(String version);
+    }
 
     /**
      * Checks whether the API version this project was created with is
@@ -740,11 +719,10 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
      * @param parent Frame that should be used to place dialogs.
      * @return One of VERSION_OK, VERSION_UPDATED or VERSION_BAD
      */
-    public static VersionCheckInfo updateApi(File projectDir, Frame parent, String greenfootApiVersion)
+    public static VersionCheckInfo updateApi(File projectDir, ProjectAPIVersionAccess projectVersionAccess, Frame parent, String greenfootApiVersion)
     {
         File greenfootLibDir = Config.getGreenfootLibDir();
-        ProjectProperties newProperties = new ProjectProperties(projectDir);
-        Version projectVersion = newProperties.getAPIVersion();
+        Version projectVersion = projectVersionAccess.getAPIVersion();
 
         Version apiVersion = GreenfootMain.getAPIVersion();
 
@@ -756,7 +734,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             dialog.displayModal();
             Debug.message("Bad version number in project: " + greenfootLibDir);
             GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir,
-                    newProperties, true, greenfootApiVersion);
+                    projectVersionAccess, true, greenfootApiVersion);
             return new VersionCheckInfo(VersionInfo.VERSION_UPDATED, false);
         }
         else if (projectVersion.isOlderAndBreaking(apiVersion)) {
@@ -780,7 +758,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 removeAWTImports = false;
             }
             GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir,
-                    newProperties, true, greenfootApiVersion);
+                    projectVersionAccess, true, greenfootApiVersion);
 
             return new VersionCheckInfo(VersionInfo.VERSION_UPDATED, removeAWTImports);
         }
@@ -796,22 +774,22 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             if (pressed == cancelButton) {
                 return new VersionCheckInfo(VersionInfo.VERSION_BAD, false);
             }
-            prepareGreenfootProject(greenfootLibDir, projectDir, newProperties, true, greenfootApiVersion);
+            prepareGreenfootProject(greenfootLibDir, projectDir, projectVersionAccess, true, greenfootApiVersion);
             return new VersionCheckInfo(VersionInfo.VERSION_UPDATED, false);
         }
         else if (projectVersion.isNonBreaking(apiVersion) ) {
             prepareGreenfootProject(greenfootLibDir, projectDir,
-                    newProperties, true, greenfootApiVersion);
+                    projectVersionAccess, true, greenfootApiVersion);
             return new VersionCheckInfo(VersionInfo.VERSION_UPDATED, false);
         }
         else if (projectVersion.isInternal(apiVersion)) {
             prepareGreenfootProject(greenfootLibDir, projectDir,
-                    newProperties, false, greenfootApiVersion);
+                    projectVersionAccess, false, greenfootApiVersion);
             return new VersionCheckInfo(VersionInfo.VERSION_UPDATED, false);
         }
         else {       
             prepareGreenfootProject(greenfootLibDir, projectDir,
-                    newProperties, false, greenfootApiVersion);
+                    projectVersionAccess, false, greenfootApiVersion);
             return new VersionCheckInfo(VersionInfo.VERSION_OK, false);            
         }
     }
