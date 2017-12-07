@@ -56,7 +56,7 @@ public class StrideDictionary extends FrameDictionary<StrideCategory>
             new Entry<>(' ', CallFrame.getFactory(), false, StrideCategory.CALL, "stride.dictionary.call.method.name", "stride.dictionary.call.method.description"),
             new Entry<>('\n', BlankFrame.getFactory(), false, StrideCategory.BLANK, "stride.dictionary.blank.name", "stride.dictionary.blank.description"),
             new Entry<>('/', CommentFrame.getFactory(), false, StrideCategory.COMMENT, "stride.dictionary.comment.name", "stride.dictionary.comment.description"),
-            new Entry<>('=', AssignFrame.getFactory(), false, StrideCategory.ASSIGNMENT, "stride.dictionary.assignment", "stride.dictionary.assignment"),
+            new Entry<>('=', AssignFrame.getFactory(), false, StrideCategory.ASSIGNMENT, "stride.dictionary.assignment.name", "stride.dictionary.assignment.description"),
             //case '*': return new MultiCommentBlock(editor);
             // Last parameter is false in the next entry as No need to show it in the Catalogue, just make it valid.
             new Entry<>('a', MethodProtoFrame.getFactory(), false, StrideCategory.INTERFACE_METHOD, "stride.dictionary.abstract.method.name", "stride.dictionary.abstract.method.interface.description", false),

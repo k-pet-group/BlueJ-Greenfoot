@@ -13,6 +13,9 @@ frame.catalogue.birdseye.up=Nach oben
 frame.catalogue.birdseye.down=Nach unten
 frame.catalogue.birdseye.select=Auswahl
 frame.catalogue.examples=Beispiele
+frame.catalogue.hint.move=Gehe 3 Schritte vorw\u00e4rts
+frame.catalogue.hint.turn=Drehe um drei Grad nach rechts
+frame.catalogue.hint.removeobject=Entferne die angrenzenden Crab-Objekte
 
 
 # Stride Dictionary:
@@ -22,7 +25,8 @@ stride.dictionary.blank.name=Leerzeile
 stride.dictionary.blank.description=Eine leere Zeile
 stride.dictionary.comment.name=Kommentar
 stride.dictionary.comment.description=Ein Kommentar im Quelltext
-stride.dictionary.assignment=Zuweisung
+stride.dictionary.assignment.name=Zuweisung
+stride.dictionary.assignment.description=Eine Zuweisung einer Variable oder eines Attributs
 stride.dictionary.abstract.method.name=Abstrakte Methode
 stride.dictionary.abstract.method.interface.description=Eine Methode eines Interface
 stride.dictionary.abstract.method.class.description=Eine Abstrakte Methode einer Klasse
@@ -164,7 +168,7 @@ frame.operation.copy=Kopieren
 frame.operation.copy.as.image=Kopieren als Bild
 frame.operation.copy.as.java=Kopieren als Java
 frame.operation.cut=Ausschneiden
-frame.operation.delete=L\u00fcschen
+frame.operation.delete=L\u00e4schen
 frame.operation.delete.outer=Umgebenden Frame l\u00dfschen
 frame.operation.disable=Deaktivieren
 frame.operation.enable=Aktivieren
