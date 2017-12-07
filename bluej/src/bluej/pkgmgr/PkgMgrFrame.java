@@ -1812,7 +1812,7 @@ public class PkgMgrFrame
         Properties p;
         if (pkg.get().isUnnamedPackage()) {
             // The unnamed package also contains project properties
-            p = getProject().getProjectProperties();
+            p = getProject().getProjectPropertiesCopy();
             getProject().saveEditorLocations(p);
             getProject().getImportScanner().saveCachedImports();
         }
