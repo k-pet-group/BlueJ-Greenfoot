@@ -13,6 +13,9 @@ frame.catalogue.birdseye.up=Move up
 frame.catalogue.birdseye.down=Move down
 frame.catalogue.birdseye.select=Select
 frame.catalogue.examples=Examples
+frame.catalogue.hint.move=Move forward 3 cells
+frame.catalogue.hint.turn=Turn right 5 degrees
+frame.catalogue.hint.removeobject=Remove touching Crab actors
 
 
 # Stride Dictionary:
@@ -22,7 +25,8 @@ stride.dictionary.blank.name=Blank
 stride.dictionary.blank.description=A blank line
 stride.dictionary.comment.name=Comment
 stride.dictionary.comment.description=A code comment
-stride.dictionary.assignment=Assignment
+stride.dictionary.assignment.name=Assignment
+stride.dictionary.assignment.description=Assigns a value to a field or a variable
 stride.dictionary.abstract.method.name=Abstract method
 stride.dictionary.abstract.method.interface.description=A method of an interface
 stride.dictionary.abstract.method.class.description=An abstract method of a class
@@ -148,7 +152,7 @@ frame.class.add.this=Add this(..) call
 frame.class.add.throw=Add throws declaration
 frame.class.constructor.doc.prompt=Describe your constructor here...
 frame.class.method.doc.prompt=Describe your method here...
-frame.class.overrides.from=overrides method in $
+frame.class.overrides.from=overrides method from $
 frame.class.remove.extends.from=Remove 'extends $'
 frame.class.remove.implements=Remove 'implements $'
 frame.class.remove.super=Remove super/this call
