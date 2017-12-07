@@ -185,8 +185,8 @@ public class ScenarioInfo
             }
         }
         setTags(tagList);
-        setHasSource(properties.getBoolean(PUBLISH_HAS_SOURCE, "false"));
-        setLocked(properties.getBoolean(PUBLISH_LOCKED, "true"));
+        setHasSource(properties.getBoolean(PUBLISH_HAS_SOURCE, false));
+        setLocked(properties.getBoolean(PUBLISH_LOCKED, true));
         setUpdateDescription(properties.getString(PUBLISH_UPDATE_DESC));
         return true;
     }
