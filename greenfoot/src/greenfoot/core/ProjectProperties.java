@@ -268,14 +268,4 @@ public class ProjectProperties
     {
         return GreenfootUtil.getGreenfootImage(className, getString("class." + className + ".image"));
     }
-    
-    /**
-     * Remove the cached version of an image for a particular class. This should be
-     * called when the image for the class is changed. Thread-safe.
-     */
-    public void removeCachedImage(String className)
-    {
-       GreenfootUtil.removeCachedImage(className);
-    }
-
 }

@@ -124,7 +124,7 @@ public abstract class ImageClassRole extends ClassRole
      */
     public void changeImage()
     {
-        project.getProjectProperties().removeCachedImage(classView.getClassName());             
+        GreenfootUtil.removeCachedImage(classView.getClassName());             
         Image image = getImage(gClass);
         if (image != null) {
             Image scaledImage = GreenfootUtil.getScaledImage(image,iconSize.width, iconSize.height);
