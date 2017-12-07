@@ -382,9 +382,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         try {
             startingDir = pathIntoStartingDirectory(projectPath);
         } catch (IOException ioe) {
-            Debug.message("could not resolve directory " + projectPath);
-
-            //ioe.printStackTrace();
+            Debug.reportError("could not resolve directory " + projectPath, ioe);
             return null;
         }
 
