@@ -38,7 +38,6 @@ import bluej.editor.moe.PrintDialog.PrintChoices;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.FrameEditor;
 import bluej.editor.stride.MoeFXTab;
-import bluej.extensions.editor.Editor;
 import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.ParamInfo;
 import bluej.parser.CodeSuggestions;
@@ -139,7 +138,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
@@ -584,6 +582,14 @@ public final class MoeEditor extends ScopeColorsBorderPane
         if (saveState.isChanged()) {
             // Record any edits with the data collection system:
             recordEdit(true);
+            
+            // Play it safe and avoid overwriting code that has been changed outside BlueJ (or at least,
+            // outside *this* instance of BlueJ):
+            checkForChangeOnDisk();
+            if (! saveState.isChanged())
+            {
+                return;
+            }
             
             Writer writer = null;
             try {
