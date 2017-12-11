@@ -27,18 +27,39 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
      */
     public static class ClassInfo
     {
-        private final String name;
+        private final String fullyQualifiedName;
+        private final String displayName;
         private final Image image;
         private final List<ClassInfo> subClasses = new ArrayList<>();
         // If non-null, exists *and* is already a child of the enclosing ClassGroup
         private ClassDisplay display;
 
-        public ClassInfo(String name, Image image, List<ClassInfo> subClasses)
+        public ClassInfo(String fullyQualifiedName, String displayName, Image image, List<ClassInfo> subClasses)
         {
-            this.name = name;
+            this.fullyQualifiedName = fullyQualifiedName;
+            this.displayName = displayName;
             this.image = image;
             this.subClasses.addAll(subClasses);
-            Collections.sort(this.subClasses, Comparator.comparing(ci -> ci.name));
+            Collections.sort(this.subClasses, Comparator.comparing(ci -> ci.displayName));
+        }
+        
+        public String getQualifiedName()
+        {
+            return fullyQualifiedName;
+        }
+
+        /**
+         * Adds a subclass.  Don't forget to call updateAfterAdd() on the enclosing ClassGroup.
+         */
+        public void add(ClassInfo classInfo)
+        {
+            subClasses.add(classInfo);
+            Collections.sort(this.subClasses, Comparator.comparing(ci -> ci.displayName));
+        }
+
+        public List<ClassInfo> getSubClasses()
+        {
+            return Collections.unmodifiableList(subClasses);
         }
     }
     // For Actor and World groups, just those base classes.  For other, can be many top-level:
@@ -65,8 +86,29 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
         getChildren().clear();
         this.topLevel.clear();
         this.topLevel.addAll(topLevel);
-        Collections.sort(this.topLevel, Comparator.comparing(ci -> ci.name));
+        Collections.sort(this.topLevel, Comparator.comparing(ci -> ci.displayName));
 
+        requestLayout();
+    }
+
+    /**
+     * Gets the live list of classes in this group.  This should only be used for adding, not for
+     * removal.  If you add a class anywhere within, you should then call updateAfterAdd().
+     * @return
+     */
+    public List<ClassInfo> getLiveClasses()
+    {
+        return topLevel;
+    }
+
+    /**
+     * Refreshes display after a class has been added to the diagram.
+     */
+    public void updateAfterAdd()
+    {
+        // Sort in case they added at top-level:
+        Collections.sort(this.topLevel, Comparator.comparing(ci -> ci.displayName));
+        // Adjust positions:
         requestLayout();
     }
 
@@ -93,7 +135,7 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
             // If no display make one (if there is display, no need to make again)
             if (classInfo.display == null)
             {
-                classInfo.display = new ClassDisplay(classInfo.name, classInfo.image);
+                classInfo.display = new ClassDisplay(classInfo.displayName, classInfo.image);
                 getChildren().add(classInfo.display);
                 // Often, the height is zero at this point, so we need to listen
                 // for when it gets set right in order to re-layout:

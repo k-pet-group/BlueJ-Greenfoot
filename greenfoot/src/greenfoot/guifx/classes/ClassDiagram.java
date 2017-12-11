@@ -32,6 +32,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -77,11 +78,11 @@ public class ClassDiagram extends VBox
         
         // First, we must take out any World and Actor classes:
         List<ClassInfo> worldSubclasses = findAllSubclasses("greenfoot.World", classTargets);
-        ClassInfo worldClassesInfo = new ClassInfo("World", null, worldSubclasses);
+        ClassInfo worldClassesInfo = new ClassInfo("greenfoot.World", "World", null, worldSubclasses);
         worldClasses.setClasses(Collections.singletonList(worldClassesInfo));
 
         List<ClassInfo> actorSubclasses = findAllSubclasses("greenfoot.Actor", classTargets);
-        ClassInfo actorClassesInfo = new ClassInfo("Actor", null, actorSubclasses);
+        ClassInfo actorClassesInfo = new ClassInfo("greenfoot.Actor", "Actor", null, actorSubclasses);
         actorClasses.setClasses(Collections.singletonList(actorClassesInfo));
         
         // All other classes can be found by passing null, see docs on findAllSubclasses:
@@ -133,10 +134,67 @@ public class ClassDiagram extends VBox
                 classTargetAndVal.setValue(true);
 
                 List<ClassInfo> subClasses = findAllSubclasses(classTarget.getQualifiedName(), classTargets);
-                curLevel.add(new ClassInfo(classTarget.getQualifiedName(), null, subClasses));
+                curLevel.add(new ClassInfo(classTarget.getQualifiedName(), classTarget.getBaseName(),null, subClasses));
             }
         }
         return curLevel;
+    }
+
+    /**
+     * Adds a new class to the diagram at the appropriate place, based on its superclass.
+     */
+    public void addClass(ClassTarget classTarget)
+    {
+        String superClass = classTarget.analyseSource().getSuperclass();
+        
+        // The class could be nested within actor or world or other
+        // If none of those apply, it will go at top-level of other
+        if (superClass != null)
+        {
+            // It does have a parent class: may be in World, Actor or Other:
+            for (ClassGroup classGroup : Arrays.asList(worldClasses, actorClasses, otherClasses))
+            {
+                // Look all the way down for the tree for the super class:
+                boolean found = findAndAdd(classGroup.getLiveClasses(), classTarget, superClass);
+                if (found)
+                {
+                    classGroup.updateAfterAdd();
+                    // Found right place nested within the current group; done:
+                    return;
+                }
+            }
+            // If we fall through here, we do have a parent class, but it's not in the diagram
+            // e.g. inheriting from java.util.List
+        }
+        // Otherwise, add to top of Other:
+        otherClasses.getLiveClasses().add(new ClassInfo(classTarget.getQualifiedName(), classTarget.getBaseName(), null, Collections.emptyList()));
+        otherClasses.updateAfterAdd();
+    }
+
+    /**
+     * Looks within the whole tree formed by the list of class info for the right place for classTarget.  If
+     * found, adds it and returns true.  If not found, returns false.
+     * 
+     * @param classInfos The tree to search.  The list itself will not be modified.
+     * @param classTarget The class to add to the tree.
+     * @param classTargetSuperClass The super-class of classTarget
+     * @return True if right place found and added, false if not
+     */
+    private boolean findAndAdd(List<ClassInfo> classInfos, ClassTarget classTarget, String classTargetSuperClass)
+    {
+        for (ClassInfo classInfo : classInfos)
+        {
+            if (classInfo.getQualifiedName().equals(classTargetSuperClass))
+            {
+                classInfo.add(new ClassInfo(classTarget.getQualifiedName(), classTarget.getBaseName(), null, Collections.emptyList()));
+                return true;
+            }
+            else if (findAndAdd(classInfo.getSubClasses(), classTarget, classTargetSuperClass))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
