@@ -316,7 +316,7 @@ public class DialogManager
             message = message.substring(0, button1Index);
             message = Utility.mergeStrings(message, subs);
             List<ButtonType> buttons = new ArrayList<>();
-            boolean hasThirdButton = "null".equals(button3);
+            boolean hasThirdButton = !"null".equals(button3);
             buttons.add(new ButtonType(button1, hasThirdButton ? ButtonBar.ButtonData.CANCEL_CLOSE : ButtonBar.ButtonData.NO));
             buttons.add(new ButtonType(button2, hasThirdButton ? ButtonBar.ButtonData.NO : ButtonBar.ButtonData.YES));
             if (hasThirdButton)
