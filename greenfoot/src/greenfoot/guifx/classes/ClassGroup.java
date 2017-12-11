@@ -42,14 +42,18 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
             this.subClasses.addAll(subClasses);
             Collections.sort(this.subClasses, Comparator.comparing(ci -> ci.displayName));
         }
-        
+
+        /**
+         * Gets the qualified name of the class.
+         */
         public String getQualifiedName()
         {
             return fullyQualifiedName;
         }
 
         /**
-         * Adds a subclass.  Don't forget to call updateAfterAdd() on the enclosing ClassGroup.
+         * Adds a subclass to the list of subclasses.
+         * Don't forget to call updateAfterAdd() on the enclosing ClassGroup.
          */
         public void add(ClassInfo classInfo)
         {
@@ -57,6 +61,9 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
             Collections.sort(this.subClasses, Comparator.comparing(ci -> ci.displayName));
         }
 
+        /**
+         * Get the list of subclasses of this class.
+         */
         public List<ClassInfo> getSubClasses()
         {
             return Collections.unmodifiableList(subClasses);
@@ -94,7 +101,6 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
     /**
      * Gets the live list of classes in this group.  This should only be used for adding, not for
      * removal.  If you add a class anywhere within, you should then call updateAfterAdd().
-     * @return
      */
     public List<ClassInfo> getLiveClasses()
     {
@@ -126,6 +132,10 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
     /**
      * Lay out the list of classes vertically, at the same indent.
      * Also lay out any subclasses.
+     * 
+     * @param stratum The list of classes to layout (in list order)
+     * @param x The current X position for all the classes
+     * @param y The Y position for the top class.
      * @return The resulting Y position after doing the layout.
      */
     private double redisplay(List<ClassInfo> stratum, double x, double y)
