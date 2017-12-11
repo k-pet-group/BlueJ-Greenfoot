@@ -182,9 +182,17 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
                     firstVisible = -1;
                     lastVisible = -1;
                     
+                    // These properties seem to get set to null if the text is empty (bug)?
+                    // Play it safe by checking for null values here:
+                    Double heightEstimate = totalHeightEstimateProperty().getValue();
+                    Double scrollyEstimate = estimatedScrollYProperty().getValue();
+                    if (heightEstimate == null || scrollyEstimate == null) {
+                        return;
+                    }
+
                     // Estimate first visible paragraph:
                     int totalParas = getParagraphs().size();
-                    int estimatedPara = (int)(totalParas * getEstimatedScrollY() / getTotalHeightEstimate());
+                    int estimatedPara = (int)(totalParas * scrollyEstimate / heightEstimate);
                     boolean found = false;
                     
                     // In case the estimate falls short, look forward a number of cells to find
