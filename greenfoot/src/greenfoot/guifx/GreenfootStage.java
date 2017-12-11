@@ -53,6 +53,7 @@ import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
+import greenfoot.guifx.classes.ClassDiagram;
 import greenfoot.record.GreenfootRecorder;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
