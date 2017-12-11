@@ -70,7 +70,7 @@ public class ShadowProjectProperties implements ProjectProperties
         // ShadowProjectProperties should be changed to implement
         // ReadOnlyProjectProperties, and the ProjectProperties interface
         // should be deleted, too.
-        Debug.printCallStack("WARNING: still using outdated method which is due for removal after finishing Greenfoot FX rewrite");
+        Debug.printCallStack("WARNING: still using outdated method which is due for removal after finishing Greenfoot FX rewrite", 3);
     }
 
     @Override
@@ -84,7 +84,7 @@ public class ShadowProjectProperties implements ProjectProperties
         // ShadowProjectProperties should be changed to implement
         // ReadOnlyProjectProperties, and the ProjectProperties interface
         // should be deleted, too.
-        Debug.printCallStack("WARNING: still using outdated method which is due for removal after finishing Greenfoot FX rewrite");
+        Debug.printCallStack("WARNING: still using outdated method which is due for removal after finishing Greenfoot FX rewrite", 3);
         
         return null;
     }
@@ -100,7 +100,7 @@ public class ShadowProjectProperties implements ProjectProperties
         // ShadowProjectProperties should be changed to implement
         // ReadOnlyProjectProperties, and the ProjectProperties interface
         // should be deleted, too.
-        Debug.printCallStack("WARNING: still using outdated method which is due for removal after finishing Greenfoot FX rewrite");
+        Debug.printCallStack("WARNING: still using outdated method which is due for removal after finishing Greenfoot FX rewrite", 3);
     }
 
     @Override
