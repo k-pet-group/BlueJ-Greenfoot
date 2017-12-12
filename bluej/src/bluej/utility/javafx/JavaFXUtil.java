@@ -149,8 +149,8 @@ public class JavaFXUtil
      */
     public static void setPseudoclass(String pseudoClassName, boolean enabled, Node... nodes)
     {
-        if (!pseudoClassName.startsWith("bj-"))
-            throw new IllegalArgumentException("Our pseudoclasses should begin with bj- to avoid confusion with JavaFX's pseudo classes");
+        if (!pseudoClassName.startsWith("bj-") && !pseudoClassName.startsWith("gf-"))
+            throw new IllegalArgumentException("Our pseudoclasses should begin with bj- or gf- to avoid confusion with JavaFX's pseudo classes");
         
         for (Node node : nodes)
             node.pseudoClassStateChanged(PseudoClass.getPseudoClass(pseudoClassName), enabled);        

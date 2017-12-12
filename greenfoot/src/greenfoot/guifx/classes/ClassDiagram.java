@@ -23,6 +23,7 @@ package greenfoot.guifx.classes;
 
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.Target;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
@@ -47,14 +48,16 @@ import java.util.Objects;
  */
 public class ClassDiagram extends BorderPane
 {
-    private ClassTarget selected = null;
+    private final ClassDisplaySelectionManager selectionManager = new ClassDisplaySelectionManager();
     // The three groups of classes in the display: World+subclasses, Actor+subclasses, Other
     private final ClassGroup worldClasses = new ClassGroup();
     private final ClassGroup actorClasses = new ClassGroup();
     private final ClassGroup otherClasses = new ClassGroup();
+    private final Project project;
 
     public ClassDiagram(Project project)
     {
+        this.project = project;
         setTop(worldClasses);
         setCenter(actorClasses);
         setBottom(otherClasses);
@@ -86,11 +89,11 @@ public class ClassDiagram extends BorderPane
         
         // First, we must take out any World and Actor classes:
         List<ClassInfo> worldSubclasses = findAllSubclasses("greenfoot.World", classTargets);
-        ClassInfo worldClassesInfo = new ClassInfo("greenfoot.World", "World", null, worldSubclasses);
+        ClassInfo worldClassesInfo = new ClassInfo("greenfoot.World", "World", null, worldSubclasses, selectionManager);
         worldClasses.setClasses(Collections.singletonList(worldClassesInfo));
 
         List<ClassInfo> actorSubclasses = findAllSubclasses("greenfoot.Actor", classTargets);
-        ClassInfo actorClassesInfo = new ClassInfo("greenfoot.Actor", "Actor", null, actorSubclasses);
+        ClassInfo actorClassesInfo = new ClassInfo("greenfoot.Actor", "Actor", null, actorSubclasses, selectionManager);
         actorClasses.setClasses(Collections.singletonList(actorClassesInfo));
         
         // All other classes can be found by passing null, see docs on findAllSubclasses:
@@ -142,7 +145,7 @@ public class ClassDiagram extends BorderPane
                 classTargetAndVal.setValue(true);
 
                 List<ClassInfo> subClasses = findAllSubclasses(classTarget.getQualifiedName(), classTargets);
-                curLevel.add(new ClassInfo(classTarget.getQualifiedName(), classTarget.getBaseName(),null, subClasses));
+                curLevel.add(new ClassInfo(classTarget.getQualifiedName(), classTarget.getBaseName(),null, subClasses, selectionManager));
             }
         }
         return curLevel;
@@ -175,7 +178,7 @@ public class ClassDiagram extends BorderPane
             // e.g. inheriting from java.util.List
         }
         // Otherwise, add to top of Other:
-        otherClasses.getLiveClasses().add(new ClassInfo(classTarget.getQualifiedName(), classTarget.getBaseName(), null, Collections.emptyList()));
+        otherClasses.getLiveClasses().add(new ClassInfo(classTarget.getQualifiedName(), classTarget.getBaseName(), null, Collections.emptyList(), selectionManager));
         otherClasses.updateAfterAdd();
     }
 
@@ -194,7 +197,7 @@ public class ClassDiagram extends BorderPane
         {
             if (classInfo.getQualifiedName().equals(classTargetSuperClass))
             {
-                classInfo.add(new ClassInfo(classTarget.getQualifiedName(), classTarget.getBaseName(), null, Collections.emptyList()));
+                classInfo.add(new ClassInfo(classTarget.getQualifiedName(), classTarget.getBaseName(), null, Collections.emptyList(), selectionManager));
                 return true;
             }
             else if (findAndAdd(classInfo.getSubClasses(), classTarget, classTargetSuperClass))
@@ -226,17 +229,7 @@ public class ClassDiagram extends BorderPane
             }
         });
         label.setOnMouseClicked(e -> {
-            if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 1)
-            {
-                selected = classTarget;
-                // Hacky, for now until we sort out graphics for class diagram:
-                for (Node other : getChildren())
-                {
-                    other.setStyle("");
-                }
-                label.setStyle("-fx-underline: true;");
-            }
-            else if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 2)
+            if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 2)
             {
                 classTarget.open();
             }
@@ -245,10 +238,26 @@ public class ClassDiagram extends BorderPane
     }
 
     /**
-     * Gets the currently selected class in the diagram.  May be null if no selection
+     * Gets the currently selected class in the diagram.  May be null if no selection, or if
+     * the selection is a class outside the default package (e.g. greenfoot.World)
      */
     public ClassTarget getSelectedClass()
     {
-        return selected;
+        ClassDisplay selected = selectionManager.getSelected();
+        if (selected == null)
+        {
+            return null;
+        }
+        
+        Target target = project.getUnnamedPackage().getTarget(selected.getQualifiedName());
+        
+        if (target != null && target instanceof ClassTarget)
+        {
+            return (ClassTarget)target;
+        }
+        else
+        {
+            return null;
+        }
     }
 }

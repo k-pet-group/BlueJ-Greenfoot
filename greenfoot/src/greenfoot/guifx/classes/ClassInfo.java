@@ -42,9 +42,11 @@ public class ClassInfo
     private ClassDisplay display;
     // If non-null, exists *and* is already a child of the enclosing ClassGroup
     private InheritArrow arrowFromSub;
+    private final ClassDisplaySelectionManager selectionManager;
 
-    public ClassInfo(String fullyQualifiedName, String displayName, Image image, List<ClassInfo> subClasses)
+    public ClassInfo(String fullyQualifiedName, String displayName, Image image, List<ClassInfo> subClasses, ClassDisplaySelectionManager selectionManager)
     {
+        this.selectionManager = selectionManager;
         this.fullyQualifiedName = fullyQualifiedName;
         this.displayName = displayName;
         this.image = image;
@@ -94,7 +96,7 @@ public class ClassInfo
     {
         if (display == null)
         {
-            display = new ClassDisplay(displayName, image);
+            display = new ClassDisplay(displayName, fullyQualifiedName, image, selectionManager);
         }
         return display;
     }
