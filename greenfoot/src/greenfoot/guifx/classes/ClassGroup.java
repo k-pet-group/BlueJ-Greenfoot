@@ -21,6 +21,8 @@ import java.util.List;
  */
 public class ClassGroup extends Pane implements ChangeListener<Number>
 {
+    private static final double VERTICAL_SPACING = 8.0;
+
     /**
      * Information about a class in the tree: its display name, image (can be null),
      * its direct subclasses, and the display item for it (once shown)
@@ -33,6 +35,8 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
         private final List<ClassInfo> subClasses = new ArrayList<>();
         // If non-null, exists *and* is already a child of the enclosing ClassGroup
         private ClassDisplay display;
+        // If non-null, exists *and* is already a child of the enclosing ClassGroup
+        private InheritArrow arrowFromSub;
 
         public ClassInfo(String fullyQualifiedName, String displayName, Image image, List<ClassInfo> subClasses)
         {
@@ -125,7 +129,7 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
         super.layoutChildren();
         
         // Layout all the classes, and use the final Y position as our preferred height:
-        double finalY = redisplay(topLevel, 0.0, 0.0);
+        double finalY = redisplay(null, topLevel, 0.0, 0.0);
         setPrefHeight(finalY);
     }
 
@@ -133,15 +137,22 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
      * Lay out the list of classes vertically, at the same indent.
      * Also lay out any subclasses.
      * 
+     * @param arrowToSuper Either null (no superclass) or a vertical inherit arrow to update
+     *                     the position of, once we've laid out all classes in the stratum.
      * @param stratum The list of classes to layout (in list order)
      * @param x The current X position for all the classes
      * @param y The Y position for the top class.
      * @return The resulting Y position after doing the layout.
      */
-    private double redisplay(List<ClassInfo> stratum, double x, double y)
-    {
+    private double redisplay(InheritArrow arrowToSuper, List<ClassInfo> stratum, double x, double y)
+    { 
+        final double startY = y;
+        List<Double> arrowArms = new ArrayList<>();
+        
         for (ClassInfo classInfo : stratum)
         {
+            y += VERTICAL_SPACING;
+            
             // If no display make one (if there is display, no need to make again)
             if (classInfo.display == null)
             {
@@ -151,15 +162,46 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
                 // for when it gets set right in order to re-layout:
                 classInfo.display.heightProperty().addListener(this);
             }
+            // The inherit arrow arm should point to the vertical midpoint of the class:
+            double halfHeight = Math.floor(classInfo.display.getHeight() / 2.0);
+            arrowArms.add(y + halfHeight - startY);
             
             classInfo.display.setLayoutX(x);
             classInfo.display.setLayoutY(y);
             // If height changes, we will layout again because of the listener added above:
             y += classInfo.display.getHeight();
             
-            // Now do any sub-classes of this class, indented to right:
-            y = redisplay(classInfo.subClasses, x + 20.0, y);
+            if (!classInfo.subClasses.isEmpty())
+            {
+                // If no existing arrow, make one and add to children:
+                if (classInfo.arrowFromSub == null)
+                {
+                    classInfo.arrowFromSub = new InheritArrow();
+                    getChildren().add(classInfo.arrowFromSub);
+                }
+                // Update the position.  Using 0.5 makes the lines lie exactly on a pixel and avoid anti-aliasing:
+                classInfo.arrowFromSub.setLayoutX(x + 0.5);
+                classInfo.arrowFromSub.setLayoutY(y + 0.5);
+
+                // Now do the sub-classes of this class, indented to right:
+                y = redisplay(classInfo.arrowFromSub, classInfo.subClasses, x + 20.0, y);
+            }
+            else
+            {
+                // If no longer have any subclasses, clean up any previous arrow:
+                if (classInfo.arrowFromSub != null)
+                {
+                    getChildren().remove(classInfo.arrowFromSub);
+                    classInfo.arrowFromSub = null;
+                }
+            }
         }
+        
+        if (arrowToSuper != null)
+        {
+            arrowToSuper.setArmLocations(15.0, arrowArms);
+        }
+        
         return y;
     }
 
