@@ -423,24 +423,26 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     private void setupMouseForPlacingNewActor(StackPane stackPane)
     {
-        double[] lastMousePos = new double[2];
+        // Last mouse position, in worldView coordinates:
+        // Single element array to provide a mutable reference:
+        Point2D[] lastMousePos = new Point2D[1];
         stackPane.setOnMouseMoved(e -> {
-            lastMousePos[0] = e.getX();
-            lastMousePos[1] = e.getY();
+            lastMousePos[0] = worldView.sceneToLocal(e.getSceneX(), e.getSceneY());
             if (newActorProperty.get() != null)
             {
+                // We use e.getX/getY here, which is already local to StackPane:
                 // TranslateX/Y seems to have a bit less lag than LayoutX/Y:
                 newActorProperty.get().previewNode.setTranslateX(e.getX() - newActorProperty.get().previewNode.getWidth() / 2.0);
                 newActorProperty.get().previewNode.setTranslateY(e.getY() - newActorProperty.get().previewNode.getHeight() / 2.0);
 
-                Point2D worldDest = worldView.parentToLocal(e.getX(), e.getY());
-                newActorProperty.get().cannotDrop.set(!worldView.contains(worldDest));
+                newActorProperty.get().cannotDrop.set(!worldView.contains(lastMousePos[0]));
             }
         });
         stackPane.setOnMouseClicked(e -> {
+            lastMousePos[0] = worldView.sceneToLocal(e.getSceneX(), e.getSceneY());
             if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 1 && newActorProperty.get() != null)
             {
-                Point2D dest = worldView.parentToLocal(e.getX(), e.getY());
+                Point2D dest = lastMousePos[0];
                 if (worldView.contains(dest))
                 {
                     // Bit hacky to pass positions as strings, but mirroring the values as integers
@@ -494,10 +496,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 glassPane.requestLayout();
                 glassPane.layout();
 
-                newVal.previewNode.setTranslateX(lastMousePos[0] - newVal.previewNode.getWidth() / 2.0);
-                newVal.previewNode.setTranslateY(lastMousePos[1] - newVal.previewNode.getHeight() / 2.0);
-                Point2D dest = worldView.parentToLocal(lastMousePos[0], lastMousePos[1]);
-                newVal.cannotDrop.set(!worldView.contains(dest));
+                newVal.previewNode.setTranslateX(lastMousePos[0].getX() - newVal.previewNode.getWidth() / 2.0);
+                newVal.previewNode.setTranslateY(lastMousePos[0].getY() - newVal.previewNode.getHeight() / 2.0);;
+                newVal.cannotDrop.set(!worldView.contains(lastMousePos[0]));
             }
         });
     }
