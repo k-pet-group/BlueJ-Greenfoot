@@ -38,6 +38,7 @@ import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXSupplier;
 import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.UnfocusableScrollPane;
 import bluej.utility.javafx.UntitledCollapsiblePane;
 import bluej.utility.javafx.UntitledCollapsiblePane.ArrowLocation;
 import javafx.application.Platform;
@@ -203,12 +204,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
         shelf = new FrameShelf(this, project.getShelfStorage());
         // For testing we put shelf on top:
         //Accordion catalogueShelfPane = new Accordion(new TitledPane("Shelf", shelf.getNode()), new TitledPane("Catalogue", cataloguePane));
-        ScrollPane catalogueScrollPane = new ScrollPane(cataloguePane) {
-            @Override
-            public void requestFocus() {
-                // Do nothing
-            }
-        };
+        ScrollPane catalogueScrollPane = new UnfocusableScrollPane(cataloguePane);
         catalogueScrollPane.setMaxWidth(FrameCatalogue.CATALOGUE_FRAME_WIDTH);
         catalogueScrollPane.setMinWidth(0.0);
         catalogueScrollPane.setFitToWidth(true);

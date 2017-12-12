@@ -1,3 +1,24 @@
+/*
+ This file is part of the Greenfoot program. 
+ Copyright (C) 2017  Poul Henriksen and Michael Kolling 
+ 
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+ 
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+ 
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ 
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package greenfoot.guifx.classes;
 
 import javafx.beans.value.ChangeListener;
@@ -21,6 +42,8 @@ import java.util.List;
  */
 public class ClassGroup extends Pane implements ChangeListener<Number>
 {
+    private static final int VERTICAL_SPACING = 6;
+
     /**
      * Information about a class in the tree: its display name, image (can be null),
      * its direct subclasses, and the display item for it (once shown)
@@ -33,6 +56,8 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
         private final List<ClassInfo> subClasses = new ArrayList<>();
         // If non-null, exists *and* is already a child of the enclosing ClassGroup
         private ClassDisplay display;
+        // If non-null, exists *and* is already a child of the enclosing ClassGroup
+        private InheritArrow arrowFromSub;
 
         public ClassInfo(String fullyQualifiedName, String displayName, Image image, List<ClassInfo> subClasses)
         {
@@ -74,9 +99,17 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
         
     public ClassGroup()
     {
-        // Force preferred height:
+        getStyleClass().add("class-group");
+        // Set minimum to be preferred width/height:
         setMinHeight(USE_PREF_SIZE);
-        setMaxHeight(USE_PREF_SIZE);
+        setMinWidth(USE_PREF_SIZE);
+        
+        setMaxWidth(Double.MAX_VALUE);
+        setMaxHeight(Double.MAX_VALUE);
+        
+        // Default size is zero, will get expanded once we have content:
+        setPrefWidth(0.0);
+        setPrefHeight(0.0);
     }
 
     /**
@@ -125,23 +158,36 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
         super.layoutChildren();
         
         // Layout all the classes, and use the final Y position as our preferred height:
-        double finalY = redisplay(topLevel, 0.0, 0.0);
-        setPrefHeight(finalY);
+        int finalY = redisplay(null, topLevel, 0, 0);
+        // If our content height is different than before, we need to adjust our preferred height: 
+        if (finalY != (int)getPrefHeight())
+        {
+            setPrefHeight(finalY);
+            // Because we are within layout, we need an explicit call to notify parent of height change:
+            getParent().requestLayout();
+        }
     }
 
     /**
      * Lay out the list of classes vertically, at the same indent.
      * Also lay out any subclasses.
      * 
+     * @param arrowToSuper Either null (no superclass) or a vertical inherit arrow to update
+     *                     the position of, once we've laid out all classes in the stratum.
      * @param stratum The list of classes to layout (in list order)
      * @param x The current X position for all the classes
      * @param y The Y position for the top class.
      * @return The resulting Y position after doing the layout.
      */
-    private double redisplay(List<ClassInfo> stratum, double x, double y)
-    {
+    private int redisplay(InheritArrow arrowToSuper, List<ClassInfo> stratum, int x, int y)
+    { 
+        final int startY = y;
+        List<Double> arrowArms = new ArrayList<>();
+        
         for (ClassInfo classInfo : stratum)
         {
+            y += VERTICAL_SPACING;
+            
             // If no display make one (if there is display, no need to make again)
             if (classInfo.display == null)
             {
@@ -151,15 +197,53 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
                 // for when it gets set right in order to re-layout:
                 classInfo.display.heightProperty().addListener(this);
             }
+            // The inherit arrow arm should point to the vertical midpoint of the class:
+            double halfHeight = Math.floor(classInfo.display.getHeight() / 2.0);
+            arrowArms.add(y + halfHeight - startY);
             
             classInfo.display.setLayoutX(x);
+            // Update our preferred width if we've found a long class:
+            if (x + classInfo.display.getWidth() > getPrefWidth())
+            {
+                setPrefWidth(x + classInfo.display.getWidth());
+                // Because we are within layout, we need an explicit call to notify parent of width change:
+                getParent().requestLayout();
+            }
             classInfo.display.setLayoutY(y);
             // If height changes, we will layout again because of the listener added above:
             y += classInfo.display.getHeight();
             
-            // Now do any sub-classes of this class, indented to right:
-            y = redisplay(classInfo.subClasses, x + 20.0, y);
+            if (!classInfo.subClasses.isEmpty())
+            {
+                // If no existing arrow, make one and add to children:
+                if (classInfo.arrowFromSub == null)
+                {
+                    classInfo.arrowFromSub = new InheritArrow();
+                    getChildren().add(classInfo.arrowFromSub);
+                }
+                // Update the position.  Using 0.5 makes the lines lie exactly on a pixel and avoid anti-aliasing:
+                classInfo.arrowFromSub.setLayoutX(x + 5 + 0.5);
+                classInfo.arrowFromSub.setLayoutY(y + 0.5);
+
+                // Now do the sub-classes of this class, indented to right:
+                y = redisplay(classInfo.arrowFromSub, classInfo.subClasses, x + 20, y);
+            }
+            else
+            {
+                // If no longer have any subclasses, clean up any previous arrow:
+                if (classInfo.arrowFromSub != null)
+                {
+                    getChildren().remove(classInfo.arrowFromSub);
+                    classInfo.arrowFromSub = null;
+                }
+            }
         }
+        
+        if (arrowToSuper != null)
+        {
+            arrowToSuper.setArmLocations(15.0, arrowArms);
+        }
+        
         return y;
     }
 

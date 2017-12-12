@@ -51,6 +51,7 @@ import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.UnfocusableScrollPane;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import greenfoot.guifx.classes.ClassDiagram;
@@ -70,6 +71,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -319,12 +321,19 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             }
         });
         classDiagram = new ClassDiagram(project);
-        BorderPane root = new BorderPane(worldView, makeMenu(pendingCommands), classDiagram, buttonAndSpeedPanel, null);
+        ScrollPane classDiagramScroll = new UnfocusableScrollPane(classDiagram);
+        JavaFXUtil.expandScrollPaneContent(classDiagramScroll);
+
+        ScrollPane worldViewScroll = new UnfocusableScrollPane(worldView);
+        JavaFXUtil.expandScrollPaneContent(worldViewScroll);
+        BorderPane root = new BorderPane(worldViewScroll, makeMenu(pendingCommands), classDiagramScroll, buttonAndSpeedPanel, null);
         glassPane = new Pane();
         glassPane.setMouseTransparent(true);
         StackPane stackPane = new StackPane(root, glassPane);
         setupMouseForPlacingNewActor(stackPane);
-        setScene(new Scene(stackPane));
+        Scene scene = new Scene(stackPane);
+        Config.addGreenfootStylesheets(scene);
+        setScene(scene);
 
         setupWorldDrawingAndEvents(sharedMemoryLock, sharedMemoryByte, worldView::setImage, pendingCommands);
         loadAndMirrorProperties(pendingCommands);

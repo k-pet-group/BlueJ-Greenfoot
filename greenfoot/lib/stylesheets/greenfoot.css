@@ -1,0 +1,12 @@
+.class-group .inherit-arrow {
+    -fx-stroke: black;
+    -fx-stroke-width: 1;
+    -fx-fill: null;
+}
+.class-display {
+    -fx-padding: 3px 7px 3px 7px;
+    -fx-border-width: 1;
+    -fx-border-color: black;
+    -fx-border-style: solid;
+    -fx-background-color: rgb(245, 204, 155);
+}
