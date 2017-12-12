@@ -23,7 +23,6 @@ package greenfoot.guifx.classes;
 
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
-import greenfoot.guifx.classes.ClassGroup.ClassInfo;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
@@ -31,7 +30,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
 import java.util.Arrays;
