@@ -51,6 +51,7 @@ import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.UnfocusableScrollPane;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import greenfoot.guifx.classes.ClassDiagram;
@@ -320,10 +321,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             }
         });
         classDiagram = new ClassDiagram(project);
-        ScrollPane classDiagramScroll = new ScrollPane(classDiagram);
+        ScrollPane classDiagramScroll = new UnfocusableScrollPane(classDiagram);
         JavaFXUtil.expandScrollPaneContent(classDiagramScroll);
 
-        ScrollPane worldViewScroll = new ScrollPane(worldView);
+        ScrollPane worldViewScroll = new UnfocusableScrollPane(worldView);
         JavaFXUtil.expandScrollPaneContent(worldViewScroll);
         BorderPane root = new BorderPane(worldViewScroll, makeMenu(pendingCommands), classDiagramScroll, buttonAndSpeedPanel, null);
         glassPane = new Pane();

@@ -79,6 +79,7 @@ import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.JavaFXUtil.FXOnlyMenu;
 import bluej.utility.javafx.TriangleArrow;
+import bluej.utility.javafx.UnfocusableScrollPane;
 import bluej.utility.javafx.UntitledCollapsiblePane;
 import bluej.utility.javafx.UntitledCollapsiblePane.ArrowLocation;
 import bluej.views.CallableView;
@@ -344,16 +345,7 @@ public class PkgMgrFrame
             itemsToDisable.add(objbench);
 
             BorderPane topPane = new BorderPane();
-            pkgEditorScrollPane = new ScrollPane(null) {
-                @Override
-                @OnThread(Tag.FX)
-                public void requestFocus()
-                {
-                    // Override default behaviour (in which clicking on scroll pane
-                    // gives it focus).
-                    // Don't let the pane request focus.
-                }
-            };
+            pkgEditorScrollPane = new UnfocusableScrollPane(null);
             pkgEditorScrollPane.setVisible(false);
             pkgEditorScrollPane.visibleProperty().bind(pkgEditorScrollPane.contentProperty().isNotNull());
             pkgEditorScrollPane.setFitToWidth(true);
