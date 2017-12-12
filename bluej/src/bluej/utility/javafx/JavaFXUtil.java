@@ -722,6 +722,23 @@ public class JavaFXUtil
     }
 
     /**
+     * By default, scroll panes leave their content at its preferred size, and then add scroll bars
+     * if that is bigger than the scroll pane size.  But often, what we want is twofold:
+     *  - If the preferred size is bigger than the scroll pane, add scroll bars
+     *  - BUT if the preferred size is smaller than the scroll pane, resize to fit the whole scroll pane.
+     *  This method makes the scroll pane have that behaviour.
+     */
+    public static void expandScrollPaneContent(ScrollPane scrollPane)
+    {
+        // Make content expand to fill when smaller than viewport, but scroll once larger than viewport:
+        // Taken from https://reportmill.wordpress.com/2014/06/03/make-scrollpane-content-fill-viewport-bounds/
+        addChangeListenerPlatform(scrollPane.viewportBoundsProperty(), bounds -> {
+            scrollPane.setFitToWidth(scrollPane.getContent().prefWidth(-1) < bounds.getWidth());
+            scrollPane.setFitToHeight(scrollPane.getContent().prefHeight(-1) < bounds.getHeight());
+        });
+    }
+
+    /**
      * A builder pattern for lists.
      */
     public static class ListBuilder<T>

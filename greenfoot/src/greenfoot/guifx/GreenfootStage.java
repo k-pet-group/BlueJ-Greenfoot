@@ -321,14 +321,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         });
         classDiagram = new ClassDiagram(project);
         ScrollPane classDiagramScroll = new ScrollPane(classDiagram);
-        // Make content expand to fill when smaller than viewport, but scroll once larger than viewport:
-        // Taken from https://reportmill.wordpress.com/2014/06/03/make-scrollpane-content-fill-viewport-bounds/
-        JavaFXUtil.addChangeListenerPlatform(classDiagramScroll.viewportBoundsProperty(), bounds -> {
-            classDiagramScroll.setFitToWidth(classDiagram.prefWidth(-1) < bounds.getWidth());
-            classDiagramScroll.setFitToHeight(classDiagram.prefHeight(-1) < bounds.getHeight());
-        });
+        JavaFXUtil.expandScrollPaneContent(classDiagramScroll);
 
-    BorderPane root = new BorderPane(worldView, makeMenu(pendingCommands), classDiagramScroll, buttonAndSpeedPanel, null);
+        ScrollPane worldViewScroll = new ScrollPane(worldView);
+        JavaFXUtil.expandScrollPaneContent(worldViewScroll);
+        BorderPane root = new BorderPane(worldViewScroll, makeMenu(pendingCommands), classDiagramScroll, buttonAndSpeedPanel, null);
         glassPane = new Pane();
         glassPane.setMouseTransparent(true);
         StackPane stackPane = new StackPane(root, glassPane);
