@@ -606,7 +606,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 writer = new OutputStreamWriter(ostream, characterSet);
                 sourcePane.write(writer);
                 writer.close(); writer = null;
-                setSaved();
                 lastModified = new File(filename).lastModified();
 
                 if (PrefMgr.getFlag(PrefMgr.MAKE_BACKUP)) {
@@ -621,6 +620,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
                     File crashFile = new File(crashFilename);
                     crashFile.delete();
                 }
+                
+                // Do this last, as it may trigger further actions in the watcher:
+                setSaved();
             }
             catch (IOException ex) {
                 failureException = ex;
@@ -1444,18 +1446,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
             saveState.setState(StatusLabel.Status.CHANGED);
             setChanged();
 
-            try
-            {
-                save();
-
-                if (sourceIsCode && watcher != null) {
-                    scheduleCompilation(CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
-                }
-            }
-            catch (IOException e)
-            {
-                // Note that status line displays error notice in save()
-                Debug.reportError(e);
+            // Note that this compilation will cause a save:
+            if (sourceIsCode && watcher != null) {
+                scheduleCompilation(CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
             }
         }
 
@@ -2649,20 +2642,8 @@ public final class MoeEditor extends ScopeColorsBorderPane
         {
             scheduleCompilation(CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
         }
-
-        if (! saveState.isSaved())
-        {
-            try
-            {
-                save();
-            }
-            catch (IOException e)
-            {
-                // TODO this should issue a user-visible error, may need to
-                // propagate exception.
-                Debug.reportError(e);
-            }
-        }
+        
+        // Save will occur as part of compilation scheduled above.
     }
 
     @Override
