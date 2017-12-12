@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import bluej.prefmgr.PrefMgr.PrintSize;
 import org.fxmisc.flowless.Cell;
 import org.fxmisc.flowless.VirtualFlow;
+import org.fxmisc.flowless.VirtualFlowHit;
 import org.fxmisc.richtext.Caret.CaretVisibility;
 import org.fxmisc.richtext.StyledTextArea;
 
@@ -182,66 +183,16 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
                     firstVisible = -1;
                     lastVisible = -1;
                     
-                    // These properties seem to get set to null if the text is empty (bug)?
-                    // Play it safe by checking for null values here:
-                    Double heightEstimate = totalHeightEstimateProperty().getValue();
-                    Double scrollyEstimate = estimatedScrollYProperty().getValue();
-                    if (heightEstimate == null || scrollyEstimate == null) {
+                    VirtualFlowHit<C> vfh = virtualFlow.hit(0, 0);
+                    if (! vfh.isCellHit())
+                    {
                         return;
                     }
-
-                    // Estimate first visible paragraph:
-                    int totalParas = getParagraphs().size();
-                    int estimatedPara = (int)(totalParas * scrollyEstimate / heightEstimate);
-                    boolean found = false;
                     
-                    // In case the estimate falls short, look forward a number of cells to find
-                    // the first visible cell:
-                    for (int i = 0; i < 10 && estimatedPara < totalParas; i++)
-                    {
-                        if(virtualFlow.getCellIfVisible(estimatedPara).isPresent())
-                        {
-                            found = true;
-                            break;
-                        }
-                        estimatedPara++;
-                    }
+                    firstVisible = vfh.getCellIndex();
+                    lastVisible = firstVisible + virtualFlow.visibleCells().size() - 1;
                     
-                    if (found)
-                    {
-                        // We found a visible cell: look backwards to make sure it's the
-                        // first visible cell
-                        int estimatedFirst = estimatedPara;
-                        firstVisible = estimatedFirst;
-                        while (firstVisible > 0)
-                        {
-                            estimatedFirst--;
-                            if (! virtualFlow.getCellIfVisible(estimatedFirst).isPresent())
-                            {
-                                break;
-                            }
-                            firstVisible = estimatedFirst;
-                        }
-                    }
-                    else {
-                        // Do it the slow way:
-                        for (int i = 0; i < totalParas; i++)
-                        {
-                            if (virtualFlow.getCellIfVisible(i).isPresent())
-                            {
-                                firstVisible = i;
-                                estimatedPara = i;
-                                break;
-                            }
-                        }
-                        
-                        if (firstVisible == -1)
-                        {
-                            return;
-                        }
-                    }
-                    
-                    for (int i = firstVisible; i < totalParas; i++)
+                    for (int i = firstVisible; i <= lastVisible; i++)
                     {
                         ScopeInfo paragraphStyle = getDocument().getParagraphStyle(i);
                         boolean lineVisible = virtualFlow.getCellIfVisible(i).isPresent();
@@ -255,7 +206,6 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
                                 }
                                 latestIncomplete = i;
                             }
-                            lastVisible = i;
                         }
                         else
                         {
