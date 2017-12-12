@@ -1908,6 +1908,13 @@ public final class Config
     }
 
     @OnThread(Tag.FX)
+    public static void addGreenfootStylesheets(Scene scene)
+    {
+        addStylesheet(scene.getStylesheets(), "greenfoot");
+    }
+
+
+    @OnThread(Tag.FX)
     private static void addStylesheet(ObservableList<String> sheetList, String stem)
     {
         try

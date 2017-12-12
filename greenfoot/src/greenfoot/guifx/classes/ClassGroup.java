@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class ClassGroup extends Pane implements ChangeListener<Number>
 {
-    private static final double VERTICAL_SPACING = 8.0;
+    private static final int VERTICAL_SPACING = 6;
 
     /**
      * Information about a class in the tree: its display name, image (can be null),
@@ -78,9 +78,17 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
         
     public ClassGroup()
     {
-        // Force preferred height:
+        getStyleClass().add("class-group");
+        // Set minimum to be preferred width/height:
         setMinHeight(USE_PREF_SIZE);
-        setMaxHeight(USE_PREF_SIZE);
+        setMinWidth(USE_PREF_SIZE);
+        
+        setMaxWidth(Double.MAX_VALUE);
+        setMaxHeight(Double.MAX_VALUE);
+        
+        // Default size is zero, will get expanded once we have content:
+        setPrefWidth(0.0);
+        setPrefHeight(0.0);
     }
 
     /**
@@ -129,8 +137,14 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
         super.layoutChildren();
         
         // Layout all the classes, and use the final Y position as our preferred height:
-        double finalY = redisplay(null, topLevel, 0.0, 0.0);
-        setPrefHeight(finalY);
+        int finalY = redisplay(null, topLevel, 0, 0);
+        // If our content height is different than before, we need to adjust our preferred height: 
+        if (finalY != (int)getPrefHeight())
+        {
+            setPrefHeight(finalY);
+            // Because we are within layout, we need an explicit call to notify parent of height change:
+            getParent().requestLayout();
+        }
     }
 
     /**
@@ -144,9 +158,9 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
      * @param y The Y position for the top class.
      * @return The resulting Y position after doing the layout.
      */
-    private double redisplay(InheritArrow arrowToSuper, List<ClassInfo> stratum, double x, double y)
+    private int redisplay(InheritArrow arrowToSuper, List<ClassInfo> stratum, int x, int y)
     { 
-        final double startY = y;
+        final int startY = y;
         List<Double> arrowArms = new ArrayList<>();
         
         for (ClassInfo classInfo : stratum)
@@ -167,6 +181,13 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
             arrowArms.add(y + halfHeight - startY);
             
             classInfo.display.setLayoutX(x);
+            // Update our preferred width if we've found a long class:
+            if (x + classInfo.display.getWidth() > getPrefWidth())
+            {
+                setPrefWidth(x + classInfo.display.getWidth());
+                // Because we are within layout, we need an explicit call to notify parent of width change:
+                getParent().requestLayout();
+            }
             classInfo.display.setLayoutY(y);
             // If height changes, we will layout again because of the listener added above:
             y += classInfo.display.getHeight();
@@ -180,11 +201,11 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
                     getChildren().add(classInfo.arrowFromSub);
                 }
                 // Update the position.  Using 0.5 makes the lines lie exactly on a pixel and avoid anti-aliasing:
-                classInfo.arrowFromSub.setLayoutX(x + 0.5);
+                classInfo.arrowFromSub.setLayoutX(x + 5 + 0.5);
                 classInfo.arrowFromSub.setLayoutY(y + 0.5);
 
                 // Now do the sub-classes of this class, indented to right:
-                y = redisplay(classInfo.arrowFromSub, classInfo.subClasses, x + 20.0, y);
+                y = redisplay(classInfo.arrowFromSub, classInfo.subClasses, x + 20, y);
             }
             else
             {

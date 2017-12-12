@@ -16,6 +16,8 @@ public class ClassDisplay extends BorderPane
      */
     public ClassDisplay(String name, Image image)
     {
+        getStyleClass().add("class-display");
+        setSnapToPixel(true);
         setCenter(new Label(name));
         setLeft(new ImageView(image));
     }

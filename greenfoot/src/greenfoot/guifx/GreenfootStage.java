@@ -70,6 +70,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -319,12 +320,22 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             }
         });
         classDiagram = new ClassDiagram(project);
-        BorderPane root = new BorderPane(worldView, makeMenu(pendingCommands), classDiagram, buttonAndSpeedPanel, null);
+        ScrollPane classDiagramScroll = new ScrollPane(classDiagram);
+        // Make content expand to fill when smaller than viewport, but scroll once larger than viewport:
+        // Taken from https://reportmill.wordpress.com/2014/06/03/make-scrollpane-content-fill-viewport-bounds/
+        JavaFXUtil.addChangeListenerPlatform(classDiagramScroll.viewportBoundsProperty(), bounds -> {
+            classDiagramScroll.setFitToWidth(classDiagram.prefWidth(-1) < bounds.getWidth());
+            classDiagramScroll.setFitToHeight(classDiagram.prefHeight(-1) < bounds.getHeight());
+        });
+
+    BorderPane root = new BorderPane(worldView, makeMenu(pendingCommands), classDiagramScroll, buttonAndSpeedPanel, null);
         glassPane = new Pane();
         glassPane.setMouseTransparent(true);
         StackPane stackPane = new StackPane(root, glassPane);
         setupMouseForPlacingNewActor(stackPane);
-        setScene(new Scene(stackPane));
+        Scene scene = new Scene(stackPane);
+        Config.addGreenfootStylesheets(scene);
+        setScene(scene);
 
         setupWorldDrawingAndEvents(sharedMemoryLock, sharedMemoryByte, worldView::setImage, pendingCommands);
         loadAndMirrorProperties(pendingCommands);

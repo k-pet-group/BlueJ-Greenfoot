@@ -24,11 +24,13 @@ package greenfoot.guifx.classes;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import greenfoot.guifx.classes.ClassGroup.ClassInfo;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
 import java.util.ArrayList;
@@ -45,7 +47,7 @@ import java.util.Objects;
  *
  * For now, this is very primitive, but is useful for implementing other Greenfoot functionality.
  */
-public class ClassDiagram extends VBox
+public class ClassDiagram extends BorderPane
 {
     private ClassTarget selected = null;
     // The three groups of classes in the display: World+subclasses, Actor+subclasses, Other
@@ -55,7 +57,15 @@ public class ClassDiagram extends VBox
 
     public ClassDiagram(Project project)
     {
-        getChildren().setAll(worldClasses, actorClasses, otherClasses);
+        setTop(worldClasses);
+        setCenter(actorClasses);
+        setBottom(otherClasses);
+        // Actor classes will expand to fill middle, but content will be positioned at the top of that area:
+        BorderPane.setAlignment(actorClasses, Pos.TOP_LEFT);
+        BorderPane.setAlignment(otherClasses, Pos.BOTTOM_LEFT);
+        setMaxWidth(Double.MAX_VALUE);
+        setMaxHeight(Double.MAX_VALUE);
+        
         // Organise the current classes into their groups:
         calculateGroups(project.getUnnamedPackage().getClassTargets());
     }

@@ -19,12 +19,12 @@ import java.util.List;
  */
 public class InheritArrow extends Path
 {
-    private final double ARROWHEAD_WIDTH = 12;
-    private final double ARROWHEAD_HEIGHT = 8;
+    private final double ARROWHEAD_WIDTH = 10;
+    private final double ARROWHEAD_HEIGHT = 10;
     
     public InheritArrow()
     {
-                
+        getStyleClass().add("inherit-arrow");
     }
 
     /**
@@ -58,7 +58,7 @@ public class InheritArrow extends Path
             // Draw down, then draw right, then move back to the bottom left of the current line:
             getElements().addAll(
                 new LineTo(indent, yPosition),
-                new LineTo(indent + width, yPosition),
+                new LineTo(width, yPosition),
                 new MoveTo(indent, yPosition)
             );
         }
