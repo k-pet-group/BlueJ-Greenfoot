@@ -173,6 +173,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private final ClassDiagram classDiagram;
     // The currently-showing context menu, or null if none
     private ContextMenu contextMenu;
+    // Last mouse position, in scene coordinates:
+    private Point2D lastMousePosInScene = new Point2D(0, 0);
+
 
     private final Button actButton;
     private final Button runButton;
@@ -320,7 +323,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 stateProperty.set(State.UNCOMPILED);
             }
         });
-        classDiagram = new ClassDiagram(project);
+        classDiagram = new ClassDiagram(this, project);
         ScrollPane classDiagramScroll = new UnfocusableScrollPane(classDiagram);
         JavaFXUtil.expandScrollPaneContent(classDiagramScroll);
 
@@ -423,11 +426,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     private void setupMouseForPlacingNewActor(StackPane stackPane)
     {
-        // Last mouse position, in worldView coordinates:
-        // Single element array to provide a mutable reference:
-        Point2D[] lastMousePos = new Point2D[1];
         stackPane.setOnMouseMoved(e -> {
-            lastMousePos[0] = worldView.sceneToLocal(e.getSceneX(), e.getSceneY());
+            lastMousePosInScene = new Point2D(e.getSceneX(), e.getSceneY());
             if (newActorProperty.get() != null)
             {
                 // We use e.getX/getY here, which is already local to StackPane:
@@ -435,14 +435,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 newActorProperty.get().previewNode.setTranslateX(e.getX() - newActorProperty.get().previewNode.getWidth() / 2.0);
                 newActorProperty.get().previewNode.setTranslateY(e.getY() - newActorProperty.get().previewNode.getHeight() / 2.0);
 
-                newActorProperty.get().cannotDrop.set(!worldView.contains(lastMousePos[0]));
+                newActorProperty.get().cannotDrop.set(!worldView.contains(worldView.sceneToLocal(lastMousePosInScene)));
             }
         });
         stackPane.setOnMouseClicked(e -> {
-            lastMousePos[0] = worldView.sceneToLocal(e.getSceneX(), e.getSceneY());
+            lastMousePosInScene = new Point2D(e.getSceneX(), e.getSceneY());
             if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 1 && newActorProperty.get() != null)
             {
-                Point2D dest = lastMousePos[0];
+                Point2D dest = worldView.sceneToLocal(lastMousePosInScene);
                 if (worldView.contains(dest))
                 {
                     // Bit hacky to pass positions as strings, but mirroring the values as integers
@@ -496,11 +496,22 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 glassPane.requestLayout();
                 glassPane.layout();
 
-                newVal.previewNode.setTranslateX(lastMousePos[0].getX() - newVal.previewNode.getWidth() / 2.0);
-                newVal.previewNode.setTranslateY(lastMousePos[0].getY() - newVal.previewNode.getHeight() / 2.0);;
-                newVal.cannotDrop.set(!worldView.contains(lastMousePos[0]));
+                newVal.previewNode.setTranslateX(lastMousePosInScene.getX() - newVal.previewNode.getWidth() / 2.0);
+                newVal.previewNode.setTranslateY(lastMousePosInScene.getY() - newVal.previewNode.getHeight() / 2.0);
+                newVal.cannotDrop.set(!worldView.contains(worldView.sceneToLocal(lastMousePosInScene)));
             }
         });
+    }
+
+    /**
+     * Update our latest mouse position to the given *SCREEN* (not Scene!) position.
+     * Used by ClassDiagram to track position even while a context menu is showing.
+     */
+    public void setLatestMousePosOnScreen(double screenX, double screenY)
+    {
+        // There is no screenToScene call, so we must go via this convoluted path:
+        Point2D rootPoint = getScene().getRoot().screenToLocal(screenX, screenY);
+        lastMousePosInScene = getScene().getRoot().localToScene(rootPoint);
     }
 
     /**

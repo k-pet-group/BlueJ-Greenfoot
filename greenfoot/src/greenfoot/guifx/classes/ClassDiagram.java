@@ -24,6 +24,7 @@ package greenfoot.guifx.classes;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
+import greenfoot.guifx.GreenfootStage;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
@@ -54,9 +55,11 @@ public class ClassDiagram extends BorderPane
     private final ClassGroup actorClasses = new ClassGroup();
     private final ClassGroup otherClasses = new ClassGroup();
     private final Project project;
+    private final GreenfootStage greenfootStage;
 
-    public ClassDiagram(Project project)
+    public ClassDiagram(GreenfootStage greenfootStage, Project project)
     {
+        this.greenfootStage = greenfootStage;
         this.project = project;
         setTop(worldClasses);
         setCenter(actorClasses);
@@ -231,6 +234,11 @@ public class ClassDiagram extends BorderPane
                     if (cl != null)
                     {
                         ContextMenu contextMenu = new ContextMenu();
+                        // Update mouse position from menu, so that if the user clicks new Crab(),
+                        // it appears where the mouse is now, rather than where the mouse was before the menu was shown.
+                        // We must use screen X/Y here, because the scene is the menu, not GreenfootStage,
+                        // so scene X/Y wouldn't mean anything useful to GreenfootStage:
+                        contextMenu.getScene().setOnMouseMoved(ev -> greenfootStage.setLatestMousePosOnScreen(ev.getScreenX(), ev.getScreenY()));
                         classTarget.getRole().createClassConstructorMenu(contextMenu.getItems(), classTarget, cl);
                         if (!contextMenu.getItems().isEmpty())
                         {
