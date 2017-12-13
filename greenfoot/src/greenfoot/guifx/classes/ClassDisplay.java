@@ -21,9 +21,12 @@
  */
 package greenfoot.guifx.classes;
 
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 
 /**
@@ -31,15 +34,45 @@ import javafx.scene.layout.BorderPane;
  */
 public class ClassDisplay extends BorderPane
 {
+    private final String fullyQualifiedName;
+
     /**
-     * @param name The class name to display (without package)
+     * @param displayName The class name to display (without package)
      * @param image The image, if any (can be null)
+     * @param selectionManager The selection manager.  The constructor will add this
+     *                         class to the selection manager.
      */
-    public ClassDisplay(String name, Image image)
+    public ClassDisplay(String displayName, String fullyQualifiedName, Image image, ClassDisplaySelectionManager selectionManager)
     {
+        this.fullyQualifiedName = fullyQualifiedName;
         getStyleClass().add("class-display");
         setSnapToPixel(true);
-        setCenter(new Label(name));
+        setCenter(new Label(displayName));
         setLeft(new ImageView(image));
+        
+        selectionManager.addClassDisplay(this);
+        
+        // We use a general handler not setOnMouseClicked,
+        // because we don't want to interfere with other click handlers:
+        addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+            // Only single-click selects; double-click may do something else
+            if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 1)
+            {
+                // We don't set our state directly, but instead get the
+                // selection manager to do so:
+                selectionManager.select(this);
+                e.consume();
+            }
+        });
+    }
+
+    public void setSelected(boolean selected)
+    {
+        JavaFXUtil.setPseudoclass("gf-selected", selected, this);
+    }
+
+    public String getQualifiedName()
+    {
+        return fullyQualifiedName;
     }
 }

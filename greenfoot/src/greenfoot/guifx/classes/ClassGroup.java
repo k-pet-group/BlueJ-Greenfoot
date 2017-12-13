@@ -24,7 +24,6 @@ package greenfoot.guifx.classes;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
-import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 
 import java.util.ArrayList;
@@ -42,58 +41,10 @@ import java.util.List;
  */
 public class ClassGroup extends Pane implements ChangeListener<Number>
 {
-    private static final int VERTICAL_SPACING = 6;
+    private static final int LEFT_SPACING = 5;
+    private static final int RIGHT_SPACING = 5;
+    private static final int VERTICAL_SPACING = 8;
 
-    /**
-     * Information about a class in the tree: its display name, image (can be null),
-     * its direct subclasses, and the display item for it (once shown)
-     */
-    public static class ClassInfo
-    {
-        private final String fullyQualifiedName;
-        private final String displayName;
-        private final Image image;
-        private final List<ClassInfo> subClasses = new ArrayList<>();
-        // If non-null, exists *and* is already a child of the enclosing ClassGroup
-        private ClassDisplay display;
-        // If non-null, exists *and* is already a child of the enclosing ClassGroup
-        private InheritArrow arrowFromSub;
-
-        public ClassInfo(String fullyQualifiedName, String displayName, Image image, List<ClassInfo> subClasses)
-        {
-            this.fullyQualifiedName = fullyQualifiedName;
-            this.displayName = displayName;
-            this.image = image;
-            this.subClasses.addAll(subClasses);
-            Collections.sort(this.subClasses, Comparator.comparing(ci -> ci.displayName));
-        }
-
-        /**
-         * Gets the qualified name of the class.
-         */
-        public String getQualifiedName()
-        {
-            return fullyQualifiedName;
-        }
-
-        /**
-         * Adds a subclass to the list of subclasses.
-         * Don't forget to call updateAfterAdd() on the enclosing ClassGroup.
-         */
-        public void add(ClassInfo classInfo)
-        {
-            subClasses.add(classInfo);
-            Collections.sort(this.subClasses, Comparator.comparing(ci -> ci.displayName));
-        }
-
-        /**
-         * Get the list of subclasses of this class.
-         */
-        public List<ClassInfo> getSubClasses()
-        {
-            return Collections.unmodifiableList(subClasses);
-        }
-    }
     // For Actor and World groups, just those base classes.  For other, can be many top-level:
     private final List<ClassInfo> topLevel = new ArrayList<>();
         
@@ -126,7 +77,7 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
         getChildren().clear();
         this.topLevel.clear();
         this.topLevel.addAll(topLevel);
-        Collections.sort(this.topLevel, Comparator.comparing(ci -> ci.displayName));
+        Collections.sort(this.topLevel, Comparator.comparing(ClassInfo::getDisplayName));
 
         requestLayout();
     }
@@ -146,7 +97,7 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
     public void updateAfterAdd()
     {
         // Sort in case they added at top-level:
-        Collections.sort(this.topLevel, Comparator.comparing(ci -> ci.displayName));
+        Collections.sort(this.topLevel, Comparator.comparing(ClassInfo::getDisplayName));
         // Adjust positions:
         requestLayout();
     }
@@ -158,7 +109,7 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
         super.layoutChildren();
         
         // Layout all the classes, and use the final Y position as our preferred height:
-        int finalY = redisplay(null, topLevel, 0, 0);
+        int finalY = redisplay(null, topLevel, LEFT_SPACING, 0);
         // If our content height is different than before, we need to adjust our preferred height: 
         if (finalY != (int)getPrefHeight())
         {
@@ -188,54 +139,48 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
         {
             y += VERTICAL_SPACING;
             
-            // If no display make one (if there is display, no need to make again)
-            if (classInfo.display == null)
+            // Make sure display is in our children:
+            if (!getChildren().contains(classInfo.getDisplay()))
             {
-                classInfo.display = new ClassDisplay(classInfo.displayName, classInfo.image);
-                getChildren().add(classInfo.display);
+                getChildren().add(classInfo.getDisplay());
                 // Often, the height is zero at this point, so we need to listen
                 // for when it gets set right in order to re-layout:
-                classInfo.display.heightProperty().addListener(this);
+                classInfo.getDisplay().heightProperty().addListener(this);
             }
             // The inherit arrow arm should point to the vertical midpoint of the class:
-            double halfHeight = Math.floor(classInfo.display.getHeight() / 2.0);
+            double halfHeight = Math.floor(classInfo.getDisplay().getHeight() / 2.0);
             arrowArms.add(y + halfHeight - startY);
             
-            classInfo.display.setLayoutX(x);
+            classInfo.getDisplay().setLayoutX(x);
             // Update our preferred width if we've found a long class:
-            if (x + classInfo.display.getWidth() > getPrefWidth())
+            if (x + classInfo.getDisplay().getWidth() + RIGHT_SPACING > getPrefWidth())
             {
-                setPrefWidth(x + classInfo.display.getWidth());
+                setPrefWidth(x + classInfo.getDisplay().getWidth() + RIGHT_SPACING);
                 // Because we are within layout, we need an explicit call to notify parent of width change:
                 getParent().requestLayout();
             }
-            classInfo.display.setLayoutY(y);
+            classInfo.getDisplay().setLayoutY(y);
             // If height changes, we will layout again because of the listener added above:
-            y += classInfo.display.getHeight();
+            y += classInfo.getDisplay().getHeight();
             
-            if (!classInfo.subClasses.isEmpty())
+            if (!classInfo.getSubClasses().isEmpty())
             {
                 // If no existing arrow, make one and add to children:
-                if (classInfo.arrowFromSub == null)
+                if (!getChildren().contains(classInfo.getArrowFromSub()))
                 {
-                    classInfo.arrowFromSub = new InheritArrow();
-                    getChildren().add(classInfo.arrowFromSub);
+                    getChildren().add(classInfo.getArrowFromSub());
                 }
                 // Update the position.  Using 0.5 makes the lines lie exactly on a pixel and avoid anti-aliasing:
-                classInfo.arrowFromSub.setLayoutX(x + 5 + 0.5);
-                classInfo.arrowFromSub.setLayoutY(y + 0.5);
+                classInfo.getArrowFromSub().setLayoutX(x + 5 + 0.5);
+                classInfo.getArrowFromSub().setLayoutY(y + 0.5);
 
                 // Now do the sub-classes of this class, indented to right:
-                y = redisplay(classInfo.arrowFromSub, classInfo.subClasses, x + 20, y);
+                y = redisplay(classInfo.getArrowFromSub(), classInfo.getSubClasses(), x + 20, y);
             }
             else
             {
                 // If no longer have any subclasses, clean up any previous arrow:
-                if (classInfo.arrowFromSub != null)
-                {
-                    getChildren().remove(classInfo.arrowFromSub);
-                    classInfo.arrowFromSub = null;
-                }
+                getChildren().remove(classInfo.getArrowFromSub());
             }
         }
         
