@@ -31,7 +31,6 @@ import bluej.parser.nodes.ParsedNode;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.javafx.FXCache;
-import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import com.google.common.collect.ImmutableSet;
 import javafx.beans.binding.BooleanExpression;
@@ -61,9 +60,6 @@ import org.fxmisc.richtext.model.TwoDimensional.Position;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import java.lang.ref.Reference;
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.Map.Entry;
 import javax.swing.text.Segment;
@@ -147,18 +143,6 @@ public class BlueJSyntaxView
             return pseudoClass;
         }
     }
-
-    // The line numbers in both maps start at one:
-    private final Map<Integer, EnumSet<ParagraphAttribute>> paragraphAttributes = new HashMap<>();
-    private final Map<Integer, FXPlatformConsumer<EnumSet<ParagraphAttribute>>> paragraphAttributeListeners = new HashMap<>();
-
-    /**
-     * This is those line labels which may currently be on-screen.  Weak references used so
-     * that old line labels can get GCed as we scroll up and down:
-     */
-    private final Set<WeakReference<Label>> lineLabels = new HashSet<>();
-    
-    private final ReferenceQueue<Label> lineLabelsRefQ = new ReferenceQueue<>();
 
     /**
      * Cached indents for ParsedNode items.  Maps a node to an indent (in pixels)
@@ -462,26 +446,10 @@ public class BlueJSyntaxView
             document.fireChangedUpdate(null);
         });
         JavaFXUtil.addChangeListenerPlatform(editorPane.showLineNumbersProperty(), showLineNumbers -> {
-            for (Iterator<WeakReference<Label>> iterator = lineLabels.iterator(); iterator.hasNext(); )
-            {
-                WeakReference<Label> weakLabel = iterator.next();
-                Label l = weakLabel.get();
-                if (l != null)
-                {
-                    if (((StackPane)l.getGraphic()).getChildren().stream().anyMatch(Node::isVisible) || !showLineNumbers)
-                    {
-                        l.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-                    }
-                    else
-                    {
-                        l.setContentDisplay(ContentDisplay.TEXT_ONLY);
-                    }
-                }
-                else
-                {
-                    iterator.remove();
-                }
-            }
+            // By re-setting the paragraph graphic factory, force all visible lines to be re-drawn. Note that
+            // this effectively creates a new function object from the method handle each time it is called, which
+            // is why it works, but it's not clear if this behaviour is formally guaranteed.
+            editorPane.setParagraphGraphicFactory(this::getParagraphicGraphic);
         });
     }
 
@@ -1767,45 +1735,23 @@ public class BlueJSyntaxView
             e.consume();
         });
 
-        WeakReference<Label> weakLabel = new WeakReference<>(label, lineLabelsRefQ);
-        FXPlatformConsumer<EnumSet<ParagraphAttribute>> listener = attr -> {
-            Label l = weakLabel.get();
-            if (l != null)
-            {
-                for (ParagraphAttribute possibleAttribute : ParagraphAttribute.values())
-                {
-                    JavaFXUtil.setPseudoclass(possibleAttribute.getPseudoclass(), attr.contains(possibleAttribute), l);
-                }
-                stepMarkIcon.setVisible(attr.contains(ParagraphAttribute.STEP_MARK));
-                breakpointIcon.setVisible(attr.contains(ParagraphAttribute.BREAKPOINT));
-                if (stepMarkIcon.isVisible() || breakpointIcon.isVisible() || (editorPane != null && !editorPane.isShowLineNumbers()))
-                {
-                    l.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-                }
-                else
-                {
-                    l.setContentDisplay(ContentDisplay.TEXT_ONLY);
-                }
-            }
-            else
-            {
-                paragraphAttributeListeners.remove(lineNumberFinal);
-            }
-        };
-
-        // Add our line label, to be notified if labels get turned on or off:
-        lineLabels.add(weakLabel);
-        
-        // Remove any old references to line labels which have been GCed:
-        Reference<?> rlabel = lineLabelsRefQ.poll();
-        while (rlabel != null) {
-            lineLabels.remove(rlabel);
-            rlabel = lineLabelsRefQ.poll();
+        EnumSet<ParagraphAttribute> attr = getParagraphAttributes(lineNumber);
+        for (ParagraphAttribute possibleAttribute : ParagraphAttribute.values())
+        {
+            JavaFXUtil.setPseudoclass(possibleAttribute.getPseudoclass(), attr.contains(possibleAttribute), label);
         }
-
-        listener.accept(paragraphAttributes.getOrDefault(lineNumber, EnumSet.noneOf(ParagraphAttribute.class)));
-        // By replacing the previous listener, it should get GCed:
-        paragraphAttributeListeners.put(lineNumber, listener);
+        stepMarkIcon.setVisible(attr.contains(ParagraphAttribute.STEP_MARK));
+        breakpointIcon.setVisible(attr.contains(ParagraphAttribute.BREAKPOINT));
+        if (stepMarkIcon.isVisible() || breakpointIcon.isVisible() ||
+                (editorPane != null && !editorPane.isShowLineNumbers()))
+        {
+            label.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+        }
+        else
+        {
+            label.setContentDisplay(ContentDisplay.TEXT_ONLY);
+        }
+        
         AnchorPane.setLeftAnchor(label, 0.0);
         AnchorPane.setRightAnchor(label, 3.0);
         AnchorPane.setTopAnchor(label, 0.0);
@@ -1855,7 +1801,12 @@ public class BlueJSyntaxView
      */
     public Map<Integer, EnumSet<ParagraphAttribute>> setParagraphAttributes(int lineNumber, Map<ParagraphAttribute, Boolean> alterAttr)
     {
-        EnumSet<ParagraphAttribute> attr = getParagraphAttributes(lineNumber);
+        ScopeInfo paraStyle = editorPane.getParagraph(lineNumber - 1).getParagraphStyle();
+        if (paraStyle == null) {
+            paraStyle = new ScopeInfo(EnumSet.noneOf(ParagraphAttribute.class));
+        }
+        
+        EnumSet<ParagraphAttribute> attr = EnumSet.copyOf(paraStyle.getAttributes());
         boolean changed = false;
         for (Entry<ParagraphAttribute, Boolean> alter : alterAttr.entrySet())
         {
@@ -1870,55 +1821,39 @@ public class BlueJSyntaxView
                 changed = attr.remove(alter.getKey()) || changed;
             }
         }
-        /*
-        if (alterAttr.containsKey(ParagraphAttribute.ERROR))
-        {
-            // Update above/below states by finding nearest error then pointing up
-            // and down accordingly
-            int totalLines = editorPane.getParagraphs().size();
-            int[] errorLines = paragraphAttributes.entrySet().stream().filter(e -> e.getValue().contains(ParagraphAttribute.ERROR)).mapToInt(e -> e.getKey()).sorted().toArray();
-            for (int i = 1; i <= totalLines;i++)
-            {
-                int nearest = Arrays.binarySearch(errorLines, i);
-                if (nearest >= 0)
-                {
-                    // Actually an error; remove above/below designation:
-                    getParaAttr(i).removeAll(Arrays.asList(ParagraphAttribute.ERROR_ABOVE, ParagraphAttribute.ERROR_BELOW));
-                }
-                else
-                {
-                    // Returns insertion point - 1 if not found:
-                    nearest = -nearest - 1;
-                    // Is nearest one above or below?
-                    boolean nearestIsBelow = nearest <= 0 || (nearest < errorLines.length && (errorLines[nearest] - i) < (i - errorLines[nearest - 1]));
-                    getParaAttr(i).remove(nearestIsBelow ? ParagraphAttribute.ERROR_ABOVE : ParagraphAttribute.ERROR_BELOW);
-                    getParaAttr(i).add(nearestIsBelow ? ParagraphAttribute.ERROR_BELOW : ParagraphAttribute.ERROR_ABOVE);
-                }
-            }
-        }
-        */
-
-        FXPlatformConsumer<EnumSet<ParagraphAttribute>> listener = paragraphAttributeListeners.get(lineNumber);
-        if (listener != null)
-        {
-            listener.accept(attr);
-        }
-
+        
         if (changed)
-            return Collections.singletonMap(lineNumber, EnumSet.copyOf(attr.clone()));
+        {
+            editorPane.setParagraphStyle(lineNumber - 1, paraStyle.withAttributes(attr));
+            return Collections.singletonMap(lineNumber, EnumSet.copyOf(attr));
+        }
         else
+        {
             return Collections.emptyMap();
+        }
     }
 
     /**
      * Gets the paragraph attributes for a particular line.  If none found, returns the empty set.
-     * The set is the live set in the map, so updating it will affect the stored attributes for the line.
+     * The set returned should not be modified directly.
      *
-     * First line is one.
+     * @param lineNumber  The line number to retrieve attributes for (the first line is one rather than zero).
      */
     EnumSet<ParagraphAttribute> getParagraphAttributes(int lineNumber)
     {
-        return paragraphAttributes.computeIfAbsent(lineNumber, k -> EnumSet.noneOf(ParagraphAttribute.class));
+        //return paragraphAttributes.computeIfAbsent(lineNumber, k -> EnumSet.noneOf(ParagraphAttribute.class));
+        if (editorPane == null) {
+            System.out.println("editorPane == null");
+            //return EnumSet.noneOf(ParagraphAttribute.class);
+        }
+        ScopeInfo scopeInfo = editorPane.getParagraph(lineNumber - 1).getParagraphStyle();
+        if (scopeInfo == null) {
+            return EnumSet.noneOf(ParagraphAttribute.class);
+        }
+        else
+        {
+            return scopeInfo.getAttributes();
+        }
     }
 
     /**
