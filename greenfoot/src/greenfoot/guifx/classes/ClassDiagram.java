@@ -25,6 +25,7 @@ import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
 import greenfoot.guifx.GreenfootStage;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
@@ -61,12 +62,15 @@ public class ClassDiagram extends BorderPane
     {
         this.greenfootStage = greenfootStage;
         this.project = project;
+        getStyleClass().add("class-diagram");
         setTop(worldClasses);
         setCenter(actorClasses);
         setBottom(otherClasses);
         // Actor classes will expand to fill middle, but content will be positioned at the top of that area:
         BorderPane.setAlignment(actorClasses, Pos.TOP_LEFT);
         BorderPane.setAlignment(otherClasses, Pos.BOTTOM_LEFT);
+        // Setting spacing around actorClasses is equivalent to divider spacing:
+        BorderPane.setMargin(actorClasses, new Insets(20, 0, 20, 0));
         setMaxWidth(Double.MAX_VALUE);
         setMaxHeight(Double.MAX_VALUE);
         

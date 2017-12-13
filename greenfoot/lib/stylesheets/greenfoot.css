@@ -15,3 +15,6 @@
     -fx-border-width: 3;
     -fx-border-color: black;
 }
+.class-diagram {
+    -fx-padding: 5px;
+}
