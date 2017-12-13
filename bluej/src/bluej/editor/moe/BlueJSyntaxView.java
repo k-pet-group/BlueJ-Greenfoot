@@ -153,14 +153,6 @@ public class BlueJSyntaxView
     private final Map<Integer, FXPlatformConsumer<EnumSet<ParagraphAttribute>>> paragraphAttributeListeners = new HashMap<>();
 
     /**
-     * This is those line labels which may currently be on-screen.  Weak references used so
-     * that old line labels can get GCed as we scroll up and down:
-     */
-    private final Set<WeakReference<Label>> lineLabels = new HashSet<>();
-    
-    private final ReferenceQueue<Label> lineLabelsRefQ = new ReferenceQueue<>();
-
-    /**
      * Cached indents for ParsedNode items.  Maps a node to an indent (in pixels)
      * When this is zero, it means it is not yet fully valid as the editor has not
      * yet appeared on screen.
@@ -462,26 +454,10 @@ public class BlueJSyntaxView
             document.fireChangedUpdate(null);
         });
         JavaFXUtil.addChangeListenerPlatform(editorPane.showLineNumbersProperty(), showLineNumbers -> {
-            for (Iterator<WeakReference<Label>> iterator = lineLabels.iterator(); iterator.hasNext(); )
-            {
-                WeakReference<Label> weakLabel = iterator.next();
-                Label l = weakLabel.get();
-                if (l != null)
-                {
-                    if (((StackPane)l.getGraphic()).getChildren().stream().anyMatch(Node::isVisible) || !showLineNumbers)
-                    {
-                        l.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-                    }
-                    else
-                    {
-                        l.setContentDisplay(ContentDisplay.TEXT_ONLY);
-                    }
-                }
-                else
-                {
-                    iterator.remove();
-                }
-            }
+            // By re-setting the paragraph graphic factory, force all visible lines to be re-drawn. Note that
+            // this effectively creates a new function object from the method handle each time it is called, which
+            // is why it works, but it's not clear if this behaviour is formally guaranteed.
+            editorPane.setParagraphGraphicFactory(this::getParagraphicGraphic);
         });
     }
 
@@ -1767,7 +1743,7 @@ public class BlueJSyntaxView
             e.consume();
         });
 
-        WeakReference<Label> weakLabel = new WeakReference<>(label, lineLabelsRefQ);
+        WeakReference<Label> weakLabel = new WeakReference<>(label);
         FXPlatformConsumer<EnumSet<ParagraphAttribute>> listener = attr -> {
             Label l = weakLabel.get();
             if (l != null)
@@ -1792,16 +1768,6 @@ public class BlueJSyntaxView
                 paragraphAttributeListeners.remove(lineNumberFinal);
             }
         };
-
-        // Add our line label, to be notified if labels get turned on or off:
-        lineLabels.add(weakLabel);
-        
-        // Remove any old references to line labels which have been GCed:
-        Reference<?> rlabel = lineLabelsRefQ.poll();
-        while (rlabel != null) {
-            lineLabels.remove(rlabel);
-            rlabel = lineLabelsRefQ.poll();
-        }
 
         listener.accept(paragraphAttributes.getOrDefault(lineNumber, EnumSet.noneOf(ParagraphAttribute.class)));
         // By replacing the previous listener, it should get GCed:
