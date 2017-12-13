@@ -97,8 +97,17 @@ public class ClassInfo
         if (display == null)
         {
             display = new ClassDisplay(displayName, fullyQualifiedName, image, selectionManager);
+            setupClassDisplay(display);
         }
         return display;
+    }
+
+    /**
+     * Set up any listeners on the ClassDisplay item.  Here ready for overriding
+     * in subclasses.
+     */
+    protected void setupClassDisplay(ClassDisplay display)
+    {   
     }
 
     /**

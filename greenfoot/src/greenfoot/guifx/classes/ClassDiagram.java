@@ -145,7 +145,7 @@ public class ClassDiagram extends BorderPane
                 classTargetAndVal.setValue(true);
 
                 List<ClassInfo> subClasses = findAllSubclasses(classTarget.getQualifiedName(), classTargets);
-                curLevel.add(new ClassInfo(classTarget.getQualifiedName(), classTarget.getBaseName(),null, subClasses, selectionManager));
+                curLevel.add(makeClassInfo(classTarget, subClasses));
             }
         }
         return curLevel;
@@ -178,7 +178,7 @@ public class ClassDiagram extends BorderPane
             // e.g. inheriting from java.util.List
         }
         // Otherwise, add to top of Other:
-        otherClasses.getLiveClasses().add(new ClassInfo(classTarget.getQualifiedName(), classTarget.getBaseName(), null, Collections.emptyList(), selectionManager));
+        otherClasses.getLiveClasses().add(makeClassInfo(classTarget, Collections.emptyList()));
         otherClasses.updateAfterAdd();
     }
 
@@ -197,7 +197,7 @@ public class ClassDiagram extends BorderPane
         {
             if (classInfo.getQualifiedName().equals(classTargetSuperClass))
             {
-                classInfo.add(new ClassInfo(classTarget.getQualifiedName(), classTarget.getBaseName(), null, Collections.emptyList(), selectionManager));
+                classInfo.add(makeClassInfo(classTarget, Collections.emptyList()));
                 return true;
             }
             else if (findAndAdd(classInfo.getSubClasses(), classTarget, classTargetSuperClass))
@@ -209,32 +209,46 @@ public class ClassDiagram extends BorderPane
     }
 
     /**
-     * Make the graphical item for a ClassTarget.  Currently just a Label.
+     * Make the ClassInfo for a ClassTarget
      */
-    private Node makeClassItem(ClassTarget classTarget)
+    protected ClassInfo makeClassInfo(ClassTarget classTarget, List<ClassInfo> subClasses)
     {
-        Label label = new Label(classTarget.getBaseName());
-        label.setOnContextMenuRequested(e -> {
-            Class<?> cl = classTarget.getPackage().loadClass(classTarget.getQualifiedName());
-            if (cl != null)
+        return new ClassInfo(classTarget.getQualifiedName(), classTarget.getBaseName(), null, subClasses, selectionManager)
+        {
+            @Override
+            protected void setupClassDisplay(ClassDisplay display)
             {
-                ContextMenu contextMenu = new ContextMenu();
-                classTarget.getRole().createClassConstructorMenu(contextMenu.getItems(), classTarget, cl);
-                if (!contextMenu.getItems().isEmpty())
-                {
-                    contextMenu.getItems().add(new SeparatorMenuItem());
-                }
-                classTarget.getRole().createClassStaticMenu(contextMenu.getItems(), classTarget, classTarget.hasSourceCode(), cl);
-                contextMenu.show(label, e.getScreenX(), e.getScreenY());
+                // Array to get a mutable reference:
+                ContextMenu curContextMenu[] = new ContextMenu[] {null};
+                
+                display.setOnContextMenuRequested(e -> {
+                    if (curContextMenu[0] != null)
+                    {
+                        curContextMenu[0].hide();
+                        curContextMenu[0] = null;
+                    }
+                    Class<?> cl = classTarget.getPackage().loadClass(classTarget.getQualifiedName());
+                    if (cl != null)
+                    {
+                        ContextMenu contextMenu = new ContextMenu();
+                        classTarget.getRole().createClassConstructorMenu(contextMenu.getItems(), classTarget, cl);
+                        if (!contextMenu.getItems().isEmpty())
+                        {
+                            contextMenu.getItems().add(new SeparatorMenuItem());
+                        }
+                        classTarget.getRole().createClassStaticMenu(contextMenu.getItems(), classTarget, classTarget.hasSourceCode(), cl);
+                        contextMenu.show(display, e.getScreenX(), e.getScreenY());
+                        curContextMenu[0] = contextMenu;
+                    }
+                });
+                display.setOnMouseClicked(e -> {
+                    if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 2)
+                    {
+                        classTarget.open();
+                    }
+                });
             }
-        });
-        label.setOnMouseClicked(e -> {
-            if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 2)
-            {
-                classTarget.open();
-            }
-        });
-        return label;
+        };
     }
 
     /**

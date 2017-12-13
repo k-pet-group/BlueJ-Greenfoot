@@ -31,6 +31,11 @@ import javafx.scene.layout.BorderPane;
 
 /**
  * The display of a single class in Greenfoot's class diagram. 
+ * 
+ * Note that due to anticipated re-use of this item in the right-hand class diagram,
+ * and the import-class dialog and maybe other places too, this class itself only
+ * handles display and selection.  All other functionality (e.g. context menus)
+ * is done externally as it is not used in all instances of ClassDisplay.
  */
 public class ClassDisplay extends BorderPane
 {
