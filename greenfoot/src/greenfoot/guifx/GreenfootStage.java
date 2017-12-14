@@ -218,7 +218,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private final GreenfootRecorder saveTheWorldRecorder;
 
     @OnThread(Tag.FXPlatform)
-    private SoundRecorderControls soundRecorder;
+    private final SoundRecorderControls soundRecorder;
 
     /**
      * Details for a new actor being added to the world, after you have made it
@@ -405,13 +405,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         if (showing)
         {
-            if (soundRecorder == null)
-            {
-                soundRecorder = new SoundRecorderControls(project);
-            }
             soundRecorder.show();
         }
-        else if (soundRecorder != null)
+        else
         {
             soundRecorder.close();
         }
