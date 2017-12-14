@@ -32,6 +32,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -52,8 +54,8 @@ public class SoundRecorder
     private AudioFormat format;
     private AtomicBoolean keepRecording = new AtomicBoolean();
     private TargetDataLine line;
-    private BlockingQueue<byte []> recordedResultQueue = new ArrayBlockingQueue<byte[]>(1);
-    private byte[] recorded;
+    private BlockingQueue<byte []> recordedResultQueue = new ArrayBlockingQueue<>(1);
+    private ObjectProperty<byte[]> recordedProperty = new SimpleObjectProperty<>(null);
     
     public SoundRecorder()
     {
@@ -141,13 +143,14 @@ public class SoundRecorder
     public void stopRecording()
     {
         keepRecording.set(false);
-        recorded = null;
-        while (recorded == null) {
-            try {
-                recorded = recordedResultQueue.take();
+        recordedProperty.setValue(null);
+        while (recordedProperty.isNull().get())
+        {
+            try
+            {
+                recordedProperty.set(recordedResultQueue.take());
             }
-            catch (InterruptedException e) {
-            }
+            catch (InterruptedException e) {}
         }
         line.close();
     }
@@ -157,8 +160,8 @@ public class SoundRecorder
      */
     public void writeWAV(File destination)
     {
-        ByteArrayInputStream baiStream = new ByteArrayInputStream(recorded);
-        AudioInputStream aiStream = new AudioInputStream(baiStream,format,recorded.length);
+        ByteArrayInputStream baiStream = new ByteArrayInputStream(recordedProperty.get());
+        AudioInputStream aiStream = new AudioInputStream(baiStream,format, recordedProperty.get().length);
         try {
             AudioSystem.write(aiStream,AudioFileFormat.Type.WAVE,destination);
             aiStream.close();
@@ -193,7 +196,7 @@ public class SoundRecorder
      */
     public byte[] getRawSound()
     {
-        return recorded;
+        return recordedProperty.get();
     }
     
     /**
@@ -201,15 +204,15 @@ public class SoundRecorder
      * 
      * The offsets are given as floats in the range 0 to 1.
      */
-    public void trim(float begin, float end)
+    public void trim(double begin, double end)
     {
-        if (recorded != null)
+        if (recordedProperty.isNotNull().get())
         {
-            float length = recorded.length;
+            float length = recordedProperty.get().length;
             int beginIndex = (int)(begin * length);
             int endIndex = (int)(end * length);
             
-            recorded = Arrays.copyOfRange(recorded, beginIndex, endIndex);
+            recordedProperty.set(Arrays.copyOfRange(recordedProperty.get(), beginIndex, endIndex));
         }
     }
 
@@ -219,5 +222,10 @@ public class SoundRecorder
     public AudioFormat getFormat()
     {
         return format;
+    }
+
+    public ObjectProperty<byte[]> getRecordedProperty()
+    {
+        return recordedProperty;
     }
 }

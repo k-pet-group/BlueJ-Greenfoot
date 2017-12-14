@@ -54,6 +54,7 @@ import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.UnfocusableScrollPane;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
+import greenfoot.guifx.soundrecorder.SoundRecorderControls;
 import greenfoot.guifx.classes.ClassDiagram;
 import greenfoot.record.GreenfootRecorder;
 import javafx.animation.AnimationTimer;
@@ -216,6 +217,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
     private final GreenfootRecorder saveTheWorldRecorder;
 
+    @OnThread(Tag.FXPlatform)
+    private SoundRecorderControls soundRecorder;
+
     /**
      * Details for a new actor being added to the world, after you have made it
      * but before it is ready to be placed.
@@ -294,6 +298,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         greenfootDebugHandler.setSimulationListener(this);
         this.saveTheWorldRecorder = new GreenfootRecorder();
         greenfootDebugHandler.setGreenfootRecorder(saveTheWorldRecorder);
+        soundRecorder = new SoundRecorderControls(project);
 
         worldView = new WorldDisplay();
         actButton = new Button(Config.getString("run.once"));
@@ -384,9 +389,32 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         return new MenuBar(
             new Menu(Config.getString("menu.controls"), null,
-                makeMenuItem("run.once", new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN), () -> act(pendingCommands))
+                    makeMenuItem("run.once", new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN), () -> act(pendingCommands)),
+                    JavaFXUtil.makeCheckMenuItem(Config.getString("menu.soundRecorder"), soundRecorder.getShowingProperty(),
+                            new KeyCodeCombination(KeyCode.U, KeyCombination.SHORTCUT_DOWN), this::toggleSoundRecorder)
             )
         );
+    }
+
+    /**
+     * Show/hide the sound soundRecorder.
+     *
+     * @param showing if true show the soundRecorder, hide for false.
+     */
+    private void toggleSoundRecorder(Boolean showing)
+    {
+        if (showing)
+        {
+            if (soundRecorder == null)
+            {
+                soundRecorder = new SoundRecorderControls(project);
+            }
+            soundRecorder.show();
+        }
+        else if (soundRecorder != null)
+        {
+            soundRecorder.close();
+        }
     }
 
     /**
