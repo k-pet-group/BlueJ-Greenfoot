@@ -2032,10 +2032,11 @@ public class ClassTarget extends DependentTarget
         menu.getItems().add(new InspectAction(cl != null, null, null));
         menu.getItems().add(new RemoveAction());
         menu.getItems().add(new DuplicateClassAction());
+        Window parentWindow = pane.getScene().getWindow();
         if (source == SourceType.Stride)
-            menu.getItems().add(new ConvertToJavaAction());
+            menu.getItems().add(new ConvertToJavaAction(parentWindow));
         else if (source == SourceType.Java && roleRef.canConvertToStride())
-            menu.getItems().add(new ConvertToStrideAction());
+            menu.getItems().add(new ConvertToStrideAction(parentWindow));
 
         // call on role object to add any options needed at bottom
         roleRef.createRoleMenuEnd(menu.getItems(), this, getState());
@@ -2208,18 +2209,21 @@ public class ClassTarget extends DependentTarget
     }
 
     @OnThread(Tag.FXPlatform)
-    private class ConvertToJavaAction extends MenuItem
+    public class ConvertToJavaAction extends MenuItem
     {
-        public ConvertToJavaAction()
+        private final Window parentWindow;
+        
+        public ConvertToJavaAction(Window parentWindow)
         {
             super(convertToJavaStr);
+            this.parentWindow = parentWindow;
             setOnAction(this::actionPerformed);
             JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
         }
 
         private void actionPerformed(ActionEvent e)
         {
-            if (JavaFXUtil.confirmDialog("convert.to.java.title", "convert.to.java.message", (Stage)ClassTarget.this.pane.getScene().getWindow(), true))
+            if (JavaFXUtil.confirmDialog("convert.to.java.title", "convert.to.java.message", parentWindow, true))
             {
                 convertStrideToJava();
             }
@@ -2229,10 +2233,10 @@ public class ClassTarget extends DependentTarget
     @OnThread(Tag.FXPlatform)
     public class ConvertToStrideAction extends MenuItem
     {
-        public ConvertToStrideAction()
+        public ConvertToStrideAction(Window parentWindow)
         {
             super(convertToStrideStr);
-            setOnAction(e -> promptAndConvertJavaToStride());
+            setOnAction(e -> promptAndConvertJavaToStride(parentWindow));
             JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
         }
     }
@@ -2262,13 +2266,10 @@ public class ClassTarget extends DependentTarget
      * are warnings not errors.  Errors, which stop the process, mainly arise
      * from unparseable Java source code.
      */
-    public void promptAndConvertJavaToStride()
+    public void promptAndConvertJavaToStride(Window window)
     {
         File javaSourceFile = getJavaSourceFile();
         Charset projectCharset = getPackage().getProject().getProjectCharset();
-        Stage window = null;
-        if (pane.getScene() != null)
-            window = (Stage)pane.getScene().getWindow();
         if (JavaFXUtil.confirmDialog("convert.to.stride.title", "convert.to.stride.message", window, true))
         {
             try
