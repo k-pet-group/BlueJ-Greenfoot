@@ -218,17 +218,16 @@ public class ClassDiagram extends BorderPane
     {
         return new ClassInfo(classTarget.getQualifiedName(), classTarget.getBaseName(), null, subClasses, selectionManager)
         {
+            private ContextMenu curContextMenu = null;
+            
             @Override
             protected void setupClassDisplay(ClassDisplay display)
             {
-                // Array to get a mutable reference:
-                ContextMenu curContextMenu[] = new ContextMenu[] {null};
-                
                 display.setOnContextMenuRequested(e -> {
-                    if (curContextMenu[0] != null)
+                    if (curContextMenu != null)
                     {
-                        curContextMenu[0].hide();
-                        curContextMenu[0] = null;
+                        curContextMenu.hide();
+                        curContextMenu = null;
                     }
                     Class<?> cl = classTarget.getPackage().loadClass(classTarget.getQualifiedName());
                     if (cl != null)
@@ -246,7 +245,7 @@ public class ClassDiagram extends BorderPane
                         }
                         classTarget.getRole().createClassStaticMenu(contextMenu.getItems(), classTarget, classTarget.hasSourceCode(), cl);
                         contextMenu.show(display, e.getScreenX(), e.getScreenY());
-                        curContextMenu[0] = contextMenu;
+                        curContextMenu = contextMenu;
                     }
                 });
                 display.setOnMouseClicked(e -> {
