@@ -126,6 +126,7 @@ import bluej.views.MethodView;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.scene.Node;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -1204,10 +1205,24 @@ public class ClassTarget extends DependentTarget
 
     /**
      * Open an inspector window for the class represented by this target.
+     * 
+     * @param parentOverride If non-null, use this as parent.  If null, use PkgMgrFrame window.
+     * @param animateFromCentreOverride If non-null, animate from centre of this node.  If null, use ClassTarget's GUI node
      */
-    private void inspect()
+    private void inspect(Window parentOverride, Node animateFromCentreOverride)
     {
-        PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
+        Window parent;
+        if (parentOverride != null)
+        {
+            parent = parentOverride;
+        }
+        else
+        {
+            PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
+            parent = pmf.getFXWindow();
+        }
+        Node animateFromCentre = animateFromCentreOverride != null ? animateFromCentreOverride : getNode();
+        
         Project proj = getPackage().getProject();
 
         new Thread() {
@@ -1217,7 +1232,7 @@ public class ClassTarget extends DependentTarget
                 // Try and load the class.
                 try {
                     FXPlatformSupplier<DebuggerClass> clss = getPackage().getDebugger().getClass(getQualifiedName(), true);
-                    Platform.runLater(() -> proj.getClassInspectorInstance(clss.get(), getPackage(), pmf.getFXWindow(), ClassTarget.this.getNode()));
+                    Platform.runLater(() -> proj.getClassInspectorInstance(clss.get(), getPackage(), parent, animateFromCentre));
                 }
                 catch (ClassNotFoundException cnfe) {}
             }
@@ -2014,7 +2029,7 @@ public class ClassTarget extends DependentTarget
         boolean sourceOrDocExists = source != SourceType.NONE || docExists;
         menu.getItems().add(new EditAction(sourceOrDocExists));
         menu.getItems().add(new CompileAction(source != SourceType.NONE));
-        menu.getItems().add(new InspectAction(cl != null));
+        menu.getItems().add(new InspectAction(cl != null, null, null));
         menu.getItems().add(new RemoveAction());
         menu.getItems().add(new DuplicateClassAction());
         if (source == SourceType.Stride)
@@ -2161,11 +2176,23 @@ public class ClassTarget extends DependentTarget
      * Action to inspect the static members of a class
      */
     @OnThread(Tag.FXPlatform)
-    private class InspectAction extends MenuItem
+    public class InspectAction extends MenuItem
     {
-        public InspectAction(boolean enable)
+        private final Window parentOverride;
+        private final Node animateFromCentreOverride;
+
+        /**
+         * Create an action to inspect a class (i.e. static members, not inspecting an instance)
+         * 
+         * @param enable Should the action be enabled?
+         * @param parentOverride If non-null, use this as parent.  If null, use PkgMgrFrame window.
+         * @param animateFromCentreOverride If non-null, animate from centre of this node.  If null, use ClassTarget's GUI node
+         */
+        public InspectAction(boolean enable, Window parentOverride, Node animateFromCentreOverride)
         {
             super(inspectStr);
+            this.parentOverride = parentOverride;
+            this.animateFromCentreOverride = animateFromCentreOverride;
             setOnAction(e -> actionPerformed(e));
             setDisable(!enable);
             JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
@@ -2175,7 +2202,7 @@ public class ClassTarget extends DependentTarget
         private void actionPerformed(ActionEvent e)
         {
             if (checkDebuggerState()) {
-                inspect();
+                inspect(parentOverride, animateFromCentreOverride);
             }
         }
     }

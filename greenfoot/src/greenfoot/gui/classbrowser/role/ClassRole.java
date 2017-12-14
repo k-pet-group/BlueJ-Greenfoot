@@ -26,7 +26,6 @@ import greenfoot.actions.ConvertToJavaClassAction;
 import greenfoot.actions.ConvertToStrideClassAction;
 import greenfoot.actions.DuplicateClassAction;
 import greenfoot.actions.EditClassAction;
-import greenfoot.actions.InspectClassAction;
 import greenfoot.actions.NewSubActorAction;
 import greenfoot.actions.NewSubWorldAction;
 import greenfoot.actions.NewSubclassAction;

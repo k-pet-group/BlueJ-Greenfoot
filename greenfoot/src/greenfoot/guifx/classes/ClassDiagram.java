@@ -274,6 +274,8 @@ public class ClassDiagram extends BorderPane
                             contextMenu.getItems().add(JavaFXUtil.makeMenuItem(Config.getString("select.image"),
                                     () -> greenfootStage.setImageFor(classTarget), null));
                         }
+                        // Inspect:
+                        contextMenu.getItems().add(classTarget.new InspectAction(true, greenfootStage, display));
                         // Duplicate:
                         if (classTarget.hasSourceCode())
                         {
