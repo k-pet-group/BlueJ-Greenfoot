@@ -24,6 +24,7 @@ package greenfoot.guifx.classes;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
+import greenfoot.guifx.GreenfootStage;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
@@ -54,9 +55,11 @@ public class ClassDiagram extends BorderPane
     private final ClassGroup actorClasses = new ClassGroup();
     private final ClassGroup otherClasses = new ClassGroup();
     private final Project project;
+    private final GreenfootStage greenfootStage;
 
-    public ClassDiagram(Project project)
+    public ClassDiagram(GreenfootStage greenfootStage, Project project)
     {
+        this.greenfootStage = greenfootStage;
         this.project = project;
         setTop(worldClasses);
         setCenter(actorClasses);
@@ -145,7 +148,7 @@ public class ClassDiagram extends BorderPane
                 classTargetAndVal.setValue(true);
 
                 List<ClassInfo> subClasses = findAllSubclasses(classTarget.getQualifiedName(), classTargets);
-                curLevel.add(new ClassInfo(classTarget.getQualifiedName(), classTarget.getBaseName(),null, subClasses, selectionManager));
+                curLevel.add(makeClassInfo(classTarget, subClasses));
             }
         }
         return curLevel;
@@ -178,7 +181,7 @@ public class ClassDiagram extends BorderPane
             // e.g. inheriting from java.util.List
         }
         // Otherwise, add to top of Other:
-        otherClasses.getLiveClasses().add(new ClassInfo(classTarget.getQualifiedName(), classTarget.getBaseName(), null, Collections.emptyList(), selectionManager));
+        otherClasses.getLiveClasses().add(makeClassInfo(classTarget, Collections.emptyList()));
         otherClasses.updateAfterAdd();
     }
 
@@ -197,7 +200,7 @@ public class ClassDiagram extends BorderPane
         {
             if (classInfo.getQualifiedName().equals(classTargetSuperClass))
             {
-                classInfo.add(new ClassInfo(classTarget.getQualifiedName(), classTarget.getBaseName(), null, Collections.emptyList(), selectionManager));
+                classInfo.add(makeClassInfo(classTarget, Collections.emptyList()));
                 return true;
             }
             else if (findAndAdd(classInfo.getSubClasses(), classTarget, classTargetSuperClass))
@@ -209,32 +212,50 @@ public class ClassDiagram extends BorderPane
     }
 
     /**
-     * Make the graphical item for a ClassTarget.  Currently just a Label.
+     * Make the ClassInfo for a ClassTarget
      */
-    private Node makeClassItem(ClassTarget classTarget)
+    protected ClassInfo makeClassInfo(ClassTarget classTarget, List<ClassInfo> subClasses)
     {
-        Label label = new Label(classTarget.getBaseName());
-        label.setOnContextMenuRequested(e -> {
-            Class<?> cl = classTarget.getPackage().loadClass(classTarget.getQualifiedName());
-            if (cl != null)
+        return new ClassInfo(classTarget.getQualifiedName(), classTarget.getBaseName(), null, subClasses, selectionManager)
+        {
+            private ContextMenu curContextMenu = null;
+            
+            @Override
+            protected void setupClassDisplay(ClassDisplay display)
             {
-                ContextMenu contextMenu = new ContextMenu();
-                classTarget.getRole().createClassConstructorMenu(contextMenu.getItems(), classTarget, cl);
-                if (!contextMenu.getItems().isEmpty())
-                {
-                    contextMenu.getItems().add(new SeparatorMenuItem());
-                }
-                classTarget.getRole().createClassStaticMenu(contextMenu.getItems(), classTarget, classTarget.hasSourceCode(), cl);
-                contextMenu.show(label, e.getScreenX(), e.getScreenY());
+                display.setOnContextMenuRequested(e -> {
+                    if (curContextMenu != null)
+                    {
+                        curContextMenu.hide();
+                        curContextMenu = null;
+                    }
+                    Class<?> cl = classTarget.getPackage().loadClass(classTarget.getQualifiedName());
+                    if (cl != null)
+                    {
+                        ContextMenu contextMenu = new ContextMenu();
+                        // Update mouse position from menu, so that if the user clicks new Crab(),
+                        // it appears where the mouse is now, rather than where the mouse was before the menu was shown.
+                        // We must use screen X/Y here, because the scene is the menu, not GreenfootStage,
+                        // so scene X/Y wouldn't mean anything useful to GreenfootStage:
+                        contextMenu.getScene().setOnMouseMoved(ev -> greenfootStage.setLatestMousePosOnScreen(ev.getScreenX(), ev.getScreenY()));
+                        classTarget.getRole().createClassConstructorMenu(contextMenu.getItems(), classTarget, cl);
+                        if (!contextMenu.getItems().isEmpty())
+                        {
+                            contextMenu.getItems().add(new SeparatorMenuItem());
+                        }
+                        classTarget.getRole().createClassStaticMenu(contextMenu.getItems(), classTarget, classTarget.hasSourceCode(), cl);
+                        contextMenu.show(display, e.getScreenX(), e.getScreenY());
+                        curContextMenu = contextMenu;
+                    }
+                });
+                display.setOnMouseClicked(e -> {
+                    if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 2)
+                    {
+                        classTarget.open();
+                    }
+                });
             }
-        });
-        label.setOnMouseClicked(e -> {
-            if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 2)
-            {
-                classTarget.open();
-            }
-        });
-        return label;
+        };
     }
 
     /**
