@@ -450,19 +450,4 @@ public class ClassView extends ClassButton
             getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
         }
     }
-
-    /**
-     * Removes Stride File only without removing the Java class.
-     * <br>
-     * Must be called from the event thread.
-     */
-    public void convertStrideToJava()
-    {
-        gClass.convertStrideToJava();
-    }
-
-    public void convertJavaToStride()
-    {
-        gClass.convertJavaToStride();
-    }
 }

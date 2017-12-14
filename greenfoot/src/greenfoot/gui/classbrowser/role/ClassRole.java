@@ -22,8 +22,6 @@
 package greenfoot.gui.classbrowser.role;
 
 import bluej.views.ViewFilter.StaticOrInstance;
-import greenfoot.actions.ConvertToJavaClassAction;
-import greenfoot.actions.ConvertToStrideClassAction;
 import greenfoot.actions.DuplicateClassAction;
 import greenfoot.actions.EditClassAction;
 import greenfoot.actions.NewSubActorAction;
@@ -146,14 +144,6 @@ public abstract class ClassRole implements WorldListener
             popupMenu.addSeparator();
             popupMenu.add(createMenuItem(new DuplicateClassAction(classView, classBrowser)));
             
-            if (srcType != null)
-            {
-                if (srcType == SourceType.Stride )
-                    popupMenu.add(createMenuItem(new ConvertToJavaClassAction(classView, classBrowser.getFrame())));
-                else if (srcType == SourceType.Java )
-                    popupMenu.add(createMenuItem(new ConvertToStrideClassAction(classView, classBrowser.getFrame())));
-            }
-
             popupMenu.add(createMenuItem(new RemoveClassAction(classView, classBrowser.getFrame())));
             
         }
