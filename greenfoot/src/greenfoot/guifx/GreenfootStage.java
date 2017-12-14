@@ -1048,6 +1048,33 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     }
 
     /**
+     * Show a dialog to set the image for the given class target.  Will only be called
+     * for classes which have Actor or World as an ancestor.
+     */
+    public void setImageFor(ClassTarget classTarget)
+    {
+        // TODO as part of GREENFOOT-634
+    }
+
+    /**
+     * Show a dialog for a new name, and then duplicate the class target with that new name.
+     */
+    public void duplicateClass(ClassTarget classTarget)
+    {
+        // TODO, probably as part of GREENFOOT-638
+    }
+
+    /**
+     * Show a dialog to ask for details, then make a new subclass of the given class
+     * using those details.
+     */
+    public void newSubClassOf(String fullyQualifiedName)
+    {
+        // TODO, probably as part of GREENFOOT-638
+    }
+
+
+    /**
      * Gets a Reflective for the Actor class.
      */
     private Reflective getActorReflective()
