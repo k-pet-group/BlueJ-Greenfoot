@@ -1206,23 +1206,11 @@ public class ClassTarget extends DependentTarget
     /**
      * Open an inspector window for the class represented by this target.
      * 
-     * @param parentOverride If non-null, use this as parent.  If null, use PkgMgrFrame window.
-     * @param animateFromCentreOverride If non-null, animate from centre of this node.  If null, use ClassTarget's GUI node
+     * @param parent Parent window.
+     * @param animateFromCentre Animate from centre of this node.
      */
-    private void inspect(Window parentOverride, Node animateFromCentreOverride)
+    private void inspect(Window parent, Node animateFromCentre)
     {
-        Window parent;
-        if (parentOverride != null)
-        {
-            parent = parentOverride;
-        }
-        else
-        {
-            PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
-            parent = pmf.getFXWindow();
-        }
-        Node animateFromCentre = animateFromCentreOverride != null ? animateFromCentreOverride : getNode();
-        
         Project proj = getPackage().getProject();
 
         new Thread() {
@@ -2202,8 +2190,21 @@ public class ClassTarget extends DependentTarget
         @OnThread(Tag.FXPlatform)
         private void actionPerformed(ActionEvent e)
         {
-            if (checkDebuggerState()) {
-                inspect(parentOverride, animateFromCentreOverride);
+            if (checkDebuggerState())
+            {
+                Window parent;
+                if (parentOverride != null)
+                {
+                    parent = parentOverride;
+                }
+                else
+                {
+                    PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
+                    parent = pmf.getFXWindow();
+                }
+                Node animateFromCentre = animateFromCentreOverride != null ? animateFromCentreOverride : getNode();
+
+                inspect(parent, animateFromCentre);
             }
         }
     }
