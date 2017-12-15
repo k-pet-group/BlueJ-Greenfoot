@@ -41,8 +41,6 @@ import java.util.List;
  */
 public class ClassGroup extends Pane implements ChangeListener<Number>
 {
-    private static final int LEFT_SPACING = 5;
-    private static final int RIGHT_SPACING = 5;
     private static final int VERTICAL_SPACING = 8;
 
     // For Actor and World groups, just those base classes.  For other, can be many top-level:
@@ -109,7 +107,7 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
         super.layoutChildren();
         
         // Layout all the classes, and use the final Y position as our preferred height:
-        int finalY = redisplay(null, topLevel, LEFT_SPACING, 0);
+        int finalY = redisplay(null, topLevel, 0, 0);
         // If our content height is different than before, we need to adjust our preferred height: 
         if (finalY != (int)getPrefHeight())
         {
@@ -153,9 +151,9 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
             
             classInfo.getDisplay().setLayoutX(x);
             // Update our preferred width if we've found a long class:
-            if (x + classInfo.getDisplay().getWidth() + RIGHT_SPACING > getPrefWidth())
+            if (x + classInfo.getDisplay().getWidth() > getPrefWidth())
             {
-                setPrefWidth(x + classInfo.getDisplay().getWidth() + RIGHT_SPACING);
+                setPrefWidth(x + classInfo.getDisplay().getWidth());
                 // Because we are within layout, we need an explicit call to notify parent of width change:
                 getParent().requestLayout();
             }

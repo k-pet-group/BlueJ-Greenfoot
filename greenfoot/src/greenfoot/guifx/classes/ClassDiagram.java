@@ -21,10 +21,13 @@
  */
 package greenfoot.guifx.classes;
 
+import bluej.Config;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
+import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.guifx.GreenfootStage;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
@@ -49,6 +52,8 @@ import java.util.Objects;
  */
 public class ClassDiagram extends BorderPane
 {
+    private static enum ClassType { ACTOR, WORLD, OTHER }
+    
     private final ClassDisplaySelectionManager selectionManager = new ClassDisplaySelectionManager();
     // The three groups of classes in the display: World+subclasses, Actor+subclasses, Other
     private final ClassGroup worldClasses = new ClassGroup();
@@ -61,12 +66,15 @@ public class ClassDiagram extends BorderPane
     {
         this.greenfootStage = greenfootStage;
         this.project = project;
+        getStyleClass().add("class-diagram");
         setTop(worldClasses);
         setCenter(actorClasses);
         setBottom(otherClasses);
         // Actor classes will expand to fill middle, but content will be positioned at the top of that area:
         BorderPane.setAlignment(actorClasses, Pos.TOP_LEFT);
         BorderPane.setAlignment(otherClasses, Pos.BOTTOM_LEFT);
+        // Setting spacing around actorClasses is equivalent to divider spacing:
+        BorderPane.setMargin(actorClasses, new Insets(20, 0, 20, 0));
         setMaxWidth(Double.MAX_VALUE);
         setMaxHeight(Double.MAX_VALUE);
         
@@ -91,16 +99,16 @@ public class ClassDiagram extends BorderPane
         // so the order here is very important.  Actor and World must come before other:
         
         // First, we must take out any World and Actor classes:
-        List<ClassInfo> worldSubclasses = findAllSubclasses("greenfoot.World", classTargets);
+        List<ClassInfo> worldSubclasses = findAllSubclasses("greenfoot.World", classTargets, ClassType.WORLD);
         ClassInfo worldClassesInfo = new ClassInfo("greenfoot.World", "World", null, worldSubclasses, selectionManager);
         worldClasses.setClasses(Collections.singletonList(worldClassesInfo));
 
-        List<ClassInfo> actorSubclasses = findAllSubclasses("greenfoot.Actor", classTargets);
+        List<ClassInfo> actorSubclasses = findAllSubclasses("greenfoot.Actor", classTargets, ClassType.ACTOR);
         ClassInfo actorClassesInfo = new ClassInfo("greenfoot.Actor", "Actor", null, actorSubclasses, selectionManager);
         actorClasses.setClasses(Collections.singletonList(actorClassesInfo));
         
         // All other classes can be found by passing null, see docs on findAllSubclasses:
-        otherClasses.setClasses(findAllSubclasses(null, classTargets));
+        otherClasses.setClasses(findAllSubclasses(null, classTargets, ClassType.OTHER));
     }
 
     /**
@@ -115,7 +123,7 @@ public class ClassDiagram extends BorderPane
      *                     they are processed into a ClassInfo, their value will be flipped to true.
      * @return The list of ClassInfo at the requested level (there may be a deeper tree inside).
      */
-    private List<ClassInfo> findAllSubclasses(String parentClassName, Map<ClassTarget, Boolean> classTargets)
+    private List<ClassInfo> findAllSubclasses(String parentClassName, Map<ClassTarget, Boolean> classTargets, ClassType type)
     {
         List<ClassInfo> curLevel = new ArrayList<>();
         for (Entry<ClassTarget, Boolean> classTargetAndVal : classTargets.entrySet())
@@ -147,8 +155,8 @@ public class ClassDiagram extends BorderPane
                 // Update processed status before recursing:
                 classTargetAndVal.setValue(true);
 
-                List<ClassInfo> subClasses = findAllSubclasses(classTarget.getQualifiedName(), classTargets);
-                curLevel.add(makeClassInfo(classTarget, subClasses));
+                List<ClassInfo> subClasses = findAllSubclasses(classTarget.getQualifiedName(), classTargets, type);
+                curLevel.add(makeClassInfo(classTarget, subClasses, type));
             }
         }
         return curLevel;
@@ -166,10 +174,26 @@ public class ClassDiagram extends BorderPane
         if (superClass != null)
         {
             // It does have a parent class: may be in World, Actor or Other:
-            for (ClassGroup classGroup : Arrays.asList(worldClasses, actorClasses, otherClasses))
+            //for (ClassGroup classGroup : Arrays.asList(worldClasses, actorClasses, otherClasses))
+            for (ClassType type : ClassType.values())
             {
+                ClassGroup classGroup;
+                switch (type)
+                {
+                    case ACTOR:
+                        classGroup = actorClasses;
+                        break;
+                    case WORLD:
+                        classGroup = worldClasses;
+                        break;
+                    case OTHER:
+                        classGroup =  otherClasses;
+                        break;
+                    default:
+                        continue; // Should be impossible
+                }
                 // Look all the way down for the tree for the super class:
-                boolean found = findAndAdd(classGroup.getLiveClasses(), classTarget, superClass);
+                boolean found = findAndAdd(classGroup.getLiveClasses(), classTarget, superClass, type);
                 if (found)
                 {
                     classGroup.updateAfterAdd();
@@ -181,7 +205,7 @@ public class ClassDiagram extends BorderPane
             // e.g. inheriting from java.util.List
         }
         // Otherwise, add to top of Other:
-        otherClasses.getLiveClasses().add(makeClassInfo(classTarget, Collections.emptyList()));
+        otherClasses.getLiveClasses().add(makeClassInfo(classTarget, Collections.emptyList(), ClassType.OTHER));
         otherClasses.updateAfterAdd();
     }
 
@@ -194,16 +218,16 @@ public class ClassDiagram extends BorderPane
      * @param classTargetSuperClass The super-class of classTarget
      * @return True if right place found and added, false if not
      */
-    private boolean findAndAdd(List<ClassInfo> classInfos, ClassTarget classTarget, String classTargetSuperClass)
+    private boolean findAndAdd(List<ClassInfo> classInfos, ClassTarget classTarget, String classTargetSuperClass, ClassType type)
     {
         for (ClassInfo classInfo : classInfos)
         {
             if (classInfo.getQualifiedName().equals(classTargetSuperClass))
             {
-                classInfo.add(makeClassInfo(classTarget, Collections.emptyList()));
+                classInfo.add(makeClassInfo(classTarget, Collections.emptyList(), type));
                 return true;
             }
-            else if (findAndAdd(classInfo.getSubClasses(), classTarget, classTargetSuperClass))
+            else if (findAndAdd(classInfo.getSubClasses(), classTarget, classTargetSuperClass, type))
             {
                 return true;
             }
@@ -214,7 +238,7 @@ public class ClassDiagram extends BorderPane
     /**
      * Make the ClassInfo for a ClassTarget
      */
-    protected ClassInfo makeClassInfo(ClassTarget classTarget, List<ClassInfo> subClasses)
+    protected ClassInfo makeClassInfo(ClassTarget classTarget, List<ClassInfo> subClasses, ClassType type)
     {
         return new ClassInfo(classTarget.getQualifiedName(), classTarget.getBaseName(), null, subClasses, selectionManager)
         {
@@ -244,6 +268,22 @@ public class ClassDiagram extends BorderPane
                             contextMenu.getItems().add(new SeparatorMenuItem());
                         }
                         classTarget.getRole().createClassStaticMenu(contextMenu.getItems(), classTarget, classTarget.hasSourceCode(), cl);
+                        // Set image:
+                        if (type == ClassType.ACTOR || type == ClassType.WORLD)
+                        {
+                            contextMenu.getItems().add(JavaFXUtil.makeMenuItem(Config.getString("select.image"),
+                                    () -> greenfootStage.setImageFor(classTarget), null));
+                        }
+                        // Duplicate:
+                        if (classTarget.hasSourceCode())
+                        {
+                            contextMenu.getItems().add(JavaFXUtil.makeMenuItem(Config.getString("duplicate.class"),
+                                    () -> greenfootStage.duplicateClass(classTarget), null));
+                        }
+                        // New subclass:
+                        contextMenu.getItems().add(JavaFXUtil.makeMenuItem(Config.getString("new.sub.class"),
+                                () -> greenfootStage.newSubClassOf(classTarget.getQualifiedName()), null));
+                        
                         contextMenu.show(display, e.getScreenX(), e.getScreenY());
                         curContextMenu = contextMenu;
                     }

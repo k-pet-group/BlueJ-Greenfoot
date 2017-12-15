@@ -734,8 +734,16 @@ public class JavaFXUtil
         // Make content expand to fill when smaller than viewport, but scroll once larger than viewport:
         // Taken from https://reportmill.wordpress.com/2014/06/03/make-scrollpane-content-fill-viewport-bounds/
         addChangeListener(scrollPane.viewportBoundsProperty(), bounds -> {
+            boolean oldFitToWidth = scrollPane.isFitToWidth();
+            boolean oldFitToHeight = scrollPane.isFitToHeight();
             scrollPane.setFitToWidth(scrollPane.getContent().prefWidth(-1) < bounds.getWidth());
             scrollPane.setFitToHeight(scrollPane.getContent().prefHeight(-1) < bounds.getHeight());
+            // It seems that the layout of the scroll pane content isn't always updated by just changing
+            // the fit-to flags, so we also request a layout of the content if applicable:
+            if (scrollPane.getContent() instanceof Region && (oldFitToWidth != scrollPane.isFitToWidth() || oldFitToHeight != scrollPane.isFitToHeight()))
+            {
+                ((Region) scrollPane.getContent()).requestLayout();
+            }
         });
     }
 
