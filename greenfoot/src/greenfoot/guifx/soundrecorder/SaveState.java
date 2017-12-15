@@ -50,21 +50,23 @@ class SaveState
     private final TextField filenameField = new TextField();
     private final Button saveButton = new Button(Config.getString("soundRecorder.save"));
     private String lastSaveName = null;
-    private SimpleBooleanProperty changedSinceSave = new SimpleBooleanProperty(false);
-
-    SimpleBooleanProperty saved = new SimpleBooleanProperty(true);
+    private final SimpleBooleanProperty saved = new SimpleBooleanProperty(true);
+    private final SimpleBooleanProperty changedSinceSave = new SimpleBooleanProperty(false);
 
     SaveState(Window parent, SoundRecorder recorder)
     {
         this.parent = parent;
         this.recorder = recorder;
+
+        JavaFXUtil.addChangeListener(changedSinceSave, changed -> updateSavedStatus());
+        JavaFXUtil.addChangeListener(filenameField.textProperty(), text -> updateSavedStatus());
     }
 
     /**
      * Builds the save row: a filename field and save button
      *
-     * @param projectSoundDir
-     * @return
+     * @param projectSoundDir the directory which contains the sounds files
+     * @return a HBox which contains the gui nodes needed for saving a file
      */
     HBox buildSaveBox(final File projectSoundDir)
     {
@@ -102,27 +104,25 @@ class SaveState
 
     void changed(boolean value)
     {
-        changedSinceSave.setValue(value);
+        changedSinceSave.set(value);
+        updateSavedStatus();
+    }
+
+    SimpleBooleanProperty savedProperty()
+    {
+        return saved;
     }
 
     /**
-     * Updates the save button based on whether the filename field is blank (and whether a recording exists)
+     * Updates the save status and save button based on whether the filename field and the recording changes.
      */
     private void updateSavedStatus()
     {
-        SimpleBooleanProperty differentFromSaved = new SimpleBooleanProperty();
-        differentFromSaved.bind(filenameField.textProperty().isEqualTo(lastSaveName).not().or(changedSinceSave));
-        saveButton.disableProperty().bind(recorder.getRecordedProperty().isNull().or(filenameField.textProperty().isEmpty()).or(differentFromSaved.not()));
-        JavaFXUtil.addChangeListener(differentFromSaved, this::setSaved);
-        JavaFXUtil.addChangeListener(changedSinceSave, this::setSaved);
-    }
-
-    private void setSaved(Boolean newValue)
-    {
-        if (recorder !=null && recorder.getRecordedProperty().isNotNull().get())
-        {
-            saved.set(!newValue);
-        }
+        boolean emptyRecorded =  recorder.recordedProperty().get() == null;
+        boolean differentFromSaved = !filenameField.textProperty().get().equals(lastSaveName) || changedSinceSave.get();
+        saved.set(emptyRecorded || !differentFromSaved);
+        boolean emptyTextField = filenameField.textProperty().isEmpty().get();
+        saveButton.disableProperty().set(emptyTextField || saved.get());
     }
 
     private void saveWAV(File destination)
@@ -133,7 +133,7 @@ class SaveState
 
     private void savedAs(String name)
     {
-        changedSinceSave.set(false);
         lastSaveName = name;
+        changed(false);
     }
 }

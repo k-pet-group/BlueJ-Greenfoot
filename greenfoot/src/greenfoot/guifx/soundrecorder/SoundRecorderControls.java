@@ -123,7 +123,7 @@ public class SoundRecorderControls extends Stage
         VBox.setVgrow(soundAndControls, Priority.ALWAYS);
 
         Button closeButton = new Button(Config.getString("soundRecorder.close"));
-        JavaFXUtil.addChangeListener(saveState.saved, newValue ->
+        JavaFXUtil.addChangeListener(saveState.savedProperty(), newValue ->
                 closeButton.setText(Config.getString(newValue ? "soundRecorder.close" : "soundRecorder.close.without.saving")));
         closeButton.setOnAction(event -> close());
         this.setOnCloseRequest(event -> stopRecording());

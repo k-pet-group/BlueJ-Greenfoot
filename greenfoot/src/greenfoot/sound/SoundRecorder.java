@@ -55,7 +55,7 @@ public class SoundRecorder
     private AtomicBoolean keepRecording = new AtomicBoolean();
     private TargetDataLine line;
     private BlockingQueue<byte []> recordedResultQueue = new ArrayBlockingQueue<>(1);
-    private ObjectProperty<byte[]> recordedProperty = new SimpleObjectProperty<>(null);
+    private ObjectProperty<byte[]> recorded = new SimpleObjectProperty<>(null);
     
     public SoundRecorder()
     {
@@ -91,13 +91,13 @@ public class SoundRecorder
             
             keepRecording.set(true);
             
-            final AtomicReference<List<byte[]>> partialResult = new AtomicReference<List<byte[]>>(null);
+            final AtomicReference<List<byte[]>> partialResult = new AtomicReference<>(null);
                        
             Runnable rec = () -> {
                 // We should get a chunk every half second, which is better than every second
                 // for updating the display as we go:
                 int bufferSize = (int) (format.getSampleRate()/2) * format.getFrameSize();
-                LinkedList<byte[]> frames = new LinkedList<byte[]>();
+                LinkedList<byte[]> frames = new LinkedList<>();
 
                 while (keepRecording.get()) {
                     byte buffer[] = new byte[bufferSize];
@@ -108,7 +108,7 @@ public class SoundRecorder
                         keepRecording.set(false);
                     } else {
                         frames.addLast(buffer);
-                        partialResult.set(new LinkedList<byte[]>(frames));
+                        partialResult.set(new LinkedList<>(frames));
                     }
                 }
 
@@ -122,8 +122,7 @@ public class SoundRecorder
                         recordedResultQueue.put(merge(frames));
                         done = true;
                     }
-                    catch (InterruptedException e) {
-                    }
+                    catch (InterruptedException ignored) {}
                 }
             };
 
@@ -143,14 +142,14 @@ public class SoundRecorder
     public void stopRecording()
     {
         keepRecording.set(false);
-        recordedProperty.setValue(null);
-        while (recordedProperty.isNull().get())
+        recorded.set(null);
+        while (recorded.get() == null)
         {
             try
             {
-                recordedProperty.set(recordedResultQueue.take());
+                recorded.set(recordedResultQueue.take());
             }
-            catch (InterruptedException e) {}
+            catch (InterruptedException ignored) {}
         }
         line.close();
     }
@@ -160,8 +159,8 @@ public class SoundRecorder
      */
     public void writeWAV(File destination)
     {
-        ByteArrayInputStream baiStream = new ByteArrayInputStream(recordedProperty.get());
-        AudioInputStream aiStream = new AudioInputStream(baiStream,format, recordedProperty.get().length);
+        ByteArrayInputStream baiStream = new ByteArrayInputStream(recorded.get());
+        AudioInputStream aiStream = new AudioInputStream(baiStream,format, recorded.get().length);
         try {
             AudioSystem.write(aiStream,AudioFileFormat.Type.WAVE,destination);
             aiStream.close();
@@ -196,7 +195,7 @@ public class SoundRecorder
      */
     public byte[] getRawSound()
     {
-        return recordedProperty.get();
+        return recorded.get();
     }
     
     /**
@@ -206,13 +205,13 @@ public class SoundRecorder
      */
     public void trim(double begin, double end)
     {
-        if (recordedProperty.isNotNull().get())
+        if (recorded.get() != null)
         {
-            float length = recordedProperty.get().length;
+            float length = recorded.get().length;
             int beginIndex = (int)(begin * length);
             int endIndex = (int)(end * length);
             
-            recordedProperty.set(Arrays.copyOfRange(recordedProperty.get(), beginIndex, endIndex));
+            recorded.set(Arrays.copyOfRange(recorded.get(), beginIndex, endIndex));
         }
     }
 
@@ -224,8 +223,8 @@ public class SoundRecorder
         return format;
     }
 
-    public ObjectProperty<byte[]> getRecordedProperty()
+    public ObjectProperty<byte[]> recordedProperty()
     {
-        return recordedProperty;
+        return recorded;
     }
 }
