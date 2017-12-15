@@ -414,7 +414,7 @@ public class SoundRecorderControls extends Stage
                 // Otherwise this is just a click and actually ends up removing the selection:
                 selectionActive = false;
                 selectionDrawing = true;
-                selectionBegin = calculatePosition(e.getX()); // TODO try getSceneX to avoid dividing inside calculatePosition
+                selectionBegin = calculatePosition(e.getX());
                 selectionEnd = selectionBegin;
             }            
         }
