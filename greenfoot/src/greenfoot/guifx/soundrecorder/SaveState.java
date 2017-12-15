@@ -66,13 +66,13 @@ class SaveState
      * @param projectSoundDir
      * @return
      */
-    HBox buildSaveBox(final String projectSoundDir)
+    HBox buildSaveBox(final File projectSoundDir)
     {
         saveButton.setDisable(true);
         saveButton.setOnAction(event -> {
             if (projectSoundDir != null)
             {
-                File destination = new File(projectSoundDir + filenameField.getText() + ".wav");
+                File destination = new File(projectSoundDir, filenameField.getText() + ".wav");
                 if (destination.exists())
                 {
                     boolean overwrite = DialogManager.askQuestionFX(parent, "sound-recorder-file-exists", new String[] {destination.getName()}) == 0;

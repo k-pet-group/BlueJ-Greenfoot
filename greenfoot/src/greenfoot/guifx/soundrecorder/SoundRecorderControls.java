@@ -193,11 +193,11 @@ public class SoundRecorderControls extends Stage
     /**
      * Gets the sounds directory for the given project, or null if there is a problem
      *
-     * @return the path of the sound directory. It may be null in case there is a problem
+     * @return the sound directory as a file. It may be null in case there is a problem
      */
-    private static String getSoundDir(Project project)
+    private static File getSoundDir(Project project)
     {
-        return project.getProjectDir() + File.separator + "sounds" + File.separator;
+        return new File(project.getProjectDir(), "sounds");
     }
 
     /**
