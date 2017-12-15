@@ -32,8 +32,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -55,7 +53,7 @@ public class SoundRecorder
     private AtomicBoolean keepRecording = new AtomicBoolean();
     private TargetDataLine line;
     private BlockingQueue<byte []> recordedResultQueue = new ArrayBlockingQueue<>(1);
-    private ObjectProperty<byte[]> recorded = new SimpleObjectProperty<>(null);
+    private byte[] recorded;
     
     public SoundRecorder()
     {
@@ -142,12 +140,12 @@ public class SoundRecorder
     public void stopRecording()
     {
         keepRecording.set(false);
-        recorded.set(null);
-        while (recorded.get() == null)
+        recorded = null;
+        while (recorded == null)
         {
             try
             {
-                recorded.set(recordedResultQueue.take());
+                recorded = recordedResultQueue.take();
             }
             catch (InterruptedException ignored) {}
         }
@@ -159,8 +157,8 @@ public class SoundRecorder
      */
     public void writeWAV(File destination)
     {
-        ByteArrayInputStream baiStream = new ByteArrayInputStream(recorded.get());
-        AudioInputStream aiStream = new AudioInputStream(baiStream,format, recorded.get().length);
+        ByteArrayInputStream baiStream = new ByteArrayInputStream(recorded);
+        AudioInputStream aiStream = new AudioInputStream(baiStream,format, recorded.length);
         try {
             AudioSystem.write(aiStream,AudioFileFormat.Type.WAVE,destination);
             aiStream.close();
@@ -195,7 +193,7 @@ public class SoundRecorder
      */
     public byte[] getRawSound()
     {
-        return recorded.get();
+        return recorded;
     }
     
     /**
@@ -205,13 +203,13 @@ public class SoundRecorder
      */
     public void trim(double begin, double end)
     {
-        if (recorded.get() != null)
+        if (recorded != null)
         {
-            float length = recorded.get().length;
+            float length = recorded.length;
             int beginIndex = (int)(begin * length);
             int endIndex = (int)(end * length);
             
-            recorded.set(Arrays.copyOfRange(recorded.get(), beginIndex, endIndex));
+            recorded = Arrays.copyOfRange(recorded, beginIndex, endIndex);
         }
     }
 
@@ -221,10 +219,5 @@ public class SoundRecorder
     public AudioFormat getFormat()
     {
         return format;
-    }
-
-    public ObjectProperty<byte[]> recordedProperty()
-    {
-        return recorded;
     }
 }

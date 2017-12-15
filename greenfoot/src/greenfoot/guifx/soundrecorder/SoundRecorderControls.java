@@ -288,7 +288,7 @@ public class SoundRecorderControls extends Stage
     }
 
     /**
-     * A panel for displaying a recordedProperty sound.
+     * A panel for displaying the recorded sound.
      */
     private class SoundPanel extends ResizableCanvas
     {

@@ -118,7 +118,7 @@ class SaveState
      */
     private void updateSavedStatus()
     {
-        boolean emptyRecorded =  recorder.recordedProperty().get() == null;
+        boolean emptyRecorded =  recorder.getRawSound() == null;
         boolean differentFromSaved = !filenameField.textProperty().get().equals(lastSaveName) || changedSinceSave.get();
         saved.set(emptyRecorded || !differentFromSaved);
         boolean emptyTextField = filenameField.textProperty().isEmpty().get();
