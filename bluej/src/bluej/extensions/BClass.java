@@ -149,7 +149,7 @@ public class BClass
             throw new ClassNotFoundException("Can't find class: " + classId.getClassName());
         }
 
-        bluejClass.promptAndConvertJavaToStride();
+        bluejClass.promptAndConvertJavaToStride(null);
     }
 
 

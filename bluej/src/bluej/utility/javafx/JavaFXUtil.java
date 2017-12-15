@@ -111,6 +111,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
@@ -588,11 +589,12 @@ public class JavaFXUtil
      * 
      * @param titleLabel The string to look up in the labels file for the title of the dialog
      * @param messageLabel The string to look up in the labels file for the message of the dialog
+     * @param parent The parent window to block with the modal dialog.  Can be null.
      * @param bringToFront If true, should specially execute code to bring app and window to front.
      * @return True if the user clicked OK, false if the user clicked Cancel or otherwise closed the dialog.
      */
     @OnThread(Tag.FXPlatform)
-    public static boolean confirmDialog(String titleLabel, String messageLabel, Stage parent, boolean bringToFront)
+    public static boolean confirmDialog(String titleLabel, String messageLabel, Window parent, boolean bringToFront)
     {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION, Config.getString(messageLabel), ButtonType.OK, ButtonType.CANCEL);
         alert.setTitle(Config.getString(titleLabel));

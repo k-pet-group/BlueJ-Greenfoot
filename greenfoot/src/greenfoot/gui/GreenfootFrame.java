@@ -26,7 +26,6 @@ import greenfoot.Actor;
 import greenfoot.World;
 import greenfoot.actions.AboutGreenfootAction;
 import greenfoot.actions.CloseProjectAction;
-import greenfoot.actions.ConvertToJavaSelectedClassAction;
 import greenfoot.actions.ExportProjectAction;
 import greenfoot.actions.ImportClassAction;
 import greenfoot.actions.NewClassAction;
@@ -175,7 +174,6 @@ public class GreenfootFrame extends JFrame
     private ExportProjectAction shareAction;
     private CloseProjectAction closeProjectAction;
     private RemoveSelectedClassAction removeSelectedClassAction;
-    private ConvertToJavaSelectedClassAction convertToJavaSelectedClassAction;
     private SetPlayerAction setPlayerAction;
     
     private ToggleDebuggerAction toggleDebuggerAction;
@@ -728,7 +726,6 @@ public class GreenfootFrame extends JFrame
         importClassAction = new ImportClassAction(this);
         closeProjectAction = new CloseProjectAction(this);
         removeSelectedClassAction = new RemoveSelectedClassAction(this);
-        convertToJavaSelectedClassAction = new ConvertToJavaSelectedClassAction(this);
         removeSelectedClassAction.setEnabled(false);
     }
     
@@ -767,7 +764,6 @@ public class GreenfootFrame extends JFrame
         addMenuItem(newClassAction, editMenu, KeyEvent.VK_N, false, KeyEvent.VK_N);
         addMenuItem(importClassAction, editMenu, KeyEvent.VK_I, false, KeyEvent.VK_I);
         addMenuItem(removeSelectedClassAction, editMenu, KeyEvent.VK_D, false, KeyEvent.VK_R);
-        addMenuItem(convertToJavaSelectedClassAction, editMenu, KeyEvent.VK_Y, false, KeyEvent.VK_Y);
 
         if (!Config.usingMacScreenMenubar()) { // no "Preferences" here for
             // Mac
@@ -934,9 +930,6 @@ public class GreenfootFrame extends JFrame
             WorldHandler.getInstance().discardWorld();
             removeSelectedClassAction.setEnabled(false);
         }
-
-        //Initially convert to Java has to be false
-        convertToJavaSelectedClassAction.setEnabled(false);
     }
 
     /**
@@ -1285,7 +1278,6 @@ public class GreenfootFrame extends JFrame
     @Override
     public void selectionChange(Selectable source)
     {
-        convertToJavaSelectedClassAction.setEnabled(false);
         if (source instanceof ClassView) {
             ClassView classView = (ClassView)source;
             if(classView.getRealClass() == null) {
@@ -1294,7 +1286,6 @@ public class GreenfootFrame extends JFrame
             else if(! (classView.getRealClass().getName().equals("greenfoot.Actor")) &&
                     ! (classView.getRealClass().getName().equals("greenfoot.World")))  {
                 removeSelectedClassAction.setEnabled(true);
-                convertToJavaSelectedClassAction.setEnabled(classView.getGClass().getSourceType() == SourceType.Stride);
             }
             else {
                 removeSelectedClassAction.setEnabled(false);

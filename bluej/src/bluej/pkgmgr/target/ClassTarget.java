@@ -126,6 +126,7 @@ import bluej.views.MethodView;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.scene.Node;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -1204,10 +1205,12 @@ public class ClassTarget extends DependentTarget
 
     /**
      * Open an inspector window for the class represented by this target.
+     * 
+     * @param parent Parent window.
+     * @param animateFromCentre Animate from centre of this node.
      */
-    private void inspect()
+    private void inspect(Window parent, Node animateFromCentre)
     {
-        PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
         Project proj = getPackage().getProject();
 
         new Thread() {
@@ -1217,7 +1220,7 @@ public class ClassTarget extends DependentTarget
                 // Try and load the class.
                 try {
                     FXPlatformSupplier<DebuggerClass> clss = getPackage().getDebugger().getClass(getQualifiedName(), true);
-                    Platform.runLater(() -> proj.getClassInspectorInstance(clss.get(), getPackage(), pmf.getFXWindow(), ClassTarget.this.getNode()));
+                    Platform.runLater(() -> proj.getClassInspectorInstance(clss.get(), getPackage(), parent, animateFromCentre));
                 }
                 catch (ClassNotFoundException cnfe) {}
             }
@@ -2014,13 +2017,14 @@ public class ClassTarget extends DependentTarget
         boolean sourceOrDocExists = source != SourceType.NONE || docExists;
         menu.getItems().add(new EditAction(sourceOrDocExists));
         menu.getItems().add(new CompileAction(source != SourceType.NONE));
-        menu.getItems().add(new InspectAction(cl != null));
+        menu.getItems().add(new InspectAction(cl != null, null, null));
         menu.getItems().add(new RemoveAction());
         menu.getItems().add(new DuplicateClassAction());
+        Window parentWindow = pane.getScene().getWindow();
         if (source == SourceType.Stride)
-            menu.getItems().add(new ConvertToJavaAction());
+            menu.getItems().add(new ConvertToJavaAction(parentWindow));
         else if (source == SourceType.Java && roleRef.canConvertToStride())
-            menu.getItems().add(new ConvertToStrideAction());
+            menu.getItems().add(new ConvertToStrideAction(parentWindow));
 
         // call on role object to add any options needed at bottom
         roleRef.createRoleMenuEnd(menu.getItems(), this, getState());
@@ -2161,11 +2165,23 @@ public class ClassTarget extends DependentTarget
      * Action to inspect the static members of a class
      */
     @OnThread(Tag.FXPlatform)
-    private class InspectAction extends MenuItem
+    public class InspectAction extends MenuItem
     {
-        public InspectAction(boolean enable)
+        private final Window parentOverride;
+        private final Node animateFromCentreOverride;
+
+        /**
+         * Create an action to inspect a class (i.e. static members, not inspecting an instance)
+         * 
+         * @param enable Should the action be enabled?
+         * @param parentOverride If non-null, use this as parent.  If null, use PkgMgrFrame window.
+         * @param animateFromCentreOverride If non-null, animate from centre of this node.  If null, use ClassTarget's GUI node
+         */
+        public InspectAction(boolean enable, Window parentOverride, Node animateFromCentreOverride)
         {
             super(inspectStr);
+            this.parentOverride = parentOverride;
+            this.animateFromCentreOverride = animateFromCentreOverride;
             setOnAction(e -> actionPerformed(e));
             setDisable(!enable);
             JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
@@ -2174,25 +2190,41 @@ public class ClassTarget extends DependentTarget
         @OnThread(Tag.FXPlatform)
         private void actionPerformed(ActionEvent e)
         {
-            if (checkDebuggerState()) {
-                inspect();
+            if (checkDebuggerState())
+            {
+                Window parent;
+                if (parentOverride != null)
+                {
+                    parent = parentOverride;
+                }
+                else
+                {
+                    PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
+                    parent = pmf.getFXWindow();
+                }
+                Node animateFromCentre = animateFromCentreOverride != null ? animateFromCentreOverride : getNode();
+
+                inspect(parent, animateFromCentre);
             }
         }
     }
 
     @OnThread(Tag.FXPlatform)
-    private class ConvertToJavaAction extends MenuItem
+    public class ConvertToJavaAction extends MenuItem
     {
-        public ConvertToJavaAction()
+        private final Window parentWindow;
+        
+        public ConvertToJavaAction(Window parentWindow)
         {
             super(convertToJavaStr);
+            this.parentWindow = parentWindow;
             setOnAction(this::actionPerformed);
             JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
         }
 
         private void actionPerformed(ActionEvent e)
         {
-            if (JavaFXUtil.confirmDialog("convert.to.java.title", "convert.to.java.message", (Stage)ClassTarget.this.pane.getScene().getWindow(), true))
+            if (JavaFXUtil.confirmDialog("convert.to.java.title", "convert.to.java.message", parentWindow, true))
             {
                 convertStrideToJava();
             }
@@ -2202,10 +2234,10 @@ public class ClassTarget extends DependentTarget
     @OnThread(Tag.FXPlatform)
     public class ConvertToStrideAction extends MenuItem
     {
-        public ConvertToStrideAction()
+        public ConvertToStrideAction(Window parentWindow)
         {
             super(convertToStrideStr);
-            setOnAction(e -> promptAndConvertJavaToStride());
+            setOnAction(e -> promptAndConvertJavaToStride(parentWindow));
             JavaFXUtil.addStyleClass(this, MENU_STYLE_INBUILT);
         }
     }
@@ -2235,13 +2267,10 @@ public class ClassTarget extends DependentTarget
      * are warnings not errors.  Errors, which stop the process, mainly arise
      * from unparseable Java source code.
      */
-    public void promptAndConvertJavaToStride()
+    public void promptAndConvertJavaToStride(Window window)
     {
         File javaSourceFile = getJavaSourceFile();
         Charset projectCharset = getPackage().getProject().getProjectCharset();
-        Stage window = null;
-        if (pane.getScene() != null)
-            window = (Stage)pane.getScene().getWindow();
         if (JavaFXUtil.confirmDialog("convert.to.stride.title", "convert.to.stride.message", window, true))
         {
             try

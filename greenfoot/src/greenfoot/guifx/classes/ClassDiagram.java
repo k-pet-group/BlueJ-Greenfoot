@@ -22,6 +22,7 @@
 package greenfoot.guifx.classes;
 
 import bluej.Config;
+import bluej.extensions.SourceType;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
@@ -29,15 +30,12 @@ import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.guifx.GreenfootStage;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Label;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -274,12 +272,26 @@ public class ClassDiagram extends BorderPane
                             contextMenu.getItems().add(JavaFXUtil.makeMenuItem(Config.getString("select.image"),
                                     () -> greenfootStage.setImageFor(classTarget), null));
                         }
+                        // Inspect:
+                        contextMenu.getItems().add(classTarget.new InspectAction(true, greenfootStage, display));
                         // Duplicate:
                         if (classTarget.hasSourceCode())
                         {
                             contextMenu.getItems().add(JavaFXUtil.makeMenuItem(Config.getString("duplicate.class"),
                                     () -> greenfootStage.duplicateClass(classTarget), null));
                         }
+                        
+                        // Convert to Java/Stride
+                        if (classTarget.getSourceType() == SourceType.Stride)
+                        {
+                            contextMenu.getItems().add(classTarget.new ConvertToJavaAction(greenfootStage));
+                        }
+                        else if (classTarget.getSourceType() == SourceType.Java && classTarget.getRole() != null && classTarget.getRole().canConvertToStride())
+                        {
+                            contextMenu.getItems().add(classTarget.new ConvertToStrideAction(greenfootStage));
+                        }
+                        
+                        
                         // New subclass:
                         contextMenu.getItems().add(JavaFXUtil.makeMenuItem(Config.getString("new.sub.class"),
                                 () -> greenfootStage.newSubClassOf(classTarget.getQualifiedName()), null));
