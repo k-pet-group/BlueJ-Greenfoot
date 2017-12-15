@@ -9,7 +9,7 @@ import javafx.scene.canvas.Canvas;
  */
 public class ResizableCanvas extends Canvas
 {
-    private final FXRunnable onResize;
+    protected FXRunnable onResize;
 
     public ResizableCanvas()
     {

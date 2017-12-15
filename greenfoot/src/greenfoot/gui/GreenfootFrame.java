@@ -48,7 +48,6 @@ import greenfoot.actions.ShowReadMeAction;
 import greenfoot.actions.ShowWebsiteAction;
 import greenfoot.actions.ToggleAction;
 import greenfoot.actions.ToggleDebuggerAction;
-import greenfoot.actions.ToggleSoundAction;
 import greenfoot.core.*;
 import bluej.collect.GreenfootInterfaceEvent;
 import greenfoot.event.CompileListener;
@@ -177,8 +176,7 @@ public class GreenfootFrame extends JFrame
     private SetPlayerAction setPlayerAction;
     
     private ToggleDebuggerAction toggleDebuggerAction;
-    private ToggleSoundAction toggleSoundAction;
-    
+
     // "Watchdog": make sure user code (world initialisation etc) doesn't stall for too long
     private Timer timer;
     private final static int EXECUTION_TIMEOUT = 4000;
@@ -350,7 +348,6 @@ public class GreenfootFrame extends JFrame
             }
             // set our project to be this possibly new project
             toggleDebuggerAction.setProject(project);
-            toggleSoundAction.setProject(project);
             isClosedProject = false;
             
             Simulation.getInstance().setPaused(true);
@@ -789,9 +786,6 @@ public class GreenfootFrame extends JFrame
         ctrlMenu.addSeparator();
         toggleDebuggerAction = new ToggleDebuggerAction(Config.getString("menu.debugger"), project);
         createCheckboxMenuItem(toggleDebuggerAction, false, ctrlMenu, KeyEvent.VK_B, false, KeyEvent.VK_B);
-        
-        toggleSoundAction = new ToggleSoundAction(Config.getString("menu.soundRecorder"), project);
-        createCheckboxMenuItem(toggleSoundAction, false, ctrlMenu, KeyEvent.VK_U, false, KeyEvent.VK_U);
         
         JMenu helpMenu = addMenu(Config.getString("menu.help"), menuBar, 'h');
         

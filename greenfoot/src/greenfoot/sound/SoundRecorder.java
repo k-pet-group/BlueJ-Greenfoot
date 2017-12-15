@@ -52,7 +52,7 @@ public class SoundRecorder
     private AudioFormat format;
     private AtomicBoolean keepRecording = new AtomicBoolean();
     private TargetDataLine line;
-    private BlockingQueue<byte []> recordedResultQueue = new ArrayBlockingQueue<byte[]>(1);
+    private BlockingQueue<byte []> recordedResultQueue = new ArrayBlockingQueue<>(1);
     private byte[] recorded;
     
     public SoundRecorder()
@@ -89,13 +89,13 @@ public class SoundRecorder
             
             keepRecording.set(true);
             
-            final AtomicReference<List<byte[]>> partialResult = new AtomicReference<List<byte[]>>(null);
+            final AtomicReference<List<byte[]>> partialResult = new AtomicReference<>(null);
                        
             Runnable rec = () -> {
                 // We should get a chunk every half second, which is better than every second
                 // for updating the display as we go:
                 int bufferSize = (int) (format.getSampleRate()/2) * format.getFrameSize();
-                LinkedList<byte[]> frames = new LinkedList<byte[]>();
+                LinkedList<byte[]> frames = new LinkedList<>();
 
                 while (keepRecording.get()) {
                     byte buffer[] = new byte[bufferSize];
@@ -106,7 +106,7 @@ public class SoundRecorder
                         keepRecording.set(false);
                     } else {
                         frames.addLast(buffer);
-                        partialResult.set(new LinkedList<byte[]>(frames));
+                        partialResult.set(new LinkedList<>(frames));
                     }
                 }
 
@@ -120,8 +120,7 @@ public class SoundRecorder
                         recordedResultQueue.put(merge(frames));
                         done = true;
                     }
-                    catch (InterruptedException e) {
-                    }
+                    catch (InterruptedException ignored) {}
                 }
             };
 
@@ -142,12 +141,13 @@ public class SoundRecorder
     {
         keepRecording.set(false);
         recorded = null;
-        while (recorded == null) {
-            try {
+        while (recorded == null)
+        {
+            try
+            {
                 recorded = recordedResultQueue.take();
             }
-            catch (InterruptedException e) {
-            }
+            catch (InterruptedException ignored) {}
         }
         line.close();
     }
@@ -158,7 +158,7 @@ public class SoundRecorder
     public void writeWAV(File destination)
     {
         ByteArrayInputStream baiStream = new ByteArrayInputStream(recorded);
-        AudioInputStream aiStream = new AudioInputStream(baiStream,format,recorded.length);
+        AudioInputStream aiStream = new AudioInputStream(baiStream,format, recorded.length);
         try {
             AudioSystem.write(aiStream,AudioFileFormat.Type.WAVE,destination);
             aiStream.close();
@@ -201,7 +201,7 @@ public class SoundRecorder
      * 
      * The offsets are given as floats in the range 0 to 1.
      */
-    public void trim(float begin, float end)
+    public void trim(double begin, double end)
     {
         if (recorded != null)
         {
