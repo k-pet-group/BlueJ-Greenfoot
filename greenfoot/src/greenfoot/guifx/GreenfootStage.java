@@ -395,7 +395,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                             new KeyCodeCombination(KeyCode.U, KeyCombination.SHORTCUT_DOWN), this::toggleSoundRecorder)
             ),
             new Menu(Config.getString("menu.tools"), null,
-                    makeMenuItem("menu.tools.generateDoc", new KeyCodeCombination(KeyCode.J, KeyCombination.SHORTCUT_DOWN), this::generateDocumentation)
+                    makeMenuItem("menu.tools.generateDoc", new KeyCodeCombination(KeyCode.G, KeyCombination.SHORTCUT_DOWN), this::generateDocumentation)
             )
         );
     }
