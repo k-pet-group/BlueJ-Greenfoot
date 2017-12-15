@@ -283,9 +283,13 @@ public class ClassDiagram extends BorderPane
                         
                         // Convert to Java/Stride
                         if (classTarget.getSourceType() == SourceType.Stride)
+                        {
                             contextMenu.getItems().add(classTarget.new ConvertToJavaAction(greenfootStage));
+                        }
                         else if (classTarget.getSourceType() == SourceType.Java && classTarget.getRole() != null && classTarget.getRole().canConvertToStride())
+                        {
                             contextMenu.getItems().add(classTarget.new ConvertToStrideAction(greenfootStage));
+                        }
                         
                         
                         // New subclass:
