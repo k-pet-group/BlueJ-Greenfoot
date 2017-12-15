@@ -156,7 +156,7 @@ public class SoundRecorderControls extends Stage
                     {
                         List<byte[]> curValue = currentRecording.get();
                         if (curValue != lastValue)
-                            soundPanel.paintComponent();
+                            Platform.runLater(soundPanel::paintComponent);
                         if (lastValue != null && curValue == null)
                             cancel();
                         lastValue = curValue;
@@ -252,7 +252,7 @@ public class SoundRecorderControls extends Stage
                     public void run()
                     {
                         playbackPosition = start + stream.getLongFramePosition();
-                        soundPanel.paintComponent();
+                        Platform.runLater(soundPanel::paintComponent);
                     }
                 };
                 timer.scheduleAtFixedRate(repaintWhilePlaying, 50, 100);
