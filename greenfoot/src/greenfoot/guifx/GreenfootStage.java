@@ -46,6 +46,7 @@ import bluej.pkgmgr.target.Target;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.Debug;
+import bluej.utility.DialogManager;
 import bluej.utility.JavaReflective;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
@@ -392,6 +393,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     makeMenuItem("run.once", new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN), () -> act(pendingCommands)),
                     JavaFXUtil.makeCheckMenuItem(Config.getString("menu.soundRecorder"), soundRecorder.getShowingProperty(),
                             new KeyCodeCombination(KeyCode.U, KeyCombination.SHORTCUT_DOWN), this::toggleSoundRecorder)
+            ),
+            new Menu(Config.getString("menu.tools"), null,
+                    makeMenuItem("menu.tools.generateDoc", new KeyCodeCombination(KeyCode.G, KeyCombination.SHORTCUT_DOWN), this::generateDocumentation)
             )
         );
     }
@@ -410,6 +414,17 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         else
         {
             soundRecorder.close();
+        }
+    }
+
+    /**
+     * Generates the Documentation for the current scenario
+     */
+    private void generateDocumentation()
+    {
+        String message = project.generateDocumentation();
+        if (message.length() != 0) {
+            DialogManager.showTextFX(this, message);
         }
     }
 
