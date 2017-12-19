@@ -524,14 +524,22 @@ public final class MoeEditor extends ScopeColorsBorderPane
     @OnThread(Tag.FXPlatform)
     public void setEditorVisible(boolean vis)
     {
-        if (vis) {
+        if (vis)
+        {
             checkBracketStatus();
+
+            // Make sure caret is visible after open:
+            //sourcePane.requestFollowCaret();
+            //sourcePane.layout();
         }
         if (fxTabbedEditor == null)
+        {
             fxTabbedEditor = defaultFXTabbedEditor.get();
-
+        }
         if (vis)
+        {
             fxTabbedEditor.addTab(fxTab, vis, true);
+        }
         fxTabbedEditor.setWindowVisible(vis, fxTab);
         if (vis)
         {
@@ -540,22 +548,13 @@ public final class MoeEditor extends ScopeColorsBorderPane
             {
                 callbackOnOpen.run();
             }
-            // Calculating the scopes properly needs a visible editor,
-            // so once we're shown, recalculate the scopes:
-            if (sourceDocument.notYetShown)
-            {
-                JavaFXUtil.runAfter(Duration.millis(200), () -> {
-                    sourceDocument.notYetShown = false;
-                    sourceDocument.recalculateAllScopes();
-                    // Must be called after the editor is actually visible for first time:
-                    sourcePane.requestFollowCaret();
-                });
-            }
-            else
-            {
-                // Make sure caret is visible after open:
-                sourcePane.requestFollowCaret();
-            }
+
+            // Allow recalculating the scopes:
+            sourceDocument.notYetShown = false;
+            
+            // Make sure caret is visible after open:
+            sourcePane.requestFollowCaret();
+            sourcePane.layout();
         }
     }
 
