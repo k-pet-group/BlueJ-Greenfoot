@@ -138,8 +138,17 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
             {
                 try
                 {
-                    setText(item.imageFile.getName());
-                    setGraphic(new ImageView(new Image(item.imageFile.toURI().toURL().toExternalForm())));
+                    File imageFile = item.imageFile;
+                    if (imageFile != null)
+                    {
+                        setText(imageFile.getName());
+                        setGraphic(new ImageView(new Image(imageFile.toURI().toURL().toExternalForm())));
+                    }
+                    else
+                    {
+                        setText("Unspecified");// TODO remove this
+                        setGraphic(null);
+                    }
                 }
                 catch (MalformedURLException e)
                 {
@@ -148,7 +157,8 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
             }
             else
             {
-                setText("Unspecified");// TODO remove this
+                setText(null);
+                setGraphic(null);
             }
         }
     }
