@@ -50,3 +50,9 @@ The file "$" already exists. Do you want to overwrite?
 Overwrite
 Cancel
 null
+
+imagelib-write-exists
+The file "$" already exists. Do you want to overwrite it?
+Overwrite
+Cancel
+null

@@ -24,26 +24,18 @@ package greenfoot.actions;
 import greenfoot.GreenfootImage;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
-import greenfoot.core.GClass;
-import greenfoot.core.GreenfootMain;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.gui.classbrowser.role.ImageClassRole;
-import greenfoot.gui.images.ImageLibFrame;
-import greenfoot.gui.images.ImageSelectionWatcher;
+import greenfoot.guifx.images.ImageSelectionWatcher;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.IOException;
 
 import javax.swing.AbstractAction;
-import javax.swing.JFrame;
 
 import bluej.Config;
-import bluej.utility.Debug;
-import bluej.utility.DialogManager;
-import bluej.utility.FileUtility;
 
 /**
  * Action to select an image for a class.
@@ -100,56 +92,7 @@ public class SelectImageAction extends AbstractAction
                 }
             };
         }
-        
-        // initialise our image library frame
-        JFrame gfFrame = GreenfootMain.getInstance().getFrame();
-        ImageLibFrame imageLibFrame = new ImageLibFrame(gfFrame, classView, watcher);
-        DialogManager.centreDialog(imageLibFrame);
-        imageLibFrame.setVisible(true);
 
-        // set the image of the class to the selected file
-        if (imageLibFrame.getResult() == ImageLibFrame.OK) {
-            File currentImageFile = imageLibFrame.getSelectedImageFile();
-            setClassImage(classView, gclassRole, currentImageFile);
-            gfFrame.repaint();
-        }
-        // or if cancelled reset the world background to the original format
-        // to avoid white screens or preview images being left there. 
-        else if (currentWorld != null && imageLibFrame.getResult() == ImageLibFrame.CANCEL) {
-            Simulation.getInstance().runLater(new Runnable() {
-                @Override
-                public void run()
-                {
-                    currentWorld.setBackground(originalBackground);
-                }
-            });
-        }
-    }
-
-    public static void setClassImage(ClassView classView, ImageClassRole gclassRole, File imageFile)
-    {
-        GClass gclass = classView.getGClass();
-        File projImagesDir = gclass.getPackage().getProject().getImageDir();            
-        if (imageFile != null) {
-            if (! imageFile.getParentFile().getAbsoluteFile().equals(projImagesDir)) {
-                // An image was selected from an external dir. We need
-                // to copy it into the project images directory first.
-                File destFile = new File(projImagesDir, imageFile.getName());
-                try {
-                    FileUtility.copyFile(imageFile, destFile);
-                    imageFile = destFile;
-                }
-                catch (IOException e) {
-                    Debug.reportError("Error when copying file: " + imageFile + " to: " + destFile, e);
-                }
-            }
-
-            gclass.setClassProperty("image", imageFile.getName());
-        } 
-        else {
-            gclass.setClassProperty("image", null);
-        }
-        gclassRole.changeImage();
-        gclass.getPackage().getProject().getProjectProperties().save();
+        // The whole class is due to be deleted.
     }
 }

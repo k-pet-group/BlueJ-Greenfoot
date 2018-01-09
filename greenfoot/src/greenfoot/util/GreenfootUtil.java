@@ -21,7 +21,11 @@
  */
 package greenfoot.util;
 
+import bluej.Boot;
+import bluej.Config;
+import bluej.pkgmgr.target.ClassTarget;
 import bluej.utility.Debug;
+import bluej.utility.Utility;
 import greenfoot.GreenfootImage;
 import greenfoot.UserInfo;
 import greenfoot.core.ImageCache;
@@ -49,14 +53,11 @@ import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -64,14 +65,8 @@ import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.text.html.Option;
 
 import javafx.stage.Stage;
-import javafx.stage.Window;
-
-import bluej.Boot;
-import bluej.Config;
-import bluej.utility.Utility;
 
 /**
  * General utility methods for Greenfoot.
@@ -275,7 +270,73 @@ public class GreenfootUtil
         graphics.dispose();
         return rImage;
     }
-    
+
+    /**
+     * Returns the superclass or null if no superclass can be found.
+     *
+     * @return superclass, or null if the superclass is not part of this project.
+     */
+    public static ClassTarget getSuperclass(ClassTarget classTarget)
+    {
+        ClassTarget superClass = getSuperclassWithoutCheck(classTarget);
+        // Check if there are cyclic hierarchies, and return null if there is.
+        if(containsCyclicHierarchy(classTarget)) {
+            return null;
+        }
+        return superClass;
+    }
+
+    /**
+     * Get the GClass for the superclass guess without checking cycles.
+     *
+     */
+    private static ClassTarget getSuperclassWithoutCheck(ClassTarget classTarget)
+    {
+        String superclassName = getSuperclassGuess(classTarget);
+        if (superclassName == null)
+        {
+            return null;
+        }
+        superclassName = extractClassName(superclassName);
+        // TODO This line seems to cause deadlock at the moment, so commenting out during Greenfoot rewrite:
+        ClassTarget superClass = null; // pkg.getClass(superclassName);
+        return superClass;
+    }
+
+    /**
+     * Returns true if there is a cycle in the inheritance hierarchy.
+     * @return
+     */
+    private static boolean containsCyclicHierarchy(ClassTarget classTarget)
+    {
+        ClassTarget superCls = getSuperclassWithoutCheck(classTarget);
+        while (superCls != null)
+        {
+            if (superCls == classTarget)
+            {
+                return true;
+            }
+            superCls = getSuperclassWithoutCheck(superCls);
+        }
+        return false;
+    }
+
+    /**
+     * Sets the superclass guess that will be returned if it is not possible to
+     * find it in another way.
+     *
+     * <p>If this guess results in a cyclic hierarchy, it will not be set.
+     *
+     * @return True if it was a valid name. False if invalid and something else
+     *         should be tried (for instance if the guess is the same as the
+     *         name of this)
+     */
+    public static String getSuperclassGuess(ClassTarget classTarget)
+    {
+        // TODO implement this
+        return null;
+    }
+
     /**
      * A class which conveniently allows us to synchronously retrieve the
      * width and height of an Image, and to draw the image to a graphics

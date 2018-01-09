@@ -27,8 +27,6 @@ import greenfoot.core.GPackage;
 import greenfoot.gui.NewClassDialog;
 import greenfoot.gui.classbrowser.ClassBrowser;
 import greenfoot.gui.classbrowser.ClassView;
-import greenfoot.gui.classbrowser.role.ImageClassRole;
-import greenfoot.gui.images.ImageLibFrame;
 
 import java.awt.event.ActionEvent;
 import java.util.List;
@@ -38,7 +36,6 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import bluej.Config;
-import bluej.utility.DialogManager;
 
 
 /**
@@ -92,19 +89,7 @@ public class NewSubclassAction extends AbstractAction
     
     public void createImageClass(String title, String defaultName, List<String> description)
     {
-        JFrame f = (JFrame) SwingUtilities.getWindowAncestor(classBrowser);
-        
-        ImageLibFrame dialog = new ImageLibFrame(f, superclass.getGClass(), title, defaultName, description);
-        DialogManager.centreDialog(dialog);
-        dialog.setVisible(true);
-        if (! (dialog.getResult() == ImageLibFrame.OK)) {
-            return;
-        }
-
-        ClassView classView = createClassSilently(dialog.getClassName(), dialog.getSelectedLanguage());
-        if (classView != null) {
-            SelectImageAction.setClassImage(classView, (ImageClassRole) classView.getRole(), dialog.getSelectedImageFile());
-        }
+        // The whole class is due to be deleted.
     }
 
     public void createNonActorClass()

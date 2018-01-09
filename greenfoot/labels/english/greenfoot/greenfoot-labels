@@ -216,9 +216,6 @@ imagelib.help.selectImage=Select an image for the class from the list below.
 imagelib.newClass.image=New class image:
 imagelib.file.noPreview=No preview
 imagelib.choose.button=Select
-imagelib.write.exists.part1=The file \"
-# Greenfoot inserts filename here
-imagelib.write.exists.part2=\" already exists. Do you want to overwrite it?
 imagelib.write.exists.title=Confirm file replace
 imagelib.greenfoot.frame.title=Greenfoot Library Images
 imagelib.scenario.frame.title=Scenario Images
@@ -233,9 +230,10 @@ imagelib.rename.exists.title=Rename Failed
 imagelib.new.image.title=New Image
 imagelib.new.image.name=Name:
 imagelib.new.image.width=Width:
-imagelib.new.image.height=Height:  
+imagelib.new.image.height=Height:
 imagelib.new.image.type=Type:
 imagelib.more=More Actions...
+imagelib.duplicate.image.name.suffix=Copy
 
 editor.paste.image.title=Paste Image
 editor.paste.image.prompt=File Name:
