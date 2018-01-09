@@ -165,8 +165,12 @@ public class ClassDiagram extends BorderPane
      */
     public void addClass(ClassTarget classTarget)
     {
-        String superClass = classTarget.analyseSource().getSuperclass();
-        
+        String superClass = null;
+        bluej.parser.symtab.ClassInfo info = classTarget.analyseSource();
+        if (info != null)
+        {
+            superClass = info.getSuperclass();
+        }
         // The class could be nested within actor or world or other
         // If none of those apply, it will go at top-level of other
         if (superClass != null)
