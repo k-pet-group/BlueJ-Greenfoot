@@ -146,7 +146,7 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
                     }
                     else
                     {
-                        setText("Unspecified");// TODO remove this
+                        setText("");
                         setGraphic(null);
                     }
                 }
