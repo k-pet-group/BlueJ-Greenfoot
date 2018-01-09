@@ -35,10 +35,15 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Window;
 
-public class NameDialog extends FXCustomizedDialog<String>
+/**
+ * A dialog to ask the user for a pasted image name.
+ *
+ * @Author Amjad Altadmri
+ */
+public class PastedImageNameDialog extends FXCustomizedDialog<String>
 {
 
-    public NameDialog(Window parent, Image image, String style)
+    public PastedImageNameDialog(Window parent, Image image, String style)
     {
         super(parent, Config.getString("editor.paste.image.title"), style);
 

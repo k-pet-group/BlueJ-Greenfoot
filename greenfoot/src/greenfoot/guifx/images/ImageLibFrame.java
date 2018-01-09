@@ -32,7 +32,7 @@ import bluej.utility.javafx.FXCustomizedDialog;
 import bluej.utility.javafx.JavaFXUtil;
 
 import greenfoot.guifx.ClassNameVerifier;
-import greenfoot.guifx.NameDialog;
+import greenfoot.guifx.PastedImageNameDialog;
 import greenfoot.guifx.images.ImageLibList.ImageListEntry;
 import greenfoot.util.ExternalAppLauncher;
 import greenfoot.util.GreenfootUtil;
@@ -551,7 +551,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         if (Clipboard.getSystemClipboard().hasImage())
         {
             Image image = Clipboard.getSystemClipboard().getImage();
-            NameDialog dlg = new NameDialog(this.getOwner(), image, null);
+            PastedImageNameDialog dlg = new PastedImageNameDialog(this.getOwner(), image, null);
             dlg.showAndWait().ifPresent(name -> {
                 try
                 {
