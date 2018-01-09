@@ -270,7 +270,7 @@ public class ClassDiagram extends BorderPane
                         if (type == ClassType.ACTOR || type == ClassType.WORLD)
                         {
                             contextMenu.getItems().add(JavaFXUtil.makeMenuItem(Config.getString("select.image"),
-                                    () -> greenfootStage.setImageFor(classTarget), null));
+                                    () -> greenfootStage.setImageFor(classTarget, display), null));
                         }
                         // Inspect:
                         contextMenu.getItems().add(classTarget.new InspectAction(true, greenfootStage, display));
@@ -280,7 +280,7 @@ public class ClassDiagram extends BorderPane
                             contextMenu.getItems().add(JavaFXUtil.makeMenuItem(Config.getString("duplicate.class"),
                                     () -> greenfootStage.duplicateClass(classTarget), null));
                         }
-                        
+
                         // Convert to Java/Stride
                         if (classTarget.getSourceType() == SourceType.Stride)
                         {
@@ -290,11 +290,24 @@ public class ClassDiagram extends BorderPane
                         {
                             contextMenu.getItems().add(classTarget.new ConvertToStrideAction(greenfootStage));
                         }
-                        
-                        
+
+
                         // New subclass:
-                        contextMenu.getItems().add(JavaFXUtil.makeMenuItem(Config.getString("new.sub.class"),
-                                () -> greenfootStage.newSubClassOf(classTarget.getQualifiedName()), null));
+                        contextMenu.getItems().add(JavaFXUtil.makeMenuItem(Config.getString("new.sub.class"), () ->
+                            {
+                                // TODO check if needed
+                                // boolean imageClass = superG.isActorClass() || superG.isActorSubclass();
+                                // imageClass |= superG.isWorldClass() || superG.isWorldSubclass();
+                                // if (imageClass)
+                                if (type == ClassType.ACTOR || type == ClassType.WORLD)
+                                {
+                                    greenfootStage.newImageSubClassOf(classTarget.getQualifiedName());
+                                }
+                                else
+                                {
+                                    greenfootStage.newSubClassOf(classTarget.getQualifiedName());
+                                }
+                            }, null));
                         
                         contextMenu.show(display, e.getScreenX(), e.getScreenY());
                         curContextMenu = contextMenu;

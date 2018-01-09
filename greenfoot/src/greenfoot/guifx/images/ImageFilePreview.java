@@ -19,7 +19,7 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package greenfoot.gui.images;
+package greenfoot.guifx.images;
 
 import bluej.Config;
 import greenfoot.util.GraphicsUtilities;

@@ -55,9 +55,19 @@ import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.UnfocusableScrollPane;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
+
+import greenfoot.GreenfootImage;
+import greenfoot.World;
+import greenfoot.WorldVisitor;
+import greenfoot.core.Simulation;
+import greenfoot.core.WorldHandler;
+import greenfoot.guifx.classes.ClassDisplay;
+import greenfoot.guifx.images.ImageLibFrame;
+import greenfoot.guifx.images.ImageSelectionWatcher;
 import greenfoot.guifx.soundrecorder.SoundRecorderControls;
 import greenfoot.guifx.classes.ClassDiagram;
 import greenfoot.record.GreenfootRecorder;
+
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -107,6 +117,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 
 import static bluej.pkgmgr.target.ClassTarget.MENU_STYLE_INBUILT;
@@ -1090,9 +1101,47 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      * Show a dialog to set the image for the given class target.  Will only be called
      * for classes which have Actor or World as an ancestor.
      */
-    public void setImageFor(ClassTarget classTarget)
+    public void setImageFor(ClassTarget classTarget, ClassDisplay classDisplay)
     {
-        // TODO as part of GREENFOOT-634
+        final World currentWorld = WorldHandler.getInstance().getWorld();
+        // save the original background if possible
+        final GreenfootImage originalBackground = ((currentWorld == null) ?
+                null : WorldVisitor.getBackgroundImage(currentWorld));
+
+        // allow the previewing if we are setting the image of the current world.
+        ImageSelectionWatcher watcher = null;
+        if (currentWorld != null && currentWorld.getClass().getName().equals(classTarget.getQualifiedName()))
+        {
+            watcher = imageFile -> {
+                if (imageFile != null)
+                {
+                    Simulation.getInstance().runLater(() -> {
+                        if (WorldHandler.getInstance().getWorld() == currentWorld)
+                        {
+                            currentWorld.setBackground(imageFile.getAbsolutePath());
+                        }
+                    });
+                }
+            };
+        }
+
+        // initialise our image library frame
+        ImageLibFrame imageLibFrame = new ImageLibFrame(this, classTarget, watcher);
+        // TODO DialogManager.centreDialog(imageLibFrame);
+        // TODO imageLibFrame.setVisible(true);
+
+        // set the image of the class to the selected file
+        Optional<File> result = imageLibFrame.showAndWait();
+        if (result.isPresent())
+        {
+            classDisplay.setImage(new Image(result.get().toURI().toString()));
+        }
+        // or if cancelled reset the world background to the original format
+        // to avoid white screens or preview images being left there.
+        else if (currentWorld != null)
+        {
+            Simulation.getInstance().runLater(() -> currentWorld.setBackground(originalBackground));
+        }
     }
 
     /**
@@ -1101,6 +1150,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public void duplicateClass(ClassTarget classTarget)
     {
         // TODO, probably as part of GREENFOOT-638
+    }
+
+    /**
+     * Show a dialog to ask for details, then make a new subclass of the given class
+     * using those details. This is only for classes with images, i.e. Actor/World subclasses.
+     */
+    public void newImageSubClassOf(String fullyQualifiedName)
+    {
+        // TODO part of GREENFOOT-634
     }
 
     /**

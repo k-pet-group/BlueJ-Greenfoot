@@ -19,7 +19,7 @@
  This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
-package greenfoot.gui.images;
+package greenfoot.guifx.images;
 
 import java.io.File;
 
@@ -30,5 +30,5 @@ import java.io.File;
  */
 public interface ImageSelectionWatcher
 {
-    public void imageSelected(File imageFile);
+    void imageSelected(File imageFile);
 }

@@ -53,7 +53,7 @@ public class ClassDisplay extends BorderPane
         getStyleClass().add("class-display");
         setSnapToPixel(true);
         setCenter(new Label(displayName));
-        setLeft(new ImageView(image));
+        setImage(image);
         
         selectionManager.addClassDisplay(this);
         
@@ -79,5 +79,10 @@ public class ClassDisplay extends BorderPane
     public String getQualifiedName()
     {
         return fullyQualifiedName;
+    }
+
+    public void setImage(Image image)
+    {
+        setLeft(new ImageView(image));
     }
 }
