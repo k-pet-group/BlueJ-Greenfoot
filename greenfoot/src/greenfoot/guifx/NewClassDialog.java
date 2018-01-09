@@ -89,9 +89,6 @@ public class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
     }
 
 
-    private boolean okPressed = false;
-    private boolean useInterface;
-
     /**
      * Construct a NewClassDialog.
      */
@@ -229,13 +226,21 @@ public class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         }
     }
 
+    /**
+     * Sets the suggested class name to the nameFiled in the dialog
+     */
     public void setSuggestedClassName(String suggestedClassName)
     {
         nameField.setText(suggestedClassName);
     }
-    public void disableLangugeBox(boolean value){
+
+    /**
+     * Disables/Enables the language box in the dialog
+     */
+    public void disableLanguageBox(boolean value){
         language.setDisable(value);
     };
+
     /**
      * Get the selected language of the class.
      */

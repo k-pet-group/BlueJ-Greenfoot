@@ -1158,10 +1158,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         String originalClassName = classTarget.getDisplayName();
         SourceType sourceType = classTarget.getSourceType();
 
-        NewClassDialog dialog=new NewClassDialog(this, classDiagram.getSelectedClass().getSourceType());
+        NewClassDialog dialog = new NewClassDialog(this, classDiagram.getSelectedClass().getSourceType());
         dialog.setSuggestedClassName("CopyOf" + originalClassName);
         dialog.setSelectedLanguage(sourceType);
-        dialog.disableLangugeBox(true);
+        dialog.disableLanguageBox(true);
         Optional<NewClassDialog.NewClassInfo> result = dialog.showAndWait();
         String className = dialog.getResult().className;
 
@@ -1193,8 +1193,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             File dir = project.getProjectDir();
             final String extension = language.getExtension();
             File newFile = new File(dir, className + "." + extension);
-            GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, null, newFile,
-            NormalClassRole.getInstance().getTemplateFileName(false, language),project.getProjectCharset().toString());
+            String templateFileName = NormalClassRole.getInstance().getTemplateFileName(false, language);
+            GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, null,
+              newFile, templateFileName, project.getProjectCharset().toString());
             ClassTarget newClass = new ClassTarget(this.project.getUnnamedPackage(),className);
             classDiagram.addClass(newClass);
         }

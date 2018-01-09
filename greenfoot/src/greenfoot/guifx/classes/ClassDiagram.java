@@ -171,7 +171,6 @@ public class ClassDiagram extends BorderPane
         {
             superClass = info.getSuperclass();
         }
-        // superClass = classTarget.analyseSource().getSuperclass();
         // The class could be nested within actor or world or other
         // If none of those apply, it will go at top-level of other
         if (superClass != null)
