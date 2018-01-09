@@ -21,7 +21,6 @@
  */
 package greenfoot.core;
 
-import bluej.utility.Debug;
 import greenfoot.Actor;
 import greenfoot.ActorVisitor;
 import greenfoot.World;
@@ -29,8 +28,6 @@ import greenfoot.WorldVisitor;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.event.TriggeredKeyListener;
-import greenfoot.event.TriggeredMouseListener;
-import greenfoot.event.TriggeredMouseMotionListener;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
 import greenfoot.gui.DragListener;
@@ -131,6 +128,8 @@ public class WorldHandler
      */
     public synchronized static WorldHandler getInstance()
     {
+        if (instance == null)
+            initialise();
         return instance;
     }
 
