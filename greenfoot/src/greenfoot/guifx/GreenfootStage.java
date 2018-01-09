@@ -182,7 +182,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private final Pane glassPane;
     // Details of the new actor while it is being placed (null otherwise):
     private final ObjectProperty<NewActor> newActorProperty = new SimpleObjectProperty<>(null);
-    private final WorldDisplay worldView;
+    private final WorldDisplay worldDisplay;
     private final ClassDiagram classDiagram;
     // The currently-showing context menu, or null if none
     private ContextMenu contextMenu;
@@ -312,7 +312,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         greenfootDebugHandler.setGreenfootRecorder(saveTheWorldRecorder);
         soundRecorder = new SoundRecorderControls(project);
 
-        worldView = new WorldDisplay();
+        worldDisplay = new WorldDisplay();
         actButton = new Button(Config.getString("run.once"));
         runButton = new Button(Config.getString("controls.run.button"));
         resetButton = new Button(Config.getString("reset.world"));
@@ -344,7 +344,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         ScrollPane classDiagramScroll = new UnfocusableScrollPane(classDiagram);
         JavaFXUtil.expandScrollPaneContent(classDiagramScroll);
 
-        ScrollPane worldViewScroll = new UnfocusableScrollPane(worldView);
+        ScrollPane worldViewScroll = new UnfocusableScrollPane(worldDisplay);
         JavaFXUtil.expandScrollPaneContent(worldViewScroll);
         BorderPane root = new BorderPane(worldViewScroll, makeMenu(pendingCommands), classDiagramScroll, buttonAndSpeedPanel, null);
         glassPane = new Pane();
@@ -355,7 +355,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         Config.addGreenfootStylesheets(scene);
         setScene(scene);
 
-        setupWorldDrawingAndEvents(sharedMemoryLock, sharedMemoryByte, worldView::setImage, pendingCommands);
+        setupWorldDrawingAndEvents(sharedMemoryLock, sharedMemoryByte, worldDisplay::setImage, pendingCommands);
         loadAndMirrorProperties(pendingCommands);
         // We send a reset to make a new world after the project properties have been sent across:
         pendingCommands.add(new Command(COMMAND_RESET));
@@ -485,15 +485,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 newActorProperty.get().previewNode.setTranslateX(e.getX() - newActorProperty.get().previewNode.getWidth() / 2.0);
                 newActorProperty.get().previewNode.setTranslateY(e.getY() - newActorProperty.get().previewNode.getHeight() / 2.0);
 
-                newActorProperty.get().cannotDrop.set(!worldView.contains(worldView.sceneToLocal(lastMousePosInScene)));
+                newActorProperty.get().cannotDrop.set(!worldDisplay.contains(worldDisplay.sceneToLocal(lastMousePosInScene)));
             }
         });
         stackPane.setOnMouseClicked(e -> {
             lastMousePosInScene = new Point2D(e.getSceneX(), e.getSceneY());
             if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 1 && newActorProperty.get() != null)
             {
-                Point2D dest = worldView.sceneToLocal(lastMousePosInScene);
-                if (worldView.contains(dest))
+                Point2D dest = worldDisplay.sceneToLocal(lastMousePosInScene);
+                if (worldDisplay.contains(dest))
                 {
                     // Bit hacky to pass positions as strings, but mirroring the values as integers
                     // would have taken a lot of code changes to route through to VMReference:
@@ -548,7 +548,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
                 newVal.previewNode.setTranslateX(lastMousePosInScene.getX() - newVal.previewNode.getWidth() / 2.0);
                 newVal.previewNode.setTranslateY(lastMousePosInScene.getY() - newVal.previewNode.getHeight() / 2.0);
-                newVal.cannotDrop.set(!worldView.contains(worldView.sceneToLocal(lastMousePosInScene)));
+                newVal.cannotDrop.set(!worldDisplay.contains(worldDisplay.sceneToLocal(lastMousePosInScene)));
             }
         });
     }
@@ -579,7 +579,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
         getScene().addEventFilter(KeyEvent.ANY, e -> {
             // Ignore keypresses if we are currently waiting for an ask-answer:
-            if (worldView.isAsking())
+            if (worldDisplay.isAsking())
                 return;
             
             int eventType;
@@ -627,7 +627,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             e.consume();
         });
 
-        worldView.setOnContextMenuRequested(e -> {
+        worldDisplay.setOnContextMenuRequested(e -> {
             boolean paused = stateProperty.get() == State.PAUSED;
             if (paused)
             {
@@ -635,7 +635,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 Utility.runBackground(() -> pickRequest(e.getX(), e.getY(), PickType.CONTEXT_MENU));
             }
         });
-        worldView.addEventFilter(MouseEvent.ANY, e -> {
+        worldDisplay.addEventFilter(MouseEvent.ANY, e -> {
             boolean paused = stateProperty.get() == State.PAUSED;
             int eventType;
             if (e.getEventType() == MouseEvent.MOUSE_CLICKED)
@@ -736,8 +736,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                             int[] promptCodepoints = new int[askLength];
                             sharedMemory.get(promptCodepoints);
                             
-                            // Tell worldView to ask:
-                            worldView.ensureAsking(new String(promptCodepoints, 0, promptCodepoints.length), (String s) -> {
+                            // Tell worldDisplay to ask:
+                            worldDisplay.ensureAsking(new String(promptCodepoints, 0, promptCodepoints.length), (String s) -> {
                                 Command answerCommand = new Command(COMMAND_ANSWERED, s.codePoints().toArray());
                                 pendingCommands.add(answerCommand);
                                 // Remember that we've now answered:
@@ -872,8 +872,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     {
                         contextMenu.getItems().addAll(actorMenus);
                     }
-                    Point2D screenLocation = worldView.localToScreen(curPickPoint);
-                    contextMenu.show(worldView, screenLocation.getX(), screenLocation.getY());
+                    Point2D screenLocation = worldDisplay.localToScreen(curPickPoint);
+                    contextMenu.show(worldDisplay, screenLocation.getX(), screenLocation.getY());
                 }
                 else
                 {
@@ -897,8 +897,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                         });
                         contextMenu.getItems().add(saveTheWorld);
 
-                        Point2D screenLocation = worldView.localToScreen(curPickPoint);
-                        contextMenu.show(worldView, screenLocation.getX(), screenLocation.getY());
+                        Point2D screenLocation = worldDisplay.localToScreen(curPickPoint);
+                        contextMenu.show(worldDisplay, screenLocation.getX(), screenLocation.getY());
                     }
                 }
             }
@@ -1046,7 +1046,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type, int compilationSequence)
     {
         // Grey out the world display until compilation finishes:
-        worldView.greyOutWorld();
+        worldDisplay.greyOutWorld();
         stateProperty.set(State.UNCOMPILED);
     }
 
