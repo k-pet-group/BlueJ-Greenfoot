@@ -39,6 +39,7 @@ import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.debugmgr.objectbench.ObjectResultWatcher;
+import bluej.extensions.SourceType;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
@@ -61,11 +62,13 @@ import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
+import greenfoot.gui.classbrowser.role.NormalClassRole;
 import greenfoot.guifx.classes.ClassDisplay;
 import greenfoot.guifx.images.ImageLibFrame;
 import greenfoot.guifx.images.ImageSelectionWatcher;
 import greenfoot.guifx.soundrecorder.SoundRecorderControls;
 import greenfoot.guifx.classes.ClassDiagram;
+import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
 import greenfoot.record.GreenfootRecorder;
 
 import javafx.animation.AnimationTimer;
@@ -400,6 +403,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private MenuBar makeMenu(List<Command> pendingCommands)
     {
         return new MenuBar(
+            new Menu(Config.getString("menu.edit"), null,
+                        makeMenuItem("New Class...", new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN), () -> doNewClass())
+            ),
             new Menu(Config.getString("menu.controls"), null,
                     makeMenuItem("run.once", new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN), () -> act(pendingCommands)),
                     JavaFXUtil.makeCheckMenuItem(Config.getString("menu.soundRecorder"), soundRecorder.getShowingProperty(),
@@ -1149,8 +1155,53 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     public void duplicateClass(ClassTarget classTarget)
     {
-        // TODO, probably as part of GREENFOOT-638
+        String originalClassName = classTarget.getDisplayName();
+        SourceType sourceType = classTarget.getSourceType();
+
+        NewClassDialog dialog=new NewClassDialog(this, classDiagram.getSelectedClass().getSourceType());
+        dialog.setSuggestedClassName("CopyOf" + originalClassName);
+        dialog.setSelectedLanguage(sourceType);
+        dialog.disableLangugeBox(true);
+        Optional<NewClassDialog.NewClassInfo> result = dialog.showAndWait();
+        String className = dialog.getResult().className;
+
+        try {
+            File dir = classDiagram.getSelectedClass().getPackage().getProject().getProjectDir();
+            final String extension = sourceType.getExtension();
+            File newFile = new File(dir, className + "." + extension);
+            File originalFile = new File(dir, originalClassName + "." + extension);
+            GreenfootUtilDelegateIDE.getInstance().duplicate(originalClassName, className, originalFile, newFile, sourceType);
+            ClassTarget newClass = classDiagram.getSelectedClass().getPackage().addClass(className);
+            classDiagram.addClass(newClass);
+        }
+        catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
     }
+
+    /**
+     * Create a new class using the NewClaasDialog
+     */
+    public void doNewClass()
+    {
+        NewClassDialog dialog=new NewClassDialog(this, project.getUnnamedPackage().getDefaultSourceType() );
+        Optional<NewClassDialog.NewClassInfo> result = dialog.showAndWait();
+        String className = dialog.getResult().className;
+        SourceType language = dialog.getSelectedLanguage();
+
+        try {
+            File dir = project.getProjectDir();
+            final String extension = language.getExtension();
+            File newFile = new File(dir, className + "." + extension);
+            GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, null, newFile,
+            NormalClassRole.getInstance().getTemplateFileName(false, language),project.getProjectCharset().toString());
+            ClassTarget newClass = new ClassTarget(this.project.getUnnamedPackage(),className);
+            classDiagram.addClass(newClass);
+        }
+        catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    };
 
     /**
      * Show a dialog to ask for details, then make a new subclass of the given class

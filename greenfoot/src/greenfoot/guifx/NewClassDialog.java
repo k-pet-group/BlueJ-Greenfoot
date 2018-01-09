@@ -21,34 +21,22 @@
  */
 package greenfoot.guifx;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
-import java.util.StringTokenizer;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Toggle;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Window;
 
 import bluej.Config;
 import bluej.extensions.SourceType;
-import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
 import bluej.utility.javafx.HorizontalRadio;
 import bluej.utility.javafx.JavaFXUtil;
@@ -142,8 +130,6 @@ public class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         langBox.setAlignment(Pos.BASELINE_LEFT);
         mainPanel.getChildren().add(langBox);
 
-        mainPanel.getChildren().add(new Label(Config.getString("pkgmgr.newClass.classType")));
-
         mainPanel.getChildren().add(errorLabel);
         JavaFXUtil.addChangeListenerPlatform(language.selectedProperty(), language -> {
             hideError();
@@ -164,22 +150,6 @@ public class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         updateOKButton(false);
         setOnShown(e -> Platform.runLater(nameField::requestFocus));
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     /**
      * Enable/disable the OK button, and set the error label
@@ -258,4 +228,29 @@ public class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
                     "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9");
         }
     }
+
+    public void setSuggestedClassName(String suggestedClassName)
+    {
+        nameField.setText(suggestedClassName);
+    }
+    public void disableLangugeBox(boolean value){
+        language.setDisable(value);
+    };
+    /**
+     * Get the selected language of the class.
+     */
+    public SourceType getSelectedLanguage()
+    {
+        return (SourceType) language.selectedProperty().get();
+    }
+
+    /**
+     * select the language of the class.
+     */
+    public void setSelectedLanguage(SourceType type)
+    {
+        language.select(type);
+    }
+
+
 }
