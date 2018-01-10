@@ -87,16 +87,13 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
         FilenameFilter filter = (dir, name) -> true;
         
         File [] imageFiles = directory.listFiles(filter);
-        if (imageFiles == null) {
+        if (imageFiles == null)
+        {
             imageFiles = new File[0];
         }
         
         Arrays.sort(imageFiles);
-
         ObservableList<ImageListEntry> data = FXCollections.observableArrayList();
-        // Adds a 'No image' option to enable user removing class images.
-        data.add(new ImageListEntry(defaultImage));
-
         data.addAll(Arrays.stream(imageFiles).map(file -> new ImageListEntry(file, true)).collect(Collectors.toList()));
         setItems(data);
     }
@@ -138,8 +135,9 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
             {
                 try
                 {
-                    setText(item.imageFile.getName());
-                    setGraphic(new ImageView(new Image(item.imageFile.toURI().toURL().toExternalForm())));
+                    File imageFile = item.imageFile;
+                    setText(imageFile.getName());
+                    setGraphic(new ImageView(new Image(imageFile.toURI().toURL().toExternalForm())));
                 }
                 catch (MalformedURLException e)
                 {
@@ -148,7 +146,8 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
             }
             else
             {
-                setText("Unspecified");// TODO remove this
+                setText(null);
+                setGraphic(null);
             }
         }
     }
