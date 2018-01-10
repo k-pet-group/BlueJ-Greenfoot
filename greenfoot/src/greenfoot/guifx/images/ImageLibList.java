@@ -50,7 +50,7 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
     /** The directory whose images are currently displayed in this list */
     private File directory;
     private File defaultImage;
-    
+
     /**
      * Construct an empty ImageLibList.
      */
@@ -95,7 +95,7 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
         
         Arrays.sort(imageFiles);
         ObservableList<ImageListEntry> data = FXCollections.observableArrayList();
-        data.addAll(Arrays.stream(imageFiles).map(file -> new ImageListEntry(file, true)).collect(Collectors.toList()));
+        data.addAll(Arrays.stream(imageFiles).map(file -> new ImageListEntry(file)).collect(Collectors.toList()));
         setItems(data);
     }
 
@@ -123,7 +123,7 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
     public void select(File imageFile)
     {
         refresh();
-        this.getSelectionModel().select(new ImageListEntry(imageFile, false));
+        this.getSelectionModel().select(new ImageListEntry(imageFile));
     }
 
     static class ImageLibCell extends ListCell<ImageListEntry>
@@ -135,7 +135,7 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
             if (item != null)
             {
                 setText(item.getName());
-                setGraphic(item.getImageIcon());
+                setGraphic(item.getIcon());
             }
             else
             {
@@ -148,49 +148,32 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
     public class ImageListEntry
     {
         File imageFile;
-        ImageView imageIcon;
+        ImageView icon;
 
-        String getName()
+        private ImageListEntry(File file)
+        {
+            this.imageFile = file;
+        }
+
+        private String getName()
         {
             return GreenfootUtil.removeExtension(imageFile.getName());
         }
 
-        ImageView getImageIcon()
+        private ImageView getIcon()
         {
-            return imageIcon;
-        }
-
-        private ImageListEntry(File def)
-        {
-            imageFile = null;
-            imageIcon = getPreview(def);
-        }
-
-        private ImageListEntry(File file, boolean loadImage)
-        {
-            imageFile = file;
-            
-            if (loadImage) {
-                loadPreview();
-            }
-        }
-
-        private void loadPreview()
-        {
-            if (imageFile != null)
+            if (icon == null && imageFile != null)
             {
-                imageIcon = getPreview(imageFile);
+                icon = getPreview();
             }
+            return icon;
         }
 
-        private ImageView getPreview(File image)
+        private ImageView getPreview()
         {
             try
             {
-                if (image != null)
-                {
-                    return new ImageView(new Image(image.toURI().toURL().toString(), 30, 30, true, true));
-                }
+                return new ImageView(new Image(imageFile.toURI().toURL().toExternalForm(), 30, 30, true, true));
             }
             catch (MalformedURLException e)
             {
