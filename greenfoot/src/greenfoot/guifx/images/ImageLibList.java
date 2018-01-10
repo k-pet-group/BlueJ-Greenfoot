@@ -22,6 +22,7 @@
 package greenfoot.guifx.images;
 
 import bluej.utility.Debug;
+import greenfoot.util.GreenfootUtil;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -135,9 +136,8 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
             {
                 try
                 {
-                    File imageFile = item.imageFile;
-                    setText(imageFile.getName());
-                    setGraphic(new ImageView(new Image(imageFile.toURI().toURL().toExternalForm())));
+                    setText(item.getName());
+                    setGraphic(new ImageView(new Image(item.imageFile.toURI().toURL().toExternalForm())));
                 }
                 catch (MalformedURLException e)
                 {
@@ -156,6 +156,11 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
     {
         File imageFile;
         ImageView imageIcon;
+
+        String getName()
+        {
+            return GreenfootUtil.removeExtension(imageFile.getName());
+        }
 
         private ImageListEntry(File def)
         {
