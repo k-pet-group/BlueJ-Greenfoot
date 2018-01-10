@@ -128,8 +128,6 @@ public class WorldHandler
      */
     public synchronized static WorldHandler getInstance()
     {
-        if (instance == null)
-            initialise();
         return instance;
     }
 
