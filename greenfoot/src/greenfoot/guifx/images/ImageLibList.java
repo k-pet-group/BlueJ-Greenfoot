@@ -134,15 +134,8 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
             super.updateItem(item, empty);
             if (item != null)
             {
-                try
-                {
-                    setText(item.getName());
-                    setGraphic(new ImageView(new Image(item.imageFile.toURI().toURL().toExternalForm())));
-                }
-                catch (MalformedURLException e)
-                {
-                    Debug.reportError(e);
-                }
+                setText(item.getName());
+                setGraphic(item.getImageIcon());
             }
             else
             {
@@ -160,6 +153,11 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
         String getName()
         {
             return GreenfootUtil.removeExtension(imageFile.getName());
+        }
+
+        ImageView getImageIcon()
+        {
+            return imageIcon;
         }
 
         private ImageListEntry(File def)
