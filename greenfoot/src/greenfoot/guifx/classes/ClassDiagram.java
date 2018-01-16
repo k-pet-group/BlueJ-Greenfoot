@@ -26,11 +26,13 @@ import bluej.extensions.SourceType;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
+import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.guifx.GreenfootStage;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
@@ -279,14 +281,14 @@ public class ClassDiagram extends BorderPane
                         // Open editor:
                         if (classTarget.hasSourceCode())
                         {
-                            contextMenu.getItems().add(JavaFXUtil.makeMenuItem(Config.getString("edit.class"), classTarget::open, null));
+                            contextMenu.getItems().add(contextInbuilt(Config.getString("edit.class"), classTarget::open));
                         }
                         
                         // Set image:
                         if (type == ClassType.ACTOR || type == ClassType.WORLD)
                         {
-                            contextMenu.getItems().add(JavaFXUtil.makeMenuItem(Config.getString("select.image"),
-                                    () -> greenfootStage.setImageFor(classTarget, display), null));
+                            contextMenu.getItems().add(contextInbuilt(Config.getString("select.image"),
+                                    () -> greenfootStage.setImageFor(classTarget, display)));
                         }
                         // Inspect:
                         contextMenu.getItems().add(classTarget.new InspectAction(true, greenfootStage, display));
@@ -295,8 +297,8 @@ public class ClassDiagram extends BorderPane
                         // Duplicate:
                         if (classTarget.hasSourceCode())
                         {
-                            contextMenu.getItems().add(JavaFXUtil.makeMenuItem(Config.getString("duplicate.class"),
-                                    () -> greenfootStage.duplicateClass(classTarget), null));
+                            contextMenu.getItems().add(contextInbuilt(Config.getString("duplicate.class"),
+                                    () -> greenfootStage.duplicateClass(classTarget)));
                         }
 
                         // Convert to Java/Stride
@@ -311,7 +313,7 @@ public class ClassDiagram extends BorderPane
 
 
                         // New subclass:
-                        contextMenu.getItems().add(JavaFXUtil.makeMenuItem(Config.getString("new.sub.class"), () ->
+                        contextMenu.getItems().add(contextInbuilt(Config.getString("new.sub.class"), () ->
                             {
                                 // TODO check if needed
                                 // boolean imageClass = superG.isActorClass() || superG.isActorSubclass();
@@ -325,7 +327,7 @@ public class ClassDiagram extends BorderPane
                                 {
                                     greenfootStage.newSubClassOf(classTarget.getQualifiedName());
                                 }
-                            }, null));
+                            }));
                         
                         // Select item when we show context menu for it:
                         selectionManager.select(display);
@@ -341,6 +343,17 @@ public class ClassDiagram extends BorderPane
                 });
             }
         };
+    }
+
+    /**
+     * Make a context menu item with the given text and action, and the inbuilt-menu-item
+     * style (which shows up as dark-red, and italic on non-Mac)
+     */
+    private static MenuItem contextInbuilt(String text, FXRunnable action)
+    {
+        MenuItem menuItem = JavaFXUtil.makeMenuItem(text, action, null);
+        JavaFXUtil.addStyleClass(menuItem, ClassTarget.MENU_STYLE_INBUILT);
+        return menuItem;
     }
 
     /**

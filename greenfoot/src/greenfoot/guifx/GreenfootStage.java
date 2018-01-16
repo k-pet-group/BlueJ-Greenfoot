@@ -356,6 +356,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         setupMouseForPlacingNewActor(stackPane);
         Scene scene = new Scene(stackPane);
         Config.addGreenfootStylesheets(scene);
+        Config.addPMFStylesheets(scene);
         setScene(scene);
 
         setupWorldDrawingAndEvents(sharedMemoryLock, sharedMemoryByte, worldDisplay::setImage, pendingCommands);
