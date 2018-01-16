@@ -131,7 +131,8 @@ public class ClassDiagram extends BorderPane
                 continue;
             
             ClassTarget classTarget = classTargetAndVal.getKey();
-            String superClass = classTarget.analyseSource().getSuperclass();
+            bluej.parser.symtab.ClassInfo classInfo = classTarget.analyseSource();
+            String superClass = classInfo == null ? null : classInfo.getSuperclass();
             boolean includeAtThisLevel;
             if (parentClassName == null)
             {
