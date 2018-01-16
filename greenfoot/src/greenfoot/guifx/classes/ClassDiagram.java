@@ -313,6 +313,8 @@ public class ClassDiagram extends BorderPane
                                 }
                             }, null));
                         
+                        // Select item when we show context menu for it:
+                        selectionManager.select(display);
                         contextMenu.show(display, e.getScreenX(), e.getScreenY());
                         curContextMenu = contextMenu;
                     }
