@@ -271,6 +271,12 @@ public class ClassDiagram extends BorderPane
                             contextMenu.getItems().add(new SeparatorMenuItem());
                         }
                         classTarget.getRole().createClassStaticMenu(contextMenu.getItems(), classTarget, classTarget.hasSourceCode(), cl);
+                        // Open editor:
+                        if (classTarget.hasSourceCode())
+                        {
+                            contextMenu.getItems().add(JavaFXUtil.makeMenuItem(Config.getString("edit.class"), classTarget::open, null));
+                        }
+                        
                         // Set image:
                         if (type == ClassType.ACTOR || type == ClassType.WORLD)
                         {
