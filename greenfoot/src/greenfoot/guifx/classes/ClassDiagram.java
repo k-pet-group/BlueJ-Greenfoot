@@ -279,9 +279,9 @@ public class ClassDiagram extends BorderPane
                             contextMenu.getItems().add(new SeparatorMenuItem());
                         }
                         // Open editor:
-                        if (classTarget.hasSourceCode())
+                        if (classTarget.hasSourceCode() || classTarget.getDocumentationFile().exists())
                         {
-                            contextMenu.getItems().add(contextInbuilt(Config.getString("edit.class"), classTarget::open));
+                            contextMenu.getItems().add(contextInbuilt(Config.getString(classTarget.hasSourceCode() ? "edit.class" : "show.apidoc"), classTarget::open));
                         }
                         
                         // Set image:
