@@ -265,12 +265,17 @@ public class ClassDiagram extends BorderPane
                         // We must use screen X/Y here, because the scene is the menu, not GreenfootStage,
                         // so scene X/Y wouldn't mean anything useful to GreenfootStage:
                         contextMenu.getScene().setOnMouseMoved(ev -> greenfootStage.setLatestMousePosOnScreen(ev.getScreenX(), ev.getScreenY()));
-                        classTarget.getRole().createClassConstructorMenu(contextMenu.getItems(), classTarget, cl);
-                        if (!contextMenu.getItems().isEmpty())
+                        if (classTarget.getRole().createClassConstructorMenu(contextMenu.getItems(), classTarget, cl))
                         {
+                            // If any items were added, add divider afterwards:
                             contextMenu.getItems().add(new SeparatorMenuItem());
                         }
-                        classTarget.getRole().createClassStaticMenu(contextMenu.getItems(), classTarget, classTarget.hasSourceCode(), cl);
+                        
+                        if (classTarget.getRole().createClassStaticMenu(contextMenu.getItems(), classTarget, cl))
+                        {
+                            // If any items were added, add divider afterwards:
+                            contextMenu.getItems().add(new SeparatorMenuItem());
+                        }
                         // Open editor:
                         if (classTarget.hasSourceCode())
                         {
@@ -285,6 +290,8 @@ public class ClassDiagram extends BorderPane
                         }
                         // Inspect:
                         contextMenu.getItems().add(classTarget.new InspectAction(true, greenfootStage, display));
+                        contextMenu.getItems().add(new SeparatorMenuItem());
+                        
                         // Duplicate:
                         if (classTarget.hasSourceCode())
                         {

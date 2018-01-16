@@ -2010,7 +2010,7 @@ public class ClassTarget extends DependentTarget
                 menu.getItems().add(new SeparatorMenuItem());
             }
             
-            if (roleRef.createClassStaticMenu(menu.getItems(), this, source != SourceType.NONE, cl)) {
+            if (roleRef.createClassStaticMenu(menu.getItems(), this, cl)) {
                 menu.getItems().add(new SeparatorMenuItem());
             }
         }

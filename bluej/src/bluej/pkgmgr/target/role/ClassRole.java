@@ -206,6 +206,7 @@ public abstract class ClassRole
      *            the popup menu to add the class menu items to
      * @param cl
      *            Class object associated with this class target
+     * @return true if any menu items were added to the menu
      */
     @OnThread(Tag.FXPlatform)
     public boolean createClassConstructorMenu(ObservableList<MenuItem> menu, ClassTarget ct, Class<?> cl)
@@ -223,8 +224,17 @@ public abstract class ClassRole
         return false;
     }
 
+    /**
+     * If the given class has any static methods visible from the class target's package,
+     * add actions to invoke them to the menu.
+     * 
+     * @param menu The menu to add any static methods to.
+     * @param ct The class target for this ClassRole
+     * @param cl The class for this ClassRole
+     * @return true if any menu items were added to the menu
+     */
     @OnThread(Tag.FXPlatform)
-    public boolean createClassStaticMenu(ObservableList<MenuItem> menu, ClassTarget ct, boolean hasSource, Class<?> cl)
+    public boolean createClassStaticMenu(ObservableList<MenuItem> menu, ClassTarget ct, Class<?> cl)
     {
         View view = View.getView(cl);
 
