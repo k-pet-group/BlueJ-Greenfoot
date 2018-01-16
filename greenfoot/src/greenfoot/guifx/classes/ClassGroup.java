@@ -21,6 +21,7 @@
  */
 package greenfoot.guifx.classes;
 
+import greenfoot.guifx.GreenfootStage;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
@@ -45,9 +46,11 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
 
     // For Actor and World groups, just those base classes.  For other, can be many top-level:
     private final List<ClassInfo> topLevel = new ArrayList<>();
-        
-    public ClassGroup()
+    private final GreenfootStage greenfootStage;
+
+    public ClassGroup(GreenfootStage greenfootStage)
     {
+        this.greenfootStage = greenfootStage; 
         getStyleClass().add("class-group");
         // Set minimum to be preferred width/height:
         setMinHeight(USE_PREF_SIZE);
@@ -138,28 +141,29 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
             y += VERTICAL_SPACING;
             
             // Make sure display is in our children:
-            if (!getChildren().contains(classInfo.getDisplay()))
+            ClassDisplay classDisplay = classInfo.getDisplay(greenfootStage);
+            if (!getChildren().contains(classDisplay))
             {
-                getChildren().add(classInfo.getDisplay());
+                getChildren().add(classDisplay);
                 // Often, the height is zero at this point, so we need to listen
                 // for when it gets set right in order to re-layout:
-                classInfo.getDisplay().heightProperty().addListener(this);
+                classDisplay.heightProperty().addListener(this);
             }
             // The inherit arrow arm should point to the vertical midpoint of the class:
-            double halfHeight = Math.floor(classInfo.getDisplay().getHeight() / 2.0);
+            double halfHeight = Math.floor(classDisplay.getHeight() / 2.0);
             arrowArms.add(y + halfHeight - startY);
             
-            classInfo.getDisplay().setLayoutX(x);
+            classDisplay.setLayoutX(x);
             // Update our preferred width if we've found a long class:
-            if (x + classInfo.getDisplay().getWidth() > getPrefWidth())
+            if (x + classDisplay.getWidth() > getPrefWidth())
             {
-                setPrefWidth(x + classInfo.getDisplay().getWidth());
+                setPrefWidth(x + classDisplay.getWidth());
                 // Because we are within layout, we need an explicit call to notify parent of width change:
                 getParent().requestLayout();
             }
-            classInfo.getDisplay().setLayoutY(y);
+            classDisplay.setLayoutY(y);
             // If height changes, we will layout again because of the listener added above:
-            y += classInfo.getDisplay().getHeight();
+            y += classDisplay.getHeight();
             
             if (!classInfo.getSubClasses().isEmpty())
             {

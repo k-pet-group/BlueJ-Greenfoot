@@ -21,8 +21,17 @@
  */
 package greenfoot.guifx.classes;
 
+import bluej.Config;
+import bluej.utility.Debug;
+import bluej.utility.javafx.FXRunnable;
+import greenfoot.guifx.GreenfootStage;
+import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseButton;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -43,6 +52,7 @@ public class ClassInfo
     // If non-null, exists *and* is already a child of the enclosing ClassGroup
     private InheritArrow arrowFromSub;
     private final ClassDisplaySelectionManager selectionManager;
+    protected ContextMenu curContextMenu = null;
 
     public ClassInfo(String fullyQualifiedName, String displayName, Image image, List<ClassInfo> subClasses, ClassDisplaySelectionManager selectionManager)
     {
@@ -92,12 +102,12 @@ public class ClassInfo
      * Gets the ClassDisplay for this item.  Will always return the same ClassDisplay
      * for the lifetime of this ClassInfo object, although internally it is lazily created.
      */
-    public ClassDisplay getDisplay()
+    public ClassDisplay getDisplay(GreenfootStage greenfootStage)
     {
         if (display == null)
         {
             display = new ClassDisplay(displayName, fullyQualifiedName, image, selectionManager);
-            setupClassDisplay(display);
+            setupClassDisplay(greenfootStage, display);
         }
         return display;
     }
@@ -106,8 +116,41 @@ public class ClassInfo
      * Set up any listeners on the ClassDisplay item.  Here ready for overriding
      * in subclasses.
      */
-    protected void setupClassDisplay(ClassDisplay display)
-    {   
+    protected void setupClassDisplay(GreenfootStage greenfootStage, ClassDisplay display)
+    {
+        if (display.getQualifiedName().startsWith("greenfoot."))
+        {
+            FXRunnable showDocs = () -> {
+                greenfootStage.openBrowser(display.getQualifiedName().replace(".", "/") + ".html");
+            };
+            
+            display.setOnContextMenuRequested(e -> {
+                if (curContextMenu != null)
+                {
+                    curContextMenu.hide();
+                    curContextMenu = null;
+                }
+                curContextMenu = new ContextMenu();
+
+                
+                curContextMenu.getItems().add(ClassDiagram.contextInbuilt(Config.getString("show.apidoc"), showDocs));
+                curContextMenu.getItems().add(new SeparatorMenuItem());
+                curContextMenu.getItems().add(ClassDiagram.contextInbuilt(Config.getString("new.sub.class"), () -> {
+                    greenfootStage.newImageSubClassOf(display.getQualifiedName());
+                }));
+
+                // Select item when we show context menu for it:
+                selectionManager.select(display);
+                curContextMenu.show(display, e.getScreenX(), e.getScreenY());
+            });
+
+            display.setOnMouseClicked(e -> {
+                if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 2)
+                {
+                    showDocs.run();
+                }
+            });
+        }
     }
 
     /**

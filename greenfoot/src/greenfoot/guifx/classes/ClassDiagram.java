@@ -56,9 +56,9 @@ public class ClassDiagram extends BorderPane
     
     private final ClassDisplaySelectionManager selectionManager = new ClassDisplaySelectionManager();
     // The three groups of classes in the display: World+subclasses, Actor+subclasses, Other
-    private final ClassGroup worldClasses = new ClassGroup();
-    private final ClassGroup actorClasses = new ClassGroup();
-    private final ClassGroup otherClasses = new ClassGroup();
+    private final ClassGroup worldClasses;
+    private final ClassGroup actorClasses;
+    private final ClassGroup otherClasses;
     private final Project project;
     private final GreenfootStage greenfootStage;
 
@@ -67,6 +67,9 @@ public class ClassDiagram extends BorderPane
         this.greenfootStage = greenfootStage;
         this.project = project;
         getStyleClass().add("class-diagram");
+        this.worldClasses = new ClassGroup(greenfootStage);
+        this.actorClasses = new ClassGroup(greenfootStage);
+        this.otherClasses = new ClassGroup(greenfootStage);
         setTop(worldClasses);
         setCenter(actorClasses);
         setBottom(otherClasses);
@@ -246,11 +249,9 @@ public class ClassDiagram extends BorderPane
     protected ClassInfo makeClassInfo(ClassTarget classTarget, List<ClassInfo> subClasses, ClassType type)
     {
         return new ClassInfo(classTarget.getQualifiedName(), classTarget.getBaseName(), null, subClasses, selectionManager)
-        {
-            private ContextMenu curContextMenu = null;
-            
+        {            
             @Override
-            protected void setupClassDisplay(ClassDisplay display)
+            protected void setupClassDisplay(GreenfootStage greenfootStage, ClassDisplay display)
             {
                 display.setOnContextMenuRequested(e -> {
                     if (curContextMenu != null)
@@ -349,7 +350,7 @@ public class ClassDiagram extends BorderPane
      * Make a context menu item with the given text and action, and the inbuilt-menu-item
      * style (which shows up as dark-red, and italic on non-Mac)
      */
-    private static MenuItem contextInbuilt(String text, FXRunnable action)
+    public static MenuItem contextInbuilt(String text, FXRunnable action)
     {
         MenuItem menuItem = JavaFXUtil.makeMenuItem(text, action, null);
         JavaFXUtil.addStyleClass(menuItem, ClassTarget.MENU_STYLE_INBUILT);
