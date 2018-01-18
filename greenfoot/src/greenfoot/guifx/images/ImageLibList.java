@@ -34,6 +34,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -134,7 +135,8 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
             super.updateItem(item, empty);
             if (item != null)
             {
-                setText(item.getName());
+                setText(GreenfootUtil.removeExtension(item.getImageName()));
+                setTooltip(new Tooltip(item.getImageName()));
                 setGraphic(item.getIcon());
             }
             else
@@ -156,13 +158,13 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
         }
 
         /**
-         * Returns the image file name without file type extension.
+         * Returns the image file name.
          *
-         * @return file name without extension.
+         * @return the image's file name.
          */
-        private String getName()
+        private String getImageName()
         {
-            return GreenfootUtil.removeExtension(imageFile.getName());
+            return imageFile.getName();
         }
 
         /**
@@ -175,7 +177,7 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
         {
             if (icon == null && imageFile != null)
             {
-                icon = getPreview();
+                icon = getImageView();
             }
             return icon;
         }
@@ -187,7 +189,7 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
          *
          * @return an image view containing a thumbnail of the image.
          */
-        private ImageView getPreview()
+        private ImageView getImageView()
         {
             try
             {
