@@ -22,6 +22,7 @@
 package greenfoot.guifx.images;
 
 import bluej.utility.Debug;
+import greenfoot.util.GreenfootUtil;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -33,6 +34,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -49,7 +51,7 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
     /** The directory whose images are currently displayed in this list */
     private File directory;
     private File defaultImage;
-    
+
     /**
      * Construct an empty ImageLibList.
      */
@@ -94,7 +96,7 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
         
         Arrays.sort(imageFiles);
         ObservableList<ImageListEntry> data = FXCollections.observableArrayList();
-        data.addAll(Arrays.stream(imageFiles).map(file -> new ImageListEntry(file, true)).collect(Collectors.toList()));
+        data.addAll(Arrays.stream(imageFiles).map(file -> new ImageListEntry(file)).collect(Collectors.toList()));
         setItems(data);
     }
 
@@ -122,7 +124,7 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
     public void select(File imageFile)
     {
         refresh();
-        this.getSelectionModel().select(new ImageListEntry(imageFile, false));
+        this.getSelectionModel().select(new ImageListEntry(imageFile));
     }
 
     static class ImageLibCell extends ListCell<ImageListEntry>
@@ -133,16 +135,9 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
             super.updateItem(item, empty);
             if (item != null)
             {
-                try
-                {
-                    File imageFile = item.imageFile;
-                    setText(imageFile.getName());
-                    setGraphic(new ImageView(new Image(imageFile.toURI().toURL().toExternalForm())));
-                }
-                catch (MalformedURLException e)
-                {
-                    Debug.reportError(e);
-                }
+                setText(GreenfootUtil.removeExtension(item.getImageName()));
+                setTooltip(new Tooltip(item.getImageName()));
+                setGraphic(item.getIcon());
             }
             else
             {
@@ -155,39 +150,50 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
     public class ImageListEntry
     {
         File imageFile;
-        ImageView imageIcon;
+        ImageView icon;
 
-        private ImageListEntry(File def)
+        private ImageListEntry(File file)
         {
-            imageFile = null;
-            imageIcon = getPreview(def);
+            this.imageFile = file;
         }
 
-        private ImageListEntry(File file, boolean loadImage)
+        /**
+         * Returns the image file name.
+         *
+         * @return the image's file name.
+         */
+        private String getImageName()
         {
-            imageFile = file;
-            
-            if (loadImage) {
-                loadPreview();
-            }
+            return imageFile.getName();
         }
 
-        private void loadPreview()
+        /**
+         * Return a thumbnail icon of the image. It checks its existence
+         * first to avoid reconstruction each time.
+         *
+         * @return an Image view of the image file.
+         */
+        private ImageView getIcon()
         {
-            if (imageFile != null)
+            if (icon == null && imageFile != null)
             {
-                imageIcon = getPreview(imageFile);
+                icon = getImageView();
             }
+            return icon;
         }
 
-        private ImageView getPreview(File image)
+        /**
+         * Loads the image file and construct an image view of it.
+         * This view is returned of the loading succeeded, otherwise
+         * an empty view is returned.
+         *
+         * @return an image view containing a thumbnail of the image.
+         */
+        private ImageView getImageView()
         {
             try
             {
-                if (image != null)
-                {
-                    return new ImageView(new Image(image.toURI().toURL().toString(), 30, 30, true, true));
-                }
+                return new ImageView(new Image(imageFile.toURI().toURL().toExternalForm(), 30, 30, true, true));
             }
             catch (MalformedURLException e)
             {
