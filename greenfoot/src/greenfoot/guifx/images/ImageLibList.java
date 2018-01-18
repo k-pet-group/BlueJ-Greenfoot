@@ -155,11 +155,22 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
             this.imageFile = file;
         }
 
+        /**
+         * Returns the image file name without file type extension.
+         *
+         * @return file name without extension.
+         */
         private String getName()
         {
             return GreenfootUtil.removeExtension(imageFile.getName());
         }
 
+        /**
+         * Return a thumbnail icon of the image. It checks its existence
+         * first to avoid reconstruction each time.
+         *
+         * @return an Image view of the image file.
+         */
         private ImageView getIcon()
         {
             if (icon == null && imageFile != null)
@@ -169,6 +180,13 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
             return icon;
         }
 
+        /**
+         * Loads the image file and construct an image view of it.
+         * This view is returned of the loading succeeded, otherwise
+         * an empty view is returned.
+         *
+         * @return an image view containing a thumbnail of the image.
+         */
         private ImageView getPreview()
         {
             try
