@@ -26,11 +26,13 @@ import bluej.extensions.SourceType;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
+import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.guifx.GreenfootStage;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
@@ -54,9 +56,9 @@ public class ClassDiagram extends BorderPane
     
     private final ClassDisplaySelectionManager selectionManager = new ClassDisplaySelectionManager();
     // The three groups of classes in the display: World+subclasses, Actor+subclasses, Other
-    private final ClassGroup worldClasses = new ClassGroup();
-    private final ClassGroup actorClasses = new ClassGroup();
-    private final ClassGroup otherClasses = new ClassGroup();
+    private final ClassGroup worldClasses;
+    private final ClassGroup actorClasses;
+    private final ClassGroup otherClasses;
     private final Project project;
     private final GreenfootStage greenfootStage;
 
@@ -65,6 +67,9 @@ public class ClassDiagram extends BorderPane
         this.greenfootStage = greenfootStage;
         this.project = project;
         getStyleClass().add("class-diagram");
+        this.worldClasses = new ClassGroup(greenfootStage);
+        this.actorClasses = new ClassGroup(greenfootStage);
+        this.otherClasses = new ClassGroup(greenfootStage);
         setTop(worldClasses);
         setCenter(actorClasses);
         setBottom(otherClasses);
@@ -131,7 +136,8 @@ public class ClassDiagram extends BorderPane
                 continue;
             
             ClassTarget classTarget = classTargetAndVal.getKey();
-            String superClass = classTarget.analyseSource().getSuperclass();
+            bluej.parser.symtab.ClassInfo classInfo = classTarget.analyseSource();
+            String superClass = classInfo == null ? null : classInfo.getSuperclass();
             boolean includeAtThisLevel;
             if (parentClassName == null)
             {
@@ -243,11 +249,9 @@ public class ClassDiagram extends BorderPane
     protected ClassInfo makeClassInfo(ClassTarget classTarget, List<ClassInfo> subClasses, ClassType type)
     {
         return new ClassInfo(classTarget.getQualifiedName(), classTarget.getBaseName(), null, subClasses, selectionManager)
-        {
-            private ContextMenu curContextMenu = null;
-            
+        {            
             @Override
-            protected void setupClassDisplay(ClassDisplay display)
+            protected void setupClassDisplay(GreenfootStage greenfootStage, ClassDisplay display)
             {
                 display.setOnContextMenuRequested(e -> {
                     if (curContextMenu != null)
@@ -264,25 +268,38 @@ public class ClassDiagram extends BorderPane
                         // We must use screen X/Y here, because the scene is the menu, not GreenfootStage,
                         // so scene X/Y wouldn't mean anything useful to GreenfootStage:
                         contextMenu.getScene().setOnMouseMoved(ev -> greenfootStage.setLatestMousePosOnScreen(ev.getScreenX(), ev.getScreenY()));
-                        classTarget.getRole().createClassConstructorMenu(contextMenu.getItems(), classTarget, cl);
-                        if (!contextMenu.getItems().isEmpty())
+                        if (classTarget.getRole().createClassConstructorMenu(contextMenu.getItems(), classTarget, cl))
                         {
+                            // If any items were added, add divider afterwards:
                             contextMenu.getItems().add(new SeparatorMenuItem());
                         }
-                        classTarget.getRole().createClassStaticMenu(contextMenu.getItems(), classTarget, classTarget.hasSourceCode(), cl);
+                        
+                        if (classTarget.getRole().createClassStaticMenu(contextMenu.getItems(), classTarget, cl))
+                        {
+                            // If any items were added, add divider afterwards:
+                            contextMenu.getItems().add(new SeparatorMenuItem());
+                        }
+                        // Open editor:
+                        if (classTarget.hasSourceCode() || classTarget.getDocumentationFile().exists())
+                        {
+                            contextMenu.getItems().add(contextInbuilt(Config.getString(classTarget.hasSourceCode() ? "edit.class" : "show.apidoc"), classTarget::open));
+                        }
+                        
                         // Set image:
                         if (type == ClassType.ACTOR || type == ClassType.WORLD)
                         {
-                            contextMenu.getItems().add(JavaFXUtil.makeMenuItem(Config.getString("select.image"),
-                                    () -> greenfootStage.setImageFor(classTarget, display), null));
+                            contextMenu.getItems().add(contextInbuilt(Config.getString("select.image"),
+                                    () -> greenfootStage.setImageFor(classTarget, display)));
                         }
                         // Inspect:
                         contextMenu.getItems().add(classTarget.new InspectAction(true, greenfootStage, display));
+                        contextMenu.getItems().add(new SeparatorMenuItem());
+                        
                         // Duplicate:
                         if (classTarget.hasSourceCode())
                         {
-                            contextMenu.getItems().add(JavaFXUtil.makeMenuItem(Config.getString("duplicate.class"),
-                                    () -> greenfootStage.duplicateClass(classTarget), null));
+                            contextMenu.getItems().add(contextInbuilt(Config.getString("duplicate.class"),
+                                    () -> greenfootStage.duplicateClass(classTarget)));
                         }
 
                         // Convert to Java/Stride
@@ -297,7 +314,7 @@ public class ClassDiagram extends BorderPane
 
 
                         // New subclass:
-                        contextMenu.getItems().add(JavaFXUtil.makeMenuItem(Config.getString("new.sub.class"), () ->
+                        contextMenu.getItems().add(contextInbuilt(Config.getString("new.sub.class"), () ->
                             {
                                 // TODO check if needed
                                 // boolean imageClass = superG.isActorClass() || superG.isActorSubclass();
@@ -311,8 +328,10 @@ public class ClassDiagram extends BorderPane
                                 {
                                     greenfootStage.newSubClassOf(classTarget.getQualifiedName());
                                 }
-                            }, null));
+                            }));
                         
+                        // Select item when we show context menu for it:
+                        selectionManager.select(display);
                         contextMenu.show(display, e.getScreenX(), e.getScreenY());
                         curContextMenu = contextMenu;
                     }
@@ -325,6 +344,17 @@ public class ClassDiagram extends BorderPane
                 });
             }
         };
+    }
+
+    /**
+     * Make a context menu item with the given text and action, and the inbuilt-menu-item
+     * style (which shows up as dark-red, and italic on non-Mac)
+     */
+    public static MenuItem contextInbuilt(String text, FXRunnable action)
+    {
+        MenuItem menuItem = JavaFXUtil.makeMenuItem(text, action, null);
+        JavaFXUtil.addStyleClass(menuItem, ClassTarget.MENU_STYLE_INBUILT);
+        return menuItem;
     }
 
     /**

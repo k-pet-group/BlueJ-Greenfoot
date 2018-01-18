@@ -265,9 +265,9 @@ public class UnitTestClassRole extends ClassRole
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public boolean createClassStaticMenu(ObservableList<MenuItem> menu, ClassTarget ct, boolean hasSource, Class<?> cl)
+    public boolean createClassStaticMenu(ObservableList<MenuItem> menu, ClassTarget ct,  Class<?> cl)
     {
-        boolean enable = !ct.getPackage().getProject().inTestMode() && hasSource && ! ct.isAbstract();
+        boolean enable = !ct.getPackage().getProject().inTestMode() && ct.hasSourceCode() && ! ct.isAbstract();
             
         addMenuItem(menu, new MakeTestCaseAction(createTest,
                                                     ct.getPackage().getEditor(), ct), enable);
