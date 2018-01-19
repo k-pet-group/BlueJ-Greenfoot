@@ -238,18 +238,19 @@ public class BlueJSyntaxView
             return null;
     }
 
-    protected final void paintScopeMarkers(List<ScopeInfo> scopes, int fullWidth,
-            int firstLine, int lastLine, boolean onlyMethods)
+    /**
+     * Recalculate scope margins in the given line range. All line numbers are 0-based.
+     * 
+     * @param pendingScopes  map to store updated scope margin information.
+     * @param firstLineIncl  the first line in the range to update (inclusive).
+     * @param lastLineIncl   the last line in the range to update (inclusive).
+     */
+    public void recalculateScopes(Map<Integer, ScopeInfo> pendingScopes, int firstLineIncl, int lastLineIncl)
     {
-        paintScopeMarkers(scopes, fullWidth, firstLine, lastLine, onlyMethods, false);
-    }
-
-    List<ScopeInfo> recalculateScopes(int firstLineIncl, int lastLineIncl)
-    {
-        List<ScopeInfo> scopes = new ArrayList<>();
         // Subtract 24 which is width of paragraph graphic:
-        paintScopeMarkers(scopes, widthProperty == null  || widthProperty.get() == 0 ? 200 : ((int)widthProperty.get() - 24), firstLineIncl, lastLineIncl, false);
-        return scopes;
+        paintScopeMarkers(pendingScopes,
+                (widthProperty == null || widthProperty.get() == 0) ? 200 : ((int)widthProperty.get() - 24),
+                firstLineIncl, lastLineIncl, false);
     }
 
     public Image getImageFor(ScopeInfo s, int lineHeight)
@@ -454,6 +455,22 @@ public class BlueJSyntaxView
     }
 
     /**
+     * Re-calculate scope margins for the given lines, and add changed margin information to the given
+     * map.
+     * 
+     * @param pendingScopes  a map of (line number : scope information) for updated scope margins
+     * @param fullWidth      the full width of the view, used for determining right margin
+     * @param firstLine      the first line in the range to process (inclusive, 0-based).
+     * @param lastLine       the last line in the range to process (inclusive, 0-based).
+     * @param onlyMethods    true if only methods should be scope highlighted and not constructs inside.
+     */
+    protected final void paintScopeMarkers(Map<Integer, ScopeInfo> pendingScopes, int fullWidth,
+            int firstLine, int lastLine, boolean onlyMethods)
+    {
+        paintScopeMarkers(pendingScopes, fullWidth, firstLine, lastLine, onlyMethods, false);
+    }
+    
+    /**
      * A container for three line segments and elements: the previous (or above) line, the
      * current line, and the next (or below) line.
      */
@@ -468,7 +485,18 @@ public class BlueJSyntaxView
         Element belowLineEl;
     }
 
-    protected void paintScopeMarkers(List<ScopeInfo> scopes, int fullWidth,
+    /**
+     * Re-calculate scope margins for the given lines, and add changed margin information to the given
+     * map. Line numbers are 0-based.
+     * 
+     * @param pendingScopes  a map of (line number : scope information) for updated scope margins
+     * @param fullWidth      the full width of the view, used for determining right margin
+     * @param firstLine      the first line in the range to process (inclusive).
+     * @param lastLine       the last line in the range to process (inclusive).
+     * @param onlyMethods    true if only methods should be scope highlighted and not constructs inside.
+     * @param small          true to draw the "small" version
+     */
+    protected void paintScopeMarkers(Map<Integer, ScopeInfo> pendingScopes, int fullWidth,
             int firstLine, int lastLine, boolean onlyMethods, boolean small)
     {
         //optimization for the raspberry pi.
@@ -520,7 +548,9 @@ public class BlueJSyntaxView
 
             // curLine is zero-based, but getParagraphAttributes is one-based:
             ScopeInfo scope = new ScopeInfo(getParagraphAttributes(curLine + 1));
-            scopes.add(scope);
+            if (! scope.equals(document.getDocument().getParagraphStyle(curLine))) {
+                pendingScopes.put(curLine, scope);
+            }
 
             if (prevScopeStack.isEmpty()) {
                 break;
