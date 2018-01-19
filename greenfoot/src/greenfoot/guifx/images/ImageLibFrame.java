@@ -44,6 +44,8 @@ import java.util.List;
 
 import javafx.collections.FXCollections;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -100,6 +102,8 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
     /** A watcher that goes notified when an image is selected, to allow for previewing. May be null */
     private ImageSelectionWatcher selectionWatcher;
 
+    private final boolean includeClassNameField;
+
     /**
      * Construct an ImageLibFrame for changing the image of an existing class.
      *
@@ -118,7 +122,8 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         //gclass.getPackage().getDependentTarget(gclass.getBaseName())////
         //defaultIcon = getClassImage(superClass.getClass);
 
-        buildUI(false, null);
+        includeClassNameField = false;
+        buildUI(null);
         projImageList.select(getSpecifiedImage(classTarget));
     }
 
@@ -138,8 +143,9 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         this.classTarget = superClass;
         this.project = classTarget.getPackage().getProject();
         defaultIcon = getClassImage(superClass);
-        
-        buildUI(true, description);
+
+        includeClassNameField = true;
+        buildUI(description);
         projImageList.select(null);
         if (defaultName != null)
         {
@@ -149,7 +155,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
     }
 
     // TODO tidy up the code
-    private void buildUI(final boolean includeClassNameField, List<String> description)
+    private void buildUI(List<String> description)
     {
         VBox contentPane = new VBox();
         setContentPane(contentPane);
@@ -165,7 +171,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         }
 
         // Class details - name, current icon
-        contentPane.getChildren().add(buildClassDetailsPanel(includeClassNameField, project.getUnnamedPackage()));
+        contentPane.getChildren().add(buildClassDetailsPanel(project.getUnnamedPackage()));
 
         // Image selection panels - project and greenfoot image library
         {
@@ -214,27 +220,12 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
             deleteItem = createSelectedEntryMenuItem("imagelib.delete", this::confirmDelete);
 
 
-            MenuItem newImageItem = new MenuItem(Config.getString("imagelib.create.button"));
             // TODO newImageItem.setToolTipText(Config.getString("imagelib.create.tooltip"));
-            newImageItem.setOnAction(event -> {
-                String name = includeClassNameField ? getClassName() : classTarget.getQualifiedName();
+            MenuItem newImageItem = createGeneralMenuItem("imagelib.create.button", event -> createNewImage());
 
-                NewImageDialog newImage = new NewImageDialog(ImageLibFrame.this, projImagesDir, name);
-                final File file = newImage.displayModal();
-                if (file != null) {
-                    projImageList.refresh();
-                    projImageList.select(file);
-                    selectImage(file);
-                }                                           
-            });
-
-            MenuItem pasteImageItem = new MenuItem(Config.getString("paste.image"));
             // TODO pasteImageItem.setToolTipText(Config.getString("imagelib.paste.tooltip"));
-            pasteImageItem.setDisable(false);
-            pasteImageItem.setOnAction(event -> pasteImage());
-
-            MenuItem importImageItem = new MenuItem(Config.getString("imagelib.browse.button"));
-            importImageItem.setOnAction(event -> importImage());
+            MenuItem pasteImageItem = createGeneralMenuItem("paste.image", event -> pasteImage());
+            MenuItem importImageItem = createGeneralMenuItem("imagelib.browse.button", event -> importImage());
 
             MenuButton dropDownButton = new MenuButton(Config.getString("imagelib.more"),
                     new ImageView(new Image(ImageLibFrame.class.getClassLoader().getResourceAsStream(DROPDOWN_ICON_FILE))),
@@ -255,15 +246,15 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
     }
 
     /**
-     * Create a disabled MenuItem for an image list entry.
+     * Create a MenuItem for an image list entry, assign an action to it and disable it initially.
      *
-     * @param name      The label of the menu item.
+     * @param label     The label of the menu item.
      * @param consumer  The action to be performed on the selected entry.
-     * @return A menu item to invoke an action on an image list entry.
+     * @return A menu item which invokes the action passed on the selected image list entry.
      */
-    private MenuItem createSelectedEntryMenuItem(String name, FXConsumer<ImageListEntry> consumer) //tooltip
+    private MenuItem createSelectedEntryMenuItem(String label, FXConsumer<ImageListEntry> consumer) //tooltip
     {
-        MenuItem item = new MenuItem(Config.getString(name));
+        MenuItem item = new MenuItem(Config.getString(label));
         // item.setToolTipText(Config.getString(tooltip));
         item.setDisable(true);
         item.setOnAction(event -> {
@@ -277,13 +268,42 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
     }
 
     /**
+     * Create a general MenuItem and assign an action to it.
+     *
+     * @param label         The label of the menu item.
+     * @param eventHandler  The action to be performed by the menu item.
+     * @return A menu item which invokes the passed action.
+     */
+    private MenuItem createGeneralMenuItem(String label, EventHandler<ActionEvent> eventHandler)
+    {
+        MenuItem menuItem = new MenuItem(Config.getString(label));
+        menuItem.setOnAction(eventHandler);
+        return menuItem;
+    }
+
+    /**
+     * Create a new image through new image dialog.
+     */
+    private void createNewImage()
+    {
+        String name = includeClassNameField ? getClassName() : classTarget.getQualifiedName();
+        NewImageDialog newImage = new NewImageDialog(ImageLibFrame.this, projImagesDir, name);
+        final File file = newImage.displayModal();
+        if (file != null) {
+            projImageList.refresh();
+            projImageList.select(file);
+            selectImage(file);
+        }
+    }
+
+    /**
      * Build the class details panel.
      *
      * @param includeClassNameField  Whether to include a field for
      *                              specifying the class name.
      * @param pkg
      */
-    private Pane buildClassDetailsPanel(boolean includeClassNameField, Package pkg)
+    private Pane buildClassDetailsPanel(Package pkg)
     {
         VBox classDetailsPanel = new VBox();
         {
