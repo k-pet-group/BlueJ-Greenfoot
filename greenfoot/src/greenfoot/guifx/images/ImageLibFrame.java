@@ -154,7 +154,11 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         classNameField.requestFocus();
     }
 
-    // TODO tidy up the code
+    /**
+     * build the UI components
+     *
+     * @param description A helper prompt to display at the top of dialog, can be null.
+     */
     private void buildUI(List<String> description)
     {
         VBox contentPane = new VBox();
@@ -171,69 +175,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         }
 
         // Class details - name, current icon
-        contentPane.getChildren().add(buildClassDetailsPanel(project.getUnnamedPackage()));
-
-        // Image selection panels - project and greenfoot image library
-        {
-            HBox imageSelPanels = new HBox();
-            // Project images panel
-            {
-                File projDir = project.getProjectDir();
-                projImagesDir = new File(projDir, "images");
-                projImageList = new ImageLibList(projImagesDir, false, defaultIcon);//true?
-                ScrollPane imageScrollPane = new ScrollPane(projImageList);
-
-                VBox piPanel = new VBox();
-                piPanel.getChildren().addAll(new Label(Config.getString("imagelib.projectImages")), imageScrollPane);
-                imageSelPanels.getChildren().add(piPanel);
-            }
-
-            // Category selection panel
-            File imageDir = new File(Config.getGreenfootLibDir(), "imagelib");
-            ImageCategorySelector imageCategorySelector = new ImageCategorySelector(imageDir);
-
-            // List of images
-            greenfootImageList = new ImageLibList(false);
-            Pane greenfootLibPanel = new GreenfootImageLibPane(imageCategorySelector, greenfootImageList);
-            imageSelPanels.getChildren().add(greenfootLibPanel);
-            contentPane.getChildren().add(imageSelPanels);
-
-            JavaFXUtil.addChangeListener(projImageList.getSelectionModel().selectedItemProperty(), imageListEntry -> valueChanged(imageListEntry, true));
-            JavaFXUtil.addChangeListener(greenfootImageList.getSelectionModel().selectedItemProperty(), imageListEntry -> valueChanged(imageListEntry, false));
-            imageCategorySelector.setImageLibList(greenfootImageList);
-        }
-        
-        // Creates the PopupMenuButton, adding the edit, duplicate, delete and new
-        // menu items, along with their actions to it. Also creates the browse button
-        // and adds both of these components to a flow panel to display in the content
-        // panel.
-        {
-            BorderPane borderPanel = new BorderPane();
-
-            // TODO editItem.setToolTipText(Config.getString("imagelib.edit.tooltip"));
-            editItem = createSelectedEntryMenuItem("imagelib.edit", this::editImage);
-
-            // TODO duplicateItem.setToolTipText(Config.getString("imagelib.duplicate.tooltip"));
-            duplicateItem = createSelectedEntryMenuItem("imagelib.duplicate", this::duplicateSelected);
-
-            // TODO deleteItem.setToolTipText(Config.getString("imagelib.delete.tooltip"));
-            deleteItem = createSelectedEntryMenuItem("imagelib.delete", this::confirmDelete);
-
-
-            // TODO newImageItem.setToolTipText(Config.getString("imagelib.create.tooltip"));
-            MenuItem newImageItem = createGeneralMenuItem("imagelib.create.button", event -> createNewImage());
-
-            // TODO pasteImageItem.setToolTipText(Config.getString("imagelib.paste.tooltip"));
-            MenuItem pasteImageItem = createGeneralMenuItem("paste.image", event -> pasteImage());
-            MenuItem importImageItem = createGeneralMenuItem("imagelib.browse.button", event -> importImage());
-
-            MenuButton dropDownButton = new MenuButton(Config.getString("imagelib.more"),
-                    new ImageView(new Image(ImageLibFrame.class.getClassLoader().getResourceAsStream(DROPDOWN_ICON_FILE))),
-                    editItem, duplicateItem, deleteItem, new SeparatorMenuItem(), newImageItem, pasteImageItem, importImageItem);
-
-            borderPanel.getChildren().add(dropDownButton);
-            contentPane.getChildren().add(borderPanel);
-        }
+        contentPane.getChildren().addAll(buildClassDetailsPanel(project.getUnnamedPackage()), buildImageLists(), createCogMenuPane());
 
         // Ok and cancel buttons
         getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
@@ -243,6 +185,74 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         // refreshTimer.start();
 
         setResultConverter(bt -> bt == ButtonType.OK ? selectedImageFile : null);
+    }
+
+    /**
+     * Creates the cog button, which contains options for a selected image and options to
+     * add new or imported images to the project.
+     *
+     * @return a Pane containing the cog button.
+     */
+    private Pane createCogMenuPane()
+    {
+        // TODO editItem.setToolTipText(Config.getString("imagelib.edit.tooltip"));
+        editItem = createSelectedEntryMenuItem("imagelib.edit", this::editImage);
+
+        // TODO duplicateItem.setToolTipText(Config.getString("imagelib.duplicate.tooltip"));
+        duplicateItem = createSelectedEntryMenuItem("imagelib.duplicate", this::duplicateSelected);
+
+        // TODO deleteItem.setToolTipText(Config.getString("imagelib.delete.tooltip"));
+        deleteItem = createSelectedEntryMenuItem("imagelib.delete", this::confirmDelete);
+
+
+        // TODO newImageItem.setToolTipText(Config.getString("imagelib.create.tooltip"));
+        MenuItem newImageItem = createGeneralMenuItem("imagelib.create.button", event -> createNewImage());
+
+        // TODO pasteImageItem.setToolTipText(Config.getString("imagelib.paste.tooltip"));
+        MenuItem pasteImageItem = createGeneralMenuItem("paste.image", event -> pasteImage());
+        MenuItem importImageItem = createGeneralMenuItem("imagelib.browse.button", event -> importImage());
+
+        MenuButton dropDownButton = new MenuButton(Config.getString("imagelib.more"),
+                new ImageView(new Image(ImageLibFrame.class.getClassLoader().getResourceAsStream(DROPDOWN_ICON_FILE))),
+                editItem, duplicateItem, deleteItem, new SeparatorMenuItem(), newImageItem, pasteImageItem, importImageItem);
+
+        BorderPane borderPane = new BorderPane();
+        borderPane.getChildren().add(dropDownButton);
+        return borderPane;
+    }
+
+    /**
+     * Build Image selection panels - project and greenfoot image library.
+     *
+     * @return a Pane containing the image lists.
+     */
+    private Pane buildImageLists()
+    {
+        HBox listsPane = new HBox();
+
+        // Project images panel
+        File projDir = project.getProjectDir();
+        projImagesDir = new File(projDir, "images");
+        projImageList = new ImageLibList(projImagesDir, false, defaultIcon);//true?
+        ScrollPane imageScrollPane = new ScrollPane(projImageList);
+
+        VBox piPanel = new VBox();
+        piPanel.getChildren().addAll(new Label(Config.getString("imagelib.projectImages")), imageScrollPane);
+        listsPane.getChildren().add(piPanel);
+
+        // Category selection panel
+        File imageDir = new File(Config.getGreenfootLibDir(), "imagelib");
+        ImageCategorySelector imageCategorySelector = new ImageCategorySelector(imageDir);
+        // List of images
+        greenfootImageList = new ImageLibList(false);
+        Pane greenfootLibPanel = new GreenfootImageLibPane(imageCategorySelector, greenfootImageList);
+        listsPane.getChildren().add(greenfootLibPanel);
+
+        JavaFXUtil.addChangeListener(projImageList.getSelectionModel().selectedItemProperty(), imageListEntry -> valueChanged(imageListEntry, true));
+        JavaFXUtil.addChangeListener(greenfootImageList.getSelectionModel().selectedItemProperty(), imageListEntry -> valueChanged(imageListEntry, false));
+        imageCategorySelector.setImageLibList(greenfootImageList);
+
+        return listsPane;
     }
 
     /**
