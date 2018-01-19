@@ -29,9 +29,9 @@ import java.io.FilenameFilter;
 import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Tooltip;
@@ -51,6 +51,7 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
     /** The directory whose images are currently displayed in this list */
     private File directory;
     private File defaultImage;
+    private final String[] imageFileExtensions = new String[] { "jpg", "jpeg", "png", "gif" };
 
     /**
      * Construct an empty ImageLibList.
@@ -85,19 +86,16 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
     {
         this.directory = directory;
 
-        // We can accept all files. We try to load them all as an image.
-        FilenameFilter filter = (dir, name) -> true;
-        
-        File [] imageFiles = directory.listFiles(filter);
+        // We can accept only image files.
+        FilenameFilter filter = (dir, name) -> Stream.of(imageFileExtensions).anyMatch(extension -> name.toLowerCase().endsWith(extension));
+        File[] imageFiles = directory.listFiles(filter);
         if (imageFiles == null)
         {
             imageFiles = new File[0];
         }
         
         Arrays.sort(imageFiles);
-        ObservableList<ImageListEntry> data = FXCollections.observableArrayList();
-        data.addAll(Arrays.stream(imageFiles).map(file -> new ImageListEntry(file)).collect(Collectors.toList()));
-        setItems(data);
+        setItems(FXCollections.observableArrayList(Arrays.stream(imageFiles).map(ImageListEntry::new).collect(Collectors.toList())));
     }
 
     /**
