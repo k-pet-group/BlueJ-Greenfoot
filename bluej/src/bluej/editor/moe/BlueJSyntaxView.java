@@ -250,7 +250,7 @@ public class BlueJSyntaxView
         // Subtract 24 which is width of paragraph graphic:
         paintScopeMarkers(pendingScopes,
                 (widthProperty == null || widthProperty.get() == 0) ? 200 : ((int)widthProperty.get() - 24),
-                firstLineIncl, lastLineIncl, false);
+                firstLineIncl, lastLineIncl, false, false);
     }
 
     public Image getImageFor(ScopeInfo s, int lineHeight)
@@ -454,22 +454,6 @@ public class BlueJSyntaxView
         });
     }
 
-    /**
-     * Re-calculate scope margins for the given lines, and add changed margin information to the given
-     * map.
-     * 
-     * @param pendingScopes  a map of (line number : scope information) for updated scope margins
-     * @param fullWidth      the full width of the view, used for determining right margin
-     * @param firstLine      the first line in the range to process (inclusive, 0-based).
-     * @param lastLine       the last line in the range to process (inclusive, 0-based).
-     * @param onlyMethods    true if only methods should be scope highlighted and not constructs inside.
-     */
-    protected final void paintScopeMarkers(Map<Integer, ScopeInfo> pendingScopes, int fullWidth,
-            int firstLine, int lastLine, boolean onlyMethods)
-    {
-        paintScopeMarkers(pendingScopes, fullWidth, firstLine, lastLine, onlyMethods, false);
-    }
-    
     /**
      * A container for three line segments and elements: the previous (or above) line, the
      * current line, and the next (or below) line.
