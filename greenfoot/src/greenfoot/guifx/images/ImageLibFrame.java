@@ -46,6 +46,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Orientation;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -202,8 +203,6 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         {
             BorderPane borderPanel = new BorderPane();
 
-            MenuButton popupMenu = new MenuButton();// TODO PopupMenuButton()
-            
             editItem = new MenuItem(Config.getString("imagelib.edit"));
             // TODO editItem.setToolTipText(Config.getString("imagelib.edit.tooltip"));
             editItem.setDisable(true);
@@ -259,21 +258,11 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
             MenuItem importImageItem = new MenuItem(Config.getString("imagelib.browse.button"));
             importImageItem.setOnAction(event -> importImage());
 
-            popupMenu.getItems().add(editItem);
-            popupMenu.getItems().add(duplicateItem);
-            popupMenu.getItems().add(deleteItem);
-            popupMenu.getItems().add(newImageItem);
-            popupMenu.getItems().add(pasteImageItem);
-            popupMenu.getItems().add(importImageItem);
+            MenuButton dropDownButton = new MenuButton(Config.getString("imagelib.more"),
+                    new ImageView(new Image(ImageLibFrame.class.getClassLoader().getResourceAsStream(DROPDOWN_ICON_FILE))),
+                    editItem, duplicateItem, deleteItem, new SeparatorMenuItem(), newImageItem, pasteImageItem, importImageItem);
 
-            popupMenu.setText(Config.getString("imagelib.more"));
-
-            // TODO
-           /* Button dropDownButton = new PopupMenuButton(
-                    new ImageIcon(ImageLibFrame.class.getClassLoader().getResource(DROPDOWN_ICON_FILE)), 
-                    popupMenu);*/
-            
-            borderPanel.getChildren().add(popupMenu);// dropDownButton
+            borderPanel.getChildren().add(dropDownButton);
             contentPane.getChildren().add(borderPanel);
         }
 
