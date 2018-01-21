@@ -28,6 +28,7 @@ import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.utility.Debug;
 import bluej.utility.FileUtility;
+import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXCustomizedDialog;
 import bluej.utility.javafx.JavaFXUtil;
 
@@ -46,6 +47,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Orientation;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -202,40 +204,15 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         {
             BorderPane borderPanel = new BorderPane();
 
-            MenuButton popupMenu = new MenuButton();// TODO PopupMenuButton()
-            
-            editItem = new MenuItem(Config.getString("imagelib.edit"));
             // TODO editItem.setToolTipText(Config.getString("imagelib.edit.tooltip"));
-            editItem.setDisable(true);
-            editItem.setOnAction(event -> {
-                ImageListEntry entry = projImageList.getSelectionModel().getSelectedItem();
-                if (entry != null && entry.imageFile != null)
-                {
-                    ExternalAppLauncher.editImage(entry.imageFile);
-                }
-            });
-            
-            duplicateItem = new MenuItem(Config.getString("imagelib.duplicate"));
+            editItem = createSelectedEntryMenuItem("imagelib.edit", this::editImage);
+
             // TODO duplicateItem.setToolTipText(Config.getString("imagelib.duplicate.tooltip"));
-            duplicateItem.setDisable(true);
-            duplicateItem.setOnAction(event -> {
-                ImageListEntry entry = projImageList.getSelectionModel().getSelectedItem();
-                if (entry != null && entry.imageFile != null)
-                {
-                    duplicateSelected(entry);
-                }
-            });
-            
-            deleteItem = new MenuItem(Config.getString("imagelib.delete"));
+            duplicateItem = createSelectedEntryMenuItem("imagelib.duplicate", this::duplicateSelected);
+
             // TODO deleteItem.setToolTipText(Config.getString("imagelib.delete.tooltip"));
-            deleteItem.setDisable(true);
-            deleteItem.setOnAction(event -> {
-                ImageListEntry entry = projImageList.getSelectionModel().getSelectedItem();
-                if (entry != null && entry.imageFile != null)
-                {
-                    confirmDelete(entry);
-                }
-            });
+            deleteItem = createSelectedEntryMenuItem("imagelib.delete", this::confirmDelete);
+
 
             MenuItem newImageItem = new MenuItem(Config.getString("imagelib.create.button"));
             // TODO newImageItem.setToolTipText(Config.getString("imagelib.create.tooltip"));
@@ -259,21 +236,11 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
             MenuItem importImageItem = new MenuItem(Config.getString("imagelib.browse.button"));
             importImageItem.setOnAction(event -> importImage());
 
-            popupMenu.getItems().add(editItem);
-            popupMenu.getItems().add(duplicateItem);
-            popupMenu.getItems().add(deleteItem);
-            popupMenu.getItems().add(newImageItem);
-            popupMenu.getItems().add(pasteImageItem);
-            popupMenu.getItems().add(importImageItem);
+            MenuButton dropDownButton = new MenuButton(Config.getString("imagelib.more"),
+                    new ImageView(new Image(ImageLibFrame.class.getClassLoader().getResourceAsStream(DROPDOWN_ICON_FILE))),
+                    editItem, duplicateItem, deleteItem, new SeparatorMenuItem(), newImageItem, pasteImageItem, importImageItem);
 
-            popupMenu.setText(Config.getString("imagelib.more"));
-
-            // TODO
-           /* Button dropDownButton = new PopupMenuButton(
-                    new ImageIcon(ImageLibFrame.class.getClassLoader().getResource(DROPDOWN_ICON_FILE)), 
-                    popupMenu);*/
-            
-            borderPanel.getChildren().add(popupMenu);// dropDownButton
+            borderPanel.getChildren().add(dropDownButton);
             contentPane.getChildren().add(borderPanel);
         }
 
@@ -285,6 +252,28 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         // refreshTimer.start();
 
         setResultConverter(bt -> bt == ButtonType.OK ? selectedImageFile : null);
+    }
+
+    /**
+     * Create a disabled MenuItem for an image list entry.
+     *
+     * @param name      The label of the menu item.
+     * @param consumer  The action to be performed on the selected entry.
+     * @return A menu item to invoke an action on an image list entry.
+     */
+    private MenuItem createSelectedEntryMenuItem(String name, FXConsumer<ImageListEntry> consumer) //tooltip
+    {
+        MenuItem item = new MenuItem(Config.getString(name));
+        // item.setToolTipText(Config.getString(tooltip));
+        item.setDisable(true);
+        item.setOnAction(event -> {
+            ImageListEntry entry = projImageList.getSelectionModel().getSelectedItem();
+            if (entry != null && entry.imageFile != null)
+            {
+                consumer.accept(entry);
+            }
+        });
+        return item;
     }
 
     /**
@@ -544,6 +533,16 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
             entry.imageFile.delete();
             projImageList.refresh();
         }
+    }
+
+    /**
+     * Opens an external app to edit an image file.
+     *
+     * @param entry The list entry contains the image.
+     */
+    private void editImage(ImageListEntry entry)
+    {
+        ExternalAppLauncher.editImage(entry.imageFile);
     }
 
     private void pasteImage()
