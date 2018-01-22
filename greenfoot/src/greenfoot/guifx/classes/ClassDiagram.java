@@ -293,7 +293,9 @@ public class ClassDiagram extends BorderPane
                     // Open editor:
                     if (classTarget.hasSourceCode() || classTarget.getDocumentationFile().exists())
                     {
-                        contextMenu.getItems().add(contextInbuilt(Config.getString(classTarget.hasSourceCode() ? "edit.class" : "show.apidoc"), classTarget::open));
+                        contextMenu.getItems().add(contextInbuilt(
+                                Config.getString(classTarget.hasSourceCode() ? "edit.class" : "show.apidoc"),
+                                classTarget::open));
                     }
                     
                     // Set image:
@@ -326,7 +328,8 @@ public class ClassDiagram extends BorderPane
                     {
                         contextMenu.getItems().add(classTarget.new ConvertToJavaAction(greenfootStage));
                     }
-                    else if (classTarget.getSourceType() == SourceType.Java && classTarget.getRole() != null && classTarget.getRole().canConvertToStride())
+                    else if (classTarget.getSourceType() == SourceType.Java &&
+                            classTarget.getRole() != null && classTarget.getRole().canConvertToStride())
                     {
                         contextMenu.getItems().add(classTarget.new ConvertToStrideAction(greenfootStage));
                     }

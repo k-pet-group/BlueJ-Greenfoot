@@ -183,6 +183,8 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
     {
         // The total height of class displays, plus that many vertical spacing items
         // (Note: we have spacing at the top as well, not just inbetween)
+        // We don't just sum all children, because we don't want to include the height
+        // of the arrows that sit alongside the ClassDisplay items:
         return getChildren().stream()
                 .filter(c -> c instanceof ClassDisplay)
                 .mapToDouble(c -> VERTICAL_SPACING + c.prefHeight(width))
