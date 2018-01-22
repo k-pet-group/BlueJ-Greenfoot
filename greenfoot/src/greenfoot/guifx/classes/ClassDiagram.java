@@ -301,6 +301,14 @@ public class ClassDiagram extends BorderPane
                             contextMenu.getItems().add(contextInbuilt(Config.getString("duplicate.class"),
                                     () -> greenfootStage.duplicateClass(classTarget)));
                         }
+                        
+                        // Delete:
+                        contextMenu.getItems().add(contextInbuilt(Config.getString("remove.class"), () -> {
+                            classTarget.remove();
+                            // Recalculate class contents after deletion:
+                            calculateGroups(project.getUnnamedPackage().getClassTargets());
+                        }));
+                        
 
                         // Convert to Java/Stride
                         if (classTarget.getSourceType() == SourceType.Stride)
