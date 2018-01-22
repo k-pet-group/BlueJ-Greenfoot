@@ -2353,33 +2353,8 @@ public class ClassTarget extends DependentTarget
             // could get quite time-consuming when we have lots of classes.
             // Instead, we create an image of the given stripes which
             // we can draw tiled to save time.
-            if (hasKnownError())
-            {
-                // Red stripes
-                int size = RED_STRIPE_SEPARATION * 10;
-                if (redStripeImage == null)
-                {
-                    redStripeImage = JavaFXUtil.createImage((int)size, (int)size, gImage -> {
-                        JavaFXUtil.stripeRect(gImage, 0, 0, size, size, RED_STRIPE_SEPARATION - STRIPE_THICKNESS, STRIPE_THICKNESS, false, RED_STRIPE);
-                        JavaFXUtil.stripeRect(gImage, 0, 0, size, size, RED_STRIPE_SEPARATION - STRIPE_THICKNESS, STRIPE_THICKNESS, true, RED_STRIPE);
-                    });
-                }
-                g.setFill(new ImagePattern(redStripeImage, 0, 0, size, size, false));
-                g.fillRect(0, 0, width, height);
-            }
-            else
-            {
-                int size = GREY_STRIPE_SEPARATION * 10;
-                // Grey stripes
-                if (greyStripeImage == null)
-                {
-                    greyStripeImage = JavaFXUtil.createImage(size, size, gImage -> {
-                        JavaFXUtil.stripeRect(gImage, 0, 0, size, size, GREY_STRIPE_SEPARATION - STRIPE_THICKNESS, STRIPE_THICKNESS, false, GREY_STRIPE);
-                    });
-                }
-                g.setFill(new ImagePattern(greyStripeImage, 0, 0, size, size, false));
-                g.fillRect(0, 0, width, height);
-            }
+            g.setFill(hasKnownError() ? getRedStripeFill() : getGreyStripeFill());
+            g.fillRect(0, 0, width, height);
         }
 
         if (this.selected && isResizable())
@@ -2391,6 +2366,41 @@ public class ClassTarget extends DependentTarget
             g.strokeLine(width - RESIZE_CORNER_SIZE, height, width, height - RESIZE_CORNER_SIZE);
             g.strokeLine(width - RESIZE_CORNER_SIZE + RESIZE_CORNER_GAP, height, width, height - RESIZE_CORNER_SIZE + RESIZE_CORNER_GAP);
         }
+    }
+
+    /**
+     * Gets the grey diagonal stripe pattern used for modified classes.
+     */
+    @OnThread(Tag.FX)
+    public ImagePattern getGreyStripeFill()
+    {
+        int size = GREY_STRIPE_SEPARATION * 10;
+        // Grey stripes
+        if (greyStripeImage == null)
+        {
+            greyStripeImage = JavaFXUtil.createImage(size, size, gImage -> {
+                JavaFXUtil.stripeRect(gImage, 0, 0, size, size, GREY_STRIPE_SEPARATION - STRIPE_THICKNESS, STRIPE_THICKNESS, false, GREY_STRIPE);
+            });
+        }
+        return new ImagePattern(greyStripeImage, 0, 0, size, size, false);
+    }
+
+    /**
+     * Gets the red diagonal stripe pattern used for classes with an error.
+     */
+    @OnThread(Tag.FX)
+    private ImagePattern getRedStripeFill()
+    {
+        // Red stripes
+        int size = RED_STRIPE_SEPARATION * 10;
+        if (redStripeImage == null)
+        {
+            redStripeImage = JavaFXUtil.createImage((int)size, (int)size, gImage -> {
+                JavaFXUtil.stripeRect(gImage, 0, 0, size, size, RED_STRIPE_SEPARATION - STRIPE_THICKNESS, STRIPE_THICKNESS, false, RED_STRIPE);
+                JavaFXUtil.stripeRect(gImage, 0, 0, size, size, RED_STRIPE_SEPARATION - STRIPE_THICKNESS, STRIPE_THICKNESS, true, RED_STRIPE);
+            });
+        }
+        return new ImagePattern(redStripeImage, 0, 0, size, size, false);
     }
 
     /**
