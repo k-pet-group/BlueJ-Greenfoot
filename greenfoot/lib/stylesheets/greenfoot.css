@@ -4,16 +4,22 @@
     -fx-fill: null;
 }
 .class-display {
-    -fx-padding: 4px 7px 4px 7px;
     /* Match size of selected border: */
     -fx-border-width: 1, 2;
     -fx-border-color: black, transparent;
     -fx-border-style: solid outside;
-    -fx-background-color: rgb(245, 204, 155);
 }
 .class-display:gf-selected {
     -fx-border-width: 3;
     -fx-border-color: black;
+}
+.class-display, .class-display-content {
+    -fx-background-color: rgb(245, 204, 155);
+}
+.class-display-content {
+    /* These two values must be identical to let us see the stripes: */
+    -fx-padding: 4px 7px 4px 7px;
+    -fx-background-insets: 4px 7px 4px 7px;
 }
 .class-diagram {
     -fx-padding: 5px;

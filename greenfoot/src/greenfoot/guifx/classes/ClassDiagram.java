@@ -37,6 +37,8 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -324,6 +326,19 @@ public class ClassDiagram extends BorderPane
                 {
                     classTarget.open();
                 }
+            });
+            classTarget.addStateListener(state -> {
+                Paint fill = Color.TRANSPARENT;
+                switch (state)
+                {
+                    case NEEDS_COMPILE:
+                        fill = ClassTarget.getGreyStripeFill();
+                        break;
+                    case HAS_ERROR:
+                        fill = ClassTarget.getRedStripeFill();
+                        break;
+                }
+                display.setStripePattern(fill);
             });
         }
 

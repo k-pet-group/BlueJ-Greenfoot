@@ -27,7 +27,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Paint;
 
 /**
  * The display of a single class in Greenfoot's class diagram. 
@@ -37,9 +41,13 @@ import javafx.scene.layout.BorderPane;
  * handles display and selection.  All other functionality (e.g. context menus)
  * is done externally as it is not used in all instances of ClassDisplay.
  */
-public class ClassDisplay extends BorderPane
+public class ClassDisplay extends StackPane
 {
     private final String fullyQualifiedName;
+    // We make child panes mainly so that we can apply
+    // the stripe fill to the background but not to the content:
+    private final BorderPane stripePane;
+    private final BorderPane content;
 
     /**
      * @param displayName The class name to display (without package)
@@ -52,8 +60,11 @@ public class ClassDisplay extends BorderPane
         this.fullyQualifiedName = fullyQualifiedName;
         getStyleClass().add("class-display");
         setSnapToPixel(true);
-        setCenter(new Label(displayName));
+        content = new BorderPane(new Label(displayName));
         setImage(image);
+        JavaFXUtil.addStyleClass(content, "class-display-content");
+        stripePane = new BorderPane();
+        getChildren().addAll(stripePane, content);
         
         selectionManager.addClassDisplay(this);
         
@@ -71,18 +82,35 @@ public class ClassDisplay extends BorderPane
         });
     }
 
+    /**
+     * Sets the graphical selected state of this class display
+     */
     public void setSelected(boolean selected)
     {
         JavaFXUtil.setPseudoclass("gf-selected", selected, this);
     }
 
+    /**
+     * Gets the qualified name of the class
+     */
     public String getQualifiedName()
     {
         return fullyQualifiedName;
     }
 
+    /**
+     * Sets the image to the left of the class name
+     */
     public void setImage(Image image)
     {
-        setLeft(new ImageView(image));
+        content.setLeft(new ImageView(image));
+    }
+
+    /**
+     * Sets the stripe pattern of this class (use Color.TRANSPARENT to mean none)
+     */
+    public void setStripePattern(Paint stripeFill)
+    {
+        stripePane.setBackground(new Background(new BackgroundFill(stripeFill, null, null)));
     }
 }

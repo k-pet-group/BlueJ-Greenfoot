@@ -2372,7 +2372,7 @@ public class ClassTarget extends DependentTarget
      * Gets the grey diagonal stripe pattern used for modified classes.
      */
     @OnThread(Tag.FX)
-    public ImagePattern getGreyStripeFill()
+    public static ImagePattern getGreyStripeFill()
     {
         int size = GREY_STRIPE_SEPARATION * 10;
         // Grey stripes
@@ -2389,7 +2389,7 @@ public class ClassTarget extends DependentTarget
      * Gets the red diagonal stripe pattern used for classes with an error.
      */
     @OnThread(Tag.FX)
-    private ImagePattern getRedStripeFill()
+    public static ImagePattern getRedStripeFill()
     {
         // Red stripes
         int size = RED_STRIPE_SEPARATION * 10;
