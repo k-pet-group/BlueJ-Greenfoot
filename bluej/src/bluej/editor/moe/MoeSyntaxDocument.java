@@ -559,18 +559,21 @@ public class MoeSyntaxDocument
         applyPendingScopeBackgrounds();
     }
 
+    /**
+     * Recalculate (and schedule for re-drawing) scope margins for lines in the given range.
+     * 
+     * @param firstLineIncl  the first line in the range, inclusive; 0-based.
+     * @param lastLineIncl   the last line in the range, inclusive; 0-based.
+     */
     void recalculateScopesForLinesInRange(int firstLineIncl, int lastLineIncl)
     {
         if (syntaxView == null)
-            return;
-        cacheContent();
-        List<ScopeInfo> paragraphScopeInfo = syntaxView.recalculateScopes(firstLineIncl, lastLineIncl);
-        if (paragraphScopeInfo.isEmpty())
-            return; // Not initialised yet
-        for (int i = 0; i < paragraphScopeInfo.size(); i++)
         {
-            pendingScopeBackgrounds.put(i + firstLineIncl, paragraphScopeInfo.get(i));
+            return;
         }
+        
+        cacheContent();
+        syntaxView.recalculateScopes(pendingScopeBackgrounds, firstLineIncl, lastLineIncl);
     }
 
     // Called if the reparse queue is empty:
