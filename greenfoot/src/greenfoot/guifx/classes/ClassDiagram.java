@@ -259,82 +259,103 @@ public class ClassDiagram extends BorderPane
                         curContextMenu.hide();
                         curContextMenu = null;
                     }
+                    ContextMenu contextMenu = new ContextMenu();
                     Class<?> cl = classTarget.getPackage().loadClass(classTarget.getQualifiedName());
+                    // Update mouse position from menu, so that if the user clicks new Crab(),
+                    // it appears where the mouse is now, rather than where the mouse was before the menu was shown.
+                    // We must use screen X/Y here, because the scene is the menu, not GreenfootStage,
+                    // so scene X/Y wouldn't mean anything useful to GreenfootStage:
+                    contextMenu.getScene().setOnMouseMoved(ev -> greenfootStage.setLatestMousePosOnScreen(ev.getScreenX(), ev.getScreenY()));
+                    
                     if (cl != null)
                     {
-                        ContextMenu contextMenu = new ContextMenu();
-                        // Update mouse position from menu, so that if the user clicks new Crab(),
-                        // it appears where the mouse is now, rather than where the mouse was before the menu was shown.
-                        // We must use screen X/Y here, because the scene is the menu, not GreenfootStage,
-                        // so scene X/Y wouldn't mean anything useful to GreenfootStage:
-                        contextMenu.getScene().setOnMouseMoved(ev -> greenfootStage.setLatestMousePosOnScreen(ev.getScreenX(), ev.getScreenY()));
                         if (classTarget.getRole().createClassConstructorMenu(contextMenu.getItems(), classTarget, cl))
                         {
                             // If any items were added, add divider afterwards:
                             contextMenu.getItems().add(new SeparatorMenuItem());
                         }
-                        
+
                         if (classTarget.getRole().createClassStaticMenu(contextMenu.getItems(), classTarget, cl))
                         {
                             // If any items were added, add divider afterwards:
                             contextMenu.getItems().add(new SeparatorMenuItem());
                         }
-                        // Open editor:
-                        if (classTarget.hasSourceCode() || classTarget.getDocumentationFile().exists())
-                        {
-                            contextMenu.getItems().add(contextInbuilt(Config.getString(classTarget.hasSourceCode() ? "edit.class" : "show.apidoc"), classTarget::open));
-                        }
-                        
-                        // Set image:
-                        if (type == ClassType.ACTOR || type == ClassType.WORLD)
-                        {
-                            contextMenu.getItems().add(contextInbuilt(Config.getString("select.image"),
-                                    () -> greenfootStage.setImageFor(classTarget, display)));
-                        }
-                        // Inspect:
-                        contextMenu.getItems().add(classTarget.new InspectAction(true, greenfootStage, display));
-                        contextMenu.getItems().add(new SeparatorMenuItem());
-                        
-                        // Duplicate:
-                        if (classTarget.hasSourceCode())
-                        {
-                            contextMenu.getItems().add(contextInbuilt(Config.getString("duplicate.class"),
-                                    () -> greenfootStage.duplicateClass(classTarget)));
-                        }
-
-                        // Convert to Java/Stride
-                        if (classTarget.getSourceType() == SourceType.Stride)
-                        {
-                            contextMenu.getItems().add(classTarget.new ConvertToJavaAction(greenfootStage));
-                        }
-                        else if (classTarget.getSourceType() == SourceType.Java && classTarget.getRole() != null && classTarget.getRole().canConvertToStride())
-                        {
-                            contextMenu.getItems().add(classTarget.new ConvertToStrideAction(greenfootStage));
-                        }
-
-
-                        // New subclass:
-                        contextMenu.getItems().add(contextInbuilt(Config.getString("new.sub.class"), () ->
-                            {
-                                // TODO check if needed
-                                // boolean imageClass = superG.isActorClass() || superG.isActorSubclass();
-                                // imageClass |= superG.isWorldClass() || superG.isWorldSubclass();
-                                // if (imageClass)
-                                if (type == ClassType.ACTOR || type == ClassType.WORLD)
-                                {
-                                    greenfootStage.newImageSubClassOf(classTarget.getQualifiedName());
-                                }
-                                else
-                                {
-                                    greenfootStage.newSubClassOf(classTarget.getQualifiedName());
-                                }
-                            }));
-                        
-                        // Select item when we show context menu for it:
-                        selectionManager.select(display);
-                        contextMenu.show(display, e.getScreenX(), e.getScreenY());
-                        curContextMenu = contextMenu;
                     }
+                    else
+                    {
+                        MenuItem menuItem = new MenuItem(Config.getString("classPopup.needsCompile"));
+                        menuItem.setDisable(true);
+                        contextMenu.getItems().add(menuItem);
+                        contextMenu.getItems().add(new SeparatorMenuItem());
+                    }
+                    
+                    
+                    // Open editor:
+                    if (classTarget.hasSourceCode() || classTarget.getDocumentationFile().exists())
+                    {
+                        contextMenu.getItems().add(contextInbuilt(
+                                Config.getString(classTarget.hasSourceCode() ? "edit.class" : "show.apidoc"),
+                                classTarget::open));
+                    }
+                    
+                    // Set image:
+                    if (type == ClassType.ACTOR || type == ClassType.WORLD)
+                    {
+                        contextMenu.getItems().add(contextInbuilt(Config.getString("select.image"),
+                                () -> greenfootStage.setImageFor(classTarget, display)));
+                    }
+                    // Inspect:
+                    contextMenu.getItems().add(classTarget.new InspectAction(true, greenfootStage, display));
+                    contextMenu.getItems().add(new SeparatorMenuItem());
+                    
+                    // Duplicate:
+                    if (classTarget.hasSourceCode())
+                    {
+                        contextMenu.getItems().add(contextInbuilt(Config.getString("duplicate.class"),
+                                () -> greenfootStage.duplicateClass(classTarget)));
+                    }
+                    
+                    // Delete:
+                    contextMenu.getItems().add(contextInbuilt(Config.getString("remove.class"), () -> {
+                        classTarget.remove();
+                        // Recalculate class contents after deletion:
+                        calculateGroups(project.getUnnamedPackage().getClassTargets());
+                    }));
+                    
+
+                    // Convert to Java/Stride
+                    if (classTarget.getSourceType() == SourceType.Stride)
+                    {
+                        contextMenu.getItems().add(classTarget.new ConvertToJavaAction(greenfootStage));
+                    }
+                    else if (classTarget.getSourceType() == SourceType.Java &&
+                            classTarget.getRole() != null && classTarget.getRole().canConvertToStride())
+                    {
+                        contextMenu.getItems().add(classTarget.new ConvertToStrideAction(greenfootStage));
+                    }
+
+
+                    // New subclass:
+                    contextMenu.getItems().add(contextInbuilt(Config.getString("new.sub.class"), () ->
+                        {
+                            // TODO check if needed
+                            // boolean imageClass = superG.isActorClass() || superG.isActorSubclass();
+                            // imageClass |= superG.isWorldClass() || superG.isWorldSubclass();
+                            // if (imageClass)
+                            if (type == ClassType.ACTOR || type == ClassType.WORLD)
+                            {
+                                greenfootStage.newImageSubClassOf(classTarget.getQualifiedName());
+                            }
+                            else
+                            {
+                                greenfootStage.newSubClassOf(classTarget.getQualifiedName());
+                            }
+                        }));
+                    
+                    // Select item when we show context menu for it:
+                    selectionManager.select(display);
+                    contextMenu.show(display, e.getScreenX(), e.getScreenY());
+                    curContextMenu = contextMenu;
                 });
                 display.setOnMouseClicked(e -> {
                     if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 2)

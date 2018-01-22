@@ -58,10 +58,6 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
         
         setMaxWidth(Double.MAX_VALUE);
         setMaxHeight(Double.MAX_VALUE);
-        
-        // Default size is zero, will get expanded once we have content:
-        setPrefWidth(0.0);
-        setPrefHeight(0.0);
     }
 
     /**
@@ -78,9 +74,7 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
         getChildren().clear();
         this.topLevel.clear();
         this.topLevel.addAll(topLevel);
-        Collections.sort(this.topLevel, Comparator.comparing(ClassInfo::getDisplayName));
-
-        requestLayout();
+        updateAfterAdd();
     }
 
     /**
@@ -100,24 +94,14 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
         // Sort in case they added at top-level:
         Collections.sort(this.topLevel, Comparator.comparing(ClassInfo::getDisplayName));
         // Adjust positions:
-        requestLayout();
+        redisplay();
     }
 
-    @Override
-    protected void layoutChildren()
+    private void redisplay()
     {
-        // Super call autosizes children, which we still want:
-        super.layoutChildren();
-        
-        // Layout all the classes, and use the final Y position as our preferred height:
-        int finalY = redisplay(null, topLevel, 0, 0);
-        // If our content height is different than before, we need to adjust our preferred height: 
-        if (finalY != (int)getPrefHeight())
-        {
-            setPrefHeight(finalY);
-            // Because we are within layout, we need an explicit call to notify parent of height change:
-            getParent().requestLayout();
-        }
+        // Left indent by same amount as top indent:
+        int leftIndent = VERTICAL_SPACING;
+        redisplay(null, topLevel, leftIndent, 0);
     }
 
     /**
@@ -194,6 +178,18 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
         return y;
     }
 
+    @Override
+    protected double computePrefHeight(double width)
+    {
+        // The total height of class displays, plus that many vertical spacing items
+        // (Note: we have spacing at the top as well, not just inbetween)
+        // We don't just sum all children, because we don't want to include the height
+        // of the arrows that sit alongside the ClassDisplay items:
+        return getChildren().stream()
+                .filter(c -> c instanceof ClassDisplay)
+                .mapToDouble(c -> VERTICAL_SPACING + c.prefHeight(width))
+                .sum();
+    }
 
     /**
      * Listener for when height changes on any of the classes.
@@ -203,6 +199,6 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
     @Override
     public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
     {
-        requestLayout();
+        redisplay();
     }
 }
