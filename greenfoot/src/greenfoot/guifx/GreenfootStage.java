@@ -64,6 +64,7 @@ import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.gui.classbrowser.role.NormalClassRole;
 import greenfoot.guifx.classes.ClassDisplay;
+import greenfoot.guifx.classes.ImportClassDialog;
 import greenfoot.guifx.images.ImageLibFrame;
 import greenfoot.guifx.images.ImageSelectionWatcher;
 import greenfoot.guifx.soundrecorder.SoundRecorderControls;
@@ -414,7 +415,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         return new MenuBar(
             new Menu(Config.getString("menu.edit"), null,
-                        makeMenuItem("new.other.class", new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN), () -> doNewClass())
+                makeMenuItem("new.other.class", new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN), () -> doNewClass()),
+                makeMenuItem("import.action", new KeyCodeCombination(KeyCode.I, KeyCombination.SHORTCUT_DOWN), () -> doImportClass())
             ),
             new Menu(Config.getString("menu.controls"), null,
                     makeMenuItem("run.once", new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN), () -> act(pendingCommands)),
@@ -1209,7 +1211,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     public void doImportClass()
     {
-        // TODO as part of GREENFOOT-637
+        // TODO actually do the import if this returns a file:
+        new ImportClassDialog(this).showAndWait();
     }
 
     /**

@@ -146,8 +146,7 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
             if (x + classDisplay.getWidth() > getPrefWidth())
             {
                 setPrefWidth(x + classDisplay.getWidth());
-                // Because we are within layout, we need an explicit call to notify parent of width change:
-                getParent().requestLayout();
+                requestLayout();
             }
             classDisplay.setLayoutY(y);
             // If height changes, we will layout again because of the listener added above:

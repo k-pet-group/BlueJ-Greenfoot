@@ -21,7 +21,11 @@
  */
 package greenfoot.guifx.classes;
 
+import bluej.utility.javafx.FXPlatformConsumer;
+
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -30,6 +34,7 @@ import java.util.Set;
 public class ClassDisplaySelectionManager
 {
     private final Set<ClassDisplay> classDisplayList = new HashSet<>();
+    private final List<FXPlatformConsumer<ClassDisplay>> selectionListeners = new ArrayList<>();
     private ClassDisplay selected = null;
 
     public ClassDisplaySelectionManager()
@@ -59,6 +64,10 @@ public class ClassDisplaySelectionManager
                 display.setSelected(false);
             }
         }
+        for (FXPlatformConsumer<ClassDisplay> selectionListener : selectionListeners)
+        {
+            selectionListener.accept(target);
+        }
     }
 
     /**
@@ -67,5 +76,14 @@ public class ClassDisplaySelectionManager
     public ClassDisplay getSelected()
     {
         return selected;
+    }
+
+    /**
+     * Adds a selection listener to be called back when the selection changes.
+     * Note: it is possible that null may be passed as the current selection.
+     */
+    public void addSelectionListener(FXPlatformConsumer<ClassDisplay> listener)
+    {
+        selectionListeners.add(listener);
     }
 }
