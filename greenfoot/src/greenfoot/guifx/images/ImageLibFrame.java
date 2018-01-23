@@ -195,26 +195,16 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
      */
     private Pane createCogMenuPane()
     {
-        // TODO editItem.setToolTipText(Config.getString("imagelib.edit.tooltip"));
-        editItem = createSelectedEntryMenuItem("imagelib.edit", this::editImage);
-
-        // TODO duplicateItem.setToolTipText(Config.getString("imagelib.duplicate.tooltip"));
-        duplicateItem = createSelectedEntryMenuItem("imagelib.duplicate", this::duplicateSelected);
-
-        // TODO deleteItem.setToolTipText(Config.getString("imagelib.delete.tooltip"));
-        deleteItem = createSelectedEntryMenuItem("imagelib.delete", this::confirmDelete);
-
-
-        // TODO newImageItem.setToolTipText(Config.getString("imagelib.create.tooltip"));
-        MenuItem newImageItem = createGeneralMenuItem("imagelib.create.button", event -> createNewImage());
-
-        // TODO pasteImageItem.setToolTipText(Config.getString("imagelib.paste.tooltip"));
-        MenuItem pasteImageItem = createGeneralMenuItem("paste.image", event -> pasteImage());
-        MenuItem importImageItem = createGeneralMenuItem("imagelib.browse.button", event -> importImage());
+        editItem = createSelectedEntryMenuItem("imagelib.edit", "imagelib.edit.tooltip", this::editImage);
+        duplicateItem = createSelectedEntryMenuItem("imagelib.duplicate", "imagelib.duplicate.tooltip", this::duplicateSelected);
+        deleteItem = createSelectedEntryMenuItem("imagelib.delete", "imagelib.delete.tooltip", this::confirmDelete);
 
         MenuButton dropDownButton = new MenuButton(Config.getString("imagelib.more"),
                 new ImageView(new Image(ImageLibFrame.class.getClassLoader().getResourceAsStream(DROPDOWN_ICON_FILE))),
-                editItem, duplicateItem, deleteItem, new SeparatorMenuItem(), newImageItem, pasteImageItem, importImageItem);
+                editItem, duplicateItem, deleteItem, new SeparatorMenuItem(),
+                createGeneralMenuItem("imagelib.create.button", "imagelib.create.tooltip", event -> createNewImage()),
+                createGeneralMenuItem("imagelib.paste.image", "imagelib.paste.tooltip", event -> pasteImage()),
+                createGeneralMenuItem("imagelib.import.button", "imagelib.import.tooltip", event -> importImage()));
 
         BorderPane borderPane = new BorderPane();
         borderPane.getChildren().add(dropDownButton);
@@ -259,13 +249,14 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
      * Create a MenuItem for an image list entry, assign an action to it and disable it initially.
      *
      * @param label     The label of the menu item.
+     * @param tooltip   The text of the tooltip to show.
      * @param consumer  The action to be performed on the selected entry.
      * @return A menu item which invokes the action passed on the selected image list entry.
      */
-    private MenuItem createSelectedEntryMenuItem(String label, FXConsumer<ImageListEntry> consumer) //tooltip
+    private MenuItem createSelectedEntryMenuItem(String label, String tooltip, FXConsumer<ImageListEntry> consumer)
     {
         MenuItem item = new MenuItem(Config.getString(label));
-        // item.setToolTipText(Config.getString(tooltip));
+        Tooltip.install(item.getGraphic(), new Tooltip(Config.getString(tooltip)));
         item.setDisable(true);
         item.setOnAction(event -> {
             ImageListEntry entry = projImageList.getSelectionModel().getSelectedItem();
@@ -281,14 +272,16 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
      * Create a general MenuItem and assign an action to it.
      *
      * @param label         The label of the menu item.
+     * @param tooltip       The text of the tooltip to show.
      * @param eventHandler  The action to be performed by the menu item.
      * @return A menu item which invokes the passed action.
      */
-    private MenuItem createGeneralMenuItem(String label, EventHandler<ActionEvent> eventHandler)
+    private MenuItem createGeneralMenuItem(String label, String tooltip, EventHandler<ActionEvent> eventHandler)
     {
-        MenuItem menuItem = new MenuItem(Config.getString(label));
-        menuItem.setOnAction(eventHandler);
-        return menuItem;
+        MenuItem item = new MenuItem(Config.getString(label));
+        Tooltip.install(item.getGraphic(), new Tooltip(Config.getString(tooltip)));
+        item.setOnAction(eventHandler);
+        return item;
     }
 
     /**

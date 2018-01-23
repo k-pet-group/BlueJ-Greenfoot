@@ -194,7 +194,7 @@ newclass.dialog.class=Class
 newclass.dialog.interface=Interface
 
 # Image Lib Preview
-paste.image=Paste Image...
+imagelib.paste.image=Paste Image...
 imagelib.title=Select class image:
 imagelib.newClass=New class
 imagelib.projectImages=Scenario images:
@@ -211,6 +211,7 @@ imagelib.delete.tooltip=Delete the selected image.
 imagelib.import.button=Import from library...
 imagelib.create.tooltip=Create a new image with a default size and name, and open it in the image editor.
 imagelib.paste.tooltip=Paste an image from the system clipboard.
+imagelib.import.tooltip=Select an image from a library to import it to the scenario.
 imagelib.className=New class name:
 imagelib.help.selectImage=Select an image for the class from the list below.
 imagelib.newClass.image=New class image:
