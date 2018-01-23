@@ -22,6 +22,8 @@
 package greenfoot.guifx.classes;
 
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -103,7 +105,22 @@ public class ClassDisplay extends StackPane
      */
     public void setImage(Image image)
     {
-        content.setLeft(new ImageView(image));
+        if (image == null)
+        {
+            content.setLeft(null);
+        }
+        else
+        {
+            ImageView imageView = new ImageView(image);
+            // Max size 16x16, but don't scale up image if it's smaller than that:
+            imageView.setFitHeight(Math.min(image.getHeight(), 16));
+            imageView.setFitWidth(Math.min(image.getWidth(), 16));
+            imageView.setPreserveRatio(true);
+            // Can't set these from CSS, so setting them here:
+            BorderPane.setAlignment(imageView, Pos.CENTER_LEFT);
+            BorderPane.setMargin(imageView, new Insets(0, 4, 0, 0));
+            content.setLeft(imageView);
+        }
     }
 
     /**

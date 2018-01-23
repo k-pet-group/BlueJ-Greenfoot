@@ -307,7 +307,7 @@ public class ClassDiagram extends BorderPane
          */
         public LocalClassInfo(ClassTarget classTarget, List<ClassInfo> subClasses, ClassType type)
         {
-            super(classTarget.getQualifiedName(), classTarget.getBaseName(), null, subClasses, ClassDiagram.this.selectionManager);
+            super(classTarget.getQualifiedName(), classTarget.getBaseName(), greenfootStage.getImageForClassTarget(classTarget), subClasses, ClassDiagram.this.selectionManager);
             this.classTarget = classTarget;
             this.type = type;
         }

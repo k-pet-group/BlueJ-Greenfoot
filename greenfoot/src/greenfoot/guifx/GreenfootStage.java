@@ -364,6 +364,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         // We send a reset to make a new world after the project properties have been sent across:
         pendingCommands.add(new Command(COMMAND_RESET));
         JavaFXUtil.addChangeListenerPlatform(stateProperty, this::updateGUIState);
+        /* Uncomment this to use ScenicView temporarily during development (use reflection to avoid needing to mess with Ant classpath)
+        try
+        {
+            getClass().getClassLoader().loadClass("org.scenicview.ScenicView").getMethod("show", Scene.class).invoke(null, scene);
+        }
+        catch (Exception e)
+        {
+            Debug.reportError(e);
+        }*/
     }
 
     private void loadAndMirrorProperties(List<Command> pendingCommands)
@@ -997,6 +1006,27 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 }
             }
         }
+    }
+
+    /**
+     * Gets the image, if one has been set, for the given class target, by looking at that
+     * class and its ancestors.  Returns the loaded image, or null if none was found.
+     */
+    public Image getImageForClassTarget(ClassTarget classTarget)
+    {
+        File file = getImageFilename(classTarget.getTypeReflective());
+        if (file != null)
+        {
+            try
+            {
+                return new Image(file.toURI().toURL().toExternalForm());
+            }
+            catch (MalformedURLException e)
+            {
+                Debug.reportError(e);
+            }
+        }
+        return null;
     }
 
     /**
