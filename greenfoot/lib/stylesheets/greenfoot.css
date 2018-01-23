@@ -24,3 +24,8 @@
 .class-diagram {
     -fx-padding: 5px;
 }
+.import-class-dialog .class-group {
+    -fx-border-color: gray;
+    -fx-border-width: 1;
+    -fx-border-style: solid inside;
+}

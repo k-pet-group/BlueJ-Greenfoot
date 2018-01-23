@@ -3,8 +3,10 @@ package greenfoot.guifx.classes;
 import bluej.Config;
 import bluej.extensions.SourceType;
 import bluej.utility.Debug;
+import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.guifx.GreenfootStage;
 import greenfoot.util.GreenfootUtil;
+import javafx.geometry.Insets;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.image.Image;
@@ -81,7 +83,9 @@ public class ImportClassDialog extends Dialog<File>
         });
         
         getDialogPane().setContent(new BorderPane(docView, null, null, null, classGroup));
+        BorderPane.setMargin(classGroup, new Insets(0, 8, 0, 0));
         getDialogPane().getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
+        JavaFXUtil.addStyleClass(getDialogPane(), "import-class-dialog");
         setResizable(true);
         setWidth(700);
         setHeight(550);
