@@ -22,11 +22,8 @@
 package greenfoot.guifx.classes;
 
 import bluej.Config;
-import bluej.extensions.SourceType;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
-import bluej.pkgmgr.target.DependentTarget.State;
-import bluej.pkgmgr.target.DependentTarget.TargetListener;
 import bluej.pkgmgr.target.Target;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
@@ -35,12 +32,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,7 +49,7 @@ import java.util.Objects;
  */
 public class ClassDiagram extends BorderPane
 {
-    private static enum ClassType { ACTOR, WORLD, OTHER }
+    static enum ClassType { ACTOR, WORLD, OTHER }
     
     private final ClassDisplaySelectionManager selectionManager = new ClassDisplaySelectionManager();
     // The three groups of classes in the display: World+subclasses, Actor+subclasses, Other
@@ -108,7 +100,7 @@ public class ClassDiagram extends BorderPane
      * according to their superclass relations, with Actor and World subclasses
      * going into their own group.
      */
-    private void recalculateGroups()
+    void recalculateGroups()
     {
         ArrayList<ClassTarget> originalClassTargets = project.getUnnamedPackage().getClassTargets();
         
@@ -268,7 +260,7 @@ public class ClassDiagram extends BorderPane
      */
     protected ClassInfo makeClassInfo(ClassTarget classTarget, List<ClassInfo> subClasses, ClassType type)
     {
-        return new LocalClassInfo(classTarget, subClasses, type);
+        return new LocalClassInfo(this, classTarget, subClasses, type);
     }
 
     /**
@@ -307,188 +299,20 @@ public class ClassDiagram extends BorderPane
     }
 
     /**
-     * A version of ClassInfo that handles extra actions and updates for local classes
-     * (i.e. classes that are in this project, rather than Actor and World
-     * which are imported).
+     * Gets the selection manager for this class diagram
      */
-    private class LocalClassInfo extends ClassInfo implements TargetListener
+    public ClassDisplaySelectionManager getSelectionManager()
     {
-        private final ClassTarget classTarget;
-        private final ClassType type;
-
-        /**
-         * Make an instance for the given ClassTarget
-         * @param classTarget The ClassTarget to make an instance for
-         * @param subClasses The sub-classes of this ClassInfo
-         * @param type The type of this class (Actor/World child, or Other)
-         */
-        public LocalClassInfo(ClassTarget classTarget, List<ClassInfo> subClasses, ClassType type)
-        {
-            super(classTarget.getQualifiedName(), classTarget.getBaseName(), greenfootStage.getImageForClassTarget(classTarget), subClasses, ClassDiagram.this.selectionManager);
-            this.classTarget = classTarget;
-            this.type = type;
-        }
-
-        /**
-         * Setup the given ClassDisplay with custom actions
-         */
-        @Override
-        protected void setupClassDisplay(GreenfootStage greenfootStage, ClassDisplay display)
-        {
-            display.setOnContextMenuRequested(e -> {
-                e.consume();
-                showContextMenu(greenfootStage, display, e);
-            });
-            display.setOnMouseClicked(e -> {
-                if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 2)
-                {
-                    classTarget.open();
-                }
-            });
-            // We only want to listen once our display exists:
-            classTarget.addListener(this);
-        }
-
-        @Override
-        public void stateChanged(State newState)
-        {
-            Paint fill = Color.TRANSPARENT;
-            switch (newState)
-            {
-                case NEEDS_COMPILE:
-                    fill = ClassTarget.getGreyStripeFill();
-                    break;
-                case HAS_ERROR:
-                    fill = ClassTarget.getRedStripeFill();
-                    break;
-            }
-            display.setStripePattern(fill);
-        }
-
-        @Override
-        public void renamed(String newName)
-        {
-            // The ordering may have changed, easiest thing to do is
-            // just recalculate the whole lot:
-            recalculateGroups();
-        }
-
-        @Override
-        public void tidyup()
-        {
-            classTarget.removeListener(this);
-        }
-
-        /**
-         * Shows a context menu.
-         * @param greenfootStage The GreenfootStage, needed for some actions
-         * @param display The ClassDisplay we are showing the menu on.
-         * @param e The event that triggered the showing.
-         */
-        private void showContextMenu(GreenfootStage greenfootStage, ClassDisplay display, ContextMenuEvent e)
-        {
-            if (curContextMenu != null)
-            {
-                curContextMenu.hide();
-                curContextMenu = null;
-            }
-            ContextMenu contextMenu = new ContextMenu();
-            Class<?> cl = classTarget.getPackage().loadClass(classTarget.getQualifiedName());
-            // Update mouse position from menu, so that if the user clicks new Crab(),
-            // it appears where the mouse is now, rather than where the mouse was before the menu was shown.
-            // We must use screen X/Y here, because the scene is the menu, not GreenfootStage,
-            // so scene X/Y wouldn't mean anything useful to GreenfootStage:
-            contextMenu.getScene().setOnMouseMoved(ev -> greenfootStage.setLatestMousePosOnScreen(ev.getScreenX(), ev.getScreenY()));
-
-            if (cl != null)
-            {
-                if (classTarget.getRole().createClassConstructorMenu(contextMenu.getItems(), classTarget, cl))
-                {
-                    // If any items were added, add divider afterwards:
-                    contextMenu.getItems().add(new SeparatorMenuItem());
-                }
-
-                if (classTarget.getRole().createClassStaticMenu(contextMenu.getItems(), classTarget, cl))
-                {
-                    // If any items were added, add divider afterwards:
-                    contextMenu.getItems().add(new SeparatorMenuItem());
-                }
-            }
-            else
-            {
-                MenuItem menuItem = new MenuItem(Config.getString("classPopup.needsCompile"));
-                menuItem.setDisable(true);
-                contextMenu.getItems().add(menuItem);
-                contextMenu.getItems().add(new SeparatorMenuItem());
-            }
-
-
-            // Open editor:
-            if (classTarget.hasSourceCode() || classTarget.getDocumentationFile().exists())
-            {
-                contextMenu.getItems().add(contextInbuilt(
-                        Config.getString(classTarget.hasSourceCode() ? "edit.class" : "show.apidoc"),
-                        classTarget::open));
-            }
-
-            // Set image:
-            if (type == ClassType.ACTOR || type == ClassType.WORLD)
-            {
-                contextMenu.getItems().add(contextInbuilt(Config.getString("select.image"),
-                        () -> greenfootStage.setImageFor(classTarget, display)));
-            }
-            // Inspect:
-            contextMenu.getItems().add(classTarget.new InspectAction(true, greenfootStage, display));
-            contextMenu.getItems().add(new SeparatorMenuItem());
-
-            // Duplicate:
-            if (classTarget.hasSourceCode())
-            {
-                contextMenu.getItems().add(contextInbuilt(Config.getString("duplicate.class"),
-                        () -> greenfootStage.duplicateClass(classTarget)));
-            }
-
-            // Delete:
-            contextMenu.getItems().add(contextInbuilt(Config.getString("remove.class"), () -> {
-                classTarget.remove();
-                // Recalculate class contents after deletion:
-                recalculateGroups();
-            }));
-
-
-            // Convert to Java/Stride
-            if (classTarget.getSourceType() == SourceType.Stride)
-            {
-                contextMenu.getItems().add(classTarget.new ConvertToJavaAction(greenfootStage));
-            }
-            else if (classTarget.getSourceType() == SourceType.Java &&
-                    classTarget.getRole() != null && classTarget.getRole().canConvertToStride())
-            {
-                contextMenu.getItems().add(classTarget.new ConvertToStrideAction(greenfootStage));
-            }
-
-
-            // New subclass:
-            contextMenu.getItems().add(contextInbuilt(Config.getString("new.sub.class"), () ->
-                {
-                    // TODO check if needed
-                    // boolean imageClass = superG.isActorClass() || superG.isActorSubclass();
-                    // imageClass |= superG.isWorldClass() || superG.isWorldSubclass();
-                    // if (imageClass)
-                    if (type == ClassType.ACTOR || type == ClassType.WORLD)
-                    {
-                        greenfootStage.newImageSubClassOf(classTarget.getQualifiedName());
-                    }
-                    else
-                    {
-                        greenfootStage.newSubClassOf(classTarget.getQualifiedName());
-                    }
-                }));
-
-            // Select item when we show context menu for it:
-            selectionManager.select(display);
-            contextMenu.show(display, e.getScreenX(), e.getScreenY());
-            curContextMenu = contextMenu;
-        }
+        return selectionManager;
     }
+
+    /**
+     * Gets the GreenfootStage which contains this class diagram
+     */
+    public GreenfootStage getGreenfootStage()
+    {
+        return greenfootStage;
+    }
+
+
 }
