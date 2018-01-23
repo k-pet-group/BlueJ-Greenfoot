@@ -7,12 +7,15 @@ import greenfoot.guifx.GreenfootStage;
 import greenfoot.util.GreenfootUtil;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 
+import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,6 +46,10 @@ public class ImportClassDialog extends Dialog<File>
         Collections.sort(foundClasses, Comparator.comparing(c -> c.getDisplayName()));
         classGroup.getLiveClasses().addAll(foundClasses);
         classGroup.updateAfterAdd();
+        if (!foundClasses.isEmpty())
+        {
+            classDisplaySelectionManager.select(foundClasses.get(0).getDisplay(greenfootStage));
+        }
         for (ImportableClassInfo foundClass : foundClasses)
         {
             filesForQualifiedClasses.put(foundClass.getQualifiedName(), foundClass.file);
@@ -75,7 +82,8 @@ public class ImportClassDialog extends Dialog<File>
         getDialogPane().setContent(new BorderPane(docView, null, null, null, classGroup));
         getDialogPane().getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
         setResizable(true);
-        getDialogPane().autosize();
+        setWidth(700);
+        setHeight(550);
         Config.addGreenfootStylesheets(getDialogPane().getScene());
         
         setResultConverter(bt -> {
@@ -147,6 +155,35 @@ public class ImportClassDialog extends Dialog<File>
     }
 
     /**
+     * Looks for an image that might be associated with the given class.
+     *
+     * So given /foo/Crab.java or /foo/Crab.class, it looks (case insensitive) for /foo/crab.png, /foo/Crab.jpg, etc
+     */
+    private static File findImage(File classFile)
+    {
+        String[] extensions = ImageIO.getReaderFileSuffixes();
+
+        File directory = classFile.getAbsoluteFile().getParentFile();
+        String stemName = GreenfootUtil.removeExtension(classFile.getAbsoluteFile().getName());
+
+        File[] allFiles = directory.listFiles();
+
+        if (allFiles == null)
+            return null;
+
+        for (File f : allFiles) {
+            for (String ext : extensions) {
+                if (f.getName().equalsIgnoreCase(stemName + "." + ext)) {
+                    return f;
+                }
+            }
+        }
+
+        return null;
+    }
+
+
+    /**
      * A ClassInfo used for display.  Overrides parent to remove any context menus, and
      * stores the file associated with the class.
      */
@@ -159,7 +196,7 @@ public class ImportClassDialog extends Dialog<File>
             super(
                 GreenfootUtil.removeExtension(file.getName()),
                 GreenfootUtil.removeExtension(file.getName()), 
-                null /*TODO*/,
+                loadImage(findImage(file)),
                 Collections.emptyList(),
                 classDisplaySelectionManager);
             this.file = file;
@@ -170,5 +207,22 @@ public class ImportClassDialog extends Dialog<File>
         {
             // No context menus or custom actions
         }
+    }
+
+    private static Image loadImage(File image)
+    {
+        if (image != null)
+        {
+            try
+            {
+                return new Image(image.toURI().toURL().toExternalForm());
+            }
+            catch (MalformedURLException e)
+            {
+                Debug.reportError(e);
+            }
+        }
+        
+        return null;
     }
 }
