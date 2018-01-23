@@ -442,6 +442,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
                     <include name="common/${common.class}.jpeg" />
                     <include name="common/${common.class}/lib/**" />
                     <include name="common/inherit.gif" />
+                    <include name="common/*.js" />
+                    <include name="common/*.css" />
                 </patternset>
             </fileset>
         </copy>
