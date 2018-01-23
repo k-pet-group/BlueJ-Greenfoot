@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import bluej.pkgmgr.*;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.dependency.*;
+import bluej.utility.javafx.FXPlatformConsumer;
 import javafx.geometry.Point2D;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -54,6 +55,8 @@ public abstract class DependentTarget extends EditableTarget
 
     @OnThread(Tag.Any)
     private final AtomicReference<State> state = new AtomicReference<>(State.NEEDS_COMPILE);
+    @OnThread(Tag.FXPlatform)
+    private final List<FXPlatformConsumer<State>> stateListeners = new ArrayList<>();
 
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private List<UsesDependency> inUses;
@@ -532,10 +535,21 @@ public abstract class DependentTarget extends EditableTarget
      * 
      * @param newState The new state value
      */
+    @OnThread(Tag.FXPlatform)
     public void setState(State newState)
     {
         state.set(newState);
         repaint();
         redraw();
+        for (FXPlatformConsumer<State> stateListener : stateListeners)
+        {
+            stateListener.accept(newState);
+        }
+    }
+    
+    @OnThread(Tag.FXPlatform)
+    public void addStateListener(FXPlatformConsumer<State> listener)
+    {
+        stateListeners.add(listener);
     }
 }
