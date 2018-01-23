@@ -22,6 +22,7 @@
 package greenfoot.guifx;
 
 import bluej.utility.javafx.FXPlatformConsumer;
+import javafx.geometry.Point2D;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
@@ -93,5 +94,23 @@ class WorldDisplay extends StackPane
     public boolean isAsking()
     {
         return askPane.isVisible();
+    }
+
+    /**
+     * Converts a point in the scene to world coordinates.
+     */
+    public Point2D sceneToWorld(Point2D point2D)
+    {
+        // We use imageView, not ourselves, because there may be extra margin around the imageView
+        // in this StackPane if the user has sized the window to be larger than the world size.
+        return imageView.sceneToLocal(point2D);
+    }
+
+    /**
+     * Checks if the given point (in world coordinates) lies inside the world or not.
+     */
+    public boolean worldContains(Point2D point2D)
+    {
+        return imageView.contains(point2D);
     }
 }

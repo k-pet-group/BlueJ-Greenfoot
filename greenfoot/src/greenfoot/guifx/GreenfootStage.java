@@ -501,15 +501,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 newActorProperty.get().previewNode.setTranslateX(e.getX() - newActorProperty.get().previewNode.getWidth() / 2.0);
                 newActorProperty.get().previewNode.setTranslateY(e.getY() - newActorProperty.get().previewNode.getHeight() / 2.0);
 
-                newActorProperty.get().cannotDrop.set(!worldDisplay.contains(worldDisplay.sceneToLocal(lastMousePosInScene)));
+                newActorProperty.get().cannotDrop.set(!worldDisplay.worldContains(worldDisplay.sceneToWorld(lastMousePosInScene)));
             }
         });
         stackPane.setOnMouseClicked(e -> {
             lastMousePosInScene = new Point2D(e.getSceneX(), e.getSceneY());
             if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 1 && newActorProperty.get() != null)
             {
-                Point2D dest = worldDisplay.sceneToLocal(lastMousePosInScene);
-                if (worldDisplay.contains(dest))
+                Point2D dest = worldDisplay.sceneToWorld(lastMousePosInScene);
+                if (worldDisplay.worldContains(dest))
                 {
                     // Bit hacky to pass positions as strings, but mirroring the values as integers
                     // would have taken a lot of code changes to route through to VMReference:
@@ -564,7 +564,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
                 newVal.previewNode.setTranslateX(lastMousePosInScene.getX() - newVal.previewNode.getWidth() / 2.0);
                 newVal.previewNode.setTranslateY(lastMousePosInScene.getY() - newVal.previewNode.getHeight() / 2.0);
-                newVal.cannotDrop.set(!worldDisplay.contains(worldDisplay.sceneToLocal(lastMousePosInScene)));
+                newVal.cannotDrop.set(!worldDisplay.worldContains(worldDisplay.sceneToWorld(lastMousePosInScene)));
             }
         });
     }
