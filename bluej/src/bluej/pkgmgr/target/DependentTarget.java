@@ -56,7 +56,7 @@ public abstract class DependentTarget extends EditableTarget
     @OnThread(Tag.Any)
     private final AtomicReference<State> state = new AtomicReference<>(State.NEEDS_COMPILE);
     @OnThread(Tag.FXPlatform)
-    private final List<FXPlatformConsumer<State>> stateListeners = new ArrayList<>();
+    protected final List<TargetListener> stateListeners = new ArrayList<>();
 
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private List<UsesDependency> inUses;
@@ -541,15 +541,43 @@ public abstract class DependentTarget extends EditableTarget
         state.set(newState);
         repaint();
         redraw();
-        for (FXPlatformConsumer<State> stateListener : stateListeners)
+        for (TargetListener stateListener : stateListeners)
         {
-            stateListener.accept(newState);
+            stateListener.stateChanged(newState);
         }
     }
-    
+
+    /**
+     * Adds a TargetListener to changes in this target.
+     */
     @OnThread(Tag.FXPlatform)
-    public void addStateListener(FXPlatformConsumer<State> listener)
+    public void addListener(TargetListener listener)
     {
         stateListeners.add(listener);
+    }
+
+    /**
+     * Removes a listener added by addListener
+     */
+    @OnThread(Tag.FXPlatform)
+    public void removeListener(TargetListener listener)
+    {
+        stateListeners.remove(listener);
+    }
+
+    /**
+     * A listener to changes in a DependentTarget
+     */
+    public static interface TargetListener
+    {
+        /**
+         * Called when state has changed
+         */
+        public void stateChanged(State newState);
+
+        /**
+         * Called when the target is renamed.
+         */
+        public void renamed(String newName);
     }
 }

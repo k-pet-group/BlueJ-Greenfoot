@@ -1810,6 +1810,12 @@ public class ClassTarget extends DependentTarget
 
             DataCollector.renamedClass(getPackage(), oldFrameSourceFile, newFrameSourceFile, oldJavaSourceFile, newJavaSourceFile);
 
+            // Take copy of listeners in case the rename causes new listeners to be added:
+            for (TargetListener stateListener : new ArrayList<>(stateListeners))
+            {
+                stateListener.renamed(newName);
+            }
+
             // Inform all listeners about the name change
             ClassEvent event = new ClassEvent(ClassEvent.CHANGED_NAME, getPackage(), getBClass(), oldName);
             ExtensionsManager.getInstance().delegateEvent(event);

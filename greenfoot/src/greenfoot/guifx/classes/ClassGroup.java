@@ -72,6 +72,10 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
                 ((ClassDisplay)child).heightProperty().removeListener(this);
         }
         getChildren().clear();
+        for (ClassInfo classInfo : topLevel)
+        {
+            classInfo.tidyup();
+        }        
         this.topLevel.clear();
         this.topLevel.addAll(topLevel);
         updateAfterAdd();

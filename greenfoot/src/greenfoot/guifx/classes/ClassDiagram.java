@@ -25,6 +25,8 @@ import bluej.Config;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.DependentTarget.State;
+import bluej.pkgmgr.target.DependentTarget.TargetListener;
 import bluej.pkgmgr.target.Target;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
@@ -98,16 +100,18 @@ public class ClassDiagram extends BorderPane
         });
         
         // Organise the current classes into their groups:
-        calculateGroups(project.getUnnamedPackage().getClassTargets());
+        recalculateGroups();
     }
 
     /**
-     * Takes a list of ClassTargets in the project, and puts them into a tree structure
+     * Looks up list of ClassTargets in the project, and puts them into a tree structure
      * according to their superclass relations, with Actor and World subclasses
      * going into their own group.
      */
-    private void calculateGroups(ArrayList<ClassTarget> originalClassTargets)
+    private void recalculateGroups()
     {
+        ArrayList<ClassTarget> originalClassTargets = project.getUnnamedPackage().getClassTargets();
+        
         // Start by mapping everything to false;
         HashMap<ClassTarget, Boolean> classTargets = new HashMap<>();
         for (ClassTarget originalClassTarget : originalClassTargets)
@@ -307,7 +311,7 @@ public class ClassDiagram extends BorderPane
      * (i.e. classes that are in this project, rather than Actor and World
      * which are imported).
      */
-    private class LocalClassInfo extends ClassInfo
+    private class LocalClassInfo extends ClassInfo implements TargetListener
     {
         private final ClassTarget classTarget;
         private final ClassType type;
@@ -341,19 +345,38 @@ public class ClassDiagram extends BorderPane
                     classTarget.open();
                 }
             });
-            classTarget.addStateListener(state -> {
-                Paint fill = Color.TRANSPARENT;
-                switch (state)
-                {
-                    case NEEDS_COMPILE:
-                        fill = ClassTarget.getGreyStripeFill();
-                        break;
-                    case HAS_ERROR:
-                        fill = ClassTarget.getRedStripeFill();
-                        break;
-                }
-                display.setStripePattern(fill);
-            });
+            // We only want to listen once our display exists:
+            classTarget.addListener(this);
+        }
+
+        @Override
+        public void stateChanged(State newState)
+        {
+            Paint fill = Color.TRANSPARENT;
+            switch (newState)
+            {
+                case NEEDS_COMPILE:
+                    fill = ClassTarget.getGreyStripeFill();
+                    break;
+                case HAS_ERROR:
+                    fill = ClassTarget.getRedStripeFill();
+                    break;
+            }
+            display.setStripePattern(fill);
+        }
+
+        @Override
+        public void renamed(String newName)
+        {
+            // The ordering may have changed, easiest thing to do is
+            // just recalculate the whole lot:
+            recalculateGroups();
+        }
+
+        @Override
+        public void tidyup()
+        {
+            classTarget.removeListener(this);
         }
 
         /**
@@ -429,7 +452,7 @@ public class ClassDiagram extends BorderPane
             contextMenu.getItems().add(contextInbuilt(Config.getString("remove.class"), () -> {
                 classTarget.remove();
                 // Recalculate class contents after deletion:
-                calculateGroups(project.getUnnamedPackage().getClassTargets());
+                recalculateGroups();
             }));
 
 
