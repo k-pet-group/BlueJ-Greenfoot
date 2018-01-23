@@ -414,7 +414,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         return new MenuBar(
             new Menu(Config.getString("menu.edit"), null,
-                        makeMenuItem("New Class...", new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN), () -> doNewClass())
+                        makeMenuItem("new.other.class", new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN), () -> doNewClass())
             ),
             new Menu(Config.getString("menu.controls"), null,
                     makeMenuItem("run.once", new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN), () -> act(pendingCommands)),
@@ -464,13 +464,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     private MenuItem makeMenuItem(String nameKey, KeyCombination accelerator, FXPlatformRunnable action)
     {
-        MenuItem menuItem = new MenuItem(Config.getString(nameKey));
-        if (accelerator != null)
-        {
-            menuItem.setAccelerator(accelerator);
-        }
-        menuItem.setOnAction(e -> action.run());
-        return menuItem;
+        return JavaFXUtil.makeMenuItem(Config.getString(nameKey), action, accelerator);
     }
 
     private void updateGUIState(State newState)
@@ -1211,11 +1205,19 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     }
 
     /**
-     * Create a new class using the NewClaasDialog
+     * Import a class using the import class dialog
+     */
+    public void doImportClass()
+    {
+        // TODO as part of GREENFOOT-637
+    }
+
+    /**
+     * Create a new class using the NewClassDialog
      */
     public void doNewClass()
     {
-        NewClassDialog dialog=new NewClassDialog(this, project.getUnnamedPackage().getDefaultSourceType() );
+        NewClassDialog dialog = new NewClassDialog(this, project.getUnnamedPackage().getDefaultSourceType());
         Optional<NewClassDialog.NewClassInfo> result = dialog.showAndWait();
         String className = dialog.getResult().className;
         SourceType language = dialog.getSelectedLanguage();

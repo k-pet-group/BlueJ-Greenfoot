@@ -125,6 +125,7 @@ public class ClassInfo
             };
             
             display.setOnContextMenuRequested(e -> {
+                e.consume();
                 if (curContextMenu != null)
                 {
                     curContextMenu.hide();

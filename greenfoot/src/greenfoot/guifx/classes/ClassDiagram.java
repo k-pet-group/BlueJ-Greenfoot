@@ -84,6 +84,19 @@ public class ClassDiagram extends BorderPane
         setMaxWidth(Double.MAX_VALUE);
         setMaxHeight(Double.MAX_VALUE);
         
+        setOnContextMenuRequested(e -> {
+            e.consume();
+            // If they right-click on us, we show new-class and import-class actions:
+            ContextMenu contextMenu = new ContextMenu();
+            contextMenu.getItems().add(JavaFXUtil.makeMenuItem(
+                    Config.getString("new.other.class"),
+                    () -> greenfootStage.doNewClass(), null));
+            contextMenu.getItems().add(JavaFXUtil.makeMenuItem(
+                    Config.getString("import.action"),
+                    () -> greenfootStage.doImportClass(), null));
+            contextMenu.show(this, e.getScreenX(), e.getScreenY());
+        });
+        
         // Organise the current classes into their groups:
         calculateGroups(project.getUnnamedPackage().getClassTargets());
     }
@@ -319,6 +332,7 @@ public class ClassDiagram extends BorderPane
         protected void setupClassDisplay(GreenfootStage greenfootStage, ClassDisplay display)
         {
             display.setOnContextMenuRequested(e -> {
+                e.consume();
                 showContextMenu(greenfootStage, display, e);
             });
             display.setOnMouseClicked(e -> {
