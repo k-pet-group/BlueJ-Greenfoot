@@ -8,6 +8,7 @@ import greenfoot.util.GreenfootUtil;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
@@ -205,7 +206,14 @@ public class ImportClassDialog extends Dialog<File>
         @Override
         protected void setupClassDisplay(GreenfootStage greenfootStage, ClassDisplay display)
         {
-            // No context menus or custom actions
+            // No context menus
+            display.setOnMouseClicked(e -> {
+                if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 2)
+                {
+                    setResult(file);
+                    close();
+                }
+            });
         }
     }
 

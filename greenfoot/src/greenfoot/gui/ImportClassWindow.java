@@ -439,7 +439,7 @@ public class ImportClassWindow extends JFrame
      * 
      * So given /foo/Crab.java or /foo/Crab.class, it looks (case insensitive) for /foo/crab.png, /foo/Crab.jpg, etc
      */
-    private static File findImage(File classFile)
+    public static File findImage(File classFile)
     {
         String[] extensions = ImageIO.getReaderFileSuffixes();
         
