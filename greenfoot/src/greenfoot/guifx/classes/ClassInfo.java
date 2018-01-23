@@ -48,7 +48,7 @@ public class ClassInfo
     private final Image image;
     private final List<ClassInfo> subClasses = new ArrayList<>();
     // If non-null, exists *and* is already a child of the enclosing ClassGroup
-    private ClassDisplay display;
+    protected ClassDisplay display;
     // If non-null, exists *and* is already a child of the enclosing ClassGroup
     private InheritArrow arrowFromSub;
     private final ClassDisplaySelectionManager selectionManager;
@@ -125,6 +125,7 @@ public class ClassInfo
             };
             
             display.setOnContextMenuRequested(e -> {
+                e.consume();
                 if (curContextMenu != null)
                 {
                     curContextMenu.hide();
@@ -164,5 +165,13 @@ public class ClassInfo
             arrowFromSub = new InheritArrow();
         }
         return arrowFromSub;
+    }
+
+    /**
+     * Called when this ClassInfo is being disposed of.  Remove
+     * any listeners, etc.
+     */
+    public void tidyup()
+    {   
     }
 }

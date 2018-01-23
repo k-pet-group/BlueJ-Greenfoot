@@ -364,6 +364,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         // We send a reset to make a new world after the project properties have been sent across:
         pendingCommands.add(new Command(COMMAND_RESET));
         JavaFXUtil.addChangeListenerPlatform(stateProperty, this::updateGUIState);
+        /* Uncomment this to use ScenicView temporarily during development (use reflection to avoid needing to mess with Ant classpath)
+        try
+        {
+            getClass().getClassLoader().loadClass("org.scenicview.ScenicView").getMethod("show", Scene.class).invoke(null, scene);
+        }
+        catch (Exception e)
+        {
+            Debug.reportError(e);
+        }*/
     }
 
     private void loadAndMirrorProperties(List<Command> pendingCommands)
@@ -405,7 +414,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         return new MenuBar(
             new Menu(Config.getString("menu.edit"), null,
-                        makeMenuItem("New Class...", new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN), () -> doNewClass())
+                        makeMenuItem("new.other.class", new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN), () -> doNewClass())
             ),
             new Menu(Config.getString("menu.controls"), null,
                     makeMenuItem("run.once", new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN), () -> act(pendingCommands)),
@@ -455,13 +464,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     private MenuItem makeMenuItem(String nameKey, KeyCombination accelerator, FXPlatformRunnable action)
     {
-        MenuItem menuItem = new MenuItem(Config.getString(nameKey));
-        if (accelerator != null)
-        {
-            menuItem.setAccelerator(accelerator);
-        }
-        menuItem.setOnAction(e -> action.run());
-        return menuItem;
+        return JavaFXUtil.makeMenuItem(Config.getString(nameKey), action, accelerator);
     }
 
     private void updateGUIState(State newState)
@@ -492,15 +495,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 newActorProperty.get().previewNode.setTranslateX(e.getX() - newActorProperty.get().previewNode.getWidth() / 2.0);
                 newActorProperty.get().previewNode.setTranslateY(e.getY() - newActorProperty.get().previewNode.getHeight() / 2.0);
 
-                newActorProperty.get().cannotDrop.set(!worldDisplay.contains(worldDisplay.sceneToLocal(lastMousePosInScene)));
+                newActorProperty.get().cannotDrop.set(!worldDisplay.worldContains(worldDisplay.sceneToWorld(lastMousePosInScene)));
             }
         });
         stackPane.setOnMouseClicked(e -> {
             lastMousePosInScene = new Point2D(e.getSceneX(), e.getSceneY());
             if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 1 && newActorProperty.get() != null)
             {
-                Point2D dest = worldDisplay.sceneToLocal(lastMousePosInScene);
-                if (worldDisplay.contains(dest))
+                Point2D dest = worldDisplay.sceneToWorld(lastMousePosInScene);
+                if (worldDisplay.worldContains(dest))
                 {
                     // Bit hacky to pass positions as strings, but mirroring the values as integers
                     // would have taken a lot of code changes to route through to VMReference:
@@ -555,7 +558,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
                 newVal.previewNode.setTranslateX(lastMousePosInScene.getX() - newVal.previewNode.getWidth() / 2.0);
                 newVal.previewNode.setTranslateY(lastMousePosInScene.getY() - newVal.previewNode.getHeight() / 2.0);
-                newVal.cannotDrop.set(!worldDisplay.contains(worldDisplay.sceneToLocal(lastMousePosInScene)));
+                newVal.cannotDrop.set(!worldDisplay.worldContains(worldDisplay.sceneToWorld(lastMousePosInScene)));
             }
         });
     }
@@ -1000,6 +1003,27 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     }
 
     /**
+     * Gets the image, if one has been set, for the given class target, by looking at that
+     * class and its ancestors.  Returns the loaded image, or null if none was found.
+     */
+    public Image getImageForClassTarget(ClassTarget classTarget)
+    {
+        File file = getImageFilename(classTarget.getTypeReflective());
+        if (file != null)
+        {
+            try
+            {
+                return new Image(file.toURI().toURL().toExternalForm());
+            }
+            catch (MalformedURLException e)
+            {
+                Debug.reportError(e);
+            }
+        }
+        return null;
+    }
+
+    /**
      * Get an ImageView with the appropriate preview image for this class type.
      * If no suitable image found, the Greenfoot icon will be used.
      */
@@ -1181,11 +1205,19 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     }
 
     /**
-     * Create a new class using the NewClaasDialog
+     * Import a class using the import class dialog
+     */
+    public void doImportClass()
+    {
+        // TODO as part of GREENFOOT-637
+    }
+
+    /**
+     * Create a new class using the NewClassDialog
      */
     public void doNewClass()
     {
-        NewClassDialog dialog=new NewClassDialog(this, project.getUnnamedPackage().getDefaultSourceType() );
+        NewClassDialog dialog = new NewClassDialog(this, project.getUnnamedPackage().getDefaultSourceType());
         Optional<NewClassDialog.NewClassInfo> result = dialog.showAndWait();
         String className = dialog.getResult().className;
         SourceType language = dialog.getSelectedLanguage();
