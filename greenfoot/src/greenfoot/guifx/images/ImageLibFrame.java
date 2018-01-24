@@ -213,31 +213,37 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
      */
     private Pane buildImageLists()
     {
-        HBox listsPane = new HBox(10);
-
         // Project images panel
         File projDir = project.getProjectDir();
         projImagesDir = new File(projDir, "images");
         projImageList = new ImageLibList(projImagesDir, false, defaultIcon);//true?
         ScrollPane imageScrollPane = new ScrollPane(projImageList);
 
-        VBox piPanel = new VBox(5);
-        piPanel.getChildren().addAll(new Label(Config.getString("imagelib.projectImages")), imageScrollPane);
-        listsPane.getChildren().add(piPanel);
-
-        // Category selection panel
-        File imageDir = new File(Config.getGreenfootLibDir(), "imagelib");
-        ImageCategorySelector imageCategorySelector = new ImageCategorySelector(imageDir);
+        VBox piPanel = new VBox(5, new Label(Config.getString("imagelib.projectImages")), imageScrollPane);
         // List of images
         greenfootImageList = new ImageLibList(false);
-        Pane greenfootLibPanel = new GreenfootImageLibPane(imageCategorySelector, greenfootImageList);
-        listsPane.getChildren().add(greenfootLibPanel);
 
         JavaFXUtil.addChangeListener(projImageList.getSelectionModel().selectedItemProperty(), imageListEntry -> valueChanged(imageListEntry, true));
         JavaFXUtil.addChangeListener(greenfootImageList.getSelectionModel().selectedItemProperty(), imageListEntry -> valueChanged(imageListEntry, false));
+
+        return new HBox(10, piPanel, createImageLibPane());
+    }
+
+    /**
+     * Creates Pane of lists that shows selectors for images in the Greenfoot library.
+     *
+     * @return A pane containing the two list views: the images' categories and the images in the library.
+     */
+    private Pane createImageLibPane()
+    {
+        // Category selection panel
+        File imageDir = new File(Config.getGreenfootLibDir(), "imagelib");
+        ImageCategorySelector imageCategorySelector = new ImageCategorySelector(imageDir);
         imageCategorySelector.setImageLibList(greenfootImageList);
 
-        return listsPane;
+        VBox categoryPane = new VBox(5, new Label(Config.getString("imagelib.categories")), new ScrollPane(imageCategorySelector));
+        VBox imagePane = new VBox(5, new Label(Config.getString("imagelib.images")), new ScrollPane(greenfootImageList));
+        return new HBox(2, categoryPane, imagePane);
     }
 
     /**
