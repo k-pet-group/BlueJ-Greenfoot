@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2016  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2016,2018  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -50,7 +50,7 @@ public class TestUtilDelegate implements GreenfootUtilDelegate
 
     public String getGreenfootLogoPath()
     {
-        return "greenfoot.png";
+        return "resources/images/greenfoot-icon-16.png";
     }
 
     public String getNewProjectName(Component parent)
