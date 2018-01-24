@@ -465,7 +465,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
             // Prompt user to "Save elsewhere"
 
 
-            DialogManager.showMessageFX(null, "project-is-readonly", new String[]{projectDir.toString()});
+            DialogManager.showMessageFX(null, "project-is-readonly", projectDir.toString());
 
             boolean done = false;
 

@@ -1012,19 +1012,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     public Image getImageForClassTarget(ClassTarget classTarget)
     {
-        File file = getImageFilename(classTarget.getTypeReflective());
-        if (file != null)
-        {
-            try
-            {
-                return new Image(file.toURI().toURL().toExternalForm());
-            }
-            catch (MalformedURLException e)
-            {
-                Debug.reportError(e);
-            }
-        }
-        return null;
+        return JavaFXUtil.loadImage(getImageFilename(classTarget.getTypeReflective()));
     }
 
     /**
@@ -1227,7 +1215,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             {
                 if (preexist.getQualifiedName().equals(className))
                 {
-                    DialogManager.showErrorTextFX(this, "The current project already contains a class named " + className);
+                    DialogManager.showMessageFX(this, "import-class-exists", className);
                     return;
                 }
             }
@@ -1238,7 +1226,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 destImage = new File(new File(project.getProjectDir(), "images"), srcImage.getName());
                 if (destImage.exists())
                 {
-                    DialogManager.showErrorTextFX(this, "The current project already contains an image file named " + srcImage.getName() + "; this file will NOT be replaced.");
+                    DialogManager.showMessageFX(this, "import-image-exists", srcImage.getName());
                 }
             }
 

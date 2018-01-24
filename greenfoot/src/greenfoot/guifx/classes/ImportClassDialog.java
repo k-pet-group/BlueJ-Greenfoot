@@ -9,7 +9,6 @@ import greenfoot.util.GreenfootUtil;
 import javafx.geometry.Insets;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
-import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
@@ -18,7 +17,6 @@ import javafx.stage.Modality;
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -70,7 +68,6 @@ public class ImportClassDialog extends Dialog<File>
                 {
                     try
                     {
-                        
                         docView.getEngine().load(htmlFile.toURI().toURL().toExternalForm());
                         docView.setVisible(true);
                     }
@@ -106,6 +103,8 @@ public class ImportClassDialog extends Dialog<File>
 
     /**
      * Find all the importable classes in the given directory and all its subdirectories.
+     * @param dir The directory to search (must be non null)
+     * @return The list of all classes found.
      */
     private List<ImportableClassInfo> findImportableClasses(File dir)
     {
@@ -162,7 +161,11 @@ public class ImportClassDialog extends Dialog<File>
     /**
      * Looks for an image that might be associated with the given class.
      *
-     * So given /foo/Crab.java or /foo/Crab.class, it looks (case insensitive) for /foo/crab.png, /foo/Crab.jpg, etc
+     * So given /foo/Crab.java, /foo/Crab.stride or /foo/Crab.class, 
+     * it looks (case insensitive) for /foo/crab.png, /foo/Crab.jpg, etc
+     * 
+     * @param classFile The original file, the extension of which will be ignored.
+     * @return The image file found (arbitrary pick if multiple), or null if none found.
      */
     private static File findImage(File classFile)
     {
@@ -174,11 +177,16 @@ public class ImportClassDialog extends Dialog<File>
         File[] allFiles = directory.listFiles();
 
         if (allFiles == null)
+        {
             return null;
+        }
 
-        for (File f : allFiles) {
-            for (String ext : extensions) {
-                if (f.getName().equalsIgnoreCase(stemName + "." + ext)) {
+        for (File f : allFiles)
+        {
+            for (String ext : extensions)
+            {
+                if (f.getName().equalsIgnoreCase(stemName + "." + ext))
+                {
                     return f;
                 }
             }
@@ -201,7 +209,7 @@ public class ImportClassDialog extends Dialog<File>
             super(
                 GreenfootUtil.removeExtension(file.getName()),
                 GreenfootUtil.removeExtension(file.getName()), 
-                loadImage(findImage(file)),
+                JavaFXUtil.loadImage(findImage(file)),
                 Collections.emptyList(),
                 classDisplaySelectionManager);
             this.file = file;
@@ -221,20 +229,4 @@ public class ImportClassDialog extends Dialog<File>
         }
     }
 
-    private static Image loadImage(File image)
-    {
-        if (image != null)
-        {
-            try
-            {
-                return new Image(image.toURI().toURL().toExternalForm());
-            }
-            catch (MalformedURLException e)
-            {
-                Debug.reportError(e);
-            }
-        }
-        
-        return null;
-    }
 }
