@@ -56,3 +56,9 @@ The file "$" already exists. Do you want to overwrite it?
 Overwrite
 Cancel
 null
+
+import-image-exists
+The current project already contains an image file named $; this file will NOT be replaced.
+
+import-class-exists
+The current project already contains a class named $.  A class of the same name cannot be imported.

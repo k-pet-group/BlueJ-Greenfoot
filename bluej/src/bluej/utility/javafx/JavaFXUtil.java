@@ -26,6 +26,7 @@ import java.awt.event.MouseListener;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -747,6 +748,28 @@ public class JavaFXUtil
                 ((Region) scrollPane.getContent()).requestLayout();
             }
         });
+    }
+
+    /**
+     * Loads the given file as a JavaFX Image.
+     * @param image The path of the image to load.  If null, null will definitely be returned.
+     * @return The image if successfully loaded, null otherwise.
+     */
+    public static Image loadImage(File image)
+    {
+        if (image != null)
+        {
+            try
+            {
+                return new Image(image.toURI().toURL().toExternalForm());
+            }
+            catch (MalformedURLException e)
+            {
+                Debug.reportError(e);
+            }
+        }
+        
+        return null;
     }
 
     /**

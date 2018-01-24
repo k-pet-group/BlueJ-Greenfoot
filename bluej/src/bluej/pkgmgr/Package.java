@@ -1011,7 +1011,10 @@ public final class Package
 
             if (target == null) {
                 Target newtarget = addClass(targetName);
-                getEditor().findSpaceForVertex(newtarget);
+                if (getEditor() != null)
+                {
+                    getEditor().findSpaceForVertex(newtarget);
+                }
             }
         }
 

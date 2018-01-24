@@ -142,13 +142,6 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
             arrowArms.add(y + halfHeight - startY);
             
             classDisplay.setLayoutX(x);
-            // Update our preferred width if we've found a long class:
-            if (x + classDisplay.getWidth() > getPrefWidth())
-            {
-                setPrefWidth(x + classDisplay.getWidth());
-                // Because we are within layout, we need an explicit call to notify parent of width change:
-                getParent().requestLayout();
-            }
             classDisplay.setLayoutY(y);
             // If height changes, we will layout again because of the listener added above:
             y += classDisplay.getHeight();
@@ -193,6 +186,16 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
                 .filter(c -> c instanceof ClassDisplay)
                 .mapToDouble(c -> VERTICAL_SPACING + c.prefHeight(width))
                 .sum();
+    }
+
+    @Override
+    protected double computePrefWidth(double height)
+    {
+        return getChildren().stream()
+                .filter(c -> c instanceof ClassDisplay)
+                .mapToDouble(c -> c.getBoundsInParent().getMaxX())
+                .max().orElse(0.0)
+                + VERTICAL_SPACING; // Use vertical spacing for right spacer
     }
 
     /**

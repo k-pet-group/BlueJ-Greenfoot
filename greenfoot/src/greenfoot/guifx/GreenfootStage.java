@@ -62,8 +62,10 @@ import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
+import greenfoot.gui.ImportClassWindow;
 import greenfoot.gui.classbrowser.role.NormalClassRole;
 import greenfoot.guifx.classes.ClassDisplay;
+import greenfoot.guifx.classes.ImportClassDialog;
 import greenfoot.guifx.images.ImageLibFrame;
 import greenfoot.guifx.images.ImageSelectionWatcher;
 import greenfoot.guifx.soundrecorder.SoundRecorderControls;
@@ -71,6 +73,7 @@ import greenfoot.guifx.classes.ClassDiagram;
 import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
 import greenfoot.record.GreenfootRecorder;
 
+import greenfoot.util.GreenfootUtil;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -414,7 +417,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         return new MenuBar(
             new Menu(Config.getString("menu.edit"), null,
-                        makeMenuItem("new.other.class", new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN), () -> doNewClass())
+                makeMenuItem("new.other.class", new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN), () -> doNewClass()),
+                makeMenuItem("import.action", new KeyCodeCombination(KeyCode.I, KeyCombination.SHORTCUT_DOWN), () -> doImportClass())
             ),
             new Menu(Config.getString("menu.controls"), null,
                     makeMenuItem("run.once", new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN), () -> act(pendingCommands)),
@@ -1008,19 +1012,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     public Image getImageForClassTarget(ClassTarget classTarget)
     {
-        File file = getImageFilename(classTarget.getTypeReflective());
-        if (file != null)
-        {
-            try
-            {
-                return new Image(file.toURI().toURL().toExternalForm());
-            }
-            catch (MalformedURLException e)
-            {
-                Debug.reportError(e);
-            }
-        }
-        return null;
+        return JavaFXUtil.loadImage(getImageFilename(classTarget.getTypeReflective()));
     }
 
     /**
@@ -1198,6 +1190,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             GreenfootUtilDelegateIDE.getInstance().duplicate(originalClassName, className, originalFile, newFile, sourceType);
             ClassTarget newClass = classDiagram.getSelectedClass().getPackage().addClass(className);
             classDiagram.addClass(newClass);
+            // TODO set the image property (recorded as part of GREENFOOT-641 ticket)
         }
         catch (IOException ioe) {
             ioe.printStackTrace();
@@ -1209,7 +1202,76 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     public void doImportClass()
     {
-        // TODO as part of GREENFOOT-637
+        File srcFile = new ImportClassDialog(this).showAndWait().orElse(null);
+
+        if (srcFile != null)
+        {
+            boolean librariesImportedFlag = false;
+            String className = GreenfootUtil.removeExtension(srcFile.getName());
+            
+            // Check if a class of the same name already exists in the project.
+            // Renaming would be too tricky, so just issue error and stop in that case:
+            for (ClassTarget preexist : project.getUnnamedPackage().getClassTargets())
+            {
+                if (preexist.getQualifiedName().equals(className))
+                {
+                    DialogManager.showMessageFX(this, "import-class-exists", className);
+                    return;
+                }
+            }
+            File srcImage = ImportClassWindow.findImage(srcFile);
+            File destImage = null;
+            if (srcImage != null)
+            {
+                destImage = new File(new File(project.getProjectDir(), "images"), srcImage.getName());
+                if (destImage.exists())
+                {
+                    DialogManager.showMessageFX(this, "import-image-exists", srcImage.getName());
+                }
+            }
+
+            // Copy the java/class file cross:
+            File destFile = new File(project.getProjectDir(), srcFile.getName());
+            GreenfootUtil.copyFile(srcFile, destFile);
+
+            // Copy the lib files cross:
+            File libFolder = new File(srcFile.getParentFile(), className + "/lib");
+            if ( (libFolder.exists()) && (libFolder.listFiles().length > 0) )
+            {
+                for (File srcLibFile : libFolder.listFiles())
+                {
+                    File destLibFile = new File(project.getProjectDir(), "+libs/" + srcLibFile.getName());
+                    GreenfootUtil.copyFile(srcLibFile, destLibFile);
+                }
+                librariesImportedFlag = true;
+            }
+
+            // We must reload the package to be able to access the GClass object:
+            project.getUnnamedPackage().reload();
+            ClassTarget gclass = (ClassTarget)project.getUnnamedPackage().getTarget(className);
+
+            if (gclass == null)
+            {
+                return;
+            }
+
+            // Copy the image across and set it as the class image:
+            if (srcImage != null && destImage != null && !destImage.exists())
+            {
+                GreenfootUtil.copyFile(srcImage, destImage);
+                // TODO set the image property (recorded as part of GREENFOOT-641 ticket)
+                //project.setClassProperty("image", destImage.getName());
+            }
+
+            //Finally, update the class browser:
+            classDiagram.addClass(gclass);
+
+            if (librariesImportedFlag)
+            {
+                // Must restart debug VM to load the imported library:
+                project.restartVM();
+            }
+        }
     }
 
     /**
