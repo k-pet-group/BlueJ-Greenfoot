@@ -42,7 +42,10 @@ import greenfoot.util.GreenfootUtil;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
@@ -89,8 +92,6 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
     private MenuItem editItem;
     private MenuItem duplicateItem;
     private MenuItem deleteItem;
-
-    //TODO private Timer refreshTimer;
 
     /** Suffix used when creating a copy of an existing image (duplicate) */
     private static final String COPY_SUFFIX = Config.getString("imagelib.duplicate.image.name.suffix");
@@ -179,9 +180,13 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         // Ok and cancel buttons
         getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
 
-        // TODO
-        // refreshTimer = new Timer(2000, e -> projImageList.refreshPreviews());
-        // refreshTimer.start();
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run()
+            {
+                Platform.runLater(() -> projImageList.refresh());
+            }
+        }, 0, 2000);
 
         setResultConverter(bt -> bt == ButtonType.OK ? selectedImageFile : null);
     }
