@@ -27,6 +27,7 @@ import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.utility.Debug;
+import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXCustomizedDialog;
@@ -51,7 +52,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -93,10 +93,9 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
     //TODO private Timer refreshTimer;
 
     /** Suffix used when creating a copy of an existing image (duplicate) */
-    private static final String COPY_SUFFIX = Config.getPropString("imagelib.duplicate.image.name.suffix");
+    private static final String COPY_SUFFIX = Config.getString("imagelib.duplicate.image.name.suffix");
 
     /** PopupMenu icon */
-    // TODO
     private static final String DROPDOWN_ICON_FILE = "menu-button.png";
     
     /** A watcher that goes notified when an image is selected, to allow for previewing. May be null */
@@ -161,7 +160,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
      */
     private void buildUI(List<String> description)
     {
-        VBox contentPane = new VBox();
+        VBox contentPane = new VBox(10);
         setContentPane(contentPane);
 
         if (description != null)
@@ -175,7 +174,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         }
 
         // Class details - name, current icon
-        contentPane.getChildren().addAll(buildClassDetailsPanel(project.getUnnamedPackage()), buildImageLists(), createCogMenuPane());
+        contentPane.getChildren().addAll(buildClassDetailsPanel(project.getUnnamedPackage()), buildImageLists(), createCogMenu());
 
         // Ok and cancel buttons
         getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
@@ -191,24 +190,20 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
      * Creates the cog button, which contains options for a selected image and options to
      * add new or imported images to the project.
      *
-     * @return a Pane containing the cog button.
+     * @return a Menu Button representing the cog.
      */
-    private Pane createCogMenuPane()
+    private MenuButton createCogMenu()
     {
         editItem = createSelectedEntryMenuItem("imagelib.edit", "imagelib.edit.tooltip", this::editImage);
         duplicateItem = createSelectedEntryMenuItem("imagelib.duplicate", "imagelib.duplicate.tooltip", this::duplicateSelected);
         deleteItem = createSelectedEntryMenuItem("imagelib.delete", "imagelib.delete.tooltip", this::confirmDelete);
 
-        MenuButton dropDownButton = new MenuButton(Config.getString("imagelib.more"),
+        return new MenuButton(Config.getString("imagelib.more"),
                 new ImageView(new Image(ImageLibFrame.class.getClassLoader().getResourceAsStream(DROPDOWN_ICON_FILE))),
                 editItem, duplicateItem, deleteItem, new SeparatorMenuItem(),
                 createGeneralMenuItem("imagelib.create.button", "imagelib.create.tooltip", event -> createNewImage()),
                 createGeneralMenuItem("imagelib.paste.image", "imagelib.paste.tooltip", event -> pasteImage()),
                 createGeneralMenuItem("imagelib.import.button", "imagelib.import.tooltip", event -> importImage()));
-
-        BorderPane borderPane = new BorderPane();
-        borderPane.getChildren().add(dropDownButton);
-        return borderPane;
     }
 
     /**
@@ -218,31 +213,37 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
      */
     private Pane buildImageLists()
     {
-        HBox listsPane = new HBox();
-
         // Project images panel
         File projDir = project.getProjectDir();
         projImagesDir = new File(projDir, "images");
         projImageList = new ImageLibList(projImagesDir, false, defaultIcon);//true?
         ScrollPane imageScrollPane = new ScrollPane(projImageList);
 
-        VBox piPanel = new VBox();
-        piPanel.getChildren().addAll(new Label(Config.getString("imagelib.projectImages")), imageScrollPane);
-        listsPane.getChildren().add(piPanel);
-
-        // Category selection panel
-        File imageDir = new File(Config.getGreenfootLibDir(), "imagelib");
-        ImageCategorySelector imageCategorySelector = new ImageCategorySelector(imageDir);
+        VBox piPanel = new VBox(5, new Label(Config.getString("imagelib.projectImages")), imageScrollPane);
         // List of images
         greenfootImageList = new ImageLibList(false);
-        Pane greenfootLibPanel = new GreenfootImageLibPane(imageCategorySelector, greenfootImageList);
-        listsPane.getChildren().add(greenfootLibPanel);
 
         JavaFXUtil.addChangeListener(projImageList.getSelectionModel().selectedItemProperty(), imageListEntry -> valueChanged(imageListEntry, true));
         JavaFXUtil.addChangeListener(greenfootImageList.getSelectionModel().selectedItemProperty(), imageListEntry -> valueChanged(imageListEntry, false));
+
+        return new HBox(10, piPanel, createImageLibPane());
+    }
+
+    /**
+     * Creates Pane of lists that shows selectors for images in the Greenfoot library.
+     *
+     * @return A pane containing the two list views: the images' categories and the images in the library.
+     */
+    private Pane createImageLibPane()
+    {
+        // Category selection panel
+        File imageDir = new File(Config.getGreenfootLibDir(), "imagelib");
+        ImageCategorySelector imageCategorySelector = new ImageCategorySelector(imageDir);
         imageCategorySelector.setImageLibList(greenfootImageList);
 
-        return listsPane;
+        VBox categoryPane = new VBox(5, new Label(Config.getString("imagelib.categories")), new ScrollPane(imageCategorySelector));
+        VBox imagePane = new VBox(5, new Label(Config.getString("imagelib.images")), new ScrollPane(greenfootImageList));
+        return new HBox(2, categoryPane, imagePane);
     }
 
     /**
@@ -588,7 +589,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         }
         else
         {
-            new Alert(Alert.AlertType.ERROR, "no-clipboard-image-data").show();
+            DialogManager.showErrorFX(this.asWindow(), "no-clipboard-image-data");
         }
     }
 }
