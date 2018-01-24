@@ -223,7 +223,6 @@ imagelib.scenario.frame.title=Scenario Images
 imagelib.delete.confirm.title=Confirm Deletion
 imagelib.delete.confirm.text=Are you sure you want to delete 
 imagelib.image.invalid.title=Invalid Image
-imagelib.image.invalid.text=is not a valid image.
 imagelib.image.unsupportedformat.title=Unsupported Format
 imagelib.image.unsupportedformat.text=is not supported on your machine.  Please choose another and try again.
 imagelib.rename.exists.text=Cannot rename file because a file with that name already exists.

@@ -404,19 +404,13 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
      */
     private void selectImage(File imageFile)
     {
-        if (imageFile == null || GreenfootUtil.isImage(imageFile)) {
-            selectedImageFile = imageFile;
-            if (selectionWatcher != null) {
-                selectionWatcher.imageSelected(selectedImageFile);
-            }
-        }
-        else {
-            // TODO AA change this to filter out invalid
-            new Alert(Alert.AlertType.ERROR, imageFile.getName() + " " +
-                    Config.getString("imagelib.image.invalid.text"), ButtonType.OK).show();
+        selectedImageFile = imageFile;
+        if (selectionWatcher != null)
+        {
+            selectionWatcher.imageSelected(selectedImageFile);
         }
     }
-    
+
     /**
      * Gets specified image file (which will be project images/ directory) for this specific
      * class, without searching super classes (see getClassImage for that).  Returns null if none
