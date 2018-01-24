@@ -109,11 +109,13 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
     /**
      * Refresh the contents of the list.
      */
+    @Override
     public void refresh()
     {
         if(getDirectory()!=null) {
             setDirectory(getDirectory());
         }
+        super.refresh();
     }
 
     /**
