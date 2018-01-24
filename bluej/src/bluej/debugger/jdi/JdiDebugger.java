@@ -346,24 +346,41 @@ public class JdiDebugger extends Debugger
      * Create a class loader in the debugger.
      * @param bpClassLoader the class loader that should be used to load the user classes in the remote VM.
      */
-    public synchronized void newClassLoader(BPClassLoader bpClassLoader)
+    public void newClassLoader(BPClassLoader bpClassLoader)
     {
-        // lastProjectClassLoader is used if there is a VM restart
-        if (bpClassLoader != null) {
-            lastProjectClassLoader = bpClassLoader;
+        VMReference vmr = null;
+        synchronized (JdiDebugger.this)
+        {
+            // lastProjectClassLoader is used if there is a VM restart
+            if (bpClassLoader != null)
+            {
+                lastProjectClassLoader = bpClassLoader;
+            }
+            else
+            {
+                return;
+            }
+
+            vmr = getVMNoWait();
+            if (vmr != null)
+            {
+                usedNames.clear();
+            }
         }
-        else {
-            return;
-        }
-    
-        VMReference vmr = getVMNoWait();
-        if (vmr != null) {
-            usedNames.clear();
-            try {
+        // Do this outside the synchronized block, as otherwise we can deadlock if we wait
+        // for the worker thread to finish (which newClassLoader does) while holding the JdiDebugger
+        // monitor: the worker may be busy and hit a breakpoint, which requires the JdiDebugger monitor
+        // to handler before the worker thread can finish.
+        if (vmr != null)
+        {
+            try
+            {
                 vmr.clearAllBreakpoints();
                 vmr.newClassLoader(bpClassLoader.getURLs());
             }
-            catch (VMDisconnectedException vmde) {}
+            catch (VMDisconnectedException vmde)
+            {
+            }
         }
     }
 
