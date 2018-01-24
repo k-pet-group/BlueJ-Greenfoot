@@ -288,7 +288,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
     private void createNewImage()
     {
         String name = includeClassNameField ? getClassName() : classTarget.getQualifiedName();
-        NewImageDialog newImage = new NewImageDialog(ImageLibFrame.this, projImagesDir, name);
+        NewImageDialog newImage = new NewImageDialog(this, projImagesDir, name);
         final File file = newImage.displayModal();
         if (file != null) {
             projImageList.refresh();
@@ -456,7 +456,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
                 new ExtensionFilter("Images", "*.png", "*.jpg", "*.gif"),
                 new ExtensionFilter("All Files", "*.*"));
 
-        File selectedFile = chooser.showOpenDialog(this.getOwner());//Config.getString("imagelib.choose.button")
+        File selectedFile = chooser.showOpenDialog(this.asWindow());
         if (selectedFile != null) {
             File newFile = new File(projImagesDir, selectedFile.getName());
             GreenfootUtil.copyFile(selectedFile, newFile);
@@ -565,8 +565,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         if (Clipboard.getSystemClipboard().hasImage())
         {
             Image image = Clipboard.getSystemClipboard().getImage();
-            PastedImageNameDialog dlg = new PastedImageNameDialog(this.getOwner(), image, null);
-            dlg.showAndWait().ifPresent(name -> {
+            new PastedImageNameDialog(this.asWindow(), image, null).showAndWait().ifPresent(name -> {
                 try
                 {
                     ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", new File(projImagesDir, name + ".png"));
