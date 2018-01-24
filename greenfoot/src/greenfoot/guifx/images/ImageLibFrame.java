@@ -27,6 +27,7 @@ import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.utility.Debug;
+import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXCustomizedDialog;
@@ -588,7 +589,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         }
         else
         {
-            new Alert(Alert.AlertType.ERROR, "no-clipboard-image-data").show();
+            DialogManager.showErrorFX(this.asWindow(), "no-clipboard-image-data");
         }
     }
 }
