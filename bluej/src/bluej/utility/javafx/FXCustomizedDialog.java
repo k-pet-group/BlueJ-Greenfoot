@@ -34,7 +34,7 @@ import threadchecker.Tag;
 
 /**
  * An FX dialog containing all repeated to code needed when creating
- * version control dialogs.
+ * general dialogs.
  *
  * @author Amjad Altadmri
  */

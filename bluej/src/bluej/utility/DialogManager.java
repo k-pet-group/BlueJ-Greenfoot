@@ -43,10 +43,10 @@ import threadchecker.Tag;
 import bluej.Config;
 
 /**
- * The dialog manager is a utility class to simplyfy communication with 
- * the user via dialogs. It provides convinience methods to display
+ * The dialog manager is a utility class to simplify communication with
+ * the user via dialogs. It provides convenience methods to display
  * message, choice or question dialogs. Messages are properly
- * internationalised, using BlueJ's langauage library system.
+ * internationalised, using BlueJ's language library system.
  *
  * @author Michael Kolling
  */

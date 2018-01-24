@@ -177,9 +177,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
 
         // Ok and cancel buttons
         getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
-
         JavaFXUtil.runRegular(Duration.millis(2000), () -> projImageList.refresh());
-
         setResultConverter(bt -> bt == ButtonType.OK ? selectedImageFile : null);
     }
 
