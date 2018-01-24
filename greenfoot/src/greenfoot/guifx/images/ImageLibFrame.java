@@ -58,6 +58,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
+import javafx.util.Duration;
 
 import javax.imageio.ImageIO;
 
@@ -89,8 +90,6 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
     private MenuItem editItem;
     private MenuItem duplicateItem;
     private MenuItem deleteItem;
-
-    //TODO private Timer refreshTimer;
 
     /** Suffix used when creating a copy of an existing image (duplicate) */
     private static final String COPY_SUFFIX = Config.getString("imagelib.duplicate.image.name.suffix");
@@ -179,9 +178,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         // Ok and cancel buttons
         getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
 
-        // TODO
-        // refreshTimer = new Timer(2000, e -> projImageList.refreshPreviews());
-        // refreshTimer.start();
+        JavaFXUtil.runRegular(Duration.millis(2000), () -> projImageList.refresh());
 
         setResultConverter(bt -> bt == ButtonType.OK ? selectedImageFile : null);
     }
@@ -399,19 +396,13 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
      */
     private void selectImage(File imageFile)
     {
-        if (imageFile == null || GreenfootUtil.isImage(imageFile)) {
-            selectedImageFile = imageFile;
-            if (selectionWatcher != null) {
-                selectionWatcher.imageSelected(selectedImageFile);
-            }
-        }
-        else {
-            // TODO AA change this to filter out invalid
-            new Alert(Alert.AlertType.ERROR, imageFile.getName() + " " +
-                    Config.getString("imagelib.image.invalid.text"), ButtonType.OK).show();
+        selectedImageFile = imageFile;
+        if (selectionWatcher != null)
+        {
+            selectionWatcher.imageSelected(selectedImageFile);
         }
     }
-    
+
     /**
      * Gets specified image file (which will be project images/ directory) for this specific
      * class, without searching super classes (see getClassImage for that).  Returns null if none
@@ -511,7 +502,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         File dstFile = null;
         File dir = srcFile.getParentFile();
         String fileName = srcFile.getName();
-        int index = fileName.indexOf('.');
+        int index = fileName.lastIndexOf('.');
         
         String baseName;
         String ext;
@@ -525,7 +516,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
             baseName = fileName;
             ext = "";
         }
-        baseName += COPY_SUFFIX;
+        baseName += ("_" + COPY_SUFFIX);
         
         try
         {
