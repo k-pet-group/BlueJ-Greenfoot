@@ -51,7 +51,6 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -161,7 +160,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
      */
     private void buildUI(List<String> description)
     {
-        VBox contentPane = new VBox();
+        VBox contentPane = new VBox(10);
         setContentPane(contentPane);
 
         if (description != null)
@@ -175,7 +174,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         }
 
         // Class details - name, current icon
-        contentPane.getChildren().addAll(buildClassDetailsPanel(project.getUnnamedPackage()), buildImageLists(), createCogMenuPane());
+        contentPane.getChildren().addAll(buildClassDetailsPanel(project.getUnnamedPackage()), buildImageLists(), createCogMenu());
 
         // Ok and cancel buttons
         getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
@@ -191,24 +190,20 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
      * Creates the cog button, which contains options for a selected image and options to
      * add new or imported images to the project.
      *
-     * @return a Pane containing the cog button.
+     * @return a Menu Button representing the cog.
      */
-    private Pane createCogMenuPane()
+    private MenuButton createCogMenu()
     {
         editItem = createSelectedEntryMenuItem("imagelib.edit", "imagelib.edit.tooltip", this::editImage);
         duplicateItem = createSelectedEntryMenuItem("imagelib.duplicate", "imagelib.duplicate.tooltip", this::duplicateSelected);
         deleteItem = createSelectedEntryMenuItem("imagelib.delete", "imagelib.delete.tooltip", this::confirmDelete);
 
-        MenuButton dropDownButton = new MenuButton(Config.getString("imagelib.more"),
+        return new MenuButton(Config.getString("imagelib.more"),
                 new ImageView(new Image(ImageLibFrame.class.getClassLoader().getResourceAsStream(DROPDOWN_ICON_FILE))),
                 editItem, duplicateItem, deleteItem, new SeparatorMenuItem(),
                 createGeneralMenuItem("imagelib.create.button", "imagelib.create.tooltip", event -> createNewImage()),
                 createGeneralMenuItem("imagelib.paste.image", "imagelib.paste.tooltip", event -> pasteImage()),
                 createGeneralMenuItem("imagelib.import.button", "imagelib.import.tooltip", event -> importImage()));
-
-        BorderPane borderPane = new BorderPane();
-        borderPane.getChildren().add(dropDownButton);
-        return borderPane;
     }
 
     /**
@@ -218,7 +213,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
      */
     private Pane buildImageLists()
     {
-        HBox listsPane = new HBox();
+        HBox listsPane = new HBox(10);
 
         // Project images panel
         File projDir = project.getProjectDir();
@@ -226,7 +221,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         projImageList = new ImageLibList(projImagesDir, false, defaultIcon);//true?
         ScrollPane imageScrollPane = new ScrollPane(projImageList);
 
-        VBox piPanel = new VBox();
+        VBox piPanel = new VBox(5);
         piPanel.getChildren().addAll(new Label(Config.getString("imagelib.projectImages")), imageScrollPane);
         listsPane.getChildren().add(piPanel);
 

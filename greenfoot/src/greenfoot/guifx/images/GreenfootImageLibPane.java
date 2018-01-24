@@ -39,10 +39,12 @@ class GreenfootImageLibPane extends HBox
 {
     GreenfootImageLibPane(ImageCategorySelector categorySelector, ImageLibList imageList)
     {
-        VBox categoryPane = new VBox();
+        super(2);
+
+        VBox categoryPane = new VBox(5);
         categoryPane.getChildren().addAll(new Label(Config.getString("imagelib.categories")), new ScrollPane(categorySelector));
 
-        VBox imagePane = new VBox();
+        VBox imagePane = new VBox(5);
         imagePane.getChildren().addAll(new Label(Config.getString("imagelib.images")), new ScrollPane(imageList));
 
         getChildren().addAll(categoryPane, imagePane);
