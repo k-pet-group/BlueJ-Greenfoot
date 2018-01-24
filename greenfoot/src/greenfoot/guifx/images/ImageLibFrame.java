@@ -516,7 +516,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         File dstFile = null;
         File dir = srcFile.getParentFile();
         String fileName = srcFile.getName();
-        int index = fileName.indexOf('.');
+        int index = fileName.lastIndexOf('.');
         
         String baseName;
         String ext;
@@ -530,7 +530,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
             baseName = fileName;
             ext = "";
         }
-        baseName += COPY_SUFFIX;
+        baseName += ("_" + COPY_SUFFIX);
         
         try
         {
