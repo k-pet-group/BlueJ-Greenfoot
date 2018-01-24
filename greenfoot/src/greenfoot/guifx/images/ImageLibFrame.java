@@ -42,10 +42,7 @@ import greenfoot.util.GreenfootUtil;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
@@ -61,6 +58,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
+import javafx.util.Duration;
 
 import javax.imageio.ImageIO;
 
@@ -180,13 +178,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         // Ok and cancel buttons
         getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
 
-        new Timer().scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run()
-            {
-                Platform.runLater(() -> projImageList.refresh());
-            }
-        }, 0, 2000);
+        JavaFXUtil.runRegular(Duration.millis(2000), () -> projImageList.refresh());
 
         setResultConverter(bt -> bt == ButtonType.OK ? selectedImageFile : null);
     }
