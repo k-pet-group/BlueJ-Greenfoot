@@ -92,10 +92,9 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
     //TODO private Timer refreshTimer;
 
     /** Suffix used when creating a copy of an existing image (duplicate) */
-    private static final String COPY_SUFFIX = Config.getPropString("imagelib.duplicate.image.name.suffix");
+    private static final String COPY_SUFFIX = Config.getString("imagelib.duplicate.image.name.suffix");
 
     /** PopupMenu icon */
-    // TODO
     private static final String DROPDOWN_ICON_FILE = "menu-button.png";
     
     /** A watcher that goes notified when an image is selected, to allow for previewing. May be null */
