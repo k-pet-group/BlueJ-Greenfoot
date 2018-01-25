@@ -62,3 +62,6 @@ The current project already contains an image file named $; this file will NOT b
 
 import-class-exists
 The current project already contains a class named $.  A class of the same name cannot be imported.
+
+imagelib-image-unsupported-format
+Unable to write the image file on the disk.  Try to create the image through another way.

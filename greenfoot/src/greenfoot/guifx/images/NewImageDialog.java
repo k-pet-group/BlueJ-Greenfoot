@@ -147,9 +147,7 @@ public class NewImageDialog extends FXCustomizedDialog<File>
             }
             else
             {
-                // TODO id NOT text ?
-                DialogManager.showErrorFX(getOwner(), "png " + Config.getString("imagelib.image.unsupportedformat.text"));
-                // TODO Config.getString("imagelib.image.unsupportedformat.title")
+                DialogManager.showErrorFX(asWindow(), Config.getString("imagelib-image-unsupported-format"));
             }
         }
         catch (IOException ex)
