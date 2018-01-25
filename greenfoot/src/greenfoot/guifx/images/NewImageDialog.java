@@ -27,6 +27,7 @@ import bluej.utility.DialogManager;
 import bluej.utility.javafx.FXCustomizedDialog;
 import greenfoot.util.ExternalAppLauncher;
 
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
@@ -34,8 +35,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -88,24 +87,22 @@ public class NewImageDialog extends FXCustomizedDialog
      */
     private void buildUI(String rootName)
     {
-        VBox mainPanel = new VBox();
-        setContentPane(mainPanel);
-
         GridPane detailsPanel = new GridPane();
+        detailsPanel.setVgap(10);
+        detailsPanel.setAlignment(Pos.BASELINE_CENTER);
 
-        HBox fileNamePanel = new HBox();
         name = new TextField(rootName);
-        fileNamePanel.getChildren().addAll(name, new Label(".png"));
-        detailsPanel.addRow(0, new Label(Config.getString("imagelib.new.image.name") + " "), fileNamePanel);
+        detailsPanel.addRow(0, new Label(Config.getString("imagelib.new.image.name") + " "), name, new Label(".png"));
 
-        width = new Spinner(1, MAX_IMAGE_WIDTH, imageWidth, 1);
+        width = new Spinner(1, MAX_IMAGE_WIDTH, imageWidth);
         detailsPanel.addRow(1, new Label(Config.getString("imagelib.new.image.width")), width);
 
-        height = new Spinner(1, MAX_IMAGE_HEIGHT, imageHeight, 1);
+        height = new Spinner(1, MAX_IMAGE_HEIGHT, imageHeight);
         detailsPanel.addRow(2, new Label(Config.getString("imagelib.new.image.height")), height);
 
-        mainPanel.getChildren().add(detailsPanel);
+        setContentPane(detailsPanel);
 
+        // add buttons
         getDialogPane().getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
         Button okButton = (Button) getDialogPane().lookupButton(ButtonType.OK);
         okButton.disableProperty().bind(name.textProperty().isEmpty());
