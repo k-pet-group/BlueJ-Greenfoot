@@ -1314,7 +1314,45 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     public void newSubClassOf(String fullyQualifiedName)
     {
-        // TODO, probably as part of GREENFOOT-638
+        ClassTarget superC = classDiagram.getSelectedClass();
+        boolean imageClass = false;
+        Class z = superC.getPackage().loadClass(superC.getQualifiedName());
+
+        while (z !=null) {
+
+            if (z.getCanonicalName().equals("greenfoot.World") || z.getCanonicalName().equals("greenfoot.Actor") )
+            {
+                imageClass = true;
+            }
+            z = z.getSuperclass();
+        };
+
+        if (imageClass)
+        {
+            newImageSubClassOf(fullyQualifiedName);
+        }
+        else
+        {
+            NewClassDialog dialog = new NewClassDialog(this, project.getUnnamedPackage().getDefaultSourceType());
+            Optional<NewClassDialog.NewClassInfo> result = dialog.showAndWait();
+            String className = dialog.getResult().className;
+            SourceType language = dialog.getSelectedLanguage();
+
+            try {
+                File dir = project.getProjectDir();
+                final String extension = language.getExtension();
+                File newFile = new File(dir, className + "." + extension);
+                String templateFileName = NormalClassRole.getInstance().getTemplateFileName(false, language);
+                GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, fullyQualifiedName,
+                        newFile, templateFileName, project.getProjectCharset().toString());
+                ClassTarget newClass = new ClassTarget(classDiagram.getSelectedClass().getPackage(),className);
+                classDiagram.addClass(newClass);
+            }
+            catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+
+        }
     }
 
 
