@@ -30,11 +30,11 @@ import greenfoot.util.ExternalAppLauncher;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.stage.Window;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -47,6 +47,7 @@ import java.io.File;
  * default image editing program so the user can edit it.
  * 
  * @author Michael Berry (mjrb4)
+ * @author Amjad Altadmri
  */
 public class NewImageDialog extends FXCustomizedDialog<File>
 {
@@ -60,8 +61,6 @@ public class NewImageDialog extends FXCustomizedDialog<File>
     private Spinner height;
 
     private File projImagesDir;
-    private File file;
-    
     private int imageWidth;
     private int imageHeight;
 
@@ -69,12 +68,12 @@ public class NewImageDialog extends FXCustomizedDialog<File>
      * Create a new image dialog. This is used for specifying the properties for
      * creating a new image, which will then be opened in the image editor.
      *
-     * @param parent the parent frame associated with this dialog
+     * @param parent the parent window associated with this dialog
      * @param projImagesDir the directory in which the images for the project are placed.
      */
-    NewImageDialog(Dialog parent, File projImagesDir, String rootName)
+    NewImageDialog(Window parent, File projImagesDir, String rootName)
     {
-        super(parent.getOwner(), Config.getString("imagelib.new.image.title"), null /* TODO */);
+        super(parent, Config.getString("imagelib.new.image.title"), null);
         this.projImagesDir = projImagesDir;
 
         imageWidth = Config.getPropInteger("greenfoot.image.create.width", DEFAULT_WIDTH);
@@ -122,7 +121,7 @@ public class NewImageDialog extends FXCustomizedDialog<File>
         File file = new File(projImagesDir, name.getText() + ".png");
         if (file.exists())
         {
-            boolean overwrite = DialogManager.askQuestionFX(getOwner(), "imagelib-write-exists", new String[] {file.getName()}) == 0;
+            boolean overwrite = DialogManager.askQuestionFX(this.asWindow(), "imagelib-write-exists", new String[] {file.getName()}) == 0;
             return overwrite && writeImageAndEdit(file) ? file : null;
         }
         return writeImageAndEdit(file) ? file : null;
