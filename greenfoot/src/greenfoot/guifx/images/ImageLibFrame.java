@@ -286,8 +286,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
     private void createNewImage()
     {
         String name = includeClassNameField ? getClassName() : classTarget.getQualifiedName();
-        NewImageDialog newImage = new NewImageDialog(this, projImagesDir, name);
-        final File file = newImage.displayModal();
+        final File file = new NewImageDialog(this, projImagesDir, name).showAndWait().orElse(null);
         if (file != null) {
             projImageList.refresh();
             projImageList.select(file);

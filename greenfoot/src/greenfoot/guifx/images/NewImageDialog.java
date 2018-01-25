@@ -48,7 +48,7 @@ import java.io.File;
  * 
  * @author Michael Berry (mjrb4)
  */
-public class NewImageDialog extends FXCustomizedDialog
+public class NewImageDialog extends FXCustomizedDialog<File>
 {
     private static final int MAX_IMAGE_HEIGHT = 2000;
     private static final int MAX_IMAGE_WIDTH = 2000;
@@ -106,58 +106,44 @@ public class NewImageDialog extends FXCustomizedDialog
         getDialogPane().getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
         Button okButton = (Button) getDialogPane().lookupButton(ButtonType.OK);
         okButton.disableProperty().bind(name.textProperty().isEmpty());
-        okButton.setOnAction(event -> createAndEdit());
-    }
-    
-    File displayModal()
-    {
-        setModal(true);  
-        DialogManager.centreDialog(this);
-        show();
-        //dispose(); hide?? close??
-        setModal(false);
-        return file;
+        setResultConverter(bt -> bt == ButtonType.OK ? createImageFile() : null);
     }
 
-    public File getFile() 
+    /**
+     * Creates an image file with the name specified in the name text field.
+     * If there is a file with the same name in the images folder, it prompts the
+     * user to overwrite or cancel. If the file is created successfully, it will
+     * be written on the disk and opened using the OS default program for its type.
+     *
+     * @return The image file created.
+     */
+    private File createImageFile()
     {
-        return file;
-    }
-
-    private void createAndEdit()
-    {
-        BufferedImage im = new BufferedImage((Integer) width.getValue(), (Integer) height.getValue(),
-                BufferedImage.TYPE_INT_ARGB);
-        String fileName = name.getText();
-        fileName += ".png";
-        file = new File(projImagesDir, fileName);
-
+        File file = new File(projImagesDir, name.getText() + ".png");
         if (file.exists())
         {
             boolean overwrite = DialogManager.askQuestionFX(getOwner(), "imagelib-write-exists", new String[] {file.getName()}) == 0;
-            if (overwrite)
-            {
-                writeAndEdit(im);
-            }
-            else
-            {
-                hide();
-            }
+            return overwrite && writeImageAndEdit(file) ? file : null;
         }
-        else
-        {
-            writeAndEdit(im);
-        }
+        return writeImageAndEdit(file) ? file : null;
     }
-    
-    private void writeAndEdit(BufferedImage im)
+
+    /**
+     * Writes the passed file as an image on the disk, with the width and height
+     * specified by the user, and opens it using the OS default program for its type.
+     *
+     * @param file The image file to be written.
+     * @return True if the file is written successfully on the disk, false otherwise.
+     */
+    private boolean writeImageAndEdit(File file)
     {
+        BufferedImage im = new BufferedImage((Integer) width.getValue(), (Integer) height.getValue(), BufferedImage.TYPE_INT_ARGB);
         try
         {
             if (ImageIO.write(im, "png", file))
             {
                 ExternalAppLauncher.editImage(file);
-                hide();
+                return true;
             }
             else
             {
@@ -170,5 +156,6 @@ public class NewImageDialog extends FXCustomizedDialog
         {
             Debug.reportError("Error editing new image", ex);
         }
+        return false;
     }
 }
