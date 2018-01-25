@@ -1315,21 +1315,17 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public void newSubClassOf(String fullyQualifiedName)
     {
         ClassTarget superC = classDiagram.getSelectedClass();
-        boolean found = false;
         boolean imageClass = false;
-        Class z = superC.getClass().getSuperclass();
+        Class z = superC.getPackage().loadClass(superC.getQualifiedName());
 
-        do {
+        while (z !=null) {
+
             if (z.getCanonicalName().equals("greenfoot.World") || z.getCanonicalName().equals("greenfoot.Actor") )
             {
-                found = true;
+                imageClass = true;
             }
             z = z.getSuperclass();
-        } while (z != null);
-
-        if (found == true) imageClass = true;
-        else
-            imageClass = false;
+        };
 
         if (imageClass)
         {
