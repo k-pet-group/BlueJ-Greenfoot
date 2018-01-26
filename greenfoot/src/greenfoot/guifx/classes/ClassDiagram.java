@@ -84,7 +84,7 @@ public class ClassDiagram extends BorderPane
             ContextMenu contextMenu = new ContextMenu();
             contextMenu.getItems().add(JavaFXUtil.makeMenuItem(
                     Config.getString("new.other.class"),
-                    () -> greenfootStage.doNewClass(project.getUnnamedPackage(), null), null));
+                    () -> greenfootStage.newNonImageClass(project.getUnnamedPackage(), null), null));
             contextMenu.getItems().add(JavaFXUtil.makeMenuItem(
                     Config.getString("import.action"),
                     () -> greenfootStage.doImportClass(), null));

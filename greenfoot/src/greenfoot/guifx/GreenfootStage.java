@@ -454,7 +454,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         return new MenuBar(
             new Menu(Config.getString("menu.edit"), null,
                 makeMenuItem("new.other.class", new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN),
-                            () -> doNewClass(project.getUnnamedPackage(), null)),
+                            () -> newNonImageClass(project.getUnnamedPackage(), null)),
                 makeMenuItem("import.action", new KeyCodeCombination(KeyCode.I, KeyCombination.SHORTCUT_DOWN), () -> doImportClass())
             ),
             new Menu(Config.getString("menu.controls"), null,
@@ -1345,15 +1345,27 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     }
 
     /**
-     * Create a new class using the NewClassDialog
+     * Prompt the user by the NewClassDialog to create a new non-image class.
+     *
+     * @param pkg            The package that should contain the new class.
+     * @param superClassName The super class's full qualified name.
      */
-    public void doNewClass(Package pkg, String fullyQualifiedName)
+    public void newNonImageClass(Package pkg, String superClassName)
     {
-        NewClassDialog dialog = new NewClassDialog(this, project.getUnnamedPackage().getDefaultSourceType());
-        Optional<NewClassDialog.NewClassInfo> result = dialog.showAndWait();
-        String className = dialog.getResult().className;
-        SourceType language = dialog.getSelectedLanguage();
+        new NewClassDialog(this, project.getUnnamedPackage().getDefaultSourceType()).showAndWait()
+                .ifPresent(result -> createNewClass(pkg, superClassName, result.className, result.sourceType));
+    }
 
+    /**
+     * Create a new non-image class in the specified package.
+     *
+     * @param pkg            The package that should contain the new class.
+     * @param superClassName The full qualified name of the super class.
+     * @param className      The class's name, which will be created.
+     * @param language       The source type of the class, e.g. Java or Stride.
+     */
+    private void createNewClass(Package pkg, String superClassName, String className, SourceType language)
+    {
         try
         {
             File dir = project.getProjectDir();
@@ -1364,7 +1376,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
               newFile, templateFileName, project.getProjectCharset().toString());
             ClassTarget newClass = new ClassTarget(this.project.getUnnamedPackage(),className);
             String templateFileName = NormalClassRole.getInstance().getTemplateFileName(false, language);
-            GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, fullyQualifiedName, newFile,
+            GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, superClassName, newFile,
                     templateFileName, project.getProjectCharset().toString());
             ClassTarget newClass = new ClassTarget(pkg, className);
             classDiagram.addClass(newClass);
@@ -1413,18 +1425,20 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     public void newSubClassOf(String fullyQualifiedName)
     {
-        ClassTarget superC = classDiagram.getSelectedClass();
+        ClassTarget classTarget = classDiagram.getSelectedClass();
+        Package pkg = classTarget.getPackage();
+
         boolean imageClass = false;
-        Class z = superC.getPackage().loadClass(superC.getQualifiedName());
-
-        while (z !=null) {
-
-            if (z.getCanonicalName().equals("greenfoot.World") || z.getCanonicalName().equals("greenfoot.Actor") )
+        Class cls = pkg.loadClass(classTarget.getQualifiedName());
+        while (cls !=null)
+        {
+            if (cls.getCanonicalName().equals("greenfoot.World") || cls.getCanonicalName().equals("greenfoot.Actor") )
             {
                 imageClass = true;
+
             }
-            z = z.getSuperclass();
-        };
+            cls = cls.getSuperclass();
+        }
 
         if (imageClass)
         {
@@ -1432,6 +1446,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         }
         else
         {
+            newNonImageClass(pkg, fullyQualifiedName);
             NewClassDialog dialog = new NewClassDialog(this, project.getUnnamedPackage().getDefaultSourceType());
             Optional<NewClassDialog.NewClassInfo> result = dialog.showAndWait();
             String className = dialog.getResult().className;
