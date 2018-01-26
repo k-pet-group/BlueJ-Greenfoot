@@ -43,6 +43,7 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.debugmgr.objectbench.ObjectResultWatcher;
 import bluej.editor.Editor;
 import bluej.extensions.SourceType;
+import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
@@ -452,7 +453,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         return new MenuBar(
             new Menu(Config.getString("menu.edit"), null,
-                makeMenuItem("new.other.class", new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN), () -> doNewClass()),
+                makeMenuItem("new.other.class", new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN),
+                            () -> doNewClass(project.getUnnamedPackage(), null)),
                 makeMenuItem("import.action", new KeyCodeCombination(KeyCode.I, KeyCombination.SHORTCUT_DOWN), () -> doImportClass())
             ),
             new Menu(Config.getString("menu.controls"), null,
@@ -1345,14 +1347,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     /**
      * Create a new class using the NewClassDialog
      */
-    public void doNewClass()
+    public void doNewClass(Package pkg, String fullyQualifiedName)
     {
         NewClassDialog dialog = new NewClassDialog(this, project.getUnnamedPackage().getDefaultSourceType());
         Optional<NewClassDialog.NewClassInfo> result = dialog.showAndWait();
         String className = dialog.getResult().className;
         SourceType language = dialog.getSelectedLanguage();
 
-        try {
+        try
+        {
             File dir = project.getProjectDir();
             final String extension = language.getExtension();
             File newFile = new File(dir, className + "." + extension);
@@ -1360,10 +1363,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, null,
               newFile, templateFileName, project.getProjectCharset().toString());
             ClassTarget newClass = new ClassTarget(this.project.getUnnamedPackage(),className);
+            String templateFileName = NormalClassRole.getInstance().getTemplateFileName(false, language);
+            GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, fullyQualifiedName, newFile,
+                    templateFileName, project.getProjectCharset().toString());
+            ClassTarget newClass = new ClassTarget(pkg, className);
             classDiagram.addClass(newClass);
         }
-        catch (IOException ioe) {
-            ioe.printStackTrace();
+        catch (IOException ioe)
+        {
+            Debug.reportError(ioe);
         }
     }
 
@@ -1387,6 +1395,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         {
             return "world" + language + ".tmpl";
         }
+    }
     }
 
     /**
@@ -1442,6 +1451,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 ioe.printStackTrace();
             }
 
+            doNewClass(classDiagram.getSelectedClass().getPackage(), fullyQualifiedName);
         }
     }
 
