@@ -40,7 +40,7 @@ public class PickActorHelper
             // The fields must be up to date and valid at the point we call picked():
             WorldHandler worldHandler = WorldHandler.getInstance();
             this.worldPick = worldHandler.getWorld();
-            if (x >= 0 && x < worldPick.getWidth()
+            if (worldPick != null && x >= 0 && x < worldPick.getWidth()
                     && y >= 0 && y < worldPick.getHeight())
             {
                 this.actorPicks = worldHandler.getObjects(x, y).toArray(new Actor[0]);
