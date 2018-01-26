@@ -644,13 +644,13 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 
                 // We only want fully paused; if they've requested a run, don't allow a shift-click:
                 boolean paused = stateProperty.get() == State.PAUSED;
-                if (e.getCode() == KeyCode.SHIFT && newActorProperty.get() == null && classDiagram.getSelectedClass() != null && paused)
+                if (e.getCode() == KeyCode.SHIFT && newActorProperty.get() == null && classDiagram.getSelectedClassTarget() != null && paused)
                 {
                     // Holding shift, so show actor preview if it is an actor with no-arg constructor:
-                    Reflective type = classDiagram.getSelectedClass().getTypeReflective();
+                    Reflective type = classDiagram.getSelectedClassTarget().getTypeReflective();
                     if (getActorReflective().isAssignableFrom(type) && type.getDeclaredConstructors().stream().anyMatch(c -> c.getParamTypes().isEmpty() && !Modifier.isPrivate(c.getModifiers())))
                     {
-                        newActorProperty.set(new NewActor(getImageViewForClass(type), classDiagram.getSelectedClass().getBaseName()));
+                        newActorProperty.set(new NewActor(getImageViewForClass(type), classDiagram.getSelectedClassTarget().getBaseName()));
                     }
                 }
 
@@ -1245,7 +1245,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         String originalClassName = classTarget.getDisplayName();
         SourceType sourceType = classTarget.getSourceType();
 
-        NewClassDialog dialog = new NewClassDialog(this, classDiagram.getSelectedClass().getSourceType());
+        NewClassDialog dialog = new NewClassDialog(this, classDiagram.getSelectedClassTarget().getSourceType());
         dialog.setSuggestedClassName("CopyOf" + originalClassName);
         dialog.setSelectedLanguage(sourceType);
         dialog.disableLanguageBox(true);
@@ -1253,12 +1253,12 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         String className = dialog.getResult().className;
 
         try {
-            File dir = classDiagram.getSelectedClass().getPackage().getProject().getProjectDir();
+            File dir = classDiagram.getSelectedClassTarget().getPackage().getProject().getProjectDir();
             final String extension = sourceType.getExtension();
             File newFile = new File(dir, className + "." + extension);
             File originalFile = new File(dir, originalClassName + "." + extension);
             GreenfootUtilDelegateIDE.getInstance().duplicate(originalClassName, className, originalFile, newFile, sourceType);
-            ClassTarget newClass = classDiagram.getSelectedClass().getPackage().addClass(className);
+            ClassTarget newClass = classDiagram.getSelectedClassTarget().getPackage().addClass(className);
             classDiagram.addClass(newClass);
             // TODO set the image property (recorded as part of GREENFOOT-641 ticket)
         }
@@ -1425,7 +1425,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     public void newSubClassOf(String fullyQualifiedName)
     {
-        ClassTarget classTarget = classDiagram.getSelectedClass();
+        ClassTarget classTarget = classDiagram.getSelectedClassTarget();
         Package pkg = classTarget.getPackage();
 
         boolean imageClass = false;
