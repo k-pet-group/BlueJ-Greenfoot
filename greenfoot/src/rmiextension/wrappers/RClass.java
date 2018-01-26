@@ -91,6 +91,4 @@ public interface RClass
     SourceType getSourceType()
         throws RemoteException, ProjectNotOpenException, PackageNotFoundException;
 
-    void cancelFreshState()
-        throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 }

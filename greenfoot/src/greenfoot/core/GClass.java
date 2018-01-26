@@ -631,16 +631,4 @@ public class GClass
     {
         return hasKnownError;
     }
-
-    public void cancelFreshState()
-    {
-        try
-        {
-            rmiClass.cancelFreshState();
-        }
-        catch (ProjectNotOpenException | PackageNotFoundException | RemoteException e)
-        {
-            Debug.reportError("cancelFreshState", e);
-        }
-    }
 }

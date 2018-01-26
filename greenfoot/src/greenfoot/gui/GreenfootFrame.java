@@ -134,7 +134,7 @@ import java.awt.Font;
  * @author mik
  */
 public class GreenfootFrame extends JFrame
-    implements WindowListener, CompileListener, WorldListener, SelectionListener
+    implements CompileListener, WorldListener, SelectionListener
 {
     private static final String shareIconFile = "export-publish-small.png";
     private static final int WORLD_MARGIN = 40;
@@ -253,7 +253,6 @@ public class GreenfootFrame extends JFrame
         }
 
         makeFrame(classStateManager, projectProperties, shmFilePath);
-        addWindowListener(this);
         
         restoreFrameState();
 
@@ -1144,41 +1143,6 @@ public class GreenfootFrame extends JFrame
                 && System.currentTimeMillis() > startedInitialisingAt + EXECUTION_TIMEOUT;
     }
     
-    // ----------- WindowListener interface -----------
-    
-    @Override
-    public void windowOpened(WindowEvent e) {}
-
-    @Override
-    public void windowClosing(WindowEvent e)
-    {
-        GreenfootMain.closeProject(this, true);
-    }
-
-    @Override
-    public void windowClosed(WindowEvent e) {}
-
-    @Override
-    public void windowIconified(WindowEvent e) {}
-
-    @Override
-    public void windowDeiconified(WindowEvent e) {}
-
-    @Override
-    public void windowActivated(WindowEvent e) {
-        if (!isClosedProject())
-        {
-            project.recordEvent(GreenfootInterfaceEvent.WINDOW_ACTIVATED);
-            Arrays.stream(project.getDefaultPackage().getClasses(false)).forEach(GClass::cancelFreshState);
-            if (!wasRestarted && !WorldHandler.getInstance().hasWorld() && executionCount == 0) {
-                WorldHandler.getInstance().instantiateNewWorld();
-            }
-        }
-    }
-
-    @Override
-    public void windowDeactivated(WindowEvent e) {}
-
     // ----------- CompileListener interface -----------
     
     @Override
