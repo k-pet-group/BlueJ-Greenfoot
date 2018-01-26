@@ -27,15 +27,14 @@ import bluej.utility.DialogManager;
 import bluej.utility.javafx.FXCustomizedDialog;
 import greenfoot.util.ExternalAppLauncher;
 
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.stage.Window;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -48,8 +47,9 @@ import java.io.File;
  * default image editing program so the user can edit it.
  * 
  * @author Michael Berry (mjrb4)
+ * @author Amjad Altadmri
  */
-public class NewImageDialog extends FXCustomizedDialog
+public class NewImageDialog extends FXCustomizedDialog<File>
 {
     private static final int MAX_IMAGE_HEIGHT = 2000;
     private static final int MAX_IMAGE_WIDTH = 2000;
@@ -61,8 +61,6 @@ public class NewImageDialog extends FXCustomizedDialog
     private Spinner height;
 
     private File projImagesDir;
-    private File file;
-    
     private int imageWidth;
     private int imageHeight;
 
@@ -70,12 +68,12 @@ public class NewImageDialog extends FXCustomizedDialog
      * Create a new image dialog. This is used for specifying the properties for
      * creating a new image, which will then be opened in the image editor.
      *
-     * @param parent the parent frame associated with this dialog
+     * @param parent the parent window associated with this dialog
      * @param projImagesDir the directory in which the images for the project are placed.
      */
-    NewImageDialog(Dialog parent, File projImagesDir, String rootName)
+    NewImageDialog(Window parent, File projImagesDir, String rootName)
     {
-        super(parent.getOwner(), Config.getString("imagelib.new.image.title"), null /* TODO */);
+        super(parent, Config.getString("imagelib.new.image.title"), null);
         this.projImagesDir = projImagesDir;
 
         imageWidth = Config.getPropInteger("greenfoot.image.create.width", DEFAULT_WIDTH);
@@ -88,90 +86,73 @@ public class NewImageDialog extends FXCustomizedDialog
      */
     private void buildUI(String rootName)
     {
-        VBox mainPanel = new VBox();
-        setContentPane(mainPanel);
-
         GridPane detailsPanel = new GridPane();
+        detailsPanel.setVgap(10);
+        detailsPanel.setAlignment(Pos.BASELINE_CENTER);
 
-        HBox fileNamePanel = new HBox();
         name = new TextField(rootName);
-        fileNamePanel.getChildren().addAll(name, new Label(".png"));
-        detailsPanel.addRow(0, new Label(Config.getString("imagelib.new.image.name") + " "), fileNamePanel);
+        detailsPanel.addRow(0, new Label(Config.getString("imagelib.new.image.name") + " "), name, new Label(".png"));
 
-        width = new Spinner(1, MAX_IMAGE_WIDTH, imageWidth, 1);
+        width = new Spinner(1, MAX_IMAGE_WIDTH, imageWidth);
         detailsPanel.addRow(1, new Label(Config.getString("imagelib.new.image.width")), width);
 
-        height = new Spinner(1, MAX_IMAGE_HEIGHT, imageHeight, 1);
+        height = new Spinner(1, MAX_IMAGE_HEIGHT, imageHeight);
         detailsPanel.addRow(2, new Label(Config.getString("imagelib.new.image.height")), height);
 
-        mainPanel.getChildren().add(detailsPanel);
+        setContentPane(detailsPanel);
 
+        // add buttons
         getDialogPane().getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
         Button okButton = (Button) getDialogPane().lookupButton(ButtonType.OK);
         okButton.disableProperty().bind(name.textProperty().isEmpty());
-        okButton.setOnAction(event -> createAndEdit());
-    }
-    
-    File displayModal()
-    {
-        setModal(true);  
-        DialogManager.centreDialog(this);
-        show();
-        //dispose(); hide?? close??
-        setModal(false);
-        return file;
+        setResultConverter(bt -> bt == ButtonType.OK ? createImageFile() : null);
     }
 
-    public File getFile() 
+    /**
+     * Creates an image file with the name specified in the name text field.
+     * If there is a file with the same name in the images folder, it prompts the
+     * user to overwrite or cancel. If the file is created successfully, it will
+     * be written on the disk and opened using the OS default program for its type.
+     *
+     * @return The image file created.
+     */
+    private File createImageFile()
     {
-        return file;
-    }
-
-    private void createAndEdit()
-    {
-        BufferedImage im = new BufferedImage((Integer) width.getValue(), (Integer) height.getValue(),
-                BufferedImage.TYPE_INT_ARGB);
-        String fileName = name.getText();
-        fileName += ".png";
-        file = new File(projImagesDir, fileName);
-
+        File file = new File(projImagesDir, name.getText() + ".png");
         if (file.exists())
         {
-            boolean overwrite = DialogManager.askQuestionFX(getOwner(), "imagelib-write-exists", new String[] {file.getName()}) == 0;
-            if (overwrite)
-            {
-                writeAndEdit(im);
-            }
-            else
-            {
-                hide();
-            }
+            boolean overwrite = DialogManager.askQuestionFX(this.asWindow(), "imagelib-write-exists", new String[] {file.getName()}) == 0;
+            return overwrite && writeImageAndEdit(file) ? file : null;
         }
-        else
-        {
-            writeAndEdit(im);
-        }
+        return writeImageAndEdit(file) ? file : null;
     }
-    
-    private void writeAndEdit(BufferedImage im)
+
+    /**
+     * Writes the passed file as an image on the disk, with the width and height
+     * specified by the user, and opens it using the OS default program for its type.
+     *
+     * @param file The image file to be written.
+     * @return True if the file is written successfully on the disk, false otherwise.
+     */
+    private boolean writeImageAndEdit(File file)
     {
+        BufferedImage im = new BufferedImage((Integer) width.getValue(), (Integer) height.getValue(), BufferedImage.TYPE_INT_ARGB);
         try
         {
             if (ImageIO.write(im, "png", file))
             {
                 ExternalAppLauncher.editImage(file);
-                hide();
+                return true;
             }
             else
             {
-                // TODO id NOT text ?
-                DialogManager.showErrorFX(getOwner(), "png " + Config.getString("imagelib.image.unsupportedformat.text"));
-                // TODO Config.getString("imagelib.image.unsupportedformat.title")
+                DialogManager.showErrorFX(asWindow(), Config.getString("imagelib-image-unsupported-format"));
             }
         }
         catch (IOException ex)
         {
             Debug.reportError("Error editing new image", ex);
         }
+        return false;
     }
 }

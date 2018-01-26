@@ -177,9 +177,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
 
         // Ok and cancel buttons
         getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
-
         JavaFXUtil.runRegular(Duration.millis(2000), () -> projImageList.refresh());
-
         setResultConverter(bt -> bt == ButtonType.OK ? selectedImageFile : null);
     }
 
@@ -288,8 +286,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
     private void createNewImage()
     {
         String name = includeClassNameField ? getClassName() : classTarget.getQualifiedName();
-        NewImageDialog newImage = new NewImageDialog(ImageLibFrame.this, projImagesDir, name);
-        final File file = newImage.displayModal();
+        final File file = new NewImageDialog(this.asWindow(), projImagesDir, name).showAndWait().orElse(null);
         if (file != null) {
             projImageList.refresh();
             projImageList.select(file);
@@ -456,7 +453,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
                 new ExtensionFilter("Images", "*.png", "*.jpg", "*.gif"),
                 new ExtensionFilter("All Files", "*.*"));
 
-        File selectedFile = chooser.showOpenDialog(this.getOwner());//Config.getString("imagelib.choose.button")
+        File selectedFile = chooser.showOpenDialog(this.asWindow());
         if (selectedFile != null) {
             File newFile = new File(projImagesDir, selectedFile.getName());
             GreenfootUtil.copyFile(selectedFile, newFile);
@@ -565,8 +562,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         if (Clipboard.getSystemClipboard().hasImage())
         {
             Image image = Clipboard.getSystemClipboard().getImage();
-            PastedImageNameDialog dlg = new PastedImageNameDialog(this.getOwner(), image, null);
-            dlg.showAndWait().ifPresent(name -> {
+            new PastedImageNameDialog(this.asWindow(), image, null).showAndWait().ifPresent(name -> {
                 try
                 {
                     ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", new File(projImagesDir, name + ".png"));
