@@ -454,6 +454,11 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
 
     public void mouseMoved(MouseEvent e)
     {
+        if (locator == null)
+        {
+            // Not fully initialised yet, so no need to handle event:
+            return;
+        }
         // This line must go outside the synchronized block because it involves
         // claiming a read-lock on the world, which can cause a deadlock because
         // the simulation thread can synchronize on futureData (in freezeMouseData())
