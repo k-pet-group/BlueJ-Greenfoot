@@ -76,6 +76,11 @@ class LocalClassInfo extends ClassInfo implements TargetListener
                 break;
         }
         display.setStripePattern(fill);
+        // If we've become uncompiled, let the main window know we've been modified:
+        if (newState != State.COMPILED)
+        {
+            classDiagram.getGreenfootStage().classModified();
+        }
     }
 
     @Override

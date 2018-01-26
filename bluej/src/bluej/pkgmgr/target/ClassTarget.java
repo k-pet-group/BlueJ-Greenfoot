@@ -1091,6 +1091,15 @@ public class ClassTarget extends DependentTarget
     }
 
     /**
+     * Gets the editor, if it is already open.  If not open, returns
+     * null (without attempting to open it, in contrast to getEditor())
+     */
+    public Editor getEditorIfOpen()
+    {
+        return editor;
+    }
+
+    /**
      * Get an editor for this class, either in source view or interface view.
      * 
      * @param showInterface Determine whether to show interface view or 
