@@ -1373,10 +1373,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             final String extension = language.getExtension();
             File newFile = new File(dir, className + "." + extension);
             String templateFileName = getNormalTemplateFileName(language);
-            GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, null,
-              newFile, templateFileName, project.getProjectCharset().toString());
-            ClassTarget newClass = new ClassTarget(this.project.getUnnamedPackage(),className);
-            String templateFileName = NormalClassRole.getInstance().getTemplateFileName(false, language);
             GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, superClassName, newFile,
                     templateFileName, project.getProjectCharset().toString());
             ClassTarget newClass = new ClassTarget(pkg, className);
@@ -1408,7 +1404,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         {
             return "world" + language + ".tmpl";
         }
-    }
     }
 
     /**
@@ -1448,26 +1443,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         else
         {
             newNonImageClass(pkg, fullyQualifiedName);
-            NewClassDialog dialog = new NewClassDialog(this, project.getUnnamedPackage().getDefaultSourceType());
-            Optional<NewClassDialog.NewClassInfo> result = dialog.showAndWait();
-            String className = dialog.getResult().className;
-            SourceType language = dialog.getSelectedLanguage();
-
-            try {
-                File dir = project.getProjectDir();
-                final String extension = language.getExtension();
-                File newFile = new File(dir, className + "." + extension);
-                String templateFileName = getNormalTemplateFileName(language);
-                GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, fullyQualifiedName,
-                        newFile, templateFileName, project.getProjectCharset().toString());
-                ClassTarget newClass = new ClassTarget(classDiagram.getSelectedClass().getPackage(),className);
-                classDiagram.addClass(newClass);
-            }
-            catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
-
-            doNewClass(classDiagram.getSelectedClass().getPackage(), fullyQualifiedName);
         }
     }
 
