@@ -630,10 +630,7 @@ public class Simulation extends Thread
     protected void paintRemote(boolean forcePaint)
     {
         WorldCanvas wcanvas = WorldHandler.getInstance().getWorldCanvas();
-        if (WorldHandler.getInstance().hasWorld())
-        {
-            wcanvas.paintRemote(forcePaint, -1, null);
-        }
+        wcanvas.paintRemote(forcePaint, -1, null);
     }
 
     /**

@@ -113,4 +113,13 @@ class WorldDisplay extends StackPane
     {
         return imageView.contains(point2D);
     }
+
+    /**
+     * Is the world greyed out?  (It will be if there has been a call
+     * to greyOutWorld(), but not yet followed by setImage)
+     */
+    public boolean isGreyedOut()
+    {
+        return imageView.getEffect() != null;
+    }
 }

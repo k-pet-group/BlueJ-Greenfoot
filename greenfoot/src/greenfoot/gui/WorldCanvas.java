@@ -319,20 +319,24 @@ public class WorldCanvas extends JPanel
         }
         lastPaintNanos = now;
 
-        BufferedImage img = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_BGR);
-        Graphics2D g2 = (Graphics2D)img.getGraphics();
-        paintBackground(g2);
-        paintObjects(g2);
-        paintDraggedObject(g2);
-        WorldVisitor.paintDebug(world, g2);
-        paintWorldText(g2, world);
+        BufferedImage img = null;        
+        if (world != null)
+        {
+            img = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_BGR);
+            Graphics2D g2 = (Graphics2D)img.getGraphics();
+            paintBackground(g2);
+            paintObjects(g2);
+            paintDraggedObject(g2);
+            WorldVisitor.paintDebug(world, g2);
+            paintWorldText(g2, world);
+        }
 
         // One element array to allow a reference to be set by readCommands:
         String[] answer = new String[] {null};
         if (!sending)
         {
             sending = true;
-            int [] raw = ((DataBufferInt) img.getData().getDataBuffer()).getData();
+            int [] raw = img == null ? null : ((DataBufferInt) img.getData().getDataBuffer()).getData();
             try (FileLock fileLock = shmFileChannel.lock())
             {
                 sharedMemory.position(1);
@@ -347,11 +351,20 @@ public class WorldCanvas extends JPanel
                 }
                 sharedMemory.position(1);
                 sharedMemory.put(this.seq++);
-                sharedMemory.put(getWidth());
-                sharedMemory.put(getHeight());
-                for (int i = 0; i < raw.length; i++)
+                // If there's no world, we must send an empty image:
+                if (world == null)
                 {
-                    sharedMemory.put(raw[i] << 8 | 0xFF);
+                    sharedMemory.put(0);
+                    sharedMemory.put(0);
+                }
+                else
+                {
+                    sharedMemory.put(getWidth());
+                    sharedMemory.put(getHeight());
+                    for (int i = 0; i < raw.length; i++)
+                    {
+                        sharedMemory.put(raw[i] << 8 | 0xFF);
+                    }
                 }
                 sharedMemory.put(lastAckCommand);
                 // If not asking, put -1
@@ -450,12 +463,19 @@ public class WorldCanvas extends JPanel
                     case GreenfootStage.COMMAND_ACT:
                         Simulation.getInstance().runOnce();
                         break;
-                    case GreenfootStage.COMMAND_RESET:
+                    case GreenfootStage.COMMAND_INSTANTIATE_WORLD:
                         // This seems to deadlock without a run later, although I'm not 100% sure why.
                         // We may be able to remove this after the FX rewrite is complete:
                         Simulation.getInstance().runLater(() -> {
-                            WorldHandler.getInstance().discardWorld();
                             WorldHandler.getInstance().instantiateNewWorld();
+                            paintRemote(true, -1, null);
+                        });
+                        break;
+                    case GreenfootStage.COMMAND_DISCARD_WORLD:
+                        // See comment for RESET
+                        Simulation.getInstance().runLater(() -> {
+                            WorldHandler.getInstance().discardWorld();
+                            paintRemote(true, -1, null);
                         });
                         break;
                     case GreenfootStage.COMMAND_CONTINUE_DRAG:

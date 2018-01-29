@@ -878,12 +878,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         setWindowTitle();
     }
 
-    @Override
-    public void dependencyChanged()
-    {
-        scheduleCompilation(CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
-    }
-
     /**
      * Set the "compiled" status
      * 

@@ -69,7 +69,10 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
         for (Node child : getChildren())
         {
             if (child instanceof ClassDisplay)
-                ((ClassDisplay)child).heightProperty().removeListener(this);
+            {
+                ((ClassDisplay) child).widthProperty().removeListener(this);
+                ((ClassDisplay) child).heightProperty().removeListener(this);
+            }
         }
         getChildren().clear();
         for (ClassInfo classInfo : topLevel)
@@ -106,6 +109,7 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
         // Left indent by same amount as top indent:
         int leftIndent = VERTICAL_SPACING;
         redisplay(null, topLevel, leftIndent, 0);
+        requestLayout();
     }
 
     /**
@@ -133,8 +137,9 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
             if (!getChildren().contains(classDisplay))
             {
                 getChildren().add(classDisplay);
-                // Often, the height is zero at this point, so we need to listen
+                // Often, the width or height is zero at this point, so we need to listen
                 // for when it gets set right in order to re-layout:
+                classDisplay.widthProperty().addListener(this);
                 classDisplay.heightProperty().addListener(this);
             }
             // The inherit arrow arm should point to the vertical midpoint of the class:
@@ -199,7 +204,7 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
     }
 
     /**
-     * Listener for when height changes on any of the classes.
+     * Listener for when width or height changes on any of the classes.
      * All we want to do in that case is request a layout.  Note we don't want to
      * just use a lambda, because we also want to remove the listener later.
      */

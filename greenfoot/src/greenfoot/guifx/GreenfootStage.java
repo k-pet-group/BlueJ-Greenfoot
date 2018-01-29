@@ -24,6 +24,8 @@ package greenfoot.guifx;
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.Config;
+import bluej.collect.DataCollector;
+import bluej.collect.GreenfootInterfaceEvent;
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
@@ -39,6 +41,7 @@ import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.debugmgr.objectbench.ObjectResultWatcher;
+import bluej.editor.Editor;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
@@ -122,6 +125,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
@@ -144,7 +148,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public static final int KEY_DOWN = 1;
     public static final int KEY_UP = 2;
     public static final int KEY_TYPED = 3;
-    
+    private final List<Command> pendingCommands;
+    private boolean instantiateWorldAfterDiscarded;
+
     public static boolean isKeyEvent(int event)
     {
         return event >= KEY_DOWN && event <= KEY_TYPED;
@@ -175,13 +181,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public static final int COMMAND_END_DRAG = 23;
     public static final int COMMAND_PAUSE = 24;
     public static final int COMMAND_ACT = 25;
-    public static final int COMMAND_RESET = 26;
+    public static final int COMMAND_INSTANTIATE_WORLD = 26;
     // Followed by one integer per character in String answer.
     public static final int COMMAND_ANSWERED = 27;
     // Followed by an integer count of key size, then that many integer codepoints,
     // Then same again for value.  If value count is -1,
     // that means value is null (and thus was removed)
     public static final int COMMAND_PROPERTY_CHANGED = 28;
+    // Discard the world, but don't make a new one
+    public static final int COMMAND_DISCARD_WORLD = 29;
 
     private final Project project;
     // The glass pane used to show a new actor while it is being placed:
@@ -323,7 +331,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         runButton = new Button(Config.getString("controls.run.button"));
         resetButton = new Button(Config.getString("reset.world"));
         Node buttonAndSpeedPanel = new HBox(actButton, runButton, resetButton);
-        List<Command> pendingCommands = new ArrayList<>();
+        pendingCommands = new ArrayList<>();
         actButton.setOnAction(e -> {
             act(pendingCommands);
         });
@@ -342,7 +350,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         resetButton.setOnAction(e -> {
             if (stateProperty.get() != State.UNCOMPILED)
             {
-                pendingCommands.add(new Command(COMMAND_RESET));
+                doReset();
                 stateProperty.set(State.UNCOMPILED);
             }
         });
@@ -365,8 +373,26 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         setupWorldDrawingAndEvents(sharedMemoryLock, sharedMemoryByte, worldDisplay::setImage, pendingCommands);
         loadAndMirrorProperties(pendingCommands);
         // We send a reset to make a new world after the project properties have been sent across:
-        pendingCommands.add(new Command(COMMAND_RESET));
+        pendingCommands.add(new Command(COMMAND_INSTANTIATE_WORLD));
         JavaFXUtil.addChangeListenerPlatform(stateProperty, this::updateGUIState);
+        JavaFXUtil.addChangeListenerPlatform(focusedProperty(), focused -> {
+            if (project != null)
+            {
+                DataCollector.recordGreenfootEvent(project, GreenfootInterfaceEvent.WINDOW_ACTIVATED);
+                for (ClassTarget classTarget : project.getUnnamedPackage().getClassTargets())
+                {
+                    Editor editor = classTarget.getEditorIfOpen();
+                    if (editor != null)
+                    {
+                        editor.cancelFreshState();
+                    }
+                }
+                if (worldDisplay.isGreyedOut() && stateProperty.get() != State.UNCOMPILED)
+                {
+                    doReset();
+                }
+            }
+        });
         /* Uncomment this to use ScenicView temporarily during development (use reflection to avoid needing to mess with Ant classpath)
         try
         {
@@ -376,6 +402,17 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         {
             Debug.reportError(e);
         }*/
+    }
+
+    /**
+     * Perform a reset.  This is done by sending a discard-world command, and
+     * setting a flag noting that we want to send an instantiate-world command
+     * once the discard-world command has taken effect.
+     */
+    private void doReset()
+    {
+        pendingCommands.add(new Command(COMMAND_DISCARD_WORLD));
+        instantiateWorldAfterDiscarded = true;
     }
 
     private void loadAndMirrorProperties(List<Command> pendingCommands)
@@ -724,14 +761,17 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                         sharedMemory.put(-seq);
                         int width = sharedMemory.get();
                         int height = sharedMemory.get();
-                        if (img == null || img.getWidth() != width || img.getHeight() != height)
+                        if (width != 0 && height != 0)
                         {
-                            img = new WritableImage(width == 0 ? 1 : width, height == 0 ? 1 : height);
-                            sizeToScene = true;
+                            if (img == null || img.getWidth() != width || img.getHeight() != height)
+                            {
+                                img = new WritableImage(width == 0 ? 1 : width, height == 0 ? 1 : height);
+                                sizeToScene = true;
+                            }
+                            sharedMemoryByte.position(sharedMemory.position() * 4);
+                            img.getPixelWriter().setPixels(0, 0, width, height, PixelFormat.getByteBgraPreInstance(), sharedMemoryByte, width * 4);
+                            setImage.accept(img);
                         }
-                        sharedMemoryByte.position(sharedMemory.position() * 4);
-                        img.getPixelWriter().setPixels(0, 0, width, height, PixelFormat.getByteBgraPreInstance(), sharedMemoryByte, width * 4);
-                        setImage.accept(img);
                         // Have to move sharedMemory position manually because
                         // the sharedMemory buffer doesn't share position with sharedMemoryByte buffer:
                         sharedMemory.position(sharedMemory.position() + width * height);
@@ -739,7 +779,31 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                         // Get rid of all commands that the client has confirmed it has seen:
                         if (lastAckCommand != -1)
                         {
-                            pendingCommands.removeIf(c -> c.commandSequence <= lastAckCommand);
+                            // Get rid of any acknowledged commands, and record if
+                            // any of them was a discard command:
+                            boolean discarded = false;
+                            for (Iterator<Command> iterator = pendingCommands.iterator(); iterator.hasNext(); )
+                            {
+                                Command pendingCommand = iterator.next();
+                                if (pendingCommand.commandSequence <= lastAckCommand)
+                                {
+                                    if (pendingCommand.commandType == COMMAND_DISCARD_WORLD)
+                                    {
+                                        discarded = true;
+                                    }
+                                    iterator.remove();
+                                }
+                            }
+                            if (discarded)
+                            {
+                                worldDisplay.greyOutWorld();
+                                // Were we waiting for discard before then instantiating?
+                                if (instantiateWorldAfterDiscarded)
+                                {
+                                    instantiateWorldAfterDiscarded = false;
+                                    pendingCommands.add(new Command(COMMAND_INSTANTIATE_WORLD));
+                                }
+                            }
                         }
                         
                         int askId = sharedMemory.get();
@@ -1082,6 +1146,12 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     @Override
     public void endCompile(CompileInputFile[] sources, boolean succesful, CompileType type, int compilationSequence)
     {
+        // We only create the world if the window is focused, otherwise
+        // we let it remain greyed out:
+        if (isFocused())
+        {
+            doReset();
+        }
     }
 
 
@@ -1421,5 +1491,16 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public void openBrowser(String url)
     {
         project.getDefaultFXTabbedEditor().openWebViewTab(url);
+    }
+
+    /**
+     * Called when a class has been modified, to notify us that the .class
+     * files are now out of date.
+     */
+    public void classModified()
+    {
+        pendingCommands.add(new Command(COMMAND_DISCARD_WORLD));
+        instantiateWorldAfterDiscarded = isFocused();
+        stateProperty.set(State.UNCOMPILED);
     }
 }
