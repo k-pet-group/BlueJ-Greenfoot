@@ -167,7 +167,7 @@ public class ImportClassDialog extends Dialog<File>
      * @param classFile The original file, the extension of which will be ignored.
      * @return The image file found (arbitrary pick if multiple), or null if none found.
      */
-    private static File findImage(File classFile)
+    public static File findImage(File classFile)
     {
         String[] extensions = ImageIO.getReaderFileSuffixes();
 
