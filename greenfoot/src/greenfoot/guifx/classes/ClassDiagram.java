@@ -84,7 +84,7 @@ public class ClassDiagram extends BorderPane
             ContextMenu contextMenu = new ContextMenu();
             contextMenu.getItems().add(JavaFXUtil.makeMenuItem(
                     Config.getString("new.other.class"),
-                    () -> greenfootStage.doNewClass(), null));
+                    () -> greenfootStage.newNonImageClass(project.getUnnamedPackage(), null), null));
             contextMenu.getItems().add(JavaFXUtil.makeMenuItem(
                     Config.getString("import.action"),
                     () -> greenfootStage.doImportClass(), null));
@@ -275,27 +275,21 @@ public class ClassDiagram extends BorderPane
     }
 
     /**
-     * Gets the currently selected class in the diagram.  May be null if no selection, or if
-     * the selection is a class outside the default package (e.g. greenfoot.World)
+     * Gets the currently selected class target in the diagram.  May be null if no selection,
+     * or if the selection is a class outside the default package (e.g. greenfoot.World)
      */
-    public ClassTarget getSelectedClass()
+    public ClassTarget getSelectedClassTarget()
     {
         ClassDisplay selected = selectionManager.getSelected();
-        if (selected == null)
+        if (selected != null)
         {
-            return null;
+            Target target = project.getUnnamedPackage().getTarget(selected.getQualifiedName());
+            if (target instanceof ClassTarget)
+            {
+                return (ClassTarget) target;
+            }
         }
-        
-        Target target = project.getUnnamedPackage().getTarget(selected.getQualifiedName());
-        
-        if (target != null && target instanceof ClassTarget)
-        {
-            return (ClassTarget)target;
-        }
-        else
-        {
-            return null;
-        }
+        return null;
     }
 
     /**

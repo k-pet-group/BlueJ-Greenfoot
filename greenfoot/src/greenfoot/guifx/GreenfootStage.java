@@ -43,6 +43,7 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.debugmgr.objectbench.ObjectResultWatcher;
 import bluej.editor.Editor;
 import bluej.extensions.SourceType;
+import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
@@ -452,7 +453,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         return new MenuBar(
             new Menu(Config.getString("menu.edit"), null,
-                makeMenuItem("new.other.class", new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN), () -> doNewClass()),
+                makeMenuItem("new.other.class", new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN),
+                            () -> newNonImageClass(project.getUnnamedPackage(), null)),
                 makeMenuItem("import.action", new KeyCodeCombination(KeyCode.I, KeyCombination.SHORTCUT_DOWN), () -> doImportClass())
             ),
             new Menu(Config.getString("menu.controls"), null,
@@ -642,13 +644,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 
                 // We only want fully paused; if they've requested a run, don't allow a shift-click:
                 boolean paused = stateProperty.get() == State.PAUSED;
-                if (e.getCode() == KeyCode.SHIFT && newActorProperty.get() == null && classDiagram.getSelectedClass() != null && paused)
+                ClassTarget selectedClassTarget = classDiagram.getSelectedClassTarget();
+                if (e.getCode() == KeyCode.SHIFT && newActorProperty.get() == null && selectedClassTarget != null && paused)
                 {
                     // Holding shift, so show actor preview if it is an actor with no-arg constructor:
-                    Reflective type = classDiagram.getSelectedClass().getTypeReflective();
+                    Reflective type = selectedClassTarget.getTypeReflective();
                     if (getActorReflective().isAssignableFrom(type) && type.getDeclaredConstructors().stream().anyMatch(c -> c.getParamTypes().isEmpty() && !Modifier.isPrivate(c.getModifiers())))
                     {
-                        newActorProperty.set(new NewActor(getImageViewForClass(type), classDiagram.getSelectedClass().getBaseName()));
+                        newActorProperty.set(new NewActor(getImageViewForClass(type), selectedClassTarget.getBaseName()));
                     }
                 }
 
@@ -1238,31 +1241,31 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     /**
      * Show a dialog for a new name, and then duplicate the class target with that new name.
      */
-    public void duplicateClass(ClassTarget classTarget)
+    public void duplicateClass(ClassTarget originalClassTarget)
     {
-        String originalClassName = classTarget.getDisplayName();
-        SourceType sourceType = classTarget.getSourceType();
-
-        NewClassDialog dialog = new NewClassDialog(this, classDiagram.getSelectedClass().getSourceType());
+        String originalClassName = originalClassTarget.getDisplayName();
+        SourceType sourceType = originalClassTarget.getSourceType();
+        NewClassDialog dialog = new NewClassDialog(this, sourceType);
         dialog.setSuggestedClassName("CopyOf" + originalClassName);
-        dialog.setSelectedLanguage(sourceType);
         dialog.disableLanguageBox(true);
-        Optional<NewClassDialog.NewClassInfo> result = dialog.showAndWait();
-        String className = dialog.getResult().className;
-
-        try {
-            File dir = classDiagram.getSelectedClass().getPackage().getProject().getProjectDir();
-            final String extension = sourceType.getExtension();
-            File newFile = new File(dir, className + "." + extension);
-            File originalFile = new File(dir, originalClassName + "." + extension);
-            GreenfootUtilDelegateIDE.getInstance().duplicate(originalClassName, className, originalFile, newFile, sourceType);
-            ClassTarget newClass = classDiagram.getSelectedClass().getPackage().addClass(className);
-            classDiagram.addClass(newClass);
-            // TODO set the image property (recorded as part of GREENFOOT-641 ticket)
-        }
-        catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
+        dialog.showAndWait().ifPresent(newClassInfo -> {
+            String newClassName = newClassInfo.className;
+            try
+            {
+                File dir = originalClassTarget.getPackage().getProject().getProjectDir();
+                final String extension = sourceType.getExtension();
+                File newFile = new File(dir, newClassName + "." + extension);
+                File originalFile = new File(dir, originalClassName + "." + extension);
+                GreenfootUtilDelegateIDE.getInstance().duplicate(originalClassName, newClassName, originalFile, newFile, sourceType);
+                ClassTarget newClass = originalClassTarget.getPackage().addClass(newClassName);
+                classDiagram.addClass(newClass);
+                // TODO set the image property (recorded as part of GREENFOOT-641 ticket)
+            }
+            catch (IOException ioe)
+            {
+                Debug.reportError(ioe);
+            }
+        });
     }
 
     /**
@@ -1343,27 +1346,41 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     }
 
     /**
-     * Create a new class using the NewClassDialog
+     * Prompt the user by the NewClassDialog to create a new non-image class.
+     *
+     * @param pkg            The package that should contain the new class.
+     * @param superClassName The super class's full qualified name.
      */
-    public void doNewClass()
+    public void newNonImageClass(Package pkg, String superClassName)
     {
-        NewClassDialog dialog = new NewClassDialog(this, project.getUnnamedPackage().getDefaultSourceType());
-        Optional<NewClassDialog.NewClassInfo> result = dialog.showAndWait();
-        String className = dialog.getResult().className;
-        SourceType language = dialog.getSelectedLanguage();
+        new NewClassDialog(this, project.getUnnamedPackage().getDefaultSourceType()).showAndWait()
+                .ifPresent(result -> createNewClass(pkg, superClassName, result.className, result.sourceType));
+    }
 
-        try {
+    /**
+     * Create a new non-image class in the specified package.
+     *
+     * @param pkg            The package that should contain the new class.
+     * @param superClassName The full qualified name of the super class.
+     * @param className      The class's name, which will be created.
+     * @param language       The source type of the class, e.g. Java or Stride.
+     */
+    private void createNewClass(Package pkg, String superClassName, String className, SourceType language)
+    {
+        try
+        {
             File dir = project.getProjectDir();
             final String extension = language.getExtension();
             File newFile = new File(dir, className + "." + extension);
             String templateFileName = getNormalTemplateFileName(language);
-            GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, null,
-              newFile, templateFileName, project.getProjectCharset().toString());
-            ClassTarget newClass = new ClassTarget(this.project.getUnnamedPackage(),className);
+            GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, superClassName, newFile,
+                    templateFileName, project.getProjectCharset().toString());
+            ClassTarget newClass = new ClassTarget(pkg, className);
             classDiagram.addClass(newClass);
         }
-        catch (IOException ioe) {
-            ioe.printStackTrace();
+        catch (IOException ioe)
+        {
+            Debug.reportError(ioe);
         }
     }
 
@@ -1404,18 +1421,20 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     public void newSubClassOf(String fullyQualifiedName)
     {
-        ClassTarget superC = classDiagram.getSelectedClass();
+        ClassTarget classTarget = classDiagram.getSelectedClassTarget();
+        Package pkg = classTarget.getPackage();
+
         boolean imageClass = false;
-        Class z = superC.getPackage().loadClass(superC.getQualifiedName());
-
-        while (z !=null) {
-
-            if (z.getCanonicalName().equals("greenfoot.World") || z.getCanonicalName().equals("greenfoot.Actor") )
+        Class cls = pkg.loadClass(classTarget.getQualifiedName());
+        while (cls !=null)
+        {
+            if (cls.getCanonicalName().equals("greenfoot.World") || cls.getCanonicalName().equals("greenfoot.Actor") )
             {
                 imageClass = true;
+
             }
-            z = z.getSuperclass();
-        };
+            cls = cls.getSuperclass();
+        }
 
         if (imageClass)
         {
@@ -1423,25 +1442,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         }
         else
         {
-            NewClassDialog dialog = new NewClassDialog(this, project.getUnnamedPackage().getDefaultSourceType());
-            Optional<NewClassDialog.NewClassInfo> result = dialog.showAndWait();
-            String className = dialog.getResult().className;
-            SourceType language = dialog.getSelectedLanguage();
-
-            try {
-                File dir = project.getProjectDir();
-                final String extension = language.getExtension();
-                File newFile = new File(dir, className + "." + extension);
-                String templateFileName = getNormalTemplateFileName(language);
-                GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, fullyQualifiedName,
-                        newFile, templateFileName, project.getProjectCharset().toString());
-                ClassTarget newClass = new ClassTarget(classDiagram.getSelectedClass().getPackage(),className);
-                classDiagram.addClass(newClass);
-            }
-            catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
-
+            newNonImageClass(pkg, fullyQualifiedName);
         }
     }
 
