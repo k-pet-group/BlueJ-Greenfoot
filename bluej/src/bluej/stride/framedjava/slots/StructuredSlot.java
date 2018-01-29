@@ -42,7 +42,6 @@ import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
-import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -88,7 +87,6 @@ import bluej.stride.slots.SuggestionList;
 import bluej.stride.slots.SuggestionList.SuggestionDetails;
 import bluej.stride.slots.SuggestionList.SuggestionDetailsWithCustomDoc;
 import bluej.stride.slots.SuggestionList.SuggestionListListener;
-import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.javafx.ErrorUnderlineCanvas;
 import bluej.utility.javafx.FXBiConsumer;
@@ -652,16 +650,6 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         JavaFXUtil.runNowOrLater(() -> editor.afterRegenerateAndReparse(null));
     }
     
-    private double overlayToSceneX(double overlayX)
-    {
-        return overlay.localToScene(overlayX, 0.0).getX();
-    }
-    
-    private double overlayToSceneY(double overlayY)
-    {
-        return overlay.localToScene(0.0, overlayY).getX();
-    }
-
     // package-visible
     double sceneToOverlayX(double sceneX)
     {
@@ -1300,7 +1288,6 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
                     items.setAll(scanningItem);
 
                     CaretPos caretPos = getTopLevel().getCurrentPos();
-                    Debug.message("Scanning position: " + caretPos);
 
                     FXPlatformConsumer<Optional<LinkedIdentifier>> withLink = optLink -> {
                         removeScanning();
