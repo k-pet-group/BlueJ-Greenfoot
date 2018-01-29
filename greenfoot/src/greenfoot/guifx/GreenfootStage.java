@@ -404,6 +404,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         }*/
     }
 
+    /**
+     * Perform a reset.  This is done by sending a discard-world command, and
+     * setting a flag noting that we want to send an instantiate-world command
+     * once the discard-world command has taken effect.
+     */
     private void doReset()
     {
         pendingCommands.add(new Command(COMMAND_DISCARD_WORLD));
