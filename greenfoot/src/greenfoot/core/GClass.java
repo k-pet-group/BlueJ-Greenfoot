@@ -21,7 +21,6 @@
  */
 package greenfoot.core;
 
-import greenfoot.gui.classbrowser.ClassView;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.EventQueue;
@@ -56,7 +55,6 @@ public class GClass
     private String className;
     private boolean compiled;
     
-    private ClassView classView;
     private Class<?> realClass;
     private boolean hasKnownError;
 
@@ -112,15 +110,6 @@ public class GClass
             setSuperclassGuess(savedSuperclass);
         }
     }
-    
-    /**
-     * Set the view to be associated with this GClass. The view is
-     * notified when the compilation state changes.
-     */
-    public void setClassView(ClassView view)
-    {
-        classView = view;
-    }
 
     /**
      * Notify this class that its name has been changed.
@@ -142,15 +131,6 @@ public class GClass
         }
         catch (Exception e) {
             Debug.reportError("Remote error in GClass.nameChanged()", e);
-        }
-        
-        if(classView != null) {
-            EventQueue.invokeLater(new Runnable() {
-                public void run()
-                {
-                    classView.nameChanged(oldName);
-                }
-            });
         }
     }
     
@@ -502,10 +482,6 @@ public class GClass
     {
         compiled = isCompiled;
         this.hasKnownError = hasKnownError;
-        if (classView != null) {
-            // It's safe to call repaint off the event thread
-            classView.repaint();
-        }
         
         if (isCompiled) {
             loadRealClass();
@@ -548,14 +524,6 @@ public class GClass
     {
         loadRealClass();
         guessSuperclass(false);
-        if(classView != null) {
-            EventQueue.invokeLater(new Runnable() {
-                public void run()
-                {
-                    classView.updateView();
-                }
-            });
-        }
     }
 
     /**
@@ -630,17 +598,5 @@ public class GClass
     public boolean hasKnownError()
     {
         return hasKnownError;
-    }
-
-    public void cancelFreshState()
-    {
-        try
-        {
-            rmiClass.cancelFreshState();
-        }
-        catch (ProjectNotOpenException | PackageNotFoundException | RemoteException e)
-        {
-            Debug.reportError("cancelFreshState", e);
-        }
     }
 }

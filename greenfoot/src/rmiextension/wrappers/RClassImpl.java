@@ -280,29 +280,4 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
             bClass.getEditor().setReadOnly(b);
         }
     }
-
-    @Override
-    public void cancelFreshState() throws ProjectNotOpenException, PackageNotFoundException, RemoteException
-    {
-        Platform.runLater(() ->
-        {
-            Editor editor = null;
-            try
-            {
-                editor = bClass.getEditor();
-            }
-            catch (ProjectNotOpenException e)
-            {
-                e.printStackTrace();
-            }
-            catch (PackageNotFoundException e)
-            {
-                e.printStackTrace();
-            }
-            if (editor != null)
-            {
-                editor.cancelFreshState();
-            }
-        });
-    }
 }

@@ -65,8 +65,6 @@ import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
-import greenfoot.gui.ImportClassWindow;
-import greenfoot.gui.classbrowser.role.NormalClassRole;
 import greenfoot.guifx.classes.ClassDisplay;
 import greenfoot.guifx.classes.ImportClassDialog;
 import greenfoot.guifx.images.ImageLibFrame;
@@ -1289,7 +1287,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     return;
                 }
             }
-            File srcImage = ImportClassWindow.findImage(srcFile);
+            File srcImage = ImportClassDialog.findImage(srcFile);
             File destImage = null;
             if (srcImage != null)
             {
@@ -1358,7 +1356,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             File dir = project.getProjectDir();
             final String extension = language.getExtension();
             File newFile = new File(dir, className + "." + extension);
-            String templateFileName = NormalClassRole.getInstance().getTemplateFileName(false, language);
+            String templateFileName = getNormalTemplateFileName(language);
             GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, null,
               newFile, templateFileName, project.getProjectCharset().toString());
             ClassTarget newClass = new ClassTarget(this.project.getUnnamedPackage(),className);
@@ -1367,7 +1365,29 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         catch (IOException ioe) {
             ioe.printStackTrace();
         }
-    };
+    }
+
+    private static String getNormalTemplateFileName(SourceType language)
+    {
+        return "std" + language + ".tmpl";
+    }
+
+    public static String getActorTemplateFileName(SourceType language)
+    {
+        return "actor" + language + ".tmpl";
+    }
+
+    public static String getWorldTemplateFileName(boolean makeDirectSubclassOfWorld, SourceType language)
+    {
+        if (!makeDirectSubclassOfWorld)
+        {
+            return "subworld" + language + ".tmpl";
+        }
+        else
+        {
+            return "world" + language + ".tmpl";
+        }
+    }
 
     /**
      * Show a dialog to ask for details, then make a new subclass of the given class
@@ -1412,7 +1432,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 File dir = project.getProjectDir();
                 final String extension = language.getExtension();
                 File newFile = new File(dir, className + "." + extension);
-                String templateFileName = NormalClassRole.getInstance().getTemplateFileName(false, language);
+                String templateFileName = getNormalTemplateFileName(language);
                 GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, fullyQualifiedName,
                         newFile, templateFileName, project.getProjectCharset().toString());
                 ClassTarget newClass = new ClassTarget(classDiagram.getSelectedClass().getPackage(),className);

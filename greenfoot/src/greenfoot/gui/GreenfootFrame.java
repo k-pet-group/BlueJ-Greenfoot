@@ -21,67 +21,47 @@
  */
 package greenfoot.gui;
 
-import bluej.extensions.SourceType;
-import greenfoot.Actor;
-import greenfoot.World;
-import greenfoot.actions.AboutGreenfootAction;
-import greenfoot.actions.CloseProjectAction;
-import greenfoot.actions.ExportProjectAction;
-import greenfoot.actions.ImportClassAction;
-import greenfoot.actions.NewClassAction;
-import greenfoot.actions.NewWizardScenarioAction;
-import greenfoot.actions.OpenProjectAction;
-import greenfoot.actions.OpenRecentProjectAction;
-import greenfoot.actions.PauseSimulationAction;
-import greenfoot.actions.PreferencesAction;
-import greenfoot.actions.QuitAction;
-import greenfoot.actions.RemoveSelectedClassAction;
-import greenfoot.actions.ResetWorldAction;
-import greenfoot.actions.RunOnceSimulationAction;
-import greenfoot.actions.RunSimulationAction;
-import greenfoot.actions.SaveAsAction;
-import greenfoot.actions.SaveProjectAction;
-import greenfoot.actions.SetPlayerAction;
-import greenfoot.actions.ShowApiDocAction;
-import greenfoot.actions.ShowCopyrightAction;
-import greenfoot.actions.ShowReadMeAction;
-import greenfoot.actions.ShowWebsiteAction;
-import greenfoot.actions.ToggleAction;
-import greenfoot.actions.ToggleDebuggerAction;
-import greenfoot.core.*;
+import bluej.BlueJTheme;
+import bluej.Config;
 import bluej.collect.GreenfootInterfaceEvent;
+import bluej.extensions.ProjectNotOpenException;
+import bluej.extensions.SourceType;
+import bluej.prefmgr.PrefMgr;
+import bluej.utility.CenterLayout;
+import bluej.utility.DBox;
+import bluej.utility.Debug;
+import bluej.utility.Utility;
+import com.apple.eawt.Application;
+import greenfoot.World;
+import greenfoot.actions.*;
+import greenfoot.core.ClassStateManager;
+import greenfoot.core.GClass;
+import greenfoot.core.GProject;
+import greenfoot.core.GreenfootMain;
+import greenfoot.core.ProjectProperties;
+import greenfoot.core.ShadowProjectProperties;
+import greenfoot.core.Simulation;
+import greenfoot.core.WorldHandler;
 import greenfoot.event.CompileListener;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
-import greenfoot.gui.classbrowser.ClassBrowser;
-import greenfoot.gui.classbrowser.ClassView;
-import greenfoot.gui.classbrowser.Selectable;
-import greenfoot.gui.classbrowser.SelectionListener;
 import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.platforms.ide.SimulationDelegateIDE;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 import greenfoot.sound.SoundFactory;
 import greenfoot.util.AskHandler;
 import greenfoot.util.GreenfootUtil;
+import rmiextension.wrappers.RBlueJ;
+import rmiextension.wrappers.event.RCompileEvent;
 
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.HeadlessException;
-import java.awt.Image;
-import java.awt.Menu;
-import java.awt.Toolkit;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
@@ -91,42 +71,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonModel;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.KeyStroke;
-import javax.swing.OverlayLayout;
-import javax.swing.Timer;
-
-import rmiextension.wrappers.RBlueJ;
-import rmiextension.wrappers.event.RCompileEvent;
-import bluej.BlueJTheme;
-import bluej.Config;
-import bluej.extensions.ProjectNotOpenException;
-import bluej.prefmgr.PrefMgr;
-import bluej.utility.CenterLayout;
-import bluej.utility.DBox;
-import bluej.utility.Debug;
-import bluej.utility.Utility;
-
-import com.apple.eawt.Application;
-
-import java.awt.Font;
-
 /**
  * The main frame for a Greenfoot project (one per project)
  * 
@@ -134,7 +78,7 @@ import java.awt.Font;
  * @author mik
  */
 public class GreenfootFrame extends JFrame
-    implements WindowListener, CompileListener, WorldListener, SelectionListener
+    implements CompileListener, WorldListener
 {
     private static final String shareIconFile = "export-publish-small.png";
     private static final int WORLD_MARGIN = 40;
@@ -149,7 +93,6 @@ public class GreenfootFrame extends JFrame
     private WorldHandler worldHandler;
     private WorldHandlerDelegateIDE worldHandlerDelegate;
     private Dimension worldDimensions;
-    private ClassBrowser classBrowser;
     private ControlPanel controlPanel;
     private JScrollPane classScrollPane;
     /** The panel that needs to be revalidated when the world size changes */
@@ -164,15 +107,12 @@ public class GreenfootFrame extends JFrame
     private DBox worldBox;
     private ExecutionTwirler executionTwirler;
     
-    private NewClassAction newClassAction;
-    private ImportClassAction importClassAction;
     private SaveProjectAction saveProjectAction;
     private SaveAsAction saveAsAction;
     private ShowReadMeAction showReadMeAction;
     private ExportProjectAction exportProjectAction;
     private ExportProjectAction shareAction;
     private CloseProjectAction closeProjectAction;
-    private RemoveSelectedClassAction removeSelectedClassAction;
     private SetPlayerAction setPlayerAction;
     
     private ToggleDebuggerAction toggleDebuggerAction;
@@ -253,7 +193,6 @@ public class GreenfootFrame extends JFrame
         }
 
         makeFrame(classStateManager, projectProperties, shmFilePath);
-        addWindowListener(this);
         
         restoreFrameState();
 
@@ -330,8 +269,6 @@ public class GreenfootFrame extends JFrame
             enableProjectActions();
 
             worldCanvas.setVisible(false);
-            // Class browser
-            constructClassBrowser(project);
             restoreFrameState();
 
             try {
@@ -355,15 +292,6 @@ public class GreenfootFrame extends JFrame
         }
         updateBackgroundMessage();
     }
-
-    private void constructClassBrowser(final GProject project)
-    {
-        buildClassBrowser();
-        populateClassBrowser(classBrowser, project);
-        classBrowser.setVisible(true);
-        classBrowser.setActions(newClassAction, importClassAction);
-        classScrollPane.setViewportView(classBrowser);
-    }
     
     /**
      * Calling this will make the current frame an empty frame.
@@ -374,7 +302,6 @@ public class GreenfootFrame extends JFrame
         project.removeCompileListener(this);
         project.closeEditors();
         worldCanvas.setVisible(false);
-        classBrowser.setVisible(false);
         project = null;
         enableProjectActions();
         repaint();
@@ -384,14 +311,6 @@ public class GreenfootFrame extends JFrame
         updateBackgroundMessage();
     }
 
-    /**
-     * Get the class browser currently embedded in this frame.
-     */
-    public ClassBrowser getClassBrowser()
-    {
-        return classBrowser;
-    }
-    
     /**
      * Get the project showing in this frame. If this frame is empty,
      * will return null.
@@ -423,9 +342,6 @@ public class GreenfootFrame extends JFrame
         Simulation sim = Simulation.getInstance();
         sim.attachWorldHandler(worldHandler);
        
-        // Build the class browser before building the menu, because
-        // some menu actions work on the class browser.
-        buildClassBrowser();
         setupActions();
         setJMenuBar(buildMenu(classStateManager));
 
@@ -585,7 +501,7 @@ public class GreenfootFrame extends JFrame
         
         // the class browser 
         
-        classScrollPane = new JScrollPane(classBrowser) {
+        classScrollPane = new JScrollPane() {
             @Override
             public Dimension getPreferredSize()
             {
@@ -672,58 +588,15 @@ public class GreenfootFrame extends JFrame
         return dim;
     }
 
-    /**
-     * Build a new (empty) class browser.
-     */
-    private void buildClassBrowser()
-    {
-        classBrowser = new ClassBrowser(project, this);
-        classBrowser.getSelectionManager().addSelectionChangeListener(this);
-    }
-
-    /**
-     * Read the classes from a given project and display them in the class browser.
-     */
-    private void populateClassBrowser(ClassBrowser classBrowser, GProject project)
-    {
-        if (project != null) {
-            try {
-                GPackage pkg = project.getDefaultPackage();
-
-                GClass[] classes = pkg.getClasses(false);
-                //add the system classes
-                classBrowser.quickAddClass(new ClassView(classBrowser,
-                        new GCoreClass(World.class, project)));
-                classBrowser.quickAddClass(new ClassView(classBrowser,
-                        new GCoreClass(Actor.class, project)));
-
-                for (int i = 0; i < classes.length; i++) {
-                    GClass gClass = classes[i];
-                    classBrowser.quickAddClass(new ClassView(classBrowser, gClass));
-                }
-
-                classBrowser.updateLayout();
-            }
-            catch (Exception exc) {
-                //Debug.reportError("Could not open classes in scenario", exc);
-                exc.printStackTrace();
-            }
-        }
-    }
-
     private void setupActions()
     {
-        newClassAction = new NewClassAction(this);
         saveProjectAction = new SaveProjectAction(this);
         saveAsAction = new SaveAsAction(this, rBlueJ);
         showReadMeAction = new ShowReadMeAction(this);
         setPlayerAction = new SetPlayerAction(this);
         exportProjectAction = new ExportProjectAction(this, false);
         shareAction = new ExportProjectAction(this, true);
-        importClassAction = new ImportClassAction(this);
         closeProjectAction = new CloseProjectAction(this);
-        removeSelectedClassAction = new RemoveSelectedClassAction(this);
-        removeSelectedClassAction.setEnabled(false);
     }
     
     /**
@@ -758,10 +631,6 @@ public class GreenfootFrame extends JFrame
         
         JMenu editMenu = addMenu(Config.getString("menu.edit"), menuBar, 'e');
         
-        addMenuItem(newClassAction, editMenu, KeyEvent.VK_N, false, KeyEvent.VK_N);
-        addMenuItem(importClassAction, editMenu, KeyEvent.VK_I, false, KeyEvent.VK_I);
-        addMenuItem(removeSelectedClassAction, editMenu, KeyEvent.VK_D, false, KeyEvent.VK_R);
-
         if (!Config.usingMacScreenMenubar()) { // no "Preferences" here for
             // Mac
             editMenu.addSeparator();
@@ -913,8 +782,6 @@ public class GreenfootFrame extends JFrame
         closeProjectAction.setEnabled(state);
         saveProjectAction.setEnabled(state);
         saveAsAction.setEnabled(state);
-        newClassAction.setEnabled(state);
-        importClassAction.setEnabled(state);
         showReadMeAction.setEnabled(state);
         exportProjectAction.setEnabled(state);
         shareAction.setEnabled(state);
@@ -922,7 +789,6 @@ public class GreenfootFrame extends JFrame
         // Disable simulation buttons
         if (state == false) {
             WorldHandler.getInstance().discardWorld();
-            removeSelectedClassAction.setEnabled(false);
         }
     }
 
@@ -1144,41 +1010,6 @@ public class GreenfootFrame extends JFrame
                 && System.currentTimeMillis() > startedInitialisingAt + EXECUTION_TIMEOUT;
     }
     
-    // ----------- WindowListener interface -----------
-    
-    @Override
-    public void windowOpened(WindowEvent e) {}
-
-    @Override
-    public void windowClosing(WindowEvent e)
-    {
-        GreenfootMain.closeProject(this, true);
-    }
-
-    @Override
-    public void windowClosed(WindowEvent e) {}
-
-    @Override
-    public void windowIconified(WindowEvent e) {}
-
-    @Override
-    public void windowDeiconified(WindowEvent e) {}
-
-    @Override
-    public void windowActivated(WindowEvent e) {
-        if (!isClosedProject())
-        {
-            project.recordEvent(GreenfootInterfaceEvent.WINDOW_ACTIVATED);
-            Arrays.stream(project.getDefaultPackage().getClasses(false)).forEach(GClass::cancelFreshState);
-            if (!wasRestarted && !WorldHandler.getInstance().hasWorld() && executionCount == 0) {
-                WorldHandler.getInstance().instantiateNewWorld();
-            }
-        }
-    }
-
-    @Override
-    public void windowDeactivated(WindowEvent e) {}
-
     // ----------- CompileListener interface -----------
     
     @Override
@@ -1218,7 +1049,6 @@ public class GreenfootFrame extends JFrame
             if (! wasRestarted && GreenfootFrame.this.isActive()) {
                 WorldHandler.getInstance().instantiateNewWorld();
             }
-            classBrowser.repaint();
             isCompiling = false;
             updateBackgroundMessage();
         });
@@ -1266,32 +1096,6 @@ public class GreenfootFrame extends JFrame
     }
 
     // ------------- end of WorldListener interface ------------
-    
-    // ------------- SelectionListener interface ---------------
-    
-    @Override
-    public void selectionChange(Selectable source)
-    {
-        if (source instanceof ClassView) {
-            ClassView classView = (ClassView)source;
-            if(classView.getRealClass() == null) {
-                removeSelectedClassAction.setEnabled(true);
-            }
-            else if(! (classView.getRealClass().getName().equals("greenfoot.Actor")) &&
-                    ! (classView.getRealClass().getName().equals("greenfoot.World")))  {
-                removeSelectedClassAction.setEnabled(true);
-            }
-            else {
-                removeSelectedClassAction.setEnabled(false);
-            }
-        }
-        else {
-            removeSelectedClassAction.setEnabled(false);
-        }
-        updateBackgroundMessage();
-    }
-    
-    // ------------- end of SelectionListener interface --------
     
     /**
      * Asks the user to input a String.  Should be called from the EDT.  Returns a Callable

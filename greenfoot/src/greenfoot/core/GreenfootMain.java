@@ -24,7 +24,6 @@ package greenfoot.core;
 import bluej.Boot;
 import bluej.collect.DataSubmissionFailedDialog;
 import greenfoot.ObjectTracker;
-import greenfoot.actions.NewSubWorldAction;
 import greenfoot.event.ActorInstantiationListener;
 import greenfoot.event.CompileListener;
 import greenfoot.event.CompileListenerForwarder;
@@ -274,7 +273,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     
                     EventQueue.invokeLater(() -> {
                         if (wizard) {
-                            new NewSubWorldAction(frame, true, sourceType).actionPerformed(null);
+                            //new NewSubWorldAction(frame, true, sourceType).actionPerformed(null);
                         }
                     });
 
