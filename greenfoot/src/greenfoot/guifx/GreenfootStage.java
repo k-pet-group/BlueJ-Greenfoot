@@ -644,13 +644,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 
                 // We only want fully paused; if they've requested a run, don't allow a shift-click:
                 boolean paused = stateProperty.get() == State.PAUSED;
-                if (e.getCode() == KeyCode.SHIFT && newActorProperty.get() == null && classDiagram.getSelectedClassTarget() != null && paused)
+                ClassTarget selectedClassTarget = classDiagram.getSelectedClassTarget();
+                if (e.getCode() == KeyCode.SHIFT && newActorProperty.get() == null && selectedClassTarget != null && paused)
                 {
                     // Holding shift, so show actor preview if it is an actor with no-arg constructor:
-                    Reflective type = classDiagram.getSelectedClassTarget().getTypeReflective();
+                    Reflective type = selectedClassTarget.getTypeReflective();
                     if (getActorReflective().isAssignableFrom(type) && type.getDeclaredConstructors().stream().anyMatch(c -> c.getParamTypes().isEmpty() && !Modifier.isPrivate(c.getModifiers())))
                     {
-                        newActorProperty.set(new NewActor(getImageViewForClass(type), classDiagram.getSelectedClassTarget().getBaseName()));
+                        newActorProperty.set(new NewActor(getImageViewForClass(type), selectedClassTarget.getBaseName()));
                     }
                 }
 
@@ -1240,31 +1241,31 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     /**
      * Show a dialog for a new name, and then duplicate the class target with that new name.
      */
-    public void duplicateClass(ClassTarget classTarget)
+    public void duplicateClass(ClassTarget originalClassTarget)
     {
-        String originalClassName = classTarget.getDisplayName();
-        SourceType sourceType = classTarget.getSourceType();
-
-        NewClassDialog dialog = new NewClassDialog(this, classDiagram.getSelectedClassTarget().getSourceType());
+        String originalClassName = originalClassTarget.getDisplayName();
+        SourceType sourceType = originalClassTarget.getSourceType();
+        NewClassDialog dialog = new NewClassDialog(this, sourceType);
         dialog.setSuggestedClassName("CopyOf" + originalClassName);
-        dialog.setSelectedLanguage(sourceType);
         dialog.disableLanguageBox(true);
-        Optional<NewClassDialog.NewClassInfo> result = dialog.showAndWait();
-        String className = dialog.getResult().className;
-
-        try {
-            File dir = classDiagram.getSelectedClassTarget().getPackage().getProject().getProjectDir();
-            final String extension = sourceType.getExtension();
-            File newFile = new File(dir, className + "." + extension);
-            File originalFile = new File(dir, originalClassName + "." + extension);
-            GreenfootUtilDelegateIDE.getInstance().duplicate(originalClassName, className, originalFile, newFile, sourceType);
-            ClassTarget newClass = classDiagram.getSelectedClassTarget().getPackage().addClass(className);
-            classDiagram.addClass(newClass);
-            // TODO set the image property (recorded as part of GREENFOOT-641 ticket)
-        }
-        catch (IOException ioe) {
-            ioe.printStackTrace();
-        }
+        dialog.showAndWait().ifPresent(newClassInfo -> {
+            String newClassName = newClassInfo.className;
+            try
+            {
+                File dir = originalClassTarget.getPackage().getProject().getProjectDir();
+                final String extension = sourceType.getExtension();
+                File newFile = new File(dir, newClassName + "." + extension);
+                File originalFile = new File(dir, originalClassName + "." + extension);
+                GreenfootUtilDelegateIDE.getInstance().duplicate(originalClassName, newClassName, originalFile, newFile, sourceType);
+                ClassTarget newClass = originalClassTarget.getPackage().addClass(newClassName);
+                classDiagram.addClass(newClass);
+                // TODO set the image property (recorded as part of GREENFOOT-641 ticket)
+            }
+            catch (IOException ioe)
+            {
+                Debug.reportError(ioe);
+            }
+        });
     }
 
     /**
