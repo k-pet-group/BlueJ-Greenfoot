@@ -41,7 +41,6 @@ import greenfoot.util.GreenfootUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import javafx.collections.FXCollections;
 import javafx.embed.swing.SwingFXUtils;
@@ -121,8 +120,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         //defaultIcon = getClassImage(superClass.getClass);
 
         includeClassNameField = false;
-        buildUI(null);
-        projImageList.select(getSpecifiedImage(classTarget));
+        buildUI(getSpecifiedImage(classTarget));
     }
 
     /**
@@ -130,54 +128,32 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
      *
      * @param owner        The parent frame
      * @param superClass   The superclass of the new class
-     * @param title        The title of the dialog
-     * @param defaultName  The default name of the new class (or blank if null)
-     * @param description  A helper prompt to display at the top of dialog (or none if null)
      */
-    //TODO
-    public ImageLibFrame(Window owner, ClassTarget superClass, String title, String defaultName, List<String> description)
+    public ImageLibFrame(Window owner, ClassTarget superClass)
     {
-        super(owner, title, "image-lib");
+        super(owner, Config.getString("imagelib.newClass"), "image-lib");
         this.classTarget = superClass;
         this.project = classTarget.getPackage().getProject();
         defaultIcon = getClassImage(superClass);
 
         includeClassNameField = true;
-        buildUI(description);
-        projImageList.select(null);
-        if (defaultName != null)
-        {
-            classNameField.setText(defaultName);
-        }
+        buildUI(null);
+        classNameField.setPromptText(Config.getString("pkgmgr.newClass.prompt"));
         classNameField.requestFocus();
     }
 
     /**
      * build the UI components
-     *
-     * @param description A helper prompt to display at the top of dialog, can be null.
+     * @param specifiedImage
      */
-    private void buildUI(List<String> description)
+    private void buildUI(File specifiedImage)
     {
-        VBox contentPane = new VBox(10);
-        setContentPane(contentPane);
-
-        if (description != null)
-        {
-            description.forEach(t -> {
-                Label l = new Label(t);
-                l.setFocusTraversable(false);
-                l.setBorder(null);
-                contentPane.getChildren().add(l);
-            });
-        }
-
-        // Class details - name, current icon
-        contentPane.getChildren().addAll(buildClassDetailsPanel(project.getUnnamedPackage()), buildImageLists(), createCogMenu());
+        setContentPane(new VBox(10, buildClassDetailsPanel(project.getUnnamedPackage()), buildImageLists(), createCogMenu()));
+        projImageList.select(specifiedImage);
 
         // Ok and cancel buttons
         getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
-        JavaFXUtil.runRegular(Duration.millis(2000), () -> projImageList.refresh());
+        JavaFXUtil.runRegular(Duration.millis(1000), () -> projImageList.refresh());
         setResultConverter(bt -> bt == ButtonType.OK ? selectedImageFile : null);
     }
 
