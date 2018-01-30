@@ -179,9 +179,12 @@ public class ClassDiagram extends BorderPane
     }
 
     /**
-     * Adds a new class to the diagram at the appropriate place, based on its superclass.
+     * Adds a new class to the diagram at the appropriate place, based on its superclass,
+     * and returns the constructed class info.
+     *
+     * @return A class info reference for the class added.
      */
-    public void addClass(ClassTarget classTarget)
+    public ClassInfo addClass(ClassTarget classTarget)
     {
         String superClass = null;
         bluej.parser.symtab.ClassInfo info = classTarget.analyseSource();
@@ -213,46 +216,54 @@ public class ClassDiagram extends BorderPane
                         continue; // Should be impossible
                 }
                 // Look all the way down for the tree for the super class:
-                boolean found = findAndAdd(classGroup.getLiveClasses(), classTarget, superClass, type);
-                if (found)
+                ClassInfo classInfo = findAndAdd(classGroup.getLiveClasses(), classTarget, superClass, type);
+                if (classInfo != null)
                 {
                     classGroup.updateAfterAdd();
                     // Found right place nested within the current group; done:
-                    return;
+                    return classInfo;
                 }
             }
             // If we fall through here, we do have a parent class, but it's not in the diagram
             // e.g. inheriting from java.util.List
         }
         // Otherwise, add to top of Other:
-        otherClasses.getLiveClasses().add(makeClassInfo(classTarget, Collections.emptyList(), ClassType.OTHER));
+        ClassInfo classInfo = makeClassInfo(classTarget, Collections.emptyList(), ClassType.OTHER);
+        otherClasses.getLiveClasses().add(classInfo);
         otherClasses.updateAfterAdd();
+        return classInfo;
     }
 
     /**
-     * Looks within the whole tree formed by the list of class info for the right place for classTarget.  If
-     * found, adds it and returns true.  If not found, returns false.
+     * Looks within the whole tree formed by the list of class info for the right place for classTarget.
+     * If found, create a class info for the class target passed, adds it and return it.
      * 
      * @param classInfos The tree to search.  The list itself will not be modified.
      * @param classTarget The class to add to the tree.
      * @param classTargetSuperClass The super-class of classTarget
-     * @return True if right place found and added, false if not
+     * @param type The source type of the class added.
+     * @return The class info created if right place found and added, null if not.
      */
-    private boolean findAndAdd(List<ClassInfo> classInfos, ClassTarget classTarget, String classTargetSuperClass, ClassType type)
+    private ClassInfo findAndAdd(List<ClassInfo> classInfos, ClassTarget classTarget, String classTargetSuperClass, ClassType type)
     {
         for (ClassInfo classInfo : classInfos)
         {
             if (classInfo.getQualifiedName().equals(classTargetSuperClass))
             {
-                classInfo.add(makeClassInfo(classTarget, Collections.emptyList(), type));
-                return true;
+                ClassInfo newClassInfo = makeClassInfo(classTarget, Collections.emptyList(), type);
+                classInfo.add(newClassInfo);
+                return newClassInfo;
             }
-            else if (findAndAdd(classInfo.getSubClasses(), classTarget, classTargetSuperClass, type))
+            else
             {
-                return true;
+                ClassInfo newClassInfo = findAndAdd(classInfo.getSubClasses(), classTarget, classTargetSuperClass, type);
+                if (newClassInfo != null)
+                {
+                    return newClassInfo;
+                }
             }
         }
-        return false;
+        return null;
     }
 
     /**
