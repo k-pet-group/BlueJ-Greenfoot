@@ -148,11 +148,12 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
      */
     private void buildUI(File specifiedImage)
     {
+        // Ok and cancel buttons
+        getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
+
         setContentPane(new VBox(10, buildClassDetailsPanel(project.getUnnamedPackage()), buildImageLists(), createCogMenu()));
         projImageList.select(specifiedImage);
 
-        // Ok and cancel buttons
-        getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
         JavaFXUtil.runRegular(Duration.millis(1000), () -> projImageList.refresh());
         setResultConverter(bt -> bt == ButtonType.OK ? selectedImageFile : null);
     }
