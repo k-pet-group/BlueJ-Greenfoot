@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010,2011,2012,2013,2015 Poul Henriksen and Michael Kolling 
+ Copyright (C) 2010,2011,2012,2013,2015,2018 Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,6 +36,7 @@ import java.util.Map;
 import greenfoot.core.WorldHandler;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 import greenfoot.record.GreenfootRecorder;
+import greenfoot.util.DebugUtil;
 import javafx.application.Platform;
 import rmiextension.wrappers.RProjectImpl;
 import rmiextension.wrappers.WrapperPool;
@@ -114,6 +115,7 @@ public class GreenfootDebugHandler implements DebuggerListener
     {
         try {
             Project proj = Project.getProject(project.getDir());
+            proj.getExecControls().setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
 
             GreenfootDebugHandler handler = new GreenfootDebugHandler(project);
             int mstate = proj.getDebugger().addDebuggerListener(handler);
