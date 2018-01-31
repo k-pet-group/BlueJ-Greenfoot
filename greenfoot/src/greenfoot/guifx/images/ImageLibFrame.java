@@ -71,8 +71,8 @@ import javax.imageio.ImageIO;
 public class ImageLibFrame extends FXCustomizedDialog<File>
                     //TODO extends Dialog<Image> ?
 {
-    private ClassTarget classTarget;
     private Project project;
+    private final String className;
     /** The default image icon - none, or parent's image */
     private File defaultIcon;
 
@@ -111,8 +111,8 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
     {
         super(owner, Config.getString("imagelib.title") + " " + classTarget.getDisplayName(), "image-lib");
         this.selectionWatcher = watcher;
-        this.classTarget = classTarget;
         this.project = classTarget.getPackage().getProject();
+        className = classTarget.getDisplayName();
 
         // TODO
         //Class superClass = classTarget.getClass().getSuperclass();
@@ -129,12 +129,12 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
      * @param owner        The parent frame
      * @param superClass   The superclass of the new class
      */
-    public ImageLibFrame(Window owner, ClassTarget superClass)
+    public ImageLibFrame(Window owner, Project project, String parentName)
     {
         super(owner, Config.getString("imagelib.newClass"), "image-lib");
-        this.classTarget = superClass;
-        this.project = classTarget.getPackage().getProject();
-        defaultIcon = getClassImage(superClass);
+        this.project = project;
+        className = parentName;
+//        defaultIcon = getClassImage(superClass);
 
         includeClassNameField = true;
         buildUI(null);
@@ -261,7 +261,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
      */
     private void createNewImage()
     {
-        String name = includeClassNameField ? getClassName() : classTarget.getQualifiedName();
+        String name = includeClassNameField ? getClassName() : className;
         final File file = new NewImageDialog(this.asWindow(), projImagesDir, name).showAndWait().orElse(null);
         if (file != null) {
             projImageList.refresh();
