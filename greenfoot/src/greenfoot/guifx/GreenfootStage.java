@@ -93,6 +93,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -452,7 +453,49 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     private MenuBar makeMenu(List<Command> pendingCommands)
     {
+        Menu scenarioMenu = new Menu(Config.getString("menu.scenario"), null,
+                makeMenuItem("stride.new.project",
+                        new KeyCodeCombination(KeyCode.F, KeyCombination.SHORTCUT_DOWN),
+                        () -> {} // TODO
+                    ),
+                    makeMenuItem("java.new.project",
+                        new KeyCodeCombination(KeyCode.J, KeyCombination.SHORTCUT_DOWN),
+                        () -> {} // TODO
+                    ),
+                    makeMenuItem("open.project",
+                        new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN),
+                        () -> {} // TODO
+                    ),
+                    new Menu(Config.getString("menu.openRecent"), null), // TODO
+                    makeMenuItem("project.close",
+                        new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN),
+                        () -> {} // TODO
+                    ),
+                    makeMenuItem("project.save",
+                        new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN),
+                        () -> {} // TODO
+                    ),
+                    makeMenuItem("project.saveAs",
+                        null,
+                        () -> {} // TODO
+                    ),
+                    new SeparatorMenuItem(),
+                    makeMenuItem("export.project",
+                        new KeyCodeCombination(KeyCode.E, KeyCombination.SHORTCUT_DOWN),
+                        () -> {} // TODO
+                    )
+                );
+        
+        if (! Config.isMacOS()) {
+            scenarioMenu.getItems().add(new SeparatorMenuItem());
+            scenarioMenu.getItems().add(makeMenuItem("greenfoot.quit",
+                    new KeyCodeCombination(KeyCode.Q, KeyCombination.SHORTCUT_DOWN),
+                    () -> {}) // TODO
+                );
+        }
+        
         return new MenuBar(
+            scenarioMenu,
             new Menu(Config.getString("menu.edit"), null,
                 makeMenuItem("new.other.class", new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN),
                             () -> newNonImageClass(project.getUnnamedPackage(), null)),
@@ -920,7 +963,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                         // Should always be ClassTarget, but check in case:
                         if (target instanceof ClassTarget)
                         {
-                            ClassTarget classTarget = (ClassTarget) target;
                             Menu menu = new Menu(actor.getClassName());
                             ObjectWrapper.createMethodMenuItems(menu.getItems(), project.loadClass(actor.getClassName()), new RecordInvoke(actor), "", true);
                             menu.getItems().add(makeInspectMenuItem(actor));
@@ -961,7 +1003,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     // Should always be ClassTarget, but check in case:
                     if (target instanceof ClassTarget)
                     {
-                        ClassTarget classTarget = (ClassTarget) target;
                         hideContextMenu();
                         contextMenu = new ContextMenu();
                         contextMenu.setOnHidden(e -> {
@@ -1439,7 +1480,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         Package pkg = classTarget.getPackage();
 
         boolean imageClass = false;
-        Class cls = pkg.loadClass(classTarget.getQualifiedName());
+        Class<?> cls = pkg.loadClass(classTarget.getQualifiedName());
         while (cls !=null)
         {
             if (cls.getCanonicalName().equals("greenfoot.World") || cls.getCanonicalName().equals("greenfoot.Actor") )
