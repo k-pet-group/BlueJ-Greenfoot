@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,7 +32,6 @@ import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
-import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import com.apple.eawt.AppEvent;
 import com.apple.eawt.Application;
@@ -56,6 +55,7 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 /**
  * BlueJ starts here. The Boot class, which is responsible for dealing with
@@ -92,6 +92,9 @@ public class Main
      * later on the FX thread).
      */
     private static ClassLoader storedContextClassLoader;
+    
+    /** The mechanism to show the initial GUI */
+    private static Consumer<Project> initialGUI = null;
 
     /**
      * Entry point to starting up the system. Initialise the system and start
@@ -189,9 +192,14 @@ public class Main
                         Project openProj;
                         // checking all is well (project exists)
                         if ((openProj = Project.openProject(exists)) != null) {
-                            Package pkg = openProj.getPackage(openProj.getInitialPackageName());
-                            PkgMgrFrame.createFrame(pkg, null);
-                            oneOpened = true;
+                            if (initialGUI == null) {
+                                Package pkg = openProj.getPackage(openProj.getInitialPackageName());
+                                PkgMgrFrame.createFrame(pkg, null);
+                                oneOpened = true;
+                            }
+                            else {
+                                initialGUI.accept(openProj);
+                            }
                         }
                     }
                 }
@@ -636,5 +644,14 @@ public class Main
     public static ClassLoader getStoredContextClassLoader()
     {
         return storedContextClassLoader;
+    }
+    
+    /**
+     * Set the inital GUI, created after the initial project is opened.
+     * @param initialGUI  A consume which displays the GUI for the initial project.
+     */
+    public static void setInitialGUI(Consumer<Project> initialGUI)
+    {
+        Main.initialGUI = initialGUI;
     }
 }

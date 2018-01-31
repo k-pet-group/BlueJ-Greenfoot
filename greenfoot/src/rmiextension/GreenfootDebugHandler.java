@@ -118,13 +118,9 @@ public class GreenfootDebugHandler implements DebuggerListener
             proj.getExecControls().setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
 
             GreenfootDebugHandler handler = new GreenfootDebugHandler(project);
-            int mstate = proj.getDebugger().addDebuggerListener(handler);
-            if (mstate == Debugger.IDLE) {
-                // The VM may have already started by the time the listener was added. If so,
-                // we need to kick off Greenfoot on the other VM here:
-                handler.addRunResetBreakpoints(proj.getDebugger());
-                ProjectManager.instance().openGreenfoot(project, handler);
-            }
+            proj.getDebugger().addDebuggerListener(handler);
+            handler.addRunResetBreakpoints(proj.getDebugger());
+            ProjectManager.instance().openGreenfoot(project, handler);
         } catch (ProjectNotOpenException ex) {
             Debug.reportError("Project not open when adding debugger listener in Greenfoot", ex);
         }
@@ -371,21 +367,6 @@ public class GreenfootDebugHandler implements DebuggerListener
     @Override
     public void processDebuggerEvent(final DebuggerEvent e, boolean skipUpdate)
     {
-        if (e.getNewState() == Debugger.IDLE && e.getOldState() == Debugger.NOTREADY) {
-            if (! ProjectManager.checkLaunchFailed()) {
-                //It is important to have this code run at a later time.
-                //If it runs from this thread, it tries to notify the VM event handler,
-                //which is currently calling us and we get a deadlock between the two VMs.
-                Platform.runLater(new Runnable() {
-                    public void run()
-                    {
-                        addRunResetBreakpoints((Debugger) e.getSource());
-                        ProjectManager.instance().openGreenfoot(project, GreenfootDebugHandler.this);
-                    }
-                });
-            }
-        }
-
         if (!skipUpdate)
         {
             if (e.isHalt() && isSimulationThread(e.getThread())&& simulationListener != null)
