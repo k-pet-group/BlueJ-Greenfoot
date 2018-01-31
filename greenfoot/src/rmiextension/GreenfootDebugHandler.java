@@ -26,12 +26,10 @@ import greenfoot.actions.ResetWorldAction;
 import greenfoot.core.PickActorHelper;
 import greenfoot.core.Simulation;
 
-import java.awt.EventQueue;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +42,6 @@ import rmiextension.wrappers.WrapperPool;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerEvent;
-import bluej.debugger.DebuggerEvent.BreakpointProperties;
 import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerListener;
 import bluej.debugger.DebuggerObject;
@@ -287,7 +284,7 @@ public class GreenfootDebugHandler implements DebuggerListener
                 simulationThread.cont();
             }
 
-            EventQueue.invokeLater(new Runnable() {
+            Platform.runLater(new Runnable() {
                 public void run()
                 {
                     try {
@@ -377,7 +374,7 @@ public class GreenfootDebugHandler implements DebuggerListener
                 //It is important to have this code run at a later time.
                 //If it runs from this thread, it tries to notify the VM event handler,
                 //which is currently calling us and we get a deadlock between the two VMs.
-                EventQueue.invokeLater(new Runnable() {
+                Platform.runLater(new Runnable() {
                     public void run()
                     {
                         addRunResetBreakpoints((Debugger) e.getSource());
