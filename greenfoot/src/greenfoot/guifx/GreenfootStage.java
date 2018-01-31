@@ -52,6 +52,7 @@ import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
+import bluej.utility.FileUtility;
 import bluej.utility.JavaReflective;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
@@ -114,6 +115,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import rmiextension.GreenfootDebugHandler;
 import rmiextension.GreenfootDebugHandler.SimulationStateListener;
+import rmiextension.ProjectManager;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -437,6 +439,21 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     }
 
     /**
+     * Allow the user to choose a scenario to open, and open it.
+     */
+    private void doOpenScenario()
+    {
+        File choice = FileUtility.getOpenProjectFX(this);
+        if (choice != null)
+        {
+            Project p = Project.openProject(choice.getAbsolutePath());
+            if (p != null) {
+                ProjectManager.instance().launchProject(p.getBProject());
+            }
+        }                            
+    }
+    
+    /**
      * Perform a single act step, if paused, by adding to the list of pending commands.
      */
     private void act(List<Command> pendingCommands)
@@ -460,11 +477,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     ),
                     makeMenuItem("java.new.project",
                         new KeyCodeCombination(KeyCode.J, KeyCombination.SHORTCUT_DOWN),
-                        () -> {} // TODO
+                        () -> {}
                     ),
                     makeMenuItem("open.project",
                         new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN),
-                        () -> {} // TODO
+                        this::doOpenScenario
                     ),
                     new Menu(Config.getString("menu.openRecent"), null), // TODO
                     makeMenuItem("project.close",
