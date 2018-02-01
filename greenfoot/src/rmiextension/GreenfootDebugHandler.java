@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010,2011,2012,2013,2015 Poul Henriksen and Michael Kolling 
+ Copyright (C) 2010,2011,2012,2013,2015,2018 Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,25 +26,23 @@ import greenfoot.actions.ResetWorldAction;
 import greenfoot.core.PickActorHelper;
 import greenfoot.core.Simulation;
 
-import java.awt.EventQueue;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import greenfoot.core.WorldHandler;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 import greenfoot.record.GreenfootRecorder;
+import greenfoot.util.DebugUtil;
 import javafx.application.Platform;
 import rmiextension.wrappers.RProjectImpl;
 import rmiextension.wrappers.WrapperPool;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerEvent;
-import bluej.debugger.DebuggerEvent.BreakpointProperties;
 import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerListener;
 import bluej.debugger.DebuggerObject;
@@ -117,15 +115,12 @@ public class GreenfootDebugHandler implements DebuggerListener
     {
         try {
             Project proj = Project.getProject(project.getDir());
+            proj.getExecControls().setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
 
             GreenfootDebugHandler handler = new GreenfootDebugHandler(project);
-            int mstate = proj.getDebugger().addDebuggerListener(handler);
-            if (mstate == Debugger.IDLE) {
-                // The VM may have already started by the time the listener was added. If so,
-                // we need to kick off Greenfoot on the other VM here:
-                handler.addRunResetBreakpoints(proj.getDebugger());
-                ProjectManager.instance().openGreenfoot(project, handler);
-            }
+            proj.getDebugger().addDebuggerListener(handler);
+            handler.addRunResetBreakpoints(proj.getDebugger());
+            ProjectManager.instance().openGreenfoot(project, handler);
         } catch (ProjectNotOpenException ex) {
             Debug.reportError("Project not open when adding debugger listener in Greenfoot", ex);
         }
@@ -287,7 +282,7 @@ public class GreenfootDebugHandler implements DebuggerListener
                 simulationThread.cont();
             }
 
-            EventQueue.invokeLater(new Runnable() {
+            Platform.runLater(new Runnable() {
                 public void run()
                 {
                     try {
@@ -372,21 +367,6 @@ public class GreenfootDebugHandler implements DebuggerListener
     @Override
     public void processDebuggerEvent(final DebuggerEvent e, boolean skipUpdate)
     {
-        if (e.getNewState() == Debugger.IDLE && e.getOldState() == Debugger.NOTREADY) {
-            if (! ProjectManager.checkLaunchFailed()) {
-                //It is important to have this code run at a later time.
-                //If it runs from this thread, it tries to notify the VM event handler,
-                //which is currently calling us and we get a deadlock between the two VMs.
-                EventQueue.invokeLater(new Runnable() {
-                    public void run()
-                    {
-                        addRunResetBreakpoints((Debugger) e.getSource());
-                        ProjectManager.instance().openGreenfoot(project, GreenfootDebugHandler.this);
-                    }
-                });
-            }
-        }
-
         if (!skipUpdate)
         {
             if (e.isHalt() && isSimulationThread(e.getThread())&& simulationListener != null)

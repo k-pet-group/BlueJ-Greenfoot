@@ -29,7 +29,6 @@ import greenfoot.core.GreenfootLauncherDebugVM;
 import greenfoot.core.GreenfootMain;
 import greenfoot.core.GreenfootMain.ProjectAPIVersionAccess;
 
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -39,9 +38,7 @@ import java.nio.channels.FileChannel.MapMode;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import greenfoot.guifx.GreenfootStage;
@@ -51,6 +48,7 @@ import rmiextension.wrappers.RProjectImpl;
 import rmiextension.wrappers.WrapperPool;
 import bluej.Boot;
 import bluej.Config;
+import bluej.Main;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugmgr.ResultWatcher;
@@ -61,7 +59,6 @@ import bluej.extensions.BlueJ;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.PackageEvent;
-import bluej.extensions.event.PackageListener;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.DocPathEntry;
 import bluej.pkgmgr.Project;
@@ -76,20 +73,13 @@ import bluej.utility.DialogManager;
  * @author Poul Henriksen <polle@mip.sdu.dk>
  */
 public class ProjectManager
-    implements PackageListener
 {
     /** Singleton instance */
     private static ProjectManager instance;
 
-    /** List to keep track of which projects has been opened */
-    private List<BPackage> openedPackages = new ArrayList<BPackage>();
-
     /** List to keep track of which projects are in the process of being created */
     private List<File> projectsInCreation = new ArrayList<File>();
     
-    /** Map of open projects (by directory) to the corresponding RProjectImpl instance */
-    private Map<File,RProjectImpl> openedProjects = new HashMap<File,RProjectImpl>();
-
     /** The class that will be instantiated in the greenfoot VM to launch the project */
     private String launchClass = GreenfootLauncherDebugVM.class.getName();
     private static final String launcherName = "greenfootLauncher";
@@ -152,6 +142,9 @@ public class ProjectManager
     {
         ProjectManager.bluej = bluej;
         instance = new ProjectManager();
+        Main.setInitialGUI((project) -> {
+            instance.launchProject(project.getBProject());
+        });
     }
 
     /**
@@ -201,7 +194,7 @@ public class ProjectManager
                             Editor bClassEditor = bClass.getEditor();
                             if (bClassEditor != null)
                             {
-                                EventQueue.invokeLater(() ->
+                                Platform.runLater(() ->
                                 {
                                     bluej.editor.Editor ed = EditorBridge.getEditor(bClassEditor);
                                     ed.removeImports(Arrays.asList("java.awt.Color", "java.awt.Font"));
@@ -210,12 +203,9 @@ public class ProjectManager
                         }
                         project.getPackage("").scheduleCompilation(true);
                     }
-                    
-                    
                 }
 
-                // Add debugger listener. The listener will launch Greenfoot once the
-                // VM is ready.
+                // Add debugger listener. The listener will launch the Greenfoot GUI.
                 GreenfootDebugHandler.addDebuggerListener(project);
                 
                 // Add Greenfoot API sources to project source path
@@ -387,25 +377,6 @@ public class ProjectManager
         projectsInCreation.remove(projectDir);
     }
 
-    /**
-     * Whether this project is currently open or not, according to our records.
-     * 
-     */
-    private boolean isProjectOpen(BProject prj)
-    {
-        File prjFile = null;
-        try {
-            prjFile = prj.getDir();
-        }
-        catch (ProjectNotOpenException pnoe) {
-            // If we get a ProjectNotOpenException... then surely the project isn't open?
-            // (shouldn't be possible).
-            return false;
-        }
-        
-        return (openedProjects.get(prjFile) != null);
-    }
-
     //=================================================================
     //bluej.extensions.event.PackageListener implementation
     //=================================================================
@@ -415,24 +386,6 @@ public class ProjectManager
      */
     public void packageOpened(PackageEvent event)
     {
-        try {
-            BPackage pkg = event.getPackage();
-            BProject project = pkg.getProject();
-            if (! isProjectOpen(project)) {
-                openedProjects.put(project.getDir(), WrapperPool.instance().getWrapper(project));
-                launchProject(project);
-            }
-
-            openedPackages.add(event.getPackage());
-        }
-        catch (ProjectNotOpenException pnoe) {
-            // Going out on a bit of a limb, but this won't happen.
-            // (if a package is being opened, then the project *must* be open).
-        }
-        catch (RemoteException re) {
-            // Not really much reason for this to happen either.
-            Debug.reportError("Remote exception when package opened", re);
-        }
     }
 
     /*
@@ -440,28 +393,6 @@ public class ProjectManager
      */
     public void packageClosing(PackageEvent event)
     {
-        try {
-            BProject project = event.getPackage().getProject();
-            openedPackages.remove(event.getPackage());
-            for (BPackage pkg : openedPackages) {
-                try {
-                    if (pkg.getProject() == project) {
-                        return; // Project still open
-                    }
-                }
-                catch (ProjectNotOpenException pnoe) {
-                    // If this happens, it's open because the package close event
-                    // has yet to be reported. We'll clean up then.
-                }
-            }
-            // If we finished the loop without finding any packages in the project still
-            // open, then the project itself has closed.
-            openedProjects.remove(project.getDir());
-        }
-        catch (ProjectNotOpenException pnoe) {
-            // Currently this shouldn't happen; the package is reported closed while
-            // the project is still considered open.
-        }
     }
 
     public void setWizard(boolean wizard)

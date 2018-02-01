@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011,2014  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2014,2018  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -106,7 +106,6 @@ public class BlueJRMIServer
         }
         
         Registry registry = startRegistry();
-        blueJ.addPackageListener(ProjectManager.instance());
         RBlueJ rBlueJ = new RBlueJImpl(blueJ);
         registry.rebind(getBlueJService(), rBlueJ);
     }
