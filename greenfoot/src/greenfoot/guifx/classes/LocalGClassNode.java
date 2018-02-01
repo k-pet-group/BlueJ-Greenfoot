@@ -6,7 +6,7 @@ import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.DependentTarget.State;
 import bluej.pkgmgr.target.DependentTarget.TargetListener;
 import greenfoot.guifx.GreenfootStage;
-import greenfoot.guifx.classes.ClassDiagram.ClassType;
+import greenfoot.guifx.classes.GClassDiagram.GClassType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
@@ -18,23 +18,23 @@ import javafx.scene.paint.Paint;
 import java.util.List;
 
 /**
- * A version of ClassInfo that handles extra actions and updates for local classes
+ * A version of GClassNode that handles extra actions and updates for local classes
  * (i.e. classes that are in this project, rather than Actor and World
  * which are imported).
  */
-class LocalClassInfo extends ClassInfo implements TargetListener
+class LocalGClassNode extends GClassNode implements TargetListener
 {
-    private ClassDiagram classDiagram;
+    private GClassDiagram classDiagram;
     private final ClassTarget classTarget;
-    private final ClassType type;
+    private final GClassType type;
 
     /**
      * Make an instance for the given ClassTarget
      * @param classTarget The ClassTarget to make an instance for
-     * @param subClasses The sub-classes of this ClassInfo
+     * @param subClasses The sub-classes of this GClassNode
      * @param type The type of this class (Actor/World child, or Other)
      */
-    public LocalClassInfo(ClassDiagram classDiagram, ClassTarget classTarget, List<ClassInfo> subClasses, ClassType type)
+    public LocalGClassNode(GClassDiagram classDiagram, ClassTarget classTarget, List<GClassNode> subClasses, GClassType type)
     {
         super(classTarget.getQualifiedName(), classTarget.getBaseName(), classDiagram.getGreenfootStage().getImageForClassTarget(classTarget), subClasses, classDiagram.getSelectionManager());
         this.classDiagram = classDiagram;
@@ -144,15 +144,15 @@ class LocalClassInfo extends ClassInfo implements TargetListener
         // Open editor:
         if (classTarget.hasSourceCode() || classTarget.getDocumentationFile().exists())
         {
-            contextMenu.getItems().add(ClassDiagram.contextInbuilt(
+            contextMenu.getItems().add(GClassDiagram.contextInbuilt(
                     Config.getString(classTarget.hasSourceCode() ? "edit.class" : "show.apidoc"),
                     classTarget::open));
         }
 
         // Set image:
-        if (type == ClassType.ACTOR || type == ClassType.WORLD)
+        if (type == GClassType.ACTOR || type == GClassType.WORLD)
         {
-            contextMenu.getItems().add(ClassDiagram.contextInbuilt(Config.getString("select.image"),
+            contextMenu.getItems().add(GClassDiagram.contextInbuilt(Config.getString("select.image"),
                     () -> greenfootStage.setImageFor(classTarget, display)));
         }
         // Inspect:
@@ -162,12 +162,12 @@ class LocalClassInfo extends ClassInfo implements TargetListener
         // Duplicate:
         if (classTarget.hasSourceCode())
         {
-            contextMenu.getItems().add(ClassDiagram.contextInbuilt(Config.getString("duplicate.class"),
+            contextMenu.getItems().add(GClassDiagram.contextInbuilt(Config.getString("duplicate.class"),
                     () -> greenfootStage.duplicateClass(classTarget)));
         }
 
         // Delete:
-        contextMenu.getItems().add(ClassDiagram.contextInbuilt(Config.getString("remove.class"), () -> {
+        contextMenu.getItems().add(GClassDiagram.contextInbuilt(Config.getString("remove.class"), () -> {
             classTarget.remove();
             // Recalculate class contents after deletion:
             classDiagram.recalculateGroups();
@@ -187,13 +187,13 @@ class LocalClassInfo extends ClassInfo implements TargetListener
 
 
         // New subclass:
-        contextMenu.getItems().add(ClassDiagram.contextInbuilt(Config.getString("new.sub.class"), () ->
+        contextMenu.getItems().add(GClassDiagram.contextInbuilt(Config.getString("new.sub.class"), () ->
             {
                 // TODO check if needed
                 // boolean imageClass = superG.isActorClass() || superG.isActorSubclass();
                 // imageClass |= superG.isWorldClass() || superG.isWorldSubclass();
                 // if (imageClass)
-                if (type == ClassType.ACTOR || type == ClassType.WORLD)
+                if (type == GClassType.ACTOR || type == GClassType.WORLD)
                 {
                     greenfootStage.newImageSubClassOf(classTarget.getQualifiedName());
                 }

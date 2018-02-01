@@ -43,7 +43,7 @@ public class ImportClassDialog extends Dialog<File>
         initModality(Modality.APPLICATION_MODAL);
         initOwner(greenfootStage);
         ClassGroup classGroup = new ClassGroup(greenfootStage);
-        List<ImportableClassInfo> foundClasses = findImportableClasses(new File(Config.getGreenfootLibDir(), "common"));
+        List<ImportableGClassNode> foundClasses = findImportableClasses(new File(Config.getGreenfootLibDir(), "common"));
         Collections.sort(foundClasses, Comparator.comparing(c -> c.getDisplayName()));
         classGroup.getLiveClasses().addAll(foundClasses);
         classGroup.updateAfterAdd();
@@ -51,7 +51,7 @@ public class ImportClassDialog extends Dialog<File>
         {
             classDisplaySelectionManager.select(foundClasses.get(0).getDisplay(greenfootStage));
         }
-        for (ImportableClassInfo foundClass : foundClasses)
+        for (ImportableGClassNode foundClass : foundClasses)
         {
             filesForQualifiedClasses.put(foundClass.getQualifiedName(), foundClass.file);
         }
@@ -106,16 +106,16 @@ public class ImportClassDialog extends Dialog<File>
      * @param dir The directory to search (must be non null)
      * @return The list of all classes found.
      */
-    private List<ImportableClassInfo> findImportableClasses(File dir)
+    private List<ImportableGClassNode> findImportableClasses(File dir)
     {
-        List<ImportableClassInfo> foundClasses = new ArrayList<>();
+        List<ImportableGClassNode> foundClasses = new ArrayList<>();
         // List all files before all directories:
         File[] files = dir.listFiles(new ImportableClassesFileFilter());
         if (files != null)
         {
             for (File file : files)
             {
-                foundClasses.add(new ImportableClassInfo(file));
+                foundClasses.add(new ImportableGClassNode(file));
             }
         }
 
@@ -197,14 +197,14 @@ public class ImportClassDialog extends Dialog<File>
 
 
     /**
-     * A ClassInfo used for display.  Overrides parent to remove any context menus, and
+     * A GClassNode used for display.  Overrides parent to remove any context menus, and
      * stores the file associated with the class.
      */
-    private class ImportableClassInfo extends ClassInfo
+    private class ImportableGClassNode extends GClassNode
     {
         private final File file;
         
-        public ImportableClassInfo(File file)
+        public ImportableGClassNode(File file)
         {
             super(
                 GreenfootUtil.removeExtension(file.getName()),

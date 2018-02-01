@@ -45,7 +45,7 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
     private static final int VERTICAL_SPACING = 8;
 
     // For Actor and World groups, just those base classes.  For other, can be many top-level:
-    private final List<ClassInfo> topLevel = new ArrayList<>();
+    private final List<GClassNode> topLevel = new ArrayList<>();
     private final GreenfootStage greenfootStage;
 
     public ClassGroup(GreenfootStage greenfootStage)
@@ -63,7 +63,7 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
     /**
      * Sets the top-level classes for this class group.
      */
-    public void setClasses(List<ClassInfo> topLevel)
+    public void setClasses(List<GClassNode> topLevel)
     {
         // Tidy up by removing height listeners on old ClassDisplays:
         for (Node child : getChildren())
@@ -75,7 +75,7 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
             }
         }
         getChildren().clear();
-        for (ClassInfo classInfo : topLevel)
+        for (GClassNode classInfo : topLevel)
         {
             classInfo.tidyup();
         }        
@@ -88,7 +88,7 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
      * Gets the live list of classes in this group.  This should only be used for adding, not for
      * removal.  If you add a class anywhere within, you should then call updateAfterAdd().
      */
-    public List<ClassInfo> getLiveClasses()
+    public List<GClassNode> getLiveClasses()
     {
         return topLevel;
     }
@@ -99,7 +99,7 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
     public void updateAfterAdd()
     {
         // Sort in case they added at top-level:
-        Collections.sort(this.topLevel, Comparator.comparing(ClassInfo::getDisplayName));
+        Collections.sort(this.topLevel, Comparator.comparing(GClassNode::getDisplayName));
         // Adjust positions:
         redisplay();
     }
@@ -123,12 +123,12 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
      * @param y The Y position for the top class.
      * @return The resulting Y position after doing the layout.
      */
-    private int redisplay(InheritArrow arrowToSuper, List<ClassInfo> stratum, int x, int y)
+    private int redisplay(InheritArrow arrowToSuper, List<GClassNode> stratum, int x, int y)
     { 
         final int startY = y;
         List<Double> arrowArms = new ArrayList<>();
         
-        for (ClassInfo classInfo : stratum)
+        for (GClassNode classInfo : stratum)
         {
             y += VERTICAL_SPACING;
             
