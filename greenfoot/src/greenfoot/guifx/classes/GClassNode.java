@@ -22,16 +22,13 @@
 package greenfoot.guifx.classes;
 
 import bluej.Config;
-import bluej.utility.Debug;
 import bluej.utility.javafx.FXRunnable;
 import greenfoot.guifx.GreenfootStage;
-import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -41,20 +38,21 @@ import java.util.List;
  * Information about a class in the tree: its name, image (can be null),
  * its direct subclasses (may be empty), and the display items for it (once shown)
  */
-public class ClassInfo
+public class GClassNode
 {
     private final String fullyQualifiedName;
     private final String displayName;
     private final Image image;
-    private final List<ClassInfo> subClasses = new ArrayList<>();
+    private final List<GClassNode> subClasses = new ArrayList<>();
     // If non-null, exists *and* is already a child of the enclosing ClassGroup
     protected ClassDisplay display;
     // If non-null, exists *and* is already a child of the enclosing ClassGroup
+    // The arrow (which may have several offshoot arms from multiple subclasses).
     private InheritArrow arrowFromSub;
     private final ClassDisplaySelectionManager selectionManager;
     protected ContextMenu curContextMenu = null;
 
-    public ClassInfo(String fullyQualifiedName, String displayName, Image image, List<ClassInfo> subClasses, ClassDisplaySelectionManager selectionManager)
+    public GClassNode(String fullyQualifiedName, String displayName, Image image, List<GClassNode> subClasses, ClassDisplaySelectionManager selectionManager)
     {
         this.selectionManager = selectionManager;
         this.fullyQualifiedName = fullyQualifiedName;
@@ -76,7 +74,7 @@ public class ClassInfo
      * Adds a subclass to the list of subclasses.
      * Don't forget to call updateAfterAdd() on the enclosing ClassGroup.
      */
-    public void add(ClassInfo classInfo)
+    public void add(GClassNode classInfo)
     {
         subClasses.add(classInfo);
         Collections.sort(this.subClasses, Comparator.comparing(ci -> ci.displayName));
@@ -85,7 +83,7 @@ public class ClassInfo
     /**
      * Get the list of subclasses of this class.
      */
-    public List<ClassInfo> getSubClasses()
+    public List<GClassNode> getSubClasses()
     {
         return Collections.unmodifiableList(subClasses);
     }
@@ -100,7 +98,7 @@ public class ClassInfo
 
     /**
      * Gets the ClassDisplay for this item.  Will always return the same ClassDisplay
-     * for the lifetime of this ClassInfo object, although internally it is lazily created.
+     * for the lifetime of this GClassNode object, although internally it is lazily created.
      */
     public ClassDisplay getDisplay(GreenfootStage greenfootStage)
     {
@@ -134,9 +132,9 @@ public class ClassInfo
                 curContextMenu = new ContextMenu();
 
                 
-                curContextMenu.getItems().add(ClassDiagram.contextInbuilt(Config.getString("show.apidoc"), showDocs));
+                curContextMenu.getItems().add(GClassDiagram.contextInbuilt(Config.getString("show.apidoc"), showDocs));
                 curContextMenu.getItems().add(new SeparatorMenuItem());
-                curContextMenu.getItems().add(ClassDiagram.contextInbuilt(Config.getString("new.sub.class"), () -> {
+                curContextMenu.getItems().add(GClassDiagram.contextInbuilt(Config.getString("new.sub.class"), () -> {
                     greenfootStage.newImageSubClassOf(display.getQualifiedName());
                 }));
 
@@ -156,7 +154,7 @@ public class ClassInfo
 
     /**
      * Gets the InheritArrow for this item.  Will always return the same InheritArrow
-     * for the lifetime of this ClassInfo object, although internally it is lazily created.
+     * for the lifetime of this GClassNode object, although internally it is lazily created.
      */
     public InheritArrow getArrowFromSub()
     {
@@ -168,7 +166,7 @@ public class ClassInfo
     }
 
     /**
-     * Called when this ClassInfo is being disposed of.  Remove
+     * Called when this GClassNode is being disposed of.  Remove
      * any listeners, etc.
      */
     public void tidyup()

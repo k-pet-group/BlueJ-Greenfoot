@@ -47,9 +47,9 @@ import java.util.Objects;
  *
  * For now, this is very primitive, but is useful for implementing other Greenfoot functionality.
  */
-public class ClassDiagram extends BorderPane
+public class GClassDiagram extends BorderPane
 {
-    static enum ClassType { ACTOR, WORLD, OTHER }
+    static enum GClassType { ACTOR, WORLD, OTHER }
     
     private final ClassDisplaySelectionManager selectionManager = new ClassDisplaySelectionManager();
     // The three groups of classes in the display: World+subclasses, Actor+subclasses, Other
@@ -59,7 +59,7 @@ public class ClassDiagram extends BorderPane
     private final Project project;
     private final GreenfootStage greenfootStage;
 
-    public ClassDiagram(GreenfootStage greenfootStage, Project project)
+    public GClassDiagram(GreenfootStage greenfootStage, Project project)
     {
         this.greenfootStage = greenfootStage;
         this.project = project;
@@ -114,16 +114,16 @@ public class ClassDiagram extends BorderPane
         // so the order here is very important.  Actor and World must come before other:
         
         // First, we must take out any World and Actor classes:
-        List<ClassInfo> worldSubclasses = findAllSubclasses("greenfoot.World", classTargets, ClassType.WORLD);
-        ClassInfo worldClassesInfo = new ClassInfo("greenfoot.World", "World", null, worldSubclasses, selectionManager);
+        List<GClassNode> worldSubclasses = findAllSubclasses("greenfoot.World", classTargets, GClassType.WORLD);
+        GClassNode worldClassesInfo = new GClassNode("greenfoot.World", "World", null, worldSubclasses, selectionManager);
         worldClasses.setClasses(Collections.singletonList(worldClassesInfo));
 
-        List<ClassInfo> actorSubclasses = findAllSubclasses("greenfoot.Actor", classTargets, ClassType.ACTOR);
-        ClassInfo actorClassesInfo = new ClassInfo("greenfoot.Actor", "Actor", null, actorSubclasses, selectionManager);
+        List<GClassNode> actorSubclasses = findAllSubclasses("greenfoot.Actor", classTargets, GClassType.ACTOR);
+        GClassNode actorClassesInfo = new GClassNode("greenfoot.Actor", "Actor", null, actorSubclasses, selectionManager);
         actorClasses.setClasses(Collections.singletonList(actorClassesInfo));
         
         // All other classes can be found by passing null, see docs on findAllSubclasses:
-        otherClasses.setClasses(findAllSubclasses(null, classTargets, ClassType.OTHER));
+        otherClasses.setClasses(findAllSubclasses(null, classTargets, GClassType.OTHER));
     }
 
     /**
@@ -135,12 +135,12 @@ public class ClassDiagram extends BorderPane
      * @param parentClassName The fully-qualified parent class name to search.  If null, then all classes
      *                        in the classTargets list will be processed and returned.
      * @param classTargets Class targets to search -- only those mapped to false will be searched.  If
-     *                     they are processed into a ClassInfo, their value will be flipped to true.
-     * @return The list of ClassInfo at the requested level (there may be a deeper tree inside).
+     *                     they are processed into a GClassNode, their value will be flipped to true.
+     * @return The list of GClassNode at the requested level (there may be a deeper tree inside).
      */
-    private List<ClassInfo> findAllSubclasses(String parentClassName, Map<ClassTarget, Boolean> classTargets, ClassType type)
+    private List<GClassNode> findAllSubclasses(String parentClassName, Map<ClassTarget, Boolean> classTargets, GClassType type)
     {
-        List<ClassInfo> curLevel = new ArrayList<>();
+        List<GClassNode> curLevel = new ArrayList<>();
         for (Entry<ClassTarget, Boolean> classTargetAndVal : classTargets.entrySet())
         {
             // Ignore anything already mapped to true:
@@ -171,7 +171,7 @@ public class ClassDiagram extends BorderPane
                 // Update processed status before recursing:
                 classTargetAndVal.setValue(true);
 
-                List<ClassInfo> subClasses = findAllSubclasses(classTarget.getQualifiedName(), classTargets, type);
+                List<GClassNode> subClasses = findAllSubclasses(classTarget.getQualifiedName(), classTargets, type);
                 curLevel.add(makeClassInfo(classTarget, subClasses, type));
             }
         }
@@ -179,12 +179,9 @@ public class ClassDiagram extends BorderPane
     }
 
     /**
-     * Adds a new class to the diagram at the appropriate place, based on its superclass,
-     * and returns the constructed class info.
-     *
-     * @return A class info reference for the class added.
+     * Adds a new class to the diagram at the appropriate place, based on its superclass.
      */
-    public ClassInfo addClass(ClassTarget classTarget)
+    public void addClass(ClassTarget classTarget)
     {
         String superClass = null;
         bluej.parser.symtab.ClassInfo info = classTarget.analyseSource();
@@ -198,7 +195,7 @@ public class ClassDiagram extends BorderPane
         {
             // It does have a parent class: may be in World, Actor or Other:
             //for (ClassGroup classGroup : Arrays.asList(worldClasses, actorClasses, otherClasses))
-            for (ClassType type : ClassType.values())
+            for (GClassType type : GClassType.values())
             {
                 ClassGroup classGroup;
                 switch (type)
@@ -216,62 +213,54 @@ public class ClassDiagram extends BorderPane
                         continue; // Should be impossible
                 }
                 // Look all the way down for the tree for the super class:
-                ClassInfo classInfo = findAndAdd(classGroup.getLiveClasses(), classTarget, superClass, type);
-                if (classInfo != null)
+                boolean found = findAndAdd(classGroup.getLiveClasses(), classTarget, superClass, type);
+                if (found)
                 {
                     classGroup.updateAfterAdd();
                     // Found right place nested within the current group; done:
-                    return classInfo;
+                    return;
                 }
             }
             // If we fall through here, we do have a parent class, but it's not in the diagram
             // e.g. inheriting from java.util.List
         }
         // Otherwise, add to top of Other:
-        ClassInfo classInfo = makeClassInfo(classTarget, Collections.emptyList(), ClassType.OTHER);
-        otherClasses.getLiveClasses().add(classInfo);
+        otherClasses.getLiveClasses().add(makeClassInfo(classTarget, Collections.emptyList(), GClassType.OTHER));
         otherClasses.updateAfterAdd();
-        return classInfo;
     }
 
     /**
-     * Looks within the whole tree formed by the list of class info for the right place for classTarget.
-     * If found, create a class info for the class target passed, adds it and return it.
+     * Looks within the whole tree formed by the list of class info for the right place for classTarget.  If
+     * found, adds it and returns true.  If not found, returns false.
      * 
      * @param classInfos The tree to search.  The list itself will not be modified.
      * @param classTarget The class to add to the tree.
      * @param classTargetSuperClass The super-class of classTarget
-     * @param type The source type of the class added.
-     * @return The class info created if right place found and added, null if not.
+     * @return True if right place found and added, false if not
      */
-    private ClassInfo findAndAdd(List<ClassInfo> classInfos, ClassTarget classTarget, String classTargetSuperClass, ClassType type)
+    private boolean findAndAdd(List<GClassNode> classInfos, ClassTarget classTarget, String classTargetSuperClass, GClassType type)
     {
-        for (ClassInfo classInfo : classInfos)
+        for (GClassNode classInfo : classInfos)
         {
             if (classInfo.getQualifiedName().equals(classTargetSuperClass))
             {
-                ClassInfo newClassInfo = makeClassInfo(classTarget, Collections.emptyList(), type);
-                classInfo.add(newClassInfo);
-                return newClassInfo;
+                classInfo.add(makeClassInfo(classTarget, Collections.emptyList(), type));
+                return true;
             }
-            else
+            else if (findAndAdd(classInfo.getSubClasses(), classTarget, classTargetSuperClass, type))
             {
-                ClassInfo newClassInfo = findAndAdd(classInfo.getSubClasses(), classTarget, classTargetSuperClass, type);
-                if (newClassInfo != null)
-                {
-                    return newClassInfo;
-                }
+                return true;
             }
         }
-        return null;
+        return false;
     }
 
     /**
-     * Make the ClassInfo for a ClassTarget
+     * Make the GClassNode for a ClassTarget
      */
-    protected ClassInfo makeClassInfo(ClassTarget classTarget, List<ClassInfo> subClasses, ClassType type)
+    protected GClassNode makeClassInfo(ClassTarget classTarget, List<GClassNode> subClasses, GClassType type)
     {
-        return new LocalClassInfo(this, classTarget, subClasses, type);
+        return new LocalGClassNode(this, classTarget, subClasses, type);
     }
 
     /**

@@ -68,12 +68,11 @@ import greenfoot.WorldVisitor;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.guifx.classes.ClassDisplay;
-import greenfoot.guifx.classes.ClassInfo;
+import greenfoot.guifx.classes.GClassDiagram;
 import greenfoot.guifx.classes.ImportClassDialog;
 import greenfoot.guifx.images.ImageLibFrame;
 import greenfoot.guifx.images.ImageSelectionWatcher;
 import greenfoot.guifx.soundrecorder.SoundRecorderControls;
-import greenfoot.guifx.classes.ClassDiagram;
 import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
 import greenfoot.record.GreenfootRecorder;
 
@@ -200,7 +199,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     // Details of the new actor while it is being placed (null otherwise):
     private final ObjectProperty<NewActor> newActorProperty = new SimpleObjectProperty<>(null);
     private final WorldDisplay worldDisplay;
-    private final ClassDiagram classDiagram;
+    private final GClassDiagram classDiagram;
     // The currently-showing context menu, or null if none
     private ContextMenu contextMenu;
     // Last mouse position, in scene coordinates:
@@ -357,7 +356,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 stateProperty.set(State.UNCOMPILED);
             }
         });
-        classDiagram = new ClassDiagram(this, project);
+        classDiagram = new GClassDiagram(this, project);
         ScrollPane classDiagramScroll = new UnfocusableScrollPane(classDiagram);
         JavaFXUtil.expandScrollPaneContent(classDiagramScroll);
 
@@ -667,7 +666,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
     /**
      * Update our latest mouse position to the given *SCREEN* (not Scene!) position.
-     * Used by ClassDiagram to track position even while a context menu is showing.
+     * Used by GClassDiagram to track position even while a context menu is showing.
      */
     public void setLatestMousePosOnScreen(double screenX, double screenY)
     {
@@ -1423,10 +1422,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      * @param superClassName The full qualified name of the super class.
      * @param className      The class's name, which will be created.
      * @param language       The source type of the class, e.g. Java or Stride.
-     *
-     * @return A class info reference for the class created.
      */
-    private ClassInfo createNewClass(Package pkg, String superClassName, String className, SourceType language)
+    private void createNewClass(Package pkg, String superClassName, String className, SourceType language)
     {
         try
         {
@@ -1437,12 +1434,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, superClassName, newFile,
                     templateFileName, project.getProjectCharset().toString());
             ClassTarget newClass = new ClassTarget(pkg, className);
-            return classDiagram.addClass(newClass);
+            classDiagram.addClass(newClass);
         }
         catch (IOException ioe)
         {
             Debug.reportError(ioe);
-            return null;
         }
     }
 
@@ -1471,19 +1467,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     /**
      * Show a dialog to ask for details, then make a new subclass of the given class
      * using those details. This is only for classes with images, i.e. Actor/World subclasses.
-     *
-     * @param parentName The fully qualified name of the parent class.
      */
-    public void newImageSubClassOf(String parentName)
+    public void newImageSubClassOf(String fullyQualifiedName)
     {
-        // initialise our image library frame
-        ImageLibFrame imageLibFrame = new ImageLibFrame(this, project, parentName);
-        //TODO change this way
-        imageLibFrame.showAndWait().ifPresent(file -> {
-            ClassInfo newClass = createNewClass(project.getUnnamedPackage(), parentName, imageLibFrame.getClassName(), imageLibFrame.getSelectedLanguage());
-            // set the image of the class to the selected file
-            newClass.getDisplay(this).setImage(new Image(file.toURI().toString()));
-        });
+        // TODO part of GREENFOOT-634
     }
 
     /**
