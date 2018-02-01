@@ -52,6 +52,7 @@ import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
+import bluej.utility.FileUtility;
 import bluej.utility.JavaReflective;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
@@ -93,6 +94,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -113,6 +115,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import rmiextension.GreenfootDebugHandler;
 import rmiextension.GreenfootDebugHandler.SimulationStateListener;
+import rmiextension.ProjectManager;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -436,6 +439,21 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     }
 
     /**
+     * Allow the user to choose a scenario to open, and open it.
+     */
+    private void doOpenScenario()
+    {
+        File choice = FileUtility.getOpenProjectFX(this);
+        if (choice != null)
+        {
+            Project p = Project.openProject(choice.getAbsolutePath());
+            if (p != null) {
+                ProjectManager.instance().launchProject(p.getBProject());
+            }
+        }                            
+    }
+    
+    /**
      * Perform a single act step, if paused, by adding to the list of pending commands.
      */
     private void act(List<Command> pendingCommands)
@@ -452,7 +470,49 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     private MenuBar makeMenu(List<Command> pendingCommands)
     {
+        Menu scenarioMenu = new Menu(Config.getString("menu.scenario"), null,
+                makeMenuItem("stride.new.project",
+                        new KeyCodeCombination(KeyCode.F, KeyCombination.SHORTCUT_DOWN),
+                        () -> {} // TODO
+                    ),
+                    makeMenuItem("java.new.project",
+                        new KeyCodeCombination(KeyCode.J, KeyCombination.SHORTCUT_DOWN),
+                        () -> {}
+                    ),
+                    makeMenuItem("open.project",
+                        new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN),
+                        this::doOpenScenario
+                    ),
+                    new Menu(Config.getString("menu.openRecent"), null), // TODO
+                    makeMenuItem("project.close",
+                        new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN),
+                        () -> {} // TODO
+                    ),
+                    makeMenuItem("project.save",
+                        new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN),
+                        () -> {} // TODO
+                    ),
+                    makeMenuItem("project.saveAs",
+                        null,
+                        () -> {} // TODO
+                    ),
+                    new SeparatorMenuItem(),
+                    makeMenuItem("export.project",
+                        new KeyCodeCombination(KeyCode.E, KeyCombination.SHORTCUT_DOWN),
+                        () -> {} // TODO
+                    )
+                );
+        
+        if (! Config.isMacOS()) {
+            scenarioMenu.getItems().add(new SeparatorMenuItem());
+            scenarioMenu.getItems().add(makeMenuItem("greenfoot.quit",
+                    new KeyCodeCombination(KeyCode.Q, KeyCombination.SHORTCUT_DOWN),
+                    () -> {}) // TODO
+                );
+        }
+        
         return new MenuBar(
+            scenarioMenu,
             new Menu(Config.getString("menu.edit"), null,
                 makeMenuItem("new.other.class", new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN),
                             () -> newNonImageClass(project.getUnnamedPackage(), null)),
@@ -920,7 +980,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                         // Should always be ClassTarget, but check in case:
                         if (target instanceof ClassTarget)
                         {
-                            ClassTarget classTarget = (ClassTarget) target;
                             Menu menu = new Menu(actor.getClassName());
                             ObjectWrapper.createMethodMenuItems(menu.getItems(), project.loadClass(actor.getClassName()), new RecordInvoke(actor), "", true);
                             menu.getItems().add(makeInspectMenuItem(actor));
@@ -961,7 +1020,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     // Should always be ClassTarget, but check in case:
                     if (target instanceof ClassTarget)
                     {
-                        ClassTarget classTarget = (ClassTarget) target;
                         hideContextMenu();
                         contextMenu = new ContextMenu();
                         contextMenu.setOnHidden(e -> {
@@ -1438,7 +1496,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         Package pkg = classTarget.getPackage();
 
         boolean imageClass = false;
-        Class cls = pkg.loadClass(classTarget.getQualifiedName());
+        Class<?> cls = pkg.loadClass(classTarget.getQualifiedName());
         while (cls !=null)
         {
             if (cls.getCanonicalName().equals("greenfoot.World") || cls.getCanonicalName().equals("greenfoot.Actor") )

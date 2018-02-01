@@ -28,7 +28,6 @@ import bluej.extensions.editor.EditorBridge;
 import greenfoot.core.GreenfootLauncherDebugVM;
 import greenfoot.core.GreenfootMain;
 import greenfoot.core.GreenfootMain.ProjectAPIVersionAccess;
-import greenfoot.core.ProjectProperties;
 
 import java.awt.*;
 import java.io.File;
@@ -161,7 +160,7 @@ public class ProjectManager
      * no listener interface for project open/close events, we have to keep
      * track of projects manually.
      */
-    private void launchProject(final BProject project)
+    public void launchProject(final BProject project)
     {
         File projectDir;
         Project unwrapped;
