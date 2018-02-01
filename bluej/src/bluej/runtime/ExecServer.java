@@ -909,7 +909,7 @@ public class ExecServer
             if (threadToRunOn == RUN_ON_FX_THREAD)
             {
                 // Initialise FX toolkit in case the user hasn't:
-                new JFXPanel();
+                SwingUtilities.invokeAndWait(() -> new JFXPanel());
                 // Then call runLater:
                 Platform.runLater(wrapped);
             }
