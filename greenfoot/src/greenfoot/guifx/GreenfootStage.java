@@ -1419,11 +1419,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public void newImageSubClassOf(String parentName)
     {
         // initialise our image library frame
-        Target target = project.getTarget(parentName);
-        ImageLibFrame imageLibFrame = new ImageLibFrame(this, (ClassTarget) target);
+        ImageLibFrame imageLibFrame = new ImageLibFrame(this, project, parentName);
         //TODO change this way
         imageLibFrame.showAndWait().ifPresent(file -> {
-            ClassInfo newClass = createNewClass(target.getPackage(), parentName, imageLibFrame.getClassName(), imageLibFrame.getSelectedLanguage());
+            ClassInfo newClass = createNewClass(project.getUnnamedPackage(), parentName, imageLibFrame.getClassName(), imageLibFrame.getSelectedLanguage());
             // set the image of the class to the selected file
             newClass.getDisplay(this).setImage(new Image(file.toURI().toString()));
         });
