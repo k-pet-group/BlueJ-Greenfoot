@@ -55,6 +55,7 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.application.Preloader;
 import javafx.collections.ListChangeListener;
+import javafx.embed.swing.JFXPanel;
 import javafx.stage.Stage;
 
 import org.junit.runner.JUnitCore;
@@ -906,11 +907,20 @@ public class ExecServer
                 }
             };
             if (threadToRunOn == RUN_ON_FX_THREAD)
+            {
+                // Initialise FX toolkit in case the user hasn't:
+                new JFXPanel();
+                // Then call runLater:
                 Platform.runLater(wrapped);
+            }
             else if (threadToRunOn == RUN_ON_SWING_THREAD)
+            {
                 SwingUtilities.invokeLater(wrapped);
+            }
             else if (threadToRunOn == RUN_ON_CUSTOM_THREAD && customThreadRunner != null)
+            {
                 customThreadRunner.accept(wrapped);
+            }
             Optional<Throwable> t = f.get();
             if (t.isPresent())
             {
