@@ -23,6 +23,7 @@ package greenfoot.guifx;
 
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
+import bluej.Boot;
 import bluej.Config;
 import bluej.collect.DataCollector;
 import bluej.collect.GreenfootInterfaceEvent;
@@ -67,6 +68,7 @@ import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
+import bluej.pkgmgr.AboutDialogTemplate;
 import greenfoot.guifx.classes.ClassDisplay;
 import greenfoot.guifx.classes.GClassDiagram;
 import greenfoot.guifx.classes.GClassNode;
@@ -88,6 +90,7 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
@@ -123,6 +126,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -217,7 +221,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     }
     private final ObjectProperty<State> stateProperty = new SimpleObjectProperty<>(State.PAUSED);
     private boolean atBreakpoint = false;
-    
+
     // Details for pick requests that we have sent to the debug VM:
     private static enum PickType
     {
@@ -435,7 +439,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 pendingCommands.add(new Command(COMMAND_PROPERTY_CHANGED, combined));
             }
         });
-        
+
     }
 
     /**
@@ -450,9 +454,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             if (p != null) {
                 ProjectManager.instance().launchProject(p.getBProject());
             }
-        }                            
+        }
     }
-    
+
     /**
      * Perform a single act step, if paused, by adding to the list of pending commands.
      */
@@ -502,7 +506,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                         () -> {} // TODO
                     )
                 );
-        
+
         if (! Config.isMacOS()) {
             scenarioMenu.getItems().add(new SeparatorMenuItem());
             scenarioMenu.getItems().add(makeMenuItem("greenfoot.quit",
@@ -510,7 +514,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     () -> {}) // TODO
                 );
         }
-        
+
         return new MenuBar(
             scenarioMenu,
             new Menu(Config.getString("menu.edit"), null,
@@ -525,6 +529,16 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             ),
             new Menu(Config.getString("menu.tools"), null,
                     makeMenuItem("menu.tools.generateDoc", new KeyCodeCombination(KeyCode.G, KeyCombination.SHORTCUT_DOWN), this::generateDocumentation)
+            ),
+            new Menu(Config.getString("menu.help"), null,
+                makeMenuItem("menu.help.about", null, () ->
+                {
+                    try {
+                        aboutGreenfoot();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                })
             )
         );
     }
@@ -693,7 +707,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             // Ignore keypresses if we are currently waiting for an ask-answer:
             if (worldDisplay.isAsking())
                 return;
-            
+
             int eventType;
             if (e.getEventType() == KeyEvent.KEY_PRESSED)
             {
@@ -702,7 +716,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     newActorProperty.set(null);
                     return;
                 }
-                
+
                 // We only want fully paused; if they've requested a run, don't allow a shift-click:
                 boolean paused = stateProperty.get() == State.PAUSED;
                 ClassTarget selectedClassTarget = classDiagram.getSelectedClassTarget();
@@ -867,7 +881,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                                 }
                             }
                         }
-                        
+
                         int askId = sharedMemory.get();
                         if (askId >= 0 && askId > lastAnswer)
                         {
@@ -875,7 +889,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                             int askLength = sharedMemory.get();
                             int[] promptCodepoints = new int[askLength];
                             sharedMemory.get(promptCodepoints);
-                            
+
                             // Tell worldDisplay to ask:
                             worldDisplay.ensureAsking(new String(promptCodepoints, 0, promptCodepoints.length), (String s) -> {
                                 Command answerCommand = new Command(COMMAND_ANSWERED, s.codePoints().toArray());
@@ -1338,7 +1352,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         {
             boolean librariesImportedFlag = false;
             String className = GreenfootUtil.removeExtension(srcFile.getName());
-            
+
             // Check if a class of the same name already exists in the project.
             // Renaming would be too tricky, so just issue error and stop in that case:
             for (ClassTarget preexist : project.getUnnamedPackage().getClassTargets())
@@ -1595,4 +1609,30 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         instantiateWorldAfterDiscarded = isFocused();
         stateProperty.set(State.UNCOMPILED);
     }
+
+    /**
+     * Shows About-Greenfoot dialog including information about the development team and translators.
+     */
+    public void aboutGreenfoot() {
+        Image image;
+        // Finds the image file that is supposed to be exist in the "resources" directory
+        URL resource = this.getClass().getClassLoader().getResource("greenfoot-about.jpg");
+        if (resource != null) {
+            image = new javafx.scene.image.Image(resource.toString());
+        }
+        else
+        {
+            return;
+        }
+
+        TitledPane translators = new TitledPane("Translators",new Label("Wombat Yuan" +"\n" + "Zdenék Chalupský" + "\n" + "Erik van Veen & Renske Smetsers-Weeda" +"\n" + "Guillaume Baudoin" + "\n" + "Matthias Taulien " + "\n" +
+                "Stefan Mueller" + "\n" + "Mantzas Ioannis" + "\n" + "Stefano Federici" + "\n" + "John Kim" + "\n" + "Przemysław Adam Śmiejek" + "\n" +
+                "Paulo Abadie & Fabio Hedayioglu" +"\n" + "Sergy Zemlyannikov" + "\n" + "Esteban Iglesias Manríquez"));
+        translators.setExpanded(false);
+        translators.setCollapsible(true);
+        AboutDialogTemplate aboutGreenfoot = new AboutDialogTemplate(this, Boot.GREENFOOT_VERSION, "Greenfoot", "https://greenfoot.org/", image, translators);
+        aboutGreenfoot.showAndWait();
+
+    }
+
 }

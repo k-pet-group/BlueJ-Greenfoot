@@ -25,6 +25,7 @@ import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.BlueJTheme;
 import bluej.Config;
+import bluej.pkgmgr.AboutDialogTemplate;
 import bluej.classmgr.BPClassLoader;
 import bluej.collect.DataCollector;
 import bluej.compiler.CompileReason;
@@ -119,6 +120,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.Dragboard;
@@ -1963,7 +1965,8 @@ public class PkgMgrFrame
      */
     public void aboutBlueJ()
     {
-        AboutBlueJ about = new AboutBlueJ(stageProperty.getValue(), bluej.Boot.BLUEJ_VERSION);
+        Image image = Config.getFixedImageAsFXImage("about-logo.png");
+        AboutDialogTemplate about= new AboutDialogTemplate(stageProperty.getValue(),bluej.Boot.BLUEJ_VERSION, "BlueJ", "http://www.bluej.org/", image,null);
         about.showAndWait();
     }
 
