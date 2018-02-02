@@ -79,10 +79,8 @@ public class BlueJGuiHandler implements GuiHandler
     {
         if (projectOpen)
         {
-            // DM: I am keeping this code in (it comes from bluej.Main) but I do not understand
-            // why it is was put in. It can possibly be removed.
-            
-            // Follow open-class arg if there is one:
+            // This is a convenience for development: set bluej.class.open property on the command
+            // line, and the named class will be opened when BlueJ starts:
             String targetName = Config.getPropString("bluej.class.open", null);
             if (targetName != null && !targetName.equals(""))
             {
