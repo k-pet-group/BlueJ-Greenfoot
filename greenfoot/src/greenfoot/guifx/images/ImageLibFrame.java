@@ -72,10 +72,11 @@ import javax.imageio.ImageIO;
 public class ImageLibFrame extends FXCustomizedDialog<File>
                     //TODO extends Dialog<Image> ?
 {
-    private ClassTarget classTarget;
     private Project project;
+    private final String className;
+    // TODO look if needed as the default image has been removed from this frame
     /** The default image icon - none, or parent's image */
-    private File defaultIcon;
+    //private File defaultIcon;
 
     private ImageLibList projImageList;
     private ImageLibList greenfootImageList;
@@ -112,8 +113,8 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
     {
         super(owner, Config.getString("imagelib.title") + " " + classTarget.getDisplayName(), "image-lib");
         this.selectionWatcher = watcher;
-        this.classTarget = classTarget;
         this.project = classTarget.getPackage().getProject();
+        className = classTarget.getDisplayName();
 
         // TODO
         //Class superClass = classTarget.getClass().getSuperclass();
@@ -121,8 +122,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         //defaultIcon = getClassImage(superClass.getClass);
 
         includeClassNameField = false;
-        buildUI(null);
-        projImageList.select(getSpecifiedImage(classTarget));
+        buildUI(getSpecifiedImage(classTarget));
     }
 
     /**
@@ -130,54 +130,33 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
      *
      * @param owner        The parent frame
      * @param superClass   The superclass of the new class
-     * @param title        The title of the dialog
-     * @param defaultName  The default name of the new class (or blank if null)
-     * @param description  A helper prompt to display at the top of dialog (or none if null)
      */
-    //TODO
-    public ImageLibFrame(Window owner, ClassTarget superClass, String title, String defaultName, List<String> description)
+    public ImageLibFrame(Window owner, Project project, String parentName)
     {
-        super(owner, title, "image-lib");
-        this.classTarget = superClass;
-        this.project = classTarget.getPackage().getProject();
-        defaultIcon = getClassImage(superClass);
+        super(owner, Config.getString("imagelib.newClass"), "image-lib");
+        this.project = project;
+        className = parentName;
+//        defaultIcon = getClassImage(superClass);
 
         includeClassNameField = true;
-        buildUI(description);
-        projImageList.select(null);
-        if (defaultName != null)
-        {
-            classNameField.setText(defaultName);
-        }
+        buildUI(null);
+        classNameField.setPromptText(Config.getString("pkgmgr.newClass.prompt"));
         classNameField.requestFocus();
     }
 
     /**
      * build the UI components
-     *
-     * @param description A helper prompt to display at the top of dialog, can be null.
+     * @param specifiedImage
      */
-    private void buildUI(List<String> description)
+    private void buildUI(File specifiedImage)
     {
-        VBox contentPane = new VBox(10);
-        setContentPane(contentPane);
-
-        if (description != null)
-        {
-            description.forEach(t -> {
-                Label l = new Label(t);
-                l.setFocusTraversable(false);
-                l.setBorder(null);
-                contentPane.getChildren().add(l);
-            });
-        }
-
-        // Class details - name, current icon
-        contentPane.getChildren().addAll(buildClassDetailsPanel(project.getUnnamedPackage()), buildImageLists(), createCogMenu());
-
         // Ok and cancel buttons
         getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
-        JavaFXUtil.runRegular(Duration.millis(2000), () -> projImageList.refresh());
+
+        setContentPane(new VBox(10, buildClassDetailsPanel(project.getUnnamedPackage()), buildImageLists(), createCogMenu()));
+        projImageList.select(specifiedImage);
+
+        JavaFXUtil.runRegular(Duration.millis(1000), () -> projImageList.refresh());
         setResultConverter(bt -> bt == ButtonType.OK ? selectedImageFile : null);
     }
 
@@ -211,7 +190,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         // Project images panel
         File projDir = project.getProjectDir();
         projImagesDir = new File(projDir, "images");
-        projImageList = new ImageLibList(projImagesDir, false, defaultIcon);//true?
+        projImageList = new ImageLibList(projImagesDir, false, /*defaultIcon*/null);//true?
         ScrollPane imageScrollPane = new ScrollPane(projImageList);
 
         VBox piPanel = new VBox(5, new Label(Config.getString("imagelib.projectImages")), imageScrollPane);
@@ -285,7 +264,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
      */
     private void createNewImage()
     {
-        String name = includeClassNameField ? getClassName() : classTarget.getQualifiedName();
+        String name = includeClassNameField ? getClassName() : className;
         final File file = new NewImageDialog(this.asWindow(), projImagesDir, name).showAndWait().orElse(null);
         if (file != null) {
             projImageList.refresh();
