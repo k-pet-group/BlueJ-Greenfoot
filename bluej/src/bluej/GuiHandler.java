@@ -23,6 +23,9 @@ package bluej;
 
 import java.io.File;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * This is an interface for handling project-related and general startup-related GUI tasks.
  * <p>
@@ -30,6 +33,7 @@ import java.io.File;
  *  
  * @author Davin McCall
  */
+@OnThread(Tag.FXPlatform)
 public interface GuiHandler
 {
     /**
