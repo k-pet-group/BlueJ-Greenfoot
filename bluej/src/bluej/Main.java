@@ -27,8 +27,6 @@ import bluej.extmgr.ExtensionWrapper;
 import bluej.extmgr.ExtensionsManager;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
-import bluej.pkgmgr.target.ClassTarget;
-import bluej.pkgmgr.target.Target;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.javafx.JavaFXUtil;
@@ -64,9 +62,6 @@ import java.util.UUID;
  */
 public class Main
 {
-    private static final int FIRST_X_LOCATION = 20;
-    private static final int FIRST_Y_LOCATION = 20;
-    
     /** 
      * Whether we've officially launched yet. While false "open file" requests only
      * set initialProject.
@@ -192,38 +187,12 @@ public class Main
 
         // Make sure at least one frame exists
         if (!oneOpened) {
-            if (Config.isGreenfoot()) {
-                // Handled by Greenfoot
-            }
-            else {
-                openEmptyFrame();
-            }
-        }
-        else
-        {
-            // Follow open-class arg if there is one:
-            String targetName = Config.getPropString("bluej.class.open", null);
-            if (targetName != null && !targetName.equals(""))
-            {
-                boolean foundTarget = false;
-                for (Project proj : Project.getProjects())
-                {
-                    Target tgt = proj.getTarget(targetName);
-                    if (tgt != null && tgt instanceof ClassTarget)
-                    {
-                        ((ClassTarget)tgt).open();
-                        foundTarget = true;
-                    }
-                }
-                if (!foundTarget)
-                    Debug.message("Did not find target class in opened project: \"" + targetName + "\"");
-            }
+            guiHandler.openEmptyFrame();
         }
 
-        if (!Config.isGreenfoot())
-        {
-            Boot.getInstance().disposeSplashWindow();
-        }
+        guiHandler.initialOpenComplete(oneOpened);
+        
+        Boot.getInstance().disposeSplashWindow();
         ExtensionsManager.getInstance().delegateEvent(new ApplicationEvent(ApplicationEvent.APP_READY_EVENT));
     }
 
@@ -314,7 +283,7 @@ public class Main
                 @Override
                 public void handleAbout(AppEvent.AboutEvent e)
                 {
-                    Platform.runLater(() -> PkgMgrFrame.handleAbout());
+                    Platform.runLater(() -> guiHandler.handleAbout());
                 }
             });
 
@@ -322,7 +291,7 @@ public class Main
                 @Override
                 public void handlePreferences(AppEvent.PreferencesEvent e)
                 {
-                    Platform.runLater(() -> PkgMgrFrame.handlePreferences());
+                    Platform.runLater(() -> guiHandler.handlePreferences());
                 }
             });
 
@@ -331,7 +300,7 @@ public class Main
                 public void handleQuitRequestWith(AppEvent.QuitEvent e, QuitResponse response)
                 {
                     macEventResponse = response;
-                    Platform.runLater(() -> PkgMgrFrame.handleQuit());
+                    Platform.runLater(() -> guiHandler.handleQuit());
                     // response.confirmQuit() does not need to be called, since System.exit(0) is called explcitly
                     // response.cancelQuit() is called to cancel (in wantToQuit())
                 }
@@ -358,7 +327,7 @@ public class Main
             });
         }
 
-        Boot.getInstance().setQuitHandler(() -> Platform.runLater(PkgMgrFrame::handleQuit));
+        Boot.getInstance().setQuitHandler(() -> Platform.runLater(() -> guiHandler.handleQuit()));
     }
 
     /**
@@ -473,18 +442,6 @@ public class Main
         }
     }
 
-    /**
-     * Open a single empty bluej window.
-     */
-    @OnThread(Tag.FXPlatform)
-    private static void openEmptyFrame()
-    {
-        PkgMgrFrame frame = PkgMgrFrame.createFrame();
-        frame.getFXWindow().setX(FIRST_X_LOCATION);
-        frame.getFXWindow().setY(FIRST_Y_LOCATION);
-        frame.setVisible(true);
-    }
-    
     /**
      * Send statistics of use back to bluej.org
      */

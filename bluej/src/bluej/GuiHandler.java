@@ -40,4 +40,31 @@ public interface GuiHandler
      * @return      true if successful; false if not
      */
     boolean tryOpen(File path, boolean displayError);
+    
+    /**
+     * Handle an 'about' request issued from the OS interface (i.e. Mac application menu).
+     */
+    void handleAbout();
+    
+    /**
+     * Handle a 'preferences' request issued from the OS interface.
+     */
+    void handlePreferences();
+    
+    /**
+     * Handle a 'quit' request issued from the OS interface.
+     */
+    void handleQuit();
+    
+    /**
+     * Show an empty GUI (called if no projects were opened at startup).
+     */
+    void openEmptyFrame();
+    
+    /**
+     * Initial opening of projects is complete.
+     * 
+     * @param projectOpen  true if a project was opened; false if no projects are open
+     */
+    void initialOpenComplete(boolean projectOpen);
 }
