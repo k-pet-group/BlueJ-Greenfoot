@@ -283,48 +283,35 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
     private Pane buildClassDetailsPanel(Package pkg)
     {
         VBox classDetailsPanel = new VBox();
+        if (includeClassNameField)
         {
-            if (includeClassNameField) {
-                HBox b = new HBox();
-                Label classNameLabel = new Label(Config.getString("imagelib.className"));
-                b.getChildren().add(classNameLabel);
+            classNameField = new TextField();
+            final Label errorMsgLabel = JavaFXUtil.withStyleClass(new Label(), "dialog-error-label");
+            errorMsgLabel.setVisible(false);
 
-                // "ok" button should be disabled until class name entered
-                Button okButton = (Button) getDialogPane().lookupButton(ButtonType.OK);
-                okButton.setDisable(true);
+            ComboBox<SourceType> languageSelectionBox = new ComboBox<>(FXCollections.observableArrayList(SourceType.Stride, SourceType.Java));
+            language = pkg.getDefaultSourceType();
+            languageSelectionBox.getSelectionModel().select(language);
 
-                classNameField = new TextField();
-                final Label errorMsgLabel = JavaFXUtil.withStyleClass(new Label(), "dialog-error-label");
-                errorMsgLabel.setVisible(false);
+            final ClassNameVerifier classNameVerifier = new ClassNameVerifier(classNameField, pkg, language);
+            JavaFXUtil.addChangeListener(classNameVerifier.validityProperty(), valid -> {
+                errorMsgLabel.setText(classNameVerifier.getMessage());
+                errorMsgLabel.setVisible(!valid);
+                getDialogPane().lookupButton(ButtonType.OK).setDisable(!valid);
+            });
+            languageSelectionBox.setOnAction(event -> {
+                language = languageSelectionBox.getSelectionModel().getSelectedItem();
+                classNameVerifier.change(language);
+            });
 
-                b.getChildren().add(classNameField);
-
-                SourceType[] items = { SourceType.Stride, SourceType.Java };
-                ComboBox<SourceType> languageSelectionBox = new ComboBox<>(FXCollections.observableArrayList(items));
-                language = pkg.getDefaultSourceType();
-                languageSelectionBox.getSelectionModel().select(language);
-                b.getChildren().add(languageSelectionBox);
-
-                final ClassNameVerifier classNameVerifier = new ClassNameVerifier(classNameField, pkg, language);
-                JavaFXUtil.addChangeListener(classNameVerifier.validityProperty(), valid -> {
-                    errorMsgLabel.setText(classNameVerifier.getMessage());
-                    errorMsgLabel.setVisible(!valid);
-                    okButton.setDisable(!valid);
-                });
-                languageSelectionBox.setOnAction(event -> {
-                    language = languageSelectionBox.getSelectionModel().getSelectedItem();
-                    classNameVerifier.change(language);
-                });
-                
-                classDetailsPanel.getChildren().addAll(b, errorMsgLabel);
-            }
-
-            // help label
-            Label helpLabel = new Label(Config.getString("imagelib.help.selectImage"));
-
-            classDetailsPanel.getChildren().addAll(helpLabel, new Separator(Orientation.HORIZONTAL));
+            classDetailsPanel.getChildren().addAll(
+                    new HBox(new Label(Config.getString("imagelib.className")), classNameField, languageSelectionBox),
+                    errorMsgLabel);
         }
 
+        // help label
+        Label helpLabel = new Label(Config.getString("imagelib.help.selectImage"));
+        classDetailsPanel.getChildren().addAll(helpLabel, new Separator(Orientation.HORIZONTAL));
         return classDetailsPanel;
     }
 
