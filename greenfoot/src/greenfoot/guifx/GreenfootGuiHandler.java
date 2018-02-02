@@ -71,13 +71,6 @@ public class GreenfootGuiHandler implements GuiHandler
     }
 
     @Override
-    public void openEmptyFrame()
-    {
-        // TODO
-        throw new RuntimeException("Not yet implemented!");
-    }
-
-    @Override
     public void initialOpenComplete(boolean projectOpen)
     {
         // Nothing needs to be done.

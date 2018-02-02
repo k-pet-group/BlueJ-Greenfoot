@@ -66,18 +66,16 @@ public class BlueJGuiHandler implements GuiHandler
     }
     
     @Override
-    public void openEmptyFrame()
-    {
-        PkgMgrFrame frame = PkgMgrFrame.createFrame();
-        frame.getFXWindow().setX(FIRST_X_LOCATION);
-        frame.getFXWindow().setY(FIRST_Y_LOCATION);
-        frame.setVisible(true);
-    }
-    
-    @Override
     public void initialOpenComplete(boolean projectOpen)
     {
-        if (projectOpen)
+        if (! projectOpen)
+        {
+            PkgMgrFrame frame = PkgMgrFrame.createFrame();
+            frame.getFXWindow().setX(FIRST_X_LOCATION);
+            frame.getFXWindow().setY(FIRST_Y_LOCATION);
+            frame.setVisible(true);
+        }
+        else
         {
             // This is a convenience for development: set bluej.class.open property on the command
             // line, and the named class will be opened when BlueJ starts:

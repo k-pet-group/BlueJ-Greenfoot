@@ -61,11 +61,6 @@ public interface GuiHandler
     void handleQuit();
     
     /**
-     * Show an empty GUI (called if no projects were opened at startup).
-     */
-    void openEmptyFrame();
-    
-    /**
      * Initial opening of projects is complete.
      * 
      * @param projectOpen  true if a project was opened; false if no projects are open

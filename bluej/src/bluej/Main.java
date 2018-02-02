@@ -185,11 +185,6 @@ public class Main
             }
         }
 
-        // Make sure at least one frame exists
-        if (!oneOpened) {
-            guiHandler.openEmptyFrame();
-        }
-
         guiHandler.initialOpenComplete(oneOpened);
         
         Boot.getInstance().disposeSplashWindow();
