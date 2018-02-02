@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2015,2017  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2015,2017,2018  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,6 +41,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import greenfoot.guifx.GreenfootGuiHandler;
 import greenfoot.guifx.GreenfootStage;
 import greenfoot.util.Version;
 import javafx.application.Platform;
@@ -142,9 +143,7 @@ public class ProjectManager
     {
         ProjectManager.bluej = bluej;
         instance = new ProjectManager();
-        Main.setInitialGUI((project) -> {
-            instance.launchProject(project.getBProject());
-        });
+        Main.setGuiHandler(new GreenfootGuiHandler());
     }
 
     /**

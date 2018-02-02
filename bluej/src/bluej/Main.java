@@ -25,11 +25,8 @@ import bluej.collect.DataCollector;
 import bluej.extensions.event.ApplicationEvent;
 import bluej.extmgr.ExtensionWrapper;
 import bluej.extmgr.ExtensionsManager;
-import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
-import bluej.pkgmgr.target.ClassTarget;
-import bluej.pkgmgr.target.Target;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.javafx.JavaFXUtil;
@@ -55,7 +52,6 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 /**
  * BlueJ starts here. The Boot class, which is responsible for dealing with
@@ -66,9 +62,6 @@ import java.util.function.Consumer;
  */
 public class Main
 {
-    private static final int FIRST_X_LOCATION = 20;
-    private static final int FIRST_Y_LOCATION = 20;
-    
     /** 
      * Whether we've officially launched yet. While false "open file" requests only
      * set initialProject.
@@ -94,7 +87,7 @@ public class Main
     private static ClassLoader storedContextClassLoader;
     
     /** The mechanism to show the initial GUI */
-    private static Consumer<Project> initialGUI = null;
+    private static GuiHandler guiHandler = null;
 
     /**
      * Entry point to starting up the system. Initialise the system and start
@@ -109,6 +102,10 @@ public class Main
         File bluejLibDir = Boot.getBluejLibDir();
 
         Config.initialise(bluejLibDir, commandLineProps, boot.isGreenfoot());
+        
+        if (guiHandler == null) {
+            guiHandler = new BlueJGuiHandler();
+        }
         
         // Note we must do this OFF the AWT dispatch thread. On MacOS X, if the
         // application was started by double-clicking a project file, an "open file"
@@ -129,7 +126,6 @@ public class Main
         SwingUtilities.invokeLater(() -> {
             List<ExtensionWrapper> loadedExtensions = ExtensionsManager.getInstance().getLoadedExtensions(null);
             Platform.runLater(() -> {
-
                 DataCollector.bluejOpened(getOperatingSystem(), getJavaVersion(), getBlueJVersion(), getInterfaceLanguage(), loadedExtensions);
                 processArgs(args);
             });
@@ -160,11 +156,8 @@ public class Main
         // Open any projects specified on the command line
         if (args.length > 0) {
             for (String arg : args) {
-                // To avoid a wrong FileNotFound Exception when running from IntelliJ
-                if (!arg.startsWith("-") && !arg.contains("intellij")  ) {
-                    if (PkgMgrFrame.doOpen(new File(arg), null)) {
-                        oneOpened = true;
-                    }
+                if (!arg.startsWith("-")) {
+                    oneOpened |= guiHandler.tryOpen(new File(arg), true);
                 }
             }
         }
@@ -172,10 +165,7 @@ public class Main
         // Open a project if requested by the OS (Mac OS)
         if (initialProjects != null) {
             for (File initialProject : initialProjects) {
-                // To avoid a wrong FileNotFound Exception when running from IntelliJ
-                if (!initialProject.getName().contains("intellij")) {
-                    oneOpened |= (PkgMgrFrame.doOpen(initialProject, null));
-                }
+                oneOpened |= guiHandler.tryOpen(initialProject, true);
             }
         }
 
@@ -189,57 +179,15 @@ public class Main
                 for (int i = 1; exists != null; i++) {
                     exists = Config.getPropString(Config.BLUEJ_OPENPACKAGE + i, null);
                     if (exists != null) {
-                        Project openProj;
-                        // checking all is well (project exists)
-                        if ((openProj = Project.openProject(exists)) != null) {
-                            if (initialGUI == null) {
-                                Package pkg = openProj.getPackage(openProj.getInitialPackageName());
-                                PkgMgrFrame.createFrame(pkg, null);
-                                oneOpened = true;
-                            }
-                            else {
-                                initialGUI.accept(openProj);
-                            }
-                        }
+                        oneOpened |= guiHandler.tryOpen(new File(exists), false);
                     }
                 }
             }
         }
 
-        // Make sure at least one frame exists
-        if (!oneOpened) {
-            if (Config.isGreenfoot()) {
-                // Handled by Greenfoot
-            }
-            else {
-                openEmptyFrame();
-            }
-        }
-        else
-        {
-            // Follow open-class arg if there is one:
-            String targetName = Config.getPropString("bluej.class.open", null);
-            if (targetName != null && !targetName.equals(""))
-            {
-                boolean foundTarget = false;
-                for (Project proj : Project.getProjects())
-                {
-                    Target tgt = proj.getTarget(targetName);
-                    if (tgt != null && tgt instanceof ClassTarget)
-                    {
-                        ((ClassTarget)tgt).open();
-                        foundTarget = true;
-                    }
-                }
-                if (!foundTarget)
-                    Debug.message("Did not find target class in opened project: \"" + targetName + "\"");
-            }
-        }
-
-        if (!Config.isGreenfoot())
-        {
-            Boot.getInstance().disposeSplashWindow();
-        }
+        guiHandler.initialOpenComplete(oneOpened);
+        
+        Boot.getInstance().disposeSplashWindow();
         ExtensionsManager.getInstance().delegateEvent(new ApplicationEvent(ApplicationEvent.APP_READY_EVENT));
     }
 
@@ -260,16 +208,11 @@ public class Main
         // open files handling issue:
         prepareMacOSMenuSwing(macApp);
 
-        // We are using the NSMenuFX library to fix Mac Application menu
-        // only when it is a FX menu. This is now only needed for BlueJ,
-        // as Greenfoot is still on Swing. When Greenfoot menu is moved to FX,
-        // both should use the workaround in prepareMacOSMenuFX().
-        // But when the JDK APIs (i.e. handleAbout() etc) are fixed,
-        // both should go back to the way as in prepareMacOSMenuSwing().
-        if (!Config.isGreenfoot()) {
-            if (macApp != null) {
-                prepareMacOSMenuFX();
-            }
+        // We are using the NSMenuFX library to fix Mac Application menu only when it is a FX
+        // menu. When the JDK APIs (i.e. handleAbout() etc) are fixed, both should go back to
+        // the way as in prepareMacOSMenuSwing().
+        if (macApp != null) {
+            prepareMacOSMenuFX();
         }
 
         // This is not included in the above condition to avoid future bugs,
@@ -335,7 +278,7 @@ public class Main
                 @Override
                 public void handleAbout(AppEvent.AboutEvent e)
                 {
-                    Platform.runLater(() -> PkgMgrFrame.handleAbout());
+                    Platform.runLater(() -> guiHandler.handleAbout());
                 }
             });
 
@@ -343,7 +286,7 @@ public class Main
                 @Override
                 public void handlePreferences(AppEvent.PreferencesEvent e)
                 {
-                    Platform.runLater(() -> PkgMgrFrame.handlePreferences());
+                    Platform.runLater(() -> guiHandler.handlePreferences());
                 }
             });
 
@@ -352,7 +295,7 @@ public class Main
                 public void handleQuitRequestWith(AppEvent.QuitEvent e, QuitResponse response)
                 {
                     macEventResponse = response;
-                    Platform.runLater(() -> PkgMgrFrame.handleQuit());
+                    Platform.runLater(() -> guiHandler.handleQuit());
                     // response.confirmQuit() does not need to be called, since System.exit(0) is called explcitly
                     // response.cancelQuit() is called to cancel (in wantToQuit())
                 }
@@ -379,7 +322,7 @@ public class Main
             });
         }
 
-        Boot.getInstance().setQuitHandler(() -> Platform.runLater(PkgMgrFrame::handleQuit));
+        Boot.getInstance().setQuitHandler(() -> Platform.runLater(() -> guiHandler.handleQuit()));
     }
 
     /**
@@ -494,18 +437,6 @@ public class Main
         }
     }
 
-    /**
-     * Open a single empty bluej window.
-     */
-    @OnThread(Tag.FXPlatform)
-    private static void openEmptyFrame()
-    {
-        PkgMgrFrame frame = PkgMgrFrame.createFrame();
-        frame.getFXWindow().setX(FIRST_X_LOCATION);
-        frame.getFXWindow().setY(FIRST_Y_LOCATION);
-        frame.setVisible(true);
-    }
-    
     /**
      * Send statistics of use back to bluej.org
      */
@@ -650,8 +581,8 @@ public class Main
      * Set the inital GUI, created after the initial project is opened.
      * @param initialGUI  A consume which displays the GUI for the initial project.
      */
-    public static void setInitialGUI(Consumer<Project> initialGUI)
+    public static void setGuiHandler(GuiHandler initialGUI)
     {
-        Main.initialGUI = initialGUI;
+        Main.guiHandler = initialGUI;
     }
 }
