@@ -142,8 +142,16 @@ public class ProjectManager
     {
         ProjectManager.bluej = bluej;
         instance = new ProjectManager();
-        Main.setInitialGUI((project) -> {
-            instance.launchProject(project.getBProject());
+        Main.setGuiHandler((projPath, showError) -> {
+            Project project = Project.openProject(projPath.toString());
+            if (project != null) {
+                instance.launchProject(project.getBProject());
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         });
     }
 
