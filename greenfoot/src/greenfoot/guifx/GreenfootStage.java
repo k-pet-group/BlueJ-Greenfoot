@@ -69,6 +69,7 @@ import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.guifx.classes.ClassDisplay;
 import greenfoot.guifx.classes.GClassDiagram;
+import greenfoot.guifx.classes.GClassNode;
 import greenfoot.guifx.classes.ImportClassDialog;
 import greenfoot.guifx.images.ImageLibFrame;
 import greenfoot.guifx.images.ImageSelectionWatcher;
@@ -1422,8 +1423,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      * @param superClassName The full qualified name of the super class.
      * @param className      The class's name, which will be created.
      * @param language       The source type of the class, e.g. Java or Stride.
+     *
+     * @return A class info reference for the class created.
      */
-    private void createNewClass(Package pkg, String superClassName, String className, SourceType language)
+    private GClassNode createNewClass(Package pkg, String superClassName, String className, SourceType language)
     {
         try
         {
@@ -1434,11 +1437,12 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, superClassName, newFile,
                     templateFileName, project.getProjectCharset().toString());
             ClassTarget newClass = new ClassTarget(pkg, className);
-            classDiagram.addClass(newClass);
+            return classDiagram.addClass(newClass);
         }
         catch (IOException ioe)
         {
             Debug.reportError(ioe);
+            return null;
         }
     }
 
@@ -1467,10 +1471,19 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     /**
      * Show a dialog to ask for details, then make a new subclass of the given class
      * using those details. This is only for classes with images, i.e. Actor/World subclasses.
+     *
+     * @param parentName The fully qualified name of the parent class.
      */
-    public void newImageSubClassOf(String fullyQualifiedName)
+    public void newImageSubClassOf(String parentName)
     {
-        // TODO part of GREENFOOT-634
+        // initialise our image library frame
+        ImageLibFrame imageLibFrame = new ImageLibFrame(this, project, parentName);
+        //TODO change this way
+        imageLibFrame.showAndWait().ifPresent(file -> {
+            GClassNode newClass = createNewClass(project.getUnnamedPackage(), parentName, imageLibFrame.getClassName(), imageLibFrame.getSelectedLanguage());
+            // set the image of the class to the selected file
+            newClass.getDisplay(this).setImage(new Image(file.toURI().toString()));
+        });
     }
 
     /**

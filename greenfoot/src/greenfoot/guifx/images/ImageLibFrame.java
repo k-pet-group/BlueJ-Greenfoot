@@ -41,13 +41,15 @@ import greenfoot.util.GreenfootUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -72,10 +74,11 @@ import javax.imageio.ImageIO;
 public class ImageLibFrame extends FXCustomizedDialog<File>
                     //TODO extends Dialog<Image> ?
 {
-    private ClassTarget classTarget;
     private Project project;
+    private final String className;
+    // TODO look if needed as the default image has been removed from this frame
     /** The default image icon - none, or parent's image */
-    private File defaultIcon;
+    //private File defaultIcon;
 
     private ImageLibList projImageList;
     private ImageLibList greenfootImageList;
@@ -85,6 +88,8 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
 
     private TextField classNameField;
     private SourceType language;
+    private Label errorMsgLabel;
+    private Node okButton;
 
     /** Menu items that are in the context menu. */
     private MenuItem editItem;
@@ -112,8 +117,8 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
     {
         super(owner, Config.getString("imagelib.title") + " " + classTarget.getDisplayName(), "image-lib");
         this.selectionWatcher = watcher;
-        this.classTarget = classTarget;
         this.project = classTarget.getPackage().getProject();
+        className = classTarget.getDisplayName();
 
         // TODO
         //Class superClass = classTarget.getClass().getSuperclass();
@@ -121,8 +126,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         //defaultIcon = getClassImage(superClass.getClass);
 
         includeClassNameField = false;
-        buildUI(null);
-        projImageList.select(getSpecifiedImage(classTarget));
+        buildUI(getSpecifiedImage(classTarget));
     }
 
     /**
@@ -130,54 +134,33 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
      *
      * @param owner        The parent frame
      * @param superClass   The superclass of the new class
-     * @param title        The title of the dialog
-     * @param defaultName  The default name of the new class (or blank if null)
-     * @param description  A helper prompt to display at the top of dialog (or none if null)
      */
-    //TODO
-    public ImageLibFrame(Window owner, ClassTarget superClass, String title, String defaultName, List<String> description)
+    public ImageLibFrame(Window owner, Project project, String parentName)
     {
-        super(owner, title, "image-lib");
-        this.classTarget = superClass;
-        this.project = classTarget.getPackage().getProject();
-        defaultIcon = getClassImage(superClass);
+        super(owner, Config.getString("imagelib.newClass"), "image-lib");
+        this.project = project;
+        className = parentName;
+//        defaultIcon = getClassImage(superClass);
 
         includeClassNameField = true;
-        buildUI(description);
-        projImageList.select(null);
-        if (defaultName != null)
-        {
-            classNameField.setText(defaultName);
-        }
+        buildUI(null);
+        classNameField.setPromptText(Config.getString("pkgmgr.newClass.prompt"));
         classNameField.requestFocus();
     }
 
     /**
      * build the UI components
-     *
-     * @param description A helper prompt to display at the top of dialog, can be null.
+     * @param specifiedImage
      */
-    private void buildUI(List<String> description)
+    private void buildUI(File specifiedImage)
     {
-        VBox contentPane = new VBox(10);
-        setContentPane(contentPane);
-
-        if (description != null)
-        {
-            description.forEach(t -> {
-                Label l = new Label(t);
-                l.setFocusTraversable(false);
-                l.setBorder(null);
-                contentPane.getChildren().add(l);
-            });
-        }
-
-        // Class details - name, current icon
-        contentPane.getChildren().addAll(buildClassDetailsPanel(project.getUnnamedPackage()), buildImageLists(), createCogMenu());
-
         // Ok and cancel buttons
         getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
-        JavaFXUtil.runRegular(Duration.millis(2000), () -> projImageList.refresh());
+
+        setContentPane(new VBox(10, buildClassDetailsPanel(project.getUnnamedPackage()), buildImageLists(), createCogMenu()));
+        projImageList.select(specifiedImage);
+
+        JavaFXUtil.runRegular(Duration.millis(1000), () -> projImageList.refresh());
         setResultConverter(bt -> bt == ButtonType.OK ? selectedImageFile : null);
     }
 
@@ -211,7 +194,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         // Project images panel
         File projDir = project.getProjectDir();
         projImagesDir = new File(projDir, "images");
-        projImageList = new ImageLibList(projImagesDir, false, defaultIcon);//true?
+        projImageList = new ImageLibList(projImagesDir, false, /*defaultIcon*/null);//true?
         ScrollPane imageScrollPane = new ScrollPane(projImageList);
 
         VBox piPanel = new VBox(5, new Label(Config.getString("imagelib.projectImages")), imageScrollPane);
@@ -285,7 +268,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
      */
     private void createNewImage()
     {
-        String name = includeClassNameField ? getClassName() : classTarget.getQualifiedName();
+        String name = includeClassNameField ? getClassName() : className;
         final File file = new NewImageDialog(this.asWindow(), projImagesDir, name).showAndWait().orElse(null);
         if (file != null) {
             projImageList.refresh();
@@ -304,49 +287,46 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
     private Pane buildClassDetailsPanel(Package pkg)
     {
         VBox classDetailsPanel = new VBox();
+        if (includeClassNameField)
         {
-            if (includeClassNameField) {
-                HBox b = new HBox();
-                Label classNameLabel = new Label(Config.getString("imagelib.className"));
-                b.getChildren().add(classNameLabel);
+            classNameField = new TextField();
+            ComboBox<SourceType> languageSelectionBox = new ComboBox<>(FXCollections.observableArrayList(SourceType.Stride, SourceType.Java));
+            language = pkg.getDefaultSourceType();
+            languageSelectionBox.getSelectionModel().select(language);
 
-                // "ok" button should be disabled until class name entered
-                Button okButton = (Button) getDialogPane().lookupButton(ButtonType.OK);
-                okButton.setDisable(true);
+            errorMsgLabel = JavaFXUtil.withStyleClass(new Label(), "dialog-error-label");
+            okButton = getDialogPane().lookupButton(ButtonType.OK);
+            classDetailsPanel.getChildren().addAll(
+                    new HBox(new Label(Config.getString("imagelib.className")), classNameField, languageSelectionBox),
+                    errorMsgLabel);
 
-                classNameField = new TextField();
-                final Label errorMsgLabel = JavaFXUtil.withStyleClass(new Label(), "dialog-error-label");
-                errorMsgLabel.setVisible(false);
-
-                b.getChildren().add(classNameField);
-
-                SourceType[] items = { SourceType.Stride, SourceType.Java };
-                ComboBox<SourceType> languageSelectionBox = new ComboBox<>(FXCollections.observableArrayList(items));
-                language = pkg.getDefaultSourceType();
-                languageSelectionBox.getSelectionModel().select(language);
-                b.getChildren().add(languageSelectionBox);
-
-                final ClassNameVerifier classNameVerifier = new ClassNameVerifier(classNameField, pkg, language);
-                JavaFXUtil.addChangeListener(classNameVerifier.validityProperty(), valid -> {
-                    errorMsgLabel.setText(classNameVerifier.getMessage());
-                    errorMsgLabel.setVisible(!valid);
-                    okButton.setDisable(!valid);
-                });
-                languageSelectionBox.setOnAction(event -> {
-                    language = languageSelectionBox.getSelectionModel().getSelectedItem();
-                    classNameVerifier.change(language);
-                });
-                
-                classDetailsPanel.getChildren().addAll(b, errorMsgLabel);
-            }
-
-            // help label
-            Label helpLabel = new Label(Config.getString("imagelib.help.selectImage"));
-
-            classDetailsPanel.getChildren().addAll(helpLabel, new Separator(Orientation.HORIZONTAL));
+            StringProperty classNameProperty = classNameField.textProperty();
+            ReadOnlyObjectProperty<SourceType> sourceTypeProperty = languageSelectionBox.getSelectionModel().selectedItemProperty();
+            final ClassNameVerifier classNameVerifier = new ClassNameVerifier(pkg, classNameProperty, sourceTypeProperty);
+            updateControls(classNameVerifier);
+            JavaFXUtil.addChangeListener(classNameProperty, text -> updateControls(classNameVerifier));
+            JavaFXUtil.addChangeListener(sourceTypeProperty, type -> updateControls(classNameVerifier));
         }
 
+        // help label
+        Label helpLabel = new Label(Config.getString("imagelib.help.selectImage"));
+        classDetailsPanel.getChildren().addAll(helpLabel, new Separator(Orientation.HORIZONTAL));
         return classDetailsPanel;
+    }
+
+    /**
+     * Enable/disable the ok button and show/hide the error message based on
+     * the validity of the class name. It also updates the error message contents.
+     *
+     * @param classNameVerifier the class verifier that validates the class name's
+     *                          text field contents.
+     */
+    private void updateControls(ClassNameVerifier classNameVerifier)
+    {
+        boolean valid = classNameVerifier.checkValidity();
+        errorMsgLabel.setVisible(!valid);
+        errorMsgLabel.setText(classNameVerifier.getMessage());
+        okButton.setDisable(!valid);
     }
 
     /**
