@@ -41,13 +41,15 @@ import greenfoot.util.GreenfootUtil;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -86,6 +88,8 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
 
     private TextField classNameField;
     private SourceType language;
+    private Label errorMsgLabel;
+    private Node okButton;
 
     /** Menu items that are in the context menu. */
     private MenuItem editItem;
@@ -286,33 +290,43 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         if (includeClassNameField)
         {
             classNameField = new TextField();
-            final Label errorMsgLabel = JavaFXUtil.withStyleClass(new Label(), "dialog-error-label");
-            errorMsgLabel.setVisible(false);
-
             ComboBox<SourceType> languageSelectionBox = new ComboBox<>(FXCollections.observableArrayList(SourceType.Stride, SourceType.Java));
             language = pkg.getDefaultSourceType();
             languageSelectionBox.getSelectionModel().select(language);
 
-            final ClassNameVerifier classNameVerifier = new ClassNameVerifier(classNameField, pkg, language);
-            JavaFXUtil.addChangeListener(classNameVerifier.validityProperty(), valid -> {
-                errorMsgLabel.setText(classNameVerifier.getMessage());
-                errorMsgLabel.setVisible(!valid);
-                getDialogPane().lookupButton(ButtonType.OK).setDisable(!valid);
-            });
-            languageSelectionBox.setOnAction(event -> {
-                language = languageSelectionBox.getSelectionModel().getSelectedItem();
-                classNameVerifier.change(language);
-            });
-
+            errorMsgLabel = JavaFXUtil.withStyleClass(new Label(), "dialog-error-label");
+            okButton = getDialogPane().lookupButton(ButtonType.OK);
             classDetailsPanel.getChildren().addAll(
                     new HBox(new Label(Config.getString("imagelib.className")), classNameField, languageSelectionBox),
                     errorMsgLabel);
+
+            StringProperty classNameProperty = classNameField.textProperty();
+            ReadOnlyObjectProperty<SourceType> sourceTypeProperty = languageSelectionBox.getSelectionModel().selectedItemProperty();
+            final ClassNameVerifier classNameVerifier = new ClassNameVerifier(pkg, classNameProperty, sourceTypeProperty);
+            updateControls(classNameVerifier);
+            JavaFXUtil.addChangeListener(classNameProperty, text -> updateControls(classNameVerifier));
+            JavaFXUtil.addChangeListener(sourceTypeProperty, type -> updateControls(classNameVerifier));
         }
 
         // help label
         Label helpLabel = new Label(Config.getString("imagelib.help.selectImage"));
         classDetailsPanel.getChildren().addAll(helpLabel, new Separator(Orientation.HORIZONTAL));
         return classDetailsPanel;
+    }
+
+    /**
+     * Enable/disable the ok button and show/hide the error message based on
+     * the validity of the class name. It also updates the error message contents.
+     *
+     * @param classNameVerifier the class verifier that validates the class name's
+     *                          text field contents.
+     */
+    private void updateControls(ClassNameVerifier classNameVerifier)
+    {
+        boolean valid = classNameVerifier.checkValidity();
+        errorMsgLabel.setVisible(!valid);
+        errorMsgLabel.setText(classNameVerifier.getMessage());
+        okButton.setDisable(!valid);
     }
 
     /**

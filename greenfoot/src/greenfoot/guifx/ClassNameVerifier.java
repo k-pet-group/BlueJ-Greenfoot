@@ -27,9 +27,8 @@ import bluej.pkgmgr.Package;
 import bluej.utility.JavaNames;
 
 import java.util.Properties;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.scene.control.TextField;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.StringProperty;
 
 /**
  * Class that verifies a class name typed into a TextField. It checks that the
@@ -42,28 +41,17 @@ import javafx.scene.control.TextField;
  */
 public class ClassNameVerifier
 {
-    private SourceType sourceType;
-    private String classExists = Config.getString("newclass.dialog.err.classExists");
-    private String illegalClassName;
-    private Properties localProperties = new Properties();
-    
-    /** Is the text field currently in a valid state? */
-    private boolean valid = false;
-
-    /**
-     * Flag used to indicate whether it is the first check. If it is, we should
-     * fire an event no matter what.
-     */
-    private boolean firstCheck = true;
-
     /** The package the class will be added to */
     private Package pkg;
 
-    /** The text field to listen for DocumentEvents on */
-    private TextField textField;
-
-    private BooleanProperty validity = new SimpleBooleanProperty(false);
     private String message;
+    private String illegalClassName;
+    private Properties localProperties = new Properties();
+    private final String classExists = Config.getString("newclass.dialog.err.classExists");
+
+    /** The text field to listen for DocumentEvents on */
+    private final StringProperty textProperty;
+    private final ReadOnlyObjectProperty<SourceType> sourceTypeProperty;
 
     /**
      * Create new class name verifier. This will add the appropate listeners to
@@ -75,24 +63,12 @@ public class ClassNameVerifier
      * 
      * @param pkg Package containing the user classes for which to check against.
      */
-    public ClassNameVerifier(TextField textField, Package pkg, SourceType sourceType)
+    public ClassNameVerifier(Package pkg, StringProperty textProperty, ReadOnlyObjectProperty<SourceType> sourceTypeProperty)
     {
         this.pkg = pkg;
-        this.textField = textField;
-        this.sourceType = sourceType;
-        buildTheErrorMessage();
-    }
-
-    public void change(SourceType sourceType)
-    {
-        firstCheck = true;
-        this.sourceType = sourceType;
+        this.textProperty = textProperty;
+        this.sourceTypeProperty = sourceTypeProperty;
         checkValidity();
-    }
-
-    public BooleanProperty validityProperty()
-    {
-        return validity;
     }
 
     public String getMessage()
@@ -100,10 +76,10 @@ public class ClassNameVerifier
         return message;
     }
 
-
     private void buildTheErrorMessage()
     {
-        localProperties.put("LANGUAGE", sourceType!= null ? sourceType.toString() : "");
+        SourceType sourceType = sourceTypeProperty.get();
+        localProperties.put("LANGUAGE", sourceType !=null ? sourceType.toString() : "");
         illegalClassName = Config.getString("newclass.dialog.err.classNameIllegal", null,  localProperties);
     }
 
@@ -111,31 +87,17 @@ public class ClassNameVerifier
      * Checks whether the text field contains a valid class name. It will send
      * the relevant events to notify ValidityListeners.
      * Verifies that the TextField doesn't contain the name of an existing class.
+     *
+     * @return True if the class name is valid, false otherwise.
      */
-    private void checkValidity()
+    public boolean checkValidity()
     {
-        String className = textField.getText();
-        boolean inputOK = JavaNames.isIdentifier(className) && !classNameExist(className) && !isGreenfootClassName(className);
-        if (inputOK != valid || firstCheck) {
-            firstCheck = false;
-            valid = inputOK;
-            if (valid) {
-                validity.set(true);
-                message = "All OK";
-            }
-            else
-            {
-                validity.set(false);
-                if (classNameExist(className) || isGreenfootClassName(className))
-                {
-                    message = classExists;
-                }
-                else
-                {
-                    message = illegalClassName;
-                }
-            }
-        }
+        buildTheErrorMessage();
+        String className = textProperty.get();
+        boolean valid = !className.isEmpty() && JavaNames.isIdentifier(className) && !classNameExist(className) && !isGreenfootClassName(className);
+        message = valid || className.isEmpty() ? "" :
+                (classNameExist(className) || isGreenfootClassName(className) ? classExists : illegalClassName);
+        return valid;
     }
 
     private boolean isGreenfootClassName(String className)
