@@ -326,7 +326,8 @@ public class Main
     }
 
     /**
-     * Quit menu item was chosen.
+     * Handle the "quit" command: if any projects are open, prompt user to make sure, and quit if
+     * confirmed.
      */
     @OnThread(Tag.FXPlatform)
     public static void wantToQuit()
@@ -352,56 +353,20 @@ public class Main
         }
     }
 
-
     /**
-     * perform the closing down and quitting of BlueJ. Note that the order of
-     * the events is relevant - Extensions should be unloaded after package
-     * close
+     * Perform the closing down and quitting of BlueJ, including unloading
+     * extensions.
      */
     @OnThread(Tag.FXPlatform)
     public static void doQuit()
     {
-        PkgMgrFrame[] pkgFrames = PkgMgrFrame.getAllFrames();
-
-        // handle open packages so they are re-opened on startup
-        handleOrphanPackages(pkgFrames);
-
-        int i = pkgFrames.length - 1;
-        // We replicate some of the behaviour of doClose() here
-        // rather than call it to avoid a nasty recursion
-        while (i >= 0) {
-            PkgMgrFrame aFrame = pkgFrames[i--];
-            aFrame.doSave();
-            aFrame.closePackage();
-            PkgMgrFrame.closeFrame(aFrame);
-        }
+        guiHandler.doExitCleanup();
 
         SwingUtilities.invokeLater(() -> {
             ExtensionsManager extMgr = ExtensionsManager.getInstance();
             extMgr.unloadExtensions();
             Platform.runLater(() -> bluej.Main.exit());
         });
-    }
-
-    /**
-     * When bluej is exited with open packages we want it to open these the next
-     * time that is started (this is default action, can be changed by setting
-     *
-     * @param openFrames
-     */
-    @OnThread(Tag.FXPlatform)
-    private static void handleOrphanPackages(PkgMgrFrame[] openFrames)
-    {
-        // if there was a previous list, delete it
-        if (hadOrphanPackages())
-            removeOrphanPackageList();
-        // add an entry for each open package
-        for (int i = 0; i < openFrames.length; i++) {
-            PkgMgrFrame aFrame = openFrames[i];
-            if (!aFrame.isEmptyFrame()) {
-                Config.putPropString(Config.BLUEJ_OPENPACKAGE + (i + 1), aFrame.getPackage().getPath().toString());
-            }
-        }
     }
 
     /**
@@ -424,17 +389,6 @@ public class Main
             }
         }
         return false;
-    }
-
-    /**
-     * removes previously listed orphan packages from bluej properties
-     */
-    private static void removeOrphanPackageList()
-    {
-        String exists = "";
-        for (int i = 1; exists != null; i++) {
-            exists = Config.removeProperty(Config.BLUEJ_OPENPACKAGE + i);
-        }
     }
 
     /**

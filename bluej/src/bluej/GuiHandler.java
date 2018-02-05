@@ -66,4 +66,9 @@ public interface GuiHandler
      * @param projectOpen  true if a project was opened; false if no projects are open
      */
     void initialOpenComplete(boolean projectOpen);
+    
+    /**
+     * Perform any cleanup/save prior to application exit. The exit cannot be cancelled at this point.
+     */
+    void doExitCleanup();
 }
