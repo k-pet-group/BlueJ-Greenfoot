@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program.
- Copyright (C) 2005-2009,2010,2014,2015,2016,2017  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2014,2015,2016,2017,2018  Poul Henriksen and Michael Kolling
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -22,18 +22,13 @@
 package greenfoot.guifx.images;
 
 import bluej.Config;
-import bluej.extensions.SourceType;
-import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.javafx.FXConsumer;
-import bluej.utility.javafx.FXCustomizedDialog;
 import bluej.utility.javafx.JavaFXUtil;
-
-import greenfoot.guifx.ClassNameVerifier;
 import greenfoot.guifx.PastedImageNameDialog;
 import greenfoot.guifx.images.ImageLibList.ImageListEntry;
 import greenfoot.util.ExternalAppLauncher;
@@ -41,15 +36,11 @@ import greenfoot.util.GreenfootUtil;
 
 import java.io.File;
 import java.io.IOException;
-
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Orientation;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -61,35 +52,25 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 import javafx.util.Duration;
-
 import javax.imageio.ImageIO;
 
 /**
- * A (modal) dialog for selecting a class image. The image can be selected from either the
+ * A Pane for selecting a class image. The image can be selected from either the
  * project image library, or the greenfoot library, or an external location.
  *
  * @author Davin McCall
  * @author Amjad Altadmri
  */
-public class ImageLibFrame extends FXCustomizedDialog<File>
-                    //TODO extends Dialog<Image> ?
+class ImageLibPane extends VBox
 {
-    private Project project;
-    private final String className;
-    // TODO look if needed as the default image has been removed from this frame
-    /** The default image icon - none, or parent's image */
-    //private File defaultIcon;
+    private final Project project;
+    private final Window container;
 
     private ImageLibList projImageList;
     private ImageLibList greenfootImageList;
 
-    private File selectedImageFile;
     private File projImagesDir;
-
-    private TextField classNameField;
-    private SourceType language;
-    private Label errorMsgLabel;
-    private Node okButton;
+    private ObjectProperty<File> selectedImageFile = new SimpleObjectProperty<>(null);
 
     /** Menu items that are in the context menu. */
     private MenuItem editItem;
@@ -98,70 +79,78 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
 
     /** Suffix used when creating a copy of an existing image (duplicate) */
     private static final String COPY_SUFFIX = Config.getString("imagelib.duplicate.image.name.suffix");
-
     /** PopupMenu icon */
     private static final String DROPDOWN_ICON_FILE = "menu-button.png";
-    
     /** A watcher that goes notified when an image is selected, to allow for previewing. May be null */
     private ImageSelectionWatcher selectionWatcher;
 
-    private final boolean includeClassNameField;
-
     /**
-     * Construct an ImageLibFrame for changing the image of an existing class.
+     * Construct ImageLibPane with a known classTarget and selectionWatcher.
+     * Usually used by the SelectImageFrame for selecting an image for an existing class.
      *
-     * @param owner      The parent frame
-     * @param classTarget  The ClassView of the existing class
+     * @param container         The contained frame
+     * @param classTarget       The class target of the existing class
+     * @param selectionWatcher  The image selection watcher
      */
-    public ImageLibFrame(Window owner, ClassTarget classTarget, ImageSelectionWatcher watcher)
+    ImageLibPane(Window container, ClassTarget classTarget, ImageSelectionWatcher selectionWatcher)
     {
-        super(owner, Config.getString("imagelib.title") + " " + classTarget.getDisplayName(), "image-lib");
-        this.selectionWatcher = watcher;
-        this.project = classTarget.getPackage().getProject();
-        className = classTarget.getDisplayName();
-
-        // TODO
-        //Class superClass = classTarget.getClass().getSuperclass();
-        //gclass.getPackage().getDependentTarget(gclass.getBaseName())////
-        //defaultIcon = getClassImage(superClass.getClass);
-
-        includeClassNameField = false;
-        buildUI(getSpecifiedImage(classTarget));
+        this(container, classTarget.getPackage().getProject(), getSpecifiedImage(classTarget), selectionWatcher);
     }
 
     /**
-     * Construct an ImageLibFrame to be used for creating a new class.
+     * Construct ImageLibPane. Usually used by the NewImageClassFrame for creating an new image class.
      *
-     * @param owner        The parent frame
-     * @param superClass   The superclass of the new class
+     * @param container   The contained window
+     * @param project     The current project
      */
-    public ImageLibFrame(Window owner, Project project, String parentName)
+    ImageLibPane(Window container, Project project)
     {
-        super(owner, Config.getString("imagelib.newClass"), "image-lib");
+        this(container, project, null, null);
+    }
+
+    /**
+     * A private construct for ImageLibPane to build assign the fields and build the controls.
+     *
+     * @param container         The contained window
+     * @param project           The current project
+     * @param specifiedImage    The image to be selected initially
+     * @param selectionWatcher  The image selection watcher
+     */
+    private ImageLibPane(Window container, Project project, File specifiedImage, ImageSelectionWatcher watcher)
+    {
+        super(10);
+        this.container = container;
         this.project = project;
-        className = parentName;
-//        defaultIcon = getClassImage(superClass);
+        this.selectionWatcher = watcher;
 
-        includeClassNameField = true;
-        buildUI(null);
-        classNameField.setPromptText(Config.getString("pkgmgr.newClass.prompt"));
-        classNameField.requestFocus();
+        getChildren().addAll(buildImageLists(specifiedImage), createCogMenu());
+        // TODO help label
+        Label helpLabel = new Label(Config.getString("imagelib.help.selectImage"));
     }
 
     /**
-     * build the UI components
-     * @param specifiedImage
+     * Build Image selection panels - project and greenfoot image library.
+     *
+     * @param specifiedImage The image to be selected. Could be null.
+     * @return a Pane containing the image lists.
      */
-    private void buildUI(File specifiedImage)
+    private Pane buildImageLists(File specifiedImage)
     {
-        // Ok and cancel buttons
-        getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
-
-        setContentPane(new VBox(10, buildClassDetailsPanel(project.getUnnamedPackage()), buildImageLists(), createCogMenu()));
+        // Project images panel
+        projImagesDir = new File(project.getProjectDir(), "images");
+        projImageList = new ImageLibList(projImagesDir, false);
         projImageList.select(specifiedImage);
-
         JavaFXUtil.runRegular(Duration.millis(1000), () -> projImageList.refresh());
-        setResultConverter(bt -> bt == ButtonType.OK ? selectedImageFile : null);
+        ScrollPane imageScrollPane = new ScrollPane(projImageList);
+        VBox piPanel = new VBox(5, new Label(Config.getString("imagelib.projectImages")), imageScrollPane);
+
+        // List of images
+        greenfootImageList = new ImageLibList(false);
+
+        JavaFXUtil.addChangeListener(projImageList.getSelectionModel().selectedItemProperty(), imageListEntry -> valueChanged(imageListEntry, true));
+        JavaFXUtil.addChangeListener(greenfootImageList.getSelectionModel().selectedItemProperty(), imageListEntry -> valueChanged(imageListEntry, false));
+
+        return new HBox(10, piPanel, createImageLibPane());
     }
 
     /**
@@ -177,34 +166,11 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         deleteItem = createSelectedEntryMenuItem("imagelib.delete", "imagelib.delete.tooltip", this::confirmDelete);
 
         return new MenuButton(Config.getString("imagelib.more"),
-                new ImageView(new Image(ImageLibFrame.class.getClassLoader().getResourceAsStream(DROPDOWN_ICON_FILE))),
+                new ImageView(new Image(ImageLibPane.class.getClassLoader().getResourceAsStream(DROPDOWN_ICON_FILE))),
                 editItem, duplicateItem, deleteItem, new SeparatorMenuItem(),
                 createGeneralMenuItem("imagelib.create.button", "imagelib.create.tooltip", event -> createNewImage()),
                 createGeneralMenuItem("imagelib.paste.image", "imagelib.paste.tooltip", event -> pasteImage()),
                 createGeneralMenuItem("imagelib.import.button", "imagelib.import.tooltip", event -> importImage()));
-    }
-
-    /**
-     * Build Image selection panels - project and greenfoot image library.
-     *
-     * @return a Pane containing the image lists.
-     */
-    private Pane buildImageLists()
-    {
-        // Project images panel
-        File projDir = project.getProjectDir();
-        projImagesDir = new File(projDir, "images");
-        projImageList = new ImageLibList(projImagesDir, false, /*defaultIcon*/null);//true?
-        ScrollPane imageScrollPane = new ScrollPane(projImageList);
-
-        VBox piPanel = new VBox(5, new Label(Config.getString("imagelib.projectImages")), imageScrollPane);
-        // List of images
-        greenfootImageList = new ImageLibList(false);
-
-        JavaFXUtil.addChangeListener(projImageList.getSelectionModel().selectedItemProperty(), imageListEntry -> valueChanged(imageListEntry, true));
-        JavaFXUtil.addChangeListener(greenfootImageList.getSelectionModel().selectedItemProperty(), imageListEntry -> valueChanged(imageListEntry, false));
-
-        return new HBox(10, piPanel, createImageLibPane());
     }
 
     /**
@@ -268,65 +234,11 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
      */
     private void createNewImage()
     {
-        String name = includeClassNameField ? getClassName() : className;
-        final File file = new NewImageDialog(this.asWindow(), projImagesDir, name).showAndWait().orElse(null);
-        if (file != null) {
+        new NewImageDialog(container, projImagesDir).showAndWait().ifPresent(file -> {
             projImageList.refresh();
             projImageList.select(file);
             selectImage(file);
-        }
-    }
-
-    /**
-     * Build the class details panel.
-     *
-     * @param includeClassNameField  Whether to include a field for
-     *                              specifying the class name.
-     * @param pkg
-     */
-    private Pane buildClassDetailsPanel(Package pkg)
-    {
-        VBox classDetailsPanel = new VBox();
-        if (includeClassNameField)
-        {
-            classNameField = new TextField();
-            ComboBox<SourceType> languageSelectionBox = new ComboBox<>(FXCollections.observableArrayList(SourceType.Stride, SourceType.Java));
-            language = pkg.getDefaultSourceType();
-            languageSelectionBox.getSelectionModel().select(language);
-
-            errorMsgLabel = JavaFXUtil.withStyleClass(new Label(), "dialog-error-label");
-            okButton = getDialogPane().lookupButton(ButtonType.OK);
-            classDetailsPanel.getChildren().addAll(
-                    new HBox(new Label(Config.getString("imagelib.className")), classNameField, languageSelectionBox),
-                    errorMsgLabel);
-
-            StringProperty classNameProperty = classNameField.textProperty();
-            ReadOnlyObjectProperty<SourceType> sourceTypeProperty = languageSelectionBox.getSelectionModel().selectedItemProperty();
-            final ClassNameVerifier classNameVerifier = new ClassNameVerifier(pkg, classNameProperty, sourceTypeProperty);
-            updateControls(classNameVerifier);
-            JavaFXUtil.addChangeListener(classNameProperty, text -> updateControls(classNameVerifier));
-            JavaFXUtil.addChangeListener(sourceTypeProperty, type -> updateControls(classNameVerifier));
-        }
-
-        // help label
-        Label helpLabel = new Label(Config.getString("imagelib.help.selectImage"));
-        classDetailsPanel.getChildren().addAll(helpLabel, new Separator(Orientation.HORIZONTAL));
-        return classDetailsPanel;
-    }
-
-    /**
-     * Enable/disable the ok button and show/hide the error message based on
-     * the validity of the class name. It also updates the error message contents.
-     *
-     * @param classNameVerifier the class verifier that validates the class name's
-     *                          text field contents.
-     */
-    private void updateControls(ClassNameVerifier classNameVerifier)
-    {
-        boolean valid = classNameVerifier.checkValidity();
-        errorMsgLabel.setVisible(!valid);
-        errorMsgLabel.setText(classNameVerifier.getMessage());
-        okButton.setDisable(!valid);
+        });
     }
 
     /**
@@ -348,9 +260,13 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         }
 
         if(isProjImageList)
+        {
             greenfootImageList.getSelectionModel().clearSelection();
+        }
         else
+        {
             projImageList.getSelectionModel().clearSelection();
+        }
     }
 
     /**
@@ -369,14 +285,14 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
      * Selects the given file (or no file) for use in the preview.
      * 
      * @param imageFile  The file to select, and to show in the small preview box in the
-     *                   ImageLibFrame. If null, then "no image" is selected.
+     *                   SelectImageFrame. If null, then "no image" is selected.
      */
     private void selectImage(File imageFile)
     {
-        selectedImageFile = imageFile;
+        selectedImageFile.set(imageFile);
         if (selectionWatcher != null)
         {
-            selectionWatcher.imageSelected(selectedImageFile);
+            selectionWatcher.imageSelected(imageFile);
         }
     }
 
@@ -404,7 +320,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
      * user-specified image is normally used; if none exists, the class
      * hierarchy is searched.
      *
-     * @param classTarget   The class whose icon to get
+     * @param classTarget   The class whose icon to get, can be null
      */
     private static File getClassImage(ClassTarget classTarget)
     {
@@ -430,14 +346,16 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         // new ImageFilePreview(chooser);
 
         chooser.getExtensionFilters().addAll(
-                new ExtensionFilter("Images", "*.png", "*.jpg", "*.gif"),
+                new ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif"),
                 new ExtensionFilter("All Files", "*.*"));
 
-        File selectedFile = chooser.showOpenDialog(this.asWindow());
-        if (selectedFile != null) {
+        File selectedFile = chooser.showOpenDialog(container);
+        if (selectedFile != null)
+        {
             File newFile = new File(projImagesDir, selectedFile.getName());
             GreenfootUtil.copyFile(selectedFile, newFile);
-            if(projImageList != null) {
+            if(projImageList != null)
+            {
                 projImageList.select(newFile);
             }
         }
@@ -446,31 +364,15 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
     /**
      * Get the selected image file
      */
-    public File getSelectedImageFile()
+    public ObjectProperty<File> selectedImageProperty()
     {
         return selectedImageFile;
     }
 
     /**
-     * Get the name of the class as entered in the dialog.
-     */
-    public String getClassName()
-    {
-        return classNameField.getText();
-    }
-    
-    /**
-     * Get the selected language of the class.
-     */
-    public SourceType getSelectedLanguage()
-    {
-        return language;
-    }
-
-    /**
-     * Create a new file which is an exact copy of the
-     * parameter image and select it if successful in creating
-     * it.
+     * Create a new file which is an exact copy of the parameter
+     * image, and select it if it has been craeted successfully.
+     *
      * @param entry Cannot be null, nor can its imageFile.
      */
     private void duplicateSelected(ImageListEntry entry)
@@ -517,6 +419,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
      */
     private void confirmDelete(ImageListEntry entry)
     {
+        //TODO change this
         String text = Config.getString("imagelib.delete.confirm.text") + 
                       " " + entry.imageFile.getName() + "?";
         ButtonType optionResult = new Alert(Alert.AlertType.CONFIRMATION, text, ButtonType.YES, ButtonType.NO).showAndWait().orElse(ButtonType.NO);
@@ -542,7 +445,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         if (Clipboard.getSystemClipboard().hasImage())
         {
             Image image = Clipboard.getSystemClipboard().getImage();
-            new PastedImageNameDialog(this.asWindow(), image, null).showAndWait().ifPresent(name -> {
+            new PastedImageNameDialog(container, image, null).showAndWait().ifPresent(name -> {
                 try
                 {
                     ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", new File(projImagesDir, name + ".png"));
@@ -556,7 +459,7 @@ public class ImageLibFrame extends FXCustomizedDialog<File>
         }
         else
         {
-            DialogManager.showErrorFX(this.asWindow(), "no-clipboard-image-data");
+            DialogManager.showErrorFX(container, "no-clipboard-image-data");
         }
     }
 }
