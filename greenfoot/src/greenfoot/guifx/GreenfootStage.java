@@ -131,11 +131,7 @@ import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 
 import static bluej.pkgmgr.target.ClassTarget.MENU_STYLE_INBUILT;
 
@@ -531,14 +527,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     makeMenuItem("menu.tools.generateDoc", new KeyCodeCombination(KeyCode.G, KeyCombination.SHORTCUT_DOWN), this::generateDocumentation)
             ),
             new Menu(Config.getString("menu.help"), null,
-                makeMenuItem("menu.help.about", null, () ->
-                {
-                    try {
-                        aboutGreenfoot();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                })
+                makeMenuItem("menu.help.about", null, () -> aboutGreenfoot())
             )
         );
     }
@@ -1613,11 +1602,13 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     /**
      * Shows About-Greenfoot dialog including information about the development team and translators.
      */
-    public void aboutGreenfoot() {
+    public void aboutGreenfoot()
+    {
         Image image;
         // Finds the image file that is supposed to be exist in the "resources" directory
         URL resource = this.getClass().getClassLoader().getResource("greenfoot-about.jpg");
-        if (resource != null) {
+        if (resource != null)
+        {
             image = new javafx.scene.image.Image(resource.toString());
         }
         else
@@ -1625,13 +1616,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             return;
         }
 
-        TitledPane translators = new TitledPane("Translators",new Label("Wombat Yuan" +"\n" + "Zdenék Chalupský" + "\n" + "Erik van Veen & Renske Smetsers-Weeda" +"\n" + "Guillaume Baudoin" + "\n" + "Matthias Taulien " + "\n" +
-                "Stefan Mueller" + "\n" + "Mantzas Ioannis" + "\n" + "Stefano Federici" + "\n" + "John Kim" + "\n" + "Przemysław Adam Śmiejek" + "\n" +
-                "Paulo Abadie & Fabio Hedayioglu" +"\n" + "Sergy Zemlyannikov" + "\n" + "Esteban Iglesias Manríquez"));
+        String[] translatorNames = {"Wombat Yuan", "Zdenék Chalupský", "Erik van Veen & Renske Smetsers-Weeda",
+                "Guillaume Baudoin", "Matthias Taulien", "Stefan Mueller", "Mantzas Ioannis",
+                "Stefano Federici", "John Kim", "Przemysław Adam Śmiejek", "Paulo Abadie & Fabio Hedayioglu",
+                "Sergy Zemlyannikov", "Esteban Iglesias Manríquez"};
+        TitledPane translators = new TitledPane("Translators", new Label(String.join("\n", Arrays.asList(translatorNames))));
         translators.setExpanded(false);
         translators.setCollapsible(true);
-        AboutDialogTemplate aboutGreenfoot = new AboutDialogTemplate(this, Boot.GREENFOOT_VERSION, "Greenfoot", "https://greenfoot.org/", image, translators);
-        aboutGreenfoot.showAndWait();
+        new AboutDialogTemplate(this, Boot.GREENFOOT_VERSION, "Greenfoot", "https://greenfoot.org/", image, translators).showAndWait();
 
     }
 

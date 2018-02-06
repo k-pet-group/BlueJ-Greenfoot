@@ -146,8 +146,8 @@ public class AboutDialogTemplate extends Dialog<Void>
         debugLog.setAlignment(Pos.BASELINE_LEFT);
         bottom.getChildren().add(debugLog);
 
-
-        try {
+        try
+        {
             final URL softwareURL = new URL(websiteURL);
             Hyperlink link = new Hyperlink(softwareURL.toString());
             link.setOnMouseClicked(e -> SwingUtilities.invokeLater(() -> Utility.openWebBrowser(softwareURL.toExternalForm())));
@@ -157,7 +157,8 @@ public class AboutDialogTemplate extends Dialog<Void>
             JavaFXUtil.addStyleClass(hbox, "about-info-link");
             bottom.getChildren().add(hbox);
         }
-        catch (MalformedURLException exc) {
+        catch (MalformedURLException exc)
+        {
             // should not happen - URL is constant
         }
 
