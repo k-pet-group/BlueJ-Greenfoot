@@ -510,10 +510,6 @@ public class Main
     @OnThread(Tag.FXPlatform)
     private static void exit()
     {
-        if (PkgMgrFrame.frameCount() > 0) {
-            Debug.reportError("Frame count was not zero when exiting. Work may not have been saved");
-        }
-
         DataCollector.bluejClosed();
         
         // save configuration properties
