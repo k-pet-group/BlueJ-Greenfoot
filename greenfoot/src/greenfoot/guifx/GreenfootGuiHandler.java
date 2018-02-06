@@ -75,4 +75,11 @@ public class GreenfootGuiHandler implements GuiHandler
     {
         // Nothing needs to be done.
     }
+    
+    @Override
+    public void doExitCleanup()
+    {
+        // TODO Auto-generated method stub
+        throw new RuntimeException("Not yet implemented!");
+    }
 }

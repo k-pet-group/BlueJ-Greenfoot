@@ -28,6 +28,8 @@ import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.utility.Debug;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Gui handler for BlueJ
@@ -97,6 +99,64 @@ public class BlueJGuiHandler implements GuiHandler
                     Debug.message("Did not find target class in opened project: \"" + targetName + "\"");
                 }
             }
+        }
+    }
+    
+    @Override
+    public void doExitCleanup()
+    {
+        PkgMgrFrame[] pkgFrames = PkgMgrFrame.getAllFrames();
+
+        // handle open packages so they are re-opened on startup
+        handleOrphanPackages(pkgFrames);
+
+        int i = pkgFrames.length - 1;
+        // We replicate some of the behaviour of doClose() here
+        // rather than call it to avoid a nasty recursion
+        while (i >= 0)
+        {
+            PkgMgrFrame aFrame = pkgFrames[i--];
+            aFrame.doSave();
+            aFrame.closePackage();
+            PkgMgrFrame.closeFrame(aFrame);
+        }
+    }
+
+    /**
+     * When bluej is exited with open packages we want it to open these the next
+     * time that is started (this is default action, can be changed by setting
+     *
+     * @param openFrames
+     */
+    @OnThread(Tag.FXPlatform)
+    private static void handleOrphanPackages(PkgMgrFrame[] openFrames)
+    {
+        // if there was a previous list, delete it
+        if (Main.hadOrphanPackages())
+        {
+            removeOrphanPackageList();
+        }
+        
+        // add an entry for each open package
+        for (int i = 0; i < openFrames.length; i++)
+        {
+            PkgMgrFrame aFrame = openFrames[i];
+            if (!aFrame.isEmptyFrame())
+            {
+                Config.putPropString(Config.BLUEJ_OPENPACKAGE + (i + 1), aFrame.getPackage().getPath().toString());
+            }
+        }
+    }
+
+    /**
+     * removes previously listed orphan packages from bluej properties
+     */
+    private static void removeOrphanPackageList()
+    {
+        String exists = "";
+        for (int i = 1; exists != null; i++)
+        {
+            exists = Config.removeProperty(Config.BLUEJ_OPENPACKAGE + i);
         }
     }
 }

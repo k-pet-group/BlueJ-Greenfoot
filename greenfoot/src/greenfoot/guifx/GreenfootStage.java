@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2017  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2017,2018  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,7 @@ package greenfoot.guifx;
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.Config;
+import bluej.Main;
 import bluej.collect.DataCollector;
 import bluej.collect.GreenfootInterfaceEvent;
 import bluej.compiler.CompileInputFile;
@@ -151,15 +152,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public static final int KEY_DOWN = 1;
     public static final int KEY_UP = 2;
     public static final int KEY_TYPED = 3;
-    private final List<Command> pendingCommands;
-    private boolean instantiateWorldAfterDiscarded;
 
-    public static boolean isKeyEvent(int event)
-    {
-        return event >= KEY_DOWN && event <= KEY_TYPED;
-    }
-
-    /**
+    /*
      * Mouse events.  Followed by four integers:
      * X pos, Y pos, button index, click count
      */
@@ -168,12 +162,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public static final int MOUSE_DRAGGED = 13;
     public static final int MOUSE_RELEASED = 14;
     public static final int MOUSE_MOVED = 15;
-    public static boolean isMouseEvent(int event)
-    {
-        return event >= MOUSE_CLICKED && event <= MOUSE_MOVED;
-    }
 
-    /**
+    /*
      * Commands or requests.  Unless otherwise specified,
      * followed by no integers.
      */
@@ -193,6 +183,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public static final int COMMAND_PROPERTY_CHANGED = 28;
     // Discard the world, but don't make a new one
     public static final int COMMAND_DISCARD_WORLD = 29;
+    
+    private static int numberOfOpenProjects = 0;
 
     private final Project project;
     // The glass pane used to show a new actor while it is being placed:
@@ -206,15 +198,18 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     // Last mouse position, in scene coordinates:
     private Point2D lastMousePosInScene = new Point2D(0, 0);
 
-
     private final Button actButton;
     private final Button runButton;
     private final Button resetButton;
-
+    
+    private final List<Command> pendingCommands;
+    private boolean instantiateWorldAfterDiscarded;
+    
     public static enum State
     {
         RUNNING, RUNNING_REQUESTED_PAUSE, PAUSED, PAUSED_REQUESTED_ACT_OR_RUN, UNCOMPILED;
     }
+    
     private final ObjectProperty<State> stateProperty = new SimpleObjectProperty<>(State.PAUSED);
     private boolean atBreakpoint = false;
     
@@ -249,6 +244,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     @OnThread(Tag.FXPlatform)
     private final SoundRecorderControls soundRecorder;
 
+    
     /**
      * Details for a new actor being added to the world, after you have made it
      * but before it is ready to be placed.
@@ -313,6 +309,22 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
 
     /**
+     * Check if an event is a key event.
+     */
+    public static boolean isKeyEvent(int event)
+    {
+        return event >= KEY_DOWN && event <= KEY_TYPED;
+    }
+
+    /**
+     * Check if an even is a mouse event.
+     */
+    public static boolean isMouseEvent(int event)
+    {
+        return event >= MOUSE_CLICKED && event <= MOUSE_MOVED;
+    }
+    
+    /**
      * Creates a GreenfootStage which receives a world image to draw from the
      * given shared memory buffer, protected by the given lock.
      * @param sharedMemoryLock The lock to claim before accessing sharedMemoryByte
@@ -320,6 +332,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     public GreenfootStage(Project project, GreenfootDebugHandler greenfootDebugHandler, FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte)
     {
+        numberOfOpenProjects++;
+        
         this.project = project;
         BlueJEvent.addListener(this);
         project.getUnnamedPackage().addCompileObserver(this);
@@ -396,6 +410,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 }
             }
         });
+        
+        setOnCloseRequest((e) -> {
+            doClose(false);
+        });
+        
         /* Uncomment this to use ScenicView temporarily during development (use reflection to avoid needing to mess with Ant classpath)
         try
         {
@@ -454,6 +473,35 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     }
     
     /**
+     * Close the scenario that this stage is showing.
+     * @param keepLast  if true, don't close the last stage; leave it open without a scenario. If
+     *                  false, quit BlueJ when the last stage is closed.
+     */
+    private void doClose(boolean keepLast)
+    {
+        // Remove inspectors, terminal, etc:
+        Project.cleanUp(project);
+
+        numberOfOpenProjects--;
+        if (numberOfOpenProjects == 0)
+        {
+            if (keepLast)
+            {
+                // TODO: remove the project details from this frame but keep frame open
+            }
+            else
+            {
+                close();
+                Main.doQuit();
+            }
+        }
+        else
+        {
+            close();
+        }
+    }
+    
+    /**
      * Perform a single act step, if paused, by adding to the list of pending commands.
      */
     private void act(List<Command> pendingCommands)
@@ -477,7 +525,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     ),
                     makeMenuItem("java.new.project",
                         new KeyCodeCombination(KeyCode.J, KeyCombination.SHORTCUT_DOWN),
-                        () -> {}
+                        () -> {} // TODO
                     ),
                     makeMenuItem("open.project",
                         new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN),
@@ -486,7 +534,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     new Menu(Config.getString("menu.openRecent"), null), // TODO
                     makeMenuItem("project.close",
                         new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN),
-                        () -> {} // TODO
+                        () -> { doClose(true); }
                     ),
                     makeMenuItem("project.save",
                         new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN),
