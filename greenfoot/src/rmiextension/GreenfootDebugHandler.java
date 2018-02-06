@@ -419,8 +419,10 @@ public class GreenfootDebugHandler implements DebuggerListener
     @Override
     public void processDebuggerEvent(final DebuggerEvent e, boolean skipUpdate)
     {
-        if (e.getNewState() == Debugger.IDLE && e.getOldState() == Debugger.NOTREADY) {
-            if (! ProjectManager.checkLaunchFailed()) {
+        if (e.getNewState() == Debugger.IDLE && e.getOldState() == Debugger.NOTREADY)
+        {
+            if (! ProjectManager.checkLaunchFailed())
+            {
                 //It is important to have this code run at a later time.
                 //If it runs from this thread, it tries to notify the VM event handler,
                 //which is currently calling us and we get a deadlock between the two VMs.

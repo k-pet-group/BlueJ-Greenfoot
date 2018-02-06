@@ -79,7 +79,6 @@ public class GreenfootGuiHandler implements GuiHandler
     @Override
     public void doExitCleanup()
     {
-        // TODO Auto-generated method stub
-        throw new RuntimeException("Not yet implemented!");
+        GreenfootStage.closeAll();
     }
 }
