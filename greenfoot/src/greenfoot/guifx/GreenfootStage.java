@@ -492,6 +492,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         // Remove inspectors, terminal, etc:
         Project.cleanUp(project);
+        project.getPackage("").closeAllEditors();
 
         numberOfOpenProjects--;
         if (numberOfOpenProjects == 0)
