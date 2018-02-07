@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2014,2015  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2014,2015,2018  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,7 +31,6 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.Arrays;
 
 /**
@@ -47,37 +46,27 @@ public class ImageCategorySelector extends ListView<File>
     private ImageLibList imageLibList;
     
     /**
-     * The expected number of categories. Our preferred scrollport
-     * size is set to be large enough to show this many categories.
-     */
-    private static int NUMBER_OF_CATEGORIES = 10;
-    
-    private int preferredHeight;
-    
-    /**
      * Construct an ImageCategorySelector to show categories from the
      * given directory.
      * 
-     * @param categoryDir  The directory containing the categories
+     * @param categoriesRoot  The directory containing the categories
      *                     (subdirectories)
      */
-    public ImageCategorySelector(File categoryDir)
+    public ImageCategorySelector(File categoriesRoot)
     {
         setOrientation(Orientation.VERTICAL);
         getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         setCellFactory(param -> new ImageCell());
 
         // Show directories only
-        FileFilter filter = path -> path.isDirectory();
-
-        File[] imageFiles = categoryDir.listFiles(filter);
-        if (imageFiles == null)
+        File[] categoriesFolders = categoriesRoot.listFiles(File::isDirectory);
+        if (categoriesFolders == null)
         {
             return;
         }
         
-        Arrays.sort(imageFiles);
-        setItems(FXCollections.observableArrayList(imageFiles));
+        Arrays.sort(categoriesFolders);
+        setItems(FXCollections.observableArrayList(categoriesFolders));
 
         JavaFXUtil.addChangeListener(getSelectionModel().selectedItemProperty(), selected -> {
             if (imageLibList != null && selected != null)
@@ -103,7 +92,7 @@ public class ImageCategorySelector extends ListView<File>
     private static class ImageCell extends ListCell<File>
     {
         private static final String iconFile = "openRight.png";
-        private static final Image openRightIcon = new Image(ImageCategorySelector.class.getClassLoader().getResource(iconFile).toString());// TODO
+        private static final Image openRightIcon = new Image(ImageCategorySelector.class.getClassLoader().getResource(iconFile).toString());
 
         @Override
         public void updateItem(File file, boolean empty)
