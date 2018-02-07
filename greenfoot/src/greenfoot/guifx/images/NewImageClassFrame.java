@@ -98,11 +98,11 @@ public class NewImageClassFrame extends FXCustomizedDialog<NewImageClassFrame.Ne
      */
     private void buildUI()
     {
-        imageLibPane = new ImageLibPane(this.asWindow(), project);
-        setContentPane(new VBox(10, buildClassDetailsPanel(project.getUnnamedPackage()), imageLibPane)); /////// Here put the Pane
-
         // Ok and cancel buttons
         getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
+
+        imageLibPane = new ImageLibPane(this.asWindow(), project);
+        setContentPane(new VBox(10, buildClassDetailsPanel(project.getUnnamedPackage()), imageLibPane)); /////// Here put the Pane
 
         setResultConverter(bt -> bt == ButtonType.OK
                 ? new NewImageClassInfo(classNameField.getText(), language, imageLibPane.selectedImageProperty().get())

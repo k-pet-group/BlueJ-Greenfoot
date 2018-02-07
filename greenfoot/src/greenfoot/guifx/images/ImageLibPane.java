@@ -45,6 +45,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -123,9 +124,7 @@ class ImageLibPane extends VBox
         this.project = project;
         this.selectionWatcher = watcher;
 
-        getChildren().addAll(buildImageLists(specifiedImage), createCogMenu());
-        // TODO help label
-        Label helpLabel = new Label(Config.getString("imagelib.help.selectImage"));
+        getChildren().addAll(buildImageLists(specifiedImage), buildBottomBar());
     }
 
     /**
@@ -151,6 +150,20 @@ class ImageLibPane extends VBox
         JavaFXUtil.addChangeListener(greenfootImageList.getSelectionModel().selectedItemProperty(), imageListEntry -> valueChanged(imageListEntry, false));
 
         return new HBox(10, piPanel, createImageLibPane());
+    }
+
+    /**
+     * Builds the bar at the bottom which contains the cog menu and the help label.
+     * Cog menu provides option for adding new images and editing current ones.
+     * Help label prompts the user to select an image from one of the lists.
+     *
+     * @return The bottom bar as a Pane
+     */
+    private Pane buildBottomBar()
+    {
+        Label helpLabel = new Label(Config.getString("imagelib.help.selectImage"));
+        helpLabel.visibleProperty().bind(selectedImageFile.isNull());
+        return new BorderPane(null, null, helpLabel, null, createCogMenu());
     }
 
     /**
@@ -242,30 +255,33 @@ class ImageLibPane extends VBox
     }
 
     /**
-     * A new image was selected in one of the ImageLibLists
+     * An image was selected/unselected in one of the ImageLibLists
+     *
+     * @param entry            The image entry selected/unselected
+     * @param isProjImageList  True if the entry effected is in the
+     *                         project images' list, false otherwise.
      */
     private void valueChanged(ImageListEntry entry, boolean isProjImageList)
     {
-        // handle the no-image image entry.
-        if (entry != null && entry.imageFile != null) // TODO AA look at it
+        if (entry != null && entry.imageFile != null)
         {
-            File imageFile = entry.imageFile;
-            selectImage(imageFile);
+            if(isProjImageList)
+            {
+                greenfootImageList.getSelectionModel().clearSelection();
+            }
+            else
+            {
+                projImageList.getSelectionModel().clearSelection();
+            }
+            selectImage(entry.imageFile);
             setItemButtons(isProjImageList);
         }
         else
         {
+            // handle the no-image image entry.
+            // This is for un-selecting an entry, e.g. by clear selection.
             selectImage(null);
             setItemButtons(false);
-        }
-
-        if(isProjImageList)
-        {
-            greenfootImageList.getSelectionModel().clearSelection();
-        }
-        else
-        {
-            projImageList.getSelectionModel().clearSelection();
         }
     }
 
