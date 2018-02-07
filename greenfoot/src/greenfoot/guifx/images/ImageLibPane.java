@@ -255,30 +255,33 @@ class ImageLibPane extends VBox
     }
 
     /**
-     * A new image was selected in one of the ImageLibLists
+     * An image was selected/unselected in one of the ImageLibLists
+     *
+     * @param entry            The image entry selected/unselected
+     * @param isProjImageList  True if the entry effected is in the
+     *                         project images' list, false otherwise.
      */
     private void valueChanged(ImageListEntry entry, boolean isProjImageList)
     {
-        // handle the no-image image entry.
-        if (entry != null && entry.imageFile != null) // TODO AA look at it
+        if (entry != null && entry.imageFile != null)
         {
-            File imageFile = entry.imageFile;
-            selectImage(imageFile);
+            if(isProjImageList)
+            {
+                greenfootImageList.getSelectionModel().clearSelection();
+            }
+            else
+            {
+                projImageList.getSelectionModel().clearSelection();
+            }
+            selectImage(entry.imageFile);
             setItemButtons(isProjImageList);
         }
         else
         {
+            // handle the no-image image entry.
+            // This is for un-selecting an entry, e.g. by clear selection.
             selectImage(null);
             setItemButtons(false);
-        }
-
-        if(isProjImageList)
-        {
-            greenfootImageList.getSelectionModel().clearSelection();
-        }
-        else
-        {
-            projImageList.getSelectionModel().clearSelection();
         }
     }
 
