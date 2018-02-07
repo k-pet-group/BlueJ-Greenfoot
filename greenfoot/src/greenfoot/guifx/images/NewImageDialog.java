@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program.
- Copyright (C) 2009,2010,2016  Poul Henriksen and Michael Kolling
+ Copyright (C) 2009,2010,2016,2018  Poul Henriksen and Michael Kolling
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -71,26 +71,27 @@ public class NewImageDialog extends FXCustomizedDialog<File>
      * @param parent the parent window associated with this dialog
      * @param projImagesDir the directory in which the images for the project are placed.
      */
-    NewImageDialog(Window parent, File projImagesDir, String rootName)
+    NewImageDialog(Window parent, File projImagesDir)
     {
         super(parent, Config.getString("imagelib.new.image.title"), null);
         this.projImagesDir = projImagesDir;
 
         imageWidth = Config.getPropInteger("greenfoot.image.create.width", DEFAULT_WIDTH);
         imageHeight = Config.getPropInteger("greenfoot.image.create.height", DEFAULT_HEIGHT);
-        buildUI(rootName);
+        buildUI();
     }
 
     /**
      * Build the user interface for the dialog.
      */
-    private void buildUI(String rootName)
+    private void buildUI()
     {
         GridPane detailsPanel = new GridPane();
         detailsPanel.setVgap(10);
         detailsPanel.setAlignment(Pos.BASELINE_CENTER);
 
-        name = new TextField(rootName);
+        name = new TextField();
+        name.setPromptText(Config.getString("imagelib.new.image.name.prompt"));
         detailsPanel.addRow(0, new Label(Config.getString("imagelib.new.image.name") + " "), name, new Label(".png"));
 
         width = new Spinner(1, MAX_IMAGE_WIDTH, imageWidth);

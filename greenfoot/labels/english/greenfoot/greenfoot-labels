@@ -227,6 +227,7 @@ imagelib.rename.exists.text=Cannot rename file because a file with that name alr
 imagelib.rename.exists.title=Rename Failed
 imagelib.new.image.title=New Image
 imagelib.new.image.name=Name:
+imagelib.new.image.name.prompt=Enter a name for the new image
 imagelib.new.image.width=Width:
 imagelib.new.image.height=Height:
 imagelib.new.image.type=Type:

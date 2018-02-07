@@ -74,7 +74,8 @@ import greenfoot.guifx.classes.ClassDisplay;
 import greenfoot.guifx.classes.GClassDiagram;
 import greenfoot.guifx.classes.GClassNode;
 import greenfoot.guifx.classes.ImportClassDialog;
-import greenfoot.guifx.images.ImageLibFrame;
+import greenfoot.guifx.images.NewImageClassFrame;
+import greenfoot.guifx.images.SelectImageFrame;
 import greenfoot.guifx.images.ImageSelectionWatcher;
 import greenfoot.guifx.soundrecorder.SoundRecorderControls;
 import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
@@ -1334,20 +1335,16 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         }
 
         // initialise our image library frame
-        ImageLibFrame imageLibFrame = new ImageLibFrame(this, classTarget, watcher);
-        // TODO DialogManager.centreDialog(imageLibFrame);
-        // TODO imageLibFrame.setVisible(true);
-
-        // set the image of the class to the selected file
-        Optional<File> result = imageLibFrame.showAndWait();
+        Optional<File> result = new SelectImageFrame(this, classTarget, watcher).showAndWait();
         if (result.isPresent())
         {
+            // set the image of the class to the selected file
             classDisplay.setImage(new Image(result.get().toURI().toString()));
         }
-        // or if cancelled reset the world background to the original format
-        // to avoid white screens or preview images being left there.
         else if (currentWorld != null)
         {
+            // if cancelled, reset the world background to the original format
+            // to avoid white screens or preview images being left there.
             Simulation.getInstance().runLater(() -> currentWorld.setBackground(originalBackground));
         }
     }
@@ -1532,12 +1529,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public void newImageSubClassOf(String parentName)
     {
         // initialise our image library frame
-        ImageLibFrame imageLibFrame = new ImageLibFrame(this, project, parentName);
-        //TODO change this way
-        imageLibFrame.showAndWait().ifPresent(file -> {
-            GClassNode newClass = createNewClass(project.getUnnamedPackage(), parentName, imageLibFrame.getClassName(), imageLibFrame.getSelectedLanguage());
+        new NewImageClassFrame(this, project).showAndWait().ifPresent(classInfo -> {
+            GClassNode newClass = createNewClass(project.getUnnamedPackage(), parentName, classInfo.className, classInfo.sourceType);
             // set the image of the class to the selected file
-            newClass.getDisplay(this).setImage(new Image(file.toURI().toString()));
+            newClass.getDisplay(this).setImage(new Image(classInfo.imageFile.toURI().toString()));
         });
     }
 

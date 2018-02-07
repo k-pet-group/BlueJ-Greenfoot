@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2012,2014,2015  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2012,2014,2015,2018  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -50,7 +50,6 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
 {   
     /** The directory whose images are currently displayed in this list */
     private File directory;
-    private File defaultImage;
     private final String[] imageFileExtensions = new String[] { "jpg", "jpeg", "png", "gif" };
 
     /**
@@ -70,10 +69,9 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
      * @param directory  The directory to retrieve images from
      * @param defaultImage The image the class will have if it does not specify one (blank or parent's)
      */
-    ImageLibList(File directory, final boolean editable, File defaultImage)
+    ImageLibList(File directory, final boolean editable)
     {
         this(editable);
-        this.defaultImage = defaultImage;
         setDirectory(directory);
     }
 

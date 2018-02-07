@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program.
- Copyright (C) 2010  Poul Henriksen and Michael Kolling
+ Copyright (C) 2010,2018  Poul Henriksen and Michael Kolling
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@ package greenfoot.guifx.images;
 import java.io.File;
 
 /**
- * An interface for watching when an image selection (in ImageLibFrame) changes.
+ * An interface for watching when an image selection (in SelectImageFrame) changes.
  * 
  * @author Davin McCall
  */
