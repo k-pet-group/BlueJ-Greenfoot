@@ -123,10 +123,8 @@ public class BlueJGuiHandler implements GuiHandler
     }
 
     /**
-     * When bluej is exited with open packages we want it to open these the next
-     * time that is started (this is default action, can be changed by setting
-     *
-     * @param openFrames
+     * Save the list of open packages to the config, so that they can be re-opened when BlueJ is
+     * next started.
      */
     @OnThread(Tag.FXPlatform)
     private static void handleOrphanPackages(PkgMgrFrame[] openFrames)
@@ -149,7 +147,7 @@ public class BlueJGuiHandler implements GuiHandler
     }
 
     /**
-     * removes previously listed orphan packages from bluej properties
+     * Remove previously listed orphan packages from bluej properties.
      */
     private static void removeOrphanPackageList()
     {

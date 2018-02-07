@@ -185,6 +185,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public static final int COMMAND_DISCARD_WORLD = 29;
     
     private static int numberOfOpenProjects = 0;
+    private static Collection<GreenfootStage> stages = new ArrayList<>();
 
     private final Project project;
     // The glass pane used to show a new actor while it is being placed:
@@ -333,6 +334,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public GreenfootStage(Project project, GreenfootDebugHandler greenfootDebugHandler, FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte)
     {
         numberOfOpenProjects++;
+        stages.add(this);
         
         this.project = project;
         BlueJEvent.addListener(this);
@@ -491,12 +493,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             }
             else
             {
+                stages.remove(this);
                 close();
                 Main.doQuit();
             }
         }
         else
         {
+            stages.remove(this);
             close();
         }
     }
@@ -555,7 +559,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             scenarioMenu.getItems().add(new SeparatorMenuItem());
             scenarioMenu.getItems().add(makeMenuItem("greenfoot.quit",
                     new KeyCodeCombination(KeyCode.Q, KeyCombination.SHORTCUT_DOWN),
-                    () -> {}) // TODO
+                    () -> Main.wantToQuit())
                 );
         }
 
@@ -1675,4 +1679,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
     }
 
+    /**
+     * Close all Greenfoot windows (before exit).
+     */
+    public static void closeAll()
+    {
+        Collection<GreenfootStage> stages_copy = new ArrayList<>(stages);
+        for (GreenfootStage stage : stages_copy)
+        {
+            stage.doClose(false);
+        }
+    }
 }

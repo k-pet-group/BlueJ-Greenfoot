@@ -30,11 +30,6 @@ import greenfoot.core.GreenfootMain;
 import greenfoot.core.GreenfootMain.ProjectAPIVersionAccess;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileChannel.MapMode;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,11 +37,12 @@ import java.util.List;
 import java.util.Properties;
 
 import greenfoot.guifx.GreenfootGuiHandler;
-import greenfoot.guifx.GreenfootStage;
 import greenfoot.util.Version;
 import javafx.application.Platform;
 import rmiextension.wrappers.RProjectImpl;
 import rmiextension.wrappers.WrapperPool;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 import bluej.Boot;
 import bluej.Config;
 import bluej.Main;
@@ -97,33 +93,6 @@ public class ProjectManager
     }
 
     /**
-     * Creates a shared memory buffer (using a file mmap-ed into memory), and constructs
-     * a graphical window to show the outcome of the drawing on each animation pulse,
-     * as well as forwarding the events received to the shared memory buffer.
-     *
-     * This functionality will become part of the main Greenfoot window's code once
-     * that gets moved across to the server VM.
-     */
-    private File initialiseServerDraw(Project project, GreenfootDebugHandler greenfootDebugHandler)
-    {
-        try
-        {
-            File shmFile = File.createTempFile("greenfoot", "shm");
-            FileChannel fc = new RandomAccessFile(shmFile, "rw").getChannel();
-            MappedByteBuffer sharedMemoryByte = fc.map(MapMode.READ_WRITE, 0, 10_000_000L);
-            Platform.runLater(() -> {
-                new GreenfootStage(project, greenfootDebugHandler, fc, sharedMemoryByte).show();
-            });
-            return shmFile;
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-    /**
      * Get the singleton instance. Make sure it is initialised first.
      * 
      * @see #init(BlueJ)
@@ -152,6 +121,7 @@ public class ProjectManager
      * no listener interface for project open/close events, we have to keep
      * track of projects manually.
      */
+    @OnThread(Tag.FXPlatform)
     public void launchProject(final BProject project)
     {
         File projectDir;
@@ -313,7 +283,7 @@ public class ProjectManager
                     greenfootLaunchFailed(project);
                 }
             };
-            File shmFile = initialiseServerDraw(ExtensionBridge.getProject(project), greenfootDebugHandler);
+            File shmFile = greenfootDebugHandler.getShmFile();
             ObjectBench.createObject(pkg, launchClass, launcherName,
                     new String[] {project.getDir().getPath(),
                     BlueJRMIServer.getBlueJService(), shmFile == null ? "" : shmFile.getAbsolutePath(), String.valueOf(wizard), String.valueOf(sourceType)}, watcher);

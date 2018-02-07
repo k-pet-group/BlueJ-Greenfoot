@@ -26,6 +26,12 @@ import greenfoot.actions.ResetWorldAction;
 import greenfoot.core.PickActorHelper;
 import greenfoot.core.Simulation;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 
 import greenfoot.core.WorldHandler;
+import greenfoot.guifx.GreenfootStage;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 import greenfoot.record.GreenfootRecorder;
 import greenfoot.util.DebugUtil;
@@ -102,10 +109,24 @@ public class GreenfootDebugHandler implements DebuggerListener
     private DebuggerClass simulationClass;
     private GreenfootRecorder greenfootRecorder;
     private SimulationStateListener simulationListener;
+    
+    private File shmFile;
 
+    /**
+     * Constructor for GreenfootDebugHandler.
+     */
+    @OnThread(Tag.FXPlatform)
     private GreenfootDebugHandler(BProject project)
     {
         this.project = project;
+        try
+        {
+            shmFile = initialiseServerDraw(ExtensionBridge.getProject(project), this);
+        }
+        catch (ProjectNotOpenException pnoe)
+        {
+            throw new RuntimeException(pnoe);
+        }
     }
         
     /**
@@ -119,10 +140,33 @@ public class GreenfootDebugHandler implements DebuggerListener
 
             GreenfootDebugHandler handler = new GreenfootDebugHandler(project);
             proj.getDebugger().addDebuggerListener(handler);
-            handler.addRunResetBreakpoints(proj.getDebugger());
-            ProjectManager.instance().openGreenfoot(project, handler);
         } catch (ProjectNotOpenException ex) {
             Debug.reportError("Project not open when adding debugger listener in Greenfoot", ex);
+        }
+    }
+    
+    /**
+     * Creates a shared memory buffer (using a file mmap-ed into memory), and constructs
+     * a graphical window to show the outcome of the drawing on each animation pulse,
+     * as well as forwarding the events received to the shared memory buffer.
+     *
+     * This functionality will become part of the main Greenfoot window's code once
+     * that gets moved across to the server VM.
+     */
+    @OnThread(Tag.FXPlatform)
+    private File initialiseServerDraw(Project project, GreenfootDebugHandler greenfootDebugHandler)
+    {
+        try
+        {
+            File shmFile = File.createTempFile("greenfoot", "shm");
+            FileChannel fc = new RandomAccessFile(shmFile, "rw").getChannel();
+            MappedByteBuffer sharedMemoryByte = fc.map(MapMode.READ_WRITE, 0, 10_000_000L);
+            new GreenfootStage(project, greenfootDebugHandler, fc, sharedMemoryByte).show();
+            return shmFile;
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
         }
     }
 
@@ -172,6 +216,14 @@ public class GreenfootDebugHandler implements DebuggerListener
     private boolean isSimulationThread(DebuggerThread dt)
     {
         return dt != null && simulationThread != null && simulationThread.sameThread(dt);
+    }
+    
+    /**
+     * Get the temporary file used as the shared memory communication backing.
+     */
+    public File getShmFile()
+    {
+        return shmFile;
     }
     
     /**
@@ -367,6 +419,20 @@ public class GreenfootDebugHandler implements DebuggerListener
     @Override
     public void processDebuggerEvent(final DebuggerEvent e, boolean skipUpdate)
     {
+        if (e.getNewState() == Debugger.IDLE && e.getOldState() == Debugger.NOTREADY)
+        {
+            if (! ProjectManager.checkLaunchFailed())
+            {
+                //It is important to have this code run at a later time.
+                //If it runs from this thread, it tries to notify the VM event handler,
+                //which is currently calling us and we get a deadlock between the two VMs.
+                Platform.runLater(() -> {
+                    addRunResetBreakpoints((Debugger) e.getSource());
+                    ProjectManager.instance().openGreenfoot(project, GreenfootDebugHandler.this);
+                });
+            }
+        }
+        
         if (!skipUpdate)
         {
             if (e.isHalt() && isSimulationThread(e.getThread())&& simulationListener != null)
