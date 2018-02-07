@@ -45,6 +45,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -123,9 +124,7 @@ class ImageLibPane extends VBox
         this.project = project;
         this.selectionWatcher = watcher;
 
-        getChildren().addAll(buildImageLists(specifiedImage), createCogMenu());
-        // TODO help label
-        Label helpLabel = new Label(Config.getString("imagelib.help.selectImage"));
+        getChildren().addAll(buildImageLists(specifiedImage), buildBottomBar());
     }
 
     /**
@@ -151,6 +150,20 @@ class ImageLibPane extends VBox
         JavaFXUtil.addChangeListener(greenfootImageList.getSelectionModel().selectedItemProperty(), imageListEntry -> valueChanged(imageListEntry, false));
 
         return new HBox(10, piPanel, createImageLibPane());
+    }
+
+    /**
+     * Builds the bar at the bottom which contains the cog menu and the help label.
+     * Cog menu provides option for adding new images and editing current ones.
+     * Help label prompts the user to select an image from one of the lists.
+     *
+     * @return The bottom bar as a Pane
+     */
+    private Pane buildBottomBar()
+    {
+        Label helpLabel = new Label(Config.getString("imagelib.help.selectImage"));
+        helpLabel.visibleProperty().bind(selectedImageFile.isNull());
+        return new BorderPane(null, null, helpLabel, null, createCogMenu());
     }
 
     /**
