@@ -469,7 +469,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         {
             Project p = Project.openProject(choice.getAbsolutePath());
             if (p != null) {
-                ProjectManager.instance().launchProject(p.getBProject());
+                GreenfootStage stage = findStageForProject(p);
+                if (stage != null) {
+                    // If already open, bring the window to the foreground:
+                    stage.toFront();
+                }
+                else
+                {
+                    ProjectManager.instance().launchProject(p.getBProject());
+                }
             }
         }
     }
@@ -1243,7 +1251,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         return null;
     }
 
-
     @Override
     public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type, int compilationSequence)
     {
@@ -1268,7 +1275,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             doReset();
         }
     }
-
 
     @Override
     @OnThread(Tag.Any)
@@ -1572,7 +1578,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         }
     }
 
-
     /**
      * Gets a Reflective for the Actor class.
      */
@@ -1672,11 +1677,12 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 "Guillaume Baudoin", "Matthias Taulien", "Stefan Mueller", "Mantzas Ioannis",
                 "Stefano Federici", "John Kim", "Przemysław Adam Śmiejek", "Paulo Abadie & Fabio Hedayioglu",
                 "Sergy Zemlyannikov", "Esteban Iglesias Manríquez"};
-        TitledPane translators = new TitledPane("Translators", new Label(String.join("\n", Arrays.asList(translatorNames))));
+        TitledPane translators = new TitledPane("Translators",
+                new Label(String.join("\n", Arrays.asList(translatorNames))));
         translators.setExpanded(false);
         translators.setCollapsible(true);
-        new AboutDialogTemplate(this, Boot.GREENFOOT_VERSION, "Greenfoot", "https://greenfoot.org/", image, translators).showAndWait();
-
+        new AboutDialogTemplate(this, Boot.GREENFOOT_VERSION, "Greenfoot",
+                "https://greenfoot.org/", image, translators).showAndWait();
     }
 
     /**
@@ -1689,5 +1695,21 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         {
             stage.doClose(false);
         }
+    }
+    
+    /**
+     * Find the stage currently showing the specified project (if any).
+     */
+    public static GreenfootStage findStageForProject(Project project)
+    {
+        for (GreenfootStage stage : stages)
+        {
+            if (stage.project == project)
+            {
+                return stage;
+            }
+        }
+        
+        return null;
     }
 }
