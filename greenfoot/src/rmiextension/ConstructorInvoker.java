@@ -25,10 +25,8 @@ import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerResult;
 import bluej.debugmgr.ResultWatcher;
-import bluej.debugmgr.objectbench.ObjectBench;
-import bluej.debugmgr.objectbench.ObjectWrapper;
+import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PkgMgrFrame;
 import javafx.application.Platform;
 
 /**
@@ -40,15 +38,15 @@ import javafx.application.Platform;
  */
 public class ConstructorInvoker
 {
-    private PkgMgrFrame pkgFrame;
     private String className;
     private DebuggerResult result;
     private Package pkg;
+    private ObjectBenchInterface objBench;
 
-    public ConstructorInvoker(Package pkg, String className)
+    public ConstructorInvoker(Package pkg, ObjectBenchInterface objBench, String className)
     {
         this.pkg = pkg;
-        pkgFrame = PkgMgrFrame.findFrame(pkg); 
+        this.objBench = objBench;
         this.className = className;
     }
     
@@ -66,7 +64,6 @@ public class ConstructorInvoker
     public void invokeConstructor(final String instanceNameOnObjectBench, final String[] args,
             final ResultWatcher resultWatcher)
     {
-        final ObjectBench objBench = pkgFrame.getObjectBench();
         final Debugger debugger = pkg.getProject().getDebugger();
                 
         Thread t = new Thread() {
@@ -86,14 +83,9 @@ public class ConstructorInvoker
                     public void run()
                     {
                         if (debugObject != null) {
-                            ObjectWrapper wrapper = ObjectWrapper.getWrapper(
-                                    pkgFrame, objBench,
-                                    debugObject,
-                                    debugObject.getGenType(),
-                                    instanceNameOnObjectBench);       
-
-                            objBench.addObject(wrapper);
-                            pkg.getDebugger().addObject(pkg.getQualifiedName(), wrapper.getName(), debugObject);  
+                            String wrappedName = objBench.addObject(debugObject, debugObject.getGenType(),
+                                    instanceNameOnObjectBench);
+                            pkg.getDebugger().addObject(pkg.getQualifiedName(), wrappedName, debugObject);  
                         }
                         
                         if (resultWatcher != null) {
