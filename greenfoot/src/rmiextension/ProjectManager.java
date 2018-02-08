@@ -58,7 +58,6 @@ import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.PackageEvent;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.DocPathEntry;
-import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
@@ -290,9 +289,8 @@ public class ProjectManager
                     String.valueOf(wizard), String.valueOf(sourceType) };
             
             Project bjProj = ExtensionBridge.getProject(project);
-            PkgMgrFrame pmf = PkgMgrFrame.createFrame(bjProj.getPackage(""), null);
             
-            ConstructorInvoker launcher = new ConstructorInvoker(bjProj.getPackage(""), pmf.getObjectBench(), launchClass);
+            ConstructorInvoker launcher = new ConstructorInvoker(bjProj.getPackage(""), greenfootDebugHandler, launchClass);
             launcher.invokeConstructor(launcherName, consParams, watcher);
             
             // Reset wizard to false so it doesn't affect future loads:
