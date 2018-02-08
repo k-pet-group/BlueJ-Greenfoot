@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2014,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2013,2014,2016,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,7 @@ package bluej.extensions;
 import bluej.*;
 import bluej.collect.DataCollector;
 import bluej.extensions.event.*;
+import bluej.extensions.event.PackageListener;
 import bluej.extensions.painter.ExtensionClassTargetPainter;
 import bluej.extmgr.*;
 import bluej.pkgmgr.*;

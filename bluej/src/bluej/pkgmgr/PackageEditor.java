@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2014,2016,2017  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2013,2014,2016,2017,2018  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -71,7 +71,6 @@ import bluej.pkgmgr.target.Target;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.ResizableCanvas;
-import bluej.views.CallableView;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -88,7 +87,8 @@ import threadchecker.Tag;
  * the classes. The fifth is just a label to show a message when the current package is empty.
  */
 @OnThread(Tag.FXPlatform)
-public final class PackageEditor extends StackPane implements MouseTrackingOverlayPane.MousePositionListener, PkgMgrFrame.PkgMgrPane
+public final class PackageEditor extends StackPane
+    implements MouseTrackingOverlayPane.MousePositionListener, PkgMgrFrame.PkgMgrPane, PackageListener
 {
     private static final int RIGHT_PLACEMENT_MIN = 300;
     private static final int WHITESPACE_SIZE = 10;
@@ -388,6 +388,8 @@ public final class PackageEditor extends StackPane implements MouseTrackingOverl
         t.setPos(10, (int)minHeight + 10);
     }
 
+    @Override
+    @OnThread(value = Tag.FXPlatform)
     public void graphChanged()
     {
         HashMap<Node, Boolean> keep = new HashMap<>();

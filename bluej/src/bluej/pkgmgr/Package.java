@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -218,7 +218,10 @@ public final class Package
     public static final int HISTORY_LENGTH = 6;
     
     @OnThread(value = Tag.Any, requireSynchronized = true)
-    private PackageEditor editor;
+    private PackageListener editor;
+
+    @OnThread(Tag.FXPlatform)    
+    private List<PackageListener> listeners = new ArrayList<>();
 
     //package-visible
     List<UsesDependency> getUsesArrows()
@@ -522,11 +525,20 @@ public final class Package
      * @param ed The PackageEditor.  Non-null when opening, null when
      *           closing.
      */
+    @OnThread(Tag.FXPlatform)
     void setEditor(PackageEditor ed)
     {
         synchronized (this)
         {
+            if (this.editor != null)
+            {
+                removeListener(ed);
+            }
             this.editor = ed;
+            if (ed != null)
+            {
+                addListener(ed);
+            }
         }
 
         // Note we use ed here, not editor, as editor needs synchronized access
@@ -553,12 +565,57 @@ public final class Package
         }
     }
     
+    /**
+     * Get the editor for this package, as a PackageEditor. This should be considered deprecated.
+     */
     @OnThread(Tag.Any)
     public synchronized PackageEditor getEditor()
     {
-        return editor;
+        return (PackageEditor) editor;
     }
 
+    /**
+     * Add a listener for this package.
+     */
+    public synchronized void addListener(PackageListener pl)
+    {
+        listeners.add(pl);
+    }
+    
+    /**
+     * Remove a listener for this package.
+     */
+    public synchronized void removeListener(PackageListener pl)
+    {
+        listeners.remove(pl);
+    }
+    
+    /**
+     * Fire a "package closed" event to listeners.
+     */
+    @OnThread(Tag.FXPlatform)
+    private void fireClosedEvent()
+    {
+        // Note we take a copy of the listener list as listeners will probably be removed during processing.
+        List<PackageListener> listenersCopy = new ArrayList<PackageListener>(listeners);
+        for (PackageListener l : listenersCopy)
+        {
+            l.graphClosed();
+        }
+    }
+    
+    /**
+     * Fire a "graph changed" event to listeners.
+     */
+    @OnThread(Tag.FXPlatform)
+    private void fireChangedEvent()
+    {
+        for (PackageListener l : listeners)
+        {
+            l.graphChanged();
+        }
+    }
+    
     /**
      * Get the package properties, as most recently saved. The returned Properties set should be considered
      * immutable.
@@ -1750,16 +1807,14 @@ public final class Package
             throw new IllegalArgumentException();
 
         targets.add(t.getIdentifierName(), t);
-        if (editor != null)
-            editor.graphChanged();
+        fireChangedEvent();
     }
 
     public synchronized void removeTarget(Target t)
     {
         targets.remove(t.getIdentifierName());
         t.setRemoved();
-        if (editor != null)
-            editor.graphChanged();
+        fireChangedEvent();
     }
 
     /**
@@ -2697,9 +2752,7 @@ public final class Package
             {
                 setStatus(compileDone);
             }
-            if (editor != null) {
-                editor.graphChanged();
-            }
+            fireChangedEvent();
             
             // Send a compilation done event to extensions.
             int eventId = successful ? CompileEvent.COMPILE_DONE_EVENT : CompileEvent.COMPILE_FAILED_EVENT;
