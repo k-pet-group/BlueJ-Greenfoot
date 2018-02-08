@@ -58,6 +58,7 @@ import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.event.PackageEvent;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.DocPathEntry;
+import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
@@ -284,9 +285,16 @@ public class ProjectManager
                 }
             };
             File shmFile = greenfootDebugHandler.getShmFile();
-            ObjectBench.createObject(pkg, launchClass, launcherName,
-                    new String[] {project.getDir().getPath(),
-                    BlueJRMIServer.getBlueJService(), shmFile == null ? "" : shmFile.getAbsolutePath(), String.valueOf(wizard), String.valueOf(sourceType)}, watcher);
+            String[] consParams = { project.getDir().getPath(),
+                    BlueJRMIServer.getBlueJService(), shmFile == null ? "" : shmFile.getAbsolutePath(),
+                    String.valueOf(wizard), String.valueOf(sourceType) };
+            
+            Project bjProj = ExtensionBridge.getProject(project);
+            PkgMgrFrame pmf = PkgMgrFrame.createFrame(bjProj.getPackage(""), null);
+            
+            ConstructorInvoker launcher = new ConstructorInvoker(bjProj.getPackage(""), pmf.getObjectBench(), launchClass);
+            launcher.invokeConstructor(launcherName, consParams, watcher);
+            
             // Reset wizard to false so it doesn't affect future loads:
             wizard = false;
         }

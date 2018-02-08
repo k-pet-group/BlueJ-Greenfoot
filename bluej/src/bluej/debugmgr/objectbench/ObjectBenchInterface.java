@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,20162,2018  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,8 @@
  */
 package bluej.debugmgr.objectbench;
 
+import bluej.debugger.DebuggerObject;
+import bluej.debugger.gentype.GenTypeClass;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -29,14 +31,13 @@ import threadchecker.Tag;
  * 
  * @author Davin McCall
  */
-@OnThread(Tag.Any)
+@OnThread(Tag.FXPlatform)
 public interface ObjectBenchInterface
 {
     /**
      * Add a listener for events on this object bench.
      * @param l  The listener to add
      */
-    
     public void addObjectBenchListener(ObjectBenchListener l);
     
     /**
@@ -51,4 +52,15 @@ public interface ObjectBenchInterface
      * @param name  The name to check for.
      */
     public boolean hasObject(String name);
+    
+    /**
+     * Add an object to the bench with the specified name and type.
+     * 
+     * @param object  The object to add to the bench.
+     * @param type    The type of the object.
+     * @param name    The desired name of the object as it should appear on the bench.
+     * 
+     * @return  The name actually used (may not match desired name in case of clash).
+     */
+    public String addObject(DebuggerObject object, GenTypeClass type, String name);
 }

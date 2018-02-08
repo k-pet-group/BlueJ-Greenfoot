@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2018  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,26 +21,20 @@
  */
 package bluej.debugmgr.objectbench;
 
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import javafx.animation.FadeTransition;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
-import javafx.scene.text.Text;
-import javafx.util.Duration;
 
 import bluej.Config;
 import bluej.collect.DataCollector;
+import bluej.debugger.DebuggerObject;
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ValueCollection;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -153,6 +147,17 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         
     }
 
+    @Override
+    public String addObject(DebuggerObject object, GenTypeClass type, String name)
+    {
+        ObjectWrapper wrapper = ObjectWrapper.getWrapper(
+                pkgMgrFrame, this,
+                object,
+                type,
+                name);       
+        addObject(wrapper);
+        return wrapper.getName();
+    }
     
     /**
      * Return all the wrappers stored in this object bench in an array

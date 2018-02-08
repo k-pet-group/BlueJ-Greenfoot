@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2016,2017  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2016,2017,2018  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,23 +21,13 @@
  */
 package rmiextension;
 
-import javax.swing.*;
-import java.awt.EventQueue;
-import java.lang.reflect.InvocationTargetException;
-import java.util.concurrent.atomic.AtomicReference;
-
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerResult;
 import bluej.debugmgr.ResultWatcher;
-import bluej.debugmgr.objectbench.ObjectBench;
-import bluej.debugmgr.objectbench.ObjectWrapper;
-import bluej.extensions.BPackage;
-import bluej.extensions.ExtensionBridge;
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
+import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PkgMgrFrame;
+import javafx.application.Platform;
 
 /**
  * 
@@ -48,17 +38,17 @@ import bluej.pkgmgr.PkgMgrFrame;
  */
 public class ConstructorInvoker
 {
-    private PkgMgrFrame pkgFrame;
     private String className;
     private DebuggerResult result;
+    private Package pkg;
+    private ObjectBenchInterface objBench;
 
-    public ConstructorInvoker(BPackage bPackage, String className)
-        throws ProjectNotOpenException, PackageNotFoundException
+    public ConstructorInvoker(Package pkg, ObjectBenchInterface objBench, String className)
     {
-        pkgFrame = ExtensionBridge.getPkgMgrFrame(bPackage);
+        this.pkg = pkg;
+        this.objBench = objBench;
         this.className = className;
     }
-   
     
     /**
      * Invoke a constructor which takes String arguments only.
@@ -74,27 +64,10 @@ public class ConstructorInvoker
     public void invokeConstructor(final String instanceNameOnObjectBench, final String[] args,
             final ResultWatcher resultWatcher)
     {
-        final AtomicReference<ObjectBench> objBench = new AtomicReference<>(pkgFrame.getObjectBench());
-        final Package pkg = pkgFrame.getPackage(); 
-        final Debugger debugger = pkgFrame.getProject().getDebugger();
+        final Debugger debugger = pkg.getProject().getDebugger();
                 
         Thread t = new Thread() {
             public void run() {
-                // It's possible the FX thread hasn't had chance to initialise Object Bench by the time we asked.
-                // If so, keep asking until it is initialised:
-                while (objBench.get() == null)
-                {
-                    try
-                    {
-                        Thread.sleep(100);
-                        SwingUtilities.invokeAndWait(() -> {objBench.set(pkgFrame.getObjectBench()); });
-                    }
-                    catch (InterruptedException | InvocationTargetException e)
-                    {
-                    }
-                    
-                }
-                
                 String [] argTypes = new String[args.length];
                 DebuggerObject [] argObjects = new DebuggerObject[args.length];
                 for (int i = 0; i < args.length; i++) {
@@ -105,19 +78,14 @@ public class ConstructorInvoker
                 result = debugger.instantiateClass(className, argTypes, argObjects).get();
                 final DebuggerObject debugObject = result.getResultObject();
                 
-                EventQueue.invokeLater(new Runnable() {
+                Platform.runLater(new Runnable() {
                     @Override
                     public void run()
                     {
                         if (debugObject != null) {
-                            ObjectWrapper wrapper = ObjectWrapper.getWrapper(
-                                    pkgFrame, objBench.get(),
-                                    debugObject,
-                                    debugObject.getGenType(),
-                                    instanceNameOnObjectBench);       
-
-                            objBench.get().addObject(wrapper);
-                            pkg.getDebugger().addObject(pkg.getQualifiedName(), wrapper.getName(), debugObject);  
+                            String wrappedName = objBench.addObject(debugObject, debugObject.getGenType(),
+                                    instanceNameOnObjectBench);
+                            pkg.getDebugger().addObject(pkg.getQualifiedName(), wrappedName, debugObject);  
                         }
                         
                         if (resultWatcher != null) {
