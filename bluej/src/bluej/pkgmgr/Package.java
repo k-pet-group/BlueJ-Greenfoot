@@ -540,6 +540,10 @@ public final class Package
                 addListener(ed);
             }
         }
+        
+        if (ed == null) {
+            fireClosedEvent();
+        }
 
         // Note we use ed here, not editor, as editor needs synchronized access
         if (ed != null)

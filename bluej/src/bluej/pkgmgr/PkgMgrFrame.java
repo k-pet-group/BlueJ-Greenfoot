@@ -1184,7 +1184,6 @@ public class PkgMgrFrame
             // Take a copy because we're about to null it:
             PackageEditor oldEd = editor;
             oldEd.removeEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED, editorMousePressed);
-            oldEd.graphClosed();
             pkgEditorScrollPane.setContent(null);
 
             // Disassociate from the project team actions, so that we don't inadvertently disable the
