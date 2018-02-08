@@ -284,9 +284,15 @@ public class ProjectManager
                 }
             };
             File shmFile = greenfootDebugHandler.getShmFile();
-            ObjectBench.createObject(pkg, launchClass, launcherName,
-                    new String[] {project.getDir().getPath(),
-                    BlueJRMIServer.getBlueJService(), shmFile == null ? "" : shmFile.getAbsolutePath(), String.valueOf(wizard), String.valueOf(sourceType)}, watcher);
+            String[] consParams = { project.getDir().getPath(),
+                    BlueJRMIServer.getBlueJService(), shmFile == null ? "" : shmFile.getAbsolutePath(),
+                    String.valueOf(wizard), String.valueOf(sourceType) };
+            
+            Project bjProj = ExtensionBridge.getProject(project);
+            
+            ConstructorInvoker launcher = new ConstructorInvoker(bjProj.getPackage(""), launchClass);
+            launcher.invokeConstructor(launcherName, consParams, watcher);
+            
             // Reset wizard to false so it doesn't affect future loads:
             wizard = false;
         }
