@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2013,2014,2015,2016  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2013,2014,2015,2016,2018  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,7 +23,6 @@ package rmiextension.wrappers;
 
 import java.io.File;
 import java.rmi.RemoteException;
-import java.util.List;
 
 import bluej.collect.GreenfootInterfaceEvent;
 import rmiextension.wrappers.event.RProjectListener;
@@ -119,24 +118,6 @@ public interface RProject
     public abstract void removeListener(RProjectListener listener)
         throws RemoteException;
     
-    /**
-     * Get a remote reference to the object in the launcher "transport" field. The purpose
-     * of this is to allow obtaining a remote reference to a local object, by means of:
-     * 
-     * <ol>
-     * <li>(in the user VM) Storing a reference to the object into the transport field
-     * <li>Calling this method.
-     * </ul>
-     * 
-     * @return  A remote reference to the transport field object.
-     * @throws RemoteException  If an RMI exception occurs.
-     */
-    public abstract String getRemoteObjectName()
-        throws RemoteException;
-
-    public abstract List<String> getRemoteObjectNames()
-        throws RemoteException;
-
     /**
      * Toggles the BlueJ debugger (Shows/Hides)
      * @throws RemoteException  if an RMI error occurs

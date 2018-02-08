@@ -30,7 +30,6 @@ import greenfoot.core.GreenfootMain;
 import greenfoot.core.GreenfootMain.ProjectAPIVersionAccess;
 
 import java.io.File;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -39,8 +38,6 @@ import java.util.Properties;
 import greenfoot.guifx.GreenfootGuiHandler;
 import greenfoot.util.Version;
 import javafx.application.Platform;
-import rmiextension.wrappers.RProjectImpl;
-import rmiextension.wrappers.WrapperPool;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Boot;
@@ -49,8 +46,6 @@ import bluej.Main;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugmgr.ResultWatcher;
-import bluej.extensions.BObject;
-import bluej.extensions.BPackage;
 import bluej.extensions.BProject;
 import bluej.extensions.BlueJ;
 import bluej.extensions.PackageNotFoundException;
@@ -232,7 +227,6 @@ public class ProjectManager
     public void openGreenfoot(final BProject project, GreenfootDebugHandler greenfootDebugHandler)
     {
         try {
-            final BPackage pkg = project.getPackage("");
             ResultWatcher watcher = new ResultWatcher() {
                 @Override
                 public void beginCompile()
@@ -260,21 +254,7 @@ public class ProjectManager
                 public void putResult(DebuggerObject result, String name,
                         InvokerRecord ir)
                 {
-                    // This is ok
-                    try {
-                        BObject bObject = pkg.getObject(name);
-                        RProjectImpl rProject = WrapperPool.instance().getWrapper(project);
-                        rProject.setTransportObject(bObject);
-                    }
-                    catch (ProjectNotOpenException e) {
-                        // I guess we can ignore this.
-                    }
-                    catch (PackageNotFoundException e) {
-                        // And this.
-                    }
-                    catch (RemoteException re) {
-                        Debug.reportError("Unexpected exception getting remote project wrapper", re);
-                    }
+                    // This is ok. May need to store result/name somewhere?
                 }
                 @Override
                 public void putVMTerminated(InvokerRecord ir)

@@ -42,9 +42,6 @@ import javafx.application.Platform;
 import rmiextension.wrappers.event.RProjectListener;
 import bluej.debugger.DebuggerThread;
 import bluej.debugmgr.ExecControls;
-import bluej.extensions.BClass;
-import bluej.extensions.BField;
-import bluej.extensions.BObject;
 import bluej.extensions.BPackage;
 import bluej.extensions.BProject;
 import bluej.extensions.ExtensionBridge;
@@ -69,12 +66,6 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     /** The Greenfoot simulation thread */
     private WeakReference<DebuggerThread> simulationThread;
     
-    /**
-     * A launcher object with a field called "transportField", used to
-     * allow obtaining a remote reference to a debug VM object.
-     */
-    private BObject transportObject = null;
-    
     private List<RProjectListener> listeners = new ArrayList<RProjectListener>();
 
     private boolean vmRestarted = false;
@@ -93,16 +84,6 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         this.bProject = new WeakReference<>(bProject);
     }
 
-    /**
-     * Set the object used for passing objects from the remote (debug VM) to the local VM.
-     * The object should have a field of type Object called "transportField".
-     */
-    public synchronized void setTransportObject(BObject transportObject)
-    {
-        this.transportObject = transportObject;
-        notifyAll();
-    }
-    
     /*
      * @see rmiextension.wrappers.RProject#close()
      */
@@ -129,7 +110,6 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
      */
     public void notifyClosing()
     {
-        transportObject = null;
         List<RProjectListener> listeners;
         synchronized (this.listeners) {
             listeners = new ArrayList<RProjectListener>(this.listeners);
@@ -267,92 +247,6 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         synchronized (listeners) {
             listeners.remove(listener);
         }
-    }
-    
-    /*
-     * @see rmiextension.wrappers.RProject#getRemoteObject()
-     */
-    @Override
-    public synchronized String getRemoteObjectName() throws RemoteException
-    {
-        try {
-            while (transportObject == null) {
-                wait();
-            }
-
-            BObject bObject = transportObject;
-            String[] val_a = new String[1];
-            EventQueue.invokeAndWait(new Runnable() {
-                @Override
-                public void run()
-                {
-                    try {
-
-                        BClass bClass = bObject.getBClass();
-                        BField field = bClass.getField("transportField");
-                        BObject value = (BObject) field.getValue(bObject);
-                        
-                        String cName = value.getBClass().getName();
-                        cName = cName.toLowerCase();
-                        value.addToBench(cName);
-                        val_a[0] = value.getInstanceName();
-                    }
-                    catch (bluej.extensions.ClassNotFoundException cnfe) { }
-                    catch (PackageNotFoundException pnfe) { }
-                    catch (ProjectNotOpenException pnoe) { }
-                }
-            });
-
-            return val_a[0];
-        }
-        catch (InterruptedException ie) { }
-        catch (InvocationTargetException ite) {
-            Debug.reportError("Error adding object to bench", ite);
-        }
-        return null;
-    }
-
-    @Override
-    public synchronized List<String> getRemoteObjectNames() throws RemoteException
-    {
-        try {
-            while (transportObject == null) {
-                wait();
-            }
-
-            BObject bObject = transportObject;
-            List<String> r = new ArrayList<>();
-            EventQueue.invokeAndWait(new Runnable() {
-                @Override
-                public void run()
-                {
-                    try {
-
-                        BClass bClass = bObject.getBClass();
-                        BField field = bClass.getField("transportField");
-                        List<BObject> values = (List<BObject>) ExtensionBridge.getFieldValue(field, bObject, true);
-
-                        for (BObject value : values)
-                        {
-                            String cName = value.getBClass().getName();
-                            cName = cName.toLowerCase();
-                            value.addToBench(cName);
-                            r.add(value.getInstanceName());
-                        }
-                    }
-                    catch (bluej.extensions.ClassNotFoundException cnfe) { }
-                    catch (PackageNotFoundException pnfe) { }
-                    catch (ProjectNotOpenException pnoe) { }
-                }
-            });
-
-            return r;
-        }
-        catch (InterruptedException ie) { }
-        catch (InvocationTargetException ite) {
-            Debug.reportError("Error adding object to bench", ite);
-        }
-        return null;
     }
 
     /*
