@@ -32,6 +32,10 @@ cannot-create-project
 The scenario could not be created. Check that
 the containing folder is writable.
 
+error-saving-project
+There was an error when trying to save scenario files to disk.
+The project may not have saved correctly!
+
 project-already-exists
 The specified scenario folder already exists. To create a
 new scenario, choose a location and specify a unique name
@@ -39,7 +43,7 @@ new scenario, choose a location and specify a unique name
 
 archive-not-greenfoot-project
 The archive file you selected to open does not look like it
-contains a Greenfoot project (try extracting the archive
+contains a Greenfoot scenario (try extracting the archive
 contents using another tool).
 
 no-clipboard-image-data

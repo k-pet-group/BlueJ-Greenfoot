@@ -519,6 +519,26 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     }
     
     /**
+     * Save the project (all editors and all project information).
+     */
+    public void doSave()
+    {
+        try
+        {
+            Properties p = project.getProjectPropertiesCopy();
+            project.saveEditorLocations(p);
+            project.getImportScanner().saveCachedImports();
+            project.saveAllEditors();
+        }
+        catch (IOException ioe)
+        {
+            // The exception is logged earlier, so we won't bother logging again.
+            // However, alert the user:
+            DialogManager.showMessageFX(this, "error-saving-project");
+        }
+    }
+    
+    /**
      * Perform a single act step, if paused, by adding to the list of pending commands.
      */
     private void act(List<Command> pendingCommands)
@@ -555,7 +575,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     ),
                     makeMenuItem("project.save",
                         new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN),
-                        () -> {} // TODO
+                        this::doSave
                     ),
                     makeMenuItem("project.saveAs",
                         null,
