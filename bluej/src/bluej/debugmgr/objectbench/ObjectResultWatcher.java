@@ -1,3 +1,24 @@
+/*
+ This file is part of the BlueJ program. 
+ Copyright (C) 2017,2018  Michael Kolling and John Rosenberg 
+ 
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+ 
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+ 
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ 
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package bluej.debugmgr.objectbench;
 
 import bluej.BlueJEvent;
@@ -7,9 +28,9 @@ import bluej.debugmgr.ExecutionEvent;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.ResultWatcher;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.views.MethodView;
+import javafx.stage.Stage;
 
 /**
  * A result watcher which handles standard invocation of
@@ -21,28 +42,25 @@ public abstract class ObjectResultWatcher implements ResultWatcher
     private DebuggerObject obj;
     private String objInstanceName;
     private Package pkg;
-    private PkgMgrFrame pmf;
+    private Stage parentWindow;
 
-    public ObjectResultWatcher(DebuggerObject obj, String objInstanceName, Package pkg, PkgMgrFrame pmf, MethodView method)
+    public ObjectResultWatcher(DebuggerObject obj, String objInstanceName, Package pkg, Stage parentWindow, MethodView method)
     {
         this.method = method;
         this.obj = obj;
         this.objInstanceName = objInstanceName;
         this.pkg = pkg;
-        this.pmf = pmf;
+        this.parentWindow = parentWindow;
     }
 
     @Override
     public void beginCompile()
     {
-        pmf.setWaitCursor(true);
     }
 
     @Override
     public void beginExecution(InvokerRecord ir)
     {
-        BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir);
-        pmf.setWaitCursor(false);
     }
 
     @Override
@@ -76,7 +94,7 @@ public abstract class ObjectResultWatcher implements ResultWatcher
         ExpressionInformation expressionInformation = new ExpressionInformation(method, objInstanceName, obj.getGenType());
         expressionInformation.setArgumentValues(ir.getArgumentValues());
         pkg.getProject().getResultInspectorInstance(result, name, pkg,
-                ir, expressionInformation, pmf.getFXWindow());
+                ir, expressionInformation, parentWindow);
     }
 
     /**
@@ -88,7 +106,6 @@ public abstract class ObjectResultWatcher implements ResultWatcher
     @Override
     public void putError(String msg, InvokerRecord ir)
     {
-        pmf.setWaitCursor(false);
     }
 
     @Override

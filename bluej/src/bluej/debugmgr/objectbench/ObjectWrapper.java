@@ -670,7 +670,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         pkg.forgetLastSource();
 
         String instanceName = getName();
-        watcher = new ObjectResultWatcher(obj, instanceName, pkg, pmf, method) {
+        watcher = new BluejResultWatcher(obj, instanceName, pkg, pmf, method) {
 
             @Override
             protected void addInteraction(InvokerRecord ir)
