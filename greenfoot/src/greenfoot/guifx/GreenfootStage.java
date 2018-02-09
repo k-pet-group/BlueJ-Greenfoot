@@ -46,8 +46,8 @@ import bluej.debugmgr.objectbench.ObjectResultWatcher;
 import bluej.editor.Editor;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
+import bluej.pkgmgr.ProjectUtils;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.testmgr.record.InvokerRecord;
@@ -245,6 +245,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
     @OnThread(Tag.FXPlatform)
     private final SoundRecorderControls soundRecorder;
+    
+    private GreenfootDebugHandler debugHandler;
 
     
     /**
@@ -338,6 +340,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         stages.add(this);
         
         this.project = project;
+        this.debugHandler = greenfootDebugHandler;
         BlueJEvent.addListener(this);
         project.getUnnamedPackage().addCompileObserver(this);
         greenfootDebugHandler.setPickListener(this::pickResults);
@@ -1113,12 +1116,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             else if (curPickType == PickType.LEFT_CLICK && !actors.isEmpty())
             {
                 DebuggerObject target = actors.get(0);
-                PkgMgrFrame pmf = PkgMgrFrame.findFrame(project.getUnnamedPackage());
-
-                // We must put the object on the bench so that it has a name and wrapper:
-                String objInstanceName = pmf.putObjectOnBench(target.getClassName().toLowerCase(), target, target.getGenType(), null, null);
-                // Then we can issue the event saying that it has been clicked:
-                pmf.getObjectBench().fireObjectSelectedEvent(pmf.getObjectBench().getObject(objInstanceName));
+                debugHandler.addSelectedObject(target, target.getGenType(),
+                        target.getClassName().toLowerCase());
             }
         });
     }
@@ -1605,25 +1604,28 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         @Override
         public void executeMethod(MethodView mv)
         {
-            PkgMgrFrame pmf = PkgMgrFrame.findFrame(project.getUnnamedPackage());
-
             // We must put the object on the bench so that it has a name on the debug VM
             // side.  Without a name, you can't call a method on it using the BlueJ workers.
             // Also, the object bench gets cleared on compile, so that takes care of clean-up:
-            String objInstanceName = pmf.putObjectOnBench(target.getClassName().toLowerCase(), target, target.getGenType(), null, null);
+            String objInstanceName = debugHandler.addObject(target, target.getGenType(), target.getClassName().toLowerCase());
 
-            ResultWatcher watcher = new ObjectResultWatcher(target, objInstanceName, project.getUnnamedPackage(), pmf, mv) {
+            ResultWatcher watcher = new ObjectResultWatcher(target, objInstanceName,
+                    project.getUnnamedPackage(), GreenfootStage.this, mv) {
                 @Override
                 protected void addInteraction(InvokerRecord ir)
                 {
-                    saveTheWorldRecorder.callActorOrWorldMethod(target, mv.getMethod(), ir.getArgumentValues(), mv.getParamTypes(false));
+                    saveTheWorldRecorder.callActorOrWorldMethod(target, mv.getMethod(),
+                            ir.getArgumentValues(), mv.getParamTypes(false));
                 }
             };
-            if (pmf.checkDebuggerState()) {
-                Invoker invoker = new Invoker(pmf, mv, objInstanceName, target, watcher);
+            
+            if (ProjectUtils.checkDebuggerState(project, GreenfootStage.this)) {
+                // Invoker invoker = new Invoker(pmf, mv, objInstanceName, target, watcher);
+                Package unpkg = project.getPackage("");
+                Invoker invoker = new Invoker(GreenfootStage.this, unpkg, mv, watcher, unpkg.getCallHistory(), debugHandler, debugHandler,
+                        project.getDebugger(), objInstanceName);
                 invoker.invokeInteractive();
             }
-
         }
 
         @Override
