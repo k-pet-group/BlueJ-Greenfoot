@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016,2018  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,11 +22,9 @@
 package greenfoot.platforms.ide;
 
 import greenfoot.Actor;
-import greenfoot.ObjectTracker;
 import greenfoot.World;
 import greenfoot.core.ClassStateManager;
 import greenfoot.core.GClass;
-import greenfoot.core.GNamedValue;
 import greenfoot.core.GProject;
 import greenfoot.core.ImageCache;
 import greenfoot.core.Simulation;
@@ -40,35 +38,11 @@ import greenfoot.record.GreenfootRecorder;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.EventQueue;
-import java.awt.event.MouseEvent;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
-
-import bluej.Config;
-import bluej.debugger.DebuggerObject;
-import bluej.debugger.gentype.JavaType;
-import bluej.debugmgr.inspector.InspectorManager;
-import bluej.debugmgr.objectbench.ObjectBenchEvent;
-import bluej.debugmgr.objectbench.ObjectBenchInterface;
-import bluej.debugmgr.objectbench.ObjectBenchListener;
-import bluej.debugmgr.objectbench.ObjectWrapper;
-import bluej.prefmgr.PrefMgr;
-import bluej.utility.Debug;
-import bluej.views.CallableView;
-import javafx.application.Platform;
 
 
 /**
@@ -105,7 +79,6 @@ public class WorldHandlerDelegateIDE
     @Override
     public void discardWorld(World world)
     {        
-        ObjectTracker.clearRObjectCache();
         ImageCache.getInstance().clearImageCache();
         frame.stopWaitingForAnswer();
     }

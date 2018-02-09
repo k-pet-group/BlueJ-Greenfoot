@@ -22,6 +22,8 @@
 package rmiextension;
 
 import bluej.debugger.VarDisplayInfo;
+import bluej.debugger.gentype.GenTypeClass;
+import bluej.debugger.gentype.JavaType;
 import greenfoot.actions.ResetWorldAction;
 import greenfoot.core.PickActorHelper;
 import greenfoot.core.Simulation;
@@ -36,6 +38,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -56,6 +59,10 @@ import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerThread;
 import bluej.debugger.SourceLocation;
 import bluej.debugmgr.Invoker;
+import bluej.debugmgr.NamedValue;
+import bluej.debugmgr.ValueCollection;
+import bluej.debugmgr.objectbench.ObjectBenchInterface;
+import bluej.debugmgr.objectbench.ObjectBenchListener;
 import bluej.extensions.BProject;
 import bluej.extensions.ExtensionBridge;
 import bluej.extensions.ProjectNotOpenException;
@@ -76,7 +83,7 @@ import threadchecker.Tag;
  * 
  * @author Neil Brown
  */
-public class GreenfootDebugHandler implements DebuggerListener
+public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInterface, ValueCollection
 {  
     private static final String SIMULATION_CLASS = Simulation.class.getName();   
     private static final String[] INVOKE_METHODS = {Simulation.ACT_WORLD, Simulation.ACT_ACTOR,
@@ -109,6 +116,7 @@ public class GreenfootDebugHandler implements DebuggerListener
     private DebuggerClass simulationClass;
     private GreenfootRecorder greenfootRecorder;
     private SimulationStateListener simulationListener;
+    private Map<String,GreenfootObject> objectBench = new HashMap<>();
     
     private File shmFile;
 
@@ -427,6 +435,7 @@ public class GreenfootDebugHandler implements DebuggerListener
                 //If it runs from this thread, it tries to notify the VM event handler,
                 //which is currently calling us and we get a deadlock between the two VMs.
                 Platform.runLater(() -> {
+                    objectBench.clear();
                     addRunResetBreakpoints((Debugger) e.getSource());
                     ProjectManager.instance().openGreenfoot(project, GreenfootDebugHandler.this);
                 });
@@ -557,7 +566,93 @@ public class GreenfootDebugHandler implements DebuggerListener
     {
         this.simulationListener = simulationListener;
     }
+    
+    @Override
+    public String addObject(DebuggerObject object, GenTypeClass type,
+            String name)
+    {
+        while (objectBench.get(name) != null) {
+            name += "_"; // TODO improve
+        }
+        
+        objectBench.put(name, new GreenfootObject(object, type, name));
+        return name;
+    }
+    
+    @Override
+    public void addObjectBenchListener(ObjectBenchListener l)
+    {
+        throw new RuntimeException("Not implemented");
+    }
+    
+    @Override
+    public void removeObjectBenchListener(ObjectBenchListener l)
+    {
+        throw new RuntimeException("Not implemented");
+    }
+    
+    @Override
+    public boolean hasObject(String name)
+    {
+        return objectBench.get(name) != null;
+    }
+    
+    @Override
+    public NamedValue getNamedValue(String name)
+    {
+        return objectBench.get(name);
+    }
+    
+    @Override
+    public Iterator<? extends NamedValue> getValueIterator()
+    {
+        return objectBench.values().iterator();
+    }
 
+    /**
+     * An object on the "object bench". In Greenfoot this is largely virtualised.
+     */
+    private static class GreenfootObject implements NamedValue
+    {
+        private DebuggerObject object;
+        private GenTypeClass type;
+        private String name;
+        
+        /**
+         * Construct a GreenfootObject with the given name and type.
+         */
+        public GreenfootObject(DebuggerObject object, GenTypeClass type, String name)
+        {
+            this.object = object;
+            this.type = type;
+            this.name = name;
+        }
+        
+        @Override
+        public JavaType getGenType()
+        {
+            return type;
+        }
+        
+        @Override
+        public String getName()
+        {
+            return name;
+        }
+        
+        @Override
+        public boolean isFinal()
+        {
+            return false;
+        }
+        
+        @Override
+        public boolean isInitialized()
+        {
+            return true;
+        }
+    }
+    
     /**
      * A listener for results of pick requests.
      */
