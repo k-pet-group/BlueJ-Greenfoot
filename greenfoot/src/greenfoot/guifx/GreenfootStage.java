@@ -534,15 +534,18 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private void doClose(boolean keepLast)
     {
         // Remove inspectors, terminal, etc:
-        Project.cleanUp(project);
-        project.getPackage("").closeAllEditors();
+        if (project != null)
+        {
+            Project.cleanUp(project);
+            project.getPackage("").closeAllEditors();
+            numberOfOpenProjects--;
+        }
 
-        numberOfOpenProjects--;
         if (numberOfOpenProjects == 0)
         {
             if (keepLast)
             {
-                // TODO: remove the project details from this frame but keep frame open
+                removeScenarioDetails();
             }
             else
             {
@@ -554,8 +557,19 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         else
         {
             stages.remove(this);
+            BlueJEvent.removeListener(this);
             close();
         }
+    }
+    
+    /**
+     * Remove scenario details, making the stage empty.
+     */
+    private void removeScenarioDetails()
+    {
+        project = null;
+        worldDisplay.setImage(null);
+        classDiagram.setDisable(true);
     }
     
     /**
