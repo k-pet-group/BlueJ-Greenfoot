@@ -88,6 +88,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -189,6 +190,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private static List<GreenfootStage> stages = new ArrayList<>();
 
     private Project project;
+    private BooleanProperty hasNoProject = new SimpleBooleanProperty(true);
     // The glass pane used to show a new actor while it is being placed:
     private final Pane glassPane;
     // Details of the new actor while it is being placed (null otherwise):
@@ -209,10 +211,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     
     public static enum State
     {
-        RUNNING, RUNNING_REQUESTED_PAUSE, PAUSED, PAUSED_REQUESTED_ACT_OR_RUN, UNCOMPILED;
+        RUNNING, RUNNING_REQUESTED_PAUSE, PAUSED, PAUSED_REQUESTED_ACT_OR_RUN, UNCOMPILED, NO_PROJECT;
     }
     
-    private final ObjectProperty<State> stateProperty = new SimpleObjectProperty<>(State.PAUSED);
+    private final ObjectProperty<State> stateProperty = new SimpleObjectProperty<>(State.NO_PROJECT);
     private boolean atBreakpoint = false;
 
     // Details for pick requests that we have sent to the debug VM:
@@ -336,7 +338,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     private GreenfootStage(Project project, GreenfootDebugHandler greenfootDebugHandler, FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte)
     {
-        numberOfOpenProjects++;
         stages.add(this);
         
         this.saveTheWorldRecorder = new GreenfootRecorder();
@@ -419,6 +420,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         this.project = project;
         this.debugHandler = greenfootDebugHandler;
+        hasNoProject.set(false);
+        numberOfOpenProjects++;
+
         project.getUnnamedPackage().addCompileObserver(this);
         greenfootDebugHandler.setPickListener(this::pickResults);
         greenfootDebugHandler.setSimulationListener(this);
@@ -570,8 +574,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private void removeScenarioDetails()
     {
         project = null;
+        hasNoProject.set(true);
         worldDisplay.setImage(null);
         classDiagram.setProject(null);
+        updateGUIState(State.NO_PROJECT);
     }
     
     /**
@@ -643,33 +649,33 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         Menu scenarioMenu = new Menu(Config.getString("menu.scenario"), null,
                 makeMenuItem("stride.new.project",
                         new KeyCodeCombination(KeyCode.F, KeyCombination.SHORTCUT_DOWN),
-                        () -> {} // TODO
+                        () -> {}, null // TODO
                     ),
                     makeMenuItem("java.new.project",
                         new KeyCodeCombination(KeyCode.J, KeyCombination.SHORTCUT_DOWN),
-                        () -> {} // TODO
+                        () -> {}, null // TODO
                     ),
                     makeMenuItem("open.project",
                         new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN),
-                        this::doOpenScenario
+                        this::doOpenScenario, null
                     ),
                     new Menu(Config.getString("menu.openRecent"), null), // TODO
                     makeMenuItem("project.close",
                         new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN),
-                        () -> { doClose(true); }
+                        () -> { doClose(true); }, hasNoProject
                     ),
                     makeMenuItem("project.save",
                         new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN),
-                        this::doSave
+                        this::doSave, hasNoProject
                     ),
                     makeMenuItem("project.saveAs",
                         null,
-                        this::doSaveAs
+                        this::doSaveAs, hasNoProject
                     ),
                     new SeparatorMenuItem(),
                     makeMenuItem("export.project",
                         new KeyCodeCombination(KeyCode.E, KeyCombination.SHORTCUT_DOWN),
-                        () -> {} // TODO
+                        () -> {}, hasNoProject
                     )
                 );
 
@@ -677,7 +683,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             scenarioMenu.getItems().add(new SeparatorMenuItem());
             scenarioMenu.getItems().add(makeMenuItem("greenfoot.quit",
                     new KeyCodeCombination(KeyCode.Q, KeyCombination.SHORTCUT_DOWN),
-                    () -> Main.wantToQuit())
+                    () -> Main.wantToQuit(), null)
                 );
         }
 
@@ -685,19 +691,27 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             scenarioMenu,
             new Menu(Config.getString("menu.edit"), null,
                 makeMenuItem("new.other.class", new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN),
-                            () -> newNonImageClass(project.getUnnamedPackage(), null)),
-                makeMenuItem("import.action", new KeyCodeCombination(KeyCode.I, KeyCombination.SHORTCUT_DOWN), () -> doImportClass())
+                            () -> newNonImageClass(project.getUnnamedPackage(), null), hasNoProject),
+                makeMenuItem("import.action",
+                        new KeyCodeCombination(KeyCode.I, KeyCombination.SHORTCUT_DOWN), () -> doImportClass(),
+                        hasNoProject)
             ),
             new Menu(Config.getString("menu.controls"), null,
-                    makeMenuItem("run.once", new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN), () -> act(pendingCommands)),
-                    JavaFXUtil.makeCheckMenuItem(Config.getString("menu.soundRecorder"), soundRecorder.getShowingProperty(),
-                            new KeyCodeCombination(KeyCode.U, KeyCombination.SHORTCUT_DOWN), this::toggleSoundRecorder)
+                    makeMenuItem("run.once",
+                            new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN),
+                            () -> act(pendingCommands), hasNoProject),
+                    JavaFXUtil.makeCheckMenuItem(Config.getString("menu.soundRecorder"),
+                            soundRecorder.getShowingProperty(),
+                            new KeyCodeCombination(KeyCode.U, KeyCombination.SHORTCUT_DOWN),
+                            this::toggleSoundRecorder)
             ),
             new Menu(Config.getString("menu.tools"), null,
-                    makeMenuItem("menu.tools.generateDoc", new KeyCodeCombination(KeyCode.G, KeyCombination.SHORTCUT_DOWN), this::generateDocumentation)
+                    makeMenuItem("menu.tools.generateDoc",
+                            new KeyCodeCombination(KeyCode.G, KeyCombination.SHORTCUT_DOWN),
+                            this::generateDocumentation, hasNoProject)
             ),
             new Menu(Config.getString("menu.help"), null,
-                makeMenuItem("menu.help.about", null, () -> aboutGreenfoot())
+                makeMenuItem("menu.help.about", null, () -> aboutGreenfoot(), null)
             )
         );
     }
@@ -731,17 +745,29 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     }
 
     /**
-     * Make a single menu item
+     * Make a single menu item.
+     * 
      * @param nameKey The key to lookup via Config.getString for the name
      * @param accelerator The accelerator if any (null if none)
      * @param action The action to perform when the menu item is activated
+     * @param binding  The binding for disabling the menu item (may be null).
+     * 
      * @return The MenuItem combining all these items.
      */
-    private MenuItem makeMenuItem(String nameKey, KeyCombination accelerator, FXPlatformRunnable action)
+    private MenuItem makeMenuItem(String nameKey, KeyCombination accelerator,
+            FXPlatformRunnable action, ObservableValue<Boolean> binding)
     {
-        return JavaFXUtil.makeMenuItem(Config.getString(nameKey), action, accelerator);
+        MenuItem item = JavaFXUtil.makeMenuItem(Config.getString(nameKey), action, accelerator);
+        if (binding != null)
+        {
+            item.disableProperty().bind(binding);
+        }
+        return item;
     }
 
+    /**
+     * Update scenario controls (act, run/pause, reset etc) according to scenario state.
+     */
     private void updateGUIState(State newState)
     {
         actButton.setDisable(newState != State.PAUSED || atBreakpoint);
@@ -754,6 +780,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         {
             runButton.setText(Config.getString("controls.run.button"));
         }
+        resetButton.setDisable(newState == State.NO_PROJECT);
     }
 
     /**
