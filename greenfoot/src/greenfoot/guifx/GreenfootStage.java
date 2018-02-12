@@ -593,6 +593,35 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     }
     
     /**
+     * Prompt for a location, save the scenario to the chosen location, and re-open the scenario
+     * from its new location.
+     */
+    public void doSaveAs()
+    {
+        File choice = FileUtility.getSaveProjectFX(this, "project.saveAs.title");
+        if (choice == null)
+        {
+            return;
+        }
+        
+        if (! ProjectUtils.saveProjectCopy(project, choice, this))
+        {
+            return;
+        }
+        
+        doClose(true);
+        
+        Project p = Project.openProject(choice.getAbsolutePath());
+        if (p == null) {
+            // This shouldn't happen, but log an error just in case:
+            Debug.reportError("Project save-as succeeded, but new project could not be opened");
+            return;
+        }
+        
+        ProjectManager.instance().launchProject(p.getBProject());
+    }
+    
+    /**
      * Perform a single act step, if paused, by adding to the list of pending commands.
      */
     private void act(List<Command> pendingCommands)
@@ -633,7 +662,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     ),
                     makeMenuItem("project.saveAs",
                         null,
-                        () -> {} // TODO
+                        this::doSaveAs
                     ),
                     new SeparatorMenuItem(),
                     makeMenuItem("export.project",
