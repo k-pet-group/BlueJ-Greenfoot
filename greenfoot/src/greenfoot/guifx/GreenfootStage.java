@@ -186,9 +186,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public static final int COMMAND_DISCARD_WORLD = 29;
     
     private static int numberOfOpenProjects = 0;
-    private static Collection<GreenfootStage> stages = new ArrayList<>();
+    private static List<GreenfootStage> stages = new ArrayList<>();
 
-    private final Project project;
+    private Project project;
     // The glass pane used to show a new actor while it is being placed:
     private final Pane glassPane;
     // Details of the new actor while it is being placed (null otherwise):
@@ -334,22 +334,17 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      * @param sharedMemoryLock The lock to claim before accessing sharedMemoryByte
      * @param sharedMemoryByte The shared memory buffer used to communicate with the debug VM
      */
-    public GreenfootStage(Project project, GreenfootDebugHandler greenfootDebugHandler, FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte)
+    private GreenfootStage(Project project, GreenfootDebugHandler greenfootDebugHandler, FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte)
     {
         numberOfOpenProjects++;
         stages.add(this);
         
-        this.project = project;
-        this.debugHandler = greenfootDebugHandler;
-        BlueJEvent.addListener(this);
-        project.getUnnamedPackage().addCompileObserver(this);
-        greenfootDebugHandler.setPickListener(this::pickResults);
-        greenfootDebugHandler.setSimulationListener(this);
         this.saveTheWorldRecorder = new GreenfootRecorder();
-        greenfootDebugHandler.setGreenfootRecorder(saveTheWorldRecorder);
+        this.project = project; // TODO: this is redundant but without it currently results in NPE
+        
+        BlueJEvent.addListener(this);
         soundRecorder = new SoundRecorderControls(project);
 
-        worldDisplay = new WorldDisplay();
         actButton = new Button(Config.getString("run.once"));
         runButton = new Button(Config.getString("controls.run.button"));
         resetButton = new Button(Config.getString("reset.world"));
@@ -377,6 +372,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 stateProperty.set(State.UNCOMPILED);
             }
         });
+
+        worldDisplay = new WorldDisplay();
+        
         classDiagram = new GClassDiagram(this, project);
         ScrollPane classDiagramScroll = new UnfocusableScrollPane(classDiagram);
         JavaFXUtil.expandScrollPaneContent(classDiagramScroll);
@@ -392,6 +390,39 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         Config.addGreenfootStylesheets(scene);
         Config.addPMFStylesheets(scene);
         setScene(scene);
+        
+        showProject(project, greenfootDebugHandler, sharedMemoryLock, sharedMemoryByte);
+                
+        setOnCloseRequest((e) -> {
+            doClose(false);
+        });
+        
+        /* Uncomment this to use ScenicView temporarily during development (use reflection to avoid needing to mess with Ant classpath)
+        try
+        {
+            getClass().getClassLoader().loadClass("org.scenicview.ScenicView").getMethod("show", Scene.class).invoke(null, scene);
+        }
+        catch (Exception e)
+        {
+            Debug.reportError(e);
+        }*/
+    }
+    
+    /**
+     * Show a particular project in this window.
+     * @param project   The project to display
+     * @param greenfootDebugHandler   The debug handler for this project
+     * @param sharedMemoryLock The lock to claim before accessing sharedMemoryByte
+     * @param sharedMemoryByte The shared memory buffer used to communicate with the debug VM
+     */
+    private void showProject(Project project, GreenfootDebugHandler greenfootDebugHandler, FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte)
+    {
+        this.project = project;
+        this.debugHandler = greenfootDebugHandler;
+        project.getUnnamedPackage().addCompileObserver(this);
+        greenfootDebugHandler.setPickListener(this::pickResults);
+        greenfootDebugHandler.setSimulationListener(this);
+        greenfootDebugHandler.setGreenfootRecorder(saveTheWorldRecorder);
 
         setupWorldDrawingAndEvents(sharedMemoryLock, sharedMemoryByte, worldDisplay::setImage, pendingCommands);
         loadAndMirrorProperties(pendingCommands);
@@ -416,20 +447,29 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 }
             }
         });
-        
-        setOnCloseRequest((e) -> {
-            doClose(false);
-        });
-        
-        /* Uncomment this to use ScenicView temporarily during development (use reflection to avoid needing to mess with Ant classpath)
-        try
+    }
+
+    /**
+     * Make a stage suitable for displaying a project.
+     * 
+     * @param project   The project to display
+     * @param greenfootDebugHandler   The debug handler for this project
+     * @param sharedMemoryLock The lock to claim before accessing sharedMemoryByte
+     * @param sharedMemoryByte The shared memory buffer used to communicate with the debug VM
+     * @return  the stage (a new stage, or a previously empty stage with the project now displayed)
+     */
+    public static GreenfootStage makeStage(Project project, GreenfootDebugHandler greenfootDebugHandler,
+            FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte)
+    {
+        if (stages.size() == 1 && stages.get(0).project == null)
         {
-            getClass().getClassLoader().loadClass("org.scenicview.ScenicView").getMethod("show", Scene.class).invoke(null, scene);
+            stages.get(0).showProject(project, greenfootDebugHandler, sharedMemoryLock, sharedMemoryByte);
+            return stages.get(0);
         }
-        catch (Exception e)
+        else
         {
-            Debug.reportError(e);
-        }*/
+            return new GreenfootStage(project, greenfootDebugHandler, sharedMemoryLock, sharedMemoryByte);
+        }
     }
 
     /**
@@ -494,15 +534,18 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private void doClose(boolean keepLast)
     {
         // Remove inspectors, terminal, etc:
-        Project.cleanUp(project);
-        project.getPackage("").closeAllEditors();
+        if (project != null)
+        {
+            Project.cleanUp(project);
+            project.getPackage("").closeAllEditors();
+            numberOfOpenProjects--;
+        }
 
-        numberOfOpenProjects--;
         if (numberOfOpenProjects == 0)
         {
             if (keepLast)
             {
-                // TODO: remove the project details from this frame but keep frame open
+                removeScenarioDetails();
             }
             else
             {
@@ -514,8 +557,68 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         else
         {
             stages.remove(this);
+            BlueJEvent.removeListener(this);
             close();
         }
+    }
+    
+    /**
+     * Remove scenario details, making the stage empty.
+     */
+    private void removeScenarioDetails()
+    {
+        project = null;
+        worldDisplay.setImage(null);
+        classDiagram.setDisable(true);
+    }
+    
+    /**
+     * Save the project (all editors and all project information).
+     */
+    public void doSave()
+    {
+        try
+        {
+            Properties p = project.getProjectPropertiesCopy();
+            project.saveEditorLocations(p);
+            project.getImportScanner().saveCachedImports();
+            project.saveAllEditors();
+        }
+        catch (IOException ioe)
+        {
+            // The exception is logged earlier, so we won't bother logging again.
+            // However, alert the user:
+            DialogManager.showMessageFX(this, "error-saving-project");
+        }
+    }
+    
+    /**
+     * Prompt for a location, save the scenario to the chosen location, and re-open the scenario
+     * from its new location.
+     */
+    public void doSaveAs()
+    {
+        File choice = FileUtility.getSaveProjectFX(this, "project.saveAs.title");
+        if (choice == null)
+        {
+            return;
+        }
+        
+        if (! ProjectUtils.saveProjectCopy(project, choice, this))
+        {
+            return;
+        }
+        
+        doClose(true);
+        
+        Project p = Project.openProject(choice.getAbsolutePath());
+        if (p == null) {
+            // This shouldn't happen, but log an error just in case:
+            Debug.reportError("Project save-as succeeded, but new project could not be opened");
+            return;
+        }
+        
+        ProjectManager.instance().launchProject(p.getBProject());
     }
     
     /**
@@ -555,11 +658,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     ),
                     makeMenuItem("project.save",
                         new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN),
-                        () -> {} // TODO
+                        this::doSave
                     ),
                     makeMenuItem("project.saveAs",
                         null,
-                        () -> {} // TODO
+                        this::doSaveAs
                     ),
                     new SeparatorMenuItem(),
                     makeMenuItem("export.project",

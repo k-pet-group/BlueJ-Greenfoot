@@ -21,8 +21,12 @@
  */
 package bluej.pkgmgr;
 
+import java.io.File;
+import java.nio.file.Path;
+
 import bluej.debugger.Debugger;
 import bluej.utility.DialogManager;
+import bluej.utility.FileUtility;
 import javafx.stage.Stage;
 
 /**
@@ -55,6 +59,52 @@ public class ProjectUtils
         {
             DialogManager.showErrorFX(msgWindow, "already-executing");
             return false;
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Given a project and a path, save a copy of the project to the new path. If there are any
+     * errors, display a dialog to the user (and return false).
+     * 
+     * @param project  The project to save
+     * @param newName  The path to save the copy to
+     * @param window   The parent window for any error dialogs
+     * @return     true if the save was successful, or false otherwise
+     */
+    public static boolean saveProjectCopy(Project project, File newName, Stage window)
+    {
+        Path newPath = newName.toPath().toAbsolutePath();
+        Path existingPath = project.getProjectDir().toPath().toAbsolutePath();
+        // We need to block the case where new project is subdirectory of old path, as that will cause
+        // infinite copy.  It's odd but fine if new project is parent of old path, as it won't cause
+        // new files in old path, so copy will complete.
+        if (newPath.startsWith(existingPath))
+        {
+            DialogManager.showErrorFX(window, "cannot-save-inside-self");
+            return false;
+        }
+
+        int result = FileUtility.copyDirectory(project.getProjectDir(),
+                newName);
+
+        switch (result)
+        {
+            case FileUtility.NO_ERROR:
+                break;
+
+            case FileUtility.DEST_EXISTS_NOT_DIR:
+                DialogManager.showErrorFX(window, "directory-exists-file");
+                return false;
+            case FileUtility.DEST_EXISTS_NON_EMPTY:
+                DialogManager.showErrorFX(window, "directory-exists-non-empty");
+                return false;
+
+            case FileUtility.SRC_NOT_DIRECTORY:
+            case FileUtility.COPY_ERROR:
+                DialogManager.showErrorFX(window, "cannot-save-project");
+                return false;
         }
         
         return true;
