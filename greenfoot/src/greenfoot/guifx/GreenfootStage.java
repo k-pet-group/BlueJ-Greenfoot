@@ -375,7 +375,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
         worldDisplay = new WorldDisplay();
         
-        classDiagram = new GClassDiagram(this, project);
+        classDiagram = new GClassDiagram(this);
         ScrollPane classDiagramScroll = new UnfocusableScrollPane(classDiagram);
         JavaFXUtil.expandScrollPaneContent(classDiagramScroll);
 
@@ -423,6 +423,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         greenfootDebugHandler.setPickListener(this::pickResults);
         greenfootDebugHandler.setSimulationListener(this);
         greenfootDebugHandler.setGreenfootRecorder(saveTheWorldRecorder);
+        
+        classDiagram.setProject(project);
 
         setupWorldDrawingAndEvents(sharedMemoryLock, sharedMemoryByte, worldDisplay::setImage, pendingCommands);
         loadAndMirrorProperties(pendingCommands);
@@ -569,7 +571,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         project = null;
         worldDisplay.setImage(null);
-        classDiagram.setDisable(true);
+        classDiagram.setProject(null);
     }
     
     /**
