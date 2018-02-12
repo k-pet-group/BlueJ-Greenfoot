@@ -169,11 +169,12 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
             File shmFile = File.createTempFile("greenfoot", "shm");
             FileChannel fc = new RandomAccessFile(shmFile, "rw").getChannel();
             MappedByteBuffer sharedMemoryByte = fc.map(MapMode.READ_WRITE, 0, 10_000_000L);
-            new GreenfootStage(project, greenfootDebugHandler, fc, sharedMemoryByte).show();
+            GreenfootStage.makeStage(project, greenfootDebugHandler, fc, sharedMemoryByte).show();
             return shmFile;
         }
         catch (IOException e)
         {
+            // TODO this must be handled appropriately.
             throw new RuntimeException(e);
         }
     }
