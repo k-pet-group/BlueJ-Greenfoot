@@ -2646,19 +2646,7 @@ public class PkgMgrFrame
      */
     public boolean checkDebuggerState()
     {
-        Debugger debugger = getProject().getDebugger();
-        if (debugger.getStatus() == Debugger.SUSPENDED) {
-            setVisible(true);
-            DialogManager.showErrorFX(getFXWindow(), "stuck-at-breakpoint");
-            return false;
-        }
-        else if (debugger.getStatus() == Debugger.RUNNING) {
-            setVisible(true);
-            DialogManager.showErrorFX(getFXWindow(), "already-executing");
-            return false;
-        }
-        
-        return true;
+        return ProjectUtils.checkDebuggerState(getProject(), getFXWindow());
     }
 
     /**

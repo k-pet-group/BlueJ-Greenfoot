@@ -579,16 +579,39 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
         return name;
     }
     
+    /**
+     * Add an object to the "object bench" and fire an event to listeners notifying that the new object has
+     * been selected.
+     * 
+     * @param object   The object to add
+     * @param type     The type of the object
+     * @param name     The desired name of the object
+     * @return    The actual chosen name
+     */
+    public String addSelectedObject(DebuggerObject object, GenTypeClass type, String name)
+    {
+        while (objectBench.get(name) != null) {
+            name += "_"; // TODO improve
+        }
+        
+        GreenfootObject newObj = new GreenfootObject(object, type, name);
+        objectBench.put(name, newObj);
+        
+        // TODO fire event to listeners
+        
+        return name;
+    }
+    
     @Override
     public void addObjectBenchListener(ObjectBenchListener l)
     {
-        throw new RuntimeException("Not implemented");
+        throw new RuntimeException("Not implemented"); // TODO
     }
     
     @Override
     public void removeObjectBenchListener(ObjectBenchListener l)
     {
-        throw new RuntimeException("Not implemented");
+        throw new RuntimeException("Not implemented"); // TODO
     }
     
     @Override
