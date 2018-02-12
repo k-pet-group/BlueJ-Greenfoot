@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2015,2016,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -39,8 +39,8 @@ import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.NameTransform;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
-import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PackageListener;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.runtime.Shell;
@@ -59,8 +59,6 @@ import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.stage.Stage;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -87,12 +85,11 @@ import java.util.Map;
  */
 @OnThread(Tag.FXPlatform)
 public class Invoker
-    implements FXCompileObserver, ChangeListener<Package>
+    implements FXCompileObserver, PackageListener
 {
     public static final int OBJ_NAME_LENGTH = 8;
     public static final String SHELLNAME = "__SHELL";
     private static int shellNumber = 0;
-    private PkgMgrFrame pmf = null;
 
     private static final synchronized String getShellName()
     {
@@ -152,13 +149,12 @@ public class Invoker
     /**
      * Construct an invoker, specifying most attributes manually.
      */
-    public Invoker(Stage frame, CallableView member, ResultWatcher watcher, File pkgPath, String pkgName,
-            String pkgScopeId, CallHistory callHistory, ValueCollection objectBenchVars,
-            ObjectBenchInterface objectBench, Debugger debugger, InvokerCompiler compiler,
-            String instanceName, Charset sourceCharset)
+    public Invoker(Stage frame, Package pkg, CallableView member, ResultWatcher watcher,
+            CallHistory callHistory, ValueCollection objectBenchVars, ObjectBenchInterface objectBench,
+            Debugger debugger, String instanceName)
     {
-        if (frame != null)
-            this.parent = frame;
+        this.pkg = pkg;
+        this.parent = frame;
         this.member = member;
         this.watcher = watcher;
         if (member instanceof ConstructorView) {
@@ -170,9 +166,9 @@ public class Invoker
         }
         
         this.instanceName = instanceName;
-        this.pkgPath = pkgPath;
-        this.pkgName = pkgName;
-        this.pkgScopeId = pkgScopeId;
+        this.pkgPath = pkg.getPath();
+        this.pkgName = pkg.getQualifiedName();
+        this.pkgScopeId = pkg.getId();
         this.callHistory = callHistory;
         this.objectBenchVars = objectBenchVars;
         this.objectBench = objectBench;
@@ -183,9 +179,17 @@ public class Invoker
                 return typeName;
             }
         };
-        this.compiler = compiler;
+        compiler = new InvokerCompiler() {
+            public void compile(File[] files, CompileObserver observer)
+            {
+                Project project = pkg.getProject();
+                List<CompileInputFile> wrapped = Utility.mapList(Arrays.asList(files), f -> new CompileInputFile(f, f));
+                JobQueue.getJobQueue().addJob(wrapped.toArray(new CompileInputFile[0]), observer, project.getClassLoader(),
+                        project.getProjectDir(), true, project.getProjectCharset(), CompileReason.INVOKE, CompileType.INTERNAL_COMPILE);
+            }
+        };
         this.shellName = getShellName();
-        this.sourceCharset = sourceCharset;
+        this.sourceCharset = pkg.getProject().getProjectCharset();
         this.typeMap = null;
     }
 
@@ -221,10 +225,9 @@ public class Invoker
      */
     public Invoker(PkgMgrFrame pmf, CallableView member, ResultWatcher watcher)
     {
-        this(pmf, member, null, null);
-        
-        this.watcher = watcher;
-        this.shellName = getShellName();
+        this(pmf.getFXWindow(), pmf.getPackage(), member, watcher, pmf.getPackage().getCallHistory(), pmf.getObjectBench(),
+                pmf.getObjectBench(), pmf.getProject().getDebugger(), null);
+
         codepad = false;
 
         // in the case of a constructor, we need to construct an object name
@@ -301,7 +304,6 @@ public class Invoker
             }
         };
         this.sourceCharset = pmf.getProject().getProjectCharset();
-        this.pmf = pmf;
     }
     
     /**
@@ -353,9 +355,9 @@ public class Invoker
             //org.scenicview.ScenicView.show(cDialog.getDialogPane());
 
             dialog = cDialog;
-            if (pmf != null)
+            if (pkg != null)
             {
-                pmf.packageProperty().addListener(this);
+                pkg.addListener(this);
             }
         }
     }
@@ -1114,9 +1116,9 @@ public class Invoker
             dialog.saveCallHistory();
             dialog = null;
         }
-        if (pmf != null)
+        if (pkg != null)
         {
-            pmf.packageProperty().removeListener(this);
+            pkg.addListener(this);
         }
     }
 
@@ -1265,14 +1267,15 @@ public class Invoker
     }
 
     @Override
-    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
-    public void changed(ObservableValue<? extends Package> observable, Package oldValue, Package newValue)
+    public void graphClosed()
     {
-        if (newValue == null && dialog != null)
-        {
-            // Will also remove us as a listener:
-            closeCallDialog();
-        }
+        closeCallDialog();
+    }
+    
+    @Override
+    public void graphChanged()
+    {
+        // Nothing needs doing.
     }
 
     static class CleverQualifyTypeNameTransform
