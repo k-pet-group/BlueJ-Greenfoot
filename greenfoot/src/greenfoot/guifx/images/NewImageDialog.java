@@ -34,6 +34,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.stage.Window;
 
 import javax.imageio.ImageIO;
@@ -88,11 +89,14 @@ public class NewImageDialog extends FXCustomizedDialog<File>
     {
         GridPane detailsPanel = new GridPane();
         detailsPanel.setVgap(10);
+        detailsPanel.setHgap(1);
         detailsPanel.setAlignment(Pos.BASELINE_CENTER);
 
         name = new TextField();
+        name.setPrefWidth(220);
         name.setPromptText(Config.getString("imagelib.new.image.name.prompt"));
-        detailsPanel.addRow(0, new Label(Config.getString("imagelib.new.image.name") + " "), name, new Label(".png"));
+        detailsPanel.addRow(0, new Label(Config.getString("imagelib.new.image.name")), name, new Label(".png"));
+        GridPane.setHgrow(name, Priority.ALWAYS);
 
         width = new Spinner(1, MAX_IMAGE_WIDTH, imageWidth);
         detailsPanel.addRow(1, new Label(Config.getString("imagelib.new.image.width")), width);
