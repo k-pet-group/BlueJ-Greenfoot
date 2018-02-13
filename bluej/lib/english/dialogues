@@ -234,14 +234,9 @@ within BlueJ. You must close these
 packages before you will be allowed
 to delete this package.
 
-package-does-not-exist
-Error in opening package.
-Package does not exist:
-
-no-bluej-package
-Error in opening package.
-The file/directory is not
-a BlueJ package:
+could-not-open-project
+The project could not be opened. Check that you have
+correct permissions on the folder and files within it.
 
 not-yet-implemented
 Not Yet Implemented - sorry.

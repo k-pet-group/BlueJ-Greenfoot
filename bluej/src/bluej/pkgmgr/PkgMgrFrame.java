@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1640,26 +1640,33 @@ public class PkgMgrFrame
     }
 
     /**
-     * Open the project specified by 'projectPath'. Return false if not
-     * successful. Displays a warning dialog if the opened project resides in
-     * a read-only directory.
+     * Open the project specified by 'projectPath'. Displays an error dialog and returns false if
+     * not successful. Displays a warning dialog if the opened project resides in a read-only
+     * directory.
      */
     private boolean openProject(String projectPath)
     {
         Project openProj = Project.openProject(projectPath);
         if (openProj == null)
+        {
+            DialogManager.showErrorFX(getFXWindow(), "could-not-open-project");
             return false;
-        else {
+        }
+        else
+        {
             Package initialPkg = openProj.getPackage(openProj.getInitialPackageName());
 
             PkgMgrFrame pmf = findFrame(initialPkg);
 
-            if (pmf == null) {
-                if (isEmptyFrame()) {
+            if (pmf == null)
+            {
+                if (isEmptyFrame())
+                {
                     pmf = this;
                     openPackage(initialPkg, this);
                 }
-                else {
+                else
+                {
                     pmf = createFrame(initialPkg, this);
                 }
             }
