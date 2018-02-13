@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2017  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2017,2018  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -56,13 +56,15 @@ public class GClassDiagram extends BorderPane
     private final ClassGroup worldClasses;
     private final ClassGroup actorClasses;
     private final ClassGroup otherClasses;
-    private final Project project;
     private final GreenfootStage greenfootStage;
+    private Project project;
 
-    public GClassDiagram(GreenfootStage greenfootStage, Project project)
+    /**
+     * Construct a GClassDiagram for the given stage.
+     */
+    public GClassDiagram(GreenfootStage greenfootStage)
     {
         this.greenfootStage = greenfootStage;
-        this.project = project;
         getStyleClass().add("class-diagram");
         this.worldClasses = new ClassGroup(greenfootStage);
         this.actorClasses = new ClassGroup(greenfootStage);
@@ -90,9 +92,28 @@ public class GClassDiagram extends BorderPane
                     () -> greenfootStage.doImportClass(), null));
             contextMenu.show(this, e.getScreenX(), e.getScreenY());
         });
-        
-        // Organise the current classes into their groups:
-        recalculateGroups();
+    }
+    
+    /**
+     * Set the project for this class diagram.
+     * 
+     * @param project  the project whose classes to display (may be null)
+     */
+    public void setProject(Project project)
+    {
+        this.project = project;
+        if (project != null)
+        {
+            recalculateGroups();
+            setDisable(false);
+        }
+        else
+        {
+            worldClasses.setClasses(Collections.emptyList());
+            actorClasses.setClasses(Collections.emptyList());
+            otherClasses.setClasses(Collections.emptyList());
+            setDisable(true);
+        }
     }
 
     /**
@@ -318,6 +339,4 @@ public class GClassDiagram extends BorderPane
     {
         return greenfootStage;
     }
-
-
 }
