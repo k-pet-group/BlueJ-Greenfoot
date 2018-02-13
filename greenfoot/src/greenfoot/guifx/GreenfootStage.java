@@ -1740,6 +1740,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             // side.  Without a name, you can't call a method on it using the BlueJ workers.
             // Also, the object bench gets cleared on compile, so that takes care of clean-up:
             String objInstanceName = debugHandler.addObject(target, target.getGenType(), target.getClassName().toLowerCase());
+            project.getDebugger().addObject(project.getPackage("").getId(), objInstanceName, target);
 
             ResultWatcher watcher = new ObjectResultWatcher(target, objInstanceName,
                     project.getUnnamedPackage(), GreenfootStage.this, mv) {
