@@ -161,7 +161,7 @@ class ImageLibPane extends VBox
      */
     private Pane buildBottomBar()
     {
-        Label helpLabel = new Label(Config.getString("imagelib.help.selectImage"));
+        Label helpLabel = JavaFXUtil.withStyleClass(new Label(Config.getString("imagelib.help.selectImage")), "dialog-error-label");
         helpLabel.visibleProperty().bind(selectedImageFile.isNull());
         return new BorderPane(null, null, helpLabel, null, createCogMenu());
     }
