@@ -289,6 +289,7 @@ prefmgr.misc.playerNameNote=You can change this quickly using the shortcut:
 # Menus
 
 menu.openRecent=Open recent
+menu.noRecentProjects=(no recent scenarios)
 
 menu.scenario=Scenario
 

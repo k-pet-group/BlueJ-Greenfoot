@@ -41,6 +41,10 @@ The specified scenario folder already exists. To create a
 new scenario, choose a location and specify a unique name
 (you must specify the name in the file dialog).
 
+could-not-open-project
+The scenario could not be opened. Check that you have
+correct permissions on the folder and files within it.
+
 archive-not-greenfoot-project
 The archive file you selected to open does not look like it
 contains a Greenfoot scenario (try extracting the archive
@@ -62,10 +66,11 @@ Cancel
 null
 
 import-image-exists
-The current project already contains an image file named $; this file will NOT be replaced.
+The current project already contains an image file named $. Please remove
+or rename it before trying to import a file with the same name.
 
 import-class-exists
-The current project already contains a class named $.  A class of the same name cannot be imported.
+The current project already contains a class named $. A class of the same name cannot be imported.
 
 imagelib-image-unsupported-format
-Unable to write the image file on the disk.  Try to create the image through another way.
+Unable to write the image file on the disk. Check if the disk is full or write-protected.

@@ -50,6 +50,7 @@ import bluej.pkgmgr.Project;
 import bluej.pkgmgr.ProjectUtils;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
+import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.Debug;
@@ -141,6 +142,7 @@ import static bluej.pkgmgr.target.ClassTarget.MENU_STYLE_INBUILT;
 /**
  * Greenfoot's main window: a JavaFX replacement for GreenfootFrame which lives on the server VM.
  */
+@OnThread(Tag.FXPlatform)
 public class GreenfootStage extends Stage implements BlueJEventListener, FXCompileObserver, SimulationStateListener
 {
     // These are the constants passed in the shared memory between processes,
@@ -244,11 +246,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private int lastAnswer = -1;
 
     private final GreenfootRecorder saveTheWorldRecorder;
-
-    @OnThread(Tag.FXPlatform)
     private final SoundRecorderControls soundRecorder;
-    
     private GreenfootDebugHandler debugHandler;
+    private final Menu recentProjectsMenu = new Menu(Config.getString("menu.openRecent"));
 
     
     /**
@@ -517,21 +517,63 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         File choice = FileUtility.getOpenProjectFX(this);
         if (choice != null)
         {
-            Project p = Project.openProject(choice.getAbsolutePath());
-            if (p != null) {
-                GreenfootStage stage = findStageForProject(p);
-                if (stage != null) {
-                    // If already open, bring the window to the foreground:
-                    stage.toFront();
-                }
-                else
-                {
-                    ProjectManager.instance().launchProject(p.getBProject());
-                }
+            doOpenScenario(choice);
+        }
+    }
+    
+    /**
+     * Open the specified scenario. Display an error dialog on failure.
+     * 
+     * @param projPath  path of the scenario to open.
+     */
+    private void doOpenScenario(File projPath)
+    {
+        Project p = Project.openProject(projPath.getAbsolutePath());
+        if (p != null)
+        {
+            GreenfootStage stage = findStageForProject(p);
+            if (stage != null)
+            {
+                // If already open, bring the window to the foreground:
+                stage.toFront();
             }
+            else
+            {
+                ProjectManager.instance().launchProject(p.getBProject());
+            }
+        }
+        else
+        {
+            // display error dialog
+            DialogManager.showErrorFX(this, "could-not-open-project");
         }
     }
 
+    /**
+     * Update the recent projects menu with all recently-opened projects.
+     */
+    private void updateRecentProjects()
+    {
+        recentProjectsMenu.getItems().clear();
+
+        List<String> projects = PrefMgr.getRecentProjects();
+        for (String projectToOpen : projects)
+        {
+            MenuItem item = new MenuItem(projectToOpen);
+            recentProjectsMenu.getItems().add(item);
+            item.setOnAction(e -> {
+                doOpenScenario(new File(projectToOpen));
+            });
+        }
+        
+        if (projects.isEmpty())
+        {
+            MenuItem noRecentProjects = new MenuItem(Config.getString("menu.noRecentProjects"));
+            noRecentProjects.setDisable(true);
+            recentProjectsMenu.getItems().add(noRecentProjects);
+        }
+    }
+    
     /**
      * Close the scenario that this stage is showing.
      * @param keepLast  if true, don't close the last stage; leave it open without a scenario. If
@@ -646,6 +688,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     private MenuBar makeMenu(List<Command> pendingCommands)
     {
+        recentProjectsMenu.setOnShowing(e -> updateRecentProjects());
+        updateRecentProjects();
+        
         Menu scenarioMenu = new Menu(Config.getString("menu.scenario"), null,
                 makeMenuItem("stride.new.project",
                         new KeyCodeCombination(KeyCode.F, KeyCombination.SHORTCUT_DOWN),
@@ -659,7 +704,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                         new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN),
                         this::doOpenScenario, null
                     ),
-                    new Menu(Config.getString("menu.openRecent"), null), // TODO
+                    recentProjectsMenu,
                     makeMenuItem("project.close",
                         new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN),
                         () -> { doClose(true); }, hasNoProject
