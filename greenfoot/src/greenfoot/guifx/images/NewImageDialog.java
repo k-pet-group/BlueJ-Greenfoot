@@ -22,7 +22,6 @@
 package greenfoot.guifx.images;
 
 import bluej.Config;
-import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.javafx.FXCustomizedDialog;
 import greenfoot.util.ExternalAppLauncher;
@@ -149,15 +148,12 @@ public class NewImageDialog extends FXCustomizedDialog<File>
                 ExternalAppLauncher.editImage(file);
                 return true;
             }
-            else
-            {
-                DialogManager.showErrorFX(asWindow(), Config.getString("imagelib-image-unsupported-format"));
-            }
         }
         catch (IOException ex)
         {
-            Debug.reportError("Error editing new image", ex);
+            // No need to repeat the error message here and in case writing the image returned false.
         }
+        DialogManager.showErrorFX(asWindow(), Config.getString("imagelib-writing-image-failed"));
         return false;
     }
 }

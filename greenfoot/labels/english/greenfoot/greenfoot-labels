@@ -236,6 +236,7 @@ imagelib.duplicate.image.name.suffix=Copy
 
 editor.paste.image.title=Paste Image
 editor.paste.image.prompt=File Name:
+editor.paste.image.name.prompt=Enter a name for the pasted image
 
 scenario.viewer.appletInfo=Applet generated with Greenfoot (www.greenfoot.org). Scenario name:
 

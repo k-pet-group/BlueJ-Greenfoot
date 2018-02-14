@@ -472,16 +472,10 @@ class ImageLibPane extends VBox
         if (Clipboard.getSystemClipboard().hasImage())
         {
             Image image = Clipboard.getSystemClipboard().getImage();
-            new PastedImageNameDialog(container, image, null).showAndWait().ifPresent(name -> {
-                try
-                {
-                    ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", new File(projImagesDir, name + ".png"));
-                    projImageList.refresh();
-                }
-                catch (IOException ex)
-                {
-                    Debug.reportError(ex);
-                }
+            new PastedImageNameDialog(container, image, projImagesDir).showAndWait().ifPresent(file -> {
+                projImageList.refresh();
+                projImageList.select(file);
+                selectImage(file);
             });
         }
         else
