@@ -41,13 +41,16 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -135,21 +138,46 @@ class ImageLibPane extends VBox
      */
     private Pane buildImageLists(File specifiedImage)
     {
+        GridPane listsGridPane = new GridPane();
+        listsGridPane.setVgap(5);
+        ColumnConstraints constraints = new ColumnConstraints();
+        constraints.setHgrow(Priority.SOMETIMES);
+        listsGridPane.getColumnConstraints().setAll(constraints, constraints, constraints);
+
         // Project images panel
         projImagesDir = new File(project.getProjectDir(), "images");
         projImageList = new ImageLibList(projImagesDir, false);
         projImageList.select(specifiedImage);
         JavaFXUtil.runRegular(Duration.millis(1000), () -> projImageList.refresh());
         ScrollPane imageScrollPane = new ScrollPane(projImageList);
-        VBox piPanel = new VBox(5, new Label(Config.getString("imagelib.projectImages")), imageScrollPane);
+        imageScrollPane.setFitToWidth(true);
+        imageScrollPane.setFitToHeight(true);
+        GridPane.setVgrow(imageScrollPane, Priority.ALWAYS);
+        GridPane.setMargin(imageScrollPane, new Insets(0, 10, 0, 0));
+        listsGridPane.addColumn(0, new Label(Config.getString("imagelib.projectImages")), imageScrollPane);
 
-        // List of images
+        // List of greenfoot images
         greenfootImageList = new ImageLibList(false);
 
         JavaFXUtil.addChangeListener(projImageList.getSelectionModel().selectedItemProperty(), imageListEntry -> valueChanged(imageListEntry, true));
         JavaFXUtil.addChangeListener(greenfootImageList.getSelectionModel().selectedItemProperty(), imageListEntry -> valueChanged(imageListEntry, false));
 
-        return new HBox(10, piPanel, createImageLibPane());
+        // Category selection panel
+        ImageCategorySelector imageCategorySelector = new ImageCategorySelector(new File(Config.getGreenfootLibDir(), "imagelib"));
+        imageCategorySelector.setImageLibList(greenfootImageList);
+
+        ScrollPane categoryScrollPane = new ScrollPane(imageCategorySelector);
+        categoryScrollPane.setFitToWidth(true);
+        categoryScrollPane.setFitToHeight(true);
+        listsGridPane.addColumn(1, new Label(Config.getString("imagelib.categories")), categoryScrollPane);
+
+        ScrollPane greenfootImagesScrollPane = new ScrollPane(greenfootImageList);
+        greenfootImagesScrollPane.setFitToWidth(true);
+        greenfootImagesScrollPane.setFitToHeight(true);
+        listsGridPane.addColumn(2, new Label(Config.getString("imagelib.images")), greenfootImagesScrollPane);
+
+        VBox.setVgrow(listsGridPane, Priority.ALWAYS);
+        return listsGridPane;
     }
 
     /**
@@ -184,23 +212,6 @@ class ImageLibPane extends VBox
                 createGeneralMenuItem("imagelib.create.button", "imagelib.create.tooltip", event -> createNewImage()),
                 createGeneralMenuItem("imagelib.paste.image", "imagelib.paste.tooltip", event -> pasteImage()),
                 createGeneralMenuItem("imagelib.import.button", "imagelib.import.tooltip", event -> importImage()));
-    }
-
-    /**
-     * Creates Pane of lists that shows selectors for images in the Greenfoot library.
-     *
-     * @return A pane containing the two list views: the images' categories and the images in the library.
-     */
-    private Pane createImageLibPane()
-    {
-        // Category selection panel
-        File imageDir = new File(Config.getGreenfootLibDir(), "imagelib");
-        ImageCategorySelector imageCategorySelector = new ImageCategorySelector(imageDir);
-        imageCategorySelector.setImageLibList(greenfootImageList);
-
-        VBox categoryPane = new VBox(5, new Label(Config.getString("imagelib.categories")), new ScrollPane(imageCategorySelector));
-        VBox imagePane = new VBox(5, new Label(Config.getString("imagelib.images")), new ScrollPane(greenfootImageList));
-        return new HBox(2, categoryPane, imagePane);
     }
 
     /**
