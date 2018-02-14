@@ -72,5 +72,5 @@ or rename it before trying to import a file with the same name.
 import-class-exists
 The current project already contains a class named $. A class of the same name cannot be imported.
 
-imagelib-image-unsupported-format
+imagelib-writing-image-failed
 Unable to write the image file on the disk. Check if the disk is full or write-protected.

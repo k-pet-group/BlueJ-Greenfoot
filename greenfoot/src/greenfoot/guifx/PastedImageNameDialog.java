@@ -22,7 +22,6 @@
 package greenfoot.guifx;
 
 import bluej.Config;
-import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.javafx.FXCustomizedDialog;
 
@@ -126,13 +125,16 @@ public class PastedImageNameDialog extends FXCustomizedDialog<File>
     {
         try
         {
-            ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
-            return true;
+            if (ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file))
+            {
+                return true;
+            }
         }
         catch (IOException ex)
         {
-            Debug.reportError(ex);
-            return false;
+            // No need to repeat the error message here and in case writing the image returned false.
         }
+        DialogManager.showErrorFX(asWindow(), Config.getString("imagelib-writing-image-failed"));
+        return false;
     }
 }
