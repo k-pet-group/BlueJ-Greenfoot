@@ -153,7 +153,6 @@ public final class Package
     private final List<Target> targetsToPlace = new ArrayList<>();
     // Has this package been sent for data recording yet?
     private boolean recorded = false;
-    private PkgMgrFrame pmf;
 
     /** Reason code for displaying source line */
     private enum ShowSourceReason
@@ -3119,16 +3118,7 @@ public final class Package
      */
     public void callStaticMethodOrConstructor(CallableView view)
     {
-        pmf.callStaticMethodOrConstructor(view);
-    }
-
-    /**
-     * Stores a reference to the PkgMgrFrame associated with
-     * this Package
-     */
-    public void setPkgMgrFrame(PkgMgrFrame pkgMgrFrame)
-    {
-        this.pmf = pkgMgrFrame;
+        ui.callStaticMethodOrConstructor(view);
     }
 
     /**

@@ -63,6 +63,7 @@ import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.UnfocusableScrollPane;
+import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 
@@ -1891,7 +1892,12 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     @Override
     public Stage getStage()
     {
-        // TODO Auto-generated method stub
         return this;
+    }
+    
+    @Override
+    public void callStaticMethodOrConstructor(CallableView view)
+    {
+        //  TODO
     }
 }

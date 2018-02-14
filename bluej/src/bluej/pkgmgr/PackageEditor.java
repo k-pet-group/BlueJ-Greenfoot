@@ -72,6 +72,7 @@ import bluej.pkgmgr.target.Target;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.ResizableCanvas;
+import bluej.views.CallableView;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -1057,5 +1058,11 @@ public final class PackageEditor extends StackPane
     public Stage getStage()
     {
         return pmf.getFXWindow();
+    }
+    
+    @Override
+    public void callStaticMethodOrConstructor(CallableView view)
+    {
+        pmf.callStaticMethodOrConstructor(view);
     }
 }

@@ -967,28 +967,28 @@ public class PkgMgrFrame
     @OnThread(Tag.FXPlatform)
     public void openPackage(Package aPkg, PkgMgrFrame parentWindow)
     {
-        if (aPkg == null) {
-            throw new NullPointerException();
-        }
-
         // if we are already editing a package, close it and
         // open the new one
-        if (this.pkg.get() != null) {
+        if (this.pkg.get() != null)
+        {
             closePackage();
         }
 
         this.pkg.set(aPkg);
-        aPkg.setPkgMgrFrame(this);
 
-        if(! Config.isGreenfoot()) {
+        if(! Config.isGreenfoot())
+        {
             this.editor = new PackageEditor(this, aPkg, showUsesProperty, showInheritsProperty, topOverlay);
 
             pkgEditorScrollPane.setContent(editor);
             editor.setOnDragOver(event -> {
                 Dragboard db = event.getDragboard();
-                if (db.hasFiles()) {
+                if (db.hasFiles())
+                {
                     event.acceptTransferModes(TransferMode.COPY);
-                } else {
+                }
+                else
+                {
                     event.consume();
                 }
             });
@@ -996,7 +996,8 @@ public class PkgMgrFrame
             editor.setOnDragDropped(event -> {
                 Dragboard db = event.getDragboard();
                 boolean success = false;
-                if (db.hasFiles()) {
+                if (db.hasFiles())
+                {
                     success = true;
                     addFiles(db.getFiles());
                 }
