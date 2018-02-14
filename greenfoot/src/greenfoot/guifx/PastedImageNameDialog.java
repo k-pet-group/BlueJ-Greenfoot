@@ -22,8 +22,11 @@
 package greenfoot.guifx;
 
 import bluej.Config;
+import bluej.utility.Debug;
+import bluej.utility.DialogManager;
 import bluej.utility.javafx.FXCustomizedDialog;
 
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -36,21 +39,43 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.IOException;
+
 /**
  * A dialog to ask the user for a pasted image name.
  *
  * @Author Amjad Altadmri
  */
-public class PastedImageNameDialog extends FXCustomizedDialog<String>
+public class PastedImageNameDialog extends FXCustomizedDialog<File>
 {
+    private final File projImagesDir;
+    private final Image image;
+    private final TextField fileNameField = new TextField();
 
-    public PastedImageNameDialog(Window parent, Image image, String style)
+    /**
+     * Create a paste image dialog. This is used to show the clipboard image contents
+     * and to request a name for the new pasted image.
+     *
+     * @param parent        The parent window associated with this dialog
+     * @param image         The pasted content as an image object.
+     * @param projImagesDir The directory in which the images for the project are placed.
+     */
+    public PastedImageNameDialog(Window parent, Image image, File projImagesDir)
     {
-        super(parent, Config.getString("editor.paste.image.title"), style);
+        super(parent, Config.getString("editor.paste.image.title"), "");
 
-        ImageView imageView = new ImageView(image);
+        this.projImagesDir = projImagesDir;
+        this.image = image;
+        buildUI();
+    }
 
-        TextField fileNameField = new TextField();
+    /**
+     * Build the user interface for the dialog.
+     */
+    private void buildUI()
+    {
         fileNameField.setAlignment(Pos.BASELINE_LEFT);
         fileNameField.setPromptText(Config.getString("editor.paste.image.name.prompt"));
         fileNameField.requestFocus();
@@ -59,7 +84,7 @@ public class PastedImageNameDialog extends FXCustomizedDialog<String>
         fileNameRow.setAlignment(Pos.BASELINE_LEFT);
         HBox.setHgrow(fileNameField, Priority.ALWAYS);
 
-        VBox bodyPanel = new VBox(20, imageView, fileNameRow);
+        VBox bodyPanel = new VBox(20, new ImageView(image), fileNameRow);
         bodyPanel.setAlignment(Pos.CENTER);
         setContentPane(bodyPanel);
 
@@ -67,7 +92,47 @@ public class PastedImageNameDialog extends FXCustomizedDialog<String>
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
         Button okButton = (Button) getDialogPane().lookupButton(ButtonType.OK);
         okButton.disableProperty().bind(fileNameField.textProperty().isEmpty());
+        setResultConverter(bt -> bt == ButtonType.OK ? createImageFile() : null);
+    }
 
-        setResultConverter(bt -> bt == ButtonType.OK ? fileNameField.getText() : null);
+    /**
+     * Creates an image file with the name specified in the name text field.
+     * If there is a file with the same name in the images folder, it prompts the
+     * user to overwrite or cancel. If the file is created successfully, the pasted
+     * contents will be written in it and it will be written on the disk.
+     *
+     * @return If the image file was created successfully, it will be returned.
+     *         If the file has not been written successfully or the user
+     *         chose not to overwrite an existing file, null will be returned.
+     */
+    private File createImageFile()
+    {
+        File file = new File(projImagesDir, fileNameField.getText() + ".png");
+        if (file.exists())
+        {
+            boolean overwrite = DialogManager.askQuestionFX(this.asWindow(), "imagelib-write-exists", new String[] {file.getName()}) == 0;
+            return overwrite && writeImage(file) ? file : null;
+        }
+        return writeImage(file) ? file : null;
+    }
+
+    /**
+     * Writes the passed file as an image on the disk.
+     *
+     * @param file The image file to be written.
+     * @return True if the file is written successfully on the disk, false otherwise.
+     */
+    private boolean writeImage(File file)
+    {
+        try
+        {
+            ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
+            return true;
+        }
+        catch (IOException ex)
+        {
+            Debug.reportError(ex);
+            return false;
+        }
     }
 }
