@@ -46,6 +46,7 @@ import bluej.debugmgr.objectbench.ObjectResultWatcher;
 import bluej.editor.Editor;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PackageUI;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.ProjectUtils;
 import bluej.pkgmgr.target.ClassTarget;
@@ -143,7 +144,8 @@ import static bluej.pkgmgr.target.ClassTarget.MENU_STYLE_INBUILT;
  * Greenfoot's main window: a JavaFX replacement for GreenfootFrame which lives on the server VM.
  */
 @OnThread(Tag.FXPlatform)
-public class GreenfootStage extends Stage implements BlueJEventListener, FXCompileObserver, SimulationStateListener
+public class GreenfootStage extends Stage implements BlueJEventListener, FXCompileObserver,
+        SimulationStateListener, PackageUI
 {
     // These are the constants passed in the shared memory between processes,
     // hence they cannot be enums.  They are not persisted anywhere, so can
@@ -341,7 +343,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         stages.add(this);
         
         this.saveTheWorldRecorder = new GreenfootRecorder();
-        this.project = project; // TODO: this is redundant but without it currently results in NPE
         
         BlueJEvent.addListener(this);
         soundRecorder = new SoundRecorderControls(project);
@@ -419,6 +420,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private void showProject(Project project, GreenfootDebugHandler greenfootDebugHandler, FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte)
     {
         this.project = project;
+        project.getPackage("").setUI(this);
         this.debugHandler = greenfootDebugHandler;
         hasNoProject.set(false);
         numberOfOpenProjects++;
@@ -1887,5 +1889,16 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         }
         
         return null;
+    }
+    
+    /*
+     * PackageUI getStage() implementation.
+     * @see bluej.pkgmgr.PackageUI#getStage()
+     */
+    @Override
+    public Stage getStage()
+    {
+        // TODO Auto-generated method stub
+        return this;
     }
 }
