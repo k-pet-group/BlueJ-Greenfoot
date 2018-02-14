@@ -156,7 +156,7 @@ class LocalGClassNode extends GClassNode implements TargetListener
                     () -> greenfootStage.setImageFor(classTarget, display)));
         }
         // Inspect:
-        contextMenu.getItems().add(classTarget.new InspectAction(true, greenfootStage, display));
+        contextMenu.getItems().add(classTarget.new InspectAction(true, display));
         contextMenu.getItems().add(new SeparatorMenuItem());
 
         // Duplicate:
