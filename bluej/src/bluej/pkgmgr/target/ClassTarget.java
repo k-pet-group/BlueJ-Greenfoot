@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -90,6 +90,7 @@ import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
+import bluej.pkgmgr.ProjectUtils;
 import bluej.pkgmgr.SourceInfo;
 import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.ExtendsDependency;
@@ -137,7 +138,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
-import javafx.stage.Stage;
 import javafx.stage.Window;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -2017,7 +2017,7 @@ public class ClassTarget extends DependentTarget
         boolean sourceOrDocExists = source != SourceType.NONE || docExists;
         menu.getItems().add(new EditAction(sourceOrDocExists));
         menu.getItems().add(new CompileAction(source != SourceType.NONE));
-        menu.getItems().add(new InspectAction(cl != null, null, null));
+        menu.getItems().add(new InspectAction(cl != null, null));
         menu.getItems().add(new RemoveAction());
         menu.getItems().add(new DuplicateClassAction());
         Window parentWindow = pane.getScene().getWindow();
@@ -2167,7 +2167,6 @@ public class ClassTarget extends DependentTarget
     @OnThread(Tag.FXPlatform)
     public class InspectAction extends MenuItem
     {
-        private final Window parentOverride;
         private final Node animateFromCentreOverride;
 
         /**
@@ -2177,10 +2176,9 @@ public class ClassTarget extends DependentTarget
          * @param parentOverride If non-null, use this as parent.  If null, use PkgMgrFrame window.
          * @param animateFromCentreOverride If non-null, animate from centre of this node.  If null, use ClassTarget's GUI node
          */
-        public InspectAction(boolean enable, Window parentOverride, Node animateFromCentreOverride)
+        public InspectAction(boolean enable, Node animateFromCentreOverride)
         {
             super(inspectStr);
-            this.parentOverride = parentOverride;
             this.animateFromCentreOverride = animateFromCentreOverride;
             setOnAction(e -> actionPerformed(e));
             setDisable(!enable);
@@ -2192,16 +2190,7 @@ public class ClassTarget extends DependentTarget
         {
             if (checkDebuggerState())
             {
-                Window parent;
-                if (parentOverride != null)
-                {
-                    parent = parentOverride;
-                }
-                else
-                {
-                    PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
-                    parent = pmf.getFXWindow();
-                }
+                Window parent = getPackage().getUI().getStage();
                 Node animateFromCentre = animateFromCentreOverride != null ? animateFromCentreOverride : getNode();
 
                 inspect(parent, animateFromCentre);
@@ -2592,7 +2581,7 @@ public class ClassTarget extends DependentTarget
      */
     private boolean checkDebuggerState()
     {
-        return PkgMgrFrame.createFrame(getPackage(), null).checkDebuggerState();
+        return ProjectUtils.checkDebuggerState(getPackage().getProject(), getPackage().getUI().getStage());
     }
 
     /**

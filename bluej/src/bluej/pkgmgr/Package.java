@@ -220,6 +220,8 @@ public final class Package
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private PackageListener editor;
 
+    private PackageUI ui;
+    
     @OnThread(Tag.FXPlatform)    
     private List<PackageListener> listeners = new ArrayList<>();
 
@@ -576,6 +578,24 @@ public final class Package
     public synchronized PackageEditor getEditor()
     {
         return (PackageEditor) editor;
+    }
+    
+    /**
+     * Set the UI controller for this package.
+     */
+    public void setUI(PackageUI ui)
+    {
+        this.ui = ui;
+    }
+    
+    /**
+     * Retrieve the UI controller for this package. (May return null if no UI has been set; however,
+     * most operations requiring the UI should be performed in contexts where the UI has been set, so
+     * it should normally be safe to assume non-null return).
+     */
+    public PackageUI getUI()
+    {
+        return ui;
     }
 
     /**

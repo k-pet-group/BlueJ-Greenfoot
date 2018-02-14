@@ -56,6 +56,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 
 import bluej.debugger.DebuggerObject;
@@ -88,7 +89,8 @@ import threadchecker.Tag;
  */
 @OnThread(Tag.FXPlatform)
 public final class PackageEditor extends StackPane
-    implements MouseTrackingOverlayPane.MousePositionListener, PkgMgrFrame.PkgMgrPane, PackageListener
+    implements MouseTrackingOverlayPane.MousePositionListener, PkgMgrFrame.PkgMgrPane, PackageListener,
+        PackageUI
 {
     private static final int RIGHT_PLACEMENT_MIN = 300;
     private static final int WHITESPACE_SIZE = 10;
@@ -1049,5 +1051,11 @@ public final class PackageEditor extends StackPane
         newExtendsDestX = localX;
         newExtendsDestY = localY;
         repaint();
+    }
+    
+    @Override
+    public Stage getStage()
+    {
+        return pmf.getFXWindow();
     }
 }
