@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program.
- Copyright (C) 2014,2016,2017  Poul Henriksen and Michael Kolling
+ Copyright (C) 2014,2016,2017,2018  Poul Henriksen and Michael Kolling
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -31,8 +31,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 
 /**
@@ -47,18 +48,20 @@ public class PastedImageNameDialog extends FXCustomizedDialog<String>
     {
         super(parent, Config.getString("editor.paste.image.title"), style);
 
-        BorderPane bodyPanel = new BorderPane();
-        setContentPane(bodyPanel);
-
-        bodyPanel.setTop(new ImageView(image));
+        ImageView imageView = new ImageView(image);
 
         TextField fileNameField = new TextField();
-        fileNameField.setAlignment(Pos.BASELINE_RIGHT);
+        fileNameField.setAlignment(Pos.BASELINE_LEFT);
+        fileNameField.setPromptText(Config.getString("editor.paste.image.name.prompt"));
         fileNameField.requestFocus();
 
-        HBox fileNameRow = new HBox();
-        fileNameRow.getChildren().addAll(new Label(Config.getString("editor.paste.image.prompt")), fileNameField, new Label(".png"));
-        bodyPanel.setCenter(fileNameRow);
+        HBox fileNameRow = new HBox(new Label(Config.getString("editor.paste.image.prompt")), fileNameField, new Label(".png"));
+        fileNameRow.setAlignment(Pos.BASELINE_LEFT);
+        HBox.setHgrow(fileNameField, Priority.ALWAYS);
+
+        VBox bodyPanel = new VBox(20, imageView, fileNameRow);
+        bodyPanel.setAlignment(Pos.CENTER);
+        setContentPane(bodyPanel);
 
         // add buttons
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
