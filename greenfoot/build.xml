@@ -492,7 +492,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <!-- Greenfoot icon for application: greenfoot-16.png -->
         <copy file="resources/images/greenfoot-icon-16.png" tofile="images/greenfoot.png"/>
         <!-- About image: currently: use same as splash image -->
-        <copy file="resources/images/greenfoot-splash.png" tofile="images/greenfoot-about.jpg"/>
+        <copy file="resources/images/greenfoot-splash.png" tofile="images/greenfoot-about.png"/>
         <!-- Readme label icon -->
         <copy file="resources/images/readme.png" todir="images"/>
         <!-- Empty image - just to force same layout of compile and readme button -->
@@ -985,7 +985,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <arg value="14"/> <!-- font size -->
             <arg value="187"/> <!-- X position -->
             <arg value="219"/> <!-- Y position -->
-            <arg value="${bluej_home}/boot/src/bluej/gen-greenfoot-splash.png"/> <!-- destination -->
+            <arg value="${bluej_home}/boot/resources/bluej/gen-greenfoot-splash.png"/> <!-- destination -->
         </java>
     </target>
 </project>

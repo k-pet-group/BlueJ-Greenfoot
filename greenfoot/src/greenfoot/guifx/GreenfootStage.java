@@ -1841,15 +1841,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         Image image;
         // Finds the image file that is supposed to be exist in the "resources" directory
-        URL resource = this.getClass().getClassLoader().getResource("greenfoot-about.jpg");
-        if (resource != null)
-        {
-            image = new javafx.scene.image.Image(resource.toString());
-        }
-        else
-        {
-            return;
-        }
+        URL resource = this.getClass().getClassLoader().getResource("greenfoot-about.png");
+        image = new javafx.scene.image.Image(resource.toString());
 
         String[] translatorNames = {"Wombat Yuan", "Zdenék Chalupský", "Erik van Veen & Renske Smetsers-Weeda",
                 "Guillaume Baudoin", "Matthias Taulien", "Stefan Mueller", "Mantzas Ioannis",

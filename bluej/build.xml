@@ -35,6 +35,7 @@
     <property name="core.src" value="src"/>
     <property name="core.build" value="classes"/>
     <property name="boot.src" value="boot/src"/>
+    <property name="boot.resources" value="boot/resources"/>
     <property name="boot.build" value="boot/classes"/>
     <property name="threadchecker.src" value="threadchecker/src"/>
     <property name="threadchecker.build" value="threadchecker/classes"/>
@@ -100,7 +101,9 @@
             <compilerarg value="-Xmaxerrs"/><compilerarg value="100"/>
             <compilerarg value="-Xplugin:threadchecker.TCPlugin org.reflections"/>
         </compile>
-
+    	<copy todir="${boot.build}">
+    	    <fileset dir="${boot.resources}" />
+        </copy>
     </target>
 
     <target name="compile-threadchecker">
@@ -177,7 +180,7 @@
                 <include name="bluej/Boot*.class"/>
                 <include name="bluej/Splash*.class"/>
             </fileset>
-            <fileset dir="${boot.src}">
+            <fileset dir="${boot.resources}">
                 <include name="bluej/gen-bluej-splash*.png"/>
                 <include name="bluej/gen-greenfoot-splash*.png"/>
             </fileset>
@@ -424,20 +427,20 @@
         <mkdir dir="util/classes"/>
         <compile srcdir="util/src" destdir="util/classes"/>
         <java classname="DrawVersionOnSplash" classpath="util/classes">
-            <arg value="boot/src/bluej/unversioned-bluej-splash.png"/> <!-- original -->
+            <arg value="resources/unversioned-bluej-splash.png"/> <!-- original -->
             <arg value="Version ${bluej.version}"/> <!-- text -->
             <arg value="16"/> <!-- font size -->
             <arg value="237"/> <!-- X position -->
             <arg value="130"/> <!-- Y position -->
-            <arg value="boot/src/bluej/gen-bluej-splash.png"/> <!-- destination -->
+            <arg value="boot/resources/bluej/gen-bluej-splash.png"/> <!-- destination -->
         </java>
         <java classname="DrawVersionOnSplash" classpath="util/classes">
-            <arg value="boot/src/bluej/unversioned-bluej-splash@2x.png"/> <!-- original -->
+            <arg value="resources/unversioned-bluej-splash@2x.png"/> <!-- original -->
             <arg value="Version ${bluej.version}"/> <!-- text -->
             <arg value="32"/> <!-- font size -->
             <arg value="470"/> <!-- X position -->
             <arg value="260"/> <!-- Y position -->
-            <arg value="boot/src/bluej/gen-bluej-splash@2x.png"/> <!-- destination -->
+            <arg value="boot/resources/bluej/gen-bluej-splash@2x.png"/> <!-- destination -->
         </java>
     </target>
     
@@ -449,7 +452,6 @@
     <target name="clean-greenfoot" description="clean up greenfoot related stuff" >
         <!-- Used by jar installer: greenfoot-splash.png -->
         <delete file="package/greenfoot-splash.png" />
-        <delete file="boot/src/bluej/greenfoot-splash.png" />
         <delete dir="lib/greenfoot" />
         <delete quiet="false" file="${greenfoot-native.jar}" />
         <delete dir="package/scenarios" />

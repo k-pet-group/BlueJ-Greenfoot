@@ -649,7 +649,7 @@
             <zipfileset dir="${bluej_home}" defaultexcludes="yes">
 	            <include name="src/**/*.java" />       
 	            <include name="boot/src/**/*.java" />       
-	            <include name="boot/src/bluej/*.png" />
+	            <include name="boot/resources/bluej/*.png" />
                 <include name="threadchecker/src/**/*" />
                 <include name="threadchecker/pluginsrc/**/*" />
 	            <include name="doc/HOWTO.*" />    
