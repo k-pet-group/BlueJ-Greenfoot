@@ -21,6 +21,7 @@
  */
 package bluej.pkgmgr;
 
+import bluej.views.CallableView;
 import javafx.stage.Stage;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -37,4 +38,12 @@ public interface PackageUI
      * Get the Stage associated with the Package UI.
      */
     public Stage getStage();
+    
+    /**
+     * Initiate an interactive call to a static method or a constructor. The UI should prompt for
+     * call parameters (if applicable) and then execute the call.
+     * 
+     * @param view  the view representing the method/constructor to call.
+     */
+    public void callStaticMethodOrConstructor(CallableView view);
 }

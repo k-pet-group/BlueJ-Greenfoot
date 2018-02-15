@@ -42,7 +42,7 @@ import bluej.debugmgr.Invoker;
 import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.debugmgr.objectbench.ObjectWrapper;
-import bluej.debugmgr.objectbench.ObjectResultWatcher;
+import bluej.debugmgr.objectbench.ResultWatcherBase;
 import bluej.editor.Editor;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.Package;
@@ -63,6 +63,7 @@ import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.UnfocusableScrollPane;
+import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 
@@ -1789,7 +1790,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             String objInstanceName = debugHandler.addObject(target, target.getGenType(), target.getClassName().toLowerCase());
             project.getDebugger().addObject(project.getPackage("").getId(), objInstanceName, target);
 
-            ResultWatcher watcher = new ObjectResultWatcher(target, objInstanceName,
+            ResultWatcher watcher = new ResultWatcherBase(target, objInstanceName,
                     project.getUnnamedPackage(), GreenfootStage.this, mv) {
                 @Override
                 protected void addInteraction(InvokerRecord ir)
@@ -1891,7 +1892,62 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     @Override
     public Stage getStage()
     {
-        // TODO Auto-generated method stub
         return this;
+    }
+    
+    @Override
+    public void callStaticMethodOrConstructor(CallableView cv)
+    {
+        ResultWatcher watcher = null;
+        Package pkg = project.getPackage("");
+
+        if (cv instanceof ConstructorView) {
+            // if we are constructing an object, create a watcher that waits for
+            // completion of the call and then places the object on the object
+            // bench
+            watcher = new ResultWatcherBase(pkg, this, cv) {
+                @Override
+                public void beginCompile()
+                {
+                    super.beginCompile();
+                }
+                
+                @Override
+                protected void nonNullResult(DebuggerObject result, String name, InvokerRecord ir)
+                {
+                    if ((name == null) || (name.length() == 0))
+                        name = "result";
+
+                    debugHandler.addObject(result, result.getGenType(), name);
+                    project.getDebugger().addObject(project.getPackage("").getId(), name, result);
+                    
+                    // TODO save interaction in the saveTheWorldRecorder?
+                }
+
+                @Override
+                protected void addInteraction(InvokerRecord ir)
+                {
+                    // Nothing we can do here.
+                }
+            };
+        }
+        else if (cv instanceof MethodView) {
+            // create a watcher
+            // that waits for completion of the call and then displays the
+            // result (or does nothing if void)
+            watcher = new ResultWatcherBase(pkg, this, cv) {
+                @Override
+                protected void addInteraction(InvokerRecord ir)
+                {
+                    // Nothing we can do
+                }
+            };
+        }
+
+        // create an Invoker to handle the actual invocation
+        if (ProjectUtils.checkDebuggerState(project, this)) {
+            new Invoker(this, pkg, cv, watcher, pkg.getCallHistory(), debugHandler, debugHandler,
+                    project.getDebugger(), null).invokeInteractive();
+        }
     }
 }

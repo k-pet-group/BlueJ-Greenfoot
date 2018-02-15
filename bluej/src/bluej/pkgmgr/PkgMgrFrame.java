@@ -34,12 +34,12 @@ import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugger.gentype.GenTypeClass;
-import bluej.debugmgr.ExecutionEvent;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.LibraryCallDialog;
 import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.codepad.CodePad;
+import bluej.debugmgr.objectbench.BluejResultWatcher;
 import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.editor.moe.PrintDialog;
@@ -967,28 +967,28 @@ public class PkgMgrFrame
     @OnThread(Tag.FXPlatform)
     public void openPackage(Package aPkg, PkgMgrFrame parentWindow)
     {
-        if (aPkg == null) {
-            throw new NullPointerException();
-        }
-
         // if we are already editing a package, close it and
         // open the new one
-        if (this.pkg.get() != null) {
+        if (this.pkg.get() != null)
+        {
             closePackage();
         }
 
         this.pkg.set(aPkg);
-        aPkg.setPkgMgrFrame(this);
 
-        if(! Config.isGreenfoot()) {
+        if(! Config.isGreenfoot())
+        {
             this.editor = new PackageEditor(this, aPkg, showUsesProperty, showInheritsProperty, topOverlay);
 
             pkgEditorScrollPane.setContent(editor);
             editor.setOnDragOver(event -> {
                 Dragboard db = event.getDragboard();
-                if (db.hasFiles()) {
+                if (db.hasFiles())
+                {
                     event.acceptTransferModes(TransferMode.COPY);
-                } else {
+                }
+                else
+                {
                     event.consume();
                 }
             });
@@ -996,7 +996,8 @@ public class PkgMgrFrame
             editor.setOnDragDropped(event -> {
                 Dragboard db = event.getDragboard();
                 boolean success = false;
-                if (db.hasFiles()) {
+                if (db.hasFiles())
+                {
                     success = true;
                     addFiles(db.getFiles());
                 }
@@ -1998,83 +1999,54 @@ public class PkgMgrFrame
             // if we are constructing an object, create a watcher that waits for
             // completion of the call and then places the object on the object
             // bench
-            watcher = new ResultWatcher() {
+            watcher = new BluejResultWatcher(getPackage(), this, cv) {
                 @Override
                 public void beginCompile()
                 {
-                    setWaitCursor(true);
                     setStatus(Config.getString("pkgmgr.creating"));
+                    super.beginCompile();
                 }
                 
                 @Override
-                public void beginExecution(InvokerRecord ir)
+                protected void nonNullResult(DebuggerObject result, String name, InvokerRecord ir)
                 {
-                    BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir);
-                    setWaitCursor(false);
-                }
-                
-                @Override
-                public void putResult(DebuggerObject result, String name, InvokerRecord ir)
-                {
-                    ExecutionEvent executionEvent = new ExecutionEvent(pkg.get(), cv.getClassName(), null);
-                    executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
-                    executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
-                    executionEvent.setResultObject(result);
-                    BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
-
-                    Project proj = getPackage().getProject();
-                    proj.updateInspectors();
-                    setStatus(Config.getString("pkgmgr.createDone"));
+                    // Override the default behaviour (which would actually do nothing) to put the
+                    // object on the object bench:
                     
-                    // this shouldn't ever happen!! (ajp 5/12/02)
-                    if ((name == null) || (name.length() == 0))
-                        name = "result";
+                    ObjectWrapper wrapper = ObjectWrapper.getWrapper(PkgMgrFrame.this, getObjectBench(),
+                            result, result.getGenType(), name);
 
-                    if (result != null) {
-                        ObjectWrapper wrapper = ObjectWrapper.getWrapper(PkgMgrFrame.this, getObjectBench(), result,
-                                result.getGenType(), name);
-                        getObjectBench().addObject(wrapper);
+                    getObjectBench().addObject(wrapper);
+                    getPackage().getDebugger().addObject(pkg.get().getId(), wrapper.getName(), result);
 
-                        getPackage().getDebugger().addObject(pkg.get().getId(), wrapper.getName(), result);
-
-                        getObjectBench().addInteraction(ir);
-                    }
-                    else {
-                        // This shouldn't happen, but let's play it safe.
-                    }
+                    getObjectBench().addInteraction(ir);
                 }
 
                 @Override
                 public void putError(String msg, InvokerRecord ir)
                 {
                     setStatus("");
-                    setWaitCursor(false);
+                    super.putError(msg, ir);
                 }
                 
                 @Override
                 public void putException(ExceptionDescription exception, InvokerRecord ir)
                 {
-                    ExecutionEvent executionEvent = new ExecutionEvent(pkg.get(), cv.getClassName(), null);
-                    executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
-                    executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
-                    executionEvent.setException(exception);
-                    BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
-                    
+                    super.putException(exception, ir);
                     setStatus("");
-                    getPackage().exceptionMessage(exception);
-                    Project proj = getPackage().getProject();
-                    proj.updateInspectors();
                 }
                 
                 @Override
                 public void putVMTerminated(InvokerRecord ir)
                 {
-                    ExecutionEvent executionEvent = new ExecutionEvent(pkg.get(), cv.getClassName(), null);
-                    executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
-                    executionEvent.setResult(ExecutionEvent.TERMINATED_EXIT);
-                    BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
-                    
+                    super.putVMTerminated(ir);
                     setStatus("");
+                }
+                
+                @Override
+                protected void addInteraction(InvokerRecord ir)
+                {
+                    getObjectBench().addInteraction(ir);
                 }
             };
         }
@@ -2084,7 +2056,7 @@ public class PkgMgrFrame
             // create a watcher
             // that waits for completion of the call and then displays the
             // result (or does nothing if void)
-            watcher = new ResultWatcher() {
+            watcher = new BluejResultWatcher(getPackage(), this, cv) {
                 private final ExpressionInformation expressionInformation = new ExpressionInformation(mv, mv.getName());
 
                 @Override
@@ -2098,36 +2070,8 @@ public class PkgMgrFrame
                 }
                 
                 @Override
-                public void beginExecution(InvokerRecord ir)
+                protected void nonNullResult(DebuggerObject result, String name, InvokerRecord ir)
                 {
-                    BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir);
-                    setWaitCursor(false);
-                }
-                
-                @Override
-                public void putResult(DebuggerObject result, String name, InvokerRecord ir)
-                {
-                    ExecutionEvent executionEvent = new ExecutionEvent(pkg.get(), cv.getClassName(), null);
-                    executionEvent.setMethodName(mv.getName());
-                    executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
-                    executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
-                    executionEvent.setResultObject(result);
-                    BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
-
-                    Project proj = getPackage().getProject();
-                    proj.updateInspectors();
-                    expressionInformation.setArgumentValues(ir.getArgumentValues());
-                    getObjectBench().addInteraction(ir);
-
-                    // a void result returns a name of null
-                    if (name == null)
-                        return;
-
-                    //The result can be null when terminating the program while
-                    // at a breakpoint in a method that has a return value.
-                    if (result == null)
-                        return;
-
                     Project project = getProject();
                     Package pkg = getPackage();
 
@@ -2136,32 +2080,9 @@ public class PkgMgrFrame
                 }
 
                 @Override
-                public void putError(String msg, InvokerRecord ir)
+                protected void addInteraction(InvokerRecord ir)
                 {
-                    setWaitCursor(false);
-                }
-                
-                @Override
-                public void putException(ExceptionDescription exception, InvokerRecord ir)
-                {
-                    ExecutionEvent executionEvent = new ExecutionEvent(pkg.get(), cv.getClassName(), null);
-                    executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
-                    executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
-                    executionEvent.setException(exception);
-                    BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
-
-                    Project proj = getPackage().getProject();
-                    proj.updateInspectors();
-                    getPackage().exceptionMessage(exception);
-                }
-                
-                @Override
-                public void putVMTerminated(InvokerRecord ir)
-                {
-                    ExecutionEvent executionEvent = new ExecutionEvent(pkg.get(), cv.getClassName(), null);
-                    executionEvent.setParameters(cv.getParamTypes(false), ir.getArgumentValues());
-                    executionEvent.setResult(ExecutionEvent.TERMINATED_EXIT);
-                    BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
+                    getObjectBench().addInteraction(ir);
                 }
             };
         }

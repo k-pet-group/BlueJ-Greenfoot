@@ -26,6 +26,7 @@ import bluej.debugger.DebuggerObject;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.testmgr.record.InvokerRecord;
+import bluej.views.CallableView;
 import bluej.views.MethodView;
 
 /**
@@ -36,12 +37,26 @@ import bluej.views.MethodView;
  * 
  * @author Davin McCall
  */
-public abstract class BluejResultWatcher extends ObjectResultWatcher
+public abstract class BluejResultWatcher extends ResultWatcherBase
 {
     private PkgMgrFrame pmf;
+
+    /**
+     * Constructor for BluejResultWatcher, for a constructor or static method call.
+     * 
+     * @param className      the name of the class whose member is called
+     * @param pkg    the package in which the invocation occurs
+     * @param pmf    the PkgMgrFrame for the package
+     * @param method  the method/constructor being invoked
+     */
+    public BluejResultWatcher(Package pkg, PkgMgrFrame pmf, CallableView method)
+    {
+        super(pkg, pmf.getFXWindow(), method);
+        this.pmf = pmf;
+    }
     
     /**
-     * Constructor for BluejResultWatcher.
+     * Constructor for BluejResultWatcher, for an instance method call.
      * 
      * @param obj    the target object of the invocation
      * @param objInstanceName   the name of the target instance

@@ -29,28 +29,52 @@ import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.ResultWatcher;
 import bluej.pkgmgr.Package;
 import bluej.testmgr.record.InvokerRecord;
+import bluej.views.CallableView;
 import bluej.views.MethodView;
 import javafx.stage.Stage;
 
 /**
- * A result watcher which handles standard invocation of
- * methods on a DebuggerObject.
+ * A result watcher which handles standard invocation of methods and constructors.
  */
-public abstract class ObjectResultWatcher implements ResultWatcher
+public abstract class ResultWatcherBase implements ResultWatcher
 {
-    private final MethodView method;
+    private final CallableView method;
     private DebuggerObject obj;
     private String objInstanceName;
     private Package pkg;
     private Stage parentWindow;
+    private String className;
 
-    public ObjectResultWatcher(DebuggerObject obj, String objInstanceName, Package pkg, Stage parentWindow, MethodView method)
+    /**
+     * Construct a new ResultWatcherBase, for a constructor or static method call.
+     * @param pkg            The package in which the call is executed
+     * @param parentWindow   The parent window for display
+     * @param method         The method/constructor being called
+     */
+    public ResultWatcherBase(Package pkg, Stage parentWindow, CallableView method)
+    {
+        this.method = method;
+        this.className = method.getClassName();
+        this.pkg = pkg;
+        this.parentWindow = parentWindow;
+    }
+    
+    /**
+     * Construct a new ResultWatcherBase, for an instance method call.
+     * @param obj              The receiver of the call
+     * @param objInstanceName  The name of the receiver instance (as on the object bench)
+     * @param pkg              The package in which the call is executed
+     * @param parentWindow     The parent window for display
+     * @param method           The method being called
+     */
+    public ResultWatcherBase(DebuggerObject obj, String objInstanceName, Package pkg, Stage parentWindow, CallableView method)
     {
         this.method = method;
         this.obj = obj;
         this.objInstanceName = objInstanceName;
         this.pkg = pkg;
         this.parentWindow = parentWindow;
+        this.className = obj.getClassName();
     }
 
     @Override
@@ -66,8 +90,11 @@ public abstract class ObjectResultWatcher implements ResultWatcher
     @Override
     public void putResult(DebuggerObject result, String name, InvokerRecord ir)
     {
-        ExecutionEvent executionEvent = new ExecutionEvent(pkg, obj.getClassName(), objInstanceName);
-        executionEvent.setMethodName(method.getName());
+        ExecutionEvent executionEvent = new ExecutionEvent(pkg, className, objInstanceName);
+        if (method instanceof MethodView) {
+            MethodView mv = (MethodView) method;
+            executionEvent.setMethodName(mv.getName());
+        }
         executionEvent.setParameters(method.getParamTypes(false), ir.getArgumentValues());
         executionEvent.setResult(ExecutionEvent.NORMAL_EXIT);
         executionEvent.setResultObject(result);
@@ -91,10 +118,14 @@ public abstract class ObjectResultWatcher implements ResultWatcher
      */
     protected void nonNullResult(DebuggerObject result, String name, InvokerRecord ir)
     {
-        ExpressionInformation expressionInformation = new ExpressionInformation(method, objInstanceName, obj.getGenType());
-        expressionInformation.setArgumentValues(ir.getArgumentValues());
-        pkg.getProject().getResultInspectorInstance(result, name, pkg,
-                ir, expressionInformation, parentWindow);
+        if (method instanceof MethodView) {
+            MethodView mv = (MethodView) method;
+            ExpressionInformation expressionInformation =
+                    new ExpressionInformation(mv, objInstanceName, obj.getGenType());
+            expressionInformation.setArgumentValues(ir.getArgumentValues());
+            pkg.getProject().getResultInspectorInstance(result, name, pkg,
+                    ir, expressionInformation, parentWindow);
+        }
     }
 
     /**
