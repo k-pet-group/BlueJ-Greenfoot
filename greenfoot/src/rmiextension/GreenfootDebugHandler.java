@@ -61,6 +61,7 @@ import bluej.debugger.SourceLocation;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ValueCollection;
+import bluej.debugmgr.objectbench.ObjectBenchEvent;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.debugmgr.objectbench.ObjectBenchListener;
 import bluej.extensions.BProject;
@@ -117,6 +118,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     private GreenfootRecorder greenfootRecorder;
     private SimulationStateListener simulationListener;
     private Map<String,GreenfootObject> objectBench = new HashMap<>();
+    private List<ObjectBenchListener> benchListeners = new ArrayList<>();
     
     private File shmFile;
 
@@ -591,14 +593,18 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
      */
     public String addSelectedObject(DebuggerObject object, GenTypeClass type, String name)
     {
-        while (objectBench.get(name) != null) {
+        while (objectBench.get(name) != null)
+        {
             name += "_"; // TODO improve
         }
         
         GreenfootObject newObj = new GreenfootObject(object, type, name);
         objectBench.put(name, newObj);
         
-        // TODO fire event to listeners
+        for (ObjectBenchListener l : benchListeners)
+        {
+            l.objectEvent(new ObjectBenchEvent(this, ObjectBenchEvent.OBJECT_SELECTED, newObj));
+        }
         
         return name;
     }
@@ -606,13 +612,13 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     @Override
     public void addObjectBenchListener(ObjectBenchListener l)
     {
-        throw new RuntimeException("Not implemented"); // TODO
+        benchListeners.add(l);
     }
     
     @Override
     public void removeObjectBenchListener(ObjectBenchListener l)
     {
-        throw new RuntimeException("Not implemented"); // TODO
+        benchListeners.remove(l);
     }
     
     @Override
