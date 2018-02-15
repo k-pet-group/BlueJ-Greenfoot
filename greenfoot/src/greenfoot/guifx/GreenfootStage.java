@@ -42,7 +42,7 @@ import bluej.debugmgr.Invoker;
 import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.debugmgr.objectbench.ObjectWrapper;
-import bluej.debugmgr.objectbench.ObjectResultWatcher;
+import bluej.debugmgr.objectbench.ResultWatcherBase;
 import bluej.editor.Editor;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.Package;
@@ -1790,7 +1790,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             String objInstanceName = debugHandler.addObject(target, target.getGenType(), target.getClassName().toLowerCase());
             project.getDebugger().addObject(project.getPackage("").getId(), objInstanceName, target);
 
-            ResultWatcher watcher = new ObjectResultWatcher(target, objInstanceName,
+            ResultWatcher watcher = new ResultWatcherBase(target, objInstanceName,
                     project.getUnnamedPackage(), GreenfootStage.this, mv) {
                 @Override
                 protected void addInteraction(InvokerRecord ir)
