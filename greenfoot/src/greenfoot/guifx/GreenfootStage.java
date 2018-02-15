@@ -1896,8 +1896,58 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     }
     
     @Override
-    public void callStaticMethodOrConstructor(CallableView view)
+    public void callStaticMethodOrConstructor(CallableView cv)
     {
-        //  TODO
+        ResultWatcher watcher = null;
+        Package pkg = project.getPackage("");
+
+        if (cv instanceof ConstructorView) {
+            // if we are constructing an object, create a watcher that waits for
+            // completion of the call and then places the object on the object
+            // bench
+            watcher = new ResultWatcherBase(pkg, this, cv) {
+                @Override
+                public void beginCompile()
+                {
+                    super.beginCompile();
+                }
+                
+                @Override
+                protected void nonNullResult(DebuggerObject result, String name, InvokerRecord ir)
+                {
+                    if ((name == null) || (name.length() == 0))
+                        name = "result";
+
+                    debugHandler.addObject(result, result.getGenType(), name);
+                    project.getDebugger().addObject(project.getPackage("").getId(), name, result);
+                    
+                    // TODO save interaction in the saveTheWorldRecorder?
+                }
+
+                @Override
+                protected void addInteraction(InvokerRecord ir)
+                {
+                    // Nothing we can do here.
+                }
+            };
+        }
+        else if (cv instanceof MethodView) {
+            // create a watcher
+            // that waits for completion of the call and then displays the
+            // result (or does nothing if void)
+            watcher = new ResultWatcherBase(pkg, this, cv) {
+                @Override
+                protected void addInteraction(InvokerRecord ir)
+                {
+                    // Nothing we can do
+                }
+            };
+        }
+
+        // create an Invoker to handle the actual invocation
+        if (ProjectUtils.checkDebuggerState(project, this)) {
+            new Invoker(this, pkg, cv, watcher, pkg.getCallHistory(), debugHandler, debugHandler,
+                    project.getDebugger(), null).invokeInteractive();
+        }
     }
 }
