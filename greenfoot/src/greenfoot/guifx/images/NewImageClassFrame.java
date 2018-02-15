@@ -42,6 +42,7 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 
@@ -103,6 +104,7 @@ public class NewImageClassFrame extends FXCustomizedDialog<NewImageClassFrame.Ne
 
         imageLibPane = new ImageLibPane(this.asWindow(), project);
         setContentPane(new VBox(10, buildClassDetailsPanel(project.getUnnamedPackage()), imageLibPane)); /////// Here put the Pane
+        VBox.setVgrow(imageLibPane, Priority.ALWAYS);
 
         setResultConverter(bt -> bt == ButtonType.OK
                 ? new NewImageClassInfo(classNameField.getText(), language, imageLibPane.selectedImageProperty().get())
