@@ -529,6 +529,7 @@ public final class Package
     @OnThread(Tag.FXPlatform)
     void setEditor(PackageEditor ed)
     {
+        setUI(ed);
         synchronized (this)
         {
             if (this.editor != null)
