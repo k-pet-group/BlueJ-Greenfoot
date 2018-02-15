@@ -985,7 +985,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <arg value="14"/> <!-- font size -->
             <arg value="187"/> <!-- X position -->
             <arg value="219"/> <!-- Y position -->
-            <arg value="${bluej_home}/boot/src/bluej/gen-greenfoot-splash.png"/> <!-- destination -->
+            <arg value="${bluej_home}/boot/resources/bluej/gen-greenfoot-splash.png"/> <!-- destination -->
         </java>
     </target>
 </project>
