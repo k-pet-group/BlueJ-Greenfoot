@@ -87,6 +87,7 @@ import greenfoot.record.GreenfootRecorder;
 import greenfoot.util.GreenfootUtil;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -211,6 +212,12 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private final Button runButton;
     private final Button resetButton;
     
+    private final BooleanProperty actDisabled = new SimpleBooleanProperty(true);
+    private final BooleanProperty resetDisabled = new SimpleBooleanProperty(true);
+    private final BooleanProperty runDisabled = new SimpleBooleanProperty(true);
+    private final BooleanProperty pauseDisabled = new SimpleBooleanProperty(true);
+    private final BooleanBinding runPauseDisabled = runDisabled.and(pauseDisabled);;
+    
     private final List<Command> pendingCommands;
     private boolean instantiateWorldAfterDiscarded;
     
@@ -252,6 +259,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private final SoundRecorderControls soundRecorder;
     private GreenfootDebugHandler debugHandler;
     private final Menu recentProjectsMenu = new Menu(Config.getString("menu.openRecent"));
+    private final SimpleBooleanProperty showingDebugger = new SimpleBooleanProperty(false);
 
     
     /**
@@ -351,30 +359,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         actButton = new Button(Config.getString("run.once"));
         runButton = new Button(Config.getString("controls.run.button"));
         resetButton = new Button(Config.getString("reset.world"));
+        actButton.disableProperty().bind(actDisabled);
+        runButton.disableProperty().bind(runPauseDisabled);
+        resetButton.disableProperty().bind(resetDisabled);
         Node buttonAndSpeedPanel = new HBox(actButton, runButton, resetButton);
         pendingCommands = new ArrayList<>();
-        actButton.setOnAction(e -> {
-            act(pendingCommands);
-        });
-        runButton.setOnAction(e -> {
-            if (stateProperty.get() == State.PAUSED)
-            {
-                pendingCommands.add(new Command(COMMAND_RUN));
-                stateProperty.set(State.PAUSED_REQUESTED_ACT_OR_RUN);
-            }
-            else if (stateProperty.get() == State.RUNNING)
-            {
-                pendingCommands.add(new Command(COMMAND_PAUSE));
-                stateProperty.set(State.RUNNING_REQUESTED_PAUSE);
-            }
-        });
-        resetButton.setOnAction(e -> {
-            if (stateProperty.get() != State.UNCOMPILED)
-            {
-                doReset();
-                stateProperty.set(State.UNCOMPILED);
-            }
-        });
+        actButton.setOnAction(e -> act(pendingCommands));
+        runButton.setOnAction(e -> doRunPause());
+        resetButton.setOnAction(e -> doReset());
 
         worldDisplay = new WorldDisplay();
         
@@ -384,7 +376,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
         ScrollPane worldViewScroll = new UnfocusableScrollPane(worldDisplay);
         JavaFXUtil.expandScrollPaneContent(worldViewScroll);
-        BorderPane root = new BorderPane(worldViewScroll, makeMenu(pendingCommands), classDiagramScroll, buttonAndSpeedPanel, null);
+        BorderPane root = new BorderPane(worldViewScroll, makeMenu(), classDiagramScroll,
+                buttonAndSpeedPanel, null);
         glassPane = new Pane();
         glassPane.setMouseTransparent(true);
         StackPane stackPane = new StackPane(root, glassPane);
@@ -450,6 +443,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         greenfootDebugHandler.setPickListener(this::pickResults);
         greenfootDebugHandler.setSimulationListener(this);
         greenfootDebugHandler.setGreenfootRecorder(saveTheWorldRecorder);
+        showingDebugger.bindBidirectional(project.debuggerShowing());
         
         classDiagram.setProject(project);
 
@@ -491,6 +485,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         pendingCommands.add(new Command(COMMAND_DISCARD_WORLD));
         instantiateWorldAfterDiscarded = true;
+        stateProperty.set(State.UNCOMPILED);
     }
 
     private void loadAndMirrorProperties(List<Command> pendingCommands)
@@ -619,11 +614,12 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     private void removeScenarioDetails()
     {
+        showingDebugger.unbindBidirectional(project.debuggerShowing());
         project = null;
         hasNoProject.set(true);
         worldDisplay.setImage(null);
         classDiagram.setProject(null);
-        updateGUIState(State.NO_PROJECT);
+        stateProperty.set(State.NO_PROJECT);
     }
     
     /**
@@ -686,11 +682,28 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             stateProperty.set(State.PAUSED_REQUESTED_ACT_OR_RUN);
         }
     }
+    
+    /**
+     * Run or pause the simulation (depending on current state).
+     */
+    private void doRunPause()
+    {
+        if (stateProperty.get() == State.PAUSED)
+        {
+            pendingCommands.add(new Command(COMMAND_RUN));
+            stateProperty.set(State.PAUSED_REQUESTED_ACT_OR_RUN);
+        }
+        else if (stateProperty.get() == State.RUNNING)
+        {
+            pendingCommands.add(new Command(COMMAND_PAUSE));
+            stateProperty.set(State.RUNNING_REQUESTED_PAUSE);
+        }
+    }
 
     /**
      * Make the menu bar for the whole window.
      */
-    private MenuBar makeMenu(List<Command> pendingCommands)
+    private MenuBar makeMenu()
     {
         recentProjectsMenu.setOnShowing(e -> updateRecentProjects());
         updateRecentProjects();
@@ -748,11 +761,25 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             new Menu(Config.getString("menu.controls"), null,
                     makeMenuItem("run.once",
                             new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN),
-                            () -> act(pendingCommands), hasNoProject),
+                            () -> act(pendingCommands), actDisabled),
+                    makeMenuItem("controls.run.button",
+                            new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN),
+                            this::doRunPause, runDisabled),
+                    makeMenuItem("controls.pause.button",
+                            new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN,
+                                    KeyCombination.SHIFT_DOWN),
+                            this::doRunPause, pauseDisabled),
+                    makeMenuItem("reset.world",
+                            new KeyCodeCombination(KeyCode.T, KeyCombination.SHORTCUT_DOWN),
+                            this::doReset, resetDisabled),
+                    new SeparatorMenuItem(),
                     JavaFXUtil.makeCheckMenuItem(Config.getString("menu.soundRecorder"),
                             soundRecorder.getShowingProperty(),
                             new KeyCodeCombination(KeyCode.U, KeyCombination.SHORTCUT_DOWN),
-                            this::toggleSoundRecorder)
+                            this::toggleSoundRecorder),
+                    JavaFXUtil.makeCheckMenuItem(Config.getString("menu.debugger"),
+                            showingDebugger,
+                            new KeyCodeCombination(KeyCode.B, KeyCombination.SHORTCUT_DOWN))
             ),
             new Menu(Config.getString("menu.tools"), null,
                     makeMenuItem("menu.tools.generateDoc",
@@ -819,8 +846,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     private void updateGUIState(State newState)
     {
-        actButton.setDisable(newState != State.PAUSED || atBreakpoint);
-        runButton.setDisable((newState != State.PAUSED && newState != State.RUNNING) || atBreakpoint);
+        actDisabled.setValue(newState != State.PAUSED || atBreakpoint);
+        runDisabled.setValue(newState != State.PAUSED || atBreakpoint);
+        pauseDisabled.setValue(newState != State.RUNNING || atBreakpoint);
+        resetDisabled.setValue(newState == State.NO_PROJECT || newState == State.UNCOMPILED);
+
         if (newState == State.RUNNING || newState == State.RUNNING_REQUESTED_PAUSE)
         {
             runButton.setText(Config.getString("controls.pause.button"));
@@ -829,7 +859,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         {
             runButton.setText(Config.getString("controls.run.button"));
         }
-        resetButton.setDisable(newState == State.NO_PROJECT);
     }
 
     /**
