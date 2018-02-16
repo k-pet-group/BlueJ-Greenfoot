@@ -259,6 +259,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private final SoundRecorderControls soundRecorder;
     private GreenfootDebugHandler debugHandler;
     private final Menu recentProjectsMenu = new Menu(Config.getString("menu.openRecent"));
+    private final SimpleBooleanProperty showingDebugger = new SimpleBooleanProperty(false);
 
     
     /**
@@ -422,6 +423,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         greenfootDebugHandler.setPickListener(this::pickResults);
         greenfootDebugHandler.setSimulationListener(this);
         greenfootDebugHandler.setGreenfootRecorder(saveTheWorldRecorder);
+        showingDebugger.bindBidirectional(project.debuggerShowing());
         
         classDiagram.setProject(project);
 
@@ -611,6 +613,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     private void removeScenarioDetails()
     {
+        showingDebugger.unbindBidirectional(project.debuggerShowing());
         project = null;
         hasNoProject.set(true);
         worldDisplay.setImage(null);
@@ -772,7 +775,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     JavaFXUtil.makeCheckMenuItem(Config.getString("menu.soundRecorder"),
                             soundRecorder.getShowingProperty(),
                             new KeyCodeCombination(KeyCode.U, KeyCombination.SHORTCUT_DOWN),
-                            this::toggleSoundRecorder)
+                            this::toggleSoundRecorder),
+                    JavaFXUtil.makeCheckMenuItem(Config.getString("menu.debugger"),
+                            showingDebugger,
+                            new KeyCodeCombination(KeyCode.B, KeyCombination.SHORTCUT_DOWN))
             ),
             new Menu(Config.getString("menu.tools"), null,
                     makeMenuItem("menu.tools.generateDoc",
