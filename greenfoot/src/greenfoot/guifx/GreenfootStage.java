@@ -124,6 +124,7 @@ import rmiextension.ProjectManager;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
@@ -693,6 +694,39 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             stateProperty.set(State.RUNNING_REQUESTED_PAUSE);
         }
     }
+
+    /**
+     * Opens the given page of the Greenfoot API documentation in a web browser.
+     * 
+     * @param page   name of the page relative to the root of the API doc.
+     */
+    public void showApiDoc(String page)
+    {
+        try {
+            String customUrl = Utility.getGreenfootApiDocURL(page);
+            if (customUrl != null)
+            {
+                openWebBrowser(customUrl);
+            }
+        }
+        catch (IOException ioe) {
+            DialogManager.showErrorWithTextFX(this, "cannot-read-apidoc", ioe.getLocalizedMessage());
+        }
+    }
+    
+    /**
+     * Display a URL in a web browser.
+     */
+    private static void openWebBrowser(String url)
+    {
+        EventQueue.invokeLater(() -> {
+            boolean success = Utility.openWebBrowser(url);
+            if (! success)
+            {
+                Platform.runLater(() -> DialogManager.showErrorFX(null, "cannot-open-browser"));
+            }
+        });
+    }
     
     /**
      * Show a dialog with copyright information.
@@ -769,8 +803,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         helpMenu.getItems().addAll(
                 makeMenuItem("greenfoot.copyright", null, this::showCopyright, null),
                 new SeparatorMenuItem(),
-                makeMenuItem("menu.help.classDoc", null, () -> {}, null), // TODO
-                makeMenuItem("menu.help.javadoc", null, () -> {}, null), // TODO
+                makeMenuItem("menu.help.classDoc", null, () -> showApiDoc("index.html"), null),
+                makeMenuItem("menu.help.javadoc", null,
+                        () -> openWebBrowser(Config.getPropString("greenfoot.url.javaStdLib")), null),
                 new SeparatorMenuItem(),
                 makeMenuItem("menu.help.tutorial", null, () -> {}, null), // TODO
                 makeMenuItem("menu.help.website", null, () -> {}, null), // TODO

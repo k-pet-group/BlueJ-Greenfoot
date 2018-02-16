@@ -74,3 +74,6 @@ The current project already contains a class named $. A class of the same name c
 
 imagelib-writing-image-failed
 Unable to write the image file on the disk. Check if the disk is full or write-protected.
+
+cannot-read-apidoc
+The API documentation is missing or unable to be read:
