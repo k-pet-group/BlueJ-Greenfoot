@@ -98,13 +98,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -122,7 +115,9 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import rmiextension.GreenfootDebugHandler;
 import rmiextension.GreenfootDebugHandler.SimulationStateListener;
 import rmiextension.ProjectManager;
@@ -698,6 +693,24 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             stateProperty.set(State.RUNNING_REQUESTED_PAUSE);
         }
     }
+    
+    /**
+     * Show a dialog with copyright information.
+     */
+    private void showCopyright()
+    {
+        String text = Config.getString("menu.help.copyright.line1") + "\n" +
+                Config.getString("menu.help.copyright.line2") + "\n" +
+                Config.getString("menu.help.copyright.line3") + "\n" +
+                Config.getString("menu.help.copyright.line4");
+        
+        Alert alert = new Alert(Alert.AlertType.INFORMATION, text, ButtonType.OK);
+        alert.setTitle(Config.getString("menu.help.copyright.title"));
+        alert.initOwner(this);
+        alert.initModality(Modality.WINDOW_MODAL);
+        alert.setHeaderText(Config.getString("menu.help.copyright.line0"));
+        alert.showAndWait();
+    }
 
     /**
      * Make the menu bar for the whole window.
@@ -748,6 +761,25 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 );
         }
 
+        Menu helpMenu = new Menu(Config.getString("menu.help"), null);
+        if (! Config.isMacOS())
+        {
+            helpMenu.getItems().add(makeMenuItem("menu.help.about", null, () -> aboutGreenfoot(this), null));
+        }
+        helpMenu.getItems().addAll(
+                makeMenuItem("greenfoot.copyright", null, this::showCopyright, null),
+                new SeparatorMenuItem(),
+                makeMenuItem("menu.help.classDoc", null, () -> {}, null), // TODO
+                makeMenuItem("menu.help.javadoc", null, () -> {}, null), // TODO
+                new SeparatorMenuItem(),
+                makeMenuItem("menu.help.tutorial", null, () -> {}, null), // TODO
+                makeMenuItem("menu.help.website", null, () -> {}, null), // TODO
+                makeMenuItem("menu.help.moreScenarios", null, () -> {}, null), // TODO
+                new SeparatorMenuItem(),
+                JavaFXUtil.makeMenuItem(Config.getPropString("greenfoot.gameserver.name"), () -> {}, null),
+                makeMenuItem("menu.help.discuss", null, () -> {}, null)
+        );
+        
         return new MenuBar(
             scenarioMenu,
             new Menu(Config.getString("menu.edit"), null,
@@ -785,9 +817,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                             new KeyCodeCombination(KeyCode.G, KeyCombination.SHORTCUT_DOWN),
                             this::generateDocumentation, hasNoProject)
             ),
-            new Menu(Config.getString("menu.help"), null,
-                makeMenuItem("menu.help.about", null, () -> aboutGreenfoot(), null)
-            )
+            helpMenu
         );
     }
 
@@ -1866,13 +1896,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
     /**
      * Shows About-Greenfoot dialog including information about the development team and translators.
+     * 
+     * @param parentWindow   the parent window; may be null.
      */
-    public void aboutGreenfoot()
+    public static void aboutGreenfoot(Window parentWindow)
     {
-        Image image;
         // Finds the image file that is supposed to be exist in the "resources" directory
-        URL resource = this.getClass().getClassLoader().getResource("greenfoot-about.png");
-        image = new javafx.scene.image.Image(resource.toString());
+        URL resource = GreenfootStage.class.getClassLoader().getResource("greenfoot-about.png");
+        Image image = new javafx.scene.image.Image(resource.toString());
 
         String[] translatorNames = {"Wombat Yuan", "Zdenék Chalupský", "Erik van Veen & Renske Smetsers-Weeda",
                 "Guillaume Baudoin", "Matthias Taulien", "Stefan Mueller", "Mantzas Ioannis",
@@ -1882,8 +1913,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 new Label(String.join("\n", Arrays.asList(translatorNames))));
         translators.setExpanded(false);
         translators.setCollapsible(true);
-        new AboutDialogTemplate(this, Boot.GREENFOOT_VERSION, "Greenfoot",
-                "https://greenfoot.org/", image, translators).showAndWait();
+        Dialog<Void> aboutDlg = new AboutDialogTemplate(parentWindow, Boot.GREENFOOT_VERSION,
+                "Greenfoot", "https://greenfoot.org/", image, translators);
+        aboutDlg.showAndWait();
     }
 
     /**
