@@ -400,6 +400,26 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             doClose(false);
         });
         
+        JavaFXUtil.addChangeListenerPlatform(stateProperty, this::updateGUIState);
+        JavaFXUtil.addChangeListenerPlatform(focusedProperty(), focused -> {
+            if (project != null)
+            {
+                DataCollector.recordGreenfootEvent(project, GreenfootInterfaceEvent.WINDOW_ACTIVATED);
+                for (ClassTarget classTarget : project.getUnnamedPackage().getClassTargets())
+                {
+                    Editor editor = classTarget.getEditorIfOpen();
+                    if (editor != null)
+                    {
+                        editor.cancelFreshState();
+                    }
+                }
+                if (worldDisplay.isGreyedOut() && stateProperty.get() != State.UNCOMPILED)
+                {
+                    doReset();
+                }
+            }
+        });
+        
         /* Uncomment this to use ScenicView temporarily during development (use reflection to avoid needing to mess with Ant classpath)
         try
         {
@@ -437,25 +457,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         loadAndMirrorProperties(pendingCommands);
         // We send a reset to make a new world after the project properties have been sent across:
         pendingCommands.add(new Command(COMMAND_INSTANTIATE_WORLD));
-        JavaFXUtil.addChangeListenerPlatform(stateProperty, this::updateGUIState);
-        JavaFXUtil.addChangeListenerPlatform(focusedProperty(), focused -> {
-            if (project != null)
-            {
-                DataCollector.recordGreenfootEvent(project, GreenfootInterfaceEvent.WINDOW_ACTIVATED);
-                for (ClassTarget classTarget : project.getUnnamedPackage().getClassTargets())
-                {
-                    Editor editor = classTarget.getEditorIfOpen();
-                    if (editor != null)
-                    {
-                        editor.cancelFreshState();
-                    }
-                }
-                if (worldDisplay.isGreyedOut() && stateProperty.get() != State.UNCOMPILED)
-                {
-                    doReset();
-                }
-            }
-        });
     }
 
     /**
