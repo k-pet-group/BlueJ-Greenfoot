@@ -420,10 +420,9 @@ class ImageLibPane extends VBox
      */
     private void confirmDelete(ImageListEntry entry)
     {
-        //TODO change this
-        String text = Config.getString("imagelib.delete.confirm.text") + " " + entry.getImageFile().getName() + "?";
-        ButtonType optionResult = new Alert(Alert.AlertType.CONFIRMATION, text, ButtonType.YES, ButtonType.NO).showAndWait().orElse(ButtonType.NO);
-        if (optionResult == ButtonType.YES)
+        boolean delete = DialogManager.askQuestionFX(container, "imagelib-delete-confirm",
+                new String[] {entry.getImageFile().getName()}) == 0;
+        if (delete)
         {
             entry.getImageFile().delete();
             projImageList.refresh();

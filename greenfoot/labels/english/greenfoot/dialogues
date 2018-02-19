@@ -65,6 +65,12 @@ Overwrite
 Cancel
 null
 
+imagelib-delete-confirm
+Are you sure you want to delete "$"?
+Delete
+Cancel
+null
+
 import-image-exists
 The current project already contains an image file named $. Please remove
 or rename it before trying to import a file with the same name.
