@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.net.MalformedURLException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -83,17 +84,36 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
     public void setDirectory(File directory)
     {
         this.directory = directory;
+        loadImages();
+    }
 
-        // We can accept only image files.
+    /**
+     * Load the images from the scenario images' directory. If any of them has changed,
+     * replace the existing items in the listView with them and return true. Otherwise,
+     * just return false.
+     *
+     * @return True if the list view items have been replaced by new ones loaded from
+     *         the disk, otherwise returns false.
+     */
+    private boolean loadImages()
+    {
+        // We accept only image files.
         FilenameFilter filter = (dir, name) -> Stream.of(imageFileExtensions).anyMatch(extension -> name.toLowerCase().endsWith(extension));
         File[] imageFiles = directory.listFiles(filter);
         if (imageFiles == null)
         {
             imageFiles = new File[0];
         }
-        
         Arrays.sort(imageFiles);
-        setItems(FXCollections.observableArrayList(Arrays.stream(imageFiles).map(ImageListEntry::new).collect(Collectors.toList())));
+
+        // Only replace the items in the listView if any of the files in the directory has changed.
+        List<ImageListEntry> newEntries = Arrays.stream(imageFiles).map(ImageListEntry::new).collect(Collectors.toList());
+        if (getItems().equals(newEntries))
+        {
+            return false;
+        }
+        setItems(FXCollections.observableArrayList(newEntries));
+        return true;
     }
 
     /**
@@ -110,10 +130,10 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
     @Override
     public void refresh()
     {
-        if(getDirectory()!=null) {
-            setDirectory(getDirectory());
+        if (loadImages())
+        {
+            super.refresh();
         }
-        super.refresh();
     }
 
     /**
@@ -140,6 +160,7 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
             else
             {
                 setText(null);
+                setTooltip(null);
                 setGraphic(null);
             }
         }
@@ -149,10 +170,15 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
     {
         File imageFile;
         ImageView icon;
+        long lastModified;
 
         private ImageListEntry(File file)
         {
             this.imageFile = file;
+            if (imageFile != null)
+            {
+                lastModified = file.lastModified();
+            }
         }
 
         /**
@@ -202,24 +228,26 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
         
         public boolean equals(Object other)
         {
-            if(!(other instanceof ImageListEntry))
+            if( !(other instanceof ImageListEntry) )
             {
                 return false;
             }
+
+            //other cannot be null here because it passed the instanceof check above.
             ImageListEntry otherEntry = (ImageListEntry) other;
-            //other cannot be null here because it passed the instanceof check above:
-            if (otherEntry.imageFile == null && this.imageFile == null)
+            File otherImageFile = otherEntry.imageFile;
+
+            if (otherImageFile == null && imageFile == null)
             {
                 return true;
             }
-            else if (otherEntry.imageFile == null || this.imageFile == null)
+            else if (otherImageFile == null || imageFile == null)
             {
                 return false;
             }
-            else
-            {
-                return otherEntry.imageFile.equals(this.imageFile);
-            }
+
+            // We consider them equal entries if they has the same file and it has not been modified.
+            return otherImageFile.equals(imageFile) && otherEntry.lastModified == this.lastModified;
         }
         
         public int hashCode() 

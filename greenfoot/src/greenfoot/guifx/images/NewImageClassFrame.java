@@ -34,6 +34,7 @@ import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
@@ -42,6 +43,7 @@ import javafx.scene.control.Separator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 
@@ -103,6 +105,7 @@ public class NewImageClassFrame extends FXCustomizedDialog<NewImageClassFrame.Ne
 
         imageLibPane = new ImageLibPane(this.asWindow(), project);
         setContentPane(new VBox(10, buildClassDetailsPanel(project.getUnnamedPackage()), imageLibPane)); /////// Here put the Pane
+        VBox.setVgrow(imageLibPane, Priority.ALWAYS);
 
         setResultConverter(bt -> bt == ButtonType.OK
                 ? new NewImageClassInfo(classNameField.getText(), language, imageLibPane.selectedImageProperty().get())
@@ -134,8 +137,10 @@ public class NewImageClassFrame extends FXCustomizedDialog<NewImageClassFrame.Ne
         JavaFXUtil.addChangeListener(sourceTypeProperty, type -> updateControls(classNameVerifier));
         JavaFXUtil.addChangeListener(imageLibPane.selectedImageProperty(), image -> updateControls(classNameVerifier));
 
-        return new VBox(new HBox(new Label(Config.getString("imagelib.className")), classNameField, languageSelectionBox),
-                errorMsgLabel, new Separator(Orientation.HORIZONTAL));
+        HBox fileDetailsRow = new HBox(5, new Label(Config.getString("imagelib.className")), classNameField, languageSelectionBox);
+        fileDetailsRow.setAlignment(Pos.BASELINE_LEFT);
+
+        return new VBox(fileDetailsRow, errorMsgLabel, new Separator(Orientation.HORIZONTAL));
     }
 
     /**
