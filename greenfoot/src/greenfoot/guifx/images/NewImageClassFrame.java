@@ -155,6 +155,6 @@ public class NewImageClassFrame extends FXCustomizedDialog<NewImageClassFrame.Ne
         boolean valid = classNameVerifier.checkValidity();
         errorMsgLabel.setVisible(!valid);
         errorMsgLabel.setText(classNameVerifier.getMessage());
-        okButton.setDisable(!valid || imageLibPane.selectedImageProperty().isNull().get());
+        okButton.setDisable(!valid);
     }
 }

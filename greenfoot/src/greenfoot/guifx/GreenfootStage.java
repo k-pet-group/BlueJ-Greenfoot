@@ -1839,8 +1839,13 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 String template = getActorTemplateFileName(classInfo.sourceType);
                 GClassNode newClass = createNewClass(project.getUnnamedPackage(), parentName,
                         classInfo.className, classInfo.sourceType, template);
-                // set the image of the class to the selected file
-                newClass.getDisplay(this).setImage(new Image(classInfo.imageFile.toURI().toString()));
+
+                // set the image of the class to the selected file, if there is one selected.
+                File imageFile = classInfo.imageFile;
+                if (imageFile != null)
+                {
+                    newClass.getDisplay(this).setImage(new Image(imageFile.toURI().toString()));
+                }
             });
         }
         else
