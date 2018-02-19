@@ -38,7 +38,6 @@ import java.io.File;
 import java.io.IOException;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -56,7 +55,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 import javafx.util.Duration;
-import javax.imageio.ImageIO;
 
 /**
  * A Pane for selecting a class image. The image can be selected from either the
@@ -340,29 +338,6 @@ class ImageLibPane extends VBox
         }
         
         return null;
-    }
-
-    /**
-     * Get a preview icon for a class. This is a fixed size image. The
-     * user-specified image is normally used; if none exists, the class
-     * hierarchy is searched.
-     *
-     * @param classTarget   The class whose icon to get, can be null
-     */
-    private static File getClassImage(ClassTarget classTarget)
-    {
-        while (classTarget != null)
-        {
-            File imageFile = getSpecifiedImage(classTarget);
-            if (imageFile != null && imageFile.canRead())
-            {
-                return imageFile;
-            }
-            // Otherwise, search up class hierarchy to see if we find an image:
-            classTarget = GreenfootUtil.getSuperclass(classTarget);
-        }
-
-        return new File(GreenfootUtil.getGreenfootLogoPath());
     }
 
     private void importImage()
