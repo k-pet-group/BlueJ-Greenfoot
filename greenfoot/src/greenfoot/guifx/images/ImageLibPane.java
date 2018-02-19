@@ -146,7 +146,7 @@ class ImageLibPane extends VBox
 
         // Project images panel
         projImagesDir = new File(project.getProjectDir(), "images");
-        projImageList = new ImageLibList(projImagesDir, false);
+        projImageList = new ImageLibList(projImagesDir, true);
         projImageList.select(specifiedImage);
         JavaFXUtil.runRegular(Duration.millis(1000), () -> projImageList.refresh());
         ScrollPane imageScrollPane = new ScrollPane(projImageList);
@@ -229,7 +229,7 @@ class ImageLibPane extends VBox
         item.setDisable(true);
         item.setOnAction(event -> {
             ImageListEntry entry = projImageList.getSelectionModel().getSelectedItem();
-            if (entry != null && entry.imageFile != null)
+            if (entry != null && entry.getImageFile() != null)
             {
                 consumer.accept(entry);
             }
@@ -274,7 +274,7 @@ class ImageLibPane extends VBox
      */
     private void valueChanged(ImageListEntry entry, boolean isProjImageList)
     {
-        if (entry != null && entry.imageFile != null)
+        if (entry != null && entry.getImageFile() != null)
         {
             if(isProjImageList)
             {
@@ -284,7 +284,7 @@ class ImageLibPane extends VBox
             {
                 projImageList.getSelectionModel().clearSelection();
             }
-            selectImage(entry.imageFile);
+            selectImage(entry.getImageFile());
             setItemButtons(isProjImageList);
         }
         else
@@ -404,7 +404,7 @@ class ImageLibPane extends VBox
      */
     private void duplicateSelected(ImageListEntry entry)
     {
-        File srcFile = entry.imageFile;
+        File srcFile = entry.getImageFile();
         File dstFile = null;
         File dir = srcFile.getParentFile();
         String fileName = srcFile.getName();
@@ -447,12 +447,11 @@ class ImageLibPane extends VBox
     private void confirmDelete(ImageListEntry entry)
     {
         //TODO change this
-        String text = Config.getString("imagelib.delete.confirm.text") + 
-                      " " + entry.imageFile.getName() + "?";
+        String text = Config.getString("imagelib.delete.confirm.text") + " " + entry.getImageFile().getName() + "?";
         ButtonType optionResult = new Alert(Alert.AlertType.CONFIRMATION, text, ButtonType.YES, ButtonType.NO).showAndWait().orElse(ButtonType.NO);
         if (optionResult == ButtonType.YES)
         {
-            entry.imageFile.delete();
+            entry.getImageFile().delete();
             projImageList.refresh();
         }
     }
@@ -464,7 +463,7 @@ class ImageLibPane extends VBox
      */
     private void editImage(ImageListEntry entry)
     {
-        ExternalAppLauncher.editImage(entry.imageFile);
+        ExternalAppLauncher.editImage(entry.getImageFile());
     }
 
     private void pasteImage()
