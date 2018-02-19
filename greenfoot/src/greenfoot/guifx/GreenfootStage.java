@@ -2055,6 +2055,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     project.getDebugger(), null).invokeInteractive();
         }
     }
+
     /**
      * Allow the user to select a directory into which we create a project.
      */
