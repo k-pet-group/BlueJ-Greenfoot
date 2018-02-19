@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javafx.collections.FXCollections;
+import javafx.geometry.Pos;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Tooltip;
@@ -52,14 +53,17 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
     /** The directory whose images are currently displayed in this list */
     private File directory;
     private final String[] imageFileExtensions = new String[] { "jpg", "jpeg", "png", "gif" };
+    private boolean projectList;
 
     /**
      * Construct an empty ImageLibList.
+     *
+     * @param projectList True if this list for a project images, and false if it is for greenfoot library ones.
      */
-    ImageLibList(final boolean editable)
+    public ImageLibList(final boolean projectList)
     {      
         super();
-        this.setEditable(editable);
+        this.projectList = projectList;
         this.setCellFactory(param -> new ImageLibCell());
     }
 
@@ -67,12 +71,12 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
      * Construct an empty ImageLibList, and populate it with entries from
      * the given directory.
      * 
-     * @param directory  The directory to retrieve images from
-     * @param defaultImage The image the class will have if it does not specify one (blank or parent's)
+     * @param directory   The directory to retrieve images from
+     * @param projectList True if this list for a project images, and false if it is for greenfoot library ones.
      */
-    ImageLibList(File directory, final boolean editable)
+    public ImageLibList(File directory, final boolean projectList)
     {
-        this(editable);
+        this(projectList);
         setDirectory(directory);
     }
 
@@ -107,7 +111,8 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
         Arrays.sort(imageFiles);
 
         // Only replace the items in the listView if any of the files in the directory has changed.
-        List<ImageListEntry> newEntries = Arrays.stream(imageFiles).map(ImageListEntry::new).collect(Collectors.toList());
+        List<ImageListEntry> newEntries = Arrays.stream(imageFiles).map(file -> new ImageListEntry(file, projectList))
+                .collect(Collectors.toList());
         if (getItems().equals(newEntries))
         {
             return false;
@@ -142,7 +147,7 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
     public void select(File imageFile)
     {
         refresh();
-        this.getSelectionModel().select(new ImageListEntry(imageFile));
+        this.getSelectionModel().select(new ImageListEntry(imageFile, projectList));
     }
 
     static class ImageLibCell extends ListCell<ImageListEntry>
@@ -153,7 +158,14 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
             super.updateItem(item, empty);
             if (item != null)
             {
-                setText(GreenfootUtil.removeExtension(item.getImageName()));
+                if (item.inProjectList)
+                {
+                    setText(GreenfootUtil.removeExtension(item.getImageName()));
+                }
+                else
+                {
+                    setAlignment(Pos.CENTER);
+                }
                 setTooltip(new Tooltip(item.getImageName()));
                 setGraphic(item.getIcon());
             }
@@ -168,17 +180,19 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
 
     public class ImageListEntry
     {
-        File imageFile;
-        ImageView icon;
-        long lastModified;
+        private File imageFile;
+        private ImageView icon;
+        private long lastModified;
+        private final boolean inProjectList;
 
-        private ImageListEntry(File file)
+        private ImageListEntry(File file, boolean inProjectList)
         {
             this.imageFile = file;
             if (imageFile != null)
             {
                 lastModified = file.lastModified();
             }
+            this.inProjectList = inProjectList;
         }
 
         /**
@@ -217,7 +231,15 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
         {
             try
             {
-                return new ImageView(new Image(imageFile.toURI().toURL().toExternalForm(), 30, 30, true, true));
+                Image image = new Image(imageFile.toURI().toURL().toExternalForm());
+                ImageView view = new ImageView(image);
+                int maxWidth = inProjectList ? 40 : 60;
+                if (image.getWidth() > maxWidth)
+                {
+                    view.setFitWidth(maxWidth);
+                    view.setPreserveRatio(true);
+                }
+                return view;
             }
             catch (MalformedURLException e)
             {
@@ -225,7 +247,12 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
             }
             return new ImageView();
         }
-        
+
+        protected File getImageFile()
+        {
+            return imageFile;
+        }
+
         public boolean equals(Object other)
         {
             if( !(other instanceof ImageListEntry) )
