@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2017  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2017,2018  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,7 @@ package greenfoot.guifx.classes;
 import bluej.Config;
 import bluej.utility.javafx.FXRunnable;
 import greenfoot.guifx.GreenfootStage;
+import greenfoot.guifx.classes.GClassDiagram.GClassType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.image.Image;
@@ -51,8 +52,41 @@ public class GClassNode
     private InheritArrow arrowFromSub;
     private final ClassDisplaySelectionManager selectionManager;
     protected ContextMenu curContextMenu = null;
+    protected GClassType type;
 
-    public GClassNode(String fullyQualifiedName, String displayName, Image image, List<GClassNode> subClasses, ClassDisplaySelectionManager selectionManager)
+    /**
+     * Constructor for a GClassNode for one of the API base classes: World or Actor.
+     * 
+     * @param type   the class type
+     * @param subClasses   all nodes for the direct subclasses of this node
+     * @param selectionManager   the selection manager
+     */
+    public GClassNode(GClassType type, List<GClassNode> subClasses, ClassDisplaySelectionManager selectionManager)
+    {
+        this.selectionManager = selectionManager;
+        this.type = type;
+        this.image = null;
+        this.subClasses.addAll(subClasses);
+        
+        switch (type)
+        {
+            case WORLD:
+                fullyQualifiedName = "greenfoot.World";
+                displayName = "World";
+                break;
+            case ACTOR:
+                fullyQualifiedName = "greenfoot.Actor";
+                displayName = "Actor";
+                break;
+            default:
+                throw new RuntimeException();
+        }
+        
+        Collections.sort(this.subClasses, Comparator.comparing(ci -> ci.displayName));
+    }
+    
+    public GClassNode(String fullyQualifiedName, String displayName, Image image,
+            List<GClassNode> subClasses, ClassDisplaySelectionManager selectionManager)
     {
         this.selectionManager = selectionManager;
         this.fullyQualifiedName = fullyQualifiedName;
@@ -132,10 +166,12 @@ public class GClassNode
                 curContextMenu = new ContextMenu();
 
                 
-                curContextMenu.getItems().add(GClassDiagram.contextInbuilt(Config.getString("show.apidoc"), showDocs));
+                curContextMenu.getItems().add(GClassDiagram.contextInbuilt(
+                        Config.getString("show.apidoc"), showDocs));
                 curContextMenu.getItems().add(new SeparatorMenuItem());
-                curContextMenu.getItems().add(GClassDiagram.contextInbuilt(Config.getString("new.sub.class"), () -> {
-                    greenfootStage.newImageSubClassOf(display.getQualifiedName());
+                curContextMenu.getItems().add(GClassDiagram.contextInbuilt(
+                        Config.getString("new.sub.class"), () -> {
+                    greenfootStage.newSubClassOf(display.getQualifiedName(), type);
                 }));
 
                 // Select item when we show context menu for it:

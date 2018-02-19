@@ -75,9 +75,11 @@ import greenfoot.core.WorldHandler;
 import bluej.pkgmgr.AboutDialogTemplate;
 import greenfoot.guifx.classes.ClassDisplay;
 import greenfoot.guifx.classes.GClassDiagram;
+import greenfoot.guifx.classes.GClassDiagram.GClassType;
 import greenfoot.guifx.classes.GClassNode;
 import greenfoot.guifx.classes.ImportClassDialog;
 import greenfoot.guifx.images.NewImageClassFrame;
+import greenfoot.guifx.images.NewImageClassFrame.NewImageClassInfo;
 import greenfoot.guifx.images.SelectImageFrame;
 import greenfoot.guifx.images.ImageSelectionWatcher;
 import greenfoot.guifx.soundrecorder.SoundRecorderControls;
@@ -1750,8 +1752,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     public void newNonImageClass(Package pkg, String superClassName)
     {
-        new NewClassDialog(this, project.getUnnamedPackage().getDefaultSourceType()).showAndWait()
-                .ifPresent(result -> createNewClass(pkg, superClassName, result.className, result.sourceType));
+        NewClassDialog dlg = new NewClassDialog(this, project.getUnnamedPackage().getDefaultSourceType());
+        dlg.showAndWait().ifPresent(result -> {
+            createNewClass(pkg, superClassName, result.className, result.sourceType,
+                    getNormalTemplateFileName(result.sourceType));
+        });
     }
 
     /**
@@ -1761,17 +1766,18 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      * @param superClassName The full qualified name of the super class.
      * @param className      The class's name, which will be created.
      * @param language       The source type of the class, e.g. Java or Stride.
+     * @param templateFileName  The name of the template file to use
      *
      * @return A class info reference for the class created.
      */
-    private GClassNode createNewClass(Package pkg, String superClassName, String className, SourceType language)
+    private GClassNode createNewClass(Package pkg, String superClassName, String className, SourceType language,
+            String templateFileName)
     {
         try
         {
             File dir = project.getProjectDir();
             final String extension = language.getExtension();
             File newFile = new File(dir, className + "." + extension);
-            String templateFileName = getNormalTemplateFileName(language);
             GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, superClassName, newFile,
                     templateFileName, project.getProjectCharset().toString());
             ClassTarget newClass = new ClassTarget(pkg, className);
@@ -1808,48 +1814,40 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
     /**
      * Show a dialog to ask for details, then make a new subclass of the given class
-     * using those details. This is only for classes with images, i.e. Actor/World subclasses.
-     *
-     * @param parentName The fully qualified name of the parent class.
-     */
-    public void newImageSubClassOf(String parentName)
-    {
-        // initialise our image library frame
-        new NewImageClassFrame(this, project).showAndWait().ifPresent(classInfo -> {
-            GClassNode newClass = createNewClass(project.getUnnamedPackage(), parentName, classInfo.className, classInfo.sourceType);
-            // set the image of the class to the selected file
-            newClass.getDisplay(this).setImage(new Image(classInfo.imageFile.toURI().toString()));
-        });
-    }
-
-    /**
-     * Show a dialog to ask for details, then make a new subclass of the given class
      * using those details.
+     * 
+     * @param parentName  the fully-qualified name of the parent class
+     * @param classType  the type of the parent class
      */
-    public void newSubClassOf(String fullyQualifiedName)
+    public void newSubClassOf(String parentName, GClassType classType)
     {
-        ClassTarget classTarget = classDiagram.getSelectedClassTarget();
-        Package pkg = classTarget.getPackage();
-
-        boolean imageClass = false;
-        Class<?> cls = pkg.loadClass(classTarget.getQualifiedName());
-        while (cls !=null)
+        if (classType == GClassType.WORLD)
         {
-            if (cls.getCanonicalName().equals("greenfoot.World") || cls.getCanonicalName().equals("greenfoot.Actor") )
-            {
-                imageClass = true;
-
-            }
-            cls = cls.getSuperclass();
+            boolean direct = "greenfoot.World".equals(parentName);
+            Optional<NewImageClassInfo> info = new NewImageClassFrame(this, project).showAndWait();
+            info.ifPresent((classInfo) -> {
+                String templateName = getWorldTemplateFileName(direct, classInfo.sourceType);
+                GClassNode newClass = createNewClass(project.getUnnamedPackage(), parentName,
+                        classInfo.className, classInfo.sourceType, templateName);
+                newClass.getDisplay(this).setImage(new Image(classInfo.imageFile.toURI().toString()));
+            });
         }
-
-        if (imageClass)
+        else if (classType == GClassType.ACTOR)
         {
-            newImageSubClassOf(fullyQualifiedName);
+            Optional<NewImageClassInfo> info = new NewImageClassFrame(this, project).showAndWait();
+            info.ifPresent(classInfo -> {
+                String template = getActorTemplateFileName(classInfo.sourceType);
+                GClassNode newClass = createNewClass(project.getUnnamedPackage(), parentName,
+                        classInfo.className, classInfo.sourceType, template);
+                // set the image of the class to the selected file
+                newClass.getDisplay(this).setImage(new Image(classInfo.imageFile.toURI().toString()));
+            });
         }
         else
         {
-            newNonImageClass(pkg, fullyQualifiedName);
+            ClassTarget classTarget = classDiagram.getSelectedClassTarget();
+            Package pkg = classTarget.getPackage();
+            newNonImageClass(pkg, parentName);
         }
     }
 
