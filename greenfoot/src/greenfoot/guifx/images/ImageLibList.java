@@ -21,12 +21,10 @@
  */
 package greenfoot.guifx.images;
 
-import bluej.utility.Debug;
 import greenfoot.util.GreenfootUtil;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,8 +35,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Tooltip;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 
 /**
  * A list component which displays a list of images (found in a directory) with their
@@ -48,7 +44,7 @@ import javafx.scene.image.ImageView;
  * @author Poul Henriksen
  * @author Amjad Altadmri
  */
-public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
+public class ImageLibList extends ListView<ImageListEntry>
 {   
     /** The directory whose images are currently displayed in this list */
     private File directory;
@@ -150,6 +146,9 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
         this.getSelectionModel().select(new ImageListEntry(imageFile, projectList));
     }
 
+    /**
+     * A Cell in a ListView of image files. Used to decide how the entries will be constructed in the list.
+     */
     static class ImageLibCell extends ListCell<ImageListEntry>
     {
         @Override
@@ -158,7 +157,7 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
             super.updateItem(item, empty);
             if (item != null)
             {
-                if (item.inProjectList)
+                if (item.isInProjectList())
                 {
                     setText(GreenfootUtil.removeExtension(item.getImageName()));
                 }
@@ -175,111 +174,6 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
                 setTooltip(null);
                 setGraphic(null);
             }
-        }
-    }
-
-    public class ImageListEntry
-    {
-        private File imageFile;
-        private ImageView icon;
-        private long lastModified;
-        private final boolean inProjectList;
-
-        private ImageListEntry(File file, boolean inProjectList)
-        {
-            this.imageFile = file;
-            if (imageFile != null)
-            {
-                lastModified = file.lastModified();
-            }
-            this.inProjectList = inProjectList;
-        }
-
-        /**
-         * Returns the image file name.
-         *
-         * @return the image's file name.
-         */
-        private String getImageName()
-        {
-            return imageFile.getName();
-        }
-
-        /**
-         * Return a thumbnail icon of the image. It checks its existence
-         * first to avoid reconstruction each time.
-         *
-         * @return an Image view of the image file.
-         */
-        private ImageView getIcon()
-        {
-            if (icon == null && imageFile != null)
-            {
-                icon = getImageView();
-            }
-            return icon;
-        }
-
-        /**
-         * Loads the image file and construct an image view of it.
-         * This view is returned of the loading succeeded, otherwise
-         * an empty view is returned.
-         *
-         * @return an image view containing a thumbnail of the image.
-         */
-        private ImageView getImageView()
-        {
-            try
-            {
-                Image image = new Image(imageFile.toURI().toURL().toExternalForm());
-                ImageView view = new ImageView(image);
-                int maxWidth = inProjectList ? 40 : 60;
-                if (image.getWidth() > maxWidth)
-                {
-                    view.setFitWidth(maxWidth);
-                    view.setPreserveRatio(true);
-                }
-                return view;
-            }
-            catch (MalformedURLException e)
-            {
-                Debug.reportError(e);
-            }
-            return new ImageView();
-        }
-
-        protected File getImageFile()
-        {
-            return imageFile;
-        }
-
-        public boolean equals(Object other)
-        {
-            if( !(other instanceof ImageListEntry) )
-            {
-                return false;
-            }
-
-            //other cannot be null here because it passed the instanceof check above.
-            ImageListEntry otherEntry = (ImageListEntry) other;
-            File otherImageFile = otherEntry.imageFile;
-
-            if (otherImageFile == null && imageFile == null)
-            {
-                return true;
-            }
-            else if (otherImageFile == null || imageFile == null)
-            {
-                return false;
-            }
-
-            // We consider them equal entries if they has the same file and it has not been modified.
-            return otherImageFile.equals(imageFile) && otherEntry.lastModified == this.lastModified;
-        }
-        
-        public int hashCode() 
-        {
-            return imageFile.hashCode();
         }
     }
 }
