@@ -49,7 +49,7 @@ import java.util.Objects;
  */
 public class GClassDiagram extends BorderPane
 {
-    static enum GClassType { ACTOR, WORLD, OTHER }
+    public static enum GClassType { ACTOR, WORLD, OTHER }
     
     private final ClassDisplaySelectionManager selectionManager = new ClassDisplaySelectionManager();
     // The three groups of classes in the display: World+subclasses, Actor+subclasses, Other
@@ -136,11 +136,11 @@ public class GClassDiagram extends BorderPane
         
         // First, we must take out any World and Actor classes:
         List<GClassNode> worldSubclasses = findAllSubclasses("greenfoot.World", classTargets, GClassType.WORLD);
-        GClassNode worldClassesInfo = new GClassNode("greenfoot.World", "World", null, worldSubclasses, selectionManager);
+        GClassNode worldClassesInfo = new GClassNode(GClassType.WORLD, worldSubclasses, selectionManager);
         worldClasses.setClasses(Collections.singletonList(worldClassesInfo));
 
         List<GClassNode> actorSubclasses = findAllSubclasses("greenfoot.Actor", classTargets, GClassType.ACTOR);
-        GClassNode actorClassesInfo = new GClassNode("greenfoot.Actor", "Actor", null, actorSubclasses, selectionManager);
+        GClassNode actorClassesInfo = new GClassNode(GClassType.ACTOR, actorSubclasses, selectionManager);
         actorClasses.setClasses(Collections.singletonList(actorClassesInfo));
         
         // All other classes can be found by passing null, see docs on findAllSubclasses:

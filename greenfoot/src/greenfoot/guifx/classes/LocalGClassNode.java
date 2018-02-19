@@ -47,7 +47,6 @@ class LocalGClassNode extends GClassNode implements TargetListener
 {
     private GClassDiagram classDiagram;
     private final ClassTarget classTarget;
-    private final GClassType type;
 
     /**
      * Make an instance for the given ClassTarget
@@ -55,9 +54,12 @@ class LocalGClassNode extends GClassNode implements TargetListener
      * @param subClasses The sub-classes of this GClassNode
      * @param type The type of this class (Actor/World child, or Other)
      */
-    public LocalGClassNode(GClassDiagram classDiagram, ClassTarget classTarget, List<GClassNode> subClasses, GClassType type)
+    public LocalGClassNode(GClassDiagram classDiagram, ClassTarget classTarget,
+            List<GClassNode> subClasses, GClassType type)
     {
-        super(classTarget.getQualifiedName(), classTarget.getBaseName(), classDiagram.getGreenfootStage().getImageForClassTarget(classTarget), subClasses, classDiagram.getSelectionManager());
+        super(classTarget.getQualifiedName(), classTarget.getBaseName(),
+                classDiagram.getGreenfootStage().getImageForClassTarget(classTarget), subClasses,
+                classDiagram.getSelectionManager());
         this.classDiagram = classDiagram;
         this.classTarget = classTarget;
         this.type = type;
@@ -208,21 +210,10 @@ class LocalGClassNode extends GClassNode implements TargetListener
 
 
         // New subclass:
-        contextMenu.getItems().add(GClassDiagram.contextInbuilt(Config.getString("new.sub.class"), () ->
-            {
-                // TODO check if needed
-                // boolean imageClass = superG.isActorClass() || superG.isActorSubclass();
-                // imageClass |= superG.isWorldClass() || superG.isWorldSubclass();
-                // if (imageClass)
-                if (type == GClassType.ACTOR || type == GClassType.WORLD)
-                {
-                    greenfootStage.newImageSubClassOf(classTarget.getQualifiedName());
-                }
-                else
-                {
-                    greenfootStage.newSubClassOf(classTarget.getQualifiedName());
-                }
-            }));
+        contextMenu.getItems().add(GClassDiagram.contextInbuilt(Config.getString("new.sub.class"),
+                () -> {
+                    greenfootStage.newSubClassOf(classTarget.getQualifiedName(), type);
+                }));
 
         // Select item when we show context menu for it:
         classDiagram.getSelectionManager().select(display);
