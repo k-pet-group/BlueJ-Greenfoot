@@ -206,7 +206,7 @@ class ImageLibPane extends VBox
         duplicateItem = createSelectedEntryMenuItem("imagelib.duplicate", "imagelib.duplicate.tooltip", this::duplicateSelected);
         deleteItem = createSelectedEntryMenuItem("imagelib.delete", "imagelib.delete.tooltip", this::confirmDelete);
 
-        return new MenuButton(Config.getString("imagelib.more"),
+        return new MenuButton(null,
                 new ImageView(new Image(ImageLibPane.class.getClassLoader().getResourceAsStream(DROPDOWN_ICON_FILE))),
                 editItem, duplicateItem, deleteItem, new SeparatorMenuItem(),
                 createGeneralMenuItem("imagelib.create.button", "imagelib.create.tooltip", event -> createNewImage()),
