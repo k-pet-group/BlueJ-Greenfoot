@@ -760,11 +760,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         Menu scenarioMenu = new Menu(Config.getString("menu.scenario"), null,
                 makeMenuItem("stride.new.project",
                         new KeyCodeCombination(KeyCode.F, KeyCombination.SHORTCUT_DOWN),
-                        () -> {}, null // TODO
+                        () -> {doNewProject(SourceType.Stride);}, null
                     ),
                     makeMenuItem("java.new.project",
                         new KeyCodeCombination(KeyCode.J, KeyCombination.SHORTCUT_DOWN),
-                        () -> {}, null // TODO
+                        () -> {doNewProject(SourceType.Java);}, null
                     ),
                     makeMenuItem("open.project",
                         new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN),
@@ -2054,5 +2054,56 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             new Invoker(this, pkg, cv, watcher, pkg.getCallHistory(), debugHandler, debugHandler,
                     project.getDebugger(), null).invokeInteractive();
         }
+    }
+
+    /**
+     * Allow the user to select a directory into which we create a project.
+     */
+    public void doNewProject(SourceType sourceType)
+    {
+        String title = Config.getString( "pkgmgr.newPkg.title" );
+        File newnameFile = FileUtility.getSaveProjectFX(this.getStage(), title);
+        if (newnameFile == null)
+        {
+            return;
+        }
+        if (! newProject(newnameFile.getAbsolutePath(),sourceType))
+        {
+            DialogManager.showErrorWithTextFX(null, "cannot-create-directory", newnameFile.getPath());
+        }
+    }
+
+    /**
+     * Create new Greenfoot project with a sub class of World.
+     *
+     * @param dirName The directory to create the project in.
+     * @param sourceType The source type of the project which is either Stride or Java.
+     * @return     true if successful, false otherwise
+     */
+    public boolean newProject(String dirName, SourceType sourceType)
+    {
+        if (Project.createNewProject(dirName))
+        {
+            Project proj = Project.openProject(dirName);
+            Package unNamedPkg = proj.getPackage("");
+            Properties props = new Properties(unNamedPkg.getLastSavedProperties());
+            props.put("version", Boot.GREENFOOT_API_VERSION);
+            unNamedPkg.save(props);
+            if (proj != null)
+            {
+                ProjectManager.instance().launchProject(proj.getBProject());
+                GreenfootStage stage = findStageForProject(proj);
+                GClassNode newClass = stage.createNewClass(unNamedPkg, "greenfoot.World",
+                        "MyWorld", sourceType, getWorldTemplateFileName(true, sourceType));
+                stage.toFront();
+            }
+            else
+            {
+                // display error dialog
+                DialogManager.showErrorFX(this, "could-not-open-project");
+            }
+            return true;
+        }
+        return false;
     }
 }
