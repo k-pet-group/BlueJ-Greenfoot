@@ -121,6 +121,7 @@ public class NewImageClassFrame extends FXCustomizedDialog<NewImageClassFrame.Ne
      */
     private Pane buildClassDetailsPanel(Package pkg)
     {
+        classNameField.setPrefWidth(220);
         classNameField.setPromptText(Config.getString("pkgmgr.newClass.prompt"));
 
         ComboBox<SourceType> languageSelectionBox = new ComboBox<>(FXCollections.observableArrayList(SourceType.Stride, SourceType.Java));
