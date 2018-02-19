@@ -436,7 +436,7 @@ pkgmgr.codepad.redefinedVar=$ is already defined
 # "new class" dialog
 pkgmgr.newClass.title=BlueJ:  Create New Class
 pkgmgr.newClass.label=Class Name:
-pkgmgr.newClass.prompt=Class Name
+pkgmgr.newClass.prompt=Enter a name for the new class
 pkgmgr.newClass.lang=Class Language:
 pkgmgr.newClass.classType=Class Type
 pkgmgr.newClass.stdclass=Class

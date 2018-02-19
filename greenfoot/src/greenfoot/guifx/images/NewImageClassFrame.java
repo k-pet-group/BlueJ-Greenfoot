@@ -107,6 +107,8 @@ public class NewImageClassFrame extends FXCustomizedDialog<NewImageClassFrame.Ne
         setContentPane(new VBox(10, buildClassDetailsPanel(project.getUnnamedPackage()), imageLibPane)); /////// Here put the Pane
         VBox.setVgrow(imageLibPane, Priority.ALWAYS);
 
+        classNameField.requestFocus();
+
         setResultConverter(bt -> bt == ButtonType.OK
                 ? new NewImageClassInfo(classNameField.getText(), language, imageLibPane.selectedImageProperty().get())
                 : null);
@@ -119,8 +121,8 @@ public class NewImageClassFrame extends FXCustomizedDialog<NewImageClassFrame.Ne
      */
     private Pane buildClassDetailsPanel(Package pkg)
     {
+        classNameField.setPrefWidth(220);
         classNameField.setPromptText(Config.getString("pkgmgr.newClass.prompt"));
-        classNameField.requestFocus();
 
         ComboBox<SourceType> languageSelectionBox = new ComboBox<>(FXCollections.observableArrayList(SourceType.Stride, SourceType.Java));
         language = pkg.getDefaultSourceType();
