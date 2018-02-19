@@ -1780,7 +1780,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             File newFile = new File(dir, className + "." + extension);
             GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, superClassName, newFile,
                     templateFileName, project.getProjectCharset().toString());
-            ClassTarget newClass = new ClassTarget(pkg, className);
+            ClassTarget newClass = pkg.addClass(className);
             return classDiagram.addClass(newClass);
         }
         catch (IOException ioe)
