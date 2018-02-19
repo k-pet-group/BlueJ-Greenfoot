@@ -150,6 +150,9 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
         this.getSelectionModel().select(new ImageListEntry(imageFile, projectList));
     }
 
+    /**
+     * A Cell in a ListView of image files. Used to decide how the entries will be constructed in the list.
+     */
     static class ImageLibCell extends ListCell<ImageListEntry>
     {
         @Override
@@ -178,6 +181,9 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
         }
     }
 
+    /**
+     * An entry in a ListView of image files, which is used in the image lists' frames.
+     */
     public class ImageListEntry
     {
         private File imageFile;
@@ -185,6 +191,14 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
         private long lastModified;
         private final boolean inProjectList;
 
+        /**
+         * Construct an image list entry for a specific file.
+
+         * @param file          The image file; could be null.
+         * @param inProjectList {@code true} if the contained list is the project's image files one,
+         *                          {@code false} if it is a greenfoot library's list.
+         *
+         */
         private ImageListEntry(File file, boolean inProjectList)
         {
             this.imageFile = file;
@@ -248,11 +262,27 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
             return new ImageView();
         }
 
-        protected File getImageFile()
+        /**
+         * Returns the image file in this entry.
+         *
+         * @return the image's file or null if it doesn't exist.
+         */
+        public File getImageFile()
         {
             return imageFile;
         }
 
+        /**
+         * Indicates whether some other entry has the same image file and it has not changed,
+         * or both entries has no image files.
+         *
+         * @param other  the reference object with which to compare.
+         * @return {@code true} only in two cases:
+         *              - both entries have a null image file,
+         *              - both entries have the same image file and it has not been modified;
+         *         {@code false} otherwise.
+         */
+        @Override
         public boolean equals(Object other)
         {
             if( !(other instanceof ImageListEntry) )
@@ -276,7 +306,13 @@ public class ImageLibList extends ListView<ImageLibList.ImageListEntry>
             // We consider them equal entries if they has the same file and it has not been modified.
             return otherImageFile.equals(imageFile) && otherEntry.lastModified == this.lastModified;
         }
-        
+
+        /**
+         * Returns a hash code value for the entry. We use the same hash code of the contained image file's object.
+         *
+         * @return a hash code value for this object.
+         */
+        @Override
         public int hashCode() 
         {
             return imageFile.hashCode();
