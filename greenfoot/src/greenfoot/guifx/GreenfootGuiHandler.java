@@ -24,6 +24,7 @@ package greenfoot.guifx;
 import java.io.File;
 
 import bluej.GuiHandler;
+import bluej.Main;
 import bluej.pkgmgr.Project;
 import rmiextension.ProjectManager;
 
@@ -52,8 +53,7 @@ public class GreenfootGuiHandler implements GuiHandler
     @Override
     public void handleAbout()
     {
-        // TODO
-        throw new RuntimeException("Not yet implemented!");
+        GreenfootStage.aboutGreenfoot(null);
     }
 
     @Override
@@ -66,8 +66,7 @@ public class GreenfootGuiHandler implements GuiHandler
     @Override
     public void handleQuit()
     {
-        // TODO
-        throw new RuntimeException("Not yet implemented!");
+        Main.wantToQuit();
     }
 
     @Override
