@@ -83,6 +83,8 @@ class LocalGClassNode extends GClassNode implements TargetListener
         });
         // We only want to listen once our display exists:
         classTarget.addListener(this);
+        // Make sure we correctly show the initial state:
+        stateChanged(classTarget.getState());
     }
 
     @Override
