@@ -83,12 +83,14 @@ class LocalGClassNode extends GClassNode implements TargetListener
         });
         // We only want to listen once our display exists:
         classTarget.addListener(this);
+        // Make sure we correctly show the initial state:
+        stateChanged(classTarget.getState());
     }
 
     @Override
     public void stateChanged(State newState)
     {
-        Paint fill = Color.TRANSPARENT;
+        Paint fill;
         switch (newState)
         {
             case NEEDS_COMPILE:
@@ -97,6 +99,8 @@ class LocalGClassNode extends GClassNode implements TargetListener
             case HAS_ERROR:
                 fill = ClassTarget.getRedStripeFill();
                 break;
+            default:
+                fill = Color.TRANSPARENT;
         }
         display.setStripePattern(fill);
         // If we've become uncompiled, let the main window know we've been modified:
