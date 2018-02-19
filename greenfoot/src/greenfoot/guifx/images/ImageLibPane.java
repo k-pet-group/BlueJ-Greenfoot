@@ -30,7 +30,6 @@ import bluej.utility.FileUtility;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.guifx.PastedImageNameDialog;
-import greenfoot.guifx.images.ImageLibList.ImageListEntry;
 import greenfoot.util.ExternalAppLauncher;
 import greenfoot.util.GreenfootUtil;
 
