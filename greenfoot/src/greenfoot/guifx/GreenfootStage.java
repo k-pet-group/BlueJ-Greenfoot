@@ -578,9 +578,19 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     private void doClose(boolean keepLast)
     {
+        if (numberOfOpenProjects <= 1 && ! keepLast)
+        {
+            // We quit with the current scenario still open, so that it will be saved to the
+            // projects-for-re-opening list and re-opened when Greenfoot is next started:
+            close();
+            Main.doQuit();
+            return;
+        }
+        
         // Remove inspectors, terminal, etc:
         if (project != null)
         {
+            doSave();
             Project.cleanUp(project);
             project.getPackage("").closeAllEditors();
             numberOfOpenProjects--;
@@ -588,16 +598,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
         if (numberOfOpenProjects == 0)
         {
-            if (keepLast)
-            {
-                removeScenarioDetails();
-            }
-            else
-            {
-                stages.remove(this);
-                close();
-                Main.doQuit();
-            }
+            // Keep this stage open, but show it as empty
+            removeScenarioDetails();
         }
         else
         {
@@ -1968,9 +1970,36 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public static void closeAll()
     {
         Collection<GreenfootStage> stages_copy = new ArrayList<>(stages);
+        
+        // Save the list of open projects, to be re-opened next time:
+        int i = 0;
         for (GreenfootStage stage : stages_copy)
         {
-            stage.doClose(false);
+            if (stage.project != null)
+            {
+                i++;
+                Config.putPropString(Config.BLUEJ_OPENPACKAGE + i,
+                        stage.project.getProjectDir().getPath());
+                System.out.println("Saved project: " + stage.project.getProjectDir().getPath()); // DAV
+            }
+            else
+            {
+                System.out.println("stage.project == null"); // DAV
+            }
+        }
+        
+        // Remove any extra open projects from the list:
+        String exists;
+        do {
+            i++;
+            exists = Config.removeProperty(Config.BLUEJ_OPENPACKAGE + i);
+        } while (exists != null);
+        
+        // Close all stages:
+        for (GreenfootStage stage : stages_copy)
+        {
+            // pass keepLast = true to avoid closing the final stage causing infinite recursion:
+            stage.doClose(true);
         }
     }
     
