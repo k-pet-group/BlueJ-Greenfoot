@@ -2085,15 +2085,16 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         if (Project.createNewProject(dirName))
         {
             Project proj = Project.openProject(dirName);
-            Package unNamedPkg = proj.getPackage("");
-            Properties props = new Properties(unNamedPkg.getLastSavedProperties());
-            props.put("version", Boot.GREENFOOT_API_VERSION);
-            unNamedPkg.save(props);
+
             if (proj != null)
             {
+                Package unNamedPkg = proj.getPackage("");
+                Properties props = new Properties(unNamedPkg.getLastSavedProperties());
+                props.put("version", Boot.GREENFOOT_API_VERSION);
+                unNamedPkg.save(props);
                 ProjectManager.instance().launchProject(proj.getBProject());
                 GreenfootStage stage = findStageForProject(proj);
-                GClassNode newClass = stage.createNewClass(unNamedPkg, "greenfoot.World",
+                stage.createNewClass(unNamedPkg, "greenfoot.World",
                         "MyWorld", sourceType, getWorldTemplateFileName(true, sourceType));
                 stage.toFront();
             }
