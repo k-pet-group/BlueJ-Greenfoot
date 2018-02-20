@@ -845,8 +845,12 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                             this::doRunPause, pauseDisabled),
                     makeMenuItem("reset.world",
                             new KeyCodeCombination(KeyCode.T, KeyCombination.SHORTCUT_DOWN),
-                            this::doReset, resetDisabled),
-                    new SeparatorMenuItem(),
+                            this::doReset, resetDisabled)
+            ),
+            new Menu(Config.getString("menu.tools"), null,
+                    makeMenuItem("menu.tools.generateDoc",
+                            new KeyCodeCombination(KeyCode.G, KeyCombination.SHORTCUT_DOWN),
+                            this::generateDocumentation, hasNoProject),
                     JavaFXUtil.makeCheckMenuItem(Config.getString("menu.soundRecorder"),
                             soundRecorder.getShowingProperty(),
                             new KeyCodeCombination(KeyCode.U, KeyCombination.SHORTCUT_DOWN),
@@ -854,11 +858,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     JavaFXUtil.makeCheckMenuItem(Config.getString("menu.debugger"),
                             showingDebugger,
                             new KeyCodeCombination(KeyCode.B, KeyCombination.SHORTCUT_DOWN))
-            ),
-            new Menu(Config.getString("menu.tools"), null,
-                    makeMenuItem("menu.tools.generateDoc",
-                            new KeyCodeCombination(KeyCode.G, KeyCombination.SHORTCUT_DOWN),
-                            this::generateDocumentation, hasNoProject)
             ),
             helpMenu
         );
