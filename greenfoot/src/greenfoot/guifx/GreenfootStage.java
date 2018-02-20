@@ -857,7 +857,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                             this::toggleSoundRecorder),
                     JavaFXUtil.makeCheckMenuItem(Config.getString("menu.debugger"),
                             showingDebugger,
-                            new KeyCodeCombination(KeyCode.B, KeyCombination.SHORTCUT_DOWN))
+                            new KeyCodeCombination(KeyCode.B, KeyCombination.SHORTCUT_DOWN)),
+                    makeMenuItem("set.player",
+                            new KeyCodeCombination(KeyCode.P, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN),
+                            this::setPlayer, hasNoProject)
             ),
             helpMenu
         );
@@ -889,6 +892,16 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         if (message.length() != 0) {
             DialogManager.showTextFX(this, message);
         }
+    }
+
+    /**
+     * Opens a set player dialog so the user can enter a player name
+     * to be stored in the project's properties.
+     */
+    private void setPlayer()
+    {
+        SetPlayerDialog dlg = new SetPlayerDialog(this, GreenfootUtilDelegateIDE.getInstance().getUserName());
+        dlg.showAndWait().ifPresent(name -> Config.putPropString("greenfoot.player.name", name));
     }
 
     /**
