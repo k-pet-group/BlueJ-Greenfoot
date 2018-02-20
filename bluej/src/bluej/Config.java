@@ -154,7 +154,6 @@ public final class Config
     private static File templateDir;
     /** The greenfoot subdirectory of the "lib"-directory*/ 
     private static File greenfootLibDir;
-    private static boolean usingMacOSScreenMenubar;
     private static boolean initialised = false;
     private static boolean isGreenfoot = false;
     private static List<String> debugVMArgs = new ArrayList<>();
@@ -248,12 +247,11 @@ public final class Config
         moeUserProps = new Properties(moeSystemProps);
         loadProperties("moe", moeUserProps);  // add user specific editor definitions
 
-        // Whether or not to use the screen menu bar on a Mac
+        // Whether or not to use the screen menu bar on a Mac. This only affects Swing, so should
+        // not have any effect on BlueJ/Greenfoot itself in current versions, but just in case
+        // extensions display Swing frames we'll still set it:
         String macOSscreenMenuBar = Config.getPropString("bluej.macos.screenmenubar", "true");
-        // The value of the BlueJ property overrides the system setting
         System.setProperty("apple.laf.useScreenMenuBar", macOSscreenMenuBar);      
-
-        usingMacOSScreenMenubar = isMacOS() && macOSscreenMenuBar.equals("true");
 
         //read any debug vm args
         initDebugVMArgs();
@@ -653,14 +651,6 @@ public final class Config
         return "BlueJ";
     }
     
-    /**
-     * Tell us whether we are using a Mac screen menubar
-     */
-    public static boolean usingMacScreenMenubar()
-    {
-        return usingMacOSScreenMenubar;
-    }
-
     /**
      * Get the screen size information
      */

@@ -3048,7 +3048,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 }
                 // Forbid Preferences from being added to the Options menu when using
                 // Mac screen menubar, as it is already exist in the Application menu.
-                else if ( !( Config.usingMacScreenMenubar() &&
+                else if ( !( Config.isMacOS() &&
                              titleKey.toLowerCase().equals("option") &&
                              itemKey.toLowerCase().equals("preferences") )
                         )

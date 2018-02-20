@@ -62,11 +62,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.rmi.RemoteException;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -631,7 +628,7 @@ public class GreenfootFrame extends JFrame
         
         JMenu editMenu = addMenu(Config.getString("menu.edit"), menuBar, 'e');
         
-        if (!Config.usingMacScreenMenubar()) { // no "Preferences" here for
+        if (!Config.isMacOS()) { // no "Preferences" here for
             // Mac
             editMenu.addSeparator();
             addMenuItem(PreferencesAction.getInstance(), editMenu, KeyEvent.VK_COMMA, false, KeyEvent.VK_COMMA);

@@ -2968,7 +2968,8 @@ public class PkgMgrFrame
 
             menu.getItems().add(printAction.makeMenuItem());
 
-            if (!Config.usingMacScreenMenubar()) { // no "Quit" here for Mac
+            if (!Config.isMacOS()) // no "Quit" here for Mac
+            {
                 menu.getItems().add(new SeparatorMenuItem());
                 menu.getItems().add(new QuitAction(this).makeMenuItem());
             }
@@ -3056,8 +3057,8 @@ public class PkgMgrFrame
             }
             mixedMenu.addFX(() -> teamMenu);
 
-            if (!Config.usingMacScreenMenubar()) { // no "Preferences" here for
-                                                   // Mac
+            if (!Config.isMacOS()) // no "Preferences" here for Mac
+            {
                 mixedMenu.addFX(SeparatorMenuItem::new);
                 mixedMenu.addFX(() -> new PreferencesAction(this).makeMenuItem());
             }
@@ -3120,7 +3121,8 @@ public class PkgMgrFrame
 
         {
             Menu menu = new Menu(Config.getString("menu.help"));
-            if (!Config.usingMacScreenMenubar()) { // no "About" here for Mac
+            if (!Config.isMacOS()) // no "About" here for Mac
+            {
                 menu.getItems().add(new HelpAboutAction(this).makeMenuItem());
             }
             menu.getItems().add(new CheckVersionAction(this).makeMenuItem());
