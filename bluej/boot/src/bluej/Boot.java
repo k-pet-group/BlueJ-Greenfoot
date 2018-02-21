@@ -94,7 +94,7 @@ public class Boot
         "diffutils-1.2.1.jar", "commons-logging-api-1.1.2.jar",
         JLAYER_MP3_JAR, "opencsv-2.3.jar", "xom-1.2.9.jar",
         "lang-stride.jar",
-        "nsmenufx-2.1.4.jar", "richtextfx-fat-0.8.0.jar",
+        "nsmenufx-2.1.4.jar", "richtextfx-fat-0.8.2.jar",
         // We don't add JNA to our JARs.  See GreenfootUtil class for more details
         //"jna-4.2.0.jar", "jna-platform-4.2.0.jar",
         "guava-17.0.jar", "javassist-3.18.0.jar", "commons-vfs2-2.0.jar",
@@ -123,7 +123,7 @@ public class Boot
         "lang-stride.jar",
         "nsmenufx-2.1.4.jar",
         "org.eclipse.jgit-4.9.0.jar",
-        "richtextfx-fat-0.8.0.jar",
+        "richtextfx-fat-0.8.2.jar",
         "sequence-library-1.0.3.jar",
         "slf4j-api-1.7.2.jar",
         "slf4j-jdk14-1.7.2.jar",
