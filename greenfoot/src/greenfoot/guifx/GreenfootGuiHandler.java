@@ -59,8 +59,7 @@ public class GreenfootGuiHandler implements GuiHandler
     @Override
     public void handlePreferences()
     {
-        // TODO
-        throw new RuntimeException("Not yet implemented!");
+        GreenfootStage.showPreferences();
     }
 
     @Override
