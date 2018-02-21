@@ -115,7 +115,7 @@ import javafx.util.Duration;
 import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.GenericStyledArea;
-import org.fxmisc.richtext.MouseOverTextEvent;
+import org.fxmisc.richtext.event.MouseOverTextEvent;
 import org.fxmisc.richtext.model.TwoDimensional.Bias;
 import org.fxmisc.richtext.model.TwoDimensional.Position;
 import org.fxmisc.wellbehaved.event.*;

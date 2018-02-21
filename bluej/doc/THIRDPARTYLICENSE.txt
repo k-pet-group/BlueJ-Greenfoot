@@ -159,7 +159,7 @@ the BSD license as found in the "nsmenufx-BSD.txt" file.
 
 RichTextFX (2-clause BSD license)
 ---------------------------------
-"richtextfx-fat-0.8.0.jar" is the RichTextFX library (https://github.com/TomasMikula/RichTextFX)
+"richtextfx-fat-0.8.2.jar" is the RichTextFX library (https://github.com/TomasMikula/RichTextFX)
 and its dependencies, which all have the option to be licensed under the BSD 2-clause
 license (see the BSD-2clause.txt file), with the following copyrights:
 ReactFX: Copyright (c) 2013-2014, Tomas Mikula
@@ -273,6 +273,8 @@ primary BlueJ license).
 
 4. SUMMARY OF THIRD-PARTY JAR FILES AND LICENSES
 
+antlr-runtime-3.4.jar                    BSD License
+AppleJavaExtensions.jar                  BSD-like license
 commons-logging-api-1.1.2.jar            Apache License v2.0
 commons-vfs2-2.0.jar                     Apache License v2.0
 diffutils-1.2.1.jar                      Apache License v2.0
@@ -288,9 +290,10 @@ jsch-0.1.53.jar                          BSD License
 junit-4.11.jar                           Common Public License v1.0
 nsmenufx-2.1.4.jar                       BSD license
 org.eclipse.jgit-4.9.0.jar               Eclipse Distribution License (EDL) v1.0
+richtextfx-fat-0.8.2.jar                 BSD License
 sequence-library-1.0.3.jar               BSD License
-slf4j-api-1.7.2.jar                      MIT
-slf4j-jdk14-1.7.2.jar                    MIT
+slf4j-api-1.7.2.jar                      MIT License
+slf4j-jdk14-1.7.2.jar                    MIT License
 sqljet-1.1.10.jar                        TMate Open Source License
 svnkit-javahl.jar                        Subversion License
 svnkit.jar                               TMate Open Source License

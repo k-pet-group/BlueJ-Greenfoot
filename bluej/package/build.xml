@@ -53,7 +53,7 @@
         <include name="lib/slf4j-api-1.7.2.jar"/>
         <include name="lib/slf4j-jdk14-1.7.2.jar"/>
         <include name="lib/nsmenufx-2.1.4.jar"/>
-        <include name="lib/richtextfx-fat-0.8.0.jar"/>
+        <include name="lib/richtextfx-fat-0.8.2.jar"/>
         <!-- Pi4J -->
         <include name="lib/userlib/pi4j-device.jar" />
         <include name="lib/userlib/pi4j-gpio-extension.jar" />
