@@ -52,6 +52,7 @@ import bluej.pkgmgr.ProjectUtils;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.prefmgr.PrefMgr;
+import bluej.prefmgr.PrefMgrDialog;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.Debug;
@@ -586,7 +587,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             Main.doQuit();
             return;
         }
-        
+
         // Remove inspectors, terminal, etc:
         if (project != null)
         {
@@ -800,6 +801,29 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 );
         }
 
+        Menu toolsMenu = new Menu(Config.getString("menu.tools"), null);
+        toolsMenu.getItems().addAll(
+                makeMenuItem("menu.tools.generateDoc",new KeyCodeCombination(KeyCode.G, KeyCombination.SHORTCUT_DOWN),
+                        this::generateDocumentation, hasNoProject),
+                JavaFXUtil.makeCheckMenuItem(Config.getString("menu.soundRecorder"),
+                        soundRecorder.getShowingProperty(),
+                        new KeyCodeCombination(KeyCode.U, KeyCombination.SHORTCUT_DOWN),
+                        this::toggleSoundRecorder),
+                JavaFXUtil.makeCheckMenuItem(Config.getString("menu.debugger"),
+                        showingDebugger,
+                        new KeyCodeCombination(KeyCode.B, KeyCombination.SHORTCUT_DOWN)),
+                makeMenuItem("set.player",
+                        new KeyCodeCombination(KeyCode.P, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN),
+                        this::setPlayer, hasNoProject)
+        );
+
+        if (! Config.isMacOS())
+        {
+            toolsMenu.getItems().add(makeMenuItem("greenfoot.preferences",
+                    new KeyCodeCombination(KeyCode.COMMA, KeyCombination.SHORTCUT_DOWN),
+                    () -> showPreferences(), null));
+        }
+
         Menu helpMenu = new Menu(Config.getString("menu.help"), null);
         if (! Config.isMacOS())
         {
@@ -849,21 +873,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                             new KeyCodeCombination(KeyCode.T, KeyCombination.SHORTCUT_DOWN),
                             this::doReset, resetDisabled)
             ),
-            new Menu(Config.getString("menu.tools"), null,
-                    makeMenuItem("menu.tools.generateDoc",
-                            new KeyCodeCombination(KeyCode.G, KeyCombination.SHORTCUT_DOWN),
-                            this::generateDocumentation, hasNoProject),
-                    JavaFXUtil.makeCheckMenuItem(Config.getString("menu.soundRecorder"),
-                            soundRecorder.getShowingProperty(),
-                            new KeyCodeCombination(KeyCode.U, KeyCombination.SHORTCUT_DOWN),
-                            this::toggleSoundRecorder),
-                    JavaFXUtil.makeCheckMenuItem(Config.getString("menu.debugger"),
-                            showingDebugger,
-                            new KeyCodeCombination(KeyCode.B, KeyCombination.SHORTCUT_DOWN)),
-                    makeMenuItem("set.player",
-                            new KeyCodeCombination(KeyCode.P, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN),
-                            this::setPlayer, hasNoProject)
-            ),
+            toolsMenu,
             helpMenu
         );
     }
@@ -904,6 +914,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         SetPlayerDialog dlg = new SetPlayerDialog(this, GreenfootUtilDelegateIDE.getInstance().getUserName());
         dlg.showAndWait().ifPresent(name -> Config.putPropString("greenfoot.player.name", name));
+    }
+
+    /**
+     * Shows preferences Dialog
+     */
+    public static void showPreferences()
+    {
+        PrefMgrDialog.showDialog(null);
     }
 
     /**
@@ -1982,7 +2000,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public static void closeAll()
     {
         Collection<GreenfootStage> stages_copy = new ArrayList<>(stages);
-        
+
         // Save the list of open projects, to be re-opened next time:
         int i = 0;
         for (GreenfootStage stage : stages_copy)
@@ -1999,14 +2017,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 System.out.println("stage.project == null"); // DAV
             }
         }
-        
+
         // Remove any extra open projects from the list:
         String exists;
         do {
             i++;
             exists = Config.removeProperty(Config.BLUEJ_OPENPACKAGE + i);
         } while (exists != null);
-        
+
         // Close all stages:
         for (GreenfootStage stage : stages_copy)
         {
