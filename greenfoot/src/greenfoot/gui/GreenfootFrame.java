@@ -110,8 +110,7 @@ public class GreenfootFrame extends JFrame
     private ExportProjectAction exportProjectAction;
     private ExportProjectAction shareAction;
     private CloseProjectAction closeProjectAction;
-    private SetPlayerAction setPlayerAction;
-    
+
     private ToggleDebuggerAction toggleDebuggerAction;
 
     // "Watchdog": make sure user code (world initialisation etc) doesn't stall for too long
@@ -524,9 +523,6 @@ public class GreenfootFrame extends JFrame
 
         contentPane.add(centrePanel, BorderLayout.CENTER);
         contentPane.add(eastPanel, BorderLayout.EAST);
-
-        contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(Config.GREENFOOT_SET_PLAYER_NAME_SHORTCUT, "setPlayerAction");
-        contentPane.getActionMap().put("setPlayerAction", setPlayerAction);
         
         updateBackgroundMessage();
         pack();
@@ -590,7 +586,6 @@ public class GreenfootFrame extends JFrame
         saveProjectAction = new SaveProjectAction(this);
         saveAsAction = new SaveAsAction(this, rBlueJ);
         showReadMeAction = new ShowReadMeAction(this);
-        setPlayerAction = new SetPlayerAction(this);
         exportProjectAction = new ExportProjectAction(this, false);
         shareAction = new ExportProjectAction(this, true);
         closeProjectAction = new CloseProjectAction(this);
