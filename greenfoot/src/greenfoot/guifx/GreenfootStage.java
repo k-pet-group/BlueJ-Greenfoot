@@ -71,6 +71,7 @@ import bluej.views.MethodView;
 import greenfoot.GreenfootImage;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
+import greenfoot.core.ProjectManager;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import bluej.pkgmgr.AboutDialogTemplate;
@@ -124,7 +125,6 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import rmiextension.GreenfootDebugHandler;
 import rmiextension.GreenfootDebugHandler.SimulationStateListener;
-import rmiextension.ProjectManager;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -550,7 +550,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             }
             else
             {
-                ProjectManager.instance().launchProject(p.getBProject());
+                ProjectManager.instance().launchProject(p);
             }
         }
         else
@@ -682,7 +682,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             return;
         }
         
-        ProjectManager.instance().launchProject(p.getBProject());
+        ProjectManager.instance().launchProject(p);
     }
     
     /**
@@ -2164,7 +2164,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 Properties props = new Properties(unNamedPkg.getLastSavedProperties());
                 props.put("version", Boot.GREENFOOT_API_VERSION);
                 unNamedPkg.save(props);
-                ProjectManager.instance().launchProject(proj.getBProject());
+                ProjectManager.instance().launchProject(proj);
                 GreenfootStage stage = findStageForProject(proj);
                 stage.createNewClass(unNamedPkg, "greenfoot.World",
                         "MyWorld", sourceType, getWorldTemplateFileName(true, sourceType));

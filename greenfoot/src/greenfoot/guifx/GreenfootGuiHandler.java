@@ -26,7 +26,7 @@ import java.io.File;
 import bluej.GuiHandler;
 import bluej.Main;
 import bluej.pkgmgr.Project;
-import rmiextension.ProjectManager;
+import greenfoot.core.ProjectManager;
 
 /**
  * A GUI handler for Greenfoot.
@@ -40,7 +40,7 @@ public class GreenfootGuiHandler implements GuiHandler
     {
         Project project = Project.openProject(path.toString());
         if (project != null) {
-            ProjectManager.instance().launchProject(project.getBProject());
+            ProjectManager.instance().launchProject(project);
             return true;
         }
         else
@@ -71,7 +71,9 @@ public class GreenfootGuiHandler implements GuiHandler
     @Override
     public void initialOpenComplete(boolean projectOpen)
     {
-        // Nothing needs to be done.
+        if (! projectOpen) {
+            GreenfootStage.makeStage(null, null);
+        }
     }
     
     @Override

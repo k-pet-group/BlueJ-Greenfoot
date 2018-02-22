@@ -25,7 +25,6 @@ import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.collect.GreenfootInterfaceEvent;
 import bluej.extensions.ProjectNotOpenException;
-import bluej.extensions.SourceType;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.CenterLayout;
 import bluej.utility.DBox;
@@ -83,7 +82,6 @@ public class GreenfootFrame extends JFrame
     private static final int accelModifier = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     private static final int shiftAccelModifier = accelModifier | InputEvent.SHIFT_MASK;
 
-    private RBlueJ rBlueJ;
     private GProject project;
         
     private WorldCanvas worldCanvas;
@@ -105,7 +103,6 @@ public class GreenfootFrame extends JFrame
     private ExecutionTwirler executionTwirler;
     
     private SaveProjectAction saveProjectAction;
-    private SaveAsAction saveAsAction;
     private ShowReadMeAction showReadMeAction;
     private ExportProjectAction exportProjectAction;
     private ExportProjectAction shareAction;
@@ -180,8 +177,6 @@ public class GreenfootFrame extends JFrame
     {
         super("Greenfoot");
 
-        this.rBlueJ = blueJ;
-        
         LocationTracker.instance(); //force initialisation
         Image icon = BlueJTheme.getApplicationIcon("greenfoot");
         if (icon != null) {
@@ -584,7 +579,6 @@ public class GreenfootFrame extends JFrame
     private void setupActions()
     {
         saveProjectAction = new SaveProjectAction(this);
-        saveAsAction = new SaveAsAction(this, rBlueJ);
         showReadMeAction = new ShowReadMeAction(this);
         exportProjectAction = new ExportProjectAction(this, false);
         shareAction = new ExportProjectAction(this, true);
@@ -601,17 +595,12 @@ public class GreenfootFrame extends JFrame
 
         JMenu scenarioMenu = addMenu(Config.getString("menu.scenario"), menuBar, 's');
 
-        addMenuItem(new NewWizardScenarioAction(SourceType.Stride), scenarioMenu, KeyEvent.VK_F, false, KeyEvent.VK_F);
-        addMenuItem(new NewWizardScenarioAction(SourceType.Java), scenarioMenu, KeyEvent.VK_J, false, KeyEvent.VK_J);
-        addMenuItem(OpenProjectAction.getInstance(), scenarioMenu, KeyEvent.VK_O, false, KeyEvent.VK_O);
-        
         recentProjectsMenu = new JMenu(Config.getString("menu.openRecent"));
         scenarioMenu.add(recentProjectsMenu);
         updateRecentProjects(classStateManager);
         
         addMenuItem(closeProjectAction, scenarioMenu, KeyEvent.VK_W, false, KeyEvent.VK_C);
         addMenuItem(saveProjectAction, scenarioMenu, KeyEvent.VK_S, false, KeyEvent.VK_S);
-        addMenuItem(saveAsAction, scenarioMenu, -1, false, -1);
         scenarioMenu.addSeparator();
         addMenuItem(showReadMeAction, scenarioMenu, -1, false, -1);
         addMenuItem(exportProjectAction, scenarioMenu, KeyEvent.VK_E, false, KeyEvent.VK_E);
@@ -750,7 +739,6 @@ public class GreenfootFrame extends JFrame
         if (classStateManager != null && classStateManager.getProject() != null) {
             String currentName = classStateManager.getProject().getDir().getPath();
             item = new JMenuItem(currentName);
-            item.addActionListener(OpenRecentProjectAction.getInstance());
             recentProjectsMenu.add(item);
             recentProjectsMenu.addSeparator();
         }
@@ -758,7 +746,6 @@ public class GreenfootFrame extends JFrame
         List<?> projects = PrefMgr.getRecentProjects();
         for (Iterator<?> it = projects.iterator(); it.hasNext();) {
             item = new JMenuItem((String)it.next());
-            item.addActionListener(OpenRecentProjectAction.getInstance());
             recentProjectsMenu.add(item);
         }
     }
@@ -773,7 +760,6 @@ public class GreenfootFrame extends JFrame
     
         closeProjectAction.setEnabled(state);
         saveProjectAction.setEnabled(state);
-        saveAsAction.setEnabled(state);
         showReadMeAction.setEnabled(state);
         exportProjectAction.setEnabled(state);
         shareAction.setEnabled(state);

@@ -37,9 +37,9 @@ import java.nio.channels.FileChannel.MapMode;
  */
 public class VMCommsMain implements Closeable
 {
-    File shmFile;
-    FileChannel fc;
-    MappedByteBuffer sharedMemoryByte;
+    private File shmFile;
+    private FileChannel fc;
+    private MappedByteBuffer sharedMemoryByte;
     
     /**
      * Constructor for VMCommsMain. Creates a temporary file and maps it into memory.

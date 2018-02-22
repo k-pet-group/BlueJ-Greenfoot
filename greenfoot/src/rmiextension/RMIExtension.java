@@ -22,6 +22,7 @@
 package rmiextension;
 
 import greenfoot.core.GreenfootLauncherBlueJVM;
+import greenfoot.guifx.GreenfootGuiHandler;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,7 +54,7 @@ public class RMIExtension extends Extension implements ApplicationListener
     public void startup(BlueJ bluej)
     {
         theBlueJ = bluej;
-        ProjectManager.init(bluej);
+        Main.setGuiHandler(new GreenfootGuiHandler());
 
         try {
             new BlueJRMIServer(theBlueJ);
@@ -61,7 +62,7 @@ public class RMIExtension extends Extension implements ApplicationListener
         catch (IOException e) {
             Debug.reportError("Could not launch RMI server", e);
             NetworkTest.doTest();
-            ProjectManager.greenfootLaunchFailed(null);
+            //ProjectManager.greenfootLaunchFailed(null);
         }
 
         theBlueJ.addApplicationListener(this);
@@ -95,21 +96,6 @@ public class RMIExtension extends Extension implements ApplicationListener
         if (project == null) {
             Debug.reportError("Could not open scenario: " + projectPath);
         }
-    }
-
-    /**
-     * Creates a new project in BlueJ
-     * 
-     * @param projectPath path of the project to open.
-     */
-    public void newProject(File projectPath)
-    {
-        ProjectManager.instance().addNewProject(projectPath);
-        BProject project = theBlueJ.newProject(projectPath);
-        if (project == null) {
-            Debug.reportError("Could not open scenario: " + projectPath);
-        }
-        ProjectManager.instance().removeNewProject(projectPath);
     }
 
     /**

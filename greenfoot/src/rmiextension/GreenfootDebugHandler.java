@@ -38,6 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import greenfoot.core.ProjectManager;
 import greenfoot.core.WorldHandler;
 import greenfoot.guifx.GreenfootStage;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
@@ -130,7 +131,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     /**
      * This is the publicly-visible way to add a debugger listener for a particular project.    
      */
-    static void addDebuggerListener(Project project) throws IOException
+    public static void addDebuggerListener(Project project) throws IOException
     {
         project.getExecControls().setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
 
@@ -402,7 +403,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
                 Platform.runLater(() -> {
                     objectBench.clear();
                     addRunResetBreakpoints((Debugger) e.getSource());
-                    ProjectManager.instance().openGreenfoot(project.getBProject(), GreenfootDebugHandler.this);
+                    ProjectManager.instance().openGreenfoot(project, GreenfootDebugHandler.this);
                 });
             }
         }
