@@ -22,6 +22,7 @@
 package rmiextension;
 
 import greenfoot.core.GreenfootLauncherBlueJVM;
+import greenfoot.guifx.GreenfootGuiHandler;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,7 +54,7 @@ public class RMIExtension extends Extension implements ApplicationListener
     public void startup(BlueJ bluej)
     {
         theBlueJ = bluej;
-        //ProjectManager.init(bluej);
+        Main.setGuiHandler(new GreenfootGuiHandler());
 
         try {
             new BlueJRMIServer(theBlueJ);
