@@ -170,7 +170,7 @@ public class ProjectManager
                 }
 
                 // Add debugger listener. The listener will launch the Greenfoot GUI.
-                GreenfootDebugHandler.addDebuggerListener(project);
+                GreenfootDebugHandler.addDebuggerListener(unwrapped);
                 
                 // Add Greenfoot API sources to project source path
                 Project bjProject = Project.getProject(project.getDir());

@@ -61,9 +61,6 @@ import bluej.debugmgr.ValueCollection;
 import bluej.debugmgr.objectbench.ObjectBenchEvent;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.debugmgr.objectbench.ObjectBenchListener;
-import bluej.extensions.BProject;
-import bluej.extensions.ExtensionBridge;
-import bluej.extensions.ProjectNotOpenException;
 import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
@@ -109,7 +106,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     private static final String PICK_HELPER_KEY = "PICK_HELPER_PICKED";
     private PickListener pickListener;
 
-    private BProject project;
+    private Project project;
     private DebuggerThread simulationThread;
     private DebuggerClass simulationClass;
     private GreenfootRecorder greenfootRecorder;
@@ -123,35 +120,22 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
      * Constructor for GreenfootDebugHandler.
      */
     @OnThread(Tag.FXPlatform)
-    private GreenfootDebugHandler(BProject project)
+    private GreenfootDebugHandler(Project project)
     {
         this.project = project;
-        try
-        {
-            Project bjProject = ExtensionBridge.getProject(project);
-            vmComms = initialiseServerDraw(bjProject, this);
-            GreenfootStage.makeStage(bjProject, this).show();
-        }
-        catch (ProjectNotOpenException pnoe)
-        {
-            throw new RuntimeException(pnoe);
-        }
+        vmComms = initialiseServerDraw(project, this);
+        GreenfootStage.makeStage(project, this).show();
     }
         
     /**
      * This is the publicly-visible way to add a debugger listener for a particular project.    
      */
-    static void addDebuggerListener(BProject project)
+    static void addDebuggerListener(Project project)
     {
-        try {
-            Project proj = Project.getProject(project.getDir());
-            proj.getExecControls().setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
+        project.getExecControls().setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
 
-            GreenfootDebugHandler handler = new GreenfootDebugHandler(project);
-            proj.getDebugger().addDebuggerListener(handler);
-        } catch (ProjectNotOpenException ex) {
-            Debug.reportError("Project not open when adding debugger listener in Greenfoot", ex);
-        }
+        GreenfootDebugHandler handler = new GreenfootDebugHandler(project);
+        project.getDebugger().addDebuggerListener(handler);
     }
     
     /**
@@ -261,7 +245,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
             // record this thread as being the simulation thread and set it running again:
             simulationThread = e.getThread();
             try {
-                RProjectImpl rproj = WrapperPool.instance().getWrapper(project);
+                RProjectImpl rproj = WrapperPool.instance().getWrapper(project.getBProject());
                 rproj.setSimulationThread(simulationThread);
             }
             catch (RemoteException re) {
@@ -351,10 +335,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
             Platform.runLater(new Runnable() {
                 public void run()
                 {
-                    try {
-                        ExtensionBridge.clearObjectBench(project);
-                    }
-                    catch (ProjectNotOpenException e) { }
+                    objectBench.clear();
 
                     // Run the GUI thread on:
                     e.getThread().cont();
@@ -443,7 +424,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
                 Platform.runLater(() -> {
                     objectBench.clear();
                     addRunResetBreakpoints((Debugger) e.getSource());
-                    ProjectManager.instance().openGreenfoot(project, GreenfootDebugHandler.this);
+                    ProjectManager.instance().openGreenfoot(project.getBProject(), GreenfootDebugHandler.this);
                 });
             }
         }
