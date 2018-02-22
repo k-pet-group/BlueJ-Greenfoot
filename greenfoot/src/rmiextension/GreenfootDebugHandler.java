@@ -403,7 +403,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
                 Platform.runLater(() -> {
                     objectBench.clear();
                     addRunResetBreakpoints((Debugger) e.getSource());
-                    ProjectManager.instance().openGreenfoot(project.getBProject(), GreenfootDebugHandler.this);
+                    ProjectManager.instance().openGreenfoot(project, GreenfootDebugHandler.this);
                 });
             }
         }

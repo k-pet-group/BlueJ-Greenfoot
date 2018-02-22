@@ -29,26 +29,22 @@ import java.util.Properties;
 
 import bluej.Boot;
 import bluej.Config;
+import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugmgr.ResultWatcher;
-import bluej.extensions.BClass;
-import bluej.extensions.BProject;
+import bluej.editor.Editor;
 import bluej.extensions.BlueJ;
-import bluej.extensions.ExtensionBridge;
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.SourceType;
-import bluej.extensions.editor.Editor;
-import bluej.extensions.editor.EditorBridge;
 import bluej.pkgmgr.DocPathEntry;
 import bluej.pkgmgr.Project;
+import bluej.pkgmgr.target.ClassTarget;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import greenfoot.core.GreenfootMain.ProjectAPIVersionAccess;
 import greenfoot.util.Version;
-import javafx.application.Platform;
 import rmiextension.BlueJRMIServer;
 import rmiextension.ConstructorInvoker;
 import rmiextension.GreenfootDebugHandler;
@@ -96,32 +92,25 @@ public class ProjectManager
      * Open a Greenfoot project.
      */
     @OnThread(Tag.FXPlatform)
-    public void launchProject(final BProject project)
+    public void launchProject(final Project project)
     {
-        File projectDir;
-        Project unwrapped;
-        try {
-            projectDir = project.getDir();
-            unwrapped = ExtensionBridge.getProject(project);
-        } catch (ProjectNotOpenException pnoe) {
-            // The project must have closed in the meantime
-            return;
-        }
+        File projectDir = project.getProjectDir();
+        
         ProjectAPIVersionAccess projectAPIVersionAccess = new ProjectAPIVersionAccess()
         {
             @Override
             public Version getAPIVersion()
             {
-                String versionString = unwrapped.getUnnamedPackage().getLastSavedProperties().getProperty("version");
+                String versionString = project.getUnnamedPackage().getLastSavedProperties().getProperty("version");
                 return new Version(versionString);
             }
 
             @Override
             public void setAPIVersionAndSave(String version)
             {
-                Properties props = new Properties(unwrapped.getUnnamedPackage().getLastSavedProperties());
+                Properties props = new Properties(project.getUnnamedPackage().getLastSavedProperties());
                 props.put("version", version);
-                unwrapped.getUnnamedPackage().save(props);
+                project.getUnnamedPackage().save(props);
             }
         };
         
@@ -132,28 +121,25 @@ public class ProjectManager
                     project.getPackage("").reload();
                     if (versionOK.removeAWTImports)
                     {
-                        for (BClass bClass : project.getPackage("").getClasses())
+                        for (ClassTarget ctarget : project.getPackage("").getClassTargets())
                         {
-                            Editor bClassEditor = bClass.getEditor();
-                            if (bClassEditor != null)
+                            Editor ed = ctarget.getEditor();
+                            
+                            if (ed != null)
                             {
-                                Platform.runLater(() ->
-                                {
-                                    bluej.editor.Editor ed = EditorBridge.getEditor(bClassEditor);
-                                    ed.removeImports(Arrays.asList("java.awt.Color", "java.awt.Font"));
-                                });
+                                ed.removeImports(Arrays.asList("java.awt.Color", "java.awt.Font"));
                             }
                         }
-                        project.getPackage("").scheduleCompilation(true);
+                        project.scheduleCompilation(true, CompileReason.EARLY,
+                                CompileType.INTERNAL_COMPILE, project.getPackage(""));
                     }
                 }
 
                 // Add debugger listener. The listener will launch the Greenfoot GUI.
-                GreenfootDebugHandler.addDebuggerListener(unwrapped);
+                GreenfootDebugHandler.addDebuggerListener(project);
                 
                 // Add Greenfoot API sources to project source path
-                Project bjProject = Project.getProject(project.getDir());
-                List<DocPathEntry> sourcePath = bjProject.getSourcePath();
+                List<DocPathEntry> sourcePath = project.getSourcePath();
 
                 String language = Config.getPropString("bluej.language");
 
@@ -170,7 +156,7 @@ public class ProjectManager
                 sourcePath.add(new DocPathEntry(apiDir, ""));
                 
             }
-            catch (ProjectNotOpenException | PackageNotFoundException | IOException e)
+            catch (IOException e)
             {
                 Debug.reportError("Could not create greenfoot launcher.", e);
                 // This is bad, lets exit.
@@ -178,11 +164,7 @@ public class ProjectManager
             }
         }
         else {
-            try
-            {
-                project.close();
-            }
-            catch (ProjectNotOpenException pnoe) {}
+            Project.cleanUp(project);
             
             // If this was the only open project, open the startup project
             // instead.
@@ -205,7 +187,7 @@ public class ProjectManager
     /**
      * Launching Greenfoot failed. Display a dialog, and exit.
      */
-    public static void greenfootLaunchFailed(BProject project)
+    public static void greenfootLaunchFailed(Project project)
     {
         launchFailed = true;
         String text = Config.getString("greenfoot.launchFailed");
@@ -230,60 +212,54 @@ public class ProjectManager
      * 
      * @param project  A just-opened project
      */
-    public void openGreenfoot(final BProject project, GreenfootDebugHandler greenfootDebugHandler)
+    public void openGreenfoot(final Project project, GreenfootDebugHandler greenfootDebugHandler)
     {
-        try {
-            ResultWatcher watcher = new ResultWatcher() {
-                @Override
-                public void beginCompile()
-                {
-                    // Nothing needs doing
-                }
-                @Override
-                public void beginExecution(InvokerRecord ir)
-                {
-                    // Nothing needs doing
-                }
-                @Override
-                public void putError(String message, InvokerRecord ir)
-                {
-                    Debug.message("Greenfoot launch failed with error: " + message);
-                    greenfootLaunchFailed(project);
-                }
-                @Override
-                public void putException(ExceptionDescription exception, InvokerRecord ir)
-                {
-                    Debug.message("Greenfoot launch failed due to exception in debug VM: " + exception.getText());
-                    greenfootLaunchFailed(project);
-                }
-                @Override
-                public void putResult(DebuggerObject result, String name,
-                        InvokerRecord ir)
-                {
-                    // This is ok. May need to store result/name somewhere?
-                }
-                @Override
-                public void putVMTerminated(InvokerRecord ir)
-                {
-                    Debug.message("Greenfoot launch failed due to debug VM terminating.");
-                    greenfootLaunchFailed(project);
-                }
-            };
-            File shmFile = greenfootDebugHandler.getShmFile();
-            String[] consParams = { project.getDir().getPath(),
-                    BlueJRMIServer.getBlueJService(), shmFile == null ? "" : shmFile.getAbsolutePath(),
-                    String.valueOf(wizard), String.valueOf(sourceType) };
-            
-            Project bjProj = ExtensionBridge.getProject(project);
-            
-            ConstructorInvoker launcher = new ConstructorInvoker(bjProj.getPackage(""), greenfootDebugHandler, launchClass);
-            launcher.invokeConstructor(launcherName, consParams, watcher);
-            
-            // Reset wizard to false so it doesn't affect future loads:
-            wizard = false;
-        }
-        catch (ProjectNotOpenException e) {
-            // Not important; project has been closed, so no need to launch
-        }
+        ResultWatcher watcher = new ResultWatcher() {
+            @Override
+            public void beginCompile()
+            {
+                // Nothing needs doing
+            }
+            @Override
+            public void beginExecution(InvokerRecord ir)
+            {
+                // Nothing needs doing
+            }
+            @Override
+            public void putError(String message, InvokerRecord ir)
+            {
+                Debug.message("Greenfoot launch failed with error: " + message);
+                greenfootLaunchFailed(project);
+            }
+            @Override
+            public void putException(ExceptionDescription exception, InvokerRecord ir)
+            {
+                Debug.message("Greenfoot launch failed due to exception in debug VM: " + exception.getText());
+                greenfootLaunchFailed(project);
+            }
+            @Override
+            public void putResult(DebuggerObject result, String name,
+                    InvokerRecord ir)
+            {
+                // This is ok. May need to store result/name somewhere?
+            }
+            @Override
+            public void putVMTerminated(InvokerRecord ir)
+            {
+                Debug.message("Greenfoot launch failed due to debug VM terminating.");
+                greenfootLaunchFailed(project);
+            }
+        };
+        File shmFile = greenfootDebugHandler.getShmFile();
+        String[] consParams = { project.getProjectDir().getPath(),
+                BlueJRMIServer.getBlueJService(), shmFile == null ? "" : shmFile.getAbsolutePath(),
+                String.valueOf(wizard), String.valueOf(sourceType) };
+        
+        ConstructorInvoker launcher = new ConstructorInvoker(project.getPackage(""),
+                greenfootDebugHandler, launchClass);
+        launcher.invokeConstructor(launcherName, consParams, watcher);
+        
+        // Reset wizard to false so it doesn't affect future loads:
+        wizard = false;
     }
 }

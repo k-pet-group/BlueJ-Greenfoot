@@ -40,7 +40,7 @@ public class GreenfootGuiHandler implements GuiHandler
     {
         Project project = Project.openProject(path.toString());
         if (project != null) {
-            ProjectManager.instance().launchProject(project.getBProject());
+            ProjectManager.instance().launchProject(project);
             return true;
         }
         else
