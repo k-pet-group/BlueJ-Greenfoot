@@ -88,6 +88,7 @@ import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
 import greenfoot.record.GreenfootRecorder;
 
 import greenfoot.util.GreenfootUtil;
+import greenfoot.vmcomm.VMCommsMain;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
@@ -341,12 +342,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     }
     
     /**
-     * Creates a GreenfootStage which receives a world image to draw from the
-     * given shared memory buffer, protected by the given lock.
-     * @param sharedMemoryLock The lock to claim before accessing sharedMemoryByte
-     * @param sharedMemoryByte The shared memory buffer used to communicate with the debug VM
+     * Creates a GreenfootStage for the given project with given debug interface handler.
+     * @param project   the project to show (may be null for none)
+     * @param greenfootDebugHandler   the debug handler interface
      */
-    private GreenfootStage(Project project, GreenfootDebugHandler greenfootDebugHandler, FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte)
+    private GreenfootStage(Project project, GreenfootDebugHandler greenfootDebugHandler)
     {
         stages.add(this);
         
@@ -386,7 +386,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         Config.addPMFStylesheets(scene);
         setScene(scene);
         
-        showProject(project, greenfootDebugHandler, sharedMemoryLock, sharedMemoryByte);
+        if (project != null) {
+            showProject(project, greenfootDebugHandler);
+        }
                 
         setOnCloseRequest((e) -> {
             doClose(false);
@@ -427,10 +429,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      * Show a particular project in this window.
      * @param project   The project to display
      * @param greenfootDebugHandler   The debug handler for this project
-     * @param sharedMemoryLock The lock to claim before accessing sharedMemoryByte
-     * @param sharedMemoryByte The shared memory buffer used to communicate with the debug VM
      */
-    private void showProject(Project project, GreenfootDebugHandler greenfootDebugHandler, FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte)
+    private void showProject(Project project, GreenfootDebugHandler greenfootDebugHandler)
     {
         this.project = project;
         project.getPackage("").setUI(this);
@@ -446,7 +446,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         
         classDiagram.setProject(project);
 
-        setupWorldDrawingAndEvents(sharedMemoryLock, sharedMemoryByte, worldDisplay::setImage, pendingCommands);
+        VMCommsMain vmComms = greenfootDebugHandler.getVmComms();
+        setupWorldDrawingAndEvents(vmComms.getChannel(), vmComms.getSharedBuffer(),
+                worldDisplay::setImage, pendingCommands);
         loadAndMirrorProperties(pendingCommands);
         // We send a reset to make a new world after the project properties have been sent across:
         pendingCommands.add(new Command(COMMAND_INSTANTIATE_WORLD));
@@ -457,21 +459,18 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      * 
      * @param project   The project to display
      * @param greenfootDebugHandler   The debug handler for this project
-     * @param sharedMemoryLock The lock to claim before accessing sharedMemoryByte
-     * @param sharedMemoryByte The shared memory buffer used to communicate with the debug VM
      * @return  the stage (a new stage, or a previously empty stage with the project now displayed)
      */
-    public static GreenfootStage makeStage(Project project, GreenfootDebugHandler greenfootDebugHandler,
-            FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte)
+    public static GreenfootStage makeStage(Project project, GreenfootDebugHandler greenfootDebugHandler)
     {
         if (stages.size() == 1 && stages.get(0).project == null)
         {
-            stages.get(0).showProject(project, greenfootDebugHandler, sharedMemoryLock, sharedMemoryByte);
+            stages.get(0).showProject(project, greenfootDebugHandler);
             return stages.get(0);
         }
         else
         {
-            return new GreenfootStage(project, greenfootDebugHandler, sharedMemoryLock, sharedMemoryByte);
+            return new GreenfootStage(project, greenfootDebugHandler);
         }
     }
 

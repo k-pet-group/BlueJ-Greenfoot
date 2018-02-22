@@ -30,10 +30,6 @@ import greenfoot.core.Simulation;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileChannel.MapMode;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,6 +43,7 @@ import greenfoot.guifx.GreenfootStage;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 import greenfoot.record.GreenfootRecorder;
 import greenfoot.util.DebugUtil;
+import greenfoot.vmcomm.VMCommsMain;
 import javafx.application.Platform;
 import rmiextension.wrappers.RProjectImpl;
 import rmiextension.wrappers.WrapperPool;
@@ -120,7 +117,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     private Map<String,GreenfootObject> objectBench = new HashMap<>();
     private List<ObjectBenchListener> benchListeners = new ArrayList<>();
     
-    private File shmFile;
+    private VMCommsMain vmComms;
 
     /**
      * Constructor for GreenfootDebugHandler.
@@ -131,7 +128,9 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
         this.project = project;
         try
         {
-            shmFile = initialiseServerDraw(ExtensionBridge.getProject(project), this);
+            Project bjProject = ExtensionBridge.getProject(project);
+            vmComms = initialiseServerDraw(bjProject, this);
+            GreenfootStage.makeStage(bjProject, this).show();
         }
         catch (ProjectNotOpenException pnoe)
         {
@@ -164,15 +163,11 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
      * that gets moved across to the server VM.
      */
     @OnThread(Tag.FXPlatform)
-    private File initialiseServerDraw(Project project, GreenfootDebugHandler greenfootDebugHandler)
+    private VMCommsMain initialiseServerDraw(Project project, GreenfootDebugHandler greenfootDebugHandler)
     {
         try
         {
-            File shmFile = File.createTempFile("greenfoot", "shm");
-            FileChannel fc = new RandomAccessFile(shmFile, "rw").getChannel();
-            MappedByteBuffer sharedMemoryByte = fc.map(MapMode.READ_WRITE, 0, 10_000_000L);
-            GreenfootStage.makeStage(project, greenfootDebugHandler, fc, sharedMemoryByte).show();
-            return shmFile;
+            return new VMCommsMain();
         }
         catch (IOException e)
         {
@@ -230,11 +225,19 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     }
     
     /**
+     * Get the inter-VM communications channel.
+     */
+    public VMCommsMain getVmComms()
+    {
+        return vmComms;
+    }
+    
+    /**
      * Get the temporary file used as the shared memory communication backing.
      */
     public File getShmFile()
     {
-        return shmFile;
+        return vmComms.getSharedFile();
     }
     
     /**
