@@ -71,7 +71,9 @@ public class GreenfootGuiHandler implements GuiHandler
     @Override
     public void initialOpenComplete(boolean projectOpen)
     {
-        // Nothing needs to be done.
+        if (! projectOpen) {
+            GreenfootStage.makeStage(null, null);
+        }
     }
     
     @Override
