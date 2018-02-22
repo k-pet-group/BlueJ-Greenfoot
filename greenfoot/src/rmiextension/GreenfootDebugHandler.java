@@ -120,17 +120,17 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
      * Constructor for GreenfootDebugHandler.
      */
     @OnThread(Tag.FXPlatform)
-    private GreenfootDebugHandler(Project project)
+    private GreenfootDebugHandler(Project project) throws IOException
     {
         this.project = project;
-        vmComms = initialiseServerDraw(project, this);
+        vmComms = new VMCommsMain();
         GreenfootStage.makeStage(project, this).show();
     }
         
     /**
      * This is the publicly-visible way to add a debugger listener for a particular project.    
      */
-    static void addDebuggerListener(Project project)
+    static void addDebuggerListener(Project project) throws IOException
     {
         project.getExecControls().setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
 
@@ -138,28 +138,6 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
         project.getDebugger().addDebuggerListener(handler);
     }
     
-    /**
-     * Creates a shared memory buffer (using a file mmap-ed into memory), and constructs
-     * a graphical window to show the outcome of the drawing on each animation pulse,
-     * as well as forwarding the events received to the shared memory buffer.
-     *
-     * This functionality will become part of the main Greenfoot window's code once
-     * that gets moved across to the server VM.
-     */
-    @OnThread(Tag.FXPlatform)
-    private VMCommsMain initialiseServerDraw(Project project, GreenfootDebugHandler greenfootDebugHandler)
-    {
-        try
-        {
-            return new VMCommsMain();
-        }
-        catch (IOException e)
-        {
-            // TODO this must be handled appropriately.
-            throw new RuntimeException(e);
-        }
-    }
-
     /**
      * Set the listener which will be called when a pick request completes.
      * @param pickListener Will be called with the pickId and list of actors and world at that position.

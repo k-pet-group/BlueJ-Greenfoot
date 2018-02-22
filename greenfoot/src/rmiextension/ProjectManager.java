@@ -30,6 +30,7 @@ import greenfoot.core.GreenfootMain;
 import greenfoot.core.GreenfootMain.ProjectAPIVersionAccess;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -178,7 +179,8 @@ public class ProjectManager
 
                 String language = Config.getPropString("bluej.language");
 
-                if (! language.equals("english")) {
+                if (! language.equals("english"))
+                {
                     // Add the native language sources first
                     File langlib = new File(Config.getBlueJLibDir(), language);
                     File apiDir = new File(new File(langlib, "greenfoot"), "api");
@@ -190,21 +192,24 @@ public class ProjectManager
                 sourcePath.add(new DocPathEntry(apiDir, ""));
                 
             }
-            catch (ProjectNotOpenException | PackageNotFoundException e) {
+            catch (ProjectNotOpenException | PackageNotFoundException | IOException e)
+            {
                 Debug.reportError("Could not create greenfoot launcher.", e);
                 // This is bad, lets exit.
                 greenfootLaunchFailed(project);
             }
         }
         else {
-            try {
+            try
+            {
                 project.close();
             }
             catch (ProjectNotOpenException pnoe) {}
             
             // If this was the only open project, open the startup project
             // instead.
-            if (bluej.getOpenProjects().length == 0) {
+            if (bluej.getOpenProjects().length == 0)
+            {
                 File startupProject = new File(bluej.getSystemLibDir(), "startupProject");
                 bluej.openProject(startupProject);
             }
