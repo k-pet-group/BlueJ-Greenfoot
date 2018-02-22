@@ -364,11 +364,11 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             }
         }
                 
-        RProject proj = rBlueJ.openProject(projectDirFile);
+        //RProject proj = rBlueJ.openProject(projectDirFile);
         // if this is the dummy startup project and there is a valid project to open, close it now
-        if (proj != null && frame.getProject() == null) {
-            project.close();
-        }
+        //if (proj != null && frame.getProject() == null) {
+        //    project.close();
+        //}
     }
 
     /**
@@ -514,31 +514,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                 DialogManager.showError(frame, "project-already-exists");
                 return null;
             }
-            try {
-                RProject rproj = rBlueJ.newProject(newFile, wizard, sourceType);
-                if (rproj != null) {
-                    // The rest of the project preparation will be done by the
-                    // ProjectManager on the BlueJ VM.
-
-                    // if the project that is already open is the dummy startup project
-                    // or if there is an empty project, close it now
-                    if (isStartupProject()|| frame.isClosedProject()) {
-                        project.close();
-                    }
-                    
-                    return rproj;
-                }
-                DialogManager.showError(frame, "cannot-create-project");
-            }
-            catch (ServerError se) {
-                Debug.reportError("Problems when trying to create new scenario", se);
-            }
-            catch (ServerException se) {
-                Debug.reportError("Problems when trying to create new scenario", se);
-            }
-            catch (RemoteException re) {
-                Debug.reportError("Problems when trying to create new scenario", re);
-            }
+            //RProject rproj = rBlueJ.newProject(newFile, wizard, sourceType);
         }
         return null;
     }

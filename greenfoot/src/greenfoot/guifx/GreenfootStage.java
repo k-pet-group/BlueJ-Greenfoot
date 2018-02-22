@@ -71,6 +71,7 @@ import bluej.views.MethodView;
 import greenfoot.GreenfootImage;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
+import greenfoot.core.ProjectManager;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import bluej.pkgmgr.AboutDialogTemplate;
@@ -124,7 +125,6 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import rmiextension.GreenfootDebugHandler;
 import rmiextension.GreenfootDebugHandler.SimulationStateListener;
-import rmiextension.ProjectManager;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

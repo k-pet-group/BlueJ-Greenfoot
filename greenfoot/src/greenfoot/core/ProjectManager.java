@@ -19,45 +19,41 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package rmiextension;
-
-import bluej.extensions.BClass;
-import bluej.extensions.ExtensionBridge;
-import bluej.extensions.editor.Editor;
-import bluej.extensions.editor.EditorBridge;
-import greenfoot.core.GreenfootLauncherDebugVM;
-import greenfoot.core.GreenfootMain;
-import greenfoot.core.GreenfootMain.ProjectAPIVersionAccess;
+package greenfoot.core;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import greenfoot.guifx.GreenfootGuiHandler;
-import greenfoot.util.Version;
-import javafx.application.Platform;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 import bluej.Boot;
 import bluej.Config;
-import bluej.Main;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugmgr.ResultWatcher;
+import bluej.extensions.BClass;
 import bluej.extensions.BProject;
 import bluej.extensions.BlueJ;
+import bluej.extensions.ExtensionBridge;
 import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
-import bluej.extensions.event.PackageEvent;
 import bluej.extensions.SourceType;
+import bluej.extensions.editor.Editor;
+import bluej.extensions.editor.EditorBridge;
 import bluej.pkgmgr.DocPathEntry;
 import bluej.pkgmgr.Project;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
+import greenfoot.core.GreenfootMain.ProjectAPIVersionAccess;
+import greenfoot.util.Version;
+import javafx.application.Platform;
+import rmiextension.BlueJRMIServer;
+import rmiextension.ConstructorInvoker;
+import rmiextension.GreenfootDebugHandler;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * The ProjectManager is on the BlueJ-VM. It monitors pacakage events from BlueJ
@@ -69,25 +65,20 @@ public class ProjectManager
 {
     /** Singleton instance */
     private static ProjectManager instance;
-
-    /** List to keep track of which projects are in the process of being created */
-    private List<File> projectsInCreation = new ArrayList<File>();
     
     /** The class that will be instantiated in the greenfoot VM to launch the project */
     private String launchClass = GreenfootLauncherDebugVM.class.getName();
     private static final String launcherName = "greenfootLauncher";
-
-    private static BlueJ bluej;
     
     private static volatile boolean launchFailed = false;
-    
-    boolean wizard;
-    SourceType sourceType;
+
+    private boolean wizard;
+    private SourceType sourceType;
 
     private ProjectManager()
     {
     }
-
+    
     /**
      * Get the singleton instance. Make sure it is initialised first.
      * 
@@ -95,27 +86,14 @@ public class ProjectManager
      */
     public static ProjectManager instance()
     {
-        if (bluej == null) {
-            throw new IllegalStateException("Projectmanager has not been initialised.");
+        if (instance == null) {
+            instance = new ProjectManager();
         }
         return instance;
     }
-
+    
     /**
-     * Initialise. Must be called before the instance is accessed.
-     */
-    public static void init(BlueJ bluej)
-    {
-        ProjectManager.bluej = bluej;
-        instance = new ProjectManager();
-        Main.setGuiHandler(new GreenfootGuiHandler());
-    }
-
-    /**
-     * Launch the project in the Greenfoot VM if it is a proper Greenfoot
-     * project. This is called when a package is opened; because there is
-     * no listener interface for project open/close events, we have to keep
-     * track of projects manually.
+     * Open a Greenfoot project.
      */
     @OnThread(Tag.FXPlatform)
     public void launchProject(final BProject project)
@@ -208,20 +186,43 @@ public class ProjectManager
             
             // If this was the only open project, open the startup project
             // instead.
-            if (bluej.getOpenProjects().length == 0)
-            {
-                File startupProject = new File(bluej.getSystemLibDir(), "startupProject");
-                bluej.openProject(startupProject);
-            }
+            //if (bluej.getOpenProjects().length == 0)
+            //{
+            //    File startupProject = new File(bluej.getSystemLibDir(), "startupProject");
+            //    bluej.openProject(startupProject);
+            //}
         }
     }
-
+    
     /**
      * Check whether failure to launch has been recorded.
      */
     public static boolean checkLaunchFailed()
     {
         return launchFailed;
+    }
+    
+    /**
+     * Launching Greenfoot failed. Display a dialog, and exit.
+     */
+    public static void greenfootLaunchFailed(BProject project)
+    {
+        launchFailed = true;
+        String text = Config.getString("greenfoot.launchFailed");
+        DialogManager.showErrorText(null, text);
+        System.exit(1);
+    }
+    
+    /**
+     * Handles the check of the project version. It will notify the user if the
+     * project has to be updated.
+     * 
+     * @param projectDir Directory of the project.
+     * @return one of GreenfootMain.VERSION_OK, VERSION_UPDATED or VERSION_BAD
+     */
+    private GreenfootMain.VersionCheckInfo checkVersion(File projectDir, ProjectAPIVersionAccess projectAPIVersionAccess)
+    {
+        return GreenfootMain.updateApi(projectDir, projectAPIVersionAccess, null, Boot.GREENFOOT_API_VERSION); 
     }
     
     /**
@@ -284,84 +285,5 @@ public class ProjectManager
         catch (ProjectNotOpenException e) {
             // Not important; project has been closed, so no need to launch
         }
-    }
-    
-    /**
-     * Launching Greenfoot failed. Display a dialog, and exit.
-     */
-    public static void greenfootLaunchFailed(BProject project)
-    {
-        launchFailed = true;
-        String text = Config.getString("greenfoot.launchFailed");
-        DialogManager.showErrorText(null, text);
-        System.exit(1);
-    }
-
-    /**
-     * Handles the check of the project version. It will notify the user if the
-     * project has to be updated.
-     * 
-     * @param projectDir Directory of the project.
-     * @return one of GreenfootMain.VERSION_OK, VERSION_UPDATED or VERSION_BAD
-     */
-    private GreenfootMain.VersionCheckInfo checkVersion(File projectDir, ProjectAPIVersionAccess projectAPIVersionAccess)
-    {
-        if(isNewProject(projectDir))
-        {
-            projectAPIVersionAccess.setAPIVersionAndSave(Boot.GREENFOOT_API_VERSION);
-        }        
-        return GreenfootMain.updateApi(projectDir, projectAPIVersionAccess, null, Boot.GREENFOOT_API_VERSION); 
-    }
-
-    /**
-     * Checks if this is a project that is being created for the first time
-     */
-    private boolean isNewProject(File projectDir)
-    {
-        return projectsInCreation.contains(projectDir);        
-    }
-    
-    /**
-     * Flags that this project is in the process of being created.
-     */
-    public void addNewProject(File projectDir)
-    {
-        projectsInCreation.add(projectDir);
-    }
-
-    /**
-     * Flags that this project is no longer in the process of being created.
-     */
-    public void removeNewProject(File projectDir)
-    {
-        projectsInCreation.remove(projectDir);
-    }
-
-    //=================================================================
-    //bluej.extensions.event.PackageListener implementation
-    //=================================================================
-
-    /*
-     * @see bluej.extensions.event.PackageListener#packageOpened(bluej.extensions.event.PackageEvent)
-     */
-    public void packageOpened(PackageEvent event)
-    {
-    }
-
-    /*
-     * @see bluej.extensions.event.PackageListener#packageClosing(bluej.extensions.event.PackageEvent)
-     */
-    public void packageClosing(PackageEvent event)
-    {
-    }
-
-    public void setWizard(boolean wizard)
-    {
-        this.wizard = wizard;
-    }
-
-    public void setSourceType(SourceType sourceType)
-    {
-        this.sourceType = sourceType;
     }
 }

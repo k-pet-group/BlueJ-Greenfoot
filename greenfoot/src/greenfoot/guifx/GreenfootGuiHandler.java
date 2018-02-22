@@ -26,7 +26,7 @@ import java.io.File;
 import bluej.GuiHandler;
 import bluej.Main;
 import bluej.pkgmgr.Project;
-import rmiextension.ProjectManager;
+import greenfoot.core.ProjectManager;
 
 /**
  * A GUI handler for Greenfoot.

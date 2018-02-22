@@ -38,7 +38,6 @@ import greenfoot.gui.input.mouse.MousePollingManager;
 import greenfoot.guifx.GreenfootStage;
 import greenfoot.util.GreenfootUtil;
 import javafx.scene.input.KeyCode;
-import rmiextension.ProjectManager;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -56,7 +55,6 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.IntBuffer;

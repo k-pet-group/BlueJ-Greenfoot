@@ -25,7 +25,6 @@ import java.io.File;
 import java.rmi.RemoteException;
 import java.util.Properties;
 
-import bluej.extensions.SourceType;
 import rmiextension.wrappers.event.RApplicationListener;
 import rmiextension.wrappers.event.RClassListener;
 import rmiextension.wrappers.event.RCompileListener;
@@ -84,26 +83,6 @@ public interface RBlueJ
      * Get the Bluej "lib" dir.
      */
     public File getSystemLibDir()
-        throws RemoteException;
-
-    /**
-     * Create and open a new Project
-     * 
-     * @param directory  The directory to create the project in
-     * @param wizard     Whether to run the new project wizard (prompt for world class creation)
-     * @param sourceType  The default source type for the new project
-     * @return   A reference to the newly created project, or null
-     *           if the project could not be created.
-     */
-    public RProject newProject(File directory, boolean wizard, SourceType sourceType)
-        throws RemoteException;
-
-    /**
-     * Open an existing project
-     * @param projectDirFile  The directory containing the project to open
-     * @return  A reference to the project
-     */
-    public RProject openProject(File projectDirFile)
         throws RemoteException;
 
     /**

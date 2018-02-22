@@ -25,9 +25,7 @@ import bluej.Boot;
 import bluej.Config;
 import bluej.extensions.BProject;
 import bluej.extensions.BlueJ;
-import bluej.extensions.PackageNotFoundException;
 import bluej.extensions.ProjectNotOpenException;
-import bluej.extensions.SourceType;
 import bluej.extensions.event.ApplicationEvent;
 import bluej.extensions.event.ApplicationListener;
 import bluej.extensions.event.ClassListener;
@@ -38,7 +36,6 @@ import bluej.prefmgr.PrefMgrDialog;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import javafx.application.Platform;
-import rmiextension.ProjectManager;
 import rmiextension.wrappers.event.RApplicationListener;
 import rmiextension.wrappers.event.RClassListener;
 import rmiextension.wrappers.event.RClassListenerWrapper;
@@ -219,46 +216,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     }
 
     /*
-     * @see rmiextension.wrappers.RBlueJ#newProject(java.io.File)
-     */
-    public RProject newProject(final File directory, boolean wizard, SourceType sourceType)
-        throws RemoteException
-    {
-        final RProjectRef wrapper = new RProjectRef();
-        
-        try {
-            EventQueue.invokeAndWait(() -> {
-                ProjectManager.instance().addNewProject(directory);
-                ProjectManager.instance().setWizard(wizard);
-                ProjectManager.instance().setSourceType(sourceType);
-                BProject wrapped = blueJ.newProject(directory);
-                if (wrapped != null) {
-                    try {
-                        wrapper.rProject = WrapperPool.instance().getWrapper(wrapped);
-                    }
-                    catch (RemoteException e) {
-                        Debug.reportError("Error creating RMI project wrapper", e);
-                    }
-                }
-                ProjectManager.instance().removeNewProject(directory);
-
-                try {
-                    wrapped.getPackage("").scheduleCompilation(false);
-                }
-                catch (ProjectNotOpenException|PackageNotFoundException e) {
-                    Debug.reportError(e);
-                }
-            });
-        }
-        catch (InterruptedException e) { }
-        catch (InvocationTargetException e) {
-            Debug.reportError("Error creating project via RMI", e.getCause());
-        }
-        
-        return wrapper.rProject;
-    }
-
-    /*
      * @see rmiextension.wrappers.RBlueJ#openProject(java.lang.String)
      */
     public RProject openProject(final File directory)
@@ -382,11 +339,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     private class BProjectRef
     {
         public BProject bProject;
-    }
-
-    private class RProjectRef
-    {
-        public RProject rProject;
     }
 
     @Override
