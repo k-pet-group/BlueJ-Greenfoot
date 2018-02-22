@@ -209,7 +209,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private final Button actButton;
     private final Button runButton;
     private final Button resetButton;
-    
+    private final Slider speedSlider;
     private final BooleanProperty actDisabled = new SimpleBooleanProperty(true);
     private final BooleanProperty resetDisabled = new SimpleBooleanProperty(true);
     private final BooleanProperty runDisabled = new SimpleBooleanProperty(true);
@@ -360,11 +360,25 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         actButton.disableProperty().bind(actDisabled);
         runButton.disableProperty().bind(runPauseDisabled);
         resetButton.disableProperty().bind(resetDisabled);
-        Node buttonAndSpeedPanel = new HBox(actButton, runButton, resetButton);
+        Label speedLabel = new Label(Config.getString("controls.speed.label"));
+        int min = 0;
+        int max = Simulation.MAX_SIMULATION_SPEED;
+        speedSlider = new Slider();
+        speedSlider.setShowTickLabels(true);
+        speedSlider.setShowTickMarks(true);
+        speedSlider.setMin(min);
+        speedSlider.setMax(max);
+        speedSlider.setMajorTickUnit( max / 2 );
+        speedSlider.setMinorTickCount( max / 4 );
+        speedSlider.setBlockIncrement(20);
+        speedSlider.setTooltip(new Tooltip(Config.getString("controls.speedSlider.tooltip")));
+        speedSlider.setFocusTraversable(false);
+        Node buttonAndSpeedPanel = new HBox(actButton, runButton, resetButton, speedLabel, speedSlider);
         pendingCommands = new ArrayList<>();
         actButton.setOnAction(e -> act(pendingCommands));
         runButton.setOnAction(e -> doRunPause());
         resetButton.setOnAction(e -> doReset());
+        speedSlider.valueProperty().addListener(e -> {}); //TODO
 
         worldDisplay = new WorldDisplay();
         
