@@ -30,10 +30,6 @@ import greenfoot.core.Simulation;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileChannel.MapMode;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,6 +43,7 @@ import greenfoot.guifx.GreenfootStage;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 import greenfoot.record.GreenfootRecorder;
 import greenfoot.util.DebugUtil;
+import greenfoot.vmcomm.VMCommsMain;
 import javafx.application.Platform;
 import rmiextension.wrappers.RProjectImpl;
 import rmiextension.wrappers.WrapperPool;
@@ -64,9 +61,6 @@ import bluej.debugmgr.ValueCollection;
 import bluej.debugmgr.objectbench.ObjectBenchEvent;
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import bluej.debugmgr.objectbench.ObjectBenchListener;
-import bluej.extensions.BProject;
-import bluej.extensions.ExtensionBridge;
-import bluej.extensions.ProjectNotOpenException;
 import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
@@ -112,7 +106,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     private static final String PICK_HELPER_KEY = "PICK_HELPER_PICKED";
     private PickListener pickListener;
 
-    private BProject project;
+    private Project project;
     private DebuggerThread simulationThread;
     private DebuggerClass simulationClass;
     private GreenfootRecorder greenfootRecorder;
@@ -120,67 +114,30 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     private Map<String,GreenfootObject> objectBench = new HashMap<>();
     private List<ObjectBenchListener> benchListeners = new ArrayList<>();
     
-    private File shmFile;
+    private VMCommsMain vmComms;
 
     /**
      * Constructor for GreenfootDebugHandler.
      */
     @OnThread(Tag.FXPlatform)
-    private GreenfootDebugHandler(BProject project)
+    private GreenfootDebugHandler(Project project) throws IOException
     {
         this.project = project;
-        try
-        {
-            shmFile = initialiseServerDraw(ExtensionBridge.getProject(project), this);
-        }
-        catch (ProjectNotOpenException pnoe)
-        {
-            throw new RuntimeException(pnoe);
-        }
+        vmComms = new VMCommsMain();
+        GreenfootStage.makeStage(project, this).show();
     }
         
     /**
      * This is the publicly-visible way to add a debugger listener for a particular project.    
      */
-    static void addDebuggerListener(BProject project)
+    static void addDebuggerListener(Project project) throws IOException
     {
-        try {
-            Project proj = Project.getProject(project.getDir());
-            proj.getExecControls().setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
+        project.getExecControls().setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
 
-            GreenfootDebugHandler handler = new GreenfootDebugHandler(project);
-            proj.getDebugger().addDebuggerListener(handler);
-        } catch (ProjectNotOpenException ex) {
-            Debug.reportError("Project not open when adding debugger listener in Greenfoot", ex);
-        }
+        GreenfootDebugHandler handler = new GreenfootDebugHandler(project);
+        project.getDebugger().addDebuggerListener(handler);
     }
     
-    /**
-     * Creates a shared memory buffer (using a file mmap-ed into memory), and constructs
-     * a graphical window to show the outcome of the drawing on each animation pulse,
-     * as well as forwarding the events received to the shared memory buffer.
-     *
-     * This functionality will become part of the main Greenfoot window's code once
-     * that gets moved across to the server VM.
-     */
-    @OnThread(Tag.FXPlatform)
-    private File initialiseServerDraw(Project project, GreenfootDebugHandler greenfootDebugHandler)
-    {
-        try
-        {
-            File shmFile = File.createTempFile("greenfoot", "shm");
-            FileChannel fc = new RandomAccessFile(shmFile, "rw").getChannel();
-            MappedByteBuffer sharedMemoryByte = fc.map(MapMode.READ_WRITE, 0, 10_000_000L);
-            GreenfootStage.makeStage(project, greenfootDebugHandler, fc, sharedMemoryByte).show();
-            return shmFile;
-        }
-        catch (IOException e)
-        {
-            // TODO this must be handled appropriately.
-            throw new RuntimeException(e);
-        }
-    }
-
     /**
      * Set the listener which will be called when a pick request completes.
      * @param pickListener Will be called with the pickId and list of actors and world at that position.
@@ -230,11 +187,19 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     }
     
     /**
+     * Get the inter-VM communications channel.
+     */
+    public VMCommsMain getVmComms()
+    {
+        return vmComms;
+    }
+    
+    /**
      * Get the temporary file used as the shared memory communication backing.
      */
     public File getShmFile()
     {
-        return shmFile;
+        return vmComms.getSharedFile();
     }
     
     /**
@@ -258,7 +223,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
             // record this thread as being the simulation thread and set it running again:
             simulationThread = e.getThread();
             try {
-                RProjectImpl rproj = WrapperPool.instance().getWrapper(project);
+                RProjectImpl rproj = WrapperPool.instance().getWrapper(project.getBProject());
                 rproj.setSimulationThread(simulationThread);
             }
             catch (RemoteException re) {
@@ -348,10 +313,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
             Platform.runLater(new Runnable() {
                 public void run()
                 {
-                    try {
-                        ExtensionBridge.clearObjectBench(project);
-                    }
-                    catch (ProjectNotOpenException e) { }
+                    objectBench.clear();
 
                     // Run the GUI thread on:
                     e.getThread().cont();
@@ -440,7 +402,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
                 Platform.runLater(() -> {
                     objectBench.clear();
                     addRunResetBreakpoints((Debugger) e.getSource());
-                    ProjectManager.instance().openGreenfoot(project, GreenfootDebugHandler.this);
+                    ProjectManager.instance().openGreenfoot(project.getBProject(), GreenfootDebugHandler.this);
                 });
             }
         }
