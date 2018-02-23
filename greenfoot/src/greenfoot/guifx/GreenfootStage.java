@@ -8,7 +8,7 @@
  of the License, or (at your option) any later version. 
  
  This program is distributed in the hope that it will be useful, 
- but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of f
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
  GNU General Public License for more details. 
  
@@ -463,7 +463,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         VMCommsMain vmComms = greenfootDebugHandler.getVmComms();
         setupWorldDrawingAndEvents(vmComms.getChannel(), vmComms.getSharedBuffer(),
                 worldDisplay::setImage, pendingCommands);
-        loadAndMirrorProperties(pendingCommands);
+        loadAndMirrorProperties();
         // We send a reset to make a new world after the project properties have been sent across:
         pendingCommands.add(new Command(COMMAND_INSTANTIATE_WORLD));
     }
@@ -500,24 +500,26 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         stateProperty.set(State.UNCOMPILED);
     }
 
-    private void loadAndMirrorProperties(List<Command> pendingCommands)
+    /**
+     * Send package properties to the other VM. (This allows the actor/world classes to determine their
+     * image).
+     */
+    private void loadAndMirrorProperties()
     {
         Properties props = project.getUnnamedPackage().getLastSavedProperties();
-        props.forEach((key, value) -> {
-            if (key instanceof String && (value == null || value instanceof String))
-            {
-                // We need an array with key-length, key codepoints, value-length (-1 if null), value codepoints
-                int[] keyCodepoints = ((String) key).codePoints().toArray();
-                int[] valueCodepoints = value == null ? new int[0] : ((String)value).codePoints().toArray();
-                int[] combined = new int[1 + keyCodepoints.length + 1 + valueCodepoints.length];
-                combined[0] = keyCodepoints.length;
-                System.arraycopy(keyCodepoints, 0, combined, 1, keyCodepoints.length);
-                combined[1 + keyCodepoints.length] = value == null ? -1 : valueCodepoints.length;
-                System.arraycopy(valueCodepoints, 0, combined, 2 + keyCodepoints.length, valueCodepoints.length);
-                pendingCommands.add(new Command(COMMAND_PROPERTY_CHANGED, combined));
-            }
-        });
-
+        for (String key : props.stringPropertyNames()) 
+        {
+            String value = props.getProperty(key);
+            // We need an array with key-length, key codepoints, value-length (-1 if null), value codepoints
+            int[] keyCodepoints = key.codePoints().toArray();
+            int[] valueCodepoints = value == null ? new int[0] : value.codePoints().toArray();
+            int[] combined = new int[1 + keyCodepoints.length + 1 + valueCodepoints.length];
+            combined[0] = keyCodepoints.length;
+            System.arraycopy(keyCodepoints, 0, combined, 1, keyCodepoints.length);
+            combined[1 + keyCodepoints.length] = value == null ? -1 : valueCodepoints.length;
+            System.arraycopy(valueCodepoints, 0, combined, 2 + keyCodepoints.length, valueCodepoints.length);
+            pendingCommands.add(new Command(COMMAND_PROPERTY_CHANGED, combined));
+        }
     }
 
     /**
