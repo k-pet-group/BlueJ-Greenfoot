@@ -1410,7 +1410,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     {
                         contextMenu.getItems().addAll(actorMenus);
                     }
-                    Point2D screenLocation = worldDisplay.localToScreen(curPickPoint);
+                    Point2D screenLocation = worldDisplay.worldToScreen(curPickPoint);
                     contextMenu.show(worldDisplay, screenLocation.getX(), screenLocation.getY());
                 }
                 else
@@ -1434,7 +1434,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                         });
                         contextMenu.getItems().add(saveTheWorld);
 
-                        Point2D screenLocation = worldDisplay.localToScreen(curPickPoint);
+                        Point2D screenLocation = worldDisplay.worldToScreen(curPickPoint);
                         contextMenu.show(worldDisplay, screenLocation.getX(), screenLocation.getY());
                     }
                 }
