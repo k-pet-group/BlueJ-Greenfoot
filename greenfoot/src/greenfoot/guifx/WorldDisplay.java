@@ -107,6 +107,16 @@ class WorldDisplay extends StackPane
     }
 
     /**
+     * Converts a point in world coordinates into screen coordinates.
+     */
+    public Point2D worldToScreen(Point2D point2D)
+    {
+        // We use imageView, not ourselves, because there may be extra margin around the imageView
+        // in this StackPane if the user has sized the window to be larger than the world size.
+        return imageView.localToScreen(point2D);
+    }
+
+    /**
      * Checks if the given point (in world coordinates) lies inside the world or not.
      */
     public boolean worldContains(Point2D point2D)
