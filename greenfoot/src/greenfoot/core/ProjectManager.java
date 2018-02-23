@@ -45,9 +45,9 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import greenfoot.core.GreenfootMain.ProjectAPIVersionAccess;
 import greenfoot.util.Version;
+import greenfoot.vmcomm.GreenfootDebugHandler;
 import rmiextension.BlueJRMIServer;
 import rmiextension.ConstructorInvoker;
-import rmiextension.GreenfootDebugHandler;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

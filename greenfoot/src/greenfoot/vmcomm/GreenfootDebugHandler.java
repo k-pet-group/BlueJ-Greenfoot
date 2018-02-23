@@ -19,7 +19,7 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package rmiextension;
+package greenfoot.vmcomm;
 
 import bluej.debugger.VarDisplayInfo;
 import bluej.debugger.gentype.GenTypeClass;
@@ -44,7 +44,6 @@ import greenfoot.guifx.GreenfootStage;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 import greenfoot.record.GreenfootRecorder;
 import greenfoot.util.DebugUtil;
-import greenfoot.vmcomm.VMCommsMain;
 import javafx.application.Platform;
 import rmiextension.wrappers.RProjectImpl;
 import rmiextension.wrappers.WrapperPool;
@@ -607,7 +606,6 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
      */
     private static class GreenfootObject implements NamedValue
     {
-        private DebuggerObject object;
         private GenTypeClass type;
         private String name;
         
@@ -616,7 +614,6 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
          */
         public GreenfootObject(DebuggerObject object, GenTypeClass type, String name)
         {
-            this.object = object;
             this.type = type;
             this.name = name;
         }

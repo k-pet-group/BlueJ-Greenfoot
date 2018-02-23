@@ -89,7 +89,9 @@ import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
 import greenfoot.record.GreenfootRecorder;
 
 import greenfoot.util.GreenfootUtil;
+import greenfoot.vmcomm.GreenfootDebugHandler;
 import greenfoot.vmcomm.VMCommsMain;
+import greenfoot.vmcomm.GreenfootDebugHandler.SimulationStateListener;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
@@ -123,8 +125,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import rmiextension.GreenfootDebugHandler;
-import rmiextension.GreenfootDebugHandler.SimulationStateListener;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
