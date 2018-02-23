@@ -1140,11 +1140,13 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             if (paused)
             {
                 // We don't want to block GUI while waiting for pick: 
-                Utility.runBackground(() -> pickRequest(e.getX(), e.getY(), PickType.CONTEXT_MENU));
+                Point2D worldPos = worldDisplay.sceneToWorld(new Point2D(e.getSceneX(), e.getSceneY()));
+                Utility.runBackground(() -> pickRequest(worldPos.getX(), worldPos.getY(), PickType.CONTEXT_MENU));
             }
         });
         worldDisplay.addEventFilter(MouseEvent.ANY, e -> {
             boolean paused = stateProperty.get() == State.PAUSED;
+            Point2D worldPos = worldDisplay.sceneToWorld(new Point2D(e.getSceneX(), e.getSceneY()));
             int eventType;
             if (e.getEventType() == MouseEvent.MOUSE_CLICKED)
             {
@@ -1154,7 +1156,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     if (paused)
                     {
                         // We don't want to block GUI while waiting for pick:
-                        Utility.runBackground(() -> pickRequest(e.getX(), e.getY(), PickType.LEFT_CLICK));
+                        Utility.runBackground(() -> pickRequest(worldPos.getX(), worldPos.getY(), PickType.LEFT_CLICK));
                     }
                 }
                 eventType = MOUSE_CLICKED;
@@ -1178,7 +1180,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 // Continue the drag if one is going:
                 if (e.getButton() == MouseButton.PRIMARY && paused && curDragRequest != -1)
                 {
-                    pendingCommands.add(new Command(COMMAND_CONTINUE_DRAG, curDragRequest, (int)e.getX(), (int)e.getY()));
+                    pendingCommands.add(new Command(COMMAND_CONTINUE_DRAG, curDragRequest, (int)worldPos.getX(), (int)worldPos.getY()));
                 }
 
                 eventType = MOUSE_DRAGGED;
@@ -1192,11 +1194,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 if (e.getEventType() == MouseEvent.DRAG_DETECTED && paused)
                 {
                     // Begin a drag:
-                    pickRequest(e.getX(), e.getY(), PickType.DRAG);
+                    pickRequest(worldPos.getX(), worldPos.getY(), PickType.DRAG);
                 }
                 return;
             }
-            pendingCommands.add(new Command(eventType, (int)e.getX(), (int)e.getY(), e.getButton().ordinal(), e.getClickCount()));
+            pendingCommands.add(new Command(eventType, (int)worldPos.getX(), (int)worldPos.getY(), e.getButton().ordinal(), e.getClickCount()));
         });
 
         new AnimationTimer()
