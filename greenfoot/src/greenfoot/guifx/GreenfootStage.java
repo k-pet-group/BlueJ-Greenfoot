@@ -60,7 +60,6 @@ import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.JavaReflective;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.UnfocusableScrollPane;
@@ -90,7 +89,6 @@ import greenfoot.record.GreenfootRecorder;
 
 import greenfoot.util.GreenfootUtil;
 import greenfoot.vmcomm.GreenfootDebugHandler;
-import greenfoot.vmcomm.VMCommsMain;
 import greenfoot.vmcomm.GreenfootDebugHandler.SimulationStateListener;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
@@ -134,13 +132,11 @@ import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 import java.util.*;
 
 import static bluej.pkgmgr.target.ClassTarget.MENU_STYLE_INBUILT;
+import static greenfoot.vmcomm.Command.*;
 
 /**
  * Greenfoot's main window: a JavaFX replacement for GreenfootFrame which lives on the server VM.
@@ -149,48 +145,6 @@ import static bluej.pkgmgr.target.ClassTarget.MENU_STYLE_INBUILT;
 public class GreenfootStage extends Stage implements BlueJEventListener, FXCompileObserver,
         SimulationStateListener, PackageUI
 {
-    // These are the constants passed in the shared memory between processes,
-    // hence they cannot be enums.  They are not persisted anywhere, so can
-    // be changed at will (as long as they don't overlap).
-
-    /*
-     * Key events.  Followed by one integer which is the key code
-     * (using the JavaFX KeyCode enum's ordinal method).
-     */
-    public static final int KEY_DOWN = 1;
-    public static final int KEY_UP = 2;
-    public static final int KEY_TYPED = 3;
-
-    /*
-     * Mouse events.  Followed by four integers:
-     * X pos, Y pos, button index, click count
-     */
-    public static final int MOUSE_CLICKED = 11;
-    public static final int MOUSE_PRESSED = 12;
-    public static final int MOUSE_DRAGGED = 13;
-    public static final int MOUSE_RELEASED = 14;
-    public static final int MOUSE_MOVED = 15;
-
-    /*
-     * Commands or requests.  Unless otherwise specified,
-     * followed by no integers.
-     */
-    public static final int COMMAND_RUN = 21;
-    // Followed by drag-ID, X, Y:
-    public static final int COMMAND_CONTINUE_DRAG = 22;
-    // Followed by drag-ID:
-    public static final int COMMAND_END_DRAG = 23;
-    public static final int COMMAND_PAUSE = 24;
-    public static final int COMMAND_ACT = 25;
-    public static final int COMMAND_INSTANTIATE_WORLD = 26;
-    // Followed by one integer per character in String answer.
-    public static final int COMMAND_ANSWERED = 27;
-    // Followed by an integer count of key size, then that many integer codepoints,
-    // Then same again for value.  If value count is -1,
-    // that means value is null (and thus was removed)
-    public static final int COMMAND_PROPERTY_CHANGED = 28;
-    // Discard the world, but don't make a new one
-    public static final int COMMAND_DISCARD_WORLD = 29;
     
     private static int numberOfOpenProjects = 0;
     private static List<GreenfootStage> stages = new ArrayList<>();
@@ -218,7 +172,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private final BooleanProperty pauseDisabled = new SimpleBooleanProperty(true);
     private final BooleanBinding runPauseDisabled = runDisabled.and(pauseDisabled);;
     
-    private final List<Command> pendingCommands;
     private boolean instantiateWorldAfterDiscarded;
     
     public static enum State
@@ -246,20 +199,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     // The current drag request ID, or -1 if not currently dragging:
     private int curDragRequest;
 
-    /**
-     * Because the ask request is sent as a continuous status rather than
-     * a one-off event that we explicitly acknowledge, we keep track of the
-     * last answer we sent so that we know if an ask request is newer than
-     * the last answer or not.  That way we don't accidentally ask again
-     * after the answer has been sent.
-     */
-    private int lastAnswer = -1;
-
     private final GreenfootRecorder saveTheWorldRecorder;
     private final SoundRecorderControls soundRecorder;
     private GreenfootDebugHandler debugHandler;
     private final Menu recentProjectsMenu = new Menu(Config.getString("menu.openRecent"));
     private final SimpleBooleanProperty showingDebugger = new SimpleBooleanProperty(false);
+
+    // World image
+    private WritableImage worldImg;
 
     
     /**
@@ -302,44 +249,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         }
     }
 
-
-    /**
-     * A command or event from the server VM to the debug VM, such
-     * as keyboard/mouse event, Run, Reset, etc
-     */
-    private static class Command
-    {
-        // Commands are assigned a stricly increasing ID:
-        private static int nextCommandSequence = 1;
-
-        public final int commandSequence;
-        public final int commandType;
-        public final int[] extraInfo;
-
-        private Command(int commandType, int... extraInfo)
-        {
-            this.commandSequence = nextCommandSequence++;
-            this.commandType = commandType;
-            this.extraInfo = extraInfo;
-        }
-    }
-
-
-    /**
-     * Check if an event is a key event.
-     */
-    public static boolean isKeyEvent(int event)
-    {
-        return event >= KEY_DOWN && event <= KEY_TYPED;
-    }
-
-    /**
-     * Check if an even is a mouse event.
-     */
-    public static boolean isMouseEvent(int event)
-    {
-        return event >= MOUSE_CLICKED && event <= MOUSE_MOVED;
-    }
     
     /**
      * Creates a GreenfootStage for the given project with given debug interface handler.
@@ -375,8 +284,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         speedSlider.setTooltip(new Tooltip(Config.getString("controls.speedSlider.tooltip")));
         speedSlider.setFocusTraversable(false);
         Node buttonAndSpeedPanel = new HBox(actButton, runButton, resetButton, speedLabel, speedSlider);
-        pendingCommands = new ArrayList<>();
-        actButton.setOnAction(e -> act(pendingCommands));
+        actButton.setOnAction(e -> act());
         runButton.setOnAction(e -> doRunPause());
         resetButton.setOnAction(e -> doReset());
         speedSlider.valueProperty().addListener(e -> {}); //TODO
@@ -460,12 +368,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         
         classDiagram.setProject(project);
 
-        VMCommsMain vmComms = greenfootDebugHandler.getVmComms();
-        setupWorldDrawingAndEvents(vmComms.getChannel(), vmComms.getSharedBuffer(),
-                worldDisplay::setImage, pendingCommands);
+        setupWorldDrawingAndEvents();
         loadAndMirrorProperties();
         // We send a reset to make a new world after the project properties have been sent across:
-        pendingCommands.add(new Command(COMMAND_INSTANTIATE_WORLD));
+        debugHandler.getVmComms().instantiateWorld();
     }
 
     /**
@@ -495,7 +401,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     private void doReset()
     {
-        pendingCommands.add(new Command(COMMAND_DISCARD_WORLD));
+        debugHandler.getVmComms().discardWorld();
         instantiateWorldAfterDiscarded = true;
         stateProperty.set(State.UNCOMPILED);
     }
@@ -510,15 +416,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         for (String key : props.stringPropertyNames()) 
         {
             String value = props.getProperty(key);
-            // We need an array with key-length, key codepoints, value-length (-1 if null), value codepoints
-            int[] keyCodepoints = key.codePoints().toArray();
-            int[] valueCodepoints = value == null ? new int[0] : value.codePoints().toArray();
-            int[] combined = new int[1 + keyCodepoints.length + 1 + valueCodepoints.length];
-            combined[0] = keyCodepoints.length;
-            System.arraycopy(keyCodepoints, 0, combined, 1, keyCodepoints.length);
-            combined[1 + keyCodepoints.length] = value == null ? -1 : valueCodepoints.length;
-            System.arraycopy(valueCodepoints, 0, combined, 2 + keyCodepoints.length, valueCodepoints.length);
-            pendingCommands.add(new Command(COMMAND_PROPERTY_CHANGED, combined));
+            debugHandler.getVmComms().sendProperty(key, value);
         }
     }
 
@@ -690,11 +588,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     /**
      * Perform a single act step, if paused, by adding to the list of pending commands.
      */
-    private void act(List<Command> pendingCommands)
+    private void act()
     {
         if (stateProperty.get() == State.PAUSED)
         {
-            pendingCommands.add(new Command(COMMAND_ACT));
+            debugHandler.getVmComms().act();
             stateProperty.set(State.PAUSED_REQUESTED_ACT_OR_RUN);
         }
     }
@@ -706,12 +604,12 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         if (stateProperty.get() == State.PAUSED)
         {
-            pendingCommands.add(new Command(COMMAND_RUN));
+            debugHandler.getVmComms().runSimulation();
             stateProperty.set(State.PAUSED_REQUESTED_ACT_OR_RUN);
         }
         else if (stateProperty.get() == State.RUNNING)
         {
-            pendingCommands.add(new Command(COMMAND_PAUSE));
+            debugHandler.getVmComms().pauseSimulation();
             stateProperty.set(State.RUNNING_REQUESTED_PAUSE);
         }
     }
@@ -876,7 +774,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             new Menu(Config.getString("menu.controls"), null,
                     makeMenuItem("run.once",
                             new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN),
-                            () -> act(pendingCommands), actDisabled),
+                            () -> act(), actDisabled),
                     makeMenuItem("controls.run.button",
                             new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN),
                             this::doRunPause, runDisabled),
@@ -1076,16 +974,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     /**
      * Sets up the drawing of the world from the shared memory buffer, and the writing
      * of keyboard and mouse events back to the buffer.
-     *
-     * @param sharedMemoryLock The lock to use to lock the shared memory buffer before access.
-     * @param sharedMemoryByte The shared memory buffer to read/write from/to
-     * @param setImage The function to call to set the new image
-     * @param pendingCommands The list of pending commands to send to the debug VM
      */
-    private void setupWorldDrawingAndEvents(FileChannel sharedMemoryLock, MappedByteBuffer sharedMemoryByte, FXPlatformConsumer<Image> setImage, List<Command> pendingCommands)
+    private void setupWorldDrawingAndEvents()
     {
-        IntBuffer sharedMemory = sharedMemoryByte.asIntBuffer();
-
         getScene().addEventFilter(KeyEvent.ANY, e -> {
             // Ignore keypresses if we are currently waiting for an ask-answer:
             if (worldDisplay.isAsking())
@@ -1133,7 +1024,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 return;
             }
 
-            pendingCommands.add(new Command(eventType, e.getCode().ordinal()));
+            debugHandler.getVmComms().sendKeyEvent(eventType, e.getCode().ordinal());
             e.consume();
         });
 
@@ -1173,7 +1064,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 // Finish any current drag:
                 if (curDragRequest != -1)
                 {
-                    pendingCommands.add(new Command(COMMAND_END_DRAG, curDragRequest));
+                    debugHandler.getVmComms().endDrag(curDragRequest);
                     curDragRequest = -1;
                 }
             }
@@ -1182,7 +1073,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 // Continue the drag if one is going:
                 if (e.getButton() == MouseButton.PRIMARY && paused && curDragRequest != -1)
                 {
-                    pendingCommands.add(new Command(COMMAND_CONTINUE_DRAG, curDragRequest, (int)worldPos.getX(), (int)worldPos.getY()));
+                    debugHandler.getVmComms().continueDrag(curDragRequest, (int)worldPos.getX(), (int)worldPos.getY());
                 }
 
                 eventType = MOUSE_DRAGGED;
@@ -1200,131 +1091,67 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 }
                 return;
             }
-            pendingCommands.add(new Command(eventType, (int)worldPos.getX(), (int)worldPos.getY(), e.getButton().ordinal(), e.getClickCount()));
+            debugHandler.getVmComms().sendMouseEvent(eventType, (int)worldPos.getX(), (int)worldPos.getY(), e.getButton().ordinal(), e.getClickCount());
         });
 
         new AnimationTimer()
         {
-            int lastSeq = 0;
-            WritableImage img;
             @Override
             public void handle(long now)
             {
-                boolean sizeToScene = false;
-                try (FileLock fileLock = sharedMemoryLock.lock())
-                {
-                    int seq = sharedMemory.get(1);
-                    if (seq > lastSeq)
-                    {
-                        // The client VM has painted a new frame for us:
-                        lastSeq = seq;
-                        sharedMemory.position(1);
-                        sharedMemory.put(-seq);
-                        int width = sharedMemory.get();
-                        int height = sharedMemory.get();
-                        if (width != 0 && height != 0)
-                        {
-                            if (img == null || img.getWidth() != width || img.getHeight() != height)
-                            {
-                                img = new WritableImage(width == 0 ? 1 : width, height == 0 ? 1 : height);
-                                sizeToScene = true;
-                            }
-                            sharedMemoryByte.position(sharedMemory.position() * 4);
-                            img.getPixelWriter().setPixels(0, 0, width, height, PixelFormat.getByteBgraPreInstance(), sharedMemoryByte, width * 4);
-                            setImage.accept(img);
-                        }
-                        // Have to move sharedMemory position manually because
-                        // the sharedMemory buffer doesn't share position with sharedMemoryByte buffer:
-                        sharedMemory.position(sharedMemory.position() + width * height);
-                        int lastAckCommand = sharedMemory.get();
-                        // Get rid of all commands that the client has confirmed it has seen:
-                        if (lastAckCommand != -1)
-                        {
-                            // Get rid of any acknowledged commands, and record if
-                            // any of them was a discard command:
-                            boolean discarded = false;
-                            for (Iterator<Command> iterator = pendingCommands.iterator(); iterator.hasNext(); )
-                            {
-                                Command pendingCommand = iterator.next();
-                                if (pendingCommand.commandSequence <= lastAckCommand)
-                                {
-                                    if (pendingCommand.commandType == COMMAND_DISCARD_WORLD)
-                                    {
-                                        discarded = true;
-                                    }
-                                    iterator.remove();
-                                }
-                            }
-                            if (discarded)
-                            {
-                                worldDisplay.greyOutWorld();
-                                // Were we waiting for discard before then instantiating?
-                                if (instantiateWorldAfterDiscarded)
-                                {
-                                    instantiateWorldAfterDiscarded = false;
-                                    pendingCommands.add(new Command(COMMAND_INSTANTIATE_WORLD));
-                                }
-                            }
-                        }
-
-                        int askId = sharedMemory.get();
-                        if (askId >= 0 && askId > lastAnswer)
-                        {
-                            // Length followed by codepoints for the prompt string:
-                            int askLength = sharedMemory.get();
-                            int[] promptCodepoints = new int[askLength];
-                            sharedMemory.get(promptCodepoints);
-
-                            // Tell worldDisplay to ask:
-                            worldDisplay.ensureAsking(new String(promptCodepoints, 0, promptCodepoints.length), (String s) -> {
-                                Command answerCommand = new Command(COMMAND_ANSWERED, s.codePoints().toArray());
-                                pendingCommands.add(answerCommand);
-                                // Remember that we've now answered:
-                                lastAnswer = answerCommand.commandSequence;
-                            });
-                        }
-                        sharedMemory.position(2);
-                        writeCommands(pendingCommands);
-                    }
-                    else if (!pendingCommands.isEmpty())
-                    {
-                        // The debug VM hasn't painted a new frame, but we have new commands to send:
-                        sharedMemory.position(1);
-                        sharedMemory.put(-lastSeq);
-                        writeCommands(pendingCommands);
-                    }
-                }
-                catch (IOException ex)
-                {
-                    Debug.reportError(ex);
-                }
-                // WARNING: sizeToScene can actually re-enter AnimationTimer.handle!
-                // Hence we must call this after releasing the lock and completing
-                // all other code, so that a re-entry doesn't cause any conflicts:
-                if (sizeToScene)
-                {
-                    sizeToScene();
-                }
-            }
-
-            private void writeCommands(List<Command> pendingCommands)
-            {
-                // Number of commands:
-                sharedMemory.put(pendingCommands.size());
-                for (Command pendingCommand : pendingCommands)
-                {
-                    // Start with sequence ID:
-                    sharedMemory.put(pendingCommand.commandSequence);
-                    // Put size of this command (measured in integers), including command type:
-                    sharedMemory.put(pendingCommand.extraInfo.length + 1);
-                    // Then put that many integers:
-                    sharedMemory.put(pendingCommand.commandType);
-                    sharedMemory.put(pendingCommand.extraInfo);
-                }
+                debugHandler.getVmComms().checkIO(GreenfootStage.this);
             }
         }.start();
     }
 
+    /**
+     * A world image has been received from the remote VM.
+     * 
+     * @param width   The image width
+     * @param height  The image height
+     * @param buffer  The buffer containing the pixel data
+     */
+    public void receivedWorldImage(int width, int height, MappedByteBuffer buffer)
+    {
+        if (worldImg == null || worldImg.getWidth() != width || worldImg.getHeight() != height)
+        {
+            worldImg = new WritableImage(width == 0 ? 1 : width, height == 0 ? 1 : height);
+            //sizeToScene = true;
+            
+            sizeToScene(); // TODO apparently this can re-enter animation timer handle()?
+        }
+        worldImg.getPixelWriter().setPixels(0, 0, width, height, PixelFormat.getByteBgraPreInstance(),
+                buffer, width * 4);
+        worldDisplay.setImage(worldImg);
+    }
+    
+    /**
+     * A "world discarded" notification has been received from the remote VM.
+     */
+    public void worldDiscarded()
+    {
+        worldDisplay.greyOutWorld();
+        // Were we waiting for discard before then instantiating?
+        if (instantiateWorldAfterDiscarded)
+        {
+            instantiateWorldAfterDiscarded = false;
+            debugHandler.getVmComms().instantiateWorld();
+        }
+    }
+    
+    /**
+     * An "ask" request has been received from the remote VM.
+     * 
+     * @param promptCodepoints   the codepoints making up the prompt string.
+     */
+    public void receivedAsk(int[] promptCodepoints)
+    {
+        // Tell worldDisplay to ask:
+        worldDisplay.ensureAsking(new String(promptCodepoints, 0, promptCodepoints.length), (String s) -> {
+            debugHandler.getVmComms().sendAnswer(s);
+        });
+    }
+    
     /**
      * Performs a pick request on the debug VM at given coordinates.
      */
@@ -1982,7 +1809,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     public void classModified()
     {
-        pendingCommands.add(new Command(COMMAND_DISCARD_WORLD));
+        debugHandler.getVmComms().discardWorld();
         instantiateWorldAfterDiscarded = isFocused();
         stateProperty.set(State.UNCOMPILED);
     }
@@ -2027,11 +1854,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 i++;
                 Config.putPropString(Config.BLUEJ_OPENPACKAGE + i,
                         stage.project.getProjectDir().getPath());
-                System.out.println("Saved project: " + stage.project.getProjectDir().getPath()); // DAV
-            }
-            else
-            {
-                System.out.println("stage.project == null"); // DAV
             }
         }
 
