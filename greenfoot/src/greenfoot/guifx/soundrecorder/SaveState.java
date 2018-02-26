@@ -138,7 +138,9 @@ class SaveState
         changed(false);
     }
 
-    // Set the directory to save sounds into for this project.
+    /**
+     * Set the directory to save sounds into for this project.  May be null.
+     */
     public void setProjectSoundDir(File projectSoundDir)
     {
         this.projectSoundDir = projectSoundDir;
