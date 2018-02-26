@@ -546,6 +546,7 @@ public class Simulation extends Thread
                 try {
                     actWorld(world);
                     if (world != worldHandler.getWorld()) {
+                        paintRemote(false);
                         return; // New world was set
                     }
                 }
