@@ -367,6 +367,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         showingDebugger.bindBidirectional(project.debuggerShowing());
         
         classDiagram.setProject(project);
+        soundRecorder.setProject(project);
 
         setupWorldDrawingAndEvents();
         loadAndMirrorProperties();
@@ -528,8 +529,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     private void removeScenarioDetails()
     {
-        showingDebugger.unbindBidirectional(project.debuggerShowing());
-        project = null;
+        if (project != null)
+        {
+            showingDebugger.unbindBidirectional(project.debuggerShowing());
+            project = null;
+        }
         hasNoProject.set(true);
         worldDisplay.setImage(null);
         classDiagram.setProject(null);

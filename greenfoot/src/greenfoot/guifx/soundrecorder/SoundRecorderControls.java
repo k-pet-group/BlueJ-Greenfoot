@@ -111,10 +111,11 @@ public class SoundRecorderControls extends Stage
 
         setOnShown(e -> showingProperty.set(true));
         setOnHidden(e -> showingProperty.set(false));
-        buildUI(project);
+        buildUI();
+        setProject(project);
     }
 
-    private void buildUI(Project project)
+    private void buildUI()
     {
         BorderPane soundAndControls = new BorderPane(soundPanel, null, null, buildControlBox(), null);
         soundAndControls.setPadding(new Insets(12));
@@ -131,8 +132,16 @@ public class SoundRecorderControls extends Stage
         VBox contentPane = new VBox(20);
         contentPane.setAlignment(Pos.CENTER);
         contentPane.setPadding(new Insets(12));
-        contentPane.getChildren().addAll(soundAndControls, saveState.buildSaveBox(getSoundDir(project)), closeButton);
+        contentPane.getChildren().addAll(soundAndControls, saveState.buildSaveBox(), closeButton);
         this.setScene(new Scene(contentPane));
+    }
+
+    /**
+     * Change the project associated with this sound recorder.
+     */
+    public void setProject(Project project)
+    {
+        saveState.setProjectSoundDir(getSoundDir(project));
     }
 
     /**
@@ -197,7 +206,14 @@ public class SoundRecorderControls extends Stage
      */
     private static File getSoundDir(Project project)
     {
-        return new File(project.getProjectDir(), "sounds");
+        if (project != null)
+        {
+            return new File(project.getProjectDir(), "sounds");
+        }
+        else
+        {
+            return null;
+        }
     }
 
     /**
