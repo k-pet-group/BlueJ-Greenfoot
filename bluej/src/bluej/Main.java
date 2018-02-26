@@ -251,7 +251,7 @@ public class Main
             menuToolkit.setApplicationMenu(defaultApplicationMenu);
 
             // About
-            defaultApplicationMenu.getItems().get(0).setOnAction(event -> PkgMgrFrame.handleAbout());
+            defaultApplicationMenu.getItems().get(0).setOnAction(event -> guiHandler.handleAbout());
 
             // Preferences
             // It has been added without a separator due to a bug in the library used
@@ -259,12 +259,12 @@ public class Main
             if (Config.hasAcceleratorKey("menu.tools.preferences")) {
                 preferences.setAccelerator(Config.getAcceleratorKeyFX("menu.tools.preferences"));
             }
-            preferences.setOnAction(event -> PkgMgrFrame.handlePreferences());
+            preferences.setOnAction(event -> guiHandler.handlePreferences());
             defaultApplicationMenu.getItems().add(1, preferences);
 
             // Quit
             defaultApplicationMenu.getItems().get(defaultApplicationMenu.getItems().size()-1).
-                    setOnAction(event -> PkgMgrFrame.handleQuit());
+                    setOnAction(event -> guiHandler.handleQuit());
         });
     }
 
