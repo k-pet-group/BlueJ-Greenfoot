@@ -25,9 +25,19 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.nio.channels.FileChannel.MapMode;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import bluej.utility.Debug;
+import greenfoot.guifx.GreenfootStage;
+
+import static greenfoot.vmcomm.Command.*;
 
 /**
  * VMCommsMain is an abstraction for the inter-VM communications interface ("main VM" side) in
@@ -40,6 +50,20 @@ public class VMCommsMain implements Closeable
     private File shmFile;
     private FileChannel fc;
     private MappedByteBuffer sharedMemoryByte;
+    private IntBuffer sharedMemory;
+
+    
+    private int lastSeq = 0;
+    private final List<Command> pendingCommands = new ArrayList<>();
+        
+    /**
+     * Because the ask request is sent as a continuous status rather than
+     * a one-off event that we explicitly acknowledge, we keep track of the
+     * last answer we sent so that we know if an ask request is newer than
+     * the last answer or not.  That way we don't accidentally ask again
+     * after the answer has been sent.
+     */
+    private int lastAnswer = -1;
     
     /**
      * Constructor for VMCommsMain. Creates a temporary file and maps it into memory.
@@ -52,6 +76,7 @@ public class VMCommsMain implements Closeable
         shmFile = File.createTempFile("greenfoot", "shm");
         fc = new RandomAccessFile(shmFile, "rw").getChannel();
         sharedMemoryByte = fc.map(MapMode.READ_WRITE, 0, 10_000_000L);
+        sharedMemory = sharedMemoryByte.asIntBuffer();
     }
     
     /**
@@ -72,6 +97,7 @@ public class VMCommsMain implements Closeable
         shmFile = null;
         fc = null;
         sharedMemoryByte = null;
+        sharedMemory = null;
     }
     
     /**
@@ -96,5 +122,214 @@ public class VMCommsMain implements Closeable
     public File getSharedFile()
     {
         return shmFile;
+    }
+    
+    /**
+     * Write commands into the shared memory buffer.
+     */
+    private void writeCommands(List<Command> pendingCommands)
+    {
+        // Number of commands:
+        sharedMemory.put(pendingCommands.size());
+        for (Command pendingCommand : pendingCommands)
+        {
+            // Start with sequence ID:
+            sharedMemory.put(pendingCommand.commandSequence);
+            // Put size of this command (measured in integers), including command type:
+            sharedMemory.put(pendingCommand.extraInfo.length + 1);
+            // Then put that many integers:
+            sharedMemory.put(pendingCommand.commandType);
+            sharedMemory.put(pendingCommand.extraInfo);
+        }
+    }
+
+    /**
+     * Check for input / send output
+     */
+    public void checkIO(GreenfootStage stage)
+    {
+        FileChannel sharedMemoryLock = this.fc;
+        
+        try (FileLock fileLock = sharedMemoryLock.lock())
+        {
+            int seq = sharedMemory.get(1);
+            if (seq > lastSeq)
+            {
+                // The client VM has painted a new frame for us:
+                lastSeq = seq;
+                sharedMemory.position(1);
+                sharedMemory.put(-seq);
+                int width = sharedMemory.get();
+                int height = sharedMemory.get();
+                if (width != 0 && height != 0)
+                {
+                    sharedMemoryByte.position(sharedMemory.position() * 4);
+                    stage.receivedWorldImage(width, height, sharedMemoryByte);
+                }
+                // Have to move sharedMemory position manually because
+                // the sharedMemory buffer doesn't share position with sharedMemoryByte buffer:
+                sharedMemory.position(sharedMemory.position() + width * height);
+                int lastAckCommand = sharedMemory.get();
+                // Get rid of all commands that the client has confirmed it has seen:
+                if (lastAckCommand != -1)
+                {
+                    // Get rid of any acknowledged commands, and record if
+                    // any of them was a discard command:
+                    boolean discarded = false;
+                    for (Iterator<Command> iterator = pendingCommands.iterator(); iterator.hasNext(); )
+                    {
+                        Command pendingCommand = iterator.next();
+                        if (pendingCommand.commandSequence <= lastAckCommand)
+                        {
+                            if (pendingCommand.commandType == COMMAND_DISCARD_WORLD)
+                            {
+                                discarded = true;
+                            }
+                            iterator.remove();
+                        }
+                    }
+                    if (discarded)
+                    {
+                        stage.worldDiscarded();
+                    }
+                }
+
+                int askId = sharedMemory.get();
+                if (askId >= 0 && askId > lastAnswer)
+                {
+                    // Length followed by codepoints for the prompt string:
+                    int askLength = sharedMemory.get();
+                    int[] promptCodepoints = new int[askLength];
+                    sharedMemory.get(promptCodepoints);
+
+                    stage.receivedAsk(promptCodepoints);
+                }
+                sharedMemory.position(2);
+                writeCommands(pendingCommands);
+            }
+            else if (!pendingCommands.isEmpty())
+            {
+                // The debug VM hasn't painted a new frame, but we have new commands to send:
+                sharedMemory.position(1);
+                sharedMemory.put(-lastSeq);
+                writeCommands(pendingCommands);
+            }
+        }
+        catch (IOException ex)
+        {
+            Debug.reportError(ex);
+        }
+    }
+    
+    /**
+     * Send an "instantiate world" command.
+     */
+    public void instantiateWorld()
+    {
+        pendingCommands.add(new Command(COMMAND_INSTANTIATE_WORLD));
+    }
+    
+    /**
+     * Send a "discard world" command.
+     */
+    public void discardWorld()
+    {
+        pendingCommands.add(new Command(COMMAND_DISCARD_WORLD));
+    }
+    
+    /**
+     * Send an answer (after receving an "ask" request).
+     */
+    public void sendAnswer(String answer)
+    {
+        Command answerCommand = new Command(COMMAND_ANSWERED, answer.codePoints().toArray());
+        pendingCommands.add(answerCommand);
+        // Remember that we've now answered:
+        lastAnswer = answerCommand.commandSequence;
+    }
+    
+    /**
+     * Send an updated property value.
+     * @param key    The property name
+     * @param value  The property value
+     */
+    public void sendProperty(String key, String value)
+    {
+        int[] keyCodepoints = key.codePoints().toArray();
+        int[] valueCodepoints = value == null ? new int[0] : value.codePoints().toArray();
+        int[] combined = new int[1 + keyCodepoints.length + 1 + valueCodepoints.length];
+        combined[0] = keyCodepoints.length;
+        System.arraycopy(keyCodepoints, 0, combined, 1, keyCodepoints.length);
+        combined[1 + keyCodepoints.length] = value == null ? -1 : valueCodepoints.length;
+        System.arraycopy(valueCodepoints, 0, combined, 2 + keyCodepoints.length, valueCodepoints.length);
+        pendingCommands.add(new Command(COMMAND_PROPERTY_CHANGED, combined));
+    }
+    
+    /**
+     * Send an "act" command.
+     */
+    public void act()
+    {
+        pendingCommands.add(new Command(COMMAND_ACT));
+    }
+    
+    /**
+     * Send a "run simulation" command.
+     */
+    public void runSimulation()
+    {
+        pendingCommands.add(new Command(COMMAND_RUN));
+    }
+
+    /**
+     * Send a "pause simulation" command.
+     */
+    public void pauseSimulation()
+    {
+        pendingCommands.add(new Command(COMMAND_PAUSE));
+    }
+    
+    /**
+     * Continue a mouse drag, identified by the given id. Note that drags are initiated by
+     * a pick request executed via a separate mechanism
+     * 
+     * @see greenfoot.core.PickActorHelper
+     */
+    public void continueDrag(int dragId, int x, int y)
+    {
+        pendingCommands.add(new Command(COMMAND_CONTINUE_DRAG, dragId, x, y));
+    }
+    
+    /**
+     * End a drag, identified by the given id.
+     */
+    public void endDrag(int dragId)
+    {
+        pendingCommands.add(new Command(COMMAND_END_DRAG, dragId));
+    }
+    
+    /**
+     * Send a key event.
+     * 
+     * @param eventType   The event type
+     * @param ordinal     The key code ordinal
+     */
+    public void sendKeyEvent(int eventType, int ordinal)
+    {
+        pendingCommands.add(new Command(eventType, ordinal));
+    }
+    
+    /**
+     * Send a mouse event.
+     * 
+     * @param eventType   The event type
+     * @param x           The mouse x-coordinate
+     * @param y           The mouse y-coordinate
+     * @param button      The button pressed (for button events)
+     * @param clickCount  The click count (for click events)
+     */
+    public void sendMouseEvent(int eventType, int x, int y, int button, int clickCount)
+    {
+        pendingCommands.add(new Command(eventType, x, y, button, clickCount));
     }
 }

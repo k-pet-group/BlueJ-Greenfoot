@@ -37,6 +37,7 @@ import greenfoot.gui.input.KeyboardManager;
 import greenfoot.gui.input.mouse.MousePollingManager;
 import greenfoot.guifx.GreenfootStage;
 import greenfoot.util.GreenfootUtil;
+import greenfoot.vmcomm.Command;
 import javafx.scene.input.KeyCode;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -406,7 +407,7 @@ public class WorldCanvas extends JPanel
             int commandLength = sharedMemory.get();
             int data[] = new int[commandLength];
             sharedMemory.get(data);
-            if (GreenfootStage.isKeyEvent(data[0]))
+            if (Command.isKeyEvent(data[0]))
             {
                 int awtCode = JavaFXUtil.fxKeyCodeToAWT(KeyCode.values()[data[1]]);
                 if (awtCode != -1)
@@ -414,35 +415,35 @@ public class WorldCanvas extends JPanel
                     KeyboardManager keyboardManager = WorldHandler.getInstance().getKeyboardManager();
                     switch(data[0])
                     {
-                        case GreenfootStage.KEY_DOWN:
+                        case Command.KEY_DOWN:
                             keyboardManager.pressKey(awtCode);
                             break;
-                        case GreenfootStage.KEY_UP:
+                        case Command.KEY_UP:
                             keyboardManager.releaseKey(awtCode);
                             break;
                         // KEY_TYPED is not processed
                     }
                 }
             }
-            else if (GreenfootStage.isMouseEvent(data[0]))
+            else if (Command.isMouseEvent(data[0]))
             {
                 MouseEvent fakeEvent = new MouseEvent(new JPanel(), 1, 0, 0, data[1], data[2], data[3], false, data[4]);
                 MousePollingManager mouseManager = WorldHandler.getInstance().getMouseManager();
                 switch (data[0])
                 {
-                    case GreenfootStage.MOUSE_CLICKED:
+                    case Command.MOUSE_CLICKED:
                         mouseManager.mouseClicked(fakeEvent);
                         break;
-                    case GreenfootStage.MOUSE_PRESSED:
+                    case Command.MOUSE_PRESSED:
                         mouseManager.mousePressed(fakeEvent);
                         break;
-                    case GreenfootStage.MOUSE_RELEASED:
+                    case Command.MOUSE_RELEASED:
                         mouseManager.mouseReleased(fakeEvent);
                         break;
-                    case GreenfootStage.MOUSE_DRAGGED:
+                    case Command.MOUSE_DRAGGED:
                         mouseManager.mouseDragged(fakeEvent);
                         break;
-                    case GreenfootStage.MOUSE_MOVED:
+                    case Command.MOUSE_MOVED:
                         mouseManager.mouseMoved(fakeEvent);
                         break;
                 }
@@ -452,16 +453,16 @@ public class WorldCanvas extends JPanel
                 // Commands which are not keyboard or mouse events:
                 switch (data[0])
                 {
-                    case GreenfootStage.COMMAND_RUN:
+                    case Command.COMMAND_RUN:
                         Simulation.getInstance().setPaused(false);
                         break;
-                    case GreenfootStage.COMMAND_PAUSE:
+                    case Command.COMMAND_PAUSE:
                         Simulation.getInstance().setPaused(true);
                         break;
-                    case GreenfootStage.COMMAND_ACT:
+                    case Command.COMMAND_ACT:
                         Simulation.getInstance().runOnce();
                         break;
-                    case GreenfootStage.COMMAND_INSTANTIATE_WORLD:
+                    case Command.COMMAND_INSTANTIATE_WORLD:
                         // This seems to deadlock without a run later, although I'm not 100% sure why.
                         // We may be able to remove this after the FX rewrite is complete:
                         Simulation.getInstance().runLater(() -> {
@@ -469,26 +470,26 @@ public class WorldCanvas extends JPanel
                             paintRemote(true, -1, null);
                         });
                         break;
-                    case GreenfootStage.COMMAND_DISCARD_WORLD:
+                    case Command.COMMAND_DISCARD_WORLD:
                         // See comment for RESET
                         Simulation.getInstance().runLater(() -> {
                             WorldHandler.getInstance().discardWorld();
                             paintRemote(true, -1, null);
                         });
                         break;
-                    case GreenfootStage.COMMAND_CONTINUE_DRAG:
+                    case Command.COMMAND_CONTINUE_DRAG:
                         // Will be drag-ID, X, Y:
                         WorldHandler.getInstance().continueDragging(data[1], data[2], data[3]);
                         break;
-                    case GreenfootStage.COMMAND_END_DRAG:
+                    case Command.COMMAND_END_DRAG:
                         // Will be drag-ID:
                         WorldHandler.getInstance().finishDrag(data[1]);
                         break;
-                    case GreenfootStage.COMMAND_ANSWERED:
+                    case Command.COMMAND_ANSWERED:
                         // Store the codepoints we received:
                         answer[0] = new String(data, 1, data.length - 1);
                         break;
-                    case GreenfootStage.COMMAND_PROPERTY_CHANGED:
+                    case Command.COMMAND_PROPERTY_CHANGED:
                         int keyLength = data[1];
                         String key = new String(data, 2, keyLength);
                         int valueLength = data[2+keyLength];
