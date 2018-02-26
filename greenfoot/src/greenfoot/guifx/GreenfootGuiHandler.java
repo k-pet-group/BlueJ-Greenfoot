@@ -72,7 +72,7 @@ public class GreenfootGuiHandler implements GuiHandler
     public void initialOpenComplete(boolean projectOpen)
     {
         if (! projectOpen) {
-            GreenfootStage.makeStage(null, null);
+            GreenfootStage.makeStage(null, null).show();
         }
     }
     

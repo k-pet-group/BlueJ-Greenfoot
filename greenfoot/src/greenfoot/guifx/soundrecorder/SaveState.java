@@ -52,6 +52,8 @@ class SaveState
     private String lastSaveName = null;
     private final SimpleBooleanProperty saved = new SimpleBooleanProperty(true);
     private final SimpleBooleanProperty changedSinceSave = new SimpleBooleanProperty(false);
+    // The directory to save into.  Can be null when there is no project open.
+    private File projectSoundDir;
 
     SaveState(Window parent, SoundRecorder recorder)
     {
@@ -65,10 +67,9 @@ class SaveState
     /**
      * Builds the save row: a filename field and save button
      *
-     * @param projectSoundDir the directory which contains the sounds files
      * @return a HBox which contains the gui nodes needed for saving a file
      */
-    HBox buildSaveBox(final File projectSoundDir)
+    HBox buildSaveBox()
     {
         saveButton.setDisable(true);
         saveButton.setOnAction(event -> {
@@ -135,5 +136,13 @@ class SaveState
     {
         lastSaveName = name;
         changed(false);
+    }
+
+    /**
+     * Set the directory to save sounds into for this project.  May be null.
+     */
+    public void setProjectSoundDir(File projectSoundDir)
+    {
+        this.projectSoundDir = projectSoundDir;
     }
 }
