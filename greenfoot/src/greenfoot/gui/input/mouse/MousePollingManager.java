@@ -320,6 +320,10 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
 
     public void mouseClicked(MouseEvent e)
     {
+        if (locator == null)
+        {
+            return;
+        }
         // This line must go outside the synchronized block because it involves
         // claiming a read-lock on the world, which can cause a deadlock because
         // the simulation thread can synchronize on futureData (in freezeMouseData())
@@ -375,6 +379,10 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
 
     public void mousePressed(MouseEvent e)
     {
+        if (locator == null)
+        {
+            return;
+        }
         // This line must go outside the synchronized block because it involves
         // claiming a read-lock on the world, which can cause a deadlock because
         // the simulation thread can synchronize on futureData (in freezeMouseData())
@@ -406,6 +414,10 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
 
     public void mouseReleased(MouseEvent e)
     {
+        if (locator == null)
+        {
+            return;
+        }
         // This line must go outside the synchronized block because it involves
         // claiming a read-lock on the world, which can cause a deadlock because
         // the simulation thread can synchronize on futureData (in freezeMouseData())
