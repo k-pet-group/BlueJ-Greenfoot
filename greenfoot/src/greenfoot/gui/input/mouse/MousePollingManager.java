@@ -451,6 +451,11 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
 
     public void mouseDragged(MouseEvent e)
     {
+        if (locator == null)
+        {
+            return;
+        }
+        
         synchronized(this) {
             isDragging = true;
             
