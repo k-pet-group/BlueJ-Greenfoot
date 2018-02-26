@@ -78,6 +78,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.sun.jdi.VMDisconnectedException;
+
 /**
  * Window for controlling the debugger
  *
@@ -385,40 +387,46 @@ public class ExecControls
      */
     private void setStackFrameDetails(DebuggerThread selectedThread, int frameNo)
     {
-        DebuggerClass currentClass = selectedThread.getCurrentClass(frameNo);
-        DebuggerObject currentObject = selectedThread.getCurrentObject(frameNo);
-        if(currentClass != null) {
-            List<DebuggerField> fields = currentClass.getStaticFields();
-            List<VarDisplayInfo> listData = new ArrayList<>(fields.size());
-            for (DebuggerField field : fields) {
-                String declaringClass = field.getDeclaringClassName();
-                Set<String> whiteList = restrictedClasses.get(declaringClass);
-                if (whiteList == null || whiteList.contains(field.getName())) {
-                    listData.add(new VarDisplayInfo(field));
-                }
-            }
-            staticList.getItems().setAll(listData);
-        }
-
-        if(currentObject != null && !currentObject.isNullObject()) {
-            List<DebuggerField> fields = currentObject.getFields();
-            List<VarDisplayInfo> listData = new ArrayList<>(fields.size());
-            for (DebuggerField field : fields) {
-                if (! Modifier.isStatic(field.getModifiers())) {
+        try {
+            DebuggerClass currentClass = selectedThread.getCurrentClass(frameNo);
+            DebuggerObject currentObject = selectedThread.getCurrentObject(frameNo);
+            if(currentClass != null) {
+                List<DebuggerField> fields = currentClass.getStaticFields();
+                List<VarDisplayInfo> listData = new ArrayList<>(fields.size());
+                for (DebuggerField field : fields) {
                     String declaringClass = field.getDeclaringClassName();
                     Set<String> whiteList = restrictedClasses.get(declaringClass);
                     if (whiteList == null || whiteList.contains(field.getName())) {
                         listData.add(new VarDisplayInfo(field));
                     }
                 }
+                staticList.getItems().setAll(listData);
             }
-            instanceList.getItems().setAll(listData);
+    
+            if(currentObject != null && !currentObject.isNullObject()) {
+                List<DebuggerField> fields = currentObject.getFields();
+                List<VarDisplayInfo> listData = new ArrayList<>(fields.size());
+                for (DebuggerField field : fields) {
+                    if (! Modifier.isStatic(field.getModifiers())) {
+                        String declaringClass = field.getDeclaringClassName();
+                        Set<String> whiteList = restrictedClasses.get(declaringClass);
+                        if (whiteList == null || whiteList.contains(field.getName())) {
+                            listData.add(new VarDisplayInfo(field));
+                        }
+                    }
+                }
+                instanceList.getItems().setAll(listData);
+            }
+            else {
+                instanceList.getItems().clear();
+            }
+            
+            localList.getItems().setAll(selectedThread.getLocalVariables(frameNo));
         }
-        else {
-            instanceList.getItems().clear();
+        catch (VMDisconnectedException vmde)
+        {
+            // Do nothing.
         }
-        
-        localList.getItems().setAll(selectedThread.getLocalVariables(frameNo));
     }
 
     /**
