@@ -1912,6 +1912,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         
         return null;
     }
+
+    /**
+     * Shows the terminal for this project, and brings it to the front.
+     */
+    public void bringTerminalToFront()
+    {
+        project.getTerminal().showHide(true);
+        project.getTerminal().getWindow().toFront();
+    }
     
     /*
      * PackageUI getStage() implementation.

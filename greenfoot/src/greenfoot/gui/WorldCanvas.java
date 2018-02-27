@@ -119,9 +119,10 @@ public class WorldCanvas extends JPanel
      *        W * H pixels one row at a time with no gaps, each pixel is one
      *        integer, in BGRA form, i.e. blue is highest 8 bits, alpha is lowest.
      * Pos 4+(W*H): Sequence ID of most recently processed command, or -1 if N/A.
-     * Pos 5+(W*H): -1 if not currently awaiting a Greenfoot.ask() answer.
+     * Pos 5+(W*H): Stopped-with-error count.  (If this goes up, server VM will bring terminal to front)
+     * Pos 6+(W*H): -1 if not currently awaiting a Greenfoot.ask() answer.
      *              If awaiting, it is count (P) of following codepoints which make up prompt.
-     * Pos 6+(W*H) to 6+(W*H)+P excl: codepoints making up ask prompt.
+     * Pos 7+(W*H) to 6+(W*H)+P excl: codepoints making up ask prompt.
      *
      * When negative frame counter in position 1, interpret rest as follows:
      * Pos 2: Count of commands (C), can be zero
@@ -138,6 +139,9 @@ public class WorldCanvas extends JPanel
     private final FileChannel shmFileChannel;
     private long lastPaintNanos = System.nanoTime();
     private int lastAckCommand = -1;
+    // How many times have we stopped with an error?  We continously send the count to the
+    // server VM, so that the server VM can observe changes in the count (only ever increases).
+    private int stoppedWithErrorCount = 0;
 
     /**
      * @param world The world which we are the canvas for.
@@ -366,6 +370,7 @@ public class WorldCanvas extends JPanel
                     }
                 }
                 sharedMemory.put(lastAckCommand);
+                sharedMemory.put(stoppedWithErrorCount);
                 // If not asking, put -1
                 if (askPrompt == null || answer[0] != null)
                 {
@@ -696,5 +701,13 @@ public class WorldCanvas extends JPanel
     public int getAskId()
     {
         return lastAckCommand;
+    }
+
+    /**
+     * The simulation thread has stopped with an error; need to let the server VM know. 
+     */
+    public void notifyStoppedWithError()
+    {
+        stoppedWithErrorCount += 1;
     }
 }

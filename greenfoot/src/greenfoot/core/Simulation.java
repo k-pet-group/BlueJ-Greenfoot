@@ -228,6 +228,9 @@ public class Simulation extends Thread
                     paused = true;
                 }
                 t.printStackTrace();
+                // Send word to the server VM that we stopped with an error (and thus they need to show terminal):
+                WorldHandler.getInstance().getWorldCanvas().notifyStoppedWithError();
+                paintRemote(true);
             }
         }
 
