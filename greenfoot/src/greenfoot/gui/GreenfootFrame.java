@@ -106,8 +106,6 @@ public class GreenfootFrame extends JFrame
     private ShowReadMeAction showReadMeAction;
     private CloseProjectAction closeProjectAction;
 
-    private ToggleDebuggerAction toggleDebuggerAction;
-
     // "Watchdog": make sure user code (world initialisation etc) doesn't stall for too long
     private Timer timer;
     private final static int EXECUTION_TIMEOUT = 4000;
@@ -237,7 +235,6 @@ public class GreenfootFrame extends JFrame
     {
         if (Config.isMacOS()) {
             Application macApp = Application.getApplication();
-            macApp.setPreferencesHandler(e -> PreferencesAction.getInstance().actionPerformed(null));
             macApp.setAboutHandler(e -> AboutGreenfootAction.getInstance(GreenfootFrame.this).actionPerformed(null));                    
             macApp.setQuitHandler((e, response) -> exit()); // response.confirmQuit() does not need to be called, since System.exit(0) is called explicitly
             return macApp;
@@ -273,7 +270,6 @@ public class GreenfootFrame extends JFrame
                 pack();
             }
             // set our project to be this possibly new project
-            toggleDebuggerAction.setProject(project);
             isClosedProject = false;
             
             Simulation.getInstance().setPaused(true);
@@ -604,15 +600,7 @@ public class GreenfootFrame extends JFrame
             scenarioMenu.addSeparator();
             addMenuItem(QuitAction.getInstance(), scenarioMenu, KeyEvent.VK_Q, false, KeyEvent.VK_Q);
         }
-        
-        JMenu editMenu = addMenu(Config.getString("menu.edit"), menuBar, 'e');
-        
-        if (!Config.isMacOS()) { // no "Preferences" here for
-            // Mac
-            editMenu.addSeparator();
-            addMenuItem(PreferencesAction.getInstance(), editMenu, KeyEvent.VK_COMMA, false, KeyEvent.VK_COMMA);
-        }
-        
+                
         JMenu ctrlMenu = addMenu(Config.getString("menu.controls"), menuBar, 'c');
         
         addMenuItem(RunOnceSimulationAction.getInstance(), ctrlMenu, KeyEvent.VK_A, false, KeyEvent.VK_A);
@@ -627,10 +615,6 @@ public class GreenfootFrame extends JFrame
         RunOnceSimulationAction.getInstance().setActionListener(() -> getProject().recordEvent(GreenfootInterfaceEvent.WORLD_ACT));
         RunSimulationAction.getInstance().setActionListener(() -> getProject().recordEvent(GreenfootInterfaceEvent.WORLD_RUN));
         PauseSimulationAction.getInstance().setActionListener(() -> getProject().recordEvent(GreenfootInterfaceEvent.WORLD_PAUSE));
-
-        ctrlMenu.addSeparator();
-        toggleDebuggerAction = new ToggleDebuggerAction(Config.getString("menu.debugger"), project);
-        createCheckboxMenuItem(toggleDebuggerAction, false, ctrlMenu, KeyEvent.VK_B, false, KeyEvent.VK_B);
         
         JMenu helpMenu = addMenu(Config.getString("menu.help"), menuBar, 'h');
         
@@ -682,43 +666,6 @@ public class GreenfootFrame extends JFrame
             action.putValue(Action.MNEMONIC_KEY, Integer.valueOf(mnemonicKey));
         }
         menu.add(action);
-    }
-
-    /**
-     * Adds a new checkbox menu item to the {@link JMenu} provided. 
-     * Uses the {@link ToggleAction} action to setup the changing 
-     * selected state of the action, often determined by events elsewhere 
-     * in the BlueJ/Greenfoot code.
-     * 
-     * @param action        To be added to the {@link Menu}.
-     * @param selected      Default state of the action if its {@link ButtonModel} is null.
-     * @param menu          That the {@link ToggleAction} will be added to.
-     * @param accelKey      Quick keyboard shortcut for this action.
-     * @param shift         Used to determine if the accelKey needs shift pressed to happen
-     * @param mnemonicKey   Quick keyboard shortcut via the menu for this action.
-     */
-    private static void createCheckboxMenuItem(ToggleAction action, boolean selected, JMenu menu, int accelKey, boolean shift, int mnemonicKey)
-    {
-        if(accelKey != -1) {
-            if(shift) {
-                action.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(accelKey, shiftAccelModifier));
-            }
-            else {
-                action.putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(accelKey, accelModifier));
-            }
-        }
-        if(!Config.isMacOS() && mnemonicKey != -1) {
-            action.putValue(Action.MNEMONIC_KEY, Integer.valueOf(mnemonicKey));
-        }
-        JCheckBoxMenuItem item = new JCheckBoxMenuItem(action);
-        ButtonModel bm = action.getToggleModel();
-        if (bm == null) {
-            item.setSelected(selected);
-        }
-        else {
-            item.setModel(bm);
-        }
-        menu.add(item);
     }
     
     /**

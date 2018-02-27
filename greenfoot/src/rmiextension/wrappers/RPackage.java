@@ -40,25 +40,6 @@ public interface RPackage
     extends java.rmi.Remote
 {
     /**
-     * Compile files in the package which need compilation, optionally waiting until the
-     * compilation finishes.
-     */
-    public abstract void compile(boolean waitCompileEnd)
-        throws ProjectNotOpenException, PackageNotFoundException, RemoteException, CompilationNotStartedException;
-
-    /**
-     * Rebuild the package, i.e. compile all classes regardless of their current state.
-     */
-    public abstract void compileAll()
-        throws ProjectNotOpenException, PackageNotFoundException, RemoteException, CompilationNotStartedException;
-
-    /**
-     * Get access to the compiler queue.
-     */
-    public abstract RJobQueue getCompiler()
-        throws RemoteException;
-    
-    /**
      * Get a remote reference to a class within the package.
      */
     public abstract RClass getRClass(String name)
@@ -71,86 +52,10 @@ public interface RPackage
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 
     /**
-     * Get the qualified name of this package.
-     */
-    public abstract String getName()
-        throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
-
-    /**
-     * Get all objects from the object bench of this package.
-     */
-    public abstract BObject[] getObjects()
-        throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
-
-    /**
      * Get the project to which this package belongs.
      */
     public abstract RProject getProject()
         throws ProjectNotOpenException, RemoteException;
-
-    /**
-     * Reload the entire package.
-     */
-    public abstract void reload()
-        throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
-
-    /**
-     * Returns the directory where this package is stored.
-     * 
-     * @throws ProjectNotOpenException
-     *             if the project this package is part of has been closed by the
-     *             user.
-     * @throws PackageNotFoundException
-     *             if the package has been deleted by the user.
-     */
-    public abstract File getDir()
-        throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
-
-    /**
-     * Creates a new Class with the given name. The class name must not be a
-     * fully qualified name, and the .java file must already exist.
-     * 
-     * @throws ProjectNotOpenException
-     *             if the project this package is part of has been closed by the
-     *             user.
-     * @throws PackageNotFoundException
-     *             if the package has been deleted by the user.
-     * @throws MissingJavaFileException
-     *             if the .java file for the new class does not exist.
-     */
-    public abstract RClass newClass(String className, SourceType sourceType)
-        throws RemoteException, ProjectNotOpenException, PackageNotFoundException, MissingJavaFileException;
-
-    /**
-     * Invoke a constructor. Put the resulting object on the bench.<p>
-     * 
-     * Return is the compiler error message preceded by '!' in the case of
-     * a compile time error, or the name of the constructed object, or null
-     * if a run-time error occurred.
-     * 
-     * @param className   The fully qualified name of the class to instantiate
-     * @param argTypes    The (raw) argument types of the constructor
-     * @param args        The argument strings to use
-     * @return   The name of the constructed object (see notes).
-     */
-    public String invokeConstructor(String className, String [] argTypes, String [] args)
-        throws RemoteException;
-    
-    /**
-     * Invoke a static method.
-     * 
-     * Return is the compiler error message preceded by '!' in the case of
-     * a compile time error, or the name of the constructed object, or null
-     * if a run-time error occurred.
-     * 
-     * @param className  The class for which to invoke the method
-     * @param methodName The name of the method
-     * @param argTypes   The argument types of the method (class names)
-     * @param args       The argument strings to use (as Java expressions)
-     * @return   The name of the returned object (see notes above).
-     */
-    public String invokeMethod(String className, String methodName, String [] argTypes, String [] args)
-        throws RemoteException;
 
     /**
      * Close the package.

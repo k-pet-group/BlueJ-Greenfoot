@@ -122,12 +122,6 @@ public interface RBlueJ
         throws RemoteException;
 
     /**
-     * Display the preferences dialog.
-     */
-    public void showPreferences()
-        throws RemoteException;
-    
-    /**
      * Get the directory where user preferences are stored
      */
     public File getUserPrefDir()

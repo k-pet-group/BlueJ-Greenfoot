@@ -427,58 +427,6 @@ public class GProject extends RProjectListenerImpl
             }
         }
     }
-
-    /**
-     * Gets the image library for this project. If the directory does not
-     * exist, it is created.
-     */
-    public File getImageDir()
-    {
-        File projDir = getDir().getAbsoluteFile();
-        File projImagesDir = new File(projDir, "images");
-        projImagesDir.mkdir();
-        return projImagesDir;
-    }
-
-    /**
-     * Gets the sound library for this project. If the directory does not
-     * exist, it is created.
-     */
-    public File getSoundDir()
-    {
-        File projDir = getDir().getAbsoluteFile();
-        File projSoundsDir = new File(projDir, "sounds");
-        projSoundsDir.mkdir();
-        return projSoundsDir;
-    }
-
-    /**
-     * Tries to toggle the debugger window to either set it to
-     * visible or not.
-     */
-    public void toggleExecControls()
-    {
-        try {
-            rProject.toggleExecControls();
-        } catch (RemoteException ex) {
-            Debug.reportError("RemoteException showing debugger", ex);
-        }
-    }
-
-    /**
-     * @return Whether or not the debugger window is currently visible.
-     */
-    public boolean isExecControlVisible() 
-    {
-        try {
-            return rProject.isExecControlVisible();
-        } catch (RemoteException ex) {
-            Debug.reportError("RemoteException checking ExecControl state", ex);
-        } catch (ProjectNotOpenException ex) {
-            Debug.reportError("ProjectNotOpenException checking ExecControl state", ex);
-        }
-        return false;
-    }
     
     /**
      * Halt execution of the simulation thread.

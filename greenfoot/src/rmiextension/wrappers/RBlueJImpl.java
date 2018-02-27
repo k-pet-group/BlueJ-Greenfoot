@@ -214,41 +214,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         //The getAbsoluteFile() fixes a weird bug on win using jdk1.4.2_06
         return f.getAbsoluteFile();
     }
-
-    /*
-     * @see rmiextension.wrappers.RBlueJ#openProject(java.lang.String)
-     */
-    public RProject openProject(final File directory)
-        throws RemoteException
-    {
-        final CompletableFuture<RProject> projectRef = new CompletableFuture<>();
-        
-        try {
-            Platform.runLater(new Runnable() {
-                @Override
-                public void run()
-                {
-                    BProject bProject = blueJ.openProject(directory);
-                    if (bProject != null) {
-                        try {
-                            projectRef.complete(WrapperPool.instance().getWrapper(bProject));
-                        }
-                        catch (RemoteException re) {
-                            Debug.reportError("Error when opening project via RMI", re);
-                        }
-                    }
-                }
-            });
-            return projectRef.get();
-        }
-        catch (InterruptedException e) { }
-        catch (ExecutionException e) {
-            Debug.reportError("Error opening project", e);
-            Debug.reportError("Error cause:", e.getCause());
-        }
-        
-        return null;
-    }
     
     /*
      * @see rmiextension.wrappers.RBlueJ#removeCompileListener(rmiextension.wrappers.event.RCompileListener)
@@ -310,18 +275,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         throws RemoteException
     {
         return Config.getInitialCommandLineProperties();
-    }
-
-    /*
-     * @see rmiextension.wrappers.RBlueJ#showPreferences()
-     */
-    @Override
-    public void showPreferences() throws RemoteException
-    {
-        // null is not right for project, but
-        // (a) currently, this only affects a BlueJ-only setting (which thread to run on) and
-        // (b) this code should get removed anyway in the Greenfoot interface rewrite
-        Platform.runLater(() -> PrefMgrDialog.showDialog(null));
     }
 
     @Override

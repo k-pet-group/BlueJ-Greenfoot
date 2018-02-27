@@ -249,67 +249,6 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         }
     }
 
-    /*
-     * @see rmiextension.wrappers.RProject#isExecControlVisible()
-     */
-    @Override
-    public boolean isExecControlVisible() throws RemoteException
-    {
-        class ExecControlsChecker implements Runnable
-        {
-            public boolean visible;
-            
-            @Override
-            public void run()
-            {
-                try {
-                    Project thisProject = Project.getProject(getBProject().getDir());
-                    ExecControls execControls = thisProject.getExecControls();
-                    execControls.setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
-                    visible = execControls.showingProperty().get();
-                }
-                catch (ProjectNotOpenException pnoe) {
-                    // This is ignorable.
-                }
-            }
-        }
-        
-        ExecControlsChecker checker = new ExecControlsChecker();
-        try {
-            EventQueue.invokeAndWait(checker);
-        }
-        catch (InvocationTargetException ite) {
-            Debug.reportError("Error checking exec controls visibility", ite);
-        }
-        catch (InterruptedException ie) { }
-        
-        return checker.visible;
-    }
-
-    /*
-     * @see rmiextension.wrappers.RProject#toggleExecControls()
-     */
-    @Override
-    public void toggleExecControls() throws RemoteException 
-    {
-        Platform.runLater(new Runnable() {
-            @Override
-            public void run()
-            {
-                try {
-                    Project thisProject = Project.getProject(getBProject().getDir());
-                    ExecControls execControls = thisProject.getExecControls();
-                    execControls.makeSureThreadIsSelected(simulationThread.get());
-                    execControls.showingProperty().set(!execControls.showingProperty().get());
-                    execControls.setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
-                }
-                catch (ProjectNotOpenException pnoe) {
-                    // This is ignorable.
-                }
-            } 
-        });
-    }
-    
     @Override
     public void haltExecution() throws RemoteException
     {
