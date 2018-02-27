@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2018  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -443,8 +443,10 @@ class JdiThread extends DebuggerThread
      */
     public boolean varIsObject(int frameNo, int index)
     {
-        try {
-            if(rt.isSuspended()) {
+        try
+        {
+            if(rt.isSuspended())
+            {
                 StackFrame frame = rt.frame(frameNo);
                 List<LocalVariable> vars = frame.visibleVariables();
                 LocalVariable var = vars.get(index);
@@ -452,11 +454,19 @@ class JdiThread extends DebuggerThread
                 return (val instanceof ObjectReference);
             }
             else
+            {
                 return false;
+            }
         }
-        catch(Exception e) {
+        catch (IncompatibleThreadStateException itse)
+        {
+            // Don't need to report this; thread must have been resumed already.
+        }
+        catch(Exception e)
+        {
             // nothing can be done...
             Debug.reportError("could not get local variable info: " + e);
+            e.printStackTrace(System.out);
         }
         return false;
     }
@@ -482,6 +492,7 @@ class JdiThread extends DebuggerThread
         catch(Exception e) {
             // nothing can be done...
             Debug.reportError("could not get local variable info: " + e);
+            e.printStackTrace(System.out);
         }
         return null;
     }
