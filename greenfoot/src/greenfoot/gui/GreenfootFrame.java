@@ -104,8 +104,6 @@ public class GreenfootFrame extends JFrame
     
     private SaveProjectAction saveProjectAction;
     private ShowReadMeAction showReadMeAction;
-    private ExportProjectAction exportProjectAction;
-    private ExportProjectAction shareAction;
     private CloseProjectAction closeProjectAction;
 
     private ToggleDebuggerAction toggleDebuggerAction;
@@ -485,10 +483,10 @@ public class GreenfootFrame extends JFrame
         
         JPanel eastPanel = new JPanel(new BorderLayout(12, 12));
 
-        JButton shareButton = GreenfootUtil.createButton(shareAction); 
+/*        JButton shareButton = GreenfootUtil.createButton(shareAction);
         shareButton.setIcon(new ImageIcon(getClass().getClassLoader().getResource(shareIconFile)));
         shareButton.setMaximumSize(new Dimension(Short.MAX_VALUE, Short.MAX_VALUE));
-        eastPanel.add(shareButton, BorderLayout.NORTH);       
+        eastPanel.add(shareButton, BorderLayout.NORTH);*/
         
         // the class browser 
         
@@ -580,8 +578,6 @@ public class GreenfootFrame extends JFrame
     {
         saveProjectAction = new SaveProjectAction(this);
         showReadMeAction = new ShowReadMeAction(this);
-        exportProjectAction = new ExportProjectAction(this, false);
-        shareAction = new ExportProjectAction(this, true);
         closeProjectAction = new CloseProjectAction(this);
     }
     
@@ -603,7 +599,6 @@ public class GreenfootFrame extends JFrame
         addMenuItem(saveProjectAction, scenarioMenu, KeyEvent.VK_S, false, KeyEvent.VK_S);
         scenarioMenu.addSeparator();
         addMenuItem(showReadMeAction, scenarioMenu, -1, false, -1);
-        addMenuItem(exportProjectAction, scenarioMenu, KeyEvent.VK_E, false, KeyEvent.VK_E);
 
         if(! Config.isMacOS()) {
             scenarioMenu.addSeparator();
@@ -761,9 +756,7 @@ public class GreenfootFrame extends JFrame
         closeProjectAction.setEnabled(state);
         saveProjectAction.setEnabled(state);
         showReadMeAction.setEnabled(state);
-        exportProjectAction.setEnabled(state);
-        shareAction.setEnabled(state);
-        
+
         // Disable simulation buttons
         if (state == false) {
             WorldHandler.getInstance().discardWorld();
