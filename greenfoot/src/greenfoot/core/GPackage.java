@@ -21,28 +21,21 @@
  */
 package greenfoot.core;
 
+import bluej.extensions.PackageNotFoundException;
+import bluej.extensions.ProjectNotOpenException;
+import bluej.extensions.SourceType;
+import bluej.utility.Debug;
 import greenfoot.World;
 import greenfoot.util.GreenfootUtil;
+import rmiextension.wrappers.RClass;
+import rmiextension.wrappers.RPackage;
 
-import java.io.File;
 import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import rmiextension.wrappers.RClass;
-import rmiextension.wrappers.RJobQueue;
-import rmiextension.wrappers.RPackage;
-import bluej.compiler.CompileObserver;
-import bluej.debugmgr.InvokerCompiler;
-import bluej.extensions.CompilationNotStartedException;
-import bluej.extensions.MissingJavaFileException;
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
-import bluej.extensions.SourceType;
-import bluej.utility.Debug;
 
 /**
  * Represents a package in Greenfoot.
@@ -112,44 +105,6 @@ public class GPackage
         return gClass;
     }
 
-    public void compileAll()
-    {
-        try {
-            pkg.compileAll();
-        }
-        catch (ProjectNotOpenException pnoe) {
-            Debug.reportError("Could not start compilation", pnoe);
-        }
-        catch (CompilationNotStartedException cnse) {
-            Debug.reportError("Could not start compilation", cnse);
-        }
-        catch (RemoteException re) {
-            Debug.reportError("Could not start compilation", re);
-        }
-        catch (PackageNotFoundException pnfe) {
-            Debug.reportError("Could not start compilation", pnfe);
-        }
-    }
-
-    public File getDir()
-    {
-        try {
-            return pkg.getDir();
-        }
-        catch (ProjectNotOpenException pnoe) {
-            Debug.reportError("Could not get package directory", pnoe);
-            throw new InternalGreenfootError(pnoe);
-        }
-        catch (PackageNotFoundException pnfe) {
-            Debug.reportError("Could not get package directory", pnfe);
-            throw new InternalGreenfootError(pnfe);
-        }
-        catch (RemoteException re) {
-            Debug.reportError("Could not get package directory", re);
-            throw new InternalGreenfootError(re);
-        }
-    }
-
     public GProject getProject()
     {
         return project;
@@ -178,32 +133,6 @@ public class GPackage
             Debug.reportError("Could not get package classes", e);
             throw new InternalGreenfootError(e);
         }
-    }
-
-    public GClass newClass(String className, SourceType sourceType, boolean inRemoteCallback)
-    {
-        GClass newClass = null;
-        try {
-            RClass newRClass = pkg.newClass(className, sourceType);
-            newClass = new GClass(newRClass, this, inRemoteCallback);
-            synchronized (classPool) {
-                classPool.put(newRClass, newClass);
-            }
-            newClass.loadSavedSuperClass(false);
-        }
-        catch (RemoteException re) {
-            Debug.reportError("Creating new class", re);
-        }
-        catch (ProjectNotOpenException pnoe) {
-            Debug.reportError("Creating new class", pnoe);
-        }
-        catch (PackageNotFoundException pnfe) {
-            Debug.reportError("Creating new class", pnfe);
-        }
-        catch (MissingJavaFileException mjfe) {
-            Debug.reportError("Creating new class", mjfe);
-        }
-        return newClass;
     }
     
     /**
@@ -248,48 +177,6 @@ public class GPackage
             }
         }
         return worldClasses;
-    }
-
-    /**
-     * Get access to the remote compiler queue.
-     */
-    public InvokerCompiler getCompiler()
-    {
-        try {
-            final RJobQueue rqueue = pkg.getCompiler();
-            return new InvokerCompiler() {
-                @Override
-                public void compile(File[] files, CompileObserver observer)
-                {
-                    try {
-                        rqueue.compile(files, new LocalCompileObserverWrapper(observer));
-                    }
-                    catch (RemoteException re) {
-                        Debug.reportError("Error trying to compile on remote queue", re);
-                    }
-                }
-            };
-        }
-        catch (RemoteException re) {
-            Debug.reportError("Error getting remote compiler queue", re);
-            return null;
-        }
-    }
-    
-    public void reload()
-    {
-        try {
-            pkg.reload();
-        }
-        catch (ProjectNotOpenException e) {
-            e.printStackTrace();
-        }
-        catch (PackageNotFoundException e) {
-            e.printStackTrace();
-        }
-        catch (RemoteException e) {
-            e.printStackTrace();
-        }
     }
 
     public SourceType getDefaultSourceType()
