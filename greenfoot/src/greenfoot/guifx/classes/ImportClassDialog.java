@@ -63,6 +63,7 @@ public class ImportClassDialog extends Dialog<File>
     {
         initModality(Modality.APPLICATION_MODAL);
         initOwner(greenfootStage);
+        setTitle(Config.getString("import.dialogTitle"));
         ClassGroup classGroup = new ClassGroup(greenfootStage);
         List<ImportableGClassNode> foundClasses = findImportableClasses(new File(Config.getGreenfootLibDir(), "common"));
         Collections.sort(foundClasses, Comparator.comparing(c -> c.getDisplayName()));
