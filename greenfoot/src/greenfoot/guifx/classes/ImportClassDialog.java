@@ -63,15 +63,13 @@ public class ImportClassDialog extends Dialog<File>
     {
         initModality(Modality.APPLICATION_MODAL);
         initOwner(greenfootStage);
+        setTitle(Config.getString("import.dialogTitle"));
         ClassGroup classGroup = new ClassGroup(greenfootStage);
         List<ImportableGClassNode> foundClasses = findImportableClasses(new File(Config.getGreenfootLibDir(), "common"));
         Collections.sort(foundClasses, Comparator.comparing(c -> c.getDisplayName()));
         classGroup.getLiveClasses().addAll(foundClasses);
         classGroup.updateAfterAdd();
-        if (!foundClasses.isEmpty())
-        {
-            classDisplaySelectionManager.select(foundClasses.get(0).getDisplay(greenfootStage));
-        }
+        
         for (ImportableGClassNode foundClass : foundClasses)
         {
             filesForQualifiedClasses.put(foundClass.getQualifiedName(), foundClass.file);
@@ -99,6 +97,12 @@ public class ImportClassDialog extends Dialog<File>
                 }
             }
         });
+        // Must do this after adding the selection listener:
+        if (!foundClasses.isEmpty())
+        {
+            classDisplaySelectionManager.select(foundClasses.get(0).getDisplay(greenfootStage));
+        }
+        
         
         getDialogPane().setContent(new BorderPane(docView, null, null, null, classGroup));
         BorderPane.setMargin(classGroup, new Insets(0, 8, 0, 0));
