@@ -28,12 +28,12 @@ import greenfoot.event.PublishListener;
 import greenfoot.export.mygame.MyGameClient;
 import greenfoot.export.mygame.ScenarioInfo;
 import greenfoot.gui.WorldCanvas;
-import greenfoot.gui.export.ExportAppPane;
-import greenfoot.gui.export.ExportDialog;
-import greenfoot.gui.export.ExportProjectPane;
-import greenfoot.gui.export.ExportPublishPane;
-import greenfoot.gui.export.ExportWebPagePane;
-import greenfoot.gui.export.ProxyAuthDialog;
+//import greenfoot.gui.export.ExportAppPane;
+//import greenfoot.gui.export.ExportDialog;
+//import greenfoot.gui.export.ExportProjectPane;
+//import greenfoot.gui.export.ExportPublishPane;
+//import greenfoot.gui.export.ExportWebPagePane;
+//import greenfoot.gui.export.ProxyAuthDialog;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Dimension;
@@ -89,7 +89,7 @@ public class Exporter implements PublishListener
     private File tmpImgFile;
     private File tmpZipFile;
     private MyGameClient webPublisher;
-    private ExportDialog dlg;
+//    private ExportDialog dlg;
     
     /**
      * Creates a new instance of Exporter.
@@ -99,6 +99,7 @@ public class Exporter implements PublishListener
     /**
      * Publish this scenario to the web server.
      */
+    /*
     public void publishToWebServer(GProject project, ExportPublishPane pane, ExportDialog dlg)
     {
         this.dlg = dlg;
@@ -249,7 +250,7 @@ public class Exporter implements PublishListener
 
     /**
      * Create a web page and jar-file.
-     */
+     *//*
     public void makeWebPage(GProject project, ExportWebPagePane pane, ExportDialog dlg)
     {
         this.dlg = dlg;
@@ -297,7 +298,7 @@ public class Exporter implements PublishListener
         File outputFile = new File(exportDir, htmlName);
         jarCreator.generateHTMLSkeleton(outputFile, title, size.width, size.height);
         dlg.setProgress(false, Config.getString("export.progress.complete")); 
-    }
+    }*/
 
     private static File[] getJarsInPlusLib(GProject project)
     {
@@ -315,7 +316,7 @@ public class Exporter implements PublishListener
         
     /**
      * Create an application (jar-file)
-     */
+     *//*
     public void makeApplication(GProject project, ExportAppPane pane, ExportDialog dlg)
     {
         dlg.setProgress(true, Config.getString("export.progress.writingJar"));
@@ -367,11 +368,11 @@ public class Exporter implements PublishListener
         
         jarCreator.create();
         dlg.setProgress(false, Config.getString("export.progress.complete")); 
-    }
+    }*/
     
     /**
      * Create an standalone project (gfar-file)
-     */
+     *//*
     public void makeProject(GProject project, ExportProjectPane pane, ExportDialog dlg)
     {
         dlg.setProgress(true, Config.getString("export.progress.writingGfar"));
@@ -385,13 +386,12 @@ public class Exporter implements PublishListener
         gfarCrator.create();
        
         dlg.setProgress(false, Config.getString("export.progress.complete")); 
-    }
-
+    }*/
 
     /**
      * Get the size needed to display the application and control panel.
      * @return
-     */
+     *//*
     private static Dimension getSize(boolean includeControls)
     {     
         //The control panel size is hard coded for now, since it has different sizes on different platforms. 
@@ -413,7 +413,7 @@ public class Exporter implements PublishListener
         size.height += 2;
         size.width = Math.max(size.width, controlPanelSize.width);
         return size;
-    }
+    }*/
         
     /**
      * Something went wrong when publishing.
@@ -426,7 +426,7 @@ public class Exporter implements PublishListener
             @Override
             public void run()
             {
-                dlg.publishFinished(false,  Config.getString("export.publish.fail") + " " + event.getMessage());
+//                dlg.publishFinished(false,  Config.getString("export.publish.fail") + " " + event.getMessage());
             }
         });
     }
@@ -442,7 +442,7 @@ public class Exporter implements PublishListener
             @Override
             public void run()
             {
-                dlg.publishFinished(true, Config.getString("export.publish.complete"));
+//                dlg.publishFinished(true, Config.getString("export.publish.complete"));
             }
         });
     }
@@ -472,7 +472,7 @@ public class Exporter implements PublishListener
             @Override
             public void run()
             {
-                dlg.gotUploadSize(size);
+//                dlg.gotUploadSize(size);
             }
         });
     }
@@ -487,7 +487,7 @@ public class Exporter implements PublishListener
             @Override
             public void run()
             {
-                dlg.progressMade(event.getBytes());
+//                dlg.progressMade(event.getBytes());
             }
         });
     }
@@ -502,13 +502,13 @@ public class Exporter implements PublishListener
                 @Override
                 public void run()
                 {
-                    ProxyAuthDialog dialog = new ProxyAuthDialog(dlg);
+                    /*ProxyAuthDialog dialog = new ProxyAuthDialog(dlg);
                     dialog.setVisible(true);
                     
                     if (dialog.getResult() == ProxyAuthDialog.OK) {
                         details[0] = dialog.getUsername();
                         details[1] = dialog.getPassword();
-                    }
+                    }*/
                 }
             });
         }

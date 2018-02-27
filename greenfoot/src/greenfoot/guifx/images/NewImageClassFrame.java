@@ -85,8 +85,8 @@ public class NewImageClassFrame extends FXCustomizedDialog<NewImageClassFrame.Ne
     /**
      * Construct an SelectImageFrame to be used for creating a new class.
      *
-     * @param owner        The parent frame
-     * @param superClass   The superclass of the new class
+     * @param owner    The parent frame
+     * @param project  The project to contain the new class
      */
     public NewImageClassFrame(Window owner, Project project)
     {
