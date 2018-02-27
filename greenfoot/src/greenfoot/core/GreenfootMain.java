@@ -883,16 +883,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     @Override
     public void compileWarning(RCompileEvent event){}
 
-    public void showPreferences()
-    {
-        try {
-            rBlueJ.showPreferences();
-        }
-        catch (RemoteException e) {
-            Debug.reportError("Problem showing preferences dialog", e);
-        }
-    }
-
     public long getBlueJProcessId() throws RemoteException
     {
         return rBlueJ.getBlueJProcessId();
