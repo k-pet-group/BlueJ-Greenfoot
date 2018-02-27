@@ -354,6 +354,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     private void showProject(Project project, GreenfootDebugHandler greenfootDebugHandler)
     {
+        setTitle("Greenfoot: " + project.getProjectName());
         this.project = project;
         project.getPackage("").setUI(this);
         this.debugHandler = greenfootDebugHandler;
