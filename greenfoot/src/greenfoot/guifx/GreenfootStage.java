@@ -589,7 +589,27 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         
         ProjectManager.instance().launchProject(p);
     }
-    
+
+    /**
+     * Show a dialog to Export a project. It can be exported to many formats,
+     * which the user will pick from. This is only possible in case the project
+     * is compiled, otherwise, show an error dialog.
+     */
+    private void doShare()
+    {
+        // TODO These two conditions are good enough currently for all cases, however
+        // more testing is needed and maybe changing to direct test for the project
+        // compilation status.
+        if ( worldDisplay.isGreyedOut() || stateProperty.get() == State.UNCOMPILED)
+        {
+            DialogManager.showErrorFX(this, "export-compile-notCompiled");
+        }
+        else
+        {
+            // TODO show ExportDialog
+        }
+    }
+
     /**
      * Perform a single act step, if paused, by adding to the list of pending commands.
      */
@@ -707,7 +727,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     new SeparatorMenuItem(),
                     makeMenuItem("export.project",
                         new KeyCodeCombination(KeyCode.E, KeyCombination.SHORTCUT_DOWN),
-                        () -> {}, hasNoProject
+                        this::doShare, hasNoProject
                     )
                 );
 
