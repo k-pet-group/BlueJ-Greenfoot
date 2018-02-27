@@ -3,8 +3,10 @@ package greenfoot.core;
 import bluej.utility.Debug;
 import greenfoot.Actor;
 import greenfoot.World;
+import greenfoot.WorldVisitor;
 
 import java.awt.Point;
+import java.util.Collection;
 
 /**
  * A helper class which can be instantiated to fetch a reference to the
@@ -40,10 +42,11 @@ public class PickActorHelper
             // The fields must be up to date and valid at the point we call picked():
             WorldHandler worldHandler = WorldHandler.getInstance();
             this.worldPick = worldHandler.getWorld();
-            if (worldPick != null && x >= 0 && x < worldPick.getWidth()
-                    && y >= 0 && y < worldPick.getHeight())
+            //the cell size of the World needs to be considered here in case the size is not equal to one
+            if (worldPick != null && x >= 0 && x < worldPick.getWidth() * worldPick.getCellSize()
+                    && y >= 0 && y < worldPick.getHeight() * worldPick.getCellSize())
             {
-                this.actorPicks = worldHandler.getObjects(x, y).toArray(new Actor[0]);
+                this.actorPicks = WorldVisitor.getObjectsAtPixel(this.worldPick, x, y).toArray(new Actor[0]);
             }
             else
             {
