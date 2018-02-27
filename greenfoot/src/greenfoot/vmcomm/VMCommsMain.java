@@ -64,7 +64,9 @@ public class VMCommsMain implements Closeable
      * after the answer has been sent.
      */
     private int lastAnswer = -1;
-    
+    // A count of errors on the debug VM.  We keep count too so that we know when it has changed:
+    private int previousStoppedWithErrorCount;
+
     /**
      * Constructor for VMCommsMain. Creates a temporary file and maps it into memory.
      * 
@@ -192,6 +194,14 @@ public class VMCommsMain implements Closeable
                     {
                         stage.worldDiscarded();
                     }
+                }
+                
+                int latestStoppedWithErrorCount = sharedMemory.get();
+                // If there's a new error, show the terminal at the front so that the user sees it: 
+                if (latestStoppedWithErrorCount != previousStoppedWithErrorCount)
+                {
+                    stage.bringTerminalToFront();
+                    previousStoppedWithErrorCount = latestStoppedWithErrorCount;
                 }
 
                 int askId = sharedMemory.get();
