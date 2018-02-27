@@ -1120,9 +1120,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         if (worldImg == null || worldImg.getWidth() != width || worldImg.getHeight() != height)
         {
             worldImg = new WritableImage(width == 0 ? 1 : width, height == 0 ? 1 : height);
-            //sizeToScene = true;
-            
-            sizeToScene(); // TODO apparently this can re-enter animation timer handle()?
+            // We don't call sizeToScene() directly while holding the file lock because it can cause us to re-enter
+            // the animation timer (see commit comment).  So we set this flag to true as a way of queueing up the request:
+            JavaFXUtil.runAfterCurrent(() -> sizeToScene());
         }
         worldImg.getPixelWriter().setPixels(0, 0, width, height, PixelFormat.getByteBgraPreInstance(),
                 buffer, width * 4);
