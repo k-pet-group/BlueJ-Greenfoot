@@ -600,21 +600,6 @@ public class GreenfootFrame extends JFrame
             scenarioMenu.addSeparator();
             addMenuItem(QuitAction.getInstance(), scenarioMenu, KeyEvent.VK_Q, false, KeyEvent.VK_Q);
         }
-                
-        JMenu ctrlMenu = addMenu(Config.getString("menu.controls"), menuBar, 'c');
-        
-        addMenuItem(RunOnceSimulationAction.getInstance(), ctrlMenu, KeyEvent.VK_A, false, KeyEvent.VK_A);
-        addMenuItem(RunSimulationAction.getInstance(), ctrlMenu, KeyEvent.VK_R, false, KeyEvent.VK_R);
-        addMenuItem(PauseSimulationAction.getInstance(), ctrlMenu, KeyEvent.VK_R, true, KeyEvent.VK_P);
-        addMenuItem(ResetWorldAction.getInstance(), ctrlMenu, KeyEvent.VK_T, false, KeyEvent.VK_T);
-
-        RunOnceSimulationAction.getInstance().attachListener(worldHandlerDelegate);
-        RunSimulationAction.getInstance().attachListener(worldHandlerDelegate);
-
-        ResetWorldAction.getInstance().setActionListener(() -> getProject().recordEvent(GreenfootInterfaceEvent.WORLD_RESET));
-        RunOnceSimulationAction.getInstance().setActionListener(() -> getProject().recordEvent(GreenfootInterfaceEvent.WORLD_ACT));
-        RunSimulationAction.getInstance().setActionListener(() -> getProject().recordEvent(GreenfootInterfaceEvent.WORLD_RUN));
-        PauseSimulationAction.getInstance().setActionListener(() -> getProject().recordEvent(GreenfootInterfaceEvent.WORLD_PAUSE));
         
         JMenu helpMenu = addMenu(Config.getString("menu.help"), menuBar, 'h');
         
