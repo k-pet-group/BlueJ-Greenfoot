@@ -324,7 +324,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
         }
         else if (e.isHalt() && isSimulationThread(e.getThread()))
         {
-            if (e.getBreakpointProperties().get(SIMULATION_THREAD_PAUSED_KEY) != null) {
+            if (atBreakpoint && e.getBreakpointProperties().get(SIMULATION_THREAD_PAUSED_KEY) != null) {
                 // They are going to pause; remove all special breakpoints and set them going
                 // (so that they actually hit the pause):
                 removeSpecialBreakpoints(debugger);
@@ -342,7 +342,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
                         
                 // If they have just hit the breakpoint and are in InvokeAct itself,
                 // step-into the World/Actor:
-                if (e.getBreakpointProperties().get(SIMULATION_INVOKE_KEY) != null) {
+                if (atBreakpoint && e.getBreakpointProperties().get(SIMULATION_INVOKE_KEY) != null) {
                     e.getThread().stepInto();
                     return true;
                 } else if (inInvokeMethods(stack, 0)) {
