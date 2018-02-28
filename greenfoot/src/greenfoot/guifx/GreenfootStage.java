@@ -403,6 +403,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     private void doReset()
     {
+        DataCollector.recordGreenfootEvent(project, GreenfootInterfaceEvent.WORLD_RESET);
         debugHandler.getVmComms().discardWorld();
         instantiateWorldAfterDiscarded = true;
         stateProperty.set(State.UNCOMPILED);
@@ -617,6 +618,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         if (stateProperty.get() == State.PAUSED)
         {
+            DataCollector.recordGreenfootEvent(project, GreenfootInterfaceEvent.WORLD_ACT);
             debugHandler.getVmComms().act();
             stateProperty.set(State.PAUSED_REQUESTED_ACT_OR_RUN);
         }
@@ -629,11 +631,13 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         if (stateProperty.get() == State.PAUSED)
         {
+            DataCollector.recordGreenfootEvent(project, GreenfootInterfaceEvent.WORLD_RUN);
             debugHandler.getVmComms().runSimulation();
             stateProperty.set(State.PAUSED_REQUESTED_ACT_OR_RUN);
         }
         else if (stateProperty.get() == State.RUNNING)
         {
+            DataCollector.recordGreenfootEvent(project, GreenfootInterfaceEvent.WORLD_PAUSE);
             debugHandler.getVmComms().pauseSimulation();
             stateProperty.set(State.RUNNING_REQUESTED_PAUSE);
         }
