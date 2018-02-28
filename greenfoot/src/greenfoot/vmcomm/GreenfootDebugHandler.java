@@ -531,7 +531,17 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     {
         this.simulationListener = simulationListener;
     }
-    
+
+    /**
+     * Halts the simulation thread.
+     */
+    public void haltSimulationThread()
+    {
+        if (simulationThread != null)
+            simulationThread.halt();
+    }
+
+
     @Override
     public String addObject(DebuggerObject object, GenTypeClass type,
             String name)
