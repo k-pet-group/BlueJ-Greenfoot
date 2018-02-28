@@ -752,8 +752,10 @@ public class JavaFXUtil
 
     /**
      * Loads the given file as a JavaFX Image.
-     * @param image The path of the image to load.  If null, null will definitely be returned.
-     * @return The image if successfully loaded, null otherwise.
+     *
+     * @param image  The system file of the image to load.
+     *               If null, null will definitely be returned.
+     * @return       The image if successfully loaded, null otherwise.
      */
     public static Image loadImage(File image)
     {
@@ -770,6 +772,18 @@ public class JavaFXUtil
         }
         
         return null;
+    }
+
+    /**
+     * Loads a JavaFX Image from the path given
+     *
+     * @param path  The path of the image to load.
+     *              If null, null will definitely be returned.
+     * @return      The image if successfully loaded, null otherwise.
+     */
+    public static Image loadImage(String path)
+    {
+        return path == null ? null : loadImage(new File(path));
     }
 
     /**
