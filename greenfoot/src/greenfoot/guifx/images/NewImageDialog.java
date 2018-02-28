@@ -35,6 +35,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Window;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -49,6 +51,7 @@ import java.io.File;
  * @author Michael Berry (mjrb4)
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 public class NewImageDialog extends FXCustomizedDialog<File>
 {
     private static final int MAX_IMAGE_HEIGHT = 2000;

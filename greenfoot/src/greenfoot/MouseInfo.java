@@ -21,6 +21,9 @@
  */
 package greenfoot;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * This class contains information about the current status of the mouse. You
  * can get a MouseInfo object via {@link Greenfoot#getMouseInfo()}.
@@ -29,6 +32,7 @@ package greenfoot;
  * @author Poul Henriksen
  * @version 2.4
  */
+@OnThread(Tag.Any)
 public class MouseInfo
 {    
     private Actor actor;

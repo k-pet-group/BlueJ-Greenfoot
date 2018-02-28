@@ -32,6 +32,8 @@ import greenfoot.event.WorldListener;
 import greenfoot.gui.WorldCanvas;
 import greenfoot.platforms.SimulationDelegate;
 import greenfoot.util.HDTimer;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -49,6 +51,7 @@ import javax.swing.event.EventListenerList;
  * 
  * @author Poul Henriksen
  */
+@OnThread(Tag.Simulation)
 public class Simulation extends Thread
     implements WorldListener
 {

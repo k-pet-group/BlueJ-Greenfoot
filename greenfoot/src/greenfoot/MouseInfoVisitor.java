@@ -22,7 +22,8 @@
 package greenfoot;
 
 
-
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * To get access to package private methods in MouseInfo.
@@ -30,6 +31,7 @@ package greenfoot;
  * @author Poul Henriksen
  *
  */
+@OnThread(Tag.Any)
 public class MouseInfoVisitor
 {
     public static void setActor(MouseInfo info, Actor actor) {

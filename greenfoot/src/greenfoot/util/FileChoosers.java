@@ -30,6 +30,8 @@ import javax.swing.JFileChooser;
 
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.PackageChooserStrict;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Class that holds different file choosers that can be used to select files or directories. 
@@ -37,6 +39,7 @@ import bluej.utility.PackageChooserStrict;
  * @author Poul Henriksen
  *
  */
+@OnThread(Tag.Swing)
 public class FileChoosers
 {
     private static JFileChooser  scenarioFileChooser;
