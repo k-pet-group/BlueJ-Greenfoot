@@ -32,6 +32,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Display a "proxy authentication required" dialog, prompting for username and password.
@@ -39,6 +41,7 @@ import javafx.stage.Window;
  * @author Davin McCall
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 public class ProxyAuthDialog extends FXCustomizedDialog<ProxyAuthDialog.ProxyAuthInfo>
 {
     private final TextField usernameField = new TextField();

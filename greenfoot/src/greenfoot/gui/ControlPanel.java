@@ -46,6 +46,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import bluej.Config;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Panel that holds the buttons that controls the simulation.
@@ -187,6 +189,7 @@ public class ControlPanel extends Box
     }
     
     @Override
+    @OnThread(Tag.Simulation)
     public void simulationChanged(SimulationEvent e)
     {        
         final int etype = e.getType();

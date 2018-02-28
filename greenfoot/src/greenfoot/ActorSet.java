@@ -21,6 +21,9 @@
  */
 package greenfoot;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.util.AbstractSet;
 import java.util.Iterator;
 
@@ -39,17 +42,20 @@ public class ActorSet extends AbstractSet<Actor>
     
     /** Sum of sequence numbers of contained actors */
     private int myHashCode = 0;
-    
-    
+
+
+    @OnThread(value = Tag.Simulation, ignoreParent = true)
     @Override
     public int hashCode()
     {
         return myHashCode;
     }
-    
+
+    @OnThread(value = Tag.Simulation, ignoreParent = true)
+    @Override
     public boolean add(Actor actor)
     {
-        if (contains(actor)) {
+        if (containsActor(actor)) {
             return false;
         }
         
@@ -86,18 +92,20 @@ public class ActorSet extends AbstractSet<Actor>
             currentActor = currentActor.next;
         }
     }
-    
-    public boolean contains(Actor actor)
+
+    @OnThread(value = Tag.Simulation, ignoreParent = true)
+    public boolean containsActor(Actor actor)
     {
         return getActorNode(actor) != null; 
     }
-    
+
+    @OnThread(value = Tag.Simulation, ignoreParent = true)
     @Override
     public boolean contains(Object o)
     {
         if (o instanceof Actor) {
             Actor a = (Actor) o;
-            return contains(a);
+            return containsActor(a);
         }
         return false;
     }
@@ -132,7 +140,7 @@ public class ActorSet extends AbstractSet<Actor>
         
         return null;
     }
-    
+
     public boolean remove(Actor actor)
     {
         ListNode actorNode = getActorNode(actor);
@@ -166,18 +174,22 @@ public class ActorSet extends AbstractSet<Actor>
             resizeHashmap();
         }
     }
-    
+
+    @OnThread(value = Tag.Simulation, ignoreParent = true)
+    @Override
     public int size()
     {
         return numActors;
     }
-    
+
+    @OnThread(value = Tag.Simulation, ignoreParent = true)
     @Override
     public Iterator<Actor> iterator()
     {
         return new ActorSetIterator();
     }
     
+    @OnThread(Tag.Simulation)
     private class ListNode
     {
         Actor actor;
@@ -236,6 +248,7 @@ public class ActorSet extends AbstractSet<Actor>
         }
     }
     
+    @OnThread(Tag.Simulation)
     private class ActorSetIterator implements Iterator<Actor>
     {
         ListNode currentNode;
@@ -244,18 +257,24 @@ public class ActorSet extends AbstractSet<Actor>
         {
             currentNode = listHeadTail;
         }
-        
+
+        @OnThread(value = Tag.Simulation, ignoreParent = true)
+        @Override
         public boolean hasNext()
         {
             return currentNode.next != listHeadTail;
         }
-        
+
+        @OnThread(value = Tag.Simulation, ignoreParent = true)
+        @Override
         public Actor next()
         {
             currentNode = currentNode.next;
             return currentNode.actor;
         }
-        
+
+        @OnThread(value = Tag.Simulation, ignoreParent = true)
+        @Override
         public void remove()
         {
             ActorSet.this.remove(currentNode);

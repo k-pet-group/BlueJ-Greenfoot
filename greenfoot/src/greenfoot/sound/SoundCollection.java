@@ -23,6 +23,8 @@ package greenfoot.sound;
 
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -49,6 +51,7 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
     /**
      * Stop sounds when simulation is disabled (a new world is created).
      */
+    @OnThread(Tag.Simulation)
     public void simulationChanged(SimulationEvent e)
     {
         if (e.getType() == SimulationEvent.DISABLED) {

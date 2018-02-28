@@ -33,6 +33,8 @@ import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
 import bluej.utility.Debug;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * @author Poul Henriksen
@@ -89,6 +91,7 @@ public class PauseSimulationAction extends AbstractAction
     /**
      * Observing for the simulation state so we can dis/en-able us appropriately
      */
+    @OnThread(Tag.Simulation)
     public void simulationChanged(final SimulationEvent e)
     {
         int eventType = e.getType();

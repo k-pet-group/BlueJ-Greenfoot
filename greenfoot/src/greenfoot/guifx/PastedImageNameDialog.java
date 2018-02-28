@@ -37,6 +37,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import javax.imageio.ImageIO;
 import java.io.File;
@@ -47,6 +49,7 @@ import java.io.IOException;
  *
  * @Author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 public class PastedImageNameDialog extends FXCustomizedDialog<File>
 {
     private final File projImagesDir;

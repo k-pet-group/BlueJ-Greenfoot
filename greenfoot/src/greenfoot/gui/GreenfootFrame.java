@@ -54,6 +54,8 @@ import greenfoot.util.AskHandler;
 import greenfoot.util.GreenfootUtil;
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.event.RCompileEvent;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import javax.swing.*;
 import java.awt.*;
@@ -340,6 +342,7 @@ public class GreenfootFrame extends JFrame
         };
 
         sim.addSimulationListener(new SimulationListener() {
+            @OnThread(Tag.Simulation)
             @Override
             public void simulationChanged(SimulationEvent e)
             {

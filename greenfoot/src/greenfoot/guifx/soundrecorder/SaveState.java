@@ -34,6 +34,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.stage.Window;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 
 /**
@@ -43,6 +45,7 @@ import javafx.stage.Window;
  *
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 class SaveState
 {
     private final Window parent;

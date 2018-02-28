@@ -1930,12 +1930,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      * PackageUI getStage() implementation.
      * @see bluej.pkgmgr.PackageUI#getStage()
      */
+    @OnThread(Tag.FXPlatform)
     @Override
     public Stage getStage()
     {
         return this;
     }
     
+    @OnThread(Tag.FXPlatform)
     @Override
     public void callStaticMethodOrConstructor(CallableView cv)
     {

@@ -26,6 +26,8 @@ import greenfoot.Actor;
 import greenfoot.MouseInfo;
 import greenfoot.MouseInfoVisitor;
 import greenfoot.World;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 
 /**
@@ -35,6 +37,7 @@ import greenfoot.World;
  * @author Poul Henriksen
  * 
  */
+@OnThread(Tag.Any)
 class MouseEventData
 {
     private MouseInfo mouseInfo;

@@ -27,12 +27,15 @@ import bluej.GuiHandler;
 import bluej.Main;
 import bluej.pkgmgr.Project;
 import greenfoot.core.ProjectManager;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A GUI handler for Greenfoot.
  * 
  * @author Davin McCall
  */
+@OnThread(Tag.FXPlatform)
 public class GreenfootGuiHandler implements GuiHandler
 {
     @Override

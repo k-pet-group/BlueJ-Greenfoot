@@ -34,6 +34,8 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import javax.imageio.ImageIO;
 import java.io.File;
@@ -50,6 +52,7 @@ import java.util.Map;
  * A dialog showing the possible importable classes in the "common" directory in the Greenfoot
  * installation.  The user can select a class and see the documentation.
  */
+@OnThread(Tag.FXPlatform)
 public class ImportClassDialog extends Dialog<File>
 {
     private final ClassDisplaySelectionManager classDisplaySelectionManager = new ClassDisplaySelectionManager();
@@ -225,6 +228,7 @@ public class ImportClassDialog extends Dialog<File>
      * A GClassNode used for display.  Overrides parent to remove any context menus, and
      * stores the file associated with the class.
      */
+    @OnThread(Tag.FXPlatform)
     private class ImportableGClassNode extends GClassNode
     {
         private final File file;

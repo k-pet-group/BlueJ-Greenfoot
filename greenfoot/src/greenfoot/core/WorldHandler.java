@@ -63,6 +63,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * The worldhandler handles the connection between the World and the
@@ -70,6 +72,7 @@ import bluej.debugmgr.objectbench.ObjectBenchInterface;
  * 
  * @author Poul Henriksen
  */
+@OnThread(Tag.Simulation)
 public class WorldHandler
     implements TriggeredKeyListener, DropTarget, DragListener, SimulationListener
 {
@@ -86,6 +89,7 @@ public class WorldHandler
     private int dragBeginY;
 
     private KeyboardManager keyboardManager;
+    @OnThread(Tag.Any)
     private static WorldHandler instance;
     private EventListenerList listenerList = new EventListenerList();
     private WorldHandlerDelegate handlerDelegate;
@@ -126,6 +130,7 @@ public class WorldHandler
     /**
      * Return the singleton instance.
      */
+    @OnThread(Tag.Any)
     public synchronized static WorldHandler getInstance()
     {
         return instance;
@@ -442,9 +447,11 @@ public class WorldHandler
     }
 
     @Override
+    @OnThread(Tag.Swing)
     public void keyTyped(KeyEvent e) {}
 
     @Override
+    @OnThread(Tag.Swing)
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             if (dragActor != null) {
@@ -467,6 +474,7 @@ public class WorldHandler
     }
 
     @Override
+    @OnThread(Tag.Swing)
     public void keyReleased(KeyEvent e)
     {
         //TODO: is this really necessary?
@@ -888,6 +896,7 @@ public class WorldHandler
         }
     }
 
+    @OnThread(Tag.Simulation)
     public void simulationChanged(SimulationEvent e)
     {
         if (e.getType() == SimulationEvent.NEW_ACT_ROUND) {

@@ -21,6 +21,9 @@
  */
 package greenfoot;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.util.*;
 
 /**
@@ -149,11 +152,14 @@ public class TreeActorSet extends AbstractSet<Actor>
         }
     }
     
+    @OnThread(value = Tag.Simulation, ignoreParent = true)
     public Iterator<Actor> iterator()
     {
         return new TasIterator();
     }
-    
+
+    @OnThread(value = Tag.Simulation, ignoreParent = true)
+    @Override
     public int size()
     {
         int size = 0;
@@ -162,7 +168,9 @@ public class TreeActorSet extends AbstractSet<Actor>
         }
         return size;
     }
-    
+
+    @OnThread(value = Tag.Simulation, ignoreParent = true)
+    @Override
     public boolean add(Actor o)
     {
         if (o == null) {
@@ -176,10 +184,11 @@ public class TreeActorSet extends AbstractSet<Actor>
     {
         return setForActor(o).remove(o);
     }
-    
+
+    @OnThread(value = Tag.Simulation, ignoreParent = true)
     public boolean contains(Actor o)
     {
-        return setForActor(o).contains(o);
+        return setForActor(o).containsActor(o);
     }
     
     /**
@@ -212,6 +221,7 @@ public class TreeActorSet extends AbstractSet<Actor>
      * 
      * @author Davin McCall
      */
+    @OnThread(Tag.Simulation)
     class TasIterator implements Iterator<Actor>
     {
         private Iterator<ActorSet> setIterator;
@@ -227,18 +237,21 @@ public class TreeActorSet extends AbstractSet<Actor>
             }
             actorIterator = currentSet.iterator();
         }
-        
+
+        @OnThread(value = Tag.Simulation, ignoreParent = true)
         public void remove()
         {
             actorIterator.remove();
         }
-        
+
+        @OnThread(value = Tag.Simulation, ignoreParent = true)
         public Actor next()
         {
             hasNext(); // update iterator if necessary
             return actorIterator.next();
         }
-        
+
+        @OnThread(value = Tag.Simulation, ignoreParent = true)
         public boolean hasNext()
         {
             if (actorIterator.hasNext()) {

@@ -32,6 +32,8 @@ import greenfoot.event.WorldListener;
 import greenfoot.gui.WorldCanvas;
 import greenfoot.platforms.SimulationDelegate;
 import greenfoot.util.HDTimer;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -49,6 +51,7 @@ import javax.swing.event.EventListenerList;
  * 
  * @author Poul Henriksen
  */
+@OnThread(Tag.Simulation)
 public class Simulation extends Thread
     implements WorldListener
 {
@@ -170,6 +173,7 @@ public class Simulation extends Thread
     /**
      * Returns the simulation if it is initialised. If not, it will return null.
      */
+    @OnThread(Tag.Any)
     public static Simulation getInstance()
     {
         return instance;
@@ -690,6 +694,7 @@ public class Simulation extends Thread
     /**
      * Pauses and unpauses the simulation.
      */
+    @OnThread(Tag.Any)
     public synchronized void setPaused(boolean b)
     {
         if(paused == b) {
@@ -802,6 +807,7 @@ public class Simulation extends Thread
      * @param l
      *            Listener to add
      */
+    @OnThread(Tag.Any)
     public void addSimulationListener(SimulationListener l)
     {
         synchronized (listenerList) {
@@ -815,6 +821,7 @@ public class Simulation extends Thread
      * @param l
      *            Listener to remove
      */
+    @OnThread(Tag.Any)
     public void removeSimulationListener(SimulationListener l)
     {
         synchronized (listenerList) {
@@ -828,6 +835,7 @@ public class Simulation extends Thread
      * @param speed
      *            The speed in the range (0..100)
      */
+    @OnThread(Tag.Any)
     public void setSpeed(int speed)
     {
         if (speed < 0) {
