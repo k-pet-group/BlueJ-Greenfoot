@@ -50,6 +50,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 
 /**
@@ -58,6 +60,7 @@ import javafx.stage.Stage;
  * @author neil
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 public class SoundRecorderControls extends Stage
 {
     private Player player = new Player();
@@ -234,6 +237,7 @@ public class SoundRecorderControls extends Stage
         private TimerTask repaintWhilePlaying;
         private SoundStream stream;
 
+        @OnThread(Tag.FXPlatform)
         public void act()
         {
             if (playing)
@@ -275,16 +279,19 @@ public class SoundRecorderControls extends Stage
             }
         }
 
+        @OnThread(Tag.Any)
         public void playbackPaused(Sound sound)
         {
             //Shouldn't happen as we don't have a pause button
         }
 
+        @OnThread(Tag.Any)
         public void playbackStarted(Sound sound)
         {
             //Nothing to do
         }
 
+        @OnThread(Tag.Any)
         public void playbackStopped(Sound sound)
         {
             Platform.runLater(() ->
@@ -297,6 +304,7 @@ public class SoundRecorderControls extends Stage
             });
         }
 
+        @OnThread(Tag.Any)
         public void soundClosed(Sound sound)
         {
             // Nothing to do            
@@ -306,6 +314,7 @@ public class SoundRecorderControls extends Stage
     /**
      * A panel for displaying the recorded sound.
      */
+    @OnThread(Tag.FXPlatform)
     private class SoundPanel extends ResizableCanvas
     {
         private SoundPanel()

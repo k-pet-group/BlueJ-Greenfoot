@@ -447,9 +447,11 @@ public class WorldHandler
     }
 
     @Override
+    @OnThread(Tag.Swing)
     public void keyTyped(KeyEvent e) {}
 
     @Override
+    @OnThread(Tag.Swing)
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             if (dragActor != null) {
@@ -472,6 +474,7 @@ public class WorldHandler
     }
 
     @Override
+    @OnThread(Tag.Swing)
     public void keyReleased(KeyEvent e)
     {
         //TODO: is this really necessary?
@@ -893,6 +896,7 @@ public class WorldHandler
         }
     }
 
+    @OnThread(Tag.Simulation)
     public void simulationChanged(SimulationEvent e)
     {
         if (e.getType() == SimulationEvent.NEW_ACT_ROUND) {

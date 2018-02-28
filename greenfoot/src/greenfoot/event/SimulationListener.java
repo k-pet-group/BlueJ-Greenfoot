@@ -21,6 +21,9 @@
  */
 package greenfoot.event;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.util.EventListener;
 
 /**
@@ -38,5 +41,6 @@ public interface SimulationListener
      * The simulation state changed or a simulation event occurred. The simulation may have
      * stopped, started, changed enabled state, begun a new act round, etc.
      */
+    @OnThread(Tag.Simulation)
     public void simulationChanged(SimulationEvent e);
 }

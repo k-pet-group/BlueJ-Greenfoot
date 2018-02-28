@@ -34,6 +34,8 @@ import javax.swing.ImageIcon;
 
 import bluej.Config;
 import bluej.utility.Debug;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Action to reset the world (initialise and show a new world).
@@ -97,6 +99,7 @@ public class ResetWorldAction extends AbstractAction implements SimulationListen
     /**
      * Observing for the simulation state so we can dis/en-able us appropiately
      */
+    @OnThread(Tag.Simulation)
     public void simulationChanged(final SimulationEvent e)
     {
         int eventType = e.getType();

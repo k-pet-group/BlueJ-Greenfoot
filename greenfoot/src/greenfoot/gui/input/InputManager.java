@@ -37,6 +37,8 @@ import greenfoot.gui.input.states.IdleState;
 import greenfoot.gui.input.states.MoveState;
 import greenfoot.gui.input.states.RunningState;
 import greenfoot.gui.input.states.State;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.awt.EventQueue;
 import java.awt.event.KeyEvent;
@@ -183,6 +185,7 @@ public class InputManager
     /**
      * Used for changing between running and stopped state.
      */
+    @OnThread(Tag.Simulation)
     public void simulationChanged(final SimulationEvent e)
     {
         // Simulation events occur on the simulation thread.

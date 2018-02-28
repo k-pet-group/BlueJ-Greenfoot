@@ -22,6 +22,8 @@
 package greenfoot.gui.input;
 
 import greenfoot.event.TriggeredKeyListener;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.awt.Toolkit;
 import java.awt.event.FocusEvent;
@@ -184,6 +186,7 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
     /**
      * Get the last key pressed, as a String key name identifying the key.
      */
+    @OnThread(Tag.Simulation)
     public synchronized String getKey()
     {
         String r = lastKeyTyped;
@@ -199,6 +202,7 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
      * @return        True if the key is currently down, or was down since
      *                it was last checked; false otherwise.
      */
+    @OnThread(Tag.Simulation)
     public synchronized boolean isKeyDown(int keycode)
     {
         if (keycode < numKeys) {
@@ -219,6 +223,7 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
      * @return       True if the key is down, or was down since it was
      *               last checked; false otherwise.
      */
+    @OnThread(Tag.Simulation)
     public boolean isKeyDown(String keyId)
     {
         Integer code = keyCodeMap.get(keyId.toLowerCase());

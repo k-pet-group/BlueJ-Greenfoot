@@ -35,6 +35,8 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.List;
 
@@ -130,6 +132,7 @@ class LocalGClassNode extends GClassNode implements TargetListener
      * @param display The ClassDisplay we are showing the menu on.
      * @param e The event that triggered the showing.
      */
+    @OnThread(Tag.FXPlatform)
     private void showContextMenu(GreenfootStage greenfootStage, ClassDisplay display, ContextMenuEvent e)
     {
         if (curContextMenu != null)

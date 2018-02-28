@@ -30,6 +30,8 @@ import greenfoot.gui.input.mouse.MouseEventData;
 import java.awt.event.MouseEvent;
 
 import bluej.Config;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * There are two ways that the mouse can be handled in Greenfoot. One is the
@@ -215,6 +217,7 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
      * @param obj Typically one of Actor, World or null
      * @return True if the mouse has been pressed as explained above
      */
+    @OnThread(Tag.Simulation)
     public boolean isMousePressed(Object obj)
     {
         return currentData.isMousePressed(obj);
@@ -233,6 +236,7 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
      * @param obj Typically one of Actor, World or null
      * @return True if the mouse has been clicked as explained above
      */
+    @OnThread(Tag.Simulation)
     public boolean isMouseClicked(Object obj)
     {
         return currentData.isMouseClicked(obj);
@@ -254,6 +258,7 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
      * @param obj Typically one of Actor, World or null
      * @return True if the mouse has been pressed as explained above
      */
+    @OnThread(Tag.Simulation)
     public boolean isMouseDragged(Object obj)
     {
         return currentData.isMouseDragged(obj);
@@ -275,6 +280,7 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
      * @param obj Typically one of Actor, World or null
      * @return True if the mouse has been pressed as explained above
      */
+    @OnThread(Tag.Simulation)
     public boolean isMouseDragEnded(Object obj)
     {
         return currentData.isMouseDragEnded(obj);
@@ -296,6 +302,7 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
      * @param obj Typically one of Actor, World or null
      * @return True if the mouse has been moved as explained above
      */
+    @OnThread(Tag.Simulation)
     public boolean isMouseMoved(Object obj)
     {
         return currentData.isMouseMoved(obj);
@@ -309,6 +316,7 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
      * @return The info about the current state of the mouse; Null if the mouse is outside
      *         the world boundaries (unless being dragged).
      */
+    @OnThread(Tag.Simulation)
     public MouseInfo getMouseInfo()
     {
         return currentData.getMouseInfo();

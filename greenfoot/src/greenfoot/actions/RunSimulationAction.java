@@ -34,6 +34,8 @@ import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
 import bluej.utility.Debug;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * An action to run the simulation.
@@ -101,6 +103,7 @@ public class RunSimulationAction extends AbstractAction
     /**
      * Observing for the simulation state so we can dis/en-able us appropiately
      */
+    @OnThread(Tag.Simulation)
     public void simulationChanged(final SimulationEvent e)
     {
         int eventType = e.getType();
