@@ -114,7 +114,7 @@ class ImageLibPane extends VBox
      * @param container         The contained window
      * @param project           The current project
      * @param specifiedImage    The image to be selected initially
-     * @param selectionWatcher  The image selection watcher
+     * @param watcher           The image selection watcher
      */
     private ImageLibPane(Window container, Project project, File specifiedImage, ImageSelectionWatcher watcher)
     {
