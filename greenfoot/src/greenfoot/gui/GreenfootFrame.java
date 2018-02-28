@@ -234,8 +234,7 @@ public class GreenfootFrame extends JFrame
     private Application prepareMacOSApp()
     {
         if (Config.isMacOS()) {
-            Application macApp = Application.getApplication();
-            macApp.setAboutHandler(e -> AboutGreenfootAction.getInstance(GreenfootFrame.this).actionPerformed(null));                    
+            Application macApp = Application.getApplication();                    
             macApp.setQuitHandler((e, response) -> exit()); // response.confirmQuit() does not need to be called, since System.exit(0) is called explicitly
             return macApp;
         }
@@ -600,23 +599,6 @@ public class GreenfootFrame extends JFrame
             scenarioMenu.addSeparator();
             addMenuItem(QuitAction.getInstance(), scenarioMenu, KeyEvent.VK_Q, false, KeyEvent.VK_Q);
         }
-        
-        JMenu helpMenu = addMenu(Config.getString("menu.help"), menuBar, 'h');
-        
-        if(! Config.isMacOS()) {
-            addMenuItem(AboutGreenfootAction.getInstance(this), helpMenu, -1, false, KeyEvent.VK_A);
-        }
-        addMenuItem(ShowCopyrightAction.getInstance(this), helpMenu, -1, false, -1);
-        helpMenu.addSeparator();
-        addMenuItem(new ShowApiDocAction(Config.getString("menu.help.classDoc")), helpMenu, -1, false, -1);
-        addMenuItem(new ShowWebsiteAction(Config.getString("menu.help.javadoc"), Config.getPropString("greenfoot.url.javaStdLib")), helpMenu, -1, false, -1);
-        helpMenu.addSeparator();
-        addMenuItem(new ShowWebsiteAction(Config.getString("menu.help.tutorial"), Config.getPropString("greenfoot.url.tutorial")), helpMenu, -1, false, -1);
-        addMenuItem(new ShowWebsiteAction(Config.getString("menu.help.website"), Config.getPropString("greenfoot.url.greenfoot")), helpMenu, -1, false, -1);
-        addMenuItem(new ShowWebsiteAction(Config.getString("menu.help.moreScenarios"), Config.getPropString("greenfoot.url.scenarios")), helpMenu, -1, false, -1);
-        helpMenu.addSeparator();
-        addMenuItem(new ShowWebsiteAction(Config.getPropString("greenfoot.gameserver.name"), Config.getPropString("greenfoot.gameserver.address")), helpMenu, -1, false, -1);
-        addMenuItem(new ShowWebsiteAction(Config.getString("menu.help.discuss"), Config.getPropString("greenfoot.url.discuss")), helpMenu, -1, false, -1);
         
         return menuBar;
     }
