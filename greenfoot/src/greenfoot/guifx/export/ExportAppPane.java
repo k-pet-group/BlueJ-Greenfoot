@@ -46,9 +46,6 @@ public class ExportAppPane extends ExportPane
 {
     public static final String FUNCTION = "APP";
     
-    private static final String helpLine1 = Config.getString("export.app.help");
-    private static final String exportLocationLabelText = Config.getString("export.app.location");
-
     private final Window parent;
     private TextField targetDirField;
     
@@ -82,14 +79,14 @@ public class ExportAppPane extends ExportPane
      */
     private void makePane(final File targetFile)
     {
-        Label exportLocationLabel = new Label(exportLocationLabelText);
+        Label exportLocationLabel = new Label(Config.getString("export.app.location"));
 
         targetDirField = new TextField(targetFile.toString());
         targetDirField.setPrefColumnCount(26);
         targetDirField.setEditable(false);
 
         Button browse = new Button(Config.getString("export.app.browse"));
-        browse.setOnAction(event -> getFileName(targetFile));
+        browse.setOnAction(event -> targetDirField.setText(askForFileName(targetFile)));
 
         HBox exportLocationPane = new HBox(exportLocationLabel, targetDirField, browse);
         // exportLocationPane.setBackground(backgroundColor);
@@ -99,8 +96,8 @@ public class ExportAppPane extends ExportPane
         inputPane.setAlignment(Pos.BASELINE_LEFT);
         // inputPane.setBackground(backgroundColor);
 
-        Label helpText1 = new Label(helpLine1);
-        VBox mainPane = new VBox(helpText1, inputPane);
+        Label helpLabel = new Label(Config.getString("export.app.help"));
+        VBox mainPane = new VBox(helpLabel, inputPane);
         setContent(mainPane);
     }
     
@@ -110,37 +107,42 @@ public class ExportAppPane extends ExportPane
      *
      * @param targetFile  The initial target file that will be export to.
      */
-    private void getFileName(File targetFile)
+    private String askForFileName(File targetFile)
     {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(Config.getString("export.app.choose"));
         fileChooser.setInitialDirectory(targetFile.getParentFile());
-        File file = fileChooser.showOpenDialog(parent);
-        if(file != null)
+        File file = fileChooser.showSaveDialog(parent);
+        if (file == null)
         {
-            String newName = file.getPath();
-            if(!newName.endsWith(".jar"))
-            {
-                if(newName.toLowerCase().endsWith(".jar"))
-                {
-                    // This means there is .jar but has capital letters, so get rid of
-                    // it to be replaced with the proper small letters extension.
-                    newName = newName.substring(0, newName.length()-".jar".length());
-                }
-                newName += ".jar";
-            }
-            targetDirField.setText(newName);
-            if (file.exists())
-            {
+            // The user canceled the file chooser dialog.
+            return "";
+        }
 
-                boolean overwrite = DialogManager.askQuestionFX(parent, "file-exists-overwrite",
-                        new String[] {newName}) == 0;
-                if (!overwrite)
-                {
-                    getFileName(targetFile);
-                }
+        String newName = file.getPath();
+        if (!newName.endsWith(".jar"))
+        {
+            if (newName.toLowerCase().endsWith(".jar"))
+            {
+                // This means there is .jar but has capital letters, so get rid of
+                // it to be replaced with the proper small letters extension.
+                newName = newName.substring(0, newName.length()-".jar".length());
+            }
+            newName += ".jar";
+        }
+        if (file.exists())
+        {
+
+            boolean overwrite = DialogManager.askQuestionFX(parent, "file-exists-overwrite",
+                    new String[] {newName}) == 0;
+            if (!overwrite)
+            {
+                // The user didn't accept to overwrite the file,
+                // so re-ask them to choose a file.
+                return askForFileName(targetFile);
             }
         }
+        return newName;
     }
 
     @Override
