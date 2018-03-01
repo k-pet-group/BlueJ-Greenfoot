@@ -3,6 +3,7 @@
     -fx-stroke-width: 1;
     -fx-fill: null;
 }
+
 .class-display {
     /* Match size of selected border: */
     -fx-border-width: 1, 2;
@@ -21,11 +22,17 @@
     -fx-padding: 4px 7px 4px 7px;
     -fx-background-insets: 4px 7px 4px 7px;
 }
+
 .class-diagram {
     -fx-padding: 5px;
 }
+
 .import-class-dialog .class-group {
     -fx-border-color: gray;
     -fx-border-width: 1;
     -fx-border-style: solid inside;
+}
+
+.export-pane {
+    -fx-background-color: rgb(220, 220, 220);
 }
