@@ -52,7 +52,7 @@ public class ExportWebPagePane extends ExportPane
     /** 
      * Create a an export pane for export to web pages.
      *
-     * @param parent            The parent window if this pane
+     * @param parent            The parent window of the contained dialog
      * @param scenarioName      The name of the scenario to be shared.
      * @param defaultExportDir  The default directory to select from.
      */
