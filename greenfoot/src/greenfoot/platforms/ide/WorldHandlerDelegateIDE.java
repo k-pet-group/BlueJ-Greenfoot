@@ -160,7 +160,6 @@ public class WorldHandlerDelegateIDE
         }
 
         frame.updateBackgroundMessage();
-        frame.beginExecution();
 
         final Class<? extends World> icls = cls;
         Simulation.getInstance().runLater(() -> {
@@ -202,7 +201,6 @@ public class WorldHandlerDelegateIDE
             }
             EventQueue.invokeLater(() -> {
                 worldInitialising = false;
-                frame.endExecution();
             });
         });
     }
