@@ -128,7 +128,7 @@ public class NewImageDialog extends FXCustomizedDialog<File>
         File file = new File(projImagesDir, name.getText() + ".png");
         if (file.exists())
         {
-            boolean overwrite = DialogManager.askQuestionFX(this.asWindow(), "imagelib-write-exists", new String[] {file.getName()}) == 0;
+            boolean overwrite = DialogManager.askQuestionFX(this.asWindow(), "file-exists-overwrite", new String[] {file.getName()}) == 0;
             return overwrite && writeImageAndEdit(file) ? file : null;
         }
         return writeImageAndEdit(file) ? file : null;
