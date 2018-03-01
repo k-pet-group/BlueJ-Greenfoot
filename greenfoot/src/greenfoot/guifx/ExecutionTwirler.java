@@ -14,12 +14,23 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 
+/**
+ * The execution twirler component.  This shows up if the user code has been running for too
+ * long in any given segment (single act cycle, single user invocation), and allows the user
+ * to easily open the debugger or restart the VM.
+ */
 public class ExecutionTwirler extends MenuButton
 {
+    // The animation to spin the twirl icon:
     private final RotateTransition rotateTransition;
     private Project project;
     private GreenfootDebugHandler greenfootDebugHandler;
 
+    /**
+     * Create the component
+     * @param project The associated project (needed to access the debugger)
+     * @param greenfootDebugHandler The debug handler for the project
+     */
     public ExecutionTwirler(Project project, GreenfootDebugHandler greenfootDebugHandler)
     {
         this.project = project;
@@ -39,7 +50,8 @@ public class ExecutionTwirler extends MenuButton
         setVisible(false);
         
         setPopupSide(Side.BOTTOM);
-        // Important to use fields here, not constructor parameters, as fields may change later:
+        // Important to use fields here, not constructor parameters, as the fields may change later
+        // if the project shown in this window changes:
         getItems().setAll(
             JavaFXUtil.makeMenuItem(Config.getString("executionDisplay.restart"), () -> this.project.restartVM(), null),
             JavaFXUtil.makeMenuItem(Config.getString("executionDisplay.openDebugger"), () -> {
@@ -49,19 +61,28 @@ public class ExecutionTwirler extends MenuButton
         );
     }
 
+    /**
+     * Sets a new project (and project debug handler) for this component
+     */
     public void setProject(Project project, GreenfootDebugHandler greenfootDebugHandler)
     {
         this.project = project;
         this.greenfootDebugHandler = greenfootDebugHandler;
     }
-    
-    public void show()
+
+    /**
+     * Make the twirler visible and start spinning the icon.  Does nothing if already started.
+     */
+    public void startTwirling()
     {
         setVisible(true);
         rotateTransition.playFromStart();
     }
-    
-    public void hide()
+
+    /**
+     * Make the twirler invisible and stop spinning the icon.  Does nothing if already stopped.
+     */
+    public void stopTwirling()
     {
         setVisible(false);
         rotateTransition.stop();
