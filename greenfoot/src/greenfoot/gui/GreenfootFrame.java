@@ -359,15 +359,11 @@ public class GreenfootFrame extends JFrame
                     // New act round - will be followed by another NEW_ACT_ROUND event if the simulation
                     // is running, or a STOPPED event if the act round finishes and the simulation goes
                     // back to the stopped state.
-                    EventQueue.invokeLater(() -> {
-                        resetExecutionTimer();
-                    });
+                    worldCanvas.userCodeStarting();
                 }
                 else if (e.getType() == SimulationEvent.STOPPED
                         || e.getType() == SimulationEvent.QUEUED_TASK_END) {
-                    EventQueue.invokeLater(() -> {
-                        stopExecutionTimer();
-                    });
+                    worldCanvas.userCodeStopped();
                 }
             }
         });

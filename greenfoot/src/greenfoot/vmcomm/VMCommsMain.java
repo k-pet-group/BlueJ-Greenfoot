@@ -203,6 +203,11 @@ public class VMCommsMain implements Closeable
                     stage.bringTerminalToFront();
                     previousStoppedWithErrorCount = latestStoppedWithErrorCount;
                 }
+                
+                int highTime = sharedMemory.get();
+                int lowTime = sharedMemory.get();
+                long lastExecStartTime = (((long)highTime) << 32) | ((long)lowTime & 0xFFFFFFFFL);
+                stage.setLastUserExecutionStartTime(lastExecStartTime);
 
                 int askId = sharedMemory.get();
                 if (askId >= 0 && askId > lastAnswer)

@@ -30,6 +30,7 @@ import greenfoot.event.SimulationListener;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
 import greenfoot.gui.WorldCanvas;
+import greenfoot.gui.WorldCanvas.PaintWhen;
 import greenfoot.platforms.SimulationDelegate;
 import greenfoot.util.HDTimer;
 import threadchecker.OnThread;
@@ -638,7 +639,7 @@ public class Simulation extends Thread
     protected void paintRemote(boolean forcePaint)
     {
         WorldCanvas wcanvas = WorldHandler.getInstance().getWorldCanvas();
-        wcanvas.paintRemote(forcePaint, -1, null);
+        wcanvas.paintRemote(forcePaint ? PaintWhen.FORCE : PaintWhen.IF_DUE, -1, null);
     }
 
     /**
