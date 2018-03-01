@@ -162,7 +162,6 @@ export.noworld.dialog.title=Error: No world class found.
 export.noworld.dialog.msg=No world class could be found in the scenario. To export, a subclass of World is required.
 export.noconstructor.dialog.title=Error: No suitable constructor
 export.noconstructor.dialog.msg=The world class has no default constructor. To export, a zero-argument constructor is required.
-export.fileExists.message=already exists. Overwrite?
 
 publish.event.error=Error:
 publish.event.status=Status:

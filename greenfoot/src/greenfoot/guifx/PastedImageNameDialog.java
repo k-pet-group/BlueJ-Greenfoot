@@ -112,7 +112,7 @@ public class PastedImageNameDialog extends FXCustomizedDialog<File>
         File file = new File(projImagesDir, fileNameField.getText() + ".png");
         if (file.exists())
         {
-            boolean overwrite = DialogManager.askQuestionFX(this.asWindow(), "imagelib-write-exists", new String[] {file.getName()}) == 0;
+            boolean overwrite = DialogManager.askQuestionFX(this.asWindow(), "file-exists-overwrite", new String[] {file.getName()}) == 0;
             return overwrite && writeImage(file) ? file : null;
         }
         return writeImage(file) ? file : null;
