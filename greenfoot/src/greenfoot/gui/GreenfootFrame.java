@@ -105,7 +105,6 @@ public class GreenfootFrame extends JFrame
     
     private SaveProjectAction saveProjectAction;
     private ShowReadMeAction showReadMeAction;
-    private CloseProjectAction closeProjectAction;
     
     /**
      * Specifies whether a compilation operation is in progress
@@ -558,7 +557,6 @@ public class GreenfootFrame extends JFrame
     {
         saveProjectAction = new SaveProjectAction(this);
         showReadMeAction = new ShowReadMeAction(this);
-        closeProjectAction = new CloseProjectAction(this);
     }
     
     /**
@@ -575,15 +573,9 @@ public class GreenfootFrame extends JFrame
         scenarioMenu.add(recentProjectsMenu);
         updateRecentProjects(classStateManager);
         
-        addMenuItem(closeProjectAction, scenarioMenu, KeyEvent.VK_W, false, KeyEvent.VK_C);
         addMenuItem(saveProjectAction, scenarioMenu, KeyEvent.VK_S, false, KeyEvent.VK_S);
         scenarioMenu.addSeparator();
         addMenuItem(showReadMeAction, scenarioMenu, -1, false, -1);
-
-        if(! Config.isMacOS()) {
-            scenarioMenu.addSeparator();
-            addMenuItem(QuitAction.getInstance(), scenarioMenu, KeyEvent.VK_Q, false, KeyEvent.VK_Q);
-        }
         
         return menuBar;
     }
@@ -652,7 +644,6 @@ public class GreenfootFrame extends JFrame
     {
         boolean state = (project != null);
     
-        closeProjectAction.setEnabled(state);
         saveProjectAction.setEnabled(state);
         showReadMeAction.setEnabled(state);
 
