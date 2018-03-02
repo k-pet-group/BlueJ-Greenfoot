@@ -173,7 +173,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private final BooleanBinding runPauseDisabled = runDisabled.and(pauseDisabled);;
     
     private boolean instantiateWorldAfterDiscarded;
-    
+    private final ExecutionTwirler executionTwirler;
+
     public static enum State
     {
         RUNNING, RUNNING_REQUESTED_PAUSE, PAUSED, PAUSED_REQUESTED_ACT_OR_RUN, UNCOMPILED, NO_PROJECT;
@@ -283,7 +284,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         speedSlider.setBlockIncrement(20);
         speedSlider.setTooltip(new Tooltip(Config.getString("controls.speedSlider.tooltip")));
         speedSlider.setFocusTraversable(false);
-        Node buttonAndSpeedPanel = new HBox(actButton, runButton, resetButton, speedLabel, speedSlider);
+        executionTwirler = new ExecutionTwirler(project, greenfootDebugHandler);
+        Node buttonAndSpeedPanel = new HBox(actButton, runButton, resetButton, speedLabel, speedSlider, executionTwirler);
         actButton.setOnAction(e -> act());
         runButton.setOnAction(e -> doRunPause());
         resetButton.setOnAction(e -> doReset());
@@ -369,6 +371,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         
         classDiagram.setProject(project);
         soundRecorder.setProject(project);
+        executionTwirler.setProject(project, greenfootDebugHandler);
 
         setupWorldDrawingAndEvents();
         loadAndMirrorProperties();
