@@ -32,6 +32,7 @@ import greenfoot.core.WorldHandler;
 import greenfoot.event.SimulationUIListener;
 import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.WorldCanvas;
+import greenfoot.gui.WorldCanvas.PaintWhen;
 import greenfoot.gui.input.InputManager;
 import greenfoot.platforms.WorldHandlerDelegate;
 import greenfoot.record.GreenfootRecorder;
@@ -159,7 +160,6 @@ public class WorldHandlerDelegateIDE
         }
 
         frame.updateBackgroundMessage();
-        frame.beginExecution();
 
         final Class<? extends World> icls = cls;
         Simulation.getInstance().runLater(() -> {
@@ -201,7 +201,6 @@ public class WorldHandlerDelegateIDE
             }
             EventQueue.invokeLater(() -> {
                 worldInitialising = false;
-                frame.endExecution();
             });
         });
     }
@@ -372,7 +371,7 @@ public class WorldHandlerDelegateIDE
         // but that is the semantics of Greenfoot.ask so it's fine:
         while (true)
         {
-            String answer = worldCanvas.paintRemote(true, askId, prompt);
+            String answer = worldCanvas.paintRemote(PaintWhen.NO_PAINT, askId, prompt);
             if (answer != null)
             {
                 return answer;

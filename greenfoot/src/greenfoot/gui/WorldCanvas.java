@@ -120,9 +120,12 @@ public class WorldCanvas extends JPanel
      *        integer, in BGRA form, i.e. blue is highest 8 bits, alpha is lowest.
      * Pos 4+(W*H): Sequence ID of most recently processed command, or -1 if N/A.
      * Pos 5+(W*H): Stopped-with-error count.  (If this goes up, server VM will bring terminal to front)
-     * Pos 6+(W*H): -1 if not currently awaiting a Greenfoot.ask() answer.
+     * Pos 6+(W*H) and 7+(W*H): Two ints (highest bits first) with value of System.currentTimeMillis()
+     *                          at the point when some execution that may contain user code last started on
+     *                          the simulation thread, or 0L if user code is not currently running.
+     * Pos 8+(W*H): -1 if not currently awaiting a Greenfoot.ask() answer.
      *              If awaiting, it is count (P) of following codepoints which make up prompt.
-     * Pos 7+(W*H) to 6+(W*H)+P excl: codepoints making up ask prompt.
+     * Pos 9+(W*H) to 6+(W*H)+P excl: codepoints making up ask prompt.
      *
      * When negative frame counter in position 1, interpret rest as follows:
      * Pos 2: Count of commands (C), can be zero
@@ -142,6 +145,8 @@ public class WorldCanvas extends JPanel
     // How many times have we stopped with an error?  We continously send the count to the
     // server VM, so that the server VM can observe changes in the count (only ever increases).
     private int stoppedWithErrorCount = 0;
+    // When did user code last start?
+    private long startOfCurExecution = 0;
 
     /**
      * @param world The world which we are the canvas for.
@@ -302,28 +307,31 @@ public class WorldCanvas extends JPanel
             e.printStackTrace();
         }
     }
+    
+    public static enum PaintWhen { FORCE, IF_DUE, NO_PAINT}
 
     /**
      * Paints the current world into the shared memory buffer so that the server VM can
      * display it in the window there.
      *
-     * @param forcePaint Always paint.  If false, painting may be skipped if it's close to a recent paint.
+     * @param paintWhen  If IF_DUE, painting may be skipped if it's close to a recent paint.
+     *                   FORCE always paints, NO_PAINT never paints (but always sends other info) 
      * @param askId If non-negative, an ID for the ask request to pass to the server VM
      * @param askPrompt If askId is non-negative, a prompt for answer from Greenfoot.ask().
      * @return Answer from Greenfoot.ask() if available, null otherwise
      */
     @OnThread(Tag.Simulation)
-    public String paintRemote(boolean forcePaint, int askId, String askPrompt)
+    public String paintRemote(PaintWhen paintWhen, int askId, String askPrompt)
     {
         long now = System.nanoTime();
-        if (!forcePaint && now - lastPaintNanos <= 8_333_333L)
+        if (paintWhen == PaintWhen.IF_DUE && now - lastPaintNanos <= 8_333_333L)
         {
             return null; // No need to draw frame if less than 1/120th of sec between them
         }
         lastPaintNanos = now;
 
         BufferedImage img = null;        
-        if (world != null)
+        if (paintWhen != PaintWhen.NO_PAINT && world != null)
         {
             img = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_BGR);
             Graphics2D g2 = (Graphics2D)img.getGraphics();
@@ -339,6 +347,7 @@ public class WorldCanvas extends JPanel
         if (!sending)
         {
             sending = true;
+            // Call this outside the lock to avoid holding lock any longer than we have to:
             int [] raw = img == null ? null : ((DataBufferInt) img.getData().getDataBuffer()).getData();
             try (FileLock fileLock = shmFileChannel.lock())
             {
@@ -355,7 +364,7 @@ public class WorldCanvas extends JPanel
                 sharedMemory.position(1);
                 sharedMemory.put(this.seq++);
                 // If there's no world, we must send an empty image:
-                if (world == null)
+                if (world == null || img == null)
                 {
                     sharedMemory.put(0);
                     sharedMemory.put(0);
@@ -371,6 +380,8 @@ public class WorldCanvas extends JPanel
                 }
                 sharedMemory.put(lastAckCommand);
                 sharedMemory.put(stoppedWithErrorCount);
+                sharedMemory.put((int)(startOfCurExecution >> 32));
+                sharedMemory.put((int)(startOfCurExecution & 0xFFFFFFFFL));
                 // If not asking, put -1
                 if (askPrompt == null || answer[0] != null)
                 {
@@ -472,14 +483,14 @@ public class WorldCanvas extends JPanel
                         // We may be able to remove this after the FX rewrite is complete:
                         Simulation.getInstance().runLater(() -> {
                             WorldHandler.getInstance().instantiateNewWorld();
-                            paintRemote(true, -1, null);
+                            paintRemote(PaintWhen.FORCE, -1, null);
                         });
                         break;
                     case Command.COMMAND_DISCARD_WORLD:
                         // See comment for RESET
                         Simulation.getInstance().runLater(() -> {
                             WorldHandler.getInstance().discardWorld();
-                            paintRemote(true, -1, null);
+                            paintRemote(PaintWhen.FORCE, -1, null);
                         });
                         break;
                     case Command.COMMAND_CONTINUE_DRAG:
@@ -706,8 +717,38 @@ public class WorldCanvas extends JPanel
     /**
      * The simulation thread has stopped with an error; need to let the server VM know. 
      */
+    @OnThread(Tag.Simulation)
     public void notifyStoppedWithError()
     {
         stoppedWithErrorCount += 1;
+        paintRemote(PaintWhen.NO_PAINT, -1, null);
+    }
+
+    /**
+     * User code has begun executing.  Note this in the shared memory area so that the server VM can know.
+     */
+    @OnThread(Tag.Simulation)
+    public void userCodeStarting()
+    {
+        // If the other side already think we're running, not much cause to update them, so
+        // only bother if we've already been going for over a second:
+        long now = System.currentTimeMillis();
+        boolean recentlyRunning = now - startOfCurExecution < 1000L;
+        startOfCurExecution = now;
+        if (!recentlyRunning)
+        {
+            paintRemote(PaintWhen.NO_PAINT, -1, null);
+        }
+    }
+
+    /**
+     * User code has finished executing.  Note this in the shared memory area so that the server VM can know.
+     * Each userCodeStopped() event should follow one call to userCodeStarting().
+     */
+    @OnThread(Tag.Simulation)
+    public void userCodeStopped()
+    {
+        startOfCurExecution = 0L;
+        paintRemote(PaintWhen.NO_PAINT, -1, null);
     }
 }

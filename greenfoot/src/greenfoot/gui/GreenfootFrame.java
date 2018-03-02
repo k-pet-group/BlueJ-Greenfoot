@@ -102,20 +102,10 @@ public class GreenfootFrame extends JFrame
     private JButton tooLongRestartButton;
     private CardLayout card;
     private DBox worldBox;
-    private ExecutionTwirler executionTwirler;
     
     private SaveProjectAction saveProjectAction;
     private ShowReadMeAction showReadMeAction;
     private CloseProjectAction closeProjectAction;
-
-    // "Watchdog": make sure user code (world initialisation etc) doesn't stall for too long
-    private Timer timer;
-    private final static int EXECUTION_TIMEOUT = 4000;
-    private long startedInitialisingAt;
-    
-    // Count of things we are executing for user (ideally is only 0 or 1).
-    // Includes world instantiation, interactive method/constructor calls, act rounds
-    private int executionCount;
     
     /**
      * Specifies whether a compilation operation is in progress
@@ -359,15 +349,11 @@ public class GreenfootFrame extends JFrame
                     // New act round - will be followed by another NEW_ACT_ROUND event if the simulation
                     // is running, or a STOPPED event if the act round finishes and the simulation goes
                     // back to the stopped state.
-                    EventQueue.invokeLater(() -> {
-                        resetExecutionTimer();
-                    });
+                    worldCanvas.userCodeStarting();
                 }
                 else if (e.getType() == SimulationEvent.STOPPED
                         || e.getType() == SimulationEvent.QUEUED_TASK_END) {
-                    EventQueue.invokeLater(() -> {
-                        stopExecutionTimer();
-                    });
+                    worldCanvas.userCodeStopped();
                 }
             }
         });
@@ -460,14 +446,10 @@ public class GreenfootFrame extends JFrame
         // Execution control
         
         JPanel executionControl = new JPanel();
-        executionTwirler = new ExecutionTwirler(this);
-        executionTwirler.setEnabled(false);
-        executionControl.add(executionTwirler);
         Dimension d = executionControl.getPreferredSize();
         d.width = 100;
         executionControl.setPreferredSize(d);
         executionControl.setMaximumSize(d);
-        executionTwirler.setVisible(false);
         
         // the control panel
         
@@ -802,20 +784,6 @@ public class GreenfootFrame extends JFrame
                     message = Config.getString("centrePanel.message.error1");
                     message2 = Config.getString("centrePanel.message.error2");
                 }
-                else if (initialisingForTooLong()) {
-                    if (this.isFocused()) {
-                        message = Config.getString("centrePanel.message.initialisingTooLong1");
-                        message2 = Config.getString("centrePanel.message.initialisingTooLong2");
-                        tooLongRestartButton.setVisible(true);
-                    }
-                    else {
-                        // "Click this window to create the world". This is currently only displayed
-                        // in the rare case that Greenfoot was started with no compilable world,
-                        // and the user has then edited the world class to make it compilable (but
-                        // has not yet focused the main window).
-                        message = Config.getString("centrePanel.message.notFocused");
-                    }
-                }
                 else if (worldHandlerDelegate.initialising()) {
                     message = Config.getString("centrePanel.message.initialising");
                 }
@@ -833,69 +801,6 @@ public class GreenfootFrame extends JFrame
         }
         messageLabel.setText(message);
         messageLabel2.setText(message2);
-    }
-        
-    /**
-     * Mark the beginning of user code execution - world instantiation, interactive call, act round
-     */
-    public void beginExecution()
-    {
-        if (executionCount == 0) {
-            resetExecutionTimer(); // Start timer for this execution
-        }
-        executionCount++;
-    }
-    
-    /**
-     * Mark the end of a user code execution
-     */
-    public void endExecution()
-    {
-        if (--executionCount == 0) {
-            stopExecutionTimer();
-        }
-    }
-    
-    /**
-     * Reset/restart the execution watchdog timer. Once it times out, the "execution twirler"
-     * will be enabled and (potentially) a message will be displayed in the world background.
-     */
-    public void resetExecutionTimer()
-    {
-        startedInitialisingAt = System.currentTimeMillis();
-        if (timer == null) {
-            timer = new Timer(EXECUTION_TIMEOUT, new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    updateBackgroundMessage();
-                    executionTwirler.setEnabled(true);
-                    executionTwirler.setVisible(true);
-                }
-            });
-            timer.setRepeats(false);
-        }
-        
-        timer.restart();
-    }
-    
-    /**
-     * Stop the execution watchdog timer.
-     */
-    public void stopExecutionTimer()
-    {
-        timer.stop();
-        executionTwirler.setEnabled(false);
-        executionTwirler.setVisible(false);
-    }
-
-    /**
-     * Returns true if the world is currently initialising, and has gone behind its timeout
-     */
-    public boolean initialisingForTooLong()
-    {
-        return worldHandlerDelegate.initialising()
-                && System.currentTimeMillis() > startedInitialisingAt + EXECUTION_TIMEOUT;
     }
     
     // ----------- CompileListener interface -----------

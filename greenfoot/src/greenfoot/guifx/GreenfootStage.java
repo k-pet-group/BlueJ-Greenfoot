@@ -123,6 +123,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.util.Duration;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -174,6 +175,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     
     private boolean instantiateWorldAfterDiscarded;
     private final ExecutionTwirler executionTwirler;
+    // When did the user code last start executing?
+    private long lastExecStartTime;
 
     public static enum State
     {
@@ -2047,5 +2050,37 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             return true;
         }
         return false;
+    }
+
+    /**
+     * Record the last time (from System.currentTimeMillis) that the user code started executing.
+     * If enough time has passed then show the execution twirler.
+     * @param lastExecStartTime The last time the user code started executing, or zero if it has now finished executing.
+     */
+    public void setLastUserExecutionStartTime(long lastExecStartTime)
+    {
+        this.lastExecStartTime = lastExecStartTime;
+        if (lastExecStartTime == 0L)
+        {
+            executionTwirler.stopTwirling();
+        }
+        else
+        {
+            long duration = System.currentTimeMillis() - lastExecStartTime;
+            if (duration < 4000L)
+            {
+                executionTwirler.stopTwirling();
+                JavaFXUtil.runAfter(Duration.millis(4000L - duration), () -> {
+                    if (this.lastExecStartTime == lastExecStartTime)
+                    {
+                        executionTwirler.startTwirling();
+                    }
+                });
+            }
+            else
+            {
+                executionTwirler.startTwirling();
+            }
+        }
     }
 }
