@@ -98,6 +98,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -1244,6 +1245,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                             Menu menu = new Menu(actor.getClassName());
                             ObjectWrapper.createMethodMenuItems(menu.getItems(), project.loadClass(actor.getClassName()), new RecordInvoke(actor), "", true);
                             menu.getItems().add(makeInspectMenuItem(actor));
+                            //add a listener to the action event on the items in the sub-menu to hide the context menus
+                            for (MenuItem menuItem : menu.getItems())
+                            {
+                                menuItem.addEventHandler(ActionEvent.ACTION, e -> hideContextMenu());
+                            }
 
                             MenuItem removeItem = new MenuItem(Config.getString("world.handlerDelegate.remove"));
                             JavaFXUtil.addStyleClass(removeItem, MENU_STYLE_INBUILT);
