@@ -23,7 +23,6 @@ package greenfoot.core;
 
 import bluej.Boot;
 import bluej.collect.DataSubmissionFailedDialog;
-import greenfoot.event.ActorInstantiationListener;
 import greenfoot.event.CompileListener;
 import greenfoot.event.CompileListenerForwarder;
 import greenfoot.gui.GreenfootFrame;
@@ -57,7 +56,6 @@ import rmiextension.wrappers.event.RApplicationListenerImpl;
 import rmiextension.wrappers.event.RCompileEvent;
 import rmiextension.wrappers.event.RProjectListener;
 import bluej.Config;
-import bluej.debugmgr.CallHistory;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.GreenfootProjectFile;
@@ -128,12 +126,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
     /** The class state manager notifies GClass objects when their compilation state changes */
     private ClassStateManager classStateManager;
-
-    /** Listens for instantiations of Actor objects. */
-    private ActorInstantiationListener instantiationListener;
-
-    /** History of parameters passed to methods. */
-    private CallHistory callHistory = new CallHistory();
 
     /** Filter that matches class files */
     private static FilenameFilter classFilter = new FilenameFilter() {
@@ -231,7 +223,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
                     if (!isStartupProject()) {
                         try {
-                            instantiationListener = new ActorInstantiationListener(WorldHandler.getInstance());
 
                             frame.openProject(project);
                             // bringToFront is done automatically by BlueJ
@@ -517,22 +508,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
             //RProject rproj = rBlueJ.newProject(newFile, wizard, sourceType);
         }
         return null;
-    }
-    
-    /**
-     * Get a reference to the CallHistory instance.
-     */
-    public CallHistory getCallHistory()
-    {
-        return callHistory;
-    }
-
-    /**
-     * Get a reference to the invocation listener.
-     */
-    public ActorInstantiationListener getInvocationListener()
-    {
-        return instantiationListener;
     }
 
     /**
