@@ -324,7 +324,8 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
         }
         else if (e.isHalt() && isSimulationThread(e.getThread()))
         {
-            if (atBreakpoint && e.getBreakpointProperties().get(SIMULATION_THREAD_PAUSED_KEY) != null) {
+            if (atBreakpoint && e.getBreakpointProperties().get(SIMULATION_THREAD_PAUSED_KEY) != null)
+            {
                 // They are going to pause; remove all special breakpoints and set them going
                 // (so that they actually hit the pause):
                 removeSpecialBreakpoints(debugger);
@@ -334,7 +335,9 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
                 }
                 e.getThread().cont();
                 return true;
-            } else if (insideUserCode(stack)) {
+            }
+            else if (insideUserCode(stack))
+            {
                 // They are in an act method, make sure the breakpoints are cleared:
                 
                 // This method can be safely invoked without needing to talk to the worker thread:
@@ -538,7 +541,9 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     public void haltSimulationThread()
     {
         if (simulationThread != null)
+        {
             simulationThread.halt();
+        }
     }
 
 
