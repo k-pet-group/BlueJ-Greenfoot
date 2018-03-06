@@ -33,6 +33,8 @@ import greenfoot.export.mygame.MyGameClient;
 import greenfoot.export.mygame.ScenarioInfo;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -387,17 +389,16 @@ public class ExportPublishPane extends ExportPane
      */
     public List<String> getTags()
     {
-        List<String> tagList = Stream.of(popTags)
+        // Get the pop tags from the selected checkboxes
+        ArrayList<String> tagList = Arrays.stream(popTags)
                 .filter(CheckBox::isSelected)
                 .map(CheckBox::getText)
-                .collect(Collectors.toList());
+                .collect(Collectors.toCollection(ArrayList::new));
 
-        String[] textAreaTags = tagArea.getText().trim().split("\\s");
-        tagList.addAll(Stream.of(textAreaTags)
-                .map(String::trim)
-                .filter(tag -> !tag.equals(""))
-                .collect(Collectors.toList()));
+        // Add text area tags
+        tagList.addAll(Arrays.asList(tagArea.getText().split("\\s+")));
 
+        // Include/Exclude the "with source" tag.
         if(includeSourceCode() && !tagList.contains(WITH_SOURCE_TAG))
         {
             tagList.add(WITH_SOURCE_TAG);
@@ -406,6 +407,7 @@ public class ExportPublishPane extends ExportPane
         {
             tagList.remove(WITH_SOURCE_TAG);
         }
+
         return tagList;
     }
 
