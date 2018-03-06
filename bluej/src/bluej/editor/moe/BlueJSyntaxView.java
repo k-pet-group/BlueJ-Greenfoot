@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2014,2015,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -103,8 +103,11 @@ public class BlueJSyntaxView
     private final BooleanExpression syntaxHighlighting;
     private int imageCacheLineHeight;
     private ReadOnlyDoubleProperty widthProperty; // width of editor view
-    // package-protected:
-    MoeEditorPane editorPane;
+    private MoeEditorPane editorPane;
+    
+    // Draw a "small" version:
+    @OnThread(Tag.FX)
+    private boolean small = false;
 
     /* Scope painting colours */
     /* The following are initialized by resetColors() */
@@ -200,6 +203,14 @@ public class BlueJSyntaxView
             }
         });
     }
+    
+    /**
+     * Get the editor pane that this view is associated with.
+     */
+    public MoeEditorPane getEditorPane()
+    {
+        return editorPane;
+    }
 
     /**
      * Mark the syntax view as being during an update.  Don't forget
@@ -210,7 +221,6 @@ public class BlueJSyntaxView
     {
         this.duringUpdate = duringUpdate;
     }
-
 
     /**
      * Gets the syntax token styles for a given line of code.
@@ -250,7 +260,7 @@ public class BlueJSyntaxView
         // Subtract 24 which is width of paragraph graphic:
         paintScopeMarkers(pendingScopes,
                 (widthProperty == null || widthProperty.get() == 0) ? 200 : ((int)widthProperty.get() - 24),
-                firstLineIncl, lastLineIncl, false, false);
+                firstLineIncl, lastLineIncl, false);
     }
 
     public Image getImageFor(ScopeInfo s, int lineHeight)
@@ -284,14 +294,17 @@ public class BlueJSyntaxView
     @OnThread(Tag.FX)
     private Image drawImageFor(ScopeInfo s, int lineHeight)
     {
-        WritableImage image = new WritableImage(s.nestedScopes.stream().mapToInt(n -> n.leftRight.rhs + 1).max().orElse(1) + 1, lineHeight);
+        WritableImage image = new WritableImage(s.nestedScopes.stream()
+                .mapToInt(n -> n.leftRight.rhs + 1).max().orElse(1) + 1, lineHeight);
 
         for (ScopeInfo.SingleNestedScope singleNestedScope : s.nestedScopes)
         {
             LeftRight leftRight = singleNestedScope.leftRight;
-            int sideTopMargin = leftRight.starts ? CURVED_CORNER_SIZE : 0;
-            int sideBottomMargin = leftRight.ends ? CURVED_CORNER_SIZE : 0;
-            fillRect(image.getPixelWriter(), leftRight.lhs, 0 + sideTopMargin, leftRight.padding, lineHeight - sideBottomMargin - sideTopMargin, leftRight.fillColor);
+            int padding = small ? 0 : CURVED_CORNER_SIZE;
+            int sideTopMargin = leftRight.starts ? padding : 0;
+            int sideBottomMargin = leftRight.ends ? padding : 0;
+            fillRect(image.getPixelWriter(), leftRight.lhs, 0 + sideTopMargin, padding,
+                    lineHeight - sideBottomMargin - sideTopMargin, leftRight.fillColor);
             for (int y = sideTopMargin; y < lineHeight - sideBottomMargin; y++)
             {
                 image.getPixelWriter().setColor(leftRight.lhs, y, leftRight.edgeColor);
@@ -306,39 +319,42 @@ public class BlueJSyntaxView
 
             if (leftRight.starts)
             {
-                for (int x = 0; x < CURVED_CORNER_SIZE; x++)
+                for (int x = 0; x < padding; x++)
                 {
-                    for (int y = 0; y < CURVED_CORNER_SIZE; y++)
+                    for (int y = 0; y < padding; y++)
                     {
-                        if (CORNER_TEMPLATE[y][x] == 1)
-                            image.getPixelWriter().setColor(leftRight.lhs + x, y, leftRight.edgeColor);
-                        else if (CORNER_TEMPLATE[y][x] == 2)
-                            image.getPixelWriter().setColor(leftRight.lhs + x, y, leftRight.fillColor);
+                        if (CORNER_TEMPLATE[y][x] != 0)
+                        {
+                            Color c = (CORNER_TEMPLATE[y][x] == 1) ?
+                                    leftRight.edgeColor : leftRight.fillColor; 
+                            image.getPixelWriter().setColor(leftRight.lhs + x, y, c);
+                        }
                     }
                 }
             }
             if (leftRight.ends)
             {
-                for (int x = 0; x < CURVED_CORNER_SIZE; x++)
+                for (int x = 0; x < padding; x++)
                 {
-                    for (int y = 0; y < CURVED_CORNER_SIZE; y++)
+                    for (int y = 0; y < padding; y++)
                     {
-                        if (CORNER_TEMPLATE[y][x] == 1)
-                            image.getPixelWriter().setColor(leftRight.lhs + x, lineHeight - 1 - y, leftRight.edgeColor);
-                        else if (CORNER_TEMPLATE[y][x] == 2)
-                            image.getPixelWriter().setColor(leftRight.lhs + x, lineHeight - 1 - y, leftRight.fillColor);
+                        if (CORNER_TEMPLATE[y][x] != 0) {
+                            Color c = (CORNER_TEMPLATE[y][x] == 1) ?
+                                    leftRight.edgeColor : leftRight.fillColor; 
+                            image.getPixelWriter().setColor(leftRight.lhs + x, lineHeight - 1 - y, c);
+                        }
                     }
                 }
             }
 
-
             Middle middle = singleNestedScope.middle;
 
-            fillRect(image.getPixelWriter(), middle.lhs, 0, middle.rhs - middle.lhs, lineHeight, middle.bodyColor);
+            fillRect(image.getPixelWriter(), middle.lhs + padding, 0, middle.rhs - middle.lhs - padding,
+                    lineHeight, middle.bodyColor);
 
             if (middle.topColor != null)
             {
-                for (int x = middle.lhs; x < middle.rhs; x++)
+                for (int x = middle.lhs + padding; x < middle.rhs; x++)
                 {
                     image.getPixelWriter().setColor(x, 0, middle.topColor);
                 }
@@ -346,7 +362,7 @@ public class BlueJSyntaxView
 
             if (middle.bottomColor != null)
             {
-                for (int x = middle.lhs; x < middle.rhs; x++)
+                for (int x = middle.lhs + padding; x < middle.rhs; x++)
                 {
                     image.getPixelWriter().setColor(x, lineHeight - 1, middle.bottomColor);
                 }
@@ -354,35 +370,39 @@ public class BlueJSyntaxView
 
 
             // Right edge:
-            fillRect(image.getPixelWriter(), leftRight.rhs - leftRight.padding, 0 + sideTopMargin, leftRight.padding, lineHeight - sideBottomMargin - sideTopMargin, leftRight.fillColor);
+            fillRect(image.getPixelWriter(), leftRight.rhs - padding, 0 + sideTopMargin, padding,
+                    lineHeight - sideBottomMargin - sideTopMargin, leftRight.fillColor);
+            
             for (int y = sideTopMargin; y < lineHeight - sideBottomMargin; y++)
             {
                 image.getPixelWriter().setColor(leftRight.rhs, y, leftRight.edgeColor);
             }
 
-            if (leftRight.starts && leftRight.rhs > CURVED_CORNER_SIZE)
+            if (leftRight.starts && leftRight.rhs > padding)
             {
-                for (int x = 0; x < CURVED_CORNER_SIZE; x++)
+                for (int x = 0; x < padding; x++)
                 {
-                    for (int y = 0; y < CURVED_CORNER_SIZE; y++)
+                    for (int y = 0; y < padding; y++)
                     {
-                        if (CORNER_TEMPLATE[y][x] == 1)
-                            image.getPixelWriter().setColor(leftRight.rhs - x, y, leftRight.edgeColor);
-                        else if (CORNER_TEMPLATE[y][x] == 2)
-                            image.getPixelWriter().setColor(leftRight.rhs - x, y, leftRight.fillColor);
+                        if (CORNER_TEMPLATE[y][x] != 0) {
+                            Color c = (CORNER_TEMPLATE[y][x] == 1) ?
+                                    leftRight.edgeColor : leftRight.fillColor; 
+                            image.getPixelWriter().setColor(leftRight.rhs - x, y, c);
+                        }
                     }
                 }
             }
-            if (leftRight.ends && leftRight.rhs > CURVED_CORNER_SIZE)
+            if (leftRight.ends && leftRight.rhs > padding)
             {
-                for (int x = 0; x < CURVED_CORNER_SIZE; x++)
+                for (int x = 0; x < padding; x++)
                 {
-                    for (int y = 0; y < CURVED_CORNER_SIZE; y++)
+                    for (int y = 0; y < padding; y++)
                     {
-                        if (CORNER_TEMPLATE[y][x] == 1)
-                            image.getPixelWriter().setColor(leftRight.rhs - x, lineHeight - 1 - y, leftRight.edgeColor);
-                        else if (CORNER_TEMPLATE[y][x] == 2)
-                            image.getPixelWriter().setColor(leftRight.rhs - x, lineHeight - 1 - y, leftRight.fillColor);
+                        if (CORNER_TEMPLATE[y][x] != 0) {
+                            Color c = (CORNER_TEMPLATE[y][x] == 1) ?
+                                    leftRight.edgeColor : leftRight.fillColor; 
+                            image.getPixelWriter().setColor(leftRight.rhs - x, lineHeight - 1 - y, c);
+                        }
                     }
                 }
             }
@@ -478,10 +498,9 @@ public class BlueJSyntaxView
      * @param firstLine      the first line in the range to process (inclusive).
      * @param lastLine       the last line in the range to process (inclusive).
      * @param onlyMethods    true if only methods should be scope highlighted and not constructs inside.
-     * @param small          true to draw the "small" version
      */
     protected void paintScopeMarkers(Map<Integer, ScopeInfo> pendingScopes, int fullWidth,
-            int firstLine, int lastLine, boolean onlyMethods, boolean small)
+            int firstLine, int lastLine, boolean onlyMethods)
     {
         //optimization for the raspberry pi.
         //if (strength == 0) {
@@ -540,7 +559,7 @@ public class BlueJSyntaxView
                 break;
             }
 
-            drawScopes(fullWidth, scope, document, lines, prevScopeStack, small, onlyMethods, 0);
+            drawScopes(fullWidth, scope, document, lines, prevScopeStack, onlyMethods, 0);
 
             // Next line
             curLine++;
@@ -571,7 +590,6 @@ public class BlueJSyntaxView
     {
         final ScopeInfo scopes;
         ThreeLines lines;
-        boolean small;
 
         ParsedNode node;
         boolean starts;  // the node starts on the current line
@@ -595,8 +613,7 @@ public class BlueJSyntaxView
      * @param prevScopeStack the stack of nodes (from outermost to innermost) at the beginning of the current line
      */
     private void drawScopes(int fullWidth, ScopeInfo scopes, MoeSyntaxDocument document, ThreeLines lines,
-            List<NodeAndPosition<ParsedNode>> prevScopeStack, boolean small,
-            boolean onlyMethods, int nodeDepth)
+            List<NodeAndPosition<ParsedNode>> prevScopeStack, boolean onlyMethods, int nodeDepth)
     {
         int rightMargin = small ? 0 : 10;
 
@@ -604,7 +621,6 @@ public class BlueJSyntaxView
 
         DrawInfo drawInfo = new DrawInfo(scopes);
         drawInfo.lines = lines;
-        drawInfo.small = small;
 
         // Process the current scope stack. This contains all nodes that span the beginning of this line,
         // the foremost child and its foremost child and so on.
@@ -740,6 +756,7 @@ public class BlueJSyntaxView
                 TextField field = new TextField();
                 field.styleProperty().bind(editorPane.styleProperty());
                 // Have to put TextField into a Scene for CSS to take effect:
+                @SuppressWarnings("unused")
                 Scene s = new Scene(new BorderPane(field));
                 field.applyCss();
                 double singleSpaceWidth = JavaFXUtil.measureString(field, "          ", false, false) / 10.0;
@@ -915,20 +932,17 @@ public class BlueJSyntaxView
     }
 
     /**
-     * Draw the left edge of the scope, and the middle part up the given bound.
+     * Create a nested scope record based on the supplied information.
      */
     private ScopeInfo.SingleNestedScope calculatedNestedScope(DrawInfo info, int xpos, int rbound)
     {
-        if (! info.small) {
+        if (! small) {
             xpos -= info.node.isInner() ? LEFT_INNER_SCOPE_MARGIN : LEFT_OUTER_SCOPE_MARGIN;
         }
 
-        // draw node start
-        int hoffs = info.small ? 0 : CURVED_CORNER_SIZE; // determines size of corner arcs
-
         return new ScopeInfo.SingleNestedScope(
-                new LeftRight(xpos, rbound, hoffs, info.starts, info.ends, info.color2, info.color1),
-                getScopeMiddle(info, xpos + hoffs, rbound));
+                new LeftRight(xpos, rbound, info.starts, info.ends, info.color2, info.color1),
+                getScopeMiddle(info, xpos, rbound));
     }
 
     /**
@@ -969,7 +983,7 @@ public class BlueJSyntaxView
             Element lineEl, Segment lineSeg)
     {
         int napEnd = nap.getEnd();
-        int rbound = fullWidth - nodeDepth * RIGHT_SCOPE_MARGIN;
+        int rbound = fullWidth - nodeDepth * (small ? 0 : RIGHT_SCOPE_MARGIN);
         if (lineEl == null || napEnd >= lineEl.getEndOffset()) {
             return rbound;
         }
@@ -1855,13 +1869,9 @@ public class BlueJSyntaxView
      */
     EnumSet<ParagraphAttribute> getParagraphAttributes(int lineNumber)
     {
-        //return paragraphAttributes.computeIfAbsent(lineNumber, k -> EnumSet.noneOf(ParagraphAttribute.class));
-        if (editorPane == null) {
-            System.out.println("editorPane == null");
-            //return EnumSet.noneOf(ParagraphAttribute.class);
-        }
         ScopeInfo scopeInfo = editorPane.getParagraph(lineNumber - 1).getParagraphStyle();
-        if (scopeInfo == null) {
+        if (scopeInfo == null)
+        {
             return EnumSet.noneOf(ParagraphAttribute.class);
         }
         else
@@ -2062,17 +2072,15 @@ public class BlueJSyntaxView
     {
         private final int lhs;
         private final int rhs;
-        private final int padding;
         private final boolean starts;
         private final boolean ends;
         private final Color fillColor;
         private final Color edgeColor;
 
-        public LeftRight(int lhs, int rhs, int padding, boolean starts, boolean ends, Color fillColor, Color edgeColor)
+        public LeftRight(int lhs, int rhs, boolean starts, boolean ends, Color fillColor, Color edgeColor)
         {
             this.lhs = Math.max(0, lhs);
             this.rhs = rhs;
-            this.padding = padding;
             this.starts = starts;
             this.ends = ends;
             this.fillColor = fillColor;
@@ -2089,7 +2097,6 @@ public class BlueJSyntaxView
 
             if (lhs != leftRight.lhs) return false;
             if (rhs != leftRight.rhs) return false;
-            if (padding != leftRight.padding) return false;
             if (starts != leftRight.starts) return false;
             if (ends != leftRight.ends) return false;
             if (!fillColor.equals(leftRight.fillColor)) return false;
@@ -2101,7 +2108,6 @@ public class BlueJSyntaxView
         {
             int result = lhs;
             result = 31 * result + rhs;
-            result = 31 * result + padding;
             result = 31 * result + (starts ? 1 : 0);
             result = 31 * result + (ends ? 1 : 0);
             result = 31 * result + fillColor.hashCode();
