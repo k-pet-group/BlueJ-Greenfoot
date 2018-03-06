@@ -458,7 +458,7 @@ class JdiThread extends DebuggerThread
                 return false;
             }
         }
-        catch (IncompatibleThreadStateException itse)
+        catch (IncompatibleThreadStateException | InvalidStackFrameException itse)
         {
             // Don't need to report this; thread must have been resumed already.
         }
