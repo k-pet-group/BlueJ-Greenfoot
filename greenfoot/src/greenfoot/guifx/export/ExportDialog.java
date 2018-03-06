@@ -278,6 +278,6 @@ public class ExportDialog extends FXCustomizedDialog<Void>
      */
     public void progressMade(int bytes)
     {
-        progressBar.setProgress(progressBar.getProgress() + (bytes / uploadSize));
+        progressBar.setProgress(progressBar.getProgress() + ((double)bytes / uploadSize));
     }
 }
