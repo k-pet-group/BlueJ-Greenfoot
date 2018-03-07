@@ -293,7 +293,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         actButton.setOnAction(e -> act());
         runButton.setOnAction(e -> doRunPause());
         resetButton.setOnAction(e -> doReset());
-        speedSlider.valueProperty().addListener(e -> {}); //TODO
+        JavaFXUtil.addChangeListener(speedSlider.valueProperty(), newSpeed -> {
+            debugHandler.getVmComms().setSimulationSpeed(newSpeed.intValue());
+        });
 
         worldDisplay = new WorldDisplay();
         
