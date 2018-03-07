@@ -69,7 +69,7 @@ public class Command
     public static final int COMMAND_PROPERTY_CHANGED = 28;
     // Discard the world, but don't make a new one
     public static final int COMMAND_DISCARD_WORLD = 29;
-    
+    public static final int COMMAND_SET_SPEED = 30;
     // Commands are assigned a stricly increasing ID:
     private static int nextCommandSequence = 1;
 

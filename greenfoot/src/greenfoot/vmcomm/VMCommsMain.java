@@ -347,4 +347,15 @@ public class VMCommsMain implements Closeable
     {
         pendingCommands.add(new Command(eventType, x, y, button, clickCount));
     }
+
+    /**
+     * Set the simulation speed to a specified value
+     *
+     * @param speed   The speed value
+     */
+    public void setSimulationSpeed(int speed)
+    {
+        pendingCommands.add(new Command(COMMAND_SET_SPEED, speed));
+    }
+
 }

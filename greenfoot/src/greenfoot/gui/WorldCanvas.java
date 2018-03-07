@@ -512,6 +512,8 @@ public class WorldCanvas extends JPanel
                         String value = valueLength < 0 ? null : new String(data, 3 + keyLength, valueLength);
                         projectProperties.propertyChangedOnServerVM(key, value);
                         break;
+                    case Command.COMMAND_SET_SPEED:
+                        Simulation.getInstance().setSpeed(data[1]);
                 }
             }
         }
