@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013,2014,2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2018  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,7 +21,6 @@
  */
 package greenfoot.export;
 
-import greenfoot.core.GProject;
 import greenfoot.util.GreenfootUtil;
 
 import java.io.BufferedInputStream;
@@ -143,7 +142,7 @@ public class JarCreator
      * @param hideControls Should the exported scenario include the controls panel
      * @param applet Whether the export is for an applet on a webpage (true) or for a stand-alone JAR (false) 
      */
-    public JarCreator(GProject project, File exportDir, String jarName, String worldClass, boolean lockScenario, boolean hideControls, boolean fullScreen, boolean applet) 
+    public JarCreator(Project project, File exportDir, String jarName, String worldClass, boolean lockScenario, boolean hideControls, boolean fullScreen, boolean applet)
     {   
         this(project, exportDir, jarName, worldClass, lockScenario, applet);
         properties.put("scenario.hideControls", "" + hideControls);
@@ -165,14 +164,14 @@ public class JarCreator
      *            and speedslider.
      * @param applet Whether the export is for an applet on a webpage (true) or for a stand-alone JAR (false) 
      */
-    public JarCreator(GProject project, File exportDir, String jarName, String worldClass, boolean lockScenario, boolean applet) 
+    public JarCreator(Project project, File exportDir, String jarName, String worldClass, boolean lockScenario, boolean applet)
     {   
         this(exportDir, jarName);
         
         // get the project directory        
-        projectDir = project.getDir();
+        projectDir = project.getProjectDir();
         
-        String scenarioName = project.getName();
+        String scenarioName = project.getProjectName();
         
         addFile(projectDir);
 
@@ -245,13 +244,13 @@ public class JarCreator
      * @param exportDir The directory to export to.
      * @param zipName Name of the jar file that should be created.
      */
-    public JarCreator(GProject project, File exportDir, String zipName) 
+    public JarCreator(Project project, File exportDir, String zipName)
     {   
         this(exportDir, zipName);
         
         isZip = true;
         
-        projectDir = project.getDir();
+        projectDir = project.getProjectDir();
         
         addFile(projectDir);        
         
