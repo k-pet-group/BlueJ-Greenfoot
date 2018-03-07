@@ -514,6 +514,7 @@ public class WorldCanvas extends JPanel
                         break;
                     case Command.COMMAND_SET_SPEED:
                         Simulation.getInstance().setSpeed(data[1]);
+                        break;
                 }
             }
         }
