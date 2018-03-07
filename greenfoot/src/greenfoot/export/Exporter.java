@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2015,2018  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,37 +21,38 @@
 */
 package greenfoot.export;
 
-import greenfoot.core.GProject;
+import bluej.Boot;
+import bluej.Config;
+import bluej.pkgmgr.Project;
+import bluej.utility.Utility;
+
 import greenfoot.core.WorldHandler;
 import greenfoot.event.PublishEvent;
 import greenfoot.event.PublishListener;
 import greenfoot.export.mygame.MyGameClient;
 import greenfoot.export.mygame.ScenarioInfo;
 import greenfoot.gui.WorldCanvas;
-//import greenfoot.gui.export.ExportAppPane;
-//import greenfoot.gui.export.ExportDialog;
-//import greenfoot.gui.export.ExportProjectPane;
-//import greenfoot.gui.export.ExportPublishPane;
-//import greenfoot.gui.export.ExportWebPagePane;
-//import greenfoot.gui.export.ProxyAuthDialog;
+import greenfoot.guifx.export.ExportAppPane;
+import greenfoot.guifx.export.ExportDialog;
+import greenfoot.guifx.export.ExportProjectPane;
+import greenfoot.guifx.export.ExportPublishPane;
+import greenfoot.guifx.export.ExportWebPagePane;
+import greenfoot.guifx.export.ProxyAuthDialog;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.UnknownHostException;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
+import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
 import javax.imageio.ImageIO;
-import javax.swing.SwingUtilities;
-
-import bluej.Boot;
-import bluej.Config;
-import bluej.pkgmgr.Project;
-import bluej.utility.Utility;
 
 /**
  * Class Exporter manages the various possible export functions, such as writing 
@@ -89,7 +90,7 @@ public class Exporter implements PublishListener
     private File tmpImgFile;
     private File tmpZipFile;
     private MyGameClient webPublisher;
-//    private ExportDialog dlg;
+    private ExportDialog dlg;
     
     /**
      * Creates a new instance of Exporter.
@@ -99,8 +100,7 @@ public class Exporter implements PublishListener
     /**
      * Publish this scenario to the web server.
      */
-    /*
-    public void publishToWebServer(GProject project, ExportPublishPane pane, ExportDialog dlg)
+    public void publishToWebServer(Project project, ExportPublishPane pane, ExportDialog dlg)
     {
         this.dlg = dlg;
         dlg.setProgress(true, Config.getString("export.progress.bundling"));
@@ -121,10 +121,12 @@ public class Exporter implements PublishListener
         String hostAddress = Config.getPropString("greenfoot.gameserver.address", "http://www.greenfoot.org/");
         if (! hostAddress.endsWith("/")) {
             hostAddress += "/";
-        }        
-        
-        String worldClass = project.getLastWorldClassName();
-        
+        }
+
+        // TODO Look at this.
+        // World can't be null as this stage
+        String worldClass = WorldHandler.getInstance().getWorld().getClass().getName();
+
         boolean  lockScenario = pane.lockScenario();
         
         JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, lockScenario, true);            
@@ -163,7 +165,8 @@ public class Exporter implements PublishListener
         jarCreator.putManifestEntry("height","" + size.height);
 
         // Make sure the current properties are saved before they are exported.
-        project.getProjectProperties().save();
+        // TODO look at this.
+        // project.getProjectProperties().save();
         
         jarCreator.create();
             
@@ -189,8 +192,8 @@ public class Exporter implements PublishListener
             String formatName = "png";
             try {
                 tmpImgFile = File.createTempFile("greenfoot", "." + formatName, null);
-                BufferedImage img = pane.getImage();
-                ImageIO.write(img, formatName, tmpImgFile);
+                BufferedImage bufferedImage = SwingFXUtils.fromFXImage(pane.getImage(), null);
+                ImageIO.write(bufferedImage, formatName, tmpImgFile);
                 // make sure it is deleted on exit (should be deleted right after
                 // the publish finish - but just in case...)
                 tmpImgFile.deleteOnExit();              
@@ -232,36 +235,38 @@ public class Exporter implements PublishListener
             if (tmpZipFile != null) {
                 uploadSize += (int) tmpZipFile.length();
             }
-            gotUploadSize(uploadSize);
+            setUploadSize(uploadSize);
             
             webPublisher.submit(hostAddress, login, password,
                     tmpJarFile.getAbsolutePath(), tmpZipFile, tmpImgFile, size.width, size.height,
                     info);
         }
-        catch (UnknownHostException e) {
+        catch (UnknownHostException e)
+        {
             dlg.setProgress(false, Config.getString("export.publish.unknownHost") + " (" + e.getMessage() + ")");
-            return;
         }
-        catch (IOException e) {
+        catch (IOException e)
+        {
             dlg.setProgress(false, Config.getString("export.publish.fail") + " " + e.getMessage());
-            return;
         }
     }
 
     /**
      * Create a web page and jar-file.
-     *//*
-    public void makeWebPage(GProject project, ExportWebPagePane pane, ExportDialog dlg)
+     */
+    public void makeWebPage(Project project, ExportWebPagePane pane, ExportDialog dlg)
     {
         this.dlg = dlg;
         dlg.setProgress(true, Config.getString("export.progress.writingHTML"));
         File exportDir = new File(pane.getExportLocation());
         exportDir.mkdir();
 
-        String worldClass = project.getLastWorldClassName();
+        // TODO Look at this.
+        // World can't be null as this stage
+        String worldClass = WorldHandler.getInstance().getWorld().getClass().getName();
         
         boolean  includeControls = pane.lockScenario();
-        String jarName = project.getName() + ".jar";
+        String jarName = project.getProjectName() + ".jar";
         JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, includeControls, true);            
         
         // do not include source
@@ -289,42 +294,37 @@ public class Exporter implements PublishListener
         Dimension size = getSize(includeControls);
 
         // Make sure the current properties are saved before they are exported.
-        project.getProjectProperties().save();
+        // TODO look at this.
+        // project.getProjectProperties().save();
         
         jarCreator.create();
     
-        String htmlName = project.getName() + ".html";
-        String title = project.getName();
+        String title = project.getProjectName();
+        String htmlName = title + ".html";
         File outputFile = new File(exportDir, htmlName);
         jarCreator.generateHTMLSkeleton(outputFile, title, size.width, size.height);
         dlg.setProgress(false, Config.getString("export.progress.complete")); 
-    }*/
+    }
 
-    private static File[] getJarsInPlusLib(GProject project)
+    private static File[] getJarsInPlusLib(Project project)
     {
-        File[] jarFiles = null;
-        File plusLibsDir = new File(project.getDir(), Project.projectLibDirName);
-        jarFiles = plusLibsDir.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name)
-            {
-                return name.toLowerCase().endsWith(".jar");
-            }
-        });
-        return jarFiles;
+        File plusLibsDir = new File(project.getProjectDir(), Project.projectLibDirName);
+        return plusLibsDir.listFiles((dir, name) -> name.toLowerCase().endsWith(".jar"));
     }
         
     /**
      * Create an application (jar-file)
-     *//*
-    public void makeApplication(GProject project, ExportAppPane pane, ExportDialog dlg)
+     */
+    public void makeApplication(Project project, ExportAppPane pane, ExportDialog dlg)
     {
         dlg.setProgress(true, Config.getString("export.progress.writingJar"));
         File exportFile = new File(pane.getExportName());
         File exportDir = exportFile.getParentFile();
         String jarName = exportFile.getName();
 
-        String worldClass = project.getLastWorldClassName();
+        // TODO Look at this.
+        // World can't be null as this stage
+        String worldClass = WorldHandler.getInstance().getWorld().getClass().getName();
         
         boolean  lockScenario = pane.lockScenario();
         boolean  hideControls = pane.hideControls();
@@ -364,16 +364,17 @@ public class Exporter implements PublishListener
         }
         
         // Make sure the current properties are saved before they are exported.
-        project.getProjectProperties().save();
+        // TODO look at this.
+        // project.getProjectProperties().save();
         
         jarCreator.create();
         dlg.setProgress(false, Config.getString("export.progress.complete")); 
-    }*/
+    }
     
     /**
      * Create an standalone project (gfar-file)
-     *//*
-    public void makeProject(GProject project, ExportProjectPane pane, ExportDialog dlg)
+     */
+    public void makeProject(Project project, ExportProjectPane pane, ExportDialog dlg)
     {
         dlg.setProgress(true, Config.getString("export.progress.writingGfar"));
         
@@ -386,12 +387,12 @@ public class Exporter implements PublishListener
         gfarCrator.create();
        
         dlg.setProgress(false, Config.getString("export.progress.complete")); 
-    }*/
+    }
 
     /**
      * Get the size needed to display the application and control panel.
      * @return
-     *//*
+     */
     private static Dimension getSize(boolean includeControls)
     {     
         //The control panel size is hard coded for now, since it has different sizes on different platforms. 
@@ -413,7 +414,7 @@ public class Exporter implements PublishListener
         size.height += 2;
         size.width = Math.max(size.width, controlPanelSize.width);
         return size;
-    }*/
+    }
         
     /**
      * Something went wrong when publishing.
@@ -422,13 +423,7 @@ public class Exporter implements PublishListener
     public void errorRecieved(final PublishEvent event)
     {
         deleteTmpFiles();
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run()
-            {
-//                dlg.publishFinished(false,  Config.getString("export.publish.fail") + " " + event.getMessage());
-            }
-        });
+        Platform.runLater(() -> dlg.publishFinished(false,  Config.getString("export.publish.fail") + " " + event.getMessage()));
     }
 
     /**
@@ -438,13 +433,7 @@ public class Exporter implements PublishListener
     public void uploadComplete(PublishEvent event)
     {
         deleteTmpFiles();
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run()
-            {
-//                dlg.publishFinished(true, Config.getString("export.publish.complete"));
-            }
-        });
+        Platform.runLater(() -> dlg.publishFinished(true, Config.getString("export.publish.complete")));
     }
 
     private void deleteTmpFiles()
@@ -466,15 +455,9 @@ public class Exporter implements PublishListener
     /**
      * We now know the total upload size.
      */
-    public void gotUploadSize(final int size)
+    public void setUploadSize(final int size)
     {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run()
-            {
-//                dlg.gotUploadSize(size);
-            }
-        });
+        Platform.runLater(() -> dlg.setUploadSize(size));
     }
     
     /**
@@ -483,46 +466,38 @@ public class Exporter implements PublishListener
     @Override
     public void progressMade(final PublishEvent event)
     {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run()
-            {
-//                dlg.progressMade(event.getBytes());
-            }
-        });
+        Platform.runLater(() -> dlg.progressMade(event.getBytes()));
     }
     
     @Override
     public String[] needProxyAuth()
     {
-        final String[] details = new String[2];
+        CompletableFuture<String[]> detailsFuture = new CompletableFuture<>();
+        Platform.runLater(() ->
+        {
+            Optional<ProxyAuthDialog.ProxyAuthInfo> infoOptional = new ProxyAuthDialog(dlg.asWindow()).showAndWait();
+            if (infoOptional.isPresent())
+            {
+                ProxyAuthDialog.ProxyAuthInfo info = infoOptional.get();
+                detailsFuture.complete(new String[] {info.getUsername(), info.getPassword()});
+            }
+            else
+            {
+                detailsFuture.complete(null);
+            }
+        });
 
-        try {
-            SwingUtilities.invokeAndWait(new Runnable() {
-                @Override
-                public void run()
-                {
-                    /*ProxyAuthDialog dialog = new ProxyAuthDialog(dlg);
-                    dialog.setVisible(true);
-                    
-                    if (dialog.getResult() == ProxyAuthDialog.OK) {
-                        details[0] = dialog.getUsername();
-                        details[1] = dialog.getPassword();
-                    }*/
-                }
-            });
+        try
+        {
+            return detailsFuture.get();
         }
-        catch (InvocationTargetException ite) {
-            throw new RuntimeException(ite.getCause());
-        }
-        catch (InterruptedException ie) {
+        catch (InterruptedException e)
+        {
             return null;
         }
-        
-        if (details[0] == null) {
-            return null;
+        catch (ExecutionException e)
+        {
+            throw new RuntimeException(e.getCause());
         }
-        
-        return details;
     }
 }
