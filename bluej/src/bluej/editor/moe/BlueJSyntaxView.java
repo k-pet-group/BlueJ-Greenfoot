@@ -258,7 +258,7 @@ public class BlueJSyntaxView
     public void recalculateScopes(Map<Integer, ScopeInfo> pendingScopes, int firstLineIncl, int lastLineIncl)
     {
         // Subtract 24 which is width of paragraph graphic:
-        paintScopeMarkers(pendingScopes,
+        recalcScopeMarkers(pendingScopes,
                 (widthProperty == null || widthProperty.get() == 0) ? 200 : ((int)widthProperty.get() - 24),
                 firstLineIncl, lastLineIncl, false);
     }
@@ -499,7 +499,7 @@ public class BlueJSyntaxView
      * @param lastLine       the last line in the range to process (inclusive).
      * @param onlyMethods    true if only methods should be scope highlighted and not constructs inside.
      */
-    protected void paintScopeMarkers(Map<Integer, ScopeInfo> pendingScopes, int fullWidth,
+    protected void recalcScopeMarkers(Map<Integer, ScopeInfo> pendingScopes, int fullWidth,
             int firstLine, int lastLine, boolean onlyMethods)
     {
         //optimization for the raspberry pi.
@@ -551,16 +551,16 @@ public class BlueJSyntaxView
 
             // curLine is zero-based, but getParagraphAttributes is one-based:
             ScopeInfo scope = new ScopeInfo(getParagraphAttributes(curLine + 1));
-            if (! scope.equals(document.getDocument().getParagraphStyle(curLine))) {
-                pendingScopes.put(curLine, scope);
-            }
-
+            
             if (prevScopeStack.isEmpty()) {
                 break;
             }
 
             drawScopes(fullWidth, scope, document, lines, prevScopeStack, onlyMethods, 0);
-
+            if (! scope.equals(document.getDocument().getParagraphStyle(curLine))) {
+                pendingScopes.put(curLine, scope);
+            }
+            
             // Next line
             curLine++;
             if (curLine <= lastLine) {
