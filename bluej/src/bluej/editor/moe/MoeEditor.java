@@ -445,9 +445,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 
                 scheduleReparseRunner();
             }
-            catch (FileNotFoundException ex) {
-                clear();
-            }
             catch (IOException ex) {
                 // TODO display user-visible error
                 Debug.reportError("Couldn't open file", ex);
