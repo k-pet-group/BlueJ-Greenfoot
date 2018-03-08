@@ -116,16 +116,6 @@ JLayer MP3 processing library (Lesser GNU Public License v2.1)
 It is distributed under the terms of the LGPL v2.1, as found in the
 "GNU-LGPL-v2.1.txt" file.
 
-
-JNA (Apache License version 2.0)
---------------------------------
-"jna-4.2.0.jar" and "jna-platform-4.2.0" are part of the Java Native Access library
-(JNA; https://github.com/java-native-access/jna). This library is used by Greenfoot.
-The copyright holder allows distribution of JNA under a choice of two licenses.
-In Greenfoot it is distributed under the terms of the Apache License version 2.0, as found
-in the "Apache-License-2.0.txt" file.
-
-
 JUnit (Common Public License v1.0)
 ----------------------------------
 "junit-4.11.jar" is part of the JUnit unit testing library (http://junit.org/) which is
@@ -265,8 +255,6 @@ httpcore-4.1.jar                         Apache License v2.0
 httpmime-4.1.1.jar                       Apache License v2.0
 javassist-3.18.0.jar                     Apache License v2.0
 jl1.0.1.jar                              Lesser GPL v2.1
-jna-4.2.0.jar                            Apache License v2.0
-jna-platform-4.2.0.jar                   Apache License v2.0
 junit-4.11.jar                           Common Public License v1.0
 opencsv-2.3.jar                          Apache License v2.0
 sequence-library-1.0.3.jar               BSD License
