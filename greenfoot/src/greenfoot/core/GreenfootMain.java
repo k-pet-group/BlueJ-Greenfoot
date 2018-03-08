@@ -388,50 +388,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         return project;
     }
 
-    /**
-     * Closes this greenfoot frame, or handle it closing.
-     * 
-     * <p>If this is called with the windowClosing parameter false, and there is only one project open,
-     * then the frame won't be closed but will instead be turned into an empty frame.
-     */
-    private void closeThisInstance(boolean windowClosing)
-    {
-        try {
-            project.getRProject().setClosing(true);
-        }
-        catch(Exception e) {
-            Debug.reportError("Error while closing", e);
-        }
-        
-        try {
-            if (rBlueJ.getOpenProjects().length <= 1) {
-                if (windowClosing) {
-                    // This happens to be the only way the startup project can be closed
-                    rBlueJ.exit();
-                }
-                else {
-                    frame.closeProject();
-                }
-            }
-            else {
-                project.close();
-            }
-        }
-        catch (RemoteException re) {
-            Debug.reportError("Error while closing", re);
-        }
-    }
-
-    /**
-     * Close the project in the given frame. This will also close the frame, or (if
-     * the windowClosing parameter is false, and no other projects are open) make it
-     * empty.
-     */
-    public static void closeProject(GreenfootFrame frame, boolean windowClosing)
-    {
-        instance.closeThisInstance(windowClosing);
-    }
-
     /*
      * @see rmiextension.wrappers.event.RProjectListener#projectClosing()
      */

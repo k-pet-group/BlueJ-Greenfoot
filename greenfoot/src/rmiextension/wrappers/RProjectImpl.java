@@ -302,18 +302,6 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
         this.vmRestarted = vmRestarted;
     }
 
-    /**
-    * Change the state of the project to indicate if it is currently been closing.
-    * 
-    * @param closing  A boolean flag indicates whether the project is closing. 
-    * @throws RemoteException   if an RMI error occurs
-    */
-    @Override
-    public void setClosing(boolean closing) throws RemoteException, ProjectNotOpenException
-    {
-        ExtensionBridge.getProject(getBProject()).setClosing(closing);
-    }
-
     @Override
     public void openBrowser(String customUrl) throws RemoteException, ProjectNotOpenException
     {

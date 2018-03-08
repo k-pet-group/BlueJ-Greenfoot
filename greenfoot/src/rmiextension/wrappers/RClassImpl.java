@@ -124,33 +124,6 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     }
     
     @Override
-    public void closeEditor() throws ProjectNotOpenException, PackageNotFoundException, RemoteException
-    {
-        synchronized (RClassImpl.class) {
-            pnoe = null;
-            pnfe = null;
-
-            EventQueue.invokeLater(() -> {
-                try {
-                    Editor editor = bClass.getEditor();
-                    if (editor != null) {
-                        editor.setVisible(false);
-                    }
-                }
-                catch (ProjectNotOpenException e) {
-                    pnoe = e;
-                }
-                catch (PackageNotFoundException e) {
-                    pnfe = e;
-                }
-            });
-
-            if (pnoe != null) throw pnoe;
-            if (pnfe != null) throw pnfe;
-        }
-    }
-    
-    @Override
     public RPackage getPackage()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException
     {
