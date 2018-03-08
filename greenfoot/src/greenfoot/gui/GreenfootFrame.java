@@ -149,9 +149,9 @@ public class GreenfootFrame extends JFrame
     private AskPanel askPanel;
     private AskHandler askHandler;
     
-    public static GreenfootFrame getGreenfootFrame(final RBlueJ blueJ, ClassStateManager classStateManager, ShadowProjectProperties projectProperties, String shmFilePath)
+    public static GreenfootFrame getGreenfootFrame(final RBlueJ blueJ, ClassStateManager classStateManager, GProject project, String shmFilePath)
     {
-        instance = new GreenfootFrame(blueJ, classStateManager, projectProperties, shmFilePath);
+        instance = new GreenfootFrame(blueJ, classStateManager, project, shmFilePath);
         return instance;
     }
     
@@ -159,7 +159,7 @@ public class GreenfootFrame extends JFrame
      * Creates a new top level frame with all the GUI components.
      * @param classStateManager 
      */
-    private GreenfootFrame(RBlueJ blueJ, ClassStateManager classStateManager, ShadowProjectProperties projectProperties, String shmFilePath)
+    private GreenfootFrame(RBlueJ blueJ, ClassStateManager classStateManager, GProject project, String shmFilePath)
         throws HeadlessException
     {
         super("Greenfoot");
@@ -170,7 +170,7 @@ public class GreenfootFrame extends JFrame
             setIconImage(icon);
         }
 
-        makeFrame(classStateManager, projectProperties, shmFilePath);
+        makeFrame(classStateManager, project, shmFilePath);
         
         restoreFrameState();
 
@@ -300,12 +300,12 @@ public class GreenfootFrame extends JFrame
      * This includes opening the project and displaying the project classes.
      * @param classStateManager 
      */
-    private void makeFrame(ClassStateManager classStateManager, ShadowProjectProperties projectProperties, String shmFilePath)
+    private void makeFrame(ClassStateManager classStateManager, GProject project, String shmFilePath)
     {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         // Some first-time initializations
-        worldCanvas = new WorldCanvas(projectProperties, shmFilePath);
+        worldCanvas = new WorldCanvas(project.getProjectProperties(), shmFilePath);
         worldCanvas.setWorldSize(200, 100);
         worldCanvas.setVisible(false);
         
@@ -315,8 +315,7 @@ public class GreenfootFrame extends JFrame
         worldHandler.addWorldListener(this);
         Simulation.initialize(new SimulationDelegateIDE());
         Simulation sim = Simulation.getInstance();
-        sim.attachWorldHandler(worldHandler);
-       
+        
         setupActions();
         setJMenuBar(buildMenu(classStateManager));
 
@@ -498,6 +497,12 @@ public class GreenfootFrame extends JFrame
         
         updateBackgroundMessage();
         pack();
+        
+        // Important to open the project before attaching world handler
+        // as the latter begins simulation thread, and we want to have
+        // the world handler delegate setup (done in openProject) before then:
+        openProject(project);
+        sim.attachWorldHandler(worldHandler);
     }
 
     /**

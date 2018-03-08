@@ -214,7 +214,7 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
                     new JFXPanel();
                     Platform.setImplicitExit(false);
 
-                    frame = GreenfootFrame.getGreenfootFrame(rBlueJ, classStateManager, project.getProjectProperties(), shmFilePath);
+                    frame = GreenfootFrame.getGreenfootFrame(rBlueJ, classStateManager, project, shmFilePath);
 
                     // Want to execute this after the simulation has been initialised:
                     ExecServer.setCustomRunOnThread(r -> Simulation.getInstance().runLater(r));
@@ -223,8 +223,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
                     if (!isStartupProject()) {
                         try {
-
-                            frame.openProject(project);
                             // bringToFront is done automatically by BlueJ
                             // Utility.bringToFront(frame);
 
