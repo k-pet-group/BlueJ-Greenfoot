@@ -73,21 +73,6 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
             throw new NullPointerException("Argument can't be null");
         }
     }
-
-    @Override
-    public void compile(boolean waitCompileEnd, boolean forceQuiet)
-    {
-        EventQueue.invokeLater(() -> {
-            try
-            {
-                bClass.compile(waitCompileEnd, forceQuiet);
-            }
-            catch (ProjectNotOpenException | PackageNotFoundException | CompilationNotStartedException e)
-            {
-                Debug.reportError(e);
-            }
-        });
-    }
     
     @Override
     public SourceType getSourceType() throws ProjectNotOpenException, PackageNotFoundException
