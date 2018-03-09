@@ -42,8 +42,6 @@ import bluej.extensions.editor.Editor;
 public interface RClass
     extends java.rmi.Remote
 {
-    void compile(boolean waitCompileEnd, boolean forceQuiet) throws RemoteException;
-
     RPackage getPackage()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 

@@ -55,14 +55,6 @@ public class GCoreClass extends GClass
     }
 
     @Override
-    public void compile(boolean waitCompileEnd, boolean forceQuiet) throws ProjectNotOpenException,
-    PackageNotFoundException, RemoteException,
-    CompilationNotStartedException
-    {
-        return;
-    }
-
-    @Override
     public String getClassProperty(String propertyName)
     {
         return "";

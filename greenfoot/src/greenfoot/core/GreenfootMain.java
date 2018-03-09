@@ -29,7 +29,6 @@ import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.MessageDialog;
 import greenfoot.importer.scratch.ScratchImport;
 import greenfoot.platforms.ide.ActorDelegateIDE;
-import greenfoot.util.FileChoosers;
 import greenfoot.util.Version;
 
 import java.awt.EventQueue;

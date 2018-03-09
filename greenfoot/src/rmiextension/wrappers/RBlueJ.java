@@ -133,9 +133,6 @@ public interface RBlueJ
     public void hideSplash()
         throws RemoteException;
 
-    public long getBlueJProcessId()
-        throws RemoteException;
-
     public void addApplicationListener(RApplicationListener listener)
         throws RemoteException;
 }

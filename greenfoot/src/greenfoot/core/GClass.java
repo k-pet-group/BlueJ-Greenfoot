@@ -167,12 +167,6 @@ public class GClass
         }
     }
     
-    public void compile(boolean waitCompileEnd, boolean forceQuiet)
-        throws ProjectNotOpenException, PackageNotFoundException, RemoteException, CompilationNotStartedException
-    {
-        rmiClass.compile(waitCompileEnd, forceQuiet);
-    }
-    
     public SourceType getSourceType()
     {
         try {
