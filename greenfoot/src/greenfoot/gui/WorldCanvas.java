@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016,2018  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,7 +35,6 @@ import greenfoot.core.TextLabel;
 import greenfoot.core.WorldHandler;
 import greenfoot.gui.input.KeyboardManager;
 import greenfoot.gui.input.mouse.MousePollingManager;
-import greenfoot.guifx.GreenfootStage;
 import greenfoot.util.GreenfootUtil;
 import greenfoot.vmcomm.Command;
 import javafx.scene.input.KeyCode;
@@ -93,7 +92,7 @@ public class WorldCanvas extends JPanel
     private Image overrideImage;
 
     private final ShadowProjectProperties projectProperties;
-    private boolean sending = false;
+    
     /**
      * Shared memory documentation (this comment may get moved to somewhere more appropriate later).
      *
@@ -142,7 +141,11 @@ public class WorldCanvas extends JPanel
     private final FileChannel shmFileChannel;
     private long lastPaintNanos = System.nanoTime();
     private int lastAckCommand = -1;
-    // How many times have we stopped with an error?  We continously send the count to the
+    private int lastPaintSeq = -1; // last paint sequence
+    private int lastPaintSize; // number of ints last transmitted as image
+    private boolean paintScheduled = false; // a paint is scheduled
+    
+    // How many times have we stopped with an error?  We continuously send the count to the
     // server VM, so that the server VM can observe changes in the count (only ever increases).
     private int stoppedWithErrorCount = 0;
     // When did user code last start?
@@ -326,14 +329,22 @@ public class WorldCanvas extends JPanel
         long now = System.nanoTime();
         if (paintWhen == PaintWhen.IF_DUE && now - lastPaintNanos <= 8_333_333L)
         {
-            return null; // No need to draw frame if less than 1/120th of sec between them
+            paintScheduled = (world != null);
+            return null; // No need to draw frame if less than 1/120th of sec between them,
+                         // but we must schedule a paint for the next sequence we send.
         }
         lastPaintNanos = now;
-
+        
+        boolean sendImage = world != null && (paintWhen != PaintWhen.NO_PAINT || paintScheduled);
+        int imageWidth = 0;
+        int imageHeight = 0;
         BufferedImage img = null;        
-        if (paintWhen != PaintWhen.NO_PAINT && world != null)
+        
+        if (sendImage)
         {
-            img = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_BGR);
+            imageWidth = WorldVisitor.getWidthInPixels(world);
+            imageHeight = WorldVisitor.getHeightInPixels(world);
+            img = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_BGR);
             Graphics2D g2 = (Graphics2D)img.getGraphics();
             paintBackground(g2);
             paintObjects(g2);
@@ -344,64 +355,75 @@ public class WorldCanvas extends JPanel
 
         // One element array to allow a reference to be set by readCommands:
         String[] answer = new String[] {null};
-        if (!sending)
+        
+        // Call this outside the lock to avoid holding lock any longer than we have to:
+        int [] raw = img == null ? null : ((DataBufferInt) img.getData().getDataBuffer()).getData();
+        try (FileLock fileLock = shmFileChannel.lock())
         {
-            sending = true;
-            // Call this outside the lock to avoid holding lock any longer than we have to:
-            int [] raw = img == null ? null : ((DataBufferInt) img.getData().getDataBuffer()).getData();
-            try (FileLock fileLock = shmFileChannel.lock())
+            sharedMemory.position(1);
+            int recvSeq = sharedMemory.get();
+            if (recvSeq < 0)
             {
-                sharedMemory.position(1);
-                int recvSeq = sharedMemory.get();
-                if (recvSeq < 0)
+                int latest = readCommands(answer);
+                if (latest != -1)
                 {
-                    int latest = readCommands(answer);
-                    if (latest != -1)
-                    {
-                        lastAckCommand = latest;
-                    }
+                    lastAckCommand = latest;
                 }
-                sharedMemory.position(1);
-                sharedMemory.put(this.seq++);
-                // If there's no world, we must send an empty image:
-                if (world == null || img == null)
+            }
+            sharedMemory.position(1);
+            sharedMemory.put(this.seq++);
+            if (img == null)
+            {
+                // If we don't want to paint, we need to check if the other end received the
+                // last image that we did send. If it hasn't, we leave it in place; otherwise
+                // we set width and height to 0, to indicate no image:
+                if (lastPaintSeq <= -recvSeq)
                 {
                     sharedMemory.put(0);
                     sharedMemory.put(0);
                 }
                 else
                 {
-                    sharedMemory.put(getWidth());
-                    sharedMemory.put(getHeight());
-                    for (int i = 0; i < raw.length; i++)
-                    {
-                        sharedMemory.put(raw[i] << 8 | 0xFF);
-                    }
-                }
-                sharedMemory.put(lastAckCommand);
-                sharedMemory.put(stoppedWithErrorCount);
-                sharedMemory.put((int)(startOfCurExecution >> 32));
-                sharedMemory.put((int)(startOfCurExecution & 0xFFFFFFFFL));
-                // If not asking, put -1
-                if (askPrompt == null || answer[0] != null)
-                {
-                    sharedMemory.put(-1);
-                }
-                else
-                {
-                    // Asking, so put the ask ID, and the prompt string:
-                    int[] codepoints = askPrompt.codePoints().toArray();
-                    sharedMemory.put(askId);
-                    sharedMemory.put(codepoints.length);
-                    sharedMemory.put(codepoints);
+                    sharedMemory.get(); // skip width
+                    sharedMemory.get(); // skip height
+                    sharedMemory.position(sharedMemory.position() + lastPaintSize);
                 }
             }
-            catch (IOException e)
+            else
             {
-                Debug.reportError(e);
+                sharedMemory.put(imageWidth);
+                sharedMemory.put(imageHeight);
+                for (int i = 0; i < raw.length; i++)
+                {
+                    sharedMemory.put(raw[i] << 8 | 0xFF);
+                }
+                lastPaintSize = raw.length;
+                lastPaintSeq = (seq - 1);
+                paintScheduled = false;
             }
-            sending = false;
+            sharedMemory.put(lastAckCommand);
+            sharedMemory.put(stoppedWithErrorCount);
+            sharedMemory.put((int)(startOfCurExecution >> 32));
+            sharedMemory.put((int)(startOfCurExecution & 0xFFFFFFFFL));
+            // If not asking, put -1
+            if (askPrompt == null || answer[0] != null)
+            {
+                sharedMemory.put(-1);
+            }
+            else
+            {
+                // Asking, so put the ask ID, and the prompt string:
+                int[] codepoints = askPrompt.codePoints().toArray();
+                sharedMemory.put(askId);
+                sharedMemory.put(codepoints.length);
+                sharedMemory.put(codepoints);
+            }
         }
+        catch (IOException e)
+        {
+            Debug.reportError(e);
+        }
+            
         return answer[0];
     }
 
