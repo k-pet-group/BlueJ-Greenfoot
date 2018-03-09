@@ -47,15 +47,6 @@ public interface RClass
     void edit()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 
-    /**
-     * Closes the editor (sets the editor to not visible)
-     * @throws ProjectNotOpenException   if the project has been closed
-     * @throws PackageNotFoundException  if the package has been removed
-     * @throws RemoteException           if a remote exception occurs
-     */
-    void closeEditor()
-        throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
-    
     RPackage getPackage()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 

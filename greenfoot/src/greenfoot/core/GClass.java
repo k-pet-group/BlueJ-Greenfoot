@@ -201,25 +201,6 @@ public class GClass
         }
     }
     
-    /**
-     * Close the editor for this class.
-     */
-    public void closeEditor()
-    {
-        try {
-            rmiClass.closeEditor();
-        }
-        catch (ProjectNotOpenException e) {
-            Debug.reportError("Could not close editor", e);
-        }
-        catch (PackageNotFoundException e) {
-            Debug.reportError("Could not close editor", e);
-        }
-        catch (RemoteException e) {
-            Debug.reportError("Could not close editor", e);
-        }
-    }
-    
     public SourceType getSourceType()
     {
         try {

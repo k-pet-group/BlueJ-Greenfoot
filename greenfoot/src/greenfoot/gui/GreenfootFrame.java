@@ -267,24 +267,6 @@ public class GreenfootFrame extends JFrame
         }
         updateBackgroundMessage();
     }
-    
-    /**
-     * Calling this will make the current frame an empty frame.
-     */
-    public void closeProject()
-    {
-        setTitle("Greenfoot: ");
-        project.removeCompileListener(this);
-        project.closeEditors();
-        worldCanvas.setVisible(false);
-        project = null;
-        enableProjectActions();
-        repaint();
-        isClosedProject = true;
-        
-        //TODO is next line needed?
-        updateBackgroundMessage();
-    }
 
     /**
      * Get the project showing in this frame. If this frame is empty,

@@ -146,14 +146,6 @@ public interface RProject
     public void setVmRestarted(boolean vmRestarted) throws RemoteException;
 
     /**
-    * Change the state of the project to indicate if it is currently been closing.
-    * 
-    * @param closing  A boolean flag indicates whether the project is closing. 
-    * @throws RemoteException   if an RMI error occurs
-    */
-    public void setClosing(boolean closing) throws RemoteException, ProjectNotOpenException;
-    
-    /**
      * Opens the given URL in a new editor tab with a web view.
      * @throws ProjectNotOpenException 
      */
