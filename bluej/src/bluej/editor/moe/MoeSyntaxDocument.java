@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2012,2013,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -538,10 +538,16 @@ public class MoeSyntaxDocument
         }
     }
 
-    void fireChangedUpdate(MoeSyntaxEvent mse)
+    /**
+     * Issue a change update to listeners.
+     */
+    public void fireChangedUpdate(MoeSyntaxEvent mse)
     {
         if (syntaxView != null)
+        {
             syntaxView.updateDamage(mse);
+        }
+        
         if (mse == null)
         {
             // Width change, so apply new backgrounds:
@@ -549,7 +555,10 @@ public class MoeSyntaxDocument
         }
     }
 
-    void recalculateAllScopes()
+    /**
+     * Re-calculate scope position/colour for all lines.
+     */
+    public void recalculateAllScopes()
     {
         if (notYetShown)
             return;
@@ -565,7 +574,7 @@ public class MoeSyntaxDocument
      * @param firstLineIncl  the first line in the range, inclusive; 0-based.
      * @param lastLineIncl   the last line in the range, inclusive; 0-based.
      */
-    void recalculateScopesForLinesInRange(int firstLineIncl, int lastLineIncl)
+    public void recalculateScopesForLinesInRange(int firstLineIncl, int lastLineIncl)
     {
         if (syntaxView == null)
         {
@@ -582,14 +591,22 @@ public class MoeSyntaxDocument
         // Prevent re-entry, which can it seems can occur when applying
         // token highlight styles:
         if (applyingScopeBackgrounds)
+        {
             return;
+        }
+        
+        MoeEditorPane editorPane = syntaxView.getEditorPane();
+            
         // No point doing scopes (in fact, not possible) if there's no editor involved:
-        if (syntaxView == null || syntaxView.editorPane == null)
+        if (syntaxView == null || editorPane == null)
+        {
             return;
+        }
+        
         applyingScopeBackgrounds = true;
         // Setting paragraph styles can cause RichTextFX to scroll the window, which we
         // don't want.  So we save and restore the scroll Y:
-        double scrollY = syntaxView.editorPane.getEstimatedScrollY();
+        double scrollY = editorPane.getEstimatedScrollY();
 
         // Take a copy of backgrounds to avoid concurrent modification:
         Set<Entry<Integer, ScopeInfo>> pendingBackgrounds = new HashMap<>(pendingScopeBackgrounds).entrySet();
@@ -618,12 +635,12 @@ public class MoeSyntaxDocument
 
         // The setParagraphStyle causes a layout-request with request-follow-caret.  We have to
         // purge that layout request by executing it, before we restore the scroll Y:
-        syntaxView.editorPane.layout();
-        syntaxView.editorPane.estimatedScrollYProperty().setValue(scrollY);
+        editorPane.layout();
+        editorPane.estimatedScrollYProperty().setValue(scrollY);
         // Setting the estimated scroll Y requests a layout but does not perform it.  This seemed
         // to lead to occasional scroll jumps, I think involving delayed layout passes.  So although
         // it is getting silly, we enforce another layout to *actually* set the scroll position:
-        syntaxView.editorPane.layout();
+        editorPane.layout();
 
         applyingScopeBackgrounds = false;
     }
