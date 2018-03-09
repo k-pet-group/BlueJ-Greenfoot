@@ -295,12 +295,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     }
 
     @Override
-    public long getBlueJProcessId() throws RemoteException
-    {
-        return Long.parseLong(Utility.getProcessId());
-    }
-
-    @Override
     public void addApplicationListener(RApplicationListener listener) throws RemoteException
     {
         blueJ.addApplicationListener(new ApplicationListener()
