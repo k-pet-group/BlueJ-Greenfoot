@@ -303,12 +303,6 @@ public class RProjectImpl extends java.rmi.server.UnicastRemoteObject
     }
 
     @Override
-    public void openBrowser(String customUrl) throws RemoteException, ProjectNotOpenException
-    {
-        getBProject().openWebViewTab(customUrl);
-    }
-
-    @Override
     public void greenfootReady() throws RemoteException
     {
         try {

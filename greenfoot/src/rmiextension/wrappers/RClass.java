@@ -44,9 +44,6 @@ public interface RClass
 {
     void compile(boolean waitCompileEnd, boolean forceQuiet) throws RemoteException;
 
-    void edit()
-        throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
-
     RPackage getPackage()
         throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
 

@@ -172,34 +172,6 @@ public class GClass
     {
         rmiClass.compile(waitCompileEnd, forceQuiet);
     }
-
-    /**
-     * Open the editor for this class.
-     */
-    public void edit()
-    {
-        try
-        {
-            GreenfootUtil.allowForeground(GreenfootMain.getInstance().getBlueJProcessId());
-        }
-        catch (RemoteException e)
-        {
-            Debug.reportError(e);
-        }
-
-        try {
-            rmiClass.edit();
-        }
-        catch (ProjectNotOpenException e) {
-            Debug.reportError("Could not open editor", e);
-        }
-        catch (PackageNotFoundException e) {
-            Debug.reportError("Could not open editor", e);
-        }
-        catch (RemoteException e) {
-            Debug.reportError("Could not open editor", e);
-        }
-    }
     
     public SourceType getSourceType()
     {

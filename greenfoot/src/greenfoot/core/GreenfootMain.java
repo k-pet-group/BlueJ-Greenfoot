@@ -744,9 +744,4 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
     @Override
     public void compileWarning(RCompileEvent event){}
-
-    public long getBlueJProcessId() throws RemoteException
-    {
-        return rBlueJ.getBlueJProcessId();
-    }
 }

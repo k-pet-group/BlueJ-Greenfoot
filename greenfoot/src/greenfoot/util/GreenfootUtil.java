@@ -996,54 +996,6 @@ public class GreenfootUtil
         new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null).filter(image, image);
     }
 
-    private static Set<Long> allowedForeground = new HashSet<>();
-
-    // Called from Greenfoot to allow BlueJ windows (the editor window) to take focus.
-    public static void allowForeground(long processId)
-    {
-        if (Config.isWinOS() && !allowedForeground.contains(processId))
-        {
-            // We need to use JNA for this call, but we don't want JNA on our classpath
-            // because it can interfere with JARs in the +libs directory using their own
-            // JNA (in particular, the Finch robot does this).  So we play nice and
-            // hide our usage of JNA (since it's only this one method) by making a new
-            // classloader to load and run the JNA-dependent code.  This way, our JNA
-            // doesn't get confused with JNA on the classpath if the user adds it.
-            try
-            {
-                File nativeJAR = new File(Config.getBlueJLibDir(), "greenfoot-native.jar");
-                File jnaJAR = new File(Config.getBlueJLibDir(), "jna-4.2.0.jar");
-                File jnaPlatformJAR = new File(Config.getBlueJLibDir(), "jna-platform-4.2.0.jar");
-                List<URL> urls = Stream.of(nativeJAR, jnaJAR, jnaPlatformJAR).flatMap(f -> {
-                    try
-                    {
-                        return Stream.of(f.toURI().toURL());
-                    }
-                    catch (MalformedURLException e)
-                    {
-                        Debug.reportError(e);
-                        return Stream.empty();
-                    }
-                }).collect(Collectors.toList());
-                ClassLoader cl = new URLClassLoader(urls.toArray(new URL[0]), null);
-                // Thread.currentThread().getContextClassLoader());
-                Class<?> clz = cl.loadClass("greenfoot.util.NativeUtil");
-                Method m = clz.getDeclaredMethod("allowForegroundWindowsOS", long.class);
-                m.invoke(null, processId);
-                // Shouldn't need to do this more than once, and we don't want
-                // to keep incurring the cost of a new class loader:
-                allowedForeground.add(processId);
-                Debug.message("Successfully allowed BlueJ/Greenfoot foreground");
-            }
-            catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e)
-            {
-                Debug.reportError(e);
-                // Not much else we can do here.  Good news is that only bad outcome is that
-                // window focus won't bring to front correctly.
-            }
-        }
-    }
-
     /**
      * This method creates a MacOS button. It will create a "textured" button on
      * MacOS 10.5 and newer and a "toolbar" button on older MasOS.

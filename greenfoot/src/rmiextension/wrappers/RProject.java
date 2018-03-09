@@ -145,13 +145,6 @@ public interface RProject
      */
     public void setVmRestarted(boolean vmRestarted) throws RemoteException;
 
-    /**
-     * Opens the given URL in a new editor tab with a web view.
-     * @throws ProjectNotOpenException 
-     */
-    public void openBrowser(String customUrl)
-        throws RemoteException, ProjectNotOpenException;
-
     public void greenfootReady()
         throws RemoteException;
 

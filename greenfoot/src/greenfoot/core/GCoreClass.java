@@ -63,19 +63,6 @@ public class GCoreClass extends GClass
     }
 
     @Override
-    public void edit()
-    {
-        String page = isWorldClass() ? "greenfoot/World.html" : "greenfoot/Actor.html";
-        try {
-            GreenfootUtilDelegateIDE.showApiDoc(page);
-        }
-        catch (IOException e) {
-            String errMsg = Config.getString("greenfoot.cannotFindAPIDocumentation");
-            DialogManager.showErrorText(GreenfootMain.getInstance().getFrame(), errMsg);
-        }    
-    }
-
-    @Override
     public String getClassProperty(String propertyName)
     {
         return "";

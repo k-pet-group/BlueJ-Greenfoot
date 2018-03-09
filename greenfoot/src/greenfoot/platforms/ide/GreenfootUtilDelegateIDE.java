@@ -454,26 +454,5 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
             // Must have enough available before and after:
             return all.subList(index - desiredBefore, index + desiredAfter + 1);
         }
-    }
-    
-    /**
-     * Opens the given page of the Greenfoot API documentation in a web browser.
-     * @param page name of the page relative to the root of the API doc.
-     * @throws IOException If the greenfoot directory can not be read
-     */
-    public static void showApiDoc(String page)
-        throws IOException
-    {
-        try
-        {
-            String customUrl = Utility.getGreenfootApiDocURL(page);
-            if (customUrl != null)
-                BlueJRMIClient.instance().getPackage().getProject().openBrowser(customUrl);
-        }
-        catch(ProjectNotOpenException e)
-        {
-            Debug.reportError(e);
-        }
-    }
-    
+    }    
 }
