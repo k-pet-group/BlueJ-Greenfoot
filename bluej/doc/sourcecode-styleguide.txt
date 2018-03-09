@@ -5,7 +5,10 @@ SOURCE CODE STYLE GUIDE FOR BLUEJ
 
 1.1 Use meaningful names.
 
-Use descriptive names for all identifiers (names of classes, variables and methods). Avoid ambiguity. Avoid abbreviations. Simple mutator methods should be named setSomething(...). Simple accessor methods should be named getSomething(...). Accessor methods with boolean return values are often called isSomething(...), for example, isEmpty().
+    Use descriptive names for all identifiers (names of classes, variables and methods). Avoid
+    ambiguity. Avoid abbreviations. Simple mutator methods should be named setSomething(...).
+    Simple accessor methods should be named getSomething(...). Accessor methods with boolean
+    return values are often called isSomething(...), for example, isEmpty().
 
 1.2 Class names start with a capital letter.
 
@@ -13,7 +16,8 @@ Use descriptive names for all identifiers (names of classes, variables and metho
 
 1.4 Method and variable names start with lowercase letters.
 
-    All three - class, method and variable names - use capital letters in the middle to increase readability of compound identifiers, e.g. numberOfItems.
+    All three - class, method and variable names - use capital letters in the middle to increase
+    readability of compound identifiers, e.g. numberOfItems.
 
 1.5 Constants are written in UPPERCASE.
 
@@ -56,7 +60,9 @@ Use descriptive names for all identifiers (names of classes, variables and metho
         }
     }
 
-2.3.1 A single statement that extends over multiple lines should have the second and  subsequent lines indented by two levels (or more for neatness of appearance). For a control statement this should not affect placement of curly braces or the block.
+2.3.1 A single statement that extends over multiple lines should have the second and subsequent
+      lines indented by two levels (or more for neatness of appearance). For a control statement
+      this should not affect placement of curly braces or the block.
 
     Example:
     
@@ -75,54 +81,85 @@ Use descriptive names for all identifiers (names of classes, variables and metho
 
 2.6 Use a space between the keyword and a control structure's condition, e.g. "if (true)".
 
-2.7 Use a space around operators.
-    eg: 4 * 5
+2.7 Use a space around operators (but not around brackets).
+    eg: 6 * (2 + 3)
 
 2.8 Use a blank line between methods (and constructors).
 
-    Use blank lines to separate logical blocks of code. This means at least between methods, but also between logical parts within a method.
+    Use blank lines to separate logical blocks of code. This means at least between methods, but
+    also between logical parts within a method.
+    
+    Do not use multiple blank lines within a method or between methods in a class, and do not
+    follow '{' with a blank line nor precede '}' with a blank line.
 
-2.9 Avoid lines which are very long.  100+ characters (including indent) is already quite long, and at 110 characters you should break the line into a continuation line, or refactor out some of the sub-expressions into variables.
+2.9 Avoid lines which are very long.  100+ characters (including indent) is already quite long,
+    and at 110 characters you should break the line into a continuation line, or refactor out some
+    of the sub-expressions into variables.
 
 
 3. General
 
 3.1 Prefer readable, comprehensible, maintainable code to compact code.
 
-3.2 Use loop constructs in favour of the streams API and lambdas except in cases where the latter is clearly more comprehensible.
+3.2 if a series of up to 5 method chained calls using streams, uses only method handles or
+    straightforward single-line lambdas, and optionally a single multi-line lambda, then it
+    is fine to use streams rather than write an explicit loop.
+    
+    3.2.1  Otherwise, the statement should be written as a loop or broken into multiple
+           statements.
+    
+    3.2.2  A regular loop or standard "for each" loop should be used instead of using streams with
+           `forEach` to iterate through collections when streams are not otherwise needed, except
+           for iterating through value tuples (such as in a a Map) where regular syntax is awkward.
 
 
 4. Documentation
 
 4.1 Every class has a license comment and a class comment at the top.
 
-	The copyright statement in the license comment should list years during which the file
-	was modified.
+	The copyright statement in the license comment should list years during which the file was
+	modified, without using ranges (i.e. list each year individually).
 
-    The class comment contains at least
-    - a general description of the class
+    The class comment contains at least a general description of the class.
 
-4.2 Every method has a method comment.
+4.2 Every method has a method comment, excluding methods which override a subclass or interface
+    method and where no additional documentation is necessary.
+    
+    4.2.1  Comments for methods should explicitly state that parameter values may be null, and
+           that the return may be null, if that is the case.
 
 4.3 Comments are Javadoc-readable.
 
-    Class and method comments must be recognised by Javadoc. In other words: they should start with the comment symbol /**.
+    Class and method comments must be recognised by Javadoc. In other words: they should start
+    with the comment symbol /**; they should include @param tags for parameters (unless all
+    parameter meanings are trivial); they should include a @return tag unless the return is
+    trivial.
 
 4.4 Code comments (only) where necessary.
 
-    Comments in the code should be included where the code is not obvious or difficult to understand (while preference should be given to make the code obvious or easy to understand where possible), and where it helps understanding of a method.
+    Comments in the code should be included where the code is not obvious or difficult to
+    understand (while preference should be given to make the code obvious or easy to understand
+    where possible), and where it helps understanding of a method.
 
 5. Language use restrictions
 
 5.1 Order of declarations: fields, constructors, methods.
 
-    The elements of a class definition appear (if present) in the following order: package statement; import statements; class comment; class header; field definitions; constructors; methods.
+    The elements of a class definition appear (if present) in the following order:
+    - package statement;
+    - import statements;
+    - class comment;
+    - class header;
+    - field definitions;
+    - constructors;
+    - methods.
 
 5.2 Fields may not be public (except for final fields).
 
 5.3 Always use an access modifier.
 
-    Specify all fields and methods as either private, public, or protected. Never use default (package private) access.
+    Specify all fields and methods as either private, public, or protected. Never use default
+    (package private) access.
 
 5.4 Import classes separately.
 
@@ -136,19 +173,22 @@ Use descriptive names for all identifiers (names of classes, variables and metho
         import java.util.*;
 
     However if four classes are imported from a package, the import can be changed to 'package.*'.
-    This can be configured in some IDE's. In Eclipse: Window/Preferences/Java/Organize Imports
+    This can be configured in some IDE's.
  
 5.5 Always include a constructor (even if the body is empty).
 
 5.6 Always include superclass constructor call.
 
-    In constructors of subclasses, do not rely on automatic insertion of a superclass call. Include the super(...) call explicitly, even if it would work without it.
+    In constructors of subclasses, do not rely on automatic insertion of a superclass call.
+    Include the super(...) call explicitly, even if it would work without it.
 
 5.7 Initialise all fields in the constructor or by direct initialisation.
 
 
 6. Edits and commits
 
-6.1 Separate out each logical change into a different commit.  A bug fix should be separate to code clean-up, whenever possible.
+6.1 Separate out each logical change into a different commit.  A bug fix should be separate to
+    code clean-up, whenever possible.
 
-6.2 Do not edit more code than is necessary: do not clean up or change the style of code which you would otherwise not need to edit.
+6.2 Do not edit more code than is necessary: do not clean up or change the style of code which you
+    would otherwise not need to edit, unless it has severe formatting issues.
