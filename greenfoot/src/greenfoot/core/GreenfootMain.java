@@ -73,7 +73,7 @@ import bluej.views.View;
  * 
  * @author Poul Henriksen
  */
-public class GreenfootMain extends Thread implements CompileListener, RProjectListener
+public class GreenfootMain extends Thread implements RProjectListener
 {
     public static enum VersionInfo {
         /** The project API version matches the greenfoot API version */
@@ -135,8 +135,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
         }
     };
 
-    private ClassLoader currentLoader;
-
     // ----------- static methods ------------
 
     /**
@@ -185,8 +183,6 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
     {
         instance = this;
         this.rBlueJ = rBlueJ;
-        currentLoader = ExecServer.getCurrentClassLoader();
-        addCompileListener(this);
         try {
             // determine the path of the startup project
             File startupProj = rBlueJ.getSystemLibDir();
@@ -702,45 +698,4 @@ public class GreenfootMain extends Thread implements CompileListener, RProjectLi
 
         return version;
     }
-
-    /**
-     * See if there is a new class loader in place. If so, we want to
-     * clear all views (BlueJ views) which refer to classes loaded by the previous
-     * loader.
-     */
-    private void checkClassLoader()
-    {
-        ClassLoader newLoader = ExecServer.getCurrentClassLoader();
-        if (newLoader != currentLoader) {
-            View.removeAll(currentLoader);
-            currentLoader = newLoader;
-        }
-    }
-
-    // ------------ CompileListener interface -------------
-
-    @Override
-    public void compileStarted(RCompileEvent event)
-    {
-        checkClassLoader();
-    }
-
-    @Override
-    public void compileSucceeded(RCompileEvent event)
-    {
-        checkClassLoader();
-
-    }
-
-    @Override
-    public void compileFailed(RCompileEvent event)
-    {
-        checkClassLoader();
-    }
-
-    @Override
-    public void compileError(RCompileEvent event) {}
-
-    @Override
-    public void compileWarning(RCompileEvent event){}
 }
