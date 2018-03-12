@@ -209,6 +209,9 @@ public class VMCommsMain implements Closeable
                 long lastExecStartTime = (((long)highTime) << 32) | ((long)lowTime & 0xFFFFFFFFL);
                 stage.setLastUserExecutionStartTime(lastExecStartTime);
 
+                int simSpeed = sharedMemory.get();
+                stage.notifySimulationSpeed(simSpeed);
+                
                 int askId = sharedMemory.get();
                 if (askId >= 0 && askId > lastAnswer)
                 {

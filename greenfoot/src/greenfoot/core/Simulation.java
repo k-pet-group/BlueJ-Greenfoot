@@ -31,7 +31,6 @@ import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
 import greenfoot.gui.WorldCanvas;
 import greenfoot.gui.WorldCanvas.PaintWhen;
-import greenfoot.platforms.SimulationDelegate;
 import greenfoot.util.HDTimer;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -118,8 +117,6 @@ public class Simulation extends Thread
     private long lastRepaintTime;
     /** true if a repaint has been issued and not yet processed. */
     private boolean paintPending;
-    
-    private SimulationDelegate delegate;
 
     /**
      * Lock to synchronize access to the two fields: delaying and interruptDelay
@@ -143,10 +140,9 @@ public class Simulation extends Thread
     /**
      * Create new simulation. Leaves the simulation in paused state
      */
-    private Simulation(SimulationDelegate simulationDelegate)
+    private Simulation()
     {
         this.setName("SimulationThread");
-        this.delegate = simulationDelegate;
         startedEvent = new SimulationEvent(this, SimulationEvent.STARTED);
         stoppedEvent = new SimulationEvent(this, SimulationEvent.STOPPED);
         speedChangeEvent = new SimulationEvent(this, SimulationEvent.CHANGED_SPEED);
@@ -166,9 +162,9 @@ public class Simulation extends Thread
      * The simulation thread will not actually be started until the WorldHandler
      * is attached.
      */
-    public static void initialize(SimulationDelegate simulationDelegate)
+    public static void initialize()
     {
-        instance = new Simulation(simulationDelegate);
+        instance = new Simulation();
     }
 
     /**
@@ -845,15 +841,12 @@ public class Simulation extends Thread
         else if (speed > MAX_SIMULATION_SPEED) {
             speed = MAX_SIMULATION_SPEED;
         }
-
+        
         boolean speedChanged;
         synchronized (this) {
             speedChanged = this.speed != speed;
             if (speedChanged) {
                 this.speed = speed;
-                
-                delegate.setSpeed(speed);
-                
                 this.delay = calculateDelay(speed);
 
                 // If simulation is running we should interrupt any waiting or

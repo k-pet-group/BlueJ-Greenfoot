@@ -122,9 +122,10 @@ public class WorldCanvas extends JPanel
      * Pos 6+(W*H) and 7+(W*H): Two ints (highest bits first) with value of System.currentTimeMillis()
      *                          at the point when some execution that may contain user code last started on
      *                          the simulation thread, or 0L if user code is not currently running.
-     * Pos 8+(W*H): -1 if not currently awaiting a Greenfoot.ask() answer.
+     * Pos 8+(W*H): The current simulation speed (1 to 100)
+     * Pos 9+(W*H): -1 if not currently awaiting a Greenfoot.ask() answer.
      *              If awaiting, it is count (P) of following codepoints which make up prompt.
-     * Pos 9+(W*H) to 6+(W*H)+P excl: codepoints making up ask prompt.
+     * Pos 10+(W*H) to 10+(W*H)+P excl: codepoints making up ask prompt.
      *
      * When negative frame counter in position 1, interpret rest as follows:
      * Pos 2: Count of commands (C), can be zero
@@ -352,6 +353,8 @@ public class WorldCanvas extends JPanel
             WorldVisitor.paintDebug(world, g2);
             paintWorldText(g2, world);
         }
+        
+        final int curSpeed = Simulation.getInstance().getSpeed();
 
         // One element array to allow a reference to be set by readCommands:
         String[] answer = new String[] {null};
@@ -405,6 +408,7 @@ public class WorldCanvas extends JPanel
             sharedMemory.put(stoppedWithErrorCount);
             sharedMemory.put((int)(startOfCurExecution >> 32));
             sharedMemory.put((int)(startOfCurExecution & 0xFFFFFFFFL));
+            sharedMemory.put(curSpeed);
             // If not asking, put -1
             if (askPrompt == null || answer[0] != null)
             {
