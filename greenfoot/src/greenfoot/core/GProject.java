@@ -237,7 +237,7 @@ public class GProject extends RProjectListenerImpl
     @Override
     public void projectClosing()
     {
-        GreenfootMain.getInstance().projectClosing();
+        // GreenfootMain.getInstance().projectClosing();
     }
     
     /**
