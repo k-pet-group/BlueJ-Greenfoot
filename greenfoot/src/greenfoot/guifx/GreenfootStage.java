@@ -168,6 +168,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private final BooleanProperty runDisabled = new SimpleBooleanProperty(true);
     private final BooleanProperty pauseDisabled = new SimpleBooleanProperty(true);
     private final BooleanBinding runPauseDisabled = runDisabled.and(pauseDisabled);;
+
+    // The last speed value set by the user altering it in interface (rather than programmatically):
+    private int lastUserSetSpeed;
     
     private boolean instantiateWorldAfterDiscarded;
     private final ExecutionTwirler executionTwirler;
@@ -289,6 +292,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         runButton.setOnAction(e -> doRunPause());
         resetButton.setOnAction(e -> doReset());
         JavaFXUtil.addChangeListener(speedSlider.valueProperty(), newSpeed -> {
+            lastUserSetSpeed = newSpeed.intValue();
             debugHandler.getVmComms().setSimulationSpeed(newSpeed.intValue());
         });
 
@@ -570,6 +574,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         try
         {
             Properties p = project.getProjectPropertiesCopy();
+            p.setProperty("simulation.speed", Integer.toString(lastUserSetSpeed));
             p.put("version", Boot.GREENFOOT_API_VERSION);
             project.saveEditorLocations(p);
             project.getUnnamedPackage().save(p);
