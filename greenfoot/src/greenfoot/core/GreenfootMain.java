@@ -26,24 +26,15 @@ import bluej.collect.DataSubmissionFailedDialog;
 import greenfoot.event.CompileListener;
 import greenfoot.event.CompileListenerForwarder;
 import greenfoot.gui.GreenfootFrame;
-import greenfoot.gui.MessageDialog;
-import greenfoot.importer.scratch.ScratchImport;
 import greenfoot.platforms.ide.ActorDelegateIDE;
 import greenfoot.util.Version;
 
 import java.awt.EventQueue;
-import java.awt.Frame;
-import java.awt.Point;
 import java.io.File;
-import java.io.FilenameFilter;
 import java.lang.reflect.Field;
 import java.rmi.RemoteException;
-import java.rmi.ServerError;
-import java.rmi.ServerException;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.swing.*;
 
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -52,19 +43,14 @@ import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.RPackage;
 import rmiextension.wrappers.RProject;
 import rmiextension.wrappers.event.RApplicationListenerImpl;
-import rmiextension.wrappers.event.RCompileEvent;
-import rmiextension.wrappers.event.RProjectListener;
 import bluej.Config;
 import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.SourceType;
-import bluej.pkgmgr.GreenfootProjectFile;
-import bluej.pkgmgr.Project;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.Utility;
-import bluej.views.View;
 
 /**
  * The main class for greenfoot. This is a singelton (in the JVM). Since each
@@ -73,7 +59,7 @@ import bluej.views.View;
  * 
  * @author Poul Henriksen
  */
-public class GreenfootMain extends Thread implements RProjectListener
+public class GreenfootMain extends Thread
 {
     public static enum VersionInfo {
         /** The project API version matches the greenfoot API version */
@@ -125,15 +111,6 @@ public class GreenfootMain extends Thread implements RProjectListener
 
     /** The class state manager notifies GClass objects when their compilation state changes */
     private ClassStateManager classStateManager;
-
-    /** Filter that matches class files */
-    private static FilenameFilter classFilter = new FilenameFilter() {
-        @Override
-        public boolean accept(File dir, String name)
-        {
-            return name.toLowerCase().endsWith(".class");
-        }
-    };
 
     // ----------- static methods ------------
 
@@ -314,24 +291,6 @@ public class GreenfootMain extends Thread implements RProjectListener
         return project;
     }
 
-    /*
-     * @see rmiextension.wrappers.event.RProjectListener#projectClosing()
-     */
-    @Override
-    public void projectClosing()
-    {
-        try {
-            if (!isStartupProject()) {
-                rBlueJ.removeCompileListener(compileListenerForwarder);
-                rBlueJ.removeClassListener(classStateManager);
-                storeFrameState();
-            }
-        }
-        catch (RemoteException re) {
-            Debug.reportError("Closing project", re);
-        }
-    }
-
     /**
      * Close all open Greenfoot project instances, i.e. exit the application.
      */
@@ -343,22 +302,6 @@ public class GreenfootMain extends Thread implements RProjectListener
         catch (RemoteException re) {
             Debug.reportError("Closing all projects", re);
         }
-    }
-
-    /**
-     * Store the current main window size to the project properties.
-     */
-    private void storeFrameState()
-    {
-        ProjectProperties projectProperties = project.getProjectProperties();
-
-        projectProperties.setInt("mainWindow.width", frame.getWidth());
-        projectProperties.setInt("mainWindow.height", frame.getHeight());
-        Point loc = frame.getLocation();
-        projectProperties.setInt("mainWindow.x", loc.x);
-        projectProperties.setInt("mainWindow.y", loc.y);
-
-        projectProperties.save();
     }
 
     /**
@@ -399,253 +342,7 @@ public class GreenfootMain extends Thread implements RProjectListener
     {
         return frame;
     }
-
-    /**
-     * Makes a project a greenfoot project. It cleans up the project directory
-     * and makes sure everything that needs to be there is there.
-     * 
-     * @param deleteClassFiles whether the class files in the destination should
-     *            be deleted. If true, they will be deleted and appear as
-     *            needing a recompile in the Greenfoot class browser.
-     */
-    private static void prepareGreenfootProject(File greenfootLibDir, File projectDir,
-                                                ProjectAPIVersionAccess p, boolean deleteClassFiles, String greenfootApiVersion)
-    {
-        if (isStartupProject(greenfootLibDir, projectDir)) {
-            return;
-        }
-        File dst = projectDir;
-
-        File greenfootDir = new File(dst, "greenfoot");
-        
-        // Since Greenfoot 1.5.2 we no longer require the greenfoot directory,
-        // so we delete everything that we might have had in there previously,
-        // and delete the dir if it is empty after that.
-        deleteGreenfootDir(greenfootDir);        
-        
-        if(deleteClassFiles) {
-            deleteAllClassFiles(dst);
-        }
-        
-        // Since Greenfoot 1.3.0 we no longer use the bluej.pkg file, so if it
-        // exists it should now be deleted.
-        try {
-            File pkgFile = new File(dst, "bluej.pkg");
-            if (pkgFile.exists()) {
-                pkgFile.delete();
-            }   
-            File pkhFile = new File(dst, "bluej.pkh");
-            if (pkhFile.exists()) {
-                pkhFile.delete();
-            }
-        }
-        catch (SecurityException e) {
-            // If we don't have permission to delete, just leave them there.
-        }   
-        
-        try {
-            File images = new File(dst, "images");
-            images.mkdir();
-            File sounds = new File(dst, "sounds");
-            sounds.mkdir();
-        }
-        catch (SecurityException e) {
-            Debug.reportError("SecurityException when trying to create images/sounds directories", e);
-        }
-        
-        p.setAPIVersionAndSave(greenfootApiVersion);
-    }
-
-    private static void deleteGreenfootDir(File greenfootDir) 
-    {
-        if (greenfootDir.exists()) {
-            try {
-                File actorJava = new File(greenfootDir, "Actor.java");
-                if (actorJava.exists()) {
-                    actorJava.delete();
-                }
-            }
-            catch (SecurityException e) {
-                // If we don't have permission to delete, just leave them there.
-            }
-            
-            try {
-                File worldJava = new File(greenfootDir, "World.java");
-                if (worldJava.exists()) {
-                    worldJava.delete();
-                }
-            }
-            catch (SecurityException e) {
-                // If we don't have permission to delete, just leave them there.
-            }
-            
-            try {
-                File actorJava = new File(greenfootDir, "Actor.class");
-                if (actorJava.exists()) {
-                    actorJava.delete();
-                }
-            }
-            catch (SecurityException e) {
-                // If we don't have permission to delete, just leave them there.
-            }
-            
-            try {
-                File worldJava = new File(greenfootDir, "World.class");
-                if (worldJava.exists()) {
-                    worldJava.delete();
-                }
-            }
-            catch (SecurityException e) {
-                // If we don't have permission to delete, just leave them there.
-            }
-            
-            try {
-                File worldJava = new File(greenfootDir, "project.greenfoot");
-                if (worldJava.exists()) {
-                    worldJava.delete();
-                }
-            }
-            catch (SecurityException e) {
-                // If we don't have permission to delete, just leave them there.
-            }
-            
-            try {
-                greenfootDir.delete();
-            }
-            catch (SecurityException e) {
-                // If we don't have permission to delete, just leave them there.
-            }
-        }
-    }
     
-    public static interface ProjectAPIVersionAccess
-    {
-        /**
-         * Attempts to find the version number the greenfoot API that a greenfoot
-         * project was created with. If it can not find a version number, it will
-         * return Version.NO_VERSION. Thread-safe.
-         *
-         * @return API version
-         */
-        Version getAPIVersion();
-
-        /**
-         * Sets the API version and saves this to the project file.
-         * @param version
-         */
-        void setAPIVersionAndSave(String version);
-    }
-
-    /**
-     * Checks whether the API version this project was created with is
-     * compatible with the current API version. If it is not, it will attempt to
-     * update the project to the current version of the API and present the user
-     * with a dialog with instructions on what to do if there are changes in API
-     * version that requires manual modifications of the API.
-     * <p>
-     * If is considered safe to open this project with the current API version
-     * the method will return true.
-     * 
-     * @param project The project in question.
-     * @param parent Frame that should be used to place dialogs.
-     * @return One of VERSION_OK, VERSION_UPDATED or VERSION_BAD
-     */
-    public static VersionCheckInfo updateApi(File projectDir, ProjectAPIVersionAccess projectVersionAccess, Frame parent, String greenfootApiVersion)
-    {
-        File greenfootLibDir = Config.getGreenfootLibDir();
-        Version projectVersion = projectVersionAccess.getAPIVersion();
-
-        Version apiVersion = GreenfootMain.getAPIVersion();
-
-        if (projectVersion.isBad()) {
-            String message = projectVersion.getBadMessage();
-            JButton continueButton = new JButton(Config.getString("greenfoot.continue"));
-            MessageDialog dialog = new MessageDialog(parent, message, Config.getString("project.version.mismatch"), 50,
-                    new JButton[]{continueButton});
-            dialog.displayModal();
-            Debug.message("Bad version number in project: " + greenfootLibDir);
-            GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir,
-                    projectVersionAccess, true, greenfootApiVersion);
-            return new VersionCheckInfo(VersionInfo.VERSION_UPDATED, false);
-        }
-        else if (projectVersion.isOlderAndBreaking(apiVersion)) {
-            String message = projectVersion.getChangesMessage(apiVersion);
-            boolean removeAWTImports;
-            if (projectVersion.crosses300Boundary(apiVersion))
-            {
-                message += "\n\n" + Config.getString("greenfoot.importfix.question"); //"Would you like to try to automatically update your code?";
-                JButton yesButton = new JButton(Config.getString("greenfoot.importfix.yes"));
-                JButton noButton = new JButton(Config.getString("greenfoot.importfix.no"));
-                MessageDialog dialog = new MessageDialog(parent, message, Config.getString("project.version.mismatch"), 80,
-                        Config.isMacOS() ? new JButton[]{noButton, yesButton} : new JButton[]{yesButton, noButton});
-                removeAWTImports = dialog.displayModal() == yesButton;
-            }
-            else
-            {
-                JButton continueButton = new JButton(Config.getString("greenfoot.continue"));
-                MessageDialog dialog = new MessageDialog(parent, message, Config.getString("project.version.mismatch"), 80,
-                        new JButton[]{continueButton});
-                dialog.displayModal();
-                removeAWTImports = false;
-            }
-            GreenfootMain.prepareGreenfootProject(greenfootLibDir, projectDir,
-                    projectVersionAccess, true, greenfootApiVersion);
-
-            return new VersionCheckInfo(VersionInfo.VERSION_UPDATED, removeAWTImports);
-        }
-        else if (apiVersion.isOlderAndBreaking(projectVersion)) {
-            String message = projectVersion.getNewerMessage();
-
-            JButton cancelButton = new JButton(Config.getString("greenfoot.cancel"));
-            JButton continueButton = new JButton(Config.getString("greenfoot.continue"));
-            MessageDialog dialog = new MessageDialog(parent, message, Config.getString("project.version.mismatch"), 50,
-                    new JButton[]{continueButton, cancelButton});
-            JButton pressed = dialog.displayModal();
-
-            if (pressed == cancelButton) {
-                return new VersionCheckInfo(VersionInfo.VERSION_BAD, false);
-            }
-            prepareGreenfootProject(greenfootLibDir, projectDir, projectVersionAccess, true, greenfootApiVersion);
-            return new VersionCheckInfo(VersionInfo.VERSION_UPDATED, false);
-        }
-        else if (projectVersion.isNonBreaking(apiVersion) ) {
-            prepareGreenfootProject(greenfootLibDir, projectDir,
-                    projectVersionAccess, true, greenfootApiVersion);
-            return new VersionCheckInfo(VersionInfo.VERSION_UPDATED, false);
-        }
-        else if (projectVersion.isInternal(apiVersion)) {
-            prepareGreenfootProject(greenfootLibDir, projectDir,
-                    projectVersionAccess, false, greenfootApiVersion);
-            return new VersionCheckInfo(VersionInfo.VERSION_UPDATED, false);
-        }
-        else {       
-            prepareGreenfootProject(greenfootLibDir, projectDir,
-                    projectVersionAccess, false, greenfootApiVersion);
-            return new VersionCheckInfo(VersionInfo.VERSION_OK, false);            
-        }
-    }
-
-    /**
-     * Deletes all class files in the directory, including the greenfoot subdirectory,
-     * only if they have a .java file related to them.
-     */
-    public static void deleteAllClassFiles(File dir)
-    {
-        String[] classFiles = dir.list(classFilter);
-        if(classFiles == null) return;
-
-        for (int i = 0; i < classFiles.length; i++) {
-            String fileName = classFiles[i];
-            int index = fileName.lastIndexOf('.');
-            String javaFileName = fileName.substring(0, index) + "." + SourceType.Java.toString().toLowerCase();
-            File file = new File(dir, fileName);
-            File javaFile = new File(dir, javaFileName);
-            if (javaFile.exists()) {
-                file.delete();
-            }
-        }
-    }
-
     /**
      * Checks if the project is the default startup project that is used when no
      * other project is open. It is necessary to have this dummy project,

@@ -554,7 +554,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         try
         {
             Properties p = project.getProjectPropertiesCopy();
+            p.put("version", Boot.GREENFOOT_API_VERSION);
             project.saveEditorLocations(p);
+            project.getUnnamedPackage().save(p);
             project.getImportScanner().saveCachedImports();
             project.saveAllEditors();
         }
@@ -1977,7 +1979,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     public void doNewProject(SourceType sourceType)
     {
-        String title = Config.getString( "pkgmgr.newPkg.title" );
+        String title = Config.getString("pkgmgr.newPkg.title");
         File newnameFile = FileUtility.getSaveProjectFX(this.getStage(), title);
         if (newnameFile == null)
         {
@@ -2004,7 +2006,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
             if (proj != null)
             {
-                Package unNamedPkg = proj.getPackage("");
+                Package unNamedPkg = proj.getUnnamedPackage();
                 Properties props = new Properties(unNamedPkg.getLastSavedProperties());
                 props.put("version", Boot.GREENFOOT_API_VERSION);
                 unNamedPkg.save(props);
@@ -2013,14 +2015,17 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 stage.createNewClass(unNamedPkg, "greenfoot.World",
                         "MyWorld", sourceType, getWorldTemplateFileName(true, sourceType));
                 stage.toFront();
+                return true;
             }
             else
             {
                 // display error dialog
                 DialogManager.showErrorFX(this, "could-not-open-project");
+                return false;
             }
-            return true;
         }
+        
+        DialogManager.showErrorFX(this, "cannot-create-project");
         return false;
     }
 
