@@ -39,12 +39,6 @@ public interface RBlueJ
     extends java.rmi.Remote
 {
     /**
-     * Get a stream object that can be used to output to the debug log.
-     */
-    public RPrintStream getDebugPrinter()
-        throws RemoteException;
-    
-    /**
      * Register a Compile event listener for the project identified by the given path.
      */
     public void addCompileListener(RCompileListener listener, File projectPath)

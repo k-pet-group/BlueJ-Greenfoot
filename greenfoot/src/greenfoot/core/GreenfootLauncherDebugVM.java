@@ -27,12 +27,12 @@ import greenfoot.util.GreenfootUtil;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.rmi.RemoteException;
 
 import rmiextension.BlueJRMIClient;
 import rmiextension.wrappers.RBlueJ;
-import rmiextension.wrappers.RPrintStream;
 import bluej.Config;
 import bluej.utility.Debug;
 
@@ -82,26 +82,7 @@ public class GreenfootLauncherDebugVM
                     File libdir = blueJ.getSystemLibDir();
                     Config.initializeVMside(libdir, blueJ.getUserPrefDir(),
                             blueJ.getInitialCommandLineProperties(), true, client);
-                    final RPrintStream rprintStream = blueJ.getDebugPrinter();
-                    Debug.setDebugStream(new Writer() {
-                        @Override
-                        public void write(char[] cbuf, int off, int len)
-                                throws IOException
-                        {
-                            String s = new String(cbuf, off, len);
-                            rprintStream.print(s);
-                        }
-                        
-                        @Override
-                        public void flush() throws IOException
-                        {
-                        }
-                        
-                        @Override
-                        public void close() throws IOException
-                        {
-                        }
-                    });
+                    Debug.setDebugStream(new PrintWriter(System.err));
                     
                     GreenfootUtil.initialise(GreenfootUtilDelegateIDE.getInstance());
                     GreenfootMain.initialize(blueJ, client.getPackage(), shmFilePath, wizard.equals("true"), SourceType.getEnum(sourceTypeName));
