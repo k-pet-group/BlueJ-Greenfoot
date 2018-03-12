@@ -40,8 +40,6 @@ public class SelectImageFrame extends FXCustomizedDialog<File>
 {
     private final ClassTarget classTarget;
     private ImageLibPane imageLibPane;
-    /** A watcher that goes notified when an image is selected, to allow for previewing. May be null */
-    private final ImageSelectionWatcher selectionWatcher;
 
     /**
      * Construct an SelectImageFrame for changing the image of an existing class.
@@ -49,11 +47,10 @@ public class SelectImageFrame extends FXCustomizedDialog<File>
      * @param owner      The parent frame
      * @param classTarget  The ClassView of the existing class
      */
-    public SelectImageFrame(Window owner, ClassTarget classTarget, ImageSelectionWatcher watcher)
+    public SelectImageFrame(Window owner, ClassTarget classTarget)
     {
         super(owner, Config.getString("imagelib.title") + " " + classTarget.getDisplayName(), "image-lib");
         this.classTarget = classTarget;
-        this.selectionWatcher = watcher;
         buildUI();
     }
 
@@ -62,7 +59,7 @@ public class SelectImageFrame extends FXCustomizedDialog<File>
      */
     private void buildUI()
     {
-        imageLibPane = new ImageLibPane(this.asWindow(), classTarget, selectionWatcher);
+        imageLibPane = new ImageLibPane(this.asWindow(), classTarget);
         setContentPane(imageLibPane);
 
         // Ok and cancel buttons
