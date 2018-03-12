@@ -43,7 +43,6 @@ import greenfoot.util.GraphicsUtilities;
 
 import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.EventQueue;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
@@ -519,7 +518,7 @@ public class WorldHandler
         final World discardedWorld = world;
         world = null;
 
-        EventQueue.invokeLater(() -> {
+        Simulation.getInstance().runLater(() -> {
             worldCanvas.setWorld(null);
             fireWorldRemovedEvent(discardedWorld);
         });
@@ -579,7 +578,7 @@ public class WorldHandler
         });
         this.world = world;
         
-        EventQueue.invokeLater(() -> {
+        Simulation.getInstance().runLater(() -> {
             if(worldCanvas != null) {
                 worldCanvas.setWorld(world);
             }
@@ -981,18 +980,24 @@ public class WorldHandler
         handlerDelegate.objectAddedToWorld(object);
     }
 
+    /**
+     * Ask a question, with a given prompt, to the user (i.e. implement Greenfoot.ask()).
+     */
     public String ask(String prompt)
     {
         boolean held = lock.isWriteLockedByCurrentThread();
         if (held)
+        {
             lock.writeLock().unlock();
+        }
+        
         String answer = handlerDelegate.ask(prompt, worldCanvas);
-        // Must refocus canvas after panel disappears:
-        EventQueue.invokeLater(new Runnable() {public void run() {
-            worldCanvas.requestFocusInWindow();
-        }});
+        
         if (held)
+        {
             lock.writeLock().lock();
+        }
+        
         return answer;
     }
 

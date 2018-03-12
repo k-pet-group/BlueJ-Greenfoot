@@ -153,13 +153,15 @@ public class WorldCanvas extends JPanel
     private long startOfCurExecution = 0;
 
     /**
+     * Construct a WorldCanvas.
+     * 
      * @param world The world which we are the canvas for.
      * @param shmFilePath The path to the shared-memory file to be mmap-ed for communication
      */
+    @SuppressWarnings("resource")
     public WorldCanvas(ShadowProjectProperties projectProperties, String shmFilePath)
     {
         this.projectProperties = projectProperties;
-        setWorld(world);
         setBackground(Color.WHITE);
         setOpaque(true);
         try
