@@ -98,14 +98,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
             public void compileError(CompileEvent event) { }
         });
     }
-
-    /*
-     * @see rmiextension.wrappers.RBlueJ#getDebugPrinter()
-     */
-    public RPrintStream getDebugPrinter() throws RemoteException
-    {
-        return new RPrintStreamImpl();
-    }
     
     /*
      * @see rmiextension.wrappers.RBlueJ#addCompileListener(rmiextension.wrappers.event.RCompileListener, java.lang.String)
