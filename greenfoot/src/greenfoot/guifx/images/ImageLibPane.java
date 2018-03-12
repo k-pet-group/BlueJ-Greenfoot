@@ -81,20 +81,17 @@ class ImageLibPane extends VBox
     private static final String COPY_SUFFIX = Config.getString("imagelib.duplicate.image.name.suffix");
     /** PopupMenu icon */
     private static final String DROPDOWN_ICON_FILE = "menu-button.png";
-    /** A watcher that goes notified when an image is selected, to allow for previewing. May be null */
-    private ImageSelectionWatcher selectionWatcher;
 
     /**
-     * Construct ImageLibPane with a known classTarget and selectionWatcher.
-     * Usually used by the SelectImageFrame for selecting an image for an existing class.
+     * Construct ImageLibPane with a known classTarget. Usually used by
+     * the SelectImageFrame for selecting an image for an existing class.
      *
      * @param container         The contained frame
      * @param classTarget       The class target of the existing class
-     * @param selectionWatcher  The image selection watcher
      */
-    ImageLibPane(Window container, ClassTarget classTarget, ImageSelectionWatcher selectionWatcher)
+    ImageLibPane(Window container, ClassTarget classTarget)
     {
-        this(container, classTarget.getPackage().getProject(), getSpecifiedImage(classTarget), selectionWatcher);
+        this(container, classTarget.getPackage().getProject(), getSpecifiedImage(classTarget));
     }
 
     /**
@@ -105,7 +102,7 @@ class ImageLibPane extends VBox
      */
     ImageLibPane(Window container, Project project)
     {
-        this(container, project, null, null);
+        this(container, project, null);
     }
 
     /**
@@ -114,14 +111,12 @@ class ImageLibPane extends VBox
      * @param container         The contained window
      * @param project           The current project
      * @param specifiedImage    The image to be selected initially
-     * @param watcher           The image selection watcher
      */
-    private ImageLibPane(Window container, Project project, File specifiedImage, ImageSelectionWatcher watcher)
+    private ImageLibPane(Window container, Project project, File specifiedImage)
     {
         super(10);
         this.container = container;
         this.project = project;
-        this.selectionWatcher = watcher;
 
         getChildren().addAll(buildImageLists(specifiedImage), createCogMenu());
     }
@@ -291,18 +286,13 @@ class ImageLibPane extends VBox
     }
 
     /**
-     * Selects the given file (or no file) for use in the preview.
+     * Selects the given file (or no file).
      * 
-     * @param imageFile  The file to select, and to show in the small preview box in the
-     *                   SelectImageFrame. If null, then "no image" is selected.
+     * @param imageFile  The file to select. If null, then "no image" is selected.
      */
     private void selectImage(File imageFile)
     {
         selectedImageFile.set(imageFile);
-        if (selectionWatcher != null)
-        {
-            selectionWatcher.imageSelected(imageFile);
-        }
     }
 
     /**

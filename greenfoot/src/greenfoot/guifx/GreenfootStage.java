@@ -67,12 +67,8 @@ import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 
-import greenfoot.GreenfootImage;
-import greenfoot.World;
-import greenfoot.WorldVisitor;
 import greenfoot.core.ProjectManager;
 import greenfoot.core.Simulation;
-import greenfoot.core.WorldHandler;
 import bluej.pkgmgr.AboutDialogTemplate;
 import greenfoot.guifx.classes.ClassDisplay;
 import greenfoot.guifx.classes.GClassDiagram;
@@ -82,7 +78,6 @@ import greenfoot.guifx.classes.ImportClassDialog;
 import greenfoot.guifx.images.NewImageClassFrame;
 import greenfoot.guifx.images.NewImageClassFrame.NewImageClassInfo;
 import greenfoot.guifx.images.SelectImageFrame;
-import greenfoot.guifx.images.ImageSelectionWatcher;
 import greenfoot.guifx.soundrecorder.SoundRecorderControls;
 import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
 import greenfoot.record.GreenfootRecorder;
@@ -1519,41 +1514,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     public void setImageFor(ClassTarget classTarget, ClassDisplay classDisplay)
     {
-        final World currentWorld = WorldHandler.getInstance().getWorld();
-        // save the original background if possible
-        final GreenfootImage originalBackground = ((currentWorld == null) ?
-                null : WorldVisitor.getBackgroundImage(currentWorld));
-
-        // allow the previewing if we are setting the image of the current world.
-        ImageSelectionWatcher watcher = null;
-        if (currentWorld != null && currentWorld.getClass().getName().equals(classTarget.getQualifiedName()))
-        {
-            watcher = imageFile -> {
-                if (imageFile != null)
-                {
-                    Simulation.getInstance().runLater(() -> {
-                        if (WorldHandler.getInstance().getWorld() == currentWorld)
-                        {
-                            currentWorld.setBackground(imageFile.getAbsolutePath());
-                        }
-                    });
-                }
-            };
-        }
-
         // initialise our image library frame
-        Optional<File> result = new SelectImageFrame(this, classTarget, watcher).showAndWait();
-        if (result.isPresent())
-        {
-            // set the image of the class to the selected file
-            classDisplay.setImage(new Image(result.get().toURI().toString()));
-        }
-        else if (currentWorld != null)
-        {
-            // if cancelled, reset the world background to the original format
-            // to avoid white screens or preview images being left there.
-            Simulation.getInstance().runLater(() -> currentWorld.setBackground(originalBackground));
-        }
+        SelectImageFrame selectImageFrame = new SelectImageFrame(this, classTarget);
+        // if the frame is not canceled after showing, set the image of the class to the selected file
+        selectImageFrame.showAndWait().ifPresent(file -> classDisplay.setImage(new Image(file.toURI().toString())));
     }
 
     /**
