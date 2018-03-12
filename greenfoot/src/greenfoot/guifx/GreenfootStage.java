@@ -425,6 +425,22 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             String value = props.getProperty(key);
             debugHandler.getVmComms().sendProperty(key, value);
         }
+        // Load the speed into our slider and inform debug VM:
+        int speed = 50;
+        try
+        {
+            String speedString = project.getUnnamedPackage().getLastSavedProperties().getProperty("simulation.speed");
+            if (speedString != null)
+            {
+                speed = Integer.valueOf(speedString);
+            }
+        }
+        catch (NumberFormatException e)
+        {
+            // Just leave it as the default 50 if there is a problem
+        }
+        speedSlider.setValue(speed);
+        debugHandler.getVmComms().setSimulationSpeed(speed);
     }
 
     /**
