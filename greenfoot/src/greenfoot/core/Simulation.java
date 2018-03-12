@@ -21,7 +21,6 @@
  */
 package greenfoot.core;
 
-import bluej.utility.Debug;
 import greenfoot.Actor;
 import greenfoot.ActorVisitor;
 import greenfoot.World;
@@ -847,7 +846,6 @@ public class Simulation extends Thread
         synchronized (this) {
             speedChanged = this.speed != speed;
             if (speedChanged) {
-                Debug.printCallStack("New speed: " + speed);
                 this.speed = speed;
                 this.delay = calculateDelay(speed);
 
