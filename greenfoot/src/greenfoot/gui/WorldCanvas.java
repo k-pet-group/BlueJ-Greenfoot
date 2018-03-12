@@ -43,6 +43,7 @@ import threadchecker.Tag;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -178,16 +179,18 @@ public class WorldCanvas extends JPanel
     
     /**
      * Sets the world that should be visualised by this canvas.
-     * Call only from the Swing event thread.
+     * Can be called from any thread.
      */
     public void setWorld(World world)
     {
         this.world = world;
         if (world != null) {
-            setOverrideImage(null);
-            this.setSize(getPreferredSize());
-            revalidate();
-            repaint();
+            EventQueue.invokeLater(() -> {
+                setOverrideImage(null);
+                this.setSize(getPreferredSize(world));
+                revalidate();
+                repaint();
+            });
         }
         else {
             // this.setSize(0, 0);
@@ -626,6 +629,14 @@ public class WorldCanvas extends JPanel
 
     @Override
     public Dimension getPreferredSize()
+    {
+        return getPreferredSize(world);
+    }
+    
+    /**
+     * Get the preferred size for this component, assuming that it is housing the given world.
+     */
+    private Dimension getPreferredSize(World world)
     {
         if (world != null) {
             size = new Dimension();

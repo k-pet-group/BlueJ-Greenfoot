@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016,2018  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -509,11 +509,15 @@ public class WorldHandler
     }
 
     /** 
-     * Removes the current world.
+     * Removes the current world. This can be called from any thread.
      */
     public synchronized void discardWorld()
     {
-        if(world == null) return;
+        if (world == null)
+        {
+            return;
+        }
+        
         handlerDelegate.discardWorld(world); 
         final World discardedWorld = world;
         world = null;
