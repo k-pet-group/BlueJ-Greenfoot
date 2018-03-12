@@ -47,7 +47,6 @@ import greenfoot.event.SimulationListener;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
 import greenfoot.gui.input.mouse.LocationTracker;
-import greenfoot.platforms.ide.SimulationDelegateIDE;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 import greenfoot.sound.SoundFactory;
 import greenfoot.util.AskHandler;
@@ -295,7 +294,7 @@ public class GreenfootFrame extends JFrame
         WorldHandler.initialise(worldCanvas, worldHandlerDelegate);
         worldHandler = WorldHandler.getInstance();
         worldHandler.addWorldListener(this);
-        Simulation.initialize(new SimulationDelegateIDE());
+        Simulation.initialize();
         Simulation sim = Simulation.getInstance();
         
         setupActions();
