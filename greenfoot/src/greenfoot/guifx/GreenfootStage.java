@@ -171,6 +171,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
     // The last speed value set by the user altering it in interface (rather than programmatically):
     private int lastUserSetSpeed;
+    // Used to stop an infinite loop if we set the speed slider in response to a programmatic change: 
+    private boolean settingSpeedFromSimulation = false;
     
     private boolean instantiateWorldAfterDiscarded;
     private final ExecutionTwirler executionTwirler;
@@ -291,9 +293,13 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         actButton.setOnAction(e -> act());
         runButton.setOnAction(e -> doRunPause());
         resetButton.setOnAction(e -> doReset());
+        // Note - if you alter this listener code, make sure to check notifySimulationSpeed() as well:
         JavaFXUtil.addChangeListener(speedSlider.valueProperty(), newSpeed -> {
-            lastUserSetSpeed = newSpeed.intValue();
-            debugHandler.getVmComms().setSimulationSpeed(newSpeed.intValue());
+            if (!settingSpeedFromSimulation)
+            {
+                lastUserSetSpeed = newSpeed.intValue();
+                debugHandler.getVmComms().setSimulationSpeed(newSpeed.intValue());
+            }
         });
 
         worldDisplay = new WorldDisplay();
@@ -2080,5 +2086,20 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 executionTwirler.startTwirling();
             }
         }
+    }
+
+    /**
+     * Called with the latest simulation speed
+     * @param simSpeed The simulation speed we received from the debug VM:
+     */
+    public void notifySimulationSpeed(int simSpeed)
+    {
+        // We want to update the speed slider, but we don't want to alter
+        // the speed in lastUserSetSpeed which will get saved, and we don't want to
+        // tell the simulation about a speed change that they instigated.
+        // So we set a boolean flag to block the slider listener:
+        settingSpeedFromSimulation = true;
+        speedSlider.setValue(simSpeed);
+        settingSpeedFromSimulation = false;
     }
 }
