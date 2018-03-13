@@ -75,6 +75,8 @@ import greenfoot.guifx.classes.GClassDiagram;
 import greenfoot.guifx.classes.GClassDiagram.GClassType;
 import greenfoot.guifx.classes.GClassNode;
 import greenfoot.guifx.classes.ImportClassDialog;
+import greenfoot.guifx.export.ExportDialog;
+import greenfoot.guifx.export.ExportException;
 import greenfoot.guifx.images.NewImageClassFrame;
 import greenfoot.guifx.images.NewImageClassFrame.NewImageClassInfo;
 import greenfoot.guifx.images.SelectImageFrame;
@@ -209,6 +211,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private GreenfootDebugHandler debugHandler;
     private final Menu recentProjectsMenu = new Menu(Config.getString("menu.openRecent"));
     private final SimpleBooleanProperty showingDebugger = new SimpleBooleanProperty(false);
+
+    // The current active world. This will be set either by properties when opening
+    // a scenario, or by calling a world constructor through the context menu.
+    // This will NOT change if the world changes by user's code.
+    private ClassTarget currentWorld;
 
     // World image
     private WritableImage worldImg;
@@ -640,7 +647,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         }
         else
         {
-            // TODO show ExportDialog
+            try
+            {
+                new ExportDialog(this, project, currentWorld, worldDisplay.snapshot(null, null)).showAndWait();
+            }
+            catch (ExportException e)
+            {
+                DialogManager.showErrorTextFX(this, e.getMessage());
+            }
         }
     }
 
