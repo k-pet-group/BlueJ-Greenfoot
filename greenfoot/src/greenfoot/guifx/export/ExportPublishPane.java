@@ -108,21 +108,19 @@ public class ExportPublishPane extends ExportPane
     private ExistingScenarioChecker scenarioChecker;
     private Font font;
     private boolean isUpdate = false;
-    // TODO Export Dialog
-    // private ExportDialog exportDialog;
+    private final ExportDialog exportDialog;
 
     /**
      * Creates a new instance of ExportPublishPane
      *
-     * @param project The project that will be shared.
+     * @param project       The project that will be shared.
+     * @param exportDialog  The export dialog containing this pane.
      */
-    // TODO Export Dialog
-    public ExportPublishPane(Project project)//, ExportDialog exportDialog)
+    public ExportPublishPane(Project project, ExportDialog exportDialog)
     {
         super();
         this.project = project;
-        // TODO Export Dialog
-        // this.exportDialog = exportDialog;
+        this.exportDialog = exportDialog;
         buildContentPane();
     }
 
@@ -561,8 +559,7 @@ public class ExportPublishPane extends ExportPane
             commonTagsLoader.start();
         }
         
-        // TODO Export Dialog
-        // exportDialog.setExportButtonText(Config.getString(isUpdate ? "export.dialog.update" : "export.dialog.share"));
+        exportDialog.setExportButtonText(Config.getString(isUpdate ? "export.dialog.update" : "export.dialog.share"));
     }
 
     @Override
@@ -774,8 +771,7 @@ public class ExportPublishPane extends ExportPane
         if (this.isUpdate != isUpdate)
         {
             this.isUpdate = isUpdate;
-            // TODO Export Dialog
-            // exportDialog.setExportButtonText(Config.getString(isUpdate ? "export.dialog.update" : "export.dialog.share"));
+            exportDialog.setExportButtonText(Config.getString(isUpdate ? "export.dialog.update" : "export.dialog.share"));
             updateScenarioDisplay();
         }
     }
