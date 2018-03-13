@@ -23,13 +23,11 @@ package greenfoot.guifx.export;
 
 import bluej.Config;
 import bluej.pkgmgr.Project;
+import bluej.pkgmgr.target.ClassTarget;
 import bluej.utility.DialogManager;
 import bluej.utility.javafx.FXCustomizedDialog;
 import bluej.utility.Utility;
-import greenfoot.World;
-import greenfoot.core.WorldHandler;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
@@ -41,6 +39,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TabPane;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Window;
@@ -54,7 +53,9 @@ public class ExportDialog extends FXCustomizedDialog<Void>
 {
     private static final String dialogTitle = Config.getApplicationName() + ": " + Config.getString("export.dialog.title");
 
-    private Project project;
+    private final Project project;
+    private final ClassTarget currentWorld;
+    private final Image snapshot;
     private String selectedFunction;
     private int uploadSize;
 
@@ -67,10 +68,12 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     private Button continueButton;
     private Button closeButton;
 
-    public ExportDialog(Window parent, Project project)
+    public ExportDialog(Window parent, Project project, ClassTarget currentWorld, Image snapshot) throws ExportException
     {
         super(parent, dialogTitle, "");
         this.project = project;
+        this.currentWorld = currentWorld;
+        this.snapshot = snapshot;
         setModal(true);
 
         createPanes(project.getProjectDir().getParentFile());
@@ -80,7 +83,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     /**
      * Create the dialog interface.
      */
-    private void makeDialog()
+    private void makeDialog() throws ExportException
     {
         BorderPane contentPane = new BorderPane();
         setContentPane(contentPane);
@@ -98,20 +101,10 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         continueButton.setText(Config.getString("export.dialog.continue"));
         continueButton.setOnAction(event -> doExport());
 
-        DialogManager.centreDialog(this);
-    }
-
-    /**
-     * Show this dialog.
-     */
-    public void display()
-    {
-        final World currentWorld = WorldHandler.getInstance().getWorld();
-
         if (currentWorld == null)
         {
             DialogManager.showErrorTextFX(this.asWindow(), Config.getString("export.noworld.dialog.msg"));
-            return;
+            throw new ExportException("The export dialog couldn't be constructed");
         }
 
         // Check that a zero-argument constructor is available
@@ -122,11 +115,10 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         if (noZeroArgConstructor)
         {
             DialogManager.showErrorTextFX(this.asWindow(), Config.getString("export.noconstructor.dialog.msg"));
-            return;
+            throw new ExportException("The export dialog couldn't be constructed");
         }
         
-        BufferedImage snapShot = WorldHandler.getInstance().getSnapShot();
-        if (snapShot != null)
+        if (snapshot != null)
         {
             // TODO send a snapshot of the background
         }        
@@ -136,8 +128,9 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         {
             // TODO
         }
-        
-        show();
+
+        // TODO Maybe is not needed
+        DialogManager.centreDialog(this);
     }
 
     /**
