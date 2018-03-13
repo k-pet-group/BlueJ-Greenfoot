@@ -50,6 +50,7 @@ import bluej.pkgmgr.PackageUI;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.ProjectUtils;
 import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.ReadmeTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
@@ -67,6 +68,7 @@ import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 
+import greenfoot.core.InternalGreenfootError;
 import greenfoot.core.ProjectManager;
 import greenfoot.core.Simulation;
 import bluej.pkgmgr.AboutDialogTemplate;
@@ -776,6 +778,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                         this::doSaveAs, hasNoProject
                     ),
                     new SeparatorMenuItem(),
+                    makeMenuItem("show.readme",
+                        null,
+                        this::openReadme, hasNoProject
+                    ),
                     makeMenuItem("export.project",
                         new KeyCodeCombination(KeyCode.E, KeyCombination.SHORTCUT_DOWN),
                         this::doShare, hasNoProject
@@ -2115,5 +2121,23 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         settingSpeedFromSimulation = true;
         speedSlider.setValue(simSpeed);
         settingSpeedFromSimulation = false;
+    }
+
+    /**
+     * Show the readme file for this project in an editor window.
+     */
+    public void openReadme()
+    {
+        try
+        {
+            ReadmeTarget target = project.getUnnamedPackage().getReadmeTarget();
+            target.open();
+        }
+        catch (Exception e)
+        {
+            Debug.reportError("Opening Readme", e);
+            throw new InternalGreenfootError(e);
+        }
+
     }
 }
