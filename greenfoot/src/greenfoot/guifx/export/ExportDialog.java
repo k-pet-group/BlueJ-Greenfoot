@@ -108,8 +108,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
 
         // Check that a zero-argument constructor is available
         Constructor<?>[] constructors = currentWorld.getClass().getConstructors();
-        boolean noZeroArgConstructor = Stream.of(constructors)
-                    .noneMatch(con -> con.getParameterTypes().length == 0);
+        boolean noZeroArgConstructor = Stream.of(constructors).noneMatch(con -> con.getParameterCount() == 0);
 
         if (noZeroArgConstructor)
         {
