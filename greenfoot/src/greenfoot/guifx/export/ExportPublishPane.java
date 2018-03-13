@@ -53,7 +53,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
 import org.apache.http.conn.ConnectTimeoutException;
@@ -74,8 +73,9 @@ public class ExportPublishPane extends ExportPane
     public static final int IMAGE_WIDTH = 120;
     public static final int IMAGE_HEIGHT = 70;
 
-    private static final Color background = new Color(166, 188, 202, 1);
-    private static final Color headingColor = new Color(40, 75, 125, 1);
+    //TODO convert the numbers to JAVAFX color ranges and move them to CSS files.
+    // private static final Color background = new Color(166, 188, 202, 1);
+    // private static final Color headingColor = new Color(40, 75, 125, 1);
     private static final String serverURL = ensureTrailingSlash(
             Config.getPropString("greenfoot.gameserver.address", "http://www.greenfoot.org/"));
     private static final String createAccountUrl =
