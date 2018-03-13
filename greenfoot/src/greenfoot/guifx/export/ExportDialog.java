@@ -68,7 +68,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     private Button continueButton;
     private Button closeButton;
 
-    public ExportDialog(Window parent, Project project, ClassTarget currentWorld, Image snapshot)
+    public ExportDialog(Window parent, Project project, ClassTarget currentWorld, Image snapshot) throws ExportException
     {
         super(parent, dialogTitle, "");
         this.project = project;
@@ -83,7 +83,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     /**
      * Create the dialog interface.
      */
-    private void makeDialog()
+    private void makeDialog() throws ExportException
     {
         BorderPane contentPane = new BorderPane();
         setContentPane(contentPane);
@@ -104,7 +104,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         if (currentWorld == null)
         {
             DialogManager.showErrorTextFX(this.asWindow(), Config.getString("export.noworld.dialog.msg"));
-            return;
+            throw new ExportException("The export dialog couldn't be constructed");
         }
 
         // Check that a zero-argument constructor is available
@@ -115,7 +115,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         if (noZeroArgConstructor)
         {
             DialogManager.showErrorTextFX(this.asWindow(), Config.getString("export.noconstructor.dialog.msg"));
-            return;
+            throw new ExportException("The export dialog couldn't be constructed");
         }
         
         if (snapshot != null)
