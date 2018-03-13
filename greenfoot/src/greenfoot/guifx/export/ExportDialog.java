@@ -103,8 +103,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
 
         if (currentWorld == null)
         {
-            DialogManager.showErrorTextFX(this.asWindow(), Config.getString("export.noworld.dialog.msg"));
-            throw new ExportException("The export dialog couldn't be constructed");
+            throw new ExportException(Config.getString("export.noworld.dialog.msg"));
         }
 
         // Check that a zero-argument constructor is available
@@ -114,8 +113,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
 
         if (noZeroArgConstructor)
         {
-            DialogManager.showErrorTextFX(this.asWindow(), Config.getString("export.noconstructor.dialog.msg"));
-            throw new ExportException("The export dialog couldn't be constructed");
+            throw new ExportException(Config.getString("export.noconstructor.dialog.msg"));
         }
         
         if (snapshot != null)
