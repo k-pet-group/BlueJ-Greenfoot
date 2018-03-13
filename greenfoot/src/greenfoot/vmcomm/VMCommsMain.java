@@ -52,7 +52,6 @@ public class VMCommsMain implements Closeable
     private MappedByteBuffer sharedMemoryByte;
     private IntBuffer sharedMemory;
 
-    
     private int lastSeq = 0;
     private final List<Command> pendingCommands = new ArrayList<>();
         
@@ -66,6 +65,8 @@ public class VMCommsMain implements Closeable
     private int lastAnswer = -1;
     // A count of errors on the debug VM.  We keep count too so that we know when it has changed:
     private int previousStoppedWithErrorCount;
+    // Whether the previous frame had a world present:
+    private boolean hadWorld = false;
 
     /**
      * Constructor for VMCommsMain. Creates a temporary file and maps it into memory.
@@ -171,33 +172,23 @@ public class VMCommsMain implements Closeable
                 // Have to move sharedMemory position manually because
                 // the sharedMemory buffer doesn't share position with sharedMemoryByte buffer:
                 sharedMemory.position(sharedMemory.position() + width * height);
-                int lastAckCommand = sharedMemory.get();
+
                 // Get rid of all commands that the client has confirmed it has seen:
+                int lastAckCommand = sharedMemory.get();
                 if (lastAckCommand != -1)
                 {
-                    // Get rid of any acknowledged commands, and record if
-                    // any of them was a discard command:
-                    boolean discarded = false;
                     for (Iterator<Command> iterator = pendingCommands.iterator(); iterator.hasNext(); )
                     {
                         Command pendingCommand = iterator.next();
                         if (pendingCommand.commandSequence <= lastAckCommand)
                         {
-                            if (pendingCommand.commandType == COMMAND_DISCARD_WORLD)
-                            {
-                                discarded = true;
-                            }
                             iterator.remove();
                         }
                     }
-                    if (discarded)
-                    {
-                        stage.worldDiscarded();
-                    }
                 }
                 
-                int latestStoppedWithErrorCount = sharedMemory.get();
                 // If there's a new error, show the terminal at the front so that the user sees it: 
+                int latestStoppedWithErrorCount = sharedMemory.get();
                 if (latestStoppedWithErrorCount != previousStoppedWithErrorCount)
                 {
                     stage.bringTerminalToFront();
@@ -211,6 +202,14 @@ public class VMCommsMain implements Closeable
 
                 int simSpeed = sharedMemory.get();
                 stage.notifySimulationSpeed(simSpeed);
+
+                boolean worldPresent = (sharedMemory.get() == 1);
+                if (worldPresent != hadWorld) {
+                    if (! worldPresent) {
+                        stage.worldDiscarded();
+                    }
+                    hadWorld = worldPresent;
+                }
                 
                 int askId = sharedMemory.get();
                 if (askId >= 0 && askId > lastAnswer)

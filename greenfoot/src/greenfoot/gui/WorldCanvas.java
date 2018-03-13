@@ -43,6 +43,7 @@ import threadchecker.Tag;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -123,9 +124,10 @@ public class WorldCanvas extends JPanel
      *                          at the point when some execution that may contain user code last started on
      *                          the simulation thread, or 0L if user code is not currently running.
      * Pos 8+(W*H): The current simulation speed (1 to 100)
-     * Pos 9+(W*H): -1 if not currently awaiting a Greenfoot.ask() answer.
+     * Pos 9+(W*H): 1 if a world is currently installed, or 0 if there is no world.
+     * Pos 10+(W*H): -1 if not currently awaiting a Greenfoot.ask() answer.
      *              If awaiting, it is count (P) of following codepoints which make up prompt.
-     * Pos 10+(W*H) to 10+(W*H)+P excl: codepoints making up ask prompt.
+     * Pos 11+(W*H) to 11+(W*H)+P excl: codepoints making up ask prompt.
      *
      * When negative frame counter in position 1, interpret rest as follows:
      * Pos 2: Count of commands (C), can be zero
@@ -153,13 +155,15 @@ public class WorldCanvas extends JPanel
     private long startOfCurExecution = 0;
 
     /**
+     * Construct a WorldCanvas.
+     * 
      * @param world The world which we are the canvas for.
      * @param shmFilePath The path to the shared-memory file to be mmap-ed for communication
      */
+    @SuppressWarnings("resource")
     public WorldCanvas(ShadowProjectProperties projectProperties, String shmFilePath)
     {
         this.projectProperties = projectProperties;
-        setWorld(world);
         setBackground(Color.WHITE);
         setOpaque(true);
         try
@@ -176,16 +180,18 @@ public class WorldCanvas extends JPanel
     
     /**
      * Sets the world that should be visualised by this canvas.
-     * Call only from the Swing event thread.
+     * Can be called from any thread.
      */
     public void setWorld(World world)
     {
         this.world = world;
         if (world != null) {
-            setOverrideImage(null);
-            this.setSize(getPreferredSize());
-            revalidate();
-            repaint();
+            EventQueue.invokeLater(() -> {
+                setOverrideImage(null);
+                this.setSize(getPreferredSize(world));
+                revalidate();
+                repaint();
+            });
         }
         else {
             // this.setSize(0, 0);
@@ -409,6 +415,8 @@ public class WorldCanvas extends JPanel
             sharedMemory.put((int)(startOfCurExecution >> 32));
             sharedMemory.put((int)(startOfCurExecution & 0xFFFFFFFFL));
             sharedMemory.put(curSpeed);
+            sharedMemory.put(world == null ? 0 : 1);
+            
             // If not asking, put -1
             if (askPrompt == null || answer[0] != null)
             {
@@ -624,6 +632,14 @@ public class WorldCanvas extends JPanel
 
     @Override
     public Dimension getPreferredSize()
+    {
+        return getPreferredSize(world);
+    }
+    
+    /**
+     * Get the preferred size for this component, assuming that it is housing the given world.
+     */
+    private Dimension getPreferredSize(World world)
     {
         if (world != null) {
             size = new Dimension();

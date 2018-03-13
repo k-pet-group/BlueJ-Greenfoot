@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2013,2016  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2013,2016,2018  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -58,7 +58,6 @@ import javax.swing.SwingUtilities;
  * <p>
  * Not thread safe. Make sure to call methods from the event thread.
  * @author Poul Henriksen
- * 
  */
 public class InputManager
     implements SimulationListener, KeyListener, MouseListener, MouseMotionListener, WorldListener
@@ -281,14 +280,18 @@ public class InputManager
     {
         activeMouseMotionListener.mouseMoved(e);
     }
+    
+    // WorldListener implementation: these methods are called on the simulation thread:
 
+    @Override
     public void worldCreated(WorldEvent e)
     {
-        state.switchToNextState(State.Event.WORLD_CREATED, null);
+        EventQueue.invokeLater(() -> state.switchToNextState(State.Event.WORLD_CREATED, null));
     }
 
+    @Override
     public void worldRemoved(WorldEvent e)
     {
-        state.switchToNextState(State.Event.WORLD_REMOVED, null);
+        EventQueue.invokeLater(() -> state.switchToNextState(State.Event.WORLD_REMOVED, null));
     }
 }
