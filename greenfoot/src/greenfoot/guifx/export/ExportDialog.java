@@ -125,9 +125,6 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         {
             // TODO
         }
-
-        // TODO Maybe is not needed
-        DialogManager.centreDialog(this);
     }
 
     /**
