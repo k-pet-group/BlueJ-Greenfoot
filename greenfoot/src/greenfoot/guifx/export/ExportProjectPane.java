@@ -129,7 +129,6 @@ public class ExportProjectPane extends ExportPane
         }
         if (file.exists())
         {
-
             boolean overwrite = DialogManager.askQuestionFX(parent, "file-exists-overwrite",
                     new String[] {newName}) == 0;
             if (!overwrite)

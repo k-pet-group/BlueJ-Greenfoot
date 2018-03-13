@@ -22,10 +22,9 @@
 package greenfoot.guifx.export;
 
 import bluej.Config;
+import bluej.utility.DialogManager;
 
 import java.io.File;
-
-import bluej.utility.DialogManager;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -34,7 +33,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
-
 
 /**
  * Export dialog pane for exporting to a standalone application.
@@ -132,7 +130,6 @@ public class ExportAppPane extends ExportPane
         }
         if (file.exists())
         {
-
             boolean overwrite = DialogManager.askQuestionFX(parent, "file-exists-overwrite",
                     new String[] {newName}) == 0;
             if (!overwrite)
