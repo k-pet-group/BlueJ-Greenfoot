@@ -68,7 +68,6 @@ import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 
-import greenfoot.core.InternalGreenfootError;
 import greenfoot.core.ProjectManager;
 import greenfoot.core.Simulation;
 import bluej.pkgmgr.AboutDialogTemplate;
@@ -2128,14 +2127,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     public void openReadme()
     {
-            ReadmeTarget target = project.getUnnamedPackage().getReadmeTarget();
-            if (target.getEditor() == null)
-            {
-                DialogManager.showErrorFX(this, "error-open-readme");
-            }
-            else
-            {
-                target.getEditor().setEditorVisible(true);
-            }
+        ReadmeTarget target = project.getUnnamedPackage().getReadmeTarget();
+        if (target.getEditor() == null)
+        {
+            DialogManager.showErrorFX(this, "error-open-readme");
+        }
+        else
+        {
+            target.getEditor().setEditorVisible(true);
+        }
     }
 }
