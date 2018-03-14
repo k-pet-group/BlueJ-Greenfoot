@@ -2128,16 +2128,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     public void openReadme()
     {
-        try
-        {
             ReadmeTarget target = project.getUnnamedPackage().getReadmeTarget();
-            target.open();
-        }
-        catch (Exception e)
-        {
-            Debug.reportError("Opening Readme", e);
-            throw new InternalGreenfootError(e);
-        }
-
+            if (target.getEditor()==null)
+            {
+                DialogManager.showErrorFX(this, "error-open-readme");
+            }
+            else
+            {
+                target.getEditor().setEditorVisible(true);
+            }
     }
 }
