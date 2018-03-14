@@ -24,7 +24,6 @@ package greenfoot.guifx.export;
 import bluej.Config;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
-import bluej.utility.DialogManager;
 import bluej.utility.javafx.FXCustomizedDialog;
 import bluej.utility.Utility;
 
@@ -62,8 +61,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     private final TabPane tabbedPane = new TabPane();
     private final Label progressLabel = new Label();
     private final ProgressBar progressBar = new ProgressBar();
-
-    private HashMap<String, ExportPane> panes;
+    private final HashMap<String, ExportPane> panes = new HashMap<>();
     private ExportPane selectedPane;
     private Button continueButton;
     private Button closeButton;
@@ -75,8 +73,6 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         this.currentWorld = currentWorld;
         this.snapshot = snapshot;
         setModal(true);
-
-        createPanes(project.getProjectDir().getParentFile());
         makeDialog();
     }
 
@@ -114,7 +110,9 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         {
             throw new ExportException(Config.getString("export.noconstructor.dialog.msg"));
         }
-        
+
+        createPanes();
+
         if (snapshot != null)
         {
             // TODO send a snapshot of the background
@@ -223,13 +221,19 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     
     /**
      * Create all the panes that should appear as part of this dialogue.
-     *
-     * @param defaultExportDir  The default directory to export to when export locally.
      */
-    private void createPanes(File defaultExportDir)
+    private void createPanes()
     {
-        panes = new HashMap<>();
-        // TODO create the panes.
+        Window asWindow = this.asWindow();
+        String projectName = project.getProjectName();
+        // The default directory to export to when export locally.
+        File defaultExportDir = project.getProjectDir().getParentFile();
+
+        panes.put(ExportPublishPane.FUNCTION, new ExportPublishPane(project, this));
+        panes.put(ExportAppPane.FUNCTION, new ExportAppPane(asWindow, projectName, defaultExportDir));
+        panes.put(ExportProjectPane.FUNCTION, new ExportProjectPane(asWindow, projectName, defaultExportDir));
+
+        tabbedPane.getTabs().setAll(panes.values());
     }
 
     /**
