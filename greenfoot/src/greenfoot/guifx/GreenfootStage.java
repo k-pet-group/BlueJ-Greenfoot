@@ -144,7 +144,10 @@ import static greenfoot.vmcomm.Command.*;
 public class GreenfootStage extends Stage implements BlueJEventListener, FXCompileObserver,
         SimulationStateListener, PackageUI
 {
-    
+    private static final String PAUSE_BUTTON_TEXT = Config.getString("controls.pause.button");
+    private static final String RUN_BUTTON_TEXT = Config.getString("controls.run.button");
+    private static final String RUN_BUTTON_TOOLTIP_TEXT = Config.getString("controls.run.shortDescription");
+    private static final String PAUSE_BUTTON_TOOLTIP_TEXT = Config.getString("controls.pause.shortDescription");
     private static int numberOfOpenProjects = 0;
     private static List<GreenfootStage> stages = new ArrayList<>();
 
@@ -277,8 +280,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         soundRecorder = new SoundRecorderControls(project);
 
         actButton = new Button(Config.getString("run.once"));
+        actButton.setTooltip(new Tooltip(Config.getString("controls.runonce.shortDescription")));
         runButton = new Button(Config.getString("controls.run.button"));
+        runButton.setTooltip(new Tooltip(Config.getString("controls.run.shortDescription")));
         resetButton = new Button(Config.getString("reset.world"));
+        resetButton.setTooltip(new Tooltip(Config.getString("controls.reset.shortDescription")));
         actButton.disableProperty().bind(actDisabled);
         runButton.disableProperty().bind(runPauseDisabled);
         resetButton.disableProperty().bind(resetDisabled);
@@ -946,11 +952,22 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
         if (newState == State.RUNNING || newState == State.RUNNING_REQUESTED_PAUSE)
         {
-            runButton.setText(Config.getString("controls.pause.button"));
+            // Only change button text and tooltip if needed; changing the tooltip to another
+            // tooltip with the same text causes it to disappear needlessly if the user is currently viewing it:
+            if (!runButton.getText().equals(PAUSE_BUTTON_TEXT))
+            {
+                runButton.setText(PAUSE_BUTTON_TEXT);
+                runButton.setTooltip(new Tooltip(PAUSE_BUTTON_TOOLTIP_TEXT));
+            }
         }
         else
         {
-            runButton.setText(Config.getString("controls.run.button"));
+            // Ditto: only change text and tooltip if needed
+            if (!runButton.getText().equals(RUN_BUTTON_TEXT))
+            {
+                runButton.setText(RUN_BUTTON_TEXT);
+                runButton.setTooltip(new Tooltip(RUN_BUTTON_TOOLTIP_TEXT));
+            }
         }
     }
 
@@ -1541,14 +1558,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public @OnThread(Tag.Any) void simulationDebugHalted()
     {
         atBreakpoint = true;
-        updateGUIState(stateProperty.get());
+        Platform.runLater(() -> updateGUIState(stateProperty.get()));
     }
 
     @Override
     public @OnThread(Tag.Any) void simulationDebugResumed()
     {
         atBreakpoint = false;
-        updateGUIState(stateProperty.get());
+        Platform.runLater(() -> updateGUIState(stateProperty.get()));
     }
 
     /**
