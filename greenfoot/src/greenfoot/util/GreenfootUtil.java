@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2014,2015,2016  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2011,2012,2014,2015,2016,2018  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,7 @@ import bluej.Config;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
+import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.GreenfootImage;
 import greenfoot.UserInfo;
 import greenfoot.core.ImageCache;
@@ -66,6 +67,17 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.Border;
 
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Arc;
+import javafx.scene.shape.LineTo;
+import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.Path;
+import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Polyline;
 import javafx.stage.Stage;
 
 /**
@@ -335,6 +347,83 @@ public class GreenfootUtil
     {
         // TODO implement this
         return null;
+    }
+
+    /**
+     * The green &gt; symbol for act.
+     */
+    public static Node makeActIcon()
+    {
+        return JavaFXUtil.withStyleClass(new Polyline(
+                0, 0,
+                12, 5,
+                0, 10
+        ), "act-icon");
+    }
+
+    /**
+     * The green triangle symbol for run.
+     */
+    public static Node makeRunIcon()
+    {
+        return JavaFXUtil.withStyleClass(new Polygon(
+            0, 0,
+                12, 5,
+                0, 10
+        ), "run-icon");
+    }
+
+    /**
+     * The red pause icon.
+     */
+    public static Node makePauseIcon()
+    {
+        return JavaFXUtil.withStyleClass(new Path(
+            new MoveTo(2, 0),
+                new LineTo(2, 10),
+                new MoveTo(8, 0),
+                new LineTo(8, 10)
+        ), "pause-icon");
+    }
+
+    /**
+     * The brown reset icon.
+     */
+    public static Node makeResetIcon()
+    {
+        Canvas canvas = new Canvas(15, 15);
+        GraphicsContext g = canvas.getGraphicsContext2D();
+        g.setStroke(javafx.scene.paint.Color.SADDLEBROWN);
+        g.setLineWidth(2);
+        g.setFill(null);
+        int centreX = 7;
+        int centreY = 7;
+        // The loop part, with a 100 degree slightly asymmetric gap:
+        g.arc(centreX, centreY, 5, 5, 135, 260);
+        g.stroke();
+        // sin(45) = cos(45) = 1/sqrt(2):
+        double arcEndX = centreX - 5 / Math.sqrt(2);
+        double arcEndY = centreY - 5 / Math.sqrt(2);
+        // Tweak the positioning of the arrow head to make it look right at small scale:
+        arcEndX += 1.0;
+        // Triangle should point at 45 degrees, but looks better if curving down, so 25 is about right
+        int triangleHeading = 25;
+        // The size of the arrow head, measured by distance from the centre:
+        int arrowRadius = 4;
+        g.setFill(g.getStroke());
+        g.setStroke(null);
+        // Arrow head is a rotated equilateral triangle around arcEndX, arcEndY:
+        g.fillPolygon(new double[] {
+            arcEndX + arrowRadius * Math.cos(Math.toRadians(triangleHeading)),
+            arcEndX + arrowRadius * Math.cos(Math.toRadians(triangleHeading + 120)),
+            arcEndX + arrowRadius * Math.cos(Math.toRadians(triangleHeading + 240))}, new double[]{
+            arcEndY - arrowRadius * Math.sin(Math.toRadians(triangleHeading)),
+            arcEndY - arrowRadius * Math.sin(Math.toRadians(triangleHeading + 120)),
+            arcEndY - arrowRadius * Math.sin(Math.toRadians(triangleHeading + 240))
+            },
+            3
+        );
+        return canvas;
     }
 
     /**

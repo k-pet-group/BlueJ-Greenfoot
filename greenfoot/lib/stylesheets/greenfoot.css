@@ -36,3 +36,28 @@
 .export-pane {
     -fx-background-color: rgb(220, 220, 220);
 }
+
+.act-icon {
+    -fx-stroke: green;
+    -fx-stroke-width: 2;
+}
+.run-icon {
+    -fx-stroke: green;
+    -fx-fill: green;
+    -fx-stroke-width: 2;
+}
+.pause-icon {
+    -fx-stroke: darkred;
+    -fx-fill: null;
+    -fx-stroke-width: 3;
+    -fx-stroke-line-cap: square;
+}
+.control-panel {
+    -fx-hgap: 20;
+    /* In case of wrapping, add some space: */
+    -fx-vgap: 10;
+}
+.control-panel .button {
+    -fx-graphic-text-gap: 8;
+    -fx-padding: 6 10 6 10;
+}

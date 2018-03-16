@@ -97,6 +97,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
+import javafx.geometry.HPos;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -114,10 +115,13 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -145,7 +149,14 @@ import static greenfoot.vmcomm.Command.*;
 public class GreenfootStage extends Stage implements BlueJEventListener, FXCompileObserver,
         SimulationStateListener, PackageUI
 {
-    
+    private static final String PAUSE_BUTTON_TEXT = Config.getString("controls.pause.button");
+    private static final String RUN_BUTTON_TEXT = Config.getString("controls.run.button");
+    private static final String RUN_BUTTON_TOOLTIP_TEXT = Config.getString("controls.run.shortDescription");
+    private static final String PAUSE_BUTTON_TOOLTIP_TEXT = Config.getString("controls.pause.shortDescription");
+    private static final Node RUN_ICON = GreenfootUtil.makeRunIcon();
+    private static final Node PAUSE_ICON = GreenfootUtil.makePauseIcon();
+    private static final Node ACT_ICON = GreenfootUtil.makeActIcon();
+    private static final Node RESET_ICON = GreenfootUtil.makeResetIcon();
     private static int numberOfOpenProjects = 0;
     private static List<GreenfootStage> stages = new ArrayList<>();
 
@@ -278,26 +289,51 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         soundRecorder = new SoundRecorderControls(project);
 
         actButton = new Button(Config.getString("run.once"));
-        runButton = new Button(Config.getString("controls.run.button"));
+        actButton.setTooltip(new Tooltip(Config.getString("controls.runonce.shortDescription")));
+        actButton.setGraphic(ACT_ICON);
+        runButton = new Button(RUN_BUTTON_TEXT);
+        runButton.setGraphic(RUN_ICON);
+        runButton.setTooltip(new Tooltip(RUN_BUTTON_TOOLTIP_TEXT));
         resetButton = new Button(Config.getString("reset.world"));
+        resetButton.setTooltip(new Tooltip(Config.getString("controls.reset.shortDescription")));
+        resetButton.setGraphic(RESET_ICON);
         actButton.disableProperty().bind(actDisabled);
         runButton.disableProperty().bind(runPauseDisabled);
         resetButton.disableProperty().bind(resetDisabled);
+        for (Button button : Arrays.asList(actButton, runButton, resetButton))
+        {
+            button.setMaxWidth(Double.MAX_VALUE);
+        }
         Label speedLabel = new Label(Config.getString("controls.speed.label"));
         int min = 0;
         int max = Simulation.MAX_SIMULATION_SPEED;
         speedSlider = new Slider();
-        speedSlider.setShowTickLabels(true);
+        speedSlider.setShowTickLabels(false);
         speedSlider.setShowTickMarks(true);
         speedSlider.setMin(min);
         speedSlider.setMax(max);
         speedSlider.setMajorTickUnit( max / 2 );
-        speedSlider.setMinorTickCount( max / 4 );
+        speedSlider.setMinorTickCount(1);
         speedSlider.setBlockIncrement(20);
         speedSlider.setTooltip(new Tooltip(Config.getString("controls.speedSlider.tooltip")));
         speedSlider.setFocusTraversable(false);
+        speedSlider.setMaxWidth(150.0);
         executionTwirler = new ExecutionTwirler(project, greenfootDebugHandler);
-        Node buttonAndSpeedPanel = new HBox(actButton, runButton, resetButton, speedLabel, speedSlider, executionTwirler);
+        TilePane controlPanel = new TilePane(actButton, runButton, resetButton);
+        controlPanel.setPrefColumns(3);
+        controlPanel.getStyleClass().add("control-panel");
+        controlPanel.setAlignment(Pos.CENTER);
+        GridPane buttonAndSpeedPanel = new GridPane();
+        buttonAndSpeedPanel.add(controlPanel, 0, 0);
+        Pane speedAndTwirler = new BorderPane(speedSlider, null, executionTwirler, null, speedLabel);
+        BorderPane.setAlignment(speedLabel, Pos.CENTER_RIGHT);
+        buttonAndSpeedPanel.add(speedAndTwirler, 1, 0);
+        GridPane.setHalignment(speedAndTwirler, HPos.CENTER);
+        ColumnConstraints leftHalf = new ColumnConstraints();
+        ColumnConstraints rightHalf = new ColumnConstraints();
+        leftHalf.setPercentWidth(50);
+        rightHalf.setPercentWidth(50);
+        buttonAndSpeedPanel.getColumnConstraints().setAll(leftHalf, rightHalf);
         actButton.setOnAction(e -> act());
         runButton.setOnAction(e -> doRunPause());
         resetButton.setOnAction(e -> doReset());
@@ -318,8 +354,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
         ScrollPane worldViewScroll = new UnfocusableScrollPane(worldDisplay);
         JavaFXUtil.expandScrollPaneContent(worldViewScroll);
-        BorderPane root = new BorderPane(worldViewScroll, makeMenu(), classDiagramScroll,
-                buttonAndSpeedPanel, null);
+        BorderPane root = new BorderPane(new BorderPane(worldViewScroll, null, null, buttonAndSpeedPanel , null), makeMenu(), classDiagramScroll,
+                null, null);
         glassPane = new Pane();
         glassPane.setMouseTransparent(true);
         StackPane stackPane = new StackPane(root, glassPane);
@@ -951,11 +987,24 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
         if (newState == State.RUNNING || newState == State.RUNNING_REQUESTED_PAUSE)
         {
-            runButton.setText(Config.getString("controls.pause.button"));
+            // Only change button text and tooltip if needed; changing the tooltip to another
+            // tooltip with the same text causes it to disappear needlessly if the user is currently viewing it:
+            if (!runButton.getText().equals(PAUSE_BUTTON_TEXT))
+            {
+                runButton.setGraphic(PAUSE_ICON);
+                runButton.setText(PAUSE_BUTTON_TEXT);
+                runButton.setTooltip(new Tooltip(PAUSE_BUTTON_TOOLTIP_TEXT));
+            }
         }
         else
         {
-            runButton.setText(Config.getString("controls.run.button"));
+            // Ditto: only change text and tooltip if needed
+            if (!runButton.getText().equals(RUN_BUTTON_TEXT))
+            {
+                runButton.setGraphic(RUN_ICON);
+                runButton.setText(RUN_BUTTON_TEXT);
+                runButton.setTooltip(new Tooltip(RUN_BUTTON_TOOLTIP_TEXT));
+            }
         }
     }
 
@@ -1546,14 +1595,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public @OnThread(Tag.Any) void simulationDebugHalted()
     {
         atBreakpoint = true;
-        updateGUIState(stateProperty.get());
+        Platform.runLater(() -> updateGUIState(stateProperty.get()));
     }
 
     @Override
     public @OnThread(Tag.Any) void simulationDebugResumed()
     {
         atBreakpoint = false;
-        updateGUIState(stateProperty.get());
+        Platform.runLater(() -> updateGUIState(stateProperty.get()));
     }
 
     /**
