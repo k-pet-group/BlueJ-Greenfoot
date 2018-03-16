@@ -54,6 +54,8 @@
 }
 .control-panel {
     -fx-hgap: 20;
+    /* In case of wrapping, add some space: */
+    -fx-vgap: 10;
 }
 .control-panel .button {
     -fx-graphic-text-gap: 8;
