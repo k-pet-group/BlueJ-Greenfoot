@@ -117,6 +117,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -295,6 +296,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         actButton.disableProperty().bind(actDisabled);
         runButton.disableProperty().bind(runPauseDisabled);
         resetButton.disableProperty().bind(resetDisabled);
+        for (Button button : Arrays.asList(actButton, runButton, resetButton))
+        {
+            button.setMaxWidth(Double.MAX_VALUE);
+        }
         Label speedLabel = new Label(Config.getString("controls.speed.label"));
         int min = 0;
         int max = Simulation.MAX_SIMULATION_SPEED;
@@ -309,7 +314,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         speedSlider.setTooltip(new Tooltip(Config.getString("controls.speedSlider.tooltip")));
         speedSlider.setFocusTraversable(false);
         executionTwirler = new ExecutionTwirler(project, greenfootDebugHandler);
-        Node buttonAndSpeedPanel = new HBox(actButton, runButton, resetButton, speedLabel, speedSlider, executionTwirler);
+        TilePane controlPanel = new TilePane(actButton, runButton, resetButton);
+        controlPanel.getStyleClass().add("control-panel");
+        Node buttonAndSpeedPanel = new HBox(controlPanel, speedLabel, speedSlider, executionTwirler);
         actButton.setOnAction(e -> act());
         runButton.setOnAction(e -> doRunPause());
         resetButton.setOnAction(e -> doReset());

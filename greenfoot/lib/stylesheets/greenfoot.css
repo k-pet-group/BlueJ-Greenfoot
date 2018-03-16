@@ -52,3 +52,10 @@
     -fx-stroke-width: 3;
     -fx-stroke-line-cap: square;
 }
+.control-panel {
+    -fx-hgap: 20;
+}
+.control-panel .button {
+    -fx-graphic-text-gap: 8;
+    -fx-padding: 6 10 6 10;
+}
