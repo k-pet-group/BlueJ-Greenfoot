@@ -36,3 +36,19 @@
 .export-pane {
     -fx-background-color: rgb(220, 220, 220);
 }
+
+.act-icon {
+    -fx-stroke: green;
+    -fx-stroke-width: 2;
+}
+.run-icon {
+    -fx-stroke: green;
+    -fx-fill: green;
+    -fx-stroke-width: 2;
+}
+.pause-icon {
+    -fx-stroke: darkred;
+    -fx-fill: null;
+    -fx-stroke-width: 3;
+    -fx-stroke-line-cap: square;
+}

@@ -148,6 +148,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private static final String RUN_BUTTON_TEXT = Config.getString("controls.run.button");
     private static final String RUN_BUTTON_TOOLTIP_TEXT = Config.getString("controls.run.shortDescription");
     private static final String PAUSE_BUTTON_TOOLTIP_TEXT = Config.getString("controls.pause.shortDescription");
+    private static final Node RUN_ICON = GreenfootUtil.makeRunIcon();
+    private static final Node PAUSE_ICON = GreenfootUtil.makePauseIcon();
+    private static final Node ACT_ICON = GreenfootUtil.makeActIcon();
+    private static final Node RESET_ICON = GreenfootUtil.makeResetIcon();
     private static int numberOfOpenProjects = 0;
     private static List<GreenfootStage> stages = new ArrayList<>();
 
@@ -281,10 +285,13 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
         actButton = new Button(Config.getString("run.once"));
         actButton.setTooltip(new Tooltip(Config.getString("controls.runonce.shortDescription")));
-        runButton = new Button(Config.getString("controls.run.button"));
-        runButton.setTooltip(new Tooltip(Config.getString("controls.run.shortDescription")));
+        actButton.setGraphic(ACT_ICON);
+        runButton = new Button(RUN_BUTTON_TEXT);
+        runButton.setGraphic(RUN_ICON);
+        runButton.setTooltip(new Tooltip(RUN_BUTTON_TOOLTIP_TEXT));
         resetButton = new Button(Config.getString("reset.world"));
         resetButton.setTooltip(new Tooltip(Config.getString("controls.reset.shortDescription")));
+        resetButton.setGraphic(RESET_ICON);
         actButton.disableProperty().bind(actDisabled);
         runButton.disableProperty().bind(runPauseDisabled);
         resetButton.disableProperty().bind(resetDisabled);
@@ -956,6 +963,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             // tooltip with the same text causes it to disappear needlessly if the user is currently viewing it:
             if (!runButton.getText().equals(PAUSE_BUTTON_TEXT))
             {
+                runButton.setGraphic(PAUSE_ICON);
                 runButton.setText(PAUSE_BUTTON_TEXT);
                 runButton.setTooltip(new Tooltip(PAUSE_BUTTON_TOOLTIP_TEXT));
             }
@@ -965,6 +973,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             // Ditto: only change text and tooltip if needed
             if (!runButton.getText().equals(RUN_BUTTON_TEXT))
             {
+                runButton.setGraphic(RUN_ICON);
                 runButton.setText(RUN_BUTTON_TEXT);
                 runButton.setTooltip(new Tooltip(RUN_BUTTON_TOOLTIP_TEXT));
             }
