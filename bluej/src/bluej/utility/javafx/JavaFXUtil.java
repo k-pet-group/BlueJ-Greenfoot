@@ -2246,6 +2246,8 @@ public class JavaFXUtil
             case LEFT_PARENTHESIS: return java.awt.event.KeyEvent.VK_LEFT_PARENTHESIS;
             case RIGHT_PARENTHESIS: return java.awt.event.KeyEvent.VK_RIGHT_PARENTHESIS;
             case ESCAPE: return java.awt.event.KeyEvent.VK_ESCAPE;
+            // No AWT equivalent, but don't want to warn about it being unknown:
+            case COMMAND: return -1;
 
         }
         Debug.message("Unknown key code: " + code);
