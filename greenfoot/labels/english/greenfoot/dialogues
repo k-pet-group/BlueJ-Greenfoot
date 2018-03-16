@@ -80,3 +80,6 @@ The API documentation is missing or unable to be read:
 
 export-compile-notCompiled
 Not all the classes in the scenario are compiled. To continue with the export, check for errors.
+
+error-open-readme
+The scenario information (README) could not be opened. Perhaps it has been deleted or its permissions have been set incorrectly.

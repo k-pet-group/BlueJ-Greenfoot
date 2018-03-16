@@ -50,6 +50,7 @@ import bluej.pkgmgr.PackageUI;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.ProjectUtils;
 import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.ReadmeTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
@@ -776,6 +777,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                         this::doSaveAs, hasNoProject
                     ),
                     new SeparatorMenuItem(),
+                    makeMenuItem("show.readme",
+                        null,
+                        this::openReadme, hasNoProject
+                    ),
                     makeMenuItem("export.project",
                         new KeyCodeCombination(KeyCode.E, KeyCombination.SHORTCUT_DOWN),
                         this::doShare, hasNoProject
@@ -2115,5 +2120,21 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         settingSpeedFromSimulation = true;
         speedSlider.setValue(simSpeed);
         settingSpeedFromSimulation = false;
+    }
+
+    /**
+     * Show the readme file for this project in an editor window.
+     */
+    public void openReadme()
+    {
+        ReadmeTarget target = project.getUnnamedPackage().getReadmeTarget();
+        if (target.getEditor() == null)
+        {
+            DialogManager.showErrorFX(this, "error-open-readme");
+        }
+        else
+        {
+            target.getEditor().setEditorVisible(true);
+        }
     }
 }
