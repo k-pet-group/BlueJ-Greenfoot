@@ -52,12 +52,19 @@
     -fx-stroke-width: 3;
     -fx-stroke-line-cap: square;
 }
+
 .control-panel {
+    -fx-padding: 10 0 10 0;
+}
+.control-panel .buttons-panel {
     -fx-hgap: 20;
     /* In case of wrapping, add some space: */
     -fx-vgap: 10;
 }
-.control-panel .button {
+.control-panel .buttons-panel .button {
     -fx-graphic-text-gap: 8;
     -fx-padding: 6 10 6 10;
+}
+.control-panel .speed-panel {
+    -fx-hgap: 10;
 }

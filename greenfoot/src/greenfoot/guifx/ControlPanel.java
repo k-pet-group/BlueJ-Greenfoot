@@ -30,7 +30,9 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.HPos;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -44,6 +46,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.TilePane;
 
 import java.util.Arrays;
@@ -124,19 +127,31 @@ class ControlPanel extends GridPane
         
         TilePane controlPanel = new TilePane(actButton, runPauseButton, resetButton);
         controlPanel.setPrefColumns(3);
-        controlPanel.getStyleClass().add("control-panel");
+        controlPanel.getStyleClass().add("buttons-panel");
         controlPanel.setAlignment(Pos.CENTER);
         Label speedLabel = new Label(Config.getString("controls.speed.label"));
+        // Let speed label shrink to nothing if not enough space:
+        speedLabel.setMinWidth(0.0);
         add(controlPanel, 0, 0);
-        Pane speedAndTwirler = new BorderPane(speedSlider, null, executionTwirler, null, speedLabel);
-        BorderPane.setAlignment(speedLabel, Pos.CENTER_RIGHT);
+        GridPane speedAndTwirler = new GridPane();
+        speedAndTwirler.add(speedLabel, 0, 0);
+        speedAndTwirler.add(speedSlider, 1, 0, 2, 1);
+        speedAndTwirler.add(executionTwirler, 3, 0);
+        speedAndTwirler.getStyleClass().add("speed-panel");
+        GridPane.setHalignment(speedLabel, HPos.RIGHT);
+        GridPane.setValignment(speedSlider, VPos.BOTTOM);
+        // Need some space above speed slider to stop it looking out of alignment:
+        GridPane.setMargin(speedSlider, new Insets(8, 0, 0, 0));
+        speedLabel.setAlignment(Pos.BASELINE_RIGHT);
+        GridPane.setHgrow(speedLabel, Priority.ALWAYS);
         add(speedAndTwirler, 1, 0);
         GridPane.setHalignment(speedAndTwirler, HPos.CENTER);
         ColumnConstraints leftHalf = new ColumnConstraints();
         ColumnConstraints rightHalf = new ColumnConstraints();
-        leftHalf.setPercentWidth(50);
-        rightHalf.setPercentWidth(50);
+        leftHalf.setPercentWidth(60);
+        rightHalf.setPercentWidth(40);
         getColumnConstraints().setAll(leftHalf, rightHalf);
+        getStyleClass().add("control-panel");
     }
 
     /**
