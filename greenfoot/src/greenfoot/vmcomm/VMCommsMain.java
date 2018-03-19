@@ -206,7 +206,7 @@ public class VMCommsMain implements Closeable
                 stage.setLastUserExecutionStartTime(lastExecStartTime);
 
                 int simSpeed = sharedMemory.get();
-                // Only send the new speed value if the pendingCommands does not include multiple setSpeed commands
+                // Only send the new speed value if the pendingCommands does not include setSpeed commands
                 if (setSpeedCommandCount == 0)
                 {
                     stage.notifySimulationSpeed(simSpeed);
@@ -368,9 +368,8 @@ public class VMCommsMain implements Closeable
     {
         pendingCommands.add(new Command(COMMAND_SET_SPEED, speed));
         // Keeps track of how many setSpeed commands exist in the pendingCommand list.
-        // This is useful to avoid speedslider jittering movement.
+        // This is useful to avoid speedSlider jittering movement.
         setSpeedCommandCount = setSpeedCommandCount + 1;
-
     }
 
 }
