@@ -378,7 +378,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      * setting a flag noting that we want to send an instantiate-world command
      * once the discard-world command has taken effect.
      */
-    protected void doReset()
+    public void doReset()
     {
         DataCollector.recordGreenfootEvent(project, GreenfootInterfaceEvent.WORLD_RESET);
         debugHandler.getVmComms().discardWorld();
@@ -617,7 +617,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     /**
      * Perform a single act step, if paused, by adding to the list of pending commands.
      */
-    protected void act()
+    public void act()
     {
         if (stateProperty.get() == State.PAUSED)
         {
@@ -630,7 +630,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     /**
      * Run or pause the simulation (depending on current state).
      */
-    protected void doRunPause()
+    public void doRunPause()
     {
         if (stateProperty.get() == State.PAUSED)
         {
