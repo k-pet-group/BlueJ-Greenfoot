@@ -23,7 +23,6 @@ package bluej.editor.moe;
 
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.function.Function;
 
 import javax.swing.text.Segment;
 
@@ -110,7 +109,82 @@ public class MoeSyntaxDocument
      */
     private boolean thisDocIsForPrinting = false;
 
+    /**
+     * Create an empty MoeSyntaxDocument.
+     */
+    @OnThread(Tag.FXPlatform)
+    public MoeSyntaxDocument(ScopeColors scopeColors)
+    {
+        // defaults to 4 if cannot read property
+        tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
+        document = new SimpleEditableStyledDocument<>(null, ImmutableSet.of());
+        if (scopeColors != null)
+        {
+            syntaxView = new BlueJSyntaxView(this, scopeColors);
+        }
+        else
+        {
+            syntaxView = null;
+        }
 
+        document.plainChanges().subscribe(c -> {
+            invalidateCache();
+            // Must fire remove before insert:
+            if (!c.getRemoved().isEmpty())
+            {
+                fireRemoveUpdate(c.getPosition(), c.getRemovalEnd() - c.getPosition());
+            }
+            if (!c.getInserted().isEmpty())
+            {
+                fireInsertUpdate(c.getPosition(), c.getInsertionEnd() - c.getPosition());
+            }
+            // Don't attempt a run-later when printing as we'll be on a different thread, and we don't
+            // print the scopes anyway:
+            if (!thisDocIsForPrinting)
+            {
+                // Apply backgrounds from simple update, as it may not even
+                // trigger a reparse.  This must be done later, after the document has finished
+                // doing all the updates to the content, before we can mess with paragraph styles:
+                JavaFXUtil.runAfterCurrent(() -> {
+                    invalidateCache();
+                    applyPendingScopeBackgrounds();
+                });
+            }
+        });
+    }
+    
+    /**
+     * Create an empty MoeSyntaxDocument, which uses the given entity resolver
+     * to resolve symbols.
+     */
+    @OnThread(Tag.FXPlatform)
+    public MoeSyntaxDocument(EntityResolver parentResolver, ScopeColors scopeColors)
+    {
+        this(scopeColors);
+        // parsedNode = new ParsedCUNode(this);
+        this.parentResolver = parentResolver;
+        if (parentResolver != null)
+        {
+            reparseRecordTree = new NodeTree<ReparseRecord>();
+        }
+    }
+
+    /**
+     * Create an empty MoeSyntaxDocument, which uses the given entity resolver
+     * to resolve symbols.
+     */
+    @OnThread(Tag.FXPlatform)
+    public MoeSyntaxDocument(EntityResolver parentResolver)
+    {
+        this((ScopeColors) null);
+        // parsedNode = new ParsedCUNode(this);
+        this.parentResolver = parentResolver;
+        if (parentResolver != null)
+        {
+            reparseRecordTree = new NodeTree<ReparseRecord>();
+        }
+    }
+    
     public Position createPosition(int initialPos)
     {
         return new Position(initialPos);
@@ -301,41 +375,6 @@ public class MoeSyntaxDocument
         }
     }
 
-    // Have to pass construction function because "this" isn't
-    // available to other constructor callers:
-    private MoeSyntaxDocument(Function<MoeSyntaxDocument, BlueJSyntaxView> makeSyntaxView)
-    {
-        // defaults to 4 if cannot read property
-        tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
-        document = new SimpleEditableStyledDocument<>(null, ImmutableSet.of());
-        this.syntaxView = makeSyntaxView.apply(this);
-
-        document.plainChanges().subscribe(c -> {
-            invalidateCache();
-            // Must fire remove before insert:
-            if (!c.getRemoved().isEmpty())
-            {
-                fireRemoveUpdate(c.getPosition(), c.getRemovalEnd() - c.getPosition());
-            }
-            if (!c.getInserted().isEmpty())
-            {
-                fireInsertUpdate(c.getPosition(), c.getInsertionEnd() - c.getPosition());
-            }
-            // Don't attempt a run-later when printing as we'll be on a different thread, and we don't
-            // print the scopes anyway:
-            if (!thisDocIsForPrinting)
-            {
-                // Apply backgrounds from simple update, as it may not even
-                // trigger a reparse.  This must be done later, after the document has finished
-                // doing all the updates to the content, before we can mess with paragraph styles:
-                JavaFXUtil.runAfterCurrent(() -> {
-                    invalidateCache();
-                    applyPendingScopeBackgrounds();
-                });
-            }
-        });
-    }
-
     private void invalidateCache()
     {
         cachedContent = null;
@@ -361,51 +400,7 @@ public class MoeSyntaxDocument
             }
         }
     }
-
-    public MoeSyntaxDocument()
-    {
-        this(d -> null);
-    }
     
-    /**
-     * Create an empty MoeSyntaxDocument.
-     */
-    @OnThread(Tag.FXPlatform)
-    public MoeSyntaxDocument(ScopeColors scopeColors)
-    {
-        this(d -> new BlueJSyntaxView(d, scopeColors));
-    }
-    
-    /**
-     * Create an empty MoeSyntaxDocument, which uses the given entity resolver
-     * to resolve symbols.
-     */
-    @OnThread(Tag.FXPlatform)
-    public MoeSyntaxDocument(EntityResolver parentResolver, ScopeColors scopeColors)
-    {
-        this(scopeColors);
-        // parsedNode = new ParsedCUNode(this);
-        this.parentResolver = parentResolver;
-        if (parentResolver != null) {
-            reparseRecordTree = new NodeTree<ReparseRecord>();
-        }
-    }
-
-    /**
-     * Create an empty MoeSyntaxDocument, which uses the given entity resolver
-     * to resolve symbols.
-     */
-    @OnThread(Tag.FXPlatform)
-    public MoeSyntaxDocument(EntityResolver parentResolver)
-    {
-        this();
-        // parsedNode = new ParsedCUNode(this);
-        this.parentResolver = parentResolver;
-        if (parentResolver != null) {
-            reparseRecordTree = new NodeTree<ReparseRecord>();
-        }
-    }
-
     /**
      * Access the parsed node structure of this document.
      */
