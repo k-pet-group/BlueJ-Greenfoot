@@ -54,7 +54,8 @@ public class VMCommsMain implements Closeable
 
     private int lastSeq = 0;
     private final List<Command> pendingCommands = new ArrayList<>();
-        
+    private int setSpeedCommandCount = 0;
+
     /**
      * Because the ask request is sent as a continuous status rather than
      * a one-off event that we explicitly acknowledge, we keep track of the
@@ -182,6 +183,10 @@ public class VMCommsMain implements Closeable
                         Command pendingCommand = iterator.next();
                         if (pendingCommand.commandSequence <= lastAckCommand)
                         {
+                            if(pendingCommand.commandType == COMMAND_SET_SPEED)
+                            {
+                                setSpeedCommandCount = setSpeedCommandCount - 1;
+                            }
                             iterator.remove();
                         }
                     }
@@ -201,7 +206,11 @@ public class VMCommsMain implements Closeable
                 stage.setLastUserExecutionStartTime(lastExecStartTime);
 
                 int simSpeed = sharedMemory.get();
-                stage.notifySimulationSpeed(simSpeed);
+                // Only send the new speed value if the pendingCommands does not include setSpeed commands
+                if (setSpeedCommandCount == 0)
+                {
+                    stage.notifySimulationSpeed(simSpeed);
+                }
 
                 boolean worldPresent = (sharedMemory.get() == 1);
                 if (worldPresent != hadWorld) {
@@ -358,6 +367,9 @@ public class VMCommsMain implements Closeable
     public void setSimulationSpeed(int speed)
     {
         pendingCommands.add(new Command(COMMAND_SET_SPEED, speed));
+        // Keeps track of how many setSpeed commands exist in the pendingCommand list.
+        // This is useful to avoid speedSlider jittering movement.
+        setSpeedCommandCount = setSpeedCommandCount + 1;
     }
 
 }
