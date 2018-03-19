@@ -61,7 +61,6 @@ import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.JavaReflective;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.UnfocusableScrollPane;
 import bluej.views.CallableView;
@@ -69,7 +68,6 @@ import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 
 import greenfoot.core.ProjectManager;
-import greenfoot.core.Simulation;
 import bluej.pkgmgr.AboutDialogTemplate;
 import greenfoot.guifx.classes.ClassDisplay;
 import greenfoot.guifx.classes.GClassDiagram;
@@ -90,14 +88,11 @@ import greenfoot.vmcomm.GreenfootDebugHandler;
 import greenfoot.vmcomm.GreenfootDebugHandler.SimulationStateListener;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
-import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import javafx.geometry.HPos;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -115,13 +110,9 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -149,14 +140,6 @@ import static greenfoot.vmcomm.Command.*;
 public class GreenfootStage extends Stage implements BlueJEventListener, FXCompileObserver,
         SimulationStateListener, PackageUI
 {
-    private static final String PAUSE_BUTTON_TEXT = Config.getString("controls.pause.button");
-    private static final String RUN_BUTTON_TEXT = Config.getString("controls.run.button");
-    private static final String RUN_BUTTON_TOOLTIP_TEXT = Config.getString("controls.run.shortDescription");
-    private static final String PAUSE_BUTTON_TOOLTIP_TEXT = Config.getString("controls.pause.shortDescription");
-    private static final Node RUN_ICON = GreenfootUtil.makeRunIcon();
-    private static final Node PAUSE_ICON = GreenfootUtil.makePauseIcon();
-    private static final Node ACT_ICON = GreenfootUtil.makeActIcon();
-    private static final Node RESET_ICON = GreenfootUtil.makeResetIcon();
     private static int numberOfOpenProjects = 0;
     private static List<GreenfootStage> stages = new ArrayList<>();
 
@@ -172,17 +155,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private ContextMenu contextMenu;
     // Last mouse position, in scene coordinates:
     private Point2D lastMousePosInScene = new Point2D(0, 0);
-
-    private final Button actButton;
-    private final Button runButton;
-    private final Button resetButton;
-    private final Slider speedSlider;
-    private final BooleanProperty actDisabled = new SimpleBooleanProperty(true);
-    private final BooleanProperty resetDisabled = new SimpleBooleanProperty(true);
-    private final BooleanProperty runDisabled = new SimpleBooleanProperty(true);
-    private final BooleanProperty pauseDisabled = new SimpleBooleanProperty(true);
-    private final BooleanBinding runPauseDisabled = runDisabled.and(pauseDisabled);;
-
+    
     // The last speed value set by the user altering it in interface (rather than programmatically):
     private int lastUserSetSpeed;
     // Used to stop an infinite loop if we set the speed slider in response to a programmatic change: 
@@ -192,6 +165,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private final ExecutionTwirler executionTwirler;
     // When did the user code last start executing?
     private long lastExecStartTime;
+    private final ControlPanel controlPanel;
 
     public static enum State
     {
@@ -288,63 +262,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         BlueJEvent.addListener(this);
         soundRecorder = new SoundRecorderControls(project);
 
-        actButton = new Button(Config.getString("run.once"));
-        actButton.setTooltip(new Tooltip(Config.getString("controls.runonce.shortDescription")));
-        actButton.setGraphic(ACT_ICON);
-        runButton = new Button(RUN_BUTTON_TEXT);
-        runButton.setGraphic(RUN_ICON);
-        runButton.setTooltip(new Tooltip(RUN_BUTTON_TOOLTIP_TEXT));
-        resetButton = new Button(Config.getString("reset.world"));
-        resetButton.setTooltip(new Tooltip(Config.getString("controls.reset.shortDescription")));
-        resetButton.setGraphic(RESET_ICON);
-        actButton.disableProperty().bind(actDisabled);
-        runButton.disableProperty().bind(runPauseDisabled);
-        resetButton.disableProperty().bind(resetDisabled);
-        for (Button button : Arrays.asList(actButton, runButton, resetButton))
-        {
-            button.setMaxWidth(Double.MAX_VALUE);
-        }
-        Label speedLabel = new Label(Config.getString("controls.speed.label"));
-        int min = 0;
-        int max = Simulation.MAX_SIMULATION_SPEED;
-        speedSlider = new Slider();
-        speedSlider.setShowTickLabels(false);
-        speedSlider.setShowTickMarks(true);
-        speedSlider.setMin(min);
-        speedSlider.setMax(max);
-        speedSlider.setMajorTickUnit( max / 2 );
-        speedSlider.setMinorTickCount(1);
-        speedSlider.setBlockIncrement(20);
-        speedSlider.setTooltip(new Tooltip(Config.getString("controls.speedSlider.tooltip")));
-        speedSlider.setFocusTraversable(false);
-        speedSlider.setMaxWidth(150.0);
         executionTwirler = new ExecutionTwirler(project, greenfootDebugHandler);
-        TilePane controlPanel = new TilePane(actButton, runButton, resetButton);
-        controlPanel.setPrefColumns(3);
-        controlPanel.getStyleClass().add("control-panel");
-        controlPanel.setAlignment(Pos.CENTER);
-        GridPane buttonAndSpeedPanel = new GridPane();
-        buttonAndSpeedPanel.add(controlPanel, 0, 0);
-        Pane speedAndTwirler = new BorderPane(speedSlider, null, executionTwirler, null, speedLabel);
-        BorderPane.setAlignment(speedLabel, Pos.CENTER_RIGHT);
-        buttonAndSpeedPanel.add(speedAndTwirler, 1, 0);
-        GridPane.setHalignment(speedAndTwirler, HPos.CENTER);
-        ColumnConstraints leftHalf = new ColumnConstraints();
-        ColumnConstraints rightHalf = new ColumnConstraints();
-        leftHalf.setPercentWidth(50);
-        rightHalf.setPercentWidth(50);
-        buttonAndSpeedPanel.getColumnConstraints().setAll(leftHalf, rightHalf);
-        actButton.setOnAction(e -> act());
-        runButton.setOnAction(e -> doRunPause());
-        resetButton.setOnAction(e -> doReset());
-        // Note - if you alter this listener code, make sure to check notifySimulationSpeed() as well:
-        JavaFXUtil.addChangeListener(speedSlider.valueProperty(), newSpeed -> {
-            if (!settingSpeedFromSimulation)
-            {
-                lastUserSetSpeed = newSpeed.intValue();
-                debugHandler.getVmComms().setSimulationSpeed(newSpeed.intValue());
-            }
-        });
+        controlPanel = new ControlPanel(this, executionTwirler);
 
         worldDisplay = new WorldDisplay();
         
@@ -354,7 +273,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
         ScrollPane worldViewScroll = new UnfocusableScrollPane(worldDisplay);
         JavaFXUtil.expandScrollPaneContent(worldViewScroll);
-        BorderPane root = new BorderPane(new BorderPane(worldViewScroll, null, null, buttonAndSpeedPanel , null), makeMenu(), classDiagramScroll,
+        BorderPane root = new BorderPane(new BorderPane(worldViewScroll, null, null, controlPanel, null), makeMenu(), classDiagramScroll,
                 null, null);
         glassPane = new Pane();
         glassPane.setMouseTransparent(true);
@@ -459,7 +378,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      * setting a flag noting that we want to send an instantiate-world command
      * once the discard-world command has taken effect.
      */
-    private void doReset()
+    public void doReset()
     {
         DataCollector.recordGreenfootEvent(project, GreenfootInterfaceEvent.WORLD_RESET);
         debugHandler.getVmComms().discardWorld();
@@ -493,7 +412,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         {
             // Just leave it as the default 50 if there is a problem
         }
-        speedSlider.setValue(speed);
+        controlPanel.setSpeed(speed);
         debugHandler.getVmComms().setSimulationSpeed(speed);
     }
 
@@ -698,7 +617,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     /**
      * Perform a single act step, if paused, by adding to the list of pending commands.
      */
-    private void act()
+    public void act()
     {
         if (stateProperty.get() == State.PAUSED)
         {
@@ -711,7 +630,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     /**
      * Run or pause the simulation (depending on current state).
      */
-    private void doRunPause()
+    public void doRunPause()
     {
         if (stateProperty.get() == State.PAUSED)
         {
@@ -787,37 +706,37 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         updateRecentProjects();
         
         Menu scenarioMenu = new Menu(Config.getString("menu.scenario"), null,
-                makeMenuItem("stride.new.project",
+                JavaFXUtil.makeMenuItem("stride.new.project",
                         new KeyCodeCombination(KeyCode.F, KeyCombination.SHORTCUT_DOWN),
                         () -> {doNewProject(SourceType.Stride);}, null
                     ),
-                    makeMenuItem("java.new.project",
+                    JavaFXUtil.makeMenuItem("java.new.project",
                         new KeyCodeCombination(KeyCode.J, KeyCombination.SHORTCUT_DOWN),
                         () -> {doNewProject(SourceType.Java);}, null
                     ),
-                    makeMenuItem("open.project",
+                    JavaFXUtil.makeMenuItem("open.project",
                         new KeyCodeCombination(KeyCode.O, KeyCombination.SHORTCUT_DOWN),
                         this::doOpenScenario, null
                     ),
                     recentProjectsMenu,
-                    makeMenuItem("project.close",
+                    JavaFXUtil.makeMenuItem("project.close",
                         new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN),
                         () -> { doClose(true); }, hasNoProject
                     ),
-                    makeMenuItem("project.save",
+                    JavaFXUtil.makeMenuItem("project.save",
                         new KeyCodeCombination(KeyCode.S, KeyCombination.SHORTCUT_DOWN),
                         this::doSave, hasNoProject
                     ),
-                    makeMenuItem("project.saveAs",
+                    JavaFXUtil.makeMenuItem("project.saveAs",
                         null,
                         this::doSaveAs, hasNoProject
                     ),
                     new SeparatorMenuItem(),
-                    makeMenuItem("show.readme",
+                    JavaFXUtil.makeMenuItem("show.readme",
                         null,
                         this::openReadme, hasNoProject
                     ),
-                    makeMenuItem("export.project",
+                    JavaFXUtil.makeMenuItem("export.project",
                         new KeyCodeCombination(KeyCode.E, KeyCombination.SHORTCUT_DOWN),
                         this::doShare, hasNoProject
                     )
@@ -825,7 +744,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
         if (! Config.isMacOS()) {
             scenarioMenu.getItems().add(new SeparatorMenuItem());
-            scenarioMenu.getItems().add(makeMenuItem("greenfoot.quit",
+            scenarioMenu.getItems().add(JavaFXUtil.makeMenuItem("greenfoot.quit",
                     new KeyCodeCombination(KeyCode.Q, KeyCombination.SHORTCUT_DOWN),
                     () -> Main.wantToQuit(), null)
                 );
@@ -833,7 +752,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
         Menu toolsMenu = new Menu(Config.getString("menu.tools"), null);
         toolsMenu.getItems().addAll(
-                makeMenuItem("menu.tools.generateDoc",new KeyCodeCombination(KeyCode.G, KeyCombination.SHORTCUT_DOWN),
+                JavaFXUtil.makeMenuItem("menu.tools.generateDoc",new KeyCodeCombination(KeyCode.G, KeyCombination.SHORTCUT_DOWN),
                         this::generateDocumentation, hasNoProject),
                 JavaFXUtil.makeCheckMenuItem(Config.getString("menu.soundRecorder"),
                         soundRecorder.getShowingProperty(),
@@ -842,14 +761,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 JavaFXUtil.makeCheckMenuItem(Config.getString("menu.debugger"),
                         showingDebugger,
                         new KeyCodeCombination(KeyCode.B, KeyCombination.SHORTCUT_DOWN)),
-                makeMenuItem("set.player",
+                JavaFXUtil.makeMenuItem("set.player",
                         new KeyCodeCombination(KeyCode.P, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN),
                         this::setPlayer, hasNoProject)
         );
 
         if (! Config.isMacOS())
         {
-            toolsMenu.getItems().add(makeMenuItem("greenfoot.preferences",
+            toolsMenu.getItems().add(JavaFXUtil.makeMenuItem("greenfoot.preferences",
                     new KeyCodeCombination(KeyCode.COMMA, KeyCombination.SHORTCUT_DOWN),
                     () -> showPreferences(), null));
         }
@@ -857,51 +776,38 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         Menu helpMenu = new Menu(Config.getString("menu.help"), null);
         if (! Config.isMacOS())
         {
-            helpMenu.getItems().add(makeMenuItem("menu.help.about", null, () -> aboutGreenfoot(this), null));
+            helpMenu.getItems().add(JavaFXUtil.makeMenuItem("menu.help.about", null, () -> aboutGreenfoot(this), null));
         }
         helpMenu.getItems().addAll(
-                makeMenuItem("greenfoot.copyright", null, this::showCopyright, null),
+                JavaFXUtil.makeMenuItem("greenfoot.copyright", null, this::showCopyright, null),
                 new SeparatorMenuItem(),
-                makeMenuItem("menu.help.classDoc", null, () -> showApiDoc("index.html"), null),
-                makeMenuItem("menu.help.javadoc", null,
+                JavaFXUtil.makeMenuItem("menu.help.classDoc", null, () -> showApiDoc("index.html"), null),
+                JavaFXUtil.makeMenuItem("menu.help.javadoc", null,
                         () -> openWebBrowser(Config.getPropString("greenfoot.url.javaStdLib")), null),
                 new SeparatorMenuItem(),
-                makeMenuItem("menu.help.tutorial", null,
+                JavaFXUtil.makeMenuItem("menu.help.tutorial", null,
                         () -> openWebBrowser(Config.getPropString("greenfoot.url.tutorial")), null),
-                makeMenuItem("menu.help.website", null,
+                JavaFXUtil.makeMenuItem("menu.help.website", null,
                         () -> openWebBrowser(Config.getPropString("greenfoot.url.greenfoot")), null),
-                makeMenuItem("menu.help.moreScenarios", null,
+                JavaFXUtil.makeMenuItem("menu.help.moreScenarios", null,
                         () -> openWebBrowser(Config.getPropString("greenfoot.url.scenarios")), null),
                 new SeparatorMenuItem(),
                 JavaFXUtil.makeMenuItem(Config.getPropString("greenfoot.gameserver.name"),
                         () -> openWebBrowser(Config.getPropString("greenfoot.gameserver.address")), null),
-                makeMenuItem("menu.help.discuss", null,
+                JavaFXUtil.makeMenuItem("menu.help.discuss", null,
                         () -> openWebBrowser(Config.getPropString("greenfoot.url.discuss")), null)
         );
         
         return new MenuBar(
             scenarioMenu,
             new Menu(Config.getString("menu.edit"), null,
-                makeMenuItem("new.other.class", new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN),
+                JavaFXUtil.makeMenuItem("new.other.class", new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN),
                             () -> newNonImageClass(project.getUnnamedPackage(), null), hasNoProject),
-                makeMenuItem("import.action",
+                JavaFXUtil.makeMenuItem("import.action",
                         new KeyCodeCombination(KeyCode.I, KeyCombination.SHORTCUT_DOWN), () -> doImportClass(),
                         hasNoProject)
             ),
-            new Menu(Config.getString("menu.controls"), null,
-                    makeMenuItem("run.once",
-                            new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN),
-                            () -> act(), actDisabled),
-                    makeMenuItem("controls.run.button",
-                            new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN),
-                            this::doRunPause, runDisabled),
-                    makeMenuItem("controls.pause.button",
-                            new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN,
-                                    KeyCombination.SHIFT_DOWN),
-                            this::doRunPause, pauseDisabled),
-                    makeMenuItem("reset.world",
-                            new KeyCodeCombination(KeyCode.T, KeyCombination.SHORTCUT_DOWN),
-                            this::doReset, resetDisabled)
+            new Menu(Config.getString("menu.controls"), null, controlPanel.makeMenuItems().toArray(new MenuItem[0])
             ),
             toolsMenu,
             helpMenu
@@ -955,57 +861,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     }
 
     /**
-     * Make a single menu item.
-     * 
-     * @param nameKey The key to lookup via Config.getString for the name
-     * @param accelerator The accelerator if any (null if none)
-     * @param action The action to perform when the menu item is activated
-     * @param binding  The binding for disabling the menu item (may be null).
-     * 
-     * @return The MenuItem combining all these items.
-     */
-    private MenuItem makeMenuItem(String nameKey, KeyCombination accelerator,
-            FXPlatformRunnable action, ObservableValue<Boolean> binding)
-    {
-        MenuItem item = JavaFXUtil.makeMenuItem(Config.getString(nameKey), action, accelerator);
-        if (binding != null)
-        {
-            item.disableProperty().bind(binding);
-        }
-        return item;
-    }
-
-    /**
      * Update scenario controls (act, run/pause, reset etc) according to scenario state.
      */
     private void updateGUIState(State newState)
     {
-        actDisabled.setValue(newState != State.PAUSED || atBreakpoint);
-        runDisabled.setValue(newState != State.PAUSED || atBreakpoint);
-        pauseDisabled.setValue(newState != State.RUNNING || atBreakpoint);
-        resetDisabled.setValue(newState == State.NO_PROJECT || newState == State.UNCOMPILED);
-
-        if (newState == State.RUNNING || newState == State.RUNNING_REQUESTED_PAUSE)
-        {
-            // Only change button text and tooltip if needed; changing the tooltip to another
-            // tooltip with the same text causes it to disappear needlessly if the user is currently viewing it:
-            if (!runButton.getText().equals(PAUSE_BUTTON_TEXT))
-            {
-                runButton.setGraphic(PAUSE_ICON);
-                runButton.setText(PAUSE_BUTTON_TEXT);
-                runButton.setTooltip(new Tooltip(PAUSE_BUTTON_TOOLTIP_TEXT));
-            }
-        }
-        else
-        {
-            // Ditto: only change text and tooltip if needed
-            if (!runButton.getText().equals(RUN_BUTTON_TEXT))
-            {
-                runButton.setGraphic(RUN_ICON);
-                runButton.setText(RUN_BUTTON_TEXT);
-                runButton.setTooltip(new Tooltip(RUN_BUTTON_TOOLTIP_TEXT));
-            }
-        }
+        controlPanel.updateState(newState, atBreakpoint);
     }
 
     /**
@@ -2167,7 +2027,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         // tell the simulation about a speed change that they instigated.
         // So we set a boolean flag to block the slider listener:
         settingSpeedFromSimulation = true;
-        speedSlider.setValue(simSpeed);
+        controlPanel.setSpeed(simSpeed);
         settingSpeedFromSimulation = false;
     }
 
@@ -2184,6 +2044,20 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         else
         {
             target.getEditor().setEditorVisible(true);
+        }
+    }
+
+    /**
+     * When the speed slider is moved, this method is called
+     * to communicate the new value to the debug VM.
+     * @param newSpeed The new speed, from the slider.
+     */
+    protected void setSpeedFromSlider(int newSpeed)
+    {
+        if (!settingSpeedFromSimulation)
+        {
+            lastUserSetSpeed = newSpeed;
+            debugHandler.getVmComms().setSimulationSpeed(newSpeed);
         }
     }
 }

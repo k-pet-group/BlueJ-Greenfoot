@@ -787,6 +787,27 @@ public class JavaFXUtil
     }
 
     /**
+     * Make a single menu item.
+     * 
+     * @param nameKey The key to lookup via Config.getString for the name
+     * @param accelerator The accelerator if any (null if none)
+     * @param action The action to perform when the menu item is activated
+     * @param binding  The binding for disabling the menu item (may be null).
+     * 
+     * @return The MenuItem combining all these items.
+     */
+    public static MenuItem makeMenuItem(String nameKey, KeyCombination accelerator,
+                                        FXPlatformRunnable action, ObservableValue<Boolean> binding)
+    {
+        MenuItem item = makeMenuItem(Config.getString(nameKey), action, accelerator);
+        if (binding != null)
+        {
+            item.disableProperty().bind(binding);
+        }
+        return item;
+    }
+
+    /**
      * A builder pattern for lists.
      */
     public static class ListBuilder<T>
