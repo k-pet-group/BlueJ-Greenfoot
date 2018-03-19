@@ -25,7 +25,6 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
 
-import javax.swing.event.DocumentEvent;
 import javax.swing.text.Segment;
 
 import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
@@ -274,16 +273,19 @@ public class MoeSyntaxDocument
     
     private List<EditEvent> recentEdits = new LinkedList<EditEvent>();
     
-    private void recordEvent(DocumentEvent event)
+    private void recordEvent(MoeSyntaxEvent event)
     {
         int type;
-        if (event.getType() == DocumentEvent.EventType.INSERT) {
+        if (event.isInsert())
+        {
             type = EDIT_INSERT;
         }
-        else if (event.getType() == DocumentEvent.EventType.REMOVE) {
+        else if (event.isRemove())
+        {
             type = EDIT_DELETE;
         }
-        else {
+        else
+        {
             return;
         }
         
@@ -293,7 +295,8 @@ public class MoeSyntaxDocument
         eevent.length = event.getLength();
         recentEdits.add(eevent);
         
-        if (recentEdits.size() > 10) {
+        if (recentEdits.size() > 10)
+        {
             recentEdits.remove(0);
         }
     }
@@ -823,6 +826,7 @@ public class MoeSyntaxDocument
         {
             syntaxView.setDuringUpdate(true);
         }
+        
         if (reparseRecordTree != null) {
             NodeAndPosition<ReparseRecord> napRr = reparseRecordTree.findNodeAtOrAfter(offset);
             if (napRr != null) {
@@ -837,25 +841,11 @@ public class MoeSyntaxDocument
 
         MoeSyntaxEvent mse = new MoeSyntaxEvent(this, offset, length, true, false);
         if (parsedNode != null) {
-            parsedNode.textInserted(this, 0, offset, length, new NodeStructureListener()
-            {
-                @Override
-                public void nodeRemoved(NodeAndPosition<ParsedNode> node)
-                {
-
-                }
-
-                @Override
-                public void nodeChangedLength(NodeAndPosition<ParsedNode> node, int oldPos, int oldSize)
-                {
-
-                }
-            });
+            parsedNode.textInserted(this, 0, offset, length, mse);
         }
         fireChangedUpdate(mse);
-        int startLine = document.offsetToPosition(offset, Bias.Forward).getMajor();
-        int endLine = document.offsetToPosition(offset + length, Bias.Forward).getMajor();
-        recalculateScopesForLinesInRange(startLine, endLine);
+        recordEvent(mse);
+        
         if (syntaxView != null)
         {
             syntaxView.setDuringUpdate(false);
@@ -872,9 +862,9 @@ public class MoeSyntaxDocument
         {
             syntaxView.setDuringUpdate(true);
         }
+        
         NodeAndPosition<ReparseRecord> napRr = (reparseRecordTree != null) ?
-                reparseRecordTree.findNodeAtOrAfter(offset) :
-                    null;
+                reparseRecordTree.findNodeAtOrAfter(offset) : null;
         int rpos = offset;
         int rlen = length;
         if (napRr != null && napRr.getEnd() == rpos) {
@@ -935,24 +925,11 @@ public class MoeSyntaxDocument
 
         MoeSyntaxEvent mse = new MoeSyntaxEvent(this, offset, length, false, true);
         if (parsedNode != null) {
-            parsedNode.textRemoved(this, 0, offset, length, new NodeStructureListener()
-            {
-                @Override
-                public void nodeRemoved(NodeAndPosition<ParsedNode> node)
-                {
-
-                }
-
-                @Override
-                public void nodeChangedLength(NodeAndPosition<ParsedNode> node, int oldPos, int oldSize)
-                {
-
-                }
-            });
+            parsedNode.textRemoved(this, 0, offset, length, mse);
         }
         fireChangedUpdate(mse);
-        int line = document.offsetToPosition(offset, Bias.Forward).getMajor();
-        recalculateScopesForLinesInRange(line, line);
+        recordEvent(mse);
+
         if (syntaxView != null)
         {
             syntaxView.setDuringUpdate(false);
