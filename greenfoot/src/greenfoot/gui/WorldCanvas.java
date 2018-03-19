@@ -360,7 +360,6 @@ public class WorldCanvas extends JPanel
             paintWorldText(g2, world);
         }
         
-        final int curSpeed = Simulation.getInstance().getSpeed();
 
         // One element array to allow a reference to be set by readCommands:
         String[] answer = new String[] {null};
@@ -414,7 +413,7 @@ public class WorldCanvas extends JPanel
             sharedMemory.put(stoppedWithErrorCount);
             sharedMemory.put((int)(startOfCurExecution >> 32));
             sharedMemory.put((int)(startOfCurExecution & 0xFFFFFFFFL));
-            sharedMemory.put(curSpeed);
+            sharedMemory.put(Simulation.getInstance().getSpeed());
             sharedMemory.put(world == null ? 0 : 1);
             
             // If not asking, put -1
