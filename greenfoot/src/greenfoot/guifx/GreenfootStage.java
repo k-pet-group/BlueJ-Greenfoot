@@ -95,7 +95,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
@@ -270,11 +269,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         classDiagram = new GClassDiagram(this);
         ScrollPane classDiagramScroll = new UnfocusableScrollPane(classDiagram);
         JavaFXUtil.expandScrollPaneContent(classDiagramScroll);
+        classDiagramScroll.getStyleClass().add("gclass-diagram-scroll");
+        classDiagramScroll.setMinViewportWidth(150.0);
+        classDiagramScroll.setMinViewportHeight(200.0);
 
         ScrollPane worldViewScroll = new UnfocusableScrollPane(worldDisplay);
+        worldViewScroll.getStyleClass().add("world-display-scroll");
         JavaFXUtil.expandScrollPaneContent(worldViewScroll);
-        BorderPane root = new BorderPane(new BorderPane(worldViewScroll, null, null, controlPanel, null), makeMenu(), classDiagramScroll,
-                null, null);
+        BorderPane root = new BorderPane(new GreenfootStageContentPane(worldViewScroll, classDiagramScroll, controlPanel), makeMenu(), null, null, null);
         glassPane = new Pane();
         glassPane.setMouseTransparent(true);
         StackPane stackPane = new StackPane(root, glassPane);

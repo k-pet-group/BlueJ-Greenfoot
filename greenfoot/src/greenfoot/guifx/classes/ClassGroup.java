@@ -42,7 +42,7 @@ import java.util.List;
  */
 public class ClassGroup extends Pane implements ChangeListener<Number>
 {
-    private static final int VERTICAL_SPACING = 8;
+    public static final int VERTICAL_SPACING = 8;
 
     // For Actor and World groups, just those base classes.  For other, can be many top-level:
     private final List<GClassNode> topLevel = new ArrayList<>();
@@ -198,7 +198,7 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
     {
         return getChildren().stream()
                 .filter(c -> c instanceof ClassDisplay)
-                .mapToDouble(c -> c.getBoundsInParent().getMaxX())
+                .mapToDouble(c -> c.getLayoutX() + c.prefWidth(-1))
                 .max().orElse(0.0)
                 + VERTICAL_SPACING; // Use vertical spacing for right spacer
     }

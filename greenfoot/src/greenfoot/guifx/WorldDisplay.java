@@ -27,6 +27,7 @@ import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 
 /**
@@ -39,7 +40,13 @@ class WorldDisplay extends StackPane
     
     public WorldDisplay()
     {
-        getChildren().addAll(imageView, askPane);
+        // Need a wrapper pane to be able to provide border around image:
+        BorderPane borderPane = new BorderPane(imageView);
+        borderPane.getStyleClass().add("world-display-wrapper");
+        // Make BorderPane fit exactly around the contained imageView:
+        borderPane.setMaxWidth(USE_PREF_SIZE);
+        borderPane.setMaxHeight(USE_PREF_SIZE);
+        getChildren().addAll(borderPane, askPane);
         setMinWidth(200);
         setMinHeight(200);
     }
