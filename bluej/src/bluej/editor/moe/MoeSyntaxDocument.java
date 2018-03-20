@@ -538,6 +538,9 @@ public class MoeSyntaxDocument
 
     /**
      * Issue a change update to listeners.
+     * 
+     * @param mse the event with the details of the change, or null if the the change is a resize
+     *            of the viewport (which requires re-drawing scope backgrounds to match).
      */
     public void fireChangedUpdate(MoeSyntaxEvent mse)
     {
@@ -583,7 +586,10 @@ public class MoeSyntaxDocument
         syntaxView.recalculateScopes(pendingScopeBackgrounds, firstLineIncl, lastLineIncl);
     }
 
-    // Called if the reparse queue is empty:
+    /**
+     * Apply pending scope background updates. Must not be called from a document update
+     * event (see applyPendingScopeBackgrounds(boolean)).
+     */
     public void applyPendingScopeBackgrounds()
     {
         // Prevent re-entry, which can it seems can occur when applying
