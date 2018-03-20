@@ -115,6 +115,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     private List<ObjectBenchListener> benchListeners = new ArrayList<>();
     
     private VMCommsMain vmComms;
+    private boolean hasLaunched = false;
 
     /**
      * Constructor for GreenfootDebugHandler.
@@ -124,7 +125,6 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     {
         this.project = project;
         vmComms = new VMCommsMain();
-        GreenfootStage.makeStage(project, this).show();
     }
         
     /**
@@ -135,7 +135,15 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
         project.getExecControls().setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
 
         GreenfootDebugHandler handler = new GreenfootDebugHandler(project);
-        project.getDebugger().addDebuggerListener(handler);
+        // Add us as a debugger listener, but if the debugger is already idle (because it initialised
+        // very quickly, before the server VM got to this point), we must launch now because
+        // we won't see the NOTREADY->IDLE transition that we usually wait for, before launching.
+        // (We know hasLaunched will be false at this point because we only just made the GreenfootDebugHandler):
+        if (project.getDebugger().addDebuggerListener(handler) == Debugger.IDLE)
+        {
+            handler.launch(project.getDebugger());
+        }
+        GreenfootStage.makeStage(project, handler).show();
     }
     
     /**
@@ -395,19 +403,9 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     @Override
     public void processDebuggerEvent(final DebuggerEvent e, boolean skipUpdate)
     {
-        if (e.getNewState() == Debugger.IDLE && e.getOldState() == Debugger.NOTREADY)
+        if (e.getNewState() == Debugger.IDLE && !hasLaunched)
         {
-            if (! ProjectManager.checkLaunchFailed())
-            {
-                //It is important to have this code run at a later time.
-                //If it runs from this thread, it tries to notify the VM event handler,
-                //which is currently calling us and we get a deadlock between the two VMs.
-                Platform.runLater(() -> {
-                    objectBench.clear();
-                    addRunResetBreakpoints((Debugger) e.getSource());
-                    ProjectManager.instance().openGreenfoot(project, GreenfootDebugHandler.this);
-                });
-            }
+            launch((Debugger) e.getSource());
         }
         
         if (!skipUpdate)
@@ -420,6 +418,26 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
             {
                 simulationListener.simulationDebugResumed();
             }
+        }
+    }
+
+    /**
+     * Launches Greenfoot on the debug VM.  Only call this once (check the hasLaunched flag before calling)
+     * @param debugger The debugger for the project.
+     */
+    private void launch(Debugger debugger)
+    {
+        if (! ProjectManager.checkLaunchFailed())
+        {
+            hasLaunched = true;
+            // It is important to have this code run at a later time.
+            // If it runs from this thread, it tries to notify the VM event handler,
+            // which is currently calling us and we get a deadlock between the two VMs.
+            Platform.runLater(() -> {
+                objectBench.clear();
+                addRunResetBreakpoints(debugger);
+                ProjectManager.instance().openGreenfoot(project, GreenfootDebugHandler.this);
+            });
         }
     }
 
