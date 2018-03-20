@@ -49,7 +49,7 @@ public class ClassDisplay extends StackPane
     // We make child panes mainly so that we can apply
     // the stripe fill to the background but not to the content:
     private final BorderPane stripePane;
-    private final BorderPane content;
+    private final Label contentLabel;
 
     /**
      * @param displayName The class name to display (without package)
@@ -62,7 +62,8 @@ public class ClassDisplay extends StackPane
         this.fullyQualifiedName = fullyQualifiedName;
         getStyleClass().add("class-display");
         setSnapToPixel(true);
-        content = new BorderPane(new Label(displayName));
+        contentLabel = new Label(displayName);
+        BorderPane content = new BorderPane(contentLabel);
         setImage(image);
         JavaFXUtil.addStyleClass(content, "class-display-content");
         stripePane = new BorderPane();
@@ -107,7 +108,7 @@ public class ClassDisplay extends StackPane
     {
         if (image == null)
         {
-            content.setLeft(null);
+            contentLabel.setGraphic(null);
         }
         else
         {
@@ -116,10 +117,7 @@ public class ClassDisplay extends StackPane
             imageView.setFitHeight(Math.min(image.getHeight(), 16));
             imageView.setFitWidth(Math.min(image.getWidth(), 16));
             imageView.setPreserveRatio(true);
-            // Can't set these from CSS, so setting them here:
-            BorderPane.setAlignment(imageView, Pos.CENTER_LEFT);
-            BorderPane.setMargin(imageView, new Insets(0, 4, 0, 0));
-            content.setLeft(imageView);
+            contentLabel.setGraphic(imageView);
         }
     }
 

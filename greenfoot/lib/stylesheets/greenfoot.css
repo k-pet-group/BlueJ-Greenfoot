@@ -22,6 +22,10 @@
     -fx-padding: 4px 7px 4px 7px;
     -fx-background-insets: 4px 7px 4px 7px;
 }
+.class-display-content .label {
+    -fx-content-display: right;
+    -fx-graphic-test-gap: 5;
+}
 
 .gclass-diagram {
     -fx-padding: 5px;
