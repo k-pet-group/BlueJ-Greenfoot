@@ -65,7 +65,7 @@ public class GClassDiagram extends BorderPane
     public GClassDiagram(GreenfootStage greenfootStage)
     {
         this.greenfootStage = greenfootStage;
-        getStyleClass().add("class-diagram");
+        getStyleClass().add("gclass-diagram");
         this.worldClasses = new ClassGroup(greenfootStage);
         this.actorClasses = new ClassGroup(greenfootStage);
         this.otherClasses = new ClassGroup(greenfootStage);
@@ -77,7 +77,9 @@ public class GClassDiagram extends BorderPane
         BorderPane.setAlignment(otherClasses, Pos.BOTTOM_LEFT);
         // Setting spacing around actorClasses is equivalent to divider spacing:
         BorderPane.setMargin(actorClasses, new Insets(20, 0, 20, 0));
-        setMaxWidth(Double.MAX_VALUE);
+        // Add gap from last class to bottom of panel:
+        BorderPane.setMargin(otherClasses, new Insets(0, 0, ClassGroup.VERTICAL_SPACING, 0));
+        setMaxWidth(USE_PREF_SIZE);
         setMaxHeight(Double.MAX_VALUE);
         
         setOnContextMenuRequested(e -> {

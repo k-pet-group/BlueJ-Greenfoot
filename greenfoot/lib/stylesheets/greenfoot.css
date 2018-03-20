@@ -22,9 +22,19 @@
     -fx-padding: 4px 7px 4px 7px;
     -fx-background-insets: 4px 7px 4px 7px;
 }
+.class-display-content .label {
+    -fx-content-display: right;
+    -fx-graphic-test-gap: 5;
+}
 
-.class-diagram {
+.gclass-diagram {
     -fx-padding: 5px;
+}
+.gclass-diagram-scroll > .viewport {
+    -fx-background-color: white;
+}
+.gclass-diagram-scroll-wrapper {
+    -fx-padding: 15px;
 }
 
 .import-class-dialog .class-group {
@@ -36,6 +46,18 @@
 .export-pane {
     -fx-background-color: rgb(220, 220, 220);
 }
+
+.world-display-wrapper {
+    -fx-border-style: solid outside;
+    -fx-border-width: 1;
+    -fx-border-color: black;
+}
+.world-display-scroll {
+    /* Turn off the scroll pane border except at bottom and right: */
+    -fx-background-insets: 0, 0 1 1 0;
+    -fx-padding: 0 1 1 0;
+}
+
 
 .act-icon {
     -fx-stroke: green;
@@ -52,12 +74,21 @@
     -fx-stroke-width: 3;
     -fx-stroke-line-cap: square;
 }
+
 .control-panel {
+    -fx-padding: 10 0 10 0;
+    -fx-background-insets: 0, 0 1 0 0;
+    -fx-background-color: -fx-box-border, -fx-background;
+}
+.control-panel .buttons-panel {
     -fx-hgap: 20;
     /* In case of wrapping, add some space: */
     -fx-vgap: 10;
 }
-.control-panel .button {
+.control-panel .buttons-panel .button {
     -fx-graphic-text-gap: 8;
     -fx-padding: 6 10 6 10;
+}
+.control-panel .speed-panel {
+    -fx-hgap: 10;
 }
