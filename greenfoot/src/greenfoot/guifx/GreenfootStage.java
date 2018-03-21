@@ -1679,24 +1679,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     public void newSubClassOf(String parentName, GClassType classType)
     {
-        if (classType == GClassType.WORLD)
+        if (classType == GClassType.WORLD || classType == GClassType.ACTOR)
         {
-            boolean direct = "greenfoot.World".equals(parentName);
-            Optional<NewImageClassInfo> info = new NewImageClassFrame(this, project).showAndWait();
-            info.ifPresent((classInfo) -> {
-                String templateName = getWorldTemplateFileName(direct, classInfo.sourceType);
-                GClassNode newClass = createNewClass(project.getUnnamedPackage(), parentName,
-                        classInfo.className, classInfo.sourceType, templateName);
-                newClass.getDisplay(this).setImage(new Image(classInfo.imageFile.toURI().toString()));
-            });
-        }
-        else if (classType == GClassType.ACTOR)
-        {
-            Optional<NewImageClassInfo> info = new NewImageClassFrame(this, project).showAndWait();
-            info.ifPresent(classInfo -> {
-                String template = getActorTemplateFileName(classInfo.sourceType);
-                GClassNode newClass = createNewClass(project.getUnnamedPackage(), parentName,
-                        classInfo.className, classInfo.sourceType, template);
+            NewImageClassFrame frame = new NewImageClassFrame(this, project);
+            // if the frame is not canceled after showing, create the new class
+            // and set its image to the selected file
+            frame.showAndWait().ifPresent(classInfo ->
+            {
+                GClassNode newClass = createNewClass(project.getUnnamedPackage(), parentName, classInfo.className,
+                        classInfo.sourceType, getTemplateFileName(classType, parentName, classInfo.sourceType));
 
                 // set the image of the class to the selected file, if there is one selected.
                 File imageFile = classInfo.imageFile;
@@ -1712,6 +1703,31 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             Package pkg = classTarget.getPackage();
             newNonImageClass(pkg, parentName);
         }
+    }
+
+    /**
+     * Return the template file name which is built based on
+     * the class type (i.e. world or actor), the parent and the source type.
+     * Other class type is not allowed and will throw an IllegalArgumentException.
+     *
+     * @param classType   World or Actor. If Other is passed, an IllegalArgumentException will be fired.
+     * @param parentName  The direct parent's name.
+     * @param sourceType  Java or Stride.
+     * @return The suitable template file name.
+     * @throws IllegalStateException Only if the class type is not World or Actor.
+     */
+    private String getTemplateFileName(GClassType classType, String parentName, SourceType sourceType)
+            throws IllegalArgumentException
+    {
+        if (classType == GClassType.WORLD)
+        {
+            return getWorldTemplateFileName("greenfoot.World".equals(parentName), sourceType);
+        }
+        else if (classType == GClassType.ACTOR)
+        {
+            return getActorTemplateFileName(sourceType);
+        }
+        throw new IllegalArgumentException("This method should be called only on World or Actor classes.");
     }
 
     /**
