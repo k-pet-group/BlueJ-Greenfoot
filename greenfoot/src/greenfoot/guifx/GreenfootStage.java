@@ -45,6 +45,7 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.debugmgr.objectbench.ResultWatcherBase;
 import bluej.editor.Editor;
 import bluej.extensions.SourceType;
+import bluej.pkgmgr.AboutDialogTemplate;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageUI;
 import bluej.pkgmgr.Project;
@@ -68,24 +69,21 @@ import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 
 import greenfoot.core.ProjectManager;
-import bluej.pkgmgr.AboutDialogTemplate;
 import greenfoot.guifx.classes.GClassDiagram;
 import greenfoot.guifx.classes.GClassDiagram.GClassType;
-import greenfoot.guifx.classes.GClassNode;
 import greenfoot.guifx.classes.ImportClassDialog;
 import greenfoot.guifx.classes.LocalGClassNode;
 import greenfoot.guifx.export.ExportDialog;
 import greenfoot.guifx.export.ExportException;
 import greenfoot.guifx.images.NewImageClassFrame;
-import greenfoot.guifx.images.NewImageClassFrame.NewImageClassInfo;
 import greenfoot.guifx.images.SelectImageFrame;
 import greenfoot.guifx.soundrecorder.SoundRecorderControls;
 import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
 import greenfoot.record.GreenfootRecorder;
-
 import greenfoot.util.GreenfootUtil;
 import greenfoot.vmcomm.GreenfootDebugHandler;
 import greenfoot.vmcomm.GreenfootDebugHandler.SimulationStateListener;
+
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -1469,7 +1467,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      * for classes which have Actor or World as an ancestor.
      *
      * @param classNode   The class node of the class to be assigned an image.
-     * @param classDisplay  The display button of the class to bbe assigned an image.
      */
     public void setImageFor(LocalGClassNode classNode)
     {
@@ -1686,8 +1683,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             // and set its image to the selected file
             frame.showAndWait().ifPresent(classInfo ->
             {
+                SourceType sourceType = classInfo.sourceType;
                 LocalGClassNode newClass = createNewClass(project.getUnnamedPackage(), parentName, classInfo.className,
-                        classInfo.sourceType, getTemplateFileName(classType, parentName, classInfo.sourceType));
+                        sourceType, getTemplateFileName(classType, parentName, sourceType));
 
                 // set the image of the class to the selected file, if there is one selected.
                 File imageFile = classInfo.imageFile;
