@@ -1499,6 +1499,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             GreenfootUtil.copyFile(originalImageFile, localImageFile);
         }
         classNode.setImageFilename(localImageFile.getName());
+        debugHandler.getVmComms().sendProperty(
+                "class." + classNode.getQualifiedName() + ".image",
+                localImageFile.getName());
     }
 
     /**
