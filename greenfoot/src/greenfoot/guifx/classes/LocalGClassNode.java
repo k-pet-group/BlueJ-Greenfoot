@@ -22,15 +22,19 @@
 package greenfoot.guifx.classes;
 
 import bluej.Config;
+import bluej.debugger.gentype.Reflective;
 import bluej.extensions.SourceType;
+import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.DependentTarget.State;
 import bluej.pkgmgr.target.DependentTarget.TargetListener;
+import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.guifx.GreenfootStage;
 import greenfoot.guifx.classes.GClassDiagram.GClassType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.image.Image;
 import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.paint.Color;
@@ -38,6 +42,7 @@ import javafx.scene.paint.Paint;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -49,9 +54,12 @@ class LocalGClassNode extends GClassNode implements TargetListener
 {
     private GClassDiagram classDiagram;
     private final ClassTarget classTarget;
-
+    private String imageFilename;
+    
     /**
-     * Make an instance for the given ClassTarget
+     * Make an instance for the given ClassTarget. The image will be retrieved from the project
+     * properties.
+     * 
      * @param classTarget The ClassTarget to make an instance for
      * @param subClasses The sub-classes of this GClassNode
      * @param type The type of this class (Actor/World child, or Other)
@@ -60,13 +68,51 @@ class LocalGClassNode extends GClassNode implements TargetListener
             List<GClassNode> subClasses, GClassType type)
     {
         super(classTarget.getQualifiedName(), classTarget.getBaseName(),
-                classDiagram.getGreenfootStage().getImageForClassTarget(classTarget), subClasses,
-                classDiagram.getSelectionManager());
+                getImageForClass(classTarget), subClasses, classDiagram.getSelectionManager());
+        this.imageFilename = classTarget.getPackage().getLastSavedProperties()
+                .getProperty("class." + classTarget.getQualifiedName() + ".image");
         this.classDiagram = classDiagram;
         this.classTarget = classTarget;
         this.type = type;
     }
 
+    /**
+     * Get the image for a class, if any. A class "inherits" its super-class image if it does not
+     * have a specific image set. May return null.
+     */
+    private static Image getImageForClass(ClassTarget classTarget)
+    {
+        return JavaFXUtil.loadImage(getImageFilename(classTarget));
+    }
+    
+    /**
+     * Returns a file name for the image of the first class in the given class' class hierarchy
+     * that has an image set.
+     */
+    private static File getImageFilename(ClassTarget ct)
+    {
+        String className = ct.getQualifiedName();
+        Reflective type = ct.getTypeReflective();
+        Package pkg = ct.getPackage();
+        
+        do {
+            String imageFileName = pkg.getLastSavedProperties()
+                    .getProperty("class." + className + ".image");
+            
+            if (imageFileName != null)
+            {
+                File imageDir = new File(pkg.getProject().getProjectDir(), "images");
+                return new File(imageDir, imageFileName);
+            }
+            
+            type = type.getSuperTypesR().stream().filter(t -> !t.isInterface()).findFirst().orElse(null);
+            className = (type != null) ? type.getName() : null;
+        }
+        while (type != null);
+        
+        return null;
+    }
+    
     /**
      * Setup the given ClassDisplay with custom actions
      */
@@ -226,5 +272,15 @@ class LocalGClassNode extends GClassNode implements TargetListener
         classDiagram.getSelectionManager().select(display);
         contextMenu.show(display, e.getScreenX(), e.getScreenY());
         curContextMenu = contextMenu;
+    }
+    
+    /**
+     * Get the image filename for the image associated with this class. If not specifically set,
+     * this will return null (i.e. it will not return the image associated with the superclass,
+     * if any).
+     */
+    public String getImageFilename()
+    {
+        return imageFilename;
     }
 }

@@ -1370,15 +1370,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     }
 
     /**
-     * Gets the image, if one has been set, for the given class target, by looking at that
-     * class and its ancestors.  Returns the loaded image, or null if none was found.
-     */
-    public Image getImageForClassTarget(ClassTarget classTarget)
-    {
-        return JavaFXUtil.loadImage(getImageFilename(classTarget.getTypeReflective()));
-    }
-
-    /**
      * Get an ImageView with the appropriate preview image for this class type.
      * If no suitable image found, the Greenfoot icon will be used.
      */
