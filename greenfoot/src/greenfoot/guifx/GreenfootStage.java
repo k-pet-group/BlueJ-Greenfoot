@@ -544,13 +544,19 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         try
         {
+            // Collect the various properties to be written out:
             Properties p = project.getProjectPropertiesCopy();
             p.setProperty("simulation.speed", Integer.toString(lastUserSetSpeed));
             p.put("version", Boot.GREENFOOT_API_VERSION);
 
             saveClassTargetsImages(p);
             project.saveEditorLocations(p);
+            classDiagram.save(p);
+            
+            // Actually write out the properties to disk:
             project.getUnnamedPackage().save(p);
+            
+            // Save editor contents, etc:
             project.getImportScanner().saveCachedImports();
             project.saveAllEditors();
         }

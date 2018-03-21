@@ -207,4 +207,14 @@ public class GClassNode
     public void tidyup()
     {   
     }
+    
+    /**
+     * Get the image filename for the image associated with this class. If not specifically set,
+     * this will return null (i.e. it will not return the image associated with the superclass,
+     * if any).
+     */
+    public String getImageFilename()
+    {
+        return null;
+    }
 }
