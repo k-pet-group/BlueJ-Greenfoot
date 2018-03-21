@@ -548,8 +548,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             Properties p = project.getProjectPropertiesCopy();
             p.setProperty("simulation.speed", Integer.toString(lastUserSetSpeed));
             p.put("version", Boot.GREENFOOT_API_VERSION);
-
-            saveClassTargetsImages(p);
             project.saveEditorLocations(p);
             classDiagram.save(p);
             
@@ -565,24 +563,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             // The exception is logged earlier, so we won't bother logging again.
             // However, alert the user:
             DialogManager.showMessageFX(this, "error-saving-project");
-        }
-    }
-
-    /**
-     * Adds the image property of the class targets to the projects' properties.
-     * This is only for classes with images.
-     *
-     * @param properties The project properties, can't be null.
-     */
-    private void saveClassTargetsImages(Properties properties)
-    {
-        for (ClassTarget target : project.getUnnamedPackage().getClassTargets())
-        {
-            String fileName = target.getProperty("image");
-            if (fileName != null)
-            {
-                properties.put("class." + target.getDisplayName() + ".image", fileName);
-            }
         }
     }
 
