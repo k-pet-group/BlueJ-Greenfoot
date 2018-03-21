@@ -287,7 +287,8 @@ public class LocalGClassNode extends GClassNode implements TargetListener
     {
         this.imageFilename = newImageFilename;
 
-        if (newImageFilename != null) {
+        if (newImageFilename != null)
+        {
             File imageDir = new File(classTarget.getPackage().getProject().getProjectDir(), "images");
             File imageFile = new File(imageDir, imageFilename);
             setImage(JavaFXUtil.loadImage(imageFile));

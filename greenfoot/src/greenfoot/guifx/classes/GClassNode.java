@@ -87,7 +87,7 @@ public class GClassNode
         Collections.sort(this.subClasses, Comparator.comparing(ci -> ci.displayName));
     }
     
-    public GClassNode(String fullyQualifiedName, String displayName, Image image,
+    protected GClassNode(String fullyQualifiedName, String displayName, Image image,
             List<GClassNode> subClasses, ClassDisplaySelectionManager selectionManager)
     {
         this.selectionManager = selectionManager;
@@ -224,10 +224,11 @@ public class GClassNode
     /**
      * Set the image for this class node.
      */
-    public void setImage(Image newImage)
+    protected void setImage(Image newImage)
     {
         image = newImage;
-        if (display != null) {
+        if (display != null)
+        {
             display.setImage(newImage);
         }
     }
