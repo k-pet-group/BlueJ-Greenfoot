@@ -1497,10 +1497,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             classDisplay.setImage(new Image(destImage.toURI().toString()));
 
             // Update the package's properties.
-            Package pkg = project.getUnnamedPackage();
-            Properties pkgProperties = pkg.getLastSavedProperties();
-            pkgProperties.put("class." + classTarget.getDisplayName() + ".image", destImage.getName());
-            pkg.save(pkgProperties);
+            Properties propertiesCopy = project.getProjectPropertiesCopy();
+            propertiesCopy.put("class." + classTarget.getDisplayName() + ".image", destImage.getName());
+            project.getUnnamedPackage().save(propertiesCopy);
         });
     }
 
