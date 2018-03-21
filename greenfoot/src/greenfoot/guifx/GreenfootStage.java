@@ -1628,7 +1628,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      *
      * @return A class info reference for the class created.
      */
-    private GClassNode createNewClass(Package pkg, String superClassName, String className, SourceType language,
+    private LocalGClassNode createNewClass(Package pkg, String superClassName, String className, SourceType language,
             String templateFileName)
     {
         try
@@ -1686,14 +1686,27 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             // and set its image to the selected file
             frame.showAndWait().ifPresent(classInfo ->
             {
-                GClassNode newClass = createNewClass(project.getUnnamedPackage(), parentName, classInfo.className,
+                LocalGClassNode newClass = createNewClass(project.getUnnamedPackage(), parentName, classInfo.className,
                         classInfo.sourceType, getTemplateFileName(classType, parentName, classInfo.sourceType));
 
                 // set the image of the class to the selected file, if there is one selected.
                 File imageFile = classInfo.imageFile;
                 if (imageFile != null)
                 {
-                    newClass.getDisplay(this).setImage(new Image(imageFile.toURI().toString()));
+                    File destImage;
+                    File imagesDir = new File(project.getProjectDir(), "images");
+                    if (imageFile.getParentFile().equals(imagesDir))
+                    {
+                        // The file is already in the project's images dir
+                        destImage = imageFile;
+                    }
+                    else
+                    {
+                        // Copy the image file to the project's images dir
+                        destImage = new File(imagesDir, imageFile.getName());
+                        GreenfootUtil.copyFile(imageFile, destImage);
+                    }
+                    newClass.setImageFilename(destImage.getName());
                 }
             });
         }
