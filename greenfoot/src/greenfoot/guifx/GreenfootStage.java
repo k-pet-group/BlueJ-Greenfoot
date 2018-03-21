@@ -536,7 +536,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         classDiagram.setProject(null);
         stateProperty.set(State.NO_PROJECT);
     }
-    
+
     /**
      * Save the project (all editors and all project information).
      */
@@ -547,6 +547,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             Properties p = project.getProjectPropertiesCopy();
             p.setProperty("simulation.speed", Integer.toString(lastUserSetSpeed));
             p.put("version", Boot.GREENFOOT_API_VERSION);
+
+            saveClassTargetsImages(p);
             project.saveEditorLocations(p);
             project.getUnnamedPackage().save(p);
             project.getImportScanner().saveCachedImports();
@@ -559,7 +561,25 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             DialogManager.showMessageFX(this, "error-saving-project");
         }
     }
-    
+
+    /**
+     * Adds the image property of the class targets to the projects' properties.
+     * This is only for classes with images.
+     *
+     * @param properties The project properties, can't be null.
+     */
+    private void saveClassTargetsImages(Properties properties)
+    {
+        for (ClassTarget target : project.getUnnamedPackage().getClassTargets())
+        {
+            String fileName = target.getProperty("image");
+            if (fileName != null)
+            {
+                properties.put("class." + target.getDisplayName() + ".image", fileName);
+            }
+        }
+    }
+
     /**
      * Prompt for a location, save the scenario to the chosen location, and re-open the scenario
      * from its new location.
@@ -1495,11 +1515,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 GreenfootUtil.copyFile(selectedFile, destImage);
             }
             classDisplay.setImage(new Image(destImage.toURI().toString()));
-
-            // Update the package's properties.
-            Properties propertiesCopy = project.getProjectPropertiesCopy();
-            propertiesCopy.put("class." + classTarget.getDisplayName() + ".image", destImage.getName());
-            project.getUnnamedPackage().save(propertiesCopy);
+            classTarget.setProperty("image", destImage.getName());
         });
     }
 
