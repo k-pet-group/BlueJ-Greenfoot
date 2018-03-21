@@ -536,7 +536,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         classDiagram.setProject(null);
         stateProperty.set(State.NO_PROJECT);
     }
-    
+
     /**
      * Save the project (all editors and all project information).
      */
@@ -547,6 +547,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             Properties p = project.getProjectPropertiesCopy();
             p.setProperty("simulation.speed", Integer.toString(lastUserSetSpeed));
             p.put("version", Boot.GREENFOOT_API_VERSION);
+
+            saveClassTargetsImages(p);
             project.saveEditorLocations(p);
             project.getUnnamedPackage().save(p);
             project.getImportScanner().saveCachedImports();
@@ -559,7 +561,25 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             DialogManager.showMessageFX(this, "error-saving-project");
         }
     }
-    
+
+    /**
+     * Adds the image property of the class targets to the projects' properties.
+     * This is only for classes with images.
+     *
+     * @param properties The project properties, can't be null.
+     */
+    private void saveClassTargetsImages(Properties properties)
+    {
+        for (ClassTarget target : project.getUnnamedPackage().getClassTargets())
+        {
+            String fileName = target.getProperty("image");
+            if (fileName != null)
+            {
+                properties.put("class." + target.getDisplayName() + ".image", fileName);
+            }
+        }
+    }
+
     /**
      * Prompt for a location, save the scenario to the chosen location, and re-open the scenario
      * from its new location.
@@ -1470,13 +1490,33 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     /**
      * Show a dialog to set the image for the given class target.  Will only be called
      * for classes which have Actor or World as an ancestor.
+     *
+     * @param classTarget   The target of the class to be assigned an image.
+     * @param classDisplay  The display button of the class to bbe assigned an image.
      */
     public void setImageFor(ClassTarget classTarget, ClassDisplay classDisplay)
     {
         // initialise our image library frame
         SelectImageFrame selectImageFrame = new SelectImageFrame(this, classTarget);
         // if the frame is not canceled after showing, set the image of the class to the selected file
-        selectImageFrame.showAndWait().ifPresent(file -> classDisplay.setImage(new Image(file.toURI().toString())));
+        selectImageFrame.showAndWait().ifPresent(selectedFile ->
+        {
+            File destImage;
+            File imagesDir = new File(project.getProjectDir(), "images");
+            if (selectedFile.getParentFile().equals(imagesDir))
+            {
+                // The file is already in the project's images dir
+                destImage = selectedFile;
+            }
+            else
+            {
+                // Copy the image file to the project's images dir
+                destImage = new File(imagesDir, selectedFile.getName());
+                GreenfootUtil.copyFile(selectedFile, destImage);
+            }
+            classDisplay.setImage(new Image(destImage.toURI().toString()));
+            classTarget.setProperty("image", destImage.getName());
+        });
     }
 
     /**
