@@ -208,7 +208,7 @@ public class GClassDiagram extends BorderPane
      *
      * @return A class info reference for the class added.
      */
-    public GClassNode addClass(ClassTarget classTarget)
+    public LocalGClassNode addClass(ClassTarget classTarget)
     {
         String superClass = null;
         bluej.parser.symtab.ClassInfo info = classTarget.analyseSource();
@@ -240,7 +240,7 @@ public class GClassDiagram extends BorderPane
                         continue; // Should be impossible
                 }
                 // Look all the way down for the tree for the super class:
-                GClassNode classInfo = findAndAdd(classGroup.getLiveClasses(), classTarget, superClass, type);
+                LocalGClassNode classInfo = findAndAdd(classGroup.getLiveClasses(), classTarget, superClass, type);
                 if (classInfo != null)
                 {
                     classGroup.updateAfterAdd();
@@ -252,7 +252,7 @@ public class GClassDiagram extends BorderPane
             // e.g. inheriting from java.util.List
         }
         // Otherwise, add to top of Other:
-        GClassNode classInfo = makeClassInfo(classTarget, Collections.emptyList(), GClassType.OTHER);
+        LocalGClassNode classInfo = makeClassInfo(classTarget, Collections.emptyList(), GClassType.OTHER);
         otherClasses.getLiveClasses().add(classInfo);
         otherClasses.updateAfterAdd();
         return classInfo;
@@ -268,19 +268,21 @@ public class GClassDiagram extends BorderPane
      * @param type The source type of the class added.
      * @return The class info created if right place found and added, null if not.
      */
-    private GClassNode findAndAdd(List<GClassNode> classInfos, ClassTarget classTarget, String classTargetSuperClass, GClassType type)
+    private LocalGClassNode findAndAdd(List<GClassNode> classInfos, ClassTarget classTarget,
+                                       String classTargetSuperClass, GClassType type)
     {
         for (GClassNode classInfo : classInfos)
         {
             if (classInfo.getQualifiedName().equals(classTargetSuperClass))
             {
-                GClassNode newClassInfo = makeClassInfo(classTarget, Collections.emptyList(), type);
+                LocalGClassNode newClassInfo = makeClassInfo(classTarget, Collections.emptyList(), type);
                 classInfo.add(newClassInfo);
                 return newClassInfo;
             }
             else
             {
-                GClassNode newClassInfo = findAndAdd(classInfo.getSubClasses(), classTarget, classTargetSuperClass, type);
+                LocalGClassNode newClassInfo = findAndAdd(classInfo.getSubClasses(), classTarget,
+                        classTargetSuperClass, type);
                 if (newClassInfo != null)
                 {
                     return newClassInfo;
@@ -291,9 +293,9 @@ public class GClassDiagram extends BorderPane
     }
 
     /**
-     * Make the GClassNode for a ClassTarget
+     * Make the LocalGClassNode for a ClassTarget
      */
-    protected GClassNode makeClassInfo(ClassTarget classTarget, List<GClassNode> subClasses, GClassType type)
+    protected LocalGClassNode makeClassInfo(ClassTarget classTarget, List<GClassNode> subClasses, GClassType type)
     {
         return new LocalGClassNode(this, classTarget, subClasses, type);
     }
