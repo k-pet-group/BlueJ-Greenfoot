@@ -107,9 +107,14 @@ public class ProjectManager
          */
         public void setAPIVersionAndSave(Project project, String version)
         {
-            Properties props = new Properties(project.getUnnamedPackage().getLastSavedProperties());
-            props.put("version", version);
-            project.getUnnamedPackage().save(props);
+            Properties props = new Properties();
+            // We don't want to lose any properties, so add the original properties in:
+            props.putAll(project.getUnnamedPackage().getLastSavedProperties());
+            if (! version.equals(props.get("version")))
+            {
+                props.put("version", version);
+                project.getUnnamedPackage().save(props);
+            }
         }
         
     }
