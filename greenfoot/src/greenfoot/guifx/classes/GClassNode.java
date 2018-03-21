@@ -47,7 +47,6 @@ public class GClassNode
     private final List<GClassNode> subClasses = new ArrayList<>();
     // If non-null, exists *and* is already a child of the enclosing ClassGroup
     protected ClassDisplay display;
-    // If non-null, exists *and* is already a child of the enclosing ClassGroup
     // The arrow (which may have several offshoot arms from multiple subclasses).
     private InheritArrow arrowFromSub;
     private final ClassDisplaySelectionManager selectionManager;
@@ -155,7 +154,7 @@ public class GClassNode
             FXRunnable showDocs = () -> {
                 greenfootStage.openBrowser(display.getQualifiedName().replace(".", "/") + ".html");
             };
-            
+
             display.setOnContextMenuRequested(e -> {
                 e.consume();
                 if (curContextMenu != null)
