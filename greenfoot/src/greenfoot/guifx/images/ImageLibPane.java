@@ -23,13 +23,13 @@ package greenfoot.guifx.images;
 
 import bluej.Config;
 import bluej.pkgmgr.Project;
-import bluej.pkgmgr.target.ClassTarget;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.guifx.PastedImageNameDialog;
+import greenfoot.guifx.classes.LocalGClassNode;
 import greenfoot.util.ExternalAppLauncher;
 import greenfoot.util.GreenfootUtil;
 
@@ -87,13 +87,14 @@ class ImageLibPane extends VBox
      * the SelectImageFrame for selecting an image for an existing class.
      *
      * @param container         The contained frame
-     * @param classTarget       The class target of the existing class
+     * @param project           The project
+     * @param classNode         The class node of the existing class
      */
-    ImageLibPane(Window container, ClassTarget classTarget)
+    ImageLibPane(Window container, Project project, LocalGClassNode classNode)
     {
-        this(container, classTarget.getPackage().getProject(), getSpecifiedImage(classTarget));
+        this(container, project, getSpecifiedImage(project, classNode));
     }
-
+    
     /**
      * Construct ImageLibPane. Usually used by the NewImageClassFrame for creating an new image class.
      *
@@ -102,7 +103,7 @@ class ImageLibPane extends VBox
      */
     ImageLibPane(Window container, Project project)
     {
-        this(container, project, null);
+        this(container, project, (File) null);
     }
 
     /**
@@ -296,24 +297,24 @@ class ImageLibPane extends VBox
     }
 
     /**
-     * Gets specified image file (which will be project images/ directory) for this specific
+     * Gets specified image file (which will be in the project images/ directory) for this specific
      * class, without searching super classes (see getClassImage for that).  Returns null if none
      * specified.
      */
-    private static File getSpecifiedImage(ClassTarget gclass)
+    private static File getSpecifiedImage(Project project, LocalGClassNode gclass)
     {
-        // TODO test this
-        String imageName = gclass.getProperty("image");
+        String imageName = gclass.getImageFilename();
         
         // If an image is specified for this class, and we can read it, return
         if (imageName != null && !imageName.equals(""))
         {
-            return new File(new File("images"), imageName).getAbsoluteFile();
+            File imageDir = new File(project.getProjectDir(), "images");
+            return new File(imageDir, imageName).getAbsoluteFile();
         }
         
         return null;
     }
-
+    
     private void importImage()
     {
         FileChooser chooser = new FileChooser();

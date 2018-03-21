@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * A hierarchical tree display of classes.  There can be zero-to-unlimited root classes,
@@ -212,5 +213,33 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
     public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
     {
         redisplay();
+    }
+    
+    /**
+     * Save image selections to a properties file.
+     */
+    public void saveImageSelections(Properties p)
+    {
+        for (GClassNode gcn : topLevel)
+        {
+            saveImageSelections(gcn, p);
+        }
+    }
+    
+    /**
+     * Save the image selections for a particular class node, and its subclasses, to a properties
+     * file.
+     */
+    private void saveImageSelections(GClassNode gcn, Properties p)
+    {
+        String imageName = gcn.getImageFilename();
+        if (imageName != null) {
+            p.put("class." + gcn.getQualifiedName() + ".image", imageName);
+        }
+        
+        for (GClassNode gcnSubclass : gcn.getSubClasses())
+        {
+            saveImageSelections(gcnSubclass, p);
+        }
     }
 }

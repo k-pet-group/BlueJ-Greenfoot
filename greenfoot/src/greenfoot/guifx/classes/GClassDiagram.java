@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Properties;
 
 /**
  * The class diagram on the right-hand side of the Greenfoot window.
@@ -340,5 +341,15 @@ public class GClassDiagram extends BorderPane
     public GreenfootStage getGreenfootStage()
     {
         return greenfootStage;
+    }
+    
+    /**
+     * Save class-related properties to the given property map.
+     */
+    public void save(Properties p)
+    {
+        worldClasses.saveImageSelections(p);
+        actorClasses.saveImageSelections(p);
+        otherClasses.saveImageSelections(p);
     }
 }

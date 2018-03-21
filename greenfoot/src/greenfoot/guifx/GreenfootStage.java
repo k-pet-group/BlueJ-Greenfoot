@@ -69,11 +69,11 @@ import bluej.views.MethodView;
 
 import greenfoot.core.ProjectManager;
 import bluej.pkgmgr.AboutDialogTemplate;
-import greenfoot.guifx.classes.ClassDisplay;
 import greenfoot.guifx.classes.GClassDiagram;
 import greenfoot.guifx.classes.GClassDiagram.GClassType;
 import greenfoot.guifx.classes.GClassNode;
 import greenfoot.guifx.classes.ImportClassDialog;
+import greenfoot.guifx.classes.LocalGClassNode;
 import greenfoot.guifx.export.ExportDialog;
 import greenfoot.guifx.export.ExportException;
 import greenfoot.guifx.images.NewImageClassFrame;
@@ -544,13 +544,17 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         try
         {
+            // Collect the various properties to be written out:
             Properties p = project.getProjectPropertiesCopy();
             p.setProperty("simulation.speed", Integer.toString(lastUserSetSpeed));
             p.put("version", Boot.GREENFOOT_API_VERSION);
-
-            saveClassTargetsImages(p);
             project.saveEditorLocations(p);
+            classDiagram.save(p);
+            
+            // Actually write out the properties to disk:
             project.getUnnamedPackage().save(p);
+            
+            // Save editor contents, etc:
             project.getImportScanner().saveCachedImports();
             project.saveAllEditors();
         }
@@ -559,24 +563,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             // The exception is logged earlier, so we won't bother logging again.
             // However, alert the user:
             DialogManager.showMessageFX(this, "error-saving-project");
-        }
-    }
-
-    /**
-     * Adds the image property of the class targets to the projects' properties.
-     * This is only for classes with images.
-     *
-     * @param properties The project properties, can't be null.
-     */
-    private void saveClassTargetsImages(Properties properties)
-    {
-        for (ClassTarget target : project.getUnnamedPackage().getClassTargets())
-        {
-            String fileName = target.getProperty("image");
-            if (fileName != null)
-            {
-                properties.put("class." + target.getDisplayName() + ".image", fileName);
-            }
         }
     }
 
@@ -1370,15 +1356,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     }
 
     /**
-     * Gets the image, if one has been set, for the given class target, by looking at that
-     * class and its ancestors.  Returns the loaded image, or null if none was found.
-     */
-    public Image getImageForClassTarget(ClassTarget classTarget)
-    {
-        return JavaFXUtil.loadImage(getImageFilename(classTarget.getTypeReflective()));
-    }
-
-    /**
      * Get an ImageView with the appropriate preview image for this class type.
      * If no suitable image found, the Greenfoot icon will be used.
      */
@@ -1491,13 +1468,13 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      * Show a dialog to set the image for the given class target.  Will only be called
      * for classes which have Actor or World as an ancestor.
      *
-     * @param classTarget   The target of the class to be assigned an image.
+     * @param classNode   The class node of the class to be assigned an image.
      * @param classDisplay  The display button of the class to bbe assigned an image.
      */
-    public void setImageFor(ClassTarget classTarget, ClassDisplay classDisplay)
+    public void setImageFor(LocalGClassNode classNode)
     {
         // initialise our image library frame
-        SelectImageFrame selectImageFrame = new SelectImageFrame(this, classTarget);
+        SelectImageFrame selectImageFrame = new SelectImageFrame(this, project, classNode);
         // if the frame is not canceled after showing, set the image of the class to the selected file
         selectImageFrame.showAndWait().ifPresent(selectedFile ->
         {
@@ -1514,8 +1491,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 destImage = new File(imagesDir, selectedFile.getName());
                 GreenfootUtil.copyFile(selectedFile, destImage);
             }
-            classDisplay.setImage(new Image(destImage.toURI().toString()));
-            classTarget.setProperty("image", destImage.getName());
+            classNode.setImageFilename(destImage.getName());
         });
     }
 

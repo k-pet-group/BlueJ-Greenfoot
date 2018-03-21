@@ -22,8 +22,9 @@
 package greenfoot.guifx.images;
 
 import bluej.Config;
-import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.Project;
 import bluej.utility.javafx.FXCustomizedDialog;
+import greenfoot.guifx.classes.LocalGClassNode;
 
 import java.io.File;
 import javafx.scene.control.ButtonType;
@@ -38,28 +39,17 @@ import javafx.stage.Window;
  */
 public class SelectImageFrame extends FXCustomizedDialog<File>
 {
-    private final ClassTarget classTarget;
-    private ImageLibPane imageLibPane;
-
     /**
      * Construct an SelectImageFrame for changing the image of an existing class.
      *
      * @param owner      The parent frame
      * @param classTarget  The ClassView of the existing class
      */
-    public SelectImageFrame(Window owner, ClassTarget classTarget)
+    public SelectImageFrame(Window owner, Project project, LocalGClassNode classNode)
     {
-        super(owner, Config.getString("imagelib.title") + " " + classTarget.getDisplayName(), "image-lib");
-        this.classTarget = classTarget;
-        buildUI();
-    }
-
-    /**
-     * build the UI components
-     */
-    private void buildUI()
-    {
-        imageLibPane = new ImageLibPane(this.asWindow(), classTarget);
+        super(owner, Config.getString("imagelib.title") + " " + classNode.getDisplayName(), "image-lib");
+        
+        ImageLibPane imageLibPane = new ImageLibPane(this.asWindow(), project, classNode);
         setContentPane(imageLibPane);
 
         // Ok and cancel buttons

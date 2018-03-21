@@ -43,15 +43,18 @@ public class GClassNode
 {
     private final String fullyQualifiedName;
     private final String displayName;
-    private final Image image;
     private final List<GClassNode> subClasses = new ArrayList<>();
-    // If non-null, exists *and* is already a child of the enclosing ClassGroup
-    protected ClassDisplay display;
-    // The arrow (which may have several offshoot arms from multiple subclasses).
-    private InheritArrow arrowFromSub;
+    private Image image;
+
     private final ClassDisplaySelectionManager selectionManager;
     protected ContextMenu curContextMenu = null;
     protected GClassType type;
+    
+    // If non-null, exists *and* is already a child of the enclosing ClassGroup
+    protected ClassDisplay display;
+    
+    // The arrow (which may have several offshoot arms from multiple subclasses).
+    private InheritArrow arrowFromSub;
 
     /**
      * Constructor for a GClassNode for one of the API base classes: World or Actor.
@@ -84,7 +87,7 @@ public class GClassNode
         Collections.sort(this.subClasses, Comparator.comparing(ci -> ci.displayName));
     }
     
-    public GClassNode(String fullyQualifiedName, String displayName, Image image,
+    protected GClassNode(String fullyQualifiedName, String displayName, Image image,
             List<GClassNode> subClasses, ClassDisplaySelectionManager selectionManager)
     {
         this.selectionManager = selectionManager;
@@ -206,5 +209,27 @@ public class GClassNode
      */
     public void tidyup()
     {   
+    }
+    
+    /**
+     * Get the image filename for the image associated with this class. If not specifically set,
+     * this will return null (i.e. it will not return the image associated with the superclass,
+     * if any).
+     */
+    public String getImageFilename()
+    {
+        return null;
+    }
+    
+    /**
+     * Set the image for this class node.
+     */
+    protected void setImage(Image newImage)
+    {
+        image = newImage;
+        if (display != null)
+        {
+            display.setImage(newImage);
+        }
     }
 }
