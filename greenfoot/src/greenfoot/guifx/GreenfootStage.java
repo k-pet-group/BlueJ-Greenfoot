@@ -69,11 +69,11 @@ import bluej.views.MethodView;
 
 import greenfoot.core.ProjectManager;
 import bluej.pkgmgr.AboutDialogTemplate;
-import greenfoot.guifx.classes.ClassDisplay;
 import greenfoot.guifx.classes.GClassDiagram;
 import greenfoot.guifx.classes.GClassDiagram.GClassType;
 import greenfoot.guifx.classes.GClassNode;
 import greenfoot.guifx.classes.ImportClassDialog;
+import greenfoot.guifx.classes.LocalGClassNode;
 import greenfoot.guifx.export.ExportDialog;
 import greenfoot.guifx.export.ExportException;
 import greenfoot.guifx.images.NewImageClassFrame;
@@ -1468,13 +1468,13 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      * Show a dialog to set the image for the given class target.  Will only be called
      * for classes which have Actor or World as an ancestor.
      *
-     * @param classTarget   The target of the class to be assigned an image.
+     * @param classNode   The class node of the class to be assigned an image.
      * @param classDisplay  The display button of the class to bbe assigned an image.
      */
-    public void setImageFor(ClassTarget classTarget, ClassDisplay classDisplay)
+    public void setImageFor(LocalGClassNode classNode)
     {
         // initialise our image library frame
-        SelectImageFrame selectImageFrame = new SelectImageFrame(this, classTarget);
+        SelectImageFrame selectImageFrame = new SelectImageFrame(this, project, classNode);
         // if the frame is not canceled after showing, set the image of the class to the selected file
         selectImageFrame.showAndWait().ifPresent(selectedFile ->
         {
@@ -1491,8 +1491,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 destImage = new File(imagesDir, selectedFile.getName());
                 GreenfootUtil.copyFile(selectedFile, destImage);
             }
-            classDisplay.setImage(new Image(destImage.toURI().toString()));
-            classTarget.setProperty("image", destImage.getName());
+            classNode.setImageFilename(destImage.getName());
         });
     }
 

@@ -50,7 +50,7 @@ import java.util.List;
  * (i.e. classes that are in this project, rather than Actor and World
  * which are imported).
  */
-class LocalGClassNode extends GClassNode implements TargetListener
+public class LocalGClassNode extends GClassNode implements TargetListener
 {
     private GClassDiagram classDiagram;
     private final ClassTarget classTarget;
@@ -229,7 +229,7 @@ class LocalGClassNode extends GClassNode implements TargetListener
         if (type == GClassType.ACTOR || type == GClassType.WORLD)
         {
             contextMenu.getItems().add(GClassDiagram.contextInbuilt(Config.getString("select.image"),
-                    () -> greenfootStage.setImageFor(classTarget, display)));
+                    () -> greenfootStage.setImageFor(this)));
         }
         // Inspect:
         contextMenu.getItems().add(classTarget.new InspectAction(true, display));
@@ -278,5 +278,23 @@ class LocalGClassNode extends GClassNode implements TargetListener
     public String getImageFilename()
     {
         return imageFilename;
+    }
+    
+    /**
+     * Set the image filename for this class node. The displayed image will be changed to match.
+     */
+    public void setImageFilename(String newImageFilename)
+    {
+        this.imageFilename = newImageFilename;
+
+        if (newImageFilename != null) {
+            File imageDir = new File(classTarget.getPackage().getProject().getProjectDir(), "images");
+            File imageFile = new File(imageDir, imageFilename);
+            setImage(JavaFXUtil.loadImage(imageFile));
+        }
+        else 
+        {
+            setImage(null);
+        }
     }
 }
