@@ -1470,13 +1470,38 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     /**
      * Show a dialog to set the image for the given class target.  Will only be called
      * for classes which have Actor or World as an ancestor.
+     *
+     * @param classTarget   The target of the class to be assigned an image.
+     * @param classDisplay  The display button of the class to bbe assigned an image.
      */
     public void setImageFor(ClassTarget classTarget, ClassDisplay classDisplay)
     {
         // initialise our image library frame
         SelectImageFrame selectImageFrame = new SelectImageFrame(this, classTarget);
         // if the frame is not canceled after showing, set the image of the class to the selected file
-        selectImageFrame.showAndWait().ifPresent(file -> classDisplay.setImage(new Image(file.toURI().toString())));
+        selectImageFrame.showAndWait().ifPresent(selectedFile ->
+        {
+            File destImage;
+            File imagesDir = new File(project.getProjectDir(), "images");
+            if (selectedFile.getParentFile().equals(imagesDir))
+            {
+                // The file is already in the project's images dir
+                destImage = selectedFile;
+            }
+            else
+            {
+                // Copy the image file to the project's images dir
+                destImage = new File(imagesDir, selectedFile.getName());
+                GreenfootUtil.copyFile(selectedFile, destImage);
+            }
+            classDisplay.setImage(new Image(destImage.toURI().toString()));
+
+            // Update the package's properties.
+            Package pkg = project.getUnnamedPackage();
+            Properties pkgProperties = pkg.getLastSavedProperties();
+            pkgProperties.put("class." + classTarget.getDisplayName() + ".image", destImage.getName());
+            pkg.save(pkgProperties);
+        });
     }
 
     /**
