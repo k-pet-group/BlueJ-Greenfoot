@@ -70,7 +70,7 @@ public class ImportClassDialog extends Dialog<File>
         ClassGroup classGroup = new ClassGroup(greenfootStage);
         List<ImportableGClassNode> foundClasses = findImportableClasses(new File(Config.getGreenfootLibDir(), "common"));
         Collections.sort(foundClasses, Comparator.comparing(c -> c.getDisplayName()));
-        classGroup.getLiveClasses().addAll(foundClasses);
+        classGroup.getLiveTopLevelClasses().addAll(foundClasses);
         classGroup.updateAfterAdd();
         
         for (ImportableGClassNode foundClass : foundClasses)
