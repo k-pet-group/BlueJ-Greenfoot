@@ -22,6 +22,7 @@
 package greenfoot.guifx.classes;
 
 import bluej.Config;
+import bluej.debugger.gentype.Reflective;
 import bluej.pkgmgr.ClassIconFetcher;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
@@ -384,5 +385,71 @@ public class GClassDiagram extends BorderPane implements ClassIconFetcher
         worldClasses.saveImageSelections(p);
         actorClasses.saveImageSelections(p);
         otherClasses.saveImageSelections(p);
+    }
+    
+    /**
+     * Get the name of the image file for an actor class (searching up the class hierarchy
+     * if there is no specific image set for the specified class). May return null.
+     */
+    public String getImageForActorClass(Reflective r)
+    {
+        // First,  build up the inheritance chain of the given type, down to the Actor class:
+        
+        List<Reflective> inheritanceChain = new ArrayList<Reflective>();
+        inheritanceChain.add(r);
+        
+        Reflective[] superClass = new Reflective[1];
+        while (r != null && ! r.getName().equals("greenfoot.Actor"))
+        {
+            superClass[0] = null;
+            r.getSuperTypesR().stream()
+                    .filter(s -> ! s.isInterface())
+                    .findFirst()
+                    .ifPresent(e -> { superClass[0] = e; inheritanceChain.add(e); });
+            r = superClass[0];
+        }
+        
+        if (r == null)
+        {
+            // Not an Actor subclass:
+            return null;
+        }
+        
+        // Now, search down through the class hierachy for each member of the inheritance chain
+        // in turn. Record any image filename along the way.
+        
+        int i = inheritanceChain.size() - 1;
+        
+        ClassGroup group = actorClasses;
+        GClassNode classNode = group.getLiveTopLevelClasses().get(0); // This should be Actor
+        i--;  // skip over greenfoot.Actor
+        
+        String fileName = null;
+        
+        outer_loop:
+        while (i >= 0)
+        {
+            List<GClassNode> subs = classNode.getSubClasses();
+            for (GClassNode candidate : subs)
+            {
+                if (candidate.getQualifiedName().equals(inheritanceChain.get(i).getName()))
+                {
+                    // found:
+                    i--;
+                    classNode = candidate;
+                    String candidateImage = candidate.getImageFilename();
+                    if (candidateImage != null)
+                    {
+                        fileName = candidateImage;
+                    }
+                    continue outer_loop;
+                }
+            }
+            
+            // Not found
+            break;
+        }
+        
+        return fileName;
     }
 }
