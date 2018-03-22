@@ -45,6 +45,7 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.debugmgr.objectbench.ResultWatcherBase;
 import bluej.editor.Editor;
 import bluej.extensions.SourceType;
+import bluej.pkgmgr.AboutDialogTemplate;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageUI;
 import bluej.pkgmgr.Project;
@@ -68,24 +69,21 @@ import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 
 import greenfoot.core.ProjectManager;
-import bluej.pkgmgr.AboutDialogTemplate;
 import greenfoot.guifx.classes.GClassDiagram;
 import greenfoot.guifx.classes.GClassDiagram.GClassType;
-import greenfoot.guifx.classes.GClassNode;
 import greenfoot.guifx.classes.ImportClassDialog;
 import greenfoot.guifx.classes.LocalGClassNode;
 import greenfoot.guifx.export.ExportDialog;
 import greenfoot.guifx.export.ExportException;
 import greenfoot.guifx.images.NewImageClassFrame;
-import greenfoot.guifx.images.NewImageClassFrame.NewImageClassInfo;
 import greenfoot.guifx.images.SelectImageFrame;
 import greenfoot.guifx.soundrecorder.SoundRecorderControls;
 import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
 import greenfoot.record.GreenfootRecorder;
-
 import greenfoot.util.GreenfootUtil;
 import greenfoot.vmcomm.GreenfootDebugHandler;
 import greenfoot.vmcomm.GreenfootDebugHandler.SimulationStateListener;
+
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -1469,30 +1467,38 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      * for classes which have Actor or World as an ancestor.
      *
      * @param classNode   The class node of the class to be assigned an image.
-     * @param classDisplay  The display button of the class to bbe assigned an image.
      */
     public void setImageFor(LocalGClassNode classNode)
     {
         // initialise our image library frame
         SelectImageFrame selectImageFrame = new SelectImageFrame(this, project, classNode);
         // if the frame is not canceled after showing, set the image of the class to the selected file
-        selectImageFrame.showAndWait().ifPresent(selectedFile ->
+        selectImageFrame.showAndWait().ifPresent(selectedFile -> setImageToClassNode(classNode, selectedFile));
+    }
+
+    /**
+     * Copies an image file to the local images folder, if it is not already there,
+     * and then set it to a class node.
+     *
+     * @param classNode          The class node to be assigned the image. Can't be null
+     * @param originalImageFile  The image's file. Can't be null
+     */
+    private void setImageToClassNode(LocalGClassNode classNode, File originalImageFile)
+    {
+        File localImageFile;
+        File imagesDir = new File(project.getProjectDir(), "images");
+        if (originalImageFile.getParentFile().equals(imagesDir))
         {
-            File destImage;
-            File imagesDir = new File(project.getProjectDir(), "images");
-            if (selectedFile.getParentFile().equals(imagesDir))
-            {
-                // The file is already in the project's images dir
-                destImage = selectedFile;
-            }
-            else
-            {
-                // Copy the image file to the project's images dir
-                destImage = new File(imagesDir, selectedFile.getName());
-                GreenfootUtil.copyFile(selectedFile, destImage);
-            }
-            classNode.setImageFilename(destImage.getName());
-        });
+            // The file is already in the project's images dir
+            localImageFile = originalImageFile;
+        }
+        else
+        {
+            // Copy the image file to the project's images dir
+            localImageFile = new File(imagesDir, originalImageFile.getName());
+            GreenfootUtil.copyFile(originalImageFile, localImageFile);
+        }
+        classNode.setImageFilename(localImageFile.getName());
     }
 
     /**
@@ -1628,7 +1634,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      *
      * @return A class info reference for the class created.
      */
-    private GClassNode createNewClass(Package pkg, String superClassName, String className, SourceType language,
+    private LocalGClassNode createNewClass(Package pkg, String superClassName, String className, SourceType language,
             String templateFileName)
     {
         try
@@ -1679,30 +1685,22 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     public void newSubClassOf(String parentName, GClassType classType)
     {
-        if (classType == GClassType.WORLD)
+        if (classType == GClassType.WORLD || classType == GClassType.ACTOR)
         {
-            boolean direct = "greenfoot.World".equals(parentName);
-            Optional<NewImageClassInfo> info = new NewImageClassFrame(this, project).showAndWait();
-            info.ifPresent((classInfo) -> {
-                String templateName = getWorldTemplateFileName(direct, classInfo.sourceType);
-                GClassNode newClass = createNewClass(project.getUnnamedPackage(), parentName,
-                        classInfo.className, classInfo.sourceType, templateName);
-                newClass.getDisplay(this).setImage(new Image(classInfo.imageFile.toURI().toString()));
-            });
-        }
-        else if (classType == GClassType.ACTOR)
-        {
-            Optional<NewImageClassInfo> info = new NewImageClassFrame(this, project).showAndWait();
-            info.ifPresent(classInfo -> {
-                String template = getActorTemplateFileName(classInfo.sourceType);
-                GClassNode newClass = createNewClass(project.getUnnamedPackage(), parentName,
-                        classInfo.className, classInfo.sourceType, template);
+            NewImageClassFrame frame = new NewImageClassFrame(this, project);
+            // if the frame is not canceled after showing, create the new class
+            // and set its image to the selected file
+            frame.showAndWait().ifPresent(classInfo ->
+            {
+                SourceType sourceType = classInfo.sourceType;
+                LocalGClassNode newClass = createNewClass(project.getUnnamedPackage(), parentName, classInfo.className,
+                        sourceType, getTemplateFileName(classType, parentName, sourceType));
 
                 // set the image of the class to the selected file, if there is one selected.
                 File imageFile = classInfo.imageFile;
                 if (imageFile != null)
                 {
-                    newClass.getDisplay(this).setImage(new Image(imageFile.toURI().toString()));
+                    setImageToClassNode(newClass, imageFile);
                 }
             });
         }
@@ -1712,6 +1710,31 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             Package pkg = classTarget.getPackage();
             newNonImageClass(pkg, parentName);
         }
+    }
+
+    /**
+     * Return the template file name which is built based on
+     * the class type (i.e. world or actor), the parent and the source type.
+     * Other class type is not allowed and will throw an IllegalArgumentException.
+     *
+     * @param classType   World or Actor. If Other is passed, an IllegalArgumentException will be fired.
+     * @param parentName  The direct parent's name.
+     * @param sourceType  Java or Stride.
+     * @return The suitable template file name.
+     * @throws IllegalStateException Only if the class type is not World or Actor.
+     */
+    private String getTemplateFileName(GClassType classType, String parentName, SourceType sourceType)
+            throws IllegalArgumentException
+    {
+        if (classType == GClassType.WORLD)
+        {
+            return getWorldTemplateFileName("greenfoot.World".equals(parentName), sourceType);
+        }
+        else if (classType == GClassType.ACTOR)
+        {
+            return getActorTemplateFileName(sourceType);
+        }
+        throw new IllegalArgumentException("This method should be called only on World or Actor classes.");
     }
 
     /**
