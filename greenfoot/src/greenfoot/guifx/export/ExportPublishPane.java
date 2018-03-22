@@ -51,12 +51,17 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
 import org.apache.http.conn.ConnectTimeoutException;
@@ -286,7 +291,8 @@ public class ExportPublishPane extends ExportPane
         //                          BorderFactory.createEmptyBorder(12, 22, 12, 22)));
 
         VBox content = new VBox(20, getHelpBox(), infoPanel, getLoginPanel());
-        content.setBorder(Border.EMPTY);
+        content.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
+                CornerRadii.EMPTY, BorderWidths.DEFAULT)));
         setContent(content);
     }
     
@@ -608,7 +614,7 @@ public class ExportPublishPane extends ExportPane
         titleAndDescPanel.setHgap(8);
 
         ColumnConstraints column1 = new ColumnConstraints();
-        column1.setPrefWidth(102);
+        column1.setPrefWidth(100);
         column1.setHalignment(HPos.RIGHT);
         // Second column gets any extra width
         ColumnConstraints column2 = new ColumnConstraints();
