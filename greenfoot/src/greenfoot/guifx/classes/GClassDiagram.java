@@ -22,19 +22,26 @@
 package greenfoot.guifx.classes;
 
 import bluej.Config;
+import bluej.pkgmgr.ClassIconFetcher;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
+import bluej.utility.Utility;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.guifx.GreenfootStage;
+import javafx.beans.binding.ObjectExpression;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -48,8 +55,32 @@ import java.util.Properties;
  *
  * For now, this is very primitive, but is useful for implementing other Greenfoot functionality.
  */
-public class GClassDiagram extends BorderPane
+public class GClassDiagram extends BorderPane implements ClassIconFetcher
 {
+    /**
+     * Gets an observable expression with the image for the given class
+     * @param name The fully qualified name of the class
+     * @return The observable expression with that class's image.  Valid as long
+     *         as the class is not removed or renamed.  If no such class can be
+     *         found, null will be returned.  If the class is found but has no image,
+     *         an observable with null inside will be returned.
+     */
+    @Override
+    public @OnThread(Tag.FXPlatform) ObjectExpression<Image> fetchFor(String name)
+    {
+        for (ClassGroup classGroup : Arrays.asList(worldClasses, actorClasses, otherClasses))
+        {
+            for (GClassNode gClassNode : Utility.iterableStream(classGroup.streamAllClasses()))
+            {
+                if (gClassNode.getQualifiedName().equals(name))
+                {
+                    return gClassNode.getImageExpression();
+                }
+            }
+        }
+        return null;
+    }
+
     public static enum GClassType { ACTOR, WORLD, OTHER }
     
     private final ClassDisplaySelectionManager selectionManager = new ClassDisplaySelectionManager();
