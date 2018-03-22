@@ -1473,23 +1473,32 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         // initialise our image library frame
         SelectImageFrame selectImageFrame = new SelectImageFrame(this, project, classNode);
         // if the frame is not canceled after showing, set the image of the class to the selected file
-        selectImageFrame.showAndWait().ifPresent(selectedFile ->
+        selectImageFrame.showAndWait().ifPresent(selectedFile -> setImageToClassNode(classNode, selectedFile));
+    }
+
+    /**
+     * Copies an image file to the local images folder, if it is not already there,
+     * and then set it to a class node.
+     *
+     * @param classNode          The class node to be assigned the image. Can't be null
+     * @param originalImageFile  The image's file. Can't be null
+     */
+    private void setImageToClassNode(LocalGClassNode classNode, File originalImageFile)
+    {
+        File localImageFile;
+        File imagesDir = new File(project.getProjectDir(), "images");
+        if (originalImageFile.getParentFile().equals(imagesDir))
         {
-            File destImage;
-            File imagesDir = new File(project.getProjectDir(), "images");
-            if (selectedFile.getParentFile().equals(imagesDir))
-            {
-                // The file is already in the project's images dir
-                destImage = selectedFile;
-            }
-            else
-            {
-                // Copy the image file to the project's images dir
-                destImage = new File(imagesDir, selectedFile.getName());
-                GreenfootUtil.copyFile(selectedFile, destImage);
-            }
-            classNode.setImageFilename(destImage.getName());
-        });
+            // The file is already in the project's images dir
+            localImageFile = originalImageFile;
+        }
+        else
+        {
+            // Copy the image file to the project's images dir
+            localImageFile = new File(imagesDir, originalImageFile.getName());
+            GreenfootUtil.copyFile(originalImageFile, localImageFile);
+        }
+        classNode.setImageFilename(localImageFile.getName());
     }
 
     /**
@@ -1691,20 +1700,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 File imageFile = classInfo.imageFile;
                 if (imageFile != null)
                 {
-                    File destImage;
-                    File imagesDir = new File(project.getProjectDir(), "images");
-                    if (imageFile.getParentFile().equals(imagesDir))
-                    {
-                        // The file is already in the project's images dir
-                        destImage = imageFile;
-                    }
-                    else
-                    {
-                        // Copy the image file to the project's images dir
-                        destImage = new File(imagesDir, imageFile.getName());
-                        GreenfootUtil.copyFile(imageFile, destImage);
-                    }
-                    newClass.setImageFilename(destImage.getName());
+                    setImageToClassNode(newClass, imageFile);
                 }
             });
         }
