@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Hyperlink;
@@ -48,11 +49,19 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.BorderStroke;
+import javafx.scene.layout.BorderStrokeStyle;
+import javafx.scene.layout.BorderWidths;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
 import org.apache.http.conn.ConnectTimeoutException;
@@ -85,7 +94,7 @@ public class ExportPublishPane extends ExportPane
     private static final String helpLine = Config.getString("export.publish.help") + " " + serverName;
     private static final String WITH_SOURCE_TAG = "with-source";
 
-    private Pane leftPanel;
+    private Pane scenarioPane = new VBox();
     private BorderPane infoPanel;
     private TextField titleField;
     private TextField shortDescriptionField;
@@ -270,17 +279,21 @@ public class ExportPublishPane extends ExportPane
 
         Label publishInfoLabel = new Label(Config.getString("export.publish.info") + " " + serverName);
         publishInfoLabel.setAlignment(Pos.CENTER);
+        BorderPane.setAlignment(publishInfoLabel, Pos.CENTER);
         // publishInfoLabel.setForeground(headingColor);
 
         createScenarioDisplay();
 
-        infoPanel = new BorderPane(leftPanel, publishInfoLabel, getTagDisplay(), null, null);
+        infoPanel = new BorderPane(scenarioPane, publishInfoLabel, getTagDisplay(), null, null);
         // infoPanel.setAlignmentX(LEFT_ALIGNMENT);
         // infoPanel.setBackground(background);
         // infoPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLoweredBevelBorder(),
         //                          BorderFactory.createEmptyBorder(12, 22, 12, 22)));
 
-        setContent(new VBox(getHelpBox(), infoPanel, getLoginPanel()));
+        VBox content = new VBox(20, getHelpBox(), infoPanel, getLoginPanel());
+        content.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
+                CornerRadii.EMPTY, BorderWidths.DEFAULT)));
+        setContent(content);
     }
     
     /**
@@ -289,20 +302,12 @@ public class ExportPublishPane extends ExportPane
      */
     private Pane getLoginPanel()
     {
-        Pane loginPanel = new HBox();
-        // loginPanel.setBackground(background);
-        // loginPanel.setAlignmentX(LEFT_ALIGNMENT);
-        // loginPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLoweredBevelBorder(),
-        //                          BorderFactory.createEmptyBorder(12, 12, 12, 12)));
-
         Label loginLabel = new Label(Config.getString("export.publish.login"));
         // loginLabel.setForeground(headingColor);
-        loginLabel.setAlignment(Pos.TOP_LEFT);
+        loginLabel.setAlignment(Pos.BOTTOM_LEFT);
 
         Label usernameLabel = new Label(Config.getString("export.publish.username"));
         usernameLabel.setFont(font);
-
-        loginPanel.getChildren().addAll(loginLabel, usernameLabel);
 
         userNameField = new TextField();
         userNameField.setPrefColumnCount(10);
@@ -315,19 +320,21 @@ public class ExportPublishPane extends ExportPane
                 checkForExistingScenario();
             }
         });
-        loginPanel.getChildren().add(userNameField);
         Label passwordLabel = new Label(Config.getString("export.publish.password"));
         passwordLabel.setFont(font);
-        loginPanel.getChildren().add(passwordLabel);
         passwordField = new PasswordField();
         passwordField.setPrefColumnCount(10);
-        loginPanel.getChildren().add(passwordField);
 
         Hyperlink createAccountLabel = new Hyperlink(Config.getString("export.publish.createAccount"));
         // createAccountLabel.setBackground(background);
-        createAccountLabel.setAlignment(Pos.BASELINE_RIGHT);
+        createAccountLabel.setAlignment(Pos.BOTTOM_LEFT);
         createAccountLabel.setOnAction(event -> Utility.openWebBrowser(createAccountUrl));
-        loginPanel.getChildren().add(createAccountLabel);
+
+        HBox loginPanel = new HBox(10, loginLabel,
+                usernameLabel, userNameField,
+                passwordLabel, passwordField,
+                createAccountLabel);
+        loginPanel.setAlignment(Pos.BASELINE_CENTER);
         return loginPanel;
     }
     
@@ -440,7 +447,7 @@ public class ExportPublishPane extends ExportPane
     {
         removeLeftPanel();
         createScenarioDisplay();
-        infoPanel.setCenter(leftPanel);
+        infoPanel.setCenter(scenarioPane);
         boolean enableImageControl = !isUpdate || !keepScenarioScreenshot.isSelected();
         imagePanel.enableImageEditPanel(enableImageControl);
     }
@@ -601,19 +608,20 @@ public class ExportPublishPane extends ExportPane
      */
     private void createScenarioDisplay()
     {
-        leftPanel = new VBox();
-
+        int currentRow = 0;
         GridPane titleAndDescPanel = new GridPane();
         titleAndDescPanel.setVgap(8);
         titleAndDescPanel.setHgap(8);
-        // titleAndDescLayout.setVerticallyExpandingRow(3);
-        // titleAndDescPanel.setBackground(background);
 
-        if (imagePanel == null)
-        {
-            imagePanel = new ImageEditPane(IMAGE_WIDTH, IMAGE_HEIGHT);
-            // imagePanel.setBackground(background);
-        }
+        ColumnConstraints column1 = new ColumnConstraints();
+        column1.setPrefWidth(100);
+        column1.setHalignment(HPos.RIGHT);
+        // Second column gets any extra width
+        ColumnConstraints column2 = new ColumnConstraints();
+        column2.setPrefWidth(260);
+        column2.setHgrow(Priority.ALWAYS);
+        column2.setHalignment(HPos.CENTER);
+        titleAndDescPanel.getColumnConstraints().addAll(column1, column2);
 
         Label image1Label = new Label(Config.getString("export.publish.image1"));
         image1Label.setAlignment(Pos.BASELINE_RIGHT);
@@ -623,7 +631,7 @@ public class ExportPublishPane extends ExportPane
         image2Label.setFont(font);
         Pane textPanel = new VBox(image1Label, image2Label);
 
-        int currentRow = 0;
+        imagePanel = new ImageEditPane(IMAGE_WIDTH, IMAGE_HEIGHT);
         titleAndDescPanel.addRow(currentRow++, textPanel, imagePanel);
 
         if (isUpdate)
@@ -686,6 +694,7 @@ public class ExportPublishPane extends ExportPane
             descriptionArea.setWrapText(true);
             // descriptionArea.setWrapStyleWord(true);
             ScrollPane description = new ScrollPane(descriptionArea);
+            GridPane.setVgrow(description, Priority.ALWAYS);
             titleAndDescPanel.addRow(currentRow++, shortDescriptionLabel, description);
         }
 
@@ -693,7 +702,7 @@ public class ExportPublishPane extends ExportPane
         publishUrlLabel.setFont(font);
 
         urlField = new TextField();
-        titleAndDescPanel.addRow(currentRow++, publishUrlLabel, urlField);
+        titleAndDescPanel.addRow(currentRow, publishUrlLabel, urlField);
 
 
         HBox sourceAndLockPanel = new HBox();
@@ -703,9 +712,8 @@ public class ExportPublishPane extends ExportPane
         includeSource.setFont(font);
         lockScenario.setFont(font);
         sourceAndLockPanel.getChildren().addAll(includeSource, lockScenario);
-        sourceAndLockPanel.setMaxSize(sourceAndLockPanel.getPrefWidth(), sourceAndLockPanel.getPrefHeight());
 
-        leftPanel.getChildren().addAll(titleAndDescPanel, sourceAndLockPanel);
+        scenarioPane.getChildren().addAll(titleAndDescPanel, sourceAndLockPanel);
     }
     
     /**
@@ -713,8 +721,8 @@ public class ExportPublishPane extends ExportPane
      */
     private void removeLeftPanel()
     {
-        leftPanel.getChildren().removeAll();
-        infoPanel.getChildren().remove(leftPanel);
+        scenarioPane.getChildren().removeAll();
+        infoPanel.getChildren().remove(scenarioPane);
     }
     
     /**
@@ -725,7 +733,7 @@ public class ExportPublishPane extends ExportPane
         Label popLabel = new Label(Config.getString("export.publish.tags.popular"));
         popLabel.setFont(font);
 
-        VBox popPanel = new VBox(popLabel);
+        VBox popPanel = new VBox(2, popLabel);
         //popPanel.setBackground(background);
         for (int i = 0; i < popTags.length; i++)
         {
@@ -743,14 +751,15 @@ public class ExportPublishPane extends ExportPane
         Label additionalLabel2 = new Label(Config.getString("export.publish.tags.additional2"));
         additionalLabel2.setFont(font);
 
-        VBox textPanel = new VBox(additionalLabel1, additionalLabel2);
-
         tagArea = new TextArea();
         tagArea.setPrefRowCount(3);
         ScrollPane tagScroller = new ScrollPane(tagArea);
+        tagScroller.setPrefSize(100, 100);
+        tagScroller.setFitToWidth(true);
+        tagScroller.setFitToHeight(true);
+        VBox textPanel = new VBox(additionalLabel1, additionalLabel2, tagScroller);
 
-
-        VBox tagPanel = new VBox(popPanel, textPanel, tagScroller);
+        VBox tagPanel = new VBox(20, popPanel, textPanel);
         // tagPanel.setBackground(background);
         return tagPanel;
     }
