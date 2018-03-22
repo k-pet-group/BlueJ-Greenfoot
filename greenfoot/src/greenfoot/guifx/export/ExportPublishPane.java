@@ -295,20 +295,12 @@ public class ExportPublishPane extends ExportPane
      */
     private Pane getLoginPanel()
     {
-        Pane loginPanel = new HBox();
-        // loginPanel.setBackground(background);
-        // loginPanel.setAlignmentX(LEFT_ALIGNMENT);
-        // loginPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLoweredBevelBorder(),
-        //                          BorderFactory.createEmptyBorder(12, 12, 12, 12)));
-
         Label loginLabel = new Label(Config.getString("export.publish.login"));
         // loginLabel.setForeground(headingColor);
-        loginLabel.setAlignment(Pos.TOP_LEFT);
+        loginLabel.setAlignment(Pos.BOTTOM_LEFT);
 
         Label usernameLabel = new Label(Config.getString("export.publish.username"));
         usernameLabel.setFont(font);
-
-        loginPanel.getChildren().addAll(loginLabel, usernameLabel);
 
         userNameField = new TextField();
         userNameField.setPrefColumnCount(10);
@@ -321,19 +313,21 @@ public class ExportPublishPane extends ExportPane
                 checkForExistingScenario();
             }
         });
-        loginPanel.getChildren().add(userNameField);
         Label passwordLabel = new Label(Config.getString("export.publish.password"));
         passwordLabel.setFont(font);
-        loginPanel.getChildren().add(passwordLabel);
         passwordField = new PasswordField();
         passwordField.setPrefColumnCount(10);
-        loginPanel.getChildren().add(passwordField);
 
         Hyperlink createAccountLabel = new Hyperlink(Config.getString("export.publish.createAccount"));
         // createAccountLabel.setBackground(background);
-        createAccountLabel.setAlignment(Pos.BASELINE_RIGHT);
+        createAccountLabel.setAlignment(Pos.BOTTOM_LEFT);
         createAccountLabel.setOnAction(event -> Utility.openWebBrowser(createAccountUrl));
-        loginPanel.getChildren().add(createAccountLabel);
+
+        HBox loginPanel = new HBox(10, loginLabel,
+                usernameLabel, userNameField,
+                passwordLabel, passwordField,
+                createAccountLabel);
+        loginPanel.setAlignment(Pos.BASELINE_CENTER);
         return loginPanel;
     }
     
