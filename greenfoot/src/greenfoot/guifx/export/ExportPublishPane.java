@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Hyperlink;
@@ -48,10 +49,13 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 
@@ -85,7 +89,7 @@ public class ExportPublishPane extends ExportPane
     private static final String helpLine = Config.getString("export.publish.help") + " " + serverName;
     private static final String WITH_SOURCE_TAG = "with-source";
 
-    private Pane leftPanel;
+    private Pane scenarioPane = new VBox();
     private BorderPane infoPanel;
     private TextField titleField;
     private TextField shortDescriptionField;
@@ -274,13 +278,15 @@ public class ExportPublishPane extends ExportPane
 
         createScenarioDisplay();
 
-        infoPanel = new BorderPane(leftPanel, publishInfoLabel, getTagDisplay(), null, null);
+        infoPanel = new BorderPane(scenarioPane, publishInfoLabel, getTagDisplay(), null, null);
         // infoPanel.setAlignmentX(LEFT_ALIGNMENT);
         // infoPanel.setBackground(background);
         // infoPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLoweredBevelBorder(),
         //                          BorderFactory.createEmptyBorder(12, 22, 12, 22)));
 
-        setContent(new VBox(getHelpBox(), infoPanel, getLoginPanel()));
+        VBox content = new VBox(20, getHelpBox(), infoPanel, getLoginPanel());
+        content.setBorder(Border.EMPTY);
+        setContent(content);
     }
     
     /**
@@ -440,7 +446,7 @@ public class ExportPublishPane extends ExportPane
     {
         removeLeftPanel();
         createScenarioDisplay();
-        infoPanel.setCenter(leftPanel);
+        infoPanel.setCenter(scenarioPane);
         boolean enableImageControl = !isUpdate || !keepScenarioScreenshot.isSelected();
         imagePanel.enableImageEditPanel(enableImageControl);
     }
@@ -601,11 +607,21 @@ public class ExportPublishPane extends ExportPane
      */
     private void createScenarioDisplay()
     {
-        leftPanel = new VBox();
-
         GridPane titleAndDescPanel = new GridPane();
         titleAndDescPanel.setVgap(8);
         titleAndDescPanel.setHgap(8);
+
+        ColumnConstraints column1 = new ColumnConstraints();
+        column1.setPrefWidth(102);
+        column1.setHalignment(HPos.RIGHT);
+        // Second column gets any extra width
+        ColumnConstraints column2 = new ColumnConstraints();
+        column2.setPrefWidth(260);
+        column2.setHgrow(Priority.ALWAYS);
+        column2.setHalignment(HPos.CENTER);
+
+        titleAndDescPanel.getColumnConstraints().addAll(column1, column2);
+
         // titleAndDescLayout.setVerticallyExpandingRow(3);
         // titleAndDescPanel.setBackground(background);
 
@@ -693,7 +709,7 @@ public class ExportPublishPane extends ExportPane
         publishUrlLabel.setFont(font);
 
         urlField = new TextField();
-        titleAndDescPanel.addRow(currentRow++, publishUrlLabel, urlField);
+        titleAndDescPanel.addRow(currentRow, publishUrlLabel, urlField);
 
 
         HBox sourceAndLockPanel = new HBox();
@@ -705,7 +721,7 @@ public class ExportPublishPane extends ExportPane
         sourceAndLockPanel.getChildren().addAll(includeSource, lockScenario);
         sourceAndLockPanel.setMaxSize(sourceAndLockPanel.getPrefWidth(), sourceAndLockPanel.getPrefHeight());
 
-        leftPanel.getChildren().addAll(titleAndDescPanel, sourceAndLockPanel);
+        scenarioPane.getChildren().addAll(titleAndDescPanel, sourceAndLockPanel);
     }
     
     /**
@@ -713,8 +729,8 @@ public class ExportPublishPane extends ExportPane
      */
     private void removeLeftPanel()
     {
-        leftPanel.getChildren().removeAll();
-        infoPanel.getChildren().remove(leftPanel);
+        scenarioPane.getChildren().removeAll();
+        infoPanel.getChildren().remove(scenarioPane);
     }
     
     /**
