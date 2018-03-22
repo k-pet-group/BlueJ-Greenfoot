@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Stream;
 
 /**
  * A hierarchical tree display of classes.  There can be zero-to-unlimited root classes,
@@ -93,6 +94,25 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
     public List<GClassNode> getLiveTopLevelClasses()
     {
         return topLevel;
+    }
+
+    /**
+     * Gets a stream containing all the classes in this group, both top-level
+     * and subclasses.
+     */
+    public Stream<GClassNode> streamAllClasses()
+    {
+        return topLevel.stream().flatMap(c -> streamInclSubclasses(c));
+    }
+
+    /**
+     * Helper method to get a stream containing the given class and all its subclasses
+     * (all the way down to the bottom: subsubclasses, etc)
+     */
+    private static Stream<GClassNode> streamInclSubclasses(GClassNode item)
+    {
+        return Stream.concat(Stream.of(item),
+            item.getSubClasses().stream().flatMap(c -> streamInclSubclasses(c)));
     }
 
     /**
