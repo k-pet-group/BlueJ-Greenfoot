@@ -86,10 +86,11 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
     }
 
     /**
-     * Gets the live list of classes in this group.  This should only be used for adding, not for
+     * Gets the live list of top-level classes in this group.  This should only be used for adding, not for
      * removal.  If you add a class anywhere within, you should then call updateAfterAdd().
+     * Note: only gets top-level classes, does not get subclasses.
      */
-    public List<GClassNode> getLiveClasses()
+    public List<GClassNode> getLiveTopLevelClasses()
     {
         return topLevel;
     }

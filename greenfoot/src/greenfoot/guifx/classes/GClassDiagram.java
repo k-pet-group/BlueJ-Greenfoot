@@ -240,7 +240,7 @@ public class GClassDiagram extends BorderPane
                         continue; // Should be impossible
                 }
                 // Look all the way down for the tree for the super class:
-                LocalGClassNode classInfo = findAndAdd(classGroup.getLiveClasses(), classTarget, superClass, type);
+                LocalGClassNode classInfo = findAndAdd(classGroup.getLiveTopLevelClasses(), classTarget, superClass, type);
                 if (classInfo != null)
                 {
                     classGroup.updateAfterAdd();
@@ -253,7 +253,7 @@ public class GClassDiagram extends BorderPane
         }
         // Otherwise, add to top of Other:
         LocalGClassNode classInfo = makeClassInfo(classTarget, Collections.emptyList(), GClassType.OTHER);
-        otherClasses.getLiveClasses().add(classInfo);
+        otherClasses.getLiveTopLevelClasses().add(classInfo);
         otherClasses.updateAfterAdd();
         return classInfo;
     }
