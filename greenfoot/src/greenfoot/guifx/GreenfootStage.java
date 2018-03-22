@@ -265,6 +265,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         worldDisplay = new WorldDisplay();
         
         classDiagram = new GClassDiagram(this);
+        project.setClassIconFetcherDelegate(classDiagram);
         ScrollPane classDiagramScroll = new UnfocusableScrollPane(classDiagram);
         JavaFXUtil.expandScrollPaneContent(classDiagramScroll);
         classDiagramScroll.getStyleClass().add("gclass-diagram-scroll");
