@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016,2017 Michael Kölling and John Rosenberg
+ Copyright (C) 2016,2017,2018 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,7 +22,9 @@
 package bluej.editor.stride;
 
 import bluej.editor.moe.MoeEditor;
+import bluej.pkgmgr.ClassIconFetcher;
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableStringValue;
@@ -30,6 +32,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -49,14 +52,18 @@ public @OnThread(Tag.FXPlatform) class MoeFXTab extends FXTab
     private final MoeEditor moeEditor;
     private final TabMenuManager menuManager;
     private final StringProperty windowTitleProperty = new SimpleStringProperty();
+    private final ClassIconFetcher classIconFetcher;
+    private final String className;
     private FXTabbedEditor parent;
 
     @OnThread(Tag.FXPlatform)
-    public MoeFXTab(MoeEditor moeEditor, String windowTitle)
+    public MoeFXTab(MoeEditor moeEditor, String windowTitle, ClassIconFetcher classIconFetcher, String className)
     {
         super(false);
         this.moeEditor = moeEditor;
         this.windowTitleProperty.set(windowTitle);
+        this.classIconFetcher = classIconFetcher;
+        this.className = className;
         menuManager = new TabMenuManager(this)
         {
             @Override
@@ -126,6 +133,11 @@ public @OnThread(Tag.FXPlatform) class MoeFXTab extends FXTab
         Label titleLabel = new Label(windowTitleProperty.get());
         titleLabel.textProperty().bind(windowTitleProperty); // Is this right?
         HBox tabHeader = new HBox(titleLabel);
+        ObjectExpression<Image> imageProperty = classIconFetcher.fetchFor(className);
+        if (imageProperty != null)
+        {
+            tabHeader.getChildren().add(makeClassGraphicIcon(imageProperty));
+        }
         tabHeader.setAlignment(Pos.CENTER);
         tabHeader.setSpacing(3.0);
         tabHeader.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {

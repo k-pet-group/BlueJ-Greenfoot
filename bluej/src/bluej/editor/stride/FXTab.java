@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 2015,2016,2018  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -22,6 +22,10 @@
 package bluej.editor.stride;
 
 import java.util.List;
+
+import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.JavaFXUtil;
+import javafx.beans.binding.ObjectExpression;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.value.ObservableStringValue;
@@ -29,6 +33,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.Tab;
 
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -47,6 +53,27 @@ abstract class FXTab extends Tab
     public FXTab(boolean showCatalogue)
     {
         this.showCatalogue = showCatalogue;
+    }
+
+    /**
+     * A helper method used by subclasses to create an ImageView for a given 
+     * observable image expression (which may have a null Image in it)
+     * @param imageExpression The image expression to watch for changes
+     * @return An imageView which displays the latest image.
+     */
+    protected static ImageView makeClassGraphicIcon(ObjectExpression<Image> imageExpression)
+    {
+        ImageView imageView = new ImageView();
+        FXPlatformConsumer<Image> imageChanged = image -> {
+            // Max size 16x16, but don't scale up image if it's smaller than that:
+            imageView.setFitHeight(image == null ? 0 : Math.min(image.getHeight(), 16));
+            imageView.setFitWidth(image == null ? 0 :  Math.min(image.getWidth(), 16));
+            imageView.setImage(image);
+        };
+        imageView.setPreserveRatio(true);
+        imageChanged.accept(imageExpression.get());
+        JavaFXUtil.addChangeListenerPlatform(imageExpression, imageChanged);
+        return imageView;
     }
 
     /**

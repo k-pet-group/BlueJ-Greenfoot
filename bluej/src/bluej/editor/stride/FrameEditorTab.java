@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 2012,2013,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -90,6 +90,7 @@ import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleExpression;
+import javafx.beans.binding.ObjectExpression;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.*;
@@ -112,6 +113,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -343,12 +345,27 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         if (startedInitialising)
             return;
         startedInitialising = true;
+        
+        final SimpleObjectProperty<Image> imageProperty = new SimpleObjectProperty<>(null);
+        // Name starts blank, so this listener will pick up the name "change" when we first load the name:
+        JavaFXUtil.addChangeListenerPlatform(nameProperty, name -> {
+            ObjectExpression<Image> classIconExpression = project.fetchFor(name);
+            if (classIconExpression == null)
+            {
+                imageProperty.unbind();
+                imageProperty.set(null);
+            }
+            else
+            {
+                imageProperty.bind(classIconExpression);
+            }
+        });
 
         // We put all the info in the graphic, so that we can use the graphic as a drag target:
         setText("");
         Label titleLabel = new Label(initialSource.getName());
         titleLabel.textProperty().bind(nameProperty);
-        HBox tabHeader = new HBox(titleLabel);
+        HBox tabHeader = new HBox(titleLabel, makeClassGraphicIcon(imageProperty));
         tabHeader.setAlignment(Pos.CENTER);
         tabHeader.setSpacing(3.0);
         tabHeader.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {

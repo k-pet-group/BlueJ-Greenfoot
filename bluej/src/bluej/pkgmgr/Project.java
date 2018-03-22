@@ -83,6 +83,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.ScaleTransition;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -93,6 +94,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Window;
 import javafx.util.Duration;
@@ -117,7 +119,7 @@ import java.util.*;
  * @author  Andrew Patterson
  * @author  Bruce Quig
  */
-public class Project implements DebuggerListener, DebuggerThreadListener, InspectorManager
+public class Project implements DebuggerListener, DebuggerThreadListener, InspectorManager, ClassIconFetcher
 {
     public static final int NEW_PACKAGE_DONE = 0;
     public static final int NEW_PACKAGE_EXIST = 1;
@@ -236,6 +238,8 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     private final BooleanProperty debuggerShowing = new SimpleBooleanProperty(false);
     // Which thread to run on.  null means we have never asked the user about it.
     private RunOnThread runOnThread;
+
+    private ClassIconFetcher classIconFetcherDelegate = null;
 
     /* ------------------- end of field declarations ------------------- */
 
@@ -2548,6 +2552,37 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     {
         this.runOnThread = runOnThread;
         debugger.setRunOnThread(runOnThread == null ? RunOnThread.DEFAULT : runOnThread);
+    }
+
+    /**
+     * Sets the delegate for fetching images (may be null)
+     */
+    public void setClassIconFetcherDelegate(ClassIconFetcher classIconFetcher)
+    {
+        this.classIconFetcherDelegate = classIconFetcher;
+    }
+
+    /**
+     * Fetches a class image for the given class name.  The default behaviour, unless you
+     * set a delegate using setClassIconFetcherDelegate, is to simply return null.
+     * 
+     * @param name The fully qualified name of the class
+     * @return An observable expression containing the latest image (which may be null inside),
+     *         or null if no image can be found for the given class (e.g. because we are in
+     *         BlueJ which does not set class images).
+     */
+    @OnThread(Tag.FXPlatform)
+    @Override
+    public ObjectExpression<Image> fetchFor(String name)
+    {
+        if (classIconFetcherDelegate != null)
+        {
+            return classIconFetcherDelegate.fetchFor(name);
+        }
+        else
+        {
+            return null;
+        }
     }
 
     /**

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2014,2015,2016,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,7 @@ import java.util.function.Supplier;
 import bluej.editor.moe.MoeEditorManager;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.parser.entity.EntityResolver;
+import bluej.pkgmgr.ClassIconFetcher;
 import bluej.pkgmgr.JavadocResolver;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXSupplier;
@@ -65,7 +66,7 @@ public abstract class EditorManager
      * @param windowTitle  title of window (usually class name)
      * @param watcher      an watcher to be notified of edit events
      * @param compiled     true, if the class has been compiled
-     * @param bounds       the bounds of the window to appear on screen
+     * @param classIconFetcher  Allows fetching of class-specific images (e.g. in Greenfoot)
      * @param projectResolver   A resolver for external symbols
      * @param javadocResolver   A resolver for javadoc on external methods
      * 
@@ -78,6 +79,7 @@ public abstract class EditorManager
         FXSupplier<FXTabbedEditor> fxTabbedEditor,
         EditorWatcher watcher, 
         boolean compiled,
+        ClassIconFetcher classIconFetcher,
         EntityResolver projectResolver,
         JavadocResolver javadocResolver, FXPlatformRunnable callbackOnOpen);
 
