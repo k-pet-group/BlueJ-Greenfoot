@@ -25,6 +25,9 @@ import bluej.Config;
 import bluej.utility.javafx.FXRunnable;
 import greenfoot.guifx.GreenfootStage;
 import greenfoot.guifx.classes.GClassDiagram.GClassType;
+import javafx.beans.binding.ObjectExpression;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.image.Image;
@@ -44,7 +47,7 @@ public class GClassNode
     private final String fullyQualifiedName;
     private final String displayName;
     private final List<GClassNode> subClasses = new ArrayList<>();
-    private Image image;
+    private final SimpleObjectProperty<Image> image = new SimpleObjectProperty<>(null);
 
     private final ClassDisplaySelectionManager selectionManager;
     protected ContextMenu curContextMenu = null;
@@ -67,7 +70,6 @@ public class GClassNode
     {
         this.selectionManager = selectionManager;
         this.type = type;
-        this.image = null;
         this.subClasses.addAll(subClasses);
         
         switch (type)
@@ -93,7 +95,7 @@ public class GClassNode
         this.selectionManager = selectionManager;
         this.fullyQualifiedName = fullyQualifiedName;
         this.displayName = displayName;
-        this.image = image;
+        this.image.set(image);
         this.subClasses.addAll(subClasses);
         Collections.sort(this.subClasses, Comparator.comparing(ci -> ci.displayName));
     }
@@ -140,7 +142,7 @@ public class GClassNode
     {
         if (display == null)
         {
-            display = new ClassDisplay(displayName, fullyQualifiedName, image, selectionManager);
+            display = new ClassDisplay(displayName, fullyQualifiedName, image.get(), selectionManager);
             setupClassDisplay(greenfootStage, display);
         }
         return display;
@@ -210,6 +212,15 @@ public class GClassNode
     public void tidyup()
     {   
     }
+
+    /**
+     * Gets an observable expression for the class image, which will change
+     * if this class's image changes.
+     */
+    public ObjectExpression<Image> getImageExpression()
+    {
+        return image;
+    }
     
     /**
      * Get the image filename for the image associated with this class. If not specifically set,
@@ -226,7 +237,7 @@ public class GClassNode
      */
     protected void setImage(Image newImage)
     {
-        image = newImage;
+        image.set(newImage);
         if (display != null)
         {
             display.setImage(newImage);
