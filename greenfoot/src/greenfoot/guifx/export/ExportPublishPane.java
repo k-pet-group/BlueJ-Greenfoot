@@ -735,7 +735,7 @@ public class ExportPublishPane extends ExportPane
         Label popLabel = new Label(Config.getString("export.publish.tags.popular"));
         popLabel.setFont(font);
 
-        VBox popPanel = new VBox(popLabel);
+        VBox popPanel = new VBox(2, popLabel);
         //popPanel.setBackground(background);
         for (int i = 0; i < popTags.length; i++)
         {
@@ -753,14 +753,15 @@ public class ExportPublishPane extends ExportPane
         Label additionalLabel2 = new Label(Config.getString("export.publish.tags.additional2"));
         additionalLabel2.setFont(font);
 
-        VBox textPanel = new VBox(additionalLabel1, additionalLabel2);
-
         tagArea = new TextArea();
         tagArea.setPrefRowCount(3);
         ScrollPane tagScroller = new ScrollPane(tagArea);
+        tagScroller.setPrefSize(100, 100);
+        tagScroller.setFitToWidth(true);
+        tagScroller.setFitToHeight(true);
+        VBox textPanel = new VBox(additionalLabel1, additionalLabel2, tagScroller);
 
-
-        VBox tagPanel = new VBox(popPanel, textPanel, tagScroller);
+        VBox tagPanel = new VBox(20, popPanel, textPanel);
         // tagPanel.setBackground(background);
         return tagPanel;
     }
