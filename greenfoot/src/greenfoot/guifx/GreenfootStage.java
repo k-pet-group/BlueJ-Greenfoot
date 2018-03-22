@@ -1390,16 +1390,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     private File getImageFilename(Reflective type)
     {
-        while (type != null) {
-            String className = type.getName();
-            String imageFileName = project.getUnnamedPackage().getLastSavedProperties().getProperty("class." + className + ".image");
-            if (imageFileName != null) {
-                File imageDir = new File(project.getProjectDir(), "images");
-                return new File(imageDir, imageFileName);
-            }
-            type = type.getSuperTypesR().stream().filter(t -> !t.isInterface()).findFirst().orElse(null);
+        String imageFileName = classDiagram.getImageForActorClass(type);
+        if (imageFileName == null)
+        {
+            return null;
         }
-        return null;
+        
+        File imageDir = new File(project.getProjectDir(), "images");
+        return new File(imageDir, imageFileName);
     }
 
     @Override
