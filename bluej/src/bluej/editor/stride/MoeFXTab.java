@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016,2017 Michael Kölling and John Rosenberg
+ Copyright (C) 2016,2017,2018 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -135,7 +135,9 @@ public @OnThread(Tag.FXPlatform) class MoeFXTab extends FXTab
         HBox tabHeader = new HBox(titleLabel);
         ObjectExpression<Image> imageProperty = classIconFetcher.fetchFor(className);
         if (imageProperty != null)
+        {
             tabHeader.getChildren().add(makeClassGraphicIcon(imageProperty));
+        }
         tabHeader.setAlignment(Pos.CENTER);
         tabHeader.setSpacing(3.0);
         tabHeader.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
