@@ -1132,7 +1132,7 @@ public class ClassTarget extends DependentTarget
             if (sourceAvailable == SourceType.Java || sourceAvailable == SourceType.NONE) {
                 editor = EditorManager.getEditorManager().openClass(filename, docFilename,
                         project.getProjectCharset(),
-                        getBaseName(), project::getDefaultFXTabbedEditor, this, isCompiled(), resolver,
+                        getBaseName(), project::getDefaultFXTabbedEditor, this, isCompiled(), project, resolver,
                         project.getJavadocResolver(), this::recordEditorOpen);
             }
             else if (sourceAvailable == SourceType.Stride) {
