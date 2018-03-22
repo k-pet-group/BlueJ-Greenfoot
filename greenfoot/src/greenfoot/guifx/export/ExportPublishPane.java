@@ -274,6 +274,7 @@ public class ExportPublishPane extends ExportPane
 
         Label publishInfoLabel = new Label(Config.getString("export.publish.info") + " " + serverName);
         publishInfoLabel.setAlignment(Pos.CENTER);
+        BorderPane.setAlignment(publishInfoLabel, Pos.CENTER);
         // publishInfoLabel.setForeground(headingColor);
 
         createScenarioDisplay();
@@ -601,6 +602,7 @@ public class ExportPublishPane extends ExportPane
      */
     private void createScenarioDisplay()
     {
+        int currentRow = 0;
         GridPane titleAndDescPanel = new GridPane();
         titleAndDescPanel.setVgap(8);
         titleAndDescPanel.setHgap(8);
@@ -613,17 +615,7 @@ public class ExportPublishPane extends ExportPane
         column2.setPrefWidth(260);
         column2.setHgrow(Priority.ALWAYS);
         column2.setHalignment(HPos.CENTER);
-
         titleAndDescPanel.getColumnConstraints().addAll(column1, column2);
-
-        // titleAndDescLayout.setVerticallyExpandingRow(3);
-        // titleAndDescPanel.setBackground(background);
-
-        if (imagePanel == null)
-        {
-            imagePanel = new ImageEditPane(IMAGE_WIDTH, IMAGE_HEIGHT);
-            // imagePanel.setBackground(background);
-        }
 
         Label image1Label = new Label(Config.getString("export.publish.image1"));
         image1Label.setAlignment(Pos.BASELINE_RIGHT);
@@ -633,7 +625,7 @@ public class ExportPublishPane extends ExportPane
         image2Label.setFont(font);
         Pane textPanel = new VBox(image1Label, image2Label);
 
-        int currentRow = 0;
+        imagePanel = new ImageEditPane(IMAGE_WIDTH, IMAGE_HEIGHT);
         titleAndDescPanel.addRow(currentRow++, textPanel, imagePanel);
 
         if (isUpdate)
@@ -696,6 +688,7 @@ public class ExportPublishPane extends ExportPane
             descriptionArea.setWrapText(true);
             // descriptionArea.setWrapStyleWord(true);
             ScrollPane description = new ScrollPane(descriptionArea);
+            GridPane.setVgrow(description, Priority.ALWAYS);
             titleAndDescPanel.addRow(currentRow++, shortDescriptionLabel, description);
         }
 
@@ -713,7 +706,6 @@ public class ExportPublishPane extends ExportPane
         includeSource.setFont(font);
         lockScenario.setFont(font);
         sourceAndLockPanel.getChildren().addAll(includeSource, lockScenario);
-        sourceAndLockPanel.setMaxSize(sourceAndLockPanel.getPrefWidth(), sourceAndLockPanel.getPrefHeight());
 
         scenarioPane.getChildren().addAll(titleAndDescPanel, sourceAndLockPanel);
     }
