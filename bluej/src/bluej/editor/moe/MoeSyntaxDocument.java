@@ -588,7 +588,7 @@ public class MoeSyntaxDocument
 
     /**
      * Apply pending scope background updates. Must not be called from a document update
-     * event (see applyPendingScopeBackgrounds(boolean)).
+     * event.
      */
     public void applyPendingScopeBackgrounds()
     {
@@ -619,21 +619,19 @@ public class MoeSyntaxDocument
         for (Entry<Integer, ScopeInfo> pending : pendingBackgrounds)
         {
             if (pending.getKey() >= document.getParagraphs().size())
-                continue; // Line doesn't exist any more
-
-            ScopeInfo old = document.getParagraphStyle(pending.getKey());
-            ScopeInfo newStyle = pending.getValue();
-            if (((old == null) != (newStyle == null)) || !old.equals(newStyle))
             {
-                setParagraphStyle(pending.getKey(), newStyle);
-
+                continue; // Line doesn't exist any more
             }
+
+            ScopeInfo newStyle = pending.getValue();
+            setParagraphStyle(pending.getKey(), newStyle);
 
             StyleSpans<ImmutableSet<String>> styleSpans = syntaxView.getTokenStylesFor(pending.getKey(), this);
             // Applying style spans is expensive, so don't do it if they're already correct:
             if (styleSpans != null && !styleSpans.equals(document.getStyleSpans(pending.getKey())))
             {
-                document.setStyleSpans(pending.getKey(), 0, document.getStyleSpans(pending.getKey()).overlay(styleSpans, MoeSyntaxDocument::setTokenStyles));
+                document.setStyleSpans(pending.getKey(), 0, document.getStyleSpans(pending.getKey())
+                        .overlay(styleSpans, MoeSyntaxDocument::setTokenStyles));
             }
         }
 
