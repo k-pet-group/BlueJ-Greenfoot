@@ -1340,9 +1340,12 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     else if (typeReflective != null && getWorldReflective().isAssignableFrom(typeReflective))
                     {
                         // It's a world
-
+                        currentWorld = ct;
                         // Not a good idea to call back debugger from a listener, so runLater:
-                        JavaFXUtil.runAfterCurrent(() -> project.getDebugger().instantiateClass("greenfoot.core.SetWorldHelper", new String[]{"java.lang.Object"}, new DebuggerObject[]{executionEvent.getResultObject()}));
+                        JavaFXUtil.runAfterCurrent(() -> project.getDebugger()
+                                .instantiateClass("greenfoot.core.SetWorldHelper",
+                                        new String[]{"java.lang.Object"},
+                                        new DebuggerObject[]{executionEvent.getResultObject()}));
                     }
                     else
                     {
@@ -1726,7 +1729,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      * @throws IllegalStateException Only if the class type is not World or Actor.
      */
     private String getTemplateFileName(GClassType classType, String parentName, SourceType sourceType)
-            throws IllegalArgumentException
     {
         if (classType == GClassType.WORLD)
         {
