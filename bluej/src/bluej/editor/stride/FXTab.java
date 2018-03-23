@@ -23,7 +23,7 @@ package bluej.editor.stride;
 
 import java.util.List;
 
-import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.ObjectExpression;
 import javafx.beans.binding.StringExpression;
@@ -64,10 +64,11 @@ abstract class FXTab extends Tab
      *                If false and the image is smaller than max size, do not scale it up.
      * @return An imageView which displays the latest image.
      */
+    @OnThread(Tag.FX)
     protected static ImageView makeClassGraphicIcon(ObjectExpression<Image> imageExpression, int maxSize, boolean scaleUp)
     {
         ImageView imageView = new ImageView();
-        FXPlatformConsumer<Image> imageChanged = image -> {
+        FXConsumer<Image> imageChanged = image -> {
             if (image == null)
             {
                 imageView.setFitWidth(0);
@@ -88,7 +89,7 @@ abstract class FXTab extends Tab
         };
         imageView.setPreserveRatio(true);
         imageChanged.accept(imageExpression.get());
-        JavaFXUtil.addChangeListenerPlatform(imageExpression, imageChanged);
+        JavaFXUtil.addChangeListener(imageExpression, imageChanged);
         return imageView;
     }
 

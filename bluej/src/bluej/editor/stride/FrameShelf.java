@@ -406,7 +406,8 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
     }
 
     @Override
-    public @OnThread(Tag.FXPlatform) ImageView makeClassImageView()
+    @OnThread(Tag.FX)
+    public ImageView makeClassImageView()
     {
         // Not applicable
         return null;

@@ -187,7 +187,7 @@ public interface InteractionManager extends SuggestionListParent
      * Gets an image for the class, suitable for displaying as an overlay in the class
      * body.  Return null if there's no such available image.
      */
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.FX)
     ImageView makeClassImageView();
 
     public static enum ShortcutKey

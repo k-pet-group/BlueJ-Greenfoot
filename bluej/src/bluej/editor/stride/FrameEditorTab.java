@@ -2850,7 +2850,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     @Override
-    public @OnThread(Tag.FXPlatform) ImageView makeClassImageView()
+    @OnThread(Tag.FX)
+    public ImageView makeClassImageView()
     {
         return makeClassGraphicIcon(imageProperty, 48, true);
     }
