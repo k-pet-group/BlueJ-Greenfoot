@@ -253,24 +253,6 @@ public class GProject extends RProjectListenerImpl
     }
     
     /**
-     * Get the name of the last world class which was instantiated in
-     * this project. May return null. This method is thread-safe.
-     */
-    public String getLastWorldClassName()
-    {
-        return projectProperties.getString("world.lastInstantiated");
-    }
-    
-    /**
-     * Set the name of the last world class which was instantiated in
-     * this project.
-     */
-    public void setLastWorldClassName(String name)
-    {
-        projectProperties.setString("world.lastInstantiated", name);
-    }
-    
-    /**
      * Check if the this project was open previously, and the VM has been restarted.
      * (Calling this method also clears the "VM restarted" flag).
      */

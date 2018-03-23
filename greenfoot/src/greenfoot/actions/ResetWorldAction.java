@@ -93,7 +93,7 @@ public class ResetWorldAction extends AbstractAction implements SimulationListen
     {
         simulation.setEnabled(false);
         WorldHandler.getInstance().discardWorld();
-        WorldHandler.getInstance().instantiateNewWorld();
+        WorldHandler.getInstance().instantiateNewWorld(null);
     }
 
     /**

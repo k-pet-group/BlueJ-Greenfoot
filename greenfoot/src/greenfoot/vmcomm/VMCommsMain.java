@@ -250,9 +250,9 @@ public class VMCommsMain implements Closeable
     /**
      * Send an "instantiate world" command.
      */
-    public void instantiateWorld()
+    public void instantiateWorld(String className)
     {
-        pendingCommands.add(new Command(COMMAND_INSTANTIATE_WORLD));
+        pendingCommands.add(new Command(COMMAND_INSTANTIATE_WORLD, className.codePoints().toArray()));
     }
     
     /**

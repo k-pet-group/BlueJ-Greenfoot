@@ -816,9 +816,6 @@ public class GreenfootFrame extends JFrame
     public void compileSucceeded(RCompileEvent event)
     {
         EventQueue.invokeLater(() -> {
-            if (! wasRestarted && GreenfootFrame.this.isActive()) {
-                WorldHandler.getInstance().instantiateNewWorld();
-            }
             isCompiling = false;
             updateBackgroundMessage();
         });

@@ -76,7 +76,8 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         this.worldHandler = handler;
     }
 
-    public void instantiateNewWorld()
+    @Override
+    public void instantiateNewWorld(String className)
     {
         WorldHandler.getInstance().clearWorldSet();
         World newWorld = viewer.instantiateNewWorld();

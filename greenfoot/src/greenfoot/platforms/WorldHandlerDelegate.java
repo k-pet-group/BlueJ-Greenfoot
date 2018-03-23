@@ -50,8 +50,12 @@ public interface WorldHandlerDelegate
 
     /**
      * Instantiate a new world and do any initialisation needed to activate that world.
+     * 
+     * @param className The fully qualified name of the world class to instantiate
+     *                  if a specific class is wanted.  If null, use the most recently
+     *                  instantiated world class.
      */
-    void instantiateNewWorld();
+    void instantiateNewWorld(String className);
 
     InputManager getInputManager();
 

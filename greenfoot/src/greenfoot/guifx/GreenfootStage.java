@@ -350,11 +350,13 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
         setupWorldDrawingAndEvents();
         loadAndMirrorProperties();
-        // We send a reset to make a new world after the project properties have been sent across:
-        debugHandler.getVmComms().instantiateWorld();
-
         String lastInstantiatedWorldName = project.getUnnamedPackage()
                 .getLastSavedProperties().getProperty("world.lastInstantiated");
+        // We send a reset to make a new world after the project properties have been sent across:
+        if (lastInstantiatedWorldName != null)
+        {
+            debugHandler.getVmComms().instantiateWorld(lastInstantiatedWorldName);
+        }
         currentWorld = lastInstantiatedWorldName != null
                 ? (ClassTarget) project.getTarget(lastInstantiatedWorldName)
                 : null;
@@ -553,6 +555,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             Properties p = project.getProjectPropertiesCopy();
             p.setProperty("simulation.speed", Integer.toString(lastUserSetSpeed));
             p.put("version", Boot.GREENFOOT_API_VERSION);
+            if (currentWorld != null)
+            {
+                p.put("world.lastInstantiated", currentWorld.getQualifiedName());
+            }
             project.saveEditorLocations(p);
             classDiagram.save(p);
             
@@ -1138,7 +1144,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         if (instantiateWorldAfterDiscarded)
         {
             instantiateWorldAfterDiscarded = false;
-            debugHandler.getVmComms().instantiateWorld();
+            if (currentWorld != null)
+            {
+                debugHandler.getVmComms().instantiateWorld(currentWorld.getQualifiedName());
+            }
         }
     }
     
