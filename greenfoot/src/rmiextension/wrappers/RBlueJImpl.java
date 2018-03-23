@@ -37,8 +37,6 @@ import bluej.utility.Debug;
 import bluej.utility.Utility;
 import javafx.application.Platform;
 import rmiextension.wrappers.event.RApplicationListener;
-import rmiextension.wrappers.event.RClassListener;
-import rmiextension.wrappers.event.RClassListenerWrapper;
 import rmiextension.wrappers.event.RCompileListener;
 import rmiextension.wrappers.event.RCompileListenerWrapper;
 
@@ -67,8 +65,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     // do not require external synchronization.
     private Map<RCompileListener,RCompileListenerWrapper> compileListeners =
         new Hashtable<RCompileListener,RCompileListenerWrapper>();
-    private Map<RClassListener,RClassListenerWrapper> classListeners =
-        new Hashtable<RClassListener,RClassListenerWrapper>();
     
     public RBlueJImpl(BlueJ blueJ)
         throws RemoteException
@@ -137,16 +133,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         compileListeners.put(listener, wrapper);
         blueJ.addCompileListener(wrapper);
     }
-
-    /*
-     * @see rmiextension.wrappers.RBlueJ#addClassListener(rmiextension.wrappers.event.RClassListener)
-     */
-    public void addClassListener(RClassListener listener) throws RemoteException
-    {
-        RClassListenerWrapper wrapper = new RClassListenerWrapper(this, listener);
-        classListeners.put(listener, wrapper);
-        blueJ.addClassListener(wrapper);
-    }
     
     /*
      * @see rmiextension.wrappers.RBlueJ#getBlueJPropertyString(java.lang.String, java.lang.String)
@@ -214,15 +200,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     {
         RCompileListenerWrapper wrapper = compileListeners.remove(listener);
         blueJ.removeCompileListener(wrapper);
-    }
-
-    /*
-     * @see rmiextension.wrappers.RBlueJ#removeClassListener(rmiextension.wrappers.event.RClassListener)
-     */
-    public void removeClassListener(RClassListener listener)
-    {
-        ClassListener wrapper = classListeners.remove(listener);
-        blueJ.removeClassListener(wrapper);
     }
 
     /*

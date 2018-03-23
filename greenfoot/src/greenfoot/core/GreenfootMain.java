@@ -109,9 +109,6 @@ public class GreenfootMain extends Thread
     private CompileListenerForwarder compileListenerForwarder;
     private List<CompileListener> compileListeners = new LinkedList<CompileListener>();
 
-    /** The class state manager notifies GClass objects when their compilation state changes */
-    private ClassStateManager classStateManager;
-
     // ----------- static methods ------------
 
     /**
@@ -174,19 +171,11 @@ public class GreenfootMain extends Thread
             EventQueue.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    if (!isStartupProject()) {
-                        try {
-                            classStateManager = new ClassStateManager(project);
-                        } catch (RemoteException exc) {
-                            Debug.reportError("Error when opening scenario", exc);
-                        }
-                    }
-
                     // Initialise JavaFX:
                     new JFXPanel();
                     Platform.setImplicitExit(false);
 
-                    frame = GreenfootFrame.getGreenfootFrame(rBlueJ, classStateManager, project, shmFilePath);
+                    frame = GreenfootFrame.getGreenfootFrame(rBlueJ, project, shmFilePath);
 
                     // Want to execute this after the simulation has been initialised:
                     ExecServer.setCustomRunOnThread(r -> Simulation.getInstance().runLater(r));
@@ -200,9 +189,6 @@ public class GreenfootMain extends Thread
 
                             compileListenerForwarder = new CompileListenerForwarder(compileListeners);
                             GreenfootMain.this.rBlueJ.addCompileListener(compileListenerForwarder, pkg.getProject().getDir());
-
-                            
-                            rBlueJ.addClassListener(classStateManager);
 
                             proj.greenfootReady();
                         }

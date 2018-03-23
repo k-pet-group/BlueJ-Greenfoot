@@ -33,8 +33,6 @@ import bluej.utility.Utility;
 import com.apple.eawt.Application;
 import greenfoot.World;
 import greenfoot.actions.*;
-import greenfoot.core.ClassStateManager;
-import greenfoot.core.GClass;
 import greenfoot.core.GProject;
 import greenfoot.core.GreenfootMain;
 import greenfoot.core.ProjectProperties;
@@ -148,9 +146,9 @@ public class GreenfootFrame extends JFrame
     private AskPanel askPanel;
     private AskHandler askHandler;
     
-    public static GreenfootFrame getGreenfootFrame(final RBlueJ blueJ, ClassStateManager classStateManager, GProject project, String shmFilePath)
+    public static GreenfootFrame getGreenfootFrame(final RBlueJ blueJ, GProject project, String shmFilePath)
     {
-        instance = new GreenfootFrame(blueJ, classStateManager, project, shmFilePath);
+        instance = new GreenfootFrame(blueJ, project, shmFilePath);
         return instance;
     }
     
@@ -158,7 +156,7 @@ public class GreenfootFrame extends JFrame
      * Creates a new top level frame with all the GUI components.
      * @param classStateManager 
      */
-    private GreenfootFrame(RBlueJ blueJ, ClassStateManager classStateManager, GProject project, String shmFilePath)
+    private GreenfootFrame(RBlueJ blueJ, GProject project, String shmFilePath)
         throws HeadlessException
     {
         super("Greenfoot");
@@ -169,7 +167,7 @@ public class GreenfootFrame extends JFrame
             setIconImage(icon);
         }
 
-        makeFrame(classStateManager, project, shmFilePath);
+        makeFrame(project, shmFilePath);
         
         restoreFrameState();
 
@@ -281,7 +279,7 @@ public class GreenfootFrame extends JFrame
      * This includes opening the project and displaying the project classes.
      * @param classStateManager 
      */
-    private void makeFrame(ClassStateManager classStateManager, GProject project, String shmFilePath)
+    private void makeFrame(GProject project, String shmFilePath)
     {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
@@ -290,7 +288,7 @@ public class GreenfootFrame extends JFrame
         worldCanvas.setWorldSize(200, 100);
         worldCanvas.setVisible(false);
         
-        worldHandlerDelegate = new WorldHandlerDelegateIDE(this, classStateManager);
+        worldHandlerDelegate = new WorldHandlerDelegateIDE(this);
         WorldHandler.initialise(worldCanvas, worldHandlerDelegate);
         worldHandler = WorldHandler.getInstance();
         worldHandler.addWorldListener(this);
@@ -298,7 +296,7 @@ public class GreenfootFrame extends JFrame
         Simulation sim = Simulation.getInstance();
         
         setupActions();
-        setJMenuBar(buildMenu(classStateManager));
+        setJMenuBar(buildMenu());
 
         // build the centre panel. this includes the world and the controls
         
@@ -549,7 +547,7 @@ public class GreenfootFrame extends JFrame
      * Build the menu bar.
      * @param classStateManager
      */
-    private JMenuBar buildMenu(ClassStateManager classStateManager)
+    private JMenuBar buildMenu()
     {
         JMenuBar menuBar = new JMenuBar();
 
@@ -557,7 +555,6 @@ public class GreenfootFrame extends JFrame
 
         recentProjectsMenu = new JMenu(Config.getString("menu.openRecent"));
         scenarioMenu.add(recentProjectsMenu);
-        updateRecentProjects(classStateManager);
         
         addMenuItem(saveProjectAction, scenarioMenu, KeyEvent.VK_S, false, KeyEvent.VK_S);
         scenarioMenu.addSeparator();
@@ -598,30 +595,6 @@ public class GreenfootFrame extends JFrame
         menu.add(action);
     }
     
-    /**
-     * Update the 'Open Recent' menu, trying to include
-     * the current project as the first item where possible.
-     * @param classStateManager
-     */
-    private void updateRecentProjects(ClassStateManager classStateManager)
-    {
-        JMenuItem item = null;
-        
-        // can only add in the current project if there is a current project
-        if (classStateManager != null && classStateManager.getProject() != null) {
-            String currentName = classStateManager.getProject().getDir().getPath();
-            item = new JMenuItem(currentName);
-            recentProjectsMenu.add(item);
-            recentProjectsMenu.addSeparator();
-        }
-        
-        List<?> projects = PrefMgr.getRecentProjects();
-        for (Iterator<?> it = projects.iterator(); it.hasNext();) {
-            item = new JMenuItem((String)it.next());
-            recentProjectsMenu.add(item);
-        }
-    }
-
     /**
      * Enable/disable the project specific actions, depending on whether a
      * project is currently open.
@@ -739,6 +712,10 @@ public class GreenfootFrame extends JFrame
             else {
                 boolean noWorldClassFound = true;
                 boolean noCompiledWorldClassFound = true;
+                // Masked off old code, but when this is converted,
+                // as part of GREENFOOT-662 (move background message to server VM),
+                // convert the commented out bit:
+                /*
                 GClass[] projectClasses = project.getDefaultPackage().getClasses(false);
                 for (GClass projectClass : projectClasses) {
                     if (projectClass.isWorldSubclass()) {
@@ -748,6 +725,7 @@ public class GreenfootFrame extends JFrame
                         }
                     }
                 }
+                */
 
                 tooLongRestartButton.setVisible(false);
                 if (noWorldClassFound) {

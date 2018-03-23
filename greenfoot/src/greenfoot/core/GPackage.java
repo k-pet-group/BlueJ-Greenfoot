@@ -49,9 +49,7 @@ public class GPackage
 {
     private RPackage pkg;
     private GProject project; 
-    
-    private Map<RClass,GClass> classPool = new HashMap<RClass,GClass>();
-    
+        
     /**
      * Contructor for an unspecified package, but for which a project is known.
      * Used to allow a class to not be part of a package, but still being able
@@ -83,109 +81,9 @@ public class GPackage
         this.pkg = pkg;
         this.project = project;
     }
-    
-    /**
-     * Get the GClass wrapper for a remote class in this package.
-     */
-    public GClass getGClass(RClass remoteClass, boolean inRemoteCallback)
-    {
-        if (remoteClass == null) {
-            return null;
-        }
-        
-        GClass gClass;
-        synchronized (classPool) {
-            gClass = classPool.get(remoteClass);
-            if (gClass == null) {
-                gClass = new GClass(remoteClass, this, inRemoteCallback);
-                classPool.put(remoteClass, gClass);
-                gClass.loadSavedSuperClass(inRemoteCallback);
-            }
-        }
-        return gClass;
-    }
 
     public GProject getProject()
     {
         return project;
-    }
-
-    public GClass[] getClasses(boolean inRemoteCallback)
-    {
-        try {
-            RClass[] rClasses = pkg.getRClasses();
-            GClass[] gClasses = new GClass[rClasses.length];
-            for (int i = 0; i < rClasses.length; i++) {
-                RClass rClass = rClasses[i];
-                gClasses[i] = getGClass(rClass, inRemoteCallback);
-            }
-            return gClasses;
-        }
-        catch (ProjectNotOpenException e) {
-            Debug.reportError("Could not get package classes", e);
-            throw new InternalGreenfootError(e);
-        }
-        catch (PackageNotFoundException e) {
-            Debug.reportError("Could not get package classes", e);
-            throw new InternalGreenfootError(e);
-        }
-        catch (RemoteException e) {
-            Debug.reportError("Could not get package classes", e);
-            throw new InternalGreenfootError(e);
-        }
-    }
-    
-    /**
-     * Get the named class (null if it cannot be found).
-     * Do not call from a remote callback.
-     */
-    public GClass getClass(String className)
-    {
-        try {
-            RClass rClass = pkg.getRClass(className);
-            return getGClass(rClass, false);
-        }
-        catch (RemoteException re) {
-            Debug.reportError("Getting class", re);
-        }
-        catch (ProjectNotOpenException pnoe) {
-            Debug.reportError("Creating new class", pnoe);
-        }
-        catch (PackageNotFoundException pnfe) {
-            Debug.reportError("Creating new class", pnfe);
-        }
-        
-        return null;
-    }
-
-    /** 
-     * Returns all the world sub-classes in this package that can be instantiated.
-     * Do not call from a remote callback.
-     */
-    @SuppressWarnings("unchecked")
-    public List<Class<? extends World>> getWorldClasses()
-    {
-        List<Class<? extends World>> worldClasses= new LinkedList<Class<? extends World>>();
-        GClass[] classes = getClasses(false);
-        for (int i = 0; i < classes.length; i++) {
-            GClass cls = classes[i];
-            if(cls.isWorldSubclass()) {
-                Class<? extends World> realClass = (Class<? extends World>) cls.getJavaClass();   
-                if (GreenfootUtil.canBeInstantiated(realClass)) {                  
-                    worldClasses.add(realClass);
-                }                    
-            }
-        }
-        return worldClasses;
-    }
-
-    public SourceType getDefaultSourceType()
-    {
-        // Our heuristic is: if the scenario contains any Stride files, the default is Stride,
-        // otherwise it's Java
-        if (Arrays.asList(getClasses(false)).stream().anyMatch(c -> c.getSourceType() == SourceType.Stride))
-            return SourceType.Stride;
-        else
-            return SourceType.Java;
     }
 }
