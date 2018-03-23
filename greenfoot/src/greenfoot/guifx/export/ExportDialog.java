@@ -22,15 +22,15 @@
 package greenfoot.guifx.export;
 
 import bluej.Config;
+import bluej.debugger.gentype.ConstructorReflective;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.utility.javafx.FXCustomizedDialog;
 import bluej.utility.Utility;
 
 import java.io.File;
-import java.lang.reflect.Constructor;
 import java.util.HashMap;
-import java.util.stream.Stream;
+import java.util.List;
 
 import javafx.application.Platform;
 import javafx.scene.control.Button;
@@ -103,9 +103,8 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         }
 
         // Check that a zero-argument constructor is available
-        Constructor<?>[] constructors = currentWorld.getClass().getConstructors();
-        boolean noZeroArgConstructor = Stream.of(constructors).noneMatch(con -> con.getParameterCount() == 0);
-
+        List<ConstructorReflective> constructors = currentWorld.getTypeReflective().getDeclaredConstructors();
+        boolean noZeroArgConstructor = constructors.stream().noneMatch(con -> con.getParamTypes().isEmpty());
         if (noZeroArgConstructor)
         {
             throw new ExportException(Config.getString("export.noconstructor.dialog.msg"));
