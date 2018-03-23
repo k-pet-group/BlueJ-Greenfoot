@@ -47,6 +47,7 @@ import javafx.beans.value.ObservableStringValue;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
@@ -402,6 +403,13 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
     public void recordShowHideFrameCatalogue(boolean show, FrameCatalogue.ShowReason reason)
     {
         // Not applicable
+    }
+
+    @Override
+    public @OnThread(Tag.FXPlatform) ImageView makeClassImageView()
+    {
+        // Not applicable
+        return null;
     }
 
     @Override

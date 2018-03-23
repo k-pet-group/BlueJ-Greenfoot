@@ -40,6 +40,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ObservableStringValue;
 import javafx.scene.Node;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Paint;
@@ -181,6 +182,13 @@ public interface InteractionManager extends SuggestionListParent
      */
     @OnThread(Tag.FXPlatform)
     void recordShowHideFrameCatalogue(boolean show, FrameCatalogue.ShowReason reason);
+
+    /**
+     * Gets an image for the class, suitable for displaying as an overlay in the class
+     * body.  Return null if there's no such available image.
+     */
+    @OnThread(Tag.FXPlatform)
+    ImageView makeClassImageView();
 
     public static enum ShortcutKey
     {

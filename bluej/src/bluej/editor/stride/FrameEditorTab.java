@@ -237,6 +237,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     private List<HighlightedBreakpoint> latestExecHistory;
     private StringBinding strideFontSizeAsString;
     private StringExpression strideFontCSS;
+    private final SimpleObjectProperty<Image> imageProperty = new SimpleObjectProperty<>(null);
 
     public FrameEditorTab(Project project, EntityResolver resolver, FrameEditor editor, TopLevelCodeElement initialSource)
     {
@@ -345,8 +346,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         if (startedInitialising)
             return;
         startedInitialising = true;
-        
-        final SimpleObjectProperty<Image> imageProperty = new SimpleObjectProperty<>(null);
+
         // Name starts blank, so this listener will pick up the name "change" when we first load the name:
         JavaFXUtil.addChangeListenerPlatform(nameProperty, name -> {
             ObjectExpression<Image> classIconExpression = project.fetchFor(name);
@@ -365,7 +365,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         setText("");
         Label titleLabel = new Label(initialSource.getName());
         titleLabel.textProperty().bind(nameProperty);
-        HBox tabHeader = new HBox(titleLabel, makeClassGraphicIcon(imageProperty));
+        HBox tabHeader = new HBox(titleLabel, makeClassGraphicIcon(imageProperty, 16, false));
         tabHeader.setAlignment(Pos.CENTER);
         tabHeader.setSpacing(3.0);
         tabHeader.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
@@ -2847,6 +2847,12 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                 focusedCursor != null ? focusedCursor.getCursorIndex() : -1,
                 show,
                 reason);
+    }
+
+    @Override
+    public @OnThread(Tag.FXPlatform) ImageView makeClassImageView()
+    {
+        return makeClassGraphicIcon(imageProperty, 48, true);
     }
 
     /**

@@ -32,11 +32,14 @@ import java.util.stream.Stream;
 
 import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.framedjava.ast.links.PossibleLink;
+import bluej.stride.framedjava.frames.TopLevelFrame;
 import bluej.utility.javafx.ScalableHeightLabel;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.slots.TextOverlayPosition;
@@ -82,6 +85,18 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
         JavaFXUtil.addStyleClass(wrapper, "documentation-text-wrapper", stylePrefix + "documentation-text-wrapper");
         this.frameParent = frameParent;
         addTextStyleClasses("documentation-text", stylePrefix + "documentation-text");
+        // If we are the top-level documentation frame, add an image preview on the right:
+        if (frameParent instanceof TopLevelFrame)
+        {
+            ImageView classImage = editor.makeClassImageView();
+            if (classImage != null)
+            {
+                BorderPane.setMargin(classImage, new Insets(8));
+                classImage.setOpacity(0.6);
+                wrapper.setRight(classImage);
+            }
+        }
+        
         //maxHeightProperty().bind(cssMaxHeightProperty);
         setFocusTraversable(true);
         editor.setupFocusableSlotComponent(this, super.getNode(), false, Collections::emptyList, Collections.emptyList());
