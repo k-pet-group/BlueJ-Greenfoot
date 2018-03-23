@@ -352,6 +352,12 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         loadAndMirrorProperties();
         // We send a reset to make a new world after the project properties have been sent across:
         debugHandler.getVmComms().instantiateWorld();
+
+        String lastInstantiatedWorldName = project.getUnnamedPackage()
+                .getLastSavedProperties().getProperty("world.lastInstantiated");
+        currentWorld = lastInstantiatedWorldName != null
+                ? (ClassTarget) project.getTarget(lastInstantiatedWorldName)
+                : null;
     }
 
     /**
