@@ -21,6 +21,7 @@
  */
 package greenfoot.platforms.ide;
 
+import bluej.runtime.ExecServer;
 import greenfoot.Actor;
 import greenfoot.World;
 import greenfoot.core.ClassStateManager;
@@ -66,6 +67,7 @@ public class WorldHandlerDelegateIDE
     private boolean worldInvocationError;
     private boolean missingConstructor;
     private final List<Actor> actorsToName = new ArrayList<>();
+    private String mostRecentlyInstantiatedWorldClassName;
 
     public WorldHandlerDelegateIDE(GreenfootFrame frame,
             ClassStateManager classStateManager)
@@ -119,43 +121,28 @@ public class WorldHandlerDelegateIDE
     }
 
     @Override
-    public void instantiateNewWorld()
+    public void instantiateNewWorld(String className)
     {
         if (project == null) {
             return;
+        }
+        
+        // If not-null, store it as the most recent, ready to be used by getLastWorldClass
+        if (className != null)
+        {
+            mostRecentlyInstantiatedWorldClassName = className;
         }
         
         //greenfootRecorder.reset();
         worldInitialising = true;
         worldInvocationError = false;
         Class<? extends World> cls = getLastWorldClass();
-        GClass lastWorldGClass = getLastWorldGClass();
 
-        if (lastWorldGClass == null) {
-            // Either the last instantiated world no longer exists, or there is no record
-            // of a last instantiated world class. Find a world arbitrarily.
-            List<Class<? extends World>> worldClasses = project.getDefaultPackage().getWorldClasses();
-            if(worldClasses.isEmpty() ) {
-                return;
-            }
-
-            for (Class<? extends World> wclass : worldClasses) {
-                try {
-                    wclass.getConstructor(new Class<?>[0]);
-                    cls = wclass;
-                    break;
-                }
-                catch (LinkageError | NoSuchMethodException e) { }
-            }
-            if (cls == null) {
-                // Couldn't find a world with a suitable constructor
-                missingConstructor = true;
-                return;
-            }
-        }
-
-        if (cls == null) {
-            // Can occur if last instantiated world class is not compiled.
+        if (cls == null)
+        {
+            // Can occur if last instantiated world class is not compiled,
+            // or if the specified world class is not found, or if no world
+            // class name has ever been specified.
             return;
         }
 
@@ -171,7 +158,6 @@ public class WorldHandlerDelegateIDE
                     ImageCache.getInstance().clearImageCache();
                     WorldHandler.getInstance().setWorld(newWorld, false);
                 }
-                project.setLastWorldClassName(icls.getName());
             }
             catch (LinkageError e) { }
             catch (NoSuchMethodException | IllegalAccessException nsme) {
@@ -206,37 +192,36 @@ public class WorldHandlerDelegateIDE
     }
 
     /**
-     * Get the last-instantiated world class if known and possible. May return null.
-     */
-    public GClass getLastWorldGClass()
-    {
-        if (project == null) {
-            return null;
-        }
-        
-        String lastWorldClass = project.getLastWorldClassName();
-        if(lastWorldClass == null) {
-            return null;
-        }
-        
-        return project.getDefaultPackage().getClass(lastWorldClass);
-    }
-    
-    /**
      * Get the last world class that was instantiated, if it can (still) be instantiated.
      * May return null.
      */
-    @SuppressWarnings("unchecked")
     private Class<? extends World> getLastWorldClass()
     {
-        GClass gclass = getLastWorldGClass();
-        if (gclass != null) {
-            Class<? extends World> rclass = (Class<? extends World>) gclass.getJavaClass();
-            if (GreenfootUtil.canBeInstantiated(rclass)) {
-                return  rclass;
+        if (mostRecentlyInstantiatedWorldClassName != null)
+        {
+            try
+            {
+                String className = mostRecentlyInstantiatedWorldClassName;
+                //it is important that we use the right classloader
+                ClassLoader classLdr = ExecServer.getCurrentClassLoader();
+                Class<?> cls = Class.forName(mostRecentlyInstantiatedWorldClassName, false, classLdr);
+                if (GreenfootUtil.canBeInstantiated(cls))
+                {
+                    return (Class<? extends World>) cls;
+                }
+            }
+            catch (java.lang.ClassNotFoundException cnfe)
+            {
+                // couldn't load: that's ok, we return null
+                // cnfe.printStackTrace();
+            }
+            catch (LinkageError e)
+            {
+                // TODO log this properly? It can happen for various reasons, not
+                // necessarily a real error.
+                e.printStackTrace();
             }
         }
-
         return null;
     }
 
@@ -272,11 +257,10 @@ public class WorldHandlerDelegateIDE
             StackTraceElement[] methods = Thread.currentThread().getStackTrace();
 
             boolean gonePastUs = false;
-            GClass lastWorldGClass = getLastWorldGClass();
-            if (lastWorldGClass == null) {
+            String lastWorldClassName = mostRecentlyInstantiatedWorldClassName;
+            if (lastWorldClassName == null) {
                 return;
             }
-            String lastWorldClassName = getLastWorldGClass().getName();
             
             for (StackTraceElement item : methods) {
                 if (GreenfootRecorder.METHOD_NAME.equals(item.getMethodName()) &&

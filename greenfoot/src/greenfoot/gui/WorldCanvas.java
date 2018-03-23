@@ -512,10 +512,11 @@ public class WorldCanvas extends JPanel
                         Simulation.getInstance().runOnce();
                         break;
                     case Command.COMMAND_INSTANTIATE_WORLD:
+                        String className = new String(data, 1, data.length - 1);
                         // This seems to deadlock without a run later, although I'm not 100% sure why.
                         // We may be able to remove this after the FX rewrite is complete:
                         Simulation.getInstance().runLater(() -> {
-                            WorldHandler.getInstance().instantiateNewWorld();
+                            WorldHandler.getInstance().instantiateNewWorld(className);
                             paintRemote(PaintWhen.FORCE, -1, null);
                         });
                         break;
