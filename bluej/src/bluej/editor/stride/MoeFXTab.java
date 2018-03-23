@@ -136,7 +136,7 @@ public @OnThread(Tag.FXPlatform) class MoeFXTab extends FXTab
         ObjectExpression<Image> imageProperty = classIconFetcher.fetchFor(className);
         if (imageProperty != null)
         {
-            tabHeader.getChildren().add(makeClassGraphicIcon(imageProperty));
+            tabHeader.getChildren().add(makeClassGraphicIcon(imageProperty, 16, false));
         }
         tabHeader.setAlignment(Pos.CENTER);
         tabHeader.setSpacing(3.0);
