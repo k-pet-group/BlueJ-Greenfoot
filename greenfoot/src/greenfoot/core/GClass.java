@@ -57,13 +57,6 @@ public class GClass
     
     private Class<?> realClass;
     private boolean hasKnownError;
-
-    /**
-     * Constructor used by GCoreClass only
-     */
-    protected GClass() {
-        
-    }
     
     /**
      * Constructor for GClass. You should generally not use this -
