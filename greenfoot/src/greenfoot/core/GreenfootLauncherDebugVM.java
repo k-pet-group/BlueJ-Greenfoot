@@ -78,7 +78,6 @@ public class GreenfootLauncherDebugVM
         new Thread() {
             public void run() {
                 try {           
-                    client.initialise();
                     File libdir = blueJ.getSystemLibDir();
                     Config.initializeVMside(libdir, blueJ.getUserPrefDir(),
                             blueJ.getInitialCommandLineProperties(), true, client);

@@ -59,13 +59,6 @@ public interface RBlueJ
     public String getExtensionPropertyString(String property, String def)
         throws RemoteException;
 
-
-    /**
-     * Get a list of all open projects.
-     */
-    public RProject[] getOpenProjects()
-        throws RemoteException;
-
     /**
      * Get the Bluej "lib" dir.
      */
