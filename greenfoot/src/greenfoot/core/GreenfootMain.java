@@ -23,8 +23,6 @@ package greenfoot.core;
 
 import bluej.Boot;
 import bluej.collect.DataSubmissionFailedDialog;
-import greenfoot.event.CompileListener;
-import greenfoot.event.CompileListenerForwarder;
 import greenfoot.gui.GreenfootFrame;
 import greenfoot.platforms.ide.ActorDelegateIDE;
 import greenfoot.util.Version;
@@ -94,13 +92,6 @@ public class GreenfootMain extends Thread
     /** The path to the dummy startup project */
     private File startupProject;
 
-    /**
-     * Forwards compile events to all the compileListeners that has registered
-     * to reccieve compile events.
-     */
-    private CompileListenerForwarder compileListenerForwarder;
-    private List<CompileListener> compileListeners = new LinkedList<CompileListener>();
-
     // ----------- static methods ------------
 
     /**
@@ -108,7 +99,6 @@ public class GreenfootMain extends Thread
      * will have no effect.
      * 
      * @param rBlueJ   remote BlueJ instance
-     * @param pkg      remote reference to the unnamed package of the project corresponding to this Greenfoot instance
      * @param shmFilePath The path to the shared-memory file to be mmap-ed for communication
      * @param wizard   whether to run the "new project wizard"
      * @param sourceType  default source type for the new project
@@ -161,17 +151,6 @@ public class GreenfootMain extends Thread
                     ExecServer.setCustomRunOnThread(r -> Simulation.getInstance().runLater(r));
 
                     // Config is initialized in GreenfootLauncherDebugVM
-
-                    try {
-                        // bringToFront is done automatically by BlueJ
-                        // Utility.bringToFront(frame);
-
-                        compileListenerForwarder = new CompileListenerForwarder(compileListeners);
-                        GreenfootMain.this.rBlueJ.addCompileListener(compileListenerForwarder, new File(projDir));
-                    }
-                    catch (RemoteException exc) {
-                        Debug.reportError("Error when opening scenario", exc);
-                    }
                     
                     try
                     {
@@ -235,18 +214,6 @@ public class GreenfootMain extends Thread
         }
         catch (RemoteException re) {
             Debug.reportError("Closing all projects", re);
-        }
-    }
-
-    /**
-     * Adds a listener for compile events
-     * 
-     * @param listener
-     */
-    private void addCompileListener(CompileListener listener)
-    {
-        synchronized (compileListeners) {
-            compileListeners.add(0, listener);
         }
     }
 

@@ -39,7 +39,6 @@ import greenfoot.core.ReadOnlyProjectProperties;
 import greenfoot.core.ShadowProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
-import greenfoot.event.CompileListener;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.event.WorldEvent;
@@ -50,7 +49,6 @@ import greenfoot.sound.SoundFactory;
 import greenfoot.util.AskHandler;
 import greenfoot.util.GreenfootUtil;
 import rmiextension.wrappers.RBlueJ;
-import rmiextension.wrappers.event.RCompileEvent;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -73,7 +71,7 @@ import java.util.concurrent.Callable;
  * @author mik
  */
 public class GreenfootFrame extends JFrame
-    implements CompileListener, WorldListener
+    implements WorldListener
 {
     private static final String shareIconFile = "export-publish-small.png";
     private static final int WORLD_MARGIN = 40;
@@ -657,56 +655,6 @@ public class GreenfootFrame extends JFrame
         }
         messageLabel.setText(message);
         messageLabel2.setText(message2);
-    }
-    
-    // ----------- CompileListener interface -----------
-    
-    @Override
-    public void compileStarted(RCompileEvent event)
-    {
-        EventQueue.invokeLater(() -> {
-            Image snapshot = getWorldGreyedSnapShot();
-            WorldHandler.getInstance().discardWorld();
-            if (snapshot != null) {
-                worldCanvas.setOverrideImage(snapshot);
-            }
-            this.isCompiling = true;
-        });
-    }
-
-    private Image getWorldGreyedSnapShot()
-    {
-        BufferedImage screenShot = WorldHandler.getInstance().getSnapShot();
-        if (screenShot != null) {
-            GreenfootUtil.convertToGreyImage(screenShot);
-            // With stripes           
-            Utility.stripeRect(screenShot.getGraphics(), 0, 0, screenShot.getWidth(), screenShot.getHeight(), 40, 1, Color.GRAY);
-        }
-        return screenShot;
-    }
-
-    @Override
-    public void compileError(RCompileEvent event) { }
-
-    @Override
-    public void compileWarning(RCompileEvent event) { }
-
-    @Override
-    public void compileSucceeded(RCompileEvent event)
-    {
-        EventQueue.invokeLater(() -> {
-            isCompiling = false;
-            updateBackgroundMessage();
-        });
-    }
-
-    @Override
-    public void compileFailed(RCompileEvent event)
-    {
-        EventQueue.invokeLater(() -> {
-            isCompiling = false;
-            updateBackgroundMessage();
-        });
     }
     
     // ----------- end of WindowListener interface -----------

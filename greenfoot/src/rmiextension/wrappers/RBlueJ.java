@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2013,2014,2015,2016  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2013,2014,2015,2016,2018  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,7 +26,6 @@ import java.rmi.RemoteException;
 import java.util.Properties;
 
 import rmiextension.wrappers.event.RApplicationListener;
-import rmiextension.wrappers.event.RCompileListener;
 
 /**
  * 
@@ -37,12 +36,6 @@ import rmiextension.wrappers.event.RCompileListener;
 public interface RBlueJ
     extends java.rmi.Remote
 {
-    /**
-     * Register a Compile event listener for the project identified by the given path.
-     */
-    public void addCompileListener(RCompileListener listener, File projectPath)
-        throws RemoteException;
-
     /**
      * Get a BlueJ property value
      */
@@ -63,13 +56,6 @@ public interface RBlueJ
      * Get the Bluej "lib" dir.
      */
     public File getSystemLibDir()
-        throws RemoteException;
-
-    /**
-     * Remove a compile listener.
-     * @param listener  The listener to remove
-     */
-    public void removeCompileListener(RCompileListener listener)
         throws RemoteException;
 
     /**
