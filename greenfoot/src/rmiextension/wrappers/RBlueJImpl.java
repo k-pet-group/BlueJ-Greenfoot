@@ -151,39 +151,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     }
 
     /*
-     * @see rmiextension.wrappers.RBlueJ#getOpenProjects()
-     */
-    public RProject[] getOpenProjects()
-        throws RemoteException
-    {
-        final ArrayList<RProject> rProjects = new ArrayList<RProject>();
-        
-        try {
-            EventQueue.invokeAndWait(new Runnable() {
-                @Override
-                public void run()
-                {
-                    BProject[] bProjects = blueJ.getOpenProjects();
-                    for (BProject bProject : bProjects) {
-                        try {
-                            rProjects.add(WrapperPool.instance().getWrapper(bProject));
-                        }
-                        catch (RemoteException e) {
-                            // Shouldn't happen?
-                        }
-                    }
-                }
-            });
-        }
-        catch (InterruptedException e) { }
-        catch (InvocationTargetException e) {
-            Debug.reportError("Problem getting open projects", e.getCause());
-        }
-
-        return rProjects.toArray(new RProject[rProjects.size()]);
-    }
-
-    /*
      * @see rmiextension.wrappers.RBlueJ#getSystemLibDir()
      */
     public File getSystemLibDir()
@@ -219,16 +186,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         Platform.runLater(new Runnable() {
            public void run()
             {
-               BProject[] bProjects = blueJ.getOpenProjects();
-               int length = bProjects.length;
-               for (int i = 0; i < length; i++) {
-                   try {
-                       RProjectImpl rpImpl = WrapperPool.instance().getWrapper(bProjects[i]);
-                       rpImpl.notifyClosing();
-                   }
-                   catch (RemoteException re) {}
-               }
-
                PkgMgrFrame [] frames = PkgMgrFrame.getAllFrames();
                for (int i = 0; i < frames.length; i++) {
                    frames[i].doClose(false, true);

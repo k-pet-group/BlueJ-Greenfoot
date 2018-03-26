@@ -42,9 +42,6 @@ import bluej.extensions.editor.Editor;
 public interface RClass
     extends java.rmi.Remote
 {
-    RPackage getPackage()
-        throws ProjectNotOpenException, PackageNotFoundException, RemoteException;
-
     /**
      * Gets the superclass of this class (if it has one).
      * 

@@ -45,7 +45,6 @@ import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 import greenfoot.record.GreenfootRecorder;
 import greenfoot.util.DebugUtil;
 import javafx.application.Platform;
-import rmiextension.wrappers.RProjectImpl;
 import rmiextension.wrappers.WrapperPool;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerClass;
@@ -230,13 +229,6 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
             // This is the breakpoint at the very beginning of the simulation thread;
             // record this thread as being the simulation thread and set it running again:
             simulationThread = e.getThread();
-            try {
-                RProjectImpl rproj = WrapperPool.instance().getWrapper(project.getBProject());
-                rproj.setSimulationThread(simulationThread);
-            }
-            catch (RemoteException re) {
-                Debug.reportError("Unexpected exception getting project wrapper: ", re);
-            }
             e.getThread().cont();
             return true;
         }

@@ -40,8 +40,6 @@ import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 
 import rmiextension.wrappers.RBlueJ;
-import rmiextension.wrappers.RPackage;
-import rmiextension.wrappers.RProject;
 import rmiextension.wrappers.event.RApplicationListenerImpl;
 import bluej.Config;
 import bluej.extensions.ProjectNotOpenException;
@@ -250,25 +248,6 @@ public class GreenfootMain extends Thread
         synchronized (compileListeners) {
             compileListeners.add(0, listener);
         }
-    }
-
-    /**
-     * Creates a new project
-     */
-    public RProject newProject(boolean wizard, SourceType sourceType)
-    {
-        File newFile = FileUtility.getDirName(frame,
-                Config.getString("greenfoot.utilDelegate.newScenario"),
-                Config.getString("pkgmgr.newPkg.buttonLabel"),
-                false, true);
-        if (newFile != null) {
-            if (newFile.exists() && (!newFile.isDirectory() || newFile.list().length > 0)) {
-                DialogManager.showError(frame, "project-already-exists");
-                return null;
-            }
-            //RProject rproj = rBlueJ.newProject(newFile, wizard, sourceType);
-        }
-        return null;
     }
 
     /**

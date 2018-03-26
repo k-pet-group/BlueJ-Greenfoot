@@ -81,15 +81,6 @@ public class RClassImpl extends java.rmi.server.UnicastRemoteObject
     }
     
     @Override
-    public RPackage getPackage()
-        throws ProjectNotOpenException, PackageNotFoundException, RemoteException
-    {
-        BPackage wrapped = bClass.getPackage();
-        RPackage wrapper = WrapperPool.instance().getWrapper(wrapped);
-        return wrapper;
-    }
-
-    @Override
     public RClass getSuperclass(boolean inRemoteCallback)
         throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException, RemoteException
     {

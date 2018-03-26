@@ -30,8 +30,6 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 import rmiextension.wrappers.RBlueJ;
-import rmiextension.wrappers.RPackage;
-import rmiextension.wrappers.RProject;
 import bluej.BlueJPropStringSource;
 import bluej.Config;
 import bluej.extensions.ProjectNotOpenException;
@@ -46,7 +44,6 @@ public class BlueJRMIClient implements BlueJPropStringSource
     RBlueJ blueJ = null;
     private static BlueJRMIClient instance;
 
-    private RPackage pkg;
     private String prjDir;
     
     public BlueJRMIClient(String prjDir, String rmiServiceName)
@@ -75,34 +72,6 @@ public class BlueJRMIClient implements BlueJPropStringSource
 
     }
     
-    /**
-     * Perform initialisation (which involves calling back into the other VM).
-     */
-    public void initialise()
-    {
-        if (blueJ != null) {
-            try {
-                RProject[] openProjects = blueJ.getOpenProjects();
-                RProject prj = null;
-                for (int i = 0; i < openProjects.length; i++) {
-                    prj = openProjects[i];
-                    File passedDir = new File(prjDir);
-                    if (prj.getDir().equals(passedDir)) {
-                        break;
-                    }
-                }
-                pkg = prj.getPackage("");
-
-            }
-            catch (RemoteException e1) {
-                e1.printStackTrace();
-            }
-            catch (ProjectNotOpenException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     public static BlueJRMIClient instance()
     {
         return instance;
@@ -115,15 +84,7 @@ public class BlueJRMIClient implements BlueJPropStringSource
     {
         return blueJ;
     }
-    
-    /**
-     * Returns the remote BlueJ package.
-     */
-    public RPackage getPackage()
-    {
-        return pkg;
-    }
-    
+        
     // Implementation for "BlueJPropStringSource" interface
     
     @Override

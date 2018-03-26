@@ -61,44 +61,6 @@ public class WrapperPool
         return instance;
     }
 
-    public synchronized RProjectImpl getWrapper(BProject wrapped)
-        throws RemoteException
-    {
-        RProjectImpl wrapper = null;
-        WeakReference<?> wrProj = (WeakReference<?>) pool.get(wrapped);
-        
-        if (wrProj != null) {
-            wrapper = (RProjectImpl) wrProj.get();
-        }
-        
-        if (wrapper == null) {
-            wrapper = new RProjectImpl(wrapped);
-            pool.put(wrapped, new WeakReference<RProjectImpl>(wrapper));
-        }
-        
-        return wrapper;
-    }
-
-    public synchronized RPackage getWrapper(BPackage wrapped)
-        throws RemoteException
-    {
-        if (wrapped == null) {
-            return null;
-        }
-        
-        RPackage wrapper = null;
-        WeakReference<?> wrPkg = (WeakReference<?>) pool.get(wrapped);
-        if (wrPkg != null) {
-            wrapper = (RPackage) wrPkg.get();
-        }
-        
-        if (wrapper == null) {
-            wrapper = new RPackageImpl(wrapped);
-            pool.put(wrapped, new WeakReference<RPackage>(wrapper));
-        }
-        return wrapper;
-    }
-
     public synchronized RClass getWrapper(BClass wrapped)
         throws RemoteException
     {
