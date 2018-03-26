@@ -23,7 +23,7 @@ package greenfoot.platforms.ide;
 
 import greenfoot.ActorVisitor;
 import greenfoot.GreenfootImage;
-import greenfoot.core.GProject;
+import greenfoot.core.ReadOnlyProjectProperties;
 import greenfoot.platforms.ActorDelegate;
 
 /**
@@ -34,23 +34,23 @@ import greenfoot.platforms.ActorDelegate;
  */
 public class ActorDelegateIDE implements ActorDelegate
 {
-    private GProject project;
+    private ReadOnlyProjectProperties projectProperties;
     
-    private ActorDelegateIDE(GProject project)
+    private ActorDelegateIDE(ReadOnlyProjectProperties projectProperties)
     {
-    	this.project = project;
+    	this.projectProperties = projectProperties;
     }
     
     /**
      * Register this class as the delegate for Actor.
      */
-    public static void setupAsActorDelegate(GProject project)
+    public static void setupAsActorDelegate(ReadOnlyProjectProperties projectProperties)
     {
-        ActorVisitor.setDelegate(new ActorDelegateIDE(project));
+        ActorVisitor.setDelegate(new ActorDelegateIDE(projectProperties));
     }
     
     public GreenfootImage getImage(String name)
     {
-        return project.getProjectProperties().getImage(name);
+        return projectProperties.getImage(name);
     }
 }

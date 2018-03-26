@@ -93,12 +93,6 @@ public class GreenfootMain extends Thread
     /** The main frame of greenfoot. */
     private GreenfootFrame frame;
 
-    /** The project this Greenfoot singelton refers to. */
-    private GProject project;
-
-    /** The package this Greenfoot singelton refers to. */
-    private GPackage pkg;
-
     /** The path to the dummy startup project */
     private File startupProject;
 
@@ -121,21 +115,11 @@ public class GreenfootMain extends Thread
      * @param wizard   whether to run the "new project wizard"
      * @param sourceType  default source type for the new project
      */
-    public static void initialize(RBlueJ rBlueJ, RPackage pkg, String shmFilePath, boolean wizard, SourceType sourceType)
+    public static void initialize(RBlueJ rBlueJ, String projDir, String shmFilePath, boolean wizard, SourceType sourceType)
     {
         System.setProperty("apple.laf.useScreenMenuBar", "true");
         if (instance == null) {
-            try {
-                instance = new GreenfootMain(rBlueJ, pkg.getProject(), shmFilePath, wizard, sourceType);
-            }
-            catch (ProjectNotOpenException pnoe) {
-                // can't happen
-                Debug.reportError("Getting remote project", pnoe);
-            }
-            catch (RemoteException re) {
-                // shouldn't happen
-                Debug.reportError("Getting remote project", re);
-            }
+            instance = new GreenfootMain(rBlueJ, projDir, shmFilePath, wizard, sourceType);
         }
     }
 
@@ -153,7 +137,7 @@ public class GreenfootMain extends Thread
      * Contructor is private. This class is initialised via the 'initialize'
      * method (above).
      */
-    private GreenfootMain(final RBlueJ rBlueJ, final RProject proj, String shmFilePath, boolean wizard, SourceType sourceType)
+    private GreenfootMain(final RBlueJ rBlueJ, String projDir, String shmFilePath, boolean wizard, SourceType sourceType)
     {
         instance = this;
         this.rBlueJ = rBlueJ;
@@ -163,10 +147,8 @@ public class GreenfootMain extends Thread
             startupProj = new File(startupProj, "greenfoot");
             startupProject = new File(startupProj, "startupProject");
 
-            this.project = GProject.newGProject(proj);
-            addCompileListener(project);
-            this.pkg = project.getDefaultPackage();
-            ActorDelegateIDE.setupAsActorDelegate(project);
+            ShadowProjectProperties projectProperties = new ShadowProjectProperties();
+            ActorDelegateIDE.setupAsActorDelegate(projectProperties);
 
             EventQueue.invokeLater(new Runnable() {
                 @Override
@@ -175,26 +157,22 @@ public class GreenfootMain extends Thread
                     new JFXPanel();
                     Platform.setImplicitExit(false);
 
-                    frame = GreenfootFrame.getGreenfootFrame(rBlueJ, project, shmFilePath);
+                    frame = GreenfootFrame.getGreenfootFrame(rBlueJ, projectProperties, shmFilePath);
 
                     // Want to execute this after the simulation has been initialised:
                     ExecServer.setCustomRunOnThread(r -> Simulation.getInstance().runLater(r));
 
                     // Config is initialized in GreenfootLauncherDebugVM
 
-                    if (!isStartupProject()) {
-                        try {
-                            // bringToFront is done automatically by BlueJ
-                            // Utility.bringToFront(frame);
+                    try {
+                        // bringToFront is done automatically by BlueJ
+                        // Utility.bringToFront(frame);
 
-                            compileListenerForwarder = new CompileListenerForwarder(compileListeners);
-                            GreenfootMain.this.rBlueJ.addCompileListener(compileListenerForwarder, pkg.getProject().getDir());
-
-                            proj.greenfootReady();
-                        }
-                        catch (RemoteException exc) {
-                            Debug.reportError("Error when opening scenario", exc);
-                        }
+                        compileListenerForwarder = new CompileListenerForwarder(compileListeners);
+                        GreenfootMain.this.rBlueJ.addCompileListener(compileListenerForwarder, new File(projDir));
+                    }
+                    catch (RemoteException exc) {
+                        Debug.reportError("Error when opening scenario", exc);
                     }
                     
                     try
@@ -207,15 +185,6 @@ public class GreenfootMain extends Thread
                     }
                     frame.setVisible(true);
                     Utility.bringToFront(frame);
-
-                    try
-                    {
-                        proj.startImportsScan();
-                    }
-                    catch (RemoteException | ProjectNotOpenException e)
-                    {
-                        Debug.reportError(e);
-                    }
                     
                     EventQueue.invokeLater(() -> {
                         if (wizard) {
@@ -256,25 +225,6 @@ public class GreenfootMain extends Thread
         catch (Exception exc) {
             Debug.reportError("could not create greenfoot main", exc);
         }
-    }
-
-    /**
-     * Check whether this instance of greenfoot is running the dummy
-     * startup project.
-     * @return true if this is the startup project
-     */
-    private boolean isStartupProject()
-    {
-        return project.getDir().equals(startupProject);
-    }
-
-    /**
-     * Get the project for this greenfoot instance.
-     * @return
-     */
-    public GProject getProject()
-    {
-        return project;
     }
 
     /**
@@ -329,22 +279,6 @@ public class GreenfootMain extends Thread
         return frame;
     }
     
-    /**
-     * Checks if the project is the default startup project that is used when no
-     * other project is open. It is necessary to have this dummy project,
-     * becuase we must have a project in order to launch the DebugVM.
-     * 
-     */
-    public static boolean isStartupProject(File blueJLibDir, File projectDir)
-    {
-        File startupProject = new File(blueJLibDir, "startupProject");
-        if (startupProject.equals(projectDir)) {
-            return true;
-        }
-
-        return false;
-    }
-
     /**
      * Gets the version number of the Greenfoot API for this Greenfoot release.
      */

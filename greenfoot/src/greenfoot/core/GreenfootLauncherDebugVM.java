@@ -85,7 +85,7 @@ public class GreenfootLauncherDebugVM
                     Debug.setDebugStream(new PrintWriter(System.err));
                     
                     GreenfootUtil.initialise(GreenfootUtilDelegateIDE.getInstance());
-                    GreenfootMain.initialize(blueJ, client.getPackage(), shmFilePath, wizard.equals("true"), SourceType.getEnum(sourceTypeName));
+                    GreenfootMain.initialize(blueJ, prjDir, shmFilePath, wizard.equals("true"), SourceType.getEnum(sourceTypeName));
                 }
                 catch (RemoteException re) {
                     re.printStackTrace();
