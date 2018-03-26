@@ -91,6 +91,7 @@ public class MoeSyntaxDocument
      * method)
      */
     private final Map<Integer, ScopeInfo> pendingScopeBackgrounds = new HashMap<>();
+    private final Set<Integer> pendingStyleUpdates = new HashSet<>();
     private boolean applyingScopeBackgrounds = false;
 
     // Can be null if we are not being used for an editor pane:
@@ -625,15 +626,20 @@ public class MoeSyntaxDocument
 
             ScopeInfo newStyle = pending.getValue();
             setParagraphStyle(pending.getKey(), newStyle);
-
-            StyleSpans<ImmutableSet<String>> styleSpans = syntaxView.getTokenStylesFor(pending.getKey(), this);
+        }
+        
+        for (Integer pending : pendingStyleUpdates)
+        {
+            StyleSpans<ImmutableSet<String>> styleSpans = syntaxView.getTokenStylesFor(pending, this);
             // Applying style spans is expensive, so don't do it if they're already correct:
-            if (styleSpans != null && !styleSpans.equals(document.getStyleSpans(pending.getKey())))
+            if (styleSpans != null && !styleSpans.equals(document.getStyleSpans(pending)))
             {
-                document.setStyleSpans(pending.getKey(), 0, document.getStyleSpans(pending.getKey())
+                document.setStyleSpans(pending, 0, document.getStyleSpans(pending)
                         .overlay(styleSpans, MoeSyntaxDocument::setTokenStyles));
             }
         }
+        
+        pendingStyleUpdates.clear();
 
         // The setParagraphStyle causes a layout-request with request-follow-caret.  We have to
         // purge that layout request by executing it, before we restore the scroll Y:
@@ -837,6 +843,13 @@ public class MoeSyntaxDocument
                 }
             }
         }
+        
+        int firstLine = offsetToPosition(offset).getMajor();
+        int lastLine = offsetToPosition(offset + length).getMajor();
+        for (int i = firstLine; i <= lastLine; i++)
+        {
+            pendingStyleUpdates.add(i);
+        }
 
         MoeSyntaxEvent mse = new MoeSyntaxEvent(this, offset, length, true, false);
         if (parsedNode != null) {
@@ -921,6 +934,8 @@ public class MoeSyntaxDocument
                 }
             }
         }
+        
+        pendingStyleUpdates.add(offsetToPosition(offset).getMajor());
 
         MoeSyntaxEvent mse = new MoeSyntaxEvent(this, offset, length, false, true);
         if (parsedNode != null) {
