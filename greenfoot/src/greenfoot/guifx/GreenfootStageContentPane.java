@@ -33,7 +33,7 @@ class GreenfootStageContentPane extends Pane
 {
     private static final int CLASS_DIAGRAM_PADDING = 12;
     private static final int IDEAL_WORLD_PADDING = 30;
-    private final ScrollPane worldViewScroll;
+    private final Pane worldViewScroll;
     private final ScrollPane classDiagramScroll;
     private final Pane controlPanel;
 
@@ -41,7 +41,7 @@ class GreenfootStageContentPane extends Pane
      * Construct a content pane for the three major components: the world view,
      * the class diagram, and the control panel.
      */
-    public GreenfootStageContentPane(ScrollPane worldViewScroll, ScrollPane classDiagramScroll, ControlPanel controlPanel)
+    public GreenfootStageContentPane(Pane worldViewScroll, ScrollPane classDiagramScroll, ControlPanel controlPanel)
     {
         this.worldViewScroll = worldViewScroll;
         this.classDiagramScroll = classDiagramScroll;
