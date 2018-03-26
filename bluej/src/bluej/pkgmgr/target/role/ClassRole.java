@@ -265,7 +265,7 @@ public abstract class ClassRole
         for (int i = first; i < last; i++) {
             try {
                 CallableView m = members[last - i - 1];
-                if (!filter.accept(m))
+                if (!filter.test(m))
                     continue;
                 // Debug.message("createSubMenu - creating MenuItem");
 
@@ -317,7 +317,7 @@ public abstract class ClassRole
         for (int i = first; i < last; i++) {
             try {
                 CallableView m = members[last - i - 1];
-                if (!filter.accept(m))
+                if (!filter.test(m))
                     continue;
                 // Debug.message("createSubMenu - creating MenuItem");
 

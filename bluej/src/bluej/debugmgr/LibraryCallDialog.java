@@ -21,9 +21,7 @@
  */
 package bluej.debugmgr;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import bluej.views.ViewFilter.StaticOrInstance;
@@ -40,7 +38,6 @@ import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldListCell;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -190,11 +187,11 @@ public class LibraryCallDialog extends Dialog<CallableView>
         ConstructorView[] constructors = classView.getConstructors();
 
         filter = new ViewFilter(StaticOrInstance.INSTANCE, pkg.getQualifiedName());
-        Arrays.stream(constructors).filter(filter::accept).forEach(currentViews::add);
+        Arrays.stream(constructors).filter(filter).forEach(currentViews::add);
 
         MethodView[] methods = classView.getAllMethods();
         filter = new ViewFilter(StaticOrInstance.STATIC, pkg.getQualifiedName());
-        Arrays.stream(methods).filter(filter::accept).forEach(currentViews::add);
+        Arrays.stream(methods).filter(filter).forEach(currentViews::add);
 
         textOverlay.setVisible(false);
         methodList.getSelectionModel().clearSelection();
