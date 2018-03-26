@@ -24,7 +24,6 @@ package greenfoot.platforms.ide;
 import bluej.runtime.ExecServer;
 import greenfoot.Actor;
 import greenfoot.World;
-import greenfoot.core.GProject;
 import greenfoot.core.ImageCache;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
@@ -56,8 +55,6 @@ public class WorldHandlerDelegateIDE
     protected final Color envOpColour = new Color(152,32,32);
 
     private WorldHandler worldHandler;
-
-    private GProject project;
     
     private GreenfootFrame frame;
     
@@ -94,15 +91,6 @@ public class WorldHandlerDelegateIDE
             discardWorld(oldWorld);
         }
     }
-    
-    /**
-     * Attach to a particular project. This should be called whenever the project
-     * changes.
-     */
-    public void attachProject(Object project)
-    {
-        this.project = (GProject) project;
-    }
 
     @Override
     public void setWorldHandler(WorldHandler handler)
@@ -120,10 +108,6 @@ public class WorldHandlerDelegateIDE
     @Override
     public void instantiateNewWorld(String className)
     {
-        if (project == null) {
-            return;
-        }
-        
         // If not-null, store it as the most recent, ready to be used by getLastWorldClass
         if (className != null)
         {

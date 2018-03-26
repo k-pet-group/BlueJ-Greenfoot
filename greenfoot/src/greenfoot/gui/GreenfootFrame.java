@@ -33,9 +33,9 @@ import bluej.utility.Utility;
 import com.apple.eawt.Application;
 import greenfoot.World;
 import greenfoot.actions.*;
-import greenfoot.core.GProject;
 import greenfoot.core.GreenfootMain;
 import greenfoot.core.ProjectProperties;
+import greenfoot.core.ReadOnlyProjectProperties;
 import greenfoot.core.ShadowProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
@@ -81,8 +81,6 @@ public class GreenfootFrame extends JFrame
     private static final int accelModifier = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     private static final int shiftAccelModifier = accelModifier | InputEvent.SHIFT_MASK;
 
-    private GProject project;
-        
     private WorldCanvas worldCanvas;
     private WorldHandler worldHandler;
     private WorldHandlerDelegateIDE worldHandlerDelegate;
@@ -96,12 +94,8 @@ public class GreenfootFrame extends JFrame
     private JPanel messagePanel;
     private JLabel messageLabel;
     private JLabel messageLabel2;
-    private JButton tooLongRestartButton;
     private CardLayout card;
     private DBox worldBox;
-    
-    private SaveProjectAction saveProjectAction;
-    private ShowReadMeAction showReadMeAction;
     
     /**
      * Specifies whether a compilation operation is in progress
@@ -146,9 +140,9 @@ public class GreenfootFrame extends JFrame
     private AskPanel askPanel;
     private AskHandler askHandler;
     
-    public static GreenfootFrame getGreenfootFrame(final RBlueJ blueJ, GProject project, String shmFilePath)
+    public static GreenfootFrame getGreenfootFrame(final RBlueJ blueJ, ShadowProjectProperties projectProperties, String shmFilePath)
     {
-        instance = new GreenfootFrame(blueJ, project, shmFilePath);
+        instance = new GreenfootFrame(blueJ, projectProperties, shmFilePath);
         return instance;
     }
     
@@ -156,7 +150,7 @@ public class GreenfootFrame extends JFrame
      * Creates a new top level frame with all the GUI components.
      * @param classStateManager 
      */
-    private GreenfootFrame(RBlueJ blueJ, GProject project, String shmFilePath)
+    private GreenfootFrame(RBlueJ blueJ, ShadowProjectProperties projectProperties, String shmFilePath)
         throws HeadlessException
     {
         super("Greenfoot");
@@ -167,54 +161,10 @@ public class GreenfootFrame extends JFrame
             setIconImage(icon);
         }
 
-        makeFrame(project, shmFilePath);
-        
-        restoreFrameState();
+        makeFrame(projectProperties, shmFilePath);
 
         prepareMacOSApp();
     }
-    
-    /**
-     * Restore the current main window size from the project properties.
-     */
-    private void restoreFrameState()
-    {
-        if (project == null) {
-            // We don't have a project yet: just use default size
-            setBounds(40, 40, 850, 600);
-            setResizeWhenPossible(true);
-            return;
-        }
-        
-        ProjectProperties projectProperties = project.getProjectProperties();
-
-        try {            
-            int x = projectProperties.getInt("mainWindow.x");
-            int y = projectProperties.getInt("mainWindow.y");
-
-            int width = projectProperties.getInt("mainWindow.width");
-            int height = projectProperties.getInt("mainWindow.height");
-            
-            Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-            
-            if (x > (d.width - 50)) {
-                x = d.width - 50;
-            }
-
-            if (y > (d.height - 50)) {
-                y = d.height - 50;
-            }
-
-            setBounds(x, y, width, height);
-            setResizeWhenPossible(false);
-        } 
-        catch (NumberFormatException ecx) {
-            // doesn't matter - just use some default size
-            setBounds(40, 40, 850, 600);
-            setResizeWhenPossible(true);
-        }
-    }
-
     
     /**
      * Prepare MacOS specific behaviour (About menu, Preferences menu, Quit menu)
@@ -232,20 +182,14 @@ public class GreenfootFrame extends JFrame
     /**
      * Open a given project into this frame.
      */
-    public void openProject(final GProject project)
+    public void openProject(final ShadowProjectProperties props)
     {
         if (isClosedProject) {
-            this.project = project;
-            worldHandlerDelegate.attachProject(project);
-            project.addCompileListener(this);
-            setTitle("Greenfoot: " + project.getName());
             enableProjectActions();
 
             worldCanvas.setVisible(false);
-            restoreFrameState();
 
             try {
-                ProjectProperties props = project.getProjectProperties();
                 int initialSpeed = props.getInt("simulation.speed");
                 Simulation.getInstance().setSpeed(initialSpeed);
             }
@@ -260,31 +204,21 @@ public class GreenfootFrame extends JFrame
             isClosedProject = false;
             
             Simulation.getInstance().setPaused(true);
-            wasRestarted = project.isVmRestarted();
         }
         updateBackgroundMessage();
     }
 
     /**
-     * Get the project showing in this frame. If this frame is empty,
-     * will return null.
-     */
-    public GProject getProject()
-    {
-        return project;
-    }
-    
-    /**
      * Create the GUI components for this project in the top level frame.
      * This includes opening the project and displaying the project classes.
      * @param classStateManager 
      */
-    private void makeFrame(GProject project, String shmFilePath)
+    private void makeFrame(ShadowProjectProperties projectProperties, String shmFilePath)
     {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         // Some first-time initializations
-        worldCanvas = new WorldCanvas(project.getProjectProperties(), shmFilePath);
+        worldCanvas = new WorldCanvas(projectProperties, shmFilePath);
         worldCanvas.setWorldSize(200, 100);
         worldCanvas.setVisible(false);
         
@@ -295,7 +229,6 @@ public class GreenfootFrame extends JFrame
         Simulation.initialize();
         Simulation sim = Simulation.getInstance();
         
-        setupActions();
         setJMenuBar(buildMenu());
 
         // build the centre panel. this includes the world and the controls
@@ -358,26 +291,6 @@ public class GreenfootFrame extends JFrame
         messageLabel2.setFont(msgFont);
         subPanel.add(messageLabel2);
         subPanel.add(Box.createVerticalStrut(15));
-        tooLongRestartButton = new JButton(Config.getString("centrePanel.restartButton.label"));
-        tooLongRestartButton.setVisible(false);
-        tooLongRestartButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        tooLongRestartButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                try {
-                    project.getRProject().setVmRestarted(true);
-                    project.getRProject().restartVM();
-                }
-                catch (RemoteException e1) {
-                    Debug.reportError(e1);
-                }
-                catch (ProjectNotOpenException e1) {
-                    Debug.reportError(e1);
-                }                
-            }
-        });
-        subPanel.add(tooLongRestartButton);
         messagePanel.add(subPanel);
         
         JScrollPane worldScrollPane = new JScrollPane(worldCanvas);
@@ -480,7 +393,7 @@ public class GreenfootFrame extends JFrame
         // Important to open the project before attaching world handler
         // as the latter begins simulation thread, and we want to have
         // the world handler delegate setup (done in openProject) before then:
-        openProject(project);
+        openProject(projectProperties);
         sim.attachWorldHandler(worldHandler);
     }
 
@@ -536,12 +449,6 @@ public class GreenfootFrame extends JFrame
         dim.setSize(dim.width + WORLD_MARGIN, dim.height + WORLD_MARGIN);
         return dim;
     }
-
-    private void setupActions()
-    {
-        saveProjectAction = new SaveProjectAction(this);
-        showReadMeAction = new ShowReadMeAction(this);
-    }
     
     /**
      * Build the menu bar.
@@ -555,10 +462,6 @@ public class GreenfootFrame extends JFrame
 
         recentProjectsMenu = new JMenu(Config.getString("menu.openRecent"));
         scenarioMenu.add(recentProjectsMenu);
-        
-        addMenuItem(saveProjectAction, scenarioMenu, KeyEvent.VK_S, false, KeyEvent.VK_S);
-        scenarioMenu.addSeparator();
-        addMenuItem(showReadMeAction, scenarioMenu, -1, false, -1);
         
         return menuBar;
     }
@@ -601,10 +504,7 @@ public class GreenfootFrame extends JFrame
      */
     private void enableProjectActions() 
     {
-        boolean state = (project != null);
-    
-        saveProjectAction.setEnabled(state);
-        showReadMeAction.setEnabled(state);
+        boolean state = true;
 
         // Disable simulation buttons
         if (state == false) {
@@ -706,7 +606,9 @@ public class GreenfootFrame extends JFrame
             card.show(worldBox, "worldPanel");
         }
         else if(!isCompiling){
-            if (project == null) {
+            // Commented out code now invalid, but when doing GREENFOOT-662, convert
+            // the commented-out part:
+            if (false /*project == null*/) {
                 message = Config.getString("centrePanel.message.openScenario");
             }
             else {
@@ -727,7 +629,6 @@ public class GreenfootFrame extends JFrame
                 }
                 */
 
-                tooLongRestartButton.setVisible(false);
                 if (noWorldClassFound) {
                     message = Config.getString("centrePanel.message.createWorldClass");
                 }
