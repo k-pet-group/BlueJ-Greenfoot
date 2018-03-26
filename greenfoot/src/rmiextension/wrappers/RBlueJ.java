@@ -26,7 +26,6 @@ import java.rmi.RemoteException;
 import java.util.Properties;
 
 import rmiextension.wrappers.event.RApplicationListener;
-import rmiextension.wrappers.event.RClassListener;
 import rmiextension.wrappers.event.RCompileListener;
 
 /**
@@ -44,12 +43,6 @@ public interface RBlueJ
     public void addCompileListener(RCompileListener listener, File projectPath)
         throws RemoteException;
 
-    /**
-     * Register a remote class event listener
-     */
-    public void addClassListener(RClassListener listener)
-        throws RemoteException;
-    
     /**
      * Get a BlueJ property value
      */
@@ -84,12 +77,6 @@ public interface RBlueJ
      * @param listener  The listener to remove
      */
     public void removeCompileListener(RCompileListener listener)
-        throws RemoteException;
-
-    /**
-     * De-register a remote class event listener.
-     */
-    public void removeClassListener(RClassListener listener)
         throws RemoteException;
 
     /**

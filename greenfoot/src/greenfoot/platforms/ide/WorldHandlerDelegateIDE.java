@@ -24,8 +24,6 @@ package greenfoot.platforms.ide;
 import bluej.runtime.ExecServer;
 import greenfoot.Actor;
 import greenfoot.World;
-import greenfoot.core.ClassStateManager;
-import greenfoot.core.GClass;
 import greenfoot.core.GProject;
 import greenfoot.core.ImageCache;
 import greenfoot.core.Simulation;
@@ -69,8 +67,7 @@ public class WorldHandlerDelegateIDE
     private final List<Actor> actorsToName = new ArrayList<>();
     private String mostRecentlyInstantiatedWorldClassName;
 
-    public WorldHandlerDelegateIDE(GreenfootFrame frame,
-            ClassStateManager classStateManager)
+    public WorldHandlerDelegateIDE(GreenfootFrame frame)
     {
         this.frame = frame;
     }

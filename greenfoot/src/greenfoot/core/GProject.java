@@ -267,31 +267,7 @@ public class GProject extends RProjectListenerImpl
             throw new InternalGreenfootError(re);
         }
     }
-    
-    /**
-     * Checks whether every class in this project is compiled.
-     * Do not call from a remote callback (except for a compilation event callback).
-     * 
-     * @return True is all classes are compiled, false otherwise
-     */
-    public boolean isCompiled()
-    {
-        try {
-            GClass[] classes = getDefaultPackage().getClasses(false);
-            for (int i = 0; i < classes.length; i++) {
-                GClass cls = classes[i];
-                if(!cls.isCompiled())  {
-                    return false;
-                }
-            }
-        }
-        catch (Exception e) {
-            Debug.reportError("Checking class compiled state", e);
-            throw new InternalGreenfootError(e);
-        }
-        return true;
-    }
-    
+        
     public void addCompileListener(CompileListener listener)
     {
         synchronized (compileListeners) {
@@ -309,9 +285,7 @@ public class GProject extends RProjectListenerImpl
     
     @Override
     public void compileFailed(RCompileEvent event)
-    {
-        reloadClasses();
-        
+    {        
         delegateCompileEvent(event);
     }
     
@@ -324,8 +298,6 @@ public class GProject extends RProjectListenerImpl
     @Override
     public void compileSucceeded(RCompileEvent event)
     {
-        reloadClasses();
-        
         delegateCompileEvent(event);
     }
     
@@ -336,21 +308,7 @@ public class GProject extends RProjectListenerImpl
     }
     
     // ----------- End of CompileListener interface ------
-    
-    /**
-     * Reload all classes. Do not call from a remote callback.
-     * (Note that this is called from compile events, which technically are remote callbacks,
-     *  but they are executed asynchronously).
-     */
-    private void reloadClasses()
-    {
-        GPackage pkg = getDefaultPackage();  
-        GClass[] classes = pkg.getClasses(true);
-        for (GClass cls : classes) {
-            cls.reload();
-        }
-    }
-    
+        
     private void delegateCompileEvent(RCompileEvent event)
     {
         synchronized (compileListeners) {
