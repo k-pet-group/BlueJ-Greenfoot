@@ -41,7 +41,6 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
 import bluej.parser.entity.EntityResolver;
-import bluej.parser.nodes.NodeStructureListener;
 import bluej.parser.nodes.NodeTree;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
@@ -432,11 +431,9 @@ public class MoeSyntaxDocument
             parsedNode = new ParsedCUNode(this);
             parsedNode.setParentResolver(parentResolver);
             reparseRecordTree = new NodeTree<ReparseRecord>();
-            parsedNode.textInserted(this, 0, 0, getLength(), new NodeStructureListener() {
-                public void nodeRemoved(NodeAndPosition<ParsedNode> node) { }
-                public void nodeChangedLength(NodeAndPosition<ParsedNode> node,
-                        int oldPos, int oldSize) { }
-            });
+            parsedNode.textInserted(this, 0, 0, getLength(),
+                    new MoeSyntaxEvent(this, 0, getLength(), true, false));
+            // We can discard the MoeSyntaxEvent: the reparse will update scopes/syntax
         }
     }
 
@@ -716,7 +713,7 @@ public class MoeSyntaxDocument
      */
     public void markSectionParsed(int pos, int size)
     {
-        repaintLines(pos, size);
+        repaintLines(pos, size, true);
 
         NodeAndPosition<ReparseRecord> existing = reparseRecordTree.findNodeAtOrAfter(pos);
         while (existing != null && existing.getPosition() <= pos) {
@@ -977,9 +974,34 @@ public class MoeSyntaxDocument
      */
     public void repaintLines(int offset, int length)
     {
+        repaintLines(offset, length, false);
+    }
+    
+    /**
+     * Notify that a certain area of the document needs repainting (re-drawing of scope background
+     * and optionally syntax).
+     * 
+     * @param offset   the offset of the region to be repainted
+     * @param length   the length of the region to be repainted
+     * @param reStyle  true if the syntax highlighting should be adjusted 
+     */
+    public void repaintLines(int offset, int length, boolean reStyle)
+    {
         int startLine = offsetToPosition(offset).getMajor();
         int endLine = offsetToPosition(offset + length).getMajor();
         recalculateScopesForLinesInRange(startLine, endLine);
+        restyleLines(startLine, endLine);
+    }
+    
+    /**
+     * Mark all lines between start and end (inclusive) as needing to be re-styled.
+     */
+    public void restyleLines(int start, int end)
+    {
+        for (int i = start; i <= end; i++)
+        {
+            pendingStyleUpdates.add(i);
+        }
     }
 
     public int getLength()
