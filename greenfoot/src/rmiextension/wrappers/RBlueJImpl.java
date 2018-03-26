@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2013,2014,2015,2016,2017  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2013,2014,2015,2016,2017,2018  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,8 +37,6 @@ import bluej.utility.Debug;
 import bluej.utility.Utility;
 import javafx.application.Platform;
 import rmiextension.wrappers.event.RApplicationListener;
-import rmiextension.wrappers.event.RCompileListener;
-import rmiextension.wrappers.event.RCompileListenerWrapper;
 
 import java.awt.*;
 import java.io.File;
@@ -61,11 +59,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
 {
     BlueJ blueJ;
 
-    // These maps are implemented as instances Hashtable rather than HashMap, so they
-    // do not require external synchronization.
-    private Map<RCompileListener,RCompileListenerWrapper> compileListeners =
-        new Hashtable<RCompileListener,RCompileListenerWrapper>();
-    
     public RBlueJImpl(BlueJ blueJ)
         throws RemoteException
     {
@@ -96,45 +89,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     }
     
     /*
-     * @see rmiextension.wrappers.RBlueJ#addCompileListener(rmiextension.wrappers.event.RCompileListener, java.lang.String)
-     */
-    public void addCompileListener(RCompileListener listener, final File projectPath)
-    {
-        final BProjectRef bProjectRef = new BProjectRef();
-        
-        try {
-            EventQueue.invokeAndWait(new Runnable() {
-                @Override
-                public void run()
-                {
-                    BProject[] projects = blueJ.getOpenProjects();
-                    BProject project = null;
-                    for (int i = 0; i < projects.length; i++) {
-                        BProject prj = projects[i];
-                        try {
-                            if(prj.getDir().equals(projectPath)) {
-                                project = prj;
-                            }
-                        }
-                        catch (ProjectNotOpenException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    bProjectRef.bProject = project;
-                }
-            });
-        }
-        catch (InterruptedException e1) { }
-        catch (InvocationTargetException e1) {
-            throw new Error(e1);
-        }
-        
-        RCompileListenerWrapper wrapper = new RCompileListenerWrapper(listener, bProjectRef.bProject, this);
-        compileListeners.put(listener, wrapper);
-        blueJ.addCompileListener(wrapper);
-    }
-    
-    /*
      * @see rmiextension.wrappers.RBlueJ#getBlueJPropertyString(java.lang.String, java.lang.String)
      */
     public String getBlueJPropertyString(String property, String def)
@@ -158,15 +112,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         File f = blueJ.getSystemLibDir();
         //The getAbsoluteFile() fixes a weird bug on win using jdk1.4.2_06
         return f.getAbsoluteFile();
-    }
-    
-    /*
-     * @see rmiextension.wrappers.RBlueJ#removeCompileListener(rmiextension.wrappers.event.RCompileListener)
-     */
-    public void removeCompileListener(RCompileListener listener)
-    {
-        RCompileListenerWrapper wrapper = compileListeners.remove(listener);
-        blueJ.removeCompileListener(wrapper);
     }
 
     /*
