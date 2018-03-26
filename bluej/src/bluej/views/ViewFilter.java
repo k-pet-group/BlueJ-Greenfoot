@@ -56,6 +56,7 @@ public final class ViewFilter implements Predicate<MemberView>
     }
     
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public boolean test(MemberView member)
     {
         boolean wantStatic = staticOrInstance == StaticOrInstance.STATIC;
