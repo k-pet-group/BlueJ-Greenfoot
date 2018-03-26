@@ -45,7 +45,6 @@ import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 import greenfoot.record.GreenfootRecorder;
 import greenfoot.util.DebugUtil;
 import javafx.application.Platform;
-import rmiextension.wrappers.WrapperPool;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerEvent;
