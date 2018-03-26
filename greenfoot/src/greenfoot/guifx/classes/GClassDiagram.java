@@ -30,6 +30,9 @@ import bluej.pkgmgr.target.Target;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
+import bluej.views.View;
+import bluej.views.ViewFilter;
+import bluej.views.ViewFilter.StaticOrInstance;
 import greenfoot.guifx.GreenfootStage;
 import javafx.beans.binding.ObjectExpression;
 import javafx.geometry.Insets;
@@ -80,6 +83,50 @@ public class GClassDiagram extends BorderPane implements ClassIconFetcher
             }
         }
         return null;
+    }
+
+    /**
+     * Is there a user-made World subclass (i.e. excluding World itself)?
+     */
+    public boolean hasUserWorld()
+    {
+        // There's no Stream.nonEmpty method or similar, so use findFirst().isPresent(): 
+        return worldClasses.streamAllClasses()
+            .filter(c -> !c.getQualifiedName().equals("greenfoot.World"))
+            .findFirst().isPresent();
+    }
+
+    /**
+     * Is there a World subclass that we could instantiate using a package-visible
+     * no-args constructor?
+     */
+    public boolean hasInstantiatableWorld()
+    {
+        // We don't need to bother explicitly excluding World as it is abstract:
+        return worldClasses.streamAllClasses().anyMatch(c -> {
+            Target t = project.getTarget(c.getQualifiedName());
+            if (t instanceof ClassTarget)
+            {
+                Class<?> cl = project.loadClass(((ClassTarget)t).getQualifiedName());
+                if (cl == null)
+                {
+                    // Can't load class, so rule it out:
+                    return false;
+                }
+                View view = View.getView(cl);
+
+                // Needs to be non-abstract to instantiate:
+                if (!java.lang.reflect.Modifier.isAbstract(cl.getModifiers()))
+                {
+                    ViewFilter filter = new ViewFilter(StaticOrInstance.INSTANCE, "");
+                    // Look for a visible constructor with no parameters:
+                    return Arrays.stream(view.getConstructors())
+                            .filter(filter)
+                            .anyMatch(cv -> !cv.hasParameters());
+                }
+            }
+            return false;
+        });
     }
 
     public static enum GClassType { ACTOR, WORLD, OTHER }

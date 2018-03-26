@@ -391,12 +391,29 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             {
                 message = Config.getString("centrePanel.message.openScenario");
             }
+            else if (stateProperty.get() == State.PAUSED)
+            {
+                // If we are paused, but no world is visible, the user either
+                // needs to instantiate a world (if they have one) or create a world class
+                if (classDiagram.hasInstantiatableWorld())
+                {
+                    message = Config.getString("centrePanel.message.createWorldObject");
+                }
+                else if (classDiagram.hasUserWorld())
+                {
+                    message = Config.getString("centrePanel.message.missingWorldConstructor1") + " " + Config.getString("centrePanel.message.missingWorldConstructor2");
+                }
+                else
+                {
+                    message = Config.getString("centrePanel.message.createWorldClass");
+                }
+            }
             else
             {
                 message = "";
             }
         }
-        backgroundMessage.setText(message);
+        backgroundMessage.setText(stateProperty.get() + message);
     }
 
     /**
