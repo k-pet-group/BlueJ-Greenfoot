@@ -557,8 +557,13 @@ public class BlueJSyntaxView
             }
 
             drawScopes(fullWidth, scope, document, lines, prevScopeStack, onlyMethods, 0);
-            if (! scope.equals(document.getDocument().getParagraphStyle(curLine))) {
+            if (! scope.equals(document.getDocument().getParagraphStyle(curLine)))
+            {
                 pendingScopes.put(curLine, scope);
+            }
+            else
+            {
+                pendingScopes.remove(curLine);
             }
             
             // Next line
