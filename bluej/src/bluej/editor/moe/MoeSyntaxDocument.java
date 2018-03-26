@@ -597,10 +597,10 @@ public class MoeSyntaxDocument
             return;
         }
         
-        MoeEditorPane editorPane = syntaxView.getEditorPane();
+        MoeEditorPane editorPane = (syntaxView != null) ? syntaxView.getEditorPane() : null;
             
         // No point doing scopes (in fact, not possible) if there's no editor involved:
-        if (syntaxView == null || editorPane == null)
+        if (editorPane == null)
         {
             return;
         }
