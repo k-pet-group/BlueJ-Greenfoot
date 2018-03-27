@@ -24,7 +24,6 @@ package greenfoot.guifx.export;
 import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.util.GreenfootUtil;
 
-import java.io.File;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
@@ -128,7 +127,6 @@ public class ImageEditPane extends HBox
         bigLabel = new ImageView(image);
         bigLabel.setScaleX(15);
         smallLabel = new ImageView(image);
-        zoomSlider.setScaleY(10);
         adjustSlider();
         JavaFXUtil.addChangeListener(zoomSlider.valueProperty(),
                 scale -> imageCanvas.setScale(scale.doubleValue() / 100));
