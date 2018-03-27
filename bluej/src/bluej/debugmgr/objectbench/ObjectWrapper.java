@@ -516,7 +516,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         Arrays.sort(methods);
         for (MethodView method : methods) {
             try {
-                if (!filter.accept(method))
+                if (!filter.test(method))
                     continue;
 
                 menuEmpty = false;

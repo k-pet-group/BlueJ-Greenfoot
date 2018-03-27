@@ -25,6 +25,7 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.lang.reflect.Modifier;
+import java.util.function.Predicate;
 
 /**
  * A View Filter specifying whether, for a given method,
@@ -33,7 +34,7 @@ import java.lang.reflect.Modifier;
  * vs package-private&protected&public.
  */
 @OnThread(Tag.FXPlatform)
-public final class ViewFilter
+public final class ViewFilter implements Predicate<MemberView>
 {
     public static enum StaticOrInstance { STATIC, INSTANCE; }
     
@@ -54,7 +55,9 @@ public final class ViewFilter
         this.callingPackage = callingPackage;
     }
     
-    public boolean accept(MemberView member)
+    @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+    public boolean test(MemberView member)
     {
         boolean wantStatic = staticOrInstance == StaticOrInstance.STATIC;
         boolean isStatic = member.isStatic();

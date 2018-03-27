@@ -111,6 +111,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -152,7 +154,13 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private ContextMenu contextMenu;
     // Last mouse position, in scene coordinates:
     private Point2D lastMousePosInScene = new Point2D(0, 0);
-    
+
+    // The message shown behind the world (blank content if none): 
+    private final Text backgroundMessage;
+    // A property tracking whether the world is visible (if false, there should be 
+    // a background message set in backgroundMessage)
+    private final BooleanProperty worldVisible = new SimpleBooleanProperty(false);
+
     // The last speed value set by the user altering it in interface (rather than programmatically):
     private int lastUserSetSpeed;
     // Used to stop an infinite loop if we set the speed slider in response to a programmatic change: 
@@ -262,10 +270,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         executionTwirler = new ExecutionTwirler(project, greenfootDebugHandler);
         controlPanel = new ControlPanel(this, executionTwirler);
 
+        backgroundMessage = new Text();
+        
         worldDisplay = new WorldDisplay();
         
         classDiagram = new GClassDiagram(this);
-        project.setClassIconFetcherDelegate(classDiagram);
         ScrollPane classDiagramScroll = new UnfocusableScrollPane(classDiagram);
         JavaFXUtil.expandScrollPaneContent(classDiagramScroll);
         classDiagramScroll.getStyleClass().add("gclass-diagram-scroll");
@@ -275,7 +284,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         ScrollPane worldViewScroll = new UnfocusableScrollPane(worldDisplay);
         worldViewScroll.getStyleClass().add("world-display-scroll");
         JavaFXUtil.expandScrollPaneContent(worldViewScroll);
-        BorderPane root = new BorderPane(new GreenfootStageContentPane(worldViewScroll, classDiagramScroll, controlPanel), makeMenu(), null, null, null);
+        worldViewScroll.visibleProperty().bind(worldVisible);
+        StackPane worldPane = new StackPane(new TextFlow(backgroundMessage), worldViewScroll);
+        GreenfootStageContentPane contentPane = new GreenfootStageContentPane(worldPane, classDiagramScroll, controlPanel);
+        BorderPane root = new BorderPane(contentPane, makeMenu(), null, null, null);
         glassPane = new Pane();
         glassPane.setMouseTransparent(true);
         StackPane stackPane = new StackPane(root, glassPane);
@@ -288,6 +300,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         if (project != null) {
             showProject(project, greenfootDebugHandler);
         }
+        // Do this whether we have a project or not:
+        updateBackgroundMessage();
                 
         setOnCloseRequest((e) -> {
             doClose(false);
@@ -342,6 +356,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         greenfootDebugHandler.setPickListener(this::pickResults);
         greenfootDebugHandler.setSimulationListener(this);
         greenfootDebugHandler.setGreenfootRecorder(saveTheWorldRecorder);
+        project.setClassIconFetcherDelegate(classDiagram);
         showingDebugger.bindBidirectional(project.debuggerShowing());
         
         classDiagram.setProject(project);
@@ -360,6 +375,47 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         currentWorld = lastInstantiatedWorldName != null
                 ? (ClassTarget) project.getTarget(lastInstantiatedWorldName)
                 : null;
+        
+        JavaFXUtil.addChangeListenerPlatform(worldVisible, b -> updateBackgroundMessage());
+    }
+
+    private void updateBackgroundMessage()
+    {
+        final String message;
+        if (worldVisible.get()) // TODO or is compiling
+        {
+            message = "";
+        }
+        else
+        {
+            if (stateProperty.get() == State.NO_PROJECT)
+            {
+                message = Config.getString("centrePanel.message.openScenario");
+            }
+            else if (stateProperty.get() == State.PAUSED)
+            {
+                // If we are paused, but no world is visible, the user either
+                // needs to instantiate a world (if they have one) or create a world class
+                if (classDiagram.hasInstantiatableWorld())
+                {
+                    message = Config.getString("centrePanel.message.createWorldObject");
+                }
+                else if (classDiagram.hasUserWorld())
+                {
+                    message = Config.getString("centrePanel.message.missingWorldConstructor1")
+                        + " " + Config.getString("centrePanel.message.missingWorldConstructor2");
+                }
+                else
+                {
+                    message = Config.getString("centrePanel.message.createWorldClass");
+                }
+            }
+            else
+            {
+                message = "";
+            }
+        }
+        backgroundMessage.setText(stateProperty.get() + message);
     }
 
     /**
@@ -540,7 +596,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         }
         hasNoProject.set(true);
         worldDisplay.setImage(null);
+        worldVisible.set(false);
         classDiagram.setProject(null);
+        // Setting the state will update background message:
         stateProperty.set(State.NO_PROJECT);
     }
 
@@ -885,6 +943,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private void updateGUIState(State newState)
     {
         controlPanel.updateState(newState, atBreakpoint);
+        updateBackgroundMessage();
     }
 
     /**
@@ -1122,6 +1181,12 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     public void receivedWorldImage(int width, int height, MappedByteBuffer buffer)
     {
+        // If we are closing a project but receive an image late on, ignore it:
+        if (project == null)
+        {
+            return;
+        }
+        
         if (worldImg == null || worldImg.getWidth() != width || worldImg.getHeight() != height)
         {
             worldImg = new WritableImage(width == 0 ? 1 : width, height == 0 ? 1 : height);
@@ -1132,6 +1197,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         worldImg.getPixelWriter().setPixels(0, 0, width, height, PixelFormat.getByteBgraPreInstance(),
                 buffer, width * 4);
         worldDisplay.setImage(worldImg);
+        worldVisible.set(true);
     }
     
     /**
@@ -1455,7 +1521,13 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     @OnThread(Tag.Any)
     public void simulationPaused()
     {
-        Platform.runLater(() -> stateProperty.set(State.PAUSED));
+        Platform.runLater(() -> {
+            // We can see this message when closing a project, in which case we want to ignore it:
+            if (project != null)
+            {
+                stateProperty.set(State.PAUSED);
+            }
+        });
     }
 
     @Override
