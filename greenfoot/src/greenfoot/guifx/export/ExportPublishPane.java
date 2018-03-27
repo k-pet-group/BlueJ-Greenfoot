@@ -49,20 +49,13 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
 import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 
 import org.apache.http.conn.ConnectTimeoutException;
 import threadchecker.OnThread;
@@ -82,9 +75,6 @@ public class ExportPublishPane extends ExportPane
     public static final int IMAGE_WIDTH = 120;
     public static final int IMAGE_HEIGHT = 70;
 
-    //TODO convert the numbers to JAVAFX color ranges and move them to CSS files.
-    // private static final Color background = new Color(166, 188, 202, 1);
-    // private static final Color headingColor = new Color(40, 75, 125, 1);
     private static final String serverURL = ensureTrailingSlash(
             Config.getPropString("greenfoot.gameserver.address", "http://www.greenfoot.org/"));
     private static final String createAccountUrl =
@@ -115,7 +105,6 @@ public class ExportPublishPane extends ExportPane
     private String publishedUserName;
 
     private ExistingScenarioChecker scenarioChecker;
-    private Font font;
     private boolean isUpdate = false;
     private final ExportDialog exportDialog;
 
@@ -130,7 +119,10 @@ public class ExportPublishPane extends ExportPane
         super();
         this.project = project;
         this.exportDialog = exportDialog;
+
         buildContentPane();
+        applySharedStyle();
+        getContent().getStyleClass().add("export-publish-pane");
     }
 
     /**
@@ -274,26 +266,16 @@ public class ExportPublishPane extends ExportPane
      */
     private void buildContentPane()
     {
-        //TODO make it Italic and 11 point.
-        font = new Label().getFont();//.deriveFont(Font.ITALIC, 11.0f);
-
         Label publishInfoLabel = new Label(Config.getString("export.publish.info") + " " + serverName);
         publishInfoLabel.setAlignment(Pos.CENTER);
         BorderPane.setAlignment(publishInfoLabel, Pos.CENTER);
-        // publishInfoLabel.setForeground(headingColor);
 
         createScenarioDisplay();
 
         infoPanel = new BorderPane(scenarioPane, publishInfoLabel, getTagDisplay(), null, null);
-        // infoPanel.setAlignmentX(LEFT_ALIGNMENT);
-        // infoPanel.setBackground(background);
-        // infoPanel.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLoweredBevelBorder(),
-        //                          BorderFactory.createEmptyBorder(12, 22, 12, 22)));
+        infoPanel.getStyleClass().add("info-pane");
 
-        VBox content = new VBox(20, getHelpBox(), infoPanel, getLoginPanel());
-        content.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-                CornerRadii.EMPTY, BorderWidths.DEFAULT)));
-        setContent(content);
+        setContent(new VBox(getHelpBox(), infoPanel, getLoginPanel()));
     }
     
     /**
@@ -303,11 +285,10 @@ public class ExportPublishPane extends ExportPane
     private Pane getLoginPanel()
     {
         Label loginLabel = new Label(Config.getString("export.publish.login"));
-        // loginLabel.setForeground(headingColor);
+        loginLabel.getStyleClass().add("login-Label");
         loginLabel.setAlignment(Pos.BOTTOM_LEFT);
 
         Label usernameLabel = new Label(Config.getString("export.publish.username"));
-        usernameLabel.setFont(font);
 
         userNameField = new TextField();
         userNameField.setPrefColumnCount(10);
@@ -321,19 +302,18 @@ public class ExportPublishPane extends ExportPane
             }
         });
         Label passwordLabel = new Label(Config.getString("export.publish.password"));
-        passwordLabel.setFont(font);
         passwordField = new PasswordField();
         passwordField.setPrefColumnCount(10);
 
         Hyperlink createAccountLabel = new Hyperlink(Config.getString("export.publish.createAccount"));
-        // createAccountLabel.setBackground(background);
         createAccountLabel.setAlignment(Pos.BOTTOM_LEFT);
         createAccountLabel.setOnAction(event -> Utility.openWebBrowser(createAccountUrl));
 
-        HBox loginPanel = new HBox(10, loginLabel,
+        HBox loginPanel = new HBox(loginLabel,
                 usernameLabel, userNameField,
                 passwordLabel, passwordField,
                 createAccountLabel);
+        loginPanel.getStyleClass().add("login-pane");
         loginPanel.setAlignment(Pos.BASELINE_CENTER);
         return loginPanel;
     }
@@ -625,10 +605,8 @@ public class ExportPublishPane extends ExportPane
 
         Label image1Label = new Label(Config.getString("export.publish.image1"));
         image1Label.setAlignment(Pos.BASELINE_RIGHT);
-        image1Label.setFont(font);
         Label image2Label = new Label(Config.getString("export.publish.image2"));
         image2Label.setAlignment(Pos.BASELINE_RIGHT);
-        image2Label.setFont(font);
         Pane textPanel = new VBox(image1Label, image2Label);
 
         imagePanel = new ImageEditPane(IMAGE_WIDTH, IMAGE_HEIGHT);
@@ -637,7 +615,6 @@ public class ExportPublishPane extends ExportPane
         if (isUpdate)
         {
             Label snapshotLabel = new Label(Config.getString("export.snapshot.label"));
-            snapshotLabel.setFont(font);
             keepScenarioScreenshot = new CheckBox(Config.getString("export.publish.keepScenario"));
             keepScenarioScreenshot.setSelected(true);
             // "keep screenshot" defaults to true, therefore the image panel should be disabled
@@ -648,9 +625,7 @@ public class ExportPublishPane extends ExportPane
         }
 
         Label titleLabel = new Label(Config.getString("export.publish.title"));
-        titleLabel.setFont(font);
 
-        
         titleField = new TextField(getTitle() != null ? getTitle() : project.getProjectName());
         // TODO check that the share button is disabled if the titleField is empty
         // titleField.setInputVerifier(titleField.getText().length() > 0);
@@ -668,8 +643,7 @@ public class ExportPublishPane extends ExportPane
         {
             Label updateLabel = new Label(Config.getString("export.publish.update"));
             updateLabel.setAlignment(Pos.TOP_LEFT);
-            updateLabel.setFont(font);
-         
+
             updateArea = new TextArea();
             updateArea.setPrefRowCount(6);
             updateArea.setWrapText(true);
@@ -682,13 +656,11 @@ public class ExportPublishPane extends ExportPane
         else
         {
             Label shortDescriptionLabel = new Label(Config.getString("export.publish.shortDescription"));
-            shortDescriptionLabel.setFont(font);
             shortDescriptionField = new TextField();
             titleAndDescPanel.addRow(currentRow++, shortDescriptionLabel, shortDescriptionField);
             shortDescriptionLabel = new Label(Config.getString("export.publish.longDescription"));
             shortDescriptionLabel.setAlignment(Pos.TOP_LEFT);
-            shortDescriptionLabel.setFont(font);
-            
+
             descriptionArea = new TextArea();
             descriptionArea.setPrefRowCount(6);
             descriptionArea.setWrapText(true);
@@ -699,21 +671,18 @@ public class ExportPublishPane extends ExportPane
         }
 
         Label publishUrlLabel = new Label(Config.getString("export.publish.url"));
-        publishUrlLabel.setFont(font);
 
         urlField = new TextField();
         titleAndDescPanel.addRow(currentRow, publishUrlLabel, urlField);
 
 
         HBox sourceAndLockPanel = new HBox();
-        // sourceAndLockPanel.setBackground(background);
         includeSource = new CheckBox(Config.getString("export.publish.includeSource"));
         includeSource.setSelected(false);
-        includeSource.setFont(font);
-        lockScenario.setFont(font);
         sourceAndLockPanel.getChildren().addAll(includeSource, lockScenario);
 
         scenarioPane.getChildren().addAll(titleAndDescPanel, sourceAndLockPanel);
+        scenarioPane.getStyleClass().add("scenario-pane");
     }
     
     /**
@@ -731,25 +700,16 @@ public class ExportPublishPane extends ExportPane
     private Pane getTagDisplay ()
     {
         Label popLabel = new Label(Config.getString("export.publish.tags.popular"));
-        popLabel.setFont(font);
 
-        VBox popPanel = new VBox(2, popLabel);
-        //popPanel.setBackground(background);
+        VBox popPanel = new VBox(popLabel);
+        popPanel.getStyleClass().add("pop-pane");
         for (int i = 0; i < popTags.length; i++)
         {
             CheckBox popTag = new CheckBox(Config.getString("export.publish.tags.loading"));
-            // popTag.setBackground(background);
-            popTag.setFont(font);
             popTag.setDisable(true);
             popTags[i] = popTag;
         }
         popPanel.getChildren().addAll(popTags);
-
-        Label additionalLabel1 = new Label(Config.getString("export.publish.tags.additional1"));
-        additionalLabel1.setFont(font);
-
-        Label additionalLabel2 = new Label(Config.getString("export.publish.tags.additional2"));
-        additionalLabel2.setFont(font);
 
         tagArea = new TextArea();
         tagArea.setPrefRowCount(3);
@@ -757,10 +717,11 @@ public class ExportPublishPane extends ExportPane
         tagScroller.setPrefSize(100, 100);
         tagScroller.setFitToWidth(true);
         tagScroller.setFitToHeight(true);
-        VBox textPanel = new VBox(additionalLabel1, additionalLabel2, tagScroller);
+        VBox textPanel = new VBox(new Label(Config.getString("export.publish.tags.additional1")),
+                new Label(Config.getString("export.publish.tags.additional2")), tagScroller);
 
-        VBox tagPanel = new VBox(20, popPanel, textPanel);
-        // tagPanel.setBackground(background);
+        VBox tagPanel = new VBox(popPanel, textPanel);
+        tagPanel.getStyleClass().add("tag-pane");
         return tagPanel;
     }
 
