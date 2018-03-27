@@ -309,26 +309,6 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
             e.getThread().cont();
             return true;
         }
-        else if (atBreakpoint && e.getBreakpointProperties().get(RESET_KEY) != null)
-        {
-            // The user has clicked reset,
-            // Set the simulation thread going if it's suspended:
-            if (simulationThread.isSuspended()) {
-                simulationThread.cont();
-            }
-
-            Platform.runLater(new Runnable() {
-                public void run()
-                {
-                    objectBench.clear();
-
-                    // Run the GUI thread on:
-                    e.getThread().cont();
-                };
-            });
-            
-            return true;
-        }
         else if (e.isHalt() && isSimulationThread(e.getThread()))
         {
             if (atBreakpoint && e.getBreakpointProperties().get(SIMULATION_THREAD_PAUSED_KEY) != null)
@@ -723,5 +703,23 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
 
         @OnThread(Tag.Any)
         public void worldInstantiationError();
+    }
+
+    /**
+     * Set the simulation thread going if it's suspended: The user has clicked reset,
+     */
+    public void simulationThreadResumeOnResetClick()
+    {
+        if (simulationThread.isSuspended())
+        {
+            simulationThread.cont();
+        }
+
+        Platform.runLater(new Runnable() {
+            public void run()
+            {
+                objectBench.clear();
+            };
+        });
     }
 }
