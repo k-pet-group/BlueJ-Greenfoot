@@ -446,7 +446,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     /**
      * Perform a reset.  This is done by sending a discard-world command, and
      * setting a flag noting that we want to send an instantiate-world command
-     * once the discard-world command has taken effect.
+     * once the discard-world command has taken effect. It also makes sure that
+     * the simulation thread is resumed.
      */
     public void doReset()
     {
@@ -454,6 +455,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         debugHandler.getVmComms().discardWorld();
         instantiateWorldAfterDiscarded = true;
         stateProperty.set(State.UNCOMPILED);
+        debugHandler.simulationThreadResumeOnResetClick();
     }
 
     /**

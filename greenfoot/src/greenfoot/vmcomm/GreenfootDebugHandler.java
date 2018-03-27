@@ -24,7 +24,6 @@ package greenfoot.vmcomm;
 import bluej.debugger.VarDisplayInfo;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.JavaType;
-import greenfoot.actions.ResetWorldAction;
 import greenfoot.core.PickActorHelper;
 import greenfoot.core.Simulation;
 
@@ -89,10 +88,6 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
         
     private static final String SIMULATION_THREAD_RUN_KEY = "SIMULATION_THREAD_RUN";
     
-    private static final String RESET_CLASS = ResetWorldAction.class.getName();
-    private static final String RESET_METHOD = ResetWorldAction.RESET_WORLD;
-    private static final String RESET_KEY = "RESET_WORLD";
-
     private static final String WORLD_HANDLER_CLASS = WorldHandler.class.getName();
     private static final String WORLD_CHANGED_KEY = "WORLD_CHANGED";
     private static final String WORLD_INITIALISING_KEY = "WORLD_INITIALISING";
@@ -165,7 +160,6 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
             setBreakpoint(debugger, SIMULATION_CLASS, PAUSED_METHOD, SIMULATION_THREAD_PAUSED_KEY);
 
             setBreakpoint(debugger, SIMULATION_CLASS, "resumeRunning", SIMULATION_THREAD_RESUMED_KEY);
-            setBreakpoint(debugger, RESET_CLASS, RESET_METHOD, RESET_KEY);
             setBreakpoint(debugger, WORLD_HANDLER_CLASS, "setInitialisingWorld", WORLD_INITIALISING_KEY);
             setBreakpoint(debugger, WORLD_HANDLER_CLASS, "worldChanged", WORLD_CHANGED_KEY);
             setBreakpoint(debugger, WORLD_HANDLER_CLASS, "worldInstantiationError", WORLD_INSTANTIATION_ERROR_KEY);
@@ -307,26 +301,6 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
             }
             // Must resume the thread afterwards:
             e.getThread().cont();
-            return true;
-        }
-        else if (atBreakpoint && e.getBreakpointProperties().get(RESET_KEY) != null)
-        {
-            // The user has clicked reset,
-            // Set the simulation thread going if it's suspended:
-            if (simulationThread.isSuspended()) {
-                simulationThread.cont();
-            }
-
-            Platform.runLater(new Runnable() {
-                public void run()
-                {
-                    objectBench.clear();
-
-                    // Run the GUI thread on:
-                    e.getThread().cont();
-                };
-            });
-            
             return true;
         }
         else if (e.isHalt() && isSimulationThread(e.getThread()))
@@ -723,5 +697,23 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
 
         @OnThread(Tag.Any)
         public void worldInstantiationError();
+    }
+
+    /**
+     * Set the simulation thread going if it's suspended: The user has clicked reset,
+     */
+    public void simulationThreadResumeOnResetClick()
+    {
+        if (simulationThread.isSuspended())
+        {
+            // This code runs in parallel with GreenfootDebugHanlder.examineDebuggerEvent() and
+            // there is theoretically a race condition where the "special" breakpoints are set
+            // before we resume the simulation thread here, meaning that the simulation thread
+            // will get suspended again shortly after the reset (before the world is instantiated).
+            // In practice this seems almost impossible since it would require the user to
+            // "step" or "halt" immediately before "reset", so we'll assume this is safe.
+            simulationThread.cont();
+        }
+        objectBench.clear();
     }
 }
