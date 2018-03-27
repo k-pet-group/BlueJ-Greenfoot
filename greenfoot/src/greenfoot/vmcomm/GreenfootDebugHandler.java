@@ -96,6 +96,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     private static final String WORLD_HANDLER_CLASS = WorldHandler.class.getName();
     private static final String WORLD_CHANGED_KEY = "WORLD_CHANGED";
     private static final String WORLD_INITIALISING_KEY = "WORLD_INITIALISING";
+    private static final String WORLD_INSTANTIATION_ERROR_KEY = "WORLD_INSTANTIATION_ERROR";
 
     private static final String NAME_ACTOR_CLASS = WorldHandlerDelegateIDE.class.getName();
     private static final String NAME_ACTOR_KEY = "NAME_ACTOR";
@@ -167,6 +168,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
             setBreakpoint(debugger, RESET_CLASS, RESET_METHOD, RESET_KEY);
             setBreakpoint(debugger, WORLD_HANDLER_CLASS, "setInitialisingWorld", WORLD_INITIALISING_KEY);
             setBreakpoint(debugger, WORLD_HANDLER_CLASS, "worldChanged", WORLD_CHANGED_KEY);
+            setBreakpoint(debugger, WORLD_HANDLER_CLASS, "worldInstantiationError", WORLD_INSTANTIATION_ERROR_KEY);
             setBreakpoint(debugger, NAME_ACTOR_CLASS, "nameActors", NAME_ACTOR_KEY);
             setBreakpoint(debugger, PICK_HELPER_CLASS, "picked", PICK_HELPER_KEY);
         }
@@ -250,6 +252,12 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
         else if (atBreakpoint && e.getBreakpointProperties().get(WORLD_INITIALISING_KEY) != null)
         {
             greenfootRecorder.clearCode(true);
+            e.getThread().cont();
+            return true;
+        }
+        else if (atBreakpoint && e.getBreakpointProperties().get(WORLD_INSTANTIATION_ERROR_KEY) != null)
+        {
+            simulationListener.worldInstantiationError();
             e.getThread().cont();
             return true;
         }
@@ -712,5 +720,8 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
          */
         @OnThread(Tag.Any)
         public void simulationDebugResumed();
+
+        @OnThread(Tag.Any)
+        public void worldInstantiationError();
     }
 }

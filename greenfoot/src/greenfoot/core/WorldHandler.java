@@ -156,7 +156,7 @@ public class WorldHandler
             }
 
             @Override
-            public void instantiateNewWorld(String className)
+            public void instantiateNewWorld(String className, Runnable runIfError)
             {
             }
 
@@ -498,7 +498,7 @@ public class WorldHandler
      */
     public void instantiateNewWorld(String className)
     {
-        handlerDelegate.instantiateNewWorld(className);
+        handlerDelegate.instantiateNewWorld(className, () -> worldInstantiationError());
     }
 
     /**
@@ -607,6 +607,16 @@ public class WorldHandler
      *                   GreenfootDebugHandler will inspect it via JDI
      */
     private void worldChanged(boolean byUserCode)
+    {
+    }
+
+    /**
+     * This is a special method which will have a breakpoint set by the GreenfootDebugHandler
+     * class.  Do not remove or rename without also changing that class.
+     * It is called where there is an error instantiated the world class
+     * (as a result of a user interactive creation, not user code)
+     */
+    private void worldInstantiationError()
     {
     }
 
