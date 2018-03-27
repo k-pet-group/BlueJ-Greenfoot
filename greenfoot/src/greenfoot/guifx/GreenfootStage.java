@@ -160,6 +160,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     // A property tracking whether the world is visible (if false, there should be 
     // a background message set in backgroundMessage)
     private final BooleanProperty worldVisible = new SimpleBooleanProperty(false);
+    private boolean worldInstantiationError = false;
 
     // The last speed value set by the user altering it in interface (rather than programmatically):
     private int lastUserSetSpeed;
@@ -396,7 +397,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             {
                 // If we are paused, but no world is visible, the user either
                 // needs to instantiate a world (if they have one) or create a world class
-                if (classDiagram.hasInstantiatableWorld())
+                if (worldInstantiationError)
+                {
+                    message = Config.getString("centrePanel.message.error1") + " " + Config.getString("centrePanel.message.error2");
+                }
+                else if (classDiagram.hasInstantiatableWorld())
                 {
                     message = Config.getString("centrePanel.message.createWorldObject");
                 }
@@ -1197,6 +1202,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         worldImg.getPixelWriter().setPixels(0, 0, width, height, PixelFormat.getByteBgraPreInstance(),
                 buffer, width * 4);
         worldDisplay.setImage(worldImg);
+        worldInstantiationError = false;
         worldVisible.set(true);
     }
     
@@ -1549,6 +1555,17 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         atBreakpoint = false;
         Platform.runLater(() -> updateGUIState(stateProperty.get()));
+    }
+
+    @Override
+    @OnThread(Tag.Any)
+    public void worldInstantiationError()
+    {
+        Platform.runLater(() -> {
+            worldInstantiationError = true;
+            // This will update the background message:
+            worldVisible.set(false);
+        });
     }
 
     /**

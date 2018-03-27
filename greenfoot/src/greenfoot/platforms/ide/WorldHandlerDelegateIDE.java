@@ -59,8 +59,6 @@ public class WorldHandlerDelegateIDE
     private GreenfootFrame frame;
     
     private boolean worldInitialising;
-    private boolean worldInvocationError;
-    private boolean missingConstructor;
     private final List<Actor> actorsToName = new ArrayList<>();
     private String mostRecentlyInstantiatedWorldClassName;
 
@@ -85,7 +83,6 @@ public class WorldHandlerDelegateIDE
     {
         nameActors(actorsToName.toArray(new Actor[0]));
         
-        worldInvocationError = false;
         //greenfootRecorder.setWorld(newWorld);
         if (oldWorld != null) {
             discardWorld(oldWorld);
@@ -106,7 +103,7 @@ public class WorldHandlerDelegateIDE
     }
 
     @Override
-    public void instantiateNewWorld(String className)
+    public void instantiateNewWorld(String className, Runnable runIfError)
     {
         // If not-null, store it as the most recent, ready to be used by getLastWorldClass
         if (className != null)
@@ -116,7 +113,6 @@ public class WorldHandlerDelegateIDE
         
         //greenfootRecorder.reset();
         worldInitialising = true;
-        worldInvocationError = false;
         Class<? extends World> cls = getLastWorldClass();
 
         if (cls == null)
@@ -124,6 +120,7 @@ public class WorldHandlerDelegateIDE
             // Can occur if last instantiated world class is not compiled,
             // or if the specified world class is not found, or if no world
             // class name has ever been specified.
+            runIfError.run();
             return;
         }
 
@@ -140,31 +137,20 @@ public class WorldHandlerDelegateIDE
                     WorldHandler.getInstance().setWorld(newWorld, false);
                 }
             }
-            catch (LinkageError e) { }
-            catch (NoSuchMethodException | IllegalAccessException nsme) {
-                EventQueue.invokeLater(() -> {
-                    missingConstructor = true;
-                });
-            }
-            catch (InstantiationException e) {
-                // abstract class; shouldn't happen
+            catch (LinkageError | NoSuchMethodException | IllegalAccessException | InstantiationException e) {
+                // InstantiationException means abstract class; shouldn't happen
+                runIfError.run();
             }
             catch (InvocationTargetException ite) {
                 // This can happen if a static initializer block throws a Throwable.
                 // Or for other reasons.
                 ite.getCause().printStackTrace();
-                EventQueue.invokeLater(() -> {
-                    worldInvocationError = true;
-                    frame.updateBackgroundMessage();
-                });
+                runIfError.run();
             }
             catch (Exception e) {
                 System.err.println("Exception during World initialisation:");
                 e.printStackTrace();
-                EventQueue.invokeLater(() -> {
-                    worldInvocationError = true;
-                    frame.updateBackgroundMessage();
-                });
+                runIfError.run();
             }
             EventQueue.invokeLater(() -> {
                 worldInitialising = false;
@@ -287,35 +273,6 @@ public class WorldHandlerDelegateIDE
     public boolean initialising()
     {
         return worldInitialising;
-    }
-
-    /**
-     * Did the last world invocation end in an error?
-     */
-    public boolean initialisationError()
-    {
-        return worldInvocationError;
-    }
-
-    /**
-     * Is there a default constructor in the world subclass?
-     * 
-     * @return true if the world subclass does not have a default constructor
-     */
-    public boolean isMissingConstructor()
-    {
-        return missingConstructor;
-    }
-
-    /**
-     * Sets a flag which indicates whether the world subclass misses a default constructor or not
-     * 
-     * @param missingConstructor a boolean flag, which is true if there is no default constructor
-     * in the world subclass
-     */
-    public void setMissingConstructor(boolean missingConstructor)
-    {
-        this.missingConstructor = missingConstructor;
     }
 
     @Override

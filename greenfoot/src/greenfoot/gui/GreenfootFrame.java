@@ -634,7 +634,7 @@ public class GreenfootFrame extends JFrame
                     message = Config.getString("centrePanel.message.compile1");
                     message2 = Config.getString("centrePanel.message.compile2");
                 }
-                else if (worldHandlerDelegate.initialisationError()) {
+                else if (false /*worldHandlerDelegate.initialisationError()*/) {
                     message = Config.getString("centrePanel.message.error1");
                     message2 = Config.getString("centrePanel.message.error2");
                 }
@@ -645,10 +645,10 @@ public class GreenfootFrame extends JFrame
                     message = Config.getString("centrePanel.message.afterRestarting1");
                     message2 = Config.getString("centrePanel.message.afterRestarting2");
                 }
-                else if (worldHandlerDelegate.isMissingConstructor()) {
+                else if (false /*worldHandlerDelegate.isMissingConstructor()*/) {
                     message = Config.getString("centrePanel.message.missingWorldConstructor1");
                     message2 = Config.getString("centrePanel.message.missingWorldConstructor2");
-                    worldHandlerDelegate.setMissingConstructor(false);
+                    //worldHandlerDelegate.setMissingConstructor(false);
                 }
             }
             card.show(worldBox, "messagePanel");

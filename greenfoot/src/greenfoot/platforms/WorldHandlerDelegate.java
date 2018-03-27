@@ -54,8 +54,12 @@ public interface WorldHandlerDelegate
      * @param className The fully qualified name of the world class to instantiate
      *                  if a specific class is wanted.  If null, use the most recently
      *                  instantiated world class.
+     * @param runIfError A piece of code to run if there is an error during instantiation.
+     *                   This is passed as a Runnable rather than handled by return because
+     *                   we may hop thread to do the instantiation, so we cannot directly
+     *                   return the result without blocking.
      */
-    void instantiateNewWorld(String className);
+    void instantiateNewWorld(String className, Runnable runIfError);
 
     InputManager getInputManager();
 
