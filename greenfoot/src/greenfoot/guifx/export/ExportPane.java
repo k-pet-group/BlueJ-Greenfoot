@@ -101,4 +101,12 @@ public abstract class ExportPane extends Tab
     {
         return hideControls.isSelected();
     }
+
+    /**
+     * Add a shared style class for the tab contents.
+     */
+    protected void applySharedStyle()
+    {
+        getContent().getStyleClass().add("export-pane");
+    }
 }
