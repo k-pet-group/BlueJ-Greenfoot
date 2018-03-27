@@ -161,7 +161,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     // a background message set in backgroundMessage)
     private final BooleanProperty worldVisible = new SimpleBooleanProperty(false);
 
-
     // The last speed value set by the user altering it in interface (rather than programmatically):
     private int lastUserSetSpeed;
     // Used to stop an infinite loop if we set the speed slider in response to a programmatic change: 
@@ -286,7 +285,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         worldViewScroll.getStyleClass().add("world-display-scroll");
         JavaFXUtil.expandScrollPaneContent(worldViewScroll);
         worldViewScroll.visibleProperty().bind(worldVisible);
-        BorderPane root = new BorderPane(new GreenfootStageContentPane(new StackPane(new TextFlow(backgroundMessage), worldViewScroll), classDiagramScroll, controlPanel), makeMenu(), null, null, null);
+        StackPane worldPane = new StackPane(new TextFlow(backgroundMessage), worldViewScroll);
+        GreenfootStageContentPane contentPane = new GreenfootStageContentPane(worldPane, classDiagramScroll, controlPanel);
+        BorderPane root = new BorderPane(contentPane, makeMenu(), null, null, null);
         glassPane = new Pane();
         glassPane.setMouseTransparent(true);
         StackPane stackPane = new StackPane(root, glassPane);
@@ -401,7 +402,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 }
                 else if (classDiagram.hasUserWorld())
                 {
-                    message = Config.getString("centrePanel.message.missingWorldConstructor1") + " " + Config.getString("centrePanel.message.missingWorldConstructor2");
+                    message = Config.getString("centrePanel.message.missingWorldConstructor1")
+                        + " " + Config.getString("centrePanel.message.missingWorldConstructor2");
                 }
                 else
                 {
