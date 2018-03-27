@@ -29,8 +29,9 @@ import bluej.utility.javafx.FXCustomizedDialog;
 import bluej.utility.Utility;
 
 import java.io.File;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javafx.application.Platform;
 import javafx.scene.control.Button;
@@ -50,7 +51,8 @@ import javafx.stage.Window;
  */
 public class ExportDialog extends FXCustomizedDialog<Void>
 {
-    private static final String dialogTitle = Config.getApplicationName() + ": " + Config.getString("export.dialog.title");
+    private static final String dialogTitle = Config.getApplicationName() + ": "
+            + Config.getString("export.dialog.title");
 
     private final Project project;
     private final ClassTarget currentWorld;
@@ -61,12 +63,13 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     private final TabPane tabbedPane = new TabPane();
     private final Label progressLabel = new Label();
     private final ProgressBar progressBar = new ProgressBar();
-    private final HashMap<String, ExportPane> panes = new HashMap<>();
+    private final Map<String, ExportPane> panes = new LinkedHashMap<>();
     private ExportPane selectedPane;
     private Button continueButton;
     private Button closeButton;
 
-    public ExportDialog(Window parent, Project project, ClassTarget currentWorld, Image snapshot) throws ExportException
+    public ExportDialog(Window parent, Project project, ClassTarget currentWorld, Image snapshot)
+            throws ExportException
     {
         super(parent, dialogTitle, "");
         this.project = project;
