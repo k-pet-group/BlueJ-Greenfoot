@@ -325,7 +325,8 @@ public class WorldCanvas extends JPanel
      * display it in the window there.
      *
      * @param paintWhen  If IF_DUE, painting may be skipped if it's close to a recent paint.
-     *                   FORCE always paints, NO_PAINT never paints (but always sends other info) 
+     *                   FORCE always paints, NO_PAINT indicates that an actual image update
+     *                   is not required but other information in the frame should be sent. 
      * @param askId If non-negative, an ID for the ask request to pass to the server VM
      * @param askPrompt If askId is non-negative, a prompt for answer from Greenfoot.ask().
      * @return Answer from Greenfoot.ask() if available, null otherwise
@@ -340,7 +341,6 @@ public class WorldCanvas extends JPanel
             return null; // No need to draw frame if less than 1/120th of sec between them,
                          // but we must schedule a paint for the next sequence we send.
         }
-        lastPaintNanos = now;
         
         boolean sendImage = world != null && (paintWhen != PaintWhen.NO_PAINT || paintScheduled);
         int imageWidth = 0;
@@ -349,6 +349,7 @@ public class WorldCanvas extends JPanel
         
         if (sendImage)
         {
+            lastPaintNanos = now;
             imageWidth = WorldVisitor.getWidthInPixels(world);
             imageHeight = WorldVisitor.getHeightInPixels(world);
             img = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_BGR);
@@ -359,7 +360,6 @@ public class WorldCanvas extends JPanel
             WorldVisitor.paintDebug(world, g2);
             paintWorldText(g2, world);
         }
-        
 
         // One element array to allow a reference to be set by readCommands:
         String[] answer = new String[] {null};
