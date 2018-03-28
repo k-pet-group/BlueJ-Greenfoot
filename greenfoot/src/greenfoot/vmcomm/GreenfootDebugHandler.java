@@ -124,6 +124,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     /**
      * This is the publicly-visible way to add a debugger listener for a particular project.    
      */
+    @OnThread(Tag.FXPlatform)
     public static void addDebuggerListener(Project project) throws IOException
     {
         project.getExecControls().setRestrictedClasses(DebugUtil.restrictedClassesAsNames());
@@ -149,6 +150,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
         this.pickListener = pickListener;
     }
 
+    @OnThread(Tag.FXPlatform)
     private void addRunResetBreakpoints(Debugger debugger)
     {
         try {
@@ -175,6 +177,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
      * Sets a breakpoint in the given class and method, and identifies it by setting a
      * breakpoint point property with breakpointKey mapped to "TRUE"
      */
+    @OnThread(Tag.FXPlatform)
     private void setBreakpoint(Debugger debugger, String className, String methodName, String breakpointKey)
     {
         Map<String, String> breakpointProperties = new HashMap<String, String>();
@@ -183,6 +186,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
         debugger.toggleBreakpoint(className, methodName, true, breakpointProperties);
     }
 
+    @OnThread(Tag.Any)
     private boolean isSimulationThread(DebuggerThread dt)
     {
         return dt != null && simulationThread != null && simulationThread.sameThread(dt);
@@ -199,6 +203,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     /**
      * Get the temporary file used as the shared memory communication backing.
      */
+    @OnThread(Tag.FXPlatform)
     public File getShmFile()
     {
         return vmComms.getSharedFile();

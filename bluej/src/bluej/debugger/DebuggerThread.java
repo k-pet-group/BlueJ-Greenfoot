@@ -75,6 +75,7 @@ public abstract class DebuggerThread
     public abstract int getSelectedFrame();
 
     public abstract void halt();
+    @OnThread(Tag.Any)
     public abstract void cont();
 
     /**
@@ -89,5 +90,6 @@ public abstract class DebuggerThread
      */
     public abstract void stepInto();
     
+    @OnThread(Tag.Any)
     public abstract boolean sameThread(DebuggerThread thread);
 }

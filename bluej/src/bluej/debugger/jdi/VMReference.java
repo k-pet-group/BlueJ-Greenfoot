@@ -1034,6 +1034,7 @@ class VMReference
     /**
      * Emit a thread halted/resumed event for the given thread.
      */
+    @OnThread(Tag.Any)
     public void emitThreadEvent(JdiThread thread, boolean halted)
     {
         eventHandler.emitThreadEvent(thread, halted);
@@ -1313,6 +1314,7 @@ class VMReference
             return null;
         else
             return new DebuggerEvent.BreakpointProperties() {
+                @OnThread(Tag.Any)
                 public Object get(Object key)
                 {
                     return request.getProperty(key);

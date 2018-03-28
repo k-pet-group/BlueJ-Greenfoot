@@ -1172,6 +1172,7 @@ public class JdiDebugger extends Debugger
     /**
      * Emit an event (to listeners) due to a thread being resumed.
      */
+    @OnThread(Tag.Any)
     void emitThreadResumedEvent(JdiThread thread)
     {
         vmRef.emitThreadEvent(thread, false);

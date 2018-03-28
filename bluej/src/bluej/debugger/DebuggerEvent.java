@@ -35,6 +35,7 @@ public class DebuggerEvent extends EventObject
 {
     public static interface BreakpointProperties
     {
+        @OnThread(Tag.Any)
         public Object get(Object key);
     }
 
