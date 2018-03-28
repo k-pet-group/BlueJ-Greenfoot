@@ -948,6 +948,7 @@ public class WorldHandler
      * 
      * Must be called on the EDT.
      */
+    @OnThread(Tag.Swing)
     public BufferedImage getSnapShot()
     {
         if (world == null) {
