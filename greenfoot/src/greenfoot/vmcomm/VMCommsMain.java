@@ -50,15 +50,48 @@ import static greenfoot.vmcomm.Command.*;
 @OnThread(Tag.FXPlatform)
 public class VMCommsMain implements Closeable
 {
+    //    Server                          Debug
+    //   (holds A, C)                     (holds B)
+    // [command issued/want update]
+    //                                       [updates data while B is held]
+    //     -> release A
+    //                                    -> acquire A   (commands are available...)
+    //                                    -> release B   (ensures server can get data)
+    //     -> acquire B
+    //        (read image)
+    //                                       (read commands)
+    //     -> release C
+    //                                    -> acquire C   (Server has acquired B)
+    //                                    -> release C
+    //                                    -> release A
+    //     -> acquire A
+    //     -> acquire C
+    //     -> release B
+    //                                    -> acquire B (Server has A and C)
+
     public static final int MAPPED_SIZE = 10_000_000;
+    public static final int USER_AREA_OFFSET = 0x1000; // offset in 4-byte chunks; 16KB worth.
+    public static final int USER_AREA_OFFSET_BYTES = USER_AREA_OFFSET * 4;
+    public static final int USER_AREA_SIZE_BYTES = MAPPED_SIZE - USER_AREA_OFFSET_BYTES;
+    
+    public static final int SERVER_AREA_OFFSET_BYTES = 4;
+    public static final int SERVER_AREA_SIZE_BYTES = USER_AREA_OFFSET_BYTES - SERVER_AREA_OFFSET_BYTES;
+    
+    public static final int SYNC_AREA_OFFSET_BYTES = 0;
+    public static final int SYNC_AREA_SIZE_BYTES = 4;
+    
     private File shmFile;
     private FileChannel fc;
     private MappedByteBuffer sharedMemoryByte;
     private IntBuffer sharedMemory;
+    private FileLock putLock;
+    private FileLock syncLock;
 
     private int lastSeq = 0;
     private final List<Command> pendingCommands = new ArrayList<>();
     private int setSpeedCommandCount = 0;
+    
+    private boolean checkingIO = false;
 
     /**
      * Because the ask request is sent as a continuous status rather than
@@ -85,6 +118,10 @@ public class VMCommsMain implements Closeable
         fc = new RandomAccessFile(shmFile, "rw").getChannel();
         sharedMemoryByte = fc.map(MapMode.READ_WRITE, 0, MAPPED_SIZE);
         sharedMemory = sharedMemoryByte.asIntBuffer();
+        
+        // Obtain the put-area lock right from the start:
+        putLock = fc.lock(SERVER_AREA_OFFSET_BYTES, SERVER_AREA_SIZE_BYTES, false);
+        syncLock = fc.lock(SYNC_AREA_OFFSET_BYTES, SYNC_AREA_SIZE_BYTES, false);
     }
     
     /**
@@ -158,17 +195,35 @@ public class VMCommsMain implements Closeable
      */
     public void checkIO(GreenfootStage stage)
     {
-        FileChannel sharedMemoryLock = this.fc;
-        
-        try (FileLock fileLock = sharedMemoryLock.lock())
+        if (checkingIO)
         {
-            int seq = sharedMemory.get(1);
+            return; // avoid re-entrancy
+        }
+        
+        checkingIO = true;
+        
+        FileChannel sharedMemoryLock = this.fc;
+
+        // We are holding the lock for the main put area:
+        sharedMemory.position(1);
+        sharedMemory.put(-lastSeq);
+        writeCommands(pendingCommands);
+        
+        FileLock fileLock = null;
+        
+        try
+        {
+            putLock.release();
+            fileLock = sharedMemoryLock.lock(USER_AREA_OFFSET_BYTES, USER_AREA_SIZE_BYTES, false);
+            syncLock.release();
+
+            int seq = sharedMemory.get(USER_AREA_OFFSET);
             if (seq > lastSeq)
             {
                 // The client VM has painted a new frame for us:
                 lastSeq = seq;
-                sharedMemory.position(1);
-                sharedMemory.put(-seq);
+                
+                sharedMemory.position(USER_AREA_OFFSET + 1);
                 int width = sharedMemory.get();
                 int height = sharedMemory.get();
                 if (width != 0 && height != 0)
@@ -236,20 +291,37 @@ public class VMCommsMain implements Closeable
 
                     stage.receivedAsk(promptCodepoints);
                 }
-                sharedMemory.position(2);
-                writeCommands(pendingCommands);
-            }
-            else if (!pendingCommands.isEmpty())
-            {
-                // The debug VM hasn't painted a new frame, but we have new commands to send:
-                sharedMemory.position(1);
-                sharedMemory.put(-lastSeq);
-                writeCommands(pendingCommands);
             }
         }
         catch (IOException ex)
         {
             Debug.reportError(ex);
+        }
+        finally
+        {
+            // Re-acquire the put-area lock (A), and then release the get-area lock (B)
+            try
+            {
+                putLock = fc.lock(SERVER_AREA_OFFSET_BYTES, SERVER_AREA_SIZE_BYTES, false);
+                syncLock = fc.lock(SYNC_AREA_OFFSET_BYTES, SYNC_AREA_SIZE_BYTES, false);
+            }
+            catch (IOException ex)
+            {
+                Debug.reportError(ex);
+            }
+            
+            try
+            {
+                if (fileLock != null) {
+                    fileLock.release();
+                }
+            }
+            catch (IOException ex)
+            {
+                Debug.reportError(ex);
+            }
+            
+            checkingIO = false;
         }
     }
     

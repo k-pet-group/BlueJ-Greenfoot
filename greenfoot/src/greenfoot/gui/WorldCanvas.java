@@ -37,6 +37,7 @@ import greenfoot.gui.input.KeyboardManager;
 import greenfoot.gui.input.mouse.MousePollingManager;
 import greenfoot.util.GreenfootUtil;
 import greenfoot.vmcomm.Command;
+import greenfoot.vmcomm.VMCommsMain;
 import javafx.scene.input.KeyCode;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -142,6 +143,7 @@ public class WorldCanvas extends JPanel
     private final IntBuffer sharedMemory;
     private int seq = 1;
     private final FileChannel shmFileChannel;
+    private FileLock putLock;
     private long lastPaintNanos = System.nanoTime();
     private int lastAckCommand = -1;
     private int lastPaintSeq = -1; // last paint sequence
@@ -171,6 +173,8 @@ public class WorldCanvas extends JPanel
             shmFileChannel = new RandomAccessFile(shmFilePath, "rw").getChannel();
             MappedByteBuffer mbb = shmFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, 10_000_000L);
             sharedMemory = mbb.asIntBuffer();
+            putLock = shmFileChannel.lock(VMCommsMain.USER_AREA_OFFSET_BYTES,
+                    VMCommsMain.USER_AREA_SIZE_BYTES, false);
         }
         catch (IOException e)
         {
@@ -341,33 +345,47 @@ public class WorldCanvas extends JPanel
             return null; // No need to draw frame if less than 1/120th of sec between them,
                          // but we must schedule a paint for the next sequence we send.
         }
-        
-        boolean sendImage = world != null && (paintWhen != PaintWhen.NO_PAINT || paintScheduled);
-        int imageWidth = 0;
-        int imageHeight = 0;
-        BufferedImage img = null;        
-        
-        if (sendImage)
-        {
-            lastPaintNanos = now;
-            imageWidth = WorldVisitor.getWidthInPixels(world);
-            imageHeight = WorldVisitor.getHeightInPixels(world);
-            img = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_BGR);
-            Graphics2D g2 = (Graphics2D)img.getGraphics();
-            paintBackground(g2);
-            paintObjects(g2);
-            paintDraggedObject(g2);
-            WorldVisitor.paintDebug(world, g2);
-            paintWorldText(g2, world);
-        }
 
         // One element array to allow a reference to be set by readCommands:
         String[] answer = new String[] {null};
         
-        // Call this outside the lock to avoid holding lock any longer than we have to:
-        int [] raw = img == null ? null : ((DataBufferInt) img.getData().getDataBuffer()).getData();
-        try (FileLock fileLock = shmFileChannel.lock())
+        FileLock fileLock = null;
+        
+        try
         {
+            // Get lock for our read area:
+            fileLock = shmFileChannel.lock(VMCommsMain.SERVER_AREA_OFFSET_BYTES,
+                    VMCommsMain.SERVER_AREA_SIZE_BYTES, false);
+            
+            putLock.release();
+            
+            // Lock the synchronisation area (C) to make sure that the server has acquired out put area:
+            FileLock syncLock = shmFileChannel.lock(VMCommsMain.SYNC_AREA_OFFSET_BYTES,
+                    VMCommsMain.SYNC_AREA_SIZE_BYTES, false);
+            syncLock.release();
+            
+            boolean sendImage = world != null && (paintWhen != PaintWhen.NO_PAINT || paintScheduled);
+            int imageWidth = 0;
+            int imageHeight = 0;
+            BufferedImage img = null;        
+            
+            if (sendImage)
+            {
+                lastPaintNanos = now;
+                imageWidth = WorldVisitor.getWidthInPixels(world);
+                imageHeight = WorldVisitor.getHeightInPixels(world);
+                img = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_BGR);
+                Graphics2D g2 = (Graphics2D)img.getGraphics();
+                paintBackground(g2);
+                paintObjects(g2);
+                paintDraggedObject(g2);
+                WorldVisitor.paintDebug(world, g2);
+                paintWorldText(g2, world);
+            }
+            
+            // Call this outside the lock to avoid holding lock any longer than we have to:
+            int [] raw = img == null ? null : ((DataBufferInt) img.getData().getDataBuffer()).getData();
+                        
             sharedMemory.position(1);
             int recvSeq = sharedMemory.get();
             if (recvSeq < 0)
@@ -378,7 +396,13 @@ public class WorldCanvas extends JPanel
                     lastAckCommand = latest;
                 }
             }
-            sharedMemory.position(1);
+            
+            fileLock.release();
+            fileLock = null;
+            
+            putLock = shmFileChannel.lock(VMCommsMain.USER_AREA_OFFSET_BYTES,
+                    VMCommsMain.USER_AREA_SIZE_BYTES, false);
+            sharedMemory.position(VMCommsMain.USER_AREA_OFFSET);
             sharedMemory.put(this.seq++);
             if (img == null)
             {
@@ -430,9 +454,23 @@ public class WorldCanvas extends JPanel
                 sharedMemory.put(codepoints);
             }
         }
-        catch (IOException e)
+        catch (IOException ex)
         {
-            Debug.reportError(e);
+            Debug.reportError(ex);
+        }
+        finally
+        {
+            if (fileLock != null)
+            {
+                try
+                {
+                    fileLock.release();
+                }
+                catch (IOException ex)
+                {
+                    Debug.reportError(ex);
+                }
+            }
         }
             
         return answer[0];
