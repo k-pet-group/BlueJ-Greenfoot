@@ -92,6 +92,16 @@ public class WorldCanvas extends JPanel
     /** Preferred size (not counting insets) */
     private Dimension size;
     private Image overrideImage;
+    
+    // These variables are shared with the remote communications thread and need synchronised access:
+    /** Whether the image has been updated */
+    private boolean updateImage;
+    /** The world image (as most recently painted) */
+    private BufferedImage worldImage;
+    /** The prompt for Greenfoot.ask() */
+    private String pAskPrompt;
+    /** The ask request identifier */
+    private int pAskId;
 
     private final ShadowProjectProperties projectProperties;
     
@@ -175,6 +185,13 @@ public class WorldCanvas extends JPanel
             sharedMemory = mbb.asIntBuffer();
             putLock = shmFileChannel.lock(VMCommsMain.USER_AREA_OFFSET_BYTES,
                     VMCommsMain.USER_AREA_SIZE_BYTES, false);
+            
+            new Thread(() -> {
+                while (true)
+                {
+                    doInterVMComms();
+                }
+            }).start();
         }
         catch (IOException e)
         {
@@ -349,6 +366,38 @@ public class WorldCanvas extends JPanel
         // One element array to allow a reference to be set by readCommands:
         String[] answer = new String[] {null};
         
+        boolean sendImage = world != null && (paintWhen != PaintWhen.NO_PAINT || paintScheduled);
+        if (sendImage)
+        {
+            lastPaintNanos = now;
+            int imageWidth = WorldVisitor.getWidthInPixels(world);
+            int imageHeight = WorldVisitor.getHeightInPixels(world);
+            if (worldImage == null || worldImage.getHeight() != imageHeight
+                    || worldImage.getWidth() != imageWidth)
+            {
+                worldImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_BGR);
+            }
+            
+            Graphics2D g2 = (Graphics2D)worldImage.getGraphics();
+            paintBackground(g2);
+            paintObjects(g2);
+            paintDraggedObject(g2);
+            WorldVisitor.paintDebug(world, g2);
+            paintWorldText(g2, world);
+            updateImage = true; // TODO sync
+        }
+        
+        return answer[0];
+    }
+    
+    /**
+     * Perform communications exchange with the other VM.
+     */
+    private void doInterVMComms()
+    {
+        // One element array to allow a reference to be set by readCommands:
+        String[] answer = new String[] {null};
+        
         FileLock fileLock = null;
         
         try
@@ -357,51 +406,36 @@ public class WorldCanvas extends JPanel
             fileLock = shmFileChannel.lock(VMCommsMain.SERVER_AREA_OFFSET_BYTES,
                     VMCommsMain.SERVER_AREA_SIZE_BYTES, false);
             
-            putLock.release();
-            
-            // Lock the synchronisation area (C) to make sure that the server has acquired out put area:
-            FileLock syncLock = shmFileChannel.lock(VMCommsMain.SYNC_AREA_OFFSET_BYTES,
-                    VMCommsMain.SYNC_AREA_SIZE_BYTES, false);
-            syncLock.release();
-            
-            boolean sendImage = world != null && (paintWhen != PaintWhen.NO_PAINT || paintScheduled);
-            int imageWidth = 0;
-            int imageHeight = 0;
-            BufferedImage img = null;        
-            
-            if (sendImage)
+            BufferedImage img;
+            synchronized (this)
             {
-                lastPaintNanos = now;
-                imageWidth = WorldVisitor.getWidthInPixels(world);
-                imageHeight = WorldVisitor.getHeightInPixels(world);
-                img = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_BGR);
-                Graphics2D g2 = (Graphics2D)img.getGraphics();
-                paintBackground(g2);
-                paintObjects(g2);
-                paintDraggedObject(g2);
-                WorldVisitor.paintDebug(world, g2);
-                paintWorldText(g2, world);
+                img = updateImage ? worldImage : null;
             }
             
-            // Call this outside the lock to avoid holding lock any longer than we have to:
-            int [] raw = img == null ? null : ((DataBufferInt) img.getData().getDataBuffer()).getData();
+            int [] raw = (img == null) ? null : ((DataBufferInt) img.getData().getDataBuffer()).getData();
+
+            int imageWidth = 0;
+            int imageHeight = 0;
+            if (img != null)
+            {
+                imageWidth = img.getWidth();
+                imageHeight = img.getHeight();
+            }
                         
             sharedMemory.position(1);
             int recvSeq = sharedMemory.get();
             if (recvSeq < 0)
             {
-                int latest = readCommands(answer);
-                if (latest != -1)
+                if (Simulation.getInstance() != null)
                 {
-                    lastAckCommand = latest;
+                    int latest = readCommands(answer);
+                    if (latest != -1)
+                    {
+                        lastAckCommand = latest;
+                    }
                 }
             }
             
-            fileLock.release();
-            fileLock = null;
-            
-            putLock = shmFileChannel.lock(VMCommsMain.USER_AREA_OFFSET_BYTES,
-                    VMCommsMain.USER_AREA_SIZE_BYTES, false);
             sharedMemory.position(VMCommsMain.USER_AREA_OFFSET);
             sharedMemory.put(this.seq++);
             if (img == null)
@@ -432,48 +466,67 @@ public class WorldCanvas extends JPanel
                 lastPaintSize = raw.length;
                 lastPaintSeq = (seq - 1);
                 paintScheduled = false;
+                updateImage = false;
             }
             sharedMemory.put(lastAckCommand);
             sharedMemory.put(stoppedWithErrorCount);
             sharedMemory.put((int)(startOfCurExecution >> 32));
             sharedMemory.put((int)(startOfCurExecution & 0xFFFFFFFFL));
-            sharedMemory.put(Simulation.getInstance().getSpeed());
+            if (Simulation.getInstance() != null)
+            {
+                sharedMemory.put(Simulation.getInstance().getSpeed());
+            }
+            else
+            {
+                sharedMemory.put(0);
+            }
             sharedMemory.put(world == null ? 0 : 1);
             
             // If not asking, put -1
-            if (askPrompt == null || answer[0] != null)
+            if (pAskPrompt == null || answer[0] != null)
             {
                 sharedMemory.put(-1);
             }
             else
             {
                 // Asking, so put the ask ID, and the prompt string:
-                int[] codepoints = askPrompt.codePoints().toArray();
-                sharedMemory.put(askId);
+                int[] codepoints = pAskPrompt.codePoints().toArray();
+                sharedMemory.put(pAskId);
                 sharedMemory.put(codepoints.length);
                 sharedMemory.put(codepoints);
             }
+            
+            putLock.release();
+
+            // Lock the synchronisation area (C) to make sure that the server has acquired out put area:
+            FileLock syncLock = shmFileChannel.lock(VMCommsMain.SYNC_AREA_OFFSET_BYTES,
+                    VMCommsMain.SYNC_AREA_SIZE_BYTES, false);
+            syncLock.release();
+            
+            fileLock.release();
+            putLock = shmFileChannel.lock(VMCommsMain.USER_AREA_OFFSET_BYTES,
+                    VMCommsMain.USER_AREA_SIZE_BYTES, false);
         }
         catch (IOException ex)
         {
+            try
+            {
+                putLock.release();
+            }
+            catch (Exception e) {}
             Debug.reportError(ex);
         }
-        finally
-        {
-            if (fileLock != null)
-            {
-                try
-                {
-                    fileLock.release();
-                }
-                catch (IOException ex)
-                {
-                    Debug.reportError(ex);
-                }
-            }
-        }
             
-        return answer[0];
+        if (answer[0] != null)
+        {
+            gotAskAnswer(answer[0]);
+        }
+    }
+    
+    private void gotAskAnswer(String answer)
+    {
+        // TODO store
+        // TODO notify
     }
 
     /**
