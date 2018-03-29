@@ -50,6 +50,7 @@ import static greenfoot.vmcomm.Command.*;
 @OnThread(Tag.FXPlatform)
 public class VMCommsMain implements Closeable
 {
+    public static final int MAPPED_SIZE = 10_000_000;
     private File shmFile;
     private FileChannel fc;
     private MappedByteBuffer sharedMemoryByte;
@@ -82,7 +83,7 @@ public class VMCommsMain implements Closeable
     {
         shmFile = File.createTempFile("greenfoot", "shm");
         fc = new RandomAccessFile(shmFile, "rw").getChannel();
-        sharedMemoryByte = fc.map(MapMode.READ_WRITE, 0, 10_000_000L);
+        sharedMemoryByte = fc.map(MapMode.READ_WRITE, 0, MAPPED_SIZE);
         sharedMemory = sharedMemoryByte.asIntBuffer();
     }
     
@@ -377,4 +378,20 @@ public class VMCommsMain implements Closeable
         setSpeedCommandCount = setSpeedCommandCount + 1;
     }
 
+    /**
+     * The debug VM has terminated.  We re-use the same shared memory file,
+     * so we must reset our state ready for a new debug VM.
+     */
+    public void vmTerminated()
+    {
+        lastSeq = 0;
+        pendingCommands.clear();
+        setSpeedCommandCount = 0;
+        lastAnswer = -1;
+        previousStoppedWithErrorCount = 0;
+        hadWorld = false;
+        // Zero the buffer:
+        sharedMemoryByte.position(0);
+        sharedMemoryByte.put(new byte[MAPPED_SIZE], 0, MAPPED_SIZE);
+    }
 }
