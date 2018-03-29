@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2014  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2014,2018  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,6 +31,8 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 
 import bluej.utility.Debug;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * This class provides most of the implementation for the Greenfoot.ask() method. It implements
@@ -38,6 +40,7 @@ import bluej.utility.Debug;
  * 
  * @author Neil Brown
  */
+@OnThread(Tag.Swing)
 public class AskHandler
 {
     private final AskPanel askPanel;

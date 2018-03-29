@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2018  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,6 +35,7 @@ public class DebuggerEvent extends EventObject
 {
     public static interface BreakpointProperties
     {
+        @OnThread(Tag.Any)
         public Object get(Object key);
     }
 

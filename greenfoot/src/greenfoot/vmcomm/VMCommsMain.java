@@ -36,6 +36,8 @@ import java.util.List;
 
 import bluej.utility.Debug;
 import greenfoot.guifx.GreenfootStage;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import static greenfoot.vmcomm.Command.*;
 
@@ -45,6 +47,7 @@ import static greenfoot.vmcomm.Command.*;
  * 
  * @author Davin McCall
  */
+@OnThread(Tag.FXPlatform)
 public class VMCommsMain implements Closeable
 {
     private File shmFile;
@@ -86,6 +89,8 @@ public class VMCommsMain implements Closeable
     /**
      * Close the communications channel, and release resources.
      */
+    @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void close()
     {
         try

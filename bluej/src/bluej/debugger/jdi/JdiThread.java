@@ -108,7 +108,8 @@ class JdiThread extends DebuggerThread
     @OnThread(Tag.Any)
     private EventRequestManager eventReqMgr;
     
-    private JdiDebugger debugger;
+    @OnThread(Tag.Any)
+    private final JdiDebugger debugger;
 
     // ---- instance: ----
 
@@ -561,6 +562,7 @@ class JdiThread extends DebuggerThread
     /**
      * Continue a previously halted thread.
      */
+    @OnThread(Tag.Any)
     public synchronized void cont()
     {
         try {
@@ -614,6 +616,7 @@ class JdiThread extends DebuggerThread
     /**
      * Return the JDI ThreadReference which this JdiThread wraps.
      */
+    @OnThread(Tag.Any)
     public ThreadReference getThreadReference()
     {
         return rt;
@@ -674,6 +677,7 @@ class JdiThread extends DebuggerThread
         }
     }
     
+    @OnThread(Tag.Any)
     public boolean sameThread(DebuggerThread dt)
     {
         if (dt != null && dt instanceof JdiThread) {

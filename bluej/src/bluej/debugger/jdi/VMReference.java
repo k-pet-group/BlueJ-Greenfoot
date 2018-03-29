@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1034,6 +1034,7 @@ class VMReference
     /**
      * Emit a thread halted/resumed event for the given thread.
      */
+    @OnThread(Tag.Any)
     public void emitThreadEvent(JdiThread thread, boolean halted)
     {
         eventHandler.emitThreadEvent(thread, halted);
@@ -1313,6 +1314,7 @@ class VMReference
             return null;
         else
             return new DebuggerEvent.BreakpointProperties() {
+                @OnThread(Tag.Any)
                 public Object get(Object key)
                 {
                     return request.getProperty(key);

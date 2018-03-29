@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2018  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -75,6 +75,7 @@ public abstract class DebuggerThread
     public abstract int getSelectedFrame();
 
     public abstract void halt();
+    @OnThread(Tag.Any)
     public abstract void cont();
 
     /**
@@ -89,5 +90,6 @@ public abstract class DebuggerThread
      */
     public abstract void stepInto();
     
+    @OnThread(Tag.Any)
     public abstract boolean sameThread(DebuggerThread thread);
 }
