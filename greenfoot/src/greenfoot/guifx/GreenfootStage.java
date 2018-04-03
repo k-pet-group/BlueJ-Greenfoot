@@ -1589,7 +1589,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         // This will set up pendingCommands, ready for when
         // the new debug VM can process data:
         loadAndMirrorProperties();
-        
     }
 
     /**

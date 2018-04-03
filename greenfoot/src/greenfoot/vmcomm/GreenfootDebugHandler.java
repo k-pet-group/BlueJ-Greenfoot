@@ -387,7 +387,9 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
             hasLaunched = false;
             vmComms.vmTerminated();
             if (simulationListener != null)
+            {
                 simulationListener.simulationVMTerminated();
+            }
         }
         
         if (e.getNewState() == Debugger.IDLE && !hasLaunched)
