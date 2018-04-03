@@ -100,6 +100,13 @@ public class VMCommsMain implements Closeable
     private int setSpeedCommandCount = 0;
     
     private boolean checkingIO = false;
+    
+    private boolean haveUpdatedImage = false;
+    private boolean haveUpdatedErrorCount = false;
+    private long lastExecStartTime;
+    private int updatedSimulationSpeed = -1;
+    private boolean worldWasDiscarded = false;
+    private int[] promptCodepoints = null;
 
     /**
      * Because the ask request is sent as a continuous status rather than
@@ -113,6 +120,8 @@ public class VMCommsMain implements Closeable
     private int previousStoppedWithErrorCount;
     // Whether the previous frame had a world present:
     private boolean hadWorld = false;
+    
+    private final Thread ioThread;
 
     /**
      * Constructor for VMCommsMain. Creates a temporary file and maps it into memory.
@@ -130,6 +139,15 @@ public class VMCommsMain implements Closeable
         // Obtain the put-area lock right from the start:
         putLock = fc.lock(SERVER_AREA_OFFSET_BYTES, SERVER_AREA_SIZE_BYTES, false);
         syncLock = fc.lock(SYNC_AREA_OFFSET_BYTES, SYNC_AREA_SIZE_BYTES, false);
+        
+        ioThread = new Thread(() -> {
+            while (shmFile != null)
+            {
+                checkIO();
+            }
+        });
+        
+        ioThread.start();
     }
     
     /**
@@ -182,7 +200,7 @@ public class VMCommsMain implements Closeable
     /**
      * Write commands into the shared memory buffer.
      */
-    private void writeCommands(List<Command> pendingCommands)
+    private synchronized void writeCommands(List<Command> pendingCommands)
     {
         // Number of commands:
         int pendingCountPos = sharedMemory.position();
@@ -218,9 +236,9 @@ public class VMCommsMain implements Closeable
     }
 
     /**
-     * Check for input / send output
+     * Check for input / send output, and apply received data to the stage.
      */
-    public void checkIO(GreenfootStage stage)
+    public synchronized void checkIO(GreenfootStage stage)
     {
         if (checkingIO)
         {
@@ -228,7 +246,50 @@ public class VMCommsMain implements Closeable
         }
         
         checkingIO = true;
+
+        if (haveUpdatedImage)
+        {
+            // sharedMemory.position(USER_AREA_OFFSET + 1);
+            int width = sharedMemory.get(USER_AREA_OFFSET + 1);
+            int height = sharedMemory.get(USER_AREA_OFFSET + 2);
+            sharedMemoryByte.position((USER_AREA_OFFSET + 3) * 4);
+            stage.receivedWorldImage(width, height, sharedMemoryByte);
+            haveUpdatedImage = false;
+        }
         
+        if (haveUpdatedErrorCount)
+        {
+            stage.bringTerminalToFront();
+            haveUpdatedErrorCount = false;
+        }
+        
+        if (updatedSimulationSpeed != -1)
+        {
+            stage.notifySimulationSpeed(updatedSimulationSpeed);
+        }
+        
+        if (worldWasDiscarded)
+        {
+            stage.worldDiscarded();
+            worldWasDiscarded = false;
+        }
+        
+        if (promptCodepoints != null)
+        {
+            stage.receivedAsk(promptCodepoints);
+            promptCodepoints = null;
+        }
+        
+        stage.setLastUserExecutionStartTime(lastExecStartTime);
+            
+        checkingIO = false;
+    }
+
+    /**
+     * Check for input / send output
+     */
+    private void checkIO()
+    {
         FileChannel sharedMemoryLock = this.fc;
 
         // We are holding the lock for the main put area:
@@ -249,74 +310,81 @@ public class VMCommsMain implements Closeable
             {
                 // The client VM has painted a new frame for us:
                 lastSeq = seq;
-                
-                sharedMemory.position(USER_AREA_OFFSET + 1);
-                int width = sharedMemory.get();
-                int height = sharedMemory.get();
-                if (width != 0 && height != 0)
-                {
-                    sharedMemoryByte.position(sharedMemory.position() * 4);
-                    stage.receivedWorldImage(width, height, sharedMemoryByte);
-                }
-                // Have to move sharedMemory position manually because
-                // the sharedMemory buffer doesn't share position with sharedMemoryByte buffer:
-                sharedMemory.position(sharedMemory.position() + width * height);
 
-                // Get rid of all commands that the client has confirmed it has seen:
-                int lastAckCommand = sharedMemory.get();
-                if (lastAckCommand != -1)
+                synchronized (this)
                 {
-                    for (Iterator<Command> iterator = pendingCommands.iterator(); iterator.hasNext(); )
+                    sharedMemory.position(USER_AREA_OFFSET + 1);
+                    int width = sharedMemory.get();
+                    int height = sharedMemory.get();
+                    if (width != 0 && height != 0)
                     {
-                        Command pendingCommand = iterator.next();
-                        if (pendingCommand.commandSequence <= lastAckCommand)
+                        haveUpdatedImage = true;
+                        //sharedMemoryByte.position(sharedMemory.position() * 4);
+                        //stage.receivedWorldImage(width, height, sharedMemoryByte);
+                    }
+                    // Have to move sharedMemory position manually because
+                    // the sharedMemory buffer doesn't share position with sharedMemoryByte buffer:
+                    sharedMemory.position(sharedMemory.position() + width * height);
+    
+                    // Get rid of all commands that the client has confirmed it has seen:
+                    int lastAckCommand = sharedMemory.get();
+                    if (lastAckCommand != -1)
+                    {
+                        for (Iterator<Command> iterator = pendingCommands.iterator(); iterator.hasNext(); )
                         {
-                            if(pendingCommand.commandType == COMMAND_SET_SPEED)
+                            Command pendingCommand = iterator.next();
+                            if (pendingCommand.commandSequence <= lastAckCommand)
                             {
-                                setSpeedCommandCount = setSpeedCommandCount - 1;
+                                if(pendingCommand.commandType == COMMAND_SET_SPEED)
+                                {
+                                    setSpeedCommandCount = setSpeedCommandCount - 1;
+                                }
+                                iterator.remove();
                             }
-                            iterator.remove();
                         }
                     }
-                }
-                
-                // If there's a new error, show the terminal at the front so that the user sees it: 
-                int latestStoppedWithErrorCount = sharedMemory.get();
-                if (latestStoppedWithErrorCount != previousStoppedWithErrorCount)
-                {
-                    stage.bringTerminalToFront();
-                    previousStoppedWithErrorCount = latestStoppedWithErrorCount;
-                }
-                
-                int highTime = sharedMemory.get();
-                int lowTime = sharedMemory.get();
-                long lastExecStartTime = (((long)highTime) << 32) | ((long)lowTime & 0xFFFFFFFFL);
-                stage.setLastUserExecutionStartTime(lastExecStartTime);
-
-                int simSpeed = sharedMemory.get();
-                // Only send the new speed value if the pendingCommands does not include setSpeed commands
-                if (setSpeedCommandCount == 0)
-                {
-                    stage.notifySimulationSpeed(simSpeed);
-                }
-
-                boolean worldPresent = (sharedMemory.get() == 1);
-                if (worldPresent != hadWorld) {
-                    if (! worldPresent) {
-                        stage.worldDiscarded();
+                    
+                    // If there's a new error, show the terminal at the front so that the user sees it: 
+                    int latestStoppedWithErrorCount = sharedMemory.get();
+                    if (latestStoppedWithErrorCount != previousStoppedWithErrorCount)
+                    {
+                        //stage.bringTerminalToFront();
+                        previousStoppedWithErrorCount = latestStoppedWithErrorCount;
+                        haveUpdatedErrorCount = true;
                     }
-                    hadWorld = worldPresent;
-                }
-                
-                int askId = sharedMemory.get();
-                if (askId >= 0 && askId > lastAnswer)
-                {
-                    // Length followed by codepoints for the prompt string:
-                    int askLength = sharedMemory.get();
-                    int[] promptCodepoints = new int[askLength];
-                    sharedMemory.get(promptCodepoints);
-
-                    stage.receivedAsk(promptCodepoints);
+                    
+                    int highTime = sharedMemory.get();
+                    int lowTime = sharedMemory.get();
+                    lastExecStartTime = (((long)highTime) << 32) | ((long)lowTime & 0xFFFFFFFFL);
+                    //stage.setLastUserExecutionStartTime(lastExecStartTime);
+    
+                    int simSpeed = sharedMemory.get();
+                    // Only send the new speed value if the pendingCommands does not include setSpeed commands
+                    if (setSpeedCommandCount == 0)
+                    {
+                        //stage.notifySimulationSpeed(simSpeed);
+                        updatedSimulationSpeed = simSpeed;
+                    }
+    
+                    boolean worldPresent = (sharedMemory.get() == 1);
+                    if (worldPresent != hadWorld) {
+                        if (! worldPresent) {
+                            // stage.worldDiscarded();
+                            worldWasDiscarded = true;
+                        }
+                        hadWorld = worldPresent;
+                    }
+                    
+                    int askId = sharedMemory.get();
+                    if (askId >= 0 && askId > lastAnswer)
+                    {
+                        // Length followed by codepoints for the prompt string:
+                        int askLength = sharedMemory.get();
+                        promptCodepoints = new int[askLength];
+                        sharedMemory.get(promptCodepoints);
+    
+                        //stage.receivedAsk(promptCodepoints);
+                    }
                 }
             }
         }
@@ -347,15 +415,13 @@ public class VMCommsMain implements Closeable
             {
                 Debug.reportError(ex);
             }
-            
-            checkingIO = false;
         }
     }
     
     /**
      * Send an "instantiate world" command.
      */
-    public void instantiateWorld(String className)
+    public synchronized void instantiateWorld(String className)
     {
         pendingCommands.add(new Command(COMMAND_INSTANTIATE_WORLD, className.codePoints().toArray()));
     }
@@ -363,7 +429,7 @@ public class VMCommsMain implements Closeable
     /**
      * Send a "discard world" command.
      */
-    public void discardWorld()
+    public synchronized void discardWorld()
     {
         pendingCommands.add(new Command(COMMAND_DISCARD_WORLD));
     }
@@ -371,7 +437,7 @@ public class VMCommsMain implements Closeable
     /**
      * Send an answer (after receving an "ask" request).
      */
-    public void sendAnswer(String answer)
+    public synchronized void sendAnswer(String answer)
     {
         Command answerCommand = new Command(COMMAND_ANSWERED, answer.codePoints().toArray());
         pendingCommands.add(answerCommand);
@@ -384,7 +450,7 @@ public class VMCommsMain implements Closeable
      * @param key    The property name
      * @param value  The property value
      */
-    public void sendProperty(String key, String value)
+    public synchronized void sendProperty(String key, String value)
     {
         int[] keyCodepoints = key.codePoints().toArray();
         int[] valueCodepoints = value == null ? new int[0] : value.codePoints().toArray();
@@ -399,7 +465,7 @@ public class VMCommsMain implements Closeable
     /**
      * Send an "act" command.
      */
-    public void act()
+    public synchronized void act()
     {
         pendingCommands.add(new Command(COMMAND_ACT));
     }
@@ -407,7 +473,7 @@ public class VMCommsMain implements Closeable
     /**
      * Send a "run simulation" command.
      */
-    public void runSimulation()
+    public synchronized void runSimulation()
     {
         pendingCommands.add(new Command(COMMAND_RUN));
     }
@@ -415,7 +481,7 @@ public class VMCommsMain implements Closeable
     /**
      * Send a "pause simulation" command.
      */
-    public void pauseSimulation()
+    public synchronized void pauseSimulation()
     {
         pendingCommands.add(new Command(COMMAND_PAUSE));
     }
@@ -426,7 +492,7 @@ public class VMCommsMain implements Closeable
      * 
      * @see greenfoot.core.PickActorHelper
      */
-    public void continueDrag(int dragId, int x, int y)
+    public synchronized void continueDrag(int dragId, int x, int y)
     {
         pendingCommands.add(new Command(COMMAND_CONTINUE_DRAG, dragId, x, y));
     }
@@ -434,7 +500,7 @@ public class VMCommsMain implements Closeable
     /**
      * End a drag, identified by the given id.
      */
-    public void endDrag(int dragId)
+    public synchronized void endDrag(int dragId)
     {
         pendingCommands.add(new Command(COMMAND_END_DRAG, dragId));
     }
@@ -445,7 +511,7 @@ public class VMCommsMain implements Closeable
      * @param eventType   The event type
      * @param ordinal     The key code ordinal
      */
-    public void sendKeyEvent(int eventType, int ordinal)
+    public synchronized void sendKeyEvent(int eventType, int ordinal)
     {
         pendingCommands.add(new Command(eventType, ordinal));
     }
@@ -459,7 +525,7 @@ public class VMCommsMain implements Closeable
      * @param button      The button pressed (for button events)
      * @param clickCount  The click count (for click events)
      */
-    public void sendMouseEvent(int eventType, int x, int y, int button, int clickCount)
+    public synchronized void sendMouseEvent(int eventType, int x, int y, int button, int clickCount)
     {
         pendingCommands.add(new Command(eventType, x, y, button, clickCount));
     }
@@ -469,7 +535,7 @@ public class VMCommsMain implements Closeable
      *
      * @param speed   The speed value
      */
-    public void setSimulationSpeed(int speed)
+    public synchronized void setSimulationSpeed(int speed)
     {
         pendingCommands.add(new Command(COMMAND_SET_SPEED, speed));
         // Keeps track of how many setSpeed commands exist in the pendingCommand list.
