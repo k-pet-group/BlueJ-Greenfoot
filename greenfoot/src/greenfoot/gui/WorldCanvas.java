@@ -96,8 +96,12 @@ public class WorldCanvas extends JPanel
     // These variables are shared with the remote communications thread and need synchronised access:
     /** Whether the image has been updated */
     private boolean updateImage;
-    /** The world image (as most recently painted) */
-    private BufferedImage worldImage;
+    /** The world image (as most recently painted; double-buffered) */
+    private BufferedImage[] worldImages = new BufferedImage[2];
+    /** Index in worldImages of the most recently drawn world */
+    private int drawnWorld;
+    /** Whether the last drawn image is currently being transferred */
+    private boolean transferringImage;
     /** The prompt for Greenfoot.ask() */
     private String pAskPrompt;
     /** The ask request identifier */
@@ -372,10 +376,18 @@ public class WorldCanvas extends JPanel
             lastPaintNanos = now;
             int imageWidth = WorldVisitor.getWidthInPixels(world);
             int imageHeight = WorldVisitor.getHeightInPixels(world);
-            if (worldImage == null || worldImage.getHeight() != imageHeight
-                    || worldImage.getWidth() != imageWidth)
+            BufferedImage worldImage;
+            
+            synchronized (this)
             {
-                worldImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_BGR);
+                int toDrawWorld = 1 - drawnWorld; // invert 0/1
+                worldImage = worldImages[toDrawWorld];
+                if (worldImage == null || worldImage.getHeight() != imageHeight
+                        || worldImage.getWidth() != imageWidth)
+                {
+                    worldImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_BGR);
+                    worldImages[toDrawWorld] = worldImage;
+                }
             }
             
             Graphics2D g2 = (Graphics2D)worldImage.getGraphics();
@@ -384,7 +396,17 @@ public class WorldCanvas extends JPanel
             paintDraggedObject(g2);
             WorldVisitor.paintDebug(world, g2);
             paintWorldText(g2, world);
-            updateImage = true; // TODO sync
+            
+            synchronized (this)
+            {
+                // If a world image is currently being transferred, we mustn't overwrite it.
+                // Therefore, alter drawnWorld only if that's not the case:
+                if (! transferringImage)
+                {
+                    drawnWorld = 1 - drawnWorld;
+                }
+                updateImage = true;
+            }
         }
         
         return answer[0];
@@ -409,7 +431,9 @@ public class WorldCanvas extends JPanel
             BufferedImage img;
             synchronized (this)
             {
-                img = updateImage ? worldImage : null;
+                img = updateImage ? worldImages[drawnWorld] : null;
+                transferringImage = (img != null);
+                updateImage = false;
             }
             
             int [] raw = (img == null) ? null : ((DataBufferInt) img.getData().getDataBuffer()).getData();
@@ -466,7 +490,14 @@ public class WorldCanvas extends JPanel
                 lastPaintSize = raw.length;
                 lastPaintSeq = (seq - 1);
                 paintScheduled = false;
-                updateImage = false;
+                synchronized (this)
+                {
+                    transferringImage = false;
+                    // If another world image has been painted in the meantime, make sure that
+                    // drawnWorld indexes the correct image in the array (updateImage will have
+                    // been set true in paintRemote()):
+                    drawnWorld = 1 - drawnWorld;
+                }
             }
             sharedMemory.put(lastAckCommand);
             sharedMemory.put(stoppedWithErrorCount);
@@ -483,22 +514,25 @@ public class WorldCanvas extends JPanel
             sharedMemory.put(world == null ? 0 : 1);
             
             // If not asking, put -1
-            if (pAskPrompt == null || answer[0] != null)
+            synchronized (this)
             {
-                sharedMemory.put(-1);
-            }
-            else
-            {
-                // Asking, so put the ask ID, and the prompt string:
-                int[] codepoints = pAskPrompt.codePoints().toArray();
-                sharedMemory.put(pAskId);
-                sharedMemory.put(codepoints.length);
-                sharedMemory.put(codepoints);
+                if (pAskPrompt == null || answer[0] != null)
+                {
+                    sharedMemory.put(-1);
+                }
+                else
+                {
+                    // Asking, so put the ask ID, and the prompt string:
+                    int[] codepoints = pAskPrompt.codePoints().toArray();
+                    sharedMemory.put(pAskId);
+                    sharedMemory.put(codepoints.length);
+                    sharedMemory.put(codepoints);
+                }
             }
             
             putLock.release();
 
-            // Lock the synchronisation area (C) to make sure that the server has acquired out put area:
+            // Lock the synchronisation area (C) to make sure that the server has acquired our put area:
             FileLock syncLock = shmFileChannel.lock(VMCommsMain.SYNC_AREA_OFFSET_BYTES,
                     VMCommsMain.SYNC_AREA_SIZE_BYTES, false);
             syncLock.release();
