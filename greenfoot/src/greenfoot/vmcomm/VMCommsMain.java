@@ -50,6 +50,11 @@ import static greenfoot.vmcomm.Command.*;
 @OnThread(Tag.FXPlatform)
 public class VMCommsMain implements Closeable
 {
+    // The server-debug VM protocol relies on locking three distinct areas of the file:
+    //  A - the server VM "put" area
+    //  B - the debug VM "put" area
+    //  C - a small region not used for data but to ensure synchronisation
+    //
     //    Server                          Debug
     //   (holds A, C)                     (holds B)
     // [command issued/want update]
@@ -68,6 +73,9 @@ public class VMCommsMain implements Closeable
     //     -> acquire C
     //     -> release B
     //                                    -> acquire B (Server has A and C)
+    //
+    // The acquisition order is B-->A and A-->C, and all three locks are never held by the same
+    // process at the same time. This ensures that there can never be deadlock.
 
     public static final int MAPPED_SIZE = 10_000_000;
     public static final int USER_AREA_OFFSET = 0x1000; // offset in 4-byte chunks; 16KB worth.
