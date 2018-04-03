@@ -30,7 +30,6 @@ import greenfoot.core.WorldHandler;
 import greenfoot.event.SimulationUIListener;
 import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.WorldCanvas;
-import greenfoot.gui.WorldCanvas.PaintWhen;
 import greenfoot.gui.input.InputManager;
 import greenfoot.platforms.WorldHandlerDelegate;
 import greenfoot.record.GreenfootRecorder;
@@ -288,24 +287,9 @@ public class WorldHandlerDelegateIDE
         
         // Make a new ID for the ask request:
         int askId = worldCanvas.getAskId();
-        // Keeping polling the server VM until we get an answer.
+        
         // This will block the simulation thread until we get an answer,
         // but that is the semantics of Greenfoot.ask so it's fine:
-        while (true)
-        {
-            String answer = worldCanvas.paintRemote(PaintWhen.NO_PAINT, askId, prompt);
-            if (answer != null)
-            {
-                return answer;
-            }
-
-            try
-            {
-                Thread.sleep(200);
-            }
-            catch (InterruptedException e)
-            {
-            }
-        }
+        return worldCanvas.doAsk(askId, prompt);
     }
 }

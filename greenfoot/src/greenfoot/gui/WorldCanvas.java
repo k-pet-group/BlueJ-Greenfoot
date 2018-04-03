@@ -106,6 +106,8 @@ public class WorldCanvas extends JPanel
     private String pAskPrompt;
     /** The ask request identifier */
     private int pAskId;
+    /** The answer received from an ask */
+    private String askAnswer;
 
     private final ShadowProjectProperties projectProperties;
     
@@ -411,6 +413,29 @@ public class WorldCanvas extends JPanel
         
         return answer[0];
     }
+
+    @OnThread(Tag.Simulation)
+    public synchronized String doAsk(int askId, String askPrompt)
+    {
+        pAskPrompt = askPrompt;
+        pAskId = askId;
+        askAnswer = null;
+        
+        try
+        {
+            do
+            {
+                wait();
+            }
+            while (askAnswer == null);
+        }
+        catch (InterruptedException ie)
+        {
+            return "";
+        }
+        
+        return askAnswer;
+    }
     
     /**
      * Perform communications exchange with the other VM.
@@ -557,10 +582,14 @@ public class WorldCanvas extends JPanel
         }
     }
     
-    private void gotAskAnswer(String answer)
+    /**
+     * An "ask" answer has been received from the other VM; record it and signal the simulation
+     * thread.
+     */
+    private synchronized void gotAskAnswer(String answer)
     {
-        // TODO store
-        // TODO notify
+        askAnswer = answer;
+        notifyAll();
     }
 
     /**
