@@ -1570,6 +1570,27 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         });
     }
 
+    @Override
+    public @OnThread(Tag.Any) void simulationVMTerminated()
+    {
+        // We must reset the debug VM related state ready for the new debug VM:
+        worldDisplay.setImage(null);
+        worldInstantiationError  = false;
+        settingSpeedFromSimulation = false;
+        instantiateWorldAfterDiscarded = false;
+        lastExecStartTime = 0L;
+        atBreakpoint = false;
+        nextPickId = 1;
+        curPickRequest = 0;
+        curDragRequest = -1;
+        currentWorld = null;
+        worldVisible.set(false);
+        stateProperty.set(State.UNCOMPILED);
+        // This will set up pendingCommands, ready for when
+        // the new debug VM can process data:
+        loadAndMirrorProperties();
+    }
+
     /**
      * Show a dialog to set the image for the given class target.  Will only be called
      * for classes which have Actor or World as an ancestor.

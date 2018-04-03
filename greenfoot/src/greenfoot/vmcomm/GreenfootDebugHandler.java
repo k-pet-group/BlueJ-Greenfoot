@@ -381,6 +381,17 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     @Override
     public void processDebuggerEvent(final DebuggerEvent e, boolean skipUpdate)
     {
+        if (e.getNewState() == Debugger.NOTREADY)
+        {
+            // We will need to relaunch, so reset the flag:
+            hasLaunched = false;
+            vmComms.vmTerminated();
+            if (simulationListener != null)
+            {
+                simulationListener.simulationVMTerminated();
+            }
+        }
+        
         if (e.getNewState() == Debugger.IDLE && !hasLaunched)
         {
             launch((Debugger) e.getSource());
@@ -700,8 +711,18 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
         @OnThread(Tag.Any)
         public void simulationDebugResumed();
 
+        /**
+         * Called when there is an error while instantiating the world.
+         */
         @OnThread(Tag.Any)
         public void worldInstantiationError();
+
+        /**
+         * Called when the debug VM has just terminated
+         * (but not yet restarted)
+         */
+        @OnThread(Tag.Any)
+        public void simulationVMTerminated();
     }
 
     /**
