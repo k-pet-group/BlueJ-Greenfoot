@@ -177,9 +177,27 @@ public class VMCommsMain implements Closeable
     private void writeCommands(List<Command> pendingCommands)
     {
         // Number of commands:
+        int pendingCountPos = sharedMemory.position();
         sharedMemory.put(pendingCommands.size());
+        
+        int numIssued = 0;
         for (Command pendingCommand : pendingCommands)
         {
+            // sequence, type, extra info:
+            int totalLength = pendingCommand.extraInfo.length + 2;
+            if (sharedMemory.position() + totalLength > USER_AREA_OFFSET)
+            {
+                // We can't write all commands in the available buffer:
+                sharedMemory.put(pendingCountPos, numIssued);
+                if (numIssued == 0)
+                {
+                    // I don't imagine this should ever happen, but let's make sure we get
+                    // something meaningful in the log if it does:
+                    throw new RuntimeException("Single command exceeds buffer size");
+                }
+                return;
+            }
+            
             // Start with sequence ID:
             sharedMemory.put(pendingCommand.commandSequence);
             // Put size of this command (measured in integers), including command type:
@@ -187,6 +205,7 @@ public class VMCommsMain implements Closeable
             // Then put that many integers:
             sharedMemory.put(pendingCommand.commandType);
             sharedMemory.put(pendingCommand.extraInfo);
+            numIssued++;
         }
     }
 
