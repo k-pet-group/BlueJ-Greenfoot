@@ -114,49 +114,52 @@ public class WorldCanvas extends JPanel
     /**
      * Shared memory documentation (this comment may get moved to somewhere more appropriate later).
      *
-     * The shared memory is a single lump of memory.  Its format is as follows, where
-     * each position is an integer position (i.e. bytes times four):
-     *
-     * Pos 0: Reserved, in case we want to switch back to using an atomic integer as lock.
-     * Pos 1: When the number is positive, it is a strictly increasing counter set by the
-     *        debug VM to indicate a frame index.  That way the server VM can see the counter
-     *        and see if it increased to determine if there's a new frame to paint.
-     *        (Even at 1000FPS, the scenario could run for 20+ solid days before counter
-     *        wraps so not too fussed by that possibility.)
-     *
-     *        When the number is negative, it indicates that the server VM has sent back
+     * The shared memory consists of two successive lumps of memory. One is used by the server VM to
+     * transmit data, and the other is used by the debug VM for the same purpose. File locks protect
+     * both regions to prevent (in cases where it matters) either side from reading a potentially
+     * incomplete data frame while the other side is still writing it. The locking protocol is
+     * described in VMCommsMain.
+     * 
+     * Its format is as follows, where each position is an integer position (i.e. bytes times four):
+     * 
+     * Server area (16kb):
+     * Pos 0: Reserved. Currently this region is locked independently; the "real" server area starts
+     *        following this position.
+     * Pos 1: When the number is negative, it indicates that the server VM has sent back
      *        information to the debug VM to read.  This includes keyboard and mouse events,
      *        as shown below.
-     *
-     *
-     * When positive frame counter in position 1, interpret rest as follows:
-     * Pos 2: Sequence index when the current (included) image was painted (the image is included
-     *        unchanged in subsequent frames).
-     * Pos 3: Width of world image in pixels (W)
-     * Pos 4: Height of world image in pixels (H)
-     * Pos 5 incl to 4+(W*H) excl, if W and H are both greater than zero:
-     *        W * H pixels one row at a time with no gaps, each pixel is one
-     *        integer, in BGRA form, i.e. blue is highest 8 bits, alpha is lowest.
-     * Pos 5+(W*H): Sequence ID of most recently processed command, or -1 if N/A.
-     * Pos 6+(W*H): Stopped-with-error count.  (If this goes up, server VM will bring terminal to front)
-     * Pos 7+(W*H) and 8+(W*H): Two ints (highest bits first) with value of System.currentTimeMillis()
-     *                          at the point when some execution that may contain user code last started on
-     *                          the simulation thread, or 0L if user code is not currently running.
-     * Pos 9+(W*H): The current simulation speed (1 to 100)
-     * Pos 10+(W*H): 1 if a world is currently installed, or 0 if there is no world.
-     * Pos 11+(W*H): -1 if not currently awaiting a Greenfoot.ask() answer.
-     *              If awaiting, it is count (P) of following codepoints which make up prompt.
-     * Pos 12+(W*H) to 12+(W*H)+P excl: codepoints making up ask prompt.
-     *
-     * When negative frame counter in position 1, interpret rest as follows:
-     * Pos 2: Count of commands (C), can be zero
-     * Pos 3 onwards:
+     * Pos 2: The last consumed image frame received from the debug VM. Note that the debug VM
+     *        should not update the image in the buffer until the current image is consumed
+     *        (otherwise there may be paint artifacts such as tearing). 
+     * Pos 3: Count of commands (C), can be zero
+     * Pos 4 onwards:
      *        Commands.  Each command begins with an integer sequence ID, then has
      *        an integer length (L), followed by L integers (L >= 1).
      *        The first integer of the L integers is always the
      *        command type, and the amount of other integers depend on the command.  For example,
      *        GreenfootStage.COMMAND_RUN just has the command type integer and no more, whereas
      *        mouse events have four integers.
+     *
+     * Debug VM area (10M - 16kb): [Positions relative to beginning]
+     * 
+     * Pos 0: Sequence index when the current (included) image was painted (the image is included
+     *        unchanged in subsequent frames).
+     * Pos 1: Width of world image in pixels (W)
+     * Pos 2: Height of world image in pixels (H)
+     * Pos 3 incl to 3+(W*H) excl, if W and H are both greater than zero:
+     *        W * H pixels one row at a time with no gaps, each pixel is one
+     *        integer, in BGRA form, i.e. blue is highest 8 bits, alpha is lowest.
+     * Pos 3+(W*H): Sequence ID of most recently processed command, or -1 if N/A.
+     * Pos 4+(W*H): Stopped-with-error count.  (If this goes up, server VM will bring terminal to front)
+     * Pos 5+(W*H) and 6+(W*H): Two ints (highest bits first) with value of System.currentTimeMillis()
+     *                          at the point when some execution that may contain user code last started on
+     *                          the simulation thread, or 0L if user code is not currently running.
+     * Pos 7+(W*H): The current simulation speed (1 to 100)
+     * Pos 8+(W*H): 1 if a world is currently installed, or 0 if there is no world.
+     * Pos 9+(W*H): -1 if not currently awaiting a Greenfoot.ask() answer.
+     *              If awaiting, it is count (P) of following codepoints which make up prompt.
+     * Pos 10+(W*H) to 10+(W*H)+P excl: codepoints making up ask prompt.
+     *
      */
     private final IntBuffer sharedMemory;
     private int seq = 1;
