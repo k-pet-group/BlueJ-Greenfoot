@@ -74,8 +74,7 @@ public class VMCommsMain implements Closeable
     //     -> release B
     //                                    -> acquire B (Server has A and C)
     //
-    // The acquisition order is B-->A and A-->C, and all three locks are never held by the same
-    // process at the same time. This ensures that there can never be deadlock.
+    // The acquisition order is B-->A and A-->C. This ensures that there can never be deadlock.
 
     public static final int MAPPED_SIZE = 10_000_000;
     public static final int USER_AREA_OFFSET = 0x1000; // offset in 4-byte chunks; 16KB worth.
@@ -286,6 +285,8 @@ public class VMCommsMain implements Closeable
         stage.setLastUserExecutionStartTime(lastExecStartTime);
             
         checkingIO = false;
+        
+        notifyAll(); // wake IO thread
     }
 
     /**
@@ -406,13 +407,28 @@ public class VMCommsMain implements Closeable
             
             try
             {
-                if (fileLock != null) {
+                if (fileLock != null)
+                {
                     fileLock.release();
                 }
             }
             catch (IOException ex)
             {
                 Debug.reportError(ex);
+            }
+        }
+        
+        
+        // To avoid consuming close to 100% CPU, we wait on the animation timer:
+        synchronized (this)
+        {
+            try
+            {
+                wait();
+            }
+            catch (InterruptedException ie)
+            {
+                // Nothing needs to be done.
             }
         }
     }
