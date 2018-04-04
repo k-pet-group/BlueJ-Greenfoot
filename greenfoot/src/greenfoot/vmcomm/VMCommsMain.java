@@ -99,6 +99,7 @@ public class VMCommsMain implements Closeable
     private final List<Command> pendingCommands = new ArrayList<>();
     private int setSpeedCommandCount = 0;
     private int lastPaintSeq = -1;
+    private int lastConsumedImg = -1;
     
     private boolean checkingIO = false;
     
@@ -256,6 +257,7 @@ public class VMCommsMain implements Closeable
             sharedMemoryByte.position((USER_AREA_OFFSET + 4) * 4);
             stage.receivedWorldImage(width, height, sharedMemoryByte);
             haveUpdatedImage = false;
+            lastConsumedImg = lastPaintSeq;
         }
         
         if (haveUpdatedErrorCount)
@@ -296,6 +298,7 @@ public class VMCommsMain implements Closeable
         // We are holding the lock for the main put area:
         sharedMemory.position(1);
         sharedMemory.put(-lastSeq);
+        sharedMemory.put(lastConsumedImg);
         writeCommands(pendingCommands);
         
         FileLock fileLock = null;

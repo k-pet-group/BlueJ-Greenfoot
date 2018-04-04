@@ -455,10 +455,15 @@ public class WorldCanvas extends JPanel
             fileLock = shmFileChannel.lock(VMCommsMain.SERVER_AREA_OFFSET_BYTES,
                     VMCommsMain.SERVER_AREA_SIZE_BYTES, false);
 
+            boolean doUpdateImage = updateImage;
+            
             sharedMemory.position(1);
             int recvSeq = sharedMemory.get();
             if (recvSeq < 0 && Simulation.getInstance() != null)
             {
+                int lastConsumedImg = sharedMemory.get();
+                // Only update the image if the previous one was consumed:
+                doUpdateImage &= (lastConsumedImg >= lastPaintSeq);
                 int latest = readCommands(answer);
                 if (latest != -1)
                 {
@@ -469,9 +474,14 @@ public class WorldCanvas extends JPanel
             BufferedImage img;
             synchronized (this)
             {
-                img = updateImage ? worldImages[drawnWorld] : null;
+                img = doUpdateImage ? worldImages[drawnWorld] : null;
                 transferringImage = (img != null);
-                updateImage = false;
+                if (img != null)
+                {
+                    // We want to clear the updateImage flag nice and early, so that any new image
+                    // generated in the meantime can correctly set it back to true:
+                    updateImage = false;
+                }
             }
             
             int [] raw = (img == null) ? null : ((DataBufferInt) img.getData().getDataBuffer()).getData();
