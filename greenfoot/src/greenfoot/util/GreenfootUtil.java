@@ -79,6 +79,8 @@ import javafx.scene.shape.Path;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Polyline;
 import javafx.stage.Stage;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * General utility methods for Greenfoot.
@@ -116,82 +118,6 @@ public class GreenfootUtil
             name = qualifiedName.substring(index + 1);
         }
         return name;
-    }
-    
-    /**
-     * Extracts the package of a class from the qualified class name.
-     */
-    public static String extractPackageName(String qualifiedName)
-    {
-        int index = qualifiedName.lastIndexOf('.');
-        String name = "";
-        if (index >= 0) {
-            name = qualifiedName.substring(0, index);
-        }
-        return name;
-    }   
-    
-    /**
-     * Get a spacer along the specified axis and with the specified width.
-     * <p>
-     * A Spacer is like a strut, but with a minimum height/width of 0,
-     * so it will collapse to provide additional space to other
-     * components if necessary.
-     */
-    public static JComponent createSpacer(int axis, int width)
-    {
-        JPanel spacer = new JPanel();
-        
-        spacer.setMinimumSize(new Dimension(0,0));
-        
-        Dimension size = new Dimension();
-        
-        // Preferred size...
-        size.width = 0;
-        size.height = 0;
-        if (axis == X_AXIS) {
-            size.width = width;
-        }
-        else {
-            size.height = width;
-        }
-        spacer.setPreferredSize(size);
-        
-        // Maximum size
-        spacer.setMaximumSize(size);
-
-        spacer.setBorder(null);
-        
-        return spacer;
-    }
-    
-    /**
-     * Create a JLabel suitable for displaying help text (small font).
-     */
-    public static JLabel createHelpLabel()
-    {
-        JLabel helpLabel = new JLabel();
-        Font smallFont = helpLabel.getFont().deriveFont(Font.ITALIC, 11.0f);
-        helpLabel.setFont(smallFont);
-        return helpLabel;
-    }
-
-    /**
-     * Check whether a given file is an image that can be read by Java.
-     * 
-     * @param file the file to check
-     * @return true if the file is a valid image, false otherwise.
-     */
-    public static boolean isImage(File file)
-    {
-        try {
-            BufferedImage img = ImageIO.read(file);
-            if(img==null) return false;
-            return true;
-        }
-        catch(Exception ex) {
-            return false;
-        }
     }
     
     /**
@@ -284,74 +210,9 @@ public class GreenfootUtil
     }
 
     /**
-     * Returns the superclass or null if no superclass can be found.
-     *
-     * @return superclass, or null if the superclass is not part of this project.
-     */
-    public static ClassTarget getSuperclass(ClassTarget classTarget)
-    {
-        ClassTarget superClass = getSuperclassWithoutCheck(classTarget);
-        // Check if there are cyclic hierarchies, and return null if there is.
-        if(containsCyclicHierarchy(classTarget)) {
-            return null;
-        }
-        return superClass;
-    }
-
-    /**
-     * Get the GClass for the superclass guess without checking cycles.
-     *
-     */
-    private static ClassTarget getSuperclassWithoutCheck(ClassTarget classTarget)
-    {
-        String superclassName = getSuperclassGuess(classTarget);
-        if (superclassName == null)
-        {
-            return null;
-        }
-        superclassName = extractClassName(superclassName);
-        // TODO This line seems to cause deadlock at the moment, so commenting out during Greenfoot rewrite:
-        ClassTarget superClass = null; // pkg.getClass(superclassName);
-        return superClass;
-    }
-
-    /**
-     * Returns true if there is a cycle in the inheritance hierarchy.
-     * @return
-     */
-    private static boolean containsCyclicHierarchy(ClassTarget classTarget)
-    {
-        ClassTarget superCls = getSuperclassWithoutCheck(classTarget);
-        while (superCls != null)
-        {
-            if (superCls == classTarget)
-            {
-                return true;
-            }
-            superCls = getSuperclassWithoutCheck(superCls);
-        }
-        return false;
-    }
-
-    /**
-     * Sets the superclass guess that will be returned if it is not possible to
-     * find it in another way.
-     *
-     * <p>If this guess results in a cyclic hierarchy, it will not be set.
-     *
-     * @return True if it was a valid name. False if invalid and something else
-     *         should be tried (for instance if the guess is the same as the
-     *         name of this)
-     */
-    public static String getSuperclassGuess(ClassTarget classTarget)
-    {
-        // TODO implement this
-        return null;
-    }
-
-    /**
      * The green &gt; symbol for act.
      */
+    @OnThread(Tag.FXPlatform)
     public static Node makeActIcon()
     {
         return JavaFXUtil.withStyleClass(new Polyline(
@@ -364,6 +225,7 @@ public class GreenfootUtil
     /**
      * The green triangle symbol for run.
      */
+    @OnThread(Tag.FXPlatform)
     public static Node makeRunIcon()
     {
         return JavaFXUtil.withStyleClass(new Polygon(
@@ -376,6 +238,7 @@ public class GreenfootUtil
     /**
      * The red pause icon.
      */
+    @OnThread(Tag.FXPlatform)
     public static Node makePauseIcon()
     {
         return JavaFXUtil.withStyleClass(new Path(
@@ -389,6 +252,7 @@ public class GreenfootUtil
     /**
      * The brown reset icon.
      */
+    @OnThread(Tag.FXPlatform)
     public static Node makeResetIcon()
     {
         Canvas canvas = new Canvas(15, 15);
@@ -549,31 +413,6 @@ public class GreenfootUtil
         }
     }
     
-    
-    /**
-     * Copies the src-DIR recursively into dst.
-     */
-    public static void copyDir(File src, File dst)
-    {
-        if (!src.isDirectory()) {
-            return;
-        }
-        if (!dst.exists()) {
-            dst.mkdirs();
-        }
-        File[] files = src.listFiles();
-        for (int i = 0; i < files.length; i++) {
-            File file = files[i];
-            File newDst = new File(dst, file.getName());
-            if (file.isDirectory()) {
-                copyDir(file, newDst);
-            }
-            else {
-                copyFile(file, newDst);
-            }
-        }
-    }
-
     /**
      * Copies the src to dst, creating parent dirs for dst. If dst exists it
      * is overwritten.
@@ -765,62 +604,12 @@ public class GreenfootUtil
     /**
      * Create a new button for the use in the Greenfoot UI. 
      */
+    @OnThread(Tag.Swing)
     public static JButton createButton(Action action)
     {
         JButton button = new JButton(action);
         button.setFocusable(false);
         return button;
-    }
-    
-    /**
-     * Creates a new font derived from the one passed in, but with an added underline.
-     */
-    private static Font deriveUnderlinedFont(Font f)
-    {
-        // Note that deriveFont() merges the specified attributes into the font's current attributes
-        // to create the new font. So it is not necessary, as is done in some examples that can be
-        // found in the wild, to retrieve the original attribute map and modify it; we can just
-        // create a new map and put the attributes we want in it.
-        Map<TextAttribute,Integer> attr = new HashMap<>();
-        attr.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
-        Font underLineFont = f.deriveFont(attr);
-        return underLineFont;
-    }
-
-    /**
-     * Makes this label into a clickable link to some website. It will modify
-     * the font to look like a classic link from HTML pages by making it blue
-     * with an underline.
-     * 
-     * @param label The label to make into a hyperlink.
-     * @param url The url to open when clicked.
-     */
-    public static void makeLink(final JLabel label, final String url)
-    {
-        label.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        label.setForeground(urlColor);
-        Font f = label.getFont();
-        Font underLineFont = deriveUnderlinedFont(f);
-        label.setFont(underLineFont);
-        label.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e)
-            {
-                Utility.openWebBrowser(url);
-            }
-        });
-    }
-    
-    /**
-     * Replaces all occurrences of BlueJ with Greenfoot in the title of the frame.
-     * <p>
-     * Should be called from FX thread.
-     */
-    public static void makeGreenfootTitle(Stage frame)
-    {
-        String title = frame.getTitle();
-        String newTitle = title.replaceAll("BlueJ", "Greenfoot");
-        frame.setTitle(newTitle);
     }
     
     /**
@@ -887,6 +676,7 @@ public class GreenfootUtil
      * @param className name of the class
      * @param imageName filename of the image
      */
+    @OnThread(Tag.Simulation)
     public static GreenfootImage getGreenfootImage(String className, String imageName)
     {   
         //try {throw new Exception();} catch (Exception e) {e.printStackTrace();}
@@ -998,6 +788,7 @@ public class GreenfootUtil
     /**
      * returns whether it was successful
      */
+    @OnThread(Tag.Simulation)
     public static boolean storeCurrentUserInfo(UserInfo data)
     {
         if (data.getUserName().equals(getUserName()))
@@ -1024,6 +815,7 @@ public class GreenfootUtil
     /**
      * returns null if storage not supported.
      */
+    @OnThread(Tag.Simulation)
     public static GreenfootImage getUserImage(String userName)
     {
         if (userName == null || userName.equals("")) {
@@ -1083,41 +875,5 @@ public class GreenfootUtil
     public static void convertToGreyImage(BufferedImage image)
     {
         new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null).filter(image, image);
-    }
-
-    /**
-     * This method creates a MacOS button. It will create a "textured" button on
-     * MacOS 10.5 and newer and a "toolbar" button on older MasOS.
-     *
-     * @param button The button that should be changed.
-     */
-    public static void changeToMacButton(AbstractButton button)
-    {
-        // available button styles, as of MacOS 10.5:
-        // square, gradient, bevel, textured, roundRect, recessed, help
-        // segmented styles:
-        // segmented, segmentedRoundRect, segmentedCapsule, segmentedTextured
-        // see: http://developer.apple.com/technotes/tn2007/tn2196.html
-
-        if (!Config.isMacOS()) {
-            return;
-        }
-
-        Border oldBorder = button.getBorder();
-
-        // the following works since MacOS 10.5
-        button.putClientProperty("JButton.buttonType", "square");
-
-        if (oldBorder == button.getBorder()) {
-            // if the border didn't change the "square" type probably doesn't
-            // exist, which means we are running on MacOS < 10.5. This means we
-            // should use the old pre-10.5 "toolbar" style instead.
-            button.putClientProperty("JButton.buttonType", "toolbar");
-        }
-        else {
-            // if we get to this point, the square button type is available, and
-            // we can continue configuring for that one.
-            button.setMargin(new Insets(3, 1, 3, 1));
-        }
     }
 }
