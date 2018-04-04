@@ -98,6 +98,7 @@ public class VMCommsMain implements Closeable
     private int lastSeq = 0;
     private final List<Command> pendingCommands = new ArrayList<>();
     private int setSpeedCommandCount = 0;
+    private int lastPaintSeq = -1;
     
     private boolean checkingIO = false;
     
@@ -249,10 +250,10 @@ public class VMCommsMain implements Closeable
 
         if (haveUpdatedImage)
         {
-            // sharedMemory.position(USER_AREA_OFFSET + 1);
-            int width = sharedMemory.get(USER_AREA_OFFSET + 1);
-            int height = sharedMemory.get(USER_AREA_OFFSET + 2);
-            sharedMemoryByte.position((USER_AREA_OFFSET + 3) * 4);
+            // skip: sequence number, last paint sequence, then:
+            int width = sharedMemory.get(USER_AREA_OFFSET + 2);
+            int height = sharedMemory.get(USER_AREA_OFFSET + 3);
+            sharedMemoryByte.position((USER_AREA_OFFSET + 4) * 4);
             stage.receivedWorldImage(width, height, sharedMemoryByte);
             haveUpdatedImage = false;
         }
@@ -314,13 +315,13 @@ public class VMCommsMain implements Closeable
                 synchronized (this)
                 {
                     sharedMemory.position(USER_AREA_OFFSET + 1);
+                    int paintSeq = sharedMemory.get();
                     int width = sharedMemory.get();
                     int height = sharedMemory.get();
-                    if (width != 0 && height != 0)
+                    if (width != 0 && height != 0 && paintSeq != lastPaintSeq)
                     {
+                        lastPaintSeq = paintSeq;
                         haveUpdatedImage = true;
-                        //sharedMemoryByte.position(sharedMemory.position() * 4);
-                        //stage.receivedWorldImage(width, height, sharedMemoryByte);
                     }
                     // Have to move sharedMemory position manually because
                     // the sharedMemory buffer doesn't share position with sharedMemoryByte buffer:
@@ -356,20 +357,17 @@ public class VMCommsMain implements Closeable
                     int highTime = sharedMemory.get();
                     int lowTime = sharedMemory.get();
                     lastExecStartTime = (((long)highTime) << 32) | ((long)lowTime & 0xFFFFFFFFL);
-                    //stage.setLastUserExecutionStartTime(lastExecStartTime);
     
                     int simSpeed = sharedMemory.get();
                     // Only send the new speed value if the pendingCommands does not include setSpeed commands
                     if (setSpeedCommandCount == 0)
                     {
-                        //stage.notifySimulationSpeed(simSpeed);
                         updatedSimulationSpeed = simSpeed;
                     }
     
                     boolean worldPresent = (sharedMemory.get() == 1);
                     if (worldPresent != hadWorld) {
                         if (! worldPresent) {
-                            // stage.worldDiscarded();
                             worldWasDiscarded = true;
                         }
                         hadWorld = worldPresent;
@@ -382,8 +380,6 @@ public class VMCommsMain implements Closeable
                         int askLength = sharedMemory.get();
                         promptCodepoints = new int[askLength];
                         sharedMemory.get(promptCodepoints);
-    
-                        //stage.receivedAsk(promptCodepoints);
                     }
                 }
             }

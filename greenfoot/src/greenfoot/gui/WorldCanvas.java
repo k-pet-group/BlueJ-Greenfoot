@@ -130,21 +130,23 @@ public class WorldCanvas extends JPanel
      *
      *
      * When positive frame counter in position 1, interpret rest as follows:
-     * Pos 2: Width of world image in pixels (W)
-     * Pos 3: Height of world image in pixels (H)
-     * Pos 4 incl to 4+(W*H) excl, if W and H are both greater than zero:
+     * Pos 2: Sequence index when the current (included) image was painted (the image is included
+     *        unchanged in subsequent frames).
+     * Pos 3: Width of world image in pixels (W)
+     * Pos 4: Height of world image in pixels (H)
+     * Pos 5 incl to 4+(W*H) excl, if W and H are both greater than zero:
      *        W * H pixels one row at a time with no gaps, each pixel is one
      *        integer, in BGRA form, i.e. blue is highest 8 bits, alpha is lowest.
-     * Pos 4+(W*H): Sequence ID of most recently processed command, or -1 if N/A.
-     * Pos 5+(W*H): Stopped-with-error count.  (If this goes up, server VM will bring terminal to front)
-     * Pos 6+(W*H) and 7+(W*H): Two ints (highest bits first) with value of System.currentTimeMillis()
+     * Pos 5+(W*H): Sequence ID of most recently processed command, or -1 if N/A.
+     * Pos 6+(W*H): Stopped-with-error count.  (If this goes up, server VM will bring terminal to front)
+     * Pos 7+(W*H) and 8+(W*H): Two ints (highest bits first) with value of System.currentTimeMillis()
      *                          at the point when some execution that may contain user code last started on
      *                          the simulation thread, or 0L if user code is not currently running.
-     * Pos 8+(W*H): The current simulation speed (1 to 100)
-     * Pos 9+(W*H): 1 if a world is currently installed, or 0 if there is no world.
-     * Pos 10+(W*H): -1 if not currently awaiting a Greenfoot.ask() answer.
+     * Pos 9+(W*H): The current simulation speed (1 to 100)
+     * Pos 10+(W*H): 1 if a world is currently installed, or 0 if there is no world.
+     * Pos 11+(W*H): -1 if not currently awaiting a Greenfoot.ask() answer.
      *              If awaiting, it is count (P) of following codepoints which make up prompt.
-     * Pos 11+(W*H) to 11+(W*H)+P excl: codepoints making up ask prompt.
+     * Pos 12+(W*H) to 12+(W*H)+P excl: codepoints making up ask prompt.
      *
      * When negative frame counter in position 1, interpret rest as follows:
      * Pos 2: Count of commands (C), can be zero
@@ -452,6 +454,17 @@ public class WorldCanvas extends JPanel
             // Get lock for our read area:
             fileLock = shmFileChannel.lock(VMCommsMain.SERVER_AREA_OFFSET_BYTES,
                     VMCommsMain.SERVER_AREA_SIZE_BYTES, false);
+
+            sharedMemory.position(1);
+            int recvSeq = sharedMemory.get();
+            if (recvSeq < 0 && Simulation.getInstance() != null)
+            {
+                int latest = readCommands(answer);
+                if (latest != -1)
+                {
+                    lastAckCommand = latest;
+                }
+            }
             
             BufferedImage img;
             synchronized (this)
@@ -470,42 +483,20 @@ public class WorldCanvas extends JPanel
                 imageWidth = img.getWidth();
                 imageHeight = img.getHeight();
             }
-                        
-            sharedMemory.position(1);
-            int recvSeq = sharedMemory.get();
-            if (recvSeq < 0)
-            {
-                if (Simulation.getInstance() != null)
-                {
-                    int latest = readCommands(answer);
-                    if (latest != -1)
-                    {
-                        lastAckCommand = latest;
-                    }
-                }
-            }
             
             sharedMemory.position(VMCommsMain.USER_AREA_OFFSET);
             sharedMemory.put(this.seq++);
             if (img == null)
             {
-                // If we don't want to paint, we need to check if the other end received the
-                // last image that we did send. If it hasn't, we leave it in place; otherwise
-                // we set width and height to 0, to indicate no image:
-                if (lastPaintSeq <= -recvSeq)
-                {
-                    sharedMemory.put(0);
-                    sharedMemory.put(0);
-                }
-                else
-                {
-                    sharedMemory.get(); // skip width
-                    sharedMemory.get(); // skip height
-                    sharedMemory.position(sharedMemory.position() + lastPaintSize);
-                }
+                sharedMemory.put(lastPaintSeq);
+                sharedMemory.get(); // skip width
+                sharedMemory.get(); // skip height
+                sharedMemory.position(sharedMemory.position() + lastPaintSize);
             }
             else
             {
+                lastPaintSeq = (seq - 1);
+                sharedMemory.put(lastPaintSeq);
                 sharedMemory.put(imageWidth);
                 sharedMemory.put(imageHeight);
                 for (int i = 0; i < raw.length; i++)
@@ -513,7 +504,6 @@ public class WorldCanvas extends JPanel
                     sharedMemory.put(raw[i] << 8 | 0xFF);
                 }
                 lastPaintSize = raw.length;
-                lastPaintSeq = (seq - 1);
                 paintScheduled = false;
                 synchronized (this)
                 {
