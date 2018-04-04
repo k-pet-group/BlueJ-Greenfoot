@@ -30,6 +30,8 @@ import java.awt.Desktop;
 
 import bluej.Config;
 import bluej.utility.Debug;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A class containing static methods for the purposes of launching external
@@ -48,6 +50,7 @@ public class ExternalAppLauncher
      * 
      * @param file the file to open.
      */
+    @OnThread(Tag.Swing)
     public static void openFile(File file)
     {
         try {
@@ -72,6 +75,7 @@ public class ExternalAppLauncher
      * 
      * @param file the file to open for editing.
      */
+    @OnThread(Tag.Swing)
     public static void editImage(File file)
     {
         boolean success = false;
@@ -91,6 +95,7 @@ public class ExternalAppLauncher
      * 
      * @param file the file to open for editing.
      */
+    @OnThread(Tag.Swing)
     private static void editFile(File file)
     {
         try {
