@@ -2232,4 +2232,18 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             debugHandler.getVmComms().setSimulationSpeed(newSpeed);
         }
     }
+
+    /**
+     * Checks if the class to be deleted is the current world class, then it sets
+     * currentWorld field to null. This avoids generating exception when Greenfoot
+     * later tries to use the currentWorld field in GreenfootStage.
+     * @param classTarget The class to be deleted.
+     */
+    public void fireWorldRemovedCheck(ClassTarget classTarget)
+    {
+        if (classTarget.equals(currentWorld))
+        {
+            currentWorld = null;
+        }
+    }
 }
