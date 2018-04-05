@@ -1539,13 +1539,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     }
 
     @Override
-    public @OnThread(Tag.Any) void simulationInitialisedWorld()
-    {
-        // This shows that compilation has finished, and we are back in the compiled but paused state:
-        Platform.runLater(() -> stateProperty.set(State.PAUSED));
-    }
-
-    @Override
     public @OnThread(Tag.Any) void simulationDebugHalted()
     {
         atBreakpoint = true;
