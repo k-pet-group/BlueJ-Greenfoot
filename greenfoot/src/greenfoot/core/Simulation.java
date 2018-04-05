@@ -263,23 +263,15 @@ public class Simulation extends Thread
     }
     
     public final static String PAUSED = "simulationWait";
+    
     /**
      * A special method recognised by the debugger as indicating that the simulation
      * is pausing.
      */
     private void simulationWait() throws InterruptedException
     {
-        simulationWaitContent();
-    }
-
-    private void simulationWaitContent() throws InterruptedException
-    {
-        // Can't wait too long as this makes dragging-while-paused too laggy:
-        this.wait(100);
-        // For now, paintRemote() is used to access and act on the commands
-        // from the server VM (such as Run).  Later in the Greenfoot rewrite,
-        // this should get refactored:
-        paintRemote(false);
+        paintRemote(true);
+        this.wait();
     }
 
     public final static String WORLD_STARTED = "worldStarted";

@@ -36,7 +36,6 @@ import greenfoot.record.GreenfootRecorder;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -123,8 +122,6 @@ public class WorldHandlerDelegateIDE
             return;
         }
 
-        frame.updateBackgroundMessage();
-
         final Class<? extends World> icls = cls;
         Simulation.getInstance().runLater(() -> {
             try {
@@ -151,9 +148,7 @@ public class WorldHandlerDelegateIDE
                 e.printStackTrace();
                 runIfError.run();
             }
-            EventQueue.invokeLater(() -> {
-                worldInitialising = false;
-            });
+            worldInitialising = false;
         });
     }
 
