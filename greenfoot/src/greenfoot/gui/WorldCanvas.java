@@ -524,7 +524,10 @@ public class WorldCanvas extends JPanel
                     // If another world image has been painted in the meantime, make sure that
                     // drawnWorld indexes the correct image in the array (updateImage will have
                     // been set true in paintRemote()):
-                    drawnWorld = 1 - drawnWorld;
+                    if (updateImage)
+                    {
+                        drawnWorld = 1 - drawnWorld;
+                    }
                 }
             }
             sharedMemory.put(lastAckCommand);
