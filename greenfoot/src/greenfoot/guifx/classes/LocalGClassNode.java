@@ -244,6 +244,7 @@ public class LocalGClassNode extends GClassNode implements TargetListener
 
         // Delete:
         contextMenu.getItems().add(GClassDiagram.contextInbuilt(Config.getString("remove.class"), () -> {
+            greenfootStage.fireWorldRemovedCheck(classTarget);
             classTarget.remove();
             // Recalculate class contents after deletion:
             classDiagram.recalculateGroups();
