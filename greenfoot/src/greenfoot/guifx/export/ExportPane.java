@@ -24,7 +24,6 @@ package greenfoot.guifx.export;
 
 import bluej.Config;
 
-import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
@@ -38,13 +37,8 @@ import javafx.scene.control.Tooltip;
  */
 public abstract class ExportPane extends Tab
 {
-    private static final String lockText = Config.getString("export.lock.label");
-    private static final String hideControlsText = Config.getString("export.controls.label");
-    private static final String hideControlsDescription = Config.getString("export.controls.description");
-    private static final String lockDescription = Config.getString("export.lock.description");
-
-    protected final CheckBox lockScenario = new CheckBox(lockText);
-    protected final CheckBox hideControls = new CheckBox(hideControlsText);
+    protected final CheckBox lockScenario = new CheckBox(Config.getString("export.lock.label"));
+    protected final CheckBox hideControls = new CheckBox(Config.getString("export.controls.label"));
 
     /**
      * Create a an export pane for export to web pages.
@@ -52,12 +46,10 @@ public abstract class ExportPane extends Tab
     public ExportPane()
     {
         lockScenario.setSelected(true);
-        lockScenario.setAlignment(Pos.BASELINE_LEFT);
-        lockScenario.setTooltip(new Tooltip(lockDescription));
+        lockScenario.setTooltip(new Tooltip(Config.getString("export.lock.description")));
 
         hideControls.setSelected(false);
-        hideControls.setAlignment(Pos.BASELINE_LEFT);
-        hideControls.setTooltip(new Tooltip(hideControlsDescription));
+        hideControls.setTooltip(new Tooltip(Config.getString("export.controls.description")));
 
         getStyleClass().add("export-pane");
     }
