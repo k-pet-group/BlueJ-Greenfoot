@@ -55,7 +55,7 @@
 .export-publish-pane .pop-pane {
     -fx-spacing: 2px;
 }
-.export-publish-pane .login-pane {
+.export-publish-pane .scenario-pane, .export-publish-pane .login-pane {
     -fx-spacing: 10px;
 }
 .export-publish-pane .info-pane{
