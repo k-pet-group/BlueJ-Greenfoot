@@ -80,7 +80,7 @@ is full or write-protected.
 cannot-read-apidoc
 The API documentation is missing or unable to be read:
 
-export-compile-notCompiled
+export-compile-not-compiled
 Not all the classes in the scenario are compiled. To continue
 with the export, check for errors.
 
