@@ -46,23 +46,26 @@
 .export-pane {
     -fx-background-color: rgb(220, 220, 220);
 }
-.export-publish-pane .info-pane, .export-publish-pane .login-pane {
-    -fx-background-color: rgb(166, 188, 202);
+.export-publish-pane {
+    -fx-spacing: 20px;
 }
-.export-publish-pane, .export-publish-pane .tag-pane {
+.export-publish-pane .info-pane {
+    -fx-background-color: rgb(166, 188, 202);
+    -fx-padding: 10px;
+}
+.export-publish-pane .scenario-pane {
+    -fx-spacing: 10px;
+    -fx-padding: 0 10px 0 0;
+}
+.export-publish-pane .tag-pane {
     -fx-spacing: 20px;
 }
 .export-publish-pane .pop-pane {
     -fx-spacing: 2px;
 }
-.export-publish-pane .scenario-pane, .export-publish-pane .login-pane {
+.export-publish-pane .login-pane {
+    -fx-background-color: rgb(166, 188, 202);
     -fx-spacing: 10px;
-}
-.export-publish-pane .info-pane{
-    -fx-padding: 10px;
-}
-.export-publish-pane .scenario-pane {
-    -fx-padding: 0 10px 0 0;
 }
 .export-publish-pane .label {
     -fx-font-size: 11pt;
