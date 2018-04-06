@@ -66,8 +66,8 @@ Cancel
 null
 
 import-image-exists
-The current project already contains an image file named $. Please remove
-or rename it before trying to import a file with the same name.
+The current project already contains an image file named $.
+The imported class will use the existing image.
 
 import-class-exists
 The current project already contains a class named $. A class of the same name cannot be imported.
