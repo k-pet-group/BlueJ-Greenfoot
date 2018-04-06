@@ -162,19 +162,22 @@ public class WorldHandlerDelegateIDE
         {
             try
             {
-                String className = mostRecentlyInstantiatedWorldClassName;
-                //it is important that we use the right classloader
+                // it is important that we use the right classloader
                 ClassLoader classLdr = ExecServer.getCurrentClassLoader();
                 Class<?> cls = Class.forName(mostRecentlyInstantiatedWorldClassName, false, classLdr);
                 if (GreenfootUtil.canBeInstantiated(cls))
                 {
-                    return (Class<? extends World>) cls;
+                    return cls.asSubclass(World.class);
                 }
             }
             catch (java.lang.ClassNotFoundException cnfe)
             {
                 // couldn't load: that's ok, we return null
                 // cnfe.printStackTrace();
+            }
+            catch (ClassCastException cce)
+            {
+                // The class is (no longer) a world class: ok, ignore
             }
             catch (LinkageError e)
             {
