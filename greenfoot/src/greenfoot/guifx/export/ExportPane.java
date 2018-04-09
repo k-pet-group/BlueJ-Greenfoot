@@ -27,6 +27,8 @@ import bluej.Config;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 /**
  * ExportPane is a superclass for all changing panes that can appear 
@@ -43,8 +45,11 @@ public abstract class ExportPane extends Tab
     /**
      * Create a an export pane for export to web pages.
      */
-    public ExportPane()
+    public ExportPane(String iconName)
     {
+        setClosable(false);
+        setGraphic(new ImageView(new Image(getClass().getClassLoader().getResourceAsStream(iconName))));
+
         lockScenario.setSelected(true);
         lockScenario.setTooltip(new Tooltip(Config.getString("export.lock.description")));
 
@@ -99,6 +104,6 @@ public abstract class ExportPane extends Tab
      */
     protected void applySharedStyle()
     {
-        getContent().getStyleClass().add("export-pane");
+        getContent().getStyleClass().add("export-pane-content");
     }
 }

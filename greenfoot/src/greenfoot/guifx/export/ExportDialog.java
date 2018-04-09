@@ -71,7 +71,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     public ExportDialog(Window parent, Project project, ClassTarget currentWorld, Image snapshot)
             throws ExportException
     {
-        super(parent, dialogTitle, "");
+        super(parent, dialogTitle, "export-dialog");
         this.project = project;
         this.currentWorld = currentWorld;
         this.snapshot = snapshot;
@@ -236,6 +236,11 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         panes.put(ExportProjectPane.FUNCTION, new ExportProjectPane(asWindow, projectName, defaultExportDir));
 
         tabbedPane.getTabs().setAll(panes.values());
+        // This is to change the width of the tabs headers to fill the available space of the tabbed
+        // pane. 30 is subtracted to forbid showing the autoscroll of the tab header. Currently,
+        // there is no way of disabling it. See: https://bugs.openjdk.java.net/browse/JDK-8091334
+        tabbedPane.tabMinWidthProperty()
+                .bind(widthProperty().divide(tabbedPane.getTabs().size()).subtract(30));
     }
 
     /**

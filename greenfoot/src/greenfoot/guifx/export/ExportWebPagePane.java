@@ -58,7 +58,7 @@ public class ExportWebPagePane extends ExportPane
      */
     public ExportWebPagePane(Window parent, String scenarioName, File defaultExportDir)
     {
-        super();
+        super("export-webpage.png");
         this.parent = parent;
         File exportDir = new File(defaultExportDir, scenarioName + "-export");
 
@@ -68,6 +68,7 @@ public class ExportWebPagePane extends ExportPane
         }
         
         makePane(exportDir);
+        applySharedStyle();
     }
     
     /**
