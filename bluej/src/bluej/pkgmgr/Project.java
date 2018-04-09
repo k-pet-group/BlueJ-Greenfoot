@@ -799,25 +799,41 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     private synchronized void loadProjectProperties(Properties props)
     {
         String charsetName = props.getProperty(PROJECT_CHARSET_PROP);
-        if (charsetName != null) {
-            try {
+        if (charsetName != null)
+        {
+            try
+            {
                 characterSet = Charset.forName(charsetName);
             }
-            catch (IllegalCharsetNameException icne) {
-                Debug.log("Illegal project character set name: " + charsetName);
+            catch (IllegalCharsetNameException icne)
+            {
+                Debug.message("Illegal project character set name: " + charsetName);
             }
-            catch (UnsupportedCharsetException ucse) {
-                Debug.log("Unsupported project character set: " + charsetName);
+            catch (UnsupportedCharsetException ucse)
+            {
+                Debug.message("Unsupported project character set: " + charsetName);
             }
         }
-        if (characterSet == null) {
+        if (characterSet == null)
+        {
             characterSet = Charset.defaultCharset();
             props.put(PROJECT_CHARSET_PROP, characterSet.name());
         }
 
         String runOnThreadProp = props.getProperty(RUN_ON_THREAD_PROP);
-        // It matters whether it was found or not, so store null if not found:
-        runOnThread = runOnThreadProp == null || runOnThreadProp.isEmpty() ? null : RunOnThread.valueOf(runOnThreadProp);
+        try
+        {
+            // Note that the null value is checked for explicitly and means "prompt if
+            // running an FX application". So, rather than set to DEFAULT, leave as null
+            // if the property isn't set:
+            runOnThread = runOnThreadProp == null || runOnThreadProp.isEmpty() ?
+                    null : RunOnThread.valueOf(runOnThreadProp);
+        }
+        catch (IllegalArgumentException iae)
+        {
+            // Property was set to an invalid setting
+            Debug.message("Invalid run-on-thread setting: " + runOnThreadProp);
+        }
     }
 
     /**
