@@ -56,10 +56,11 @@ public class ExportAppPane extends ExportPane
      */
     public ExportAppPane(Window parent, String scenarioName, File defaultExportDir)
     {
-        super();
+        super("export-app.png");
         this.parent = parent;
         File targetFile = new File(defaultExportDir, scenarioName + ".jar");
         makePane(targetFile);
+        applySharedStyle();
     }
     
     /**

@@ -55,10 +55,11 @@ public class ExportProjectPane extends ExportPane
      */
     public ExportProjectPane(Window parent, String scenarioName, File defaultExportDir)
     {
-        super();
+        super("export-project.png");
         this.parent = parent;
         File targetFile = new File(defaultExportDir, scenarioName + ".gfar");
         makePane(targetFile);
+        applySharedStyle();
     }
     
     /**

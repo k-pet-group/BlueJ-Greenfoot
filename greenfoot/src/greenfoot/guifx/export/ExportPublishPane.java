@@ -116,7 +116,7 @@ public class ExportPublishPane extends ExportPane
      */
     public ExportPublishPane(Project project, ExportDialog exportDialog)
     {
-        super();
+        super("export-publish.png");
         this.project = project;
         this.exportDialog = exportDialog;
 

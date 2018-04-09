@@ -43,7 +43,18 @@
     -fx-border-style: solid inside;
 }
 
+.export-dialog .content .tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: transparent;
+}
 .export-pane {
+    -fx-pref-height: 75px;
+    -fx-background-color: transparent;
+}
+.export-pane:selected {
+    -fx-border-color: rgb(220, 220, 220);
+    -fx-background-color: rgb(220, 220, 220);
+}
+.export-pane-content {
     -fx-background-color: rgb(220, 220, 220);
 }
 .export-publish-pane {
