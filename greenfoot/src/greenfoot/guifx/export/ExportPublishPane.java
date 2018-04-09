@@ -594,11 +594,12 @@ public class ExportPublishPane extends ExportPane
         titleAndDescPanel.setHgap(8);
 
         ColumnConstraints column1 = new ColumnConstraints();
-        column1.setPrefWidth(100);
+        // 130 fits the different labels nicely
+        column1.setPrefWidth(130);
         column1.setHalignment(HPos.RIGHT);
         // Second column gets any extra width
         ColumnConstraints column2 = new ColumnConstraints();
-        column2.setPrefWidth(260);
+        column2.setPrefWidth(220);
         column2.setHgrow(Priority.ALWAYS);
         column2.setHalignment(HPos.CENTER);
         titleAndDescPanel.getColumnConstraints().addAll(column1, column2);
@@ -647,11 +648,10 @@ public class ExportPublishPane extends ExportPane
             updateArea = new TextArea();
             updateArea.setPrefRowCount(6);
             updateArea.setWrapText(true);
-            // updateArea.setWrapStyleWord(true);
             ScrollPane updatePane = new ScrollPane(updateArea);
-
+            updatePane.setFitToWidth(true);
+            GridPane.setVgrow(updatePane, Priority.ALWAYS);
             titleAndDescPanel.addRow(currentRow++, updateLabel, updatePane);
-            // titleAndDescLayout.setVerticallyExpandingRow(4);
         }
         else
         {
@@ -662,10 +662,10 @@ public class ExportPublishPane extends ExportPane
             shortDescriptionLabel.setAlignment(Pos.TOP_LEFT);
 
             descriptionArea = new TextArea();
-            descriptionArea.setPrefRowCount(6);
+            descriptionArea.setPrefRowCount(5);
             descriptionArea.setWrapText(true);
-            // descriptionArea.setWrapStyleWord(true);
             ScrollPane description = new ScrollPane(descriptionArea);
+            description.setFitToWidth(true);
             GridPane.setVgrow(description, Priority.ALWAYS);
             titleAndDescPanel.addRow(currentRow++, shortDescriptionLabel, description);
         }
@@ -712,9 +712,8 @@ public class ExportPublishPane extends ExportPane
         popPanel.getChildren().addAll(popTags);
 
         tagArea = new TextArea();
-        tagArea.setPrefRowCount(3);
         ScrollPane tagScroller = new ScrollPane(tagArea);
-        tagScroller.setPrefSize(100, 100);
+        tagScroller.setPrefSize(125, 100);
         tagScroller.setFitToWidth(true);
         tagScroller.setFitToHeight(true);
         VBox textPanel = new VBox(new Label(Config.getString("export.publish.tags.additional1")),
