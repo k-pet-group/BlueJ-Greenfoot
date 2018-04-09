@@ -251,10 +251,11 @@ public class VMCommsMain implements Closeable
         if (haveUpdatedImage)
         {
             // skip: sequence number, last paint sequence, then:
-            int width = sharedMemory.get(USER_AREA_OFFSET + 2);
-            int height = sharedMemory.get(USER_AREA_OFFSET + 3);
-            sharedMemoryByte.position((USER_AREA_OFFSET + 4) * 4);
-            stage.receivedWorldImage(width, height, sharedMemoryByte);
+            IntBuffer copy = sharedMemory.asReadOnlyBuffer();
+            copy.position(USER_AREA_OFFSET + 2);
+            int width = copy.get();
+            int height = copy.get();
+            stage.receivedWorldImage(width, height, copy);
             haveUpdatedImage = false;
             lastConsumedImg = lastPaintSeq;
         }

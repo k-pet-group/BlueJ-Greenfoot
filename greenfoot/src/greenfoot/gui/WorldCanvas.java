@@ -392,7 +392,7 @@ public class WorldCanvas extends JPanel
                 if (worldImage == null || worldImage.getHeight() != imageHeight
                         || worldImage.getWidth() != imageWidth)
                 {
-                    worldImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_BGR);
+                    worldImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_ARGB);
                     worldImages[toDrawWorld] = worldImage;
                 }
             }
@@ -514,7 +514,7 @@ public class WorldCanvas extends JPanel
                 sharedMemory.put(imageHeight);
                 for (int i = 0; i < raw.length; i++)
                 {
-                    sharedMemory.put(raw[i] << 8 | 0xFF);
+                    sharedMemory.put(raw[i]);
                 }
                 lastPaintSize = raw.length;
                 paintScheduled = false;
