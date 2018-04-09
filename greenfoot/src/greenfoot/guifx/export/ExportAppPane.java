@@ -61,6 +61,7 @@ public class ExportAppPane extends ExportPane
         File targetFile = new File(defaultExportDir, scenarioName + ".jar");
         makePane(targetFile);
         applySharedStyle();
+        getContent().getStyleClass().add("export-local-pane");
     }
     
     /**
@@ -81,23 +82,18 @@ public class ExportAppPane extends ExportPane
         Label exportLocationLabel = new Label(Config.getString("export.app.location"));
 
         targetDirField = new TextField(targetFile.toString());
-        targetDirField.setPrefColumnCount(26);
+        targetDirField.setPrefColumnCount(30);
         targetDirField.setEditable(false);
 
         Button browse = new Button(Config.getString("export.app.browse"));
         browse.setOnAction(event -> targetDirField.setText(askForFileName(targetFile)));
 
         HBox exportLocationPane = new HBox(exportLocationLabel, targetDirField, browse);
-        // exportLocationPane.setBackground(backgroundColor);
         exportLocationPane.setAlignment(Pos.BASELINE_LEFT);
+        exportLocationPane.getStyleClass().add("location-pane");
 
-        VBox inputPane = new VBox(exportLocationPane, lockScenario, hideControls);
-        inputPane.setAlignment(Pos.BASELINE_LEFT);
-        // inputPane.setBackground(backgroundColor);
-
-        Label helpLabel = new Label(Config.getString("export.app.help"));
-        VBox mainPane = new VBox(helpLabel, inputPane);
-        setContent(mainPane);
+        setContent(new VBox(new Label(Config.getString("export.app.help")), exportLocationPane,
+                lockScenario, hideControls));
     }
     
     /**
