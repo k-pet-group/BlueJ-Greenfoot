@@ -1629,7 +1629,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     /**
      * Show a dialog for a new name, and then duplicate the class target with that new name.
      */
-    public void duplicateClass(ClassTarget originalClassTarget)
+    public void duplicateClass(LocalGClassNode originalNode, ClassTarget originalClassTarget)
     {
         String originalClassName = originalClassTarget.getDisplayName();
         SourceType sourceType = originalClassTarget.getSourceType();
@@ -1646,8 +1646,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 File originalFile = new File(dir, originalClassName + "." + extension);
                 GreenfootUtilDelegateIDE.getInstance().duplicate(originalClassName, newClassName, originalFile, newFile, sourceType);
                 ClassTarget newClass = originalClassTarget.getPackage().addClass(newClassName);
-                classDiagram.addClass(newClass);
-                // TODO set the image property (recorded as part of GREENFOOT-641 ticket)
+                LocalGClassNode newNode = classDiagram.addClass(newClass);
+                
+                String originalImage = originalNode.getImageFilename();
+                if (originalImage != null)
+                {
+                    File imagesDir = new File(project.getProjectDir(), "images");
+                    File srcImage = new File(imagesDir, originalImage);
+                    setImageToClassNode(newNode, srcImage);
+                }
             }
             catch (IOException ioe)
             {
@@ -1686,6 +1693,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 if (destImage.exists())
                 {
                     DialogManager.showMessageFX(this, "import-image-exists", srcImage.getName());
+                    destImage = null;
                 }
             }
 
@@ -1714,17 +1722,16 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 return;
             }
 
+            // Finally, update the class browser:
+            LocalGClassNode gclassNode = classDiagram.addClass(gclass);
+
             // Copy the image across and set it as the class image:
             if (srcImage != null && destImage != null && !destImage.exists())
             {
                 GreenfootUtil.copyFile(srcImage, destImage);
-                // TODO set the image property (recorded as part of GREENFOOT-641 ticket)
-                //project.setClassProperty("image", destImage.getName());
+                setImageToClassNode(gclassNode, destImage);
             }
-
-            //Finally, update the class browser:
-            classDiagram.addClass(gclass);
-
+            
             if (librariesImportedFlag)
             {
                 // Must restart debug VM to load the imported library:

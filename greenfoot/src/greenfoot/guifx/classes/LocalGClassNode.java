@@ -239,7 +239,7 @@ public class LocalGClassNode extends GClassNode implements TargetListener
         if (classTarget.hasSourceCode())
         {
             contextMenu.getItems().add(GClassDiagram.contextInbuilt(Config.getString("duplicate.class"),
-                    () -> greenfootStage.duplicateClass(classTarget)));
+                    () -> greenfootStage.duplicateClass(this, classTarget)));
         }
 
         // Delete:
