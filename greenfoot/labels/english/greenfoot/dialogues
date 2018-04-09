@@ -66,20 +66,24 @@ Cancel
 null
 
 import-image-exists
-The current project already contains an image file named $. Please remove
-or rename it before trying to import a file with the same name.
+The current project already contains an image file named $.
+The imported class will use the existing image.
 
 import-class-exists
-The current project already contains a class named $. A class of the same name cannot be imported.
+The current project already contains a class named $. A class
+of the same name cannot be imported.
 
 imagelib-writing-image-failed
-Unable to write the image file on the disk. Check if the disk is full or write-protected.
+Unable to write the image file on the disk. Check if the disk
+is full or write-protected.
 
 cannot-read-apidoc
 The API documentation is missing or unable to be read:
 
-export-compile-notCompiled
-Not all the classes in the scenario are compiled. To continue with the export, check for errors.
+export-compile-not-compiled
+Not all the classes in the scenario are compiled. To continue
+with the export, check for errors.
 
 error-open-readme
-The scenario information (README) could not be opened. Perhaps it has been deleted or its permissions have been set incorrectly.
+The scenario information (README) could not be opened. Perhaps
+it has been deleted or its permissions have been set incorrectly.
