@@ -2254,14 +2254,18 @@ public final class Package
      * is done by opening the class's source, highlighting the line and showing
      * the message in the editor's information area.
      */
-    private boolean showEditorMessage(String filename, int lineNo, final String message, boolean beep, boolean bringToFront)
+    private boolean showEditorMessage(String filename, int lineNo, final String message,
+            boolean beep, boolean bringToFront)
     {
         Editor targetEditor = editorForTarget(filename, bringToFront);
-        if (targetEditor != null) {
+        if (targetEditor != null)
+        {
             targetEditor.displayMessage(message, lineNo, 0);
         }
-        else {
-            Debug.message(filename + ", line" + lineNo + ": " + message);
+        else
+        {
+            Debug.message("Error or exception for source not in project: " + filename + ", line " +
+                    lineNo + ": " + message);
         }
         return true;
     }
