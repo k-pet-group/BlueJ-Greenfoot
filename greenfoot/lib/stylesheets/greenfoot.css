@@ -1,3 +1,9 @@
+/* Define named colours: */
+.root {
+    export-background: rgb(220, 220, 220);
+    export-publish-info: rgb(166, 188, 202);
+}
+
 .class-group .inherit-arrow {
     -fx-stroke: black;
     -fx-stroke-width: 1;
@@ -51,17 +57,17 @@
     -fx-background-color: transparent;
 }
 .export-pane:selected {
-    -fx-border-color: rgb(220, 220, 220);
-    -fx-background-color: rgb(220, 220, 220);
+    -fx-border-color: export-background;
+    -fx-background-color: export-background;
 }
 .export-pane-content {
-    -fx-background-color: rgb(220, 220, 220);
+    -fx-background-color: export-background;
 }
 .export-publish-pane {
     -fx-spacing: 20px;
 }
 .export-publish-pane .info-pane {
-    -fx-background-color: rgb(166, 188, 202);
+    -fx-background-color: export-publish-info;
     -fx-padding: 10px;
 }
 .export-publish-pane .scenario-pane {
@@ -75,7 +81,7 @@
     -fx-spacing: 2px;
 }
 .export-publish-pane .login-pane {
-    -fx-background-color: rgb(166, 188, 202);
+    -fx-background-color: export-publish-info;
     -fx-spacing: 10px;
 }
 .export-publish-pane .label {
