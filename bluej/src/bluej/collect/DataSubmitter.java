@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2013,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 2013,2016,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -171,28 +171,12 @@ class DataSubmitter
         try {
             HttpPost post = new HttpPost(submitUrl);
 
-            
-            /*
-            if (errFilePath != null) {
-                mpe.addPart("filepath", new StringBody(errFilePath, utf8));
-            }
-            if (errMsg != null) {
-                mpe.addPart("errormsg", new StringBody(errMsg, utf8));
-            }
-            if (errline != 0) {
-                mpe.addPart("errorline", new StringBody("" + errline, utf8));
-            }
-            
-            int i = 0;
-            for (SourceContent changedFile : changedFiles) {
-                mpe.addPart("sourcefileName" + i, new StringBody(changedFile.getFilePath(), utf8));
-                mpe.addPart("sourcefileContent" + i, new ByteArrayBody(changedFile.getFileContent(),
-                        changedFile.getFilePath()));
-            }
-            */
             MultipartEntity mpe = evt.makeData(sequenceNum, fileVersions);
             if (mpe == null)
+            {
                 return true; // nothing to send, no error
+            }
+            
             //Only increment sequence number if we actually send data:
             sequenceNum += 1;
             post.setEntity(mpe);
@@ -202,15 +186,12 @@ class DataSubmitter
             {
                 if ("X-Status".equals(h.getName()) && !"Created".equals(h.getValue()))
                 {
-                    // Temporary printing:
-                    System.err.println("Problem response: " + mpe.toString() + " " + response.toString());
                     return false;
                 }
             }
             
             if (response.getStatusLine().getStatusCode() != 200)
             {
-                System.err.println("Problem code: " + response.getStatusLine().getStatusCode());
                 return false;
             }
             
