@@ -167,7 +167,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     // Used to stop an infinite loop if we set the speed slider in response to a programmatic change: 
     private boolean settingSpeedFromSimulation = false;
     
-    private boolean instantiateWorldAfterDiscarded;
     private final ExecutionTwirler executionTwirler;
     // When did the user code last start executing?
     private long lastExecStartTime;
@@ -310,7 +309,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         
         JavaFXUtil.addChangeListenerPlatform(stateProperty, this::updateGUIState);
         JavaFXUtil.addChangeListenerPlatform(focusedProperty(), focused -> {
-            if (project != null)
+            if (focused && project != null)
             {
                 DataCollector.recordGreenfootEvent(project, GreenfootInterfaceEvent.WINDOW_ACTIVATED);
                 for (ClassTarget classTarget : project.getUnnamedPackage().getClassTargets())
@@ -453,7 +452,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         DataCollector.recordGreenfootEvent(project, GreenfootInterfaceEvent.WORLD_RESET);
         debugHandler.getVmComms().discardWorld();
-        instantiateWorldAfterDiscarded = true;
+        debugHandler.getVmComms().instantiateWorld(currentWorld.getQualifiedName());
         stateProperty.set(State.UNCOMPILED);
         debugHandler.simulationThreadResumeOnResetClick();
     }
@@ -1214,15 +1213,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public void worldDiscarded()
     {
         worldDisplay.greyOutWorld();
-        // Were we waiting for discard before then instantiating?
-        if (instantiateWorldAfterDiscarded)
-        {
-            instantiateWorldAfterDiscarded = false;
-            if (currentWorld != null)
-            {
-                debugHandler.getVmComms().instantiateWorld(currentWorld.getQualifiedName());
-            }
-        }
     }
     
     /**
@@ -1499,6 +1489,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         // Grey out the world display until compilation finishes:
         worldDisplay.greyOutWorld();
         stateProperty.set(State.UNCOMPILED);
+        updateBackgroundMessage();
     }
 
     @Override
@@ -1510,12 +1501,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     @Override
     public void endCompile(CompileInputFile[] sources, boolean succesful, CompileType type, int compilationSequence)
     {
+        stateProperty.set(State.PAUSED);
         // We only create the world if the window is focused, otherwise
         // we let it remain greyed out:
         if (isFocused())
         {
             doReset();
         }
+        updateBackgroundMessage();
     }
 
     @Override
@@ -1570,7 +1563,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         worldDisplay.setImage(null);
         worldInstantiationError  = false;
         settingSpeedFromSimulation = false;
-        instantiateWorldAfterDiscarded = false;
         lastExecStartTime = 0L;
         atBreakpoint = false;
         nextPickId = 1;
@@ -1946,7 +1938,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public void classModified()
     {
         debugHandler.getVmComms().discardWorld();
-        instantiateWorldAfterDiscarded = isFocused();
+        if (isFocused())
+        {
+            debugHandler.getVmComms().instantiateWorld(currentWorld.getQualifiedName());
+        }
         stateProperty.set(State.UNCOMPILED);
     }
 
