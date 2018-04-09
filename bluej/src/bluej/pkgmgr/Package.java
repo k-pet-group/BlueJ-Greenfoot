@@ -2250,19 +2250,25 @@ public final class Package
     }
     
     /**
-     * Display an error message associated with a specific line in a class. This
-     * is done by opening the class's source, highlighting the line and showing
-     * the message in the editor's information area.
+     * Attempt to display (in the corresponding editor) an error message associated with a
+     * specific line in a class. This is done by opening the class's source, highlighting the line
+     * and showing the message in the editor's information area. If the filename specified does
+     * not exist, the message is not shown.
+     * 
+     * @return true if the message was displayed; false if there was no suitable class.
      */
-    private boolean showEditorMessage(String filename, int lineNo, final String message, boolean beep, boolean bringToFront)
+    private boolean showEditorMessage(String filename, int lineNo, final String message,
+            boolean beep, boolean bringToFront)
     {
         Editor targetEditor = editorForTarget(filename, bringToFront);
-        if (targetEditor != null) {
-            targetEditor.displayMessage(message, lineNo, 0);
+        if (targetEditor == null)
+        {
+            Debug.message("Error or exception for source not in project: " + filename + ", line " +
+                    lineNo + ": " + message);
+            return false;
         }
-        else {
-            Debug.message(filename + ", line" + lineNo + ": " + message);
-        }
+
+        targetEditor.displayMessage(message, lineNo, 0);
         return true;
     }
 
