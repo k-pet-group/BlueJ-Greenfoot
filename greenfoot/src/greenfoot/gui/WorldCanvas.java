@@ -673,19 +673,10 @@ public class WorldCanvas extends JPanel
                         break;
                     case Command.COMMAND_INSTANTIATE_WORLD:
                         String className = new String(data, 1, data.length - 1);
-                        // This seems to deadlock without a run later, although I'm not 100% sure why.
-                        // We may be able to remove this after the FX rewrite is complete:
-                        Simulation.getInstance().runLater(() -> {
-                            WorldHandler.getInstance().instantiateNewWorld(className);
-                            paintRemote(PaintWhen.FORCE, -1, null);
-                        });
+                        WorldHandler.getInstance().instantiateNewWorld(className);
                         break;
                     case Command.COMMAND_DISCARD_WORLD:
-                        // See comment for RESET
-                        Simulation.getInstance().runLater(() -> {
-                            WorldHandler.getInstance().discardWorld();
-                            paintRemote(PaintWhen.FORCE, -1, null);
-                        });
+                        WorldHandler.getInstance().discardWorld();
                         break;
                     case Command.COMMAND_CONTINUE_DRAG:
                         // Will be drag-ID, X, Y:

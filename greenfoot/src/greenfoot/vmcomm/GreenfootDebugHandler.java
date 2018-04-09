@@ -29,7 +29,6 @@ import greenfoot.core.Simulation;
 
 import java.io.File;
 import java.io.IOException;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -270,11 +269,6 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
                 if (greenfootRecorder != null)
                 {
                     greenfootRecorder.setWorld(worldValue);
-                }
-                boolean byUserCode = e.getThread().getLocalVariables(0).get(0).getValue().equals("true");
-                if (simulationListener != null && !byUserCode)
-                {
-                    simulationListener.simulationInitialisedWorld();
                 }
             }
             e.getThread().cont();
@@ -692,12 +686,6 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
          */
         @OnThread(Tag.Any)
         public void simulationPaused();
-
-        /**
-         * Called once the world has been initialised
-         */
-        @OnThread(Tag.Any)
-        public void simulationInitialisedWorld();
 
         /**
          * Called when the simulation thread has hit a (user) breakpoint
