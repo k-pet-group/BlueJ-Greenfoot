@@ -121,23 +121,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     {
         blueJ.setExtensionPropertyString(property, value);
     }
-
-    /*
-     * @see dk.sdu.mip.dit.remote.RBlueJ#exit()
-     */
-    public void exit()
-        throws RemoteException
-    {
-        Platform.runLater(new Runnable() {
-           public void run()
-            {
-               PkgMgrFrame [] frames = PkgMgrFrame.getAllFrames();
-               for (int i = 0; i < frames.length; i++) {
-                   frames[i].doClose(false, true);
-               }
-            }
-        });
-    }
     
     /*
      * @see rmiextension.wrappers.RBlueJ#getInitialCommandLineProperties()

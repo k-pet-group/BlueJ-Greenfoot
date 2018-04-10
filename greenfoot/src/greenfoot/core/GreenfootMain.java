@@ -229,19 +229,6 @@ public class GreenfootMain extends Thread
             Debug.reportError("could not create greenfoot main", exc);
         }
     }
-
-    /**
-     * Close all open Greenfoot project instances, i.e. exit the application.
-     */
-    public static void closeAll()
-    {
-        try {
-            getInstance().rBlueJ.exit();
-        }
-        catch (RemoteException re) {
-            Debug.reportError("Closing all projects", re);
-        }
-    }
     
     /**
      * Gets the version number of the Greenfoot API for this Greenfoot release.
