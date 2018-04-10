@@ -84,67 +84,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     {
         // Nothing to do.
     }
-    
-    /**
-     * Creates the skeleton for a new class
-     */
-    public void createSkeleton(String className, String superClassName, File file, String templateFileName, String projCharsetName)
-        throws IOException
-    {
-        Dictionary<String, String> translations = new Hashtable<String, String>();
-        translations.put("CLASSNAME", className);
-        if(superClassName != null) {
-            translations.put("EXTENDSANDSUPERCLASSNAME", "extends " + superClassName);
-            translations.put("EXTENDSSUPERCLASSNAME",  "extends=\"" + superClassName + "\"");
-        } 
-        else {
-            translations.put("EXTENDSANDSUPERCLASSNAME", "");
-            translations.put("EXTENDSSUPERCLASSNAME",  "");
-        }
-        String baseName = "greenfoot/templates/" +  templateFileName;
-        File template = Config.getLanguageFile(baseName);
-        
-        if(!template.canRead()) {
-            template = Config.getDefaultLanguageFile(baseName);
-        }
-        BlueJFileReader.translateFile(template, file, translations, Charset.forName("UTF-8"), selectCharset(projCharsetName));
-    }
-    
-    /**
-     * Creates the duplicate for a class
-     */
-    public void duplicate(String originalClassName, String destinationClassName, File originalFile, File destination, SourceType type)
-        throws IOException
-    {
-        Dictionary<String, String> translations = new Hashtable<String, String>();
-        translations.put(originalClassName, destinationClassName);
-        BlueJFileReader.duplicateFile(originalFile, destination, translations);
 
-        //TODO if the previous line doesn't work properly for Java & Frame files, replace it with the next mechanism
-//      if (type.equals(SourceType.Java)) {
-//          file = createJavaCopy(destinationClassName, originalClassName, originalFile);
-//      }
-//      else if (type.equals(SourceType.Frame)) {
-//          file = createFrameCopy(destinationClassName, originalClassName, originalFile);
-//      }
-    }
-
-    private Charset selectCharset(String projCharsetName)
-    {
-        Charset projCharset;
-        try
-        {
-            projCharset = Charset.forName(projCharsetName);
-        }
-        catch (UnsupportedCharsetException uce) {
-            projCharset = Charset.forName("UTF-8");
-        }
-        catch (IllegalCharsetNameException icne) {
-            projCharset = Charset.forName("UTF-8");
-        }
-        return projCharset;
-    }
-    
     @Override
     public URL getResource(String path) 
     {
