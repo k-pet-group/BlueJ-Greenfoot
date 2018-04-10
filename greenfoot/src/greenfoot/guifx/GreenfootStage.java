@@ -78,7 +78,6 @@ import greenfoot.guifx.export.ExportException;
 import greenfoot.guifx.images.NewImageClassFrame;
 import greenfoot.guifx.images.SelectImageFrame;
 import greenfoot.guifx.soundrecorder.SoundRecorderControls;
-import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
 import greenfoot.record.GreenfootRecorder;
 import greenfoot.util.GreenfootUtil;
 import greenfoot.vmcomm.GreenfootDebugHandler;
@@ -943,7 +942,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     private void setPlayer()
     {
-        SetPlayerDialog dlg = new SetPlayerDialog(this, GreenfootUtilDelegateIDE.getInstance().getUserName());
+        SetPlayerDialog dlg = new SetPlayerDialog(this, Config.getPropString("greenfoot.player.name", "Player1"));
         dlg.showAndWait().ifPresent(name -> Config.putPropString("greenfoot.player.name", name));
     }
 
