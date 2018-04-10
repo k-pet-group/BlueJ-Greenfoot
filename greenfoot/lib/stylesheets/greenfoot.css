@@ -61,10 +61,9 @@
     -fx-background-color: export-background;
 }
 .export-pane-content {
+    -fx-padding: 10px;
+    -fx-spacing: 10px;
     -fx-background-color: export-background;
-}
-.export-publish-pane {
-    -fx-spacing: 20px;
 }
 .export-publish-pane .info-pane {
     -fx-background-color: export-publish-info;
@@ -92,6 +91,9 @@
 .export-publish-pane .login-Label {
     -fx-font-style: normal;
     -fx-text-fill: rgb(40, 75, 125);
+}
+.export-local-pane .location-pane {
+    -fx-spacing: 5px;
 }
 
 .world-display-wrapper {
