@@ -154,12 +154,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         return Config.getUserConfigDir();
     }
 
-    @Override
-    public void hideSplash() throws RemoteException
-    {
-        Boot.getInstance().disposeSplashWindow();
-    }
-
     private class BProjectRef
     {
         public BProject bProject;

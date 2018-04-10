@@ -87,12 +87,6 @@ public interface RBlueJ
     public File getUserPrefDir()
         throws RemoteException;
 
-    /**
-     * Hide the splash screen, if still currently showing.
-     */
-    public void hideSplash()
-        throws RemoteException;
-
     public void addApplicationListener(RApplicationListener listener)
         throws RemoteException;
 }

@@ -195,15 +195,6 @@ public class GreenfootMain extends Thread
 
                     // Config is initialized in GreenfootLauncherDebugVM
                     
-                    try
-                    {
-                        rBlueJ.hideSplash();
-                    }
-                    catch (RemoteException e)
-                    {
-                        Debug.reportError(e);
-                    }
-
                     // We can do this late on, because although the submission failure may have already
                     // happened, the event is re-issued to new listeners.  And we don't want to accidentally
                     // show the dialog during load because we may interrupt important processes:
