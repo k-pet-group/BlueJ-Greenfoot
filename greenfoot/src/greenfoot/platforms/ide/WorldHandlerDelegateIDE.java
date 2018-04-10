@@ -28,7 +28,6 @@ import greenfoot.core.ImageCache;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.SimulationUIListener;
-import greenfoot.gui.GreenfootFrame;
 import greenfoot.gui.WorldCanvas;
 import greenfoot.gui.input.InputManager;
 import greenfoot.platforms.WorldHandlerDelegate;
@@ -54,15 +53,12 @@ public class WorldHandlerDelegateIDE
 
     private WorldHandler worldHandler;
     
-    private GreenfootFrame frame;
-    
     private boolean worldInitialising;
     private final List<Actor> actorsToName = new ArrayList<>();
     private String mostRecentlyInstantiatedWorldClassName;
 
-    public WorldHandlerDelegateIDE(GreenfootFrame frame)
+    public WorldHandlerDelegateIDE()
     {
-        this.frame = frame;
     }
 
     /**
@@ -73,7 +69,6 @@ public class WorldHandlerDelegateIDE
     public void discardWorld(World world)
     {        
         ImageCache.getInstance().clearImageCache();
-        frame.stopWaitingForAnswer();
     }
     
     @Override

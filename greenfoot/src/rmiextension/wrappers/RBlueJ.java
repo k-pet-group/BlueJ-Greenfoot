@@ -67,14 +67,6 @@ public interface RBlueJ
         throws RemoteException;
 
     /**
-     * Exits the entire application.
-     * 
-     * @throws RemoteException
-     */
-    public void exit()
-        throws RemoteException;
-
-    /**
      * Get the properties that were given on the command line and used 
      * to initialise bluej.Config.
      */
@@ -85,12 +77,6 @@ public interface RBlueJ
      * Get the directory where user preferences are stored
      */
     public File getUserPrefDir()
-        throws RemoteException;
-
-    /**
-     * Hide the splash screen, if still currently showing.
-     */
-    public void hideSplash()
         throws RemoteException;
 
     public void addApplicationListener(RApplicationListener listener)
