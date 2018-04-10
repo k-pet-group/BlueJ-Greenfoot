@@ -379,6 +379,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         JavaFXUtil.addChangeListenerPlatform(worldVisible, b -> updateBackgroundMessage());
     }
 
+    /**
+     * Updates the message that is shown in place of the world when there is not a world
+     * showing, e.g. no project open, no world classes, or problem initialising the world.
+     */
     private void updateBackgroundMessage()
     {
         final String message;
@@ -452,7 +456,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         DataCollector.recordGreenfootEvent(project, GreenfootInterfaceEvent.WORLD_RESET);
         debugHandler.getVmComms().discardWorld();
-        debugHandler.getVmComms().instantiateWorld(currentWorld.getQualifiedName());
+        if (currentWorld != null)
+        {
+            debugHandler.getVmComms().instantiateWorld(currentWorld.getQualifiedName());
+        }
         stateProperty.set(State.UNCOMPILED);
         debugHandler.simulationThreadResumeOnResetClick();
     }
@@ -1938,7 +1945,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public void classModified()
     {
         debugHandler.getVmComms().discardWorld();
-        if (isFocused())
+        if (isFocused() && currentWorld != null)
         {
             debugHandler.getVmComms().instantiateWorld(currentWorld.getQualifiedName());
         }
