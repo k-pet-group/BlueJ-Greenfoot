@@ -121,23 +121,4 @@ public class ExportWebPagePane extends ExportPane
         Label helpText1 = new Label(helpLine1);
         mainPane.getChildren().addAll(helpText1, inputPanel);
     }
-
-    @Override
-    public void activated()
-    {
-        // Nothing special to do here        
-    }   
-    
-    @Override
-    public boolean prePublish()
-    {
-        // Nothing special to do here   
-        return true;
-    }
-    
-    @Override
-    public void postPublish(boolean success)
-    {
-        // Nothing special to do here       
-    }
 }

@@ -63,24 +63,34 @@ public abstract class ExportPane extends Tab
      * This method will be called when this pane is activated (about to be
      * shown/visible)
      */
-    public abstract void activated();
-    
+    public void activated()
+    {
+        // Nothing special to do here
+    }
+
     /**
      * This method will be called when the user is about to export the scenario
-     * with information from this pane. Will be called from the swing event
-     * thread and will not publish until this method returns.
+     * with information from this pane. Will be called from the event thread
+     * and will not publish until this method returns.
      * 
      * @return Whether to continue publishing. Continues if true, cancels if false.
      */
-    public abstract boolean prePublish();  
-    
+    public boolean prePublish()
+    {
+        // Nothing special to do here
+        return true;
+    }
+
     /**
      * This method will be called when the scenario has been published with the
      * information from this pane.
      * 
-     * @param success Whether the publish was successfull
+     * @param success Whether the publish was successful
      */
-    public abstract void postPublish(boolean success);
+    public void postPublish(boolean success)
+    {
+        // Nothing special to do here
+    }
 
     /**
      * Return true if the user wants to lock the scenario.
