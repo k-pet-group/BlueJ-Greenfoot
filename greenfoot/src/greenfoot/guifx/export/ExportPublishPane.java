@@ -78,14 +78,16 @@ public class ExportPublishPane extends ExportPane
     private static final String serverURL = ensureTrailingSlash(
             Config.getPropString("greenfoot.gameserver.address", "http://www.greenfoot.org/"));
     private static final String createAccountUrl =
-            Config.getPropString("greenfoot.gameserver.createAccount.address", "http://www.greenfoot.org/users/new");
-    private static final String serverName = Config.getPropString("greenfoot.gameserver.name", "Greenfoot Gallery");
+            Config.getPropString("greenfoot.gameserver.createAccount.address",
+                    "http://www.greenfoot.org/users/new");
+    private static final String serverName =
+            Config.getPropString("greenfoot.gameserver.name", "Greenfoot Gallery");
 
     private static final String helpLine = Config.getString("export.publish.help") + " " + serverName;
     private static final String WITH_SOURCE_TAG = "with-source";
 
-    private Pane scenarioPane = new VBox();
-    private BorderPane infoPanel;
+    private VBox scenarioPane = new VBox();
+    private BorderPane infoPane;
     private TextField titleField;
     private TextField shortDescriptionField;
     private TextArea descriptionArea;
@@ -93,7 +95,7 @@ public class ExportPublishPane extends ExportPane
     private TextField urlField;
     private TextField userNameField;
     private PasswordField passwordField;
-    private ImageEditPane imagePanel;
+    private ImageEditPane imagePane;
     private CheckBox includeSource;
     private CheckBox keepScenarioScreenshot;
 
@@ -132,18 +134,19 @@ public class ExportPublishPane extends ExportPane
      */
     public Image getImage()
     {
-        return imagePanel.getImage();
+        return imagePane.getImage();
     }
 
     /**
      * Set the screenshot image.
      *
-     * @param snapShot The snapshot to be put in the image panel
+     * @param snapShot The snapshot to be put in the image pane.
      */
     public void setImage(Image snapShot)
     {
-        imagePanel.setImage(snapShot);
-        // imagePanel.repaint();
+        imagePane.setImage(snapShot);
+        //TODO
+        // imagePane.repaint();
     }
 
     /**
@@ -267,26 +270,25 @@ public class ExportPublishPane extends ExportPane
     private void buildContentPane()
     {
         Label publishInfoLabel = new Label(Config.getString("export.publish.info") + " " + serverName);
-        publishInfoLabel.setAlignment(Pos.CENTER);
+        publishInfoLabel.getStyleClass().add("intro-label");
         BorderPane.setAlignment(publishInfoLabel, Pos.CENTER);
 
         createScenarioDisplay();
 
-        infoPanel = new BorderPane(scenarioPane, publishInfoLabel, getTagDisplay(), null, null);
-        infoPanel.getStyleClass().add("info-pane");
+        infoPane = new BorderPane(scenarioPane, publishInfoLabel, getTagDisplay(), null, null);
+        infoPane.getStyleClass().add("info-pane");
 
-        setContent(new VBox(getHelpBox(), infoPanel, getLoginPanel()));
+        setContent(new VBox(getHelpBox(), infoPane, getLoginPane()));
     }
     
     /**
-     * Creates a login panel with a username and password and a create account option
-     * @return Login panel Component
+     * Creates a login pane with a username and password and a create account option
+     * @return Login pane Component
      */
-    private Pane getLoginPanel()
+    private Pane getLoginPane()
     {
         Label loginLabel = new Label(Config.getString("export.publish.login"));
-        loginLabel.getStyleClass().add("login-Label");
-        loginLabel.setAlignment(Pos.BOTTOM_LEFT);
+        loginLabel.getStyleClass().add("intro-label");
 
         Label usernameLabel = new Label(Config.getString("export.publish.username"));
 
@@ -306,16 +308,15 @@ public class ExportPublishPane extends ExportPane
         passwordField.setPrefColumnCount(10);
 
         Hyperlink createAccountLabel = new Hyperlink(Config.getString("export.publish.createAccount"));
-        createAccountLabel.setAlignment(Pos.BOTTOM_LEFT);
+        createAccountLabel.getStyleClass().add("create-account-label");
         createAccountLabel.setOnAction(event -> Utility.openWebBrowser(createAccountUrl));
 
-        HBox loginPanel = new HBox(loginLabel,
+        HBox loginPane = new HBox(loginLabel,
                 usernameLabel, userNameField,
                 passwordLabel, passwordField,
                 createAccountLabel);
-        loginPanel.getStyleClass().add("login-pane");
-        loginPanel.setAlignment(Pos.BASELINE_CENTER);
-        return loginPanel;
+        loginPane.getStyleClass().add("login-pane");
+        return loginPane;
     }
     
     /**
@@ -324,12 +325,11 @@ public class ExportPublishPane extends ExportPane
      */
     private Pane getHelpBox()
     {
-        Label helpTextLabel = new Label(helpLine + " (");
         Hyperlink serverLink = new Hyperlink(serverURL);
         serverLink.setOnAction(event -> Utility.openWebBrowser(serverURL));
 
-        HBox helpBox = new HBox(helpTextLabel, serverLink, new Label(")"));
-        helpBox.setAlignment(Pos.BASELINE_LEFT);
+        HBox helpBox = new HBox(new Label(helpLine + " ("), serverLink, new Label(")"));
+        helpBox.getStyleClass().add("help-box");
         return helpBox;
     }
 
@@ -425,11 +425,11 @@ public class ExportPublishPane extends ExportPane
      */
     private void updateScenarioDisplay()
     {
-        removeLeftPanel();
+        removeLeftPane();
         createScenarioDisplay();
-        infoPanel.setCenter(scenarioPane);
+        infoPane.setCenter(scenarioPane);
         boolean enableImageControl = !isUpdate || !keepScenarioScreenshot.isSelected();
-        imagePanel.enableImageEditPanel(enableImageControl);
+        imagePane.enableImageEditPanel(enableImageControl);
     }
 
     /**
@@ -545,8 +545,17 @@ public class ExportPublishPane extends ExportPane
             };
             commonTagsLoader.start();
         }
-        
-        exportDialog.setExportButtonText(Config.getString(isUpdate ? "export.dialog.update" : "export.dialog.share"));
+
+        setExportButtonText();
+    }
+
+    /**
+     * Sets the dialog export button's text to either update or share.
+     */
+    private void setExportButtonText()
+    {
+        exportDialog.setExportButtonText(
+                Config.getString(isUpdate ? "export.dialog.update" : "export.dialog.share"));
     }
 
     @Override
@@ -589,9 +598,8 @@ public class ExportPublishPane extends ExportPane
     private void createScenarioDisplay()
     {
         int currentRow = 0;
-        GridPane titleAndDescPanel = new GridPane();
-        titleAndDescPanel.setVgap(8);
-        titleAndDescPanel.setHgap(8);
+        GridPane titleAndDescPane = new GridPane();
+        titleAndDescPane.getStyleClass().add("title-desc-pane");
 
         ColumnConstraints column1 = new ColumnConstraints();
         // 130 fits the different labels nicely
@@ -602,27 +610,25 @@ public class ExportPublishPane extends ExportPane
         column2.setPrefWidth(220);
         column2.setHgrow(Priority.ALWAYS);
         column2.setHalignment(HPos.CENTER);
-        titleAndDescPanel.getColumnConstraints().addAll(column1, column2);
+        titleAndDescPane.getColumnConstraints().addAll(column1, column2);
 
-        Label image1Label = new Label(Config.getString("export.publish.image1"));
-        image1Label.setAlignment(Pos.BASELINE_RIGHT);
-        Label image2Label = new Label(Config.getString("export.publish.image2"));
-        image2Label.setAlignment(Pos.BASELINE_RIGHT);
-        Pane textPanel = new VBox(image1Label, image2Label);
+        VBox iconTextPane = new VBox(new Label(Config.getString("export.publish.image1")),
+                new Label(Config.getString("export.publish.image2")));
+        iconTextPane.getStyleClass().add("icon-text-pane");
 
-        imagePanel = new ImageEditPane(IMAGE_WIDTH, IMAGE_HEIGHT);
-        titleAndDescPanel.addRow(currentRow++, textPanel, imagePanel);
+        imagePane = new ImageEditPane(IMAGE_WIDTH, IMAGE_HEIGHT);
+        titleAndDescPane.addRow(currentRow++, iconTextPane, imagePane);
 
         if (isUpdate)
         {
             Label snapshotLabel = new Label(Config.getString("export.snapshot.label"));
             keepScenarioScreenshot = new CheckBox(Config.getString("export.publish.keepScenario"));
             keepScenarioScreenshot.setSelected(true);
-            // "keep screenshot" defaults to true, therefore the image panel should be disabled
-            imagePanel.enableImageEditPanel(false);
+            // "keep screenshot" defaults to true, therefore the image pane should be disabled
+            imagePane.enableImageEditPanel(false);
             JavaFXUtil.addChangeListener(keepScenarioScreenshot.selectedProperty(),
-                    selected -> imagePanel.enableImageEditPanel(!selected));
-            titleAndDescPanel.addRow(currentRow++, snapshotLabel, keepScenarioScreenshot);
+                    selected -> imagePane.enableImageEditPanel(!selected));
+            titleAndDescPane.addRow(currentRow++, snapshotLabel, keepScenarioScreenshot);
         }
 
         Label titleLabel = new Label(Config.getString("export.publish.title"));
@@ -636,7 +642,7 @@ public class ExportPublishPane extends ExportPane
                 checkForExistingScenario();
             }
         });
-        titleAndDescPanel.addRow(currentRow++, titleLabel, titleField);
+        titleAndDescPane.addRow(currentRow++, titleLabel, titleField);
         
         // If there is an update a "changes" description area is shown.
         // If not there a short description and long description area are shown.
@@ -651,13 +657,13 @@ public class ExportPublishPane extends ExportPane
             ScrollPane updatePane = new ScrollPane(updateArea);
             updatePane.setFitToWidth(true);
             GridPane.setVgrow(updatePane, Priority.ALWAYS);
-            titleAndDescPanel.addRow(currentRow++, updateLabel, updatePane);
+            titleAndDescPane.addRow(currentRow++, updateLabel, updatePane);
         }
         else
         {
             Label shortDescriptionLabel = new Label(Config.getString("export.publish.shortDescription"));
             shortDescriptionField = new TextField();
-            titleAndDescPanel.addRow(currentRow++, shortDescriptionLabel, shortDescriptionField);
+            titleAndDescPane.addRow(currentRow++, shortDescriptionLabel, shortDescriptionField);
             shortDescriptionLabel = new Label(Config.getString("export.publish.longDescription"));
             shortDescriptionLabel.setAlignment(Pos.TOP_LEFT);
 
@@ -667,31 +673,31 @@ public class ExportPublishPane extends ExportPane
             ScrollPane description = new ScrollPane(descriptionArea);
             description.setFitToWidth(true);
             GridPane.setVgrow(description, Priority.ALWAYS);
-            titleAndDescPanel.addRow(currentRow++, shortDescriptionLabel, description);
+            titleAndDescPane.addRow(currentRow++, shortDescriptionLabel, description);
         }
 
         Label publishUrlLabel = new Label(Config.getString("export.publish.url"));
 
         urlField = new TextField();
-        titleAndDescPanel.addRow(currentRow, publishUrlLabel, urlField);
+        titleAndDescPane.addRow(currentRow, publishUrlLabel, urlField);
 
 
-        HBox sourceAndLockPanel = new HBox();
         includeSource = new CheckBox(Config.getString("export.publish.includeSource"));
         includeSource.setSelected(false);
-        sourceAndLockPanel.getChildren().addAll(includeSource, lockScenario);
+        HBox sourceAndLockPane = new HBox(includeSource, lockScenario);
+        sourceAndLockPane.getStyleClass().add("source-lock-pane");
 
-        scenarioPane.getChildren().addAll(titleAndDescPanel, sourceAndLockPanel);
+        scenarioPane.getChildren().addAll(titleAndDescPane, sourceAndLockPane);
         scenarioPane.getStyleClass().add("scenario-pane");
     }
     
     /**
      * Removes the scenario information display
      */
-    private void removeLeftPanel()
+    private void removeLeftPane()
     {
         scenarioPane.getChildren().removeAll();
-        infoPanel.getChildren().remove(scenarioPane);
+        infoPane.getChildren().remove(scenarioPane);
     }
     
     /**
@@ -701,27 +707,27 @@ public class ExportPublishPane extends ExportPane
     {
         Label popLabel = new Label(Config.getString("export.publish.tags.popular"));
 
-        VBox popPanel = new VBox(popLabel);
-        popPanel.getStyleClass().add("pop-pane");
+        VBox popPane = new VBox(popLabel);
+        popPane.getStyleClass().add("pop-pane");
         for (int i = 0; i < popTags.length; i++)
         {
             CheckBox popTag = new CheckBox(Config.getString("export.publish.tags.loading"));
             popTag.setDisable(true);
             popTags[i] = popTag;
         }
-        popPanel.getChildren().addAll(popTags);
+        popPane.getChildren().addAll(popTags);
 
         tagArea = new TextArea();
         ScrollPane tagScroller = new ScrollPane(tagArea);
         tagScroller.setPrefSize(125, 100);
         tagScroller.setFitToWidth(true);
         tagScroller.setFitToHeight(true);
-        VBox textPanel = new VBox(new Label(Config.getString("export.publish.tags.additional1")),
+        VBox textPane = new VBox(new Label(Config.getString("export.publish.tags.additional1")),
                 new Label(Config.getString("export.publish.tags.additional2")), tagScroller);
 
-        VBox tagPanel = new VBox(popPanel, textPanel);
-        tagPanel.getStyleClass().add("tag-pane");
-        return tagPanel;
+        VBox tagPane = new VBox(popPane, textPane);
+        tagPane.getStyleClass().add("tag-pane");
+        return tagPane;
     }
 
     /**
@@ -740,7 +746,7 @@ public class ExportPublishPane extends ExportPane
         if (this.isUpdate != isUpdate)
         {
             this.isUpdate = isUpdate;
-            exportDialog.setExportButtonText(Config.getString(isUpdate ? "export.dialog.update" : "export.dialog.share"));
+            setExportButtonText();
             updateScenarioDisplay();
         }
     }

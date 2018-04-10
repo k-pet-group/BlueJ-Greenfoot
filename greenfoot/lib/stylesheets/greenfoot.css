@@ -1,7 +1,6 @@
 /* Define named colours: */
 .root {
     export-background: rgb(220, 220, 220);
-    export-publish-info: rgb(166, 188, 202);
 }
 
 .class-group .inherit-arrow {
@@ -65,32 +64,54 @@
     -fx-spacing: 10px;
     -fx-background-color: export-background;
 }
-.export-publish-pane .info-pane {
-    -fx-background-color: export-publish-info;
-    -fx-padding: 10px;
+.export-publish-pane .help-box {
+    -fx-alignment: baseline-left;
+}
+.export-publish-pane .help-box .label {
+    -fx-font-style: normal;
+}
+.export-publish-pane .info-pane, .export-publish-pane .login-pane {
+    -fx-effect: innershadow(three-pass-box, gray, 12 , 0.5, 1, 1);
+    -fx-background-color: rgb(166, 188, 202);
+    -fx-padding: 15px;
+}
+.export-publish-pane .login-pane {
+    -fx-spacing: 10px;
+    -fx-alignment: baseline-center;
 }
 .export-publish-pane .scenario-pane {
     -fx-spacing: 10px;
-    -fx-padding: 0 10px 0 0;
+    -fx-padding: 10px 10px 0 0;
+}
+.export-publish-pane .title-desc-pane {
+    -fx-hgap: 8px;
+    -fx-vgap: 8px;
+}
+.export-publish-pane .icon-text-pane {
+    -fx-alignment: center-right;
 }
 .export-publish-pane .tag-pane {
     -fx-spacing: 20px;
 }
 .export-publish-pane .pop-pane {
-    -fx-spacing: 2px;
+    -fx-spacing: 5px;
 }
-.export-publish-pane .login-pane {
-    -fx-background-color: export-publish-info;
+.export-publish-pane .source-lock-pane {
     -fx-spacing: 10px;
+    -fx-padding: 5px 0 0 0;
+    -fx-alignment:	bottom-center;
 }
 .export-publish-pane .label {
-    -fx-font-size: 11pt;
+    -fx-font-size: 10pt;
     -fx-font-style: italic;
     -fx-font-family: "Source Sans Pro";
 }
-.export-publish-pane .login-Label {
+.export-publish-pane .intro-label {
     -fx-font-style: normal;
     -fx-text-fill: rgb(40, 75, 125);
+}
+.export-publish-pane .create-account-label {
+    -fx-alignment:	bottom-left;
 }
 .export-local-pane .location-pane {
     -fx-spacing: 5px;
