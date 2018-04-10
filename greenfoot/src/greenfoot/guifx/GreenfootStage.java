@@ -156,7 +156,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private Point2D lastMousePosInScene = new Point2D(0, 0);
 
     // The message shown behind the world (blank content if none): 
-    private final Text backgroundMessage;
+    private final Label backgroundMessage;
     // A property tracking whether the world is visible (if false, there should be 
     // a background message set in backgroundMessage)
     private final BooleanProperty worldVisible = new SimpleBooleanProperty(false);
@@ -270,7 +270,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         executionTwirler = new ExecutionTwirler(project, greenfootDebugHandler);
         controlPanel = new ControlPanel(this, executionTwirler);
 
-        backgroundMessage = new Text();
+        backgroundMessage = new Label();
+        backgroundMessage.getStyleClass().add("background-message");
         
         worldDisplay = new WorldDisplay();
         
@@ -285,7 +286,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         worldViewScroll.getStyleClass().add("world-display-scroll");
         JavaFXUtil.expandScrollPaneContent(worldViewScroll);
         worldViewScroll.visibleProperty().bind(worldVisible);
-        StackPane worldPane = new StackPane(new TextFlow(backgroundMessage), worldViewScroll);
+        StackPane worldPane = new StackPane(backgroundMessage, worldViewScroll);
         GreenfootStageContentPane contentPane = new GreenfootStageContentPane(worldPane, classDiagramScroll, controlPanel);
         BorderPane root = new BorderPane(contentPane, makeMenu(), null, null, null);
         glassPane = new Pane();
@@ -429,7 +430,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 message = "";
             }
         }
-        backgroundMessage.setText(stateProperty.get() + message);
+        backgroundMessage.setText(message);
     }
 
     /**
