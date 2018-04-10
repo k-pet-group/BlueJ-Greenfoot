@@ -386,7 +386,13 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private void updateBackgroundMessage()
     {
         final String message;
-        if (worldVisible.get()) // TODO or is compiling
+        if (stateProperty.get() == State.UNCOMPILED && !classDiagram.hasUserWorld())
+        {
+            // May be totally blank project (in which case state remains as UNCOMPILED),
+            // hint to the user to create a world:
+            message = Config.getString("centrePanel.message.createWorldClass");
+        }
+        else if (worldVisible.get())
         {
             message = "";
         }
@@ -460,7 +466,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         {
             debugHandler.getVmComms().instantiateWorld(currentWorld.getQualifiedName());
         }
-        stateProperty.set(State.UNCOMPILED);
+        stateProperty.set(State.PAUSED);
         debugHandler.simulationThreadResumeOnResetClick();
     }
 
@@ -2246,6 +2252,13 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         if (classTarget.equals(currentWorld))
         {
             currentWorld = null;
+            worldVisible.set(false);
+            doReset();
+        }
+        else
+        {
+            // In case this was last world class, update background message:
+            updateBackgroundMessage();
         }
     }
 }
