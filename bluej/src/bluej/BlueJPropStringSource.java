@@ -32,6 +32,4 @@ public interface BlueJPropStringSource
     public String getBlueJPropertyString(String property, String def);
 
     public String getLabel(String key);
-    
-    public void setUserProperty(String property, String value);
 }

@@ -394,9 +394,9 @@ public final class Config
             @Override
             public synchronized Object setProperty(String key, String val)
             {
-                String rval = getProperty(key);
-                Config.propSource.setUserProperty(key, val);
-                return rval;
+                // Debug VM should not be setting properties:
+                Debug.printCallStack("Internal error: setting user property on debug VM");
+                return null;
             }
             
             @Override

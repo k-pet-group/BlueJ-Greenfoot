@@ -106,13 +106,4 @@ public class BlueJRMIClient implements BlueJPropStringSource
     {
         return Config.getString(key, key);
     }
-    
-    @Override
-    public void setUserProperty(String property, String val)
-    {
-        try {
-            blueJ.setExtensionPropertyString(property, val);
-        }
-        catch (RemoteException re) {}
-    }
 }

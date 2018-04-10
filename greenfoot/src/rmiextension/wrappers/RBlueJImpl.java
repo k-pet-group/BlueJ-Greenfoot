@@ -113,14 +113,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
         //The getAbsoluteFile() fixes a weird bug on win using jdk1.4.2_06
         return f.getAbsoluteFile();
     }
-
-    /*
-     * @see rmiextension.wrappers.RBlueJ#setExtensionPropertyString(java.lang.String, java.lang.String)
-     */
-    public void setExtensionPropertyString(String property, String value)
-    {
-        blueJ.setExtensionPropertyString(property, value);
-    }
     
     /*
      * @see rmiextension.wrappers.RBlueJ#getInitialCommandLineProperties()

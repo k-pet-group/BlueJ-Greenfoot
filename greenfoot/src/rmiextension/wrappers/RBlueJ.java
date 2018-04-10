@@ -59,14 +59,6 @@ public interface RBlueJ
         throws RemoteException;
 
     /**
-     * Set an extension property value.
-     * @param property  The property key
-     * @param value     The value to set
-     */
-    public void setExtensionPropertyString(String property, String value)
-        throws RemoteException;
-
-    /**
      * Get the properties that were given on the command line and used 
      * to initialise bluej.Config.
      */
