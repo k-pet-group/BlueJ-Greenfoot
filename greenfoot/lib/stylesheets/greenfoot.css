@@ -107,6 +107,18 @@
     -fx-padding: 0 1 1 0;
 }
 
+.background-message {
+    -fx-text-alignment: center;
+    -fx-wrap-text: true;
+    -fx-label-padding: 40px;
+    -fx-text-fill: gray;
+    -fx-font-size: 20px;
+    -fx-background-color: -fx-box-border, -fx-background;
+    -fx-background-insets: 0, 0 1 1 0;
+    /* Let it fill the space: */
+    -fx-max-width: 99999.0;
+    -fx-max-height: 99999.0;
+}
 
 .act-icon {
     -fx-stroke: green;

@@ -156,7 +156,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private Point2D lastMousePosInScene = new Point2D(0, 0);
 
     // The message shown behind the world (blank content if none): 
-    private final Text backgroundMessage;
+    private final Label backgroundMessage;
     // A property tracking whether the world is visible (if false, there should be 
     // a background message set in backgroundMessage)
     private final BooleanProperty worldVisible = new SimpleBooleanProperty(false);
@@ -270,7 +270,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         executionTwirler = new ExecutionTwirler(project, greenfootDebugHandler);
         controlPanel = new ControlPanel(this, executionTwirler);
 
-        backgroundMessage = new Text();
+        backgroundMessage = new Label();
+        backgroundMessage.getStyleClass().add("background-message");
         
         worldDisplay = new WorldDisplay();
         
@@ -285,7 +286,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         worldViewScroll.getStyleClass().add("world-display-scroll");
         JavaFXUtil.expandScrollPaneContent(worldViewScroll);
         worldViewScroll.visibleProperty().bind(worldVisible);
-        StackPane worldPane = new StackPane(new TextFlow(backgroundMessage), worldViewScroll);
+        StackPane worldPane = new StackPane(backgroundMessage, worldViewScroll);
         GreenfootStageContentPane contentPane = new GreenfootStageContentPane(worldPane, classDiagramScroll, controlPanel);
         BorderPane root = new BorderPane(contentPane, makeMenu(), null, null, null);
         glassPane = new Pane();
@@ -379,10 +380,20 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         JavaFXUtil.addChangeListenerPlatform(worldVisible, b -> updateBackgroundMessage());
     }
 
+    /**
+     * Updates the message that is shown in place of the world when there is not a world
+     * showing, e.g. no project open, no world classes, or problem initialising the world.
+     */
     private void updateBackgroundMessage()
     {
         final String message;
-        if (worldVisible.get()) // TODO or is compiling
+        if (stateProperty.get() == State.UNCOMPILED && !classDiagram.hasUserWorld())
+        {
+            // May be totally blank project (in which case state remains as UNCOMPILED),
+            // hint to the user to create a world:
+            message = Config.getString("centrePanel.message.createWorldClass");
+        }
+        else if (worldVisible.get())
         {
             message = "";
         }
@@ -419,7 +430,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 message = "";
             }
         }
-        backgroundMessage.setText(stateProperty.get() + message);
+        backgroundMessage.setText(message);
     }
 
     /**
@@ -452,8 +463,11 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         DataCollector.recordGreenfootEvent(project, GreenfootInterfaceEvent.WORLD_RESET);
         debugHandler.getVmComms().discardWorld();
-        debugHandler.getVmComms().instantiateWorld(currentWorld.getQualifiedName());
-        stateProperty.set(State.UNCOMPILED);
+        if (currentWorld != null)
+        {
+            debugHandler.getVmComms().instantiateWorld(currentWorld.getQualifiedName());
+        }
+        stateProperty.set(State.PAUSED);
         debugHandler.simulationThreadResumeOnResetClick();
     }
 
@@ -1938,7 +1952,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public void classModified()
     {
         debugHandler.getVmComms().discardWorld();
-        if (isFocused())
+        if (isFocused() && currentWorld != null)
         {
             debugHandler.getVmComms().instantiateWorld(currentWorld.getQualifiedName());
         }
@@ -2239,6 +2253,13 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         if (classTarget.equals(currentWorld))
         {
             currentWorld = null;
+            worldVisible.set(false);
+            doReset();
+        }
+        else
+        {
+            // In case this was last world class, update background message:
+            updateBackgroundMessage();
         }
     }
 }
