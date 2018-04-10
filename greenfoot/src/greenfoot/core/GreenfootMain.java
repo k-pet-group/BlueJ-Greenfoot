@@ -23,8 +23,13 @@ package greenfoot.core;
 
 import bluej.Boot;
 import bluej.collect.DataSubmissionFailedDialog;
-import greenfoot.gui.GreenfootFrame;
+import greenfoot.event.SimulationEvent;
+import greenfoot.event.SimulationListener;
+import greenfoot.gui.WorldCanvas;
+import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.platforms.ide.ActorDelegateIDE;
+import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
+import greenfoot.sound.SoundFactory;
 import greenfoot.util.Version;
 
 import java.awt.EventQueue;
@@ -47,6 +52,8 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.Utility;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * The main class for greenfoot. This is a singelton (in the JVM). Since each
@@ -85,9 +92,6 @@ public class GreenfootMain extends Thread
 
     /** The connection to BlueJ via RMI */
     private RBlueJ rBlueJ;
-
-    /** The main frame of greenfoot. */
-    private GreenfootFrame frame;
 
     /** The path to the dummy startup project */
     private File startupProject;
@@ -145,7 +149,46 @@ public class GreenfootMain extends Thread
                     new JFXPanel();
                     Platform.setImplicitExit(false);
 
-                    frame = GreenfootFrame.getGreenfootFrame(rBlueJ, projectProperties, shmFilePath);
+                    LocationTracker.instance(); //force initialisation
+
+                    // Some first-time initializations
+                    WorldCanvas worldCanvas = new WorldCanvas(projectProperties, shmFilePath);
+                    worldCanvas.setWorldSize(200, 100);
+
+                    WorldHandlerDelegateIDE worldHandlerDelegate = new WorldHandlerDelegateIDE();
+                    WorldHandler.initialise(worldCanvas, worldHandlerDelegate);
+                    WorldHandler worldHandler = WorldHandler.getInstance();
+                    Simulation.initialize();
+                    Simulation sim = Simulation.getInstance();
+
+                    sim.addSimulationListener(new SimulationListener() {
+                        @OnThread(Tag.Simulation)
+                        @Override
+                        public void simulationChanged(SimulationEvent e)
+                        {
+                            if (e.getType() == SimulationEvent.NEW_ACT_ROUND
+                                    || e.getType() == SimulationEvent.QUEUED_TASK_BEGIN)
+                            {
+                                // New act round - will be followed by another NEW_ACT_ROUND event if the simulation
+                                // is running, or a STOPPED event if the act round finishes and the simulation goes
+                                // back to the stopped state.
+                                worldCanvas.userCodeStarting();
+                            }
+                            else if (e.getType() == SimulationEvent.STOPPED
+                                    || e.getType() == SimulationEvent.QUEUED_TASK_END)
+                            {
+                                worldCanvas.userCodeStopped();
+                            }
+                        }
+                    });
+
+                    sim.addSimulationListener(SoundFactory.getInstance().getSoundCollection());
+                    
+                    Simulation.getInstance().setPaused(true);
+                    // Important to initialise the simulation before attaching world handler
+                    // as the latter begins simulation thread, and we want to have
+                    // the world handler delegate setup before then:
+                    sim.attachWorldHandler(worldHandler);
 
                     // Want to execute this after the simulation has been initialised:
                     ExecServer.setCustomRunOnThread(r -> Simulation.getInstance().runLater(r));
@@ -160,14 +203,6 @@ public class GreenfootMain extends Thread
                     {
                         Debug.reportError(e);
                     }
-                    frame.setVisible(true);
-                    Utility.bringToFront(frame);
-                    
-                    EventQueue.invokeLater(() -> {
-                        if (wizard) {
-                            //new NewSubWorldAction(frame, true, sourceType).actionPerformed(null);
-                        }
-                    });
 
                     // We can do this late on, because although the submission failure may have already
                     // happened, the event is re-issued to new listeners.  And we don't want to accidentally
@@ -215,14 +250,6 @@ public class GreenfootMain extends Thread
         catch (RemoteException re) {
             Debug.reportError("Closing all projects", re);
         }
-    }
-
-    /**
-     * Get a reference to the greenfoot frame.
-     */
-    public GreenfootFrame getFrame()
-    {
-        return frame;
     }
     
     /**
