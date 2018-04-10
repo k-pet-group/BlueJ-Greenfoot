@@ -21,17 +21,8 @@
  */
 package greenfoot.guifx.export;
 
-import bluej.Config;
-import bluej.utility.DialogManager;
-
 import java.io.File;
-import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
+import javafx.scene.layout.Pane;
 import javafx.stage.Window;
 
 /**
@@ -40,12 +31,9 @@ import javafx.stage.Window;
  * @author Michael Kolling
  * @author Amjad Altadmri
  */
-public class ExportAppPane extends ExportPane
+public class ExportAppPane extends ExportLocalPane
 {
     public static final String FUNCTION = "APP";
-    
-    private final Window parent;
-    private TextField targetDirField;
     
     /**
      * Creates a new instance of ExportAppPane
@@ -56,105 +44,13 @@ public class ExportAppPane extends ExportPane
      */
     public ExportAppPane(Window parent, String scenarioName, File defaultExportDir)
     {
-        super("export-app.png");
-        this.parent = parent;
-        File targetFile = new File(defaultExportDir, scenarioName + ".jar");
-        makePane(targetFile);
-        applySharedStyle();
-        getContent().getStyleClass().add("export-local-pane");
-    }
-    
-    /**
-     * Return the directory where the scenario should be exported.
-     */
-    public String getExportName()
-    {
-        return targetDirField.getText();
-    }
-    
-    /**
-     * Build the component.
-     *
-     * @param targetFile  The initial target file that will be export to.
-     */
-    private void makePane(final File targetFile)
-    {
-        Label exportLocationLabel = new Label(Config.getString("export.app.location"));
-
-        targetDirField = new TextField(targetFile.toString());
-        targetDirField.setPrefColumnCount(30);
-        targetDirField.setEditable(false);
-
-        Button browse = new Button(Config.getString("export.app.browse"));
-        browse.setOnAction(event -> targetDirField.setText(askForFileName(targetFile)));
-
-        HBox exportLocationPane = new HBox(exportLocationLabel, targetDirField, browse);
-        exportLocationPane.setAlignment(Pos.BASELINE_LEFT);
-        exportLocationPane.getStyleClass().add("location-pane");
-
-        setContent(new VBox(new Label(Config.getString("export.app.help")), exportLocationPane,
-                lockScenario, hideControls));
-    }
-    
-    /**
-     * Get a user-chosen file name via a file system browser.
-     * Set the pane's text field to the selected file.
-     *
-     * @param targetFile  The initial target file that will be export to.
-     */
-    private String askForFileName(File targetFile)
-    {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle(Config.getString("export.app.choose"));
-        fileChooser.setInitialDirectory(targetFile.getParentFile());
-        File file = fileChooser.showSaveDialog(parent);
-        if (file == null)
-        {
-            // The user canceled the file chooser dialog.
-            return "";
-        }
-
-        String newName = file.getPath();
-        if (!newName.endsWith(".jar"))
-        {
-            if (newName.toLowerCase().endsWith(".jar"))
-            {
-                // This means there is .jar but has capital letters, so get rid of
-                // it to be replaced with the proper small letters extension.
-                newName = newName.substring(0, newName.length()-".jar".length());
-            }
-            newName += ".jar";
-        }
-        if (file.exists())
-        {
-            boolean overwrite = DialogManager.askQuestionFX(parent, "file-exists-overwrite",
-                    new String[] {newName}) == 0;
-            if (!overwrite)
-            {
-                // The user didn't accept to overwrite the file,
-                // so re-ask them to choose a file.
-                return askForFileName(targetFile);
-            }
-        }
-        return newName;
+        super(parent, scenarioName, defaultExportDir, "app", ".jar");
     }
 
     @Override
-    public void activated()
+    protected void makePane(final File targetFile)
     {
-        // Nothing special to do here
-    }    
-    
-    @Override
-    public boolean prePublish()
-    {
-        // Nothing special to do here   
-        return true;
-    }
-    
-    @Override
-    public void postPublish(boolean success)
-    {
-        // Nothing special to do here       
+        super.makePane(targetFile);
+        ((Pane)getContent()).getChildren().addAll(lockScenario, hideControls);
     }
 }
