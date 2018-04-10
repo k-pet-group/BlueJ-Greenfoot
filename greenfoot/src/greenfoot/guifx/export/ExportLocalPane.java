@@ -50,9 +50,11 @@ public abstract class ExportLocalPane extends ExportPane
     /**
      * Creates a new instance of an Export Local Pane.
      *
-     * @param parent            The parent window of the contained dialog.
+     * @param parent            The window which will host this pane.
      * @param scenarioName      The name of the scenario to be shared.
      * @param defaultExportDir  The default directory to select from.
+     * @param type              The type of the export. e.g. "app" or "project".
+     * @param extension         The extension of the exported file. e.g. ".jar" or ".gfar".
      */
     public ExportLocalPane(Window parent, String scenarioName, File defaultExportDir,
                            String type, String extension)

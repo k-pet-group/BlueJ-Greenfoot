@@ -38,7 +38,7 @@ public class ExportAppPane extends ExportLocalPane
     /**
      * Creates a new instance of ExportAppPane
      *
-     * @param parent            The parent window of the contained dialog.
+     * @param parent            The window which will host this pane.
      * @param scenarioName      The name of the scenario to be shared.
      * @param defaultExportDir  The default directory to select from.
      */
