@@ -78,7 +78,6 @@ import greenfoot.guifx.export.ExportException;
 import greenfoot.guifx.images.NewImageClassFrame;
 import greenfoot.guifx.images.SelectImageFrame;
 import greenfoot.guifx.soundrecorder.SoundRecorderControls;
-import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
 import greenfoot.record.GreenfootRecorder;
 import greenfoot.util.GreenfootUtil;
 import greenfoot.vmcomm.GreenfootDebugHandler;
@@ -111,8 +110,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -945,7 +942,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     private void setPlayer()
     {
-        SetPlayerDialog dlg = new SetPlayerDialog(this, GreenfootUtilDelegateIDE.getInstance().getUserName());
+        SetPlayerDialog dlg = new SetPlayerDialog(this, Config.getPropString("greenfoot.player.name", "Player1"));
         dlg.showAndWait().ifPresent(name -> Config.putPropString("greenfoot.player.name", name));
     }
 
@@ -1650,7 +1647,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 final String extension = sourceType.getExtension();
                 File newFile = new File(dir, newClassName + "." + extension);
                 File originalFile = new File(dir, originalClassName + "." + extension);
-                GreenfootUtilDelegateIDE.getInstance().duplicate(originalClassName, newClassName, originalFile, newFile, sourceType);
+                ProjectUtils.duplicate(originalClassName, newClassName, originalFile, newFile, sourceType);
                 ClassTarget newClass = originalClassTarget.getPackage().addClass(newClassName);
                 LocalGClassNode newNode = classDiagram.addClass(newClass);
                 
@@ -1780,7 +1777,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             File dir = project.getProjectDir();
             final String extension = language.getExtension();
             File newFile = new File(dir, className + "." + extension);
-            GreenfootUtilDelegateIDE.getInstance().createSkeleton(className, superClassName, newFile,
+            ProjectUtils.createSkeleton(className, superClassName, newFile,
                     templateFileName, project.getProjectCharset().toString());
             ClassTarget newClass = pkg.addClass(className);
             return classDiagram.addClass(newClass);
