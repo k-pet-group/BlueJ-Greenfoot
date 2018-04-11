@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 2011,2018  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,6 +29,8 @@ import bluej.debugger.gentype.JavaType;
 import com.sun.jdi.Field;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * An implement of DebuggerField using the Java Debug Interface (JDI).
@@ -37,10 +39,12 @@ import com.sun.jdi.Value;
  */
 public class JdiField extends DebuggerField
 {
-    private Field field;
+    @OnThread(Tag.Any)
+    private final Field field;
     private JdiObject object;
     private boolean hidden;
     
+    @OnThread(Tag.Any)
     public JdiField(Field field, JdiObject object, boolean hidden)
     {
         this.field = field;
@@ -49,6 +53,7 @@ public class JdiField extends DebuggerField
     }
 
     @Override
+    @OnThread(Tag.Any)
     public String getName()
     {
         return field.name();

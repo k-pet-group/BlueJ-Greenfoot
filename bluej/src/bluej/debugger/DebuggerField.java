@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 2011,2018  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,6 +35,7 @@ public abstract class DebuggerField
     /**
      * Get the field name
      */
+    @OnThread(Tag.Any)
     public abstract String getName();
     
     /**

@@ -21,6 +21,7 @@
  */
 package bluej.debugger;
 
+import com.sun.jdi.ObjectReference;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -52,6 +53,7 @@ public abstract class DebuggerThread
      * Get the current execution of the stack. This is only reliable if the
      * thread is currently halted.
      */
+    @OnThread(Tag.Any)
     public abstract List<SourceLocation> getStack();
     
     public abstract List<VarDisplayInfo> getLocalVariables(int frameNo);
@@ -74,6 +76,7 @@ public abstract class DebuggerThread
     public abstract void setSelectedFrame(int frame);
     public abstract int getSelectedFrame();
 
+    @OnThread(Tag.Any)
     public abstract void halt();
     @OnThread(Tag.Any)
     public abstract void cont();
@@ -88,6 +91,7 @@ public abstract class DebuggerThread
      * Step to the next executed line (which might be in a called method). This is only valid when the
      * thread is suspended. It is safe to call this from a DebuggerListener.
      */
+    @OnThread(Tag.Any)
     public abstract void stepInto();
     
     @OnThread(Tag.Any)

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2018  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -247,12 +247,14 @@ public class JdiObject extends DebuggerObject
     }
     
     @Override
+    @OnThread(Tag.Any)
     public ObjectReference getObjectReference()
     {
         return obj;
     }
     
     @Override
+    @OnThread(Tag.Any)
     public List<DebuggerField> getFields()
     {
         List<Field> visibleFields = obj.referenceType().visibleFields();
@@ -266,7 +268,8 @@ public class JdiObject extends DebuggerObject
         return rlist;
     }
 
-    private boolean checkIgnoreField(Field f)
+    @OnThread(Tag.Any)
+    private static boolean checkIgnoreField(Field f)
     {
         return (f.name().indexOf('$') >= 0);
     }

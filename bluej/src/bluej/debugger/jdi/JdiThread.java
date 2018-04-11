@@ -53,9 +53,11 @@ class JdiThread extends DebuggerThread
     static final String statusZombie = Config.getString("debugger.threadstatus.zombie");
 
     /** a list of classes to exclude from source display */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private static List<String> excludes;
 
-    private static List<String> getExcludes()
+    @OnThread(Tag.Any)
+    private static synchronized List<String> getExcludes()
     {
         if (excludes == null) {
             setExcludes("java.*, javax.*, sun.*, com.sun.*");
@@ -63,7 +65,8 @@ class JdiThread extends DebuggerThread
         return excludes;
     }
 
-    private static void setExcludes(String excludeString)
+    @OnThread(Tag.Any)
+    private static synchronized void setExcludes(String excludeString)
     {
         StringTokenizer t = new StringTokenizer(excludeString, " ,;");
         List<String> list = new ArrayList<String>();
@@ -73,6 +76,7 @@ class JdiThread extends DebuggerThread
         excludes = list;
     }
 
+    @OnThread(Tag.Any)
     static void addExcludesToRequest(StepRequest request)
     {
         Iterator<String> iter = getExcludes().iterator();
@@ -309,6 +313,7 @@ class JdiThread extends DebuggerThread
      *
      * @return  A List of SourceLocations
      */
+    @OnThread(Tag.Any)
     public List<SourceLocation> getStack()
     {
         return getStack(rt);
@@ -323,6 +328,7 @@ class JdiThread extends DebuggerThread
      * 
      * @return  A List of SourceLocations
      */
+    @OnThread(Tag.Any)
     public static List<SourceLocation> getStack(ThreadReference thr)
     {
         try {
@@ -547,6 +553,7 @@ class JdiThread extends DebuggerThread
     /**
      * Halt this thread.
      */
+    @OnThread(Tag.Any)
     public synchronized void halt()
     {
         try {
@@ -608,6 +615,7 @@ class JdiThread extends DebuggerThread
         doStep(doStepOver ? StepRequest.STEP_OVER : StepRequest.STEP_OUT);
     }
 
+    @OnThread(Tag.Any)
     public void stepInto()
     {
         doStep(StepRequest.STEP_INTO);
@@ -622,6 +630,7 @@ class JdiThread extends DebuggerThread
         return rt;
     }
     
+    @OnThread(Tag.Any)
     private void doStep(int depth)
     {
         clearPreviousStep(rt);
