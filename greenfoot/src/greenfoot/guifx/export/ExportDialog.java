@@ -231,9 +231,9 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         // The default directory to export to when export locally.
         File defaultExportDir = project.getProjectDir().getParentFile();
 
-        panes.put(ExportFunction.Publish, new ExportPublishPane(project, this));
-        panes.put(ExportFunction.App, new ExportAppPane(asWindow, projectName, defaultExportDir));
-        panes.put(ExportFunction.Project, new ExportProjectPane(asWindow, projectName, defaultExportDir));
+        addPane(new ExportPublishPane(project, this));
+        addPane(new ExportAppPane(asWindow, projectName, defaultExportDir));
+        addPane(new ExportProjectPane(asWindow, projectName, defaultExportDir));
 
         tabbedPane.getTabs().setAll(panes.values());
         // This is to change the width of the tabs headers to fill the available space of the tabbed
@@ -241,6 +241,17 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         // there is no way of disabling it. See: https://bugs.openjdk.java.net/browse/JDK-8091334
         tabbedPane.tabMinWidthProperty()
                 .bind(widthProperty().divide(tabbedPane.getTabs().size()).subtract(30));
+    }
+
+    /**
+     * Adds a pane to the panes map, by placing the function of the pane
+     * as the key to the pane stored in the value.
+     *
+     * @param exportPane An Export pane to be added to the panes map.
+     */
+    private void addPane(ExportPane exportPane)
+    {
+        panes.put(exportPane.getFunction(), exportPane);
     }
 
     /**
