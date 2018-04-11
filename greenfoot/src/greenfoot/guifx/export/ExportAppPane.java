@@ -33,8 +33,6 @@ import javafx.stage.Window;
  */
 public class ExportAppPane extends ExportLocalPane
 {
-    public static final String FUNCTION = "APP";
-    
     /**
      * Creates a new instance of ExportAppPane
      *
@@ -45,6 +43,12 @@ public class ExportAppPane extends ExportLocalPane
     public ExportAppPane(Window parent, String scenarioName, File defaultExportDir)
     {
         super(parent, scenarioName, defaultExportDir, "app", ".jar");
+    }
+
+    @Override
+    public ExportFunction getFunction()
+    {
+        return ExportFunction.App;
     }
 
     @Override

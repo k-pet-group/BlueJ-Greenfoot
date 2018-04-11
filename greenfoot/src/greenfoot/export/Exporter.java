@@ -36,7 +36,6 @@ import greenfoot.guifx.export.ExportAppPane;
 import greenfoot.guifx.export.ExportDialog;
 import greenfoot.guifx.export.ExportProjectPane;
 import greenfoot.guifx.export.ExportPublishPane;
-import greenfoot.guifx.export.ExportWebPagePane;
 import greenfoot.guifx.export.ProxyAuthDialog;
 import greenfoot.util.GreenfootUtil;
 
@@ -249,61 +248,6 @@ public class Exporter implements PublishListener
         {
             dlg.setProgress(false, Config.getString("export.publish.fail") + " " + e.getMessage());
         }
-    }
-
-    /**
-     * Create a web page and jar-file.
-     */
-    public void makeWebPage(Project project, ExportWebPagePane pane, ExportDialog dlg)
-    {
-        this.dlg = dlg;
-        dlg.setProgress(true, Config.getString("export.progress.writingHTML"));
-        File exportDir = new File(pane.getExportLocation());
-        exportDir.mkdir();
-
-        // TODO Look at this.
-        // World can't be null as this stage
-        String worldClass = WorldHandler.getInstance().getWorld().getClass().getName();
-        
-        boolean  includeControls = pane.lockScenario();
-        String jarName = project.getProjectName() + ".jar";
-        JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, includeControls, true);            
-        
-        // do not include source
-        jarCreator.includeSource(false);        
-
-        // Add the Greenfoot standalone classes
-        File greenfootLibDir = Config.getGreenfootLibDir();        
-        File greenfootDir = new File(greenfootLibDir, "standalone");        
-        jarCreator.addFile(greenfootDir);   
-        
-        // Add 3rd party libraries used by Greenfoot.      
-        Set<File> thirdPartyLibs = GreenfootUtil.get3rdPartyLibs();
-        for (File lib : thirdPartyLibs) {
-            jarCreator.addJar(lib);
-        }
-        
-        // Add jars in +libs dir in project directory
-        File[] jarFiles = getJarsInPlusLib(project);
-        if (jarFiles != null) {
-            for (File file : jarFiles) {
-                jarCreator.addJar(file);
-            }
-        }                    
-        
-        Dimension size = getSize(includeControls);
-
-        // Make sure the current properties are saved before they are exported.
-        // TODO look at this.
-        // project.getProjectProperties().save();
-        
-        jarCreator.create();
-    
-        String title = project.getProjectName();
-        String htmlName = title + ".html";
-        File outputFile = new File(exportDir, htmlName);
-        jarCreator.generateHTMLSkeleton(outputFile, title, size.width, size.height);
-        dlg.setProgress(false, Config.getString("export.progress.complete")); 
     }
 
     private static File[] getJarsInPlusLib(Project project)

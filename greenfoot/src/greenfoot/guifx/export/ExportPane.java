@@ -39,6 +39,35 @@ import javafx.scene.image.ImageView;
  */
 public abstract class ExportPane extends Tab
 {
+    /**
+     * An enum for the different export functions
+     */
+    public enum ExportFunction
+    {
+        Publish, Project, App;
+
+        /**
+         * Returns the export function which corresponds to the passed name.
+         * In case the name doesn't match a function, returns
+         * ExportFunction.Publish as a default function.
+         *
+         * @param name The function name
+         * @return The corresponding function to the name passed,
+         *         otherwise return ExportFunction.Publish
+         */
+        public static ExportFunction getFunction(String name)
+        {
+            try
+            {
+                return ExportFunction.valueOf(name);
+            }
+            catch (IllegalArgumentException ex)
+            {
+                return ExportFunction.Publish;
+            }
+        }
+    }
+
     protected final CheckBox lockScenario = new CheckBox(Config.getString("export.lock.label"));
     protected final CheckBox hideControls = new CheckBox(Config.getString("export.controls.label"));
 
@@ -116,4 +145,9 @@ public abstract class ExportPane extends Tab
     {
         getContent().getStyleClass().add("export-pane-content");
     }
+
+    /**
+     * Return the export function for the pane.
+     */
+    public abstract ExportFunction getFunction();
 }

@@ -44,6 +44,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Window;
 
+import static greenfoot.guifx.export.ExportPane.ExportFunction;
+
 /**
  * A dialog allowing the user to export a scenario in a variety of ways.
  *
@@ -57,13 +59,12 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     private final Project project;
     private final ClassTarget currentWorld;
     private final Image snapshot;
-    private String selectedFunction;
     private int uploadSize;
 
     private final TabPane tabbedPane = new TabPane();
     private final Label progressLabel = new Label();
     private final ProgressBar progressBar = new ProgressBar();
-    private final Map<String, ExportPane> panes = new LinkedHashMap<>();
+    private final Map<ExportFunction, ExportPane> panes = new LinkedHashMap<>();
     private Button continueButton;
     private Button closeButton;
 
@@ -96,7 +97,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE, ButtonType.OK);
         closeButton = (Button) getDialogPane().lookupButton(ButtonType.CLOSE);
         closeButton.setOnAction(event ->
-                Config.putPropString("greenfoot.lastExportPane", getSelectedFunction()));
+                Config.putPropString("greenfoot.lastExportPane", getSelectedFunction().name()));
         continueButton = (Button) getDialogPane().lookupButton(ButtonType.OK);
         continueButton.setText(Config.getString("export.dialog.export"));
         continueButton.setOnAction(event -> doExport());
@@ -118,10 +119,10 @@ public class ExportDialog extends FXCustomizedDialog<Void>
 
         if (snapshot != null)
         {
-            ExportPublishPane publishPane = (ExportPublishPane) panes.get(ExportPublishPane.FUNCTION);
+            ExportPublishPane publishPane = (ExportPublishPane) panes.get(ExportFunction.Publish);
             publishPane.setImage(snapshot);
         }
-        selectPane(Config.getPropString("greenfoot.lastExportPane", ExportPublishPane.FUNCTION));
+        selectPane(Config.getPropString("greenfoot.lastExportPane"));
     }
 
     /**
@@ -188,9 +189,9 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     /**
      * Return the identifier for the specific export function selected.
      */
-    private String getSelectedFunction()
+    private ExportFunction getSelectedFunction()
     {
-        return selectedFunction;
+        return getSelectedPane().getFunction();
     }
 
     /**
@@ -213,9 +214,9 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     /**
      * Called when the selection of the tabs changes.
      */
-    private void selectPane(String function)
+    private void selectPane(String name)
     {
-        tabbedPane.getSelectionModel().select(panes.get(function));
+        tabbedPane.getSelectionModel().select(panes.get(ExportFunction.getFunction(name)));
         continueButton.setText(Config.getString("export.dialog.export"));
         clearStatus();
     }
@@ -230,9 +231,9 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         // The default directory to export to when export locally.
         File defaultExportDir = project.getProjectDir().getParentFile();
 
-        panes.put(ExportPublishPane.FUNCTION, new ExportPublishPane(project, this));
-        panes.put(ExportAppPane.FUNCTION, new ExportAppPane(asWindow, projectName, defaultExportDir));
-        panes.put(ExportProjectPane.FUNCTION, new ExportProjectPane(asWindow, projectName, defaultExportDir));
+        addPane(new ExportPublishPane(project, this));
+        addPane(new ExportAppPane(asWindow, projectName, defaultExportDir));
+        addPane(new ExportProjectPane(asWindow, projectName, defaultExportDir));
 
         tabbedPane.getTabs().setAll(panes.values());
         // This is to change the width of the tabs headers to fill the available space of the tabbed
@@ -240,6 +241,17 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         // there is no way of disabling it. See: https://bugs.openjdk.java.net/browse/JDK-8091334
         tabbedPane.tabMinWidthProperty()
                 .bind(widthProperty().divide(tabbedPane.getTabs().size()).subtract(30));
+    }
+
+    /**
+     * Adds a pane to the panes map, by placing the function of the pane
+     * as the key to the pane stored in the value.
+     *
+     * @param exportPane An Export pane to be added to the panes map.
+     */
+    private void addPane(ExportPane exportPane)
+    {
+        panes.put(exportPane.getFunction(), exportPane);
     }
 
     /**
