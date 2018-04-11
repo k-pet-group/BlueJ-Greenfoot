@@ -145,8 +145,6 @@ public class ExportPublishPane extends ExportPane
     public void setImage(Image snapShot)
     {
         imagePane.setImage(snapShot);
-        //TODO
-        // imagePane.repaint();
     }
 
     /**
