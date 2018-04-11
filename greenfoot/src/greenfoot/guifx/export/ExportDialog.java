@@ -122,12 +122,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
             ExportPublishPane publishPane = (ExportPublishPane) panes.get(ExportPublishPane.FUNCTION);
             publishPane.setImage(snapshot);
         }
-        clearStatus();
-        
-        if (selectedPane == null)
-        {
-            // TODO
-        }
+        selectPane(Config.getPropString("greenfoot.lastExportPane", ExportPublishPane.FUNCTION));
     }
 
     /**
@@ -219,9 +214,11 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     /**
      * Called when the selection of the tabs changes.
      */
-    private void showPane(String function, boolean saveAsDefault)
+    private void selectPane(String function)
     {
         tabbedPane.getSelectionModel().select(panes.get(function));
+        continueButton.setText(Config.getString("export.dialog.export"));
+        clearStatus();
     }
     
     /**
