@@ -29,6 +29,8 @@ import bluej.debugger.gentype.JavaType;
 import com.sun.jdi.Field;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * An implement of DebuggerField using the Java Debug Interface (JDI).
@@ -37,10 +39,12 @@ import com.sun.jdi.Value;
  */
 public class JdiField extends DebuggerField
 {
-    private Field field;
+    @OnThread(Tag.Any)
+    private final Field field;
     private JdiObject object;
     private boolean hidden;
     
+    @OnThread(Tag.Any)
     public JdiField(Field field, JdiObject object, boolean hidden)
     {
         this.field = field;
@@ -49,6 +53,7 @@ public class JdiField extends DebuggerField
     }
 
     @Override
+    @OnThread(Tag.Any)
     public String getName()
     {
         return field.name();

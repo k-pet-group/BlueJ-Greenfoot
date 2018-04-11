@@ -247,12 +247,14 @@ public class JdiObject extends DebuggerObject
     }
     
     @Override
+    @OnThread(Tag.Any)
     public ObjectReference getObjectReference()
     {
         return obj;
     }
     
     @Override
+    @OnThread(Tag.Any)
     public List<DebuggerField> getFields()
     {
         List<Field> visibleFields = obj.referenceType().visibleFields();
@@ -266,7 +268,8 @@ public class JdiObject extends DebuggerObject
         return rlist;
     }
 
-    private boolean checkIgnoreField(Field f)
+    @OnThread(Tag.Any)
+    private static boolean checkIgnoreField(Field f)
     {
         return (f.name().indexOf('$') >= 0);
     }

@@ -35,6 +35,7 @@ public abstract class DebuggerField
     /**
      * Get the field name
      */
+    @OnThread(Tag.Any)
     public abstract String getName();
     
     /**

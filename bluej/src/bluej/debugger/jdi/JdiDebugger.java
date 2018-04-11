@@ -387,6 +387,7 @@ public class JdiDebugger extends Debugger
     /**
      * Remove all breakpoints in the given class.
      */
+    @OnThread(Tag.Any)
     public void removeBreakpointsForClass(String className)
     {
         VMReference vmr = getVMNoWait();

@@ -26,6 +26,8 @@ import java.util.List;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.JavaType;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A class representing an object, and its type, in the debugged VM. The "null" value
@@ -75,6 +77,7 @@ public abstract class DebuggerObject
     /**
      * Get all field/value pairs for the object.
      */
+    @OnThread(Tag.Any)
     public abstract List<DebuggerField> getFields();
     
     /**
@@ -131,5 +134,6 @@ public abstract class DebuggerObject
      *
      * @return    The ObjectReference value
      */
+    @OnThread(Tag.Any)
     public abstract com.sun.jdi.ObjectReference getObjectReference();
 }

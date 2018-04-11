@@ -145,6 +145,7 @@ public abstract class Debugger
     /**
      * Remove all breakpoints in the given class.
      */
+    @OnThread(Tag.Any)
     public abstract void removeBreakpointsForClass(String className);
 
     /**
