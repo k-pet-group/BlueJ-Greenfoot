@@ -36,6 +36,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 
 /**
  * Panel that lets you manipulate an image by zooming (with slider or
@@ -82,6 +83,7 @@ public class ImageEditPane extends HBox
         this.width = width;
         this.height = height;
         setPrefSize(width + 2, height + 2);
+        getStyleClass().add("image-edit-pane");
         buildUI();
     }
     
@@ -131,13 +133,12 @@ public class ImageEditPane extends HBox
         JavaFXUtil.addChangeListener(zoomSlider.valueProperty(),
                 scale -> imageCanvas.setScale(scale.doubleValue() / 100));
 
-        // Panel that contains the border so that borders
-        // are not drawn on our canvas, but just outside it.
-        HBox border = new HBox();
-        //TODO the border.
-        // border.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        border.getChildren().add(imageCanvas);
-        
+        // A Pane with a border to contain the image canvas only.
+        // It has been added so that the borders are not drawn on
+        // the canvas, but just outside it.
+        Pane border = new Pane(imageCanvas);
+        border.getStyleClass().add("image-canvas");
+
         getChildren().addAll(border, zoomSlider);
     }
 

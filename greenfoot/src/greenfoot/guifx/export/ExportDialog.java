@@ -64,7 +64,6 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     private final Label progressLabel = new Label();
     private final ProgressBar progressBar = new ProgressBar();
     private final Map<String, ExportPane> panes = new LinkedHashMap<>();
-    private ExportPane selectedPane;
     private Button continueButton;
     private Button closeButton;
 
@@ -96,6 +95,8 @@ public class ExportDialog extends FXCustomizedDialog<Void>
 
         getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE, ButtonType.OK);
         closeButton = (Button) getDialogPane().lookupButton(ButtonType.CLOSE);
+        closeButton.setOnAction(event ->
+                Config.putPropString("greenfoot.lastExportPane", getSelectedFunction()));
         continueButton = (Button) getDialogPane().lookupButton(ButtonType.OK);
         continueButton.setText(Config.getString("export.dialog.export"));
         continueButton.setOnAction(event -> doExport());
@@ -117,14 +118,10 @@ public class ExportDialog extends FXCustomizedDialog<Void>
 
         if (snapshot != null)
         {
-            // TODO send a snapshot of the background
-        }        
-        clearStatus();
-        
-        if (selectedPane == null)
-        {
-            // TODO
+            ExportPublishPane publishPane = (ExportPublishPane) panes.get(ExportPublishPane.FUNCTION);
+            publishPane.setImage(snapshot);
         }
+        selectPane(Config.getPropString("greenfoot.lastExportPane", ExportPublishPane.FUNCTION));
     }
 
     /**
@@ -171,7 +168,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
      */
     private void doExport()
     {
-        if(selectedPane.prePublish())
+        if (getSelectedPane().prePublish())
         {
             // TODO expThread
         }
@@ -201,7 +198,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
      */
     private ExportPane getSelectedPane()
     {
-        return selectedPane;
+        return (ExportPane) tabbedPane.getSelectionModel().getSelectedItem();
     }
     
     /**
@@ -216,9 +213,11 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     /**
      * Called when the selection of the tabs changes.
      */
-    private void showPane(String function, boolean saveAsDefault)
+    private void selectPane(String function)
     {
         tabbedPane.getSelectionModel().select(panes.get(function));
+        continueButton.setText(Config.getString("export.dialog.export"));
+        clearStatus();
     }
     
     /**
@@ -252,7 +251,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
      */
     public void publishFinished(boolean success, String msg)
     {
-        selectedPane.postPublish(success);
+        getSelectedPane().postPublish(success);
         setProgress(false, msg);
         if (success)
         {
