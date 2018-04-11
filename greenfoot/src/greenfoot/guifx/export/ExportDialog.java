@@ -64,7 +64,6 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     private final Label progressLabel = new Label();
     private final ProgressBar progressBar = new ProgressBar();
     private final Map<String, ExportPane> panes = new LinkedHashMap<>();
-    private ExportPane selectedPane;
     private Button continueButton;
     private Button closeButton;
 
@@ -169,7 +168,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
      */
     private void doExport()
     {
-        if(selectedPane.prePublish())
+        if (getSelectedPane().prePublish())
         {
             // TODO expThread
         }
@@ -199,7 +198,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
      */
     private ExportPane getSelectedPane()
     {
-        return selectedPane;
+        return (ExportPane) tabbedPane.getSelectionModel().getSelectedItem();
     }
     
     /**
@@ -252,7 +251,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
      */
     public void publishFinished(boolean success, String msg)
     {
-        selectedPane.postPublish(success);
+        getSelectedPane().postPublish(success);
         setProgress(false, msg);
         if (success)
         {
