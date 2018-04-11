@@ -97,7 +97,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE, ButtonType.OK);
         closeButton = (Button) getDialogPane().lookupButton(ButtonType.CLOSE);
         closeButton.setOnAction(event ->
-                Config.putPropString("greenfoot.lastExportPane", getSelectedFunction().getName()));
+                Config.putPropString("greenfoot.lastExportPane", getSelectedFunction().name()));
         continueButton = (Button) getDialogPane().lookupButton(ButtonType.OK);
         continueButton.setText(Config.getString("export.dialog.export"));
         continueButton.setOnAction(event -> doExport());
@@ -122,7 +122,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
             ExportPublishPane publishPane = (ExportPublishPane) panes.get(ExportFunction.Publish);
             publishPane.setImage(snapshot);
         }
-        selectPane(Config.getPropString("greenfoot.lastExportPane", ExportFunction.Publish.getName()));
+        selectPane(Config.getPropString("greenfoot.lastExportPane"));
     }
 
     /**

@@ -48,38 +48,22 @@ public abstract class ExportPane extends Tab
 
         /**
          * Returns the export function which corresponds to the passed name.
-         * It throws an {@link IllegalArgumentException} if the name is not recognised.
+         * In case the name doesn't match a function, returns
+         * ExportFunction.Publish as a default function.
          *
          * @param name The function name
-         * @return The corresponding function to the name passed.
-         * @throws IllegalArgumentException in case the name doesn't match a function.
+         * @return The corresponding function to the name passed,
+         *         otherwise return ExportFunction.Publish
          */
         public static ExportFunction getFunction(String name)
         {
-            String lowerCase = name.toLowerCase();
-            switch (lowerCase)
+            try
             {
-                case "publish": return Publish;
-                case "project": return Project;
-                case "app":     return App;
-
-                default: throw new IllegalArgumentException("No Enum specified for this string");
+                return ExportFunction.valueOf(name);
             }
-        }
-
-        /**
-         * Returns the name of the current function.
-         */
-        public String getName()
-        {
-            switch (this)
+            catch (IllegalArgumentException ex)
             {
-                case Publish: return "publish";
-                case Project: return "project";
-                case App:     return "app";
-
-                // Unreachable case, just to avoid a compiler error.
-                default: return "";
+                return ExportFunction.Publish;
             }
         }
     }
