@@ -96,6 +96,8 @@ public class ExportDialog extends FXCustomizedDialog<Void>
 
         getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE, ButtonType.OK);
         closeButton = (Button) getDialogPane().lookupButton(ButtonType.CLOSE);
+        closeButton.setOnAction(event ->
+                Config.putPropString("greenfoot.lastExportPane", getSelectedFunction()));
         continueButton = (Button) getDialogPane().lookupButton(ButtonType.OK);
         continueButton.setText(Config.getString("export.dialog.export"));
         continueButton.setOnAction(event -> doExport());
