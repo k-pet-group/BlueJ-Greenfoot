@@ -128,18 +128,21 @@ public class ProjectUtils
     {
         Dictionary<String, String> translations = new Hashtable<String, String>();
         translations.put("CLASSNAME", className);
-        if(superClassName != null) {
+        if (superClassName != null)
+        {
             translations.put("EXTENDSANDSUPERCLASSNAME", "extends " + superClassName);
             translations.put("EXTENDSSUPERCLASSNAME",  "extends=\"" + superClassName + "\"");
         } 
-        else {
+        else
+        {
             translations.put("EXTENDSANDSUPERCLASSNAME", "");
             translations.put("EXTENDSSUPERCLASSNAME",  "");
         }
         String baseName = "greenfoot/templates/" +  templateFileName;
         File template = Config.getLanguageFile(baseName);
         
-        if(!template.canRead()) {
+        if (!template.canRead())
+        {
             template = Config.getDefaultLanguageFile(baseName);
         }
         BlueJFileReader.translateFile(template, file, translations, StandardCharsets.UTF_8, selectCharset(projCharsetName));
@@ -171,10 +174,12 @@ public class ProjectUtils
         {
             projCharset = Charset.forName(projCharsetName);
         }
-        catch (UnsupportedCharsetException uce) {
+        catch (UnsupportedCharsetException uce)
+        {
             projCharset = StandardCharsets.UTF_8;
         }
-        catch (IllegalCharsetNameException icne) {
+        catch (IllegalCharsetNameException icne)
+        {
             projCharset = StandardCharsets.UTF_8;
         }
         return projCharset;
