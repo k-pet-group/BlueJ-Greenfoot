@@ -117,8 +117,9 @@ public class ExportDialog extends FXCustomizedDialog<Void>
 
         if (snapshot != null)
         {
-            // TODO send a snapshot of the background
-        }        
+            ExportPublishPane publishPane = (ExportPublishPane) panes.get(ExportPublishPane.FUNCTION);
+            publishPane.setImage(snapshot);
+        }
         clearStatus();
         
         if (selectedPane == null)
