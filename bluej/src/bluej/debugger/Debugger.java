@@ -297,6 +297,7 @@ public abstract class Debugger
      * @return           a string of the error message generated performing
      *                   this operation or null
      */
+    @OnThread(Tag.Any)
     public abstract String toggleBreakpoint(String className, String method, boolean set,
                                             Map<String,String> properties);
     
@@ -312,6 +313,7 @@ public abstract class Debugger
      * @return           a string of the error message generated performing
      *                   this operation or null
      */
+    @OnThread(Tag.Any)
     public abstract String toggleBreakpoint(DebuggerClass debuggerClass, String method, boolean set,
             Map<String, String> properties);
 

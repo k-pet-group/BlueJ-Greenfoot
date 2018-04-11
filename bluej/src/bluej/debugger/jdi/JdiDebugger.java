@@ -882,6 +882,7 @@ public class JdiDebugger extends Debugger
     /*
      * @see bluej.debugger.Debugger#toggleBreakpoint(java.lang.String, java.lang.String, boolean, java.util.Map)
      */
+    @OnThread(Tag.Any)
     public String toggleBreakpoint(String className, String method, boolean set, Map<String, String> properties)
     {
         VMReference vmr = getVM();
@@ -908,6 +909,7 @@ public class JdiDebugger extends Debugger
     /*
      * @see bluej.debugger.Debugger#toggleBreakpoint(bluej.debugger.DebuggerClass, java.lang.String, boolean, java.util.Map)
      */
+    @OnThread(Tag.Any)
     public String toggleBreakpoint(DebuggerClass debuggerClass, String method, boolean set, Map<String, String> properties)
     {
         VMReference vmr = getVM();
@@ -1164,6 +1166,7 @@ public class JdiDebugger extends Debugger
     /**
      * Emit an event (to listeners) due to a thread being halted.
      */
+    @OnThread(Tag.Any)
     void emitThreadHaltEvent(JdiThread thread)
     {
         vmRef.emitThreadEvent(thread, true);
