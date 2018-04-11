@@ -31,8 +31,6 @@ import javafx.stage.Window;
  */
 public class ExportProjectPane extends ExportLocalPane
 {
-    public static final String FUNCTION = "PROJECT";
-
     /**
      * Creates a new instance of ExportProjectPane
      *
@@ -43,5 +41,11 @@ public class ExportProjectPane extends ExportLocalPane
     public ExportProjectPane(Window parent, String scenarioName, File defaultExportDir)
     {
         super(parent, scenarioName, defaultExportDir, "project", ".gfar");
+    }
+
+    @Override
+    public ExportFunction getFunction()
+    {
+        return ExportFunction.Project;
     }
 }

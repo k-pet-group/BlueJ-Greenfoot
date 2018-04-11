@@ -70,8 +70,6 @@ import threadchecker.Tag;
  */
 public class ExportPublishPane extends ExportPane
 {
-    public static final String FUNCTION = "PUBLISH";
-
     public static final int IMAGE_WIDTH = 120;
     public static final int IMAGE_HEIGHT = 70;
 
@@ -125,6 +123,12 @@ public class ExportPublishPane extends ExportPane
         buildContentPane();
         applySharedStyle();
         getContent().getStyleClass().add("export-publish-pane");
+    }
+
+    @Override
+    public ExportFunction getFunction()
+    {
+        return ExportFunction.Publish;
     }
 
     /**
