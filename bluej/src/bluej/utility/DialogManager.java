@@ -28,6 +28,7 @@ import java.awt.datatransfer.StringSelection;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -35,7 +36,12 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import bluej.BlueJTheme;
+import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.stage.Modality;
 
 import threadchecker.OnThread;
@@ -195,6 +201,54 @@ public class DialogManager
     }
 
     /**
+     * Show an info dialog with an already-localized message and "Continue" button.
+     *
+     * @param parent   The component to position the dialog over
+     * @param title    The title of the dialog
+     * @param message  The message text to display (should be localized)
+     * @param cancelButton  The true/false value to indicate if the dialog includes "Cancel" button
+     * @return The button's index selected by the user
+     */
+    @OnThread(Tag.FXPlatform)
+    public static int showInfoTextFX(javafx.stage.Window parent, String title,
+                                     String message, boolean cancelButton)
+    {
+        ButtonType CONTINUE = new ButtonType(BlueJTheme.getContinueLabel(),
+                ButtonBar.ButtonData.OK_DONE);
+        Dialog<ButtonType> dialog = new Dialog<>();
+        DialogPane dialogPane = new DialogPane() {
+            @Override
+            protected Node createButtonBar()
+            {
+                ButtonBar buttonBar = (ButtonBar) super.createButtonBar();
+                buttonBar.setButtonOrder(ButtonBar.BUTTON_ORDER_NONE);
+                return buttonBar;
+            }
+        };
+        dialog.setDialogPane(dialogPane);
+        dialog.setTitle(title);
+        if (cancelButton)
+        {
+            dialogPane.getButtonTypes().addAll(ButtonType.CANCEL,CONTINUE);
+        }
+        else
+        {
+            dialogPane.getButtonTypes().addAll(CONTINUE);
+        }
+
+        dialogPane.setContentText(message);
+        //The following code is used as a hack for button central alignment
+        Region spacer = new Region();
+        ButtonBar.setButtonData(spacer, ButtonBar.ButtonData.BIG_GAP);
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        dialogPane.applyCss();
+        HBox hbox = (HBox) dialogPane.lookup(".container");
+        hbox.getChildren().add(spacer);
+        return dialog.showAndWait().map(dialogPane.getButtonTypes()::indexOf).
+                orElse(dialogPane.getButtonTypes().size() - 1);
+    }
+
+    /**
      * Show an error dialog with message and "OK" button.
      */
     @OnThread(Tag.FXPlatform)
@@ -317,6 +371,63 @@ public class DialogManager
             alert.setTitle(Config.getApplicationName() + ":  " +
                 Config.getString("dialogmgr.question"));
             return alert.showAndWait().map(buttons::indexOf).orElse(buttons.size() - 1);
+        }
+        return 0;
+    }
+
+    /**
+     * Brings up a two or three button question dialog. The question message and
+     * the buttons are read from the dialogues file; the information text is passed
+     * to be appended to the question message.
+     *
+     * <p>If the third button text is "null", it is not shown. Returns the button
+     * index that was selected (0..2).
+     */
+    @OnThread(Tag.FXPlatform)
+    public static int askQuestionFX(javafx.stage.Window parent, String msgID, String  infoText)
+    {
+        String message = getMessage(msgID);
+        if (message != null)
+        {
+            int button3Index = message.lastIndexOf("\n");
+            int button2Index = message.lastIndexOf("\n", button3Index-1);
+            int button1Index = message.lastIndexOf("\n", button2Index-1);
+            String button3 = message.substring(button3Index+1);
+            String button2 = message.substring(button2Index+1, button3Index);
+            String button1 = message.substring(button1Index+1, button2Index);
+            System.out.println(button1);
+            message = message.substring(0, button1Index);
+            message = infoText + message;
+
+            List<ButtonType> buttons = new ArrayList<>();
+            boolean hasThirdButton = !"null".equals(button3);
+            buttons.add(new ButtonType
+                    (button2, hasThirdButton ? ButtonBar.ButtonData.CANCEL_CLOSE : ButtonBar.ButtonData.NO));
+            buttons.add(new ButtonType
+                    (button1, hasThirdButton ? ButtonBar.ButtonData.NO : ButtonBar.ButtonData.YES));
+            if (hasThirdButton)
+            {
+                buttons.add(new ButtonType(button3, ButtonBar.ButtonData.YES));
+            }
+
+            Alert alert;
+            if (!Config.isMacOS())
+            {
+                alert = new Alert(Alert.AlertType.CONFIRMATION, message, buttons.toArray(new ButtonType[0]));
+            }
+            else
+            {
+                Collections.reverse(Arrays.asList(buttons));
+                alert = new Alert(Alert.AlertType.CONFIRMATION, message, buttons.toArray(new ButtonType[0]));
+            }
+
+            alert.initOwner(parent);
+            alert.initModality(Modality.WINDOW_MODAL);
+            alert.setHeaderText("");
+            alert.setTitle(Config.getApplicationName() + ":  " +
+                    Config.getString("dialogmgr.question"));
+            return alert.showAndWait().map(buttons::indexOf).
+                    orElse(buttons.size() - 1);
         }
         return 0;
     }

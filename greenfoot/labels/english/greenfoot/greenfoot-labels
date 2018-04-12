@@ -4,8 +4,6 @@ greenfoot.nyi=Not Yet Implemented - sorry.
 greenfoot.preferences=Preferences...
 greenfoot.copyright=Copyright...
 greenfoot.quit=Quit
-greenfoot.continue=Continue
-greenfoot.cancel=Cancel
 
 greenfoot.launchFailed=Greenfoot failed to launch. For help go to http://www.greenfoot.org/support
 
@@ -49,10 +47,6 @@ project.version.newer.part1=The scenario being opened has been written using a n
 # project version inserted here by Greenfoot
 project.version.newer.part2=). Opening the scenario with your current version of Greenfoot might result in some errors that will have to be fixed manually.\n\nDo you want to continue opening the scenario?
 project.close=Close
-
-greenfoot.importfix.question=Would you like to automatically update your code to match this change?
-greenfoot.importfix.yes=Yes, update my code
-greenfoot.importfix.no=No, I will update manually
 
 # Actions
 greenfoot.about=About Greenfoot...

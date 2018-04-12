@@ -239,11 +239,7 @@ public class ProjectManager
         if (projectVersion.isBad())
         {
             String message = projectVersion.getBadMessage();
-            JButton continueButton = new JButton(Config.getString("greenfoot.continue"));
-            MessageDialog dialog = new MessageDialog((Frame)null, message,
-                    Config.getString("project.version.mismatch"), 50,
-                    new JButton[]{continueButton});
-            dialog.displayModal();
+            DialogManager.showInfoTextFX(null, Config.getString("project.version.mismatch"), message, false);
             Debug.message("Bad version number in project: " + greenfootLibDir);
             prepareGreenfootProject(greenfootLibDir, project,
                     projectAPIVersionAccess, true, greenfootApiVersion);
@@ -256,22 +252,13 @@ public class ProjectManager
             if (projectVersion.crosses300Boundary(apiVersion))
             {
                 // "Would you like to try to automatically update your code?";
-                message += "\n\n" + Config.getString("greenfoot.importfix.question"); 
-                JButton yesButton = new JButton(Config.getString("greenfoot.importfix.yes"));
-                JButton noButton = new JButton(Config.getString("greenfoot.importfix.no"));
-                MessageDialog dialog = new MessageDialog((Frame)null, message,
-                        Config.getString("project.version.mismatch"), 80,
-                        Config.isMacOS() ? new JButton[]{noButton, yesButton} :
-                            new JButton[]{yesButton, noButton});
-                removeAWTImports = dialog.displayModal() == yesButton;
+                message += "\n";
+                removeAWTImports = DialogManager.askQuestionFX(null, "greenfoot-importfix-question",
+                        message) == 1;
             }
             else
             {
-                JButton continueButton = new JButton(Config.getString("greenfoot.continue"));
-                MessageDialog dialog = new MessageDialog((Frame)null, message,
-                        Config.getString("project.version.mismatch"), 80,
-                        new JButton[]{continueButton});
-                dialog.displayModal();
+                DialogManager.showInfoTextFX(null, Config.getString("project.version.mismatch"), message, false);
                 removeAWTImports = false;
             }
             prepareGreenfootProject(greenfootLibDir, project,
@@ -282,15 +269,11 @@ public class ProjectManager
         else if (apiVersion.isOlderAndBreaking(projectVersion))
         {
             String message = projectVersion.getNewerMessage();
+            int buttonIndex = DialogManager.showInfoTextFX(null, Config.getString("project.version.mismatch"), message, true);
 
-            JButton cancelButton = new JButton(Config.getString("greenfoot.cancel"));
-            JButton continueButton = new JButton(Config.getString("greenfoot.continue"));
-            MessageDialog dialog = new MessageDialog((Frame)null, message,
-                    Config.getString("project.version.mismatch"), 50,
-                    new JButton[]{continueButton, cancelButton});
-            JButton pressed = dialog.displayModal();
-
-            if (pressed == cancelButton) {
+            //Check if "Cancel" button is clicked
+            if (buttonIndex == 0)
+            {
                 return new VersionCheckInfo(VersionInfo.VERSION_BAD, false);
             }
             prepareGreenfootProject(greenfootLibDir, project, projectAPIVersionAccess,
@@ -310,10 +293,10 @@ public class ProjectManager
             return new VersionCheckInfo(VersionInfo.VERSION_UPDATED, false);
         }
         else
-        {       
+        {
             prepareGreenfootProject(greenfootLibDir, project,
                     projectAPIVersionAccess, false, greenfootApiVersion);
-            return new VersionCheckInfo(VersionInfo.VERSION_OK, false);            
+            return new VersionCheckInfo(VersionInfo.VERSION_OK, false);
         }
     }
     
