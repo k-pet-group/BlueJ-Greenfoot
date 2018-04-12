@@ -87,3 +87,9 @@ with the export, check for errors.
 error-open-readme
 The scenario information (README) could not be opened. Perhaps
 it has been deleted or its permissions have been set incorrectly.
+
+greenfoot-importfix-question
+Would you like to automatically update your code to match this change?
+Yes, update my code
+No, I will update manually
+null
