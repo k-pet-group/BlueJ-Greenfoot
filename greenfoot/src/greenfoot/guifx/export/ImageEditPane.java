@@ -24,9 +24,6 @@ package greenfoot.guifx.export;
 import bluej.Config;
 import bluej.utility.javafx.JavaFXUtil;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
-
 import javafx.geometry.Orientation;
 import javafx.scene.Cursor;
 import javafx.scene.control.Slider;
@@ -35,6 +32,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 
@@ -101,7 +99,7 @@ public class ImageEditPane extends HBox
         {
             // Only re-fit scaling if there was a change in size.
             imageCanvas.fit();
-            adjustSlider();    
+            zoomSlider.setValue(imageCanvas.getScale() * 100);
         } 
         if (!haveImage)
         {
@@ -122,18 +120,7 @@ public class ImageEditPane extends HBox
         imageCanvas.setOnMouseReleased(this::mouseReleased);
         imageCanvas.setOnScroll(this::mouseScroll);
 
-        zoomSlider = new Slider();
-        zoomSlider.setOrientation(Orientation.VERTICAL);
-        // Create labels for slider using the Greenfoot logo.
-        Image image = JavaFXUtil.loadImage(Config.getGreenfootLibDir().getAbsolutePath()
-                + "/imagelib/other/greenfoot.png");
-
-        bigLabel = new ImageView(image);
-        bigLabel.setScaleX(15);
-        smallLabel = new ImageView(image);
-        adjustSlider();
-        JavaFXUtil.addChangeListener(zoomSlider.valueProperty(),
-                scale -> imageCanvas.setScale(scale.doubleValue() / 100));
+        Pane sliderPane = createSliderPane();
 
         // A Pane with a border to contain the image canvas only.
         // It has been added so that the borders are not drawn on
@@ -141,25 +128,43 @@ public class ImageEditPane extends HBox
         Pane border = new Pane(imageCanvas);
         border.getStyleClass().add("image-canvas");
 
-        getChildren().addAll(border, zoomSlider);
+        getChildren().addAll(border, sliderPane);
     }
 
     /**
-     * Change the slider value based on the scale
+     * Create a slider attaching two icons to it, a big one and a small one.
+     * It also sets it min/max values and link it to the image canvas scale.
+     *
+     * @return A pane containing the slider and its icons.
      */
-    private void adjustSlider()
+    private Pane createSliderPane()
     {
-        int min = (int) (imageCanvas.getMinimumScale() * 100);
-        int max = 100;
-        int scale = (int) (imageCanvas.getScale() * 100);
-        zoomSlider.setMin(min);
-        zoomSlider.setMax(max);
-        zoomSlider.setValue(scale);
-        Dictionary<Double, ImageView> labels = new Hashtable<>();
-        labels.put(zoomSlider.getMin(), smallLabel);
-        labels.put(zoomSlider.getMax(), bigLabel);
-        //TODO set labels
-        // zoomSlider.setLabelTable(labels);
+        zoomSlider = new Slider();
+        zoomSlider.setOrientation(Orientation.VERTICAL);
+        zoomSlider.setPrefHeight(imageCanvas.getHeight());
+        zoomSlider.setMin(imageCanvas.getMinimumScale() * 100);
+        zoomSlider.setMax(100);
+        JavaFXUtil.addChangeListener(zoomSlider.valueProperty(),
+                scale -> imageCanvas.setScale(scale.doubleValue() / 100));
+
+        // Create labels for slider using the Greenfoot logo.
+        Image image = JavaFXUtil.loadImage(Config.getGreenfootLibDir().getAbsolutePath()
+                + "/imagelib/other/greenfoot.png");
+        bigLabel = new ImageView(image);
+        bigLabel.setScaleX(1.2);
+        bigLabel.setScaleY(1.2);
+        smallLabel = new ImageView(image);
+        smallLabel.setScaleX(.8);
+        smallLabel.setScaleY(.8);
+
+        AnchorPane anchorPane  = new AnchorPane(zoomSlider, bigLabel, smallLabel);
+        AnchorPane.setLeftAnchor(zoomSlider, 0.0);
+        AnchorPane.setTopAnchor(bigLabel, 0.0);
+        AnchorPane.setLeftAnchor(bigLabel, 20.0);
+        AnchorPane.setBottomAnchor(smallLabel, 0.0);
+        AnchorPane.setLeftAnchor(smallLabel, 20.0);
+
+        return anchorPane;
     }
 
     /**
