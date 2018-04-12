@@ -21,8 +21,8 @@
  */
 package greenfoot.guifx.export;
 
+import bluej.Config;
 import bluej.utility.javafx.JavaFXUtil;
-import greenfoot.util.GreenfootUtil;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -124,8 +124,10 @@ public class ImageEditPane extends HBox
 
         zoomSlider = new Slider();
         zoomSlider.setOrientation(Orientation.VERTICAL);
-        // Create labels for slider
-        Image image = JavaFXUtil.loadImage(GreenfootUtil.getGreenfootLogoPath());
+        // Create labels for slider using the Greenfoot logo.
+        Image image = JavaFXUtil.loadImage(Config.getGreenfootLibDir().getAbsolutePath()
+                + "/imagelib/other/greenfoot.png");
+
         bigLabel = new ImageView(image);
         bigLabel.setScaleX(15);
         smallLabel = new ImageView(image);
