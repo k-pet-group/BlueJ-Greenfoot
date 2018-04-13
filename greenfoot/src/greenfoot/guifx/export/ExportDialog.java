@@ -28,6 +28,8 @@ import bluej.pkgmgr.target.ClassTarget;
 import bluej.utility.javafx.FXCustomizedDialog;
 import bluej.utility.Utility;
 
+import greenfoot.export.Exporter;
+
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -176,7 +178,30 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     {
         if (getSelectedPane().prePublish())
         {
-            // TODO expThread
+            ExportThread expThread = new ExportThread();
+            exportingProperty.set(true);
+            expThread.start();
+        }
+    }
+
+    /**
+     * A separate thread to execute the actual exporting.
+     */
+    class ExportThread extends Thread {
+        @Override
+        public void run()
+        {
+            try
+            {
+                ExportPane pane = getSelectedPane();
+                ExportFunction function = getSelectedFunction();
+                Exporter exporter = Exporter.getInstance();
+                exporter.doExport(project, pane, ExportDialog.this, function);
+            }
+            finally
+            {
+                Platform.runLater(() -> exportingProperty.set(false));
+            }
         }
     }
 
