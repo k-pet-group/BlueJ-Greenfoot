@@ -67,14 +67,16 @@ public class VMCommsMain implements Closeable
     //                                       (read commands)
     //     -> release C
     //                                    -> acquire C   (Server has acquired B)
-    //                                    -> release C
     //                                    -> release A
     //     -> acquire A
-    //     -> acquire C
     //     -> release B
     //                                    -> acquire B (Server has A and C)
+    //                                    -> release C
+    //     -> acquire C
     //
-    // The acquisition order is B-->A and A-->C. This ensures that there can never be deadlock.
+    // The acquisition order is B-->A, A-->C, and C-->B. This ensures that there can never
+    // be deadlock. No process holds all three locks at once and each process always holds at
+    // least one lock.
 
     public static final int MAPPED_SIZE = 10_000_000;
     public static final int USER_AREA_OFFSET = 0x1000; // offset in 4-byte chunks; 16KB worth.
@@ -251,10 +253,11 @@ public class VMCommsMain implements Closeable
         if (haveUpdatedImage)
         {
             // skip: sequence number, last paint sequence, then:
-            int width = sharedMemory.get(USER_AREA_OFFSET + 2);
-            int height = sharedMemory.get(USER_AREA_OFFSET + 3);
-            sharedMemoryByte.position((USER_AREA_OFFSET + 4) * 4);
-            stage.receivedWorldImage(width, height, sharedMemoryByte);
+            IntBuffer copy = sharedMemory.asReadOnlyBuffer();
+            copy.position(USER_AREA_OFFSET + 2);
+            int width = copy.get();
+            int height = copy.get();
+            stage.receivedWorldImage(width, height, copy);
             haveUpdatedImage = false;
             lastConsumedImg = lastPaintSeq;
         }
@@ -395,22 +398,15 @@ public class VMCommsMain implements Closeable
         finally
         {
             // Re-acquire the put-area lock (A), and then release the get-area lock (B)
+            // before re-acquiring the sync lock (C):
             try
             {
                 putLock = fc.lock(SERVER_AREA_OFFSET_BYTES, SERVER_AREA_SIZE_BYTES, false);
-                syncLock = fc.lock(SYNC_AREA_OFFSET_BYTES, SYNC_AREA_SIZE_BYTES, false);
-            }
-            catch (IOException ex)
-            {
-                Debug.reportError(ex);
-            }
-            
-            try
-            {
                 if (fileLock != null)
                 {
                     fileLock.release();
                 }
+                syncLock = fc.lock(SYNC_AREA_OFFSET_BYTES, SYNC_AREA_SIZE_BYTES, false);
             }
             catch (IOException ex)
             {

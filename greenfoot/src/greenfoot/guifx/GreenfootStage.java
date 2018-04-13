@@ -123,7 +123,7 @@ import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.MappedByteBuffer;
+import java.nio.IntBuffer;
 import java.util.*;
 
 import static bluej.pkgmgr.target.ClassTarget.MENU_STYLE_INBUILT;
@@ -1196,7 +1196,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      * @param height  The image height
      * @param buffer  The buffer containing the pixel data
      */
-    public void receivedWorldImage(int width, int height, MappedByteBuffer buffer)
+    public void receivedWorldImage(int width, int height, IntBuffer buffer)
     {
         // If we are closing a project but receive an image late on, ignore it:
         if (project == null)
@@ -1211,8 +1211,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             // the animation timer (see commit comment).  So we set this flag to true as a way of queueing up the request:
             JavaFXUtil.runAfterCurrent(() -> sizeToScene());
         }
-        worldImg.getPixelWriter().setPixels(0, 0, width, height, PixelFormat.getByteBgraPreInstance(),
-                buffer, width * 4);
+        worldImg.getPixelWriter().setPixels(0, 0, width, height, PixelFormat.getIntArgbInstance(),
+                buffer, width);
         worldDisplay.setImage(worldImg);
         worldInstantiationError = false;
         worldVisible.set(true);

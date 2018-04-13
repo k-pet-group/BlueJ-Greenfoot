@@ -392,7 +392,7 @@ public class WorldCanvas extends JPanel
                 if (worldImage == null || worldImage.getHeight() != imageHeight
                         || worldImage.getWidth() != imageWidth)
                 {
-                    worldImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_BGR);
+                    worldImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_ARGB);
                     worldImages[toDrawWorld] = worldImage;
                 }
             }
@@ -514,7 +514,7 @@ public class WorldCanvas extends JPanel
                 sharedMemory.put(imageHeight);
                 for (int i = 0; i < raw.length; i++)
                 {
-                    sharedMemory.put(raw[i] << 8 | 0xFF);
+                    sharedMemory.put(raw[i]);
                 }
                 lastPaintSize = raw.length;
                 paintScheduled = false;
@@ -566,11 +566,11 @@ public class WorldCanvas extends JPanel
             // Lock the synchronisation area (C) to make sure that the server has acquired our put area:
             FileLock syncLock = shmFileChannel.lock(VMCommsMain.SYNC_AREA_OFFSET_BYTES,
                     VMCommsMain.SYNC_AREA_SIZE_BYTES, false);
-            syncLock.release();
             
             fileLock.release();
             putLock = shmFileChannel.lock(VMCommsMain.USER_AREA_OFFSET_BYTES,
                     VMCommsMain.USER_AREA_SIZE_BYTES, false);
+            syncLock.release();
         }
         catch (IOException ex)
         {
