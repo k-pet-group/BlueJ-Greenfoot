@@ -62,13 +62,7 @@ public class TestUtilDelegate implements GreenfootUtilDelegate
     {
         return null;
     }
-    
-    @Override
-    public void displayMessage(Component parent, String messageText)
-    {
-        System.err.println(messageText);
-    }
-    
+
     @Override
     public Iterable<String> getSoundFiles()
     {
