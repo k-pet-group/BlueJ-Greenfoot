@@ -566,11 +566,11 @@ public class WorldCanvas extends JPanel
             // Lock the synchronisation area (C) to make sure that the server has acquired our put area:
             FileLock syncLock = shmFileChannel.lock(VMCommsMain.SYNC_AREA_OFFSET_BYTES,
                     VMCommsMain.SYNC_AREA_SIZE_BYTES, false);
-            syncLock.release();
             
             fileLock.release();
             putLock = shmFileChannel.lock(VMCommsMain.USER_AREA_OFFSET_BYTES,
                     VMCommsMain.USER_AREA_SIZE_BYTES, false);
+            syncLock.release();
         }
         catch (IOException ex)
         {
