@@ -99,8 +99,8 @@ public class ImageEditPane extends HBox
         {
             // Only re-fit scaling if there was a change in size.
             imageCanvas.fit();
-            zoomSlider.setValue(imageCanvas.getScale() * 100);
-        } 
+            zoomSlider.setValue(imageCanvas.getScale());
+        }
         if (!haveImage)
         {
             haveImage = true;
@@ -142,10 +142,10 @@ public class ImageEditPane extends HBox
         zoomSlider = new Slider();
         zoomSlider.setOrientation(Orientation.VERTICAL);
         zoomSlider.setPrefHeight(imageCanvas.getHeight());
-        zoomSlider.setMin(imageCanvas.getMinimumScale() * 100);
-        zoomSlider.setMax(100);
+        zoomSlider.setMin(imageCanvas.getMinimumScale());
+        zoomSlider.setMax(1);
         JavaFXUtil.addChangeListener(zoomSlider.valueProperty(),
-                scale -> imageCanvas.setScale(scale.doubleValue() / 100));
+                scale -> imageCanvas.setScale(scale.doubleValue()));
 
         // Create labels for slider using the Greenfoot logo.
         Image image = JavaFXUtil.loadImage(Config.getGreenfootLibDir().getAbsolutePath()
@@ -237,7 +237,7 @@ public class ImageEditPane extends HBox
         {
             return;
         }
-        double scroll = e.getMultiplierX();
+        double scroll = e.getMultiplierX() / 100;
         zoomSlider.setValue(zoomSlider.getValue() - scroll);
     }
 
