@@ -237,7 +237,7 @@ public class ImageEditPane extends HBox
         {
             return;
         }
-        double scroll = e.getMultiplierX() / 100;
+        double scroll = e.getDeltaY() / 100;
         zoomSlider.setValue(zoomSlider.getValue() - scroll);
     }
 
