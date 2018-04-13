@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2018  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -58,16 +58,6 @@ public interface GreenfootUtilDelegate
      * Get the project-relative path of the Greenfoot logo.
      */
     public String getGreenfootLogoPath();
-
-    /**
-     * Display a message to the user; how the message is displayed is dependent
-     * upon the platform context. In the Greenfoot IDE, the message will be displayed
-     * in a dialog; otherwise it will be written to the terminal/console/log.
-     * 
-     * @param parent  The parent component (if a dialog is used to display the message)
-     * @param messageText   The message text itself.
-     */
-    public void displayMessage(Component parent, String messageText);
 
     /**
      * Find out whether storage is supported in the current setting

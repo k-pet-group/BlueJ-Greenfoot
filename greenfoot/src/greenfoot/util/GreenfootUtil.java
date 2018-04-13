@@ -740,19 +740,6 @@ public class GreenfootUtil
     }
     
     /**
-     * Display a message to the user; how the message is displayed is dependent
-     * upon the platform context. In the Greenfoot IDE, the message will be displayed
-     * in a dialog; otherwise it will be written to the terminal/console/log.
-     * 
-     * @param parent  The parent component (if a dialog is used to display the message)
-     * @param messageText   The message text itself.
-     */
-    public static void displayMessage(Component parent, String messageText)
-    {
-        delegate.displayMessage(parent, messageText);
-    }
-
-    /**
      * Given a string that represents a filename (or long path),
      * chops off the extension if any is present.
      * 

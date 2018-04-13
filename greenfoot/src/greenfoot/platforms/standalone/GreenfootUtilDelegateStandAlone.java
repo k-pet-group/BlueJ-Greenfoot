@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2015,2018  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -134,13 +134,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
     {    
         return this.getClass().getClassLoader().getResource("greenfoot.png").toString();
     }
-    
-    @Override
-    public void displayMessage(Component parent, String messageText)
-    {
-        System.err.println(messageText);
-    }
-    
+
     /**
      * Closes the connection (well, silently drops it), but allows
      * a subsequent connection attempt
