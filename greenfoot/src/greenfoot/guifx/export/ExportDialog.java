@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Map;
 
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
@@ -60,13 +62,13 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     private final ClassTarget currentWorld;
     private final Image snapshot;
     private int uploadSize;
+    private final BooleanProperty exportingProperty = new SimpleBooleanProperty(false);
 
     private final TabPane tabbedPane = new TabPane();
     private final Label progressLabel = new Label();
     private final ProgressBar progressBar = new ProgressBar();
     private final Map<ExportFunction, ExportPane> panes = new LinkedHashMap<>();
     private Button continueButton;
-    private Button closeButton;
 
     public ExportDialog(Window parent, Project project, ClassTarget currentWorld, Image snapshot)
             throws ExportException
@@ -95,12 +97,15 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         contentPane.setBottom(new HBox(progressBar, progressLabel));
 
         getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE, ButtonType.OK);
-        closeButton = (Button) getDialogPane().lookupButton(ButtonType.CLOSE);
+        Button closeButton = (Button) getDialogPane().lookupButton(ButtonType.CLOSE);
         closeButton.setOnAction(event ->
                 Config.putPropString("greenfoot.lastExportPane", getSelectedFunction().name()));
+        closeButton.disableProperty().bind(exportingProperty);
+
         continueButton = (Button) getDialogPane().lookupButton(ButtonType.OK);
         continueButton.setText(Config.getString("export.dialog.export"));
         continueButton.setOnAction(event -> doExport());
+        continueButton.disableProperty().bind(exportingProperty);
 
         if (currentWorld == null)
         {
@@ -201,16 +206,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     {
         return (ExportPane) tabbedPane.getSelectionModel().getSelectedItem();
     }
-    
-    /**
-     * Enable or disable the dialogue buttons.
-     */
-    private void enableButtons(boolean enable)
-    {
-        continueButton.setDisable(!enable);
-        closeButton.setDisable(!enable);
-    }
-    
+
     /**
      * Called when the selection of the tabs changes.
      */
