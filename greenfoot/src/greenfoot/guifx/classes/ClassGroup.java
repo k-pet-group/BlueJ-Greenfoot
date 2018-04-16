@@ -26,6 +26,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +44,7 @@ import java.util.stream.Stream;
  * Inheritance arrows are drawn for each subclass relation.  Classes are sorted
  * alphabetically at each level in the hierarchy.
  */
+@OnThread(Tag.FXPlatform)
 public class ClassGroup extends Pane implements ChangeListener<Number>
 {
     public static final int VERTICAL_SPACING = 8;
@@ -203,6 +206,7 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     protected double computePrefHeight(double width)
     {
         // The total height of class displays, plus that many vertical spacing items
@@ -216,6 +220,7 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     protected double computePrefWidth(double height)
     {
         return getChildren().stream()
@@ -231,6 +236,7 @@ public class ClassGroup extends Pane implements ChangeListener<Number>
      * just use a lambda, because we also want to remove the listener later.
      */
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
     {
         redisplay();

@@ -48,6 +48,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.TilePane;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.Arrays;
 import java.util.List;
@@ -57,6 +59,7 @@ import java.util.List;
  * speed slider and execution twirler that appear at the bottom
  * left of the window.
  */
+@OnThread(Tag.FXPlatform)
 class ControlPanel extends GridPane
 {
     private static final String PAUSE_BUTTON_TEXT = Config.getString("controls.pause.button");

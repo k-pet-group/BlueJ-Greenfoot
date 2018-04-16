@@ -34,6 +34,8 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Paint;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * The display of a single class in Greenfoot's class diagram. 
@@ -43,6 +45,7 @@ import javafx.scene.paint.Paint;
  * handles display and selection.  All other functionality (e.g. context menus)
  * is done externally as it is not used in all instances of ClassDisplay.
  */
+@OnThread(Tag.FXPlatform)
 public class ClassDisplay extends StackPane
 {
     private final String fullyQualifiedName;

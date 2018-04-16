@@ -27,12 +27,15 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * This is the JavaFX-based Greenfoot.ask GUI which is shown in the IDE
  * when Greenfoot.ask is called.  Not to be confused with AskPanel, which
  * is the Swing version shown when running as a standalone application.
  */
+@OnThread(Tag.FXPlatform)
 public class AskPaneFX extends BorderPane
 {
     // The prompt shown above the text field.  The parameter to Greenfoot.ask()

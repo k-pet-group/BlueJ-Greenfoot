@@ -59,6 +59,7 @@ import java.util.Properties;
  *
  * For now, this is very primitive, but is useful for implementing other Greenfoot functionality.
  */
+@OnThread(Tag.FXPlatform)
 public class GClassDiagram extends BorderPane implements ClassIconFetcher
 {
     /**

@@ -1,4 +1,4 @@
-@OnThread(Tag.FX)
+@OnThread(Tag.FXPlatform)
 package greenfoot.guifx.classes;
 
 import threadchecker.OnThread;
