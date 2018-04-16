@@ -25,6 +25,7 @@ import greenfoot.Actor;
 import greenfoot.ActorVisitor;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
+import greenfoot.core.Simulation.SimulationRunnable;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.event.TriggeredKeyListener;
@@ -373,7 +374,7 @@ public class WorldHandler
     {
         if (dragActor != null) {
             dragActorMoved = false;
-            Simulation.getInstance().runLater(new Runnable() {
+            Simulation.getInstance().runLater(new SimulationRunnable() {
                 private Actor dragActor = WorldHandler.this.dragActor;
                 private int dragBeginX = WorldHandler.this.dragBeginX;
                 private int dragBeginY = WorldHandler.this.dragBeginY;
@@ -455,7 +456,7 @@ public class WorldHandler
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             if (dragActor != null) {
                 dragActorMoved = false;
-                Simulation.getInstance().runLater(new Runnable() {
+                Simulation.getInstance().runLater(new SimulationRunnable() {
                     private Actor dragActor = WorldHandler.this.dragActor;
                     private int dragBeginX = WorldHandler.this.dragBeginX;
                     private int dragBeginY = WorldHandler.this.dragBeginY;
@@ -802,6 +803,7 @@ public class WorldHandler
     {
     }
 
+    @OnThread(Tag.Simulation)
     protected void fireWorldCreatedEvent(World newWorld)
     {
         // Guaranteed to return a non-null array
@@ -816,6 +818,7 @@ public class WorldHandler
         }
     }
 
+    @OnThread(Tag.Simulation)
     public void fireWorldRemovedEvent(World discardedWorld)
     {
         // Guaranteed to return a non-null array
@@ -893,7 +896,7 @@ public class WorldHandler
                 // This makes sure that a single (final) setLocation
                 // call is received by the actor when dragging ends.
                 // This matters if the actor has overridden setLocation
-                Simulation.getInstance().runLater(new Runnable() {
+                Simulation.getInstance().runLater(new SimulationRunnable() {
                     private Actor dragActor = WorldHandler.this.dragActor;
                     @Override
                     public void run()

@@ -21,6 +21,9 @@
  */
 package greenfoot.event;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.util.EventListener;
 
 /**
@@ -35,10 +38,12 @@ public interface WorldListener
     /**
      * Called when a new world is created and shown.
      */
+    @OnThread(Tag.Simulation)
     public void worldCreated(WorldEvent e);
 
     /**
      * Called when a world is removed.
      */
+    @OnThread(Tag.Simulation)
     public void worldRemoved(WorldEvent e);
 }

@@ -191,7 +191,7 @@ public class GreenfootMain extends Thread
                     sim.attachWorldHandler(worldHandler);
 
                     // Want to execute this after the simulation has been initialised:
-                    ExecServer.setCustomRunOnThread(r -> Simulation.getInstance().runLater(r));
+                    ExecServer.setCustomRunOnThread(r -> Simulation.getInstance().runLater(r::run));
 
                     // Config is initialized in GreenfootLauncherDebugVM
                     
