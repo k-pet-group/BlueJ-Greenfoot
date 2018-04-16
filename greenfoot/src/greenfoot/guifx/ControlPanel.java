@@ -155,6 +155,18 @@ class ControlPanel extends GridPane
     }
 
     /**
+     * It disables or enables the Act, Run and Pause buttons. This is used to disable those buttons
+     * while resetting takes place.
+     * @param value The true or false value to disable or enable the buttons
+     */
+    public void disableControlPanelButtons(boolean value)
+    {
+        actDisabled.setValue(value);
+        runDisabled.setValue(value);
+        pauseDisabled.setValue(value);
+    }
+
+    /**
      * Called by GreenfootStage to update the state of our buttons.
      */
     public void updateState(State newState, boolean atBreakpoint)

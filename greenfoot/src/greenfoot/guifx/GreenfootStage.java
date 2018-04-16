@@ -458,6 +458,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     public void doReset()
     {
+        controlPanel.disableControlPanelButtons(true);
         DataCollector.recordGreenfootEvent(project, GreenfootInterfaceEvent.WORLD_RESET);
         debugHandler.getVmComms().discardWorld();
         if (currentWorld != null)
@@ -1216,6 +1217,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         worldDisplay.setImage(worldImg);
         worldInstantiationError = false;
         worldVisible.set(true);
+        controlPanel.disableControlPanelButtons(false);
     }
     
     /**
