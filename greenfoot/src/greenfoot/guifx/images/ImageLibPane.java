@@ -53,6 +53,10 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 import javafx.util.Duration;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
+import javax.swing.*;
 
 /**
  * A Pane for selecting a class image. The image can be selected from either the
@@ -61,6 +65,7 @@ import javafx.util.Duration;
  * @author Davin McCall
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 class ImageLibPane extends VBox
 {
     private final Project project;
@@ -151,8 +156,8 @@ class ImageLibPane extends VBox
         // List of greenfoot images
         greenfootImageList = new ImageLibList(false);
 
-        JavaFXUtil.addChangeListener(projImageList.getSelectionModel().selectedItemProperty(), imageListEntry -> valueChanged(imageListEntry, true));
-        JavaFXUtil.addChangeListener(greenfootImageList.getSelectionModel().selectedItemProperty(), imageListEntry -> valueChanged(imageListEntry, false));
+        JavaFXUtil.addChangeListenerPlatform(projImageList.getSelectionModel().selectedItemProperty(), imageListEntry -> valueChanged(imageListEntry, true));
+        JavaFXUtil.addChangeListenerPlatform(greenfootImageList.getSelectionModel().selectedItemProperty(), imageListEntry -> valueChanged(imageListEntry, false));
 
         // Category selection panel
         ImageCategorySelector imageCategorySelector = new ImageCategorySelector(new File(Config.getGreenfootLibDir(), "imagelib"));
@@ -412,7 +417,8 @@ class ImageLibPane extends VBox
      */
     private void editImage(ImageListEntry entry)
     {
-        ExternalAppLauncher.editImage(entry.getImageFile());
+        File file = entry.getImageFile();
+        SwingUtilities.invokeLater(() -> ExternalAppLauncher.editImage(file));
     }
 
     private void pasteImage()

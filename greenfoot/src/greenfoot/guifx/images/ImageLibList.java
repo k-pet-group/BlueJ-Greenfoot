@@ -35,6 +35,8 @@ import javafx.geometry.Pos;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Tooltip;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A list component which displays a list of images (found in a directory) with their
@@ -44,6 +46,7 @@ import javafx.scene.control.Tooltip;
  * @author Poul Henriksen
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 public class ImageLibList extends ListView<ImageListEntry>
 {   
     /** The directory whose images are currently displayed in this list */
@@ -129,6 +132,7 @@ public class ImageLibList extends ListView<ImageListEntry>
      * Refresh the contents of the list.
      */
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void refresh()
     {
         if (loadImages())
@@ -149,9 +153,11 @@ public class ImageLibList extends ListView<ImageListEntry>
     /**
      * A Cell in a ListView of image files. Used to decide how the entries will be constructed in the list.
      */
+    @OnThread(Tag.FXPlatform)
     static class ImageLibCell extends ListCell<ImageListEntry>
     {
         @Override
+        @OnThread(value = Tag.FXPlatform, ignoreParent = true)
         public void updateItem(ImageListEntry item, boolean empty)
         {
             super.updateItem(item, empty);
