@@ -29,6 +29,8 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.io.File;
 import java.util.Arrays;
@@ -41,6 +43,7 @@ import java.util.Arrays;
  * 
  * @author davmac
  */
+@OnThread(Tag.FXPlatform)
 public class ImageCategorySelector extends ListView<File>
 {
     private ImageLibList imageLibList;
@@ -68,7 +71,7 @@ public class ImageCategorySelector extends ListView<File>
         Arrays.sort(categoriesFolders);
         setItems(FXCollections.observableArrayList(categoriesFolders));
 
-        JavaFXUtil.addChangeListener(getSelectionModel().selectedItemProperty(), selected -> {
+        JavaFXUtil.addChangeListenerPlatform(getSelectionModel().selectedItemProperty(), selected -> {
             if (imageLibList != null && selected != null)
             {
                 imageLibList.setDirectory(selected);
@@ -89,12 +92,14 @@ public class ImageCategorySelector extends ListView<File>
         this.imageLibList = imageLibList;
     }
     
+    @OnThread(Tag.FXPlatform)
     private static class ImageCell extends ListCell<File>
     {
         private static final String iconFile = "openRight.png";
         private static final Image openRightIcon = new Image(ImageCategorySelector.class.getClassLoader().getResource(iconFile).toString());
 
         @Override
+        @OnThread(value = Tag.FXPlatform, ignoreParent = true)
         public void updateItem(File file, boolean empty)
         {
             super.updateItem(file, empty);

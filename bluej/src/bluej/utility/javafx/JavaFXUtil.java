@@ -1503,7 +1503,7 @@ public class JavaFXUtil
      * @param task     The task to run (on the FX thread)
      * @return An action which, if executed, will cancel all future executions of the task.
      */
-    public static FXRunnable runRegular(Duration interval, FXRunnable task)
+    public static FXRunnable runRegular(Duration interval, FXPlatformRunnable task)
     {
         if (interval.lessThanOrEqualTo(Duration.ZERO))
         {

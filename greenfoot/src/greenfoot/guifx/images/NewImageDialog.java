@@ -39,6 +39,7 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.File;
@@ -148,7 +149,7 @@ public class NewImageDialog extends FXCustomizedDialog<File>
         {
             if (ImageIO.write(im, "png", file))
             {
-                ExternalAppLauncher.editImage(file);
+                SwingUtilities.invokeLater(() -> ExternalAppLauncher.editImage(file));
                 return true;
             }
         }

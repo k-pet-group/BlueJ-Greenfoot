@@ -46,6 +46,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Window;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A (modal) dialog for selecting a class image. The image can be selected from either the
@@ -54,6 +56,7 @@ import javafx.stage.Window;
  * @author Davin McCall
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 public class NewImageClassFrame extends FXCustomizedDialog<NewImageClassFrame.NewImageClassInfo>
 {
     private final Project project;
@@ -135,9 +138,9 @@ public class NewImageClassFrame extends FXCustomizedDialog<NewImageClassFrame.Ne
         final ClassNameVerifier classNameVerifier = new ClassNameVerifier(pkg, classNameProperty, sourceTypeProperty);
         updateControls(classNameVerifier);
 
-        JavaFXUtil.addChangeListener(classNameProperty, text -> updateControls(classNameVerifier));
-        JavaFXUtil.addChangeListener(sourceTypeProperty, type -> updateControls(classNameVerifier));
-        JavaFXUtil.addChangeListener(imageLibPane.selectedImageProperty(), image -> updateControls(classNameVerifier));
+        JavaFXUtil.addChangeListenerPlatform(classNameProperty, text -> updateControls(classNameVerifier));
+        JavaFXUtil.addChangeListenerPlatform(sourceTypeProperty, type -> updateControls(classNameVerifier));
+        JavaFXUtil.addChangeListenerPlatform(imageLibPane.selectedImageProperty(), image -> updateControls(classNameVerifier));
 
         HBox fileDetailsRow = new HBox(5, new Label(Config.getString("imagelib.className")), classNameField, languageSelectionBox);
         fileDetailsRow.setAlignment(Pos.BASELINE_LEFT);

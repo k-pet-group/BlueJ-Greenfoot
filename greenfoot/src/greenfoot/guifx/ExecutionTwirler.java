@@ -13,12 +13,15 @@ import javafx.scene.control.MenuButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * The execution twirler component.  This shows up if the user code has been running for too
  * long in any given segment (single act cycle, single user invocation), and allows the user
  * to easily open the debugger or restart the VM.
  */
+@OnThread(Tag.FXPlatform)
 public class ExecutionTwirler extends MenuButton
 {
     // The animation to spin the twirl icon:

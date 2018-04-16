@@ -24,11 +24,14 @@ package greenfoot.guifx;
 
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.Pane;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * The content pane for GreenfootStage.  This needs to be a custom pane to get the layout
  * algorithm implemented as we want.
  */
+@OnThread(Tag.FXPlatform)
 class GreenfootStageContentPane extends Pane
 {
     private static final int CLASS_DIAGRAM_PADDING = 12;
@@ -50,6 +53,7 @@ class GreenfootStageContentPane extends Pane
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     protected void layoutChildren()
     {
         final double ourWidth = getWidth();
@@ -86,6 +90,7 @@ class GreenfootStageContentPane extends Pane
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     protected double computePrefWidth(double height)
     {
         // Not quite accurate, but shouldn't matter when we have no real parent.
@@ -95,6 +100,7 @@ class GreenfootStageContentPane extends Pane
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     protected double computePrefHeight(double width)
     {
         // Again, not quite accurate, but should be close enough when we are topmost container:
