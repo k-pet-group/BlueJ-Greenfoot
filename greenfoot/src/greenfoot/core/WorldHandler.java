@@ -114,6 +114,7 @@ public class WorldHandler
     private Object repaintLock = new Object();
     private boolean isRepaintPending = false;
     
+    @OnThread(Tag.Any)
     public static synchronized void initialise(WorldCanvas worldCanvas, WorldHandlerDelegate helper)
     {
         instance = new WorldHandler(worldCanvas, helper);
@@ -122,6 +123,7 @@ public class WorldHandler
     /**
      * Initialiser for unit testing.
      */
+    @OnThread(Tag.Any)
     public static synchronized void initialise()
     {
         instance = new WorldHandler();
@@ -139,6 +141,7 @@ public class WorldHandler
     /**
      * Constructor used for unit testing.
      */
+    @OnThread(Tag.Any)
     private WorldHandler() 
     {
         instance = this;
@@ -190,6 +193,7 @@ public class WorldHandler
      * 
      * @param handlerDelegate
      */
+    @OnThread(Tag.Any)
     private WorldHandler(final WorldCanvas worldCanvas, WorldHandlerDelegate handlerDelegate)
     {
         instance = this;

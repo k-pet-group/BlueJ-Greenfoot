@@ -107,6 +107,7 @@ public class GreenfootMain extends Thread
      * @param wizard   whether to run the "new project wizard"
      * @param sourceType  default source type for the new project
      */
+    @OnThread(Tag.Any)
     public static void initialize(RBlueJ rBlueJ, String projDir, String shmFilePath, boolean wizard, SourceType sourceType)
     {
         System.setProperty("apple.laf.useScreenMenuBar", "true");
@@ -144,6 +145,7 @@ public class GreenfootMain extends Thread
 
             EventQueue.invokeLater(new Runnable() {
                 @Override
+                @OnThread(value = Tag.Swing, ignoreParent = true)
                 public void run() {
                     // Initialise JavaFX:
                     new JFXPanel();
@@ -233,6 +235,7 @@ public class GreenfootMain extends Thread
     /**
      * Gets the version number of the Greenfoot API for this Greenfoot release.
      */
+    @OnThread(Tag.Any)
     public static Version getAPIVersion()
     {
         if (version == null) {

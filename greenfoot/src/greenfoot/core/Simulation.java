@@ -74,6 +74,7 @@ public class Simulation extends Thread
     /** Simulation will wait for repaints if the repaint rate falls below this */
     private static int MIN_FRAME_RATE = 35;
     
+    @OnThread(Tag.Any)
     private WorldHandler worldHandler;
     
     /** Whether the simulation is (to be) paused */
@@ -87,6 +88,7 @@ public class Simulation extends Thread
     private boolean runOnce;
     
     /** Tasks that are queued to run on the simulation thread */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private Queue<SimulationRunnable> queuedTasks = new LinkedList<>();
 
     @OnThread(Tag.Any)
@@ -187,6 +189,7 @@ public class Simulation extends Thread
     /**
      * Attach this simulation to the world handler (and vice versa).
      */
+    @OnThread(Tag.Any)
     public void attachWorldHandler(WorldHandler worldHandler)
     {
         this.worldHandler = worldHandler;
@@ -266,6 +269,7 @@ public class Simulation extends Thread
      * Schedule some task to run on the simulation thread. The task will be run with the
      * world write lock held.
      */
+    @OnThread(Tag.Any)
     public synchronized void runLater(SimulationRunnable r)
     {
         queuedTasks.add(r);
