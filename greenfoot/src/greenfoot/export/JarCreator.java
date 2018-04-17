@@ -21,8 +21,6 @@
  */
 package greenfoot.export;
 
-import greenfoot.util.GreenfootUtil;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
@@ -35,8 +33,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -341,7 +343,7 @@ public class JarCreator
         try {
             file.createNewFile();
             os = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
-            for (String name : GreenfootUtil.getSoundFiles())
+            for (String name : getSoundFiles())
             {
                 os.write(name + "\n");
             }
@@ -352,6 +354,29 @@ public class JarCreator
             Debug.reportError("Error writing list of sounds: ", e);
         }
         
+    }
+
+    /**
+     * Gets a list of the sound files in this scenario.
+     * @return A list of files in the sounds subdirectory,
+     *         without the path prefix (e.g. "foo.wav")
+     */
+    public List<String> getSoundFiles()
+    {
+        try
+        {
+            URL url = getClass().getClassLoader().getResource("sounds");
+            if (url != null && "file".equals(url.getProtocol()))
+            {
+                return Arrays.asList(new File(url.toURI()).list());
+            }
+        }
+        catch (URISyntaxException e)
+        {
+            Debug.reportError("Bad URI in getResources", e);
+        }
+        // A blank list if something went wrong:
+        return Collections.emptyList();
     }
 
     /**
