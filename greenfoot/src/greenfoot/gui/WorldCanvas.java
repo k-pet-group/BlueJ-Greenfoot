@@ -79,20 +79,9 @@ import javax.swing.SwingConstants;
  * @author Poul Henriksen
  */
 public class WorldCanvas extends JPanel
-    implements  DropTarget, Scrollable
 {
-    private World world;
-    private DropTarget dropTargetListener;
-    /** The actor being dragged. Null if no dragging. */ 
-    private Actor dragActor;
-    /** The current location where the object is dragged - in pixel coordinates relative to this canvas. */
-    private Point dragLocation;
-    /** Image used when dragging new actors on the world. Includes the drop shadow.*/
-    private BufferedImage dragImage;
-    /** Preferred size (not counting insets) */
-    private Dimension size;
-    private Image overrideImage;
-    
+    private final WorldRenderer worldRenderer;    
+        
     // These variables are shared with the remote communications thread and need synchronised access:
     /** Whether the image has been updated */
     private boolean updateImage;
@@ -176,6 +165,7 @@ public class WorldCanvas extends JPanel
     private int stoppedWithErrorCount = 0;
     // When did user code last start?
     private long startOfCurExecution = 0;
+    private World world;
 
     /**
      * Construct a WorldCanvas.
@@ -187,7 +177,7 @@ public class WorldCanvas extends JPanel
     public WorldCanvas(ShadowProjectProperties projectProperties, String shmFilePath)
     {
         this.projectProperties = projectProperties;
-        setBackground(Color.WHITE);
+        worldRenderer = new WorldRenderer();
         setOpaque(true);
         try
         {
@@ -217,17 +207,7 @@ public class WorldCanvas extends JPanel
     public void setWorld(World world)
     {
         this.world = world;
-        if (world != null) {
-            EventQueue.invokeLater(() -> {
-                setOverrideImage(null);
-                this.setSize(getPreferredSize(world));
-                revalidate();
-                repaint();
-            });
-        }
-        else {
-            // this.setSize(0, 0);
-        }
+        worldRenderer.setWorld(world);
     }
 
     /**
@@ -236,120 +216,14 @@ public class WorldCanvas extends JPanel
      */
     public void setWorldSize(int xsize, int ysize)
     {
-        if (world == null) {
-            size = new Dimension(xsize, ysize);
-        }
+        worldRenderer.setWorldSize(xsize, ysize);
     }
-    
-    /**
-     * Paints all the objects.
-     * 
-     * Must be synchronized on the World.lock.
-     */
-    public void paintObjects(Graphics2D g)
+
+    public void setDropTargetListener(DropTarget worldHandler)
     {
-        // This can happen if we try to grab a screenshot while the world is being replaced:
-        if (world == null)
-            return;
-
-        Set<Actor> objects = WorldVisitor.getObjectsListInPaintOrder(world);
-        int paintSeq = 0;
-        for (Iterator<Actor> iter = objects.iterator(); iter.hasNext();) {
-            Actor thing = iter.next();
-            int cellSize = WorldVisitor.getCellSize(world);
-
-            GreenfootImage image = ActorVisitor.getDisplayImage(thing);
-            if (image != null) {
-                ActorVisitor.setLastPaintSeqNum(thing, paintSeq++);
-
-                double halfWidth = image.getWidth() / 2.;
-                double halfHeight = image.getHeight() / 2.;
-
-                AffineTransform oldTx = null;
-                try {
-                    int ax = ActorVisitor.getX(thing);
-                    int ay = ActorVisitor.getY(thing);
-                    double xCenter = ax * cellSize + cellSize / 2.;
-                    int paintX = (int) Math.floor(xCenter - halfWidth);
-                    double yCenter = ay * cellSize + cellSize / 2.;
-                    int paintY = (int) Math.floor(yCenter - halfHeight);
-
-                    int rotation = ActorVisitor.getRotation(thing);
-                    if (rotation != 0) {
-                        // don't bother transforming if it is not rotated at
-                        // all.
-                        oldTx = g.getTransform();
-                        g.rotate(Math.toRadians(rotation), xCenter, yCenter);
-                    }
-
-                    ImageVisitor.drawImage(image, g, paintX, paintY, this, true);
-                }
-                catch (IllegalStateException e) {
-                    // We get this if the object has been removed from the
-                    // world. That can happen when interactively invoking a
-                    // method that removes an object from the world, while the
-                    // scenario is executing.
-                }
-
-                // Restore the old state of the graphics
-                if (oldTx != null) {
-                    g.setTransform(oldTx);
-                }
-            }
-        }
+        worldRenderer.setDropTargetListener(worldHandler);
     }
 
-    @Override
-    public void paintComponent(Graphics g)
-    {
-        if (overrideImage != null)
-        {
-            g.drawImage(overrideImage, 1, 1, null); // Draw at 1, 1 to account for border
-            return;
-        }
-        
-        if (world == null) {
-            Color c = g.getColor();
-            g.setColor(getParent().getBackground());
-            g.fillRect(0, 0, getWidth(), getHeight());
-            g.setColor(c);
-            WorldHandler.getInstance().repainted();
-            return;
-        }
-        
-        // We need to sync, so that objects are not added and removed when we
-        // traverse the list.
-        // But, we only try to get the lock for a brief period to avoid
-        // deadlocks. A deadlock could otherwise happen if a modal dialog is
-        // created from the user code in one of the act() methods.
-        // We could do the sync only on the paintObjects, but that would mean
-        // that the background will be reset and no objects painted, resulting
-        // in a slightly broken look, if the user code is sleeping (with
-        // Thread.sleep).
-        try {
-            ReentrantReadWriteLock lock = WorldHandler.getInstance().getWorldLock();
-            int timeout = WorldHandler.READ_LOCK_TIMEOUT;
-            if (lock.readLock().tryLock(timeout, TimeUnit.MILLISECONDS)) {
-                try {
-                    Insets insets = getInsets();
-                    g.translate(-insets.left, -insets.top);
-                    //paintRemote();
-                }
-                finally {
-                    lock.readLock().unlock();
-                    WorldHandler.getInstance().repainted();
-                }
-            }
-            else {
-                WorldHandler.getInstance().repainted(); // we failed, but notify waiters anyway
-                // (otherwise they keep waiting indefinitely...)
-            }
-        }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-    
     public static enum PaintWhen { FORCE, IF_DUE, NO_PAINT}
 
     /**
@@ -397,12 +271,7 @@ public class WorldCanvas extends JPanel
                 }
             }
             
-            Graphics2D g2 = (Graphics2D)worldImage.getGraphics();
-            paintBackground(g2);
-            paintObjects(g2);
-            paintDraggedObject(g2);
-            WorldVisitor.paintDebug(world, g2);
-            paintWorldText(g2, world);
+            worldRenderer.renderWorld(worldImage);
             
             synchronized (this)
             {
@@ -706,147 +575,12 @@ public class WorldCanvas extends JPanel
         return lastSeqID;
     }
 
-    /**
-     * Paint text labels that have been placed on the world using World.showText(...).
-     * @param g   The graphics context to draw on
-     * @param world   The world
-     */
-    private void paintWorldText(Graphics2D g, World world)
-    {
-        List<TextLabel> labels = WorldVisitor.getTextLabels(world);
-        
-        if (labels.isEmpty()) {
-            return;
-        }
-        
-        // Set up rendering context:
-        Font origFont = g.getFont();
-        Color orig = g.getColor();
-        Object origAntiAliasing = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
-        
-        int cellsize = WorldVisitor.getCellSize(world);
-        for (TextLabel label : labels) {
-            label.draw(g, cellsize);
-        }
-        
-        // Restore graphics context state:
-        g.setFont(origFont);
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, origAntiAliasing);
-        g.setColor(orig);
-    }
-    
-    
-    
-    /**
-     * If an object is being dragged, paint it.
-     */
-    private void paintDraggedObject(Graphics g)
-    {
-        if(dragImage != null) {
-            int x = (int) dragLocation.getX();
-            int y = (int) dragLocation.getY();
-            int xCell =  WorldVisitor.toCellFloor(world, x);
-            int yCell =  WorldVisitor.toCellFloor(world, y);
-            int cellSize = WorldVisitor.getCellSize(world);
-            x = (int) ((xCell + 0.5) * cellSize - dragImage.getWidth()/2);
-            y = (int) ((yCell + 0.5) * cellSize - dragImage.getHeight()/2);
-            
-            g.drawImage(dragImage, x, y, null);            
-        } 
-    }
 
-    /**
-     * Paint the world background. This takes tiling into account: the
-     * world image is painted either once or tiled onto this component.
-     */
-    public void paintBackground(Graphics2D g)
-    {
-        if (world != null) {
-            GreenfootImage backgroundImage = WorldVisitor.getBackgroundImage(world);
-            if (backgroundImage != null) {
-                ImageVisitor.drawImage(backgroundImage, g, 0, 0, this, true);
-            }
-            else {
-                Color oldColor = g.getColor();
-                g.setColor(getBackground());
-                g.fillRect(0, 0, this.getWidth(), this.getHeight());
-                g.setColor(oldColor);
-            }
-        }
-    }
 
-    @Override
-    public Dimension getMinimumSize()
-    {
-        return getPreferredSize();
-    }
 
-    @Override
-    public Dimension getPreferredSize()
-    {
-        return getPreferredSize(world);
-    }
+
+
     
-    /**
-     * Get the preferred size for this component, assuming that it is housing the given world.
-     */
-    private Dimension getPreferredSize(World world)
-    {
-        if (world != null) {
-            size = new Dimension();
-            size.width = WorldVisitor.getWidthInPixels(world) ;
-            size.height = WorldVisitor.getHeightInPixels(world) ;
-            Insets insets = getInsets();
-            size.width += insets.left + insets.right;
-            size.height += insets.top + insets.bottom;
-            return size;
-        }
-        else if (size != null) {
-            return size;
-        }
-        else {
-            return super.getPreferredSize();
-        }
-    }
-    
-    public void setDropTargetListener(DropTarget dropTargetListener)
-    {
-        this.dropTargetListener = dropTargetListener;
-    }
-
-    /**
-     * If it is a new actor, that has not been added to the world yet, the
-     * dragging is handled here.
-     */
-    public boolean drag(Object o, Point p)
-    {
-        Insets insets = getInsets();
-        Point p2 = new Point(p.x - insets.left, p.y - insets.top);
-        if(o instanceof Actor && ActorVisitor.getWorld((Actor) o) == null) {   
-            if(!getVisibleRect().contains(p)) {
-                return false;
-            }
-            if(o != dragActor) {
-                // It is the first time we are dragging this actor. Create the drag image.
-                dragActor = (Actor) o;          
-                dragImage = GreenfootUtil.createDragShadow(ActorVisitor.getDragImage(dragActor).getAwtImage());
-            }
-            dragLocation = p2;
-            repaint();
-            return true;            
-        }        
-        else if (dropTargetListener != null) {
-            return dropTargetListener.drag(o, p2);
-        }
-        else {        
-            return false;
-        }
-    }
-
-    public Dimension getPreferredScrollableViewportSize()
-    {
-        return getPreferredSize();
-    }
 
     public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction)
     {
@@ -893,12 +627,6 @@ public class WorldCanvas extends JPanel
     public boolean getScrollableTracksViewportHeight()
     {
         return false;
-    }
-
-    public void setOverrideImage(Image snapshot)
-    {
-        this.overrideImage = snapshot;
-        repaint();
     }
 
     /**
