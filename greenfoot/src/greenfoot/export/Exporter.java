@@ -64,6 +64,36 @@ import javax.imageio.ImageIO;
  */
 public class Exporter implements PublishListener
 {
+
+    /**
+     * An enum for the different export functions
+     */
+    public enum ExportFunction
+    {
+        PUBLISH, PROJECT, APP;
+
+        /**
+         * Returns the export function which corresponds to the passed name.
+         * In case the name doesn't match a function, returns
+         * ExportFunction.PUBLISH as a default function.
+         *
+         * @param name The function name
+         * @return The corresponding function to the name passed,
+         *         otherwise return ExportFunction.PUBLISH
+         */
+        public static ExportFunction getFunction(String name)
+        {
+            try
+            {
+                return ExportFunction.valueOf(name);
+            }
+            catch (IllegalArgumentException ex)
+            {
+                return ExportFunction.PUBLISH;
+            }
+        }
+    }
+
     private static final String GREENFOOT_CORE_JAR = getGreenfootCoreJar();
     private static final String GALLERY_SHARED_JARS = "sharedjars/";
     
@@ -108,22 +138,21 @@ public class Exporter implements PublishListener
      * @param dialog      A share/export dialog reference to show progress/messages to user.
      * @param function    The share function type which will be perform.
      */
-    public void doExport(Project project, ExportPane exportPane, ExportDialog dialog,
-                         ExportPane.ExportFunction function)
+    public void doExport(Project project, ExportPane exportPane, ExportDialog dialog, ExportFunction function)
     {
         this.project = project;
         this.dialog = dialog;
         this.exportPane = exportPane;
 
-        if (function.equals(ExportPane.ExportFunction.Publish))
+        if (function.equals(ExportFunction.PUBLISH))
         {
             publishToWebServer();
         }
-        if (function.equals(ExportPane.ExportFunction.App))
+        if (function.equals(ExportFunction.APP))
         {
             makeApplication();
         }
-        if (function.equals(ExportPane.ExportFunction.Project))
+        if (function.equals(ExportFunction.PROJECT))
         {
             makeProject();
         }

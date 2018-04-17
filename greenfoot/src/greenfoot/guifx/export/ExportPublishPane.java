@@ -28,6 +28,7 @@ import bluej.utility.FXWorker;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
 
+import static greenfoot.export.Exporter.ExportFunction;
 import greenfoot.export.mygame.ExistingScenarioChecker;
 import greenfoot.export.mygame.MyGameClient;
 import greenfoot.export.mygame.ScenarioInfo;
@@ -128,7 +129,7 @@ public class ExportPublishPane extends ExportPane
     @Override
     public ExportFunction getFunction()
     {
-        return ExportFunction.Publish;
+        return ExportFunction.PUBLISH;
     }
 
     /**

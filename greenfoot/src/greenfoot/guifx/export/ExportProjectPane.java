@@ -21,6 +21,8 @@
  */
 package greenfoot.guifx.export;
 
+import static greenfoot.export.Exporter.ExportFunction;
+
 import java.io.File;
 import javafx.stage.Window;
 
@@ -46,6 +48,6 @@ public class ExportProjectPane extends ExportLocalPane
     @Override
     public ExportFunction getFunction()
     {
-        return ExportFunction.Project;
+        return ExportFunction.PROJECT;
     }
 }
