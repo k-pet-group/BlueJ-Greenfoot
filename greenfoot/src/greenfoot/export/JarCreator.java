@@ -339,11 +339,11 @@ public class JarCreator
 
     private void writeSoundFilesList(File file)
     {
-        BufferedWriter os = null;
+        BufferedWriter os;
         try {
             file.createNewFile();
             os = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file)));
-            for (String name : getSoundFiles())
+            for (String name : new File(projectDir, "sounds").list())
             {
                 os.write(name + "\n");
             }
@@ -354,29 +354,6 @@ public class JarCreator
             Debug.reportError("Error writing list of sounds: ", e);
         }
         
-    }
-
-    /**
-     * Gets a list of the sound files in this scenario.
-     * @return A list of files in the sounds subdirectory,
-     *         without the path prefix (e.g. "foo.wav")
-     */
-    public List<String> getSoundFiles()
-    {
-        try
-        {
-            URL url = getClass().getClassLoader().getResource("sounds");
-            if (url != null && "file".equals(url.getProtocol()))
-            {
-                return Arrays.asList(new File(url.toURI()).list());
-            }
-        }
-        catch (URISyntaxException e)
-        {
-            Debug.reportError("Bad URI in getResources", e);
-        }
-        // A blank list if something went wrong:
-        return Collections.emptyList();
     }
 
     /**
