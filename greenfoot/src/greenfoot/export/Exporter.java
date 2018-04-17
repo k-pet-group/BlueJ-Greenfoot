@@ -134,7 +134,7 @@ public class Exporter implements PublishListener
      */
     private void publishToWebServer()
     {
-        ExportPublishPane pane = (ExportPublishPane)exportPane;
+        ExportPublishPane pane = (ExportPublishPane) exportPane;
         dialog.setProgress(true, Config.getString("export.progress.bundling"));
         
         //Create temporary jar        
@@ -294,7 +294,7 @@ public class Exporter implements PublishListener
      */
     private void makeApplication()
     {
-        ExportAppPane pane = (ExportAppPane)exportPane;
+        ExportAppPane pane = (ExportAppPane) exportPane;
         dialog.setProgress(true, Config.getString("export.progress.writingJar"));
         File exportFile = new File(pane.getExportName());
         File exportDir = exportFile.getParentFile();
@@ -354,7 +354,7 @@ public class Exporter implements PublishListener
      */
     private void makeProject()
     {
-        ExportProjectPane pane = (ExportProjectPane)exportPane;
+        ExportProjectPane pane = (ExportProjectPane) exportPane;
         dialog.setProgress(true, Config.getString("export.progress.writingGfar"));
         
         File exportFile = new File(pane.getExportName());
