@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016,2018  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,9 +21,11 @@
  */
 package greenfoot.export;
 
+import bluej.Config;
+import bluej.utility.Debug;
+
 import greenfoot.World;
 import greenfoot.core.ExportedProjectProperties;
-import greenfoot.core.ProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.SimulationEvent;
@@ -39,7 +41,6 @@ import greenfoot.util.GreenfootUtil;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -49,6 +50,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import javafx.geometry.Dimension2D;
 import javax.swing.JApplet;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
@@ -56,9 +58,6 @@ import javax.swing.JScrollPane;
 import javax.swing.BorderFactory;
 import javax.swing.OverlayLayout;
 import javax.swing.RootPaneContainer;
-
-import bluej.Config;
-import bluej.utility.Debug;
 
 /**
  * This class can view and run a Greenfoot scenario. It is not possible to
@@ -107,17 +106,17 @@ public class GreenfootScenarioViewer extends JApplet
     /**
      * Returns the size of the borders around the controls.
      */
-    public static Dimension getControlsBorderSize()
+    public static Dimension2D getControlsBorderSize()
     {
-        return new Dimension((EMPTY_BORDER_SIZE ) * 2, (EMPTY_BORDER_SIZE ) * 2);
+        return new Dimension2D((EMPTY_BORDER_SIZE ) * 2, (EMPTY_BORDER_SIZE ) * 2);
     } 
     
     /**
      * Returns the size of the borders around the world panel.
      */
-    public static Dimension getWorldBorderSize()
+    public static Dimension2D getWorldBorderSize()
     {
-        return new Dimension((EMPTY_BORDER_SIZE + 1) * 2, EMPTY_BORDER_SIZE + 1 * 2);
+        return new Dimension2D((EMPTY_BORDER_SIZE + 1) * 2, EMPTY_BORDER_SIZE + 1 * 2);
     }
     
     private void buildGUI()

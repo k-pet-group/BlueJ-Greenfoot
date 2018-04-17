@@ -29,6 +29,7 @@ import bluej.utility.javafx.FXCustomizedDialog;
 import bluej.utility.Utility;
 
 import greenfoot.export.Exporter;
+import static greenfoot.export.Exporter.ExportFunction;
 
 import java.io.File;
 import java.util.LinkedHashMap;
@@ -47,8 +48,6 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Window;
-
-import static greenfoot.guifx.export.ExportPane.ExportFunction;
 
 /**
  * A dialog allowing the user to export a scenario in a variety of ways.
@@ -128,7 +127,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
 
         if (snapshot != null)
         {
-            ExportPublishPane publishPane = (ExportPublishPane) panes.get(ExportFunction.Publish);
+            ExportPublishPane publishPane = (ExportPublishPane) panes.get(ExportFunction.PUBLISH);
             publishPane.setImage(snapshot);
         }
         selectPane(Config.getPropString("greenfoot.lastExportPane"));
@@ -198,7 +197,8 @@ public class ExportDialog extends FXCustomizedDialog<Void>
                 ExportPane pane = getSelectedPane();
                 ExportFunction function = getSelectedFunction();
                 Exporter exporter = Exporter.getInstance();
-                exporter.doExport(project, pane, ExportDialog.this, function);
+                exporter.doExport(project, pane, ExportDialog.this, function,
+                        currentWorld.getDisplayName(), snapshot.getWidth(), snapshot.getHeight());
             }
             finally
             {

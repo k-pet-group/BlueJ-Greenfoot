@@ -26,12 +26,10 @@ import bluej.Config;
 import bluej.pkgmgr.Project;
 import bluej.utility.Utility;
 
-import greenfoot.core.WorldHandler;
 import greenfoot.event.PublishEvent;
 import greenfoot.event.PublishListener;
 import greenfoot.export.mygame.MyGameClient;
 import greenfoot.export.mygame.ScenarioInfo;
-import greenfoot.gui.WorldCanvas;
 import greenfoot.guifx.export.ExportAppPane;
 import greenfoot.guifx.export.ExportDialog;
 import greenfoot.guifx.export.ExportPane;
@@ -40,7 +38,6 @@ import greenfoot.guifx.export.ExportPublishPane;
 import greenfoot.guifx.export.ProxyAuthDialog;
 import greenfoot.util.GreenfootUtil;
 
-import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -52,6 +49,8 @@ import java.util.concurrent.ExecutionException;
 
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.geometry.Dimension2D;
+
 import javax.imageio.ImageIO;
 
 /**
@@ -64,6 +63,35 @@ import javax.imageio.ImageIO;
  */
 public class Exporter implements PublishListener
 {
+    /**
+     * An enum for the different export functions
+     */
+    public enum ExportFunction
+    {
+        PUBLISH, PROJECT, APP;
+
+        /**
+         * Returns the export function which corresponds to the passed name.
+         * In case the name doesn't match a function, returns
+         * ExportFunction.PUBLISH as a default function.
+         *
+         * @param name The function name
+         * @return The corresponding function to the name passed,
+         *         otherwise return ExportFunction.PUBLISH
+         */
+        public static ExportFunction getFunction(String name)
+        {
+            try
+            {
+                return ExportFunction.valueOf(name);
+            }
+            catch (IllegalArgumentException ex)
+            {
+                return ExportFunction.PUBLISH;
+            }
+        }
+    }
+
     private static final String GREENFOOT_CORE_JAR = getGreenfootCoreJar();
     private static final String GALLERY_SHARED_JARS = "sharedjars/";
     
@@ -92,6 +120,9 @@ public class Exporter implements PublishListener
     private MyGameClient webPublisher;
 
     private Project project;
+    private String worldName;
+    private double worldWidth;
+    private double worldHeight;
     private ExportDialog dialog;
     private ExportPane exportPane;
     
@@ -103,27 +134,34 @@ public class Exporter implements PublishListener
     /**
      * Publish/Export this scenario based on the passed function.
      *
-     * @param project     The current project.
-     * @param exportPane  The selected export pane that will provide needed info.
-     * @param dialog      A share/export dialog reference to show progress/messages to user.
-     * @param function    The share function type which will be perform.
+     * @param project      The current project.
+     * @param exportPane   The selected export pane that will provide needed info.
+     * @param dialog       A share/export dialog reference to show progress/messages to user.
+     * @param function     The share function type which will be perform.
+     * @param worldName    The world's name.
+     * @param worldWidth   The world's width.
+     * @param worldHeight  The world's height.
      */
     public void doExport(Project project, ExportPane exportPane, ExportDialog dialog,
-                         ExportPane.ExportFunction function)
+                         ExportFunction function, String worldName,
+                         double worldWidth, double worldHeight)
     {
         this.project = project;
         this.dialog = dialog;
         this.exportPane = exportPane;
+        this.worldName = worldName;
+        this.worldWidth = worldWidth;
+        this.worldHeight = worldHeight;
 
-        if (function.equals(ExportPane.ExportFunction.Publish))
+        if (function.equals(ExportFunction.PUBLISH))
         {
             publishToWebServer();
         }
-        if (function.equals(ExportPane.ExportFunction.App))
+        if (function.equals(ExportFunction.APP))
         {
             makeApplication();
         }
-        if (function.equals(ExportPane.ExportFunction.Project))
+        if (function.equals(ExportFunction.PROJECT))
         {
             makeProject();
         }
@@ -155,13 +193,10 @@ public class Exporter implements PublishListener
             hostAddress += "/";
         }
 
-        // TODO Look at this.
-        // World can't be null as this stage
-        String worldClass = WorldHandler.getInstance().getWorld().getClass().getName();
-
         boolean  lockScenario = pane.lockScenario();
         
-        JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, lockScenario, true);            
+        JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldName,
+                lockScenario, true);
         
         // do not include source
         jarCreator.includeSource(false);
@@ -192,9 +227,9 @@ public class Exporter implements PublishListener
         jarCreator.putManifestEntry("os-arch", System.getProperty("os.arch"));
         jarCreator.putManifestEntry("java-home", System.getProperty("java.home"));        
         
-        Dimension size = getSize(!lockScenario);
-        jarCreator.putManifestEntry("width", "" + size.width);
-        jarCreator.putManifestEntry("height","" + size.height);
+        Dimension2D size = getSize(!lockScenario);
+        jarCreator.putManifestEntry("width", "" + size.getWidth());
+        jarCreator.putManifestEntry("height", "" + size.getHeight());
 
         // Make sure the current properties are saved before they are exported.
         // TODO look at this.
@@ -269,9 +304,8 @@ public class Exporter implements PublishListener
             }
             setUploadSize(uploadSize);
             
-            webPublisher.submit(hostAddress, login, password,
-                    tmpJarFile.getAbsolutePath(), tmpZipFile, tmpImgFile, size.width, size.height,
-                    info);
+            webPublisher.submit(hostAddress, login, password, tmpJarFile.getAbsolutePath(),
+                    tmpZipFile, tmpImgFile, (int)size.getWidth(), (int)size.getHeight(), info);
         }
         catch (UnknownHostException e)
         {
@@ -300,14 +334,11 @@ public class Exporter implements PublishListener
         File exportDir = exportFile.getParentFile();
         String jarName = exportFile.getName();
 
-        // TODO Look at this.
-        // World can't be null as this stage
-        String worldClass = WorldHandler.getInstance().getWorld().getClass().getName();
-        
         boolean  lockScenario = pane.lockScenario();
         boolean  hideControls = pane.hideControls();
 
-        JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, lockScenario, hideControls, false, false);
+        JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldName,
+                lockScenario, hideControls, false, false);
         // do not include source
         jarCreator.includeSource(false);  
         
@@ -370,29 +401,23 @@ public class Exporter implements PublishListener
 
     /**
      * Get the size needed to display the application and control panel.
-     * @return
+     * @return The width and the height wrapped in Dimension2D object.
      */
-    private static Dimension getSize(boolean includeControls)
+    private Dimension2D getSize(boolean includeControls)
     {     
         //The control panel size is hard coded for now, since it has different sizes on different platforms. 
         //It is bigger on windows than most other platforms, so this is the size that is used.
         //Will be even more problematic once we get i18n!
-        Dimension controlPanelSize = null;  
-        Dimension border = GreenfootScenarioViewer.getControlsBorderSize();        
-        if(includeControls) {
-            controlPanelSize = new Dimension(560 + border.width , 48 + border.height);
-        }
-        else {   
-            controlPanelSize = new Dimension(410 + border.width, 48 + border.height);
-        }
-        
-        WorldCanvas canvas = WorldHandler.getInstance().getWorldCanvas();
-        border = GreenfootScenarioViewer.getWorldBorderSize();
-        Dimension size = new Dimension(canvas.getWidth() + border.width, (int) controlPanelSize.getHeight() + canvas.getHeight() + border.height);
-        size.width += 2;  // add some extra padding
-        size.height += 2;
-        size.width = Math.max(size.width, controlPanelSize.width);
-        return size;
+        Dimension2D controlsBorder = GreenfootScenarioViewer.getControlsBorderSize();
+        double controlsWidth = controlsBorder.getWidth() + (includeControls ? 560 : 410);
+        double controlHeight = controlsBorder.getHeight() + 48;
+
+        Dimension2D worldBorder = GreenfootScenarioViewer.getWorldBorderSize();
+
+        // +2 to add some extra padding
+        double width = Math.max(worldWidth + worldBorder.getWidth() + 2, controlsWidth);
+        double height = controlHeight + worldHeight + worldBorder.getHeight() + 2;
+        return new Dimension2D(width, height);
     }
         
     /**
