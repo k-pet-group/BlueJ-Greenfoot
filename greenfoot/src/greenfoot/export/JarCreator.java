@@ -33,14 +33,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
@@ -85,22 +80,22 @@ public class JarCreator
     private String jarName;
     
     /** List of extra jars that should be put in the same dir as the created jar (the exportDir)*/
-    private List<File> extraJars = new LinkedList<File>();
+    private List<File> extraJars = new LinkedList<>();
     
     /** List of extra jars whose contents should be put into the created jar */
-    private List<File> extraJarsInJar = new LinkedList<File>();
+    private List<File> extraJarsInJar = new LinkedList<>();
 
     /** List of paths to external jars that should be included in the manifest's classpath. */
-    private List<String> extraExternalJars = new LinkedList<String>();
+    private List<String> extraExternalJars = new LinkedList<>();
     
-    private List<File> dirs = new LinkedList<File>();
-    private List<PrefixedFile> prefixDirs = new LinkedList<PrefixedFile>();
+    private List<File> dirs = new LinkedList<>();
+    private List<PrefixedFile> prefixDirs = new LinkedList<>();
 
     /** array of directory names not to be included in jar file * */
-    private List<String> skipDirs = new LinkedList<String>();
+    private List<String> skipDirs = new LinkedList<>();
 
     /** array of file names not to be included in jar file * */
-    private List<String> skipFiles = new LinkedList<String>();
+    private List<String> skipFiles = new LinkedList<>();
     
     /** The maninfest */ 
     private Manifest manifest = new Manifest();
@@ -117,9 +112,8 @@ public class JarCreator
      *            other resources required. Must exist and be writable
      * @param jarName The name of the jar file.
      */
-    public JarCreator(File exportDir, String jarName)
+    private JarCreator(File exportDir, String jarName)
     {
-
         File jarFile = new File(exportDir, jarName);
         if (!jarFile.canWrite() && jarFile.exists()) {
             throw new IllegalArgumentException("Cannot write file: " + jarFile);
@@ -144,12 +138,12 @@ public class JarCreator
      * @param hideControls Should the exported scenario include the controls panel
      * @param applet Whether the export is for an applet on a webpage (true) or for a stand-alone JAR (false) 
      */
-    public JarCreator(Project project, File exportDir, String jarName, String worldClass, boolean lockScenario, boolean hideControls, boolean fullScreen, boolean applet)
+    public JarCreator(Project project, File exportDir, String jarName, String worldClass,
+                      boolean lockScenario, boolean hideControls, boolean fullScreen, boolean applet)
     {   
         this(project, exportDir, jarName, worldClass, lockScenario, applet);
         properties.put("scenario.hideControls", "" + hideControls);
         properties.put("scenario.fullScreen", "" + fullScreen);
-        
     }
 
     /**
@@ -166,7 +160,8 @@ public class JarCreator
      *            and speedslider.
      * @param applet Whether the export is for an applet on a webpage (true) or for a stand-alone JAR (false) 
      */
-    public JarCreator(Project project, File exportDir, String jarName, String worldClass, boolean lockScenario, boolean applet)
+    public JarCreator(Project project, File exportDir, String jarName, String worldClass,
+                      boolean lockScenario, boolean applet)
     {   
         this(exportDir, jarName);
         
@@ -430,13 +425,15 @@ public class JarCreator
         String classpath = "";
 
         // add extra jars to classpath
-        for (Iterator<File> it = extraJars.iterator(); it.hasNext();) {
-            classpath += " " + it.next().getName();
+        for (File extraJar : extraJars)
+        {
+            classpath += " " + extraJar.getName();
         }
         
         // add extra external jars to classpath
-        for (Iterator<String> it = extraExternalJars.iterator(); it.hasNext();) {
-            classpath += " " + it.next();
+        for (String extraExternalJar : extraExternalJars)
+        {
+            classpath += " " + extraExternalJar;
         }
         
         Attributes attr = manifest.getMainAttributes();
@@ -546,10 +543,12 @@ public class JarCreator
     private void writeDirToJar(File sourceDir, String pathPrefix, ZipOutputStream stream, File outputFile)
         throws IOException
     {
-        if (!skipDir(sourceDir)) {
+        if (!skipDir(sourceDir))
+        {
             File[] dir = sourceDir.listFiles();
-            for (int i = 0; i < dir.length; i++) {
-                writeFileToJar(dir[i], pathPrefix, stream, outputFile, false);
+            for (File sourceFile : dir)
+            {
+                writeFileToJar(sourceFile, pathPrefix, stream, outputFile, false);
             }
         }
     }
@@ -620,17 +619,19 @@ public class JarCreator
      */
     private void copyLibsToDir(List<File> userLibs, File destDir)
     {
-        for (Iterator<File> it = userLibs.iterator(); it.hasNext();) {
-            File lib = it.next();
-
+        for (File lib : userLibs)
+        {
             // Ignore files that do not exist
-            if(lib.exists()) {
+            if (lib.exists())
+            {
                 File destFile = new File(destDir, lib.getName());
-                try {
+                try
+                {
                     FileUtility.copyFile(lib, destFile);
                 }
-                catch (IOException e) {
-                    Debug.reportError("Error when copying file: " + lib + " to: " + destFile, e);               
+                catch (IOException e)
+                {
+                    Debug.reportError("Error when copying file: " + lib + " to: " + destFile, e);
                 }
             }
         }
@@ -643,11 +644,12 @@ public class JarCreator
     private boolean skipDir(File dir) throws IOException
     {
 
-        Iterator<String> it = skipDirs.iterator();
-        while(it.hasNext()) {
-            String skipDir = it.next();
+        for (String skipDir : skipDirs)
+        {
             if (dir.getCanonicalFile().getPath().endsWith(skipDir))
+            {
                 return true;
+            }
         }
         return false;
     }
@@ -695,7 +697,7 @@ public class JarCreator
     
     public void generateHTMLSkeleton(File outputFile, String title, int width, int height)
     {
-        Hashtable<String,String> translations = new Hashtable<String,String>();
+        Hashtable<String,String> translations = new Hashtable<>();
 
         translations.put("TITLE", title);
        // translations.put("COMMENT", htmlComment);
