@@ -847,26 +847,33 @@ public class Simulation extends Thread
     @OnThread(Tag.Any)
     public void setSpeed(int newSpeed)
     {
-        if (newSpeed < 0) {
+        if (newSpeed < 0)
+        {
             newSpeed = 0;
         }
-        else if (newSpeed > MAX_SIMULATION_SPEED) {
+        else if (newSpeed > MAX_SIMULATION_SPEED)
+        {
             newSpeed = MAX_SIMULATION_SPEED;
         }
         
         boolean speedChanged;
-        synchronized (this) {
+        synchronized (this)
+        {
             speedChanged = this.speed != newSpeed;
-            if (speedChanged) {
+            if (speedChanged)
+            {
                 this.speed = newSpeed;
                 this.delay = calculateDelay(newSpeed);
 
                 // If simulation is running we should interrupt any waiting or
                 // sleeping that is currently happening.
                 
-                if(!paused) {
-                    synchronized (interruptLock) {
-                        if (delaying) {
+                if(!paused)
+                {
+                    synchronized (interruptLock)
+                    {
+                        if (delaying)
+                        {
                             interrupt();
                         }
                     }
@@ -876,7 +883,8 @@ public class Simulation extends Thread
         
         // TODO remove this as an event once ControlPanel has been removed (which is the only
         // item listening to a speed-change event.  Threadchecker fails here, so we'll remember...
-        if (speedChanged) {
+        if (speedChanged)
+        {
             fireSimulationEvent(speedChangeEvent);
         }
     }
