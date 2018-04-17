@@ -36,7 +36,6 @@ import greenfoot.gui.DropTarget;
 import greenfoot.gui.WorldCanvas;
 import greenfoot.gui.input.InputManager;
 import greenfoot.gui.input.KeyboardManager;
-import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.gui.input.mouse.MousePollingManager;
 import greenfoot.gui.input.mouse.WorldLocator;
 import greenfoot.platforms.WorldHandlerDelegate;
@@ -206,7 +205,6 @@ public class WorldHandler
 
         worldCanvas.setDropTargetListener(this);
 
-        LocationTracker.instance().setSourceComponent(worldCanvas);
         keyboardManager = new KeyboardManager();
         worldCanvas.addFocusListener(keyboardManager);
 

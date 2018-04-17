@@ -26,7 +26,6 @@ import bluej.collect.DataSubmissionFailedDialog;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.gui.WorldCanvas;
-import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.platforms.ide.ActorDelegateIDE;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 import greenfoot.sound.SoundFactory;
@@ -150,8 +149,6 @@ public class GreenfootMain extends Thread
                     // Initialise JavaFX:
                     new JFXPanel();
                     Platform.setImplicitExit(false);
-
-                    LocationTracker.instance(); //force initialisation
 
                     // Some first-time initializations
                     WorldCanvas worldCanvas = new WorldCanvas(projectProperties, shmFilePath);

@@ -162,7 +162,6 @@ public class WorldRenderer
         }
     }
 
-
     /**
      * Paint text labels that have been placed on the world using World.showText(...).
      * @param g   The graphics context to draw on
@@ -257,8 +256,6 @@ public class WorldRenderer
             size = new Dimension(xsize, ysize);
         }
     }
-
-
 
     /**
      * Get the preferred size for this component, assuming that it is housing the given world.

@@ -23,38 +23,21 @@ package greenfoot.gui;
 
 import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
-import greenfoot.Actor;
-import greenfoot.ActorVisitor;
-import greenfoot.GreenfootImage;
-import greenfoot.ImageVisitor;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.core.ShadowProjectProperties;
 import greenfoot.core.Simulation;
-import greenfoot.core.TextLabel;
 import greenfoot.core.WorldHandler;
 import greenfoot.gui.input.KeyboardManager;
 import greenfoot.gui.input.mouse.MousePollingManager;
-import greenfoot.util.GreenfootUtil;
 import greenfoot.vmcomm.Command;
 import greenfoot.vmcomm.VMCommsMain;
 import javafx.scene.input.KeyCode;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.EventQueue;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Insets;
-import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.IOException;
@@ -63,14 +46,8 @@ import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.swing.JPanel;
-import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
 
 /**
@@ -233,12 +210,10 @@ public class WorldCanvas extends JPanel
      * @param paintWhen  If IF_DUE, painting may be skipped if it's close to a recent paint.
      *                   FORCE always paints, NO_PAINT indicates that an actual image update
      *                   is not required but other information in the frame should be sent. 
-     * @param askId If non-negative, an ID for the ask request to pass to the server VM
-     * @param askPrompt If askId is non-negative, a prompt for answer from Greenfoot.ask().
      * @return Answer from Greenfoot.ask() if available, null otherwise
      */
     @OnThread(Tag.Simulation)
-    public String paintRemote(PaintWhen paintWhen, int askId, String askPrompt)
+    public String paintRemote(PaintWhen paintWhen)
     {
         long now = System.nanoTime();
         if (paintWhen == PaintWhen.IF_DUE && now - lastPaintNanos <= 8_333_333L)
@@ -645,7 +620,7 @@ public class WorldCanvas extends JPanel
     public void notifyStoppedWithError()
     {
         stoppedWithErrorCount += 1;
-        paintRemote(PaintWhen.NO_PAINT, -1, null);
+        paintRemote(PaintWhen.NO_PAINT);
     }
 
     /**
@@ -661,7 +636,7 @@ public class WorldCanvas extends JPanel
         startOfCurExecution = now;
         if (!recentlyRunning)
         {
-            paintRemote(PaintWhen.NO_PAINT, -1, null);
+            paintRemote(PaintWhen.NO_PAINT);
         }
     }
 
@@ -673,6 +648,6 @@ public class WorldCanvas extends JPanel
     public void userCodeStopped()
     {
         startOfCurExecution = 0L;
-        paintRemote(PaintWhen.NO_PAINT, -1, null);
+        paintRemote(PaintWhen.NO_PAINT);
     }
 }
