@@ -34,6 +34,7 @@ import greenfoot.export.mygame.ScenarioInfo;
 import greenfoot.gui.WorldCanvas;
 import greenfoot.guifx.export.ExportAppPane;
 import greenfoot.guifx.export.ExportDialog;
+import greenfoot.guifx.export.ExportPane;
 import greenfoot.guifx.export.ExportProjectPane;
 import greenfoot.guifx.export.ExportPublishPane;
 import greenfoot.guifx.export.ProxyAuthDialog;
@@ -89,20 +90,52 @@ public class Exporter implements PublishListener
     private File tmpImgFile;
     private File tmpZipFile;
     private MyGameClient webPublisher;
-    private ExportDialog dlg;
+
+    private Project project;
+    private ExportDialog dialog;
+    private ExportPane exportPane;
     
     /**
      * Creates a new instance of Exporter.
      */
-    public Exporter() { }
+    private Exporter() { }
+
+    /**
+     * Publish/Export this scenario based on the passed function.
+     *
+     * @param project     The current project.
+     * @param exportPane  The selected export pane that will provide needed info.
+     * @param dialog      A share/export dialog reference to show progress/messages to user.
+     * @param function    The share function type which will be perform.
+     */
+    public void doExport(Project project, ExportPane exportPane, ExportDialog dialog,
+                         ExportPane.ExportFunction function)
+    {
+        this.project = project;
+        this.dialog = dialog;
+        this.exportPane = exportPane;
+
+        if (function.equals(ExportPane.ExportFunction.Publish))
+        {
+            publishToWebServer();
+        }
+        if (function.equals(ExportPane.ExportFunction.App))
+        {
+            makeApplication();
+        }
+        if (function.equals(ExportPane.ExportFunction.Project))
+        {
+            makeProject();
+        }
+    }
     
     /**
      * Publish this scenario to the web server.
      */
-    public void publishToWebServer(Project project, ExportPublishPane pane, ExportDialog dlg)
+    private void publishToWebServer()
     {
-        this.dlg = dlg;
-        dlg.setProgress(true, Config.getString("export.progress.bundling"));
+        ExportPublishPane pane = (ExportPublishPane) exportPane;
+        dialog.setProgress(true, Config.getString("export.progress.bundling"));
         
         //Create temporary jar        
         try {
@@ -214,7 +247,7 @@ public class Exporter implements PublishListener
             webPublisher = new MyGameClient(this);
         }
         
-        dlg.setProgress(true, Config.getString("export.progress.publishing"));
+        dialog.setProgress(true, Config.getString("export.progress.publishing"));
         try {
             ScenarioInfo info = new ScenarioInfo();
             info.setTitle(scenarioName);
@@ -242,11 +275,11 @@ public class Exporter implements PublishListener
         }
         catch (UnknownHostException e)
         {
-            dlg.setProgress(false, Config.getString("export.publish.unknownHost") + " (" + e.getMessage() + ")");
+            dialog.setProgress(false, Config.getString("export.publish.unknownHost") + " (" + e.getMessage() + ")");
         }
         catch (IOException e)
         {
-            dlg.setProgress(false, Config.getString("export.publish.fail") + " " + e.getMessage());
+            dialog.setProgress(false, Config.getString("export.publish.fail") + " " + e.getMessage());
         }
     }
 
@@ -259,9 +292,10 @@ public class Exporter implements PublishListener
     /**
      * Create an application (jar-file)
      */
-    public void makeApplication(Project project, ExportAppPane pane, ExportDialog dlg)
+    private void makeApplication()
     {
-        dlg.setProgress(true, Config.getString("export.progress.writingJar"));
+        ExportAppPane pane = (ExportAppPane) exportPane;
+        dialog.setProgress(true, Config.getString("export.progress.writingJar"));
         File exportFile = new File(pane.getExportName());
         File exportDir = exportFile.getParentFile();
         String jarName = exportFile.getName();
@@ -312,15 +346,16 @@ public class Exporter implements PublishListener
         // project.getProjectProperties().save();
         
         jarCreator.create();
-        dlg.setProgress(false, Config.getString("export.progress.complete")); 
+        dialog.setProgress(false, Config.getString("export.progress.complete"));
     }
     
     /**
      * Create an standalone project (gfar-file)
      */
-    public void makeProject(Project project, ExportProjectPane pane, ExportDialog dlg)
+    private void makeProject()
     {
-        dlg.setProgress(true, Config.getString("export.progress.writingGfar"));
+        ExportProjectPane pane = (ExportProjectPane) exportPane;
+        dialog.setProgress(true, Config.getString("export.progress.writingGfar"));
         
         File exportFile = new File(pane.getExportName());
         File exportDir = exportFile.getParentFile();
@@ -330,7 +365,7 @@ public class Exporter implements PublishListener
         JarCreator gfarCrator = new JarCreator(project, exportDir, gfarName);
         gfarCrator.create();
        
-        dlg.setProgress(false, Config.getString("export.progress.complete")); 
+        dialog.setProgress(false, Config.getString("export.progress.complete"));
     }
 
     /**
@@ -367,7 +402,7 @@ public class Exporter implements PublishListener
     public void errorRecieved(final PublishEvent event)
     {
         deleteTmpFiles();
-        Platform.runLater(() -> dlg.publishFinished(false,  Config.getString("export.publish.fail") + " " + event.getMessage()));
+        Platform.runLater(() -> dialog.publishFinished(false,  Config.getString("export.publish.fail") + " " + event.getMessage()));
     }
 
     /**
@@ -377,7 +412,7 @@ public class Exporter implements PublishListener
     public void uploadComplete(PublishEvent event)
     {
         deleteTmpFiles();
-        Platform.runLater(() -> dlg.publishFinished(true, Config.getString("export.publish.complete")));
+        Platform.runLater(() -> dialog.publishFinished(true, Config.getString("export.publish.complete")));
     }
 
     private void deleteTmpFiles()
@@ -401,7 +436,7 @@ public class Exporter implements PublishListener
      */
     public void setUploadSize(final int size)
     {
-        Platform.runLater(() -> dlg.setUploadSize(size));
+        Platform.runLater(() -> dialog.setUploadSize(size));
     }
     
     /**
@@ -410,7 +445,7 @@ public class Exporter implements PublishListener
     @Override
     public void progressMade(final PublishEvent event)
     {
-        Platform.runLater(() -> dlg.progressMade(event.getBytes()));
+        Platform.runLater(() -> dialog.progressMade(event.getBytes()));
     }
     
     @Override
@@ -419,7 +454,8 @@ public class Exporter implements PublishListener
         CompletableFuture<String[]> detailsFuture = new CompletableFuture<>();
         Platform.runLater(() ->
         {
-            Optional<ProxyAuthDialog.ProxyAuthInfo> infoOptional = new ProxyAuthDialog(dlg.asWindow()).showAndWait();
+            Optional<ProxyAuthDialog.ProxyAuthInfo> infoOptional =
+                    new ProxyAuthDialog(dialog.asWindow()).showAndWait();
             if (infoOptional.isPresent())
             {
                 ProxyAuthDialog.ProxyAuthInfo info = infoOptional.get();

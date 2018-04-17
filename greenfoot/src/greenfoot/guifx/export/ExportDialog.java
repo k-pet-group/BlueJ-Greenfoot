@@ -28,12 +28,16 @@ import bluej.pkgmgr.target.ClassTarget;
 import bluej.utility.javafx.FXCustomizedDialog;
 import bluej.utility.Utility;
 
+import greenfoot.export.Exporter;
+
 import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
@@ -60,13 +64,13 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     private final ClassTarget currentWorld;
     private final Image snapshot;
     private int uploadSize;
+    private final BooleanProperty exportingProperty = new SimpleBooleanProperty(false);
 
     private final TabPane tabbedPane = new TabPane();
     private final Label progressLabel = new Label();
     private final ProgressBar progressBar = new ProgressBar();
     private final Map<ExportFunction, ExportPane> panes = new LinkedHashMap<>();
     private Button continueButton;
-    private Button closeButton;
 
     public ExportDialog(Window parent, Project project, ClassTarget currentWorld, Image snapshot)
             throws ExportException
@@ -92,15 +96,20 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         progressBar.setVisible(false);
         progressBar.setPrefWidth(100);
         progressLabel.setVisible(false);
-        contentPane.setBottom(new HBox(progressBar, progressLabel));
 
-        getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE, ButtonType.OK);
-        closeButton = (Button) getDialogPane().lookupButton(ButtonType.CLOSE);
+        getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
+        Button closeButton = (Button) getDialogPane().lookupButton(ButtonType.CLOSE);
         closeButton.setOnAction(event ->
                 Config.putPropString("greenfoot.lastExportPane", getSelectedFunction().name()));
-        continueButton = (Button) getDialogPane().lookupButton(ButtonType.OK);
-        continueButton.setText(Config.getString("export.dialog.export"));
+        closeButton.disableProperty().bind(exportingProperty);
+
+        continueButton = new Button(Config.getString("export.dialog.export"));
         continueButton.setOnAction(event -> doExport());
+        continueButton.disableProperty().bind(exportingProperty);
+
+        HBox bottomBox = new HBox(continueButton, progressLabel, progressBar);
+        bottomBox.getStyleClass().add("bottom-box");
+        contentPane.setBottom(bottomBox);
 
         if (currentWorld == null)
         {
@@ -171,7 +180,30 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     {
         if (getSelectedPane().prePublish())
         {
-            // TODO expThread
+            ExportThread expThread = new ExportThread();
+            exportingProperty.set(true);
+            expThread.start();
+        }
+    }
+
+    /**
+     * A separate thread to execute the actual exporting.
+     */
+    class ExportThread extends Thread {
+        @Override
+        public void run()
+        {
+            try
+            {
+                ExportPane pane = getSelectedPane();
+                ExportFunction function = getSelectedFunction();
+                Exporter exporter = Exporter.getInstance();
+                exporter.doExport(project, pane, ExportDialog.this, function);
+            }
+            finally
+            {
+                Platform.runLater(() -> exportingProperty.set(false));
+            }
         }
     }
 
@@ -201,16 +233,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     {
         return (ExportPane) tabbedPane.getSelectionModel().getSelectedItem();
     }
-    
-    /**
-     * Enable or disable the dialogue buttons.
-     */
-    private void enableButtons(boolean enable)
-    {
-        continueButton.setDisable(!enable);
-        closeButton.setDisable(!enable);
-    }
-    
+
     /**
      * Called when the selection of the tabs changes.
      */
