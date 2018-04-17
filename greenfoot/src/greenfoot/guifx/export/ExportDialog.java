@@ -96,18 +96,20 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         progressBar.setVisible(false);
         progressBar.setPrefWidth(100);
         progressLabel.setVisible(false);
-        contentPane.setBottom(new HBox(progressBar, progressLabel));
 
-        getDialogPane().getButtonTypes().addAll(ButtonType.CLOSE, ButtonType.OK);
+        getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
         Button closeButton = (Button) getDialogPane().lookupButton(ButtonType.CLOSE);
         closeButton.setOnAction(event ->
                 Config.putPropString("greenfoot.lastExportPane", getSelectedFunction().name()));
         closeButton.disableProperty().bind(exportingProperty);
 
-        continueButton = (Button) getDialogPane().lookupButton(ButtonType.OK);
-        continueButton.setText(Config.getString("export.dialog.export"));
+        continueButton = new Button(Config.getString("export.dialog.export"));
         continueButton.setOnAction(event -> doExport());
         continueButton.disableProperty().bind(exportingProperty);
+
+        HBox bottomBox = new HBox(continueButton, progressLabel, progressBar);
+        bottomBox.getStyleClass().add("bottom-box");
+        contentPane.setBottom(bottomBox);
 
         if (currentWorld == null)
         {

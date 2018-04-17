@@ -48,8 +48,16 @@
     -fx-border-style: solid inside;
 }
 
+.export-dialog .content {
+    -fx-padding: 10px 10px 0 10px;
+}
 .export-dialog .content .tab-pane .tab-header-area .tab-header-background {
     -fx-background-color: transparent;
+}
+.export-dialog .content .bottom-box {
+    -fx-spacing: 10px;
+    -fx-padding: 10px 10px 0 10px;
+    -fx-alignment: baseline-left;
 }
 .export-pane {
     -fx-pref-height: 75px;
