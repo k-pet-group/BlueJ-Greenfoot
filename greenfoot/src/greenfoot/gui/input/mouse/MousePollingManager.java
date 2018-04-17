@@ -151,6 +151,7 @@ public class MousePollingManager implements TriggeredMouseListener, TriggeredMou
      *            World. May be null, but in that case the locator must be set
      *            later.
      */
+    @OnThread(Tag.Any)
     public MousePollingManager(WorldLocator locator) 
     {
         this.locator = locator;

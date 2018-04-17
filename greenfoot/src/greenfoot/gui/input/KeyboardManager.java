@@ -81,6 +81,7 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
      * Clear the latched state of keys which were down, but are no longer
      * down.
      */
+    @OnThread(Tag.Any)
     public synchronized void clearLatchedKeys()
     {
         for (int i = 0; i < numKeys; i++) {

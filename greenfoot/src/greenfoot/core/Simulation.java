@@ -74,9 +74,11 @@ public class Simulation extends Thread
     /** Simulation will wait for repaints if the repaint rate falls below this */
     private static int MIN_FRAME_RATE = 35;
     
+    @OnThread(Tag.Any)
     private WorldHandler worldHandler;
     
     /** Whether the simulation is (to be) paused */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private boolean paused;
 
     /** Whether the simulation is enabled (world installed) */
@@ -86,8 +88,10 @@ public class Simulation extends Thread
     private boolean runOnce;
     
     /** Tasks that are queued to run on the simulation thread */
-    private Queue<Runnable> queuedTasks = new LinkedList<Runnable>();
+    @OnThread(value = Tag.Any, requireSynchronized = true)
+    private Queue<SimulationRunnable> queuedTasks = new LinkedList<>();
 
+    @OnThread(Tag.Any)
     private EventListenerList listenerList = new EventListenerList();
 
     /* Various simulation events */
@@ -99,6 +103,7 @@ public class Simulation extends Thread
     private SimulationEvent taskBeginEvent;
     private SimulationEvent taskEndEvent;
     
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private static Simulation instance;
 
     /** for timing the animation */
@@ -121,10 +126,13 @@ public class Simulation extends Thread
     /**
      * Lock to synchronize access to the two fields: delaying and interruptDelay
      */
+    @OnThread(Tag.Any)
     private Object interruptLock = new Object();
     /** Whether we are currently delaying between act-loops. */
+    @OnThread(Tag.Any)
     private boolean delaying;
     /** Whether a delay between act-loops should be interrupted. */
+    @OnThread(Tag.Any)
     private boolean interruptDelay;
 
     
@@ -140,6 +148,7 @@ public class Simulation extends Thread
     /**
      * Create new simulation. Leaves the simulation in paused state
      */
+    @OnThread(Tag.Any)
     private Simulation()
     {
         this.setName("SimulationThread");
@@ -162,7 +171,8 @@ public class Simulation extends Thread
      * The simulation thread will not actually be started until the WorldHandler
      * is attached.
      */
-    public static void initialize()
+    @OnThread(Tag.Any)
+    public static synchronized void initialize()
     {
         instance = new Simulation();
     }
@@ -171,7 +181,7 @@ public class Simulation extends Thread
      * Returns the simulation if it is initialised. If not, it will return null.
      */
     @OnThread(Tag.Any)
-    public static Simulation getInstance()
+    public static synchronized Simulation getInstance()
     {
         return instance;
     }
@@ -179,6 +189,7 @@ public class Simulation extends Thread
     /**
      * Attach this simulation to the world handler (and vice versa).
      */
+    @OnThread(Tag.Any)
     public void attachWorldHandler(WorldHandler worldHandler)
     {
         this.worldHandler = worldHandler;
@@ -193,6 +204,7 @@ public class Simulation extends Thread
      * Runs the simulation from the current state.
      */
     @Override
+    @OnThread(value = Tag.Simulation, ignoreParent = true)
     public void run()
     {
         /* It is important this redirects to another method.
@@ -246,12 +258,19 @@ public class Simulation extends Thread
             } 
         }
     }   
+    
+    public static interface SimulationRunnable
+    {
+        @OnThread(Tag.Simulation)
+        public void run();
+    }
 
     /**
      * Schedule some task to run on the simulation thread. The task will be run with the
      * world write lock held.
      */
-    public synchronized void runLater(Runnable r)
+    @OnThread(Tag.Any)
+    public synchronized void runLater(SimulationRunnable r)
     {
         queuedTasks.add(r);
         // If the simulation is paused we must notify so that the wait is triggered and the
@@ -479,7 +498,7 @@ public class Simulation extends Thread
      */
     private void runQueuedTasks()
     {
-        Runnable r;
+        SimulationRunnable r;
         synchronized (this) {
             r = queuedTasks.poll();
         }
@@ -716,6 +735,7 @@ public class Simulation extends Thread
      * the current loop. Used by setPaused() and setSpeed() to interrupt current
      * delays.
      */
+    @OnThread(Tag.Any)
     private void interruptDelay()
     {
         synchronized (interruptLock) {
@@ -821,32 +841,39 @@ public class Simulation extends Thread
     /**
      * Set the speed of the simulation.
      * 
-     * @param speed
+     * @param newSpeed
      *            The speed in the range (0..100)
      */
     @OnThread(Tag.Any)
-    public void setSpeed(int speed)
+    public void setSpeed(int newSpeed)
     {
-        if (speed < 0) {
-            speed = 0;
+        if (newSpeed < 0)
+        {
+            newSpeed = 0;
         }
-        else if (speed > MAX_SIMULATION_SPEED) {
-            speed = MAX_SIMULATION_SPEED;
+        else if (newSpeed > MAX_SIMULATION_SPEED)
+        {
+            newSpeed = MAX_SIMULATION_SPEED;
         }
         
         boolean speedChanged;
-        synchronized (this) {
-            speedChanged = this.speed != speed;
-            if (speedChanged) {
-                this.speed = speed;
-                this.delay = calculateDelay(speed);
+        synchronized (this)
+        {
+            speedChanged = this.speed != newSpeed;
+            if (speedChanged)
+            {
+                this.speed = newSpeed;
+                this.delay = calculateDelay(newSpeed);
 
                 // If simulation is running we should interrupt any waiting or
                 // sleeping that is currently happening.
                 
-                if(!paused) {
-                    synchronized (interruptLock) {
-                        if (delaying) {
+                if(!paused)
+                {
+                    synchronized (interruptLock)
+                    {
+                        if (delaying)
+                        {
                             interrupt();
                         }
                     }
@@ -854,7 +881,10 @@ public class Simulation extends Thread
             }
         }
         
-        if (speedChanged) {
+        // TODO remove this as an event once ControlPanel has been removed (which is the only
+        // item listening to a speed-change event.  Threadchecker fails here, so we'll remember...
+        if (speedChanged)
+        {
             fireSimulationEvent(speedChangeEvent);
         }
     }
@@ -864,20 +894,21 @@ public class Simulation extends Thread
      * 
      * @return The delay in nanoseconds.
      */
-    private long calculateDelay(int speed)
+    @OnThread(Tag.Any)
+    private static long calculateDelay(int curSpeed)
     {
         // Make the speed into a delay
-        long rawDelay = MAX_SIMULATION_SPEED - speed;
+        long rawDelay = MAX_SIMULATION_SPEED - curSpeed;
 
         long min = 30 * 1000L; // Delay at MAX_SIMULATION_SPEED - 1
         long max = 10000 * 1000L * 1000L; // Delay at slowest speed
 
         double a = Math.pow(max / (double) min, 1D / (MAX_SIMULATION_SPEED - 1));
-        long delay = 0;
+        long calcDelay = 0;
         if (rawDelay > 0) {
-            delay = (long) (Math.pow(a, rawDelay - 1) * min);
+            calcDelay = (long) (Math.pow(a, rawDelay - 1) * min);
         }
-        return delay;
+        return calcDelay;
     }
 
     /**
@@ -896,6 +927,7 @@ public class Simulation extends Thread
      * to delay(). It should be called only from the simulation thread, in an
      * unsynchronized context.
      */
+    @OnThread(Tag.Simulation)
     public void sleep(int numCycles)
     {
         World world = worldHandler.getWorld();

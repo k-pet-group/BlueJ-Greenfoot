@@ -25,6 +25,7 @@ import greenfoot.Actor;
 import greenfoot.ActorVisitor;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
+import greenfoot.core.Simulation.SimulationRunnable;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.event.TriggeredKeyListener;
@@ -113,6 +114,7 @@ public class WorldHandler
     private Object repaintLock = new Object();
     private boolean isRepaintPending = false;
     
+    @OnThread(Tag.Any)
     public static synchronized void initialise(WorldCanvas worldCanvas, WorldHandlerDelegate helper)
     {
         instance = new WorldHandler(worldCanvas, helper);
@@ -121,6 +123,7 @@ public class WorldHandler
     /**
      * Initialiser for unit testing.
      */
+    @OnThread(Tag.Any)
     public static synchronized void initialise()
     {
         instance = new WorldHandler();
@@ -138,6 +141,7 @@ public class WorldHandler
     /**
      * Constructor used for unit testing.
      */
+    @OnThread(Tag.Any)
     private WorldHandler() 
     {
         instance = this;
@@ -189,6 +193,7 @@ public class WorldHandler
      * 
      * @param handlerDelegate
      */
+    @OnThread(Tag.Any)
     private WorldHandler(final WorldCanvas worldCanvas, WorldHandlerDelegate handlerDelegate)
     {
         instance = this;
@@ -373,7 +378,7 @@ public class WorldHandler
     {
         if (dragActor != null) {
             dragActorMoved = false;
-            Simulation.getInstance().runLater(new Runnable() {
+            Simulation.getInstance().runLater(new SimulationRunnable() {
                 private Actor dragActor = WorldHandler.this.dragActor;
                 private int dragBeginX = WorldHandler.this.dragBeginX;
                 private int dragBeginY = WorldHandler.this.dragBeginY;
@@ -455,7 +460,7 @@ public class WorldHandler
         if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             if (dragActor != null) {
                 dragActorMoved = false;
-                Simulation.getInstance().runLater(new Runnable() {
+                Simulation.getInstance().runLater(new SimulationRunnable() {
                     private Actor dragActor = WorldHandler.this.dragActor;
                     private int dragBeginX = WorldHandler.this.dragBeginX;
                     private int dragBeginY = WorldHandler.this.dragBeginY;
@@ -802,6 +807,7 @@ public class WorldHandler
     {
     }
 
+    @OnThread(Tag.Simulation)
     protected void fireWorldCreatedEvent(World newWorld)
     {
         // Guaranteed to return a non-null array
@@ -816,6 +822,7 @@ public class WorldHandler
         }
     }
 
+    @OnThread(Tag.Simulation)
     public void fireWorldRemovedEvent(World discardedWorld)
     {
         // Guaranteed to return a non-null array
@@ -893,7 +900,7 @@ public class WorldHandler
                 // This makes sure that a single (final) setLocation
                 // call is received by the actor when dragging ends.
                 // This matters if the actor has overridden setLocation
-                Simulation.getInstance().runLater(new Runnable() {
+                Simulation.getInstance().runLater(new SimulationRunnable() {
                     private Actor dragActor = WorldHandler.this.dragActor;
                     @Override
                     public void run()

@@ -24,6 +24,8 @@ package greenfoot.guifx.classes;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.List;
 
@@ -38,6 +40,7 @@ import java.util.List;
  *  a particular class (down to its subclasses) as a single item, using a mixture
  *  of LineTo and MoveTo.
  */
+@OnThread(Tag.FXPlatform)
 public class InheritArrow extends Path
 {
     private final double ARROWHEAD_WIDTH = 10;
