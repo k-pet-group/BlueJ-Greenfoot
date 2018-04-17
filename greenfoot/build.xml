@@ -704,8 +704,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <include name="greenfoot/actions/ResetWorldAction.java"/>
 
             <include name="greenfoot/collision/**/*.java"/>
-
-            <include name="greenfoot/core/LocationTracker.java"/>
+            
             <include name="greenfoot/core/ProjectProperties.java"/>
             <include name="greenfoot/core/Simulation.java"/>
             <include name="greenfoot/core/SimulationRunnable.java"/>

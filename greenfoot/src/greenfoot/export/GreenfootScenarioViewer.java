@@ -30,7 +30,6 @@ import greenfoot.event.SimulationEvent;
 import greenfoot.gui.AskPanel;
 import greenfoot.gui.ControlPanel;
 import greenfoot.gui.WorldCanvas;
-import greenfoot.gui.input.mouse.LocationTracker;
 import greenfoot.platforms.standalone.ActorDelegateStandAlone;
 import greenfoot.platforms.standalone.GreenfootUtilDelegateStandAlone;
 import greenfoot.platforms.standalone.WorldHandlerDelegateStandAlone;
@@ -247,7 +246,6 @@ public class GreenfootScenarioViewer extends JApplet
         WorldHandler worldHandler = WorldHandler.getInstance();
         sim = Simulation.getInstance();
         sim.attachWorldHandler(worldHandler);
-        LocationTracker.initialize();
         controls = new ControlPanel(sim, ! lockScenario);
 
         // Make sure the SoundCollection is initialized and listens for events
