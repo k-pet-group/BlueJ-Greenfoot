@@ -197,7 +197,8 @@ public class ExportDialog extends FXCustomizedDialog<Void>
                 ExportPane pane = getSelectedPane();
                 ExportFunction function = getSelectedFunction();
                 Exporter exporter = Exporter.getInstance();
-                exporter.doExport(project, pane, ExportDialog.this, function, currentWorld.getDisplayName());
+                exporter.doExport(project, pane, ExportDialog.this, function,
+                        currentWorld.getDisplayName(), snapshot.getWidth(), snapshot.getHeight());
             }
             finally
             {
