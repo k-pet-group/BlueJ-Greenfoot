@@ -22,6 +22,7 @@
 package greenfoot.guifx.classes;
 
 import bluej.Config;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import greenfoot.guifx.GreenfootStage;
 import greenfoot.guifx.classes.GClassDiagram.GClassType;
@@ -156,7 +157,7 @@ public class GClassNode
     {
         if (display.getQualifiedName().startsWith("greenfoot."))
         {
-            FXRunnable showDocs = () -> {
+            FXPlatformRunnable showDocs = () -> {
                 greenfootStage.openBrowser(display.getQualifiedName().replace(".", "/") + ".html");
             };
 

@@ -28,6 +28,7 @@ import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.View;
@@ -384,7 +385,7 @@ public class GClassDiagram extends BorderPane implements ClassIconFetcher
      * Make a context menu item with the given text and action, and the inbuilt-menu-item
      * style (which shows up as dark-red, and italic on non-Mac)
      */
-    public static MenuItem contextInbuilt(String text, FXRunnable action)
+    public static MenuItem contextInbuilt(String text, FXPlatformRunnable action)
     {
         MenuItem menuItem = JavaFXUtil.makeMenuItem(text, action, null);
         JavaFXUtil.addStyleClass(menuItem, ClassTarget.MENU_STYLE_INBUILT);

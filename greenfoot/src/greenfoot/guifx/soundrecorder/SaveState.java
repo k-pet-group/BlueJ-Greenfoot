@@ -63,8 +63,8 @@ class SaveState
         this.parent = parent;
         this.recorder = recorder;
 
-        JavaFXUtil.addChangeListener(changedSinceSave, changed -> updateSavedStatus());
-        JavaFXUtil.addChangeListener(filenameField.textProperty(), text -> updateSavedStatus());
+        JavaFXUtil.addChangeListenerPlatform(changedSinceSave, changed -> updateSavedStatus());
+        JavaFXUtil.addChangeListenerPlatform(filenameField.textProperty(), text -> updateSavedStatus());
     }
 
     /**
