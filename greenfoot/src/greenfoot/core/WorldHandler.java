@@ -948,45 +948,7 @@ public class WorldHandler
     {
         return inputManager;
     }
-
-    /**
-     * Get a snapshot of the currently instantiated world or null if no world is
-     * instantiated.
-     * 
-     * Must be called on the EDT.
-     */
-    @OnThread(Tag.Swing)
-    public BufferedImage getSnapShot()
-    {
-        if (world == null) {
-            return null;
-        }
-
-        WorldCanvas canvas = getWorldCanvas();
-        BufferedImage img = GraphicsUtilities.createCompatibleImage(WorldVisitor.getWidthInPixels(world), WorldVisitor
-                .getHeightInPixels(world));
-        Graphics2D g = img.createGraphics();
-        g.setColor(canvas.getBackground());
-        g.fillRect(0, 0, img.getWidth(), img.getHeight());
-        canvas.paintBackground(g);
-
-        int timeout = READ_LOCK_TIMEOUT;
-        // We need to sync when calling the paintObjects
-        try {
-            if (lock.readLock().tryLock(timeout, TimeUnit.MILLISECONDS)) {
-                try {
-                    canvas.paintObjects(g);
-                }
-                finally {
-                    lock.readLock().unlock();
-                }
-            }
-        }
-        catch (InterruptedException e) {
-        }
-        return img;
-    }
-
+    
     @Override
     public void listeningEnded()
     {

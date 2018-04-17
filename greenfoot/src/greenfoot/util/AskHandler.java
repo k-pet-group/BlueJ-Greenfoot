@@ -62,15 +62,15 @@ public class AskHandler
     {
         Image snapshot = getWorldGreyedSnapShot();
         
-        if (snapshot != null)
-            worldCanvas.setOverrideImage(snapshot);
+        //if (snapshot != null)
+        //    worldCanvas.setOverrideImage(snapshot);
         
         askPanel.showPanel(Math.max(400, worldWidth), prompt, new AskPanel.AnswerListener() {
             
             @Override
             public void answered(String answer)
             {
-                worldCanvas.setOverrideImage(null); 
+                //worldCanvas.setOverrideImage(null); 
                 try
                 {
                     AskHandler.this.answer.put(answer);
@@ -100,11 +100,7 @@ public class AskHandler
      */
     private Image getWorldGreyedSnapShot()
     {
-        BufferedImage screenShot = WorldHandler.getInstance().getSnapShot();
-        if (screenShot != null) {
-            GreenfootUtil.convertToGreyImage(screenShot);
-        }
-        return screenShot;
+        return null;
     }
     
     /**
