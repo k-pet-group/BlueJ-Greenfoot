@@ -122,6 +122,7 @@ public class Exporter implements PublishListener
     private MyGameClient webPublisher;
 
     private Project project;
+    private String worldClassName;
     private ExportDialog dialog;
     private ExportPane exportPane;
     
@@ -133,16 +134,19 @@ public class Exporter implements PublishListener
     /**
      * Publish/Export this scenario based on the passed function.
      *
-     * @param project     The current project.
-     * @param exportPane  The selected export pane that will provide needed info.
-     * @param dialog      A share/export dialog reference to show progress/messages to user.
-     * @param function    The share function type which will be perform.
+     * @param project         The current project.
+     * @param exportPane      The selected export pane that will provide needed info.
+     * @param dialog          A share/export dialog reference to show progress/messages to user.
+     * @param function        The share function type which will be perform.
+     * @param worldClassName  The world's name.
      */
-    public void doExport(Project project, ExportPane exportPane, ExportDialog dialog, ExportFunction function)
+    public void doExport(Project project, ExportPane exportPane, ExportDialog dialog,
+                         ExportFunction function, String worldClassName)
     {
         this.project = project;
         this.dialog = dialog;
         this.exportPane = exportPane;
+        this.worldClassName = worldClassName;
 
         if (function.equals(ExportFunction.PUBLISH))
         {
@@ -184,13 +188,10 @@ public class Exporter implements PublishListener
             hostAddress += "/";
         }
 
-        // TODO Look at this.
-        // World can't be null as this stage
-        String worldClass = WorldHandler.getInstance().getWorld().getClass().getName();
-
         boolean  lockScenario = pane.lockScenario();
         
-        JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, lockScenario, true);            
+        JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClassName,
+                lockScenario, true);
         
         // do not include source
         jarCreator.includeSource(false);
@@ -329,14 +330,11 @@ public class Exporter implements PublishListener
         File exportDir = exportFile.getParentFile();
         String jarName = exportFile.getName();
 
-        // TODO Look at this.
-        // World can't be null as this stage
-        String worldClass = WorldHandler.getInstance().getWorld().getClass().getName();
-        
         boolean  lockScenario = pane.lockScenario();
         boolean  hideControls = pane.hideControls();
 
-        JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClass, lockScenario, hideControls, false, false);
+        JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldClassName,
+                lockScenario, hideControls, false, false);
         // do not include source
         jarCreator.includeSource(false);  
         
