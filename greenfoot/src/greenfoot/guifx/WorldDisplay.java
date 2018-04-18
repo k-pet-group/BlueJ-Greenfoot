@@ -40,13 +40,13 @@ class WorldDisplay extends StackPane
     
     public WorldDisplay()
     {
-        // Need a wrapper pane to be able to provide border around image:
-        BorderPane borderPane = new BorderPane(imageView);
-        borderPane.getStyleClass().add("world-display-wrapper");
-        // Make BorderPane fit exactly around the contained imageView:
-        borderPane.setMaxWidth(USE_PREF_SIZE);
-        borderPane.setMaxHeight(USE_PREF_SIZE);
-        getChildren().addAll(borderPane, askPane);
+        // Need a stack pane to be able to provide border around image and Greenfoot.ask() :
+        StackPane stackPane = new StackPane(imageView,askPane);
+        stackPane.getStyleClass().add("world-display-wrapper");
+        // Make StackPane fit exactly around the contained imageView:
+        stackPane.setMaxWidth(USE_PREF_SIZE);
+        stackPane.setMaxHeight(USE_PREF_SIZE);
+        getChildren().addAll(stackPane);
         setMinWidth(200);
         setMinHeight(200);
     }

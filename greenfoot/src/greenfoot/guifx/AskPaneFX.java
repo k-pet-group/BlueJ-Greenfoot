@@ -22,6 +22,7 @@
 package greenfoot.guifx;
 
 import bluej.utility.javafx.FXPlatformConsumer;
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
@@ -44,7 +45,7 @@ public class AskPaneFX extends BorderPane
     private final TextField textField;
     // The action to perform once the answer is received
     private FXPlatformConsumer<String> withAnswer;
-    
+
     public AskPaneFX()
     {
         promptText = new Text();
@@ -55,8 +56,12 @@ public class AskPaneFX extends BorderPane
         Button enterButton = new Button("OK");
         enterButton.setOnAction(e -> enter());
         
-        setCenter(new TextFlow(promptText));
-        setBottom(new BorderPane(textField, null, enterButton, null, null));
+        TextFlow promptTextFlow = new TextFlow(promptText);
+        promptTextFlow.setPadding(new Insets(0,10,10,10));
+
+        BorderPane borderPane = new BorderPane(textField, promptTextFlow, enterButton, null, null);
+        borderPane.getStyleClass().add("ask-pane");
+        setBottom(borderPane);
         
         setVisible(false);
     }

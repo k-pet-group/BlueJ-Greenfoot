@@ -129,6 +129,12 @@
     -fx-alignment: center;
 }
 
+.ask-pane {
+    -fx-border-width: 1;
+    -fx-background-color: rgb(222, 166, 41);
+    -fx-border-color: black;
+    -fx-padding: 10 10 10 10;
+}
 .world-display-wrapper, .image-edit-pane .image-canvas {
     -fx-border-style: solid outside;
     -fx-border-width: 1;
