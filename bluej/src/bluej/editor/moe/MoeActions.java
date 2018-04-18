@@ -563,7 +563,7 @@ public final class MoeActions
             {
                 List<String> lines = Files.readAllLines(file.toPath(), Charset.forName("UTF-8")).stream()
                         .filter(l -> !l.startsWith("#") && !l.trim().isEmpty()).collect(Collectors.toList());
-                if (!lines.get(0).startsWith("version"))
+                if (lines.isEmpty() || !lines.get(0).startsWith("version"))
                     return false;
                 // Skip first line:
                 try
