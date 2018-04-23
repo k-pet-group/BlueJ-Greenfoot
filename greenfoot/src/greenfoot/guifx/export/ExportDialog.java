@@ -30,6 +30,7 @@ import bluej.utility.Utility;
 
 import greenfoot.export.Exporter;
 import static greenfoot.export.Exporter.ExportFunction;
+import greenfoot.export.mygame.ScenarioInfo;
 
 import java.io.File;
 import java.util.LinkedHashMap;
@@ -60,6 +61,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
             + Config.getString("export.dialog.title");
 
     private final Project project;
+    private final ScenarioInfo scenarioInfo;
     private final ClassTarget currentWorld;
     private final Image snapshot;
     private int uploadSize;
@@ -71,11 +73,13 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     private final Map<ExportFunction, ExportPane> panes = new LinkedHashMap<>();
     private Button continueButton;
 
-    public ExportDialog(Window parent, Project project, ClassTarget currentWorld, Image snapshot)
+    public ExportDialog(Window parent, Project project, ScenarioInfo scenarioInfo,
+                        ClassTarget currentWorld, Image snapshot)
             throws ExportException
     {
         super(parent, dialogTitle, "export-dialog");
         this.project = project;
+        this.scenarioInfo = scenarioInfo;
         this.currentWorld = currentWorld;
         this.snapshot = snapshot;
         setModal(true);
@@ -254,7 +258,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         // The default directory to export to when export locally.
         File defaultExportDir = project.getProjectDir().getParentFile();
 
-        addPane(new ExportPublishPane(project, this));
+        addPane(new ExportPublishPane(project, this, scenarioInfo));
         addPane(new ExportAppPane(asWindow, projectName, defaultExportDir));
         addPane(new ExportProjectPane(asWindow, projectName, defaultExportDir));
 

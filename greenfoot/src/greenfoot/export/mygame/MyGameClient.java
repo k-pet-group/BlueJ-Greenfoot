@@ -92,7 +92,7 @@ public class MyGameClient
     public final MyGameClient submit(String hostAddress, String uid, String password,
             String jarFileName, File sourceFile, File screenshotFile, int width, int height,
             ScenarioInfo info)
-        throws UnknownHostException, IOException
+        throws IOException
     {
         String gameName = info.getTitle();
         String shortDescription = info.getShortDescription();
@@ -312,7 +312,7 @@ public class MyGameClient
      */
     public boolean checkExistingScenario(String hostAddress, String uid,
             String gameName, ScenarioInfo info)
-        throws UnknownHostException, IOException
+        throws IOException
     {
         HttpClient client = getHttpClient();
         HttpConnectionParams.setConnectionTimeout(client.getParams(), 20 * 1000);

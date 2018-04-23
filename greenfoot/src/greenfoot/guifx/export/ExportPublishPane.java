@@ -108,18 +108,21 @@ public class ExportPublishPane extends ExportPane
     private ExistingScenarioChecker scenarioChecker;
     private boolean isUpdate = false;
     private final ExportDialog exportDialog;
+    private final ScenarioInfo scenarioInfo;
 
     /**
      * Creates a new instance of ExportPublishPane
      *
      * @param project       The project that will be shared.
      * @param exportDialog  The export dialog containing this pane.
+     * @param scenarioInfo  The previously stored scenario info in the properties file.
      */
-    public ExportPublishPane(Project project, ExportDialog exportDialog)
+    public ExportPublishPane(Project project, ExportDialog exportDialog, ScenarioInfo scenarioInfo)
     {
         super("export-publish.png");
         this.project = project;
         this.exportDialog = exportDialog;
+        this.scenarioInfo = scenarioInfo;
 
         buildContentPane();
         applySharedStyle();
@@ -130,6 +133,14 @@ public class ExportPublishPane extends ExportPane
     public ExportFunction getFunction()
     {
         return ExportFunction.PUBLISH;
+    }
+
+    /**
+     * Returns the scenario info.
+     */
+    public ScenarioInfo getScenarioInfo()
+    {
+        return scenarioInfo;
     }
 
     /**
@@ -407,19 +418,14 @@ public class ExportPublishPane extends ExportPane
      */
     private void loadStoredScenarioInfo()
     {
-        ScenarioInfo info = new ScenarioInfo();
-        //TODO load info from properties
-        // if (info.load(project.getProjectProperties()))
-        // {
-            titleField.setText(info.getTitle());
-            shortDescriptionField.setText(info.getShortDescription());
-            descriptionArea.setText(info.getLongDescription());
-            urlField.setText(info.getUrl());
-            processTags(info.getTags());
-            lockScenario.setSelected(info.isLocked());
-            includeSource.setSelected(info.getHasSource());
-            setUpdate(true);
-        //}
+        titleField.setText(scenarioInfo.getTitle());
+        shortDescriptionField.setText(scenarioInfo.getShortDescription());
+        descriptionArea.setText(scenarioInfo.getLongDescription());
+        urlField.setText(scenarioInfo.getUrl());
+        processTags(scenarioInfo.getTags());
+        lockScenario.setSelected(scenarioInfo.isLocked());
+        includeSource.setSelected(scenarioInfo.getHasSource());
+        setUpdate(true);
     }
 
     /**
@@ -564,8 +570,7 @@ public class ExportPublishPane extends ExportPane
     @Override
     public boolean prePublish()
     {
-        ScenarioInfo publishedScenarioInfo = new ScenarioInfo();
-        updateInfoFromFields(publishedScenarioInfo);
+        updateInfoFromFields(scenarioInfo);
         publishedUserName = userNameField.getText();
         return true;
     }

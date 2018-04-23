@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009, 2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2018  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,11 +21,10 @@
  */
 package greenfoot.export.mygame;
 
-import greenfoot.core.ProjectProperties;
-
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Holds various information about a scenario.
@@ -52,10 +51,26 @@ public class ScenarioInfo
     private static final String PUBLISH_HAS_SOURCE = "publish.hasSource";
     private static final String PUBLISH_LOCKED = "publish.locked";
     private static final String PUBLISH_UPDATE_DESC = "publish.updateDesc";
-    
+
+    /**
+     * Construct a scenario info object without loading any properties.
+     */
+    public ScenarioInfo() { }
+
+    /**
+     * Construct a scenario info object and load related properties.
+     *
+     * @param properties The project's properties.
+     */
+    public ScenarioInfo(Properties properties)
+    {
+        load(properties);
+    }
+
     public void setTitle(String title)
     {
-        if (title!=null) {
+        if (title != null)
+        {
             this.title = title.trim();
         }
     }
@@ -128,36 +143,30 @@ public class ScenarioInfo
     /**
      * Stores the scenario information into the specified project properties.
      */
-    public void store(ProjectProperties properties)
+    public void store(Properties properties)
     {
-        properties.setString(PUBLISH_TITLE, getTitle());
-        if (getShortDescription()!=null)
+        properties.setProperty(PUBLISH_TITLE, getTitle());
+        if (getShortDescription() != null)
         {
-            properties.setString(PUBLISH_SHORT_DESC, getShortDescription());
+            properties.setProperty(PUBLISH_SHORT_DESC, getShortDescription());
         }
-        if (getLongDescription()!=null) 
+        if (getLongDescription()!= null)
         {
-            properties.setString(PUBLISH_LONG_DESC, getLongDescription());
+            properties.setProperty(PUBLISH_LONG_DESC, getLongDescription());
         }
-        properties.setString(PUBLISH_URL, getUrl());
-        properties.setString(PUBLISH_TAGS, getTagsAsString());
-        properties.setBoolean(PUBLISH_HAS_SOURCE, getHasSource());
-        properties.setBoolean(PUBLISH_LOCKED, isLocked());
-        if (getUpdateDescription() !=null){
-            properties.setString(PUBLISH_UPDATE_DESC, getUpdateDescription());
+        properties.setProperty(PUBLISH_URL, getUrl());
+        properties.setProperty(PUBLISH_TAGS, getTagsAsString());
+        properties.setProperty(PUBLISH_HAS_SOURCE, Boolean.toString(getHasSource()));
+        properties.setProperty(PUBLISH_LOCKED, Boolean.toString(isLocked()));
+        if (getUpdateDescription() != null)
+        {
+            properties.setProperty(PUBLISH_UPDATE_DESC, getUpdateDescription());
         }
     }
 
     private String getTagsAsString()
     {
-        StringBuilder tags = new StringBuilder();
-        List<String> tagList = getTags();
-        for (Iterator<String> iterator = tagList.iterator(); iterator.hasNext();) {
-            String tag = iterator.next();
-            tags.append(tag);
-            tags.append(" ");
-        }
-        return tags.toString();
+        return String.join(" ", getTags());
     }
 
     /**
@@ -165,34 +174,35 @@ public class ScenarioInfo
      * 
      * @return true if it found and loaded the stored values.
      */
-    public boolean load(ProjectProperties properties)
+    public boolean load(Properties properties)
     {
         //if it is a saved scenario it should have at least a title set
-        if (properties.getString(PUBLISH_TITLE) == null) {
+        if (properties.getProperty(PUBLISH_TITLE) == null)
+        {
             return false;
         }
-        setTitle(properties.getString(PUBLISH_TITLE));
-        setShortDescription(properties.getString(PUBLISH_SHORT_DESC));
-        setLongDescription(properties.getString(PUBLISH_LONG_DESC));
-        setUrl(properties.getString(PUBLISH_URL));
-        List<String> tagList = new LinkedList<String>();
-        String tags = properties.getString(PUBLISH_TAGS);
-        if (tags!=null){
-            String[] tagArray = tags.split(" ");
-            for (int i = 0; i < tagArray.length; i++) {
-                String string = tagArray[i];
-                tagList.add(string);
-            }
+
+        setTitle(properties.getProperty(PUBLISH_TITLE));
+        setShortDescription(properties.getProperty(PUBLISH_SHORT_DESC));
+        setLongDescription(properties.getProperty(PUBLISH_LONG_DESC));
+        setUrl(properties.getProperty(PUBLISH_URL));
+
+        List<String> tagList = new LinkedList<>();
+        String tags = properties.getProperty(PUBLISH_TAGS);
+        if (tags != null)
+        {
+            Collections.addAll(tagList, tags.split(" "));
         }
         setTags(tagList);
-        setHasSource(properties.getBoolean(PUBLISH_HAS_SOURCE, false));
-        setLocked(properties.getBoolean(PUBLISH_LOCKED, true));
-        setUpdateDescription(properties.getString(PUBLISH_UPDATE_DESC));
+
+        setHasSource(Boolean.parseBoolean(properties.getProperty(PUBLISH_HAS_SOURCE, "false")));
+        setLocked(Boolean.parseBoolean(properties.getProperty(PUBLISH_LOCKED, "true")));
+        setUpdateDescription(properties.getProperty(PUBLISH_UPDATE_DESC));
         return true;
     }
 
     /**
-     * If we're updating an existing scenario, return a description of the udpate.
+     * If we're updating an existing scenario, return a description of the update.
      * @see #isUpdate()
      */
     public String getUpdateDescription()
@@ -220,12 +230,12 @@ public class ScenarioInfo
     }
 
     /**
-     * Specify whether this is an update of an existing scenario. Also use {@link #setUpdateDescription(String)}
-     * to set the update description as provided by the user.
+     * Specify whether this is an update of an existing scenario. Also use
+     * {@link #setUpdateDescription(String)} to set the update description
+     * as provided by the user.
      */
     public void setUpdate(boolean isUpdate)
     {
         this.isUpdate = isUpdate;
     }
- 
 }
