@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2018  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,10 +21,8 @@
  */
 package greenfoot.export.mygame;
 
+import bluej.utility.FXWorker;
 import java.io.IOException;
-import java.net.UnknownHostException;
-
-import bluej.utility.SwingWorker;
 
 /**
  * Abstract class that can be used to check (asynchronously) whether a scenario already exists on the
@@ -35,7 +33,7 @@ import bluej.utility.SwingWorker;
 public abstract class ExistingScenarioChecker
 {
     /** Worker to handle asynchronously checking of existing scenario */
-    private SwingWorker worker;
+    private FXWorker worker;
 
     /** Are we in the process of checking? */
     private boolean checking = false;
@@ -50,7 +48,7 @@ public abstract class ExistingScenarioChecker
     private volatile String userName;
     private volatile String scenarioName;
 
-    class ScenarioWorker extends SwingWorker
+    class ScenarioWorker extends FXWorker
     {
         @Override
         public Object construct()
@@ -63,6 +61,12 @@ public abstract class ExistingScenarioChecker
         {
             workerFinished(getValue());
         }
+
+        @Override
+        public void abort()
+        {
+            ExistingScenarioChecker.this.abort();
+        }
     }
 
     /**
@@ -74,13 +78,16 @@ public abstract class ExistingScenarioChecker
     public void startScenarioExistenceCheck(final String hostName, final String userName,
             final String scenarioName)
     {
-        synchronized (this) {
+        synchronized (this)
+        {
             boolean sameScenario = hostName.equals(this.hostName) && userName.equals(this.userName)
                     && scenarioName.equals(this.scenarioName);
-            if (sameScenario) {
+            if (sameScenario)
+            {
                 return;
             }
-            if (checking) {
+            if (checking)
+            {
                 // Abort the current check in preparation for the new one.
                 abort();
             }
@@ -108,11 +115,13 @@ public abstract class ExistingScenarioChecker
     public synchronized boolean abort()
     {
         // pre: is checking
-        if (finished) {
+        if (finished)
+        {
             return false;
         }
 
-        if (!checking) {
+        if (!checking)
+        {
             throw new IllegalStateException("Check not started yet. Nothing to abort.");
         }
 
@@ -124,7 +133,7 @@ public abstract class ExistingScenarioChecker
     /**
      * Method that will be called when the check has finished.
      * 
-     * This will execute on the swing event thread.
+     * This will execute on the FX event thread.
      * 
      * @param info If the scenario exists info about it will be returned. If it
      *            does not exist it will return null.
@@ -133,10 +142,10 @@ public abstract class ExistingScenarioChecker
 
     /**
      * Method that will be called if a check fails. This can be because if a
-     * network error or other things. This will execute on the swing event
+     * network error or other things. This will execute on the FX event
      * thread.
      * 
-     * @param reason
+     * @param reason The exception fired when the check is failed.
      */
     public abstract void scenarioExistenceCheckFailed(Exception reason);
 
@@ -147,24 +156,18 @@ public abstract class ExistingScenarioChecker
     {
         MyGameClient client = new MyGameClient(null);
         ScenarioInfo info = new ScenarioInfo();
-        Exception exception = null;
-        try {
-            if (client.checkExistingScenario(hostName, userName, scenarioName, info)) {
+        try
+        {
+            if (client.checkExistingScenario(hostName, userName, scenarioName, info))
+            {
                 return info;
             }
-            else {
-                return null;
-            }
-
+            return null;
         }
-        catch (UnknownHostException e) {
-            exception = e;
+        catch (IOException e)
+        {
+            return e;
         }
-        catch (IOException e) {
-            exception = e;
-        }
-
-        return exception;
     }
 
     /**
@@ -176,11 +179,14 @@ public abstract class ExistingScenarioChecker
         finished = true;
         checking = false;
 
-        if (!abort) {
-            if (value instanceof Exception) {
+        if (!abort)
+        {
+            if (value instanceof Exception)
+            {
                 scenarioExistenceCheckFailed((Exception) value);
             }
-            else {
+            else
+            {
                 scenarioExistenceChecked((ScenarioInfo) value);
             }
         }
