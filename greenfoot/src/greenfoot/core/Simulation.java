@@ -54,8 +54,7 @@ public class Simulation extends Thread
     implements WorldListener
 {
     // Most of the fields require synchronized access. Some of them do not because they are only
-    // accessed from the simulation thread itself. "repaintLock" protects paintPending and
-    // lastRepaintTime.
+    // accessed from the simulation thread itself.
     
     // All user code should generally be run on the simulation thread. The simulation monitor
     // should not be held while executing user code (though the world lock should be held).
@@ -66,11 +65,6 @@ public class Simulation extends Thread
     // anyway. Once requested, the repaint may take some time to occur; if the effective
     // repaint rate falls below MIN_FRAME_RATE, then we temporarily suspend the simulation
     // and wait for the repaint to occur.
-    
-    /** Repaints will be requested at this rate (at most) */
-    private static int MAX_FRAME_RATE = 65;
-    /** Simulation will wait for repaints if the repaint rate falls below this */
-    private static int MIN_FRAME_RATE = 35;
     
     @OnThread(Tag.Any)
     private WorldHandler worldHandler;
@@ -111,16 +105,6 @@ public class Simulation extends Thread
     private long lastDelayTime;
     private long delay; // the speed translated into delay (nanoseconds)
 
-    // private long updates; // used for debugging to calculate update rate
-    //private long lastUpdate; // used for debugging to calculate update rate
-    
-    /** Protects "paintPending" and "lastRepaintTime" */
-    private Object repaintLock = new Object();
-    /** The last time that a repaint of the World was issued. */
-    private long lastRepaintTime;
-    /** true if a repaint has been issued and not yet processed. */
-    private boolean paintPending;
-
     /**
      * Lock to synchronize access to the two fields: delaying and interruptDelay
      */
@@ -132,7 +116,6 @@ public class Simulation extends Thread
     /** Whether a delay between act-loops should be interrupted. */
     @OnThread(Tag.Any)
     private boolean interruptDelay;
-
     
     /**
      * Used to figure out when we are transitioning from running to paused state and vice versa.
@@ -644,21 +627,6 @@ public class Simulation extends Thread
     protected void paintRemote(boolean forcePaint)
     {
         WorldHandler.getInstance().paint(forcePaint);
-    }
-
-    /**
-     * Inform the simulation that the world has been repainted successfully.
-     */
-    public void worldRepainted()
-    {
-        synchronized (repaintLock) {
-            paintPending = false;
-            //long response = System.currentTimeMillis() - lastRepaintTime;
-            //if (response > 250) {
-            //    System.out.println("Repaint response time: " + response);
-            //}
-            repaintLock.notify();
-        }
     }
 
     /**

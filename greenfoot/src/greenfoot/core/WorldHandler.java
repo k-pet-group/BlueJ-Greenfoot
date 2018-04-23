@@ -423,7 +423,6 @@ public class WorldHandler
                 repaintLock.notify();
             }
         }
-        Simulation.getInstance().worldRepainted();
     }
 
     @Override
