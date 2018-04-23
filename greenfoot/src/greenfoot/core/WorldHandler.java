@@ -96,10 +96,6 @@ public class WorldHandler
     /** Timeout used for readers attempting to acquire lock */
     public static final int READ_LOCK_TIMEOUT = 500;
     
-    /** Condition used to wait for repaint */
-    private Object repaintLock = new Object();
-    private boolean isRepaintPending = false;
-    
     @OnThread(Tag.Any)
     public static synchronized void initialise(WorldHandlerDelegate helper)
     {
@@ -321,7 +317,7 @@ public class WorldHandler
     }
 
     /**
-     * Request a repaints of world
+     * Request a repaint of the world.
      */
     public void repaint()
     {
@@ -329,52 +325,12 @@ public class WorldHandler
     }
     
     /**
-     * Request a repaint of the world, and wait (with a timeout) until the repaint actually occurs.
+     * Request a repaint of the world.
+     * Call only from the simulation thread.
      */
     public void repaintAndWait()
     {
         repaint();
-
-        boolean isWorldLocked = lock.isWriteLockedByCurrentThread();
-        
-        synchronized (repaintLock) {
-            // If the world lock is held, as it should be unless this method is called from
-            // a user-created thread, we should unlock it to allow the repaint to occur.
-            if (isWorldLocked) {
-                lock.writeLock().unlock();
-            }
-            
-            // When the repaint actually happens, repainted() will be called, which
-            // sets isRepaintPending false and signals repaintLock.
-            isRepaintPending = true;
-            try {
-                do {
-                    repaintLock.wait(100);
-                } while (isRepaintPending);
-            }
-            catch (InterruptedException ie) {
-                throw new ActInterruptedException();
-            }
-            finally {
-                isRepaintPending = false; // in case our wait interrupted/timed out
-                if (isWorldLocked) {
-                    lock.writeLock().lock();
-                }
-            }
-        }
-    }
-
-    /**
-     * The world has been painted.
-     */
-    public void repainted()
-    {
-        synchronized (repaintLock) {
-            if (isRepaintPending) {
-                isRepaintPending = false;
-                repaintLock.notify();
-            }
-        }
     }
 
     @Override

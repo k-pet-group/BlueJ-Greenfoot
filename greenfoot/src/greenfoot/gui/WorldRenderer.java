@@ -28,7 +28,6 @@ import greenfoot.ImageVisitor;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.core.TextLabel;
-import greenfoot.core.WorldHandler;
 import greenfoot.util.GreenfootUtil;
 
 import java.awt.*;
@@ -62,17 +61,14 @@ public class WorldRenderer
     /**
      * Render the currently held world into the given image.  It is assumed
      * that the image size matches the current world size.
-     * @param worldImage
      */
     public void renderWorld(BufferedImage worldImage)
     {
         Graphics2D g2 = (Graphics2D)worldImage.getGraphics();
         if (world == null)
         {
-            Color c = g2.getColor();
             g2.setColor(BACKGROUND);
             g2.fillRect(0, 0, worldImage.getWidth(), worldImage.getHeight());
-            WorldHandler.getInstance().repainted();
         }
         else
         {
