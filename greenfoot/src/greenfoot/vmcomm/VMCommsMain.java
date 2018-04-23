@@ -330,8 +330,6 @@ public class VMCommsMain implements Closeable
                         lastPaintSeq = paintSeq;
                         haveUpdatedImage = true;
                     }
-                    // Have to move sharedMemory position manually because
-                    // the sharedMemory buffer doesn't share position with sharedMemoryByte buffer:
                     sharedMemory.position(sharedMemory.position() + width * height);
     
                     // Get rid of all commands that the client has confirmed it has seen:
