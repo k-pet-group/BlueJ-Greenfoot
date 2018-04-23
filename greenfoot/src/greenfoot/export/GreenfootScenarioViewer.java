@@ -45,7 +45,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javafx.geometry.Dimension2D;
 import javax.swing.JApplet;
@@ -338,14 +337,6 @@ public class GreenfootScenarioViewer extends JApplet
     public World getWorld()
     {
         return WorldHandler.getInstance().getWorld();
-    }
-    
-    /**
-     * Get access to the world lock, for the given world.
-     */
-    public ReentrantReadWriteLock getWorldLock(World world)
-    {
-        return WorldHandler.getInstance().getWorldLock();
     }
     
     public String ask(final String prompt)

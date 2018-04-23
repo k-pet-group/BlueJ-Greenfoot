@@ -44,9 +44,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import javax.swing.event.EventListenerList;
 
@@ -91,11 +88,12 @@ public class WorldHandler
     private boolean dragActorMoved;
     private int dragId;
     
-    /** Lock used for world manipulation */
-    private static ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-    /** Timeout used for readers attempting to acquire lock */
-    public static final int READ_LOCK_TIMEOUT = 500;
-    
+    /**
+     * Initialise the WorldHandler singleton.
+     * 
+     * @param worldCanvas  the WorldCanvas to connect to
+     * @param helper       the handler delegate for operations
+     */    
     @OnThread(Tag.Any)
     public static synchronized void initialise(WorldHandlerDelegate helper)
     {
@@ -259,40 +257,33 @@ public class WorldHandler
      */
     private static Actor getObject(World world, int x, int y)
     {
-        if (world == null) {
+        if (world == null)
+        {
             return null;
         }
         
-        int timeout = READ_LOCK_TIMEOUT;
-        try {
-            if (lock.readLock().tryLock(timeout, TimeUnit.MILLISECONDS)) {
+        Collection<?> objectsThere = WorldVisitor.getObjectsAtPixel(world, x, y);
+        if (objectsThere.isEmpty())
+        {
+            return null;
+        }
 
-                Collection<?> objectsThere = WorldVisitor.getObjectsAtPixel(world, x, y);
-                if (objectsThere.isEmpty()) {
-                    lock.readLock().unlock();
-                    return null;
-                }
+        Iterator<?> iter = objectsThere.iterator();
+        Actor topmostActor = (Actor) iter.next();
+        int seq = ActorVisitor.getLastPaintSeqNum(topmostActor);
 
-                Iterator<?> iter = objectsThere.iterator();
-                Actor topmostActor = (Actor) iter.next();
-                int seq = ActorVisitor.getLastPaintSeqNum(topmostActor);
-
-                while (iter.hasNext()) {
-                    Actor actor = (Actor) iter.next();
-                    int actorSeq = ActorVisitor.getLastPaintSeqNum(actor);
-                    if (actorSeq > seq) {
-                        topmostActor = actor;
-                        seq = actorSeq;
-                    }
-                }
-                
-                lock.readLock().unlock();
-                return topmostActor;
+        while (iter.hasNext())
+        {
+            Actor actor = (Actor) iter.next();
+            int actorSeq = ActorVisitor.getLastPaintSeqNum(actor);
+            if (actorSeq > seq)
+            {
+                topmostActor = actor;
+                seq = actorSeq;
             }
         }
-        catch (InterruptedException ie) {}
-
-        return null;
+        
+        return topmostActor;
     }
 
     /*
@@ -365,14 +356,6 @@ public class WorldHandler
     {
     }
 
-    /**
-     * Get the world lock, used to control access to the world.
-     */
-    public ReentrantReadWriteLock getWorldLock()
-    {
-        return lock;
-    }
-    
     /**
      * Instantiate a new world and do any initialisation needed to activate that
      * world.
@@ -574,55 +557,50 @@ public class WorldHandler
     public boolean drag(Object o, Point p)
     {
         World world = this.world;
-        if (o instanceof Actor && world != null) {
+        if (o instanceof Actor && world != null)
+        {
             int x = WorldVisitor.toCellFloor(world, (int) p.getX() + dragOffsetX);
             int y = WorldVisitor.toCellFloor(world, (int) p.getY() + dragOffsetY);
             final Actor actor = (Actor) o;
-            try {
+            try
+            {
                 int oldX = ActorVisitor.getX(actor);
                 int oldY = ActorVisitor.getY(actor);
 
-                if (oldX != x || oldY != y) {
+                if (oldX != x || oldY != y)
+                {
                     if (x < WorldVisitor.getWidthInCells(world) && y < WorldVisitor.getHeightInCells(world)
-                            && x >= 0 && y >= 0) {
-                        WriteLock writeLock = lock.writeLock();
-                        // The only reason we would fail to obtain the lock is if a repaint
-                        // is happening at this very instant. That shouldn't be too much of
-                        // a problem; it will mean a slight glitch in the drag, probably not
-                        // noticeable.
-                        if (writeLock.tryLock()) {
-                            ActorVisitor.setLocationInPixels(actor,
-                                    (int) p.getX() + dragOffsetX,
-                                    (int) p.getY() + dragOffsetY);
-                            writeLock.unlock();
-                            dragActorMoved = true;
-                            repaint();
-                        }
+                            && x >= 0 && y >= 0)
+                    {
+                        ActorVisitor.setLocationInPixels(actor,
+                                (int) p.getX() + dragOffsetX,
+                                (int) p.getY() + dragOffsetY);
+                        dragActorMoved = true;
+                        repaint();
                     }
-                    else {
-                        WriteLock writeLock = lock.writeLock();
-                        if (writeLock.tryLock()) {
-                            ActorVisitor.setLocationInPixels(actor, dragBeginX, dragBeginY);
-                            x = WorldVisitor.toCellFloor(getWorld(), dragBeginX);
-                            y = WorldVisitor.toCellFloor(getWorld(), dragBeginY);
-                            writeLock.unlock();
-                            
-                            dragActorMoved = false; // Pinged back to where it was
+                    else
+                    {
+                        ActorVisitor.setLocationInPixels(actor, dragBeginX, dragBeginY);
+                        x = WorldVisitor.toCellFloor(getWorld(), dragBeginX);
+                        y = WorldVisitor.toCellFloor(getWorld(), dragBeginY);
+                        
+                        dragActorMoved = false; // Pinged back to where it was
 
-                            repaint();
-                        }
+                        repaint();
                         return false;
                     }
                 }
             }
             catch (IndexOutOfBoundsException e) {}
-            catch (IllegalStateException e) {
+            catch (IllegalStateException e)
+            {
                 // If World.addObject() has been overridden the actor might not
                 // have been added to the world and we will get this exception
             }
             return true;
         }
-        else {
+        else
+        {
             return false;
         }
     }
@@ -829,20 +807,7 @@ public class WorldHandler
      */
     public String ask(String prompt)
     {
-        boolean held = lock.isWriteLockedByCurrentThread();
-        if (held)
-        {
-            lock.writeLock().unlock();
-        }
-        
-        String answer = handlerDelegate.ask(prompt);
-        
-        if (held)
-        {
-            lock.writeLock().lock();
-        }
-        
-        return answer;
+        return handlerDelegate.ask(prompt);
     }
 
     /**
