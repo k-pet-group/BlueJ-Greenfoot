@@ -69,6 +69,7 @@ import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 
 import greenfoot.core.ProjectManager;
+import greenfoot.export.mygame.ScenarioInfo;
 import greenfoot.guifx.classes.GClassDiagram;
 import greenfoot.guifx.classes.GClassDiagram.GClassType;
 import greenfoot.guifx.classes.ImportClassDialog;
@@ -208,7 +209,13 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     // World image
     private WritableImage worldImg;
 
-    
+    // The scenario information that usually shipped with it when uploading
+    // to the gallery. We should maintain a reference to it and make sure
+    // that its properties are written to the project properties file always.
+    // This change is needed as we now wipe the properties file each time
+    // before saving to avoid stacking unneeded properties hanging forever.
+    private ScenarioInfo scenarioInfo;
+
     /**
      * Details for a new actor being added to the world, after you have made it
      * but before it is ready to be placed.
@@ -363,8 +370,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
         setupWorldDrawingAndEvents();
         loadAndMirrorProperties();
-        String lastInstantiatedWorldName = project.getUnnamedPackage()
-                .getLastSavedProperties().getProperty("world.lastInstantiated");
+        Properties lastSavedProperties = project.getUnnamedPackage().getLastSavedProperties();
+        String lastInstantiatedWorldName = lastSavedProperties.getProperty("world.lastInstantiated");
         // We send a reset to make a new world after the project properties have been sent across:
         if (lastInstantiatedWorldName != null)
         {
@@ -375,6 +382,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 : null;
         
         JavaFXUtil.addChangeListenerPlatform(worldVisible, b -> updateBackgroundMessage());
+
+        scenarioInfo = new ScenarioInfo(lastSavedProperties);
     }
 
     /**
@@ -700,7 +709,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         {
             try
             {
-                new ExportDialog(this, project, currentWorld, worldDisplay.snapshot(null, null)).showAndWait();
+                new ExportDialog(this, project, scenarioInfo, currentWorld,
+                        worldDisplay.snapshot(null, null)).showAndWait();
             }
             catch (ExportException e)
             {

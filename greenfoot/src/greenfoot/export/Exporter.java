@@ -284,7 +284,7 @@ public class Exporter implements PublishListener
         
         dialog.setProgress(true, Config.getString("export.progress.publishing"));
         try {
-            ScenarioInfo info = new ScenarioInfo();
+            ScenarioInfo info = pane.getScenarioInfo();
             info.setTitle(scenarioName);
             info.setShortDescription(pane.getShortDescription());
             info.setUpdateDescription(pane.getUpdateDescription());

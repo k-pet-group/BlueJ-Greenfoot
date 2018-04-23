@@ -52,11 +52,13 @@ public class ScenarioInfo
     private static final String PUBLISH_LOCKED = "publish.locked";
     private static final String PUBLISH_UPDATE_DESC = "publish.updateDesc";
 
-    // TODO Temp to be deleted
+    /**
+     * Construct a scenario info object without loading any properties.
+     */
     public ScenarioInfo() { }
 
     /**
-     * Construct the scenario info object and load related properties.
+     * Construct a scenario info object and load related properties.
      *
      * @param properties The project's properties.
      */
