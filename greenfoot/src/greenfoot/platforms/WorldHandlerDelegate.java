@@ -24,6 +24,7 @@ package greenfoot.platforms;
 import greenfoot.Actor;
 import greenfoot.World;
 import greenfoot.core.WorldHandler;
+import greenfoot.gui.DropTarget;
 import greenfoot.gui.WorldCanvas;
 import greenfoot.gui.input.InputManager;
 
@@ -73,7 +74,24 @@ public interface WorldHandlerDelegate
     /**
      * Show a text prompt asking for input, with given prompt string
      */
-    public String ask(String prompt, WorldCanvas worldCanvas);
+    public String ask(String prompt);
 
     public default void initialisingWorld() {};
+
+    /**
+     * Repaint the world.
+     * @param forcePaint Force paint (ignore any optimisations to not paint frames too often, etc)
+     */
+    void paint(boolean forcePaint);
+
+    /**
+     * The simulation had some user code which threw an exception
+     * that was not caught by the user code.
+     */
+    void notifyStoppedWithError();
+
+    /**
+     * Set the listener for when a target is dropped.
+     */
+    void setDropTargetListener(DropTarget dropTarget);
 }

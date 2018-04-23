@@ -25,6 +25,7 @@ import greenfoot.Actor;
 import greenfoot.World;
 import greenfoot.core.WorldHandler;
 import greenfoot.export.GreenfootScenarioViewer;
+import greenfoot.gui.DropTarget;
 import greenfoot.gui.WorldCanvas;
 import greenfoot.gui.input.InputManager;
 import greenfoot.platforms.WorldHandlerDelegate;
@@ -116,10 +117,27 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     }
 
     @Override
-    public String ask(String prompt, WorldCanvas worldCanvas)
+    public String ask(String prompt)
     {
         String r = viewer.ask(prompt);
-        worldCanvas.requestFocusInWindow();
         return r;
+    }
+
+    @Override
+    public void paint(boolean forcePaint)
+    {
+        // TODO (in a later commit, as part of rewriting the stand alone)
+    }
+
+    @Override
+    public void notifyStoppedWithError()
+    {
+        // Nothing to be done, really.
+    }
+
+    @Override
+    public void setDropTargetListener(DropTarget dropTarget)
+    {
+        // No dropping in standalone
     }
 }

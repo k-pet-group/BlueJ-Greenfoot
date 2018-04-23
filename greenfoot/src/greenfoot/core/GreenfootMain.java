@@ -154,8 +154,8 @@ public class GreenfootMain extends Thread
                     WorldCanvas worldCanvas = new WorldCanvas(projectProperties, shmFilePath);
                     worldCanvas.setWorldSize(200, 100);
 
-                    WorldHandlerDelegateIDE worldHandlerDelegate = new WorldHandlerDelegateIDE();
-                    WorldHandler.initialise(worldCanvas, worldHandlerDelegate);
+                    WorldHandlerDelegateIDE worldHandlerDelegate = new WorldHandlerDelegateIDE(worldCanvas);
+                    WorldHandler.initialise(worldHandlerDelegate);
                     WorldHandler worldHandler = WorldHandler.getInstance();
                     Simulation.initialize();
                     Simulation sim = Simulation.getInstance();
