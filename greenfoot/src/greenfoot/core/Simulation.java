@@ -39,7 +39,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import javax.swing.event.EventListenerList;
 
@@ -54,8 +53,7 @@ public class Simulation extends Thread
     implements WorldListener
 {
     // Most of the fields require synchronized access. Some of them do not because they are only
-    // accessed from the simulation thread itself. "repaintLock" protects paintPending and
-    // lastRepaintTime.
+    // accessed from the simulation thread itself.
     
     // All user code should generally be run on the simulation thread. The simulation monitor
     // should not be held while executing user code (though the world lock should be held).
@@ -66,11 +64,6 @@ public class Simulation extends Thread
     // anyway. Once requested, the repaint may take some time to occur; if the effective
     // repaint rate falls below MIN_FRAME_RATE, then we temporarily suspend the simulation
     // and wait for the repaint to occur.
-    
-    /** Repaints will be requested at this rate (at most) */
-    private static int MAX_FRAME_RATE = 65;
-    /** Simulation will wait for repaints if the repaint rate falls below this */
-    private static int MIN_FRAME_RATE = 35;
     
     @OnThread(Tag.Any)
     private WorldHandler worldHandler;
@@ -111,16 +104,6 @@ public class Simulation extends Thread
     private long lastDelayTime;
     private long delay; // the speed translated into delay (nanoseconds)
 
-    // private long updates; // used for debugging to calculate update rate
-    //private long lastUpdate; // used for debugging to calculate update rate
-    
-    /** Protects "paintPending" and "lastRepaintTime" */
-    private Object repaintLock = new Object();
-    /** The last time that a repaint of the World was issued. */
-    private long lastRepaintTime;
-    /** true if a repaint has been issued and not yet processed. */
-    private boolean paintPending;
-
     /**
      * Lock to synchronize access to the two fields: delaying and interruptDelay
      */
@@ -132,7 +115,6 @@ public class Simulation extends Thread
     /** Whether a delay between act-loops should be interrupted. */
     @OnThread(Tag.Any)
     private boolean interruptDelay;
-
     
     /**
      * Used to figure out when we are transitioning from running to paused state and vice versa.
@@ -419,16 +401,6 @@ public class Simulation extends Thread
         fireSimulationEvent(startedEvent);
         World world = worldHandler.getWorld();
         if (world != null) {
-            // We need to sync to avoid ConcurrentModificationException
-            ReentrantReadWriteLock lock = worldHandler.getWorldLock();
-            try {
-                lock.writeLock().lockInterruptibly();
-            }
-            catch (InterruptedException ie) {
-                isRunning = false; // need to notify again
-                throw ie;
-            }
-                
             try {
                 worldStarted(world); // may cause us to pause
             }
@@ -442,9 +414,6 @@ public class Simulation extends Thread
                 setPaused(true);
                 t.printStackTrace();
                 return;
-            }
-            finally {
-                lock.writeLock().unlock();
             }
         }
     }
@@ -461,9 +430,6 @@ public class Simulation extends Thread
         //  setEnabled(false)  or
         //  abort() (sometimes, depending on timing)
         if (world != null) {
-            // We need to sync to avoid ConcurrentModificationException
-            ReentrantReadWriteLock lock = worldHandler.getWorldLock();
-            lock.writeLock().lockInterruptibly();
             try {
                 worldStopped(world); // may un-pause
             }
@@ -479,9 +445,6 @@ public class Simulation extends Thread
                     paused = true;
                 }
                 t.printStackTrace();
-            }
-            finally {
-                lock.writeLock().unlock();
             }
         }
     }
@@ -502,14 +465,7 @@ public class Simulation extends Thread
         }
         
         while (r != null) {
-            World world = WorldHandler.getInstance().getWorld();
             try {
-                ReentrantReadWriteLock lock  = null;
-                if (world != null) {
-                    lock = worldHandler.getWorldLock();
-                    lock.writeLock().lock();
-                }
-                
                 fireSimulationEvent(taskBeginEvent);
                 
                 try {
@@ -518,10 +474,6 @@ public class Simulation extends Thread
                 }
                 catch (Throwable t) {
                     t.printStackTrace();
-                }
-                
-                if (world != null) {
-                    lock.writeLock().unlock();
                 }
                 
                 fireSimulationEvent(taskEndEvent);
@@ -537,6 +489,7 @@ public class Simulation extends Thread
     
     /**
      * Performs one step in the simulation. Calls act() on all actors.
+     * May propagate a runtime exception or error from user code.
      * 
      * @throws ActInterruptedException  if an act() call was interrupted.
      */
@@ -551,54 +504,49 @@ public class Simulation extends Thread
         
         List<? extends Actor> objects = null;
 
-        // We need to sync to avoid ConcurrentModificationException
-        try {
-            ReentrantReadWriteLock lock = worldHandler.getWorldLock();
-            lock.writeLock().lockInterruptibly();
-            try {
-                try {
-                    actWorld(world);
-                    if (world != worldHandler.getWorld()) {
-                        paintRemote(false);
+        try
+        {
+            actWorld(world);
+            if (world != worldHandler.getWorld())
+            {
+                paintRemote(false);
+                return; // New world was set
+            }
+        }
+        catch (ActInterruptedException e)
+        {
+            interruptedException = e;
+        }
+        // We need to make a copy so that the original collection can be
+        // modified by the actors' act() methods.
+        objects = new ArrayList<Actor>(WorldVisitor.getObjectsListInActOrder(world));
+        for (Actor actor : objects)
+        {
+            if (!enabled)
+            {
+                return;
+            }
+            if (ActorVisitor.getWorld(actor) != null)
+            {
+                try
+                {
+                    actActor(actor);
+                    if (world != worldHandler.getWorld())
+                    {
                         return; // New world was set
                     }
                 }
-                catch (ActInterruptedException e) {
-                    interruptedException = e;
-                }
-                // We need to make a copy so that the original collection can be
-                // modified by the actors' act() methods.
-                objects = new ArrayList<Actor>(WorldVisitor.getObjectsListInActOrder(world));
-                for (Actor actor : objects) {
-                    if (!enabled) {
-                        return;
+                catch (ActInterruptedException e)
+                {
+                    if (interruptedException == null)
+                    {
+                        interruptedException = e;
                     }
-                    if (ActorVisitor.getWorld(actor) != null) {
-                        try {
-                            actActor(actor);
-                            if (world != worldHandler.getWorld()) {
-                                return; // New world was set
-                            }
-                        }
-                        catch (ActInterruptedException e) {
-                            if (interruptedException == null) {
-                                interruptedException = e;
-                            }
-                        }
-                    }
-
                 }
-                
-                worldHandler.getKeyboardManager().clearLatchedKeys();
-            }
-            finally {
-                lock.writeLock().unlock();
             }
         }
-        catch (InterruptedException e) {
-            // Interrupted while trying to acquire lock
-            throw new ActInterruptedException(e);
-        }
+        
+        worldHandler.getKeyboardManager().clearLatchedKeys();
 
         // We were interrupted while running through the act-loop. Throw now.
         if(interruptedException != null) {
@@ -647,21 +595,6 @@ public class Simulation extends Thread
     }
 
     /**
-     * Inform the simulation that the world has been repainted successfully.
-     */
-    public void worldRepainted()
-    {
-        synchronized (repaintLock) {
-            paintPending = false;
-            //long response = System.currentTimeMillis() - lastRepaintTime;
-            //if (response > 250) {
-            //    System.out.println("Repaint response time: " + response);
-            //}
-            repaintLock.notify();
-        }
-    }
-
-    /**
      * Debug output to print the rate at which updates are performed
      * (acts/second).
      */
@@ -702,15 +635,18 @@ public class Simulation extends Thread
     @OnThread(Tag.Any)
     public synchronized void setPaused(boolean b)
     {
-        if(paused == b) {
+        if (paused == b)
+        {
             //Nothing to do for us.
             return;
         }
         paused = b;
-        if (enabled) {
+        if (enabled)
+        {
             if(!paused) 
             {
-                synchronized (interruptLock) {
+                synchronized (interruptLock)
+                {
                     interruptDelay = false;
                 }
             }
@@ -719,7 +655,8 @@ public class Simulation extends Thread
 
             // If we are currently in the delay loop, interrupt it so that
             // the pause takes effect immediately.
-            if (paused) {
+            if (paused)
+            {
                 interruptDelay();                
             }
         }
@@ -927,10 +864,10 @@ public class Simulation extends Thread
     @OnThread(Tag.Simulation)
     public void sleep(int numCycles)
     {
-        World world = worldHandler.getWorld();
-
-        synchronized (this) {
-            if (paused && isRunning && !runOnce) {
+        synchronized (this)
+        {
+            if (paused && isRunning && !runOnce)
+            {
                 // If it should be paused but is still running, it means that we
                 // should try to end as quickly as possible and hence should NOT
                 // delay.
@@ -940,7 +877,8 @@ public class Simulation extends Thread
                 // effect at all.
                 return;
             }
-            if (! enabled) {
+            if (! enabled)
+            {
                 // It's possible an interactive method invocation was fired which
                 // calls Greenfoot.delay(), but the simulation was disabled (reset)
                 // between the invocation and call to Greenfoot.delay(). In this
@@ -951,8 +889,10 @@ public class Simulation extends Thread
             // We need to check the interruptDelay while the simulation lock is
             // still held, in case setEnabled(false) is called just after we release
             // the simulation lock.
-            synchronized (interruptLock) {
-                if (interruptDelay) {
+            synchronized (interruptLock)
+            {
+                if (interruptDelay)
+                {
                     // If interrupted, we just want to return now. We do not
                     // want to abort by throwing an exception, because that will
                     // leave the user code execution in an inconsistent state.
@@ -962,28 +902,24 @@ public class Simulation extends Thread
             }
         }
         
-        try {
+        try
+        {
             worldHandler.repaint();
-            for (int i = 0; i < numCycles; i++) {
-                if (world != null) {
-                    // The VMCommsSimulation may be trying to synchronize on the world in
-                    // order to do a repaint. So, we use wait() here in order
-                    // to release the world lock temporarily.
-                    HDTimer.wait(delay, worldHandler.getWorldLock());
-                }
-                else {
-                    // shouldn't really happen
-                    HDTimer.sleep(delay);
-                }
+            for (int i = 0; i < numCycles; i++)
+            {
+                HDTimer.sleep(delay);
             }
         }
-        catch (InterruptedException e) {
+        catch (InterruptedException e)
+        {
             // If interrupted, we just want to return now. We do not
             // want to abort by throwing an exception, because that will
             // leave the user code execution in an inconsistent state.            
         }
-        finally {
-            synchronized (interruptLock) {
+        finally
+        {
+            synchronized (interruptLock)
+            {
                 Thread.interrupted(); // clear interrupt, in case we were interrupted just after the delay
                 interruptDelay = false;
                 delaying = false;
@@ -1007,12 +943,16 @@ public class Simulation extends Thread
         long timeElapsed = currentTime - lastDelayTime;
         long actualDelay = Math.max(delay - timeElapsed, 0L);
         
-        synchronized (this) {
-            synchronized (interruptLock) {
-                if(interruptDelay) {
+        synchronized (this)
+        {
+            synchronized (interruptLock)
+            {
+                if(interruptDelay)
+                {
                     // interruptDelay was issued before entering this sync, so interrupt now.
                     interruptDelay = false;
-                    if (paused || abort) {
+                    if (paused || abort)
+                    {
                         lastDelayTime = currentTime;
                         return; // return... without delay
                     }
@@ -1021,17 +961,21 @@ public class Simulation extends Thread
             }
         }
 
-        while (actualDelay > 0) {
-
-            try {
+        while (actualDelay > 0)
+        {
+            try
+            {
                 HDTimer.sleep(actualDelay);
             }
-            catch (InterruptedException ie) {
+            catch (InterruptedException ie)
+            {
                 // We get interrupted either due to a pause, abort, being disabled or
                 // a speed change. If it's a speed change, we can continue to delay, up
                 // to the new time; otherwise we should finish up now.
-                synchronized (this) {
-                    if (!enabled || paused || abort) {
+                synchronized (this)
+                {
+                    if (!enabled || paused || abort)
+                    {
                         break;
                     }
                 }
@@ -1043,7 +987,8 @@ public class Simulation extends Thread
         }
 
         lastDelayTime = currentTime;
-        synchronized (interruptLock) {
+        synchronized (interruptLock)
+        {
             Thread.interrupted(); // clear interrupt, in case we were interrupted just after the delay
             interruptDelay = false;
             delaying = false;

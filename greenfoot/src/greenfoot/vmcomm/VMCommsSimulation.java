@@ -38,7 +38,6 @@ import javafx.scene.input.KeyCode;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
@@ -50,11 +49,10 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 
 /**
  * Lives on the Simulation VM (aka debug VM), and handles communications with the server
- * (see {@link VMCommsMain}
+ * (see {@link VMCommsMain})
  */
 public class VMCommsSimulation
 {
@@ -449,7 +447,6 @@ public class VMCommsSimulation
      * @param answer A one-element array in which to store an ask-answer, if received
      * @return The command acknowledge to write back to the buffer
      */
-    @OnThread(Tag.Simulation)
     private int readCommands(String[] answer)
     {
         int lastSeqID = -1;

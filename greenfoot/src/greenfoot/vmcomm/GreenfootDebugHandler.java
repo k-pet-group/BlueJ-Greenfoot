@@ -714,11 +714,12 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     }
 
     /**
-     * Set the simulation thread going if it's suspended: The user has clicked reset,
+     * Set the simulation thread going if it's suspended: The user has clicked reset (or a reset
+     * has otherwise been issued, eg after successful compile).
      */
     public void simulationThreadResumeOnResetClick()
     {
-        if (simulationThread.isSuspended())
+        if (simulationThread != null && simulationThread.isSuspended())
         {
             // This code runs in parallel with GreenfootDebugHanlder.examineDebuggerEvent() and
             // there is theoretically a race condition where the "special" breakpoints are set
