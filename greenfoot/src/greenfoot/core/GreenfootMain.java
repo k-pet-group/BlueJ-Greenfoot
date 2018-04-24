@@ -25,7 +25,7 @@ import bluej.Boot;
 import bluej.collect.DataSubmissionFailedDialog;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
-import greenfoot.gui.VMCommsSimulation;
+import greenfoot.vmcomm.VMCommsSimulation;
 import greenfoot.platforms.ide.ActorDelegateIDE;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 import greenfoot.sound.SoundFactory;

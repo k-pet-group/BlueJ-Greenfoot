@@ -19,7 +19,7 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package greenfoot.gui;
+package greenfoot.vmcomm;
 
 import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
@@ -28,6 +28,8 @@ import greenfoot.WorldVisitor;
 import greenfoot.core.ShadowProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
+import greenfoot.gui.DropTarget;
+import greenfoot.gui.WorldRenderer;
 import greenfoot.gui.input.KeyboardManager;
 import greenfoot.gui.input.mouse.MousePollingManager;
 import greenfoot.vmcomm.Command;

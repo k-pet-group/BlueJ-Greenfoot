@@ -22,7 +22,7 @@
 package greenfoot.util;
 
 import greenfoot.gui.AskPanel;
-import greenfoot.gui.VMCommsSimulation;
+import greenfoot.vmcomm.VMCommsSimulation;
 
 import java.awt.Image;
 import java.util.concurrent.ArrayBlockingQueue;
