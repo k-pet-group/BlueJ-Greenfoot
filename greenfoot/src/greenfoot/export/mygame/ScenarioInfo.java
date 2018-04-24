@@ -53,8 +53,9 @@ public class ScenarioInfo
     private static final String PUBLISH_LOCKED = "publish.locked";
     private static final String PUBLISH_UPDATE_DESC = "publish.updateDesc";
 
-    // Fields which will not be saved in the properties. They are used to pass
-    // the rest of needed scenario info for exporting.
+    // Fields which will not be saved in the scenario local properties,
+    // but will be passed to the exporter. Some of them may be saved in
+    // the exported version, depending on the exported version type.
     private Image image;
     private String exportName;
     private String userName;
