@@ -58,7 +58,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.event.EventListenerList;
 
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
@@ -81,7 +81,6 @@ public class WorldHandler
     private World initialisingWorld;
     // Note: this field is used by name in GreenfootDebugHandler, so don't rename/remove without altering that code.
     private volatile World world;
-    private WorldCanvas worldCanvas;
 
     // where did the the drag/drop operation begin? In pixels
     private int dragBeginX;
@@ -102,7 +101,6 @@ public class WorldHandler
     private Actor dragActor;
     private boolean dragActorMoved;
     private int dragId;
-    private Cursor defaultCursor;
     
     /** Lock used for world manipulation */
     private static ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
@@ -114,9 +112,9 @@ public class WorldHandler
     private boolean isRepaintPending = false;
     
     @OnThread(Tag.Any)
-    public static synchronized void initialise(WorldCanvas worldCanvas, WorldHandlerDelegate helper)
+    public static synchronized void initialise(WorldHandlerDelegate helper)
     {
-        instance = new WorldHandler(worldCanvas, helper);
+        instance = new WorldHandler(helper);
     }
     
     /**
@@ -179,9 +177,26 @@ public class WorldHandler
             }
 
             @Override
-            public String ask(String prompt, WorldCanvas worldCanvas)
+            public String ask(String prompt)
             {
                 return "";
+            }
+
+            @Override
+            public void paint(boolean forcePaint)
+            {
+                
+            }
+
+            @Override
+            public void notifyStoppedWithError()
+            {
+
+            }
+
+            @Override
+            public void setDropTargetListener(DropTarget dropTarget)
+            {
             }
         };
     }
@@ -193,30 +208,22 @@ public class WorldHandler
      * @param handlerDelegate
      */
     @OnThread(Tag.Any)
-    private WorldHandler(final WorldCanvas worldCanvas, WorldHandlerDelegate handlerDelegate)
+    private WorldHandler(WorldHandlerDelegate handlerDelegate)
     {
         instance = this;
         this.handlerDelegate = handlerDelegate;
         this.handlerDelegate.setWorldHandler(this);
-
-        this.worldCanvas = worldCanvas;
         
         mousePollingManager = new MousePollingManager(null);
 
-        worldCanvas.setDropTargetListener(this);
+        handlerDelegate.setDropTargetListener(this);
 
         keyboardManager = new KeyboardManager();
-        worldCanvas.addFocusListener(keyboardManager);
 
         inputManager = handlerDelegate.getInputManager();
         addWorldListener(inputManager);
         inputManager.setRunningListeners(getKeyboardManager(), mousePollingManager, mousePollingManager);
-        worldCanvas.addMouseListener(inputManager);
-        worldCanvas.addMouseMotionListener(inputManager);
-        worldCanvas.addKeyListener(inputManager);
         inputManager.init();
-
-        defaultCursor = worldCanvas.getCursor();
     }
 
     /**
@@ -253,20 +260,6 @@ public class WorldHandler
     public boolean isDragging()
     {
         return dragActor != null;
-    }
-
-    /*
-     * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
-     */
-    public void mouseReleased(MouseEvent e)
-    {
-        if (SwingUtilities.isLeftMouseButton(e)) {
-            if (dragActor != null && dragActorMoved) {
-
-            }
-            dragActor = null;
-            worldCanvas.setCursor(defaultCursor);
-        }
     }
 
     /**
@@ -362,14 +355,6 @@ public class WorldHandler
     }
 
     /*
-     * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
-     */
-    public void mouseEntered(MouseEvent e)
-    {
-        worldCanvas.requestFocusInWindow();
-    }
-
-    /*
      * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
      */
     public void mouseExited(MouseEvent e)
@@ -395,7 +380,7 @@ public class WorldHandler
      */
     public void repaint()
     {
-        worldCanvas.repaint();
+        paint(true);
     }
     
     /**
@@ -403,7 +388,7 @@ public class WorldHandler
      */
     public void repaintAndWait()
     {
-        worldCanvas.repaint();
+        repaint();
 
         boolean isWorldLocked = lock.isWriteLockedByCurrentThread();
         
@@ -470,7 +455,6 @@ public class WorldHandler
                     }
                 });
                 dragActor = null;
-                worldCanvas.setCursor(defaultCursor);
             }
         }
     }
@@ -479,8 +463,6 @@ public class WorldHandler
     @OnThread(Tag.Swing)
     public void keyReleased(KeyEvent e)
     {
-        //TODO: is this really necessary?
-        worldCanvas.requestFocus();
     }
 
     /**
@@ -530,7 +512,6 @@ public class WorldHandler
         world = null;
 
         Simulation.getInstance().runLater(() -> {
-            worldCanvas.setWorld(null);
             fireWorldRemovedEvent(discardedWorld);
         });
     }
@@ -590,9 +571,6 @@ public class WorldHandler
         this.world = world;
         
         Simulation.getInstance().runLater(() -> {
-            if(worldCanvas != null) {
-                worldCanvas.setWorld(world);
-            }
             fireWorldCreatedEvent(world);
         });
 
@@ -750,22 +728,6 @@ public class WorldHandler
     }
 
     /**
-     * Adds the object where the mouse event occurred.
-     * 
-     * @return true if successful, or false if the mouse event was outside the world bounds.
-     */
-    public synchronized boolean addObjectAtEvent(Actor actor, MouseEvent e)
-    {
-        Component source = (Component) e.getSource();
-        if (source != worldCanvas) {
-            e = SwingUtilities.convertMouseEvent(source, e, worldCanvas);
-        }
-        int xPixel = e.getX();
-        int yPixel = e.getY();
-        return addActorAtPixel(actor, xPixel, yPixel);
-    }
-
-    /**
      * Add an actor at the given pixel co-ordinates. The co-ordinates are translated
      * into cell co-ordinates, and the actor is added at those cell co-ordinates, if they
      * are within the world.
@@ -874,11 +836,6 @@ public class WorldHandler
         }
     }
 
-    public WorldCanvas getWorldCanvas()
-    {
-        return worldCanvas;
-    }
-
     public EventListenerList getListenerList()
     {
         return listenerList;
@@ -977,7 +934,7 @@ public class WorldHandler
             lock.writeLock().unlock();
         }
         
-        String answer = handlerDelegate.ask(prompt, worldCanvas);
+        String answer = handlerDelegate.ask(prompt);
         
         if (held)
         {
@@ -997,5 +954,23 @@ public class WorldHandler
                 Simulation.getInstance().paintRemote(true);
             });
         }
+    }
+
+    /**
+     * The simulation had some user code which threw an exception
+     * that was not caught by the user code.
+     */
+    public void notifyStoppedWithError()
+    {
+        handlerDelegate.notifyStoppedWithError();
+    }
+
+    /**
+     * Repaint the world.
+     * @param forcePaint Force paint (ignore any optimisations to not paint frames too often, etc)
+     */
+    public void paint(boolean forcePaint)
+    {
+        handlerDelegate.paint(forcePaint);
     }
 }

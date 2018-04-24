@@ -242,7 +242,7 @@ public class Simulation extends Thread
                 }
                 t.printStackTrace();
                 // Send word to the server VM that we stopped with an error (and thus they need to show terminal):
-                WorldHandler.getInstance().getWorldCanvas().notifyStoppedWithError();
+                WorldHandler.getInstance().notifyStoppedWithError();
                 paintRemote(true);
             }
         }
@@ -645,8 +645,7 @@ public class Simulation extends Thread
     
     protected void paintRemote(boolean forcePaint)
     {
-        WorldCanvas wcanvas = WorldHandler.getInstance().getWorldCanvas();
-        wcanvas.paintRemote(forcePaint ? PaintWhen.FORCE : PaintWhen.IF_DUE);
+        WorldHandler.getInstance().paint(forcePaint);
     }
 
     /**

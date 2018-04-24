@@ -241,7 +241,7 @@ public class GreenfootScenarioViewer extends JApplet
             }
         });        
 
-        WorldHandler.initialise(canvas, new WorldHandlerDelegateStandAlone(this, lockScenario));
+        WorldHandler.initialise(new WorldHandlerDelegateStandAlone(this, lockScenario));
         WorldHandler worldHandler = WorldHandler.getInstance();
         sim = Simulation.getInstance();
         sim.attachWorldHandler(worldHandler);

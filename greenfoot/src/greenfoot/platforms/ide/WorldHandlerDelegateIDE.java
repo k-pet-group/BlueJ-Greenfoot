@@ -28,7 +28,9 @@ import greenfoot.core.ImageCache;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.SimulationUIListener;
+import greenfoot.gui.DropTarget;
 import greenfoot.gui.WorldCanvas;
+import greenfoot.gui.WorldCanvas.PaintWhen;
 import greenfoot.gui.input.InputManager;
 import greenfoot.platforms.WorldHandlerDelegate;
 import greenfoot.record.GreenfootRecorder;
@@ -52,13 +54,15 @@ public class WorldHandlerDelegateIDE
     protected final Color envOpColour = new Color(152,32,32);
 
     private WorldHandler worldHandler;
+    private final WorldCanvas worldCanvas;
     
     private boolean worldInitialising;
     private final List<Actor> actorsToName = new ArrayList<>();
     private String mostRecentlyInstantiatedWorldClassName;
 
-    public WorldHandlerDelegateIDE()
+    public WorldHandlerDelegateIDE(WorldCanvas worldCanvas)
     {
+        this.worldCanvas = worldCanvas;
     }
 
     /**
@@ -69,6 +73,7 @@ public class WorldHandlerDelegateIDE
     public void discardWorld(World world)
     {        
         ImageCache.getInstance().clearImageCache();
+        worldCanvas.setWorld(null);
     }
     
     @Override
@@ -80,6 +85,7 @@ public class WorldHandlerDelegateIDE
         if (oldWorld != null) {
             discardWorld(oldWorld);
         }
+        worldCanvas.setWorld(newWorld);
     }
 
     @Override
@@ -93,6 +99,24 @@ public class WorldHandlerDelegateIDE
     {
         worldInitialising = true;
         actorsToName.clear();
+    }
+
+    @Override
+    public void paint(boolean forcePaint)
+    {
+        worldCanvas.paintRemote(forcePaint ? PaintWhen.FORCE : PaintWhen.IF_DUE);
+    }
+
+    @Override
+    public void notifyStoppedWithError()
+    {
+        worldCanvas.notifyStoppedWithError();
+    }
+
+    @Override
+    public void setDropTargetListener(DropTarget dropTarget)
+    {
+        worldCanvas.setDropTargetListener(dropTarget);
     }
 
     @Override
@@ -268,7 +292,7 @@ public class WorldHandlerDelegateIDE
     }
 
     @Override
-    public String ask(final String prompt, WorldCanvas worldCanvas)
+    public String ask(final String prompt)
     {
         // As I accidentally discovered while developing, this method
         // will go wrong if called off the simulation thread.
