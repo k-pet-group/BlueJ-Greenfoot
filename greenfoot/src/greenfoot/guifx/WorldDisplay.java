@@ -33,7 +33,7 @@ import javafx.scene.layout.StackPane;
 /**
  * A class for handling the world part of the main GreenfootStage window.
  */
-class WorldDisplay extends StackPane
+public class WorldDisplay extends StackPane
 {
     private final ImageView imageView = new ImageView();
     private final AskPaneFX askPane = new AskPaneFX();

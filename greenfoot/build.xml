@@ -774,6 +774,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <fileset dir="${bluej_home}/classes/">
                 <include name="bluej/Config.class"/>
                 <include name="bluej/utility/CenterLayout.class"/>
+                <include name="bluej/utility/javafx/*.class"/>
                 <include name="bluej/Config$*.class"/>
                 <include name="bluej/BlueJPropStringSource.class"/>
                 <include name="bluej/BlueJTheme.class"/>

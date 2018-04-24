@@ -404,15 +404,17 @@ public class Exporter implements PublishListener
      * @return The width and the height wrapped in Dimension2D object.
      */
     private Dimension2D getSize(boolean includeControls)
-    {     
+    {
+        final int EMPTY_BORDER_SIZE = 5;
+        
         //The control panel size is hard coded for now, since it has different sizes on different platforms. 
         //It is bigger on windows than most other platforms, so this is the size that is used.
         //Will be even more problematic once we get i18n!
-        Dimension2D controlsBorder = GreenfootScenarioViewer.getControlsBorderSize();
+        Dimension2D controlsBorder = new Dimension2D((EMPTY_BORDER_SIZE) * 2, (EMPTY_BORDER_SIZE) * 2);
         double controlsWidth = controlsBorder.getWidth() + (includeControls ? 560 : 410);
         double controlHeight = controlsBorder.getHeight() + 48;
 
-        Dimension2D worldBorder = GreenfootScenarioViewer.getWorldBorderSize();
+        Dimension2D worldBorder = new Dimension2D((EMPTY_BORDER_SIZE + 1) * 2, EMPTY_BORDER_SIZE + 1 * 2);
 
         // +2 to add some extra padding
         double width = Math.max(worldWidth + worldBorder.getWidth() + 2, controlsWidth);

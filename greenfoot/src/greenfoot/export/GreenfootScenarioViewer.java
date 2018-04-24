@@ -23,37 +23,30 @@ package greenfoot.export;
 
 import bluej.Config;
 import bluej.utility.Debug;
-
+import bluej.utility.javafx.UnfocusableScrollPane;
 import greenfoot.World;
 import greenfoot.core.ExportedProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
-import greenfoot.gui.AskPanel;
-import greenfoot.gui.ControlPanel;
-import greenfoot.vmcomm.VMCommsSimulation;
+import greenfoot.guifx.AskPaneFX;
+import greenfoot.guifx.ControlPanel;
+import greenfoot.guifx.ControlPanel.ControlPanelListener;
+import greenfoot.guifx.WorldDisplay;
 import greenfoot.platforms.standalone.ActorDelegateStandAlone;
 import greenfoot.platforms.standalone.GreenfootUtilDelegateStandAlone;
 import greenfoot.platforms.standalone.WorldHandlerDelegateStandAlone;
 import greenfoot.sound.SoundFactory;
 import greenfoot.util.AskHandler;
 import greenfoot.util.GreenfootUtil;
+import greenfoot.vmcomm.VMCommsSimulation;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.BorderPane;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.EventQueue;
+import java.awt.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
-
-import javafx.geometry.Dimension2D;
-import javax.swing.JApplet;
-import javax.swing.JPanel;
-import javax.swing.JRootPane;
-import javax.swing.JScrollPane;
-import javax.swing.BorderFactory;
-import javax.swing.OverlayLayout;
-import javax.swing.RootPaneContainer;
 
 /**
  * This class can view and run a Greenfoot scenario. It is not possible to
@@ -61,98 +54,32 @@ import javax.swing.RootPaneContainer;
  * 
  * @author Poul Henriksen
  */
-public class GreenfootScenarioViewer extends JApplet
+public class GreenfootScenarioViewer extends BorderPane implements ControlPanelListener
 {
-    private static final int EMPTY_BORDER_SIZE = 5;
-
     private static String scenarioName;
 
-    private boolean isApplet;
     private boolean showControls;
     private ExportedProjectProperties properties;
     private Simulation sim;
-    private VMCommsSimulation canvas;
-    private AskPanel askPanel;
+    private AskPaneFX askPanel;
     private ControlPanel controls;
-    private RootPaneContainer rootPaneContainer;
 
     private Constructor<?> worldConstructor;
 
     private AskHandler askHandler;
+    private WorldDisplay worldDisplay;
 
-    /**
-     * The default constructor, used when the scenario runs as an applet.
-     */
-    public GreenfootScenarioViewer()
-    {
-        isApplet = true;
-    }
 
-    /**
-     * Constructor for when the scenario runs as an application.
-     * @param rootPane
-     */
-    public GreenfootScenarioViewer(RootPaneContainer rootPane)
-    {
-        super();
-        rootPaneContainer = rootPane;
-        isApplet = false;
-    }
-
-    /**
-     * Returns the size of the borders around the controls.
-     */
-    public static Dimension2D getControlsBorderSize()
-    {
-        return new Dimension2D((EMPTY_BORDER_SIZE ) * 2, (EMPTY_BORDER_SIZE ) * 2);
-    } 
-    
-    /**
-     * Returns the size of the borders around the world panel.
-     */
-    public static Dimension2D getWorldBorderSize()
-    {
-        return new Dimension2D((EMPTY_BORDER_SIZE + 1) * 2, EMPTY_BORDER_SIZE + 1 * 2);
-    }
-    
     private void buildGUI()
     {
-        if (rootPaneContainer == null) {
-            // it will be null when running as applet, so set it to the applet.
-            rootPaneContainer = this;
-        }
-        
-        JPanel centerPanel = new JPanel();
-        centerPanel.setLayout(new OverlayLayout(centerPanel));
-        
-        
-        askPanel = new AskPanel();
-        askPanel.getComponent().setAlignmentX(0.5f);
-        askPanel.getComponent().setAlignmentY(1.0f);
-        centerPanel.add(askPanel.getComponent());
-        //centerPanel.add( canvas );
-        centerPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        askHandler = new AskHandler(askPanel, canvas);
-        
-        
-        JScrollPane outer = new JScrollPane( centerPanel );
-        outer.setBorder(BorderFactory.createEmptyBorder(EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE));
-        controls.setBorder(BorderFactory.createCompoundBorder( BorderFactory.createEmptyBorder(0,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE,EMPTY_BORDER_SIZE), BorderFactory.createEtchedBorder()));
-        
-        rootPaneContainer.getContentPane().add(outer, BorderLayout.CENTER);
+        worldDisplay = new WorldDisplay();
+        ScrollPane worldViewScroll = new UnfocusableScrollPane(worldDisplay);
+               
+        setCenter(worldViewScroll);
         if (!Config.getPropBoolean("scenario.hideControls",false)){
             //show controls.
-            rootPaneContainer.getContentPane().add(controls, BorderLayout.SOUTH);
+            setBottom(controls);
         } 
-    }
-    
-    @Override
-    public String getParameter(String name)
-    {
-        if (isApplet)
-            return super.getParameter(name);
-        else
-            return null;
     }
 
     /**
@@ -160,31 +87,15 @@ public class GreenfootScenarioViewer extends JApplet
      * been loaded into the system. It is always called before the first time
      * that the start method is called.
      */
-    @Override
-    public void init()
+    public GreenfootScenarioViewer()
     {
         GreenfootScenarioMain.initProperties();
-        
-        boolean storageStandalone = getParameter("storage.standalone") != null;
-        String storageHost = getParameter("storage.server");
-        String storagePort = getParameter("storage.serverPort");
-        String storagePasscode = getParameter("storage.passcode");
-        String storageScenarioId = getParameter("storage.scenarioId");
-        String storageUserId = getParameter("storage.userId");
-        String storageUserName = getParameter("storage.userName");
-        
-        // this is a workaround for a security conflict with some browsers
-        // including some versions of Netscape & Internet Explorer which do
-        // not allow access to the AWT system event queue which JApplets do
-        // on startup to check access. May not be necessary with your browser.
-        JRootPane rootPane = this.getRootPane();
-        rootPane.putClientProperty("defeatSystemEventQueueCheck", Boolean.TRUE);
         
         final String worldClassName = Config.getPropString("main.class"); 
         final boolean lockScenario = Config.getPropBoolean("scenario.lock");
 
         try {
-            GreenfootUtil.initialise(new GreenfootUtilDelegateStandAlone(storageStandalone, storageHost, storagePort, storagePasscode, storageScenarioId, storageUserId, storageUserName));
+            GreenfootUtil.initialise(new GreenfootUtilDelegateStandAlone());
             properties = new ExportedProjectProperties();
 
             ActorDelegateStandAlone.setupAsActorDelegate();
@@ -194,9 +105,7 @@ public class GreenfootScenarioViewer extends JApplet
             // Greenfoot.setSpeed() requires a call to the simulation instance.
             Simulation.initialize();
             
-            EventQueue.invokeAndWait(() -> {
-                guiSetup(lockScenario, worldClassName);
-            });
+            guiSetup(lockScenario, worldClassName);
 
             WorldHandler worldHandler = WorldHandler.getInstance();
             Class<?> worldClass = Class.forName(worldClassName);
@@ -206,11 +115,9 @@ public class GreenfootScenarioViewer extends JApplet
                 worldHandler.setWorld(world, false);
             }
             
-            EventQueue.invokeAndWait(() -> {
-                buildGUI();
-            });
+            buildGUI();
         }        
-        catch (SecurityException | IllegalArgumentException | InvocationTargetException | InterruptedException | ClassNotFoundException | NoSuchMethodException e) {
+        catch (SecurityException | IllegalArgumentException | ClassNotFoundException | NoSuchMethodException e) {
             e.printStackTrace();
         }
     }
@@ -222,13 +129,11 @@ public class GreenfootScenarioViewer extends JApplet
      */
     private void guiSetup(boolean lockScenario, String worldClassName)
     {
-        canvas = new VMCommsSimulation(null, null);
-
         WorldHandler.initialise(new WorldHandlerDelegateStandAlone(this, lockScenario));
         WorldHandler worldHandler = WorldHandler.getInstance();
         sim = Simulation.getInstance();
         sim.attachWorldHandler(worldHandler);
-        controls = new ControlPanel(sim, ! lockScenario);
+        controls = new ControlPanel(this, null);
 
         // Make sure the SoundCollection is initialized and listens for events
         sim.addSimulationListener(SoundFactory.getInstance().getSoundCollection());
@@ -240,77 +145,6 @@ public class GreenfootScenarioViewer extends JApplet
             // If there is no speed info in the properties we don't care...
         }
     }
-    
-    /**
-     * Called by the browser or applet viewer to inform this JApplet that it
-     * should start its execution. It is called after the init method and each
-     * time the JApplet is revisited in a Web page.
-     */
-    @Override
-    public void start()
-    {
-    }
-
-    /**
-     * Called by the browser or applet viewer to inform this JApplet that it
-     * should stop its execution. It is called when the Web page that contains
-     * this JApplet has been replaced by another page, and also just before the
-     * JApplet is to be destroyed.
-     */
-    @Override
-    public void stop()
-    {
-        sim.setPaused(true);
-    }
-
-    /**
-     * Called by the browser or applet viewer to inform this JApplet that it is
-     * being reclaimed and that it should destroy any resources that it has
-     * allocated. The stop method will always be called before destroy.
-     */
-    @Override
-    public void destroy()
-    {
-        sim.abort();
-    }
-
-    /**
-     * Returns information about this applet. An applet should override this
-     * method to return a String containing information about the author,
-     * version, and copyright of the JApplet.
-     * 
-     * @return a String representation of information about this JApplet
-     */
-    @Override
-    public String getAppletInfo()
-    {
-        // provide information about the applet
-        return Config.getString("scenario.viewer.appletInfo") + " " + scenarioName; //"Title:   \nAuthor:   \nA simple applet example description. ";
-    }
-
-    /**
-     * Returns parameter information about this JApplet. Returns information
-     * about the parameters than are understood by this JApplet. An applet
-     * should override this method to return an array of Strings describing
-     * these parameters. Each element of the array should be a set of three
-     * Strings containing the name, the type, and a description.
-     * 
-     * @return a String[] representation of parameter information about this
-     *         JApplet
-     */
-    @Override
-    public String[][] getParameterInfo()
-    {
-        // provide parameter information about the applet
-        String paramInfo[][] = {};
-        /*
-         * {"firstParameter", "1-10", "description of first parameter"},
-         * {"status", "boolean", "description of second parameter"}, {"images",
-         * "url", "description of third parameter"} };
-         */
-        return paramInfo;
-    }
-
     
     /**
      * Creates a new instance of the world. And initialises with that world.
@@ -362,5 +196,30 @@ public class GreenfootScenarioViewer extends JApplet
             Debug.reportError(e);
             return null;
         }
+    }
+
+    @Override
+    public void act()
+    {
+        Simulation.getInstance().runOnce();
+    }
+
+    @Override
+    public void doRunPause()
+    {
+        // TODO support pausing
+        Simulation.getInstance().run();
+    }
+
+    @Override
+    public void doReset()
+    {
+        // TODO
+    }
+
+    @Override
+    public void setSpeedFromSlider(int speed)
+    {
+        Simulation.getInstance().setSpeed(speed);
     }
 }

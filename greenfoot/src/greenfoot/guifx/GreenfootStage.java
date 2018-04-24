@@ -70,6 +70,7 @@ import bluej.views.MethodView;
 
 import greenfoot.core.ProjectManager;
 import greenfoot.export.mygame.ScenarioInfo;
+import greenfoot.guifx.ControlPanel.ControlPanelListener;
 import greenfoot.guifx.classes.GClassDiagram;
 import greenfoot.guifx.classes.GClassDiagram.GClassType;
 import greenfoot.guifx.classes.ImportClassDialog;
@@ -135,7 +136,7 @@ import static greenfoot.vmcomm.Command.*;
  */
 @OnThread(Tag.FXPlatform)
 public class GreenfootStage extends Stage implements BlueJEventListener, FXCompileObserver,
-        SimulationStateListener, PackageUI
+        SimulationStateListener, PackageUI, ControlPanelListener
 {
     private static int numberOfOpenProjects = 0;
     private static List<GreenfootStage> stages = new ArrayList<>();
@@ -2242,7 +2243,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      * to communicate the new value to the debug VM.
      * @param newSpeed The new speed, from the slider.
      */
-    protected void setSpeedFromSlider(int newSpeed)
+    public void setSpeedFromSlider(int newSpeed)
     {
         if (!settingSpeedFromSimulation)
         {
