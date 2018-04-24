@@ -24,6 +24,9 @@ package greenfoot.export.mygame;
 import bluej.utility.FXWorker;
 import java.io.IOException;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * Abstract class that can be used to check (asynchronously) whether a scenario already exists on the
  * publish site.
@@ -51,6 +54,7 @@ public abstract class ExistingScenarioChecker
     class ScenarioWorker extends FXWorker
     {
         @Override
+        @OnThread(Tag.Worker)
         public Object construct()
         {
             return checkExistence(hostName, userName, scenarioName);
@@ -152,6 +156,7 @@ public abstract class ExistingScenarioChecker
     /**
      * Checks the existence of the given scenario.
      */
+    @OnThread(Tag.Worker)
     private Object checkExistence(final String hostName, final String userName, final String scenarioName)
     {
         MyGameClient client = new MyGameClient(null);

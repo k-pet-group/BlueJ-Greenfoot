@@ -27,11 +27,15 @@ import greenfoot.export.mygame.ScenarioInfo;
 import java.io.File;
 import javafx.stage.Window;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * Export dialog pane for exporting to a gfar project.
  *
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 public class ExportProjectPane extends ExportLocalPane
 {
     /**

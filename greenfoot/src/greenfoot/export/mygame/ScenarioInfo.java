@@ -27,11 +27,15 @@ import java.util.List;
 import java.util.Properties;
 import javafx.scene.image.Image;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * Holds various information about a scenario.
  * 
  * @author Davin McCall
  */
+@OnThread(Tag.Any)
 public class ScenarioInfo
 {
     private String title;

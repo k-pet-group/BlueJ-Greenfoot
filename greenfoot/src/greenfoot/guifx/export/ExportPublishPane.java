@@ -69,6 +69,7 @@ import threadchecker.Tag;
  * @author Poul Henriksen
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 public class ExportPublishPane extends ExportPane
 {
     public static final int IMAGE_WIDTH = 120;
@@ -517,7 +518,6 @@ public class ExportPublishPane extends ExportPane
 
             FXWorker commonTagsLoader = new FXWorker()
             {
-
                 @SuppressWarnings("unchecked")
                 @Override
                 public void finished()
