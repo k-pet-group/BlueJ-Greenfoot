@@ -25,11 +25,7 @@ import greenfoot.Actor;
 import greenfoot.World;
 import greenfoot.core.WorldHandler;
 import greenfoot.gui.DropTarget;
-import greenfoot.gui.WorldCanvas;
 import greenfoot.gui.input.InputManager;
-
-import java.awt.event.MouseEvent;
-import java.util.concurrent.Callable;
 
 
 /**

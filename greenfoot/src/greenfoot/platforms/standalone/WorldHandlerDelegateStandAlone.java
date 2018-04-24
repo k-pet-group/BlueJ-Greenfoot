@@ -26,7 +26,6 @@ import greenfoot.World;
 import greenfoot.core.WorldHandler;
 import greenfoot.export.GreenfootScenarioViewer;
 import greenfoot.gui.DropTarget;
-import greenfoot.gui.WorldCanvas;
 import greenfoot.gui.input.InputManager;
 import greenfoot.platforms.WorldHandlerDelegate;
 

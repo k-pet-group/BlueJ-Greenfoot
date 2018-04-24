@@ -19,7 +19,7 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package greenfoot.gui;
+package greenfoot.vmcomm;
 
 import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
@@ -28,6 +28,8 @@ import greenfoot.WorldVisitor;
 import greenfoot.core.ShadowProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
+import greenfoot.gui.DropTarget;
+import greenfoot.gui.WorldRenderer;
 import greenfoot.gui.input.KeyboardManager;
 import greenfoot.gui.input.mouse.MousePollingManager;
 import greenfoot.vmcomm.Command;
@@ -51,11 +53,10 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 /**
- * The visual representation of the world.
- * 
- * @author Poul Henriksen
+ * Lives on the Simulation VM (aka debug VM), and handles communications with the server
+ * (see {@link VMCommsMain}
  */
-public class WorldCanvas extends JPanel
+public class VMCommsSimulation
 {
     private final WorldRenderer worldRenderer;    
         
@@ -145,17 +146,16 @@ public class WorldCanvas extends JPanel
     private World world;
 
     /**
-     * Construct a WorldCanvas.
+     * Construct a VMCommsSimulation.
      * 
      * @param world The world which we are the canvas for.
      * @param shmFilePath The path to the shared-memory file to be mmap-ed for communication
      */
     @SuppressWarnings("resource")
-    public WorldCanvas(ShadowProjectProperties projectProperties, String shmFilePath)
+    public VMCommsSimulation(ShadowProjectProperties projectProperties, String shmFilePath)
     {
         this.projectProperties = projectProperties;
         worldRenderer = new WorldRenderer();
-        setOpaque(true);
         try
         {
             shmFileChannel = new RandomAccessFile(shmFilePath, "rw").getChannel();
@@ -548,60 +548,6 @@ public class WorldCanvas extends JPanel
             }
         }
         return lastSeqID;
-    }
-
-
-
-
-
-
-    
-
-    public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction)
-    {
-        int cellSize = world.getCellSize();
-        double scrollPos = 0;
-        if(orientation == SwingConstants.HORIZONTAL) {
-            //scrolling left
-            if(direction < 0) {
-                scrollPos = visibleRect.getMinX();
-               
-            }
-            //scrolling right
-            else if (direction > 0) {
-                scrollPos = visibleRect.getMaxX();
-            }
-        } else {
-            //scrolling up
-            if(direction < 0) {
-                scrollPos = visibleRect.getMinY();
-            }
-            //scrolling down
-            else if (direction > 0) {
-                scrollPos = visibleRect.getMaxY();
-            }
-        }
-        int increment = Math.abs((int) Math.IEEEremainder(scrollPos, cellSize));
-        if(increment == 0) {
-            increment = cellSize;
-        }
-      
-        return  increment;
-    }
-
-    public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction)
-    {
-         return getScrollableUnitIncrement(visibleRect, orientation, direction);
-    }
-
-    public boolean getScrollableTracksViewportWidth()
-    {
-        return false;
-    }
-
-    public boolean getScrollableTracksViewportHeight()
-    {
-        return false;
     }
 
     /**

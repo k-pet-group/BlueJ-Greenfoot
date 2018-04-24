@@ -29,8 +29,8 @@ import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.SimulationUIListener;
 import greenfoot.gui.DropTarget;
-import greenfoot.gui.WorldCanvas;
-import greenfoot.gui.WorldCanvas.PaintWhen;
+import greenfoot.vmcomm.VMCommsSimulation;
+import greenfoot.vmcomm.VMCommsSimulation.PaintWhen;
 import greenfoot.gui.input.InputManager;
 import greenfoot.platforms.WorldHandlerDelegate;
 import greenfoot.record.GreenfootRecorder;
@@ -54,15 +54,15 @@ public class WorldHandlerDelegateIDE
     protected final Color envOpColour = new Color(152,32,32);
 
     private WorldHandler worldHandler;
-    private final WorldCanvas worldCanvas;
+    private final VMCommsSimulation vmCommsSimulation;
     
     private boolean worldInitialising;
     private final List<Actor> actorsToName = new ArrayList<>();
     private String mostRecentlyInstantiatedWorldClassName;
 
-    public WorldHandlerDelegateIDE(WorldCanvas worldCanvas)
+    public WorldHandlerDelegateIDE(VMCommsSimulation vmCommsSimulation)
     {
-        this.worldCanvas = worldCanvas;
+        this.vmCommsSimulation = vmCommsSimulation;
     }
 
     /**
@@ -73,7 +73,7 @@ public class WorldHandlerDelegateIDE
     public void discardWorld(World world)
     {        
         ImageCache.getInstance().clearImageCache();
-        worldCanvas.setWorld(null);
+        vmCommsSimulation.setWorld(null);
     }
     
     @Override
@@ -85,7 +85,7 @@ public class WorldHandlerDelegateIDE
         if (oldWorld != null) {
             discardWorld(oldWorld);
         }
-        worldCanvas.setWorld(newWorld);
+        vmCommsSimulation.setWorld(newWorld);
     }
 
     @Override
@@ -104,19 +104,19 @@ public class WorldHandlerDelegateIDE
     @Override
     public void paint(boolean forcePaint)
     {
-        worldCanvas.paintRemote(forcePaint ? PaintWhen.FORCE : PaintWhen.IF_DUE);
+        vmCommsSimulation.paintRemote(forcePaint ? PaintWhen.FORCE : PaintWhen.IF_DUE);
     }
 
     @Override
     public void notifyStoppedWithError()
     {
-        worldCanvas.notifyStoppedWithError();
+        vmCommsSimulation.notifyStoppedWithError();
     }
 
     @Override
     public void setDropTargetListener(DropTarget dropTarget)
     {
-        worldCanvas.setDropTargetListener(dropTarget);
+        vmCommsSimulation.setDropTargetListener(dropTarget);
     }
 
     @Override
@@ -303,10 +303,10 @@ public class WorldHandlerDelegateIDE
             throw new RuntimeException("Greenfoot.ask can only be called from the main simulation thread");
         
         // Make a new ID for the ask request:
-        int askId = worldCanvas.getAskId();
+        int askId = vmCommsSimulation.getAskId();
         
         // This will block the simulation thread until we get an answer,
         // but that is the semantics of Greenfoot.ask so it's fine:
-        return worldCanvas.doAsk(askId, prompt);
+        return vmCommsSimulation.doAsk(askId, prompt);
     }
 }

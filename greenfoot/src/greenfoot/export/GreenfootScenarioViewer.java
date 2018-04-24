@@ -28,10 +28,9 @@ import greenfoot.World;
 import greenfoot.core.ExportedProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
-import greenfoot.event.SimulationEvent;
 import greenfoot.gui.AskPanel;
 import greenfoot.gui.ControlPanel;
-import greenfoot.gui.WorldCanvas;
+import greenfoot.vmcomm.VMCommsSimulation;
 import greenfoot.platforms.standalone.ActorDelegateStandAlone;
 import greenfoot.platforms.standalone.GreenfootUtilDelegateStandAlone;
 import greenfoot.platforms.standalone.WorldHandlerDelegateStandAlone;
@@ -42,8 +41,6 @@ import greenfoot.util.GreenfootUtil;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
@@ -75,7 +72,7 @@ public class GreenfootScenarioViewer extends JApplet
     private boolean showControls;
     private ExportedProjectProperties properties;
     private Simulation sim;
-    private WorldCanvas canvas;
+    private VMCommsSimulation canvas;
     private AskPanel askPanel;
     private ControlPanel controls;
     private RootPaneContainer rootPaneContainer;
@@ -128,15 +125,13 @@ public class GreenfootScenarioViewer extends JApplet
         
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new OverlayLayout(centerPanel));
-        canvas.setAlignmentX(0.5f);
-        canvas.setAlignmentY(1.0f);
         
         
         askPanel = new AskPanel();
         askPanel.getComponent().setAlignmentX(0.5f);
         askPanel.getComponent().setAlignmentY(1.0f);
         centerPanel.add(askPanel.getComponent());
-        centerPanel.add( canvas );
+        //centerPanel.add( canvas );
         centerPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
         askHandler = new AskHandler(askPanel, canvas);
         
@@ -228,18 +223,7 @@ public class GreenfootScenarioViewer extends JApplet
      */
     private void guiSetup(boolean lockScenario, String worldClassName)
     {
-        canvas = new WorldCanvas(null, null);
-        canvas.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e)
-            {
-                canvas.requestFocusInWindow();
-                // Have to use requestFocus, since it is the only way to
-                // make it work in some browsers (Ubuntu's Firefox 1.5
-                // and 2.0)
-                canvas.requestFocus();
-            }
-        });        
+        canvas = new VMCommsSimulation(null, null);
 
         WorldHandler.initialise(new WorldHandlerDelegateStandAlone(this, lockScenario));
         WorldHandler worldHandler = WorldHandler.getInstance();
@@ -249,22 +233,7 @@ public class GreenfootScenarioViewer extends JApplet
 
         // Make sure the SoundCollection is initialized and listens for events
         sim.addSimulationListener(SoundFactory.getInstance().getSoundCollection());
-
-        sim.addSimulationListener((SimulationEvent e) -> {
-            // If the simulation starts, try to transfer keyboard
-            // focus to the world canvas to allow control of Actors
-            // via the keyboard
-            if (e.getType() == SimulationEvent.STARTED) {
-                EventQueue.invokeLater(() -> {
-                    canvas.requestFocusInWindow();
-                    // Have to use requestFocus, since it is the only way to
-                    // make it work in some browsers: (Ubuntu's Firefox 1.5
-                    // and 2.0)
-                    canvas.requestFocus();
-                });
-            }
-        });
-
+        
         try {
             int initialSpeed = properties.getInt("simulation.speed");
             sim.setSpeed(initialSpeed);
@@ -385,7 +354,7 @@ public class GreenfootScenarioViewer extends JApplet
         try
         {
             EventQueue.invokeAndWait(new Runnable() {public void run() {
-                c.set(askHandler.ask(prompt, canvas.getPreferredSize().width));
+                //c.set(askHandler.ask(prompt, canvas.getPreferredSize().width));
             }});
         }
         catch (InvocationTargetException | InterruptedException e)
