@@ -24,6 +24,7 @@ package greenfoot.guifx.export;
 
 import bluej.Config;
 import greenfoot.export.Exporter;
+import greenfoot.export.mygame.ScenarioInfo;
 
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Tab;
@@ -43,12 +44,18 @@ public abstract class ExportPane extends Tab
     protected final CheckBox lockScenario = new CheckBox(Config.getString("export.lock.label"));
     protected final CheckBox hideControls = new CheckBox(Config.getString("export.controls.label"));
 
+    protected final ScenarioInfo scenarioInfo;
+
     /**
      * Create a an export pane for export to web pages.
+     *
+     * @param scenarioInfo The scenario info needed for different export functions.
+     * @param iconName     The name of the icon file.
      */
-    public ExportPane(String iconName)
+    public ExportPane(ScenarioInfo scenarioInfo, String iconName)
     {
         setClosable(false);
+        this.scenarioInfo = scenarioInfo;
         setGraphic(new ImageView(new Image(getClass().getClassLoader().getResourceAsStream(iconName))));
 
         lockScenario.setSelected(true);
@@ -78,7 +85,7 @@ public abstract class ExportPane extends Tab
      */
     public boolean prePublish()
     {
-        // Nothing special to do here
+        updateInfoFromFields();
         return true;
     }
 
@@ -96,7 +103,7 @@ public abstract class ExportPane extends Tab
     /**
      * Return true if the user wants to lock the scenario.
      */
-    public boolean lockScenario()
+    public boolean isLockScenario()
     {
         return lockScenario.isSelected();
     }
@@ -105,7 +112,7 @@ public abstract class ExportPane extends Tab
      * Return true if the user wants to hide the scenario controls.
      * @return true if the hide controls checkbox is selected.
      */
-    public boolean hideControls()
+    public boolean isHideControls()
     {
         return hideControls.isSelected();
     }
@@ -122,4 +129,10 @@ public abstract class ExportPane extends Tab
      * Return the export function for the pane.
      */
     public abstract Exporter.ExportFunction getFunction();
+
+    /**
+     * Updates the given scenarioInfo with the current values
+     * typed into the dialog.
+     */
+    protected abstract void updateInfoFromFields();
 }
