@@ -21,12 +21,10 @@
  */
 package greenfoot.util;
 
-import greenfoot.core.WorldHandler;
 import greenfoot.gui.AskPanel;
-import greenfoot.gui.WorldCanvas;
+import greenfoot.gui.VMCommsSimulation;
 
 import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 
@@ -44,13 +42,13 @@ import threadchecker.Tag;
 public class AskHandler
 {
     private final AskPanel askPanel;
-    private final WorldCanvas worldCanvas;
+    private final VMCommsSimulation VMCommsSimulation;
     private final ArrayBlockingQueue<String> answer = new ArrayBlockingQueue<String>(1);
     
-    public AskHandler(AskPanel askPanel, WorldCanvas worldCanvas)
+    public AskHandler(AskPanel askPanel, VMCommsSimulation VMCommsSimulation)
     {
         this.askPanel = askPanel;
-        this.worldCanvas = worldCanvas;
+        this.VMCommsSimulation = VMCommsSimulation;
     }
 
     /**

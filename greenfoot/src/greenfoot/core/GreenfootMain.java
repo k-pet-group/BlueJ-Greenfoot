@@ -25,7 +25,7 @@ import bluej.Boot;
 import bluej.collect.DataSubmissionFailedDialog;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
-import greenfoot.gui.WorldCanvas;
+import greenfoot.gui.VMCommsSimulation;
 import greenfoot.platforms.ide.ActorDelegateIDE;
 import greenfoot.platforms.ide.WorldHandlerDelegateIDE;
 import greenfoot.sound.SoundFactory;
@@ -35,22 +35,15 @@ import java.awt.EventQueue;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.rmi.RemoteException;
-import java.util.LinkedList;
-import java.util.List;
 
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 
 import rmiextension.wrappers.RBlueJ;
 import rmiextension.wrappers.event.RApplicationListenerImpl;
-import bluej.Config;
-import bluej.extensions.ProjectNotOpenException;
 import bluej.extensions.SourceType;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
-import bluej.utility.DialogManager;
-import bluej.utility.FileUtility;
-import bluej.utility.Utility;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -151,10 +144,10 @@ public class GreenfootMain extends Thread
                     Platform.setImplicitExit(false);
 
                     // Some first-time initializations
-                    WorldCanvas worldCanvas = new WorldCanvas(projectProperties, shmFilePath);
-                    worldCanvas.setWorldSize(200, 100);
+                    VMCommsSimulation VMCommsSimulation = new VMCommsSimulation(projectProperties, shmFilePath);
+                    VMCommsSimulation.setWorldSize(200, 100);
 
-                    WorldHandlerDelegateIDE worldHandlerDelegate = new WorldHandlerDelegateIDE(worldCanvas);
+                    WorldHandlerDelegateIDE worldHandlerDelegate = new WorldHandlerDelegateIDE(VMCommsSimulation);
                     WorldHandler.initialise(worldHandlerDelegate);
                     WorldHandler worldHandler = WorldHandler.getInstance();
                     Simulation.initialize();
@@ -171,12 +164,12 @@ public class GreenfootMain extends Thread
                                 // New act round - will be followed by another NEW_ACT_ROUND event if the simulation
                                 // is running, or a STOPPED event if the act round finishes and the simulation goes
                                 // back to the stopped state.
-                                worldCanvas.userCodeStarting();
+                                VMCommsSimulation.userCodeStarting();
                             }
                             else if (e.getType() == SimulationEvent.STOPPED
                                     || e.getType() == SimulationEvent.QUEUED_TASK_END)
                             {
-                                worldCanvas.userCodeStopped();
+                                VMCommsSimulation.userCodeStopped();
                             }
                         }
                     });

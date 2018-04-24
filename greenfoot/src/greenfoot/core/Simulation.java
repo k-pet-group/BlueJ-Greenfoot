@@ -29,8 +29,6 @@ import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
-import greenfoot.gui.WorldCanvas;
-import greenfoot.gui.WorldCanvas.PaintWhen;
 import greenfoot.util.HDTimer;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -968,7 +966,7 @@ public class Simulation extends Thread
             worldHandler.repaint();
             for (int i = 0; i < numCycles; i++) {
                 if (world != null) {
-                    // The WorldCanvas may be trying to synchronize on the world in
+                    // The VMCommsSimulation may be trying to synchronize on the world in
                     // order to do a repaint. So, we use wait() here in order
                     // to release the world lock temporarily.
                     HDTimer.wait(delay, worldHandler.getWorldLock());

@@ -51,11 +51,10 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
 /**
- * The visual representation of the world.
- * 
- * @author Poul Henriksen
+ * Lives on the Simulation VM (aka debug VM), and handles communications with the server
+ * (see {@link VMCommsMain}
  */
-public class WorldCanvas
+public class VMCommsSimulation
 {
     private final WorldRenderer worldRenderer;    
         
@@ -145,13 +144,13 @@ public class WorldCanvas
     private World world;
 
     /**
-     * Construct a WorldCanvas.
+     * Construct a VMCommsSimulation.
      * 
      * @param world The world which we are the canvas for.
      * @param shmFilePath The path to the shared-memory file to be mmap-ed for communication
      */
     @SuppressWarnings("resource")
-    public WorldCanvas(ShadowProjectProperties projectProperties, String shmFilePath)
+    public VMCommsSimulation(ShadowProjectProperties projectProperties, String shmFilePath)
     {
         this.projectProperties = projectProperties;
         worldRenderer = new WorldRenderer();

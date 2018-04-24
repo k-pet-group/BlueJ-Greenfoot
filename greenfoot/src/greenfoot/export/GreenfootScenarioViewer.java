@@ -28,10 +28,9 @@ import greenfoot.World;
 import greenfoot.core.ExportedProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
-import greenfoot.event.SimulationEvent;
 import greenfoot.gui.AskPanel;
 import greenfoot.gui.ControlPanel;
-import greenfoot.gui.WorldCanvas;
+import greenfoot.gui.VMCommsSimulation;
 import greenfoot.platforms.standalone.ActorDelegateStandAlone;
 import greenfoot.platforms.standalone.GreenfootUtilDelegateStandAlone;
 import greenfoot.platforms.standalone.WorldHandlerDelegateStandAlone;
@@ -42,8 +41,6 @@ import greenfoot.util.GreenfootUtil;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
@@ -75,7 +72,7 @@ public class GreenfootScenarioViewer extends JApplet
     private boolean showControls;
     private ExportedProjectProperties properties;
     private Simulation sim;
-    private WorldCanvas canvas;
+    private VMCommsSimulation canvas;
     private AskPanel askPanel;
     private ControlPanel controls;
     private RootPaneContainer rootPaneContainer;
@@ -226,7 +223,7 @@ public class GreenfootScenarioViewer extends JApplet
      */
     private void guiSetup(boolean lockScenario, String worldClassName)
     {
-        canvas = new WorldCanvas(null, null);
+        canvas = new VMCommsSimulation(null, null);
 
         WorldHandler.initialise(new WorldHandlerDelegateStandAlone(this, lockScenario));
         WorldHandler worldHandler = WorldHandler.getInstance();

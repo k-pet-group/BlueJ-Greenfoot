@@ -33,21 +33,15 @@ import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
 import greenfoot.gui.DragListener;
 import greenfoot.gui.DropTarget;
-import greenfoot.gui.WorldCanvas;
 import greenfoot.gui.input.InputManager;
 import greenfoot.gui.input.KeyboardManager;
 import greenfoot.gui.input.mouse.MousePollingManager;
 import greenfoot.gui.input.mouse.WorldLocator;
 import greenfoot.platforms.WorldHandlerDelegate;
-import greenfoot.util.GraphicsUtilities;
 
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -58,7 +52,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
-import javax.swing.*;
 import javax.swing.event.EventListenerList;
 
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
@@ -67,7 +60,7 @@ import threadchecker.Tag;
 
 /**
  * The worldhandler handles the connection between the World and the
- * WorldCanvas.
+ * VMCommsSimulation.
  * 
  * @author Poul Henriksen
  */
