@@ -86,7 +86,7 @@ public class GreenfootScenarioMain
                 public void run()
                 {
                     frame[0] = new JFrame(scenarioName);
-                    gsv[0] = new GreenfootScenarioViewer(frame[0]);
+                    gsv[0] = new GreenfootScenarioViewer();
                     frame[0].setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                     frame[0].setResizable(false);
                     
@@ -95,9 +95,6 @@ public class GreenfootScenarioMain
                     frame[0].setIconImage(icon.getImage());
                 }
             });
-            
-            // Apparently an applet's init() method is *not* called on the EDT.
-            gsv[0].init();
             
             EventQueue.invokeAndWait(() -> {
                 frame[0].pack();

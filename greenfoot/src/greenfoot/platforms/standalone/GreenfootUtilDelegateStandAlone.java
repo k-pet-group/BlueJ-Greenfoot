@@ -70,6 +70,14 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
         this.storageUserId = storageUserId;
         this.storageUserName = storageUserName;
     }
+
+    /**
+     * Create stand-alone delegate with no support for storage.
+     */
+    public GreenfootUtilDelegateStandAlone()
+    {
+        this(false, "", "", "", "", "", "");
+    }
     
     @Override
     public URL getResource(String path)

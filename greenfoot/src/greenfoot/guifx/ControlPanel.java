@@ -42,10 +42,8 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.TilePane;
 import threadchecker.OnThread;
@@ -60,7 +58,7 @@ import java.util.List;
  * left of the window.
  */
 @OnThread(Tag.FXPlatform)
-class ControlPanel extends GridPane
+public class ControlPanel extends GridPane
 {
     private static final String PAUSE_BUTTON_TEXT = Config.getString("controls.pause.button");
     private static final String RUN_BUTTON_TEXT = Config.getString("controls.run.button");
@@ -73,7 +71,7 @@ class ControlPanel extends GridPane
     
     private final Button runPauseButton;
     private final Slider speedSlider;
-    private final GreenfootStage greenfootStage;
+    private final ControlPanelListener listener;
 
     private final BooleanProperty actDisabled = new SimpleBooleanProperty(true);
     private final BooleanProperty resetDisabled = new SimpleBooleanProperty(true);
@@ -89,9 +87,9 @@ class ControlPanel extends GridPane
      *                         with it apart from add it to the panel; its state
      *                         is managed by GreenfootStage.
      */
-    public ControlPanel(GreenfootStage greenfootStage, Node executionTwirler)
+    public ControlPanel(ControlPanelListener listener, Node executionTwirler)
     {
-        this.greenfootStage = greenfootStage;
+        this.listener = listener;
         Button actButton = new Button(Config.getString("run.once"));
         actButton.setTooltip(new Tooltip(Config.getString("controls.runonce.shortDescription")));
         actButton.setGraphic(ACT_ICON);
@@ -122,11 +120,11 @@ class ControlPanel extends GridPane
         speedSlider.setFocusTraversable(false);
         speedSlider.setMaxWidth(150.0);
 
-        actButton.setOnAction(e -> greenfootStage.act());
-        runPauseButton.setOnAction(e -> greenfootStage.doRunPause());
-        resetButton.setOnAction(e -> greenfootStage.doReset());
+        actButton.setOnAction(e -> this.listener.act());
+        runPauseButton.setOnAction(e -> this.listener.doRunPause());
+        resetButton.setOnAction(e -> this.listener.doReset());
         // Note - if you alter this listener code, make sure to check notifySimulationSpeed() as well:
-        JavaFXUtil.addChangeListener(speedSlider.valueProperty(), newSpeed -> greenfootStage.setSpeedFromSlider(newSpeed.intValue()));
+        JavaFXUtil.addChangeListener(speedSlider.valueProperty(), newSpeed -> this.listener.setSpeedFromSlider(newSpeed.intValue()));
         
         TilePane controlPanel = new TilePane(actButton, runPauseButton, resetButton);
         controlPanel.setPrefColumns(3);
@@ -139,7 +137,10 @@ class ControlPanel extends GridPane
         GridPane speedAndTwirler = new GridPane();
         speedAndTwirler.add(speedLabel, 0, 0);
         speedAndTwirler.add(speedSlider, 1, 0, 2, 1);
-        speedAndTwirler.add(executionTwirler, 3, 0);
+        if (executionTwirler != null)
+        {
+            speedAndTwirler.add(executionTwirler, 3, 0);
+        }
         speedAndTwirler.getStyleClass().add("speed-panel");
         GridPane.setHalignment(speedLabel, HPos.RIGHT);
         GridPane.setValignment(speedSlider, VPos.BOTTOM);
@@ -220,17 +221,44 @@ class ControlPanel extends GridPane
         return Arrays.asList(
         JavaFXUtil.makeMenuItem("run.once",
                 new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN),
-                greenfootStage::act, actDisabled),
+                listener::act, actDisabled),
                 JavaFXUtil.makeMenuItem("controls.run.button",
                         new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN),
-                        greenfootStage::doRunPause, runDisabled),
+                        listener::doRunPause, runDisabled),
                 JavaFXUtil.makeMenuItem("controls.pause.button",
                         new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN,
                                 KeyCombination.SHIFT_DOWN),
-                        greenfootStage::doRunPause, pauseDisabled),
+                        listener::doRunPause, pauseDisabled),
                 JavaFXUtil.makeMenuItem("reset.world",
                         new KeyCodeCombination(KeyCode.T, KeyCombination.SHORTCUT_DOWN),
-                        greenfootStage::doReset, resetDisabled)
+                        listener::doReset, resetDisabled)
         );
+    }
+
+    /**
+     * A listener for when the user uses the controls
+     */
+    public static interface ControlPanelListener
+    {
+        /**
+         * Act button pressed: run one frame
+         */
+        void act();
+
+        /**
+         * Run/pause pressed: flip the run/paused state
+         */
+        void doRunPause();
+
+        /**
+         * Reset pressed: reset the simulation
+         */
+        void doReset();
+
+        /**
+         * The user has moved the speed slider.
+         * @param speed The new speed.
+         */
+        void setSpeedFromSlider(int speed);
     }
 }
