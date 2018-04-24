@@ -55,7 +55,7 @@ import javax.swing.SwingConstants;
  * 
  * @author Poul Henriksen
  */
-public class WorldCanvas extends JPanel
+public class WorldCanvas
 {
     private final WorldRenderer worldRenderer;    
         
@@ -155,7 +155,6 @@ public class WorldCanvas extends JPanel
     {
         this.projectProperties = projectProperties;
         worldRenderer = new WorldRenderer();
-        setOpaque(true);
         try
         {
             shmFileChannel = new RandomAccessFile(shmFilePath, "rw").getChannel();
@@ -548,60 +547,6 @@ public class WorldCanvas extends JPanel
             }
         }
         return lastSeqID;
-    }
-
-
-
-
-
-
-    
-
-    public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction)
-    {
-        int cellSize = world.getCellSize();
-        double scrollPos = 0;
-        if(orientation == SwingConstants.HORIZONTAL) {
-            //scrolling left
-            if(direction < 0) {
-                scrollPos = visibleRect.getMinX();
-               
-            }
-            //scrolling right
-            else if (direction > 0) {
-                scrollPos = visibleRect.getMaxX();
-            }
-        } else {
-            //scrolling up
-            if(direction < 0) {
-                scrollPos = visibleRect.getMinY();
-            }
-            //scrolling down
-            else if (direction > 0) {
-                scrollPos = visibleRect.getMaxY();
-            }
-        }
-        int increment = Math.abs((int) Math.IEEEremainder(scrollPos, cellSize));
-        if(increment == 0) {
-            increment = cellSize;
-        }
-      
-        return  increment;
-    }
-
-    public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction)
-    {
-         return getScrollableUnitIncrement(visibleRect, orientation, direction);
-    }
-
-    public boolean getScrollableTracksViewportWidth()
-    {
-        return false;
-    }
-
-    public boolean getScrollableTracksViewportHeight()
-    {
-        return false;
     }
 
     /**
