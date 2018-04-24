@@ -965,6 +965,10 @@ public class WorldHandler
         handlerDelegate.notifyStoppedWithError();
     }
 
+    /**
+     * Repaint the world.
+     * @param forcePaint Force paint (ignore any optimisations to not paint frames too often, etc)
+     */
     public void paint(boolean forcePaint)
     {
         handlerDelegate.paint(forcePaint);
