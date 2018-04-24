@@ -42,13 +42,13 @@ import threadchecker.Tag;
 public class AskHandler
 {
     private final AskPanel askPanel;
-    private final VMCommsSimulation VMCommsSimulation;
+    private final VMCommsSimulation vmComms;
     private final ArrayBlockingQueue<String> answer = new ArrayBlockingQueue<String>(1);
     
-    public AskHandler(AskPanel askPanel, VMCommsSimulation VMCommsSimulation)
+    public AskHandler(AskPanel askPanel, VMCommsSimulation vmComms)
     {
         this.askPanel = askPanel;
-        this.VMCommsSimulation = VMCommsSimulation;
+        this.vmComms = vmComms;
     }
 
     /**

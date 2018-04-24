@@ -144,10 +144,10 @@ public class GreenfootMain extends Thread
                     Platform.setImplicitExit(false);
 
                     // Some first-time initializations
-                    VMCommsSimulation VMCommsSimulation = new VMCommsSimulation(projectProperties, shmFilePath);
-                    VMCommsSimulation.setWorldSize(200, 100);
+                    VMCommsSimulation vmComms = new VMCommsSimulation(projectProperties, shmFilePath);
+                    vmComms.setWorldSize(200, 100);
 
-                    WorldHandlerDelegateIDE worldHandlerDelegate = new WorldHandlerDelegateIDE(VMCommsSimulation);
+                    WorldHandlerDelegateIDE worldHandlerDelegate = new WorldHandlerDelegateIDE(vmComms);
                     WorldHandler.initialise(worldHandlerDelegate);
                     WorldHandler worldHandler = WorldHandler.getInstance();
                     Simulation.initialize();
@@ -164,12 +164,12 @@ public class GreenfootMain extends Thread
                                 // New act round - will be followed by another NEW_ACT_ROUND event if the simulation
                                 // is running, or a STOPPED event if the act round finishes and the simulation goes
                                 // back to the stopped state.
-                                VMCommsSimulation.userCodeStarting();
+                                vmComms.userCodeStarting();
                             }
                             else if (e.getType() == SimulationEvent.STOPPED
                                     || e.getType() == SimulationEvent.QUEUED_TASK_END)
                             {
-                                VMCommsSimulation.userCodeStopped();
+                                vmComms.userCodeStopped();
                             }
                         }
                     });
