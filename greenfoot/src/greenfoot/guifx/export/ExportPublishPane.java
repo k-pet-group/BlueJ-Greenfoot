@@ -89,7 +89,7 @@ public class ExportPublishPane extends ExportPane
     private BorderPane infoPane;
     private TextField titleField;
     private TextField shortDescriptionField;
-    private TextArea descriptionArea;
+    private TextArea longDescriptionArea;
     private TextArea updateArea;
     private TextField urlField;
     private TextField userNameField;
@@ -106,9 +106,8 @@ public class ExportPublishPane extends ExportPane
     private String publishedUserName;
 
     private ExistingScenarioChecker scenarioChecker;
-    private boolean isUpdate = false;
+    private boolean update = false;
     private final ExportDialog exportDialog;
-    private final ScenarioInfo scenarioInfo;
 
     /**
      * Creates a new instance of ExportPublishPane
@@ -119,10 +118,9 @@ public class ExportPublishPane extends ExportPane
      */
     public ExportPublishPane(Project project, ExportDialog exportDialog, ScenarioInfo scenarioInfo)
     {
-        super("export-publish.png");
+        super(scenarioInfo, "export-publish.png");
         this.project = project;
         this.exportDialog = exportDialog;
-        this.scenarioInfo = scenarioInfo;
 
         buildContentPane();
         applySharedStyle();
@@ -186,9 +184,9 @@ public class ExportPublishPane extends ExportPane
     /**
      * Return the description string.
      */
-    public String getDescription()
+    public String getLongDescription()
     {
-        return descriptionArea.getText();
+        return longDescriptionArea.getText();
     }
 
     /**
@@ -226,7 +224,7 @@ public class ExportPublishPane extends ExportPane
     /**
      * True if the source code should be included.
      */
-    public boolean includeSourceCode()
+    public boolean isIncludeSource()
     {
         return includeSource.isSelected();
     }
@@ -234,9 +232,9 @@ public class ExportPublishPane extends ExportPane
     /**
      * True if the screenshot should *not* be overwritten; false if it should
      */
-    public boolean keepSavedScenarioScreenshot()
+    public boolean isKeepSavedScreenshot()
     {
-        if (isUpdate && keepScenarioScreenshot != null)
+        if (update && keepScenarioScreenshot != null)
         {
             return keepScenarioScreenshot.isSelected();
         }
@@ -398,11 +396,11 @@ public class ExportPublishPane extends ExportPane
         tagList.addAll(Arrays.asList(tagArea.getText().split("\\s+")));
 
         // Include/Exclude the "with source" tag.
-        if(includeSourceCode() && !tagList.contains(WITH_SOURCE_TAG))
+        if(isIncludeSource() && !tagList.contains(WITH_SOURCE_TAG))
         {
             tagList.add(WITH_SOURCE_TAG);
         }
-        else if (!includeSourceCode())
+        else if (!isIncludeSource())
         {
             tagList.remove(WITH_SOURCE_TAG);
         }
@@ -420,11 +418,11 @@ public class ExportPublishPane extends ExportPane
     {
         titleField.setText(scenarioInfo.getTitle());
         shortDescriptionField.setText(scenarioInfo.getShortDescription());
-        descriptionArea.setText(scenarioInfo.getLongDescription());
+        longDescriptionArea.setText(scenarioInfo.getLongDescription());
         urlField.setText(scenarioInfo.getUrl());
         processTags(scenarioInfo.getTags());
         lockScenario.setSelected(scenarioInfo.isLocked());
-        includeSource.setSelected(scenarioInfo.getHasSource());
+        includeSource.setSelected(scenarioInfo.isIncludeSource());
         setUpdate(true);
     }
 
@@ -437,7 +435,7 @@ public class ExportPublishPane extends ExportPane
         removeLeftPane();
         createScenarioDisplay();
         infoPane.setCenter(scenarioPane);
-        boolean enableImageControl = !isUpdate || !keepScenarioScreenshot.isSelected();
+        boolean enableImageControl = !update || !keepScenarioScreenshot.isSelected();
         imagePane.enableImageEditPanel(enableImageControl);
     }
 
@@ -445,16 +443,23 @@ public class ExportPublishPane extends ExportPane
      * Updates the given scenarioInfo with the current values typed into the
      * dialog.
      */
-    private void updateInfoFromFields(ScenarioInfo scenarioInfo)
+    @Override
+    protected void updateInfoFromFields()
     {
         scenarioInfo.setTitle(getTitle());
         scenarioInfo.setShortDescription(getShortDescription());
-        scenarioInfo.setLongDescription(getDescription());
+        scenarioInfo.setLongDescription(getLongDescription());
+        scenarioInfo.setUpdateDescription(getUpdateDescription());
         scenarioInfo.setUrl(getURL());
         scenarioInfo.setTags(getTags());
-        scenarioInfo.setLocked(lockScenario());
-        scenarioInfo.setHasSource(includeSourceCode());
-        scenarioInfo.setUpdateDescription(getUpdateDescription());
+        scenarioInfo.setLocked(isLockScenario());
+        scenarioInfo.setIncludeSource(isIncludeSource());
+
+        scenarioInfo.setUserName(getUserName());
+        scenarioInfo.setPassword(getPassword());
+        scenarioInfo.setImage(getImage());
+        scenarioInfo.setKeepSavedScreenshot(isKeepSavedScreenshot());
+        scenarioInfo.setUpdate(isUpdate());
     }
 
     private void checkForExistingScenario()
@@ -564,14 +569,14 @@ public class ExportPublishPane extends ExportPane
     private void setExportButtonText()
     {
         exportDialog.setExportButtonText(
-                Config.getString(isUpdate ? "export.dialog.update" : "export.dialog.share"));
+                Config.getString(update ? "export.dialog.update" : "export.dialog.share"));
     }
 
     @Override
     public boolean prePublish()
     {
-        updateInfoFromFields(scenarioInfo);
-        publishedUserName = userNameField.getText();
+        super.prePublish();
+        publishedUserName = getUserName();
         return true;
     }
 
@@ -601,7 +606,7 @@ public class ExportPublishPane extends ExportPane
     
     /**
      * Creates the scenario information display including information such as title, description, url.
-     * For an update (isUpdate = true), the displayed options are slightly different.
+     * For an update (update = true), the displayed options are slightly different.
      */
     private void createScenarioDisplay()
     {
@@ -627,7 +632,7 @@ public class ExportPublishPane extends ExportPane
         imagePane = new ImageEditPane(IMAGE_WIDTH, IMAGE_HEIGHT);
         titleAndDescPane.addRow(currentRow++, iconTextPane, imagePane);
 
-        if (isUpdate)
+        if (update)
         {
             Label snapshotLabel = new Label(Config.getString("export.snapshot.label"));
             keepScenarioScreenshot = new CheckBox(Config.getString("export.publish.keepScenario"));
@@ -654,7 +659,7 @@ public class ExportPublishPane extends ExportPane
         
         // If there is an update a "changes" description area is shown.
         // If not there a short description and long description area are shown.
-        if (isUpdate)
+        if (update)
         {
             Label updateLabel = new Label(Config.getString("export.publish.update"));
             updateLabel.setAlignment(Pos.TOP_LEFT);
@@ -675,10 +680,10 @@ public class ExportPublishPane extends ExportPane
             shortDescriptionLabel = new Label(Config.getString("export.publish.longDescription"));
             shortDescriptionLabel.setAlignment(Pos.TOP_LEFT);
 
-            descriptionArea = new TextArea();
-            descriptionArea.setPrefRowCount(5);
-            descriptionArea.setWrapText(true);
-            ScrollPane description = new ScrollPane(descriptionArea);
+            longDescriptionArea = new TextArea();
+            longDescriptionArea.setPrefRowCount(5);
+            longDescriptionArea.setWrapText(true);
+            ScrollPane description = new ScrollPane(longDescriptionArea);
             description.setFitToWidth(true);
             GridPane.setVgrow(description, Priority.ALWAYS);
             titleAndDescPane.addRow(currentRow++, shortDescriptionLabel, description);
@@ -743,7 +748,7 @@ public class ExportPublishPane extends ExportPane
      */
     public boolean isUpdate()
     {
-        return isUpdate;
+        return update;
     }
 
     /**
@@ -751,9 +756,9 @@ public class ExportPublishPane extends ExportPane
      */
     private void setUpdate(boolean isUpdate)
     {
-        if (this.isUpdate != isUpdate)
+        if (this.update != isUpdate)
         {
-            this.isUpdate = isUpdate;
+            this.update = isUpdate;
             setExportButtonText();
             updateScenarioDisplay();
         }

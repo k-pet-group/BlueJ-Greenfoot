@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import javafx.scene.image.Image;
 
 /**
  * Holds various information about a scenario.
@@ -39,9 +40,9 @@ public class ScenarioInfo
     private String updateDescription;
     private List<String> tags;
     private String url;
-    private boolean hasSource;
-    private boolean isLocked;
-    private boolean isUpdate = false;
+    private boolean includeSource;
+    private boolean locked;
+    private boolean update = false;
     
     private static final String PUBLISH_TITLE = "publish.title";
     private static final String PUBLISH_SHORT_DESC = "publish.shortDesc";
@@ -51,6 +52,16 @@ public class ScenarioInfo
     private static final String PUBLISH_HAS_SOURCE = "publish.hasSource";
     private static final String PUBLISH_LOCKED = "publish.locked";
     private static final String PUBLISH_UPDATE_DESC = "publish.updateDesc";
+
+    // Fields which will not be saved in the scenario local properties,
+    // but will be passed to the exporter. Some of them may be saved in
+    // the exported version, depending on the exported version type.
+    private Image image;
+    private String exportName;
+    private String userName;
+    private String password;
+    private boolean hideControls;
+    private boolean keepSavedScreenshot;
 
     /**
      * Construct a scenario info object without loading any properties.
@@ -120,24 +131,24 @@ public class ScenarioInfo
         return url;
     }
     
-    public void setHasSource(boolean hasSource)
+    public void setIncludeSource(boolean includeSource)
     {
-        this.hasSource = hasSource;
+        this.includeSource = includeSource;
     }
     
     public boolean isLocked()
     {
-        return isLocked;
+        return locked;
     }
     
     public void setLocked(boolean locked)
     {
-        this.isLocked = locked;
+        this.locked = locked;
     }
     
-    public boolean getHasSource()
+    public boolean isIncludeSource()
     {
-        return hasSource;
+        return includeSource;
     }
     
     /**
@@ -156,7 +167,7 @@ public class ScenarioInfo
         }
         properties.setProperty(PUBLISH_URL, getUrl());
         properties.setProperty(PUBLISH_TAGS, getTagsAsString());
-        properties.setProperty(PUBLISH_HAS_SOURCE, Boolean.toString(getHasSource()));
+        properties.setProperty(PUBLISH_HAS_SOURCE, Boolean.toString(isIncludeSource()));
         properties.setProperty(PUBLISH_LOCKED, Boolean.toString(isLocked()));
         if (getUpdateDescription() != null)
         {
@@ -195,7 +206,7 @@ public class ScenarioInfo
         }
         setTags(tagList);
 
-        setHasSource(Boolean.parseBoolean(properties.getProperty(PUBLISH_HAS_SOURCE, "false")));
+        setIncludeSource(Boolean.parseBoolean(properties.getProperty(PUBLISH_HAS_SOURCE, "false")));
         setLocked(Boolean.parseBoolean(properties.getProperty(PUBLISH_LOCKED, "true")));
         setUpdateDescription(properties.getProperty(PUBLISH_UPDATE_DESC));
         return true;
@@ -226,7 +237,7 @@ public class ScenarioInfo
      */
     public boolean isUpdate()
     {
-        return isUpdate;
+        return update;
     }
 
     /**
@@ -234,8 +245,68 @@ public class ScenarioInfo
      * {@link #setUpdateDescription(String)} to set the update description
      * as provided by the user.
      */
-    public void setUpdate(boolean isUpdate)
+    public void setUpdate(boolean update)
     {
-        this.isUpdate = isUpdate;
+        this.update = update;
+    }
+
+    public Image getImage()
+    {
+        return image;
+    }
+
+    public void setImage(Image image)
+    {
+        this.image = image;
+    }
+
+    public String getExportName()
+    {
+        return exportName;
+    }
+
+    public void setExportName(String exportName)
+    {
+        this.exportName = exportName;
+    }
+
+    public String getUserName()
+    {
+        return userName;
+    }
+
+    public void setUserName(String userName)
+    {
+        this.userName = userName;
+    }
+
+    public String getPassword()
+    {
+        return password;
+    }
+
+    public void setPassword(String password)
+    {
+        this.password = password;
+    }
+
+    public boolean isHideControls()
+    {
+        return hideControls;
+    }
+
+    public void setHideControls(boolean hideControls)
+    {
+        this.hideControls = hideControls;
+    }
+
+    public boolean isKeepSavedScreenshot()
+    {
+        return keepSavedScreenshot;
+    }
+
+    public void setKeepSavedScreenshot(boolean keepSavedScreenshot)
+    {
+        this.keepSavedScreenshot = keepSavedScreenshot;
     }
 }

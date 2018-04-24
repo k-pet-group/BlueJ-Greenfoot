@@ -198,10 +198,9 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         {
             try
             {
-                ExportPane pane = getSelectedPane();
                 ExportFunction function = getSelectedFunction();
                 Exporter exporter = Exporter.getInstance();
-                exporter.doExport(project, pane, ExportDialog.this, function,
+                exporter.doExport(project, ExportDialog.this, scenarioInfo, function,
                         currentWorld.getDisplayName(), snapshot.getWidth(), snapshot.getHeight());
             }
             finally
@@ -259,8 +258,8 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         File defaultExportDir = project.getProjectDir().getParentFile();
 
         addPane(new ExportPublishPane(project, this, scenarioInfo));
-        addPane(new ExportAppPane(asWindow, projectName, defaultExportDir));
-        addPane(new ExportProjectPane(asWindow, projectName, defaultExportDir));
+        addPane(new ExportAppPane(asWindow, scenarioInfo, projectName, defaultExportDir));
+        addPane(new ExportProjectPane(asWindow, scenarioInfo, projectName, defaultExportDir));
 
         tabbedPane.getTabs().setAll(panes.values());
         // This is to change the width of the tabs headers to fill the available space of the tabbed

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2017  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2017,2018  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -380,7 +380,7 @@ public class MyGameClient
                         info.setUrl(element.getTextContent());
                     }
                     else if (element.getTagName().equals("hassource")) {
-                        info.setHasSource(element.getTextContent().equals("true"));
+                        info.setIncludeSource(element.getTextContent().equals("true"));
                     }
                 }
             }

@@ -23,6 +23,7 @@ package greenfoot.guifx.export;
 
 import bluej.Config;
 import bluej.utility.DialogManager;
+import greenfoot.export.mygame.ScenarioInfo;
 
 import java.io.File;
 import javafx.geometry.Pos;
@@ -51,15 +52,16 @@ public abstract class ExportLocalPane extends ExportPane
      * Creates a new instance of an Export Local Pane.
      *
      * @param parent            The window which will host this pane.
+     * @param scenarioInfo      The scenario info needed for different export functions.
      * @param scenarioName      The name of the scenario to be shared.
      * @param defaultExportDir  The default directory to select from.
      * @param type              The type of the export. e.g. "app" or "project".
      * @param extension         The extension of the exported file. e.g. ".jar" or ".gfar".
      */
-    public ExportLocalPane(Window parent, String scenarioName, File defaultExportDir,
-                           String type, String extension)
+    public ExportLocalPane(Window parent, ScenarioInfo scenarioInfo, String scenarioName,
+                           File defaultExportDir, String type, String extension)
     {
-        super("export-" + type + ".png");
+        super(scenarioInfo, "export-" + type + ".png");
         this.parent = parent;
         this.type = type;
         this.extension = extension;
@@ -142,5 +144,11 @@ public abstract class ExportLocalPane extends ExportPane
             }
         }
         return newName;
+    }
+
+    @Override
+    protected void updateInfoFromFields()
+    {
+        scenarioInfo.setExportName(getExportName());
     }
 }

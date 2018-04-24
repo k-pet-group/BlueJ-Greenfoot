@@ -30,11 +30,7 @@ import greenfoot.event.PublishEvent;
 import greenfoot.event.PublishListener;
 import greenfoot.export.mygame.MyGameClient;
 import greenfoot.export.mygame.ScenarioInfo;
-import greenfoot.guifx.export.ExportAppPane;
 import greenfoot.guifx.export.ExportDialog;
-import greenfoot.guifx.export.ExportPane;
-import greenfoot.guifx.export.ExportProjectPane;
-import greenfoot.guifx.export.ExportPublishPane;
 import greenfoot.guifx.export.ProxyAuthDialog;
 import greenfoot.util.GreenfootUtil;
 
@@ -120,12 +116,13 @@ public class Exporter implements PublishListener
     private MyGameClient webPublisher;
 
     private Project project;
+    private ScenarioInfo scenarioInfo;
     private String worldName;
     private double worldWidth;
     private double worldHeight;
-    private ExportDialog dialog;
-    private ExportPane exportPane;
     
+    private ExportDialog dialog;
+
     /**
      * Creates a new instance of Exporter.
      */
@@ -135,20 +132,20 @@ public class Exporter implements PublishListener
      * Publish/Export this scenario based on the passed function.
      *
      * @param project      The current project.
-     * @param exportPane   The selected export pane that will provide needed info.
      * @param dialog       A share/export dialog reference to show progress/messages to user.
+     * @param scenarioInfo The scenario info needed for different export functions.
      * @param function     The share function type which will be perform.
      * @param worldName    The world's name.
      * @param worldWidth   The world's width.
      * @param worldHeight  The world's height.
      */
-    public void doExport(Project project, ExportPane exportPane, ExportDialog dialog,
+    public void doExport(Project project, ExportDialog dialog, ScenarioInfo scenarioInfo,
                          ExportFunction function, String worldName,
                          double worldWidth, double worldHeight)
     {
         this.project = project;
         this.dialog = dialog;
-        this.exportPane = exportPane;
+        this.scenarioInfo = scenarioInfo;
         this.worldName = worldName;
         this.worldWidth = worldWidth;
         this.worldHeight = worldHeight;
@@ -172,7 +169,6 @@ public class Exporter implements PublishListener
      */
     private void publishToWebServer()
     {
-        ExportPublishPane pane = (ExportPublishPane) exportPane;
         dialog.setProgress(true, Config.getString("export.progress.bundling"));
         
         //Create temporary jar        
@@ -193,7 +189,7 @@ public class Exporter implements PublishListener
             hostAddress += "/";
         }
 
-        boolean  lockScenario = pane.lockScenario();
+        boolean lockScenario = scenarioInfo.isLocked();
         
         JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldName,
                 lockScenario, true);
@@ -211,11 +207,11 @@ public class Exporter implements PublishListener
         }
         
         // Extra entries for the manifest
-        jarCreator.putManifestEntry("title", pane.getTitle());
+        jarCreator.putManifestEntry("title", scenarioInfo.getTitle());
         
-        jarCreator.putManifestEntry("short-description", pane.getShortDescription());
-        jarCreator.putManifestEntry("description", pane.getDescription());
-        jarCreator.putManifestEntry("url", pane.getURL());
+        jarCreator.putManifestEntry("short-description", scenarioInfo.getShortDescription());
+        jarCreator.putManifestEntry("description", scenarioInfo.getLongDescription());
+        jarCreator.putManifestEntry("url", scenarioInfo.getUrl());
 
         jarCreator.putManifestEntry("greenfoot-version", Boot.GREENFOOT_VERSION);
         jarCreator.putManifestEntry("java-version", System.getProperty("java.version"));
@@ -238,14 +234,17 @@ public class Exporter implements PublishListener
         jarCreator.create();
             
         // Build zip with source code if needed
-        if(pane.includeSourceCode()) { 
+        if(scenarioInfo.isIncludeSource())
+        {
             //Create temporary zip file for the source code        
-            try {
+            try
+            {
                 tmpZipFile = File.createTempFile("greenfootSource", ".zip", null);
                 //make sure it is deleted on exit (should be deleted right after the publish finish - but just in case...)
                 tmpZipFile.deleteOnExit();     
             }
-            catch (IOException e) {
+            catch (IOException e)
+            {
                 e.printStackTrace();
                 return;
             }
@@ -255,11 +254,12 @@ public class Exporter implements PublishListener
         }
                   
         // Create image file     
-        if (!pane.keepSavedScenarioScreenshot()) {
+        if (!scenarioInfo.isKeepSavedScreenshot())
+        {
             String formatName = "png";
             try {
                 tmpImgFile = File.createTempFile("greenfoot", "." + formatName, null);
-                BufferedImage bufferedImage = SwingFXUtils.fromFXImage(pane.getImage(), null);
+                BufferedImage bufferedImage = SwingFXUtils.fromFXImage(scenarioInfo.getImage(), null);
                 ImageIO.write(bufferedImage, formatName, tmpImgFile);
                 // make sure it is deleted on exit (should be deleted right after
                 // the publish finish - but just in case...)
@@ -271,10 +271,11 @@ public class Exporter implements PublishListener
             }
         }
         
-        String login = pane.getUserName();
-        String password = pane.getPassword();     
-        String scenarioName = pane.getTitle();
-        if(scenarioName != null && scenarioName.length() < 1) {
+        String login = scenarioInfo.getUserName();
+        String password = scenarioInfo.getPassword();
+        String scenarioName = scenarioInfo.getTitle();
+        if (scenarioName != null && scenarioName.length() < 1)
+        {
             scenarioName = "NO_NAME";
         }       
         
@@ -283,29 +284,30 @@ public class Exporter implements PublishListener
         }
         
         dialog.setProgress(true, Config.getString("export.progress.publishing"));
-        try {
-            ScenarioInfo info = pane.getScenarioInfo();
-            info.setTitle(scenarioName);
-            info.setShortDescription(pane.getShortDescription());
-            info.setUpdateDescription(pane.getUpdateDescription());
-            info.setLongDescription(pane.getDescription());
-            if (pane.isUpdate()){
-                info.setUpdate(true);
-            }
-            info.setTags(pane.getTags());
-            info.setUrl(pane.getURL());
+        try
+        {
+            ScenarioInfo exportedInfo = new ScenarioInfo();
+            exportedInfo.setTitle(scenarioName);
+            exportedInfo.setShortDescription(scenarioInfo.getShortDescription());
+            exportedInfo.setUpdateDescription(scenarioInfo.getUpdateDescription());
+            exportedInfo.setLongDescription(scenarioInfo.getLongDescription());
+            exportedInfo.setUpdate(scenarioInfo.isUpdate());
+            exportedInfo.setTags(scenarioInfo.getTags());
+            exportedInfo.setUrl(scenarioInfo.getUrl());
             
             int uploadSize = (int) tmpJarFile.length();
-            if (tmpImgFile != null) {
+            if (tmpImgFile != null)
+            {
                 uploadSize += (int) tmpImgFile.length();
             }
-            if (tmpZipFile != null) {
+            if (tmpZipFile != null)
+            {
                 uploadSize += (int) tmpZipFile.length();
             }
             setUploadSize(uploadSize);
             
             webPublisher.submit(hostAddress, login, password, tmpJarFile.getAbsolutePath(),
-                    tmpZipFile, tmpImgFile, (int)size.getWidth(), (int)size.getHeight(), info);
+                    tmpZipFile, tmpImgFile, (int)size.getWidth(), (int)size.getHeight(), exportedInfo);
         }
         catch (UnknownHostException e)
         {
@@ -328,14 +330,13 @@ public class Exporter implements PublishListener
      */
     private void makeApplication()
     {
-        ExportAppPane pane = (ExportAppPane) exportPane;
         dialog.setProgress(true, Config.getString("export.progress.writingJar"));
-        File exportFile = new File(pane.getExportName());
+        File exportFile = new File(scenarioInfo.getExportName());
         File exportDir = exportFile.getParentFile();
         String jarName = exportFile.getName();
 
-        boolean  lockScenario = pane.lockScenario();
-        boolean  hideControls = pane.hideControls();
+        boolean lockScenario = scenarioInfo.isLocked();
+        boolean hideControls = scenarioInfo.isHideControls();
 
         JarCreator jarCreator = new JarCreator(project, exportDir, jarName, worldName,
                 lockScenario, hideControls, false, false);
@@ -385,10 +386,9 @@ public class Exporter implements PublishListener
      */
     private void makeProject()
     {
-        ExportProjectPane pane = (ExportProjectPane) exportPane;
         dialog.setProgress(true, Config.getString("export.progress.writingGfar"));
         
-        File exportFile = new File(pane.getExportName());
+        File exportFile = new File(scenarioInfo.getExportName());
         File exportDir = exportFile.getParentFile();
         String gfarName = exportFile.getName();
        

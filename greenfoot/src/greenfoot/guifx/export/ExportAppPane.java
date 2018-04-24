@@ -22,6 +22,7 @@
 package greenfoot.guifx.export;
 
 import static greenfoot.export.Exporter.ExportFunction;
+import greenfoot.export.mygame.ScenarioInfo;
 
 import java.io.File;
 import javafx.scene.layout.Pane;
@@ -39,12 +40,13 @@ public class ExportAppPane extends ExportLocalPane
      * Creates a new instance of ExportAppPane
      *
      * @param parent            The window which will host this pane.
+     * @param scenarioInfo      The scenario info needed for different export functions.
      * @param scenarioName      The name of the scenario to be shared.
      * @param defaultExportDir  The default directory to select from.
      */
-    public ExportAppPane(Window parent, String scenarioName, File defaultExportDir)
+    public ExportAppPane(Window parent, ScenarioInfo scenarioInfo, String scenarioName, File defaultExportDir)
     {
-        super(parent, scenarioName, defaultExportDir, "app", ".jar");
+        super(parent, scenarioInfo, scenarioName, defaultExportDir, "app", ".jar");
     }
 
     @Override
@@ -58,5 +60,13 @@ public class ExportAppPane extends ExportLocalPane
     {
         super.makePane(targetFile);
         ((Pane)getContent()).getChildren().addAll(lockScenario, hideControls);
+    }
+
+    @Override
+    protected void updateInfoFromFields()
+    {
+        super.updateInfoFromFields();
+        scenarioInfo.setLocked(isLockScenario());
+        scenarioInfo.setHideControls(isHideControls());
     }
 }
