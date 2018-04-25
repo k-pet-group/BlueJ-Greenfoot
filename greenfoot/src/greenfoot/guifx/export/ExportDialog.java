@@ -31,7 +31,7 @@ import bluej.utility.Utility;
 import greenfoot.export.Exporter;
 import static greenfoot.export.Exporter.ExportFunction;
 import greenfoot.export.mygame.ScenarioInfo;
-import greenfoot.export.ScenarioStatusLister;
+import greenfoot.export.ScenarioSaver;
 
 import java.io.File;
 import java.util.LinkedHashMap;
@@ -66,7 +66,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
             + Config.getString("export.dialog.title");
 
     private final Project project;
-    private final ScenarioStatusLister statusLister;
+    private final ScenarioSaver scenarioSaver;
     private final ScenarioInfo scenarioInfo;
     private final ClassTarget currentWorld;
     private final Image snapshot;
@@ -79,13 +79,24 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     private final Map<ExportFunction, ExportPane> panes = new LinkedHashMap<>();
     private Button continueButton;
 
-    public ExportDialog(Window parent, Project project, ScenarioStatusLister statusLister,
+    /**
+     * Creates a new instance of the export dialog.
+     *
+     * @param parent         The parent window.
+     * @param project        The project that will be shared.
+     * @param scenarioSaver  The listener that will enable us to save the scenario when exporting.
+     * @param scenarioInfo   The previously stored scenario info in the properties file.
+     * @param currentWorld   The class target of the current active world.
+     * @param snapshot       A snapshot of the world.
+     * @throws ExportException if the current world is null.
+     */
+    public ExportDialog(Window parent, Project project, ScenarioSaver scenarioSaver,
                         ScenarioInfo scenarioInfo, ClassTarget currentWorld, Image snapshot)
             throws ExportException
     {
         super(parent, dialogTitle, "export-dialog");
         this.project = project;
-        this.statusLister = statusLister;
+        this.scenarioSaver = scenarioSaver;
         this.scenarioInfo = scenarioInfo;
         this.currentWorld = currentWorld;
         this.snapshot = snapshot;
@@ -95,6 +106,8 @@ public class ExportDialog extends FXCustomizedDialog<Void>
 
     /**
      * Create the dialog interface.
+     *
+     * @throws ExportException if the current world is null.
      */
     private void makeDialog() throws ExportException
     {
@@ -209,7 +222,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
             {
                 ExportFunction function = getSelectedFunction();
                 Exporter exporter = Exporter.getInstance();
-                exporter.doExport(project, ExportDialog.this, statusLister, scenarioInfo, function,
+                exporter.doExport(project, ExportDialog.this, scenarioSaver, scenarioInfo, function,
                         currentWorld.getDisplayName(), snapshot.getWidth(), snapshot.getHeight());
             }
             finally
@@ -266,7 +279,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         // The default directory to export to when export locally.
         File defaultExportDir = project.getProjectDir().getParentFile();
 
-        addPane(new ExportPublishPane(project, this, statusLister, scenarioInfo));
+        addPane(new ExportPublishPane(project, this, scenarioSaver, scenarioInfo));
         addPane(new ExportAppPane(asWindow, scenarioInfo, projectName, defaultExportDir));
         addPane(new ExportProjectPane(asWindow, scenarioInfo, projectName, defaultExportDir));
 

@@ -70,7 +70,7 @@ import bluej.views.MethodView;
 
 import greenfoot.core.ProjectManager;
 import greenfoot.export.mygame.ScenarioInfo;
-import greenfoot.export.ScenarioStatusLister;
+import greenfoot.export.ScenarioSaver;
 import greenfoot.guifx.ControlPanel.ControlPanelListener;
 import greenfoot.guifx.classes.GClassDiagram;
 import greenfoot.guifx.classes.GClassDiagram.GClassType;
@@ -137,7 +137,7 @@ import static greenfoot.vmcomm.Command.*;
  */
 @OnThread(Tag.FXPlatform)
 public class GreenfootStage extends Stage implements BlueJEventListener, FXCompileObserver,
-        SimulationStateListener, PackageUI, ControlPanelListener, ScenarioStatusLister
+        SimulationStateListener, PackageUI, ControlPanelListener, ScenarioSaver
 {
     private static int numberOfOpenProjects = 0;
     private static List<GreenfootStage> stages = new ArrayList<>();

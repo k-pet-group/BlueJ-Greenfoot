@@ -32,7 +32,7 @@ import static greenfoot.export.Exporter.ExportFunction;
 import greenfoot.export.mygame.ExistingScenarioChecker;
 import greenfoot.export.mygame.MyGameClient;
 import greenfoot.export.mygame.ScenarioInfo;
-import greenfoot.export.ScenarioStatusLister;
+import greenfoot.export.ScenarioSaver;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -110,23 +110,23 @@ public class ExportPublishPane extends ExportPane
     private ExistingScenarioChecker scenarioChecker;
     private boolean update = false;
     private final ExportDialog exportDialog;
-    private final ScenarioStatusLister statusLister;
+    private final ScenarioSaver scenarioSaver;
 
     /**
      * Creates a new instance of ExportPublishPane
      *
      * @param project       The project that will be shared.
      * @param exportDialog  The export dialog containing this pane.
-     * @param statusLister  The listener that will enable us to save the scenario when exporting.
+     * @param scenarioSaver The listener that will enable us to save the scenario when exporting.
      * @param scenarioInfo  The previously stored scenario info in the properties file.
      */
     public ExportPublishPane(Project project, ExportDialog exportDialog,
-                             ScenarioStatusLister statusLister, ScenarioInfo scenarioInfo)
+                             ScenarioSaver scenarioSaver, ScenarioInfo scenarioInfo)
     {
         super(scenarioInfo, "export-publish.png");
         this.project = project;
         this.exportDialog = exportDialog;
-        this.statusLister = statusLister;
+        this.scenarioSaver = scenarioSaver;
 
         buildContentPane();
         applySharedStyle();
@@ -590,7 +590,7 @@ public class ExportPublishPane extends ExportPane
     {
         if (success)
         {
-            statusLister.doSave();
+            scenarioSaver.doSave();
             Config.putPropString("publish.username", publishedUserName);
             setUpdate(true);
         }

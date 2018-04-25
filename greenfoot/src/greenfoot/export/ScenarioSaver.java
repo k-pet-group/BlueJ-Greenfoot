@@ -26,7 +26,7 @@ package greenfoot.export;
  **
  * @author Amjad Altadmri
  */
-public interface ScenarioStatusLister
+public interface ScenarioSaver
 {
     /**
      * Called when the scenario should be saved. For example,
