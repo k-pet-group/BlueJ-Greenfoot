@@ -49,6 +49,9 @@ import javafx.geometry.Dimension2D;
 
 import javax.imageio.ImageIO;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * Class Exporter manages the various possible export functions, such as writing 
  * jar files or publishing to the scenario web server.
@@ -139,6 +142,7 @@ public class Exporter implements PublishListener
      * @param worldWidth   The world's width.
      * @param worldHeight  The world's height.
      */
+    @OnThread(Tag.Worker)
     public void doExport(Project project, ExportDialog dialog, ScenarioInfo scenarioInfo,
                          ExportFunction function, String worldName,
                          double worldWidth, double worldHeight)
@@ -282,7 +286,7 @@ public class Exporter implements PublishListener
         if(webPublisher == null) {
             webPublisher = new MyGameClient(this);
         }
-        
+
         dialog.setProgress(true, Config.getString("export.progress.publishing"));
         try
         {
@@ -311,7 +315,8 @@ public class Exporter implements PublishListener
         }
         catch (UnknownHostException e)
         {
-            dialog.setProgress(false, Config.getString("export.publish.unknownHost") + " (" + e.getMessage() + ")");
+            dialog.setProgress(false,
+                    Config.getString("export.publish.unknownHost") + " (" + e.getMessage() + ")");
         }
         catch (IOException e)
         {
@@ -395,7 +400,7 @@ public class Exporter implements PublishListener
         // Build gfar with source code        
         JarCreator gfarCrator = new JarCreator(project, exportDir, gfarName);
         gfarCrator.create();
-       
+
         dialog.setProgress(false, Config.getString("export.progress.complete"));
     }
 
@@ -414,7 +419,7 @@ public class Exporter implements PublishListener
         double controlsWidth = controlsBorder.getWidth() + (includeControls ? 560 : 410);
         double controlHeight = controlsBorder.getHeight() + 48;
 
-        Dimension2D worldBorder = new Dimension2D((EMPTY_BORDER_SIZE + 1) * 2, EMPTY_BORDER_SIZE + 1 * 2);
+        Dimension2D worldBorder = new Dimension2D((EMPTY_BORDER_SIZE + 1) * 2, (EMPTY_BORDER_SIZE + 1) * 2);
 
         // +2 to add some extra padding
         double width = Math.max(worldWidth + worldBorder.getWidth() + 2, controlsWidth);

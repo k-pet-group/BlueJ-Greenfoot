@@ -30,7 +30,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -94,12 +93,6 @@ public class MyGameClient
             ScenarioInfo info)
         throws IOException
     {
-        String gameName = info.getTitle();
-        String shortDescription = info.getShortDescription();
-        String longDescription = info.getLongDescription();
-        String updateDescription = info.getUpdateDescription();
-        String gameUrl = info.getUrl();
-        
         DefaultHttpClient httpClient = getHttpClient();
         HttpConnectionParams.setConnectionTimeout(httpClient.getParams(), 20 * 1000); // 20s timeout
         
@@ -152,43 +145,45 @@ public class MyGameClient
         boolean hasSource = sourceFile != null;
         //determining the number of parts to send through
         //use a temporary map holder
-        Map<String, String> partsMap = new HashMap<String, String>();
-        if (info.isUpdate()){
-            partsMap.put("scenario[update_description]", updateDescription);
+        Map<String, String> partsMap = new HashMap<>();
+        if (info.isUpdate())
+        {
+            partsMap.put("scenario[update_description]", info.getUpdateDescription());
         }
-        else {
-            partsMap.put("scenario[long_description]", longDescription);
-            partsMap.put("scenario[short_description]", shortDescription);
+        else
+        {
+            partsMap.put("scenario[long_description]", info.getLongDescription());
+            partsMap.put("scenario[short_description]", info.getShortDescription());
         }
 
         MultipartEntity mpe = new MultipartEntity();
         Charset utf8 = Charset.forName("UTF-8");
-        mpe.addPart(new FormBodyPart("scenario[title]", new StringBody(gameName, utf8)));
+        mpe.addPart(new FormBodyPart("scenario[title]", new StringBody(info.getTitle(), utf8)));
         mpe.addPart(new FormBodyPart("scenario[main_class]",
                 new StringBody("greenfoot.export.GreenfootScenarioViewer", utf8)));
         mpe.addPart(new FormBodyPart("scenario[width]", new StringBody("" + width, utf8)));
         mpe.addPart(new FormBodyPart("scenario[height]", new StringBody("" + height, utf8)));
-        mpe.addPart(new FormBodyPart("scenario[url]", new StringBody(gameUrl, utf8)));
+        mpe.addPart(new FormBodyPart("scenario[url]", new StringBody(info.getUrl(), utf8)));
         mpe.addPart(new ProgressTrackingPart("scenario[uploaded_data]", new File(jarFileName), this));
-        Iterator <String> mapIterator=partsMap.keySet().iterator();
-        String key="";
-        String obj="";
-        while (mapIterator.hasNext()){
-            key = mapIterator.next().toString();
-            obj = partsMap.get(key).toString();
-            mpe.addPart(new FormBodyPart(key, new StringBody(obj, utf8)));
+
+        for (String key : partsMap.keySet())
+        {
+            mpe.addPart(new FormBodyPart(key, new StringBody(partsMap.get(key), utf8)));
         }
-        
-        if (hasSource) {
+
+        if (hasSource)
+        {
             mpe.addPart(new ProgressTrackingPart("scenario[source_data]", sourceFile, this));
         }
-        if (screenshotFile!= null){
+        if (screenshotFile!= null)
+        {
             mpe.addPart(new ProgressTrackingPart("scenario[screenshot_data]", screenshotFile, this));
         }
 
         int tagNum = 0;
-        for (Iterator<String> i = tagsList.iterator(); i.hasNext(); ) {
-            mpe.addPart(new FormBodyPart("scenario[tag" + tagNum++ + "]", new StringBody(i.next(), utf8)));
+        for (String tag : tagsList)
+        {
+            mpe.addPart(new FormBodyPart("scenario[tag" + tagNum++ + "]", new StringBody(tag, utf8)));
         }
         
         postMethod = new HttpPost(hostAddress + "upload-scenario");
@@ -196,13 +191,15 @@ public class MyGameClient
         
         httpResponse = httpClient.execute(postMethod);
         response = httpResponse.getStatusLine().getStatusCode();
-        if (response > 400) {
+        if (response > 400)
+        {
             error(Config.getString("export.publish.errorResponse") + " - " + response);
             httpClient.getConnectionManager().shutdown();
             return this;
         }
         
-        if(! handleResponse(httpResponse)) {
+        if (!handleResponse(httpResponse))
+        {
             httpClient.getConnectionManager().shutdown();
             return this;
         }
@@ -225,40 +222,45 @@ public class MyGameClient
      * 
      * @param postMethod The method to check the result for.
      * @return True if the execution was successful, false otherwise.
-     * @throws NumberFormatException
      */
     private boolean handleResponse(HttpResponse postMethod)
     {        
         Header statusHeader = postMethod.getLastHeader("X-mygame-status");
-        if (statusHeader == null) {
+        if (statusHeader == null)
+        {
             error(Config.getString("export.publish.errorResponse"));
             return false;
         }
+
         String responseString = statusHeader.getValue();
         int spaceIndex = responseString.indexOf(" ");
-        if (spaceIndex == -1) {
+        if (spaceIndex == -1)
+        {
             error(Config.getString("export.publish.errorResponse"));
             return false;
         }
-        try {
+        try
+        {
             int statusCode = Integer.parseInt(responseString.substring(0, spaceIndex));
-            switch(statusCode) {
-            case 0 :
-                // Everything is good!
-                return true;
-            case 1 :
-                error(Config.getString("export.publish.errorPassword"));
-                return false;
-            case 2 :
-                error(Config.getString("export.publish.errorTooLarge"));
-                return false;
-            default :
-                // Unknown error - print it!
-                error(responseString.substring(spaceIndex + 1));
-                return false;
+            switch(statusCode)
+            {
+                case 0 :
+                    // Everything is good!
+                    return true;
+                case 1 :
+                    error(Config.getString("export.publish.errorPassword"));
+                    return false;
+                case 2 :
+                    error(Config.getString("export.publish.errorTooLarge"));
+                    return false;
+                default :
+                    // Unknown error - print it!
+                    error(responseString.substring(spaceIndex + 1));
+                    return false;
             }
         }
-        catch (NumberFormatException nfe) {
+        catch (NumberFormatException nfe)
+        {
             error(Config.getString("export.publish.errorResponse"));
             return false;
         }
@@ -267,7 +269,7 @@ public class MyGameClient
     /**
      * Get a http client, configured to use the proxy if specified in Greenfoot config
      */
-    protected DefaultHttpClient getHttpClient()
+    private DefaultHttpClient getHttpClient()
     {
         HttpParams params = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(params, 20 * 1000); // 20s timeout
@@ -275,10 +277,11 @@ public class MyGameClient
         
         String proxyHost = Config.getPropString("proxy.host", null);
         String proxyPortStr = Config.getPropString("proxy.port", null);
-        if (proxyHost != null && proxyHost.length() != 0 && proxyPortStr != null) {
-
+        if (proxyHost != null && proxyHost.length() != 0 && proxyPortStr != null)
+        {
             int proxyPort = 80;
-            try {
+            try
+            {
                 proxyPort = Integer.parseInt(proxyPortStr);
             }
             catch (NumberFormatException nfe) {}
@@ -288,10 +291,10 @@ public class MyGameClient
             
             String proxyUser = Config.getPropString("proxy.user", null);
             String proxyPass = Config.getPropString("proxy.password", null);
-            if (proxyUser != null) {
+            if (proxyUser != null)
+            {
                 AuthScope authScope = new AuthScope(proxyHost, proxyPort);
-                Credentials proxyCreds =
-                    new UsernamePasswordCredentials(proxyUser, proxyPass);
+                Credentials proxyCreds = new UsernamePasswordCredentials(proxyUser, proxyPass);
                 httpClient.getCredentialsProvider().setCredentials(authScope, proxyCreds);
             }
         }
@@ -308,7 +311,7 @@ public class MyGameClient
      * @param gameName      The scenario title
      * @param info        If not null, this will on return have the title, short description,
      *                    long description and tags set to whatever the existing scenario has. 
-     * @return  true iff the scenario exists on the server
+     * @return  true if the scenario exists on the server
      */
     public boolean checkExistingScenario(String hostAddress, String uid,
             String gameName, ScenarioInfo info)
@@ -325,22 +328,26 @@ public class MyGameClient
         
         HttpResponse httpResponse = client.execute(getMethod);
         int response = httpResponse.getStatusLine().getStatusCode();
-        if (response > 400) {
+        if (response > 400)
+        {
             throw new IOException("HTTP error response " + response + " from server.");
         }
         
         Header statusHeader = httpResponse.getLastHeader("X-mygame-scenario");
-        if (statusHeader == null) {
+        if (statusHeader == null)
+        {
             // Weird.
             throw new IOException("X-mygame-scenario header missing from server response");
         }
-        else if (!statusHeader.getValue().equals("0 FOUND")) {
+        else if (!statusHeader.getValue().equals("0 FOUND"))
+        {
             // not found
             return false;
         }
 
         // found - now we can parse the response
-        if (info != null) {
+        if (info != null)
+        {
             InputStream responseStream = httpResponse.getEntity().getContent();
             parseScenarioXml(info, responseStream);
             info.setTitle(gameName);
@@ -363,45 +370,52 @@ public class MyGameClient
             }
             
             NodeList children = root.getChildNodes();
-            for (int i = 0; i < children.getLength(); i++) {
+            for (int i = 0; i < children.getLength(); i++)
+            {
                 Node childNode = children.item(i);
-                if (childNode.getNodeType() == Node.ELEMENT_NODE) {
+                if (childNode.getNodeType() == Node.ELEMENT_NODE)
+                {
                     Element element = (Element) childNode;
-                    if (element.getTagName().equals("shortdescription")) {
-                        info.setShortDescription(element.getTextContent());
-                    }
-                    else if (element.getTagName().equals("longdescription")) {
-                        info.setLongDescription(element.getTextContent());
-                    }
-                    else if (element.getTagName().equals("taglist")) {
-                        info.setTags(parseTagListXmlElement(element));
-                    }
-                    else if (element.getTagName().equals("webpage")) {
-                        info.setUrl(element.getTextContent());
-                    }
-                    else if (element.getTagName().equals("hassource")) {
-                        info.setIncludeSource(element.getTextContent().equals("true"));
+                    switch (element.getTagName())
+                    {
+                        case "shortdescription":
+                            info.setShortDescription(element.getTextContent());
+                            break;
+                        case "longdescription":
+                            info.setLongDescription(element.getTextContent());
+                            break;
+                        case "taglist":
+                            info.setTags(parseTagListXmlElement(element));
+                            break;
+                        case "webpage":
+                            info.setUrl(element.getTextContent());
+                            break;
+                        case "hassource":
+                            info.setIncludeSource(element.getTextContent().equals("true"));
+                            break;
                     }
                 }
             }
         }
-        catch (ParserConfigurationException pce) {
+        catch (ParserConfigurationException pce)
+        {
             // what the heck do we do with this?
         }
-        catch (SAXException saxe) {
-            
-        }
+        catch (SAXException saxe) { }
     }
     
     private List<String> parseTagListXmlElement(Element element)
     {
-        List<String> tags = new ArrayList<String>();
+        List<String> tags = new ArrayList<>();
         
         Node child = element.getFirstChild();
-        while (child != null) {
-            if (child.getNodeType() == Node.ELEMENT_NODE) {
+        while (child != null)
+        {
+            if (child.getNodeType() == Node.ELEMENT_NODE)
+            {
                 element = (Element) child;
-                if (element.getTagName().equals("tag")) {
+                if (element.getTagName().equals("tag"))
+                {
                     tags.add(element.getTextContent());
                 }
             }
@@ -415,7 +429,7 @@ public class MyGameClient
      * Get a list of commonly used tags from the server.
      * 
      * @throws UnknownHostException if the host is unknown
-     * @throws org.apache.commons.httpclient.ConnectTimeoutException if the connection timed out
+     * @throws org.apache.http.conn.ConnectTimeoutException if the connection timed out
      * @throws IOException if some other I/O exception occurs
      */
     public List<String> getCommonTags(String hostAddress, int maxNumberOfTags)
@@ -433,27 +447,23 @@ public class MyGameClient
         }
         
         // found - now we can parse the response
-        InputStream responseStream = httpResponse.getEntity().getContent();
-        
-        try {
+        try (InputStream responseStream = httpResponse.getEntity().getContent())
+        {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dbuilder = dbf.newDocumentBuilder();
+            DocumentBuilder documentBuilder = dbf.newDocumentBuilder();
 
-            Document doc = dbuilder.parse(responseStream);
+            Document doc = documentBuilder.parse(responseStream);
             Element root = doc.getDocumentElement();
-            if (root == null || !root.getTagName().equals("taglist")) {
-                return Collections.<String>emptyList();
+            if (root == null || !root.getTagName().equals("taglist"))
+            {
+                return Collections.emptyList();
             }
 
             return parseTagListXmlElement(root);
         }
-        catch(SAXException saxe) { }
-        catch(ParserConfigurationException pce) { }
-        finally {
-            responseStream.close();
-        }
-        
-        return Collections.<String>emptyList();
+        catch (SAXException | ParserConfigurationException ignore) { }
+
+        return Collections.emptyList();
     }
     
     /**

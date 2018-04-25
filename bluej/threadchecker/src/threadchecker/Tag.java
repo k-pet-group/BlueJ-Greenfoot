@@ -8,9 +8,9 @@ public enum Tag
     //   (Separate to Swing to identify better what is happening during transition from Swing to FX)
     // Unique means it always runs in a thread which will be different from all others
     //  (including, and especially, FX and Swing).
-    // Things like Thread.run or SwingWorker.construct are tagged as Unique
+    // Things like Thread.run or FXWorker.construct are tagged as Unique
     // Worker is similar to Unique, except that Unique tags can only call
-    // methods on its own thread (one Unique thread can't cal another Unique thread)
+    // methods on its own thread (one Unique thread can't call another Unique thread)
     // but Worker threads can do cross-calling.
     // Any means that the method is safe to call from any thread (including FX, Swing, and others)
     FX, FXPlatform, Swing, SwingIsFX, Unique, Simulation, Worker, Any;

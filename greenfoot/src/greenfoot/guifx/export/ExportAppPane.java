@@ -28,12 +28,16 @@ import java.io.File;
 import javafx.scene.layout.Pane;
 import javafx.stage.Window;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * Export dialog pane for exporting to a standalone application.
  * 
  * @author Michael Kolling
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 public class ExportAppPane extends ExportLocalPane
 {
     /**

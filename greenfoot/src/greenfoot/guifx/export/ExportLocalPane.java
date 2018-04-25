@@ -35,11 +35,15 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * Export dialog pane for exporting to a local file (project or standalone application).
  * 
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 public abstract class ExportLocalPane extends ExportPane
 {
     private final String type;

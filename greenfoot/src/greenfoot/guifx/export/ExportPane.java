@@ -32,6 +32,9 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * ExportPane is a superclass for all changing panes that can appear 
  * in the Export dialogue.
@@ -39,6 +42,7 @@ import javafx.scene.image.ImageView;
  * @author Michael Kolling
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 public abstract class ExportPane extends Tab
 {
     protected final CheckBox lockScenario = new CheckBox(Config.getString("export.lock.label"));

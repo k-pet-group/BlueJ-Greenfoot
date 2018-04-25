@@ -50,11 +50,15 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Window;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  * A dialog allowing the user to export a scenario in a variety of ways.
  *
  * @author Amjad Altadmri
  */
+@OnThread(Tag.FXPlatform)
 public class ExportDialog extends FXCustomizedDialog<Void>
 {
     private static final String dialogTitle = Config.getApplicationName() + ": "
@@ -147,6 +151,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
      * @param text          The message to be shown next to progress bar. Could be null,
      *                      which means do not show any message.
      */
+    @OnThread(Tag.Any)
     public void setProgress(final boolean showProgress, final String text)
     {
         Platform.runLater(() -> {
@@ -194,6 +199,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
      */
     class ExportThread extends Thread {
         @Override
+        @OnThread(Tag.Worker)
         public void run()
         {
             try
