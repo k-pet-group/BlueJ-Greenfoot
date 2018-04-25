@@ -119,6 +119,7 @@ public class Exporter implements PublishListener
     private MyGameClient webPublisher;
 
     private Project project;
+    private ScenarioSaver scenarioSaver;
     private ScenarioInfo scenarioInfo;
     private String worldName;
     private double worldWidth;
@@ -134,21 +135,23 @@ public class Exporter implements PublishListener
     /**
      * Publish/Export this scenario based on the passed function.
      *
-     * @param project      The current project.
-     * @param dialog       A share/export dialog reference to show progress/messages to user.
-     * @param scenarioInfo The scenario info needed for different export functions.
-     * @param function     The share function type which will be perform.
-     * @param worldName    The world's name.
-     * @param worldWidth   The world's width.
-     * @param worldHeight  The world's height.
+     * @param project       The current project.
+     * @param dialog        A share/export dialog reference to show progress/messages to user.
+     * @param scenarioSaver The listener that will enable us to save the scenario when exporting.
+     * @param scenarioInfo  The scenario info needed for different export functions.
+     * @param function      The share function type which will be perform.
+     * @param worldName     The world's name.
+     * @param worldWidth    The world's width.
+     * @param worldHeight   The world's height.
      */
     @OnThread(Tag.Worker)
-    public void doExport(Project project, ExportDialog dialog, ScenarioInfo scenarioInfo,
-                         ExportFunction function, String worldName,
+    public void doExport(Project project, ExportDialog dialog, ScenarioSaver scenarioSaver,
+                         ScenarioInfo scenarioInfo, ExportFunction function, String worldName,
                          double worldWidth, double worldHeight)
     {
         this.project = project;
         this.dialog = dialog;
+        this.scenarioSaver = scenarioSaver;
         this.scenarioInfo = scenarioInfo;
         this.worldName = worldName;
         this.worldWidth = worldWidth;
@@ -232,9 +235,8 @@ public class Exporter implements PublishListener
         jarCreator.putManifestEntry("height", "" + size.getHeight());
 
         // Make sure the current properties are saved before they are exported.
-        // TODO look at this.
-        // project.getProjectProperties().save();
-        
+        scenarioSaver.doSave();
+
         jarCreator.create();
             
         // Build zip with source code if needed
@@ -379,9 +381,8 @@ public class Exporter implements PublishListener
         }
         
         // Make sure the current properties are saved before they are exported.
-        // TODO look at this.
-        // project.getProjectProperties().save();
-        
+        scenarioSaver.doSave();
+
         jarCreator.create();
         dialog.setProgress(false, Config.getString("export.progress.complete"));
     }

@@ -70,6 +70,7 @@ import bluej.views.MethodView;
 
 import greenfoot.core.ProjectManager;
 import greenfoot.export.mygame.ScenarioInfo;
+import greenfoot.export.ScenarioSaver;
 import greenfoot.guifx.ControlPanel.ControlPanelListener;
 import greenfoot.guifx.classes.GClassDiagram;
 import greenfoot.guifx.classes.GClassDiagram.GClassType;
@@ -136,7 +137,7 @@ import static greenfoot.vmcomm.Command.*;
  */
 @OnThread(Tag.FXPlatform)
 public class GreenfootStage extends Stage implements BlueJEventListener, FXCompileObserver,
-        SimulationStateListener, PackageUI, ControlPanelListener
+        SimulationStateListener, PackageUI, ControlPanelListener, ScenarioSaver
 {
     private static int numberOfOpenProjects = 0;
     private static List<GreenfootStage> stages = new ArrayList<>();
@@ -633,6 +634,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     /**
      * Save the project (all editors and all project information).
      */
+    @Override
     public void doSave()
     {
         try
@@ -647,7 +649,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             }
             project.saveEditorLocations(p);
             classDiagram.save(p);
-            
+            scenarioInfo.store(p);
+
             // Actually write out the properties to disk:
             project.getUnnamedPackage().save(p);
             
@@ -710,7 +713,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         {
             try
             {
-                new ExportDialog(this, project, scenarioInfo, currentWorld,
+                new ExportDialog(this, project, this, scenarioInfo, currentWorld,
                         worldDisplay.snapshot(null, null)).showAndWait();
             }
             catch (ExportException e)
