@@ -151,6 +151,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
      * @param text          The message to be shown next to progress bar. Could be null,
      *                      which means do not show any message.
      */
+    @OnThread(Tag.Any)
     public void setProgress(final boolean showProgress, final String text)
     {
         Platform.runLater(() -> {

@@ -173,7 +173,7 @@ public class Exporter implements PublishListener
      */
     private void publishToWebServer()
     {
-        Platform.runLater(() -> dialog.setProgress(true, Config.getString("export.progress.bundling")));
+        dialog.setProgress(true, Config.getString("export.progress.bundling"));
         
         //Create temporary jar        
         try {
@@ -287,7 +287,7 @@ public class Exporter implements PublishListener
             webPublisher = new MyGameClient(this);
         }
 
-        Platform.runLater(() -> dialog.setProgress(true, Config.getString("export.progress.publishing")));
+        dialog.setProgress(true, Config.getString("export.progress.publishing"));
         try
         {
             ScenarioInfo exportedInfo = new ScenarioInfo();
@@ -315,13 +315,12 @@ public class Exporter implements PublishListener
         }
         catch (UnknownHostException e)
         {
-            Platform.runLater(() -> dialog.setProgress(false,
-                    Config.getString("export.publish.unknownHost") + " (" + e.getMessage() + ")"));
+            dialog.setProgress(false,
+                    Config.getString("export.publish.unknownHost") + " (" + e.getMessage() + ")");
         }
         catch (IOException e)
         {
-            Platform.runLater(() -> dialog.setProgress(false,
-                    Config.getString("export.publish.fail") + " " + e.getMessage()));
+            dialog.setProgress(false, Config.getString("export.publish.fail") + " " + e.getMessage());
         }
     }
 
@@ -336,7 +335,7 @@ public class Exporter implements PublishListener
      */
     private void makeApplication()
     {
-        Platform.runLater(() -> dialog.setProgress(true, Config.getString("export.progress.writingJar")));
+        dialog.setProgress(true, Config.getString("export.progress.writingJar"));
         File exportFile = new File(scenarioInfo.getExportName());
         File exportDir = exportFile.getParentFile();
         String jarName = exportFile.getName();
@@ -384,7 +383,7 @@ public class Exporter implements PublishListener
         // project.getProjectProperties().save();
         
         jarCreator.create();
-        Platform.runLater(() -> dialog.setProgress(false, Config.getString("export.progress.complete")));
+        dialog.setProgress(false, Config.getString("export.progress.complete"));
     }
     
     /**
@@ -392,7 +391,7 @@ public class Exporter implements PublishListener
      */
     private void makeProject()
     {
-        Platform.runLater(() -> dialog.setProgress(true, Config.getString("export.progress.writingGfar")));
+        dialog.setProgress(true, Config.getString("export.progress.writingGfar"));
         
         File exportFile = new File(scenarioInfo.getExportName());
         File exportDir = exportFile.getParentFile();
@@ -402,7 +401,7 @@ public class Exporter implements PublishListener
         JarCreator gfarCrator = new JarCreator(project, exportDir, gfarName);
         gfarCrator.create();
 
-        Platform.runLater(() -> dialog.setProgress(false, Config.getString("export.progress.complete")));
+        dialog.setProgress(false, Config.getString("export.progress.complete"));
     }
 
     /**
