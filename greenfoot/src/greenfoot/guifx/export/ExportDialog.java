@@ -31,6 +31,7 @@ import bluej.utility.Utility;
 import greenfoot.export.Exporter;
 import static greenfoot.export.Exporter.ExportFunction;
 import greenfoot.export.mygame.ScenarioInfo;
+import greenfoot.export.ScenarioStatusLister;
 
 import java.io.File;
 import java.util.LinkedHashMap;
@@ -65,6 +66,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
             + Config.getString("export.dialog.title");
 
     private final Project project;
+    private final ScenarioStatusLister statusLister;
     private final ScenarioInfo scenarioInfo;
     private final ClassTarget currentWorld;
     private final Image snapshot;
@@ -77,12 +79,13 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     private final Map<ExportFunction, ExportPane> panes = new LinkedHashMap<>();
     private Button continueButton;
 
-    public ExportDialog(Window parent, Project project, ScenarioInfo scenarioInfo,
-                        ClassTarget currentWorld, Image snapshot)
+    public ExportDialog(Window parent, Project project, ScenarioStatusLister statusLister,
+                        ScenarioInfo scenarioInfo, ClassTarget currentWorld, Image snapshot)
             throws ExportException
     {
         super(parent, dialogTitle, "export-dialog");
         this.project = project;
+        this.statusLister = statusLister;
         this.scenarioInfo = scenarioInfo;
         this.currentWorld = currentWorld;
         this.snapshot = snapshot;
@@ -206,7 +209,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
             {
                 ExportFunction function = getSelectedFunction();
                 Exporter exporter = Exporter.getInstance();
-                exporter.doExport(project, ExportDialog.this, scenarioInfo, function,
+                exporter.doExport(project, ExportDialog.this, statusLister, scenarioInfo, function,
                         currentWorld.getDisplayName(), snapshot.getWidth(), snapshot.getHeight());
             }
             finally
@@ -263,7 +266,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         // The default directory to export to when export locally.
         File defaultExportDir = project.getProjectDir().getParentFile();
 
-        addPane(new ExportPublishPane(project, this, scenarioInfo));
+        addPane(new ExportPublishPane(project, this, statusLister, scenarioInfo));
         addPane(new ExportAppPane(asWindow, scenarioInfo, projectName, defaultExportDir));
         addPane(new ExportProjectPane(asWindow, scenarioInfo, projectName, defaultExportDir));
 
