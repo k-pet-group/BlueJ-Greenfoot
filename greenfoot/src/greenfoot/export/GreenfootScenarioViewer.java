@@ -31,6 +31,7 @@ import greenfoot.core.WorldHandler;
 import greenfoot.guifx.AskPaneFX;
 import greenfoot.guifx.ControlPanel;
 import greenfoot.guifx.ControlPanel.ControlPanelListener;
+import greenfoot.guifx.GreenfootStage.State;
 import greenfoot.guifx.WorldDisplay;
 import greenfoot.platforms.standalone.ActorDelegateStandAlone;
 import greenfoot.platforms.standalone.GreenfootUtilDelegateStandAlone;
@@ -38,11 +39,14 @@ import greenfoot.platforms.standalone.WorldHandlerDelegateStandAlone;
 import greenfoot.sound.SoundFactory;
 import greenfoot.util.AskHandler;
 import greenfoot.util.GreenfootUtil;
-import greenfoot.vmcomm.VMCommsSimulation;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Callable;
@@ -67,12 +71,11 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
     private Constructor<?> worldConstructor;
 
     private AskHandler askHandler;
-    private WorldDisplay worldDisplay;
+    private final WorldDisplay worldDisplay = new WorldDisplay();
 
 
     private void buildGUI()
     {
-        worldDisplay = new WorldDisplay();
         ScrollPane worldViewScroll = new UnfocusableScrollPane(worldDisplay);
                
         setCenter(worldViewScroll);
@@ -116,6 +119,8 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
             }
             
             buildGUI();
+            
+            controls.updateState(State.PAUSED, false);
         }        
         catch (SecurityException | IllegalArgumentException | ClassNotFoundException | NoSuchMethodException e) {
             e.printStackTrace();
@@ -207,8 +212,8 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
     @Override
     public void doRunPause()
     {
-        // TODO support pausing
-        Simulation.getInstance().run();
+        // TODO support toggling of pause status
+        Simulation.getInstance().setPaused(false);
     }
 
     @Override
@@ -221,5 +226,35 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
     public void setSpeedFromSlider(int speed)
     {
         Simulation.getInstance().setSpeed(speed);
+    }
+
+    /**
+     * Sets the latest world image on the screen.
+     * 
+     * @param worldImage A Swing BufferedImage which is copied before returning.
+     */
+    public void setWorldImage(BufferedImage worldImage)
+    {
+        worldDisplay.setImage(bufferedImageToFX(worldImage));
+    }
+
+    /**
+     * Directly copies a BufferedImage, which is assumed to have ARGB format, into a JavaFX image.
+     * @param worldImage The BufferedImage to copy from.  Must be in ARGB format.
+     * @return The JavaFX image with a copy of the BufferedImage
+     */
+    private static Image bufferedImageToFX(BufferedImage worldImage)
+    {
+        WritableImage fxImage = new WritableImage(worldImage.getWidth(), worldImage.getHeight());
+        int [] raw = ((DataBufferInt) worldImage.getData().getDataBuffer()).getData();
+        int offset = 0;
+        for (int y = 0; y < worldImage.getHeight(); y++)
+        {
+            for (int x = 0; x < worldImage.getWidth(); x++)
+            {
+                fxImage.getPixelWriter().setArgb(x, y, raw[offset++]);
+            }
+        }
+        return fxImage;
     }
 }

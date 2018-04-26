@@ -23,13 +23,17 @@ package greenfoot.platforms.standalone;
 
 import greenfoot.Actor;
 import greenfoot.World;
+import greenfoot.WorldVisitor;
 import greenfoot.core.WorldHandler;
 import greenfoot.export.GreenfootScenarioViewer;
 import greenfoot.gui.DropTarget;
+import greenfoot.gui.WorldRenderer;
 import greenfoot.gui.input.InputManager;
 import greenfoot.platforms.WorldHandlerDelegate;
+import javafx.application.Platform;
 
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 
 
 /**
@@ -42,7 +46,9 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     private WorldHandler worldHandler;
     private GreenfootScenarioViewer viewer;
     private boolean lockScenario;
-    
+    private World world;
+    private final WorldRenderer worldRenderer = new WorldRenderer();
+
     public WorldHandlerDelegateStandAlone (GreenfootScenarioViewer viewer, boolean lockScenario) 
     {
         this.viewer = viewer;
@@ -68,7 +74,8 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     @Override
     public void setWorld(final World oldWorld, final World newWorld)
     {
-        // Not needed
+        this.world = newWorld;
+        worldRenderer.setWorld(newWorld);
     }
 
     public void setWorldHandler(WorldHandler handler)
@@ -102,7 +109,8 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
 
     public void discardWorld(World world)
     {
-        // Nothing special to do.    
+        this.world = null;
+        worldRenderer.setWorld(null);
     }
 
     public void addActor(Actor actor, int x, int y)
@@ -125,7 +133,26 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     @Override
     public void paint(boolean forcePaint)
     {
-        // TODO (in a later commit, as part of rewriting the stand alone)
+        if (world == null)
+            return;
+        
+        // TODO add in logic for not painting frames too often.
+        
+        int imageWidth = WorldVisitor.getWidthInPixels(world);
+        int imageHeight = WorldVisitor.getHeightInPixels(world);
+
+        // TODO re-use old images (double buffered?)
+        BufferedImage worldImage = null;
+        if (worldImage == null || worldImage.getHeight() != imageHeight
+                || worldImage.getWidth() != imageWidth)
+        {
+            worldImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_ARGB);
+        }
+
+        worldRenderer.renderWorld(worldImage);
+
+        BufferedImage worldImageFinal = worldImage;
+        Platform.runLater(() -> viewer.setWorldImage(worldImageFinal));
     }
 
     @Override
