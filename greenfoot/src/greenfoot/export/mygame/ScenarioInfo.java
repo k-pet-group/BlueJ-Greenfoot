@@ -185,9 +185,13 @@ public class ScenarioInfo
         }
     }
 
+    /**
+     * Returns all the tags as one joined string. They are separated by spaces.
+     */
     private String getTagsAsString()
     {
-        return String.join(" ", getTags());
+        List<String> tags = getTags();
+        return tags == null ? null : String.join(" ", tags);
     }
 
     /**
