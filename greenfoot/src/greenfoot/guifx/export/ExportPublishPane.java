@@ -73,8 +73,8 @@ import threadchecker.Tag;
 @OnThread(Tag.FXPlatform)
 public class ExportPublishPane extends ExportPane
 {
-    public static final int IMAGE_WIDTH = 120;
-    public static final int IMAGE_HEIGHT = 70;
+    private static final int IMAGE_WIDTH = 120;
+    private static final int IMAGE_HEIGHT = 70;
 
     private static final String serverURL = ensureTrailingSlash(
             Config.getPropString("greenfoot.gameserver.address", "http://www.greenfoot.org/"));
@@ -137,14 +137,6 @@ public class ExportPublishPane extends ExportPane
     public ExportFunction getFunction()
     {
         return ExportFunction.PUBLISH;
-    }
-
-    /**
-     * Returns the scenario info.
-     */
-    public ScenarioInfo getScenarioInfo()
-    {
-        return scenarioInfo;
     }
 
     /**
@@ -214,7 +206,7 @@ public class ExportPublishPane extends ExportPane
     /**
      * Return the changes to update string (if applicable)
      */
-    public String getUpdateDescription()
+    private String getUpdateDescription()
     {
         return updateArea != null ? updateArea.getText() : null;
     }
@@ -238,7 +230,7 @@ public class ExportPublishPane extends ExportPane
     /**
      * True if the screenshot should *not* be overwritten; false if it should
      */
-    public boolean isKeepSavedScreenshot()
+    private boolean isKeepSavedScreenshot()
     {
         if (update && keepScenarioScreenshot != null)
         {
@@ -713,7 +705,7 @@ public class ExportPublishPane extends ExportPane
      */
     private void removeLeftPane()
     {
-        scenarioPane.getChildren().removeAll();
+        scenarioPane.getChildren().clear();
         infoPane.getChildren().remove(scenarioPane);
     }
     
