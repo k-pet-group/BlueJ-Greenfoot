@@ -160,22 +160,28 @@ public class ScenarioInfo
      */
     public void store(Properties properties)
     {
-        properties.setProperty(PUBLISH_TITLE, getTitle());
-        if (getShortDescription() != null)
+        setNonNullProperty(properties, PUBLISH_TITLE, getTitle());
+        setNonNullProperty(properties, PUBLISH_SHORT_DESC, getShortDescription());
+        setNonNullProperty(properties, PUBLISH_LONG_DESC, getLongDescription());
+        setNonNullProperty(properties, PUBLISH_URL, getUrl());
+        setNonNullProperty(properties, PUBLISH_TAGS, getTagsAsString());
+        setNonNullProperty(properties, PUBLISH_HAS_SOURCE, Boolean.toString(isIncludeSource()));
+        setNonNullProperty(properties, PUBLISH_LOCKED, Boolean.toString(isLocked()));
+        setNonNullProperty(properties, PUBLISH_UPDATE_DESC, getUpdateDescription());
+    }
+
+    /**
+     * Sets a property in the properties passed, only if the value is not null.
+     *
+     * @param properties The properties table to be add to.
+     * @param key        Property's name to be set.
+     * @param value      Property's value as string. Could be null.
+     */
+    private void setNonNullProperty(Properties properties, String key, String value)
+    {
+        if (value != null)
         {
-            properties.setProperty(PUBLISH_SHORT_DESC, getShortDescription());
-        }
-        if (getLongDescription()!= null)
-        {
-            properties.setProperty(PUBLISH_LONG_DESC, getLongDescription());
-        }
-        properties.setProperty(PUBLISH_URL, getUrl());
-        properties.setProperty(PUBLISH_TAGS, getTagsAsString());
-        properties.setProperty(PUBLISH_HAS_SOURCE, Boolean.toString(isIncludeSource()));
-        properties.setProperty(PUBLISH_LOCKED, Boolean.toString(isLocked()));
-        if (getUpdateDescription() != null)
-        {
-            properties.setProperty(PUBLISH_UPDATE_DESC, getUpdateDescription());
+            properties.setProperty(key, value);
         }
     }
 
