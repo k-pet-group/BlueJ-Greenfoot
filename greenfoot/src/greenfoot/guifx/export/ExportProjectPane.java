@@ -60,6 +60,7 @@ public class ExportProjectPane extends ExportLocalPane
     @Override
     protected void updateInfoFromFields()
     {
+        super.updateInfoFromFields();
         scenarioInfo.setLocked(isLockScenario());
         scenarioInfo.setHideControls(isHideControls());
     }
