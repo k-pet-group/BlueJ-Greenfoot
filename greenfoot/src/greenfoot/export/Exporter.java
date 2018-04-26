@@ -174,6 +174,7 @@ public class Exporter implements PublishListener
     /**
      * Publish this scenario to the web server.
      */
+    @OnThread(Tag.Worker)
     private void publishToWebServer()
     {
         dialog.setProgress(true, Config.getString("export.progress.bundling"));
@@ -233,9 +234,6 @@ public class Exporter implements PublishListener
         Dimension2D size = getSize(!lockScenario);
         jarCreator.putManifestEntry("width", "" + size.getWidth());
         jarCreator.putManifestEntry("height", "" + size.getHeight());
-
-        // Make sure the current properties are saved before they are exported.
-        scenarioSaver.doSave();
 
         jarCreator.create();
             
@@ -335,6 +333,7 @@ public class Exporter implements PublishListener
     /**
      * Create an application (jar-file)
      */
+    @OnThread(Tag.Worker)
     private void makeApplication()
     {
         dialog.setProgress(true, Config.getString("export.progress.writingJar"));
@@ -380,9 +379,6 @@ public class Exporter implements PublishListener
             // Ignore exceptions with license file since it is not a crucial thing to include.
         }
         
-        // Make sure the current properties are saved before they are exported.
-        scenarioSaver.doSave();
-
         jarCreator.create();
         dialog.setProgress(false, Config.getString("export.progress.complete"));
     }
@@ -390,6 +386,7 @@ public class Exporter implements PublishListener
     /**
      * Create an standalone project (gfar-file)
      */
+    @OnThread(Tag.Worker)
     private void makeProject()
     {
         dialog.setProgress(true, Config.getString("export.progress.writingGfar"));
