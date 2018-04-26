@@ -204,9 +204,9 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     {
         if (getSelectedPane().prePublish())
         {
-            ExportThread expThread = new ExportThread();
             exportingProperty.set(true);
-            expThread.start();
+            scenarioSaver.doSave();
+            new ExportThread().start();
         }
     }
 

@@ -234,9 +234,6 @@ public class Exporter implements PublishListener
         jarCreator.putManifestEntry("width", "" + size.getWidth());
         jarCreator.putManifestEntry("height", "" + size.getHeight());
 
-        // Make sure the current properties are saved before they are exported.
-        scenarioSaver.doSave();
-
         jarCreator.create();
             
         // Build zip with source code if needed
@@ -380,9 +377,6 @@ public class Exporter implements PublishListener
             // Ignore exceptions with license file since it is not a crucial thing to include.
         }
         
-        // Make sure the current properties are saved before they are exported.
-        scenarioSaver.doSave();
-
         jarCreator.create();
         dialog.setProgress(false, Config.getString("export.progress.complete"));
     }
