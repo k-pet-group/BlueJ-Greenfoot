@@ -705,7 +705,7 @@ public class ExportPublishPane extends ExportPane
      */
     private void removeLeftPane()
     {
-        scenarioPane.getChildren().removeAll();
+        scenarioPane.getChildren().clear();
         infoPane.getChildren().remove(scenarioPane);
     }
     
