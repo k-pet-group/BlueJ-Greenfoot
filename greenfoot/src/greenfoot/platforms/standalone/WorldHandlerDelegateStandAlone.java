@@ -48,6 +48,8 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     private boolean lockScenario;
     private World world;
     private final WorldRenderer worldRenderer = new WorldRenderer();
+    // Time last frame was painted, from System.nanoTime
+    private long lastFramePaint;
 
     public WorldHandlerDelegateStandAlone (GreenfootScenarioViewer viewer, boolean lockScenario) 
     {
@@ -136,7 +138,11 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         if (world == null)
             return;
         
-        // TODO add in logic for not painting frames too often.
+        long now = System.nanoTime();
+        // Don't try to go above 100 FPS:
+        if (now - lastFramePaint < 10_000_000L)
+            return;
+        lastFramePaint = now;
         
         int imageWidth = WorldVisitor.getWidthInPixels(world);
         int imageHeight = WorldVisitor.getHeightInPixels(world);
