@@ -174,6 +174,7 @@ public class Exporter implements PublishListener
     /**
      * Publish this scenario to the web server.
      */
+    @OnThread(Tag.Worker)
     private void publishToWebServer()
     {
         dialog.setProgress(true, Config.getString("export.progress.bundling"));
@@ -332,6 +333,7 @@ public class Exporter implements PublishListener
     /**
      * Create an application (jar-file)
      */
+    @OnThread(Tag.Worker)
     private void makeApplication()
     {
         dialog.setProgress(true, Config.getString("export.progress.writingJar"));
@@ -384,6 +386,7 @@ public class Exporter implements PublishListener
     /**
      * Create an standalone project (gfar-file)
      */
+    @OnThread(Tag.Worker)
     private void makeProject()
     {
         dialog.setProgress(true, Config.getString("export.progress.writingGfar"));

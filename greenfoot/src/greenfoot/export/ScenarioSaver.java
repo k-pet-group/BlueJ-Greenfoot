@@ -21,6 +21,9 @@
  */
 package greenfoot.export;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 /**
  ** Interface for saving the scenario when needed.
  **
@@ -32,5 +35,6 @@ public interface ScenarioSaver
      * Called when the scenario should be saved. For example,
      * before publishing.
      */
+    @OnThread(Tag.FXPlatform)
     void doSave();
 }

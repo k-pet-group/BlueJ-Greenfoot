@@ -635,6 +635,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      * Save the project (all editors and all project information).
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public void doSave()
     {
         try
