@@ -21,7 +21,9 @@
  */
 package greenfoot.export;
 
+import greenfoot.core.Simulation;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -30,8 +32,31 @@ public class GreenfootScenarioApplication extends Application
     @Override
     public void start(Stage primaryStage) throws Exception
     {
+        Platform.setImplicitExit(true);
         GreenfootScenarioViewer greenfootScenarioViewer = new GreenfootScenarioViewer();
         primaryStage.setScene(new Scene(greenfootScenarioViewer));        
         primaryStage.show();
+        primaryStage.setOnHiding(e -> {
+            Simulation.getInstance().abort();
+            
+            // Fail safe: if we haven't exited after a second, force exit:
+            Thread exiter = new Thread()
+            {
+                public void run()
+                {
+                    try
+                    {
+                        Thread.sleep(1000);
+                    }
+                    catch (InterruptedException ex)
+                    {
+                    }
+                    System.exit(1);
+                }
+            };
+            // Don't let the exiter fallback prevent us exiting normally:
+            exiter.setDaemon(true);
+            exiter.start();
+        });
     }
 }
