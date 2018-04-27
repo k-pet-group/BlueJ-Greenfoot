@@ -122,6 +122,7 @@ public class ExportPublishPane extends ExportPane
 
     private BooleanBinding userNameValidity;
     private BooleanBinding passwordValidity;
+    private BooleanBinding titleValidity;
 
     /**
      * Creates a new instance of ExportPublishPane
@@ -144,7 +145,8 @@ public class ExportPublishPane extends ExportPane
         getContent().getStyleClass().add("export-publish-pane");
         userNameValidity = userNameField.textProperty().isNotEmpty();
         passwordValidity = passwordField.textProperty().isNotEmpty();
-        validProperty.bind(userNameValidity.and(passwordValidity));
+        titleValidity = titleField.textProperty().isNotEmpty();
+        validProperty.bind(userNameValidity.and(passwordValidity).and(titleValidity));
 
         JavaFXUtil.addChangeListener(selectedProperty(), selected -> activated());
     }
