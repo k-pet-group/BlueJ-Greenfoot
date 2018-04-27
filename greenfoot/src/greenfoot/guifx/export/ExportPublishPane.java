@@ -630,14 +630,13 @@ public class ExportPublishPane extends ExportPane
 
         if (update)
         {
-            Label snapshotLabel = new Label(Config.getString("export.snapshot.label"));
-            keepScenarioScreenshot = new CheckBox(Config.getString("export.publish.keepScenario"));
+            keepScenarioScreenshot = new CheckBox(Config.getString("export.snapshot.label"));
             keepScenarioScreenshot.setSelected(true);
             // "keep screenshot" defaults to true, therefore the image pane should be disabled
             imagePane.enableImageEditPanel(false);
             JavaFXUtil.addChangeListener(keepScenarioScreenshot.selectedProperty(),
                     selected -> imagePane.enableImageEditPanel(!selected));
-            titleAndDescPane.addRow(currentRow++, snapshotLabel, keepScenarioScreenshot);
+            titleAndDescPane.add(keepScenarioScreenshot, 1, currentRow++);
         }
 
         Label titleLabel = new Label(Config.getString("export.publish.title"));
