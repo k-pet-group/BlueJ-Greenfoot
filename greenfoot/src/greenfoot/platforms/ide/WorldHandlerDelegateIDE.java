@@ -32,7 +32,6 @@ import greenfoot.event.TriggeredKeyListener;
 import greenfoot.gui.DropTarget;
 import greenfoot.vmcomm.VMCommsSimulation;
 import greenfoot.vmcomm.VMCommsSimulation.PaintWhen;
-import greenfoot.gui.input.InputManager;
 import greenfoot.platforms.WorldHandlerDelegate;
 import greenfoot.record.GreenfootRecorder;
 import greenfoot.util.GreenfootUtil;
@@ -212,16 +211,6 @@ public class WorldHandlerDelegateIDE
             }
         }
         return null;
-    }
-
-    @Override
-    public InputManager getInputManager()
-    {
-        InputManager inputManager = new InputManager();       
-        inputManager.setIdleListeners(keyListener, null, null);
-        inputManager.setMoveListeners(keyListener, null, null);
-        
-        return inputManager;
     }
 
     @Override
