@@ -460,20 +460,17 @@ public class VMCommsSimulation
             sharedMemory.get(data);
             if (Command.isKeyEvent(data[0]))
             {
-                int awtCode = JavaFXUtil.fxKeyCodeToAWT(KeyCode.values()[data[1]]);
-                if (awtCode != -1)
+                KeyCode fxCode = KeyCode.values()[data[1]];
+                KeyboardManager keyboardManager = WorldHandler.getInstance().getKeyboardManager();
+                switch(data[0])
                 {
-                    KeyboardManager keyboardManager = WorldHandler.getInstance().getKeyboardManager();
-                    switch(data[0])
-                    {
-                        case Command.KEY_DOWN:
-                            keyboardManager.pressKey(awtCode);
-                            break;
-                        case Command.KEY_UP:
-                            keyboardManager.releaseKey(awtCode);
-                            break;
-                        // KEY_TYPED is not processed
-                    }
+                    case Command.KEY_DOWN:
+                        keyboardManager.pressKey(fxCode);
+                        break;
+                    case Command.KEY_UP:
+                        keyboardManager.releaseKey(fxCode);
+                        break;
+                    // KEY_TYPED is not processed
                 }
             }
             else if (Command.isMouseEvent(data[0]))
