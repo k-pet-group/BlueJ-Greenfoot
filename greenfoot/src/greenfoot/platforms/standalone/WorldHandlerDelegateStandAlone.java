@@ -46,6 +46,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * 
  * @author Poul Henriksen
  */
+@OnThread(Tag.Simulation)
 public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
 {    
     private WorldHandler worldHandler;

@@ -54,6 +54,7 @@ import javax.swing.JPanel;
  * Lives on the Simulation VM (aka debug VM), and handles communications with the server
  * (see {@link VMCommsMain})
  */
+@OnThread(Tag.Simulation)
 public class VMCommsSimulation
 {
     private final WorldRenderer worldRenderer;    

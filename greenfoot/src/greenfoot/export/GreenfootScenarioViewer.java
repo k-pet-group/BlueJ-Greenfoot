@@ -28,6 +28,8 @@ import greenfoot.World;
 import greenfoot.core.ExportedProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
+import greenfoot.event.SimulationEvent;
+import greenfoot.event.SimulationListener;
 import greenfoot.guifx.AskPaneFX;
 import greenfoot.guifx.ControlPanel;
 import greenfoot.guifx.ControlPanel.ControlPanelListener;
@@ -39,10 +41,13 @@ import greenfoot.platforms.standalone.WorldHandlerDelegateStandAlone;
 import greenfoot.sound.SoundFactory;
 import greenfoot.util.AskHandler;
 import greenfoot.util.GreenfootUtil;
+import javafx.application.Platform;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -58,7 +63,8 @@ import java.util.concurrent.atomic.AtomicReference;
  * 
  * @author Poul Henriksen
  */
-public class GreenfootScenarioViewer extends BorderPane implements ControlPanelListener
+@OnThread(Tag.FXPlatform)
+public class GreenfootScenarioViewer extends BorderPane implements ControlPanelListener, SimulationListener
 {
     private static String scenarioName;
 
@@ -178,6 +184,7 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
         return WorldHandler.getInstance().getWorld();
     }
     
+    @OnThread(Tag.Any)
     public String ask(final String prompt)
     {
         final AtomicReference<Callable<String>> c = new AtomicReference<Callable<String>>();
@@ -219,7 +226,9 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
     @Override
     public void doReset()
     {
-        // TODO
+        Simulation.getInstance().setEnabled(false);
+        WorldHandler.getInstance().discardWorld();
+        WorldHandler.getInstance().instantiateNewWorld(null);
     }
 
     @Override
@@ -235,7 +244,10 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
      */
     public void setWorldImage(BufferedImage worldImage)
     {
-        worldDisplay.setImage(bufferedImageToFX(worldImage));
+        if (worldDisplay.setImage(bufferedImageToFX(worldImage)))
+        {
+            worldDisplay.getScene().getWindow().sizeToScene();
+        }
     }
 
     /**
@@ -256,5 +268,30 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
             }
         }
         return fxImage;
+    }
+
+    @Override
+    @OnThread(Tag.Simulation)
+    public void simulationChanged(SimulationEvent e)
+    {
+        int eventType = e.getType();
+        if (eventType == SimulationEvent.STOPPED)
+        {
+            Platform.runLater(() -> {
+                controls.updateState(State.PAUSED, false);
+            });
+        }
+        else if (eventType == SimulationEvent.STARTED)
+        {
+            Platform.runLater(() -> {
+                controls.updateState(State.RUNNING, false);
+            });
+        }
+        else if (eventType == SimulationEvent.DISABLED)
+        {
+            Platform.runLater(() -> {
+                controls.updateState(State.UNCOMPILED, false);
+            });
+        }
     }
 }

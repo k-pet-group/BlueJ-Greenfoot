@@ -29,10 +29,13 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A class for handling the world part of the main GreenfootStage window.
  */
+@OnThread(value = Tag.FXPlatform, ignoreParent = true)
 public class WorldDisplay extends StackPane
 {
     private final ImageView imageView = new ImageView();
@@ -53,12 +56,19 @@ public class WorldDisplay extends StackPane
 
     /**
      * Sets the world image.  Turns off any greying effect.
+     * 
+     * Returns true if the world changed size
      */
-    public void setImage(Image image)
+    public boolean setImage(Image image)
     {
+        Image oldImage = imageView.getImage();
+        boolean newSize = oldImage == null || image == null ||
+                image.getWidth() != oldImage.getWidth() ||
+                image.getHeight() != oldImage.getHeight();
         imageView.setImage(image);
         // Now that world is valid again, turn off any greying effect:
         imageView.setEffect(null);
+        return newSize;
     }
 
     /**
@@ -78,6 +88,7 @@ public class WorldDisplay extends StackPane
      * the user gives an answer.  It is safe to call this method repeatedly for the
      * same ask request without disturbing the GUI.
      */
+    @OnThread(Tag.FXPlatform)
     public void ensureAsking(String prompt, FXPlatformConsumer<String> withAnswer)
     {
         // Remember, all of this should be fine to call multiple times:

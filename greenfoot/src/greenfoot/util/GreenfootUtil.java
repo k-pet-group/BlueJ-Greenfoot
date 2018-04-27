@@ -460,6 +460,7 @@ public class GreenfootUtil
      * Gets a list of the sound files in this scenario
      * @return A list of files in the sounds subdirectory, without the path prefix (e.g. "foo.wav")
      */
+    @OnThread(Tag.Any)
     public static Iterable<String> getSoundFiles()
     {
         return delegate.getSoundFiles();
@@ -759,6 +760,7 @@ public class GreenfootUtil
     /**
      * Find out whether storage is supported in the current setting
      */
+    @OnThread(Tag.Simulation)
     public static boolean isStorageSupported()
     {
         return delegate.isStorageSupported();
@@ -767,6 +769,7 @@ public class GreenfootUtil
     /**
      * null if an error, blank values if no previous storage
      */
+    @OnThread(Tag.Simulation)
     public static UserInfo getCurrentUserInfo()
     {
         return delegate.getCurrentUserInfo();
@@ -794,6 +797,7 @@ public class GreenfootUtil
      * 
      * Returns highest data when sorted by integer index 0
      */
+    @OnThread(Tag.Simulation)
     public static List<UserInfo> getTopUserInfo(int limit)
     {
         return delegate.getTopUserInfo(limit);
@@ -841,6 +845,7 @@ public class GreenfootUtil
     // For local storage, this is the username set via the IDE
     // For remote storage, this is the username got from the applet params
     // For turned off, this is null
+    @OnThread(Tag.Simulation)
     public static String getUserName()
     {
         return delegate.getUserName();
@@ -851,6 +856,7 @@ public class GreenfootUtil
      * 
      * @return  null if problem, empty list if simply no data.
      */
+    @OnThread(Tag.Simulation)
     public static List<UserInfo> getNearbyUserData(int maxAmount)
     {
         return delegate.getNearbyUserInfo(maxAmount);

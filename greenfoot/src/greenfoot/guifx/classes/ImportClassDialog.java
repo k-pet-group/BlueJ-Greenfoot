@@ -166,6 +166,7 @@ public class ImportClassDialog extends Dialog<File>
     private static class ImportableClassesFileFilter implements FileFilter
     {
         @Override
+        @OnThread(Tag.Any)
         public boolean accept(File pathname)
         {
             return pathname.getAbsolutePath().endsWith(".class")
