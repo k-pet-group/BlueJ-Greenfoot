@@ -63,6 +63,16 @@ public class SimulationEvent extends EventObject
      */
     public final static int QUEUED_TASK_END = 9;
 
+    /**
+     * Entering Delay loop by the Simulation
+     */
+    public final static int DELAY_LOOP_ENTERED = 10;
+
+    /**
+     * Delay loop is completed
+     */
+    public final static int DELAY_LOOP_COMPLETED = 11;
+
     private int type;
 
     public SimulationEvent(Object source, int type)

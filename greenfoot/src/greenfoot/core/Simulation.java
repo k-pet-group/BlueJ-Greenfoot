@@ -93,7 +93,9 @@ public class Simulation extends Thread
     private SimulationEvent newActRoundEvent;
     private SimulationEvent taskBeginEvent;
     private SimulationEvent taskEndEvent;
-    
+    private SimulationEvent delayLoopEntered;
+    private SimulationEvent delayLoopCompleted;
+
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private static Simulation instance;
 
@@ -139,6 +141,8 @@ public class Simulation extends Thread
         newActRoundEvent = new SimulationEvent(this, SimulationEvent.NEW_ACT_ROUND);
         taskBeginEvent = new SimulationEvent(this, SimulationEvent.QUEUED_TASK_BEGIN);
         taskEndEvent = new SimulationEvent(this, SimulationEvent.QUEUED_TASK_END);
+        delayLoopEntered = new SimulationEvent(this, SimulationEvent.DELAY_LOOP_ENTERED);
+        delayLoopCompleted = new SimulationEvent(this, SimulationEvent.DELAY_LOOP_COMPLETED);
         setPriority(Thread.MIN_PRIORITY);
         paused = true;
         speed = 50;
@@ -901,7 +905,9 @@ public class Simulation extends Thread
                 delaying = true;
             }
         }
-        
+
+        fireSimulationEvent(delayLoopEntered);
+
         try
         {
             worldHandler.repaint();
@@ -924,6 +930,7 @@ public class Simulation extends Thread
                 interruptDelay = false;
                 delaying = false;
             }
+            fireSimulationEvent(delayLoopCompleted);
         }
     }
 
@@ -961,6 +968,8 @@ public class Simulation extends Thread
             }
         }
 
+        fireSimulationEvent(delayLoopEntered);
+
         while (actualDelay > 0)
         {
             try
@@ -993,6 +1002,7 @@ public class Simulation extends Thread
             interruptDelay = false;
             delaying = false;
         }
+        fireSimulationEvent(delayLoopCompleted);
     }
 
     /**
