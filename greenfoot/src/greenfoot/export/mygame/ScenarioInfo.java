@@ -160,14 +160,14 @@ public class ScenarioInfo
      */
     public void store(Properties properties)
     {
-        setNonNullProperty(properties, PUBLISH_TITLE, getTitle());
-        setNonNullProperty(properties, PUBLISH_SHORT_DESC, getShortDescription());
-        setNonNullProperty(properties, PUBLISH_LONG_DESC, getLongDescription());
-        setNonNullProperty(properties, PUBLISH_URL, getUrl());
-        setNonNullProperty(properties, PUBLISH_TAGS, getTagsAsString());
-        setNonNullProperty(properties, PUBLISH_HAS_SOURCE, Boolean.toString(isIncludeSource()));
-        setNonNullProperty(properties, PUBLISH_LOCKED, Boolean.toString(isLocked()));
-        setNonNullProperty(properties, PUBLISH_UPDATE_DESC, getUpdateDescription());
+        setPropertyIfNotNull(properties, PUBLISH_TITLE, getTitle());
+        setPropertyIfNotNull(properties, PUBLISH_SHORT_DESC, getShortDescription());
+        setPropertyIfNotNull(properties, PUBLISH_LONG_DESC, getLongDescription());
+        setPropertyIfNotNull(properties, PUBLISH_URL, getUrl());
+        setPropertyIfNotNull(properties, PUBLISH_TAGS, getTagsAsString());
+        setPropertyIfNotNull(properties, PUBLISH_HAS_SOURCE, Boolean.toString(isIncludeSource()));
+        setPropertyIfNotNull(properties, PUBLISH_LOCKED, Boolean.toString(isLocked()));
+        setPropertyIfNotNull(properties, PUBLISH_UPDATE_DESC, getUpdateDescription());
     }
 
     /**
@@ -177,7 +177,7 @@ public class ScenarioInfo
      * @param key        Property's name to be set.
      * @param value      Property's value as string. Could be null.
      */
-    private void setNonNullProperty(Properties properties, String key, String value)
+    private void setPropertyIfNotNull(Properties properties, String key, String value)
     {
         if (value != null)
         {
