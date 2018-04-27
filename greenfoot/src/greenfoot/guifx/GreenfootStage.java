@@ -1158,6 +1158,12 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             else if (e.getEventType() == MouseEvent.MOUSE_PRESSED)
             {
                 eventType = MOUSE_PRESSED;
+                if (paused && e.isPrimaryButtonDown())
+                {
+                    // Begin a drag. We do this on MOUSE_PRESSED, because MOUSE_DRAG_DETECTED requires
+                    // several pixels of movement, which might take us off the actor if it is small.
+                    pickRequest(worldPos.getX(), worldPos.getY(), PickType.DRAG);
+                }
             }
             else if (e.getEventType() == MouseEvent.MOUSE_RELEASED)
             {
@@ -1185,11 +1191,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             }
             else
             {
-                if (e.getEventType() == MouseEvent.DRAG_DETECTED && paused)
-                {
-                    // Begin a drag:
-                    pickRequest(worldPos.getX(), worldPos.getY(), PickType.DRAG);
-                }
                 return;
             }
             debugHandler.getVmComms().sendMouseEvent(eventType, (int)worldPos.getX(), (int)worldPos.getY(), e.getButton().ordinal(), e.getClickCount());
