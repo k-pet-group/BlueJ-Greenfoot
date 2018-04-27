@@ -87,8 +87,12 @@ public class ExportPublishPane extends ExportPane
     private static final String helpLine = Config.getString("export.publish.help") + " " + serverName;
     private static final String WITH_SOURCE_TAG = "with-source";
 
-    private VBox scenarioPane = new VBox();
-    private BorderPane infoPane;
+    private final Label emptyLabel = new Label();
+    private final Label titleLabel = new Label(Config.getString("export.publish.title"));;
+    private final Label updateLabel = new Label(Config.getString("export.publish.update"));
+    private final Label shortDescriptionLabel = new Label(Config.getString("export.publish.shortDescription"));
+    private final Label longDescriptionLabel = new Label(Config.getString("export.publish.longDescription"));
+
     private TextField titleField;
     private TextField shortDescriptionField;
     private TextArea longDescriptionArea;
@@ -99,6 +103,9 @@ public class ExportPublishPane extends ExportPane
     private ImageEditPane imagePane;
     private CheckBox includeSource;
     private CheckBox keepScenarioScreenshot;
+    private GridPane titleAndDescPane;
+    private ScrollPane updatePane;
+    private ScrollPane description;
 
     private CheckBox[] popTags = new CheckBox[7];
     private TextArea tagArea;
@@ -283,9 +290,8 @@ public class ExportPublishPane extends ExportPane
         publishInfoLabel.getStyleClass().add("intro-label");
         BorderPane.setAlignment(publishInfoLabel, Pos.CENTER);
 
-        createScenarioDisplay();
-
-        infoPane = new BorderPane(scenarioPane, publishInfoLabel, getTagDisplay(), null, null);
+        BorderPane infoPane = new BorderPane(createScenarioPane(), publishInfoLabel,
+                getTagDisplay(), null, null);
         infoPane.getStyleClass().add("info-pane");
 
         setContent(new VBox(getHelpBox(), infoPane, getLoginPane()));
@@ -422,19 +428,6 @@ public class ExportPublishPane extends ExportPane
         lockScenario.setSelected(scenarioInfo.isLocked());
         includeSource.setSelected(scenarioInfo.isIncludeSource());
         setUpdate(true);
-    }
-
-    /**
-     * Update the display according to whether this is an update of an existing scenario,
-     * or an upload of a new scenario.
-     */
-    private void updateScenarioDisplay()
-    {
-        removeLeftPane();
-        createScenarioDisplay();
-        infoPane.setCenter(scenarioPane);
-        boolean enableImageControl = !update || !keepScenarioScreenshot.isSelected();
-        imagePane.enableImageEditPanel(enableImageControl);
     }
 
     /**
@@ -601,13 +594,15 @@ public class ExportPublishPane extends ExportPane
     }
     
     /**
-     * Creates the scenario information display including information such as title, description, url.
-     * For an update (update = true), the displayed options are slightly different.
+     * Creates the scenario information display including information
+     * such as title, description, url. For an update (update = true),
+     * the displayed options are slightly different.
+     *
+     * @return The pane containing main scenario controls.
      */
-    private void createScenarioDisplay()
+    private Pane createScenarioPane()
     {
-        int currentRow = 0;
-        GridPane titleAndDescPane = new GridPane();
+        titleAndDescPane = new GridPane();
         titleAndDescPane.getStyleClass().add("title-desc-pane");
 
         ColumnConstraints column1 = new ColumnConstraints();
@@ -626,20 +621,12 @@ public class ExportPublishPane extends ExportPane
         iconTextPane.getStyleClass().add("icon-text-pane");
 
         imagePane = new ImageEditPane(IMAGE_WIDTH, IMAGE_HEIGHT);
-        titleAndDescPane.addRow(currentRow++, iconTextPane, imagePane);
+        titleAndDescPane.addRow(0, iconTextPane, imagePane);
 
-        if (update)
-        {
-            keepScenarioScreenshot = new CheckBox(Config.getString("export.snapshot.label"));
-            keepScenarioScreenshot.setSelected(true);
-            // "keep screenshot" defaults to true, therefore the image pane should be disabled
-            imagePane.enableImageEditPanel(false);
-            JavaFXUtil.addChangeListener(keepScenarioScreenshot.selectedProperty(),
-                    selected -> imagePane.enableImageEditPanel(!selected));
-            titleAndDescPane.add(keepScenarioScreenshot, 1, currentRow++);
-        }
-
-        Label titleLabel = new Label(Config.getString("export.publish.title"));
+        keepScenarioScreenshot = new CheckBox(Config.getString("export.snapshot.label"));
+        keepScenarioScreenshot.setSelected(true);
+        JavaFXUtil.addChangeListener(keepScenarioScreenshot.selectedProperty(),
+                selected -> imagePane.enableImageEditPanel(!selected));
 
         titleField = new TextField(getTitle() != null ? getTitle() : project.getProjectName());
         // TODO check that the share button is disabled if the titleField is empty
@@ -650,64 +637,74 @@ public class ExportPublishPane extends ExportPane
                 checkForExistingScenario();
             }
         });
-        titleAndDescPane.addRow(currentRow++, titleLabel, titleField);
-        
-        // If there is an update a "changes" description area is shown.
-        // If not there a short description and long description area are shown.
-        if (update)
-        {
-            Label updateLabel = new Label(Config.getString("export.publish.update"));
-            updateLabel.setAlignment(Pos.TOP_LEFT);
 
-            updateArea = new TextArea();
-            updateArea.setPrefRowCount(6);
-            updateArea.setWrapText(true);
-            ScrollPane updatePane = new ScrollPane(updateArea);
-            updatePane.setFitToWidth(true);
-            GridPane.setVgrow(updatePane, Priority.ALWAYS);
-            titleAndDescPane.addRow(currentRow++, updateLabel, updatePane);
-        }
-        else
-        {
-            Label shortDescriptionLabel = new Label(Config.getString("export.publish.shortDescription"));
-            shortDescriptionField = new TextField();
-            titleAndDescPane.addRow(currentRow++, shortDescriptionLabel, shortDescriptionField);
-            shortDescriptionLabel = new Label(Config.getString("export.publish.longDescription"));
-            shortDescriptionLabel.setAlignment(Pos.TOP_LEFT);
+        // Controls which only show if "updated" scenario
+        updateLabel.setAlignment(Pos.TOP_LEFT);
+        updateArea = new TextArea();
+        updateArea.setPrefRowCount(5);
+        updateArea.setWrapText(true);
+        updatePane = new ScrollPane(updateArea);
+        updatePane.setFitToWidth(true);
+        GridPane.setVgrow(updatePane, Priority.ALWAYS);
 
-            longDescriptionArea = new TextArea();
-            longDescriptionArea.setPrefRowCount(5);
-            longDescriptionArea.setWrapText(true);
-            ScrollPane description = new ScrollPane(longDescriptionArea);
-            description.setFitToWidth(true);
-            GridPane.setVgrow(description, Priority.ALWAYS);
-            titleAndDescPane.addRow(currentRow++, shortDescriptionLabel, description);
-        }
+        // Controls which only show if new (not "updated") scenario
+        shortDescriptionField = new TextField();
+        shortDescriptionLabel.setAlignment(Pos.TOP_LEFT);
+        longDescriptionArea = new TextArea();
+        longDescriptionArea.setPrefRowCount(5);
+        longDescriptionArea.setWrapText(true);
+        description = new ScrollPane(longDescriptionArea);
+        description.setFitToWidth(true);
+        GridPane.setVgrow(description, Priority.ALWAYS);
+
+        //Add suitable controls
+        chooseNewOrUpdatedScenarioFields();
 
         Label publishUrlLabel = new Label(Config.getString("export.publish.url"));
-
         urlField = new TextField();
-        titleAndDescPane.addRow(currentRow, publishUrlLabel, urlField);
-
+        titleAndDescPane.addRow(4, publishUrlLabel, urlField);
 
         includeSource = new CheckBox(Config.getString("export.publish.includeSource"));
         includeSource.setSelected(false);
         HBox sourceAndLockPane = new HBox(includeSource, lockScenario);
         sourceAndLockPane.getStyleClass().add("source-lock-pane");
 
-        scenarioPane.getChildren().addAll(titleAndDescPane, sourceAndLockPane);
+        VBox scenarioPane = new VBox(titleAndDescPane, sourceAndLockPane);
         scenarioPane.getStyleClass().add("scenario-pane");
+        return scenarioPane;
     }
-    
+
     /**
-     * Removes the scenario information display
+     * Update the display according to whether this is an update of an existing
+     * scenario, or an upload of a new scenario. If there is an update,
+     * a "changes" description area is shown. If not there a short description
+     * and long description areas are shown.
      */
-    private void removeLeftPane()
+    private void chooseNewOrUpdatedScenarioFields()
     {
-        scenarioPane.getChildren().clear();
-        infoPane.getChildren().remove(scenarioPane);
+        titleAndDescPane.getChildren().removeAll(titleLabel, titleField);
+
+        if (update)
+        {
+            titleAndDescPane.getChildren().removeAll(shortDescriptionLabel, shortDescriptionField,
+                    longDescriptionLabel, description);
+
+            titleAndDescPane.addRow(1, emptyLabel, keepScenarioScreenshot);
+            titleAndDescPane.addRow(2, titleLabel, titleField);
+            titleAndDescPane.addRow(3, updateLabel, updatePane);
+        }
+        else
+        {
+            titleAndDescPane.getChildren().removeAll(emptyLabel, keepScenarioScreenshot,
+                    updateLabel, updatePane);
+            titleAndDescPane.addRow(1, titleLabel, titleField);
+            titleAndDescPane.addRow(2, shortDescriptionLabel, shortDescriptionField);
+            titleAndDescPane.addRow(3, longDescriptionLabel, description);
+        }
+
+        imagePane.enableImageEditPanel(!update || !keepScenarioScreenshot.isSelected());
     }
-    
+
     /**
      * Creates the tag display with popular tags and an option to add tags
      */
@@ -755,7 +752,7 @@ public class ExportPublishPane extends ExportPane
         {
             this.update = isUpdate;
             setExportButtonText();
-            updateScenarioDisplay();
+            chooseNewOrUpdatedScenarioFields();
         }
     }
 }
