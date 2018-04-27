@@ -1,12 +1,10 @@
 package greenfoot.core;
 
-import bluej.utility.Debug;
 import greenfoot.Actor;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
 
 import java.awt.Point;
-import java.util.Collection;
 
 /**
  * A helper class which can be instantiated to fetch a reference to the
@@ -27,10 +25,10 @@ public class PickActorHelper
      * Finds an actor at the given location.  If the location is invalid
      * or there are no actors there, the world is picked instead.
      *
-     * @param sx The x position in world coordinates (will be an integer)
-     * @param sy The y position in world coordinates (will be an integer)
-     * @param spickId The pick request ID
-     * @param requestType The request type.  If "drag", a drag on that actor will begin.
+     * @param sx       The x pixel coordinate in the world (will be an integer)
+     * @param sy       The y pixel coordinate in the world (will be an integer)
+     * @param spickId  The pick request ID
+     * @param requestType  The request type.  If "drag", a drag on that actor will begin.
      */
     public PickActorHelper(String sx, String sy, String spickId, String requestType)
     {
@@ -42,9 +40,8 @@ public class PickActorHelper
             // The fields must be up to date and valid at the point we call picked():
             WorldHandler worldHandler = WorldHandler.getInstance();
             this.worldPick = worldHandler.getWorld();
-            //the cell size of the World needs to be considered here in case the size is not equal to one
-            if (worldPick != null && x >= 0 && x < worldPick.getWidth() * worldPick.getCellSize()
-                    && y >= 0 && y < worldPick.getHeight() * worldPick.getCellSize())
+            if (worldPick != null && x >= 0 && x < WorldVisitor.getWidthInPixels(worldPick)
+                    && y >= 0 && y < WorldVisitor.getHeightInPixels(worldPick))
             {
                 this.actorPicks = WorldVisitor.getObjectsAtPixel(this.worldPick, x, y).toArray(new Actor[0]);
             }
