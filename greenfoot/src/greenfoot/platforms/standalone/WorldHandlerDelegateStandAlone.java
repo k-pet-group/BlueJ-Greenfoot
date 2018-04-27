@@ -30,10 +30,15 @@ import greenfoot.gui.DropTarget;
 import greenfoot.gui.WorldRenderer;
 import greenfoot.gui.input.InputManager;
 import greenfoot.platforms.WorldHandlerDelegate;
+import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 /**
@@ -48,11 +53,38 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     private boolean lockScenario;
     private World world;
     private final WorldRenderer worldRenderer = new WorldRenderer();
+    // Time last frame was painted, from System.nanoTime
+    private long lastFramePaint;
+    
+    // The two threads want to share images, but they both need time to draw/read the
+    // image once they have hold of one.  We have one reference with the
+    // latest image ready to draw (which the simulation thread promises not to touch
+    // afterwards), and one with old images which FX promises it has finished reading from,
+    // and which can be redrawn into by the simulation thread.
+    @OnThread(Tag.Any)
+    private final AtomicReference<BufferedImage> pendingImage = new AtomicReference<>(null);
+    @OnThread(Tag.Any)
+    private final ConcurrentLinkedQueue<BufferedImage> oldImages = new ConcurrentLinkedQueue<>();
 
     public WorldHandlerDelegateStandAlone (GreenfootScenarioViewer viewer, boolean lockScenario) 
     {
         this.viewer = viewer;
         this.lockScenario = lockScenario;
+        new AnimationTimer() {
+            @Override
+            @OnThread(Tag.FXPlatform)
+            public void handle(long now)
+            {
+                BufferedImage worldImage = pendingImage.getAndSet(null);
+                // If there was an image ready, draw it as the world:
+                if (worldImage != null)
+                {
+                    viewer.setWorldImage(worldImage);
+                    // Afterwards, put the image back on the queue for re-use:
+                    oldImages.add(worldImage);
+                }
+            }
+        }.start();
     }
     
     public boolean maybeShowPopup(MouseEvent e)
@@ -111,6 +143,12 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     {
         this.world = null;
         worldRenderer.setWorld(null);
+        // Remove the current world image:
+        BufferedImage image = pendingImage.getAndSet(null);
+        if (image != null)
+        {
+            oldImages.add(image);
+        }
     }
 
     public void addActor(Actor actor, int x, int y)
@@ -136,13 +174,18 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         if (world == null)
             return;
         
-        // TODO add in logic for not painting frames too often.
+        long now = System.nanoTime();
+        // Don't try to go above 100 FPS:
+        if (now - lastFramePaint < 10_000_000L)
+            return;
+        lastFramePaint = now;
         
         int imageWidth = WorldVisitor.getWidthInPixels(world);
         int imageHeight = WorldVisitor.getHeightInPixels(world);
 
-        // TODO re-use old images (double buffered?)
-        BufferedImage worldImage = null;
+        BufferedImage worldImage = oldImages.poll();
+        // Re-use the image if it's available and the right size,
+        // otherwise discard it and make a new one of right size:
         if (worldImage == null || worldImage.getHeight() != imageHeight
                 || worldImage.getWidth() != imageWidth)
         {
@@ -150,9 +193,13 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         }
 
         worldRenderer.renderWorld(worldImage);
-
-        BufferedImage worldImageFinal = worldImage;
-        Platform.runLater(() -> viewer.setWorldImage(worldImageFinal));
+        // Set the latest world image as pending, and get the old one to
+        // keep for re-use:
+        BufferedImage oldImage = pendingImage.getAndSet(worldImage);
+        if (oldImage != null)
+        {
+            oldImages.add(oldImage);
+        }
     }
 
     @Override
