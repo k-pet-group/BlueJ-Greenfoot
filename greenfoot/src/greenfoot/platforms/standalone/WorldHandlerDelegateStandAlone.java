@@ -25,6 +25,7 @@ import greenfoot.Actor;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.core.WorldHandler;
+import greenfoot.event.TriggeredKeyListener;
 import greenfoot.export.GreenfootScenarioViewer;
 import greenfoot.gui.DropTarget;
 import greenfoot.gui.WorldRenderer;
@@ -49,7 +50,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @OnThread(Tag.Simulation)
 public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
 {    
-    private WorldHandler worldHandler;
+    private TriggeredKeyListener keyListener;
     private GreenfootScenarioViewer viewer;
     private boolean lockScenario;
     private World world;
@@ -111,9 +112,11 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         worldRenderer.setWorld(newWorld);
     }
 
-    public void setWorldHandler(WorldHandler handler)
+    @Override
+    @OnThread(Tag.Any)
+    public void setKeyListener(TriggeredKeyListener handler)
     {
-        this.worldHandler = handler;
+        this.keyListener = handler;
     }
 
     @Override
@@ -134,8 +137,8 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
             inputManager.setMoveListeners(null, null, null);
         }
         else {
-            inputManager.setIdleListeners(worldHandler, null, null);
-            inputManager.setMoveListeners(worldHandler, null, null);
+            inputManager.setIdleListeners(keyListener, null, null);
+            inputManager.setMoveListeners(keyListener, null, null);
         }
         return inputManager;
     }
@@ -210,6 +213,7 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     }
 
     @Override
+    @OnThread(Tag.Any)
     public void setDropTargetListener(DropTarget dropTarget)
     {
         // No dropping in standalone

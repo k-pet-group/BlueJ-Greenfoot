@@ -24,6 +24,7 @@ package greenfoot.platforms;
 import greenfoot.Actor;
 import greenfoot.World;
 import greenfoot.core.WorldHandler;
+import greenfoot.event.TriggeredKeyListener;
 import greenfoot.gui.DropTarget;
 import greenfoot.gui.input.InputManager;
 import threadchecker.OnThread;
@@ -46,7 +47,12 @@ public interface WorldHandlerDelegate
      */
     void setWorld(World oldWorld, World newWorld);
 
-    void setWorldHandler(WorldHandler handler);
+    /**
+     * Sets the key listener.
+     * @param handler The key listener to use.
+     */
+    @OnThread(Tag.Any)
+    void setKeyListener(TriggeredKeyListener handler);
 
     /**
      * Instantiate a new world and do any initialisation needed to activate that world.
@@ -92,5 +98,6 @@ public interface WorldHandlerDelegate
     /**
      * Set the listener for when a target is dropped.
      */
+    @OnThread(Tag.Any)
     void setDropTargetListener(DropTarget dropTarget);
 }

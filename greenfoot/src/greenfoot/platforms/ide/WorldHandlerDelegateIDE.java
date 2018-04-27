@@ -28,6 +28,7 @@ import greenfoot.core.ImageCache;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.SimulationUIListener;
+import greenfoot.event.TriggeredKeyListener;
 import greenfoot.gui.DropTarget;
 import greenfoot.vmcomm.VMCommsSimulation;
 import greenfoot.vmcomm.VMCommsSimulation.PaintWhen;
@@ -55,7 +56,7 @@ public class WorldHandlerDelegateIDE
 {
     protected final Color envOpColour = new Color(152,32,32);
 
-    private WorldHandler worldHandler;
+    private TriggeredKeyListener keyListener;
     private final VMCommsSimulation vmCommsSimulation;
     
     private boolean worldInitialising;
@@ -91,9 +92,10 @@ public class WorldHandlerDelegateIDE
     }
 
     @Override
-    public void setWorldHandler(WorldHandler handler)
+    @OnThread(Tag.Any)
+    public void setKeyListener(TriggeredKeyListener handler)
     {
-        this.worldHandler = handler;
+        this.keyListener = handler;
     }
 
     @Override
@@ -117,6 +119,7 @@ public class WorldHandlerDelegateIDE
     }
 
     @Override
+    @OnThread(Tag.Any)
     public void setDropTargetListener(DropTarget dropTarget)
     {
         vmCommsSimulation.setDropTargetListener(dropTarget);
@@ -215,8 +218,8 @@ public class WorldHandlerDelegateIDE
     public InputManager getInputManager()
     {
         InputManager inputManager = new InputManager();       
-        inputManager.setIdleListeners(worldHandler, null, null);
-        inputManager.setMoveListeners(worldHandler, null, null);
+        inputManager.setIdleListeners(keyListener, null, null);
+        inputManager.setMoveListeners(keyListener, null, null);
         
         return inputManager;
     }
