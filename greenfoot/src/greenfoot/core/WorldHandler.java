@@ -42,10 +42,10 @@ import greenfoot.platforms.WorldHandlerDelegate;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-
-import javax.swing.event.EventListenerList;
+import java.util.List;
 
 import bluej.debugmgr.objectbench.ObjectBenchInterface;
 import threadchecker.OnThread;
@@ -75,7 +75,8 @@ public class WorldHandler
     private KeyboardManager keyboardManager;
     @OnThread(Tag.Any)
     private static WorldHandler instance;
-    private EventListenerList listenerList = new EventListenerList();
+    @OnThread(Tag.Any)
+    private final List<WorldListener> worldListeners = new ArrayList<>();
     private WorldHandlerDelegate handlerDelegate;
     private MousePollingManager mousePollingManager;
     private InputManager inputManager;
@@ -648,54 +649,33 @@ public class WorldHandler
     @OnThread(Tag.Simulation)
     protected void fireWorldCreatedEvent(World newWorld)
     {
-        // Guaranteed to return a non-null array
-        Object[] listeners = listenerList.getListenerList();
-        // Process the listeners last to first, notifying
-        // those that are interested in this event
         WorldEvent worldEvent = new WorldEvent(newWorld);
-        for (int i = listeners.length - 2; i >= 0; i -= 2) {
-            if (listeners[i] == WorldListener.class) {
-                ((WorldListener) listeners[i + 1]).worldCreated(worldEvent);
-            }
+        for (WorldListener worldListener : worldListeners)
+        {
+            worldListener.worldCreated(worldEvent);
         }
     }
 
     @OnThread(Tag.Simulation)
     public void fireWorldRemovedEvent(World discardedWorld)
     {
-        // Guaranteed to return a non-null array
-        Object[] listeners = listenerList.getListenerList();
-        // Process the listeners last to first, notifying
-        // those that are interested in this event
         WorldEvent worldEvent = new WorldEvent(discardedWorld);
-        for (int i = listeners.length - 2; i >= 0; i -= 2) {
-            if (listeners[i] == WorldListener.class) {
-                ((WorldListener) listeners[i + 1]).worldRemoved(worldEvent);
-            }
+        for (WorldListener worldListener : worldListeners)
+        {
+            worldListener.worldRemoved(worldEvent);
         }
     }
 
     /**
      * Add a worldListener to listen for when a worlds are created and removed.
-     * Events will be delivered on the GUI event thread.
+     * Events will be delivered on the Simulation thread.
      * 
-     * @param l
-     *            Listener to add
+     * @param l Listener to add
      */
+    @OnThread(Tag.Any)
     public void addWorldListener(WorldListener l)
     {
-        listenerList.add(WorldListener.class, l);
-    }
-
-    /**
-     * Removes a worldListener.
-     * 
-     * @param l
-     *            Listener to remove
-     */
-    public void removeWorldListener(WorldListener l)
-    {
-        listenerList.remove(WorldListener.class, l);
+        worldListeners.add(0, l);
     }
 
     /**
@@ -712,11 +692,6 @@ public class WorldHandler
             WorldVisitor.startSequence(world);
             mousePollingManager.newActStarted();
         }
-    }
-
-    public EventListenerList getListenerList()
-    {
-        return listenerList;
     }
 
     /**
