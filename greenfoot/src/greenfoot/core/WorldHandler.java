@@ -151,7 +151,7 @@ public class WorldHandler
             }
 
             @Override
-            public void setWorldHandler(WorldHandler handler)
+            public void setKeyListener(TriggeredKeyListener handler)
             {
             }
             
@@ -196,7 +196,7 @@ public class WorldHandler
     {
         instance = this;
         this.handlerDelegate = handlerDelegate;
-        this.handlerDelegate.setWorldHandler(this);
+        this.handlerDelegate.setKeyListener(this);
         
         mousePollingManager = new MousePollingManager(null);
 
