@@ -56,12 +56,19 @@ public class WorldDisplay extends StackPane
 
     /**
      * Sets the world image.  Turns off any greying effect.
+     * 
+     * Returns true if the world changed size
      */
-    public void setImage(Image image)
+    public boolean setImage(Image image)
     {
+        Image oldImage = imageView.getImage();
+        boolean newSize = oldImage == null || image == null ||
+                image.getWidth() != oldImage.getWidth() ||
+                image.getHeight() != oldImage.getHeight();
         imageView.setImage(image);
         // Now that world is valid again, turn off any greying effect:
         imageView.setEffect(null);
+        return newSize;
     }
 
     /**

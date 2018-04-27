@@ -244,7 +244,10 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
      */
     public void setWorldImage(BufferedImage worldImage)
     {
-        worldDisplay.setImage(bufferedImageToFX(worldImage));
+        if (worldDisplay.setImage(bufferedImageToFX(worldImage)))
+        {
+            worldDisplay.getScene().getWindow().sizeToScene();
+        }
     }
 
     /**
