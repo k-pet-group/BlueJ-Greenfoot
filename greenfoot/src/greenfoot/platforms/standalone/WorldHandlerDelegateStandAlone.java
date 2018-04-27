@@ -29,7 +29,6 @@ import greenfoot.event.TriggeredKeyListener;
 import greenfoot.export.GreenfootScenarioViewer;
 import greenfoot.gui.DropTarget;
 import greenfoot.gui.WorldRenderer;
-import greenfoot.gui.input.InputManager;
 import greenfoot.platforms.WorldHandlerDelegate;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
@@ -127,20 +126,6 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         if (! WorldHandler.getInstance().checkWorldSet()) {
             WorldHandler.getInstance().setWorld(newWorld, false);
         }
-    }
-
-    public InputManager getInputManager()
-    {
-        InputManager inputManager = new InputManager();
-        if (lockScenario) {
-            inputManager.setIdleListeners(null, null, null);
-            inputManager.setMoveListeners(null, null, null);
-        }
-        else {
-            inputManager.setIdleListeners(keyListener, null, null);
-            inputManager.setMoveListeners(keyListener, null, null);
-        }
-        return inputManager;
     }
 
     public void discardWorld(World world)

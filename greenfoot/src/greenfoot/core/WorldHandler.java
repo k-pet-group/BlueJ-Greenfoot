@@ -33,7 +33,6 @@ import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
 import greenfoot.gui.DragListener;
 import greenfoot.gui.DropTarget;
-import greenfoot.gui.input.InputManager;
 import greenfoot.gui.input.KeyboardManager;
 import greenfoot.gui.input.mouse.MousePollingManager;
 import greenfoot.gui.input.mouse.WorldLocator;
@@ -79,7 +78,6 @@ public class WorldHandler
     private final List<WorldListener> worldListeners = new ArrayList<>();
     private WorldHandlerDelegate handlerDelegate;
     private MousePollingManager mousePollingManager;
-    private InputManager inputManager;
 
     // Offset from the middle of the actor when initiating a drag on an actor.
     private int dragOffsetX;
@@ -132,12 +130,6 @@ public class WorldHandler
             @Override
             public void discardWorld(World world)
             {                
-            }
-
-            @Override
-            public InputManager getInputManager()
-            {
-                return null;
             }
 
             @Override
@@ -203,11 +195,6 @@ public class WorldHandler
         handlerDelegate.setDropTargetListener(this);
 
         keyboardManager = new KeyboardManager();
-
-        inputManager = handlerDelegate.getInputManager();
-        addWorldListener(inputManager);
-        inputManager.setRunningListeners(getKeyboardManager(), mousePollingManager, mousePollingManager);
-        inputManager.init();
     }
 
     /**
@@ -734,9 +721,6 @@ public class WorldHandler
         if (e.getType() == SimulationEvent.NEW_ACT_ROUND) {
             startSequence();
         }
-        else {
-            inputManager.simulationChanged(e);
-        }
     }
 
     /**
@@ -751,12 +735,7 @@ public class WorldHandler
             return null;
         }
     }
-    
-    public InputManager getInputManager()
-    {
-        return inputManager;
-    }
-    
+        
     @Override
     public void listeningEnded()
     {

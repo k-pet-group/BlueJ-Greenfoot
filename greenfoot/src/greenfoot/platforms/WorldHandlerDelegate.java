@@ -26,7 +26,6 @@ import greenfoot.World;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.TriggeredKeyListener;
 import greenfoot.gui.DropTarget;
-import greenfoot.gui.input.InputManager;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -66,8 +65,6 @@ public interface WorldHandlerDelegate
      *                   return the result without blocking.
      */
     void instantiateNewWorld(String className, Runnable runIfError);
-
-    InputManager getInputManager();
 
     void discardWorld(World world);
     
