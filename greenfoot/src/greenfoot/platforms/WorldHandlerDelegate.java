@@ -26,6 +26,8 @@ import greenfoot.World;
 import greenfoot.core.WorldHandler;
 import greenfoot.gui.DropTarget;
 import greenfoot.gui.input.InputManager;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 
 /**
@@ -34,6 +36,7 @@ import greenfoot.gui.input.InputManager;
  * 
  * @author Poul Henriksen
  */
+@OnThread(Tag.Simulation)
 public interface WorldHandlerDelegate
 {    
     /**

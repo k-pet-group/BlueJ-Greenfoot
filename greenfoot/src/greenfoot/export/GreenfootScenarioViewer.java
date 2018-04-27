@@ -43,6 +43,8 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -58,6 +60,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * 
  * @author Poul Henriksen
  */
+@OnThread(Tag.FXPlatform)
 public class GreenfootScenarioViewer extends BorderPane implements ControlPanelListener
 {
     private static String scenarioName;
@@ -178,6 +181,7 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
         return WorldHandler.getInstance().getWorld();
     }
     
+    @OnThread(Tag.Any)
     public String ask(final String prompt)
     {
         final AtomicReference<Callable<String>> c = new AtomicReference<Callable<String>>();

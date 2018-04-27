@@ -23,6 +23,8 @@ package greenfoot.platforms;
 
 import greenfoot.GreenfootImage;
 import greenfoot.UserInfo;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.awt.Component;
 import java.net.URL;
@@ -34,11 +36,13 @@ import java.util.List;
  * 
  * @author Poul Henriksen
  */
+@OnThread(Tag.Simulation)
 public interface GreenfootUtilDelegate
 {
     /**
      * Get some resource from the project, specified by a relative path.
      */
+    @OnThread(Tag.Any)
     public URL getResource(String path);
     
     /**
@@ -52,11 +56,13 @@ public interface GreenfootUtilDelegate
      * and you should not rely on it being accurate (e.g. if files were just added/removed in the sounds directory,
      * or the JAR has been modified since export). 
      */
+    @OnThread(Tag.Any)
     public Iterable<String> getSoundFiles();
 
     /**
      * Get the project-relative path of the Greenfoot logo.
      */
+    @OnThread(Tag.Any)
     public String getGreenfootLogoPath();
 
     /**

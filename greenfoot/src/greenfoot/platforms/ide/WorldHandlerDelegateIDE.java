@@ -35,6 +35,8 @@ import greenfoot.gui.input.InputManager;
 import greenfoot.platforms.WorldHandlerDelegate;
 import greenfoot.record.GreenfootRecorder;
 import greenfoot.util.GreenfootUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.awt.Color;
 import java.lang.reflect.Constructor;
@@ -102,6 +104,7 @@ public class WorldHandlerDelegateIDE
     }
 
     @Override
+    @OnThread(Tag.Simulation)
     public void paint(boolean forcePaint)
     {
         vmCommsSimulation.paintRemote(forcePaint ? PaintWhen.FORCE : PaintWhen.IF_DUE);

@@ -29,6 +29,8 @@ import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.core.TextLabel;
 import greenfoot.util.GreenfootUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -41,6 +43,7 @@ import java.util.Set;
  * A class which handles the rendering of a World into a BufferedImage, including
  * handling the currently-dragging actor (if any).
  */
+@OnThread(Tag.Simulation)
 public class WorldRenderer
 {
     private static final Color BACKGROUND = Color.WHITE;

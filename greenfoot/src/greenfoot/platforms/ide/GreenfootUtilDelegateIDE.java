@@ -60,10 +60,13 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
 import rmiextension.BlueJRMIClient;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * GreenfootUtilDelegate implementation for the Greenfoot IDE.
  */
+@OnThread(Tag.Simulation)
 public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
 {
     private static GreenfootUtilDelegateIDE instance;
@@ -86,12 +89,14 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     }
 
     @Override
+    @OnThread(Tag.Any)
     public URL getResource(String path) 
     {
         return ExecServer.getCurrentClassLoader().getResource(path);
     }
     
     @Override
+    @OnThread(Tag.Any)
     public Iterable<String> getSoundFiles()
     {
         ArrayList<String> files = new ArrayList<String>();
@@ -118,6 +123,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
      * Returns the path to a small version of the greenfoot logo.
      */
     @Override
+    @OnThread(Tag.Any)
     public  String getGreenfootLogoPath()
     {        
         File libDir = Config.getGreenfootLibDir();

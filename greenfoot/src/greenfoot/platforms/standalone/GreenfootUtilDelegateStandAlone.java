@@ -26,6 +26,8 @@ import greenfoot.UserInfoVisitor;
 import greenfoot.UserInfo;
 import greenfoot.platforms.GreenfootUtilDelegate;
 import greenfoot.util.GreenfootStorageException;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.awt.Component;
 import java.io.BufferedReader;
@@ -44,6 +46,7 @@ import java.util.List;
 /**
  * Implementation of GreenfootUtilDelegate for standalone applications.
  */
+@OnThread(Tag.Simulation)
 public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
 {
     private SocketChannel socket;
@@ -80,6 +83,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
     }
     
     @Override
+    @OnThread(Tag.Any)
     public URL getResource(String path)
     {
         // Resources from the standalone should always be in a jar, which means
@@ -108,6 +112,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
     }
     
     @Override
+    @OnThread(Tag.Any)
     public Iterable<String> getSoundFiles()
     {
         InputStream is = this.getClass().getClassLoader().getResourceAsStream("soundindex.list");
