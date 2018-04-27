@@ -241,7 +241,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
      */
     private void clearStatus()
     {
-        if(!progressBar.isVisible())
+        if (!progressBar.isVisible())
         {
             progressLabel.setVisible(false);
         }
