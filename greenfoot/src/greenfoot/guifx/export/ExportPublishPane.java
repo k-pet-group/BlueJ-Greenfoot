@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javafx.beans.binding.BooleanBinding;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
@@ -119,6 +120,9 @@ public class ExportPublishPane extends ExportPane
     private final ExportDialog exportDialog;
     private final ScenarioSaver scenarioSaver;
 
+    private BooleanBinding userNameValidity;
+    private BooleanBinding passwordValidity;
+
     /**
      * Creates a new instance of ExportPublishPane
      *
@@ -138,6 +142,11 @@ public class ExportPublishPane extends ExportPane
         buildContentPane();
         applySharedStyle();
         getContent().getStyleClass().add("export-publish-pane");
+        userNameValidity = userNameField.textProperty().isNotEmpty();
+        passwordValidity = passwordField.textProperty().isNotEmpty();
+        validProperty.bind(userNameValidity.and(passwordValidity));
+
+        JavaFXUtil.addChangeListener(selectedProperty(), selected -> activated());
     }
 
     @Override
@@ -495,7 +504,6 @@ public class ExportPublishPane extends ExportPane
      * 
      * <p>And we load previously used values if they are stored.
      */
-    @Override
     public void activated()
     {
         if (firstActivation)

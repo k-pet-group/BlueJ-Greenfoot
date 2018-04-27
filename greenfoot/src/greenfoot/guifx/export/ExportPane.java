@@ -26,6 +26,8 @@ import bluej.Config;
 import greenfoot.export.Exporter;
 import greenfoot.export.mygame.ScenarioInfo;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
@@ -49,6 +51,7 @@ public abstract class ExportPane extends Tab
     protected final CheckBox hideControls = new CheckBox(Config.getString("export.controls.label"));
 
     protected final ScenarioInfo scenarioInfo;
+    protected final BooleanProperty validProperty = new SimpleBooleanProperty(true);
 
     /**
      * Create a an export pane for export to web pages.
@@ -69,15 +72,6 @@ public abstract class ExportPane extends Tab
         hideControls.setTooltip(new Tooltip(Config.getString("export.controls.description")));
 
         getStyleClass().add("export-pane");
-    }
-
-    /**
-     * This method will be called when this pane is activated (about to be
-     * shown/visible)
-     */
-    public void activated()
-    {
-        // Nothing special to do here
     }
 
     /**

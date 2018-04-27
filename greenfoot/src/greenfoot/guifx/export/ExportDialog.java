@@ -26,6 +26,7 @@ import bluej.debugger.gentype.ConstructorReflective;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.utility.javafx.FXCustomizedDialog;
+import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.Utility;
 
 import greenfoot.export.Exporter;
@@ -128,7 +129,6 @@ public class ExportDialog extends FXCustomizedDialog<Void>
 
         continueButton = new Button(Config.getString("export.dialog.export"));
         continueButton.setOnAction(event -> doExport());
-        continueButton.disableProperty().bind(exportingProperty);
 
         HBox bottomBox = new HBox(continueButton, progressLabel, progressBar);
         bottomBox.getStyleClass().add("bottom-box");
@@ -154,6 +154,10 @@ public class ExportDialog extends FXCustomizedDialog<Void>
             ExportPublishPane publishPane = (ExportPublishPane) panes.get(ExportFunction.PUBLISH);
             publishPane.setImage(snapshot);
         }
+
+        JavaFXUtil.addChangeListener(tabbedPane.selectionModelProperty().get().selectedItemProperty(),
+            tab -> updateControls((ExportPane) tab));
+
         selectPane(Config.getPropString("greenfoot.lastExportPane"));
     }
 
@@ -260,11 +264,24 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     }
 
     /**
-     * Called when the selection of the tabs changes.
+     * Select a pane based on a function name.
+     *
+     * @param name The name of the function which match the pane to be selected.
      */
     private void selectPane(String name)
     {
-        tabbedPane.getSelectionModel().select(panes.get(ExportFunction.getFunction(name)));
+        ExportPane pane = panes.get(ExportFunction.getFunction(name));
+        tabbedPane.getSelectionModel().select(pane);
+        updateControls(pane);
+    }
+
+    /**
+     * Call when the selection of the tabs changes to update related controls.
+     */
+    private void updateControls(ExportPane pane)
+    {
+        continueButton.disableProperty().unbind();
+        continueButton.disableProperty().bind(pane.validProperty.not().or(exportingProperty));
         continueButton.setText(Config.getString("export.dialog.export"));
         clearStatus();
     }
