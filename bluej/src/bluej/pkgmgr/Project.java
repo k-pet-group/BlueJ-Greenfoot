@@ -1683,7 +1683,8 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     public ExecControls getExecControls()
     {
         if (execControls == null) {
-            execControls = new ExecControls(this, getDebugger(), threadListContents);
+            execControls = new ExecControls(this, getDebugger(),
+                    Config.isGreenfoot() ? null : threadListContents);
             debuggerShowing.bindBidirectional(execControls.showingProperty());
         }
         return execControls;
@@ -2494,31 +2495,24 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     @OnThread(Tag.Any)
     public void threadStateChanged(DebuggerThread thread, boolean shouldDisplay)
     {
-        DebuggerThreadDetails details = new DebuggerThreadDetails(thread);
         Platform.runLater(() -> {
-            DebuggerThreadDetails prevSelection = null;
-            if (hasExecControls())
-            {
-                prevSelection = getExecControls().getSelectedThreadDetails();
-            }
-
             for (int i = 0; i < threadListContents.size(); i++)
             {
                 if (threadListContents.get(i).isThread(thread))
                 {
-                    threadListContents.set(i, details);
+                    threadListContents.get(i).update();
+                    break;
                 }
             }
 
-            if (shouldDisplay)
+            if (hasExecControls())
             {
-                getExecControls().setSelectedThread(details);
+                getExecControls().updateThreadDetails(thread);
+                if (shouldDisplay)
+                {
+                    getExecControls().makeSureThreadIsSelected(thread);
+                }
             }
-            else if (prevSelection != null)
-            {
-                getExecControls().setSelectedThread(prevSelection);
-            }
-            getExecControls().threadStateChanged(details);
         });
     }
 
@@ -2613,22 +2607,30 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     public static class DebuggerThreadDetails
     {
         private final DebuggerThread debuggerThread;
-        private final String debuggerThreadDisplay;
-        private final boolean suspended;
+        private String debuggerThreadDisplay;
+        private boolean suspended;
 
         @OnThread(Tag.Any)
         public DebuggerThreadDetails(DebuggerThread dt)
         {
             this.debuggerThread = dt;
-            this.debuggerThreadDisplay = dt.toString();
-            this.suspended = dt.isSuspended();
+            update();
         }
-
-        // Equality is solely dependent on the thread, not the display:
+        
+        /**
+         * Update details based on the current state of the thread.
+         */
+        @OnThread(Tag.Any)
+        public void update()
+        {
+            this.debuggerThreadDisplay = debuggerThread.toString();
+            this.suspended = debuggerThread.isSuspended();
+        }
 
         @Override
         public boolean equals(Object o)
         {
+            // Equality is solely dependent on the thread, not the display:
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 

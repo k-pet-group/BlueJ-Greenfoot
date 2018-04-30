@@ -81,7 +81,10 @@ import java.util.Set;
 import com.sun.jdi.VMDisconnectedException;
 
 /**
- * Window for controlling the debugger
+ * Window for controlling the debugger.
+ * <p>
+ * There are two modes; one which displays a list of all threads (and the user can select a thread
+ * to control/inspect) and another where only a single thread is displayed.
  *
  * @author  Michael Kolling
  */
@@ -116,7 +119,8 @@ public class ExecControls
     @OnThread(Tag.FXPlatform)
     private BorderPane fxContent;
 
-    // the display for the list of active threads
+    // the display for the list of active threads; may be null if there is no list (i.e. the
+    // "single thread" mode is active)
     private ComboBox<DebuggerThreadDetails> threadList;
 
     private ListView<SourceLocation> stackList;
@@ -140,15 +144,23 @@ public class ExecControls
     private final BooleanProperty hideSystemThreads = new SimpleBooleanProperty(true);
     private final SimpleBooleanProperty cannotStepOrContinue = new SimpleBooleanProperty(true);
     private final SimpleBooleanProperty cannotHalt = new SimpleBooleanProperty(true);
+    
+    // The currently selected thread
+    private DebuggerThreadDetails selectedThread;
 
 
     /**
-     * Create a window to view and interact with a debug VM.
+     * Create a window to view and interact with a debug VM. The window optionally shows a thread pane
+     * from which the user can select a thread to control; otherwise the thread selection is controlled
+     * programmatically.
      * 
      * @param project  the project this window is associated with
      * @param debugger the debugger this window is debugging
+     * @param debuggerThreads  an observable list of all threads that should be displayed by the debugger,
+     *                         or null if the thread pane should not be displayed.
      */
-    public ExecControls(Project project, Debugger debugger, ObservableList<DebuggerThreadDetails> debuggerThreads)
+    public ExecControls(Project project, Debugger debugger,
+            ObservableList<DebuggerThreadDetails> debuggerThreads)
     {
         if (project == null || debugger == null) {
             throw new NullPointerException("project or debugger null in ExecControls");
@@ -168,9 +180,20 @@ public class ExecControls
         SplitPane varSplit = new SplitPane(labelled(instanceList, instanceTitle), labelled(localList, localTitle));
         varSplit.setOrientation(Orientation.VERTICAL);
         vars.setCenter(varSplit);
-        BorderPane lhsPane = new BorderPane(labelled(stackList, stackTitle), labelled(threadList, threadTitle), null, null, null);
-        JavaFXUtil.addStyleClass(threadList, "debugger-thread-combo");
+        
+        // There are two possible pane layouts: with thread list and without.
+        BorderPane lhsPane;
+        if (debuggerThreads != null)
+        {
+            lhsPane = new BorderPane(labelled(stackList, stackTitle), labelled(threadList, threadTitle), null, null, null);
+            JavaFXUtil.addStyleClass(threadList, "debugger-thread-combo");
+        }
+        else
+        {
+            lhsPane = new BorderPane(labelled(stackList, stackTitle), null, null, null, null);
+        }
         JavaFXUtil.addStyleClass(lhsPane, "debugger-thread-and-stack");
+        
         fxContent.setTop(makeMenuBar());
         fxContent.setCenter(new SplitPane(lhsPane, vars));
         fxContent.setBottom(buttons);
@@ -183,7 +206,6 @@ public class ExecControls
         window.setOnShown(e -> {
             DataCollector.debuggerChangeVisible(project, true);
             showingProperty.set(true);
-            //org.scenicview.ScenicView.show(scene);
         });
         window.setOnHidden(e -> {
             DataCollector.debuggerChangeVisible(project, false);
@@ -195,9 +217,13 @@ public class ExecControls
         // not to end up in an infinite loop:
         JavaFXUtil.addChangeListenerPlatform(showingProperty, show -> {
             if (show && !window.isShowing())
+            {
                 window.show();
+            }
             else if (!show && window.isShowing())
+            {
                 window.hide();
+            }
         });
 
     }
@@ -246,39 +272,49 @@ public class ExecControls
      */
     public void makeSureThreadIsSelected(final DebuggerThread dt)
     {
-        DebuggerThreadDetails details = threadList.getItems().stream().filter(d -> d.isThread(dt)).findFirst().orElse(null);
-        if (details != null)
-            threadList.getSelectionModel().select(details);
+        if (threadList != null)
+        {
+            DebuggerThreadDetails details = threadList.getItems().stream()
+                    .filter(d -> d.isThread(dt))
+                    .findFirst().orElse(null);
+            if (details != null)
+            {
+                threadList.getSelectionModel().select(details);
+            }
+        }
+        else if (selectedThread == null || ! dt.sameThread(selectedThread.getThread()))
+        {
+            selectedThreadChanged(new DebuggerThreadDetails(dt));
+        }
     }
 
     /**
-     * Set our internally selected thread and update the
-     * UI to reflect its status.
-     *
-     * <p>This does not actually highlight the selected thread - use makeSureThreadIsSelected()
-     * for that.
-     * 
-     * @see #makeSureThreadIsSelected(DebuggerThread)
-     * 
-     * @param dt  the thread to select or null if the thread
-     *            selection has been cleared
+     * Update the details displayed for the given thread (if they are currently displayed).
      */
-    public void setSelectedThread(DebuggerThreadDetails dt)
+    public void updateThreadDetails(DebuggerThread dt)
     {
-        threadList.getSelectionModel().select(dt);
-
+        if (selectedThread != null && selectedThread.isThread(dt))
+        {
+            if (threadList == null)
+            {
+                selectedThread.update();
+            }
+            setThreadDetails(selectedThread);
+        }
     }
 
     private void selectedThreadChanged(DebuggerThreadDetails dt)
     {
         if (dt == null)
         {
+            selectedThread = null;
             cannotHalt.set(true);
             cannotStepOrContinue.set(true);
             stackList.getItems().clear();
         }
         else
         {
+            selectedThread = dt;
             setThreadDetails(dt);
         }
     }
@@ -470,17 +506,19 @@ public class ExecControls
         placeholder.setTextAlignment(TextAlignment.CENTER);
         stackList.setPlaceholder(placeholder);
 
-
-        FilteredList<DebuggerThreadDetails> filteredThreads = new FilteredList<>(debuggerThreads, this::showThread);
-        threadList = new ComboBox<>(filteredThreads);
-        // FilteredList doesn't know to recalculate after property changes, so
-        // we have to manually trigger it:
-        JavaFXUtil.addChangeListenerPlatform(hideSystemThreads, sys -> {
-            // Need to make an actual change, so blank then set again:
-            filteredThreads.setPredicate(null);
-            filteredThreads.setPredicate(this::showThread);
-        });
-        JavaFXUtil.addChangeListenerPlatform(threadList.getSelectionModel().selectedItemProperty(), this::selectedThreadChanged);
+        if (debuggerThreads != null)
+        {
+            FilteredList<DebuggerThreadDetails> filteredThreads = new FilteredList<>(debuggerThreads, this::showThread);
+            threadList = new ComboBox<>(filteredThreads);
+            // FilteredList doesn't know to recalculate after property changes, so
+            // we have to manually trigger it:
+            JavaFXUtil.addChangeListenerPlatform(hideSystemThreads, sys -> {
+                // Need to make an actual change, so blank then set again:
+                filteredThreads.setPredicate(null);
+                filteredThreads.setPredicate(this::showThread);
+            });
+            JavaFXUtil.addChangeListenerPlatform(threadList.getSelectionModel().selectedItemProperty(), this::selectedThreadChanged);
+        }
     }
 
     // The label is <html><center>...<br>...</html> (silly, really)
@@ -542,26 +580,17 @@ public class ExecControls
 
     public DebuggerThreadDetails getSelectedThreadDetails()
     {
-        return threadList.getSelectionModel().getSelectedItem();
+        if (threadList != null)
+        {
+            return threadList.getSelectionModel().getSelectedItem();
+        }
+        
+        return selectedThread;
     }
 
     public BooleanProperty showingProperty()
     {
         return showingProperty;
-    }
-
-    /**
-     * Notification method for when a thread state changes. If the thread's details are currently displayed,
-     * they should be updated.
-     * 
-     * @param thread  The thread details to update.
-     */
-    public void threadStateChanged(DebuggerThreadDetails thread)
-    {
-        if (thread.equals(getSelectedThreadDetails()))
-        {
-            setThreadDetails(thread);
-        }
     }
 
     /**
