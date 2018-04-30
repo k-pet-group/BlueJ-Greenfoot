@@ -45,6 +45,7 @@ import javafx.application.Platform;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -127,6 +128,17 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
             buildGUI();
             
             controls.updateState(State.PAUSED, false);
+
+            addEventFilter(KeyEvent.ANY, e -> {
+                if (e.getEventType() == KeyEvent.KEY_PRESSED)
+                {
+                    worldHandler.getKeyboardManager().pressKey(e.getCode());
+                }
+                else if (e.getEventType() == KeyEvent.KEY_RELEASED)
+                {
+                    worldHandler.getKeyboardManager().releaseKey(e.getCode());
+                }
+            });
         }        
         catch (SecurityException | IllegalArgumentException | ClassNotFoundException | NoSuchMethodException e) {
             e.printStackTrace();

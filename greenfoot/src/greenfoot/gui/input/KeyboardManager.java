@@ -22,6 +22,7 @@
 package greenfoot.gui.input;
 
 import greenfoot.event.TriggeredKeyListener;
+import javafx.scene.input.KeyCode;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -29,6 +30,7 @@ import java.awt.Toolkit;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -44,25 +46,23 @@ import java.util.Map;
  * 
  * @author Davin McCall
  */
-public class KeyboardManager implements TriggeredKeyListener, FocusListener
+public class KeyboardManager
 {
     private String lastKeyTyped;
 
-    // We don't know how many virtual keys there are or what they are
-    // defined as. To allow checking arbitrary keys, we'll allocate an
-    // initial array size of 100, but increase it if we see a higher key
-    // code.
-    private int numKeys = 100;
-    private boolean [] keyLatched = new boolean[numKeys];
-    private boolean [] keyDown = new boolean[numKeys];
+    private final EnumSet<KeyCode> keyLatched = EnumSet.noneOf(KeyCode.class);
+    private final EnumSet<KeyCode> keyDown = EnumSet.noneOf(KeyCode.class);
 
-    // The highest named key index
-    private int maxNamedKey = 0;
-    // The names of keys, for those keys we want to translate
-    private String [] keyNames;
+    // This maps key names to codes, and is used during Greenfoot.isKeyDown()
+    // so that we can take the key the user asked for and check if it is pressed or not.
+    // Every possible key is in this map:
+    private final Map<String, KeyCode> keyCodeMap = new HashMap<>();
     
-    private Map<String,Integer> keyCodeMap;
-    
+    // This maps from key code to String name, and is used for processing ahead of
+    // Greenfoot.getKey() to work out the name of the last pressed key.
+    private final Map<KeyCode, String> keyNames = new HashMap<>();
+
+
     /** Do we think that a numlock key is present? */
     private boolean hasNumLock = true;
     
@@ -72,7 +72,6 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
      */
     public KeyboardManager()
     {
-        keyCodeMap = new HashMap<String,Integer>();
         addAllKeys();
         buildKeyNameArray();        
     }
@@ -84,8 +83,12 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
     @OnThread(Tag.Any)
     public synchronized void clearLatchedKeys()
     {
-        for (int i = 0; i < numKeys; i++) {
-            keyLatched[i] &= keyDown[i];
+        for (KeyCode keyCode : KeyCode.values())
+        {
+            if (!keyDown.contains(keyCode))
+            {
+                keyLatched.remove(keyCode);
+            }
         }
     }
     
@@ -97,29 +100,17 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
      */
     private void addAllKeys()
     {
-        addKey("up", KeyEvent.VK_UP);
-        addKey("down", KeyEvent.VK_DOWN);
-        addKey("left", KeyEvent.VK_LEFT);
-        addKey("right", KeyEvent.VK_RIGHT);
-        addKey("space", KeyEvent.VK_SPACE);
-        addKey("enter", KeyEvent.VK_ENTER);
-        addKey("escape", KeyEvent.VK_ESCAPE);
-        addKey("f1", KeyEvent.VK_F1);
-        addKey("f2", KeyEvent.VK_F2);
-        addKey("f3", KeyEvent.VK_F3);
-        addKey("f4", KeyEvent.VK_F4);
-        addKey("f5", KeyEvent.VK_F5);
-        addKey("f6", KeyEvent.VK_F6);
-        addKey("f7", KeyEvent.VK_F7);
-        addKey("f8", KeyEvent.VK_F8);
-        addKey("f9", KeyEvent.VK_F9);
-        addKey("f10", KeyEvent.VK_F10);
-        addKey("f11", KeyEvent.VK_F11);
-        addKey("f12", KeyEvent.VK_F12);
-        addKey("backspace", KeyEvent.VK_BACK_SPACE);
-        addKey("\'", KeyEvent.VK_QUOTE);
-        addKey("shift", KeyEvent.VK_SHIFT);
-        addKey("control", KeyEvent.VK_CONTROL);
+        // For most keys, the Greenfoot name lines up with the lower-cased FX name:
+        for (KeyCode keyCode : KeyCode.values())
+        {
+            addKey(keyCode.getName().toLowerCase(), keyCode);
+        }
+        
+        // And the ones where the Greenfoot name doesn't line up with the FX name:
+        addKey("escape", KeyCode.ESCAPE);
+        addKey("backspace", KeyCode.BACK_SPACE);
+        addKey("\'", KeyCode.QUOTE);
+        addKey("control", KeyCode.CONTROL);
     }
     
     /**
@@ -129,12 +120,9 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
      * @param keyName   The name of the key to add (Greenfoot name)
      * @param keyCode   The key code of the key to add (Java key code)
      */
-    private void addKey(String keyName, int keyCode)
+    private void addKey(String keyName, KeyCode keyCode)
     {
         keyCodeMap.put(keyName, keyCode);
-        if (keyCode + 1 > maxNamedKey) {
-            maxNamedKey = keyCode + 1;
-        }
     }
     
     /**
@@ -142,6 +130,7 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
      */
     private void buildKeyNameArray()
     {
+        /* TODO commented out, pending a fix for the way we deal with key typed:
         keyNames = new String[maxNamedKey];
         Iterator<String> keyNamesIterator = keyCodeMap.keySet().iterator();
         while (keyNamesIterator.hasNext()) {
@@ -158,30 +147,7 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
         keyNames[KeyEvent.VK_TAB] = null;
         keyNames[KeyEvent.VK_BACK_SPACE] = null;
         keyNames[KeyEvent.VK_QUOTE] = null;
-    }
-        
-    
-    /**
-     * Make sure the key arrays are big enough to store information about
-     * the given key. Should be called from a synchronized context.
-     * 
-     * @param keycode  The keycode of the key to check.
-     */
-    private void checkKeyArrays(int keycode)
-    {
-        int nsize = keycode + 1;
-        if (nsize > numKeys) {
-            // we're seeing a new key code, increase array size
-            boolean [] newKeyLatched = new boolean[nsize];
-            boolean [] newKeyDown = new boolean[nsize];
-            for (int i = 0; i < numKeys; i++) {
-                newKeyLatched[i] = keyLatched[i];
-                newKeyDown[i] = keyDown[i];
-            }
-            keyLatched = newKeyLatched;
-            keyDown = newKeyDown;
-            numKeys = nsize;
-        }
+        */
     }
     
     /**
@@ -204,16 +170,11 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
      *                it was last checked; false otherwise.
      */
     @OnThread(Tag.Simulation)
-    public synchronized boolean isKeyDown(int keycode)
+    public synchronized boolean isKeyDown(KeyCode keycode)
     {
-        if (keycode < numKeys) {
-            boolean pressed = keyDown[keycode] || keyLatched[keycode];
-            keyLatched[keycode] = false;
-            return pressed;
-        }
-        else {
-            return false;
-        }
+        boolean pressed = keyDown.contains(keycode) || keyLatched.contains(keycode);
+        keyLatched.remove(keycode);
+        return pressed;
     }
     
     /**
@@ -227,62 +188,43 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
     @OnThread(Tag.Simulation)
     public boolean isKeyDown(String keyId)
     {
-        Integer code = keyCodeMap.get(keyId.toLowerCase());
-        if (code != null) {
+        KeyCode code = keyCodeMap.get(keyId.toLowerCase());
+        if (code != null)
+        {
             return isKeyDown(code);
         }
-        else {
+        else
+        {
             // If the keyId is a single character, look for the keycode corresponding to that
             // character.
-            if (keyId.codePointCount(0, keyId.length()) == 1) {
-                int keyChar = keyId.codePointAt(0);
-                keyChar = Character.toUpperCase(keyChar);
-                int keyCode = KeyEvent.getExtendedKeyCodeForChar(keyChar);
-                return isKeyDown(keyCode);
+            if (keyId.codePointCount(0, keyId.length()) == 1)
+            {
+                KeyCode keyCode = KeyCode.getKeyCode(keyId);
+                if (keyCode != null)
+                {
+                    return isKeyDown(keyCode);
+                }
             }
             throw new IllegalArgumentException("\"" + keyId + "\" key doesn't exist. "
                     + "Please change the key name while invoking Greenfoot.isKeyDown() method"); 
         }
     }
     
-    // ----- KeyListener interface -----
-    
-    /*
-     * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
-     */
-    public synchronized void keyPressed(KeyEvent event)
-    {
-        int keyCode = event.getExtendedKeyCode();
-        pressKey(keyCode);
-    }
-
-    public synchronized void pressKey(int keyCode)
+    public synchronized void pressKey(KeyCode keyCode)
     {
         keyCode = numLockTranslate(keyCode);
-        checkKeyArrays(keyCode);
-        keyLatched[keyCode] = true;
-        keyDown[keyCode] = true;
+        keyLatched.add(keyCode);
+        keyDown.add(keyCode);
     }
     
-    /*
-     * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
-     */
-    public synchronized void keyReleased(KeyEvent event)
-    {
-        int keyCode = event.getExtendedKeyCode();
-        releaseKey(keyCode);
-    }
 
-    public synchronized void releaseKey(int keyCode)
+    public synchronized void releaseKey(KeyCode keyCode)
     {
         keyCode = numLockTranslate(keyCode);
-        checkKeyArrays(keyCode);
-        keyDown[keyCode] = false;
-        if (keyCode < maxNamedKey) {
-            String keyName = keyNames[keyCode];
-            if (keyName != null) {
-                lastKeyTyped = keyName;
-            }
+        keyDown.remove(keyCode);
+        String keyName = keyNames.get(keyCode);
+        if (keyName != null) {
+            lastKeyTyped = keyName;
         }
     }
 
@@ -301,69 +243,77 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
      * @param keycode  The original keycode
      * @return   The translated keycode
      */
-    private int numLockTranslate(int keycode)
+    private KeyCode numLockTranslate(KeyCode keycode)
     {
-        if (keycode >= KeyEvent.VK_NUMPAD0 && keycode <= KeyEvent.VK_NUMPAD9) {
+        if (keycode.ordinal() >= KeyCode.NUMPAD0.ordinal() && keycode.ordinal() <= KeyCode.NUMPAD9.ordinal()) {
             // At least on linux, we can only get these codes if numlock is on; in that
             // case we want to map to a digit anyway.
-            return keycode - KeyEvent.VK_NUMPAD0 + KeyEvent.VK_0;
+            return KeyCode.values()[keycode.ordinal() - KeyCode.NUMPAD0.ordinal() + KeyCode.DIGIT0.ordinal()];
         }
 
         // Seems on linux (at least) we can't get the numlock state (get an
         // UnsupportedOperationException). Update: on Java 1.7.0_03 at least,
         // we can now retrieve numlock state on linux.
         boolean numlock = true;
-        if (hasNumLock) {
-            try {
+        if (hasNumLock)
+        {
+            try
+            {
                 numlock = Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_NUM_LOCK);
             }
-            catch (UnsupportedOperationException usoe) {
+            catch (UnsupportedOperationException usoe)
+            {
                 // Don't try to get numlock status again
                 hasNumLock = false;
             }
         }
 
-        if (numlock) {
+        if (numlock)
+        {
             // Translate to digit
-            if (keycode == KeyEvent.VK_KP_UP) {
-                keycode = KeyEvent.VK_8;
+            if (keycode == KeyCode.KP_UP)
+            {
+                keycode = KeyCode.DIGIT8;
             }
-            else if (keycode == KeyEvent.VK_KP_DOWN) {
-                keycode = KeyEvent.VK_2;
+            else if (keycode == KeyCode.KP_DOWN)
+            {
+                keycode = KeyCode.DIGIT2;
             }
-            else if (keycode == KeyEvent.VK_KP_LEFT) {
-                keycode = KeyEvent.VK_4;
+            else if (keycode == KeyCode.KP_LEFT)
+            {
+                keycode = KeyCode.DIGIT4;
             }
-            else if (keycode == KeyEvent.VK_KP_RIGHT) {
-                keycode = KeyEvent.VK_6;
+            else if (keycode == KeyCode.KP_RIGHT)
+            {
+                keycode = KeyCode.DIGIT6;
             }
         }
-        else {
+        else
+        {
             // Translate to direction
-            if (keycode == KeyEvent.VK_KP_UP) {
-                keycode = KeyEvent.VK_UP;
+            if (keycode == KeyCode.KP_UP)
+            {
+                keycode = KeyCode.UP;
             }
-            else if (keycode == KeyEvent.VK_KP_DOWN) {
-                keycode = KeyEvent.VK_DOWN;
+            else if (keycode == KeyCode.KP_DOWN)
+            {
+                keycode = KeyCode.DOWN;
             }
-            else if (keycode == KeyEvent.VK_KP_LEFT) {
-                System.out.println("VK_KP_LEFT!");
-                keycode = KeyEvent.VK_LEFT;
+            else if (keycode == KeyCode.KP_LEFT)
+            {
+                keycode = KeyCode.LEFT;
             }
-            else if (keycode == KeyEvent.VK_KP_RIGHT) {
-                keycode = KeyEvent.VK_RIGHT;
+            else if (keycode == KeyCode.KP_RIGHT)
+            {
+                keycode = KeyCode.RIGHT;
             }
         }
         return keycode;
     }
     
-    /*
-     * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
-     */
-    @Override
-    public synchronized void keyTyped(KeyEvent key)
+    public synchronized void keyTyped(String key)
     {
-        char c = key.getKeyChar();
+        char c = key.charAt(0);
         if (c == '\n' || c == '\r') {
             lastKeyTyped = "enter";
         }
@@ -380,7 +330,7 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
             lastKeyTyped = "escape";
         }
         else {
-            lastKeyTyped = "" + c;
+            lastKeyTyped = key;
         }
     }
 
@@ -399,9 +349,7 @@ public class KeyboardManager implements TriggeredKeyListener, FocusListener
      */
     private synchronized void releaseAllKeys()
     {
-        for (int keyCode = 0; keyCode < keyDown.length; keyCode++) {
-            keyDown[keyCode] = false;
-            keyLatched[keyCode] = false;
-        }
+        keyDown.clear();
+        keyLatched.clear();
     }
 }
