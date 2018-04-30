@@ -21,7 +21,6 @@
  */
 package bluej.debugger;
 
-import com.sun.jdi.ObjectReference;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
