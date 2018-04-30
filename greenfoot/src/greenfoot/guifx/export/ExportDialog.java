@@ -125,6 +125,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         Button closeButton = (Button) getDialogPane().lookupButton(ButtonType.CLOSE);
         closeButton.setOnAction(event ->
                 Config.putPropString("greenfoot.lastExportPane", getSelectedFunction().name()));
+        // Close button is only disabled when the exporting is in progress.
         closeButton.disableProperty().bind(exportingProperty);
 
         continueButton = new Button(Config.getString("export.dialog.export"));
@@ -281,6 +282,9 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     private void updateControls(ExportPane pane)
     {
         continueButton.disableProperty().unbind();
+        // Continue (i.e. export) button is disabled either:
+        // - when the exporting is in progress, or
+        // - if the selected pane is has missing essential info.
         continueButton.disableProperty().bind(pane.validProperty.not().or(exportingProperty));
         continueButton.setText(Config.getString("export.dialog.export"));
         clearStatus();
