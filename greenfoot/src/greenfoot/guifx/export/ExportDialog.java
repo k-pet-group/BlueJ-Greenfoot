@@ -80,7 +80,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     private final Label progressLabel = new Label();
     private final ProgressBar progressBar = new ProgressBar();
     private final Map<ExportFunction, ExportTab> exportTabs = new LinkedHashMap<>();
-    private final Button continueButton = new Button(Config.getString("export.dialog.export"));
+    private final Button exportButton = new Button(Config.getString("export.dialog.export"));
 
     /**
      * Creates a new instance of the export dialog.
@@ -130,9 +130,9 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         // Close button is only disabled when the exporting is in progress.
         closeButton.disableProperty().bind(exportingProperty);
 
-        continueButton.setOnAction(event -> doExport());
+        exportButton.setOnAction(event -> doExport());
 
-        HBox bottomBox = new HBox(continueButton, progressLabel, progressBar);
+        HBox bottomBox = new HBox(exportButton, progressLabel, progressBar);
         bottomBox.getStyleClass().add("bottom-box");
         contentPane.setBottom(bottomBox);
 
@@ -200,7 +200,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
      */
     public void setExportButtonText(String s)
     {
-        continueButton.setText(s);
+        exportButton.setText(s);
     }
     
     /**
@@ -284,13 +284,13 @@ public class ExportDialog extends FXCustomizedDialog<Void>
      */
     private void updateControls(ExportTab tab)
     {
-        continueButton.disableProperty().unbind();
-        // Continue (i.e. export) button is disabled either:
-        // - when the exporting is in progress, or
-        // - if the selected tab is has missing essential info.
+        exportButton.disableProperty().unbind();
+        // Export button is disabled either:
+        //  - when the exporting is in progress, or
+        //  - if the selected tab is has missing essential info.
         tabInvalidity = tab.validProperty.not();
-        continueButton.disableProperty().bind(tabInvalidity.or(exportingProperty));
-        continueButton.setText(Config.getString("export.dialog.export"));
+        exportButton.disableProperty().bind(tabInvalidity.or(exportingProperty));
+        exportButton.setText(Config.getString("export.dialog.export"));
         clearStatus();
     }
 
