@@ -228,6 +228,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
             // This is the breakpoint at the very beginning of the simulation thread;
             // record this thread as being the simulation thread and set it running again:
             simulationThread = e.getThread();
+            project.getExecControls().makeSureThreadIsSelected(simulationThread);
             e.getThread().cont();
             return true;
         }
@@ -721,7 +722,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     {
         if (simulationThread != null && simulationThread.isSuspended())
         {
-            // This code runs in parallel with GreenfootDebugHanlder.examineDebuggerEvent() and
+            // This code runs in parallel with GreenfootDebugHandler.examineDebuggerEvent() and
             // there is theoretically a race condition where the "special" breakpoints are set
             // before we resume the simulation thread here, meaning that the simulation thread
             // will get suspended again shortly after the reset (before the world is instantiated).
