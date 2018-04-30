@@ -74,12 +74,12 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     private final Image snapshot;
     private int uploadSize;
     private final BooleanProperty exportingProperty = new SimpleBooleanProperty(false);
-    private BooleanBinding paneInvalidity;
+    private BooleanBinding tabInvalidity;
 
     private final TabPane tabbedPane = new TabPane();
     private final Label progressLabel = new Label();
     private final ProgressBar progressBar = new ProgressBar();
-    private final Map<ExportFunction, ExportPane> panes = new LinkedHashMap<>();
+    private final Map<ExportFunction, ExportTab> exportTabs = new LinkedHashMap<>();
     private final Button continueButton = new Button(Config.getString("export.dialog.export"));
 
     /**
@@ -149,18 +149,18 @@ public class ExportDialog extends FXCustomizedDialog<Void>
             throw new ExportException(Config.getString("export.noconstructor.dialog.msg"));
         }
 
-        createPanes();
+        createTabs();
 
         if (snapshot != null)
         {
-            ExportPublishPane publishPane = (ExportPublishPane) panes.get(ExportFunction.PUBLISH);
+            ExportPublishTab publishPane = (ExportPublishTab) exportTabs.get(ExportFunction.PUBLISH);
             publishPane.setImage(snapshot);
         }
 
         JavaFXUtil.addChangeListener(tabbedPane.selectionModelProperty().get().selectedItemProperty(),
-            tab -> updateControls((ExportPane) tab));
+                tab -> updateControls((ExportTab) tab));
 
-        selectPane(Config.getPropString("greenfoot.lastExportPane"));
+        selectTab(Config.getPropString("greenfoot.lastExportPane"));
     }
 
     /**
@@ -208,7 +208,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
      */
     private void doExport()
     {
-        if (getSelectedPane().prePublish())
+        if (getSelectedTab().prePublish())
         {
             exportingProperty.set(true);
             scenarioSaver.doSave();
@@ -254,61 +254,61 @@ public class ExportDialog extends FXCustomizedDialog<Void>
      */
     private ExportFunction getSelectedFunction()
     {
-        return getSelectedPane().getFunction();
+        return getSelectedTab().getFunction();
     }
 
     /**
      * Return the identifier for the specific export function selected.
      */
-    private ExportPane getSelectedPane()
+    private ExportTab getSelectedTab()
     {
-        return (ExportPane) tabbedPane.getSelectionModel().getSelectedItem();
+        return (ExportTab) tabbedPane.getSelectionModel().getSelectedItem();
     }
 
     /**
-     * Select a pane based on a function name.
+     * Select a tab based on a function name.
      *
-     * @param name The name of the function which match the pane to be selected.
+     * @param name The name of the function which match the tab to be selected.
      */
-    private void selectPane(String name)
+    private void selectTab(String name)
     {
-        ExportPane pane = panes.get(ExportFunction.getFunction(name));
-        tabbedPane.getSelectionModel().select(pane);
-        updateControls(pane);
+        ExportTab tab = exportTabs.get(ExportFunction.getFunction(name));
+        tabbedPane.getSelectionModel().select(tab);
+        updateControls(tab);
     }
 
     /**
-     * Call when the selection of the tabs changes to update related controls.
+     * Call when the selection of the exportTabs changes to update related controls.
      *
-     * @param pane The selected export pane.
+     * @param tab The selected export tab.
      */
-    private void updateControls(ExportPane pane)
+    private void updateControls(ExportTab tab)
     {
         continueButton.disableProperty().unbind();
         // Continue (i.e. export) button is disabled either:
         // - when the exporting is in progress, or
-        // - if the selected pane is has missing essential info.
-        paneInvalidity = pane.validProperty.not();
-        continueButton.disableProperty().bind(paneInvalidity.or(exportingProperty));
+        // - if the selected tab is has missing essential info.
+        tabInvalidity = tab.validProperty.not();
+        continueButton.disableProperty().bind(tabInvalidity.or(exportingProperty));
         continueButton.setText(Config.getString("export.dialog.export"));
         clearStatus();
     }
 
     /**
-     * Create all the panes that should appear as part of this dialogue.
+     * Create all the export tabs that should appear as part of this dialogue.
      */
-    private void createPanes()
+    private void createTabs()
     {
         Window asWindow = this.asWindow();
         String projectName = project.getProjectName();
         // The default directory to export to when export locally.
         File defaultExportDir = project.getProjectDir().getParentFile();
 
-        addPane(new ExportPublishPane(project, this, scenarioSaver, scenarioInfo));
-        addPane(new ExportAppPane(asWindow, scenarioInfo, projectName, defaultExportDir));
-        addPane(new ExportProjectPane(asWindow, scenarioInfo, projectName, defaultExportDir));
+        addTab(new ExportPublishTab(project, this, scenarioSaver, scenarioInfo));
+        addTab(new ExportAppTab(asWindow, scenarioInfo, projectName, defaultExportDir));
+        addTab(new ExportProjectTab(asWindow, scenarioInfo, projectName, defaultExportDir));
 
-        tabbedPane.getTabs().setAll(panes.values());
+        tabbedPane.getTabs().setAll(exportTabs.values());
         // This is to change the width of the tabs headers to fill the available space of the tabbed
         // pane. 30 is subtracted to forbid showing the autoscroll of the tab header. Currently,
         // there is no way of disabling it. See: https://bugs.openjdk.java.net/browse/JDK-8091334
@@ -317,14 +317,14 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     }
 
     /**
-     * Adds a pane to the panes map, by placing the function of the pane
-     * as the key to the pane stored in the value.
+     * Adds a tab to the exportTabs map, by placing the function of the tab
+     * as the key to the tab stored in the value.
      *
-     * @param exportPane An Export pane to be added to the panes map.
+     * @param exportTab An Export tab to be added to the exportTabs map.
      */
-    private void addPane(ExportPane exportPane)
+    private void addTab(ExportTab exportTab)
     {
-        panes.put(exportPane.getFunction(), exportPane);
+        exportTabs.put(exportTab.getFunction(), exportTab);
     }
 
     /**
@@ -336,7 +336,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
      */
     public void publishFinished(boolean success, String msg)
     {
-        getSelectedPane().postPublish(success);
+        getSelectedTab().postPublish(success);
         setProgress(false, msg);
         if (success)
         {

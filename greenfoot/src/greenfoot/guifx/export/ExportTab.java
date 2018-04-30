@@ -38,14 +38,14 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * ExportPane is a superclass for all changing panes that can appear 
+ * ExportTab is a superclass for all changing tabs that can appear
  * in the Export dialogue.
  *
  * @author Michael Kolling
  * @author Amjad Altadmri
  */
 @OnThread(Tag.FXPlatform)
-public abstract class ExportPane extends Tab
+public abstract class ExportTab extends Tab
 {
     protected final CheckBox lockScenario = new CheckBox(Config.getString("export.lock.label"));
     protected final CheckBox hideControls = new CheckBox(Config.getString("export.controls.label"));
@@ -54,12 +54,12 @@ public abstract class ExportPane extends Tab
     protected final BooleanProperty validProperty = new SimpleBooleanProperty(true);
 
     /**
-     * Create a an export pane for export to web pages.
+     * Create a an export tab for export to web pages.
      *
      * @param scenarioInfo The scenario info needed for different export functions.
      * @param iconName     The name of the icon file.
      */
-    public ExportPane(ScenarioInfo scenarioInfo, String iconName)
+    public ExportTab(ScenarioInfo scenarioInfo, String iconName)
     {
         setClosable(false);
         this.scenarioInfo = scenarioInfo;
@@ -71,12 +71,12 @@ public abstract class ExportPane extends Tab
         hideControls.setSelected(false);
         hideControls.setTooltip(new Tooltip(Config.getString("export.controls.description")));
 
-        getStyleClass().add("export-pane");
+        getStyleClass().add("export-tab");
     }
 
     /**
      * This method will be called when the user is about to export the scenario
-     * with information from this pane. Will be called from the event thread
+     * with information from this tab. Will be called from the event thread
      * and will not publish until this method returns.
      * 
      * @return Whether to continue publishing. Continues if true, cancels if false.
@@ -89,7 +89,7 @@ public abstract class ExportPane extends Tab
 
     /**
      * This method will be called when the scenario has been published with the
-     * information from this pane.
+     * information from this tab.
      * 
      * @param success Whether the publish was successful
      */
@@ -120,11 +120,11 @@ public abstract class ExportPane extends Tab
      */
     protected void applySharedStyle()
     {
-        getContent().getStyleClass().add("export-pane-content");
+        getContent().getStyleClass().add("export-tab-content");
     }
 
     /**
-     * Return the export function for the pane.
+     * Return the export function for the tab.
      */
     public abstract Exporter.ExportFunction getFunction();
 

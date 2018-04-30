@@ -59,69 +59,69 @@
     -fx-padding: 10px 10px 0 10px;
     -fx-alignment: baseline-left;
 }
-.export-pane {
+.export-tab {
     -fx-pref-height: 75px;
     -fx-background-color: transparent;
 }
-.export-pane:selected {
+.export-tab:selected {
     -fx-border-color: export-background;
     -fx-background-color: export-background;
 }
-.export-pane-content {
+.export-tab-content {
     -fx-padding: 10px;
     -fx-spacing: 10px;
     -fx-background-color: export-background;
 }
-.export-publish-pane .help-box {
+.export-publish-tab .help-box {
     -fx-alignment: baseline-left;
 }
-.export-publish-pane .help-box .label {
+.export-publish-tab .help-box .label {
     -fx-font-style: normal;
 }
-.export-publish-pane .info-pane, .export-publish-pane .login-pane {
+.export-publish-tab .info-pane, .export-publish-tab .login-pane {
     -fx-effect: innershadow(three-pass-box, gray, 12 , 0.5, 1, 1);
     -fx-background-color: rgb(166, 188, 202);
     -fx-padding: 15px;
 }
-.export-publish-pane .login-pane {
+.export-publish-tab .login-pane {
     -fx-spacing: 10px;
     -fx-alignment: baseline-center;
 }
-.export-publish-pane .scenario-pane {
+.export-publish-tab .scenario-pane {
     -fx-spacing: 10px;
     -fx-padding: 10px 10px 0 0;
 }
-.export-publish-pane .title-desc-pane {
+.export-publish-tab .title-desc-pane {
     -fx-hgap: 8px;
     -fx-vgap: 8px;
 }
-.export-publish-pane .icon-text-pane {
+.export-publish-tab .icon-text-pane {
     -fx-alignment: center-right;
 }
-.export-publish-pane .tag-pane {
+.export-publish-tab .tag-pane {
     -fx-spacing: 20px;
 }
-.export-publish-pane .pop-pane {
+.export-publish-tab .pop-pane {
     -fx-spacing: 5px;
 }
-.export-publish-pane .source-lock-pane {
+.export-publish-tab .source-lock-pane {
     -fx-spacing: 10px;
     -fx-padding: 5px 0 0 0;
     -fx-alignment:	bottom-center;
 }
-.export-publish-pane .label {
+.export-publish-tab .label {
     -fx-font-size: 10pt;
     -fx-font-style: italic;
     -fx-font-family: "Source Sans Pro";
 }
-.export-publish-pane .intro-label {
+.export-publish-tab .intro-label {
     -fx-font-style: normal;
     -fx-text-fill: rgb(40, 75, 125);
 }
-.export-publish-pane .create-account-label {
+.export-publish-tab .create-account-label {
     -fx-alignment:	bottom-left;
 }
-.export-local-pane .location-pane {
+.export-local-tab .location-pane {
     -fx-spacing: 5px;
 }
 .image-edit-pane {
