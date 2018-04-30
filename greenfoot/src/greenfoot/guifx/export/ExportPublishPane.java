@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javafx.beans.binding.BooleanBinding;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
@@ -88,7 +89,7 @@ public class ExportPublishPane extends ExportPane
     private static final String WITH_SOURCE_TAG = "with-source";
 
     private final Label emptyLabel = new Label();
-    private final Label titleLabel = new Label(Config.getString("export.publish.title"));;
+    private final Label titleLabel = new Label(Config.getString("export.publish.title"));
     private final Label updateLabel = new Label(Config.getString("export.publish.update"));
     private final Label shortDescriptionLabel = new Label(Config.getString("export.publish.shortDescription"));
     private final Label longDescriptionLabel = new Label(Config.getString("export.publish.longDescription"));
@@ -119,6 +120,10 @@ public class ExportPublishPane extends ExportPane
     private final ExportDialog exportDialog;
     private final ScenarioSaver scenarioSaver;
 
+    private BooleanBinding userNameValidity;
+    private BooleanBinding passwordValidity;
+    private BooleanBinding titleValidity;
+
     /**
      * Creates a new instance of ExportPublishPane
      *
@@ -138,6 +143,16 @@ public class ExportPublishPane extends ExportPane
         buildContentPane();
         applySharedStyle();
         getContent().getStyleClass().add("export-publish-pane");
+
+        // Properties are put in fields rather than inlined as long parameter,
+        // not only for readability, but mainly because the way FX do binding
+        // is by creating weak references with chain binding.
+        userNameValidity = userNameField.textProperty().isNotEmpty();
+        passwordValidity = passwordField.textProperty().isNotEmpty();
+        titleValidity = titleField.textProperty().isNotEmpty();
+        validProperty.bind(userNameValidity.and(passwordValidity).and(titleValidity));
+
+        JavaFXUtil.addChangeListener(selectedProperty(), selected -> activated());
     }
 
     @Override
@@ -307,18 +322,15 @@ public class ExportPublishPane extends ExportPane
         loginLabel.getStyleClass().add("intro-label");
 
         Label usernameLabel = new Label(Config.getString("export.publish.username"));
-
         userNameField = new TextField();
         userNameField.setPrefColumnCount(10);
-        // TODO check that the share button is disabled if the userNameField is empty
-        // userNameField.setInputVerifier(userNameField.getText().length() > 0);
-
         JavaFXUtil.addChangeListener(userNameField.focusedProperty(), focused -> {
             if (!focused)
             {
                 checkForExistingScenario();
             }
         });
+
         Label passwordLabel = new Label(Config.getString("export.publish.password"));
         passwordField = new PasswordField();
         passwordField.setPrefColumnCount(10);
@@ -495,8 +507,7 @@ public class ExportPublishPane extends ExportPane
      * 
      * <p>And we load previously used values if they are stored.
      */
-    @Override
-    public void activated()
+    private void activated()
     {
         if (firstActivation)
         {
@@ -529,19 +540,25 @@ public class ExportPublishPane extends ExportPane
                     List<String> tags = null;
                     try {
                         String hostAddress = serverURL;
-                        if (!hostAddress.endsWith("/")) {
+                        if (!hostAddress.endsWith("/"))
+                        {
                             hostAddress += "/";
                         }
                         // We add one to the number, because WITH_SOURCE is
                         // likely to be among them and we then will filter it out.
                         tags = client.getCommonTags(hostAddress, popTags.length + 1);
-                        if (tags.contains(WITH_SOURCE_TAG)) {
+                        if (tags.contains(WITH_SOURCE_TAG))
+                        {
                             tags.remove(WITH_SOURCE_TAG);
-                        } else if (!tags.isEmpty()) {
+                        }
+                        else if (!tags.isEmpty())
+                        {
                             tags.remove(tags.size() - 1);
                         }
-                    } catch (ConnectTimeoutException ignored) {
-                    } catch (IOException e) {
+                    }
+                    catch (ConnectTimeoutException ignored) { }
+                    catch (IOException e)
+                    {
                         Debug.reportError("Error while publishing scenario", e);
                     }
                     return tags;
@@ -629,8 +646,6 @@ public class ExportPublishPane extends ExportPane
                 selected -> imagePane.enableImageEditPanel(!selected));
 
         titleField = new TextField(getTitle() != null ? getTitle() : project.getProjectName());
-        // TODO check that the share button is disabled if the titleField is empty
-        // titleField.setInputVerifier(titleField.getText().length() > 0);
         JavaFXUtil.addChangeListener(titleField.focusedProperty(), focused -> {
             if (!focused)
             {

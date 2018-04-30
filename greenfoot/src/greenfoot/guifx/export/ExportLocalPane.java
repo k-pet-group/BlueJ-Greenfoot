@@ -95,6 +95,8 @@ public abstract class ExportLocalPane extends ExportPane
         targetDirField.setPrefColumnCount(30);
         targetDirField.setEditable(false);
 
+        validProperty.bind(targetDirField.textProperty().isNotEmpty());
+
         Button browse = new Button(Config.getString("export." + type + ".browse"));
         browse.setOnAction(event -> targetDirField.setText(askForFileName(targetFile)));
 

@@ -26,6 +26,7 @@ import bluej.debugger.gentype.ConstructorReflective;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.utility.javafx.FXCustomizedDialog;
+import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.Utility;
 
 import greenfoot.export.Exporter;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 
 import javafx.application.Platform;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.Button;
@@ -72,12 +74,13 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     private final Image snapshot;
     private int uploadSize;
     private final BooleanProperty exportingProperty = new SimpleBooleanProperty(false);
+    private BooleanBinding paneInvalidity;
 
     private final TabPane tabbedPane = new TabPane();
     private final Label progressLabel = new Label();
     private final ProgressBar progressBar = new ProgressBar();
     private final Map<ExportFunction, ExportPane> panes = new LinkedHashMap<>();
-    private Button continueButton;
+    private final Button continueButton = new Button(Config.getString("export.dialog.export"));
 
     /**
      * Creates a new instance of the export dialog.
@@ -124,11 +127,10 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         Button closeButton = (Button) getDialogPane().lookupButton(ButtonType.CLOSE);
         closeButton.setOnAction(event ->
                 Config.putPropString("greenfoot.lastExportPane", getSelectedFunction().name()));
+        // Close button is only disabled when the exporting is in progress.
         closeButton.disableProperty().bind(exportingProperty);
 
-        continueButton = new Button(Config.getString("export.dialog.export"));
         continueButton.setOnAction(event -> doExport());
-        continueButton.disableProperty().bind(exportingProperty);
 
         HBox bottomBox = new HBox(continueButton, progressLabel, progressBar);
         bottomBox.getStyleClass().add("bottom-box");
@@ -154,6 +156,10 @@ public class ExportDialog extends FXCustomizedDialog<Void>
             ExportPublishPane publishPane = (ExportPublishPane) panes.get(ExportFunction.PUBLISH);
             publishPane.setImage(snapshot);
         }
+
+        JavaFXUtil.addChangeListener(tabbedPane.selectionModelProperty().get().selectedItemProperty(),
+            tab -> updateControls((ExportPane) tab));
+
         selectPane(Config.getPropString("greenfoot.lastExportPane"));
     }
 
@@ -237,7 +243,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
      */
     private void clearStatus()
     {
-        if(!progressBar.isVisible())
+        if (!progressBar.isVisible())
         {
             progressLabel.setVisible(false);
         }
@@ -260,15 +266,34 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     }
 
     /**
-     * Called when the selection of the tabs changes.
+     * Select a pane based on a function name.
+     *
+     * @param name The name of the function which match the pane to be selected.
      */
     private void selectPane(String name)
     {
-        tabbedPane.getSelectionModel().select(panes.get(ExportFunction.getFunction(name)));
+        ExportPane pane = panes.get(ExportFunction.getFunction(name));
+        tabbedPane.getSelectionModel().select(pane);
+        updateControls(pane);
+    }
+
+    /**
+     * Call when the selection of the tabs changes to update related controls.
+     *
+     * @param pane The selected export pane.
+     */
+    private void updateControls(ExportPane pane)
+    {
+        continueButton.disableProperty().unbind();
+        // Continue (i.e. export) button is disabled either:
+        // - when the exporting is in progress, or
+        // - if the selected pane is has missing essential info.
+        paneInvalidity = pane.validProperty.not();
+        continueButton.disableProperty().bind(paneInvalidity.or(exportingProperty));
         continueButton.setText(Config.getString("export.dialog.export"));
         clearStatus();
     }
-    
+
     /**
      * Create all the panes that should appear as part of this dialogue.
      */
