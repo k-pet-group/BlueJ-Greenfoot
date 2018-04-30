@@ -157,7 +157,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
             publishPane.setImage(snapshot);
         }
 
-        JavaFXUtil.addChangeListener(tabbedPane.selectionModelProperty().get().selectedItemProperty(),
+        JavaFXUtil.addChangeListenerPlatform(tabbedPane.selectionModelProperty().get().selectedItemProperty(),
                 tab -> updateControls((ExportTab) tab));
 
         selectTab(Config.getPropString("greenfoot.lastExportPane"));
@@ -221,7 +221,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
      */
     class ExportThread extends Thread {
         @Override
-        @OnThread(Tag.Worker)
+        @OnThread(value = Tag.Worker, ignoreParent = true)
         public void run()
         {
             try

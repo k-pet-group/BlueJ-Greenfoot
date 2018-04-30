@@ -21,6 +21,9 @@
  */
 package greenfoot.gui;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.awt.Point;
 
 /**
@@ -39,5 +42,6 @@ public interface DropTarget
      * @param o
      * @return true if the drag was processed, false otherwise
      */
+    @OnThread(Tag.Simulation)
     public boolean drag(Object o, Point p);
 }

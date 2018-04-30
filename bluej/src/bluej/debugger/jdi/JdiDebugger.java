@@ -730,6 +730,7 @@ public class JdiDebugger extends Debugger
      * @see bluej.debugger.Debugger#instantiateClass(java.lang.String, java.lang.String[], bluej.debugger.DebuggerObject[])
      */
     @Override
+    @OnThread(Tag.Any)
     public FXPlatformSupplier<DebuggerResult> instantiateClass(String className, String[] paramTypes, DebuggerObject[] args)
     {
         // If there are no arguments, use the default constructor

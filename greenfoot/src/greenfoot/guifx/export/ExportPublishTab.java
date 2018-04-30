@@ -642,11 +642,11 @@ public class ExportPublishTab extends ExportTab
 
         keepScenarioScreenshot = new CheckBox(Config.getString("export.snapshot.label"));
         keepScenarioScreenshot.setSelected(true);
-        JavaFXUtil.addChangeListener(keepScenarioScreenshot.selectedProperty(),
+        JavaFXUtil.addChangeListenerPlatform(keepScenarioScreenshot.selectedProperty(),
                 selected -> imagePane.enableImageEditPanel(!selected));
 
         titleField = new TextField(getTitle() != null ? getTitle() : project.getProjectName());
-        JavaFXUtil.addChangeListener(titleField.focusedProperty(), focused -> {
+        JavaFXUtil.addChangeListenerPlatform(titleField.focusedProperty(), focused -> {
             if (!focused)
             {
                 checkForExistingScenario();

@@ -33,6 +33,7 @@ import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.compiler.Diagnostic;
 import bluej.compiler.FXCompileObserver;
+import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerResult;
 import bluej.debugger.gentype.JavaType;
@@ -92,6 +93,8 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
@@ -467,6 +470,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      * once the discard-world command has taken effect. It also makes sure that
      * the simulation thread is resumed.
      */
+    @OnThread(Tag.FXPlatform)
     public void doReset()
     {
         controlPanel.disableControlPanelButtons(true);
@@ -1041,22 +1045,28 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 }
             }
         });
-        newActorProperty.addListener((prop, oldVal, newVal) -> {
-            if (oldVal != null)
+        newActorProperty.addListener(new ChangeListener<NewActor>()
+        {
+            @Override
+            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+            public void changed(ObservableValue<? extends NewActor> prop, NewActor oldVal, NewActor newVal)
             {
-                glassPane.getChildren().remove(oldVal.previewNode);
-            }
+                if (oldVal != null)
+                {
+                    glassPane.getChildren().remove(oldVal.previewNode);
+                }
 
-            if (newVal != null)
-            {
-                glassPane.getChildren().add(newVal.previewNode);
-                // Need to do a layout to get the correct width and height:
-                glassPane.requestLayout();
-                glassPane.layout();
+                if (newVal != null)
+                {
+                    glassPane.getChildren().add(newVal.previewNode);
+                    // Need to do a layout to get the correct width and height:
+                    glassPane.requestLayout();
+                    glassPane.layout();
 
-                newVal.previewNode.setTranslateX(lastMousePosInScene.getX() - newVal.previewNode.getWidth() / 2.0);
-                newVal.previewNode.setTranslateY(lastMousePosInScene.getY() - newVal.previewNode.getHeight() / 2.0);
-                newVal.cannotDrop.set(!worldDisplay.worldContains(worldDisplay.sceneToWorld(lastMousePosInScene)));
+                    newVal.previewNode.setTranslateX(lastMousePosInScene.getX() - newVal.previewNode.getWidth() / 2.0);
+                    newVal.previewNode.setTranslateY(lastMousePosInScene.getY() - newVal.previewNode.getHeight() / 2.0);
+                    newVal.cannotDrop.set(!worldDisplay.worldContains(worldDisplay.sceneToWorld(lastMousePosInScene)));
+                }
             }
         });
     }
@@ -1132,10 +1142,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         worldDisplay.setOnContextMenuRequested(e -> {
             boolean paused = stateProperty.get() == State.PAUSED;
             if (paused)
-            {
-                // We don't want to block GUI while waiting for pick: 
+            { 
                 Point2D worldPos = worldDisplay.sceneToWorld(new Point2D(e.getSceneX(), e.getSceneY()));
-                Utility.runBackground(() -> pickRequest(worldPos.getX(), worldPos.getY(), PickType.CONTEXT_MENU));
+                pickRequest(worldPos.getX(), worldPos.getY(), PickType.CONTEXT_MENU);
             }
         });
         worldDisplay.addEventFilter(MouseEvent.ANY, e -> {
@@ -1149,8 +1158,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     hideContextMenu();
                     if (paused)
                     {
-                        // We don't want to block GUI while waiting for pick:
-                        Utility.runBackground(() -> pickRequest(worldPos.getX(), worldPos.getY(), PickType.LEFT_CLICK));
+                        pickRequest(worldPos.getX(), worldPos.getY(), PickType.LEFT_CLICK);
                     }
                 }
                 eventType = MOUSE_CLICKED;
@@ -1260,24 +1268,28 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     /**
      * Performs a pick request on the debug VM at given coordinates.
      */
-    @OnThread(Tag.Worker)
     private void pickRequest(double x, double y, PickType pickType)
     {
         curPickType = pickType;
+        Debugger debugger = project.getDebugger();
         // Bit hacky to pass positions as strings, but mirroring the values as integers
         // would have taken a lot of code changes to route through to VMReference:
-        DebuggerObject xObject = project.getDebugger().getMirror("" + (int) x);
-        DebuggerObject yObject = project.getDebugger().getMirror("" + (int) y);
+        DebuggerObject xObject = debugger.getMirror("" + (int) x);
+        DebuggerObject yObject = debugger.getMirror("" + (int) y);
         int thisPickId = nextPickId++;
-        DebuggerObject pickIdObject = project.getDebugger().getMirror("" + thisPickId);
+        DebuggerObject pickIdObject = debugger.getMirror("" + thisPickId);
         String requestTypeString = pickType == PickType.DRAG ? "drag" : "";
-        DebuggerObject requestTypeObject = project.getDebugger().getMirror(requestTypeString);
+        DebuggerObject requestTypeObject = debugger.getMirror(requestTypeString);
         // One pick at a time only:
         curPickRequest = thisPickId;
         curPickPoint = new Point2D(x, y);
+        
 
-        // Need to find out which actors are at the point:
-        project.getDebugger().instantiateClass("greenfoot.core.PickActorHelper", new String[]{"java.lang.String", "java.lang.String", "java.lang.String", "java.lang.String"}, new DebuggerObject[]{xObject, yObject, pickIdObject, requestTypeObject});
+        // Need to find out which actors are at the point.  Do this in background thread to
+        // avoid blocking the GUI thread:
+        Utility.runBackground(() -> 
+            debugger.instantiateClass("greenfoot.core.PickActorHelper", new String[]{"java.lang.String", "java.lang.String", "java.lang.String", "java.lang.String"}, new DebuggerObject[]{xObject, yObject, pickIdObject, requestTypeObject})
+        );
         // Once that completes, pickResults(..) will be called.
     }
 
@@ -1586,23 +1598,26 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     }
 
     @Override
-    public @OnThread(Tag.Any) void simulationVMTerminated()
+    @OnThread(Tag.Any)
+    public void simulationVMTerminated()
     {
-        // We must reset the debug VM related state ready for the new debug VM:
-        worldDisplay.setImage(null);
-        worldInstantiationError  = false;
-        settingSpeedFromSimulation = false;
-        lastExecStartTime = 0L;
-        atBreakpoint = false;
-        nextPickId = 1;
-        curPickRequest = 0;
-        curDragRequest = -1;
-        currentWorld = null;
-        worldVisible.set(false);
-        stateProperty.set(State.UNCOMPILED);
-        // This will set up pendingCommands, ready for when
-        // the new debug VM can process data:
-        loadAndMirrorProperties();
+        Platform.runLater(() -> {
+            // We must reset the debug VM related state ready for the new debug VM:
+            worldDisplay.setImage(null);
+            worldInstantiationError = false;
+            settingSpeedFromSimulation = false;
+            lastExecStartTime = 0L;
+            atBreakpoint = false;
+            nextPickId = 1;
+            curPickRequest = 0;
+            curDragRequest = -1;
+            currentWorld = null;
+            worldVisible.set(false);
+            stateProperty.set(State.UNCOMPILED);
+            // This will set up pendingCommands, ready for when
+            // the new debug VM can process data:
+            loadAndMirrorProperties();
+        });
     }
 
     /**

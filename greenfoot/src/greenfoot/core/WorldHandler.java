@@ -216,6 +216,7 @@ public class WorldHandler
     /**
      * Drag operation starting.
      */
+    @OnThread(Tag.Simulation)
     public void startDrag(Actor actor, Point p, int dragId)
     {
         dragActor = actor;
@@ -542,6 +543,8 @@ public class WorldHandler
      * <p>
      * This must be called on the simulation thread.
      */
+    @Override
+    @OnThread(Tag.Simulation)
     public boolean drag(Object o, Point p)
     {
         World world = this.world;

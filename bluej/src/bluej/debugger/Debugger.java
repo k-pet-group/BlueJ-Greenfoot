@@ -245,6 +245,7 @@ public abstract class Debugger
      * @param args       The arguments
      * @return   The result of the constructor call
      */
+    @OnThread(Tag.Any)
     public abstract FXPlatformSupplier<DebuggerResult> instantiateClass(String className, String [] paramTypes, DebuggerObject [] args);
     
     /**

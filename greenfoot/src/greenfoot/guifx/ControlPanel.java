@@ -124,7 +124,7 @@ public class ControlPanel extends GridPane
         runPauseButton.setOnAction(e -> this.listener.doRunPause());
         resetButton.setOnAction(e -> this.listener.doReset());
         // Note - if you alter this listener code, make sure to check notifySimulationSpeed() as well:
-        JavaFXUtil.addChangeListener(speedSlider.valueProperty(), newSpeed -> this.listener.setSpeedFromSlider(newSpeed.intValue()));
+        JavaFXUtil.addChangeListenerPlatform(speedSlider.valueProperty(), newSpeed -> this.listener.setSpeedFromSlider(newSpeed.intValue()));
         
         TilePane controlPanel = new TilePane(actButton, runPauseButton, resetButton);
         controlPanel.setPrefColumns(3);
