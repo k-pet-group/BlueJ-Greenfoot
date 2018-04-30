@@ -258,19 +258,13 @@ public class ExecControls
     }
 
     /**
-     * Checks to make sure that a particular thread is
-     * selected in the thread tree. Often when we get to this,
-     * the thread in question should already be selected so
-     * in that case we should not cause any more events, or
-     * we'll end in a cycle.
+     * Make sure that a particular thread is displayed and the details are up-to-date.
+     * Note that if the controls window is invisible this will not show it. 
      * 
-     * If the thread is already selected, this method
-     * will ensure that the status details are up to date.
-     * 
-     * @param  dt  the thread to hilight in the thread
+     * @param  dt  the thread to highlight in the thread
      *             tree and whose status we want to display.
      */
-    public void makeSureThreadIsSelected(final DebuggerThread dt)
+    public void selectThread(final DebuggerThread dt)
     {
         if (threadList != null)
         {

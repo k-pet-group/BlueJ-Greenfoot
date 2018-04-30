@@ -228,7 +228,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
             // This is the breakpoint at the very beginning of the simulation thread;
             // record this thread as being the simulation thread and set it running again:
             simulationThread = e.getThread();
-            project.getExecControls().makeSureThreadIsSelected(simulationThread);
+            project.getExecControls().selectThread(simulationThread);
             e.getThread().cont();
             return true;
         }

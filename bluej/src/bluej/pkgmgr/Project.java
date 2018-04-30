@@ -2510,7 +2510,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
                 getExecControls().updateThreadDetails(thread);
                 if (shouldDisplay)
                 {
-                    getExecControls().makeSureThreadIsSelected(thread);
+                    getExecControls().selectThread(thread);
                 }
             }
         });
