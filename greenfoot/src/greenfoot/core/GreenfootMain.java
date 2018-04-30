@@ -171,6 +171,14 @@ public class GreenfootMain extends Thread
                             {
                                 vmComms.userCodeStopped();
                             }
+                            else if (e.getType() == SimulationEvent.DELAY_LOOP_ENTERED)
+                            {
+                                vmComms.notifyDelayLoopEntered();
+                            }
+                            else if (e.getType() == SimulationEvent.DELAY_LOOP_COMPLETED)
+                            {
+                                vmComms.notifyDelayLoopCompleted();
+                            }
                         }
                     });
 

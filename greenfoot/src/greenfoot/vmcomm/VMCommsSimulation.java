@@ -75,6 +75,9 @@ public class VMCommsSimulation
     /** The answer received from an ask */
     private String askAnswer;
 
+    /** The status of entering delay loop */
+    private boolean delayLoopEntered;
+
     private final ShadowProjectProperties projectProperties;
     
     /**
@@ -125,7 +128,7 @@ public class VMCommsSimulation
      * Pos 9+(W*H): -1 if not currently awaiting a Greenfoot.ask() answer.
      *              If awaiting, it is count (P) of following codepoints which make up prompt.
      * Pos 10+(W*H) to 10+(W*H)+P excl: codepoints making up ask prompt.
-     *
+     * Pos 11+(W*H): 1 if the the delay loop is entered, or 0 otherwise.
      */
     private final IntBuffer sharedMemory;
     private int seq = 1;
@@ -403,7 +406,17 @@ public class VMCommsSimulation
                     sharedMemory.put(codepoints);
                 }
             }
-            
+
+            // Write the status of the delay loop
+            if (delayLoopEntered == true)
+            {
+                sharedMemory.put(1);
+            }
+            else
+            {
+                sharedMemory.put(0);
+            }
+
             putLock.release();
 
             // Lock the synchronisation area (C) to make sure that the server has acquired our put area:
@@ -562,6 +575,24 @@ public class VMCommsSimulation
     {
         stoppedWithErrorCount += 1;
         paintRemote(PaintWhen.NO_PAINT);
+    }
+
+    /**
+     * The delay loop is entered; need to let the server VM know.
+     */
+    @OnThread(Tag.Simulation)
+    public void notifyDelayLoopEntered()
+    {
+        delayLoopEntered = true;
+    }
+
+    /**
+     * The delay loop is completed; need to let the server VM know.
+     */
+    @OnThread(Tag.Simulation)
+    public void notifyDelayLoopCompleted()
+    {
+        delayLoopEntered = false;
     }
 
     /**

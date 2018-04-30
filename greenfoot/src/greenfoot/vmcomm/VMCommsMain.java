@@ -126,6 +126,8 @@ public class VMCommsMain implements Closeable
     
     private final Thread ioThread;
 
+    private boolean delayLoop;
+
     /**
      * Constructor for VMCommsMain. Creates a temporary file and maps it into memory.
      * 
@@ -284,8 +286,8 @@ public class VMCommsMain implements Closeable
             stage.receivedAsk(promptCodepoints);
             promptCodepoints = null;
         }
-        
-        stage.setLastUserExecutionStartTime(lastExecStartTime);
+
+        stage.setLastUserExecutionStartTime(lastExecStartTime, delayLoop);
             
         checkingIO = false;
         
@@ -385,6 +387,16 @@ public class VMCommsMain implements Closeable
                         int askLength = sharedMemory.get();
                         promptCodepoints = new int[askLength];
                         sharedMemory.get(promptCodepoints);
+                    }
+
+                    int delayLoopStatus = sharedMemory.get();
+                    if (delayLoopStatus == 1)
+                    {
+                        delayLoop = true;
+                    }
+                    else
+                    {
+                        delayLoop = false;
                     }
                 }
             }

@@ -2184,8 +2184,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      * Record the last time (from System.currentTimeMillis) that the user code started executing.
      * If enough time has passed then show the execution twirler.
      * @param lastExecStartTime The last time the user code started executing, or zero if it has now finished executing.
+     * @param delayLoop The true or false value to indicate whether there is a delay loop or not
      */
-    public void setLastUserExecutionStartTime(long lastExecStartTime)
+    public void setLastUserExecutionStartTime(long lastExecStartTime, boolean delayLoop)
     {
         this.lastExecStartTime = lastExecStartTime;
         if (lastExecStartTime == 0L)
@@ -2199,13 +2200,13 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             {
                 executionTwirler.stopTwirling();
                 JavaFXUtil.runAfter(Duration.millis(4000L - duration), () -> {
-                    if (this.lastExecStartTime == lastExecStartTime)
+                    if (this.lastExecStartTime == lastExecStartTime && !delayLoop)
                     {
                         executionTwirler.startTwirling();
                     }
                 });
             }
-            else
+            else if (!delayLoop)
             {
                 executionTwirler.startTwirling();
             }
