@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2013,2018  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2011,2013,2015,2018  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,36 +25,45 @@ import static greenfoot.export.Exporter.ExportFunction;
 import greenfoot.export.mygame.ScenarioInfo;
 
 import java.io.File;
+import javafx.scene.layout.Pane;
 import javafx.stage.Window;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * Export dialog pane for exporting to a gfar project.
- *
+ * Export dialog's tab for exporting to a standalone application.
+ * 
+ * @author Michael Kolling
  * @author Amjad Altadmri
  */
 @OnThread(Tag.FXPlatform)
-public class ExportProjectPane extends ExportLocalPane
+public class ExportAppTab extends ExportLocalTab
 {
     /**
-     * Creates a new instance of ExportProjectPane
+     * Creates a new instance of ExportAppTab
      *
-     * @param parent            The window which will host this pane.
+     * @param parent            The window which will host this tab.
      * @param scenarioInfo      The scenario info needed for different export functions.
      * @param scenarioName      The name of the scenario to be shared.
      * @param defaultExportDir  The default directory to select from.
      */
-    public ExportProjectPane(Window parent, ScenarioInfo scenarioInfo, String scenarioName, File defaultExportDir)
+    public ExportAppTab(Window parent, ScenarioInfo scenarioInfo, String scenarioName, File defaultExportDir)
     {
-        super(parent, scenarioInfo, scenarioName, defaultExportDir, "project", ".gfar");
+        super(parent, scenarioInfo, scenarioName, defaultExportDir, "app", ".jar");
     }
 
     @Override
     public ExportFunction getFunction()
     {
-        return ExportFunction.PROJECT;
+        return ExportFunction.APP;
+    }
+
+    @Override
+    protected void buildContentPane(final File targetFile)
+    {
+        super.buildContentPane(targetFile);
+        ((Pane)getContent()).getChildren().addAll(lockScenario, hideControls);
     }
 
     @Override

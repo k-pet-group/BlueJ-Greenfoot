@@ -39,12 +39,12 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * Export dialog pane for exporting to a local file (project or standalone application).
+ * Export dialog's tab for exporting to a local file (project or standalone application).
  * 
  * @author Amjad Altadmri
  */
 @OnThread(Tag.FXPlatform)
-public abstract class ExportLocalPane extends ExportPane
+public abstract class ExportLocalTab extends ExportTab
 {
     private final String type;
     private final String extension;
@@ -53,25 +53,26 @@ public abstract class ExportLocalPane extends ExportPane
     private TextField targetDirField;
 
     /**
-     * Creates a new instance of an Export Local Pane.
+     * Creates a new instance of an Export Local Tab.
      *
-     * @param parent            The window which will host this pane.
+     * @param parent            The window which will host this tab.
      * @param scenarioInfo      The scenario info needed for different export functions.
      * @param scenarioName      The name of the scenario to be shared.
      * @param defaultExportDir  The default directory to select from.
      * @param type              The type of the export. e.g. "app" or "project".
      * @param extension         The extension of the exported file. e.g. ".jar" or ".gfar".
      */
-    public ExportLocalPane(Window parent, ScenarioInfo scenarioInfo, String scenarioName,
-                           File defaultExportDir, String type, String extension)
+    public ExportLocalTab(Window parent, ScenarioInfo scenarioInfo, String scenarioName,
+                          File defaultExportDir, String type, String extension)
     {
         super(scenarioInfo, "export-" + type + ".png");
         this.parent = parent;
         this.type = type;
         this.extension = extension;
-        makePane(new File(defaultExportDir, scenarioName + extension));
+
+        buildContentPane(new File(defaultExportDir, scenarioName + extension));
         applySharedStyle();
-        getContent().getStyleClass().add("export-local-pane");
+        getContent().getStyleClass().add("export-local-tab");
     }
 
     /**
@@ -87,7 +88,7 @@ public abstract class ExportLocalPane extends ExportPane
      *
      * @param targetFile  The initial target file that will be export to.
      */
-    protected void makePane(final File targetFile)
+    protected void buildContentPane(final File targetFile)
     {
         Label exportLocationLabel = new Label(Config.getString("export." + type + ".location"));
 
@@ -109,7 +110,7 @@ public abstract class ExportLocalPane extends ExportPane
 
     /**
      * Get a user-chosen file name via a file system browser.
-     * Set the pane's text field to the selected file.
+     * Set the tab's text field to the selected file.
      *
      * @param targetFile  The initial target file that will be export to.
      * @return The file name chosen by the user. If the user canceled the dialog,

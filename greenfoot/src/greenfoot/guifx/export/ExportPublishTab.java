@@ -72,7 +72,7 @@ import threadchecker.Tag;
  * @author Amjad Altadmri
  */
 @OnThread(Tag.FXPlatform)
-public class ExportPublishPane extends ExportPane
+public class ExportPublishTab extends ExportTab
 {
     private static final int IMAGE_WIDTH = 120;
     private static final int IMAGE_HEIGHT = 70;
@@ -125,15 +125,15 @@ public class ExportPublishPane extends ExportPane
     private BooleanBinding titleValidity;
 
     /**
-     * Creates a new instance of ExportPublishPane
+     * Creates a new instance of ExportPublishTab
      *
      * @param project       The project that will be shared.
-     * @param exportDialog  The export dialog containing this pane.
+     * @param exportDialog  The export dialog containing this tab.
      * @param scenarioSaver The listener that will enable us to save the scenario when exporting.
      * @param scenarioInfo  The previously stored scenario info in the properties file.
      */
-    public ExportPublishPane(Project project, ExportDialog exportDialog,
-                             ScenarioSaver scenarioSaver, ScenarioInfo scenarioInfo)
+    public ExportPublishTab(Project project, ExportDialog exportDialog,
+                            ScenarioSaver scenarioSaver, ScenarioInfo scenarioInfo)
     {
         super(scenarioInfo, "export-publish.png");
         this.project = project;
@@ -142,7 +142,7 @@ public class ExportPublishPane extends ExportPane
 
         buildContentPane();
         applySharedStyle();
-        getContent().getStyleClass().add("export-publish-pane");
+        getContent().getStyleClass().add("export-publish-tab");
 
         // Properties are put in fields rather than inlined as long parameter,
         // not only for readability, but mainly because the way FX do binding
@@ -297,7 +297,7 @@ public class ExportPublishPane extends ExportPane
     }
 
     /**
-     * Build the main pane.
+     * Build the contents' pane.
      */
     private void buildContentPane()
     {
@@ -502,7 +502,7 @@ public class ExportPublishPane extends ExportPane
     }
 
     /**
-     * The first time this pane is activated we fetch the popular tags from the
+     * The first time this tab is activated we fetch the popular tags from the
      * server (if possible).
      * 
      * <p>And we load previously used values if they are stored.
