@@ -2406,7 +2406,7 @@ public final class Package
         if (!showSource(thread, thread.getClassSourceName(0), thread.getLineNumber(0), ShowSourceReason.BREAKPOINT_HIT, msg))
         {
             getProject().getExecControls().show();
-            getProject().getExecControls().makeSureThreadIsSelected(thread);
+            getProject().getExecControls().selectThread(thread);
         }
     }
 
@@ -2428,7 +2428,7 @@ public final class Package
         if (!showSource(thread, thread.getClassSourceName(frame), thread.getLineNumber(frame), reason, msg))
         {
             getProject().getExecControls().show();
-            getProject().getExecControls().makeSureThreadIsSelected(thread);
+            getProject().getExecControls().selectThread(thread);
         }
     }
 
