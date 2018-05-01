@@ -349,7 +349,7 @@ centrePanel.message.missingWorldConstructor1=The world could not be constructed.
 centrePanel.message.missingWorldConstructor2=have a public constructor without parameters, or may not be public.
 
 executionDisplay.openDebugger=Open debugger
-executionDisplay.restart=Restart Greenfoot
+executionDisplay.restart=Terminate Execution
 
 # Not a package
 notAProject.greenfoot.title=Not A Greenfoot Scenario
