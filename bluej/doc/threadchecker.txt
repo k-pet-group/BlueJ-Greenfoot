@@ -1,0 +1,268 @@
+Threadchecker: Motivation
+=========================
+
+There are cases in BlueJ and Greenfoot where certain methods or fields should 
+only be accessed from certain threads.  This has two main causes:
+
+ 1. Live JavaFX GUIs should only be accessed from the JavaFX thread (see below
+    for more details on exact rule).
+ 2. Some data has its access controlled by only accessing it from a certain
+    thread.  For example, the Project class internals are only accessed from
+    the JavaFX thread.
+
+However, BlueJ and Greenfoot are multi-threaded programs, so we want to be sure
+that these threading rules are obeyed before we accidentally create a race
+hazard.  This is where the thread checker comes in.  It lets you tag methods
+and fields with the thread that they can be called/accessed from, and
+statically checks (as part of compilation process) that the tags are consistent
+with each other.
+
+Threadchecker: The tags
+=======================
+
+Ultimately, the important thing about the thread tags is actually their
+relation, namely:
+
+  1. Whether tag A can call methods/access fields tagged as B
+  2. Whether tag A can override a method tagged as B
+
+The GUI tags
+------------
+
+In theory, the tags for GUI items are a matter of creating a Swing and FX tag,
+and declaring that neither can call the other.  This neat idea is blown out of
+the water by two aspects:
+
+  1. Live JavaFX GUIs (i.e. those in a Scene that is showing on screen) can
+     only be accessed from the JavaFX platform thread, but non-live JavaFX GUIs
+     can be accessed from other threads (e.g. for off-thread loading of complex
+     GUIs)
+  
+  2. We now use a flag that means Swing and JavaFX can run on the same thread,
+     so Swing and JavaFX can actually call each other after all!
+     
+We've ended up with four GUI tags:
+
+  - Tag.Swing: A Swing GUI item that can only be called/accessed from the Swing
+    thread.  Does not rely on Swing and FXPlatform sharing the same thread
+    (i.e. would still be safe if we ever switch the FX/Swing flag off).  Most
+    of the Swing API is tagged with this.
+    
+  - Tag.SwingIsFX: A Swing GUI item that can be called/accessed from the FX
+    thread because we've set the FX/Swing flag.  If we ever turn that flag off,
+    this tag should be deleted.
+    
+  - Tag.FX: A JavaFX item that may be called/accessed either from the JavaFX
+    platform thread OR from a loading thread.  Most of the JavaFX API is tagged
+    with this.
+    
+  - Tag.FXPlatform: A JavaFX item that can only be called/accessed from the
+    JavaFX platform thread.  Project and a lot of similar classes are annotated
+    with this, as are the JavaFX dialogs (which make no sense to create
+    off-thread).
+    
+The FX/FXPlatform distinction is not ideal.  Really this depends on the dynamic
+state of the objects: an object is FX while it is not live, but FXPlatform once
+it is.  But there's a limit to how far we want the checker to go, and we have
+the code working reasonably even with this awkward distinction.  The main place
+we use FX and not FXPlatform is when we do off-thread loading of Stride frames.
+
+The other tags
+--------------
+
+  - Tag.Simulation: Used on the Greenfoot simulation VM to tag items which
+    must be used on the Simulation thread.
+    
+  - Tag.Worker: Used to label items which run on worker threads.  This is
+    used in a several different places in the code to refer to different
+    notions of worker, but it's not worth having 10 different worker tags
+    for each situation; as long as no worker calls another, there's no
+    confusion.  It's useful to use Worker rather than Any because some
+    workers have items (e.g. result fields) which should only be accessed
+    from the worker thread, but tagging as Any would allow access from the GUI
+    thread.  New threads are labelled Worker by the checker (otherwise they
+    would inherit their spawner's threading tag, which is definitely incorrect)
+
+  - Tag.Any: Used to label a method/field which can be accessed from any
+    thread.  Many non-GUI utility methods are tagged with this. 
+
+Threadchecker: Where to tag
+===========================
+
+When the threadchecker finds a method declaration or method call, it performs
+a check that the override/call is valid.  It searches outwards for tags,
+in this order:
+
+ - First, the method/surrounding method is examined.
+ - Second, the surrounding class is examined.
+ - Third, the surrounding package is examined (via its package-info.java file)
+
+If two of these exist, the innermost one is chosen and the outermost one is
+ignored.  It's fine to have a package labelled Swing with an FXPlatform method
+somewhere inside.  Don't think of the package tag as hard-and-fast applied to
+everything within; think of it as a default which is used if a more localised
+tag is not found.
+
+The easiest thing to do is generally to start by tagging a whole package.  Then
+any specific items that don't fit the package overall should be tagged either
+as whole-class, or specific method.
+
+Note that there is no relation between inner classes and outer-classes.  Inner
+classe methods use the package tag as a default, but do not use the outer-class
+tag as a default.  Experience suggests that this is a reasonable rule. 
+
+Threadchecker: lambdas
+----------------------
+
+By default, a lambda takes on the thread tag of its surrounding method.  This
+is usually the right behaviour, e.g. if you call forEach(x -> {...}), the
+lambda will be called immediately on the same thread.  Platform.runLater is
+treated specially (see later).  This does create issues sometimes though,
+e.g. if you write new Thread(() -> {...}) or addListener(e -> {...}).
+
+Therefore if the destination type of the lambda is tagged, the lambda takes
+on that tag.  So:
+
+Runnable r = () -> {...} // Takes on tag of enclosing method
+FXPlatformRunnable r = () -> {...} // FXPlatform, regardless of enclosing method.
+
+Hence we have these FXPlatformRunnable types and similar, which allow us to
+be more explicit over which thread the code will run on.
+
+Threadchecker: Calling
+======================
+
+The rules for which thread can call another are implementing in Tag.canCall.
+Here is the current version at time of writing, which checks if "this" tag can
+call the Tag "dest":
+
+        if (dest == null || dest == Any) // Can call dest any from any source
+            return true;
+        else if (dest == Tag.FX && this == Tag.FXPlatform)
+            return true; // FXPlatform can call FX, but not vice versa
+        else if ((dest == Tag.SwingIsFX && (this == Tag.FXPlatform || this == Tag.Swing))
+              || (this == Tag.SwingIsFX && (dest == Tag.FXPlatform || dest == Tag.Swing)))
+            return true;
+        else
+            return this == dest;
+
+No tag is treated as Any and can be called from anywhere.  FXPlatform can call
+FX but not vice-versa (FX may be loading off-thread).  If one tag involved is
+SwingIsFX, then it can interact in either direction with Swing or FXPlatform.
+Apart from these special cases, a thread tag can only safely call a method with
+the same tag.
+
+Threadchecker: Overriding
+=========================
+
+The rules for which thread can call another are implementing in Tag.canOverride.
+Here is the current version at time of writing, which checks if "this" tag can
+override the Tag "parent":
+
+        if (parent == null)
+            return this == Any;
+        else if (parent == FXPlatform && this == FX)
+            return true; // FX can override FXPlatform, but not vice versa
+        else if (this == Any)
+            return true; // Any can override a more-specific parent tag
+        else if (this == SwingIsFX && (parent == FXPlatform || parent == Swing))
+            return true;
+        else
+            return this == parent;
+            
+If there is no parent tag, it can only be overridden by Any.  (If neither
+parent nor child has a tag, the checker doesn't look at it, so no tag can
+automatically override no tag without reachning this code).
+
+FX can override FXPlatform because it is making it more general: if callers
+are all on the platform thread, they can safely call a method which can also
+be called from a loading thread.  However, the reverse is not supported:
+FXPlatform cannot override FX because it is making it more specific and callers
+may not be on the platform thread.
+
+Similarly, Any can override any tag because it is making the tag more general.
+And SwingIsFX can override Swing or FXPlatform because SwingIsFX effectively
+asserts that they are all the same thread.
+
+Apart from all these special cases, the child tag should usually match the 
+parent tag.
+
+ignoreParent
+------------
+
+There are some cases where we need to brute-force an override.  For example:
+
+  - The Simulation thread in Greenfoot is tagged as Simulation regardless of
+    the parent tag because it is special.
+    
+  - We may declare an iterator that is only used from the FX thread, but the
+    parent is untagged, so we cannot override that tag unless we force it.
+    
+  - The parent is tagged FX, but the whole class is only ever used from the
+    FXPlatform thread so you may tag an overridden method as FXPlatform-only.
+    
+In these cases, you can add "ignoreParent = true" to the @OnThread tag, which
+tells the checker to believe this tag, and ignore all parent tags.
+
+Threadchecker: JDK tagging
+==========================
+
+The JDK itself is tagged by the checker.  Most methods are untagged (and thus
+count as Any), but all the JavaFX related parts are tagged as FX or FXPlatform,
+similarly the Swing parts are tagged.  This is done in the TCScanner
+constructor, where whole packages or specific classes or methods are tagged.
+
+If any of this is incorrect or unuseful, it can often be overridden by using
+an ignoreParent tag in a subclass. 
+
+Threadchecker: special methods
+==============================
+
+The thread-checker recognises several special methods that swap thread.  This
+includes Platform.runLater, SwingUtilities.invokeAndWait and a few others.
+In general, this results in what you'd expect: code in a Platform.runLater
+lambda is assumed to be running on the FXPlatform thread.  This is more
+difficult or impossible for Runnable items, especially when they are stored
+in a variable, so in general, using lambdas for these items (which may then
+call an FXPlatformRunnable, which does have the right tags, rather than the
+untagged Runnable which Platform.runLater takes) is better.
+
+FX: Listeners
+=============
+
+JavaFX has event handlers, and these events are usually delivered on the FX
+platform thread (e.g. key presses, mouse clicks, etc).  So the event handlers
+are all tagged by TCScanner as FXPlatform; when you get the event you can
+safely assume you are on the platform thread.
+
+JavaFX has a lot of observable items and listeners.  In general, you cannot
+know what thread the listener will be on unless you know what thread all
+the classes which alter that item might be running on.  We take a pragmatic
+approach, and we have two JavaFXUtil helper methods:
+ 
+  - addChangeListener, which takes an FXConsumer, and therefore assumes all
+    changes will occur as Tag.FX (i.e. might be off-thread, might be platform
+    thread).
+    
+  - addChangeListenerPlatform, which takes an FXPlatformConsumer, and therefore
+    assumes all changes will occur on the platform thread.
+
+It's up to the programmer to pick the right one, as we cannot check this!  As
+a guide, anything relating to the live GUI is safe to use
+addChangeListenerPlatform, e.g. focus properties, layout items (sceneToLocal).
+If you know a particular GUI (e.g. a dialog) is only ever used on the platform
+thread, that's fine too.  Just be careful in Stride and the Java editor,
+because Stride is loaded off-thread, and the Java editor is printed off-thread,
+so you cannot necessarily use addChangeListenerPlatform.
+
+Summary
+=======
+
+The threadchecker checks that the tags on methods are consistent.  It's useful
+and picks up various issues at compile-time, but it's definitely not
+watertight.  In several places it's up to the programmer to tag carefully, and
+even a fully tagged program still might contain a race hazard.  But it seems
+to be useful in picking up many mis-uses (e.g. trying to poke the FX GUI from
+a worker thread).  If ever we don't want it any more, we can just remove it
+from the compile process and the code will still compile fine, even without
+removing the tags.
