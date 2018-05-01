@@ -91,7 +91,7 @@ class VMEventHandler extends Thread
         start();  // will execute our own run method
     }
 
-    @OnThread(value = Tag.Unique, ignoreParent = true)
+    @OnThread(value = Tag.Worker, ignoreParent = true)
     public void run()
     {
         while (!exiting) {

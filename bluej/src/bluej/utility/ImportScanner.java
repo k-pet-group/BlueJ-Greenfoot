@@ -280,7 +280,7 @@ public class ImportScanner
     }
     
     // Gets the class loader config to pass to the Reflections library
-    @OnThread(Tag.Unique)
+    @OnThread(Tag.Worker)
     private ConfigurationBuilder getClassloaderConfig()
     {
         List<ClassLoader> classLoadersList = new ArrayList<ClassLoader>();
@@ -343,7 +343,7 @@ public class ImportScanner
      * @param importSrcs Currently not used by caller, but narrows imports down
      * @return
      */
-    @OnThread(Tag.Unique)
+    @OnThread(Tag.Worker)
     private Reflections getReflections(List<String> importSrcs)
     {
         FilterBuilder filter = new FilterBuilder();
@@ -387,7 +387,7 @@ public class ImportScanner
      * @return A package-tree structure with all class names present, but not any further
      * details about the classes.
      */
-    @OnThread(Tag.Unique)
+    @OnThread(Tag.Worker)
     private RootPackageInfo findAllTypes()
     {
         reflections = getReflections(Collections.emptyList());

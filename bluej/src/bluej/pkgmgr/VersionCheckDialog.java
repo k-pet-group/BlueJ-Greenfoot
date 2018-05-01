@@ -147,7 +147,7 @@ final public class VersionCheckDialog extends Dialog<Void>
          * Do a version check. That is: open a URL connection to the remote 
          * version file and read it. Display version info as appropriate.
          */
-        @OnThread(value = Tag.Unique, ignoreParent = true)
+        @OnThread(value = Tag.Worker, ignoreParent = true)
         public void run()
         {
             try {
@@ -175,7 +175,7 @@ final public class VersionCheckDialog extends Dialog<Void>
          * version is out of date. We know that the first line of the version
          * file contains the up-to-date version number.
          */
-        @OnThread(Tag.Unique)
+        @OnThread(Tag.Worker)
         private boolean isOutOfDate(BufferedReader versionReader)
         {
             try {
@@ -194,7 +194,7 @@ final public class VersionCheckDialog extends Dialog<Void>
          * Given a reader for the (remote) version file, read the version
          * info text out of it and display it in the text area.
          */
-        @OnThread(Tag.Unique)
+        @OnThread(Tag.Worker)
         private void displayNewVersionInfo(BufferedReader versionReader)
         {
             if(newVersion == null)

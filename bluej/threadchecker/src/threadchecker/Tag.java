@@ -13,7 +13,7 @@ public enum Tag
     // methods on its own thread (one Unique thread can't call another Unique thread)
     // but Worker threads can do cross-calling.
     // Any means that the method is safe to call from any thread (including FX, Swing, and others)
-    FX, FXPlatform, Swing, SwingIsFX, Unique, Simulation, Worker, Any;
+    FX, FXPlatform, Swing, SwingIsFX, Simulation, Worker, Any;
 
     /**
      * Checks if this tag on a method is allowed when overriding the given (potentially null) parent method tag.
@@ -45,8 +45,6 @@ public enum Tag
     {
         if (dest == null || dest == Any) // Can call dest any from any source
             return true;
-        else if (dest == Tag.Unique)
-            return sameInstance && this == Tag.Unique; // Can't call a unique thread directly unless same instance)
         else if (dest == Tag.FX && this == Tag.FXPlatform)
             return true; // FXPlatform can call FX, but not vice versa
         else if ((dest == Tag.SwingIsFX && (this == Tag.FXPlatform || this == Tag.Swing))

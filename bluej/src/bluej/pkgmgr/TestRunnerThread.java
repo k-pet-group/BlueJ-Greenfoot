@@ -53,7 +53,7 @@ import java.util.concurrent.ExecutionException;
  */
 public class TestRunnerThread extends Thread
 {
-    @OnThread(Tag.Unique)
+    @OnThread(Tag.Worker)
     private final Iterator<ClassTarget> testIterator;
     private final PkgMgrFrame pmf;
 
@@ -90,7 +90,7 @@ public class TestRunnerThread extends Thread
         state = 0;
     }
 
-    @OnThread(value = Tag.Unique, ignoreParent = true)
+    @OnThread(value = Tag.Worker, ignoreParent = true)
     public void run()
     {
         while (testIterator.hasNext()) {

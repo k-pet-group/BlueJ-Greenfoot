@@ -1213,7 +1213,7 @@ public class ClassTarget extends DependentTarget
 
         new Thread() {
             @Override
-            @OnThread(Tag.Unique)
+            @OnThread(Tag.Worker)
             public void run() {
                 // Try and load the class.
                 try {

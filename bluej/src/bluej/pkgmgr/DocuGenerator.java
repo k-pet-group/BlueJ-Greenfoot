@@ -153,7 +153,7 @@ public class DocuGenerator
          * If this call was successful let the result be shown in a browser.
          */
         @Override
-        @OnThread(value = Tag.Unique, ignoreParent = true)
+        @OnThread(value = Tag.Worker, ignoreParent = true)
         public void run()
         {
             // Process docuRun;
@@ -294,7 +294,7 @@ public class DocuGenerator
         }
         
         @Override
-        @OnThread(value = Tag.Unique, ignoreParent = true)
+        @OnThread(value = Tag.Worker, ignoreParent = true)
         public void run()
         {
             try {
