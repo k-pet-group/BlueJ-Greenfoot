@@ -32,8 +32,10 @@ import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Manage keyboard input, to allow Greenfoot programs to poll for
@@ -48,20 +50,17 @@ import java.util.Map;
  */
 public class KeyboardManager
 {
+    // The last key typed, returned by Greenfoot.getKey()
     private String lastKeyTyped;
 
-    private final EnumSet<KeyCode> keyLatched = EnumSet.noneOf(KeyCode.class);
-    private final EnumSet<KeyCode> keyDown = EnumSet.noneOf(KeyCode.class);
-
-    // This maps key names to codes, and is used during Greenfoot.isKeyDown()
-    // so that we can take the key the user asked for and check if it is pressed or not.
-    // Every possible key is in this map:
-    private final Map<String, KeyCode> keyCodeMap = new HashMap<>();
-    
-    // This maps from key code to String name, and is used for processing ahead of
-    // Greenfoot.getKey() to work out the name of the last pressed key.
-    private final Map<KeyCode, String> keyNames = new HashMap<>();
-
+    // The keys which are latched are those which have been pressed and released in this frame
+    // but we want to remember that they were pressed briefly, so that Greenfoot.isKeyDown
+    // still returns true for their press, in the case that the frame rate is low and the key
+    // was pressed within a frame.  Cleared by clearLatchedKeys() after each frame for
+    // those keys which are now released.
+    private final Set<String> keyLatched = new HashSet<>();
+    // Those keys which are actually pressed down right now.
+    private final Set<String> keyDown = new HashSet<>();
 
     /** Do we think that a numlock key is present? */
     private boolean hasNumLock = true;
@@ -71,9 +70,7 @@ public class KeyboardManager
      * from an external source.
      */
     public KeyboardManager()
-    {
-        addAllKeys();
-        buildKeyNameArray();        
+    {        
     }
     
     /**
@@ -91,65 +88,7 @@ public class KeyboardManager
             }
         }
     }
-    
-    /**
-     * Add all the keys which Greenfoot will directly support into the
-     * key code map (excluding keys with single-character names identifying
-     * the key, such as "a", "b" .. "z" and "0" .. "9", and other keys whose
-     * unicode value maps to their key code.
-     */
-    private void addAllKeys()
-    {
-        // For most keys, the Greenfoot name lines up with the lower-cased FX name:
-        for (KeyCode keyCode : KeyCode.values())
-        {
-            addKey(keyCode.getName().toLowerCase(), keyCode);
-        }
         
-        // And the ones where the Greenfoot name doesn't line up with the FX name:
-        addKey("escape", KeyCode.ESCAPE);
-        addKey("backspace", KeyCode.BACK_SPACE);
-        addKey("\'", KeyCode.QUOTE);
-        addKey("control", KeyCode.CONTROL);
-    }
-    
-    /**
-     * Add a single key into the key code map. Adjust numKeys if necessary
-     * so that it can contain the given keycode.
-     * 
-     * @param keyName   The name of the key to add (Greenfoot name)
-     * @param keyCode   The key code of the key to add (Java key code)
-     */
-    private void addKey(String keyName, KeyCode keyCode)
-    {
-        keyCodeMap.put(keyName, keyCode);
-    }
-    
-    /**
-     * Build the three key arrays: keyLatched, keyDown, and keyNames.
-     */
-    private void buildKeyNameArray()
-    {
-        /* TODO commented out, pending a fix for the way we deal with key typed:
-        keyNames = new String[maxNamedKey];
-        Iterator<String> keyNamesIterator = keyCodeMap.keySet().iterator();
-        while (keyNamesIterator.hasNext()) {
-             String keyName = keyNamesIterator.next();
-             int keyCode = keyCodeMap.get(keyName);
-             keyNames[keyCode] = keyName;
-        }
-        
-        // remove from the keyNames table keys which will generate
-        // keyTyped events.
-        keyNames[KeyEvent.VK_SPACE] = null;
-        keyNames[KeyEvent.VK_ENTER] = null;
-        keyNames[KeyEvent.VK_ESCAPE] = null;
-        keyNames[KeyEvent.VK_TAB] = null;
-        keyNames[KeyEvent.VK_BACK_SPACE] = null;
-        keyNames[KeyEvent.VK_QUOTE] = null;
-        */
-    }
-    
     /**
      * Get the last key pressed, as a String key name identifying the key.
      */
@@ -162,93 +101,66 @@ public class KeyboardManager
     }
     
     /**
-     * Check whether a key, identified by a virtual key code (int),
+     * Check whether a key, identified by a key name (String),
      * is currently down (or latched).
      * 
-     * @param keycode   The key code of the key to check
+     * @param key     The name of the key to check
      * @return        True if the key is currently down, or was down since
      *                it was last checked; false otherwise.
      */
     @OnThread(Tag.Simulation)
-    public synchronized boolean isKeyDown(KeyCode keycode)
+    public synchronized boolean isKeyDown(String key)
     {
-        boolean pressed = keyDown.contains(keycode) || keyLatched.contains(keycode);
-        keyLatched.remove(keycode);
+        key = key.toLowerCase();
+        boolean pressed = keyDown.contains(key) || keyLatched.contains(key);
+        // We forget any was-pressed state here; if the frame is long
+        // then we don't necessarily want to record the key as held down all
+        // frame if the user taps it lightly (e.g. if someone uses a complex
+        // act cycle via Greenfoot.delay() and Greenfoot.ask())
+        keyLatched.remove(key);
         return pressed;
     }
-    
-    /**
-     * Check whether a key, identified by name, is currently down
-     * (or latched).
-     * 
-     * @param keyId  The Greenfoot name for the key to check
-     * @return       True if the key is down, or was down since it was
-     *               last checked; false otherwise.
-     */
-    @OnThread(Tag.Simulation)
-    public boolean isKeyDown(String keyId)
-    {
-        KeyCode code = keyCodeMap.get(keyId.toLowerCase());
-        if (code != null)
-        {
-            return isKeyDown(code);
-        }
-        else
-        {
-            // If the keyId is a single character, look for the keycode corresponding to that
-            // character.
-            if (keyId.codePointCount(0, keyId.length()) == 1)
-            {
-                KeyCode keyCode = KeyCode.getKeyCode(keyId);
-                if (keyCode != null)
-                {
-                    return isKeyDown(keyCode);
-                }
-            }
-            throw new IllegalArgumentException("\"" + keyId + "\" key doesn't exist. "
-                    + "Please change the key name while invoking Greenfoot.isKeyDown() method"); 
-        }
-    }
-    
-    public synchronized void pressKey(KeyCode keyCode)
-    {
-        keyCode = numLockTranslate(keyCode);
-        keyLatched.add(keyCode);
-        keyDown.add(keyCode);
-    }
-    
 
-    public synchronized void releaseKey(KeyCode keyCode)
+    /**
+     * Notifies that a key has been pressed.
+     * @param keyCode The KeyCode from KeyEvent.getCode()
+     * @param keyText The text from KeyEvent.getText()
+     */
+    public synchronized void keyPressed(KeyCode keyCode, String keyText)
     {
-        keyCode = numLockTranslate(keyCode);
-        keyDown.remove(keyCode);
-        String keyName = keyNames.get(keyCode);
+        String keyName = getKeyName(keyCode, keyText);
+        keyLatched.add(keyName);
+        keyDown.add(keyName);
+    }
+
+    /**
+     * Notifies that a key has been released.
+     * @param keyCode The KeyCode from KeyEvent.getCode()
+     * @param keyText The text from KeyEvent.getText()
+     */
+    public synchronized void keyReleased(KeyCode keyCode, String keyText)
+    {
+        String keyName = getKeyName(keyCode, keyText);
+        keyDown.remove(keyName);
         if (keyName != null) {
             lastKeyTyped = keyName;
         }
     }
 
-    public void listeningStarted(Object obj)
-    {       
-    }
-
-    public void listeningEnded()
-    {
-        releaseAllKeys();
-    }
-
     /**
-     * Translate the "key pad" directional keys according to the status of numlock.
+     * Translate the "key pad" directional keys according to the status of numlock,
+     * and otherwise translate a KeyCode+text into a Greenfoot key name.
      * 
      * @param keycode  The original keycode
-     * @return   The translated keycode
+     * @param keyText  The text from the original keyboard event
+     * @return   The translated key name
      */
-    private KeyCode numLockTranslate(KeyCode keycode)
+    private String getKeyName(KeyCode keycode, String keyText)
     {
         if (keycode.ordinal() >= KeyCode.NUMPAD0.ordinal() && keycode.ordinal() <= KeyCode.NUMPAD9.ordinal()) {
             // At least on linux, we can only get these codes if numlock is on; in that
             // case we want to map to a digit anyway.
-            return KeyCode.values()[keycode.ordinal() - KeyCode.NUMPAD0.ordinal() + KeyCode.DIGIT0.ordinal()];
+            return "" + ('0' + (keycode.ordinal() - KeyCode.NUMPAD0.ordinal()));
         }
 
         // Seems on linux (at least) we can't get the numlock state (get an
@@ -308,29 +220,53 @@ public class KeyboardManager
                 keycode = KeyCode.RIGHT;
             }
         }
-        return keycode;
+
+        // Handle the keys where the Greenfoot name doesn't line up with the FX KeyCode.getName():
+        switch (keycode)
+        {
+            case ESCAPE: return "escape";
+            case BACK_SPACE: return "backspace";
+            case QUOTE: return "\'";
+            case CONTROL: return "control";
+        }
+        // By default, use the key text lower-cased if present:
+        if (!keyText.isEmpty())
+        {
+            // Fix a few keys which don't have text corresponding to their names:
+            switch (keyText)
+            {
+                case "\r": case "\n":
+                    return "enter";
+                case "\t":
+                    return "tab";
+                case "\b":
+                    return "backspace";
+                case " ":
+                    return "space";
+                case "\u001B":
+                    return "escape";
+            }
+            
+            return keyText.toLowerCase();
+        }
+        else
+        {
+            // Otherwise fetch the JavaFX name from the KeyCode and lower-case that:
+            return keycode.getName().toLowerCase();
+        }
     }
-    
-    public synchronized void keyTyped(String key)
+
+    /**
+     * Notifies that a key has been typed.
+     * @param keyCode The KeyCode from KeyEvent.getCode()
+     * @param keyText The text from KeyEvent.getText()
+     */
+    public synchronized void keyTyped(KeyCode keyCode, String keyText)
     {
-        char c = key.charAt(0);
-        if (c == '\n' || c == '\r') {
-            lastKeyTyped = "enter";
-        }
-        else if (c == '\t') {
-            lastKeyTyped = "tab";
-        }
-        else if (c == '\b') {
-            lastKeyTyped = "backspace";
-        }
-        else if (c == ' ') {
-            lastKeyTyped = "space";
-        }
-        else if (c == 27) {
-            lastKeyTyped = "escape";
-        }
-        else {
-            lastKeyTyped = key;
+        String keyName = getKeyName(keyCode, keyText);
+        if (!keyName.isEmpty() && !keyName.equals("undefined"))
+        {
+            lastKeyTyped = keyName;
         }
     }
 

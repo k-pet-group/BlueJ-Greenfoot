@@ -1135,7 +1135,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 return;
             }
 
-            debugHandler.getVmComms().sendKeyEvent(eventType, e.getCode().ordinal());
+            debugHandler.getVmComms().sendKeyEvent(eventType, e.getCode(), e.getText());
             e.consume();
         });
 

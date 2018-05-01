@@ -132,11 +132,15 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
             addEventFilter(KeyEvent.ANY, e -> {
                 if (e.getEventType() == KeyEvent.KEY_PRESSED)
                 {
-                    worldHandler.getKeyboardManager().pressKey(e.getCode());
+                    worldHandler.getKeyboardManager().keyPressed(e.getCode(), e.getText());
                 }
                 else if (e.getEventType() == KeyEvent.KEY_RELEASED)
                 {
-                    worldHandler.getKeyboardManager().releaseKey(e.getCode());
+                    worldHandler.getKeyboardManager().keyReleased(e.getCode(), e.getText());
+                }
+                else if (e.getEventType() == KeyEvent.KEY_TYPED)
+                {
+                    worldHandler.getKeyboardManager().keyTyped(e.getCode(), e.getText());
                 }
             });
         }        
