@@ -149,6 +149,7 @@ public class ControlPanel extends GridPane
         GridPane.setMargin(speedSlider, new Insets(8, 0, 0, 0));
         speedLabel.setAlignment(Pos.BASELINE_RIGHT);
         GridPane.setHgrow(speedLabel, Priority.ALWAYS);
+        GridPane.setMargin(speedAndTwirler, new Insets(8, 8, 0, 0));
         add(speedAndTwirler, 1, 0);
         GridPane.setHalignment(speedAndTwirler, HPos.CENTER);
         ColumnConstraints leftHalf = new ColumnConstraints();
