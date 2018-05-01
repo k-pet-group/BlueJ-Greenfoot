@@ -86,6 +86,7 @@ public class ProjectManager
         }
     };
 
+    @OnThread(Tag.FXPlatform)
     public static class ProjectAPIVersionAccess
     {
         /**
@@ -209,11 +210,12 @@ public class ProjectManager
     /**
      * Launching Greenfoot failed. Display a dialog, and exit.
      */
+    @OnThread(Tag.FXPlatform)
     public static void greenfootLaunchFailed(Project project)
     {
         launchFailed = true;
         String text = Config.getString("greenfoot.launchFailed");
-        DialogManager.showErrorText(null, text);
+        DialogManager.showErrorTextFX(null, text);
         System.exit(1);
     }
     
@@ -227,6 +229,7 @@ public class ProjectManager
      * @param projectDir Directory of the project.
      * @return one of GreenfootMain.VERSION_OK, VERSION_UPDATED or VERSION_BAD
      */
+    @OnThread(Tag.FXPlatform)
     private GreenfootMain.VersionCheckInfo checkVersion(Project project,
             ProjectAPIVersionAccess projectAPIVersionAccess)
     {
