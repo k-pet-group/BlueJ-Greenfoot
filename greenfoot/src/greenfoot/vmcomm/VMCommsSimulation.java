@@ -473,17 +473,20 @@ public class VMCommsSimulation
             sharedMemory.get(data);
             if (Command.isKeyEvent(data[0]))
             {
-                KeyCode fxCode = KeyCode.values()[data[1]];
                 KeyboardManager keyboardManager = WorldHandler.getInstance().getKeyboardManager();
+                KeyCode keyCode = KeyCode.values()[data[1]];
+                String keyText = new String(data, 2, data.length - 2);
                 switch(data[0])
                 {
                     case Command.KEY_DOWN:
-                        keyboardManager.pressKey(fxCode);
+                        keyboardManager.keyPressed(keyCode, keyText);
                         break;
                     case Command.KEY_UP:
-                        keyboardManager.releaseKey(fxCode);
+                        keyboardManager.keyReleased(keyCode, keyText);
                         break;
-                    // KEY_TYPED is not processed
+                    case Command.KEY_TYPED:
+                        keyboardManager.keyTyped(keyCode, keyText);
+                        break;
                 }
             }
             else if (Command.isMouseEvent(data[0]))

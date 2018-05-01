@@ -33,7 +33,8 @@ public class Command
 
     /*
      * Key events.  Followed by one integer which is the key code
-     * (using the JavaFX KeyCode enum's ordinal method).
+     * (using the JavaFX KeyCode enum's ordinal method), then the rest
+     * are integer codepoints from the string of the key text.
      */
     public static final int KEY_DOWN = 1;
     public static final int KEY_UP = 2;

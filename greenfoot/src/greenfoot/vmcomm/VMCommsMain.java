@@ -36,6 +36,7 @@ import java.util.List;
 
 import bluej.utility.Debug;
 import greenfoot.guifx.GreenfootStage;
+import javafx.scene.input.KeyCode;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -530,11 +531,19 @@ public class VMCommsMain implements Closeable
      * Send a key event.
      * 
      * @param eventType   The event type
-     * @param ordinal     The key code ordinal
+     * @param keyCode     The key code, from KeyEvent.getCode()
+     * @param keyText     The key text, from KeyEvent.getText()
      */
-    public synchronized void sendKeyEvent(int eventType, int ordinal)
+    public synchronized void sendKeyEvent(int eventType, KeyCode keyCode, String keyText)
     {
-        pendingCommands.add(new Command(eventType, ordinal));
+        int[] textCodePoints = keyText.codePoints().toArray();
+
+        // Ordinal from KeyCode, followed by text codepoints:
+        int[] data = new int[textCodePoints.length + 1];
+        data[0] = keyCode.ordinal();
+        System.arraycopy(textCodePoints, 0, data, 1, textCodePoints.length);
+        
+        pendingCommands.add(new Command(eventType, data));
     }
     
     /**
