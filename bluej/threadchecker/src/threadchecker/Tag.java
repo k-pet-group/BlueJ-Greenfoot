@@ -6,14 +6,38 @@ public enum Tag
     // FX means either FX thread or a loader thread for FX
     // SwingIsFX means designed to work on Swing, now relying on them being same thread.
     //   (Separate to Swing to identify better what is happening during transition from Swing to FX)
-    // Unique means it always runs in a thread which will be different from all others
-    //  (including, and especially, FX and Swing).
     // Things like Thread.run or FXWorker.construct are tagged as Unique
-    // Worker is similar to Unique, except that Unique tags can only call
-    // methods on its own thread (one Unique thread can't call another Unique thread)
-    // but Worker threads can do cross-calling.
+    // Worker is for background tasks not on any of the other threads.
     // Any means that the method is safe to call from any thread (including FX, Swing, and others)
-    FX, FXPlatform, Swing, SwingIsFX, Simulation, Worker, Any;
+
+    /**
+     * Only for use EITHER on the FX platform thread OR in a loading thread (e.g. Stride editor loading).
+     */
+    FX,
+    /**
+     * Only for use on the FX platform thread.
+     */
+    FXPlatform,
+    /**
+     * Only for use on the Swing event thread (aka EDT)
+     */
+    Swing,
+    /**
+     * Only for use on the joined Swing/FX thread (valid only because we have set the Java command-line flag)
+     */
+    SwingIsFX,
+    /**
+     * Only for use on the Greenfoot Simulation thread in the simulation VM.
+     */
+    Simulation,
+    /**
+     * Only for use on a background worker thread.
+     */
+    Worker,
+    /**
+     * May be used on any thread.
+     */
+    Any;
 
     /**
      * Checks if this tag on a method is allowed when overriding the given (potentially null) parent method tag.
