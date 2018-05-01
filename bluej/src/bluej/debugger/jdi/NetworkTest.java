@@ -123,7 +123,7 @@ public class NetworkTest
             
             Thread t = new Thread() {
                 @Override
-                @OnThread(Tag.Unique)
+                @OnThread(Tag.Worker)
                 public void run()
                 {
                     try {

@@ -1097,7 +1097,7 @@ public class JdiDebugger extends Debugger
         MachineLoaderThread()
         {}
 
-        @OnThread(value = Tag.Unique, ignoreParent = true)
+        @OnThread(value = Tag.Worker, ignoreParent = true)
         public void run()
         {
             try {

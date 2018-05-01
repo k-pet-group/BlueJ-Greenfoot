@@ -526,7 +526,7 @@ public class Invoker
             // We must however do so in a seperate thread. Otherwise a constructor which
             // goes into an infinite loop can hang BlueJ.
             new Thread() {
-                @OnThread(Tag.Unique)
+                @OnThread(Tag.Worker)
                 public void run() {
                     Platform.runLater(Invoker.this::closeCallDialog);
                     

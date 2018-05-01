@@ -464,7 +464,7 @@ public class UnitTestClassRole extends ClassRole
         // Avoid running test setup (which is user code) on the event thread.
         // Run it on a new thread instead.
         new Thread() {
-            @OnThread(value = Tag.Unique, ignoreParent = true)
+            @OnThread(value = Tag.Worker, ignoreParent = true)
             public void run() {
 
                 final FXPlatformSupplier<Map<String, DebuggerObject>> dobs = project.getDebugger().runTestSetUp(ct.getQualifiedName());

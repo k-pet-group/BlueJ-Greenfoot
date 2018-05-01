@@ -87,7 +87,7 @@ public class CheckConnectionDialog extends FXCustomizedDialog<Void>
         // we are modal - showAndWait will block.
         new Thread(new Runnable() {
             @Override
-            @OnThread(Tag.Unique)
+            @OnThread(Tag.Worker)
             public void run() {
                 final TeamworkCommandResult res = provider.checkConnection(settings);
                 Platform.runLater(() -> {
