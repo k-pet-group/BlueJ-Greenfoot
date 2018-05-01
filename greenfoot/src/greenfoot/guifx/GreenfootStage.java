@@ -1288,7 +1288,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         // Need to find out which actors are at the point.  Do this in background thread to
         // avoid blocking the GUI thread:
         Utility.runBackground(() -> 
-            debugger.instantiateClass("greenfoot.core.PickActorHelper", new String[]{"java.lang.String", "java.lang.String", "java.lang.String", "java.lang.String"}, new DebuggerObject[]{xObject, yObject, pickIdObject, requestTypeObject})
+            debugger.instantiateClass("greenfoot.core.PickActorHelper",
+                new String[] {"java.lang.String", "java.lang.String", "java.lang.String", "java.lang.String"},
+                new DebuggerObject[] {xObject, yObject, pickIdObject, requestTypeObject})
         );
         // Once that completes, pickResults(..) will be called.
     }
