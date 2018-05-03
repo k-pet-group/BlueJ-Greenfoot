@@ -49,8 +49,6 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 
-import javax.swing.JPanel;
-
 /**
  * Lives on the Simulation VM (aka debug VM), and handles communications with the server
  * (see {@link VMCommsMain})
