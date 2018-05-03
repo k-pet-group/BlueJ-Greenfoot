@@ -39,8 +39,8 @@ import javafx.stage.Stage;
 public abstract class ResultWatcherBase implements ResultWatcher
 {
     private final CallableView method;
-    private DebuggerObject obj;
-    private String objInstanceName;
+    private DebuggerObject obj;  // can be null for static method calls
+    private String objInstanceName;  // can be null
     private Package pkg;
     private Stage parentWindow;
     private String className;
@@ -142,7 +142,7 @@ public abstract class ResultWatcherBase implements ResultWatcher
     @Override
     public void putException(ExceptionDescription exception, InvokerRecord ir)
     {
-        ExecutionEvent executionEvent = new ExecutionEvent(pkg, obj.getClassName(), objInstanceName);
+        ExecutionEvent executionEvent = new ExecutionEvent(pkg, className, objInstanceName);
         executionEvent.setParameters(method.getParamTypes(false), ir.getArgumentValues());
         executionEvent.setResult(ExecutionEvent.EXCEPTION_EXIT);
         executionEvent.setException(exception);
@@ -155,7 +155,7 @@ public abstract class ResultWatcherBase implements ResultWatcher
     @Override
     public void putVMTerminated(InvokerRecord ir)
     {
-        ExecutionEvent executionEvent = new ExecutionEvent(pkg, obj.getClassName(), objInstanceName);
+        ExecutionEvent executionEvent = new ExecutionEvent(pkg, className, objInstanceName);
         executionEvent.setParameters(method.getParamTypes(false), ir.getArgumentValues());
         executionEvent.setResult(ExecutionEvent.TERMINATED_EXIT);
         BlueJEvent.raiseEvent(BlueJEvent.EXECUTION_RESULT, executionEvent);
