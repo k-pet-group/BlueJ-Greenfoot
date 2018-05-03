@@ -494,8 +494,8 @@ public class VMCommsSimulation
             {
                 int x = data[1];
                 int y = data[2];
-                int clickCount = data[3];
-                int button = data[4];
+                int button = data[3];
+                int clickCount = data[4];
                 MousePollingManager mouseManager = WorldHandler.getInstance().getMouseManager();
                 switch (data[0])
                 {
