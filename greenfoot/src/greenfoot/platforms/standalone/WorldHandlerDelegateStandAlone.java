@@ -26,7 +26,6 @@ import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.core.WorldHandler;
 import greenfoot.export.GreenfootScenarioViewer;
-import greenfoot.gui.DropTarget;
 import greenfoot.gui.WorldRenderer;
 import greenfoot.platforms.WorldHandlerDelegate;
 import javafx.animation.AnimationTimer;
@@ -185,12 +184,5 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     public void notifyStoppedWithError()
     {
         // Nothing to be done, really.
-    }
-
-    @Override
-    @OnThread(Tag.Any)
-    public void setDropTargetListener(DropTarget dropTarget)
-    {
-        // No dropping in standalone
     }
 }

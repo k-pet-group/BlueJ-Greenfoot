@@ -30,8 +30,6 @@ import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
-import greenfoot.gui.DragListener;
-import greenfoot.gui.DropTarget;
 import greenfoot.gui.input.KeyboardManager;
 import greenfoot.gui.input.mouse.MousePollingManager;
 import greenfoot.gui.input.mouse.WorldLocator;
@@ -57,7 +55,7 @@ import threadchecker.Tag;
  */
 @OnThread(Tag.Simulation)
 public class WorldHandler
-    implements DropTarget, DragListener, SimulationListener
+    implements SimulationListener
 {
     /** A flag to check whether a world has been set. Can be tested/cleared by callers. */
     private boolean worldIsSet;
@@ -163,11 +161,6 @@ public class WorldHandler
             {
 
             }
-
-            @Override
-            public void setDropTargetListener(DropTarget dropTarget)
-            {
-            }
         };
     }
         
@@ -184,8 +177,6 @@ public class WorldHandler
         this.handlerDelegate = handlerDelegate;
         
         mousePollingManager = new MousePollingManager(null);
-
-        handlerDelegate.setDropTargetListener(this);
 
         keyboardManager = new KeyboardManager();
     }
@@ -501,7 +492,6 @@ public class WorldHandler
      * <p>
      * This must be called on the simulation thread.
      */
-    @Override
     @OnThread(Tag.Simulation)
     public boolean drag(Object o, Point p)
     {
@@ -580,18 +570,6 @@ public class WorldHandler
         else {
             return false;
         }
-    }
-
-    public void dragEnded(Object o)
-    {
-        if (o instanceof Actor && world != null) {
-            final Actor actor = (Actor) o;
-            Simulation.getInstance().runLater(() -> world.removeObject(actor));
-        }
-    }
-
-    public void dragFinished(Object o)
-    {
     }
 
     @OnThread(Tag.Simulation)

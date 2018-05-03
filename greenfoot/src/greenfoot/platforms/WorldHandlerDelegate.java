@@ -23,7 +23,6 @@ package greenfoot.platforms;
 
 import greenfoot.Actor;
 import greenfoot.World;
-import greenfoot.gui.DropTarget;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -82,10 +81,4 @@ public interface WorldHandlerDelegate
      * that was not caught by the user code.
      */
     void notifyStoppedWithError();
-
-    /**
-     * Set the listener for when a target is dropped.
-     */
-    @OnThread(Tag.Any)
-    void setDropTargetListener(DropTarget dropTarget);
 }

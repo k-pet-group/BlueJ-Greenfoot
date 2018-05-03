@@ -28,7 +28,6 @@ import greenfoot.core.ImageCache;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.SimulationUIListener;
-import greenfoot.gui.DropTarget;
 import greenfoot.vmcomm.VMCommsSimulation;
 import greenfoot.vmcomm.VMCommsSimulation.PaintWhen;
 import greenfoot.platforms.WorldHandlerDelegate;
@@ -106,13 +105,6 @@ public class WorldHandlerDelegateIDE
     public void notifyStoppedWithError()
     {
         vmCommsSimulation.notifyStoppedWithError();
-    }
-
-    @Override
-    @OnThread(Tag.Any)
-    public void setDropTargetListener(DropTarget dropTarget)
-    {
-        vmCommsSimulation.setDropTargetListener(dropTarget);
     }
 
     @Override

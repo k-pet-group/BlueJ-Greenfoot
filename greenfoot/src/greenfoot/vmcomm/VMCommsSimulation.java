@@ -28,7 +28,6 @@ import greenfoot.WorldVisitor;
 import greenfoot.core.ShadowProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
-import greenfoot.gui.DropTarget;
 import greenfoot.gui.WorldRenderer;
 import greenfoot.gui.input.KeyboardManager;
 import greenfoot.gui.input.mouse.MousePollingManager;
@@ -195,11 +194,6 @@ public class VMCommsSimulation
     public void setWorldSize(int xsize, int ysize)
     {
         worldRenderer.setWorldSize(xsize, ysize);
-    }
-
-    public void setDropTargetListener(DropTarget worldHandler)
-    {
-        worldRenderer.setDropTargetListener(worldHandler);
     }
 
     public static enum PaintWhen { FORCE, IF_DUE, NO_PAINT}
