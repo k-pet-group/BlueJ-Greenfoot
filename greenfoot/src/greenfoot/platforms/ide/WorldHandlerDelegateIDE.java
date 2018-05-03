@@ -28,7 +28,6 @@ import greenfoot.core.ImageCache;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.SimulationUIListener;
-import greenfoot.event.TriggeredKeyListener;
 import greenfoot.gui.DropTarget;
 import greenfoot.vmcomm.VMCommsSimulation;
 import greenfoot.vmcomm.VMCommsSimulation.PaintWhen;
@@ -54,8 +53,7 @@ public class WorldHandlerDelegateIDE
     implements WorldHandlerDelegate, SimulationUIListener
 {
     protected final Color envOpColour = new Color(152,32,32);
-
-    private TriggeredKeyListener keyListener;
+    
     private final VMCommsSimulation vmCommsSimulation;
     
     private boolean worldInitialising;
@@ -88,13 +86,6 @@ public class WorldHandlerDelegateIDE
             discardWorld(oldWorld);
         }
         vmCommsSimulation.setWorld(newWorld);
-    }
-
-    @Override
-    @OnThread(Tag.Any)
-    public void setKeyListener(TriggeredKeyListener handler)
-    {
-        this.keyListener = handler;
     }
 
     @Override

@@ -25,13 +25,11 @@ import greenfoot.Actor;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.core.WorldHandler;
-import greenfoot.event.TriggeredKeyListener;
 import greenfoot.export.GreenfootScenarioViewer;
 import greenfoot.gui.DropTarget;
 import greenfoot.gui.WorldRenderer;
 import greenfoot.platforms.WorldHandlerDelegate;
 import javafx.animation.AnimationTimer;
-import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -48,8 +46,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @OnThread(Tag.Simulation)
 public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
-{    
-    private TriggeredKeyListener keyListener;
+{
     private GreenfootScenarioViewer viewer;
     private boolean lockScenario;
     private World world;
@@ -110,14 +107,7 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         this.world = newWorld;
         worldRenderer.setWorld(newWorld);
     }
-
-    @Override
-    @OnThread(Tag.Any)
-    public void setKeyListener(TriggeredKeyListener handler)
-    {
-        this.keyListener = handler;
-    }
-
+    
     @Override
     public void instantiateNewWorld(String className, Runnable runIfError)
     {
