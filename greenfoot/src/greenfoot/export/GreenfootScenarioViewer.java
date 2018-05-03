@@ -46,6 +46,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import threadchecker.OnThread;
@@ -145,25 +146,31 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
                 }
             });
             worldDisplay.addEventFilter(MouseEvent.ANY, e -> {
+                MouseButton button = e.getButton();
+                if (Config.isMacOS() && button == MouseButton.PRIMARY && e.isControlDown())
+                {
+                    button = MouseButton.SECONDARY;
+                }
+                
                 if (e.getEventType() == MouseEvent.MOUSE_CLICKED)
                 {
-                    worldHandler.getMouseManager().mouseClicked((int)e.getX(), (int)e.getY(), e.getButton(), e.getClickCount());
+                    worldHandler.getMouseManager().mouseClicked((int)e.getX(), (int)e.getY(), button, e.getClickCount());
                 }
                 else if (e.getEventType() == MouseEvent.MOUSE_MOVED)
                 {
-                    worldHandler.getMouseManager().mouseMoved((int)e.getX(), (int)e.getY(), e.getButton());
+                    worldHandler.getMouseManager().mouseMoved((int)e.getX(), (int)e.getY(), button);
                 }
                 else if (e.getEventType() == MouseEvent.MOUSE_DRAGGED)
                 {
-                    worldHandler.getMouseManager().mouseDragged((int)e.getX(), (int)e.getY(), e.getButton());
+                    worldHandler.getMouseManager().mouseDragged((int)e.getX(), (int)e.getY(), button);
                 }
                 else if (e.getEventType() == MouseEvent.MOUSE_PRESSED)
                 {
-                    worldHandler.getMouseManager().mousePressed((int)e.getX(), (int)e.getY(), e.getButton());
+                    worldHandler.getMouseManager().mousePressed((int)e.getX(), (int)e.getY(), button);
                 }
                 else if (e.getEventType() == MouseEvent.MOUSE_RELEASED)
                 {
-                    worldHandler.getMouseManager().mouseReleased((int)e.getX(), (int)e.getY(), e.getButton());
+                    worldHandler.getMouseManager().mouseReleased((int)e.getX(), (int)e.getY(), button);
                 }
                 else if (e.getEventType() == MouseEvent.MOUSE_EXITED)
                 {
