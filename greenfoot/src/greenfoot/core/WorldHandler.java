@@ -28,7 +28,6 @@ import greenfoot.WorldVisitor;
 import greenfoot.core.Simulation.SimulationRunnable;
 import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
-import greenfoot.event.TriggeredKeyListener;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
 import greenfoot.gui.DragListener;
@@ -58,7 +57,7 @@ import threadchecker.Tag;
  */
 @OnThread(Tag.Simulation)
 public class WorldHandler
-    implements TriggeredKeyListener, DropTarget, DragListener, SimulationListener
+    implements DropTarget, DragListener, SimulationListener
 {
     /** A flag to check whether a world has been set. Can be tested/cleared by callers. */
     private boolean worldIsSet;
@@ -141,11 +140,6 @@ public class WorldHandler
             public void setWorld(World oldWorld, World newWorld)
             {
             }
-
-            @Override
-            public void setKeyListener(TriggeredKeyListener handler)
-            {
-            }
             
             @Override
             public void objectAddedToWorld(Actor actor)
@@ -188,7 +182,6 @@ public class WorldHandler
     {
         instance = this;
         this.handlerDelegate = handlerDelegate;
-        this.handlerDelegate.setKeyListener(this);
         
         mousePollingManager = new MousePollingManager(null);
 
@@ -311,38 +304,6 @@ public class WorldHandler
     public void repaintAndWait()
     {
         repaint();
-    }
-
-    @Override
-    @OnThread(Tag.Swing)
-    public void keyTyped(KeyEvent e) {}
-
-    @Override
-    @OnThread(Tag.Swing)
-    public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-            if (dragActor != null) {
-                dragActorMoved = false;
-                Simulation.getInstance().runLater(new SimulationRunnable() {
-                    private Actor dragActor = WorldHandler.this.dragActor;
-                    private int dragBeginX = WorldHandler.this.dragBeginX;
-                    private int dragBeginY = WorldHandler.this.dragBeginY;
-                    @Override
-                    public void run()
-                    {
-                        ActorVisitor.setLocationInPixels(dragActor, dragBeginX, dragBeginY);
-                        repaint();
-                    }
-                });
-                dragActor = null;
-            }
-        }
-    }
-
-    @Override
-    @OnThread(Tag.Swing)
-    public void keyReleased(KeyEvent e)
-    {
     }
 
     /**
@@ -738,17 +699,7 @@ public class WorldHandler
             return null;
         }
     }
-        
-    @Override
-    public void listeningEnded()
-    {
-    }
 
-    @Override
-    public void listeningStarted(Object obj)
-    {
-    }
-    
     /**
      * This is a hook called by the World whenever an actor gets added to it. When running in the IDE,
      * this allows names to be assigned to the actors for interaction recording purposes.

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2012,2018  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,11 +23,11 @@ package greenfoot.gui.input.mouse;
 
 import greenfoot.Actor;
 import greenfoot.MouseInfo;
-import greenfoot.event.TriggeredMouseListener;
-import greenfoot.event.TriggeredMouseMotionListener;
 import greenfoot.gui.input.mouse.MouseEventData;
 
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 
 import bluej.Config;
 import threadchecker.OnThread;
@@ -74,7 +74,7 @@ import threadchecker.Tag;
  * 
  * @author Poul Henriksen
  */
-public class MousePollingManager implements TriggeredMouseListener, TriggeredMouseMotionListener
+public class MousePollingManager implements MouseListener, MouseMotionListener
 {
     /*
      * Methods in this class are called from two threads: the simulation thread and the

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011,2012,2013,2015  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2012,2013,2015,2018  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,7 +21,6 @@
  */
 package greenfoot.gui.input;
 
-import greenfoot.event.TriggeredKeyListener;
 import javafx.scene.input.KeyCode;
 import threadchecker.OnThread;
 import threadchecker.Tag;
