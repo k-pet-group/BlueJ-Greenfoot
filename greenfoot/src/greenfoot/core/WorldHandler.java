@@ -381,24 +381,21 @@ public class WorldHandler
         handlerDelegate.setWorld(this.world, world);
         mousePollingManager.setWorldLocator(new WorldLocator() {
             @Override
-            public Actor getTopMostActorAt(MouseEvent e)
+            public Actor getTopMostActorAt(int x, int y)
             {
-                Point p = new Point(e.getX(), e.getY());
-                return getObject(world, p.x, p.y);
+                return getObject(world, x, y);
             }
 
             @Override
-            public int getTranslatedX(MouseEvent e)
+            public int getTranslatedX(int x)
             {
-                Point p = new Point(e.getX(), e.getY());
-                return WorldVisitor.toCellFloor(world, p.x);
+                return WorldVisitor.toCellFloor(world, x);
             }
 
             @Override
-            public int getTranslatedY(MouseEvent e)
+            public int getTranslatedY(int y)
             {
-                Point p = new Point(e.getX(), e.getY());
-                return WorldVisitor.toCellFloor(world, p.y);
+                return WorldVisitor.toCellFloor(world, y);
             }
         });
         this.world = world;

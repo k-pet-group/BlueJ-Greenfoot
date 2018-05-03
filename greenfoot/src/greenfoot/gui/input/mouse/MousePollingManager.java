@@ -30,6 +30,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
 import bluej.Config;
+import javafx.geometry.Point2D;
+import javafx.scene.input.MouseButton;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -74,7 +76,7 @@ import threadchecker.Tag;
  * 
  * @author Poul Henriksen
  */
-public class MousePollingManager implements MouseListener, MouseMotionListener
+public class MousePollingManager
 {
     /*
      * Methods in this class are called from two threads: the simulation thread and the
@@ -323,11 +325,14 @@ public class MousePollingManager implements MouseListener, MouseMotionListener
         return currentData.getMouseInfo();
     }   
 
-    // ************************************
-    // Implementations of listeners.
-    // ************************************
-
-    public void mouseClicked(MouseEvent e)
+    /**
+     * The mouse got moved to the given world location
+     * @param x The pixel location in the world (not cells)
+     * @param y The pixel location in the world (not cells)
+     * @param button The button reported by the original event.
+     * @param clickCount The click count recorded by the original event.
+     */
+    public void mouseClicked(int x, int y, MouseButton button, int clickCount)
     {
         if (locator == null)
         {
@@ -338,7 +343,7 @@ public class MousePollingManager implements MouseListener, MouseMotionListener
         // the simulation thread can synchronize on futureData (in freezeMouseData())
         // while holding the world write-lock (which would leave the two threads with
         // one lock each, both trying to claim the other):
-        Actor actor = locator.getTopMostActorAt(e);
+        Actor actor = locator.getTopMostActorAt(x, y);
         synchronized (this) {
             MouseEventData mouseData = futureData;
             // In case we already have a dragEnded and we get another
@@ -346,47 +351,50 @@ public class MousePollingManager implements MouseListener, MouseMotionListener
             if (futureData.isMouseDragEnded(null)) {
                 mouseData = potentialNewDragData;
             }
-            if(! PriorityManager.isHigherPriority(e, mouseData)) return;
+            if(! PriorityManager.isHigherPriority(MouseEvent.MOUSE_CLICKED, mouseData)) return;
             registerEventRecieved();
-            int x = locator.getTranslatedX(e);
-            int y = locator.getTranslatedY(e);
-            int button = getButton(e);
+            x = locator.getTranslatedX(x);
+            y = locator.getTranslatedY(y);
             
-            mouseData.mouseClicked(x, y, button, e.getClickCount(), actor);
+            mouseData.mouseClicked(x, y, getButton(button), clickCount, actor);
             isDragging = false;
         }
     }
 
     /**
-     * Gets the button for the mouse event. This will also translate CTRL-clicks
-     * on mac into mouse button three. Doesn't work for drag events.
+     * Translates a JavaFX button to 1/2/3 as used by the Greenfoot API for left/middle/right.
      */
-    private int getButton(MouseEvent e)
+    private int getButton(MouseButton button)
     {
-        int button = e.getButton();
-        if (Config.isMacOS() && button == MouseEvent.BUTTON1) {
-            // Simulate right click on Macs that use CTRL click for right
-            // clicks. Would be nice if we could use isPopupTrigger instead, but
-            // that only works for mouse pressed.
-            if ((e.getModifiersEx() & MouseEvent.CTRL_DOWN_MASK) == MouseEvent.CTRL_DOWN_MASK) {
-                button = MouseEvent.BUTTON3;
-            }
+        switch (button)
+        {
+            case PRIMARY:
+                return 1;
+            case MIDDLE:
+                return 2;
+            case SECONDARY:
+                return 3;
         }
-        return button;
+        return 0;
     }
 
-    public void mouseEntered(MouseEvent e)
-    {
-    }
-
-    public void mouseExited(MouseEvent e)
+    /**
+     * The mouse left the world area.
+     */
+    public void mouseExited()
     {
         synchronized (this) {
             futureData.mouseExited();
         }
     }
 
-    public void mousePressed(MouseEvent e)
+    /**
+     * The mouse got pressed on the given world location
+     * @param x The pixel location in the world (not cells)
+     * @param y The pixel location in the world (not cells)
+     * @param button The button reported by the original event.
+     */
+    public void mousePressed(int x, int y, MouseButton button)
     {
         if (locator == null)
         {
@@ -397,7 +405,7 @@ public class MousePollingManager implements MouseListener, MouseMotionListener
         // the simulation thread can synchronize on futureData (in freezeMouseData())
         // while holding the world write-lock (which would leave the two threads with
         // one lock each, both trying to claim the other):
-        Actor actor = locator.getTopMostActorAt(e);
+        Actor actor = locator.getTopMostActorAt(x, y);
         synchronized(this) {
             MouseEventData mouseData = futureData;
             // In case we already have a dragEnded and we get another
@@ -408,20 +416,25 @@ public class MousePollingManager implements MouseListener, MouseMotionListener
         
             // This might be the beginning of a drag so we store it
             dragStartData = new MouseEventData();
-            int x = locator.getTranslatedX(e);
-            int y = locator.getTranslatedY(e);
-            int button = getButton(e);
-            dragStartData.mousePressed(x, y, button, actor);            
+            x = locator.getTranslatedX(x);
+            y = locator.getTranslatedY(y);
+            dragStartData.mousePressed(x, y, getButton(button), actor);            
 
             // We only really want to register this event as a press if there is no higher priorities
-            if(! PriorityManager.isHigherPriority(e, mouseData)) return;
+            if(! PriorityManager.isHigherPriority(MouseEvent.MOUSE_PRESSED, mouseData)) return;
             registerEventRecieved();
-            mouseData.mousePressed(x, y, button, actor);
+            mouseData.mousePressed(x, y, getButton(button), actor);
             isDragging = false;
         }
     }
 
-    public void mouseReleased(MouseEvent e)
+    /**
+     * The mouse got released at the given world location
+     * @param x The pixel location in the world (not cells)
+     * @param y The pixel location in the world (not cells)
+     * @param button The button reported by the original event.
+     */
+    public void mouseReleased(int x, int y, MouseButton button)
     {
         if (locator == null)
         {
@@ -432,7 +445,7 @@ public class MousePollingManager implements MouseListener, MouseMotionListener
         // the simulation thread can synchronize on futureData (in freezeMouseData())
         // while holding the world write-lock (which would leave the two threads with
         // one lock each, both trying to claim the other):
-        Actor clickActor = locator.getTopMostActorAt(e);
+        Actor clickActor = locator.getTopMostActorAt(x, y);
         synchronized(this) {
             // This might be the end of a drag
             if(isDragging) {
@@ -442,23 +455,28 @@ public class MousePollingManager implements MouseListener, MouseMotionListener
                     futureData = potentialNewDragData;
                 }
                 
-                if(! PriorityManager.isHigherPriority(e, futureData)) return;
+                if(! PriorityManager.isHigherPriority(MouseEvent.MOUSE_RELEASED, futureData)) return;
                 registerEventRecieved();
-                int x = locator.getTranslatedX(e);
-                int y = locator.getTranslatedY(e);
-                int button = getButton(e);
+                x = locator.getTranslatedX(x);
+                y = locator.getTranslatedY(y);
 
-                futureData.mouseClicked(x, y, button, 1, clickActor);
+                futureData.mouseClicked(x, y, getButton(button), 1, clickActor);
                 
                 Actor actor = dragStartData.getActor();
-                futureData.mouseDragEnded(x, y, button, actor);
+                futureData.mouseDragEnded(x, y, getButton(button), actor);
                 isDragging = false;
                 potentialNewDragData = new MouseEventData();
             }
         }
     }
 
-    public void mouseDragged(MouseEvent e)
+    /**
+     * The mouse got dragged to the given world location
+     * @param x The pixel location in the world (not cells)
+     * @param y The pixel location in the world (not cells)
+     * @param button The button reported by the original event.
+     */
+    public void mouseDragged(int x, int y, MouseButton button)
     {
         if (locator == null)
         {
@@ -468,17 +486,23 @@ public class MousePollingManager implements MouseListener, MouseMotionListener
         synchronized(this) {
             isDragging = true;
             
-            if(! PriorityManager.isHigherPriority(e, futureData)) return;
+            if(! PriorityManager.isHigherPriority(MouseEvent.MOUSE_DRAGGED, futureData)) return;
             registerEventRecieved();
             
             // Find and store the actor that relates to this drag.
-            int x = locator.getTranslatedX(e);
-            int y = locator.getTranslatedY(e);
+            x = locator.getTranslatedX(x);
+            y = locator.getTranslatedY(y);
             futureData.mouseDragged(x, y, dragStartData.getButton(), dragStartData.getActor());
         }
     }
 
-    public void mouseMoved(MouseEvent e)
+    /**
+     * The mouse got moved to the given world location
+     * @param x The pixel location in the world (not cells)
+     * @param y The pixel location in the world (not cells)
+     * @param button The button reported by the original event.
+     */
+    public void mouseMoved(int x, int y, MouseButton button)
     {
         if (locator == null)
         {
@@ -490,24 +514,15 @@ public class MousePollingManager implements MouseListener, MouseMotionListener
         // the simulation thread can synchronize on futureData (in freezeMouseData())
         // while holding the world write-lock (which would leave the two threads with
         // one lock each, both trying to claim the other):
-        Actor actor = locator.getTopMostActorAt(e);
+        Actor actor = locator.getTopMostActorAt(x, y);
         synchronized(this) {
-            if(! PriorityManager.isHigherPriority(e, futureData)) return;
+            if(! PriorityManager.isHigherPriority(MouseEvent.MOUSE_MOVED, futureData)) return;
             registerEventRecieved();
-            int x = locator.getTranslatedX(e);
-            int y = locator.getTranslatedY(e);
-            int button = getButton(e);
-            futureData.mouseMoved(x, y, button, actor);
+            x = locator.getTranslatedX(x);
+            y = locator.getTranslatedY(y);
+            futureData.mouseMoved(x, y, getButton(button), actor);
             isDragging = false;
         }
     }
-
-    public void listeningEnded()
-    {
-    }
-
-    public void listeningStarted(Object obj)
-    {
-    }   
 }
 

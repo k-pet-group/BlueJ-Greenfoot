@@ -1197,6 +1197,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             {
                 eventType = MOUSE_MOVED;
             }
+            else if (e.getEventType() == MouseEvent.MOUSE_EXITED)
+            {
+                eventType = MOUSE_EXITED;
+            }
             else
             {
                 return;

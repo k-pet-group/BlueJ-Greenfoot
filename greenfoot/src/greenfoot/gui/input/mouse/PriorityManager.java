@@ -54,7 +54,7 @@ public class PriorityManager
      * @param currentData
      * @return
      */
-    public static boolean isHigherPriority(MouseEvent newEvent, MouseEventData currentData)
+    public static boolean isHigherPriority(int newEvent, MouseEventData currentData)
     {
         int currentPriority = getPriority(currentData);
         int newPriority = getPriority(newEvent);
@@ -65,21 +65,21 @@ public class PriorityManager
      * @param event
      * @return
      */
-    private static int getPriority(MouseEvent event)
+    private static int getPriority(int event)
     {
-        if(event.getID() == MouseEvent.MOUSE_RELEASED) {
+        if(event == MouseEvent.MOUSE_RELEASED) {
             return 0;
         }
-        else if(event.getID() == MouseEvent.MOUSE_CLICKED) {
+        else if(event == MouseEvent.MOUSE_CLICKED) {
             return 1;
         }
-        else if(event.getID() == MouseEvent.MOUSE_PRESSED) {
+        else if(event == MouseEvent.MOUSE_PRESSED) {
             return 2;
         }
-        else if(event.getID() == MouseEvent.MOUSE_DRAGGED) {
+        else if(event == MouseEvent.MOUSE_DRAGGED) {
             return 3;
         }
-        else if(event.getID() == MouseEvent.MOUSE_MOVED) {
+        else if(event == MouseEvent.MOUSE_MOVED) {
             return 4;
         }
         else {
