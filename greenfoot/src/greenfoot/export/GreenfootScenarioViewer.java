@@ -46,6 +46,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -141,6 +142,32 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
                 else if (e.getEventType() == KeyEvent.KEY_TYPED)
                 {
                     worldHandler.getKeyboardManager().keyTyped(e.getCode(), e.getText());
+                }
+            });
+            worldDisplay.addEventFilter(MouseEvent.ANY, e -> {
+                if (e.getEventType() == MouseEvent.MOUSE_CLICKED)
+                {
+                    worldHandler.getMouseManager().mouseClicked((int)e.getX(), (int)e.getY(), e.getButton(), e.getClickCount());
+                }
+                else if (e.getEventType() == MouseEvent.MOUSE_MOVED)
+                {
+                    worldHandler.getMouseManager().mouseMoved((int)e.getX(), (int)e.getY(), e.getButton());
+                }
+                else if (e.getEventType() == MouseEvent.MOUSE_DRAGGED)
+                {
+                    worldHandler.getMouseManager().mouseDragged((int)e.getX(), (int)e.getY(), e.getButton());
+                }
+                else if (e.getEventType() == MouseEvent.MOUSE_PRESSED)
+                {
+                    worldHandler.getMouseManager().mousePressed((int)e.getX(), (int)e.getY(), e.getButton());
+                }
+                else if (e.getEventType() == MouseEvent.MOUSE_RELEASED)
+                {
+                    worldHandler.getMouseManager().mouseReleased((int)e.getX(), (int)e.getY(), e.getButton());
+                }
+                else if (e.getEventType() == MouseEvent.MOUSE_EXITED)
+                {
+                    worldHandler.getMouseManager().mouseExited();
                 }
             });
         }        
