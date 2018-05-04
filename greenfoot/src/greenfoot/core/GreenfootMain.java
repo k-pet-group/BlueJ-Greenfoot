@@ -82,12 +82,6 @@ public class GreenfootMain extends Thread
     /** Greenfoot is a singleton - this is the instance. */
     private static GreenfootMain instance;
 
-    /** The connection to BlueJ via RMI */
-    private RBlueJ rBlueJ;
-
-    /** The path to the dummy startup project */
-    private File startupProject;
-
     // ----------- static methods ------------
 
     /**
@@ -123,12 +117,7 @@ public class GreenfootMain extends Thread
     private GreenfootMain(final RBlueJ rBlueJ, String projDir, String shmFilePath)
     {
         instance = this;
-        this.rBlueJ = rBlueJ;
         try {
-            // determine the path of the startup project
-            File startupProj = rBlueJ.getSystemLibDir();
-            startupProj = new File(startupProj, "greenfoot");
-            startupProject = new File(startupProj, "startupProject");
 
             ShadowProjectProperties projectProperties = new ShadowProjectProperties();
             ActorDelegateIDE.setupAsActorDelegate(projectProperties);
@@ -198,7 +187,7 @@ public class GreenfootMain extends Thread
                     // show the dialog during load because we may interrupt important processes:
                     try
                     {
-                        GreenfootMain.this.rBlueJ.addApplicationListener(new RApplicationListenerImpl() {
+                        rBlueJ.addApplicationListener(new RApplicationListenerImpl() {
                             @Override
                             public void dataSubmissionFailed() throws RemoteException
                             {
