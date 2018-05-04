@@ -43,6 +43,7 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.io.File;
+import java.lang.reflect.Modifier;
 import java.util.List;
 
 /**
@@ -266,10 +267,11 @@ public class LocalGClassNode extends GClassNode implements TargetListener
 
 
         // New subclass:
-        contextMenu.getItems().add(GClassDiagram.contextInbuilt(Config.getString("new.sub.class"),
-                () -> {
-                    greenfootStage.newSubClassOf(classTarget.getQualifiedName(), type);
-                }));
+        if (! Modifier.isFinal(cl.getModifiers()))
+        {
+            contextMenu.getItems().add(GClassDiagram.contextInbuilt(Config.getString("new.sub.class"),
+                    () -> greenfootStage.newSubClassOf(classTarget.getQualifiedName(), type)));
+        }
 
         // Select item when we show context menu for it:
         classDiagram.getSelectionManager().select(display);
