@@ -49,7 +49,6 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import greenfoot.core.GreenfootMain.VersionCheckInfo;
 import greenfoot.core.GreenfootMain.VersionInfo;
-import greenfoot.gui.MessageDialog;
 import greenfoot.util.Version;
 import greenfoot.vmcomm.GreenfootDebugHandler;
 import rmiextension.BlueJRMIServer;

@@ -51,8 +51,6 @@ public class WorldRenderer
 
     /** Preferred size (not counting insets) */
     private Dimension size;
-
-    private DropTarget dropTargetListener;
     
     /** The actor being dragged. Null if no dragging. */
     private Actor dragActor;
@@ -209,32 +207,6 @@ public class WorldRenderer
     }
 
     /**
-     * If it is a new actor, that has not been added to the world yet, the
-     * dragging is handled here.
-     */
-    public boolean drag(Object o, Point p)
-    {
-        if(o instanceof Actor && ActorVisitor.getWorld((Actor) o) == null) {
-            if(!new Rectangle(size).contains(p)) {
-                return false;
-            }
-            if(o != dragActor) {
-                // It is the first time we are dragging this actor. Create the drag image.
-                dragActor = (Actor) o;
-                dragImage = GreenfootUtil.createDragShadow(ActorVisitor.getDragImage(dragActor).getAwtImage());
-            }
-            dragLocation = p;
-            return true;
-        }
-        else if (dropTargetListener != null) {
-            return dropTargetListener.drag(o, p);
-        }
-        else {
-            return false;
-        }
-    }
-
-    /**
      * Set the current world.
      */
     public void setWorld(World world)
@@ -273,13 +245,5 @@ public class WorldRenderer
         else {
             return new Dimension(100, 100);
         }
-    }
-
-    /**
-     * Set the drag listener for when dragging moves the actor.
-     */
-    public void setDropTargetListener(DropTarget dropTargetListener)
-    {
-        this.dropTargetListener = dropTargetListener;
     }
 }

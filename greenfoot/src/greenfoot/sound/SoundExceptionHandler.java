@@ -29,7 +29,6 @@ import java.io.IOException;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.sampled.UnsupportedAudioFileException;
-import javax.swing.SwingUtilities;
 
 import bluej.Config;
 

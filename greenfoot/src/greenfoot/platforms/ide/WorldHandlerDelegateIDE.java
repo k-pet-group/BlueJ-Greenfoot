@@ -27,8 +27,6 @@ import greenfoot.World;
 import greenfoot.core.ImageCache;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
-import greenfoot.event.SimulationUIListener;
-import greenfoot.gui.DropTarget;
 import greenfoot.vmcomm.VMCommsSimulation;
 import greenfoot.vmcomm.VMCommsSimulation.PaintWhen;
 import greenfoot.platforms.WorldHandlerDelegate;
@@ -50,7 +48,7 @@ import java.util.List;
  * @author Poul Henriksen
  */
 public class WorldHandlerDelegateIDE
-    implements WorldHandlerDelegate, SimulationUIListener
+    implements WorldHandlerDelegate
 {
     protected final Color envOpColour = new Color(152,32,32);
     
@@ -106,13 +104,6 @@ public class WorldHandlerDelegateIDE
     public void notifyStoppedWithError()
     {
         vmCommsSimulation.notifyStoppedWithError();
-    }
-
-    @Override
-    @OnThread(Tag.Any)
-    public void setDropTargetListener(DropTarget dropTarget)
-    {
-        vmCommsSimulation.setDropTargetListener(dropTarget);
     }
 
     @Override
@@ -257,15 +248,6 @@ public class WorldHandlerDelegateIDE
      * be named.  Do not remove or rename without also editing that code.
      */
     private void nameActors(Actor[] actor)
-    {
-    }
-
-    /**
-     * Notify that the simulation has become active ("act" or "run" pressed). Any recorded interaction
-     * then becomes invalid.
-     */
-    @Override
-    public void simulationActive()
     {
     }
     
