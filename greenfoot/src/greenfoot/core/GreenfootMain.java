@@ -39,7 +39,6 @@ import java.rmi.RemoteException;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 
-import rmiextension.wrappers.RBlueJ;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
 import threadchecker.OnThread;

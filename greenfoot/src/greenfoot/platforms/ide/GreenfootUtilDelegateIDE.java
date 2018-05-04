@@ -59,7 +59,6 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
-import rmiextension.BlueJRMIClient;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

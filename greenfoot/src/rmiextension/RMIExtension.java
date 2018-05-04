@@ -106,15 +106,6 @@ public class RMIExtension extends Extension implements ApplicationListener
             public void compileError(CompileEvent event) { }
         });
 
-        try {
-            new BlueJRMIServer(theBlueJ);
-        }
-        catch (IOException e) {
-            Debug.reportError("Could not launch RMI server", e);
-            NetworkTest.doTest();
-            //ProjectManager.greenfootLaunchFailed(null);
-        }
-
         theBlueJ.addApplicationListener(this);
     }
 
