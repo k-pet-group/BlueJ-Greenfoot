@@ -49,6 +49,7 @@ public class Command
     public static final int MOUSE_DRAGGED = 13;
     public static final int MOUSE_RELEASED = 14;
     public static final int MOUSE_MOVED = 15;
+    public static final int MOUSE_EXITED = 16;
 
     /*
      * Commands or requests.  Unless otherwise specified,

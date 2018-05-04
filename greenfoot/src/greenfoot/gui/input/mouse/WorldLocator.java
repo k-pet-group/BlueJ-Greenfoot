@@ -21,8 +21,6 @@
  */
 package greenfoot.gui.input.mouse;
 
-import java.awt.event.MouseEvent;
-
 import greenfoot.Actor;
 
 
@@ -35,24 +33,25 @@ public interface WorldLocator
 {
     /**
      * Gets the top most actor at the given location.
-     * @param e TODO
+     * @param worldPixelPositionX The X pixel position in the world (not cell position)
+     * @param worldPixelPositionY The Y pixel position in the world (not cell position)
      * @return The top most actor, or null if no actor.
      */
-    public Actor getTopMostActorAt(MouseEvent e);
+    public Actor getTopMostActorAt(int worldPixelPositionX, int worldPixelPositionY);
 
     /**
      * Translates the coordinates from the given source component into some other coordinate system.
-     * @param e The event from which the x-coordinate should be translated
+     * @param worldPixelPositionX The X pixel position in the world (not cell position)
      * @return The new x-coordinate
      */
-    public int getTranslatedX(MouseEvent e);
+    public int getTranslatedX(int worldPixelPositionX);
     
 
     /**
      * Translates the coordinates from the given source component into some other coordinate system.
-     * @param e The event from which the y-coordinate should be translated
+     * @param worldPixelPositionY The Y pixel position in the world (not cell position)
      * @return The new y-coordinate
      */
-    public int getTranslatedY(MouseEvent e);
+    public int getTranslatedY(int worldPixelPositionY);
 
 }

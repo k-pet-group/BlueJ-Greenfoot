@@ -35,6 +35,7 @@ import greenfoot.gui.input.mouse.MousePollingManager;
 import greenfoot.vmcomm.Command;
 import greenfoot.vmcomm.VMCommsMain;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -491,24 +492,30 @@ public class VMCommsSimulation
             }
             else if (Command.isMouseEvent(data[0]))
             {
-                MouseEvent fakeEvent = new MouseEvent(new JPanel(), 1, 0, 0, data[1], data[2], data[3], false, data[4]);
+                int x = data[1];
+                int y = data[2];
+                int button = data[3];
+                int clickCount = data[4];
                 MousePollingManager mouseManager = WorldHandler.getInstance().getMouseManager();
                 switch (data[0])
                 {
                     case Command.MOUSE_CLICKED:
-                        mouseManager.mouseClicked(fakeEvent);
+                        mouseManager.mouseClicked(x, y, MouseButton.values()[button], clickCount);
                         break;
                     case Command.MOUSE_PRESSED:
-                        mouseManager.mousePressed(fakeEvent);
+                        mouseManager.mousePressed(x, y, MouseButton.values()[button]);
                         break;
                     case Command.MOUSE_RELEASED:
-                        mouseManager.mouseReleased(fakeEvent);
+                        mouseManager.mouseReleased(x, y, MouseButton.values()[button]);
                         break;
                     case Command.MOUSE_DRAGGED:
-                        mouseManager.mouseDragged(fakeEvent);
+                        mouseManager.mouseDragged(x, y, MouseButton.values()[button]);
                         break;
                     case Command.MOUSE_MOVED:
-                        mouseManager.mouseMoved(fakeEvent);
+                        mouseManager.mouseMoved(x, y, MouseButton.values()[button]);
+                        break;
+                    case Command.MOUSE_EXITED:
+                        mouseManager.mouseExited();
                         break;
                 }
             }

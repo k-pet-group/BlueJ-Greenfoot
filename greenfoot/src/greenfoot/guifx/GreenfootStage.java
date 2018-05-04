@@ -1166,7 +1166,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             else if (e.getEventType() == MouseEvent.MOUSE_PRESSED)
             {
                 eventType = MOUSE_PRESSED;
-                if (paused && e.isPrimaryButtonDown())
+                if (paused && e.isPrimaryButtonDown() && !e.isControlDown())
                 {
                     // Begin a drag. We do this on MOUSE_PRESSED, because MOUSE_DRAG_DETECTED requires
                     // several pixels of movement, which might take us off the actor if it is small.
@@ -1197,11 +1197,23 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             {
                 eventType = MOUSE_MOVED;
             }
+            else if (e.getEventType() == MouseEvent.MOUSE_EXITED)
+            {
+                eventType = MOUSE_EXITED;
+            }
             else
             {
                 return;
             }
-            debugHandler.getVmComms().sendMouseEvent(eventType, (int)worldPos.getX(), (int)worldPos.getY(), e.getButton().ordinal(), e.getClickCount());
+            MouseButton button = e.getButton();
+            if (Config.isMacOS() && button == MouseButton.PRIMARY && e.isControlDown())
+            {
+                button = MouseButton.SECONDARY;
+            }
+            
+            debugHandler.getVmComms().sendMouseEvent(
+                eventType, (int)worldPos.getX(), (int)worldPos.getY(),
+                button.ordinal(), e.getClickCount());
         });
 
         new AnimationTimer()
