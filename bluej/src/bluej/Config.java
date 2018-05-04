@@ -164,7 +164,9 @@ public final class Config
 
     /**
      * Initialisation of BlueJ configuration. Must be called at startup.
-     * This method finds and opens the configuration files.<p>
+     * This method finds and opens the configuration files.
+     * 
+     * This is only called from the main/server VM
      * 
      * See also initializeVMside().
      */
@@ -172,6 +174,8 @@ public final class Config
                                   boolean bootingGreenfoot)
     {
         initialise(bluejLibDir, tempCommandLineProps, bootingGreenfoot, true);
+        // Load any debug vm args (only needed on server VM):
+        initDebugVMArgs();
     }
     
     /**
@@ -253,8 +257,6 @@ public final class Config
         String macOSscreenMenuBar = Config.getPropString("bluej.macos.screenmenubar", "true");
         System.setProperty("apple.laf.useScreenMenuBar", macOSscreenMenuBar);      
 
-        //read any debug vm args
-        initDebugVMArgs();
         Config.setVMLocale();
         
         // Create a property containing the BlueJ version string

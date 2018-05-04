@@ -25,8 +25,6 @@ import java.io.File;
 import java.rmi.RemoteException;
 import java.util.Properties;
 
-import rmiextension.wrappers.event.RApplicationListener;
-
 /**
  * 
  * Interface for accessing BlueJ-functionality
@@ -69,8 +67,5 @@ public interface RBlueJ
      * Get the directory where user preferences are stored
      */
     public File getUserPrefDir()
-        throws RemoteException;
-
-    public void addApplicationListener(RApplicationListener listener)
         throws RemoteException;
 }

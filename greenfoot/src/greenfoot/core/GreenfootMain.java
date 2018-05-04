@@ -40,8 +40,6 @@ import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 
 import rmiextension.wrappers.RBlueJ;
-import rmiextension.wrappers.event.RApplicationListenerImpl;
-import bluej.extensions.SourceType;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
 import threadchecker.OnThread;
@@ -82,12 +80,6 @@ public class GreenfootMain extends Thread
     /** Greenfoot is a singleton - this is the instance. */
     private static GreenfootMain instance;
 
-    /** The connection to BlueJ via RMI */
-    private RBlueJ rBlueJ;
-
-    /** The path to the dummy startup project */
-    private File startupProject;
-
     // ----------- static methods ------------
 
     /**
@@ -96,15 +88,13 @@ public class GreenfootMain extends Thread
      * 
      * @param rBlueJ   remote BlueJ instance
      * @param shmFilePath The path to the shared-memory file to be mmap-ed for communication
-     * @param wizard   whether to run the "new project wizard"
-     * @param sourceType  default source type for the new project
      */
     @OnThread(Tag.Any)
-    public static void initialize(RBlueJ rBlueJ, String projDir, String shmFilePath, boolean wizard, SourceType sourceType)
+    public static void initialize(RBlueJ rBlueJ, String projDir, String shmFilePath)
     {
         System.setProperty("apple.laf.useScreenMenuBar", "true");
         if (instance == null) {
-            instance = new GreenfootMain(rBlueJ, projDir, shmFilePath, wizard, sourceType);
+            instance = new GreenfootMain(rBlueJ, projDir, shmFilePath);
         }
     }
 
@@ -122,15 +112,10 @@ public class GreenfootMain extends Thread
      * Contructor is private. This class is initialised via the 'initialize'
      * method (above).
      */
-    private GreenfootMain(final RBlueJ rBlueJ, String projDir, String shmFilePath, boolean wizard, SourceType sourceType)
+    private GreenfootMain(final RBlueJ rBlueJ, String projDir, String shmFilePath)
     {
         instance = this;
-        this.rBlueJ = rBlueJ;
         try {
-            // determine the path of the startup project
-            File startupProj = rBlueJ.getSystemLibDir();
-            startupProj = new File(startupProj, "greenfoot");
-            startupProject = new File(startupProj, "startupProject");
 
             ShadowProjectProperties projectProperties = new ShadowProjectProperties();
             ActorDelegateIDE.setupAsActorDelegate(projectProperties);
@@ -194,33 +179,6 @@ public class GreenfootMain extends Thread
                     ExecServer.setCustomRunOnThread(r -> Simulation.getInstance().runLater(r::run));
 
                     // Config is initialized in GreenfootLauncherDebugVM
-                    
-                    // We can do this late on, because although the submission failure may have already
-                    // happened, the event is re-issued to new listeners.  And we don't want to accidentally
-                    // show the dialog during load because we may interrupt important processes:
-                    try
-                    {
-                        GreenfootMain.this.rBlueJ.addApplicationListener(new RApplicationListenerImpl() {
-                            @Override
-                            public void dataSubmissionFailed() throws RemoteException
-                            {
-                                if (Boot.isTrialRecording())
-                                {
-                                    Platform.runLater(() -> {
-                                        new DataSubmissionFailedDialog().show();
-                                    });
-                                }
-                            }
-                        });
-                    }
-                    catch (RemoteException e)
-                    {
-                        Debug.reportError(e);
-                        // Show the dialog anyway; probably best to restart:
-                        Platform.runLater(() -> {
-                            new DataSubmissionFailedDialog().show();
-                        });
-                    }
 
                 }
             });
