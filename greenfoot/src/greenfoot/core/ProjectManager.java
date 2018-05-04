@@ -21,7 +21,6 @@
  */
 package greenfoot.core;
 
-import java.awt.Frame;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
@@ -30,19 +29,20 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import javax.swing.JButton;
-
 import bluej.Boot;
 import bluej.Config;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
+import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
+import bluej.debugger.DebuggerResult;
 import bluej.debugger.ExceptionDescription;
 import bluej.debugmgr.ResultWatcher;
 import bluej.editor.Editor;
 import bluej.extensions.BlueJ;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.DocPathEntry;
+import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.testmgr.record.InvokerRecord;
@@ -52,8 +52,7 @@ import greenfoot.core.GreenfootMain.VersionCheckInfo;
 import greenfoot.core.GreenfootMain.VersionInfo;
 import greenfoot.util.Version;
 import greenfoot.vmcomm.GreenfootDebugHandler;
-import rmiextension.BlueJRMIServer;
-import rmiextension.ConstructorInvoker;
+import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -461,42 +460,6 @@ public class ProjectManager
      */
     public void openGreenfoot(final Project project, GreenfootDebugHandler greenfootDebugHandler)
     {
-        ResultWatcher watcher = new ResultWatcher() {
-            @Override
-            public void beginCompile()
-            {
-                // Nothing needs doing
-            }
-            @Override
-            public void beginExecution(InvokerRecord ir)
-            {
-                // Nothing needs doing
-            }
-            @Override
-            public void putError(String message, InvokerRecord ir)
-            {
-                Debug.message("Greenfoot launch failed with error: " + message);
-                greenfootLaunchFailed(project);
-            }
-            @Override
-            public void putException(ExceptionDescription exception, InvokerRecord ir)
-            {
-                Debug.message("Greenfoot launch failed due to exception in debug VM: " + exception.getText());
-                greenfootLaunchFailed(project);
-            }
-            @Override
-            public void putResult(DebuggerObject result, String name,
-                    InvokerRecord ir)
-            {
-                // This is ok. May need to store result/name somewhere?
-            }
-            @Override
-            public void putVMTerminated(InvokerRecord ir)
-            {
-                Debug.message("Greenfoot launch failed due to debug VM terminating.");
-                greenfootLaunchFailed(project);
-            }
-        };
         File shmFile = greenfootDebugHandler.getShmFile();
         
         
@@ -517,14 +480,50 @@ public class ProjectManager
             // We continue even if the properties file will be blank, as it only sets locale and language...
         }
 
-        String[] consParams = { project.getProjectDir().getPath(),
+        final String[] consParams = { project.getProjectDir().getPath(),
                 Config.getBlueJLibDir().getAbsolutePath(),
                 Config.getUserConfigDir().getAbsolutePath(),
                 tmpPropsFile == null ? "" : tmpPropsFile.getAbsolutePath(),
                 shmFile == null ? "" : shmFile.getAbsolutePath() };
-        
-        ConstructorInvoker launcher = new ConstructorInvoker(project.getPackage(""),
-                greenfootDebugHandler, launchClass);
-        launcher.invokeConstructor(launcherName, consParams, watcher);
+
+        Package pkg = project.getPackage("");
+        final Debugger debugger = pkg.getProject().getDebugger();
+
+        new Thread() {
+            public void run()
+            {
+                String [] argTypes = new String[consParams.length];
+                DebuggerObject [] argObjects = new DebuggerObject[consParams.length];
+                for (int i = 0; i < consParams.length; i++)
+                {
+                    argTypes[i] = "java.lang.String";
+                    argObjects[i] = debugger.getMirror(consParams[i]);
+                }
+                
+                DebuggerResult result = debugger.instantiateClass(launchClass, argTypes, argObjects).get();
+                final DebuggerObject debugObject = result.getResultObject();
+                
+                Platform.runLater(() -> {
+                    if (debugObject != null)
+                    {
+                        String wrappedName = greenfootDebugHandler.addObject(debugObject, debugObject.getGenType(),
+                                launcherName);
+                        pkg.getDebugger().addObject(pkg.getQualifiedName(), wrappedName, debugObject);  
+                    }
+                    
+                    int status = result.getExitStatus();
+                    if (status == Debugger.EXCEPTION)
+                    {
+                        Debug.message("Greenfoot launch failed due to exception in debug VM: " + result.getException().getText());
+                        greenfootLaunchFailed(project);
+                    }
+                    else if (status == Debugger.TERMINATED)
+                    {
+                        Debug.message("Greenfoot launch failed due to debug VM terminating.");
+                        greenfootLaunchFailed(project);
+                    }
+                });
+            }
+        }.start();
     }
 }
