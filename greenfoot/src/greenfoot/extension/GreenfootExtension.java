@@ -19,7 +19,7 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package rmiextension;
+package greenfoot.extension;
 
 import bluej.Boot;
 import bluej.collect.DataSubmissionFailedDialog;
@@ -49,7 +49,7 @@ import javafx.application.Platform;
  * 
  * @author Poul Henriksen
  */
-public class RMIExtension extends Extension implements ApplicationListener
+public class GreenfootExtension extends Extension implements ApplicationListener
 {
     private BlueJ theBlueJ;
 

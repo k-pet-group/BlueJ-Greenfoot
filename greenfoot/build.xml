@@ -303,7 +303,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <!-- Put everything in ${build} into the the jar file-->
         <jar jarfile="${bluej.extensions.lib}/greenfoot.jar" basedir="${build}">
             <manifest>
-                <attribute name="Main-Class" value="rmiextension.RMIExtension" />
+                <attribute name="Main-Class" value="greenfoot.extension.GreenfootExtension" />
                 <attribute name="Class-Path" value="." />
             </manifest>
         </jar>

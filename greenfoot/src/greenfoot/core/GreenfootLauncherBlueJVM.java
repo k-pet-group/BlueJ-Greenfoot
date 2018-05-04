@@ -23,7 +23,7 @@ package greenfoot.core;
 
 import java.io.File;
 
-import rmiextension.RMIExtension;
+import greenfoot.extension.GreenfootExtension;
 import bluej.Config;
 
 /**
@@ -37,7 +37,7 @@ public class GreenfootLauncherBlueJVM
     private static GreenfootLauncherBlueJVM instance;
 
     /** Hook into BlueJ*/
-    private RMIExtension extension;
+    private GreenfootExtension extension;
 
     /** The project to start up if no other project is opened. */
     private final static String STARTUP_PROJECT = "greenfoot/startupProject";
@@ -58,7 +58,7 @@ public class GreenfootLauncherBlueJVM
      * 
      * @param extension The extension instance
      */
-    public void launch(RMIExtension extension)
+    public void launch(GreenfootExtension extension)
     {
         this.extension = extension;
         openNormally();
