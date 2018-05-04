@@ -72,9 +72,6 @@ public class ProjectManager
     private static final String launcherName = "greenfootLauncher";
     
     private static volatile boolean launchFailed = false;
-
-    private boolean wizard;
-    private SourceType sourceType;
     
     /** Filter that matches class files */
     private static FilenameFilter classFilter = new FilenameFilter() {
@@ -501,14 +498,10 @@ public class ProjectManager
         };
         File shmFile = greenfootDebugHandler.getShmFile();
         String[] consParams = { project.getProjectDir().getPath(),
-                BlueJRMIServer.getBlueJService(), shmFile == null ? "" : shmFile.getAbsolutePath(),
-                String.valueOf(wizard), String.valueOf(sourceType) };
+                BlueJRMIServer.getBlueJService(), shmFile == null ? "" : shmFile.getAbsolutePath() };
         
         ConstructorInvoker launcher = new ConstructorInvoker(project.getPackage(""),
                 greenfootDebugHandler, launchClass);
         launcher.invokeConstructor(launcherName, consParams, watcher);
-        
-        // Reset wizard to false so it doesn't affect future loads:
-        wizard = false;
     }
 }

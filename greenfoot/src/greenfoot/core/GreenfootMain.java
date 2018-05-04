@@ -96,15 +96,13 @@ public class GreenfootMain extends Thread
      * 
      * @param rBlueJ   remote BlueJ instance
      * @param shmFilePath The path to the shared-memory file to be mmap-ed for communication
-     * @param wizard   whether to run the "new project wizard"
-     * @param sourceType  default source type for the new project
      */
     @OnThread(Tag.Any)
-    public static void initialize(RBlueJ rBlueJ, String projDir, String shmFilePath, boolean wizard, SourceType sourceType)
+    public static void initialize(RBlueJ rBlueJ, String projDir, String shmFilePath)
     {
         System.setProperty("apple.laf.useScreenMenuBar", "true");
         if (instance == null) {
-            instance = new GreenfootMain(rBlueJ, projDir, shmFilePath, wizard, sourceType);
+            instance = new GreenfootMain(rBlueJ, projDir, shmFilePath);
         }
     }
 
@@ -122,7 +120,7 @@ public class GreenfootMain extends Thread
      * Contructor is private. This class is initialised via the 'initialize'
      * method (above).
      */
-    private GreenfootMain(final RBlueJ rBlueJ, String projDir, String shmFilePath, boolean wizard, SourceType sourceType)
+    private GreenfootMain(final RBlueJ rBlueJ, String projDir, String shmFilePath)
     {
         instance = this;
         this.rBlueJ = rBlueJ;
