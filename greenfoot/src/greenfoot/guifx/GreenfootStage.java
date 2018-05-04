@@ -309,6 +309,18 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         
         if (project != null) {
             showProject(project, greenfootDebugHandler);
+            Double width = Double.valueOf(
+                    project.getUnnamedPackage().getLastSavedProperties().getProperty("width"));
+            Double height = Double.valueOf(
+                    project.getUnnamedPackage().getLastSavedProperties().getProperty("height"));
+            if (width != null)
+            {
+                contentPane.setPrefWidth(width);
+            }
+            if (height != null)
+            {
+                contentPane.setPrefHeight(height);
+            }
         }
         // Do this whether we have a project or not:
         updateBackgroundMessage();
@@ -385,10 +397,22 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         currentWorld = lastInstantiatedWorldName != null
                 ? (ClassTarget) project.getTarget(lastInstantiatedWorldName)
                 : null;
-        
+
         JavaFXUtil.addChangeListenerPlatform(worldVisible, b -> updateBackgroundMessage());
 
         scenarioInfo = new ScenarioInfo(lastSavedProperties);
+        Double xPosition = Double.valueOf(
+                lastSavedProperties.getProperty("xPosition"));
+        Double yPosition = Double.valueOf(
+                lastSavedProperties.getProperty("yPosition"));
+        if (xPosition != null)
+        {
+            this.getStage().setX(xPosition);
+        }
+        if (yPosition != null)
+        {
+            this.getStage().setY(yPosition);
+        }
     }
 
     /**
@@ -647,6 +671,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             // Collect the various properties to be written out:
             Properties p = project.getProjectPropertiesCopy();
             p.setProperty("simulation.speed", Integer.toString(lastUserSetSpeed));
+            p.put("width", Integer.toString((int) this.getWidth()));
+            p.put("height", Integer.toString((int) this.getHeight()));
+            p.put("xPosition", Integer.toString((int) this.getX()));
+            p.put("yPosition", Integer.toString((int) this.getY()));
             p.put("version", Boot.GREENFOOT_API_VERSION);
             if (currentWorld != null)
             {
