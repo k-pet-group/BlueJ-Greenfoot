@@ -309,17 +309,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         
         if (project != null) {
             showProject(project, greenfootDebugHandler);
-            Double width = Double.valueOf(
-                    project.getUnnamedPackage().getLastSavedProperties().getProperty("width"));
-            Double height = Double.valueOf(
-                    project.getUnnamedPackage().getLastSavedProperties().getProperty("height"));
-            if (width != null)
+            if (project.getUnnamedPackage().getLastSavedProperties().getProperty("width") != null)
             {
-                contentPane.setPrefWidth(width);
+                contentPane.setPrefWidth(Double.valueOf(
+                        project.getUnnamedPackage().getLastSavedProperties().getProperty("width")));
             }
-            if (height != null)
+            if (project.getUnnamedPackage().getLastSavedProperties().getProperty("height") != null)
             {
-                contentPane.setPrefHeight(height);
+                contentPane.setPrefHeight(Double.valueOf(
+                        project.getUnnamedPackage().getLastSavedProperties().getProperty("height")));
             }
         }
         // Do this whether we have a project or not:
@@ -401,17 +399,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         JavaFXUtil.addChangeListenerPlatform(worldVisible, b -> updateBackgroundMessage());
 
         scenarioInfo = new ScenarioInfo(lastSavedProperties);
-        Double xPosition = Double.valueOf(
-                lastSavedProperties.getProperty("xPosition"));
-        Double yPosition = Double.valueOf(
-                lastSavedProperties.getProperty("yPosition"));
-        if (xPosition != null)
+        if (lastSavedProperties.getProperty("xPosition") != null)
         {
-            this.getStage().setX(xPosition);
+            this.getStage().setX(Double.valueOf(
+                    lastSavedProperties.getProperty("xPosition")));
         }
-        if (yPosition != null)
+        if (lastSavedProperties.getProperty("yPosition") != null)
         {
-            this.getStage().setY(yPosition);
+            this.getStage().setY(Double.valueOf(
+                    lastSavedProperties.getProperty("yPosition")));
         }
     }
 
