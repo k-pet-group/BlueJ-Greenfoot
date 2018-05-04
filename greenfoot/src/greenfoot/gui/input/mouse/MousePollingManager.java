@@ -326,7 +326,7 @@ public class MousePollingManager
     }   
 
     /**
-     * The mouse got moved to the given world location
+     * The mouse got clicked at the given world location
      * @param x The pixel location in the world (not cells)
      * @param y The pixel location in the world (not cells)
      * @param button The button reported by the original event.
@@ -344,14 +344,19 @@ public class MousePollingManager
         // while holding the world write-lock (which would leave the two threads with
         // one lock each, both trying to claim the other):
         Actor actor = locator.getTopMostActorAt(x, y);
-        synchronized (this) {
+        synchronized (this)
+        {
             MouseEventData mouseData = futureData;
             // In case we already have a dragEnded and we get another
             // dragEnded, we need to start collection data for that.            
-            if (futureData.isMouseDragEnded(null)) {
+            if (futureData.isMouseDragEnded(null))
+            {
                 mouseData = potentialNewDragData;
             }
-            if(! PriorityManager.isHigherPriority(MouseEvent.MOUSE_CLICKED, mouseData)) return;
+            if (!PriorityManager.isHigherPriority(MouseEvent.MOUSE_CLICKED, mouseData))
+            {
+                return;
+            }
             registerEventRecieved();
             x = locator.getTranslatedX(x);
             y = locator.getTranslatedY(y);
@@ -383,7 +388,8 @@ public class MousePollingManager
      */
     public void mouseExited()
     {
-        synchronized (this) {
+        synchronized (this)
+        {
             futureData.mouseExited();
         }
     }
@@ -406,11 +412,13 @@ public class MousePollingManager
         // while holding the world write-lock (which would leave the two threads with
         // one lock each, both trying to claim the other):
         Actor actor = locator.getTopMostActorAt(x, y);
-        synchronized(this) {
+        synchronized(this)
+        {
             MouseEventData mouseData = futureData;
             // In case we already have a dragEnded and we get another
             // dragEnded, we need to start collection data for that.
-            if (futureData.isMouseDragEnded(null)) {
+            if (futureData.isMouseDragEnded(null))
+            {
                 mouseData = potentialNewDragData;
             }
         
@@ -421,7 +429,10 @@ public class MousePollingManager
             dragStartData.mousePressed(x, y, getButton(button), actor);            
 
             // We only really want to register this event as a press if there is no higher priorities
-            if(! PriorityManager.isHigherPriority(MouseEvent.MOUSE_PRESSED, mouseData)) return;
+            if (!PriorityManager.isHigherPriority(MouseEvent.MOUSE_PRESSED, mouseData))
+            {
+                return;
+            }
             registerEventRecieved();
             mouseData.mousePressed(x, y, getButton(button), actor);
             isDragging = false;
@@ -446,16 +457,22 @@ public class MousePollingManager
         // while holding the world write-lock (which would leave the two threads with
         // one lock each, both trying to claim the other):
         Actor clickActor = locator.getTopMostActorAt(x, y);
-        synchronized(this) {
+        synchronized(this)
+        {
             // This might be the end of a drag
-            if(isDragging) {
+            if(isDragging)
+            {
                 // In case we already have a dragEnded and we get another
                 // dragEnded, should use the new one
-                if (futureData.isMouseDragEnded(null)) {
+                if (futureData.isMouseDragEnded(null))
+                {
                     futureData = potentialNewDragData;
                 }
                 
-                if(! PriorityManager.isHigherPriority(MouseEvent.MOUSE_RELEASED, futureData)) return;
+                if (!PriorityManager.isHigherPriority(MouseEvent.MOUSE_RELEASED, futureData))
+                {
+                    return;
+                }
                 registerEventRecieved();
                 x = locator.getTranslatedX(x);
                 y = locator.getTranslatedY(y);
@@ -483,10 +500,14 @@ public class MousePollingManager
             return;
         }
         
-        synchronized(this) {
+        synchronized(this)
+        {
             isDragging = true;
             
-            if(! PriorityManager.isHigherPriority(MouseEvent.MOUSE_DRAGGED, futureData)) return;
+            if (!PriorityManager.isHigherPriority(MouseEvent.MOUSE_DRAGGED, futureData))
+            {
+                return;
+            }
             registerEventRecieved();
             
             // Find and store the actor that relates to this drag.
@@ -515,8 +536,12 @@ public class MousePollingManager
         // while holding the world write-lock (which would leave the two threads with
         // one lock each, both trying to claim the other):
         Actor actor = locator.getTopMostActorAt(x, y);
-        synchronized(this) {
-            if(! PriorityManager.isHigherPriority(MouseEvent.MOUSE_MOVED, futureData)) return;
+        synchronized(this)
+        {
+            if (!PriorityManager.isHigherPriority(MouseEvent.MOUSE_MOVED, futureData))
+            {
+                return;
+            }
             registerEventRecieved();
             x = locator.getTranslatedX(x);
             y = locator.getTranslatedY(y);

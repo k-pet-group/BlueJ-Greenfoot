@@ -50,9 +50,9 @@ public class PriorityManager
 {
     /**
      * Returns true if the new mouse event has higher or equal priority than the current.
-     * @param newEven
-     * @param currentData
-     * @return
+     * @param newEvent The AWT mouse event code
+     * @param currentData The existing mouse data to compare against
+     * @return True if the new event is higher priority
      */
     public static boolean isHigherPriority(int newEvent, MouseEventData currentData)
     {
@@ -62,8 +62,8 @@ public class PriorityManager
     }
     /**
      * Priority 0 is highest.
-     * @param event
-     * @return
+     * @param event The AWT event code for the mouse event
+     * @return The mapped priority, to enable a comparison.
      */
     private static int getPriority(int event)
     {

@@ -1211,7 +1211,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 button = MouseButton.SECONDARY;
             }
             
-            debugHandler.getVmComms().sendMouseEvent(eventType, (int)worldPos.getX(), (int)worldPos.getY(), button.ordinal(), e.getClickCount());
+            debugHandler.getVmComms().sendMouseEvent(
+                eventType, (int)worldPos.getX(), (int)worldPos.getY(),
+                button.ordinal(), e.getClickCount());
         });
 
         new AnimationTimer()
