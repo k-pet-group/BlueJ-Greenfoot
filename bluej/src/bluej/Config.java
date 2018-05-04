@@ -369,7 +369,6 @@ public final class Config
      */    
     public static void initializeVMside(File bluejLibDir,
             File userConfigDir,
-            Properties tempCommandLineProps, boolean bootingGreenfoot,
             BlueJPropStringSource propSource)
     {
         isDebugVm = true;
@@ -411,7 +410,7 @@ public final class Config
                 return propSource.getBlueJPropertyString(key, def);
             }
         };
-        initialise(bluejLibDir, tempCommandLineProps, bootingGreenfoot, false);
+        initialise(bluejLibDir, new Properties(), true, false);
     }
     
     /**
