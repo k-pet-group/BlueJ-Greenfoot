@@ -382,7 +382,7 @@ public class VMCommsMain implements Closeable
                     }
                     
                     int askId = sharedMemory.get();
-                    if (askId >= 0 && askId > lastAnswer)
+                    if (askId > 0 && askId > lastAnswer)
                     {
                         // Length followed by codepoints for the prompt string:
                         int askLength = sharedMemory.get();
