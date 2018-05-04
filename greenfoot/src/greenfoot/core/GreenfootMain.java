@@ -90,11 +90,11 @@ public class GreenfootMain extends Thread
      * @param shmFilePath The path to the shared-memory file to be mmap-ed for communication
      */
     @OnThread(Tag.Any)
-    public static void initialize(RBlueJ rBlueJ, String projDir, String shmFilePath)
+    public static void initialize(String projDir, String shmFilePath)
     {
         System.setProperty("apple.laf.useScreenMenuBar", "true");
         if (instance == null) {
-            instance = new GreenfootMain(rBlueJ, projDir, shmFilePath);
+            instance = new GreenfootMain(projDir, shmFilePath);
         }
     }
 
@@ -112,7 +112,7 @@ public class GreenfootMain extends Thread
      * Contructor is private. This class is initialised via the 'initialize'
      * method (above).
      */
-    private GreenfootMain(final RBlueJ rBlueJ, String projDir, String shmFilePath)
+    private GreenfootMain(String projDir, String shmFilePath)
     {
         instance = this;
         try {

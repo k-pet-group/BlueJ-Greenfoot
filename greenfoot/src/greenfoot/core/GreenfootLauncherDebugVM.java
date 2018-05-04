@@ -21,15 +21,18 @@
  */
 package greenfoot.core;
 
+import bluej.BlueJPropStringSource;
 import bluej.extensions.SourceType;
 import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
 import greenfoot.util.GreenfootUtil;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.rmi.RemoteException;
+import java.util.Properties;
 
 import rmiextension.BlueJRMIClient;
 import rmiextension.wrappers.RBlueJ;
@@ -58,37 +61,43 @@ public class GreenfootLauncherDebugVM
      * @param prjDir         The project directory
      * @param rmiServiceName  The name of the RMI service to connect to
      */
-    public GreenfootLauncherDebugVM(String prjDir, String rmiServiceName, String shmFilePath)
+    public GreenfootLauncherDebugVM(String prjDir, String libDirPath, String userPrefDirPath, String propsFilePath, String shmFilePath)
     {
         instance = this;
-        if (BlueJRMIClient.instance() != null) {
-            // Already launched.
-            return;
-        }
-        
-        final BlueJRMIClient client = new BlueJRMIClient(prjDir, rmiServiceName);
-        
-        final RBlueJ blueJ = client.getBlueJ();
-        if (blueJ == null) {
-            System.exit(1);
-        }
         
         // This constructor is called on BlueJ's "server" thread, so we do the rest in
         // another thread to avoid holding the server thread lock:
         new Thread() {
-            public void run() {
-                try {           
-                    File libdir = blueJ.getSystemLibDir();
-                    Config.initializeVMside(libdir, blueJ.getUserPrefDir(),
-                            blueJ.getInitialCommandLineProperties(), true, client);
-                    Debug.setDebugStream(new PrintWriter(System.err));
+            public void run() {     
+                Properties properties = new Properties();
+                try
+                {
+                    properties.load(new FileInputStream(new File(propsFilePath)));
+                }
+                catch (IOException e)
+                {
+                    // We can survive without the properties...
+                }
                     
-                    GreenfootUtil.initialise(GreenfootUtilDelegateIDE.getInstance());
-                    GreenfootMain.initialize(blueJ, prjDir, shmFilePath);
-                }
-                catch (RemoteException re) {
-                    re.printStackTrace();
-                }
+                Config.initializeVMside(new File(libDirPath), new File(userPrefDirPath),
+                        new BlueJPropStringSource()
+                        {
+                            @Override
+                            public String getBlueJPropertyString(String property, String def)
+                            {
+                                return properties.getProperty(property, def);
+                            }
+
+                            @Override
+                            public String getLabel(String key)
+                            {
+                                return properties.getProperty(key, key);
+                            }
+                        });
+                Debug.setDebugStream(new PrintWriter(System.err));
+                
+                GreenfootUtil.initialise(GreenfootUtilDelegateIDE.getInstance());
+                GreenfootMain.initialize(prjDir, shmFilePath);
             }
         }.start();
     }

@@ -23,6 +23,7 @@ package greenfoot.core;
 
 import java.awt.Frame;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Arrays;
@@ -497,8 +498,30 @@ public class ProjectManager
             }
         };
         File shmFile = greenfootDebugHandler.getShmFile();
+        
+        
+        Properties debugVMProps = new Properties();
+        debugVMProps.put("bluej.language", Config.getPropString("bluej.language", ""));
+        debugVMProps.put("vm.language", Config.getPropString("vm.language", ""));
+        debugVMProps.put("vm.country", Config.getPropString("vm.country", ""));
+        File tmpPropsFile = null;
+        try
+        {
+            tmpPropsFile = File.createTempFile("debugvm", "props");
+            tmpPropsFile.deleteOnExit();
+            debugVMProps.store(new FileOutputStream(tmpPropsFile), "");
+        }
+        catch (IOException e)
+        {
+            Debug.reportError(e);
+            // We continue even if the properties file will be blank, as it only sets locale and language...
+        }
+
         String[] consParams = { project.getProjectDir().getPath(),
-                BlueJRMIServer.getBlueJService(), shmFile == null ? "" : shmFile.getAbsolutePath() };
+                Config.getBlueJLibDir().getAbsolutePath(),
+                Config.getUserConfigDir().getAbsolutePath(),
+                tmpPropsFile == null ? "" : tmpPropsFile.getAbsolutePath(),
+                shmFile == null ? "" : shmFile.getAbsolutePath() };
         
         ConstructorInvoker launcher = new ConstructorInvoker(project.getPackage(""),
                 greenfootDebugHandler, launchClass);
