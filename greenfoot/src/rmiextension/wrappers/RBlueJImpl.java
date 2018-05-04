@@ -46,28 +46,6 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     {
         super();
         this.blueJ = blueJ;
-        blueJ.addCompileListener(new CompileListener() {
-            
-            @Override
-            public void compileWarning(CompileEvent event) { }
-            
-            @Override
-            public void compileSucceeded(CompileEvent event)
-            {
-                // Do a Garbage Collection to finalize any garbage JdiObjects, thereby
-                // allowing objects on the remote VM to be garbage collected.
-                System.gc();
-            }
-            
-            @Override
-            public void compileStarted(CompileEvent event) { }
-            
-            @Override
-            public void compileFailed(CompileEvent event) { }
-            
-            @Override
-            public void compileError(CompileEvent event) { }
-        });
     }
     
     /*

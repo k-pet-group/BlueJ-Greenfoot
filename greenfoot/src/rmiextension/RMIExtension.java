@@ -23,6 +23,8 @@ package rmiextension;
 
 import bluej.Boot;
 import bluej.collect.DataSubmissionFailedDialog;
+import bluej.extensions.event.CompileEvent;
+import bluej.extensions.event.CompileListener;
 import greenfoot.core.GreenfootLauncherBlueJVM;
 import greenfoot.guifx.GreenfootGuiHandler;
 
@@ -79,6 +81,29 @@ public class RMIExtension extends Extension implements ApplicationListener
                     });
                 }
             }
+        });
+
+        bluej.addCompileListener(new CompileListener() {
+
+            @Override
+            public void compileWarning(CompileEvent event) { }
+
+            @Override
+            public void compileSucceeded(CompileEvent event)
+            {
+                // Do a Garbage Collection to finalize any garbage JdiObjects, thereby
+                // allowing objects on the remote VM to be garbage collected.
+                System.gc();
+            }
+
+            @Override
+            public void compileStarted(CompileEvent event) { }
+
+            @Override
+            public void compileFailed(CompileEvent event) { }
+
+            @Override
+            public void compileError(CompileEvent event) { }
         });
 
         try {
