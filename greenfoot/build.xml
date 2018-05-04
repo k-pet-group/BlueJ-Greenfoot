@@ -305,7 +305,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         </fail>
     </target>
 
-    <target name="ready-to-run" depends="check-bluej-compiled, update-images, compile, copy-imagelib, copy-projects, copy-common-classes, build-standalone-jar, create-api-doc, copy-apidocs, copy-labels" description="Builds everything so it is ready to run" >
+    <target name="ready-to-run" depends="check-bluej-compiled, update-images, compile, copy-imagelib, copy-projects, copy-common-classes, build-standalone-jar, create-api-doc, copy-apidocs, copy-labels, compile-test" description="Builds everything so it is ready to run" >
         <!-- Put everything in ${build} into the the jar file-->
         <jar jarfile="${bluej.extensions.lib}/greenfoot.jar" basedir="${build}">
             <manifest>
