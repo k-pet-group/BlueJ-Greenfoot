@@ -148,7 +148,6 @@ public final class Config
                                                        // command line
     private static Properties langProps;        // international labels
     private static Properties langVarProps;     // language label variables (APPNAME)
-    private static BlueJPropStringSource propSource; // source for properties
     private static File bluejLibDir;
     private static File userPrefDir;
     private static File templateDir;
@@ -374,7 +373,6 @@ public final class Config
             BlueJPropStringSource propSource)
     {
         isDebugVm = true;
-        Config.propSource = propSource;
         Config.userPrefDir = userConfigDir;
 
         // Set up the properties so that they use the properties from the
@@ -383,13 +381,13 @@ public final class Config
             @Override
             public String getProperty(String key)
             {
-                return Config.propSource.getBlueJPropertyString(key, null);
+                return propSource.getBlueJPropertyString(key, null);
             }
 
             @Override
             public String getProperty(String key, String def)
             {
-                return Config.propSource.getBlueJPropertyString(key, def);
+                return propSource.getBlueJPropertyString(key, def);
             }
         };
         userProps = new Properties(systemProps) {
@@ -404,13 +402,13 @@ public final class Config
             @Override
             public String getProperty(String key)
             {
-                return Config.propSource.getBlueJPropertyString(key, null);
+                return propSource.getBlueJPropertyString(key, null);
             }
 
             @Override
             public String getProperty(String key, String def)
             {
-                return Config.propSource.getBlueJPropertyString(key, def);
+                return propSource.getBlueJPropertyString(key, def);
             }
         };
         initialise(bluejLibDir, tempCommandLineProps, bootingGreenfoot, false);
@@ -436,19 +434,18 @@ public final class Config
     
         initialised = true;
         Config.isGreenfoot = true;
-        Config.propSource = propSource;
         
         langProps =  new Properties() {
             @Override
             public String getProperty(String key)
             {
-                return Config.propSource.getLabel(key);
+                return propSource.getLabel(key);
             }
             
             @Override
             public String getProperty(String key, String def)
             {
-                return Config.propSource.getLabel(key);
+                return propSource.getLabel(key);
             }
         };
         commandProps = langProps;
