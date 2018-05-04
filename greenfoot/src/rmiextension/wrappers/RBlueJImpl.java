@@ -21,33 +21,15 @@
  */
 package rmiextension.wrappers;
 
-import bluej.Boot;
 import bluej.Config;
 import bluej.extensions.BProject;
 import bluej.extensions.BlueJ;
-import bluej.extensions.ProjectNotOpenException;
-import bluej.extensions.event.ApplicationEvent;
-import bluej.extensions.event.ApplicationListener;
-import bluej.extensions.event.ClassListener;
 import bluej.extensions.event.CompileEvent;
 import bluej.extensions.event.CompileListener;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.prefmgr.PrefMgrDialog;
-import bluej.utility.Debug;
-import bluej.utility.Utility;
-import javafx.application.Platform;
-import rmiextension.wrappers.event.RApplicationListener;
 
-import java.awt.*;
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Implements the RBlueJ RMI interface.
@@ -132,31 +114,5 @@ public class RBlueJImpl extends java.rmi.server.UnicastRemoteObject
     private class BProjectRef
     {
         public BProject bProject;
-    }
-
-    @Override
-    public void addApplicationListener(RApplicationListener listener) throws RemoteException
-    {
-        blueJ.addApplicationListener(new ApplicationListener()
-        {
-            @Override
-            public void blueJReady(ApplicationEvent event)
-            {
-
-            }
-
-            @Override
-            public void dataSubmissionFailed(ApplicationEvent event)
-            {
-                try
-                {
-                    listener.dataSubmissionFailed();
-                }
-                catch (RemoteException e)
-                {
-                    Debug.reportError(e);
-                }
-            }
-        });
     }
 }

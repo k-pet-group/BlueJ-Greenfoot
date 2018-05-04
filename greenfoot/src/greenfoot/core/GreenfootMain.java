@@ -40,8 +40,6 @@ import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 
 import rmiextension.wrappers.RBlueJ;
-import rmiextension.wrappers.event.RApplicationListenerImpl;
-import bluej.extensions.SourceType;
 import bluej.runtime.ExecServer;
 import bluej.utility.Debug;
 import threadchecker.OnThread;
@@ -181,33 +179,6 @@ public class GreenfootMain extends Thread
                     ExecServer.setCustomRunOnThread(r -> Simulation.getInstance().runLater(r::run));
 
                     // Config is initialized in GreenfootLauncherDebugVM
-                    
-                    // We can do this late on, because although the submission failure may have already
-                    // happened, the event is re-issued to new listeners.  And we don't want to accidentally
-                    // show the dialog during load because we may interrupt important processes:
-                    try
-                    {
-                        rBlueJ.addApplicationListener(new RApplicationListenerImpl() {
-                            @Override
-                            public void dataSubmissionFailed() throws RemoteException
-                            {
-                                if (Boot.isTrialRecording())
-                                {
-                                    Platform.runLater(() -> {
-                                        new DataSubmissionFailedDialog().show();
-                                    });
-                                }
-                            }
-                        });
-                    }
-                    catch (RemoteException e)
-                    {
-                        Debug.reportError(e);
-                        // Show the dialog anyway; probably best to restart:
-                        Platform.runLater(() -> {
-                            new DataSubmissionFailedDialog().show();
-                        });
-                    }
 
                 }
             });

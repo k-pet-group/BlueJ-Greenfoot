@@ -21,6 +21,8 @@
  */
 package rmiextension;
 
+import bluej.Boot;
+import bluej.collect.DataSubmissionFailedDialog;
 import greenfoot.core.GreenfootLauncherBlueJVM;
 import greenfoot.guifx.GreenfootGuiHandler;
 
@@ -38,6 +40,7 @@ import bluej.extensions.Extension;
 import bluej.extensions.event.ApplicationEvent;
 import bluej.extensions.event.ApplicationListener;
 import bluej.utility.Debug;
+import javafx.application.Platform;
 
 /**
  * This is the starting point of Greenfoot as a BlueJ Extension.
@@ -55,6 +58,28 @@ public class RMIExtension extends Extension implements ApplicationListener
     {
         theBlueJ = bluej;
         Main.setGuiHandler(new GreenfootGuiHandler());
+
+        // We can do this at any point, because although the submission failure may have already
+        // happened, the event is re-issued to new listeners.
+        bluej.addApplicationListener(new ApplicationListener()
+        {
+            @Override
+            public void blueJReady(ApplicationEvent event)
+            {
+
+            }
+
+            @Override
+            public void dataSubmissionFailed(ApplicationEvent event)
+            {
+                if (Boot.isTrialRecording())
+                {
+                    Platform.runLater(() -> {
+                        new DataSubmissionFailedDialog().show();
+                    });
+                }
+            }
+        });
 
         try {
             new BlueJRMIServer(theBlueJ);
