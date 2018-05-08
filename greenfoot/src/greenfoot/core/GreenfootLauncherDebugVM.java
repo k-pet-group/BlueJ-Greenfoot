@@ -34,8 +34,6 @@ import java.io.Writer;
 import java.rmi.RemoteException;
 import java.util.Properties;
 
-import rmiextension.BlueJRMIClient;
-import rmiextension.wrappers.RBlueJ;
 import bluej.Config;
 import bluej.utility.Debug;
 

@@ -213,7 +213,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <mkdir dir="${package}"/>
     </target>
 
-    <target name="compile" depends="init" description="Compile the source and run rmic" >
+    <target name="compile" depends="init" description="Compile the source" >
         <!-- Compile the java code from ${src} into ${build} -->
         <compile srcdir="${src}"
                  destdir="${build}">
@@ -227,12 +227,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <compilerarg line="-Xmaxerrs 1000"/>
             <!-- <compilerarg value="-Xplugin:threadchecker.TCPlugin rmiextension rmiextension.wrappers rmiextension.wrappers.event"/> -->
         </compile>
-        <!-- Compile the RMI-classes -->
-        <rmic compiler="forking" executable="${build_java_home}/${java_command_dir_name}/rmic" base="${build}" includes="**/*Impl.class" excludes="bluej/**">
-            <classpath>
-                <path refid="bluej.class.path"/>
-            </classpath>
-        </rmic>
         <copy todir="${build}">
             <fileset dir="${bluej_home}/threadchecker/classes">
                 <include name="*.class"/>
@@ -309,7 +303,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <!-- Put everything in ${build} into the the jar file-->
         <jar jarfile="${bluej.extensions.lib}/greenfoot.jar" basedir="${build}">
             <manifest>
-                <attribute name="Main-Class" value="rmiextension.RMIExtension" />
+                <attribute name="Main-Class" value="greenfoot.extension.GreenfootExtension" />
                 <attribute name="Class-Path" value="." />
             </manifest>
         </jar>
@@ -680,7 +674,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         </java>
     </target>
 
-    <target name="compile-standalone" depends="init" description="Compile the source and run rmic" >
+    <target name="compile-standalone" depends="init" description="Compile the source for the standalone version" >
         <delete dir="${standalone.build}"/>
         <mkdir dir="${standalone.build}"/>
 

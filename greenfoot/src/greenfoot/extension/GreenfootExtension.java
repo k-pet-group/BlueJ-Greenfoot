@@ -19,7 +19,7 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package rmiextension;
+package greenfoot.extension;
 
 import bluej.Boot;
 import bluej.collect.DataSubmissionFailedDialog;
@@ -49,7 +49,7 @@ import javafx.application.Platform;
  * 
  * @author Poul Henriksen
  */
-public class RMIExtension extends Extension implements ApplicationListener
+public class GreenfootExtension extends Extension implements ApplicationListener
 {
     private BlueJ theBlueJ;
 
@@ -105,15 +105,6 @@ public class RMIExtension extends Extension implements ApplicationListener
             @Override
             public void compileError(CompileEvent event) { }
         });
-
-        try {
-            new BlueJRMIServer(theBlueJ);
-        }
-        catch (IOException e) {
-            Debug.reportError("Could not launch RMI server", e);
-            NetworkTest.doTest();
-            //ProjectManager.greenfootLaunchFailed(null);
-        }
 
         theBlueJ.addApplicationListener(this);
     }
