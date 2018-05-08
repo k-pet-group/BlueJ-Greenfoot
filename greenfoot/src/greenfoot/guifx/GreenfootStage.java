@@ -307,20 +307,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         Config.addPMFStylesheets(scene);
         setScene(scene);
         
-        if (project != null) {
+        if (project != null)
+        {
             showProject(project, greenfootDebugHandler);
-            Double width = Double.valueOf(
-                    project.getUnnamedPackage().getLastSavedProperties().getProperty("width"));
-            Double height = Double.valueOf(
-                    project.getUnnamedPackage().getLastSavedProperties().getProperty("height"));
-            if (width != null)
-            {
-                contentPane.setPrefWidth(width);
-            }
-            if (height != null)
-            {
-                contentPane.setPrefHeight(height);
-            }
         }
         // Do this whether we have a project or not:
         updateBackgroundMessage();
@@ -401,17 +390,26 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         JavaFXUtil.addChangeListenerPlatform(worldVisible, b -> updateBackgroundMessage());
 
         scenarioInfo = new ScenarioInfo(lastSavedProperties);
-        Double xPosition = Double.valueOf(
-                lastSavedProperties.getProperty("xPosition"));
-        Double yPosition = Double.valueOf(
-                lastSavedProperties.getProperty("yPosition"));
+        String xPosition = lastSavedProperties.getProperty("xPosition");
+        String yPosition = lastSavedProperties.getProperty("yPosition");
         if (xPosition != null)
         {
-            this.getStage().setX(xPosition);
+            getStage().setX(Double.valueOf(xPosition));
         }
         if (yPosition != null)
         {
-            this.getStage().setY(yPosition);
+            getStage().setY(Double.valueOf(yPosition));
+        }
+
+        String width = lastSavedProperties.getProperty("width");
+        String height = lastSavedProperties.getProperty("height");
+        if (width != null)
+        {
+            getStage().setWidth(Double.valueOf(width));
+        }
+        if (height != null)
+        {
+            getStage().setHeight(Double.valueOf(height));
         }
     }
 
