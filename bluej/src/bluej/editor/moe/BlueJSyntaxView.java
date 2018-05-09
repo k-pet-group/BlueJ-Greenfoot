@@ -808,8 +808,6 @@ public class BlueJSyntaxView
          * think of any situation where that is not the case.  We clear the array when the font size changes.
          */
 
-
-
         if (allSpaces)
         {
             // All spaces, we can use/update cached space indents
@@ -820,25 +818,28 @@ public class BlueJSyntaxView
                 Optional<Bounds> screenBounds = Optional.empty();
                 if (!duringUpdate)
                 {
-                    screenBounds = editorPane.getCharacterBoundsOnScreen(startOffset - numberOfSpaces + cachedSpaceSizes.size(), startOffset - numberOfSpaces + cachedSpaceSizes.size() + 1);
+                    screenBounds = editorPane.getCharacterBoundsOnScreen(
+                            startOffset - numberOfSpaces + cachedSpaceSizes.size(),
+                            startOffset - numberOfSpaces + cachedSpaceSizes.size() + 1);
                 }
                 // If the character isn't on screen, we're not going to be able to calculate indent,
                 // and we know we haven't got a cached indent, so give up:
                 if (!screenBounds.isPresent())
                 {
-                    // If we've got a few spaces, we can make a reasonable estimate, on the basis that space characters
-                    // are going to be the same width as each other.
+                    // If we've got a few spaces, we can make a reasonable estimate, on the basis
+                    // that space characters are going to be the same width as each other.
                     if (cachedSpaceSizes.size() >= 4)
                     {
                         int highestSpaces = cachedSpaceSizes.size() - 1;
-                        return OptionalInt.of((int)(cachedSpaceSizes.get(highestSpaces) / (double)highestSpaces * numberOfSpaces));
+                        return OptionalInt.of((int)(cachedSpaceSizes.get(highestSpaces) /
+                                (double)highestSpaces * numberOfSpaces));
                     }
                     return OptionalInt.empty();
                 }
                 double indent = editorPane.screenToLocal(screenBounds.get()).getMinX() - 24.0;
                 cachedSpaceSizes.add(indent);
             }
-            return OptionalInt.of(cachedSpaceSizes.get(numberOfSpaces).intValue());
+            return OptionalInt.of(cachedSpaceSizes.get(numberOfSpaces).intValue() + 24);
         }
         else
         {
@@ -852,8 +853,7 @@ public class BlueJSyntaxView
 
                 if (screenBounds.isPresent())
                 {
-                    // Minus 24 to allow for the left-hand margin:
-                    double indent = editorPane.screenToLocal(screenBounds.get()).getMinX() - 24.0;
+                    double indent = editorPane.screenToLocal(screenBounds.get()).getMinX();
                     return OptionalInt.of((int) indent);
                 }
             }
