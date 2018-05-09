@@ -405,7 +405,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
                          classpath="${build}:common/${common.class}/lib/${common.class}.jar"
                          encoding="UTF-8"
                          executable="${build_java_home}/${java_command_dir_name}/javadoc"
-        /> 
+                         additionalparam="-Xdoclint:none"
+        />
 
         <copy todir="${bluej.lib.greenfoot}" preservelastmodified="true">
             <fileset dir=".">
