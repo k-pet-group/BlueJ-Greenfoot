@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -100,8 +101,9 @@ public class MyGameClient
         HttpPost postMethod = new HttpPost(hostAddress + "account/authenticate");
        
         MultipartEntity postParams = new MultipartEntity();
-        postParams.addPart(new FormBodyPart("user[username]", new StringBody(uid)));
-        postParams.addPart(new FormBodyPart("user[password]", new StringBody(password)));
+        Charset utf8 = StandardCharsets.UTF_8;
+        postParams.addPart(new FormBodyPart("user[username]", new StringBody(uid, utf8)));
+        postParams.addPart(new FormBodyPart("user[password]", new StringBody(password, utf8)));
         postMethod.setEntity(postParams);
         
         HttpResponse httpResponse = httpClient.execute(postMethod);
@@ -157,7 +159,6 @@ public class MyGameClient
         }
 
         MultipartEntity mpe = new MultipartEntity();
-        Charset utf8 = Charset.forName("UTF-8");
         mpe.addPart(new FormBodyPart("scenario[title]", new StringBody(info.getTitle(), utf8)));
         mpe.addPart(new FormBodyPart("scenario[main_class]",
                 new StringBody("greenfoot.export.GreenfootScenarioViewer", utf8)));
