@@ -43,12 +43,15 @@ import bluej.extensions.event.ApplicationEvent;
 import bluej.extensions.event.ApplicationListener;
 import bluej.utility.Debug;
 import javafx.application.Platform;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * This is the starting point of Greenfoot as a BlueJ Extension.
  * 
  * @author Poul Henriksen
  */
+@OnThread(Tag.SwingIsFX)
 public class GreenfootExtension extends Extension implements ApplicationListener
 {
     private BlueJ theBlueJ;
