@@ -22,6 +22,8 @@
 package greenfoot;
 
 import greenfoot.core.TextLabel;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.awt.Graphics;
 import java.util.Collection;
@@ -84,6 +86,7 @@ public class WorldVisitor
     /**
      * Convert a location in pixels into a cell location
      */
+    @OnThread(Tag.Any)
     public static int toCellFloor(World world, int x)
     {
         return world.toCellFloor(x);

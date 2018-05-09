@@ -68,13 +68,15 @@ public class WorldHandler
     private int dragBeginX;
     private int dragBeginY;
 
-    private KeyboardManager keyboardManager;
+    @OnThread(Tag.Any)
+    private final KeyboardManager keyboardManager;
     @OnThread(Tag.Any)
     private static WorldHandler instance;
     @OnThread(Tag.Any)
     private final List<WorldListener> worldListeners = new ArrayList<>();
     private WorldHandlerDelegate handlerDelegate;
-    private MousePollingManager mousePollingManager;
+    @OnThread(Tag.Any)
+    private final MousePollingManager mousePollingManager;
 
     // Offset from the middle of the actor when initiating a drag on an actor.
     private int dragOffsetX;
@@ -121,6 +123,7 @@ public class WorldHandler
     private WorldHandler() 
     {
         instance = this;
+        keyboardManager = new KeyboardManager();
         mousePollingManager = new MousePollingManager(null);
         handlerDelegate = new WorldHandlerDelegate() {
 
@@ -184,6 +187,7 @@ public class WorldHandler
     /**
      * Get the keyboard manager.
      */
+    @OnThread(Tag.Any)
     public KeyboardManager getKeyboardManager()
     {
         return keyboardManager;
@@ -192,6 +196,7 @@ public class WorldHandler
     /**
      * Get the mouse manager.
      */
+    @OnThread(Tag.Any)
     public MousePollingManager getMouseManager()
     {
         return mousePollingManager;
@@ -378,12 +383,14 @@ public class WorldHandler
             }
 
             @Override
+            @OnThread(Tag.Any)
             public int getTranslatedX(int x)
             {
                 return WorldVisitor.toCellFloor(world, x);
             }
 
             @Override
+            @OnThread(Tag.Any)
             public int getTranslatedY(int y)
             {
                 return WorldVisitor.toCellFloor(world, y);

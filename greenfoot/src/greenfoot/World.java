@@ -27,8 +27,9 @@ import greenfoot.collision.CollisionChecker;
 import greenfoot.collision.ibsp.Rect;
 import greenfoot.core.TextLabel;
 import greenfoot.core.WorldHandler;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -80,11 +81,11 @@ public abstract class World
     List<TextLabel> textLabels = new ArrayList<TextLabel>(); 
 
     /** The size of the cell in pixels. */
-    int cellSize = 1;
+    final int cellSize;
 
     /** Size of the world */
-    int width;
-    int height;
+    final int width;
+    final int height;
 
     /** Image painted in the background. */
     private GreenfootImage backgroundImage;
@@ -121,7 +122,10 @@ public abstract class World
      */
     public World(int worldWidth, int worldHeight, int cellSize, boolean bounded)
     {
-        initialize(worldWidth, worldHeight, cellSize);
+        this.width = worldWidth;
+        this.height = worldHeight;
+        this.cellSize = cellSize;
+        collisionChecker.initialize(worldWidth, worldHeight, cellSize, false);
         this.isBounded = bounded;
         
         backgroundIsClassImage = true;
@@ -729,6 +733,7 @@ public abstract class World
     /**
      * Converts the pixel location into a cell, rounding down.
      */
+    @OnThread(Tag.Any)
     int toCellFloor(int pixel)
     {
         return (int) Math.floor((double) pixel / cellSize);
@@ -845,17 +850,6 @@ public abstract class World
     // PRIVATE MEHTHODS
     //
     // =================================================
-
-    /**
-     * Sets the size of the world.
-     */
-    private void initialize(int width, int height, int cellSize)
-    {
-        this.width = width;
-        this.height = height;
-        this.cellSize = cellSize;
-        collisionChecker.initialize(width, height, cellSize, false);
-    }
 
     /**
      * Get the default image for objects of this class. May return null.

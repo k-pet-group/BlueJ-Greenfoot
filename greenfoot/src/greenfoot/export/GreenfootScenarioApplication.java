@@ -26,10 +26,13 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 public class GreenfootScenarioApplication extends Application
 {
     @Override
+    @OnThread(Tag.FXPlatform)
     public void start(Stage primaryStage) throws Exception
     {
         Platform.setImplicitExit(true);

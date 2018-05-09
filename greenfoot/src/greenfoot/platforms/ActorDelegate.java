@@ -22,6 +22,8 @@
 package greenfoot.platforms;
 
 import greenfoot.GreenfootImage;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Interface to classes that contain specialized behaviour for the Actors
@@ -34,5 +36,6 @@ public interface ActorDelegate
     /**
      * Get the default image for objects of this class. May return null.
      */
+    @OnThread(Tag.Simulation)
     public GreenfootImage getImage(String name);
 }

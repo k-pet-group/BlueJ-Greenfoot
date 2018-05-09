@@ -1009,6 +1009,7 @@ public class Simulation extends Thread
      * Abort the simulation. It abruptly stops what is running and ends the
      * simulation thread, and it is not possible to start it again.
      */
+    @OnThread(Tag.Any)
     public void abort()
     {
         abort = true;

@@ -64,6 +64,8 @@ import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 
 import bluej.utility.Utility;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import javax.swing.SwingUtilities;
 
@@ -1016,6 +1018,7 @@ public class ExecServer
         public static CompletableFuture<Application> theApp;
 
         @Override
+        @OnThread(Tag.FXPlatform)
         public void start(Stage primaryStage) throws Exception
         {
             // Add a listener for a new Stage appearing
