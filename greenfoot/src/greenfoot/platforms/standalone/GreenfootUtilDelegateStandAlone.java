@@ -143,6 +143,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
      * Returns the path to a small version of the greenfoot logo.
      */
     @Override
+    @OnThread(Tag.Any)
     public String getGreenfootLogoPath()
     {    
         return this.getClass().getClassLoader().getResource("greenfoot.png").toString();

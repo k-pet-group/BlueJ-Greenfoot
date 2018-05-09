@@ -2,6 +2,8 @@ package greenfoot.core;
 
 import greenfoot.GreenfootImage;
 import greenfoot.util.GreenfootUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A read-only interface to access properties of a project.
@@ -52,6 +54,7 @@ public interface ReadOnlyProjectProperties
      *            properties.
      * @return The image.
      */
+    @OnThread(Tag.Simulation)
     public default GreenfootImage getImage(String className)
     {
         return GreenfootUtil.getGreenfootImage(className, getString("class." + className + ".image"));
