@@ -128,8 +128,11 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
         }, doc, false);
         this.editor = editor;
         styleProperty().bind(PrefMgr.getEditorFontCSS(true));
-        syntaxView.setEditorPane(this);
-        setParagraphGraphicFactory(syntaxView::getParagraphicGraphic);
+        if (syntaxView != null)
+        {
+            syntaxView.setEditorPane(this);
+            setParagraphGraphicFactory(syntaxView::getParagraphicGraphic);
+        }
         JavaFXUtil.addStyleClass(this, "moe-editor-pane");
         showLineNumbers.bind(PrefMgr.flagProperty(PrefMgr.LINENUMBERS));
         JavaFXUtil.bindPseudoclass(this, "bj-line-numbers", showLineNumbers);

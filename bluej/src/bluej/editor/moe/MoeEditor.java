@@ -2888,7 +2888,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             sourceDocument = new MoeSyntaxDocument(projectResolver, this);
         }
         else {
-            sourceDocument = new MoeSyntaxDocument(this);  // README file
+            sourceDocument = new MoeSyntaxDocument((ScopeColors) null);  // README file
         }
         listenToChanges(sourceDocument);
 
