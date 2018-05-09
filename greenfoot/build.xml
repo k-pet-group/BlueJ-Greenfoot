@@ -241,6 +241,10 @@ LICENSE.txt file that accompanied this code.${line.separator}
         </compile>
     </target>
 
+    <target name="rebuild-ready" depends="clean,ready-to-run">
+        <!-- Useful for running threadchecker -->
+    </target>
+
     <target name="test" depends="compile-test">
         <junit printsummary="yes" haltonfailure="no">
             <classpath>
