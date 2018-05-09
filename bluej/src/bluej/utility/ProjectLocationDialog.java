@@ -12,9 +12,7 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Modality;
 import javafx.stage.Window;
@@ -95,6 +93,9 @@ class ProjectLocationDialog
 
         VBox content = new VBox(gridPane, errorLabel);
         JavaFXUtil.addStyleClass(content, "new-project-dialog");
+        ColumnConstraints column2 = new ColumnConstraints();
+        column2.setHgrow(Priority.ALWAYS);
+        gridPane.getColumnConstraints().addAll(new ColumnConstraints(), column2, new ColumnConstraints(), new ColumnConstraints() );
         dialogPane.setContent(content);
         dialog.setResultConverter(button -> {
             if (button == ButtonType.OK)
