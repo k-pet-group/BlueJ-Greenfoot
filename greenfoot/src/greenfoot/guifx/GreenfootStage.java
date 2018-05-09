@@ -2185,7 +2185,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     public void doNewProject(SourceType sourceType)
     {
-        String title = Config.getString("pkgmgr.newPkg.title");
+        String title = Config.getString("greenfoot.utilDelegate.newScenario");
         File newnameFile = FileUtility.getSaveProjectFX(this.getStage(), title);
         if (newnameFile == null)
         {
