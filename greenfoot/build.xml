@@ -241,7 +241,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         </compile>
     </target>
 
-    <target name="rebuild-ready" depends="clean,ready-to-run">
+    <target name="rebuild-ready" depends="clean,ready-to-run" description="Cleans and then builds everything so it is ready to run.">
         <!-- Useful for running threadchecker -->
     </target>
 
