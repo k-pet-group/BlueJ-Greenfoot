@@ -80,9 +80,6 @@
         <pathelement location="${bluej_home}/lib/opencsv-2.3.jar"/>
         <pathelement location="${bluej_home}/lib/xom-1.2.9.jar"/>
         <pathelement location="${bluej_home}/lib/diffutils-1.2.1.jar"/>
-        <pathelement location="${bluej_home}/lib/httpmime-4.1.1.jar"/>
-        <pathelement location="${bluej_home}/lib/httpcore-4.1.jar"/>
-        <pathelement location="${bluej_home}/lib/httpclient-4.1.1.jar"/>
         <pathelement location="${build_java_home}/jre/lib/jfxrt.jar"/>
     </path>
     <!-- The sourcepath to the bluej classes-->
@@ -242,6 +239,10 @@ LICENSE.txt file that accompanied this code.${line.separator}
             </classpath>
             <compilerarg line="-target 8" />
         </compile>
+    </target>
+
+    <target name="rebuild-ready" depends="clean,ready-to-run" description="Cleans and then builds everything so it is ready to run.">
+        <!-- Useful for running threadchecker -->
     </target>
 
     <target name="test" depends="compile-test">
@@ -405,7 +406,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
                          classpath="${build}:common/${common.class}/lib/${common.class}.jar"
                          encoding="UTF-8"
                          executable="${build_java_home}/${java_command_dir_name}/javadoc"
-        /> 
+                         additionalparam="-Xdoclint:none"
+        />
 
         <copy todir="${bluej.lib.greenfoot}" preservelastmodified="true">
             <fileset dir=".">
