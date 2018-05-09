@@ -332,6 +332,7 @@ public class MousePollingManager
      * @param button The button reported by the original event.
      * @param clickCount The click count recorded by the original event.
      */
+    @OnThread(Tag.Any)
     public void mouseClicked(int x, int y, MouseButton button, int clickCount)
     {
         if (locator == null)
@@ -386,6 +387,7 @@ public class MousePollingManager
     /**
      * The mouse left the world area.
      */
+    @OnThread(Tag.Any)
     public void mouseExited()
     {
         synchronized (this)
@@ -400,6 +402,7 @@ public class MousePollingManager
      * @param y The pixel location in the world (not cells)
      * @param button The button reported by the original event.
      */
+    @OnThread(Tag.Any)
     public void mousePressed(int x, int y, MouseButton button)
     {
         if (locator == null)
@@ -445,6 +448,7 @@ public class MousePollingManager
      * @param y The pixel location in the world (not cells)
      * @param button The button reported by the original event.
      */
+    @OnThread(Tag.Any)
     public void mouseReleased(int x, int y, MouseButton button)
     {
         if (locator == null)
@@ -493,6 +497,7 @@ public class MousePollingManager
      * @param y The pixel location in the world (not cells)
      * @param button The button reported by the original event.
      */
+    @OnThread(Tag.Any)
     public void mouseDragged(int x, int y, MouseButton button)
     {
         if (locator == null)
@@ -523,6 +528,7 @@ public class MousePollingManager
      * @param y The pixel location in the world (not cells)
      * @param button The button reported by the original event.
      */
+    @OnThread(Tag.Any)
     public void mouseMoved(int x, int y, MouseButton button)
     {
         if (locator == null)
