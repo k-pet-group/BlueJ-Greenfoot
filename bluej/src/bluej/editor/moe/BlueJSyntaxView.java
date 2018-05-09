@@ -1064,7 +1064,7 @@ public class BlueJSyntaxView
     }
 
     /**
-     * Get a node's indent amount (in component co-ordinate space) for a given line.
+     * Get a node's indent amount (in component co-ordinate space, minus left margin) for a given line.
      * If the node isn't present on the line, returns Integer.MAX_VALUE. A cached value
      * is used if available.
      */
@@ -1121,7 +1121,7 @@ public class BlueJSyntaxView
                 OptionalInt lboundsX = getLeftEdge(lineEl.getStartOffset() + nws + 1);
                 if (lboundsX.isPresent())
                 {
-                    xpos = Math.max(xpos, lboundsX.getAsInt());
+                    xpos = Math.max(xpos, lboundsX.getAsInt() - 24);
                 }
             }
         }
@@ -1189,7 +1189,7 @@ public class BlueJSyntaxView
                     OptionalInt cboundsX = getLeftEdge(curpos);
                     if (cboundsX.isPresent())
                     {
-                        indent = Math.min(indent, cboundsX.getAsInt());
+                        indent = Math.min(indent, cboundsX.getAsInt() - 24);
                     }
                     curpos = lineEl.getEndOffset();
                 }
@@ -1312,12 +1312,12 @@ public class BlueJSyntaxView
 
                 // Calculate/store indent
                 OptionalInt cboundsX = getLeftEdge(lineEl.getStartOffset() + nws);
-                int indent = cboundsX.orElse(0);
+                int indent = cboundsX.orElse(24);
                 for (j = scopeStack.listIterator(scopeStack.size()); j.hasPrevious(); ) {
                     NodeAndPosition<ParsedNode> next = j.previous();
                     if (next.getPosition() <= curpos) {
                         // Node is present on this line (begins before curpos)
-                        updateNodeIndent(next, indent, nodeIndents.get(next.getNode()), dmgRange);
+                        updateNodeIndent(next, indent - 24, nodeIndents.get(next.getNode()), dmgRange);
                     }
                     else if (next.getPosition() < lineEl.getEndOffset()) {
                         // Node starts on this line, after curpos.
@@ -1325,8 +1325,8 @@ public class BlueJSyntaxView
                         Integer oindent = nodeIndents.get(next.getNode());
                         if (oindent != null && nws != -1) {
                             cboundsX = getLeftEdge(lineEl.getStartOffset() + nws);
-                            indent = cboundsX.orElse(0);
-                            updateNodeIndent(next, indent, oindent, dmgRange);
+                            indent = cboundsX.orElse(24);
+                            updateNodeIndent(next, indent - 24, oindent, dmgRange);
                         }
                     }
                     else {
@@ -1359,8 +1359,8 @@ public class BlueJSyntaxView
                                 Integer oindent = nodeIndents.get(nap.getNode());
                                 if (oindent != null && nws != -1) {
                                     cboundsX = getLeftEdge(lineEl.getStartOffset() + nws);
-                                    indent = cboundsX.orElse(0);
-                                    updateNodeIndent(nap, indent, oindent, dmgRange);
+                                    indent = cboundsX.orElse(24);
+                                    updateNodeIndent(nap, indent - 24, oindent, dmgRange);
                                 }
                             }
                             nap = nap.getNode().findNodeAtOrAfter(nap.getPosition(), nap.getPosition());
@@ -1438,7 +1438,7 @@ public class BlueJSyntaxView
             boolean doContinue = true;
 
             OptionalInt cboundsX = getLeftEdge(dmgPoint);
-            int dpI = cboundsX.orElse(0); // damage point indent
+            int dpI = cboundsX.orElse(24) - 24; // damage point indent
 
             while (doContinue && ! rscopeStack.isEmpty()) {
                 NodeAndPosition<ParsedNode> rtop = rscopeStack.remove(rscopeStack.size() - 1);
@@ -1487,7 +1487,7 @@ public class BlueJSyntaxView
                     }
 
                     cboundsX = getLeftEdge(nws + lineEl.getStartOffset());
-                    int newIndent = cboundsX.orElse(0);
+                    int newIndent = cboundsX.orElse(24) - 24;
 
                     if (newIndent < cachedIndent) {
                         nodeIndents.put(rtop.getNode(), newIndent);
