@@ -723,7 +723,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <include name="greenfoot/event/SimulationUIListener.java"/>
 
             <include name="greenfoot/export/GreenfootScenarioViewer.java"/>
-            <include name="greenfoot/export/GreenfootScenarioMain.java"/>
+            <include name="greenfoot/export/GreenfootScenarioApplication.java"/>
 
             <include name="greenfoot/gui/ControlPanel.java"/>
             <include name="greenfoot/gui/DragListener.java"/>
