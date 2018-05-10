@@ -303,7 +303,7 @@ menu.help.discuss=Greenfoot Discussion
 #Copyright
 
 menu.help.copyright.title=Greenfoot Copyright, Licensing and Redistribution
-menu.help.copyright.line0=Greenfoot \u00a9 2005-2017 Michael K\u00F6lling, Poul Henriksen.
+menu.help.copyright.line0=Greenfoot \u00a9 2005-2018 Michael K\u00F6lling, Poul Henriksen.
 menu.help.copyright.line1=Greenfoot is available under the GNU General Public License  
 menu.help.copyright.line2=version 2 with Classpath exception.
 menu.help.copyright.line3=For more information please see the files LICENSE.txt 
