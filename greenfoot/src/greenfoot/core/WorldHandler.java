@@ -329,17 +329,22 @@ public class WorldHandler
     /** 
      * Removes the current world. This can be called from any thread.
      */
-    public synchronized void discardWorld()
+    public void discardWorld()
     {
-        if (world == null)
+        final World discardedWorld;
+        synchronized (this)
         {
-            return;
-        }
-        
-        handlerDelegate.discardWorld(world); 
-        final World discardedWorld = world;
-        world = null;
+            if (world == null)
+            {
+                return;
+            }
 
+            handlerDelegate.discardWorld(world);
+            discardedWorld = world;
+            world = null;
+        }
+        // Do this outside the synchronized block to prevent us owning
+        // both the WorldHandler and Simulation monitors at the same time:
         Simulation.getInstance().runLater(() -> {
             fireWorldRemovedEvent(discardedWorld);
         });

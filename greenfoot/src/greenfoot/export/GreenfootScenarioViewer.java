@@ -41,6 +41,7 @@ import greenfoot.platforms.standalone.WorldHandlerDelegateStandAlone;
 import greenfoot.sound.SoundFactory;
 import greenfoot.util.AskHandler;
 import greenfoot.util.GreenfootUtil;
+import greenfoot.util.StandalonePropStringManager;
 import javafx.application.Platform;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
@@ -55,8 +56,12 @@ import threadchecker.Tag;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -82,6 +87,33 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
     private AskHandler askHandler;
     private final WorldDisplay worldDisplay = new WorldDisplay();
 
+    /**
+     * Initialize the project properties.
+     */
+    public static void initProperties()
+    {
+        Properties p = new Properties();
+        try {
+            ClassLoader loader = GreenfootScenarioViewer.class.getClassLoader();
+            InputStream is = loader.getResourceAsStream("standalone.properties");
+            if (is != null) {
+                p.load(is);
+            }
+
+            // set bluej Config to use the standalone prop values
+            Config.initializeStandalone(new StandalonePropStringManager(p));
+            if (is != null) {
+                is.close();
+            }
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private void buildGUI()
     {
@@ -101,7 +133,7 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
      */
     public GreenfootScenarioViewer()
     {
-        GreenfootScenarioMain.initProperties();
+        initProperties();
         
         final String worldClassName = Config.getPropString("main.class"); 
         final boolean lockScenario = Config.getPropBoolean("scenario.lock");
@@ -198,6 +230,7 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
 
         // Make sure the SoundCollection is initialized and listens for events
         sim.addSimulationListener(SoundFactory.getInstance().getSoundCollection());
+        sim.addSimulationListener(this);
         
         try {
             int initialSpeed = properties.getInt("simulation.speed");
