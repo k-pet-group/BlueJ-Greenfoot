@@ -164,7 +164,7 @@
     to update the 'add-license-to-sources' target as well -->    
     <property name="license" value="/*${line.separator}
 This file is part of the Greenfoot program. ${line.separator}
-Copyright (C) 2005-2017  Poul Henriksen and Michael Kolling ${line.separator}
+Copyright (C) 2005-2018  Poul Henriksen and Michael Kolling ${line.separator}
 ${line.separator}
 This program is free software; you can redistribute it and/or ${line.separator}
 modify it under the terms of the GNU General Public License ${line.separator}

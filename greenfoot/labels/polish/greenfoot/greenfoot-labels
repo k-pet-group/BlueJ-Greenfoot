@@ -317,7 +317,7 @@ menu.help.discuss=Dyskusje n/t Greenfoota
 #Copyright
 
 menu.help.copyright.title=Greenfoot Copyright, Licensing and Redistribution
-menu.help.copyright.line0=Greenfoot \u00a9 2005-2017 Michael K\u00F6lling, Poul Henriksen.
+menu.help.copyright.line0=Greenfoot \u00a9 2005-2018 Michael K\u00F6lling, Poul Henriksen.
 menu.help.copyright.line1=Greenfoot jest dost\u0119pny na licencji GNU General Public License  
 menu.help.copyright.line2=version 2 with Classpath exception.
 menu.help.copyright.line3=Wi\u0119cej informacji w pliku LICENSE.txt 
