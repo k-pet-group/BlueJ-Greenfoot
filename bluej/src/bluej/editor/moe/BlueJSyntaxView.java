@@ -868,12 +868,10 @@ public class BlueJSyntaxView
             }
             catch (IllegalArgumentException | IndexOutOfBoundsException e)
             {
-                // This occurs when asking about the last character in the file
-                // Report it only if not at end of file:
-                if (startOffset < editorPane.getLength() - 1)
-                {
-                    Debug.reportError(e);
-                }
+                // These shouldn't occur but there have been some related bugs, and it is better to
+                // catch the exception and leave the editor in a (somewhat) usable state. We'll log
+                // the error, however:
+                Debug.reportError(e);
             }
 
             // Not on screen, wider than any indent we have cached, nothing we can do:
