@@ -230,6 +230,7 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
 
         // Make sure the SoundCollection is initialized and listens for events
         sim.addSimulationListener(SoundFactory.getInstance().getSoundCollection());
+        sim.addSimulationListener(this);
         
         try {
             int initialSpeed = properties.getInt("simulation.speed");
