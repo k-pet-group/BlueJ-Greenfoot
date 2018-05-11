@@ -25,6 +25,8 @@ import java.io.File;
 
 import greenfoot.extension.GreenfootExtension;
 import bluej.Config;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * This singleton is responsible for starting up Greenfoot from the BlueJ VM.
@@ -58,6 +60,7 @@ public class GreenfootLauncherBlueJVM
      * 
      * @param extension The extension instance
      */
+    @OnThread(Tag.SwingIsFX)
     public void launch(GreenfootExtension extension)
     {
         this.extension = extension;
@@ -68,6 +71,7 @@ public class GreenfootLauncherBlueJVM
      * Starts up Greenfoot by either letting BlueJ launch previously opened
      * scenarios or opening the empty startup project.
      */
+    @OnThread(Tag.SwingIsFX)
     public void openNormally()
     {
         // If no project is open now, we might want to open the startup project

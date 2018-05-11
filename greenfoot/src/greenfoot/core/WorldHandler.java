@@ -58,10 +58,12 @@ public class WorldHandler
     implements SimulationListener
 {
     /** A flag to check whether a world has been set. Can be tested/cleared by callers. */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private boolean worldIsSet;
 
     private World initialisingWorld;
     // Note: this field is used by name in GreenfootDebugHandler, so don't rename/remove without altering that code.
+    @OnThread(Tag.Any)
     private volatile World world;
 
     // where did the the drag/drop operation begin? In pixels
@@ -424,6 +426,7 @@ public class WorldHandler
      *                   in the IDE.  This param is marked unused but actually
      *                   GreenfootDebugHandler will inspect it via JDI
      */
+    @OnThread(Tag.Any)
     private void worldChanged(boolean byUserCode)
     {
     }
@@ -568,6 +571,7 @@ public class WorldHandler
      * @return  true if the Actor was added into the world; false if the co-ordinates were
      *          outside the world.
      */
+    @OnThread(Tag.Any)
     public boolean addActorAtPixel(final Actor actor, int xPixel, int yPixel)
     {
         final World world = this.world;

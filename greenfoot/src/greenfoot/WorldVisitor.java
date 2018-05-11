@@ -39,11 +39,13 @@ import java.util.List;
  */
 public class WorldVisitor
 {
+    @OnThread(Tag.Any)
     public static int getWidthInCells(World w)
     {
         return w.width;
     }
     
+    @OnThread(Tag.Any)
     public static int getHeightInCells(World w)
     {
         return w.height;

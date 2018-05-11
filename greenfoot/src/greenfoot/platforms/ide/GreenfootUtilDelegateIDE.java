@@ -68,6 +68,7 @@ import threadchecker.Tag;
 @OnThread(Tag.Simulation)
 public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
 {
+    @OnThread(Tag.Any)
     private static GreenfootUtilDelegateIDE instance;
     
     static {
@@ -77,6 +78,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     /**
      * Get the GreenfootUtilDelegateIDE instance.
      */
+    @OnThread(Tag.Any)
     public static GreenfootUtilDelegateIDE getInstance()
     {
         return instance;

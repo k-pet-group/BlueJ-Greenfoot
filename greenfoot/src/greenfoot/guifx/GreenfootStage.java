@@ -1627,15 +1627,19 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     @Override
     public @OnThread(Tag.Any) void simulationDebugHalted()
     {
-        atBreakpoint = true;
-        Platform.runLater(() -> updateGUIState(stateProperty.get()));
+        Platform.runLater(() -> {
+            atBreakpoint = true;
+            updateGUIState(stateProperty.get());
+        });
     }
 
     @Override
     public @OnThread(Tag.Any) void simulationDebugResumed()
     {
-        atBreakpoint = false;
-        Platform.runLater(() -> updateGUIState(stateProperty.get()));
+        Platform.runLater(() -> {
+            atBreakpoint = false;
+            updateGUIState(stateProperty.get());
+        });
     }
 
     @Override
