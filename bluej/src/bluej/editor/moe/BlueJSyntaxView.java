@@ -748,10 +748,15 @@ public class BlueJSyntaxView
     private OptionalInt getLeftEdge(int startOffset)
     {
         if (editorPane == null)
+        {
             return OptionalInt.empty();
+        }
+        
         Position position = document.offsetToPosition(startOffset);
 
-        boolean allSpaces = document.getDocument().getParagraph(position.getMajor()).getText().substring(0, position.getMinor()).chars().allMatch(c -> c == ' ');
+        int column = position.getMinor();
+        String lineText = document.getDocument().getParagraph(position.getMajor()).getText();
+        boolean allSpaces = (column == 0) || lineText.lastIndexOf(' ', column - 1) == 0;
 
         if (!editorPane.lineIsVisible(position.getMajor()) && (!allSpaces || cachedSpaceSizes.size() <= 4))
         {
@@ -770,7 +775,8 @@ public class BlueJSyntaxView
                 // I admit, I don't understand why we need the 1.05 fudge factor here,
                 // but after an hour or two of fiddling, it's the only thing I've found
                 // that makes the measureString backgrounds line-up with the editor pane text:
-                return OptionalInt.of((int) (singleSpaceWidth * position.getMinor() * 1.05));
+                int positionSpaceWidth = (int)(singleSpaceWidth * position.getMinor() * 1.05);
+                return OptionalInt.of(positionSpaceWidth + PARAGRAPH_MARGIN);
             }
             else
             {
@@ -813,7 +819,7 @@ public class BlueJSyntaxView
         if (allSpaces)
         {
             // All spaces, we can use/update cached space indents
-            int numberOfSpaces = position.getMinor();
+            int numberOfSpaces = column;
             while (numberOfSpaces >= cachedSpaceSizes.size())
             {
                 // We have more spaces than the cache; we must update it if we can
@@ -833,15 +839,16 @@ public class BlueJSyntaxView
                     if (cachedSpaceSizes.size() >= 4)
                     {
                         int highestSpaces = cachedSpaceSizes.size() - 1;
-                        return OptionalInt.of((int)(cachedSpaceSizes.get(highestSpaces) /
-                                (double)highestSpaces * numberOfSpaces));
+                        double highestWidth = cachedSpaceSizes.get(highestSpaces) - cachedSpaceSizes.get(0); 
+                        return OptionalInt.of((int)(highestWidth / highestSpaces * numberOfSpaces
+                                + cachedSpaceSizes.get(0)));
                     }
                     return OptionalInt.empty();
                 }
-                double indent = editorPane.screenToLocal(screenBounds.get()).getMinX() - PARAGRAPH_MARGIN;
+                double indent = editorPane.screenToLocal(screenBounds.get()).getMinX();
                 cachedSpaceSizes.add(indent);
             }
-            return OptionalInt.of(cachedSpaceSizes.get(numberOfSpaces).intValue() + PARAGRAPH_MARGIN);
+            return OptionalInt.of(cachedSpaceSizes.get(numberOfSpaces).intValue());
         }
         else
         {
@@ -861,12 +868,10 @@ public class BlueJSyntaxView
             }
             catch (IllegalArgumentException | IndexOutOfBoundsException e)
             {
-                // This occurs when asking about the last character in the file
-                // Report it only if not at end of file:
-                if (startOffset < editorPane.getLength() - 1)
-                {
-                    Debug.reportError(e);
-                }
+                // These shouldn't occur but there have been some related bugs, and it is better to
+                // catch the exception and leave the editor in a (somewhat) usable state. We'll log
+                // the error, however:
+                Debug.reportError(e);
             }
 
             // Not on screen, wider than any indent we have cached, nothing we can do:
