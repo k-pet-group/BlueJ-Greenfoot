@@ -101,6 +101,7 @@ public class Simulation extends Thread
 
     /** for timing the animation */
     public static final int MAX_SIMULATION_SPEED = 100;
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private int speed; // the simulation speed in range (1..100)
 
     private long lastDelayTime;
@@ -620,6 +621,7 @@ public class Simulation extends Thread
     /**
      * Run one step of the simulation. Each actor in the world acts once.
      */
+    @OnThread(Tag.Any)
     public synchronized void runOnce()
     {
         // Don't call runOneLoop directly as that executes user code
@@ -691,6 +693,7 @@ public class Simulation extends Thread
     /**
      * Enable or disable the simulation.
      */
+    @OnThread(Tag.Any)
     public synchronized void setEnabled(boolean b)
     {
         if (b == enabled) {
@@ -854,6 +857,7 @@ public class Simulation extends Thread
      * 
      * @return The speed in the range (1..100)
      */
+    @OnThread(Tag.Any)
     public synchronized int getSpeed()
     {
         return speed;

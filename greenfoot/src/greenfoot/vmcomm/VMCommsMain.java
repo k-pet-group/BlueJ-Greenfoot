@@ -48,7 +48,6 @@ import static greenfoot.vmcomm.Command.*;
  * 
  * @author Davin McCall
  */
-@OnThread(Tag.FXPlatform)
 public class VMCommsMain implements Closeable
 {
     // The server-debug VM protocol relies on locking three distinct areas of the file:
@@ -146,12 +145,15 @@ public class VMCommsMain implements Closeable
         putLock = fc.lock(SERVER_AREA_OFFSET_BYTES, SERVER_AREA_SIZE_BYTES, false);
         syncLock = fc.lock(SYNC_AREA_OFFSET_BYTES, SYNC_AREA_SIZE_BYTES, false);
         
-        ioThread = new Thread(() -> {
-            while (shmFile != null)
+        ioThread = new Thread() {
+            @OnThread(Tag.Worker)
+            public void run()
             {
-                checkIO();
+                while (checkIO())
+                {
+                }
             }
-        });
+        };
         
         ioThread.start();
     }
@@ -244,6 +246,7 @@ public class VMCommsMain implements Closeable
     /**
      * Check for input / send output, and apply received data to the stage.
      */
+    @OnThread(Tag.FXPlatform)
     public synchronized void checkIO(GreenfootStage stage)
     {
         if (checkingIO)
@@ -297,8 +300,10 @@ public class VMCommsMain implements Closeable
 
     /**
      * Check for input / send output
+     * @return true If we should continue processing, false if not.
      */
-    private void checkIO()
+    @OnThread(Tag.Worker)
+    private boolean checkIO()
     {
         FileChannel sharedMemoryLock = this.fc;
 
@@ -437,6 +442,7 @@ public class VMCommsMain implements Closeable
             {
                 // Nothing needs to be done.
             }
+            return shmFile != null;
         }
     }
     

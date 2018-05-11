@@ -82,6 +82,7 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
     private AskPaneFX askPanel;
     private ControlPanel controls;
 
+    @OnThread(Tag.Any)
     private Constructor<?> worldConstructor;
 
     private AskHandler askHandler;
@@ -243,6 +244,7 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
     /**
      * Creates a new instance of the world. And initialises with that world.
      */
+    @OnThread(Tag.Any)
     public World instantiateNewWorld() 
     {
         try {
@@ -256,15 +258,6 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
             e.getCause().printStackTrace();
         }
         return null;
-    }
-    
-    /**
-     * Get access to the world. Being a public method in the applet class allows
-     * this method to be called via JavaScript.
-     */
-    public World getWorld()
-    {
-        return WorldHandler.getInstance().getWorld();
     }
     
     @OnThread(Tag.Any)

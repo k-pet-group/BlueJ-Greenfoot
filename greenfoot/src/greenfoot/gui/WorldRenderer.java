@@ -47,6 +47,7 @@ import java.util.Set;
 public class WorldRenderer
 {
     private static final Color BACKGROUND = Color.WHITE;
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private World world;
     
     /** The actor being dragged. Null if no dragging. */
@@ -68,18 +69,24 @@ public class WorldRenderer
     public void renderWorld(BufferedImage worldImage)
     {
         Graphics2D g2 = (Graphics2D)worldImage.getGraphics();
-        if (world == null)
+        World drawWorld;
+        synchronized (this)
+        {
+            drawWorld = world;
+        }
+        
+        if (drawWorld == null)
         {
             g2.setColor(BACKGROUND);
             g2.fillRect(0, 0, worldImage.getWidth(), worldImage.getHeight());
         }
         else
         {
-            paintBackground(g2, worldImage.getWidth(), worldImage.getHeight());
-            paintObjects(g2);
-            paintDraggedObject(g2);
-            WorldVisitor.paintDebug(world, g2);
-            paintWorldText(g2, world);
+            paintBackground(g2, drawWorld, worldImage.getWidth(), worldImage.getHeight());
+            paintObjects(g2, drawWorld);
+            paintDraggedObject(g2, drawWorld);
+            WorldVisitor.paintDebug(drawWorld, g2);
+            paintWorldText(g2, drawWorld);
         }
     }
 
@@ -88,17 +95,17 @@ public class WorldRenderer
      *
      * Must be synchronized on the World.lock.
      */
-    private void paintObjects(Graphics2D g)
+    private void paintObjects(Graphics2D g, World drawWorld)
     {
         // This can happen if we try to grab a screenshot while the world is being replaced:
-        if (world == null)
+        if (drawWorld == null)
             return;
 
-        Set<Actor> objects = WorldVisitor.getObjectsListInPaintOrder(world);
+        Set<Actor> objects = WorldVisitor.getObjectsListInPaintOrder(drawWorld);
         int paintSeq = 0;
         for (Iterator<Actor> iter = objects.iterator(); iter.hasNext();) {
             Actor thing = iter.next();
-            int cellSize = WorldVisitor.getCellSize(world);
+            int cellSize = WorldVisitor.getCellSize(drawWorld);
 
             GreenfootImage image = ActorVisitor.getDisplayImage(thing);
             if (image != null) {
@@ -145,10 +152,10 @@ public class WorldRenderer
      * Paint the world background. This takes tiling into account: the
      * world image is painted either once or tiled onto this component.
      */
-    private void paintBackground(Graphics2D g, int width, int height)
+    private void paintBackground(Graphics2D g, World drawWorld, int width, int height)
     {
-        if (world != null) {
-            GreenfootImage backgroundImage = WorldVisitor.getBackgroundImage(world);
+        if (drawWorld != null) {
+            GreenfootImage backgroundImage = WorldVisitor.getBackgroundImage(drawWorld);
             if (backgroundImage != null) {
                 ImageVisitor.drawImage(backgroundImage, g, 0, 0, null, true);
             }
@@ -164,11 +171,11 @@ public class WorldRenderer
     /**
      * Paint text labels that have been placed on the world using World.showText(...).
      * @param g   The graphics context to draw on
-     * @param world   The world
+     * @param drawWorld   The world
      */
-    private void paintWorldText(Graphics2D g, World world)
+    private void paintWorldText(Graphics2D g, World drawWorld)
     {
-        List<TextLabel> labels = WorldVisitor.getTextLabels(world);
+        List<TextLabel> labels = WorldVisitor.getTextLabels(drawWorld);
 
         if (labels.isEmpty()) {
             return;
@@ -179,7 +186,7 @@ public class WorldRenderer
         Color orig = g.getColor();
         Object origAntiAliasing = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
 
-        int cellsize = WorldVisitor.getCellSize(world);
+        int cellsize = WorldVisitor.getCellSize(drawWorld);
         for (TextLabel label : labels) {
             label.draw(g, cellsize);
         }
@@ -193,14 +200,14 @@ public class WorldRenderer
     /**
      * If an object is being dragged, paint it.
      */
-    private void paintDraggedObject(Graphics g)
+    private void paintDraggedObject(Graphics g, World drawWorld)
     {
         if(dragImage != null) {
             int x = (int) dragLocation.getX();
             int y = (int) dragLocation.getY();
-            int xCell =  WorldVisitor.toCellFloor(world, x);
-            int yCell =  WorldVisitor.toCellFloor(world, y);
-            int cellSize = WorldVisitor.getCellSize(world);
+            int xCell =  WorldVisitor.toCellFloor(drawWorld, x);
+            int yCell =  WorldVisitor.toCellFloor(drawWorld, y);
+            int cellSize = WorldVisitor.getCellSize(drawWorld);
             x = (int) ((xCell + 0.5) * cellSize - dragImage.getWidth()/2);
             y = (int) ((yCell + 0.5) * cellSize - dragImage.getHeight()/2);
 
@@ -211,7 +218,8 @@ public class WorldRenderer
     /**
      * Set the current world.
      */
-    public void setWorld(World world)
+    @OnThread(Tag.Any)
+    public synchronized void setWorld(World world)
     {
         this.world = world;
     }

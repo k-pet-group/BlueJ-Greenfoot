@@ -310,6 +310,7 @@ public class WorldHandler
      *                  if a specific class is wanted.  If null, use the most recently
      *                  instantiated world class.
      */
+    @OnThread(Tag.Any)
     public void instantiateNewWorld(String className)
     {
         handlerDelegate.instantiateNewWorld(className, () -> worldInstantiationError());
@@ -329,6 +330,7 @@ public class WorldHandler
     /** 
      * Removes the current world. This can be called from any thread.
      */
+    @OnThread(Tag.Any)
     public void discardWorld()
     {
         final World discardedWorld;
@@ -353,6 +355,7 @@ public class WorldHandler
     /**
      * Check whether a world has been set (via {@link #setWorld()}) since the "world is set" flag was last cleared.
      */
+    @OnThread(Tag.Any)
     public synchronized boolean checkWorldSet()
     {
         return worldIsSet;
@@ -375,6 +378,7 @@ public class WorldHandler
      *                   internal code, e.g. initialisation during standalone, or GUI interactions
      *                   in the IDE.
      */
+    @OnThread(Tag.Any)
     public synchronized void setWorld(final World world, boolean byUserCode)
     {
         worldIsSet = true;
@@ -635,6 +639,7 @@ public class WorldHandler
     /**
      * Completes the current drag if it is the given drag ID
      */
+    @OnThread(Tag.Any)
     public void finishDrag(int dragId)
     {
         // if the operation was cancelled, add the object back into the
@@ -713,6 +718,7 @@ public class WorldHandler
      * @param x        The x-coordinate in pixels of the drag location
      * @param y        The y-coordinate in pixels of the drag location
      */
+    @OnThread(Tag.Any)
     public void continueDragging(int dragId, int x, int y)
     {
         if (dragId == this.dragId)

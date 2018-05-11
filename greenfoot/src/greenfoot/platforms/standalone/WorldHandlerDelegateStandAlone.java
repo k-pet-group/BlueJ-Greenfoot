@@ -63,6 +63,7 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     @OnThread(Tag.Any)
     private final ConcurrentLinkedQueue<BufferedImage> oldImages = new ConcurrentLinkedQueue<>();
 
+    @OnThread(Tag.FXPlatform)
     public WorldHandlerDelegateStandAlone (GreenfootScenarioViewer viewer, boolean lockScenario) 
     {
         this.viewer = viewer;

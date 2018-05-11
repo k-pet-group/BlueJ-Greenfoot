@@ -38,6 +38,8 @@ import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.elements.VarElement;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Builder for code sequences representing a recording of what the user has
@@ -295,6 +297,7 @@ public class GreenfootRecorder
         return new CallElement(content, content);
     }
 
+    @OnThread(Tag.FXPlatform)
     public void writeCode(FXPlatformFunction<String, Editor> getEditor)
     {
         NormalMethodElement method = getPrepareMethod();

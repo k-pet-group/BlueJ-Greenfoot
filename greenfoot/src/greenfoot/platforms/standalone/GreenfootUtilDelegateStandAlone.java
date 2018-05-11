@@ -60,6 +60,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
     private String storageUserId;
     private String storageUserName;
     
+    @OnThread(Tag.Any)
     public GreenfootUtilDelegateStandAlone(boolean storageStandalone,
             String storageHost, String storagePort, String storagePasscode,
             String storageScenarioId, String storageUserId,
@@ -77,6 +78,7 @@ public class GreenfootUtilDelegateStandAlone implements GreenfootUtilDelegate
     /**
      * Create stand-alone delegate with no support for storage.
      */
+    @OnThread(Tag.Any)
     public GreenfootUtilDelegateStandAlone()
     {
         this(false, "", "", "", "", "", "");
