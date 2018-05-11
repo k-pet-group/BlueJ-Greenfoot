@@ -23,6 +23,8 @@ package greenfoot;
 
 import greenfoot.collision.ibsp.Rect;
 import greenfoot.platforms.ActorDelegate;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Class that makes it possible for classes outside the greenfoot package to get
@@ -134,7 +136,8 @@ public class ActorVisitor
         }
         return image;
     }
-    
+
+    @OnThread(Tag.Any)
     public static void setDelegate(ActorDelegate instance)
     {
         Actor.setDelegate(instance);

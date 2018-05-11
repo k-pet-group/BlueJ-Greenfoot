@@ -181,6 +181,7 @@ public class ImportClassDialog extends Dialog<File>
     private static class ImportableFoldersFileFilter implements FileFilter
     {
         @Override
+        @OnThread(Tag.Any)
         public boolean accept(File pathname)
         {
             return pathname.isDirectory();
