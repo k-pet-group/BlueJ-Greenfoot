@@ -101,6 +101,7 @@ public class GreenfootUtil
     private static boolean haveCheckedForMp3 = false;
     private static boolean mp3available = false;
     
+    @OnThread(Tag.Any)
     public static void initialise(GreenfootUtilDelegate newDelegate)
     {
         delegate = newDelegate;
