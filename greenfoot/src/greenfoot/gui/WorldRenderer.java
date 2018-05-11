@@ -48,9 +48,6 @@ public class WorldRenderer
 {
     private static final Color BACKGROUND = Color.WHITE;
     private World world;
-
-    /** Preferred size (not counting insets) */
-    private Dimension size;
     
     /** The actor being dragged. Null if no dragging. */
     private Actor dragActor;
@@ -59,6 +56,11 @@ public class WorldRenderer
     /** Image used when dragging new actors on the world. Includes the drop shadow.*/
     private BufferedImage dragImage;
 
+    @OnThread(Tag.Any)
+    public WorldRenderer()
+    {
+    }
+    
     /**
      * Render the currently held world into the given image.  It is assumed
      * that the image size matches the current world size.
@@ -73,7 +75,7 @@ public class WorldRenderer
         }
         else
         {
-            paintBackground(g2);
+            paintBackground(g2, worldImage.getWidth(), worldImage.getHeight());
             paintObjects(g2);
             paintDraggedObject(g2);
             WorldVisitor.paintDebug(world, g2);
@@ -143,7 +145,7 @@ public class WorldRenderer
      * Paint the world background. This takes tiling into account: the
      * world image is painted either once or tiled onto this component.
      */
-    private void paintBackground(Graphics2D g)
+    private void paintBackground(Graphics2D g, int width, int height)
     {
         if (world != null) {
             GreenfootImage backgroundImage = WorldVisitor.getBackgroundImage(world);
@@ -153,7 +155,7 @@ public class WorldRenderer
             else {
                 Color oldColor = g.getColor();
                 g.setColor(BACKGROUND);
-                g.fillRect(0, 0, (int)size.getWidth(), (int)size.getHeight());
+                g.fillRect(0, 0, width, height);
                 g.setColor(oldColor);
             }
         }
@@ -212,38 +214,5 @@ public class WorldRenderer
     public void setWorld(World world)
     {
         this.world = world;
-        if (world != null)
-        {
-            size = getPreferredSize(world);
-        }
-    }
-
-    /**
-     * Set the size to render, if there is currently no world.
-     */
-    public void setWorldSize(int xsize, int ysize)
-    {
-        if (world == null) {
-            size = new Dimension(xsize, ysize);
-        }
-    }
-
-    /**
-     * Get the preferred size for this component, assuming that it is housing the given world.
-     */
-    private Dimension getPreferredSize(World world)
-    {
-        if (world != null) {
-            size = new Dimension();
-            size.width = WorldVisitor.getWidthInPixels(world) ;
-            size.height = WorldVisitor.getHeightInPixels(world) ;
-            return size;
-        }
-        else if (size != null) {
-            return size;
-        }
-        else {
-            return new Dimension(100, 100);
-        }
     }
 }

@@ -154,6 +154,7 @@ public abstract class ExportLocalTab extends ExportTab
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     protected void updateInfoFromFields()
     {
         scenarioInfo.setExportName(getExportName());

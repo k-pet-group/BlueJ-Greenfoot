@@ -25,6 +25,8 @@ import greenfoot.collision.ibsp.Rect;
 import greenfoot.core.WorldHandler;
 import greenfoot.platforms.ActorDelegate;
 import greenfoot.util.GreenfootUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.List;
 
@@ -1080,12 +1082,14 @@ public abstract class Actor
     //  
     // ============================================================================
 
+    @OnThread(Tag.Any)
     private static ActorDelegate delegate;
     
     /**
      * Set the object that this actor should delegate method calls to.
      *
      */
+    @OnThread(Tag.Any)
     static void setDelegate(ActorDelegate d)
     {
         delegate = d;

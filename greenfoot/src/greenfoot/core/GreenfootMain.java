@@ -129,7 +129,6 @@ public class GreenfootMain extends Thread
 
                     // Some first-time initializations
                     VMCommsSimulation vmComms = new VMCommsSimulation(projectProperties, shmFilePath);
-                    vmComms.setWorldSize(200, 100);
 
                     WorldHandlerDelegateIDE worldHandlerDelegate = new WorldHandlerDelegateIDE(vmComms);
                     WorldHandler.initialise(worldHandlerDelegate);

@@ -64,6 +64,8 @@ import org.apache.http.conn.ConnectTimeoutException;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import javax.swing.*;
+
 /**
  * Pane used for exporting to Greenfoot Gallery
  * 
@@ -152,7 +154,7 @@ public class ExportPublishTab extends ExportTab
         titleValidity = titleField.textProperty().isNotEmpty();
         validProperty.bind(userNameValidity.and(passwordValidity).and(titleValidity));
 
-        JavaFXUtil.addChangeListener(selectedProperty(), selected -> activated());
+        JavaFXUtil.addChangeListenerPlatform(selectedProperty(), selected -> activated());
     }
 
     @Override
@@ -324,7 +326,7 @@ public class ExportPublishTab extends ExportTab
         Label usernameLabel = new Label(Config.getString("export.publish.username"));
         userNameField = new TextField();
         userNameField.setPrefColumnCount(10);
-        JavaFXUtil.addChangeListener(userNameField.focusedProperty(), focused -> {
+        JavaFXUtil.addChangeListenerPlatform(userNameField.focusedProperty(), focused -> {
             if (!focused)
             {
                 checkForExistingScenario();
@@ -337,7 +339,7 @@ public class ExportPublishTab extends ExportTab
 
         Hyperlink createAccountLabel = new Hyperlink(Config.getString("export.publish.createAccount"));
         createAccountLabel.getStyleClass().add("create-account-label");
-        createAccountLabel.setOnAction(event -> Utility.openWebBrowser(createAccountUrl));
+        createAccountLabel.setOnAction(event -> SwingUtilities.invokeLater(() -> Utility.openWebBrowser(createAccountUrl)));
 
         HBox loginPane = new HBox(loginLabel,
                 usernameLabel, userNameField,
@@ -354,7 +356,7 @@ public class ExportPublishTab extends ExportTab
     private Pane getHelpBox()
     {
         Hyperlink serverLink = new Hyperlink(serverURL);
-        serverLink.setOnAction(event -> Utility.openWebBrowser(serverURL));
+        serverLink.setOnAction(event -> SwingUtilities.invokeLater(() -> Utility.openWebBrowser(serverURL)));
 
         HBox helpBox = new HBox(new Label(helpLine + " ("), serverLink, new Label(")"));
         helpBox.getStyleClass().add("help-box");

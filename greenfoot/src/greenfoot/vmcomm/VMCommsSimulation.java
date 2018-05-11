@@ -187,15 +187,6 @@ public class VMCommsSimulation
         worldRenderer.setWorld(world);
     }
 
-    /**
-     * Set the last known world size. Affects the preferred size of the
-     * WorldCanvas.
-     */
-    public void setWorldSize(int xsize, int ysize)
-    {
-        worldRenderer.setWorldSize(xsize, ysize);
-    }
-
     public static enum PaintWhen { FORCE, IF_DUE, NO_PAINT}
 
     /**
@@ -284,6 +275,7 @@ public class VMCommsSimulation
     /**
      * Perform communications exchange with the other VM.
      */
+    @OnThread(Tag.Worker)
     private void doInterVMComms()
     {
         // One element array to allow a reference to be set by readCommands:

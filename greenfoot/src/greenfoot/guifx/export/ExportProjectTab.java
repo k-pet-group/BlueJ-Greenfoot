@@ -58,6 +58,7 @@ public class ExportProjectTab extends ExportLocalTab
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     protected void updateInfoFromFields()
     {
         super.updateInfoFromFields();
