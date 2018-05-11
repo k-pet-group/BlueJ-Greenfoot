@@ -52,7 +52,6 @@ import java.nio.channels.FileLock;
  * Lives on the Simulation VM (aka debug VM), and handles communications with the server
  * (see {@link VMCommsMain})
  */
-@OnThread(Tag.Simulation)
 public class VMCommsSimulation
 {
     private final WorldRenderer worldRenderer;    
@@ -152,6 +151,7 @@ public class VMCommsSimulation
      * @param shmFilePath The path to the shared-memory file to be mmap-ed for communication
      */
     @SuppressWarnings("resource")
+    @OnThread(Tag.Any)
     public VMCommsSimulation(ShadowProjectProperties projectProperties, String shmFilePath)
     {
         this.projectProperties = projectProperties;
@@ -164,12 +164,16 @@ public class VMCommsSimulation
             putLock = shmFileChannel.lock(VMCommsMain.USER_AREA_OFFSET_BYTES,
                     VMCommsMain.USER_AREA_SIZE_BYTES, false);
             
-            new Thread(() -> {
-                while (true)
+            new Thread() {
+                @OnThread(value = Tag.Worker,ignoreParent = true)
+                public void run()
                 {
-                    doInterVMComms();
+                    while (true)
+                    {
+                        doInterVMComms();
+                    }
                 }
-            }).start();
+            }.start();
         }
         catch (IOException e)
         {
@@ -181,6 +185,7 @@ public class VMCommsSimulation
      * Sets the world that should be visualised by this canvas.
      * Can be called from any thread.
      */
+    @OnThread(Tag.Any)
     public void setWorld(World world)
     {
         this.world = world;
