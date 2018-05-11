@@ -56,6 +56,8 @@ import javafx.stage.Window;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import javax.swing.*;
+
 /**
  * A dialog allowing the user to export a scenario in a variety of ways.
  *
@@ -219,17 +221,32 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     /**
      * A separate thread to execute the actual exporting.
      */
-    class ExportThread extends Thread {
+    class ExportThread extends Thread
+    {
+        private final double snapshotWidth;
+        private final double snapshotHeight;
+        private final String displayName;
+        private final ExportFunction function;
+        
+        // Fetch some values we need while on the FX thread:
+        @OnThread(Tag.FXPlatform)
+        public ExportThread()
+        {
+            snapshotWidth = snapshot.getWidth();
+            snapshotHeight = snapshot.getHeight();
+            displayName = currentWorld.getDisplayName();
+            function = getSelectedFunction();
+        }
+        
         @Override
         @OnThread(value = Tag.Worker, ignoreParent = true)
         public void run()
         {
             try
             {
-                ExportFunction function = getSelectedFunction();
                 Exporter exporter = Exporter.getInstance();
                 exporter.doExport(project, ExportDialog.this, scenarioSaver, scenarioInfo, function,
-                        currentWorld.getDisplayName(), snapshot.getWidth(), snapshot.getHeight());
+                        displayName, snapshotWidth, snapshotHeight);
             }
             finally
             {
@@ -340,7 +357,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         setProgress(false, msg);
         if (success)
         {
-            Utility.openWebBrowser(Config.getPropString("greenfoot.gameserver.address") + "/home");
+            SwingUtilities.invokeLater(() -> Utility.openWebBrowser(Config.getPropString("greenfoot.gameserver.address") + "/home"));
         }
     }
     

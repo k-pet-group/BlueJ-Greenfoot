@@ -132,5 +132,6 @@ public abstract class ExportTab extends Tab
      * Updates the given scenarioInfo with the current values
      * typed into the dialog.
      */
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     protected abstract void updateInfoFromFields();
 }

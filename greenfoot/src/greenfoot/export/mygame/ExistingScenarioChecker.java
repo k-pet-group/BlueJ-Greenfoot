@@ -142,6 +142,7 @@ public abstract class ExistingScenarioChecker
      * @param info If the scenario exists info about it will be returned. If it
      *            does not exist it will return null.
      */
+    @OnThread(Tag.FXPlatform)
     public abstract void scenarioExistenceChecked(ScenarioInfo info);
 
     /**
@@ -151,6 +152,7 @@ public abstract class ExistingScenarioChecker
      * 
      * @param reason The exception fired when the check is failed.
      */
+    @OnThread(Tag.FXPlatform)
     public abstract void scenarioExistenceCheckFailed(Exception reason);
 
     /**
@@ -179,6 +181,7 @@ public abstract class ExistingScenarioChecker
      * Called when the worker has finished and the result is ready to be
      * processed.
      */
+    @OnThread(Tag.FXPlatform)
     private synchronized void workerFinished(Object value)
     {
         finished = true;
