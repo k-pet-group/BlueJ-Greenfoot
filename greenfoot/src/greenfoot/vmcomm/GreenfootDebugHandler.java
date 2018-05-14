@@ -117,6 +117,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     private GreenfootDebugHandler(Project project) throws IOException
     {
         this.project = project;
+        greenfootRecorder = new GreenfootRecorder();
         vmComms = new VMCommsMain();
     }
         
@@ -209,6 +210,14 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     }
     
     /**
+     * Get the recorder instance which tracks actor creation.
+     */
+    public GreenfootRecorder getRecorder()
+    {
+        return greenfootRecorder;
+    }
+    
+    /**
      * An early examination of the debugger event (gets called before processDebuggerEvent)
      * 
      * This method is responsible for checking where the debugger has stopped (if it has),
@@ -267,10 +276,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
             if (worldField != null)
             {
                 DebuggerObject worldValue = worldField.getValueObject(null);
-                if (greenfootRecorder != null)
-                {
-                    greenfootRecorder.setWorld(worldValue);
-                }
+                greenfootRecorder.setWorld(worldValue);
             }
             e.getThread().cont();
             return true;
@@ -527,11 +533,6 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
         }
     }
 
-    public void setGreenfootRecorder(GreenfootRecorder greenfootRecorder)
-    {
-        this.greenfootRecorder = greenfootRecorder;
-    }
-
     public void setSimulationListener(SimulationStateListener simulationListener)
     {
         this.simulationListener = simulationListener;
@@ -547,7 +548,6 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
             simulationThread.halt();
         }
     }
-
 
     @Override
     public String addObject(DebuggerObject object, GenTypeClass type,

@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2010,2011,2014,2015,2016 Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2010,2011,2014,2015,2016,2018 Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -91,7 +91,9 @@ public class GreenfootRecorder
     private synchronized String nameActor(DebuggerObject actor)
     {
         if (objectNames.containsKey(actor))
+        {
             return objectNames.get(actor);
+        }
 
         String root = actor.getClassName().replace("." , "").replace("$", "");
         root = root.substring(0, 1).toLowerCase() + root.substring(1);
@@ -100,12 +102,8 @@ public class GreenfootRecorder
         {
             name = root + i;
         }
-        if (name != null) {
-            objectNames.put(actor, name);
-            return name;
-        } else {
-            return null;
-        }
+        objectNames.put(actor, name);
+        return name;
     }
 
     /**
