@@ -271,7 +271,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         stages.add(this);
         
-        this.saveTheWorldRecorder = new GreenfootRecorder();
+        this.saveTheWorldRecorder = greenfootDebugHandler.getRecorder();
         
         BlueJEvent.addListener(this);
         soundRecorder = new SoundRecorderControls(project);
@@ -366,7 +366,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         project.getUnnamedPackage().addCompileObserver(this);
         greenfootDebugHandler.setPickListener(this::pickResults);
         greenfootDebugHandler.setSimulationListener(this);
-        greenfootDebugHandler.setGreenfootRecorder(saveTheWorldRecorder);
         project.setClassIconFetcherDelegate(classDiagram);
         showingDebugger.bindBidirectional(project.debuggerShowing());
         
