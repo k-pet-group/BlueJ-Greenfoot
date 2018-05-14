@@ -508,7 +508,8 @@ public class ProjectManager
                     {
                         String wrappedName = greenfootDebugHandler.addObject(debugObject, debugObject.getGenType(),
                                 launcherName);
-                        pkg.getDebugger().addObject(pkg.getQualifiedName(), wrappedName, debugObject);  
+                        pkg.getDebugger().addObject(pkg.getQualifiedName(), wrappedName, debugObject);
+                        pkg.compileOnceIdle(null, CompileReason.LOADED, CompileType.INTERNAL_COMPILE);
                     }
                     
                     int status = result.getExitStatus();
