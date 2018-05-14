@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -254,8 +254,8 @@ public class JavaSource
             {
                 return f;
             }
-            // If it's overlap-fallback, we store it in last, and we will use it next loop if needed:
-            
+            // If it's overlap-fallback, we store it in last, and we will use it next loop if we don't find a better match.
+            // Ditto for after-fragment, which we use if we can't find another fragment later on.
             last = f;
         }
         if (last != null)
