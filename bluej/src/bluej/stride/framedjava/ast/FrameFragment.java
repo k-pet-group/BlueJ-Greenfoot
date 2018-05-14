@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2015,2016,2018 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -80,7 +80,18 @@ public class FrameFragment extends JavaFragment
         if (frame == null)
             return ErrorRelation.CANNOT_SHOW;
         else
-            return super.checkCompileError(startLine, startColumn, endLine, endColumn);
+        {
+            // Frame fragments are not ideal to show errors, so map overlaps into overlaps-fallback:
+            ErrorRelation errorRelation = super.checkCompileError(startLine, startColumn, endLine, endColumn);
+            if (errorRelation == ErrorRelation.OVERLAPS_FRAGMENT)
+            {
+                return ErrorRelation.OVERLAPS_FRAGMENT_FALLBACK;
+            }
+            else
+            {
+                return errorRelation;
+            }
+        }
     }
 
     @Override

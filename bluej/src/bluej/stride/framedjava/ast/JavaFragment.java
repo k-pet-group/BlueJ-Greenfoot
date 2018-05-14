@@ -76,11 +76,41 @@ public abstract class JavaFragment
         this.columnNumber = columnNumber;
         this.len = len;
     }
-    
-    public static enum ErrorRelation
+
+    /**
+     * This is an enum returned from checkCompileError.  When a Java error is produced by javac, we
+     * have to map this back to a location in Stride code.  The way we do this is that we go through
+     * the Java fragments (produced from the Stride code) in order, and ask them "Is this error
+     * position within your bounds?"  The fragment then returns one of these enum values, documented below.
+     * 
+     * Note that two adjacent fragments can both say that they overlap the error location, because
+     * we include the left and right edges of the fragment, so an error exactly on the boundary of
+     * two fragments will cause them both to say overlap.
+     */
+    static enum ErrorRelation
     {
-        // CANNOT_SHOW means that the Fragment can never show errors (e.g. boilerplate)
-        BEFORE_FRAGMENT, OVERLAPS_FRAGMENT, AFTER_FRAGMENT, CANNOT_SHOW;
+        /**
+         * The error location lies before this fragment.
+         */
+        BEFORE_FRAGMENT,
+        /**
+         * The error location overlaps this fragment, and we are a good place to show it (e.g. a user-entered slot).
+         */
+        OVERLAPS_FRAGMENT,
+        /**
+         * The error location does overlap this fragment, but is not the best place to show it (e.g. a piece
+         * of Java syntax that the user did not enter).  Display on this only if there is no other overlapping
+         * fragment that is suitable.
+         */
+        OVERLAPS_FRAGMENT_FALLBACK,
+        /**
+         * The error location lies after this fragment.
+         */
+        AFTER_FRAGMENT,
+        /**
+         * CANNOT_SHOW means that the fragment can never show errors (e.g. boilerplate)
+         */
+        CANNOT_SHOW;
     }
     
     public ErrorRelation checkCompileError(int startLine, int startColumn, int endLine, int endColumn)
