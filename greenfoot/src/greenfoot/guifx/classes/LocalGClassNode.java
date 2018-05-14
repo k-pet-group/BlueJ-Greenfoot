@@ -268,9 +268,23 @@ public class LocalGClassNode extends GClassNode implements TargetListener
             contextMenu.getItems().add(classTarget.new ConvertToStrideAction(greenfootStage));
         }
 
-
+        // Show "new subclass" only if the class is not final:
+        boolean isFinal = false;
+        if (cl != null)
+        {
+            isFinal = Modifier.isFinal(cl.getModifiers());
+        }
+        else
+        {
+            Reflective ctReflective = classTarget.getTypeReflective();
+            if (ctReflective != null)
+            {
+                isFinal = ctReflective.isFinal();
+            }
+        }
+        
         // New subclass:
-        if (! Modifier.isFinal(cl.getModifiers()))
+        if (! isFinal)
         {
             contextMenu.getItems().add(GClassDiagram.contextInbuilt(Config.getString("new.sub.class"),
                     () -> greenfootStage.newSubClassOf(classTarget.getQualifiedName(), type)));
