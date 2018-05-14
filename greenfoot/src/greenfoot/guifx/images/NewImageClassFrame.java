@@ -60,12 +60,12 @@ import threadchecker.Tag;
 public class NewImageClassFrame extends FXCustomizedDialog<NewImageClassFrame.NewImageClassInfo>
 {
     private final Project project;
-    private SourceType language;
 
     private final TextField classNameField = new TextField();
     private final Label errorMsgLabel = JavaFXUtil.withStyleClass(new Label(), "dialog-error-label");
     private ImageLibPane imageLibPane;
     private Node okButton;
+    private ComboBox<SourceType> languageSelectionBox;
 
     /**
      * The information selected in the dialog: class name,
@@ -113,7 +113,7 @@ public class NewImageClassFrame extends FXCustomizedDialog<NewImageClassFrame.Ne
         classNameField.requestFocus();
 
         setResultConverter(bt -> bt == ButtonType.OK
-                ? new NewImageClassInfo(classNameField.getText(), language, imageLibPane.selectedImageProperty().get())
+                ? new NewImageClassInfo(classNameField.getText(), languageSelectionBox.getValue(), imageLibPane.selectedImageProperty().get())
                 : null);
     }
 
@@ -127,9 +127,8 @@ public class NewImageClassFrame extends FXCustomizedDialog<NewImageClassFrame.Ne
         classNameField.setPrefWidth(220);
         classNameField.setPromptText(Config.getString("pkgmgr.newClass.prompt"));
 
-        ComboBox<SourceType> languageSelectionBox = new ComboBox<>(FXCollections.observableArrayList(SourceType.Stride, SourceType.Java));
-        language = pkg.getDefaultSourceType();
-        languageSelectionBox.getSelectionModel().select(language);
+        languageSelectionBox = new ComboBox<>(FXCollections.observableArrayList(SourceType.Stride, SourceType.Java));
+        languageSelectionBox.getSelectionModel().select(pkg.getDefaultSourceType());
 
         okButton = getDialogPane().lookupButton(ButtonType.OK);
 
