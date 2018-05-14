@@ -80,7 +80,11 @@ public class FrameFragment extends JavaFragment
         if (frame == null)
             return ErrorRelation.CANNOT_SHOW;
         else
-            return super.checkCompileError(startLine, startColumn, endLine, endColumn);
+        {
+            // Frame fragments are not ideal to show errors, so map overlaps into overlaps-fallback:
+            ErrorRelation errorRelation = super.checkCompileError(startLine, startColumn, endLine, endColumn);
+            return errorRelation == ErrorRelation.OVERLAPS_FRAGMENT ? ErrorRelation.OVERLAPS_FRAGMENT_FALLBACK : errorRelation;
+        }
     }
 
     @Override

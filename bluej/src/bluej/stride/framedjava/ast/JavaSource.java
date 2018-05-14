@@ -250,10 +250,12 @@ public class JavaSource
             {
                 return last;
             }
-            else if (r != ErrorRelation.AFTER_FRAGMENT)
+            else if (r == ErrorRelation.OVERLAPS_FRAGMENT)
             {
                 return f;
             }
+            // If it's overlap-fallback, we store it in last, and we will use it next loop if needed:
+            
             last = f;
         }
         if (last != null)
