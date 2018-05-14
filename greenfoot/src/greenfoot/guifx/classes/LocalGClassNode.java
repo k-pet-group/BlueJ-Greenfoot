@@ -106,8 +106,11 @@ public class LocalGClassNode extends GClassNode implements TargetListener
                 return new File(imageDir, imageFileName);
             }
             
-            type = type.getSuperTypesR().stream().filter(t -> !t.isInterface()).findFirst().orElse(null);
-            className = (type != null) ? type.getName() : null;
+            if (type != null)
+            {
+                type = type.getSuperTypesR().stream().filter(t -> !t.isInterface()).findFirst().orElse(null);
+                className = (type != null) ? type.getName() : null;
+            }
         }
         while (type != null);
         
