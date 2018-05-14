@@ -23,6 +23,7 @@ package greenfoot.guifx.export;
 
 import bluej.Config;
 import bluej.debugger.gentype.ConstructorReflective;
+import bluej.debugger.gentype.Reflective;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.utility.javafx.FXCustomizedDialog;
@@ -93,7 +94,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
      * @param scenarioInfo   The previously stored scenario info in the properties file.
      * @param currentWorld   The class target of the current active world.
      * @param snapshot       A snapshot of the world.
-     * @throws ExportException if the current world is null.
+     * @throws ExportException if the current world is null or cannot be instantianted.
      */
     public ExportDialog(Window parent, Project project, ScenarioSaver scenarioSaver,
                         ScenarioInfo scenarioInfo, ClassTarget currentWorld, Image snapshot)
@@ -112,7 +113,8 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     /**
      * Create the dialog interface.
      *
-     * @throws ExportException if the current world is null.
+     * @throws ExportException if the world hasn't been instantiated, or cannot be instantiated
+     *                         because there is no suitable constructor.
      */
     private void makeDialog() throws ExportException
     {
@@ -144,9 +146,17 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         }
 
         // Check that a zero-argument constructor is available
-        List<ConstructorReflective> constructors = currentWorld.getTypeReflective().getDeclaredConstructors();
-        boolean noZeroArgConstructor = constructors.stream().noneMatch(con -> con.getParamTypes().isEmpty());
-        if (noZeroArgConstructor)
+
+        boolean hasZeroArgConstructor = false; // set false initially
+        
+        Reflective currentWorldType = currentWorld.getTypeReflective();
+        if (currentWorldType != null)
+        {
+            List<ConstructorReflective> constructors = currentWorldType.getDeclaredConstructors();
+            hasZeroArgConstructor = constructors.stream().anyMatch(con -> con.getParamTypes().isEmpty());
+        }
+        
+        if (! hasZeroArgConstructor)
         {
             throw new ExportException(Config.getString("export.noconstructor.dialog.msg"));
         }

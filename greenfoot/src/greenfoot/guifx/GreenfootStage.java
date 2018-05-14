@@ -1109,6 +1109,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     }
 
     /**
+     * Check whether a type has a no-argument constructor.
+     */
+    private static boolean hasNoArgConstructor(Reflective type)
+    {
+        return type.getDeclaredConstructors().stream().anyMatch(c -> c.getParamTypes().isEmpty()
+                && !Modifier.isPrivate(c.getModifiers()));
+    }
+    
+    /**
      * Sets up the drawing of the world from the shared memory buffer, and the writing
      * of keyboard and mouse events back to the buffer.
      */
@@ -1117,7 +1126,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         getScene().addEventFilter(KeyEvent.ANY, e -> {
             // Ignore keypresses if we are currently waiting for an ask-answer:
             if (worldDisplay.isAsking())
+            {
                 return;
+            }
 
             int eventType;
             if (e.getEventType() == KeyEvent.KEY_PRESSED)
@@ -1135,7 +1146,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 {
                     // Holding shift, so show actor preview if it is an actor with no-arg constructor:
                     Reflective type = selectedClassTarget.getTypeReflective();
-                    if (getActorReflective().isAssignableFrom(type) && type.getDeclaredConstructors().stream().anyMatch(c -> c.getParamTypes().isEmpty() && !Modifier.isPrivate(c.getModifiers())))
+                    if (type != null
+                            && getActorReflective().isAssignableFrom(type)
+                            && hasNoArgConstructor(type))
                     {
                         newActorProperty.set(new NewActor(getImageViewForClass(type), selectedClassTarget.getBaseName()));
                     }
