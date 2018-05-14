@@ -77,7 +77,7 @@
         <pathelement location="${bluej_home}/lib/jsch-0.1.53.jar"/>
         <pathelement location="${bluej_home}/lib/org.eclipse.jgit-4.9.0.jar"/>
         <pathelement location="${bluej_home}/lib/nsmenufx-2.1.4.jar"/>
-        <pathelement location="${bluej_home}/lib/richtextfx-fat-0.8.2.jar"/>
+        <pathelement location="${bluej_home}/lib/richtextfx-fat-0.9.0.jar"/>
         <pathelement location="${build_java_home}/jre/lib/jfxrt.jar"/>
     </path>
 
@@ -535,7 +535,7 @@
                 <exclude name="jna-platform-4.2.0.jar"/>
                 <exclude name="junit-4.11.jar"/>
                 <exclude name="nsmenufx-2.1.4.jar"/>
-                <exclude name="richtextfx-fat-0.8.2.jar"/>
+                <exclude name="richtextfx-fat-0.9.0.jar"/>
                 <exclude name="sequence-library-1.0.3.jar"/>
                 <exclude name="svnkit.jar"/>
                 <exclude name="svnkit-javahl.jar"/>
