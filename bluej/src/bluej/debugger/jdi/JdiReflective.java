@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014,2015  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2015,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -223,6 +223,13 @@ public class JdiReflective extends Reflective
     {
         checkLoaded();
         return rclass.isPublic();
+    }
+    
+    @Override
+    public boolean isFinal()
+    {
+        checkLoaded();
+        return rclass.isFinal();
     }
 
     public Reflective getArrayOf()
@@ -1093,7 +1100,6 @@ public class JdiReflective extends Reflective
             }
 
             i.next(); // skip ')'
-            JavaType returnType = typeFromSignature(i, null, rclass);
 
             boolean isVarArgs = con.isVarArgs();
 
