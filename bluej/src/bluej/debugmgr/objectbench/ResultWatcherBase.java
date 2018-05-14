@@ -120,8 +120,16 @@ public abstract class ResultWatcherBase implements ResultWatcher
     {
         if (method instanceof MethodView) {
             MethodView mv = (MethodView) method;
-            ExpressionInformation expressionInformation =
-                    new ExpressionInformation(mv, objInstanceName, obj.getGenType());
+            ExpressionInformation expressionInformation;
+            if (obj != null)
+            {
+                expressionInformation = new ExpressionInformation(mv,
+                        objInstanceName, obj.getGenType());
+            }
+            else
+            {
+                expressionInformation = new ExpressionInformation(mv, objInstanceName);
+            }
             expressionInformation.setArgumentValues(ir.getArgumentValues());
             pkg.getProject().getResultInspectorInstance(result, name, pkg,
                     ir, expressionInformation, parentWindow);
