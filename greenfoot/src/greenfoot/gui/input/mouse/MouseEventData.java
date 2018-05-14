@@ -73,7 +73,12 @@ class MouseEventData
         return mouseInfo;
     }
 
-    public boolean isMousePressed(Object obj)
+    public boolean isMousePressed()
+    {
+        return mousePressedInfo != null;
+    }
+
+    public boolean isMousePressedOn(Object obj)
     {
         return checkObject(obj, mousePressedInfo);
     }
@@ -88,14 +93,19 @@ class MouseEventData
         MouseInfoVisitor.setActor(mouseInfo, actor);
     }
 
-    public boolean isMouseClicked(Object obj)
+    public boolean isMouseClickedOn(Object obj)
     { 
         // if the mouse was pressed outside the object we are looking for, it
         // can't be clicked on that object
-        if(obj != null && (isMousePressed(null) && !isMousePressed(obj))) {
+        if(obj != null && (isMousePressed() && !checkObject(obj, mousePressedInfo))) {
             return false;
         }
         return checkObject(obj, mouseClickedInfo);
+    }
+    
+    public boolean isMouseClicked()
+    {
+        return mouseClickedInfo != null;
     }
     
     public void mouseClicked(int x, int y, int button, int clickCount, Actor actor)
@@ -112,7 +122,12 @@ class MouseEventData
         MouseInfoVisitor.setClickCount(mouseInfo, clickCount);
     }
 
-    public boolean isMouseDragged(Object obj)
+    public boolean isMouseDragged()
+    {
+        return mouseDraggedInfo != null;
+    }
+
+    public boolean isMouseDraggedOn(Object obj)
     {
         return checkObject(obj, mouseDraggedInfo);
     }
@@ -127,7 +142,12 @@ class MouseEventData
         MouseInfoVisitor.setActor(mouseInfo, actor);
     }
 
-    public boolean isMouseDragEnded(Object obj)
+    public boolean isMouseDragEnded()
+    {
+        return mouseDragEndedInfo != null;
+    }
+
+    public boolean isMouseDragEndedOn(Object obj)
     {
         return checkObject(obj, mouseDragEndedInfo);
     }
@@ -152,7 +172,12 @@ class MouseEventData
         mouseMovedInfo = null;
     }
     
-    public boolean isMouseMoved(Object obj)
+    public boolean isMouseMoved()
+    {
+        return mouseMovedInfo != null;
+    }
+
+    public boolean isMouseMovedOn(Object obj)
     {
         return checkObject(obj, mouseMovedInfo);
     }

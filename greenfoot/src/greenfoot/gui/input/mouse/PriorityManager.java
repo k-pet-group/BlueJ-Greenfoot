@@ -89,19 +89,19 @@ public class PriorityManager
 
     private static int getPriority(MouseEventData data)
     {
-        if(data.isMouseDragEnded(null)) {
+        if(data.isMouseDragEnded()) {
             return 0;
         }
-        else if(data.isMouseClicked(null)) {
+        else if(data.isMouseClicked()) {
             return 1;
         }
-        else if(data.isMousePressed(null)) {
+        else if(data.isMousePressed()) {
             return 2;
         }
-        else if(data.isMouseDragged(null)) {
+        else if(data.isMouseDragged()) {
             return 3;
         }
-        else if(data.isMouseMoved(null)) {
+        else if(data.isMouseMoved()) {
             return 4;
         }
         else {

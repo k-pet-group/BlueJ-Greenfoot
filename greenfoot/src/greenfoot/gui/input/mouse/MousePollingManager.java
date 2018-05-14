@@ -223,7 +223,7 @@ public class MousePollingManager
     @OnThread(Tag.Simulation)
     public boolean isMousePressed(Object obj)
     {
-        return currentData.isMousePressed(obj);
+        return currentData.isMousePressedOn(obj);
     }
 
     /**
@@ -242,7 +242,7 @@ public class MousePollingManager
     @OnThread(Tag.Simulation)
     public boolean isMouseClicked(Object obj)
     {
-        return currentData.isMouseClicked(obj);
+        return currentData.isMouseClickedOn(obj);
     }
 
     /**
@@ -264,7 +264,7 @@ public class MousePollingManager
     @OnThread(Tag.Simulation)
     public boolean isMouseDragged(Object obj)
     {
-        return currentData.isMouseDragged(obj);
+        return currentData.isMouseDraggedOn(obj);
     }
 
     /**
@@ -286,7 +286,7 @@ public class MousePollingManager
     @OnThread(Tag.Simulation)
     public boolean isMouseDragEnded(Object obj)
     {
-        return currentData.isMouseDragEnded(obj);
+        return currentData.isMouseDragEndedOn(obj);
     }
 
     /**
@@ -308,7 +308,7 @@ public class MousePollingManager
     @OnThread(Tag.Simulation)
     public boolean isMouseMoved(Object obj)
     {
-        return currentData.isMouseMoved(obj);
+        return currentData.isMouseMovedOn(obj);
     }
 
     /**
@@ -350,7 +350,7 @@ public class MousePollingManager
             MouseEventData mouseData = futureData;
             // In case we already have a dragEnded and we get another
             // dragEnded, we need to start collection data for that.            
-            if (futureData.isMouseDragEnded(null))
+            if (futureData.isMouseDragEnded())
             {
                 mouseData = potentialNewDragData;
             }
@@ -420,7 +420,7 @@ public class MousePollingManager
             MouseEventData mouseData = futureData;
             // In case we already have a dragEnded and we get another
             // dragEnded, we need to start collection data for that.
-            if (futureData.isMouseDragEnded(null))
+            if (futureData.isMouseDragEnded())
             {
                 mouseData = potentialNewDragData;
             }
@@ -468,7 +468,7 @@ public class MousePollingManager
             {
                 // In case we already have a dragEnded and we get another
                 // dragEnded, should use the new one
-                if (futureData.isMouseDragEnded(null))
+                if (futureData.isMouseDragEnded())
                 {
                     futureData = potentialNewDragData;
                 }
