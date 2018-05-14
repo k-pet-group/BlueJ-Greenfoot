@@ -191,7 +191,14 @@ public class LocalGClassNode extends GClassNode implements TargetListener
             curContextMenu = null;
         }
         ContextMenu contextMenu = new ContextMenu();
-        Class<?> cl = classTarget.getPackage().loadClass(classTarget.getQualifiedName());
+        
+        Class<?> cl = null;
+        if (classTarget.isCompiled())
+        {
+            // Only load the class if it is compiled:
+            cl = classTarget.getPackage().loadClass(classTarget.getQualifiedName());
+        }
+        
         // Update mouse position from menu, so that if the user clicks new Crab(),
         // it appears where the mouse is now, rather than where the mouse was before the menu was shown.
         // We must use screen X/Y here, because the scene is the menu, not GreenfootStage,
@@ -236,7 +243,7 @@ public class LocalGClassNode extends GClassNode implements TargetListener
                     () -> greenfootStage.setImageFor(this)));
         }
         // Inspect:
-        contextMenu.getItems().add(classTarget.new InspectAction(true, display));
+        contextMenu.getItems().add(classTarget.new InspectAction(cl != null, display));
         contextMenu.getItems().add(new SeparatorMenuItem());
 
         // Duplicate:
@@ -268,9 +275,23 @@ public class LocalGClassNode extends GClassNode implements TargetListener
             contextMenu.getItems().add(classTarget.new ConvertToStrideAction(greenfootStage));
         }
 
-
+        // Show "new subclass" only if the class is not final:
+        boolean isFinal = false;
+        if (cl != null)
+        {
+            isFinal = Modifier.isFinal(cl.getModifiers());
+        }
+        else
+        {
+            Reflective ctReflective = classTarget.getTypeReflective();
+            if (ctReflective != null)
+            {
+                isFinal = ctReflective.isFinal();
+            }
+        }
+        
         // New subclass:
-        if (! Modifier.isFinal(cl.getModifiers()))
+        if (! isFinal)
         {
             contextMenu.getItems().add(GClassDiagram.contextInbuilt(Config.getString("new.sub.class"),
                     () -> greenfootStage.newSubClassOf(classTarget.getQualifiedName(), type)));

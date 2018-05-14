@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2014,2015  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2014,2015,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -166,6 +166,11 @@ public abstract class Reflective
      * Determine whether this class is declared public.
      */
     abstract public boolean isPublic();
+    
+    /**
+     * Determine whether this class is declared final.
+     */
+    abstract public boolean isFinal();
     
     /**
      * Get the methods declared in the type represented by this Reflective.
