@@ -98,7 +98,7 @@ class MouseEventData
     { 
         // if the mouse was pressed outside the object we are looking for, it
         // can't be clicked on that object
-        if(obj != null && (isMousePressed() && !checkObject(obj, mousePressedInfo))) {
+        if(obj != null && (isMousePressed() && !isMousePressedOn(obj))) {
             return false;
         }
         return checkObject(obj, mouseClickedInfo);
@@ -256,13 +256,13 @@ class MouseEventData
     @OnThread(Tag.Simulation)
     public void setActors(WorldLocator locator)
     {
-        for (MouseInfo info : Arrays.asList(mouseInfo, mouseClickedInfo, mouseDragEndedInfo, mouseMovedInfo, mousePressedInfo, mouseDraggedInfo))
+        for (MouseInfo info : Arrays.asList(mouseInfo, mouseClickedInfo, mouseDragEndedInfo,
+                mouseMovedInfo, mousePressedInfo, mouseDraggedInfo))
         {
             if (info != null && info.getActor() == null)
             {
                 MouseInfoVisitor.setActor(info, locator.getTopMostActorAt(info.getX(), info.getY()));
             }
         }
-        
     }
 }

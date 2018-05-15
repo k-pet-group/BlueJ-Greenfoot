@@ -196,8 +196,6 @@ public class MousePollingManager
         else {
             currentData.init();
         }
-
-        
     }
 
     /**
