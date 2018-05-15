@@ -56,12 +56,10 @@ import java.net.URL;
 @OnThread(Tag.FXPlatform)
 public class AboutDialogTemplate extends Dialog<Void>
 {
-    private static String websiteURL = "";
 
     public AboutDialogTemplate(Window parent, String version, String softwareTitle,
-                               String websiteURL, Image image, TitledPane titledPane )
+                               String websiteURL, Image image, TitledPane titledPane)
     {
-        this.websiteURL = websiteURL;
         initOwner(parent);
         initModality(Modality.WINDOW_MODAL);
         setTitle(Config.getString("menu.help.about"));
@@ -95,16 +93,12 @@ public class AboutDialogTemplate extends Dialog<Void>
         VBox bottom = JavaFXUtil.withStyleClass(new VBox(), "about-more-info");
 
         // Create team names list
-        String teamText = "";
-        teamText += "Amjad Altadmri" + ", ";
-        teamText += "Neil Brown" + ", ";
-        teamText += "Hamza Hamza" + ", ";
-        teamText += "Michael K\u00F6lling" + ", ";
-        teamText += "Davin McCall" + ", ";
-        teamText += "Ian Utting";
+        String teamText = String.join(", ", "Amjad Altadmri", "Neil Brown", "Hamza Hamza",
+                "Michael K\u00F6lling", "Davin McCall", "Ian Utting");
 
-        bottom.getChildren().add(JavaFXUtil.withStyleClass(new Label(Config.getString("The " + softwareTitle + " Team") + " "
-                + teamText), "about-team"));
+        bottom.getChildren().add(JavaFXUtil.withStyleClass(
+                new Label(Config.getString("The " + softwareTitle + " Team") + " " + teamText),
+                "about-team"));
 
         if (titledPane != null)
         {
@@ -112,16 +106,18 @@ public class AboutDialogTemplate extends Dialog<Void>
         }
 
         bottom.getChildren().add(new Label(""));
-        bottom.getChildren().add(JavaFXUtil.withStyleClass(new Label(Config.getString(softwareTitle+" version") + " " +
-                version + "  (" + Config.getString("about.java.version") + " " + System.getProperty("java.version") +
-                ")"), "about-version"));
+        bottom.getChildren().add(JavaFXUtil.withStyleClass(
+                new Label(Config.getString(softwareTitle+" version") + " " + version + "  (" +
+                        Config.getString("about.java.version") + " " + System.getProperty("java.version") +
+                        ")"), "about-version"));
         bottom.getChildren().add(new Label(Config.getString("about.vm") + " " +
                 System.getProperty("java.vm.name") + " " +
                 System.getProperty("java.vm.version") +
                 " (" + System.getProperty("java.vm.vendor") + ")"));
-        bottom.getChildren().add(new Label(Config.getString("about.runningOn") + " " + System.getProperty("os.name") +
-                " " + System.getProperty("os.version") +
+        bottom.getChildren().add(new Label(Config.getString("about.runningOn") + " " +
+                System.getProperty("os.name") + " " + System.getProperty("os.version") +
                 " (" + System.getProperty("os.arch") + ")"));
+
         Button debugLogShow = new Button(Config.getString("about.openFolder"));
         debugLogShow.setOnAction(e -> SwingUtilities.invokeLater(() -> {
             try
@@ -133,7 +129,8 @@ public class AboutDialogTemplate extends Dialog<Void>
                 }
                 else if (Config.isLinux())
                 {
-                    Runtime.getRuntime().exec(new String[] {"xdg-open", Config.getUserConfigDir().getAbsolutePath()});
+                    Runtime.getRuntime().exec(
+                            new String[] {"xdg-open", Config.getUserConfigDir().getAbsolutePath()});
                 }
             }
             catch (IOException ex)
@@ -141,7 +138,9 @@ public class AboutDialogTemplate extends Dialog<Void>
                 Debug.reportError(ex);
             }
         }));
-        HBox debugLog = new HBox(new Label(Config.getString("about.logfile") + " " + Config.getUserConfigFile(Config.debugLogName)), debugLogShow);
+
+        HBox debugLog = new HBox(new Label(Config.getString("about.logfile") + " " +
+                Config.getUserConfigFile(Config.debugLogName)), debugLogShow);
         JavaFXUtil.addStyleClass(debugLog, "about-debuglog");
         debugLog.setAlignment(Pos.BASELINE_LEFT);
         bottom.getChildren().add(debugLog);
@@ -150,7 +149,8 @@ public class AboutDialogTemplate extends Dialog<Void>
         {
             final URL softwareURL = new URL(websiteURL);
             Hyperlink link = new Hyperlink(softwareURL.toString());
-            link.setOnMouseClicked(e -> SwingUtilities.invokeLater(() -> Utility.openWebBrowser(softwareURL.toExternalForm())));
+            link.setOnMouseClicked(e -> SwingUtilities.invokeLater(() ->
+                    Utility.openWebBrowser(softwareURL.toExternalForm())));
             
             HBox hbox = new HBox(new Label(Config.getString("about.moreInformation")), link);
             hbox.setAlignment(Pos.CENTER);
