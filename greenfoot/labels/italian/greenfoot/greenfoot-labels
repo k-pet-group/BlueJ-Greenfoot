@@ -7,10 +7,6 @@ greenfoot.quit=Esci
 
 greenfoot.launchFailed=Non \u00e8 stato possibile lanciare Greenfoot. Per aiuto vai a http://www.greenfoot.org/support
 
-# About dialog
-about.title=Informazioni su Greenfoot
-about.moreInfo=Ulteriori informazioni possono essere trovate sul sito www.greenfoot.org
-
 
 # Greenfoot project version info
 project.version.none=Lo scenario che stai cercando di aprire \u00e8 stato creato usando vecchia versione di greenfoot (precedente alla versione 0.5 di greenfoot). Il caricamento di questo scenario comporter00e0 molto probabilmente alcuni errori che dovranno essere corretti manualmente.

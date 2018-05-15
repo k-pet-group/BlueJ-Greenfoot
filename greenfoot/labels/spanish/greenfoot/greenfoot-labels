@@ -5,10 +5,6 @@ greenfoot.preferences=Preferencias...
 greenfoot.copyright=Copyright...
 greenfoot.quit=Salir
 
-#Diálogo de Acerca de
-about.title=Acerca Greenfoot
-about.moreInfo=M\u00E1s informaci\u00F3n puede ser encontrada en www.greenfoot.org
-
 
 # Informaci\u00F3n de la versi\u00F3n del proyecto Greenfoot
 project.version.none=El escenario que se est\u00E1 abriendo ha sido escrito usando una versi\u00F3n anterior de Greenfoot (anterior a la versi\u00F3n 0.5 de Greenfoot). Lo m\u00E1s probable es que cause algunos errores que deber\u00E1n ser arreglados de manualmente.

@@ -7,10 +7,6 @@ greenfoot.quit=Quitter
 
 greenfoot.launchFailed=\u00C9chec dans le chargement de Greenfoot. Pour de l'aide, rendez-vous sur http://greenfoot.org/programming/support/index.html
 
-# About dialog
-about.title=\u00C0 propos de Greenfoot
-about.moreInfo=Plus d'informations peuvent \u00EAtre obtenues sur www.greenfoot.org
-
 
 # Greenfoot project version info
 project.version.none=Le sc\u00E9nario que vous essayez d'ouvrir semble \u00EAtre un sc\u00E9nario d'une version ant\u00E9rieure de Greenfoot (ant\u00E9rieure \u00E0 la version 0.5). Cela va s\00FBrement causer des erreurs qu'il faudra corriger manuellement.

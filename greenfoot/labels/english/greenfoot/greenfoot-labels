@@ -7,10 +7,6 @@ greenfoot.quit=Quit
 
 greenfoot.launchFailed=Greenfoot failed to launch. For help go to http://www.greenfoot.org/support
 
-# About dialog
-about.title=About Greenfoot
-about.moreInfo=More information can be found at www.greenfoot.org
-
 
 # Greenfoot project version info
 project.version.none=The scenario being opened has been written using an older version of Greenfoot (before greenfoot version 0.5). This will most likely result in some errors that will have to be fixed manually.

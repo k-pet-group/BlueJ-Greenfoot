@@ -7,10 +7,6 @@ greenfoot.quit=Wyj\u015bcie
 
 greenfoot.launchFailed=B\u0142\u0105d uruchomienia \u015brodowiska Greenfoot. Po pomoc zwr\u00f3\u0107 si\u0119 tu: http://www.greenfoot.org/support
 
-# About dialog
-about.title=O programie
-about.moreInfo=Wi\u0119cej informacji znajdziesz na www.greenfoot.org
-
 
 # Greenfoot project version info
 project.version.none=Otwierany scenariusz zosta\u0142 zapisany przy u\u017cyciu starszej wersji \u015brodowiska Greenfoot (wcze\u015bniejsze ni\u017c 0.5). To najprawdopodobniej skutkowa\u0107 b\u0119dzie pewnymi b\u0142\u0119dami, kt\u00f3re nale\u017cy naprawi\u0107 samodzielnie. 

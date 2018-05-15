@@ -10,10 +10,6 @@ greenfoot.quit=Beenden
 
 greenfoot.launchFailed=Greenfoot konnte nicht gestartet werden. Hilfe unter http://greenfoot.org/support
 
-# About dialog
-about.title=\u00DCber Greenfoot
-about.moreInfo=Mehr Informationen unter www.greenfoot.org
-
 
 # Greenfoot project version info
 project.version.none=Das ge\u00F6ffnete Szenario ist mit einer \u00E4lteren Greenfoot-Version erstellt worden. Es ist m\u00F6glich, dass Fehler auftreten, die von Hand korrigiert werden m\u00FCssen.
