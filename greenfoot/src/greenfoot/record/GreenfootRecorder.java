@@ -24,7 +24,6 @@ package greenfoot.record;
 import bluej.debugger.DebuggerObject;
 import bluej.editor.Editor;
 import bluej.utility.javafx.FXPlatformFunction;
-import greenfoot.Actor;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -239,7 +238,7 @@ public class GreenfootRecorder
      * Record a dragged actor interaction. This is currently called from the simulation
      * thread (i.e. with the world locked).
      */
-    public synchronized void moveActor(Actor actor, int xCell, int yCell)
+    public synchronized void moveActor(DebuggerObject actor, int xCell, int yCell)
     {
         String actorObjectName = objectNames.get(actor);
         if (null == actorObjectName) {
