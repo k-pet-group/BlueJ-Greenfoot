@@ -97,7 +97,7 @@ public class AboutDialogTemplate extends Dialog<Void>
                 "Michael K\u00F6lling", "Davin McCall", "Ian Utting");
 
         bottom.getChildren().add(JavaFXUtil.withStyleClass(
-                new Label(Config.getString("The " + softwareTitle + " Team") + " " + teamText),
+                new Label(Config.getString("about.theTeam") + " " + teamText),
                 "about-team"));
 
         if (titledPane != null)
@@ -107,7 +107,7 @@ public class AboutDialogTemplate extends Dialog<Void>
 
         bottom.getChildren().add(new Label(""));
         bottom.getChildren().add(JavaFXUtil.withStyleClass(
-                new Label(Config.getString(softwareTitle+" version") + " " + version + "  (" +
+                new Label(Config.getString("about.version") + " " + version + "  (" +
                         Config.getString("about.java.version") + " " + System.getProperty("java.version") +
                         ")"), "about-version"));
         bottom.getChildren().add(new Label(Config.getString("about.vm") + " " +

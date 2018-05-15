@@ -823,7 +823,7 @@ team.checkconn.bad=Could not connect to server.
 
 
 menu.help=_Help
-menu.help.about=_About BlueJ
+menu.help.about=_About $APPNAME
 menu.help.extensions=Installed E_xtensions
 menu.help.versionCheck=Check Version...
 menu.help.copyright=_Copyright
@@ -885,13 +885,13 @@ raspberrypi.error.sudo.title=No hardware access
 
 # About
 
-about.bluej.version=BlueJ version
+about.version=$APPNAME version
 about.java.version=Java version
 about.vm=Virtual machine:
 about.runningOn=Running on:
 about.logfile=Debug log file:
 about.moreInformation=For more information, see
-about.theTeam=BlueJ team:
+about.theTeam=$APPNAME team:
 about.openFolder=Open Folder
 
 # Work Indicator
