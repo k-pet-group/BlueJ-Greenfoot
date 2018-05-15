@@ -28,7 +28,6 @@ import greenfoot.World;
 import greenfoot.core.ExportedProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
-import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.guifx.AskPaneFX;
 import greenfoot.guifx.ControlPanel;
@@ -87,6 +86,7 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
 
     private AskHandler askHandler;
     private final WorldDisplay worldDisplay = new WorldDisplay();
+    private boolean updatingSliderFromSimulation = false;
 
     /**
      * Initialize the project properties.
@@ -310,7 +310,10 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
     @Override
     public void setSpeedFromSlider(int speed)
     {
-        Simulation.getInstance().setSpeed(speed);
+        if (!updatingSliderFromSimulation)
+        {
+            Simulation.getInstance().setSpeed(speed);
+        }
     }
 
     /**
@@ -347,26 +350,38 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
     }
 
     @Override
-    @OnThread(Tag.Simulation)
-    public void simulationChanged(SimulationEvent e)
+    public @OnThread(Tag.Simulation) void simulationChangedSync(SyncEvent eventType)
     {
-        int eventType = e.getType();
-        if (eventType == SimulationEvent.STOPPED)
-        {
-            Platform.runLater(() -> {
-                controls.updateState(State.PAUSED, false);
-            });
-        }
-        else if (eventType == SimulationEvent.STARTED)
+        if (eventType == SyncEvent.STARTED)
         {
             Platform.runLater(() -> {
                 controls.updateState(State.RUNNING, false);
             });
         }
-        else if (eventType == SimulationEvent.DISABLED)
+    }
+
+    @Override
+    @OnThread(Tag.Any)
+    public void simulationChangedAsync(AsyncEvent eventType)
+    {
+        if (eventType == AsyncEvent.STOPPED)
+        {
+            Platform.runLater(() -> {
+                controls.updateState(State.PAUSED, false);
+            });
+        }
+        else if (eventType == AsyncEvent.DISABLED)
         {
             Platform.runLater(() -> {
                 controls.updateState(State.UNCOMPILED, false);
+            });
+        }
+        else if (eventType == AsyncEvent.CHANGED_SPEED)
+        {
+            Platform.runLater(() -> {
+                updatingSliderFromSimulation = true;
+                controls.setSpeed(Simulation.getInstance().getSpeed());
+                updatingSliderFromSimulation = false;
             });
         }
     }

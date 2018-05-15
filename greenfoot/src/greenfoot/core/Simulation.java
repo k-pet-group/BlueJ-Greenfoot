@@ -25,8 +25,9 @@ import greenfoot.Actor;
 import greenfoot.ActorVisitor;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
-import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
+import greenfoot.event.SimulationListener.AsyncEvent;
+import greenfoot.event.SimulationListener.SyncEvent;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
 import greenfoot.util.HDTimer;
@@ -83,18 +84,7 @@ public class Simulation extends Thread
     private Queue<SimulationRunnable> queuedTasks = new LinkedList<>();
 
     @OnThread(Tag.Any)
-    private EventListenerList listenerList = new EventListenerList();
-
-    /* Various simulation events */
-    private SimulationEvent startedEvent;
-    private SimulationEvent stoppedEvent;
-    private SimulationEvent disabledEvent;
-    private SimulationEvent speedChangeEvent;
-    private SimulationEvent newActRoundEvent;
-    private SimulationEvent taskBeginEvent;
-    private SimulationEvent taskEndEvent;
-    private SimulationEvent delayLoopEntered;
-    private SimulationEvent delayLoopCompleted;
+    private final List<SimulationListener> listenerList = new ArrayList<>();
 
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private static Simulation instance;
@@ -135,15 +125,6 @@ public class Simulation extends Thread
     private Simulation()
     {
         this.setName("SimulationThread");
-        startedEvent = new SimulationEvent(this, SimulationEvent.STARTED);
-        stoppedEvent = new SimulationEvent(this, SimulationEvent.STOPPED);
-        speedChangeEvent = new SimulationEvent(this, SimulationEvent.CHANGED_SPEED);
-        disabledEvent = new SimulationEvent(this, SimulationEvent.DISABLED);
-        newActRoundEvent = new SimulationEvent(this, SimulationEvent.NEW_ACT_ROUND);
-        taskBeginEvent = new SimulationEvent(this, SimulationEvent.QUEUED_TASK_BEGIN);
-        taskEndEvent = new SimulationEvent(this, SimulationEvent.QUEUED_TASK_END);
-        delayLoopEntered = new SimulationEvent(this, SimulationEvent.DELAY_LOOP_ENTERED);
-        delayLoopCompleted = new SimulationEvent(this, SimulationEvent.DELAY_LOOP_COMPLETED);
         setPriority(Thread.MIN_PRIORITY);
         paused = true;
         speed = 50;
@@ -355,7 +336,7 @@ public class Simulation extends Thread
                 if (! isRunning && ! doResumeRunning && ! runOnce) {
                     // Still paused, so notify listeners, and actually pause
                     if (enabled) {
-                        fireSimulationEvent(stoppedEvent);
+                        fireSimulationEventAsync(AsyncEvent.STOPPED);
                     }
                     if (worldHandler != null) {
                         worldHandler.repaint();
@@ -403,7 +384,7 @@ public class Simulation extends Thread
     {
         isRunning = true;
         lastDelayTime = System.nanoTime();
-        fireSimulationEvent(startedEvent);
+        fireSimulationEventSync(SyncEvent.STARTED);
         World world = worldHandler.getWorld();
         if (world != null) {
             try {
@@ -471,7 +452,7 @@ public class Simulation extends Thread
         
         while (r != null) {
             try {
-                fireSimulationEvent(taskBeginEvent);
+                fireSimulationEventSync(SyncEvent.QUEUED_TASK_BEGIN);
                 
                 try {
                     // This may run user code, which might throw an exception.
@@ -481,7 +462,7 @@ public class Simulation extends Thread
                     t.printStackTrace();
                 }
                 
-                fireSimulationEvent(taskEndEvent);
+                fireSimulationEventSync(SyncEvent.QUEUED_TASK_END);
             }
             finally {
                 
@@ -500,7 +481,7 @@ public class Simulation extends Thread
      */
     private void runOneLoop(World world)
     {
-        fireSimulationEvent(newActRoundEvent);
+        fireSimulationEventSync(SyncEvent.NEW_ACT_ROUND);
         
         // We don't want to be interrupted in the middle of an act-loop
         // so we remember the first interrupted exception and throw it
@@ -707,7 +688,7 @@ public class Simulation extends Thread
             // fire a paused event to let listeners know we are
             // enabled again
             if (paused) {
-                fireSimulationEvent(stoppedEvent);
+                fireSimulationEventAsync(AsyncEvent.STOPPED);
             }
         }
         else {
@@ -730,23 +711,28 @@ public class Simulation extends Thread
                     interruptDelay = false;
                 }
             }
-            fireSimulationEvent(disabledEvent);
+            fireSimulationEventAsync(AsyncEvent.DISABLED);
         }
     }
 
-    private void fireSimulationEvent(SimulationEvent event)
+    @OnThread(Tag.Simulation)
+    private void fireSimulationEventSync(SyncEvent event)
     {
-        // Guaranteed to return a non-null array
-        Object[] listeners;
         synchronized (listenerList) {
-            listeners = listenerList.getListenerList();
+            for (SimulationListener listener : listenerList)
+            {
+                listener.simulationChangedSync(event);
+            }
+        }
+    }
 
-            // Process the listeners last to first, notifying
-            // those that are interested in this event
-            for (int i = listeners.length - 2; i >= 0; i -= 2) {
-                if (listeners[i] == SimulationListener.class) {
-                    ((SimulationListener) listeners[i + 1]).simulationChanged(event);
-                }
+    @OnThread(Tag.Any)
+    private void fireSimulationEventAsync(AsyncEvent event)
+    {
+        synchronized (listenerList) {
+            for (SimulationListener listener : listenerList)
+            {
+                listener.simulationChangedAsync(event);
             }
         }
     }
@@ -761,21 +747,7 @@ public class Simulation extends Thread
     public void addSimulationListener(SimulationListener l)
     {
         synchronized (listenerList) {
-            listenerList.add(SimulationListener.class, l);
-        }
-    }
-
-    /**
-     * Remove a simulationListener to listen for changes.
-     * 
-     * @param l
-     *            Listener to remove
-     */
-    @OnThread(Tag.Any)
-    public void removeSimulationListener(SimulationListener l)
-    {
-        synchronized (listenerList) {
-            listenerList.remove(SimulationListener.class, l);
+            listenerList.add(0, l);
         }
     }
 
@@ -822,11 +794,9 @@ public class Simulation extends Thread
             }
         }
         
-        // TODO remove this as an event once ControlPanel has been removed (which is the only
-        // item listening to a speed-change event.  Threadchecker fails here, so we'll remember...
         if (speedChanged)
         {
-            fireSimulationEvent(speedChangeEvent);
+            fireSimulationEventAsync(AsyncEvent.CHANGED_SPEED);
         }
     }
 
@@ -910,7 +880,7 @@ public class Simulation extends Thread
             }
         }
 
-        fireSimulationEvent(delayLoopEntered);
+        fireSimulationEventSync(SyncEvent.DELAY_LOOP_ENTERED);
 
         try
         {
@@ -934,7 +904,7 @@ public class Simulation extends Thread
                 interruptDelay = false;
                 delaying = false;
             }
-            fireSimulationEvent(delayLoopCompleted);
+            fireSimulationEventSync(SyncEvent.DELAY_LOOP_COMPLETED);
         }
     }
 
@@ -972,7 +942,7 @@ public class Simulation extends Thread
             }
         }
 
-        fireSimulationEvent(delayLoopEntered);
+        fireSimulationEventSync(SyncEvent.DELAY_LOOP_ENTERED);
 
         while (actualDelay > 0)
         {
@@ -1006,7 +976,7 @@ public class Simulation extends Thread
             interruptDelay = false;
             delaying = false;
         }
-        fireSimulationEvent(delayLoopCompleted);
+        fireSimulationEventSync(SyncEvent.DELAY_LOOP_COMPLETED);
     }
 
     /**
