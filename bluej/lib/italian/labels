@@ -772,7 +772,7 @@ team.checkconn.bad=Impossibile connettersi al server
 
 
 menu.help=_Aiuto
-menu.help.about=_Informazioni su BlueJ
+menu.help.about=_Informazioni su $APPNAME
 menu.help.extensions=E_stensioni installate
 menu.help.versionCheck=Verifica della versione
 menu.help.copyright=_Copyright
@@ -819,14 +819,14 @@ raspberrypi.error.sudo.title=Nessun accesso all'hardware
 
 # About
 
-about.bluej.version=Versione di BlueJ
+about.version=Versione di $APPNAME
 about.java.version=Java versione
 about.vm=Virtual Machine:
 about.runningOn=Sistema:
 about.javahome=Java Home:
 about.logfile=File di log del debug:
 about.moreInformation=Per maggiori informazioni, vedi
-about.theTeam=Il team BlueJ:
+about.theTeam=Il team $APPNAME:
 
 
 # Work Indicator

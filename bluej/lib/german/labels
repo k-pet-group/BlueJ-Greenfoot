@@ -769,7 +769,7 @@ team.checkconn.bad=Konnte nicht zum Server verbinden.
 
 
 menu.help=_Hilfe
-menu.help.about=\u00dcber _BlueJ
+menu.help.about=\u00dcber _$APPNAME
 menu.help.extensions=Installierte _Erweiterungen...
 menu.help.versionCheck=_Version pr\u00fcfen...
 menu.help.copyright=_Copyright
@@ -830,14 +830,14 @@ raspberrypi.error.sudo.title=Kein Hardwarezugriff
 
 # About
 
-about.bluej.version=BlueJ-Version
+about.version=$APPNAME-Version
 about.java.version=Java-Version
 about.vm=Virtuelle Maschine:
 about.runningOn=L\u00e4uft unter:
 about.javahome=Java-Heimverzeichnis:
 about.logfile=Debug-Protokolldatei:
 about.moreInformation=F?r weitere Informationen, siehe
-about.theTeam=Das BlueJ-Team:
+about.theTeam=Das $APPNAME-Team:
 
 # Work Indicator
 workIndicator.resetMachine=Java Virtuelle Maschine zur\u00fccksetzen@^R

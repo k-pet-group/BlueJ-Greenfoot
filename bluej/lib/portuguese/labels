@@ -762,7 +762,7 @@ team.checkconn.bad=Servidor n\u00E3o pode ser contactado.
 
 
 menu.help=_Ajuda
-menu.help.about=_Sobre o BlueJ
+menu.help.about=_Sobre o $APPNAME
 menu.help.extensions=E_xtens\u00F5es Instaladas
 menu.help.versionCheck=Checar Vers\u00E3o
 menu.help.copyright=_Copyright
@@ -813,12 +813,12 @@ collect.status.optedout=Atualmente voc\u00EA n\u00E3o est\u00E1 participando da 
 raspberrypi.error.sudo=Acesso de sudo sem senha n\u00E3o est\u00E1 dispon\u00EDvel. Continuando sem acesso \u00E0 hardware.\\nPara mais informa\u00E7\u00F5es, por favor consulte: http://bluej.org/faq.html#rasppi_hardware
 raspberrypi.error.sudo.title=Sem acesso \u00E0 hardware
 
-about.bluej.version=Vers\u00E3o do BlueJ
+about.version=Vers\u00E3o do $APPNAME
 about.java.version=Vers\u00E3o de Java
 about.vm=M\u00E1quina virtual\:
 about.runningOn=Executando em\:
 about.javahome=Java Home\:
 about.logfile=Depurar Arquivo de Log\:
-about.moreInfo=Mais informa\u00E7\u00F5es em www.bluej.org
-about.theTeam=Equipe do BlueJ\:
+about.moreInfo=Mais informa\u00E7\u00F5es em
+about.theTeam=Equipe do $APPNAME\:
 workIndicator.resetMachine=Resetar m\u00E1quina@^R
