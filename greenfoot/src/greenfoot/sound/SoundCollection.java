@@ -21,7 +21,6 @@
  */
 package greenfoot.sound;
 
-import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -51,12 +50,17 @@ public class SoundCollection implements SimulationListener, SoundPlaybackListene
     /**
      * Stop sounds when simulation is disabled (a new world is created).
      */
-    @OnThread(Tag.Simulation)
-    public void simulationChanged(SimulationEvent e)
+    @OnThread(Tag.Any)
+    public void simulationChangedAsync(AsyncEvent e)
     {
-        if (e.getType() == SimulationEvent.DISABLED) {
+        if (e == AsyncEvent.DISABLED) {
             close();
         }
+    }
+
+    @Override
+    public @OnThread(Tag.Simulation) void simulationChangedSync(SyncEvent e)
+    {
     }
 
     /**

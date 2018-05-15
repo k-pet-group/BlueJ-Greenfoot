@@ -37,9 +37,66 @@ import java.util.EventListener;
 public interface SimulationListener
 {
     /**
+     * Simulation events which can occur off the simulation thread.
+     */
+    public static enum AsyncEvent
+    {
+        /** The simulation was paused */
+        STOPPED,
+        
+        /** The simulation speed changed */
+        CHANGED_SPEED,
+
+        /**
+         * The simulation was disabled and cannot be restarted
+         * until a STOPPED event is received.
+         */
+        DISABLED;
+    }
+
+    /**
+     * Simulation events which always occur on the simulation thread
+     * (and where the listener is thus called on the simulation thread)
+     */
+    public static enum SyncEvent
+    {
+        /** The simulation started running */
+        STARTED,
+        
+        /**
+         * Execution of a new "Act" round has commenced.
+         */
+        NEW_ACT_ROUND,
+
+        /**
+         * A task was queued to run on the simulation thread and is now being run.
+         */
+        QUEUED_TASK_BEGIN,
+
+        /**
+         * A task was queued to run on the simulation thread and has now finished.
+         */
+        QUEUED_TASK_END,
+
+        /**
+         * Entering Delay loop by the Simulation
+         */
+        DELAY_LOOP_ENTERED,
+
+        /**
+         * Delay loop is completed
+         */
+        DELAY_LOOP_COMPLETED;    
+    }
+    
+    
+    /**
      * The simulation state changed or a simulation event occurred. The simulation may have
      * stopped, started, changed enabled state, begun a new act round, etc.
      */
     @OnThread(Tag.Simulation)
-    public void simulationChanged(SimulationEvent e);
+    public void simulationChangedSync(SyncEvent e);
+
+    @OnThread(Tag.Any)
+    public void simulationChangedAsync(AsyncEvent e);
 }

@@ -26,7 +26,6 @@ import greenfoot.ActorVisitor;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.core.Simulation.SimulationRunnable;
-import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.event.WorldEvent;
 import greenfoot.event.WorldListener;
@@ -677,11 +676,16 @@ public class WorldHandler
     }
 
     @OnThread(Tag.Simulation)
-    public void simulationChanged(SimulationEvent e)
+    public void simulationChangedSync(SyncEvent e)
     {
-        if (e.getType() == SimulationEvent.NEW_ACT_ROUND) {
+        if (e == SyncEvent.NEW_ACT_ROUND) {
             startSequence();
         }
+    }
+
+    @Override
+    public @OnThread(Tag.Any) void simulationChangedAsync(AsyncEvent e)
+    {
     }
 
     /**

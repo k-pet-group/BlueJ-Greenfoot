@@ -23,7 +23,6 @@ package greenfoot.core;
 
 import bluej.Boot;
 import bluej.collect.DataSubmissionFailedDialog;
-import greenfoot.event.SimulationEvent;
 import greenfoot.event.SimulationListener;
 import greenfoot.vmcomm.VMCommsSimulation;
 import greenfoot.platforms.ide.ActorDelegateIDE;
@@ -139,28 +138,36 @@ public class GreenfootMain extends Thread
                     sim.addSimulationListener(new SimulationListener() {
                         @OnThread(Tag.Simulation)
                         @Override
-                        public void simulationChanged(SimulationEvent e)
+                        public void simulationChangedSync(SyncEvent e)
                         {
-                            if (e.getType() == SimulationEvent.NEW_ACT_ROUND
-                                    || e.getType() == SimulationEvent.QUEUED_TASK_BEGIN)
+                            if (e == SyncEvent.NEW_ACT_ROUND
+                                    || e == SyncEvent.QUEUED_TASK_BEGIN)
                             {
                                 // New act round - will be followed by another NEW_ACT_ROUND event if the simulation
                                 // is running, or a STOPPED event if the act round finishes and the simulation goes
                                 // back to the stopped state.
                                 vmComms.userCodeStarting();
                             }
-                            else if (e.getType() == SimulationEvent.STOPPED
-                                    || e.getType() == SimulationEvent.QUEUED_TASK_END)
+                            else if (e == SyncEvent.QUEUED_TASK_END)
                             {
                                 vmComms.userCodeStopped();
                             }
-                            else if (e.getType() == SimulationEvent.DELAY_LOOP_ENTERED)
+                            else if (e == SyncEvent.DELAY_LOOP_ENTERED)
                             {
                                 vmComms.notifyDelayLoopEntered();
                             }
-                            else if (e.getType() == SimulationEvent.DELAY_LOOP_COMPLETED)
+                            else if (e == SyncEvent.DELAY_LOOP_COMPLETED)
                             {
                                 vmComms.notifyDelayLoopCompleted();
+                            }
+                        }
+
+                        @Override
+                        public @OnThread(Tag.Any) void simulationChangedAsync(AsyncEvent e)
+                        {
+                            if (e == AsyncEvent.STOPPED)
+                            {
+                                vmComms.userCodeStopped();
                             }
                         }
                     });
