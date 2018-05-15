@@ -29,6 +29,8 @@ import greenfoot.World;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.util.Arrays;
+
 
 /**
  * Class to hold data collected from the mouse events. Using MouseInfo is
@@ -83,14 +85,13 @@ class MouseEventData
         return checkObject(obj, mousePressedInfo);
     }
 
-    public void mousePressed(int x, int y, int button, Actor actor)
+    public void mousePressed(int x, int y, int button)
     {
         init();
         mousePressedInfo = MouseInfoVisitor.newMouseInfo();
         mouseInfo = mousePressedInfo;  
         MouseInfoVisitor.setButton(mouseInfo, button);
         MouseInfoVisitor.setLoc(mouseInfo, x, y);
-        MouseInfoVisitor.setActor(mouseInfo, actor);
     }
 
     public boolean isMouseClickedOn(Object obj)
@@ -108,7 +109,7 @@ class MouseEventData
         return mouseClickedInfo != null;
     }
     
-    public void mouseClicked(int x, int y, int button, int clickCount, Actor actor)
+    public void mouseClicked(int x, int y, int button, int clickCount)
     {
         MouseInfo tempPressedInfo = mousePressedInfo;        
         init();       
@@ -118,7 +119,6 @@ class MouseEventData
         mouseInfo = mouseClickedInfo;
         MouseInfoVisitor.setButton(mouseInfo, button);
         MouseInfoVisitor.setLoc(mouseInfo, x, y);
-        MouseInfoVisitor.setActor(mouseInfo, actor);
         MouseInfoVisitor.setClickCount(mouseInfo, clickCount);
     }
 
@@ -182,14 +182,13 @@ class MouseEventData
         return checkObject(obj, mouseMovedInfo);
     }
 
-    public void mouseMoved(int x, int y, int button, Actor actor)
+    public void mouseMoved(int x, int y, int button)
     {
         init();
         mouseMovedInfo = MouseInfoVisitor.newMouseInfo();;
         mouseInfo = mouseMovedInfo;
         MouseInfoVisitor.setButton(mouseInfo, button);
         MouseInfoVisitor.setLoc(mouseInfo, x, y);
-        MouseInfoVisitor.setActor(mouseInfo, actor);
     }
 
     public Actor getActor()
@@ -248,5 +247,22 @@ class MouseEventData
         }
         return s;
     }
- 
+
+    /**
+     * From the simulation thread (when it is safe to access the actors via the world's locator),
+     * go through our mouse data and map X,Y positions into actors.
+     * @param locator
+     */
+    @OnThread(Tag.Simulation)
+    public void setActors(WorldLocator locator)
+    {
+        for (MouseInfo info : Arrays.asList(mouseInfo, mouseClickedInfo, mouseDragEndedInfo, mouseMovedInfo, mousePressedInfo, mouseDraggedInfo))
+        {
+            if (info != null && info.getActor() == null)
+            {
+                MouseInfoVisitor.setActor(info, locator.getTopMostActorAt(info.getX(), info.getY()));
+            }
+        }
+        
+    }
 }

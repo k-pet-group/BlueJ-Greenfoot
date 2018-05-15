@@ -388,6 +388,7 @@ public class WorldHandler
         handlerDelegate.setWorld(this.world, world);
         mousePollingManager.setWorldLocator(new WorldLocator() {
             @Override
+            @OnThread(Tag.Simulation)
             public Actor getTopMostActorAt(int x, int y)
             {
                 return getObject(world, x, y);
