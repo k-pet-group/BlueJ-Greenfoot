@@ -87,6 +87,7 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
 
     private AskHandler askHandler;
     private final WorldDisplay worldDisplay = new WorldDisplay();
+    private boolean updatingSliderFromSimulation = false;
 
     /**
      * Initialize the project properties.
@@ -310,7 +311,10 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
     @Override
     public void setSpeedFromSlider(int speed)
     {
-        Simulation.getInstance().setSpeed(speed);
+        if (!updatingSliderFromSimulation)
+        {
+            Simulation.getInstance().setSpeed(speed);
+        }
     }
 
     /**
@@ -367,6 +371,14 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
         {
             Platform.runLater(() -> {
                 controls.updateState(State.UNCOMPILED, false);
+            });
+        }
+        else if (eventType == SimulationEvent.CHANGED_SPEED)
+        {
+            Platform.runLater(() -> {
+                updatingSliderFromSimulation = true;
+                controls.setSpeed(Simulation.getInstance().getSpeed());
+                updatingSliderFromSimulation = false;
             });
         }
     }
