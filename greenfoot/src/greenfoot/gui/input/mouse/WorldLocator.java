@@ -22,6 +22,8 @@
 package greenfoot.gui.input.mouse;
 
 import greenfoot.Actor;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 
 /**
@@ -37,6 +39,7 @@ public interface WorldLocator
      * @param worldPixelPositionY The Y pixel position in the world (not cell position)
      * @return The top most actor, or null if no actor.
      */
+    @OnThread(Tag.Simulation)
     public Actor getTopMostActorAt(int worldPixelPositionX, int worldPixelPositionY);
 
     /**

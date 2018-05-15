@@ -307,6 +307,7 @@ public class ProjectManager
      *            be deleted. If true, they will be deleted and appear as
      *            needing a recompile in the Greenfoot class browser.
      */
+    @OnThread(Tag.FXPlatform)
     private static void prepareGreenfootProject(File greenfootLibDir, Project project,
                                                 ProjectAPIVersionAccess p, boolean deleteClassFiles, String greenfootApiVersion)
     {
@@ -458,6 +459,7 @@ public class ProjectManager
      * 
      * @param project  A just-opened project
      */
+    @OnThread(Tag.FXPlatform)
     public void openGreenfoot(final Project project, GreenfootDebugHandler greenfootDebugHandler)
     {
         File shmFile = greenfootDebugHandler.getShmFile();

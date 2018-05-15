@@ -570,6 +570,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
      * @param name     The desired name of the object
      * @return    The actual chosen name
      */
+    @OnThread(Tag.FXPlatform)
     public String addSelectedObject(DebuggerObject object, GenTypeClass type, String name)
     {
         while (objectBench.get(name) != null)

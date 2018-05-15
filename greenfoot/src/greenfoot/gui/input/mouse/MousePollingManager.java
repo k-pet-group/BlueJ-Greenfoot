@@ -142,6 +142,7 @@ public class MousePollingManager
      * <p>Access to this field must be synchronized.
      */
     private boolean gotNewEvent;
+    private boolean gotNewDragStartEvent;
     
 
     /**
@@ -170,6 +171,7 @@ public class MousePollingManager
     /**
      * This method should be called when a new act-loop is started.
      */
+    @OnThread(Tag.Simulation)
     public synchronized void newActStarted()
     {
         // The current data was already polled, or we have a new event since;
@@ -177,10 +179,17 @@ public class MousePollingManager
         // gotNewEvent is false, futureData will contain no events).
         if (gotNewEvent) {
             MouseEventData newData = new MouseEventData();
+            futureData.setActors(locator);
             currentData = futureData;
             futureData = newData;
             potentialNewDragData = new MouseEventData();
-    
+
+            if (gotNewDragStartEvent)
+            {
+                dragStartData.setActors(locator);
+                gotNewDragStartEvent = false;
+            }
+            
             // Indicate that we have processed all current events.
             gotNewEvent = false;
         }
@@ -223,7 +232,7 @@ public class MousePollingManager
     @OnThread(Tag.Simulation)
     public boolean isMousePressed(Object obj)
     {
-        return currentData.isMousePressed(obj);
+        return currentData.isMousePressedOn(obj);
     }
 
     /**
@@ -242,7 +251,7 @@ public class MousePollingManager
     @OnThread(Tag.Simulation)
     public boolean isMouseClicked(Object obj)
     {
-        return currentData.isMouseClicked(obj);
+        return currentData.isMouseClickedOn(obj);
     }
 
     /**
@@ -264,7 +273,7 @@ public class MousePollingManager
     @OnThread(Tag.Simulation)
     public boolean isMouseDragged(Object obj)
     {
-        return currentData.isMouseDragged(obj);
+        return currentData.isMouseDraggedOn(obj);
     }
 
     /**
@@ -286,7 +295,7 @@ public class MousePollingManager
     @OnThread(Tag.Simulation)
     public boolean isMouseDragEnded(Object obj)
     {
-        return currentData.isMouseDragEnded(obj);
+        return currentData.isMouseDragEndedOn(obj);
     }
 
     /**
@@ -308,7 +317,7 @@ public class MousePollingManager
     @OnThread(Tag.Simulation)
     public boolean isMouseMoved(Object obj)
     {
-        return currentData.isMouseMoved(obj);
+        return currentData.isMouseMovedOn(obj);
     }
 
     /**
@@ -339,18 +348,13 @@ public class MousePollingManager
         {
             return;
         }
-        // This line must go outside the synchronized block because it involves
-        // claiming a read-lock on the world, which can cause a deadlock because
-        // the simulation thread can synchronize on futureData (in freezeMouseData())
-        // while holding the world write-lock (which would leave the two threads with
-        // one lock each, both trying to claim the other):
-        Actor actor = locator.getTopMostActorAt(x, y);
+        
         synchronized (this)
         {
             MouseEventData mouseData = futureData;
             // In case we already have a dragEnded and we get another
             // dragEnded, we need to start collection data for that.            
-            if (futureData.isMouseDragEnded(null))
+            if (futureData.isMouseDragEnded())
             {
                 mouseData = potentialNewDragData;
             }
@@ -362,7 +366,7 @@ public class MousePollingManager
             x = locator.getTranslatedX(x);
             y = locator.getTranslatedY(y);
             
-            mouseData.mouseClicked(x, y, getButton(button), clickCount, actor);
+            mouseData.mouseClicked(x, y, getButton(button), clickCount);
             isDragging = false;
         }
     }
@@ -409,18 +413,13 @@ public class MousePollingManager
         {
             return;
         }
-        // This line must go outside the synchronized block because it involves
-        // claiming a read-lock on the world, which can cause a deadlock because
-        // the simulation thread can synchronize on futureData (in freezeMouseData())
-        // while holding the world write-lock (which would leave the two threads with
-        // one lock each, both trying to claim the other):
-        Actor actor = locator.getTopMostActorAt(x, y);
+        
         synchronized(this)
         {
             MouseEventData mouseData = futureData;
             // In case we already have a dragEnded and we get another
             // dragEnded, we need to start collection data for that.
-            if (futureData.isMouseDragEnded(null))
+            if (futureData.isMouseDragEnded())
             {
                 mouseData = potentialNewDragData;
             }
@@ -429,7 +428,8 @@ public class MousePollingManager
             dragStartData = new MouseEventData();
             x = locator.getTranslatedX(x);
             y = locator.getTranslatedY(y);
-            dragStartData.mousePressed(x, y, getButton(button), actor);            
+            dragStartData.mousePressed(x, y, getButton(button));
+            gotNewDragStartEvent = true;
 
             // We only really want to register this event as a press if there is no higher priorities
             if (!PriorityManager.isHigherPriority(MouseEvent.MOUSE_PRESSED, mouseData))
@@ -437,7 +437,7 @@ public class MousePollingManager
                 return;
             }
             registerEventRecieved();
-            mouseData.mousePressed(x, y, getButton(button), actor);
+            mouseData.mousePressed(x, y, getButton(button));
             isDragging = false;
         }
     }
@@ -455,12 +455,7 @@ public class MousePollingManager
         {
             return;
         }
-        // This line must go outside the synchronized block because it involves
-        // claiming a read-lock on the world, which can cause a deadlock because
-        // the simulation thread can synchronize on futureData (in freezeMouseData())
-        // while holding the world write-lock (which would leave the two threads with
-        // one lock each, both trying to claim the other):
-        Actor clickActor = locator.getTopMostActorAt(x, y);
+        
         synchronized(this)
         {
             // This might be the end of a drag
@@ -468,7 +463,7 @@ public class MousePollingManager
             {
                 // In case we already have a dragEnded and we get another
                 // dragEnded, should use the new one
-                if (futureData.isMouseDragEnded(null))
+                if (futureData.isMouseDragEnded())
                 {
                     futureData = potentialNewDragData;
                 }
@@ -481,10 +476,9 @@ public class MousePollingManager
                 x = locator.getTranslatedX(x);
                 y = locator.getTranslatedY(y);
 
-                futureData.mouseClicked(x, y, getButton(button), 1, clickActor);
+                futureData.mouseClicked(x, y, getButton(button), 1);
                 
-                Actor actor = dragStartData.getActor();
-                futureData.mouseDragEnded(x, y, getButton(button), actor);
+                futureData.mouseDragEnded(x, y, getButton(button), dragStartData.getActor());
                 isDragging = false;
                 potentialNewDragData = new MouseEventData();
             }
@@ -536,12 +530,7 @@ public class MousePollingManager
             // Not fully initialised yet, so no need to handle event:
             return;
         }
-        // This line must go outside the synchronized block because it involves
-        // claiming a read-lock on the world, which can cause a deadlock because
-        // the simulation thread can synchronize on futureData (in freezeMouseData())
-        // while holding the world write-lock (which would leave the two threads with
-        // one lock each, both trying to claim the other):
-        Actor actor = locator.getTopMostActorAt(x, y);
+        
         synchronized(this)
         {
             if (!PriorityManager.isHigherPriority(MouseEvent.MOUSE_MOVED, futureData))
@@ -551,7 +540,7 @@ public class MousePollingManager
             registerEventRecieved();
             x = locator.getTranslatedX(x);
             y = locator.getTranslatedY(y);
-            futureData.mouseMoved(x, y, getButton(button), actor);
+            futureData.mouseMoved(x, y, getButton(button));
             isDragging = false;
         }
     }
