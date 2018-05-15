@@ -2090,9 +2090,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 new Label(String.join("\n", Arrays.asList(translatorNames))));
         translators.setExpanded(false);
         translators.setCollapsible(true);
-        Dialog<Void> aboutDlg = new AboutDialogTemplate(parentWindow, Boot.GREENFOOT_VERSION,
-                "Greenfoot", "https://greenfoot.org/", image, translators);
-        aboutDlg.showAndWait();
+
+        new AboutDialogTemplate(parentWindow, Boot.GREENFOOT_VERSION, "https://greenfoot.org/",
+                image, translators).showAndWait();
     }
 
     /**

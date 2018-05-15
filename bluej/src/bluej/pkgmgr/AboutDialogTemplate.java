@@ -57,8 +57,8 @@ import java.net.URL;
 public class AboutDialogTemplate extends Dialog<Void>
 {
 
-    public AboutDialogTemplate(Window parent, String version, String softwareTitle,
-                               String websiteURL, Image image, TitledPane titledPane)
+    public AboutDialogTemplate(Window parent, String version, String websiteURL, Image image,
+                               TitledPane titledPane)
     {
         initOwner(parent);
         initModality(Modality.WINDOW_MODAL);
