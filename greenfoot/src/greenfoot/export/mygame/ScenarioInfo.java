@@ -42,7 +42,7 @@ public class ScenarioInfo
     private String shortDescription;
     private String longDescription;
     private String updateDescription;
-    private List<String> tags;
+    private List<String> tags = Collections.emptyList();
     private String url;
     private boolean includeSource;
     private boolean locked;
