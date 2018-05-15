@@ -555,7 +555,7 @@ menu.group.users=\u7528\u6237
 menu.group.configuration=\u914d\u7f6e
 
 menu.help=\u5e2e\u52a9
-menu.help.about=\u5173\u4e8eBlueJ
+menu.help.about=\u5173\u4e8e$APPNAME
 menu.help.extensions=\u5b89\u88c5\u6269\u5c55
 menu.help.versionCheck=\u68c0\u67e5\u7248\u672c...
 menu.help.copyright=\u7248\u6743
@@ -584,14 +584,14 @@ menu.help.copyright.line4=\u4e5f\u4e0d\u80fd\u5305\u542b\u5728\u4efb\u4f55\u4ee5
 
 # About
 
-about.bluej.version=BlueJ \u7248\u672c
+about.version=$APPNAME \u7248\u672c
 about.java.version=Java \u7248\u672c
 about.vm=\u865a\u62df\u673a:
 about.runningOn=\u8fd0\u884c\u4e8e:
 about.javahome=Java Home:
 about.logfile=\u8c03\u8bd5\u65e5\u5fd7\u6587\u4ef6:
-about.moreInfo=\u66f4\u591a\u7684\u4fe1\u606f\u5728 www.bluej.org.
-about.theTeam=BlueJ\u5f00\u53d1\u5c0f\u7ec4:
+about.moreInfo=\u66f4\u591a\u7684\u4fe1\u606f\u5728
+about.theTeam=$APPNAME\u5f00\u53d1\u5c0f\u7ec4:
 
 # Work Indicator
 workIndicator.resetMachine=\u91cd\u542f\u673a\u5668@^R

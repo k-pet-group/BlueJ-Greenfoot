@@ -548,7 +548,7 @@ team.share.statusMessage=Dit project wordt gedeeld
 team.checkout=Checkout project...
 
 menu.help=_Help
-menu.help.about=_Over BlueJ
+menu.help.about=_Over $APPNAME
 menu.help.extensions=Ge\u00efnstalleerde _Uitbreidingen
 menu.help.versionCheck=Controleer versie...
 menu.help.copyright=_Copyright
@@ -577,14 +577,14 @@ menu.help.copyright.line4=packages which are sold for profit without written aut
 
 # About
 
-about.bluej.version=BlueJ versie
+about.version=$APPNAME versie
 about.java.version=Java versie
 about.vm=virtual machine:
 about.runningOn=draait op:
 about.javahome=Java homepage:
 about.logfile=debug log file:
-about.moreInfo=BlueJ homepage: www.bluej.org.
-about.theTeam=The BlueJ team:
+about.moreInfo=$APPNAME homepage:
+about.theTeam=The $APPNAME team:
 
 # Work Indicator
 workIndicator.showDebugger=Laat debugger zien

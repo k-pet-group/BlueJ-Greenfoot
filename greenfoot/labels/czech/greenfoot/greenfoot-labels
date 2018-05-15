@@ -8,9 +8,6 @@ greenfoot.quit=Konec
 
 greenfoot.launchFailed=Greenfoot se nepoda\u0159ilo spustit. Pro pomoc p\u0159ejd\u011Bte na http://greenfoot.org/support
 
-# About dialog
-about.title=O Greenfoot
-about.moreInfo=V\u00EDce informac\u00ED naleznete na www.greenfoot.org
 
 # Greenfoot project version info
 project.version.none=Sc\u00E9n\u00E1\u0159, kter\u00FD je otev\u0159en byl ps\u00E1n v star\u0161\u00ED verzi Greenfoot (p\u0159ed Greenfoot verze 0.5). To bude pravd\u011Bpodobn\u011B m\u00EDt za n\u00E1sledek vznik chyb, kter\u00E9 budou muset b\u00FDt odstran\u011Bny ru\u010Dn\u011B.

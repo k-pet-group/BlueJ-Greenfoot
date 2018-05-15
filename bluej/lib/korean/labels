@@ -507,7 +507,7 @@ menu.group.users=\uc0ac\uc6a9\uc790
 menu.group.configuration=\uc635\uc158
 
 menu.help=\ub3c4\uc6c0\ub9d0
-menu.help.about=BlueJ\uc5d0 \ub300\ud558\uc5ec 
+menu.help.about=$APPNAME\uc5d0 \ub300\ud558\uc5ec
 menu.help.extensions=Installed Extensions
 menu.help.versionCheck=\ubc84\uc804 \ud655\uc778...
 menu.help.copyright=\uc800\uc791\uad8c

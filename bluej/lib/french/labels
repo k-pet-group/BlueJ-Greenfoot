@@ -724,7 +724,7 @@ team.checkconn.bad=Connexion au serveur impossible
 
 
 menu.help=Aide
-menu.help.about=\u00C0 propos de BlueJ
+menu.help.about=\u00C0 propos de $APPNAME
 menu.help.extensions=Extensions install\u00E9es
 menu.help.versionCheck=V\u00E9rifier version...
 menu.help.copyright=Droits d'auteur
@@ -760,14 +760,14 @@ menu.help.copyright.line4=vendus avec b\u00E9n\u00E9fice sans autorisation \u00E
 
 # About
 
-about.bluej.version=Version BlueJ
+about.version=Version $APPNAME
 about.java.version=Version Java
 about.vm=Machine virtuelle\:
 about.runningOn=Ex\u00E9cution sur\:
 about.javahome=R\u00E9pertoire Java
 about.logfile=Fichier de messages debogueur\:
-about.moreInformation=Pour plus d'informations\: www.bluej.org
-about.theTeam=L'\u00e9quipe BlueJ:
+about.moreInformation=Pour plus d'informations\:
+about.theTeam=L'\u00e9quipe $APPNAME:
 
 # Work Indicator
 workIndicator.resetMachine=R\u00E9initialiser la machine

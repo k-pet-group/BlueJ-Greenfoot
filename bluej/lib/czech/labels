@@ -799,7 +799,7 @@ team.checkconn.bad=Nelze se p\u0159ipojit k serveru
 
 
 menu.help=_N\u00e1pov\u011bda
-menu.help.about=_O BlueJ
+menu.help.about=_O $APPNAME
 menu.help.extensions=Instalovan\u00e1 _roz\u0161\u00ed\u0159en\u00ed
 menu.help.versionCheck=Zkontrolovat aktualizace na WWW...@A
 menu.help.copyright=_Autorsk\u00e1 pr\u00e1va
@@ -873,16 +873,15 @@ raspberrypi.error.sudo.title=Bez p\u0159\u00edstupu k hardwaru
 
 # About
 
-about.bluej.version=BlueJ verze
+about.version=$APPNAME verze
 about.java.version=Java verze
 about.vm=Java VM:
 about.runningOn=Opera\u010dn\u00ed syst\u00e9m:
 about.logfile=V\u00fdpis chybov\u00fdch hl\u00e1\u0161en\u00ed:
 about.moreInformation=Dal\u0161\u00ed informace hledejte na
-about.theTeam.mock=The BlueJ team: will be described later
 about.openFolder=Otev\u0159\u00edt slo\u017eku
 
-about.theTeam=BlueJ 4.0.Prev2.0548\n\
+about.theTeam=$APPNAME 4.0.Prev2.0548\n\
 \u010cesk\u00e1 lokalizace:  Rudolf Pecinovsk\u00fd, Petr \u0160koda\n\
 . \n\
 . \n\
