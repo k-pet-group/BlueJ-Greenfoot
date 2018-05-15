@@ -1913,7 +1913,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             frame.showAndWait().ifPresent(classInfo ->
             {
                 SourceType sourceType = classInfo.sourceType;
-                LocalGClassNode newClass = createNewClass(project.getUnnamedPackage(), parentName, classInfo.className,
+                LocalGClassNode newClass = createNewClass(project.getUnnamedPackage(), parentName.substring("greenfoot.".length()), classInfo.className,
                         sourceType, getTemplateFileName(classType, parentName, sourceType));
 
                 // set the image of the class to the selected file, if there is one selected.
