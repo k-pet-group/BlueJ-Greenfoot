@@ -123,6 +123,8 @@ public class VMCommsMain implements Closeable
     private int previousStoppedWithErrorCount;
     // Whether the previous frame had a world present:
     private boolean hadWorld = false;
+    // The world cell size (0 if no world)
+    private int worldCellSize;
     
     private final Thread ioThread;
 
@@ -241,6 +243,16 @@ public class VMCommsMain implements Closeable
             sharedMemory.put(pendingCommand.extraInfo);
             numIssued++;
         }
+    }
+    
+    /**
+     * Get the world cell size, if it is known.
+     * 
+     * @return  The cell size in pixels, or 0 if there is no world.
+     */
+    public int getWorldCellSize()
+    {
+        return worldCellSize;
     }
 
     /**
@@ -385,6 +397,8 @@ public class VMCommsMain implements Closeable
                         }
                         hadWorld = worldPresent;
                     }
+                    
+                    worldCellSize = sharedMemory.get();
                     
                     int askId = sharedMemory.get();
                     if (askId > 0 && askId > lastAnswer)
