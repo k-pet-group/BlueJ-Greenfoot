@@ -300,7 +300,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         </fail>
     </target>
 
-    <target name="ready-to-run" depends="check-bluej-compiled, update-images, compile, copy-imagelib, copy-projects, copy-common-classes, build-standalone-jar, create-api-doc, copy-apidocs, copy-labels, compile-test" description="Builds everything so it is ready to run" >
+    <target name="ready-to-run" depends="check-bluej-compiled, update-images, compile, copy-imagelib, copy-common-classes, build-standalone-jar, create-api-doc, copy-apidocs, copy-labels, compile-test" description="Builds everything so it is ready to run" >
         <!-- Put everything in ${build} into the the jar file-->
         <jar jarfile="${bluej.extensions.lib}/greenfoot.jar" basedir="${build}">
             <manifest>
@@ -336,12 +336,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <mkdir dir="${bluej_home}/lib/english/greenfoot/api"/>
         <copy todir="${bluej_home}/lib/english/greenfoot/api">
             <fileset refid="api-source.files"/>
-        </copy>
-    </target>
-
-    <target name="copy-projects" description="Copies the startupProject to bluej" >
-        <copy todir="${bluej.lib.greenfoot}" preservelastmodified="true">
-            <fileset dir="projects"/>
         </copy>
     </target>
 
@@ -819,7 +813,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <exclude name="images/**/*" />     
                 <include name="labels/**/*"/>
                 <include name="lib/**/*"/>
-                <include name="projects/**/*" />   
                 <include name="resources/**/*" />    
                 <include name="test/**/*.java" />
                     
@@ -908,11 +901,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <regexp pattern="GREENFOOT_API_VERSION = .*"/>
             <substitution expression="GREENFOOT_API_VERSION = &quot;${greenfoot.apiversion}&quot;;"/>
             <fileset dir="${bluej_home}/boot/src/bluej" includes="Boot.java"/>
-        </replaceregexp>
-        <replaceregexp byline="true">
-            <regexp pattern="version=.*"/>
-            <substitution expression="version=${greenfoot.apiversion}"/>
-            <fileset dir="projects/startupProject" includes="project.greenfoot"/>
         </replaceregexp>
         <replaceregexp byline="true">
             <regexp pattern="version: .*"/>

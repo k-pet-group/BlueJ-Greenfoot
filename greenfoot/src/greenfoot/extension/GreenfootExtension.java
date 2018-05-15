@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013,2016  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2011,2013,2016,2018  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,23 +25,17 @@ import bluej.Boot;
 import bluej.collect.DataSubmissionFailedDialog;
 import bluej.extensions.event.CompileEvent;
 import bluej.extensions.event.CompileListener;
-import greenfoot.core.GreenfootLauncherBlueJVM;
 import greenfoot.guifx.GreenfootGuiHandler;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import bluej.Config;
 import bluej.Main;
-import bluej.debugger.jdi.NetworkTest;
-import bluej.extensions.BProject;
 import bluej.extensions.BlueJ;
 import bluej.extensions.Extension;
 import bluej.extensions.event.ApplicationEvent;
 import bluej.extensions.event.ApplicationListener;
-import bluej.utility.Debug;
 import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -113,36 +107,6 @@ public class GreenfootExtension extends Extension implements ApplicationListener
     }
 
     /**
-     * Opens a project in BlueJ if no other projects are open.
-     * 
-     * @param projectPath path of the project to open.
-     */
-    public void maybeOpenProject(File projectPath)
-    {
-        // Now we need to find out if a greenfoot project is automatically
-        // opening. If not we must open the dummy project.
-        boolean openOrphans = "true".equals(Config.getPropString("bluej.autoOpenLastProject"));
-        if (!openOrphans || !Main.hadOrphanPackages()) {
-            if (theBlueJ.getOpenProjects().length == 0) {
-                openProject(projectPath);
-            }
-        }
-    }
-
-    /**
-     * Opens a project in BlueJ
-     * 
-     * @param projectPath path of the project to open.
-     */
-    public void openProject(File projectPath)
-    {
-        BProject project = theBlueJ.openProject(projectPath);
-        if (project == null) {
-            Debug.reportError("Could not open scenario: " + projectPath);
-        }
-    }
-
-    /**
      * This method must decide if this Extension is compatible with the current
      * release of the BlueJ Extensions API
      */
@@ -190,9 +154,10 @@ public class GreenfootExtension extends Extension implements ApplicationListener
     
     // ------------- ApplicationListener interface ------------
     
+    @Override
     public void blueJReady(ApplicationEvent event)
     {
-        GreenfootLauncherBlueJVM.getInstance().launch(this);
+
     }
 
     @Override

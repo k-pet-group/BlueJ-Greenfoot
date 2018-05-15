@@ -200,7 +200,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     // The current drag request ID, or -1 if not currently dragging:
     private int curDragRequest;
 
-    private final GreenfootRecorder saveTheWorldRecorder;
+    private GreenfootRecorder saveTheWorldRecorder;
     private final SoundRecorderControls soundRecorder;
     private GreenfootDebugHandler debugHandler;
     private final Menu recentProjectsMenu = new Menu(Config.getString("menu.openRecent"));
@@ -270,8 +270,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private GreenfootStage(Project project, GreenfootDebugHandler greenfootDebugHandler)
     {
         stages.add(this);
-        
-        this.saveTheWorldRecorder = greenfootDebugHandler.getRecorder();
         
         BlueJEvent.addListener(this);
         soundRecorder = new SoundRecorderControls(project);
@@ -357,7 +355,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     private void showProject(Project project, GreenfootDebugHandler greenfootDebugHandler)
     {
         setTitle("Greenfoot: " + project.getProjectName());
+        
         this.project = project;
+        this.saveTheWorldRecorder = greenfootDebugHandler.getRecorder();
         project.getPackage("").setUI(this);
         this.debugHandler = greenfootDebugHandler;
         hasNoProject.set(false);
