@@ -35,7 +35,6 @@ import java.util.EventListener;
  * @author Poul Henriksen
  */
 public interface SimulationListener
-    extends EventListener
 {
     /**
      * The simulation state changed or a simulation event occurred. The simulation may have

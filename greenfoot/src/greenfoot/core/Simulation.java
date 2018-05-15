@@ -83,7 +83,7 @@ public class Simulation extends Thread
     private Queue<SimulationRunnable> queuedTasks = new LinkedList<>();
 
     @OnThread(Tag.Any)
-    private EventListenerList listenerList = new EventListenerList();
+    private final List<SimulationListener> listenerList = new ArrayList<>();
 
     /* Various simulation events */
     private SimulationEvent startedEvent;
@@ -736,17 +736,10 @@ public class Simulation extends Thread
 
     private void fireSimulationEvent(SimulationEvent event)
     {
-        // Guaranteed to return a non-null array
-        Object[] listeners;
         synchronized (listenerList) {
-            listeners = listenerList.getListenerList();
-
-            // Process the listeners last to first, notifying
-            // those that are interested in this event
-            for (int i = listeners.length - 2; i >= 0; i -= 2) {
-                if (listeners[i] == SimulationListener.class) {
-                    ((SimulationListener) listeners[i + 1]).simulationChanged(event);
-                }
+            for (SimulationListener listener : listenerList)
+            {
+                listener.simulationChanged(event);
             }
         }
     }
@@ -761,21 +754,7 @@ public class Simulation extends Thread
     public void addSimulationListener(SimulationListener l)
     {
         synchronized (listenerList) {
-            listenerList.add(SimulationListener.class, l);
-        }
-    }
-
-    /**
-     * Remove a simulationListener to listen for changes.
-     * 
-     * @param l
-     *            Listener to remove
-     */
-    @OnThread(Tag.Any)
-    public void removeSimulationListener(SimulationListener l)
-    {
-        synchronized (listenerList) {
-            listenerList.remove(SimulationListener.class, l);
+            listenerList.add(0, l);
         }
     }
 
