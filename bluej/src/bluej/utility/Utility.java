@@ -884,22 +884,26 @@ public class Utility
                 oPath = new File(oPath, strippedName);
                 if (oPath.exists()) {
                     final File oPathFinal = oPath;
-                    Platform.runLater(() -> DialogManager.showErrorWithTextFX(parent.get(), "jar-output-dir-exists", oPathFinal.toString()));
+                    Platform.runLater(() -> DialogManager.showErrorWithTextFX(parent.get(),
+                            "jar-output-dir-exists", oPathFinal.toString()));
                     return null;
                 }
                 else if (! oPath.mkdir()) {
-                    Platform.runLater(() -> DialogManager.showErrorWithTextFX(parent.get(), "jar-output-no-write", archive.toString()));
+                    Platform.runLater(() -> DialogManager.showErrorWithTextFX(parent.get(),
+                            "jar-output-no-write", archive.toString()));
                     return null;
                 }
             }
             else {
                 File prefixFolderFile = new File(oPath, prefixFolder);
                 if (prefixFolderFile.exists()) {
-                    Platform.runLater(() -> DialogManager.showErrorWithTextFX(parent.get(), "jar-output-dir-exists", prefixFolderFile.toString()));
+                    Platform.runLater(() -> DialogManager.showErrorWithTextFX(parent.get(),
+                            "jar-output-dir-exists", prefixFolderFile.toString()));
                     return null;
                 }
                 if (! prefixFolderFile.mkdir()) {
-                    Platform.runLater(() -> DialogManager.showErrorWithTextFX(parent.get(), "jar-output-no-write", archive.toString()));
+                    Platform.runLater(() -> DialogManager.showErrorWithTextFX(parent.get(),
+                            "jar-output-no-write", archive.toString()));
                     return null;
                 }
             }

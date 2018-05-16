@@ -27,6 +27,7 @@ import bluej.GuiHandler;
 import bluej.Main;
 import bluej.pkgmgr.Project;
 import greenfoot.core.ProjectManager;
+import javafx.stage.Stage;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -48,6 +49,10 @@ public class GreenfootGuiHandler implements GuiHandler
         }
         else
         {
+            if (GreenfootStage.openArchive(path, null))
+            {
+                return true;
+            }
             // TODO: display error dialog if displayError == true
             return false;
         }

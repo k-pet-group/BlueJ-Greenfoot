@@ -63,6 +63,7 @@ import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.JavaReflective;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.UnfocusableScrollPane;
 import bluej.views.CallableView;
@@ -116,6 +117,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -548,7 +550,49 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             doOpenScenario(choice);
         }
     }
-    
+
+    /**
+     * Allow the user to choose a gfar file and open its scenario
+     * after extracting the gfar file into a new folder.
+     */
+    public void doOpenGfarScenario()
+    {
+        FileChooser chooser = new FileChooser();
+        chooser.getExtensionFilters().setAll(new FileChooser.ExtensionFilter("Greenfoot Scenarios (*.gfar)", "*.gfar"));
+        chooser.setInitialDirectory(PrefMgr.getProjectDirectory());
+
+        File chosen = chooser.showOpenDialog(this.getStage());
+        if (chosen != null)
+        {
+            openArchive(chosen, getStage());
+        }
+    }
+
+    /**
+     * Open a gfar archive file as a Greenfoot project.
+     * The file contents are extracted, the containing directory
+     * is then converted into a Greenfoot project, and opened.
+     * Opening already extracted gfar will show an error message.
+     * @param archive The chosen archived file.
+     * @param window  The parent javafx window to show error message if needed. It could be null.
+     * @return A true value if the archived is open successfully or false otherwise.
+     */
+    public static boolean openArchive(File archive, Window window)
+    {
+        // Determine the output path.
+        File oPath = Utility.maybeExtractArchive(archive, () -> window);
+
+        if (oPath != null && Project.isProject(oPath.getPath()))
+        {
+            ProjectManager.instance().launchProject(Project.openProject(oPath.toString()));
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     /**
      * Open the specified scenario. Display an error dialog on failure.
      * 
@@ -860,6 +904,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                         this::doOpenScenario, null
                     ),
                     recentProjectsMenu,
+                    JavaFXUtil.makeMenuItem("open.gfar.project",
+                        null, this::doOpenGfarScenario, null
+                    ),
                     JavaFXUtil.makeMenuItem("project.close",
                         new KeyCodeCombination(KeyCode.W, KeyCombination.SHORTCUT_DOWN),
                         () -> { doClose(true); }, hasNoProject
