@@ -174,6 +174,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     // When did the user code last start executing?
     private long lastExecStartTime;
     private final ControlPanel controlPanel;
+    
+    private DebuggerObject draggedActor;
 
     public static enum State
     {
@@ -1058,8 +1060,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     }
                     if (actor != null)
                     {
-                        // TODO these coordinates aren't right for cell-based worlds (>1 pixel per cell)
-                        saveTheWorldRecorder.addActorToWorld(actor, (int)dest.getX(), (int)dest.getY());
+                        Point2D cell = pixelToCellCoordinates(dest);
+                        saveTheWorldRecorder.addActorToWorld(actor, (int)cell.getX(), (int)cell.getY());
 
                         project.getDebugger().instantiateClass(
                                 "greenfoot.core.AddToWorldHelper",
@@ -1114,6 +1116,22 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         return type.getDeclaredConstructors().stream().anyMatch(c -> c.getParamTypes().isEmpty()
                 && !Modifier.isPrivate(c.getModifiers()));
+    }
+    
+    /**
+     * Convert world pixel coordinates to cell coordinates.
+     */
+    private Point2D pixelToCellCoordinates(Point2D worldPixels)
+    {
+        int cellSize = debugHandler.getVmComms().getWorldCellSize();
+        if (cellSize == 0)
+        {
+            return worldPixels;
+        }
+        
+        int xpos = (int)worldPixels.getX() / cellSize;
+        int ypos = (int)worldPixels.getY() / cellSize;
+        return new Point2D(xpos, ypos);
     }
     
     /**
@@ -1219,6 +1237,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 {
                     debugHandler.getVmComms().endDrag(curDragRequest);
                     curDragRequest = -1;
+                    Point2D cellPos = pixelToCellCoordinates(worldPos);
+                    saveTheWorldRecorder.moveActor(draggedActor, (int)cellPos.getX(), (int)cellPos.getY());
                 }
             }
             else if (e.getEventType() == MouseEvent.MOUSE_DRAGGED)
@@ -1444,6 +1464,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             {
                 // Left-click drag, and there is an actor there, so begin drag:
                 curDragRequest = pickId;
+                draggedActor = actors.get(0);
             }
             else if (curPickType == PickType.LEFT_CLICK && !actors.isEmpty())
             {

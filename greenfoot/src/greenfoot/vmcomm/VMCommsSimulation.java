@@ -22,7 +22,6 @@
 package greenfoot.vmcomm;
 
 import bluej.utility.Debug;
-import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.World;
 import greenfoot.WorldVisitor;
 import greenfoot.core.ShadowProjectProperties;
@@ -38,7 +37,6 @@ import javafx.scene.input.MouseButton;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.IOException;
@@ -122,10 +120,11 @@ public class VMCommsSimulation
      *                          the simulation thread, or 0L if user code is not currently running.
      * Pos 7+(W*H): The current simulation speed (1 to 100)
      * Pos 8+(W*H): 1 if a world is currently installed, or 0 if there is no world.
-     * Pos 9+(W*H): -1 if not currently awaiting a Greenfoot.ask() answer.
+     * Pos 9+(W*H): The world cell size in pixels
+     * Pos 10+(W*H): -1 if not currently awaiting a Greenfoot.ask() answer.
      *              If awaiting, it is count (P) of following codepoints which make up prompt.
-     * Pos 10+(W*H) to 10+(W*H)+P excl: codepoints making up ask prompt.
-     * Pos 11+(W*H): 1 if the the delay loop is entered, or 0 otherwise.
+     * Pos 11+(W*H) to 11+(W*H)+P excl: codepoints making up ask prompt.
+     * Pos 11+(W*H)+P: 1 if the the delay loop is currently running, or 0 otherwise.
      */
     private final IntBuffer sharedMemory;
     private int seq = 1;
@@ -379,6 +378,7 @@ public class VMCommsSimulation
                 sharedMemory.put(0);
             }
             sharedMemory.put(world == null ? 0 : 1);
+            sharedMemory.put(world == null ? 0 : WorldVisitor.getCellSize(world));
             
             // If not asking, put -1
             synchronized (this)
