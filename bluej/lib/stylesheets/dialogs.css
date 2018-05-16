@@ -98,6 +98,9 @@
 .about-team {
     -fx-padding: 0 0 1em 0;
 }
+.about-tabs > .tab-header-area > .tab-header-background {
+    -fx-background-color: white;
+}
 .about-more-info {
     -fx-padding: 1em 0 0 0;
 }

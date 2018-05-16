@@ -25,6 +25,11 @@ import bluej.Config;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
+
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -39,14 +44,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Window;
+import javax.swing.SwingUtilities;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
-
-import javax.swing.*;
-import java.awt.*;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 /**
  * A BlueJ and Greenfoot Shared About-Dialog.
@@ -57,8 +58,17 @@ import java.net.URL;
 public class AboutDialogTemplate extends Dialog<Void>
 {
 
+    /**
+     * Construct an About Dialog for BlueJ or Greenfoot.
+     *
+     * @param parent           The parent window.
+     * @param version          The application (bluej/greenfoot) version
+     * @param websiteURL       A url for the application website.
+     * @param image            The splash screen image for the application.
+     * @param translatorsPane  A Pane containing the translators names.
+     */
     public AboutDialogTemplate(Window parent, String version, String websiteURL, Image image,
-                               TitledPane titledPane)
+                               TitledPane translatorsPane)
     {
         initOwner(parent);
         initModality(Modality.WINDOW_MODAL);
@@ -90,31 +100,41 @@ public class AboutDialogTemplate extends Dialog<Void>
         aboutPanel.setCenter(JavaFXUtil.withStyleClass(new ImageView(image), "about-dialog-image"));
 
         // All text inserted as bottom
-        VBox bottom = JavaFXUtil.withStyleClass(new VBox(), "about-more-info");
+        TabPane tabs = JavaFXUtil.withStyleClass(new TabPane(createMainTab(version, websiteURL),
+                createTranslatorsTab(translatorsPane)), "about-tabs");
+
+        aboutPanel.setBottom(tabs);
+        setResizable(false);
+    }
+
+    /**
+     * Construct the tab which contains the main information of the about dialog.
+     *
+     * @param version     The application (bluej/greenfoot) version
+     * @param websiteURL  A url for the application website.
+     */
+    private Tab createMainTab(String version, String websiteURL)
+    {
+        VBox contentPane = JavaFXUtil.withStyleClass(new VBox(), "about-more-info");
 
         // Create team names list
         String teamText = String.join(", ", "Amjad Altadmri", "Neil Brown", "Hamza Hamza",
                 "Michael K\u00F6lling", "Davin McCall", "Ian Utting");
 
-        bottom.getChildren().add(JavaFXUtil.withStyleClass(
+        contentPane.getChildren().add(JavaFXUtil.withStyleClass(
                 new Label(Config.getString("about.theTeam") + " " + teamText),
                 "about-team"));
 
-        if (titledPane != null)
-        {
-            bottom.getChildren().add(titledPane);
-        }
-
-        bottom.getChildren().add(new Label(""));
-        bottom.getChildren().add(JavaFXUtil.withStyleClass(
+        contentPane.getChildren().add(new Label(""));
+        contentPane.getChildren().add(JavaFXUtil.withStyleClass(
                 new Label(Config.getString("about.version") + " " + version + "  (" +
-                        Config.getString("about.java.version") + " " + System.getProperty("java.version") +
-                        ")"), "about-version"));
-        bottom.getChildren().add(new Label(Config.getString("about.vm") + " " +
+                        Config.getString("about.java.version") + " " +
+                        System.getProperty("java.version") + ")"), "about-version"));
+        contentPane.getChildren().add(new Label(Config.getString("about.vm") + " " +
                 System.getProperty("java.vm.name") + " " +
                 System.getProperty("java.vm.version") +
                 " (" + System.getProperty("java.vm.vendor") + ")"));
-        bottom.getChildren().add(new Label(Config.getString("about.runningOn") + " " +
+        contentPane.getChildren().add(new Label(Config.getString("about.runningOn") + " " +
                 System.getProperty("os.name") + " " + System.getProperty("os.version") +
                 " (" + System.getProperty("os.arch") + ")"));
 
@@ -143,7 +163,7 @@ public class AboutDialogTemplate extends Dialog<Void>
                 Config.getUserConfigFile(Config.debugLogName)), debugLogShow);
         JavaFXUtil.addStyleClass(debugLog, "about-debuglog");
         debugLog.setAlignment(Pos.BASELINE_LEFT);
-        bottom.getChildren().add(debugLog);
+        contentPane.getChildren().add(debugLog);
 
         try
         {
@@ -155,16 +175,32 @@ public class AboutDialogTemplate extends Dialog<Void>
             HBox hbox = new HBox(new Label(Config.getString("about.moreInformation")), link);
             hbox.setAlignment(Pos.CENTER);
             JavaFXUtil.addStyleClass(hbox, "about-info-link");
-            bottom.getChildren().add(hbox);
+            contentPane.getChildren().add(hbox);
         }
         catch (MalformedURLException exc)
         {
             // should not happen - URL is constant
         }
 
-        aboutPanel.setBottom(bottom);
-        setResizable(false);
+        Tab tab = new Tab(Config.getString("about.general.title"), contentPane);
+        tab.setClosable(false);
+        return tab;
     }
 
+    /**
+     * Construct the tab which contains the Translators information.
+     *
+     * @param translatorsPane  A Pane containing the translators names.
+     */
+    private Tab createTranslatorsTab(TitledPane translatorsPane)
+    {
+        Tab tab = new Tab(Config.getString("about.translators.title"));
+        tab.setClosable(false);
+        if (translatorsPane != null)
+        {
+            tab.setContent(translatorsPane);
+        }
+        return tab;
+    }
 }
 
