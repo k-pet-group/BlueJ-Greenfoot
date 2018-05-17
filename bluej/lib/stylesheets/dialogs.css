@@ -115,6 +115,20 @@
 .about-info-link {
     -fx-padding: 1em 0 0 0;
 }
+.about-translators-table {
+    -fx-padding: 1em 0.5em 0 0.5em;
+}
+.about-translators-table .column-header-background {
+    -fx-max-height:  0;
+    -fx-pref-height: 0;
+    -fx-min-height:  0;
+}
+.about-translators-table .table-row-cell:empty {
+    -fx-background-color: transparent;
+}
+.about-translators-table .table-row-cell .table-cell {
+    -fx-border-width: 0px;
+}
 
 /* Version check dialog */
 .version-check-dialog-content {

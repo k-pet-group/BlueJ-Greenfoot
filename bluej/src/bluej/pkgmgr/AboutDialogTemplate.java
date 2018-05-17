@@ -30,13 +30,14 @@ import java.awt.Desktop;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.*;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -44,6 +45,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Window;
+import javafx.util.Pair;
+
 import javax.swing.SwingUtilities;
 
 import threadchecker.OnThread;
@@ -61,14 +64,14 @@ public class AboutDialogTemplate extends Dialog<Void>
     /**
      * Construct an About Dialog for BlueJ or Greenfoot.
      *
-     * @param parent           The parent window.
-     * @param version          The application (bluej/greenfoot) version
-     * @param websiteURL       A url for the application website.
-     * @param image            The splash screen image for the application.
-     * @param translatorsPane  A Pane containing the translators names.
+     * @param parent       The parent window.
+     * @param version      The application (bluej/greenfoot) version
+     * @param websiteURL   A url for the application website.
+     * @param image        The splash screen image for the application.
+     * @param translators  An array containing the translators names.
      */
     public AboutDialogTemplate(Window parent, String version, String websiteURL, Image image,
-                               TitledPane translatorsPane)
+                               String[] translators)
     {
         initOwner(parent);
         initModality(Modality.WINDOW_MODAL);
@@ -87,23 +90,12 @@ public class AboutDialogTemplate extends Dialog<Void>
         Config.addDialogStylesheets(getDialogPane());
         getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
 
-        // Create About box text
-        BorderPane aboutPanel = new BorderPane();
-        ScrollPane scroll = new ScrollPane();
-        scroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scroll.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        scroll.setContent(aboutPanel);
-        getDialogPane().setContent(scroll);
-        JavaFXUtil.addStyleClass(aboutPanel, "about-dialog-content");
-
-        // insert logo
-        aboutPanel.setCenter(JavaFXUtil.withStyleClass(new ImageView(image), "about-dialog-image"));
-
         // All text inserted as bottom
-        TabPane tabs = JavaFXUtil.withStyleClass(new TabPane(createMainTab(version, websiteURL),
-                createTranslatorsTab(translatorsPane)), "about-tabs");
+        TabPane tabs = JavaFXUtil.withStyleClass(new TabPane(
+                createMainTab(version, websiteURL, image), createTranslatorsTab(translators)),
+                "about-tabs");
 
-        aboutPanel.setBottom(tabs);
+        getDialogPane().setContent(tabs);
         setResizable(false);
     }
 
@@ -112,29 +104,38 @@ public class AboutDialogTemplate extends Dialog<Void>
      *
      * @param version     The application (bluej/greenfoot) version
      * @param websiteURL  A url for the application website.
+     * @param image       The splash screen image for the application.
      */
-    private Tab createMainTab(String version, String websiteURL)
+    private Tab createMainTab(String version, String websiteURL, Image image)
     {
-        VBox contentPane = JavaFXUtil.withStyleClass(new VBox(), "about-more-info");
+        // Create About box text
+        BorderPane aboutPanel = new BorderPane();
+        JavaFXUtil.addStyleClass(aboutPanel, "about-dialog-content");
+
+        // insert logo
+        aboutPanel.setCenter(JavaFXUtil.withStyleClass(new ImageView(image), "about-dialog-image"));
+
+        VBox bottom = JavaFXUtil.withStyleClass(new VBox(), "about-more-info");
+        aboutPanel.setBottom(bottom);
 
         // Create team names list
         String teamText = String.join(", ", "Amjad Altadmri", "Neil Brown", "Hamza Hamza",
                 "Michael K\u00F6lling", "Davin McCall", "Ian Utting");
 
-        contentPane.getChildren().add(JavaFXUtil.withStyleClass(
+        bottom.getChildren().add(JavaFXUtil.withStyleClass(
                 new Label(Config.getString("about.theTeam") + " " + teamText),
                 "about-team"));
 
-        contentPane.getChildren().add(new Label(""));
-        contentPane.getChildren().add(JavaFXUtil.withStyleClass(
+        bottom.getChildren().add(new Label(""));
+        bottom.getChildren().add(JavaFXUtil.withStyleClass(
                 new Label(Config.getString("about.version") + " " + version + "  (" +
                         Config.getString("about.java.version") + " " +
                         System.getProperty("java.version") + ")"), "about-version"));
-        contentPane.getChildren().add(new Label(Config.getString("about.vm") + " " +
+        bottom.getChildren().add(new Label(Config.getString("about.vm") + " " +
                 System.getProperty("java.vm.name") + " " +
                 System.getProperty("java.vm.version") +
                 " (" + System.getProperty("java.vm.vendor") + ")"));
-        contentPane.getChildren().add(new Label(Config.getString("about.runningOn") + " " +
+        bottom.getChildren().add(new Label(Config.getString("about.runningOn") + " " +
                 System.getProperty("os.name") + " " + System.getProperty("os.version") +
                 " (" + System.getProperty("os.arch") + ")"));
 
@@ -163,7 +164,7 @@ public class AboutDialogTemplate extends Dialog<Void>
                 Config.getUserConfigFile(Config.debugLogName)), debugLogShow);
         JavaFXUtil.addStyleClass(debugLog, "about-debuglog");
         debugLog.setAlignment(Pos.BASELINE_LEFT);
-        contentPane.getChildren().add(debugLog);
+        bottom.getChildren().add(debugLog);
 
         try
         {
@@ -175,14 +176,14 @@ public class AboutDialogTemplate extends Dialog<Void>
             HBox hbox = new HBox(new Label(Config.getString("about.moreInformation")), link);
             hbox.setAlignment(Pos.CENTER);
             JavaFXUtil.addStyleClass(hbox, "about-info-link");
-            contentPane.getChildren().add(hbox);
+            bottom.getChildren().add(hbox);
         }
         catch (MalformedURLException exc)
         {
             // should not happen - URL is constant
         }
 
-        Tab tab = new Tab(Config.getString("about.general.title"), contentPane);
+        Tab tab = new Tab(Config.getString("about.general.title"), aboutPanel);
         tab.setClosable(false);
         return tab;
     }
@@ -190,15 +191,36 @@ public class AboutDialogTemplate extends Dialog<Void>
     /**
      * Construct the tab which contains the Translators information.
      *
-     * @param translatorsPane  A Pane containing the translators names.
+     * @param translators  An array containing the translators names. Could be null.
      */
-    private Tab createTranslatorsTab(TitledPane translatorsPane)
+    private Tab createTranslatorsTab(String[] translators)
     {
         Tab tab = new Tab(Config.getString("about.translators.title"));
         tab.setClosable(false);
-        if (translatorsPane != null)
+        if (translators != null)
         {
-            tab.setContent(translatorsPane);
+            ObservableList<Pair<String, String>> pairs = FXCollections.observableArrayList();
+            for (int i = 0; i <translators.length - 1; i += 2)
+            {
+                pairs.add(new Pair<>(translators[i], translators[i + 1]));
+            }
+            TableView<Pair<String, String>> tableView = new TableView<>(pairs);
+            tableView.getStyleClass().add("about-translators-table");
+            tableView.setEditable(false);
+
+            // The width properties add up to 97% and not 100% to forbid the scroll from appearing,
+            // as there is no API, currently, to achieve this
+            TableColumn<Pair<String, String>, String> languageColumn = new TableColumn<>();
+            languageColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.17));
+            languageColumn.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().getKey()));
+
+            TableColumn<Pair<String, String>, String> nameColumn = new TableColumn<>();
+            nameColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.80));
+            nameColumn.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().getValue()));
+
+            tableView.getColumns().setAll(languageColumn, nameColumn);
+
+            tab.setContent(tableView);
         }
         return tab;
     }

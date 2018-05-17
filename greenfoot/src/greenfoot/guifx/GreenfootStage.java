@@ -2082,17 +2082,27 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         URL resource = GreenfootStage.class.getClassLoader().getResource("greenfoot-about.png");
         Image image = new javafx.scene.image.Image(resource.toString());
 
-        String[] translatorNames = {"Wombat Yuan", "Zdenék Chalupský", "Erik van Veen & Renske Smetsers-Weeda",
-                "Guillaume Baudoin", "Matthias Taulien", "Stefan Mueller", "Mantzas Ioannis",
-                "Stefano Federici", "John Kim", "Przemysław Adam Śmiejek", "Paulo Abadie & Fabio Hedayioglu",
-                "Sergy Zemlyannikov", "Esteban Iglesias Manríquez"};
-        TitledPane translators = new TitledPane("Translators",
-                new Label(String.join("\n", Arrays.asList(translatorNames))));
-        translators.setExpanded(false);
-        translators.setCollapsible(true);
+        String[] translatorNames = {
+                "Arabic",     "Hakim Hadjaissa",
+                "Brazilian",  "Herodoto Bento-DeMello",
+                "Chinese",    "Wobot Yuan and He Qing",
+                "Czech",      "Zdeněk Chalupský",
+                "Dutch",      "Erik van Veen and Renske Smetsers-Weeda",
+                "French",     "Guillaume Baudoin, Pierre Lefebvre and Denis Bureau",
+                "German",     "Matthias Taulien, Martin Schleyer, Stefan Mueller and Michael Kolling",
+                "Greek",      "Elevtherios Chrysochoidis and Dragon Turtle",
+                "Indian",     "Kiran Kumar D",
+                "Italian",    "Stefano Federici",
+                "Korean",     "John Kim",
+                "Malayalam",  "K.R.Arun",
+                "Polish",     "Przemysław Adam Śmiejek",
+                "Portuguese", "Paulo Abadie and Fabio Hedayioglu",
+                "Russian",    "Sergey Zemlyannikov",
+                "Spanish",    "José Lerma, Esteban Manriquez, Kenneth Daly, Iris Gutierrez and Luis Mijangos",
+        };
 
         new AboutDialogTemplate(parentWindow, Boot.GREENFOOT_VERSION, "https://greenfoot.org/",
-                image, translators).showAndWait();
+                image, translatorNames).showAndWait();
     }
 
     /**
