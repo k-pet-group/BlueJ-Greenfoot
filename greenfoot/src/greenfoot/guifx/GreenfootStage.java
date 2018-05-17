@@ -63,7 +63,6 @@ import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.JavaReflective;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.UnfocusableScrollPane;
 import bluej.views.CallableView;
@@ -144,6 +143,8 @@ import static greenfoot.vmcomm.Command.*;
 public class GreenfootStage extends Stage implements BlueJEventListener, FXCompileObserver,
         SimulationStateListener, PackageUI, ControlPanelListener, ScenarioSaver
 {
+    private static final String STAGE_TITLE = "Greenfoot";
+
     private static int numberOfOpenProjects = 0;
     private static List<GreenfootStage> stages = new ArrayList<>();
 
@@ -273,6 +274,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     private GreenfootStage(Project project, GreenfootDebugHandler greenfootDebugHandler)
     {
+        setTitle(STAGE_TITLE);
+
         stages.add(this);
         
         BlueJEvent.addListener(this);
@@ -358,7 +361,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     private void showProject(Project project, GreenfootDebugHandler greenfootDebugHandler)
     {
-        setTitle("Greenfoot: " + project.getProjectName());
+        setTitle(STAGE_TITLE + ": " + project.getProjectName());
         
         this.project = project;
         this.saveTheWorldRecorder = greenfootDebugHandler.getRecorder();
@@ -700,6 +703,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         classDiagram.setProject(null);
         // Setting the state will update background message:
         stateProperty.set(State.NO_PROJECT);
+        setTitle(STAGE_TITLE);
     }
 
     /**
