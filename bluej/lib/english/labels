@@ -893,6 +893,8 @@ about.logfile=Debug log file:
 about.moreInformation=For more information, see
 about.theTeam=$APPNAME team:
 about.openFolder=Open Folder
+about.general.title=General
+about.translators.title=Translators
 
 # Work Indicator
 workIndicator.resetMachine=Reset Java Virtual Machine@^R
