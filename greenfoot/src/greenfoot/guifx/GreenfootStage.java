@@ -748,7 +748,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     public void doSaveAs()
     {
-        File choice = FileUtility.getSaveProjectFX(this, "project.saveAs.title");
+        File choice = FileUtility.getSaveProjectFX(this, Config.getString("project.saveAs.title"));
         if (choice == null)
         {
             return;
