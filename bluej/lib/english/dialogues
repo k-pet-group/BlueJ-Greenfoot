@@ -417,9 +417,8 @@ file system (not a CD!) and that you have write permission in
 the project directory and all files in it.
 
 jar-output-dir-exists
-The output directory for the archive being extracted already
-exists. You must remove the existing directory before you can
-extract the archive.
+The output directory for the archive being extracted already exists.
+You must remove the existing directory before you can extract the archive.
 
 jar-output-no-write
 The output directory cannot be created. Make sure you copy the 

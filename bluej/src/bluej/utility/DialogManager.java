@@ -287,6 +287,10 @@ public class DialogManager
         alert.setTitle(Config.getApplicationName() + ":  " +
             Config.getString("dialogmgr.error"));
         alert.initOwner(parent);
+        Label label = new Label(message);
+        label.setWrapText(true);
+        alert.getDialogPane().setContent(label);
+        alert.setResizable(true);
         alert.initModality(Modality.WINDOW_MODAL);
         alert.setHeaderText("");
         alert.showAndWait();
