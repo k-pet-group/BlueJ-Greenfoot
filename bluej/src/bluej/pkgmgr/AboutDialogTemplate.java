@@ -90,7 +90,6 @@ public class AboutDialogTemplate extends Dialog<Void>
         Config.addDialogStylesheets(getDialogPane());
         getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
 
-        // All text inserted as bottom
         TabPane tabs = JavaFXUtil.withStyleClass(new TabPane(
                 createMainTab(version, websiteURL, image), createTranslatorsTab(translators)),
                 "about-tabs");
@@ -115,6 +114,7 @@ public class AboutDialogTemplate extends Dialog<Void>
         // insert logo
         aboutPanel.setCenter(JavaFXUtil.withStyleClass(new ImageView(image), "about-dialog-image"));
 
+        // All text inserted as bottom
         VBox bottom = JavaFXUtil.withStyleClass(new VBox(), "about-more-info");
         aboutPanel.setBottom(bottom);
 
