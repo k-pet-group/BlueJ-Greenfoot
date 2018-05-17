@@ -6,7 +6,7 @@ language        last update     next update    comment                  translat
                 (* = after                     including english
                  release)                      rev no sent.
 --------------------------------------------------------------------------------------------------------------
-arabic                           x    labels+dialog+frames, Rev: 16028      Hakim <hakimsi@yahoo.com>
+arabic                           x    labels+dialog+frames, Rev: 16028      Hakim Hadjaissa <hakimsi@yahoo.com>
 brazilian                                          tutorial
                                  x             all Rev: 17226               Jhonatan Morais <jhonatanvinicius@gmail.com>
 
@@ -29,10 +29,9 @@ portuguese      3.0.0            x             all Rev: 14946               Paul
                                                                              Angelo de Oliveira <mrxyztplk@gmail.com> offered help translation
 
 russian         1.5.5
-spanish         1.5.5            x    labels+dialog+frames, Rev: 14946      Cabral Ignacio (<icabral@itesm.mx> or <nacho.cabral@gmail.com>)
-                                                                              José Ramón Puente Lerma <puenram@gmail.com> offered help translation
-                                                                               to Spanish, but given the BJ side labels. However, name should be
-                                                                               mentioned if he does them.
+spanish         1.5.5            x    labels+dialog+frames, Rev: 14946      Cabral Ignacio (<icabral@itesm.mx> or <nacho.cabral@gmail.com>) [Nothing yet]
+                                                                            José Ramón Puente Lerma <puenram@gmail.com> did the BJ side labels. He is
+                                                                            credited here for now as he asked to translate GF.
 
 IMPORTANT:
 When adding a new translation, it should be added in the build scripts: package/build.xml and package/greenfoot-build.xml
