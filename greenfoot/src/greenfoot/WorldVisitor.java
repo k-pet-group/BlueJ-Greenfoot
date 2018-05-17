@@ -61,6 +61,7 @@ public class WorldVisitor
         return w.getHeightInPixels();
     }
 
+    @OnThread(Tag.Any)
     public static int getCellSize(World w)
     {
         return w.cellSize;

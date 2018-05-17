@@ -46,8 +46,10 @@ import java.util.concurrent.atomic.AtomicReference;
 @OnThread(Tag.Simulation)
 public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
 {
-    private GreenfootScenarioViewer viewer;
+    @OnThread(Tag.Any)
+    private final GreenfootScenarioViewer viewer;
     private boolean lockScenario;
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private World world;
     private final WorldRenderer worldRenderer = new WorldRenderer();
     // Time last frame was painted, from System.nanoTime
@@ -102,6 +104,7 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     }
 
     @Override
+    @OnThread(Tag.Any)
     public void setWorld(final World oldWorld, final World newWorld)
     {
         this.world = newWorld;
@@ -109,6 +112,7 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     }
     
     @Override
+    @OnThread(Tag.Any)
     public void instantiateNewWorld(String className, Runnable runIfError)
     {
         WorldHandler.getInstance().clearWorldSet();
@@ -118,6 +122,7 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         }
     }
 
+    @OnThread(Tag.Any)
     public void discardWorld(World world)
     {
         this.world = null;
@@ -150,7 +155,13 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     @Override
     public void paint(boolean forcePaint)
     {
-        if (world == null)
+        World worldRef;
+        synchronized (this)
+        {
+            worldRef = this.world;
+        }
+        
+        if (worldRef == null)
             return;
         
         long now = System.nanoTime();
@@ -159,8 +170,8 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
             return;
         lastFramePaint = now;
         
-        int imageWidth = WorldVisitor.getWidthInPixels(world);
-        int imageHeight = WorldVisitor.getHeightInPixels(world);
+        int imageWidth = WorldVisitor.getWidthInPixels(worldRef);
+        int imageHeight = WorldVisitor.getHeightInPixels(worldRef);
 
         BufferedImage worldImage = oldImages.poll();
         // Re-use the image if it's available and the right size,

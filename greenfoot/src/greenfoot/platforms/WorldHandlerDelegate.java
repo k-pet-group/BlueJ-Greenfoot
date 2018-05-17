@@ -41,6 +41,7 @@ public interface WorldHandlerDelegate
      * @param oldWorld   The previously active world
      * @param newWorld   The new active world
      */
+    @OnThread(Tag.Any)
     void setWorld(World oldWorld, World newWorld);
 
     /**
@@ -54,8 +55,10 @@ public interface WorldHandlerDelegate
      *                   we may hop thread to do the instantiation, so we cannot directly
      *                   return the result without blocking.
      */
+    @OnThread(Tag.Any)
     void instantiateNewWorld(String className, Runnable runIfError);
 
+    @OnThread(Tag.Any)
     void discardWorld(World world);
     
     /**

@@ -77,6 +77,7 @@ public class Simulation extends Thread
     private volatile boolean enabled;
 
     /** Whether to run one loop when paused */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private boolean runOnce;
     
     /** Tasks that are queued to run on the simulation thread */
