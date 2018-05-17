@@ -120,7 +120,7 @@ public class AboutDialogTemplate extends Dialog<Void>
 
         // Create team names list
         String teamText = String.join(", ", "Amjad Altadmri", "Neil Brown", "Hamza Hamza",
-                "Michael K\u00F6lling", "Davin McCall", "Ian Utting");
+                "Michael Kölling", "Davin McCall", "Ian Utting");
 
         bottom.getChildren().add(JavaFXUtil.withStyleClass(
                 new Label(Config.getString("about.theTeam") + " " + teamText),

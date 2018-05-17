@@ -2089,7 +2089,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 "Czech",      "Zdeněk Chalupský",
                 "Dutch",      "Erik van Veen and Renske Smetsers-Weeda",
                 "French",     "Guillaume Baudoin, Pierre Lefebvre and Denis Bureau",
-                "German",     "Matthias Taulien, Martin Schleyer, Stefan Mueller and Michael Kolling",
+                "German",     "Matthias Taulien, Martin Schleyer, Stefan Mueller and Michael Kölling",
                 "Greek",      "Elevtherios Chrysochoidis and Dragon Turtle",
                 "Indian",     "Kiran Kumar D",
                 "Italian",    "Stefano Federici",
