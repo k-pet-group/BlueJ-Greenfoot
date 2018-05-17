@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2012,2014,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2012,2014,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,9 @@
  */
 package bluej.utility;
 
+import bluej.BlueJTheme;
+import bluej.Config;
+
 import java.awt.Component;
 import java.awt.Toolkit;
 import java.awt.Window;
@@ -36,7 +39,6 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import bluej.BlueJTheme;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
@@ -46,7 +48,6 @@ import javafx.stage.Modality;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
-import bluej.Config;
 
 /**
  * The dialog manager is a utility class to simplify communication with
@@ -284,13 +285,10 @@ public class DialogManager
     public static void showErrorTextFX(javafx.stage.Window parent, String message)
     {
         Alert alert = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
-        alert.setTitle(Config.getApplicationName() + ":  " +
-            Config.getString("dialogmgr.error"));
+        alert.setTitle(Config.getApplicationName() + ":  " + Config.getString("dialogmgr.error"));
         alert.initOwner(parent);
         Label label = new Label(message);
-        label.setWrapText(true);
         alert.getDialogPane().setContent(label);
-        alert.setResizable(true);
         alert.initModality(Modality.WINDOW_MODAL);
         alert.setHeaderText("");
         alert.showAndWait();
