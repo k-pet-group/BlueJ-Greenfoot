@@ -182,8 +182,8 @@
 }
 .control-panel .buttons-panel {
     -fx-hgap: 20;
-    /* In case of wrapping, add some space: */
-    -fx-vgap: 10;
+    /* 280 is the minimum without wrapping the buttons */
+    -fx-min-width: 280;
 }
 .control-panel .buttons-panel .button {
     -fx-graphic-text-gap: 8;
