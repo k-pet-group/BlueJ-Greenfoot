@@ -2116,10 +2116,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public void classModified()
     {
         debugHandler.getVmComms().discardWorld();
-        if (isFocused() && currentWorld != null)
-        {
-            debugHandler.getVmComms().instantiateWorld(currentWorld.getQualifiedName());
-        }
         stateProperty.set(State.UNCOMPILED);
     }
 
