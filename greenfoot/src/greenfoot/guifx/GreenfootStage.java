@@ -311,7 +311,10 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         Config.addGreenfootStylesheets(scene);
         Config.addPMFStylesheets(scene);
         setScene(scene);
-        
+
+        setMinWidth(700);
+        setMinHeight(400);
+
         if (project != null)
         {
             showProject(project, greenfootDebugHandler);
