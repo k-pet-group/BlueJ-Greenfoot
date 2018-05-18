@@ -65,7 +65,15 @@ public abstract class DebuggerField
      *                       May be null.
      */
     public abstract DebuggerObject getValueObject(JavaType expectedType);
-    
+
+    /**
+     * If the field value is an object (or null), return it as a DebuggerObject.
+     * 
+     * JavaType is difficult to tag because its subclasses may use Parsed*Reflective
+     * classes, which are only safe for use on the FX thread.  However, when null is
+     * passed to the method it is thread-safe, so we make a delegate method here which
+     * we tag as Any, then suppress the thread checker.
+     */
     @OnThread(Tag.Any)
     @SuppressWarnings("threadchecker")
     public DebuggerObject getValueObject()
