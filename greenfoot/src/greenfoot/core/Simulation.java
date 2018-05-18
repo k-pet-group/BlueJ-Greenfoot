@@ -543,6 +543,8 @@ public class Simulation extends Thread
         // printUpdateRate(System.nanoTime());
 
         repaintIfNeeded();
+
+        fireSimulationEventSync(SyncEvent.END_ACT_ROUND);
     }
     
     // The actActor, actWorld and newInstance methods exist as a tagging mechanism
