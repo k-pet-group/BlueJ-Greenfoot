@@ -501,12 +501,21 @@ public class ClassTarget extends DependentTarget
         }
     }
 
-    public void markCompiling(boolean clearErrorState, int compilationSequence)
+    /**
+     * Compilation of the class represented by this target has begun.
+     * 
+     * @param compilationSequence   compilation sequence identifier which can be used to associate
+     *                              related compilation events.
+     */
+    public void markCompiling(int compilationSequence)
     {
-        if (clearErrorState && getState() == State.HAS_ERROR)
+        if (getState() == State.HAS_ERROR)
+        {
             setState(State.NEEDS_COMPILE);
+        }
 
-        if (getSourceType() == SourceType.Stride) {
+        if (getSourceType() == SourceType.Stride)
+        {
             getEditor(); // Create editor if necessary
         }
         if (editor != null)

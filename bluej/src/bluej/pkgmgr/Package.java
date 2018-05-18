@@ -2605,7 +2605,7 @@ public final class Package
             this.chainedObservers = new ArrayList<>(chainedObservers);
         }
         
-        private void markAsCompiling(CompileInputFile[] sources, boolean clearErrorState, int compilationSequence)
+        private void markAsCompiling(CompileInputFile[] sources, int compilationSequence)
         {
             for (int i = 0; i < sources.length; i++) {
                 String fileName = sources[i].getJavaCompileInputFile().getPath();
@@ -2616,7 +2616,7 @@ public final class Package
 
                     if (t instanceof ClassTarget) {
                         ClassTarget ct = (ClassTarget) t;
-                        ct.markCompiling(clearErrorState, compilationSequence);
+                        ct.markCompiling(compilationSequence);
                     }
                 }
             }
@@ -2656,7 +2656,7 @@ public final class Package
             }
 
             // Change view of source classes.
-            markAsCompiling(sources, true, compilationSequence);
+            markAsCompiling(sources, compilationSequence);
 
             for (FXCompileObserver chainedObserver : chainedObservers)
             {
