@@ -106,6 +106,7 @@ public class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         JavaFXUtil.addStyleClass(mainPanel, "new-class-dialog");
 
         nameField = new TextField();
+        nameField.setMinWidth(250);
         nameField.setPromptText(Config.getString("pkgmgr.newClass.prompt"));
         JavaFXUtil.addChangeListenerPlatform(nameField.textProperty(), s -> {
             hideError();
