@@ -289,6 +289,7 @@ public class VMCommsMain implements Closeable
         if (updatedSimulationSpeed != -1)
         {
             stage.notifySimulationSpeed(updatedSimulationSpeed);
+            updatedSimulationSpeed = -1;
         }
         
         if (worldWasDiscarded)

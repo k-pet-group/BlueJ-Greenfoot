@@ -119,6 +119,7 @@ public class ControlPanel extends GridPane
         speedSlider.setTooltip(new Tooltip(Config.getString("controls.speedSlider.tooltip")));
         speedSlider.setFocusTraversable(false);
         speedSlider.setMaxWidth(150.0);
+        speedSlider.setDisable(true);
 
         actButton.setOnAction(e -> this.listener.act());
         runPauseButton.setOnAction(e -> this.listener.doRunPause());
@@ -181,6 +182,7 @@ public class ControlPanel extends GridPane
         runDisabled.setValue(newState != State.PAUSED || atBreakpoint);
         pauseDisabled.setValue(newState != State.RUNNING || atBreakpoint);
         resetDisabled.setValue(newState == State.NO_PROJECT || newState == State.UNCOMPILED);
+        speedSlider.setDisable(newState == State.NO_PROJECT);
 
         boolean showingPause = newState == State.RUNNING || newState == State.RUNNING_REQUESTED_PAUSE;
         if (showingPause)
