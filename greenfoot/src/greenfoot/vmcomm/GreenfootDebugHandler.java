@@ -275,7 +275,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
             DebuggerField worldField = fields.stream().filter(f -> f.getName().equals("world")).findFirst().orElse(null);
             if (worldField != null)
             {
-                DebuggerObject worldValue = worldField.getValueObject(null);
+                DebuggerObject worldValue = worldField.getValueObject();
                 greenfootRecorder.setWorld(worldValue);
             }
             e.getThread().cont();
@@ -290,8 +290,8 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
             // Should always be non-null, but check in case:
             if (actorPicksField != null && worldPickField != null && pickIdField != null)
             {
-                DebuggerObject actorPicksValue = actorPicksField.getValueObject(null);
-                DebuggerObject worldPickValue = worldPickField.getValueObject(null);
+                DebuggerObject actorPicksValue = actorPicksField.getValueObject();
+                DebuggerObject worldPickValue = worldPickField.getValueObject();
                 int pickIdValue = Integer.parseInt(pickIdField.getValueString());
                 // Should always be true, but check in case:
                 if (actorPicksValue != null && actorPicksValue.isArray() && worldPickValue != null)
@@ -361,6 +361,8 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
      * @param arrayValue
      * @return
      */
+    @OnThread(Tag.Any)
+    @SuppressWarnings("threadchecker")
     private List<DebuggerObject> fetchArray(DebuggerObject arrayValue)
     {
         List<DebuggerObject> elements = new ArrayList<>(arrayValue.getElementCount());
