@@ -376,7 +376,8 @@ class JdiThread extends DebuggerThread
      * The thread must be suspended to do this. Otherwise an empty List
      * is returned.
      */
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.Any)
+    @SuppressWarnings("threadchecker")
     public List<VarDisplayInfo> getLocalVariables(int frameNo)
     {
         try {
@@ -421,7 +422,7 @@ class JdiThread extends DebuggerThread
                     int iFinal = i;
                     localVars.add(new VarDisplayInfo(vartype, var, localVals.get(i),
                         varIsObject(frameNo, i) ?
-                            (() -> getStackObject(frameNo, iFinal))
+                            () -> getStackObject(frameNo, iFinal)
                             : null
                     ));
                 }
@@ -482,6 +483,8 @@ class JdiThread extends DebuggerThread
      * Return an object from this thread's stack. The variable must contain
      * an object.
      */
+    @OnThread(Tag.Any)
+    @SuppressWarnings("threadchecker")
     public DebuggerObject getStackObject(int frameNo, int index)
     {
         try {
@@ -505,6 +508,7 @@ class JdiThread extends DebuggerThread
     }
 
     @Override
+    @OnThread(Tag.Any)
     public DebuggerObject getCurrentObject(int frameNo)
     {
         try {

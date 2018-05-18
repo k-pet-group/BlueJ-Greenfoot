@@ -45,6 +45,7 @@ public class JdiArray extends JdiObject
 {
     private JavaType componentType;
 
+    @OnThread(Tag.Any)
     protected JdiArray(ArrayReference obj)
     {
         this.obj = obj;
@@ -117,6 +118,8 @@ public class JdiArray extends JdiObject
         }
     }
 
+    @OnThread(Tag.Any)
+    @SuppressWarnings("threadchecker")
     private void calcComponentType()
     {
         ArrayType ar = (ArrayType) obj.referenceType();
@@ -131,6 +134,7 @@ public class JdiArray extends JdiObject
      * @return String representing the Class name.
      */
     @Override
+    @OnThread(Tag.Any)
     public String getClassName()
     {
         return obj.referenceType().name();
@@ -154,6 +158,7 @@ public class JdiArray extends JdiObject
      * @return    The Array value
      */
     @Override
+    @OnThread(Tag.Any)
     public boolean isArray()
     {
         return true;

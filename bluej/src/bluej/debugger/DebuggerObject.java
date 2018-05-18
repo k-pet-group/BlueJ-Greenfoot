@@ -45,6 +45,7 @@ public abstract class DebuggerObject
      *
      * @return  the fully qualified class name
      */
+    @OnThread(Tag.Any)
     public abstract String getClassName();
     
     /**
@@ -67,6 +68,7 @@ public abstract class DebuggerObject
      *
      *@return    The Array value
      */
+    @OnThread(Tag.Any)
     public abstract boolean isArray();
 
     /**
