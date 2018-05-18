@@ -384,14 +384,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         loadAndMirrorProperties();
         Properties lastSavedProperties = project.getUnnamedPackage().getLastSavedProperties();
         String lastInstantiatedWorldName = lastSavedProperties.getProperty("world.lastInstantiated");
-        // We send a reset to make a new world after the project properties have been sent across:
-        if (lastInstantiatedWorldName != null)
-        {
-            debugHandler.getVmComms().instantiateWorld(lastInstantiatedWorldName);
-        }
         currentWorld = lastInstantiatedWorldName != null
                 ? (ClassTarget) project.getTarget(lastInstantiatedWorldName)
                 : null;
+        if (currentWorld != null && currentWorld.isCompiled())
+        {
+            // We send a reset to make a new world after the project properties have been sent across:
+            debugHandler.getVmComms().instantiateWorld(lastInstantiatedWorldName);
+        }
 
         JavaFXUtil.addChangeListenerPlatform(worldVisible, b -> updateBackgroundMessage());
 
@@ -492,19 +492,23 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         }
     }
 
+    @Override
+    public void userReset()
+    {
+        DataCollector.recordGreenfootEvent(project, GreenfootInterfaceEvent.WORLD_RESET);
+        doReset();
+    }
+    
     /**
-     * Perform a reset.  This is done by sending a discard-world command, and
-     * setting a flag noting that we want to send an instantiate-world command
-     * once the discard-world command has taken effect. It also makes sure that
-     * the simulation thread is resumed.
+     * Perform a reset. This discards the world, and instantiates a new one (if possible).
+     * If the simulation thread has been halted via the debugger, it is resumed.
      */
     @OnThread(Tag.FXPlatform)
     public void doReset()
     {
         controlPanel.disableControlPanelButtons(true);
-        DataCollector.recordGreenfootEvent(project, GreenfootInterfaceEvent.WORLD_RESET);
         debugHandler.getVmComms().discardWorld();
-        if (currentWorld != null)
+        if (currentWorld != null && currentWorld.isCompiled())
         {
             debugHandler.getVmComms().instantiateWorld(currentWorld.getQualifiedName());
         }
@@ -2118,10 +2122,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public void classModified()
     {
         debugHandler.getVmComms().discardWorld();
-        if (isFocused() && currentWorld != null)
-        {
-            debugHandler.getVmComms().instantiateWorld(currentWorld.getQualifiedName());
-        }
         stateProperty.set(State.UNCOMPILED);
     }
 

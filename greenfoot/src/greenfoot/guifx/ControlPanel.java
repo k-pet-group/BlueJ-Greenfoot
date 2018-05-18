@@ -123,7 +123,7 @@ public class ControlPanel extends GridPane
 
         actButton.setOnAction(e -> this.listener.act());
         runPauseButton.setOnAction(e -> this.listener.doRunPause());
-        resetButton.setOnAction(e -> this.listener.doReset());
+        resetButton.setOnAction(e -> this.listener.userReset());
         // Note - if you alter this listener code, make sure to check notifySimulationSpeed() as well:
         JavaFXUtil.addChangeListenerPlatform(speedSlider.valueProperty(),
             newSpeed -> this.listener.setSpeedFromSlider(newSpeed.intValue()));
@@ -235,7 +235,7 @@ public class ControlPanel extends GridPane
                         listener::doRunPause, pauseDisabled),
                 JavaFXUtil.makeMenuItem("reset.world",
                         new KeyCodeCombination(KeyCode.T, KeyCombination.SHORTCUT_DOWN),
-                        listener::doReset, resetDisabled)
+                        listener::userReset, resetDisabled)
         );
     }
 
@@ -257,7 +257,7 @@ public class ControlPanel extends GridPane
         /**
          * Reset pressed: reset the simulation
          */
-        void doReset();
+        void userReset();
 
         /**
          * The user has moved the speed slider.
