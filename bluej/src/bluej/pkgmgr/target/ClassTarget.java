@@ -512,7 +512,8 @@ public class ClassTarget extends DependentTarget
      */
     public void markCompiling(int compilationSequence)
     {
-        compilationInvalid = false;
+        // The results of compilation will be invalid if the editor contents have not been saved:
+        compilationInvalid = (editor != null) ? editor.isModified() : false; 
         
         if (getState() == State.HAS_ERROR)
         {
