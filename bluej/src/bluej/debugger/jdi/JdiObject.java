@@ -53,6 +53,7 @@ public class JdiObject extends DebuggerObject
      *  @return      a new JdiObject or a new JdiArray object if
      *               remote object is an array
      */
+    @OnThread(Tag.Any)
     public static JdiObject getDebuggerObject(ObjectReference obj)
     {
         if (obj instanceof ArrayReference) {
@@ -160,6 +161,7 @@ public class JdiObject extends DebuggerObject
      * Get the (raw) name of the class of this object.
      */
     @Override
+    @OnThread(Tag.Any)
     public String getClassName()
     {
         if (obj == null) {
@@ -206,6 +208,7 @@ public class JdiObject extends DebuggerObject
      *@return    The Array value
      */
     @Override
+    @OnThread(Tag.Any)
     public boolean isArray()
     {
         return false;

@@ -55,6 +55,7 @@ public abstract class DebuggerThread
     @OnThread(Tag.Any)
     public abstract List<SourceLocation> getStack();
     
+    @OnThread(Tag.Any)
     public abstract List<VarDisplayInfo> getLocalVariables(int frameNo);
     public abstract boolean varIsObject(int frameNo, int index);
     public abstract DebuggerObject getStackObject(int frameNo, int index);
@@ -64,6 +65,7 @@ public abstract class DebuggerThread
      * The returned object may represent the null reference if the frame
      * is for a static method.
      */
+    @OnThread(Tag.Any)
     public abstract DebuggerObject getCurrentObject(int frameNo);
     
     /**

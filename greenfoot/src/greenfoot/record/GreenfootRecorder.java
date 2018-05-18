@@ -71,6 +71,8 @@ public class GreenfootRecorder
      * @param args     The arguments supplied to the actor's constructor, as Java expresssions
      * @param paramTypes  The parameter types of the called constructor
      */
+    @OnThread(Tag.Any)
+    @SuppressWarnings("threadchecker")
     public synchronized void createActor(DebuggerObject actor, String[] args, JavaType[] paramTypes)
     {
         String className = actor.getGenType().toString(true);
@@ -122,6 +124,8 @@ public class GreenfootRecorder
      * @param paramTypes  The parameter types of the method/constructor
      * @return  The arguments as a comma-separated list
      */
+    @OnThread(Tag.Any)
+    @SuppressWarnings("threadchecker")
     private static String withCommas(String[] args, JavaType[] paramTypes, boolean isVarArgs)
     {
         if (args == null) {

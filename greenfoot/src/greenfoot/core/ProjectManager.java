@@ -492,16 +492,17 @@ public class ProjectManager
         Package pkg = project.getPackage("");
         final Debugger debugger = pkg.getProject().getDebugger();
 
+        String [] argTypes = new String[consParams.length];
+        DebuggerObject [] argObjects = new DebuggerObject[consParams.length];
+        for (int i = 0; i < consParams.length; i++)
+        {
+            argTypes[i] = "java.lang.String";
+            argObjects[i] = debugger.getMirror(consParams[i]);
+        }
+        
         new Thread() {
             public void run()
             {
-                String [] argTypes = new String[consParams.length];
-                DebuggerObject [] argObjects = new DebuggerObject[consParams.length];
-                for (int i = 0; i < consParams.length; i++)
-                {
-                    argTypes[i] = "java.lang.String";
-                    argObjects[i] = debugger.getMirror(consParams[i]);
-                }
 
                 FXPlatformSupplier<DebuggerResult> instantiation = debugger.instantiateClass(launchClass, argTypes, argObjects);
                 

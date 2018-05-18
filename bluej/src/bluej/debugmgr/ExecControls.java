@@ -77,6 +77,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 import com.sun.jdi.VMDisconnectedException;
 
@@ -785,7 +786,7 @@ public class ExecControls
         private static final Image objectImage =
                 Config.getImageAsFXImage("image.eval.object");
         // A property so that we can listen for it changing from null to/from non-null:
-        private final SimpleObjectProperty<FXPlatformSupplier<DebuggerObject>> fetchObject = new SimpleObjectProperty<>(null);
+        private final SimpleObjectProperty<Supplier<DebuggerObject>> fetchObject = new SimpleObjectProperty<>(null);
 
         public VarDisplayCell(Project project, Window window)
         {

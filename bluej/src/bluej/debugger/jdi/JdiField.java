@@ -41,7 +41,8 @@ public class JdiField extends DebuggerField
 {
     @OnThread(Tag.Any)
     private final Field field;
-    private JdiObject object;
+    @OnThread(Tag.Any)
+    private final JdiObject object;
     private boolean hidden;
     
     @OnThread(Tag.Any)
@@ -77,6 +78,8 @@ public class JdiField extends DebuggerField
     }
 
     @Override
+    @OnThread(Tag.Any)
+    @SuppressWarnings("threadchecker")
     public String getValueString()
     {
         Value value;

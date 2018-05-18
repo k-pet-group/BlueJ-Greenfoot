@@ -148,7 +148,8 @@ public class GreenfootMain extends Thread
                                 // back to the stopped state.
                                 vmComms.userCodeStarting();
                             }
-                            else if (e == SyncEvent.QUEUED_TASK_END)
+                            else if (e == SyncEvent.END_ACT_ROUND
+                                    || e == SyncEvent.QUEUED_TASK_END)
                             {
                                 vmComms.userCodeStopped();
                             }
@@ -165,10 +166,6 @@ public class GreenfootMain extends Thread
                         @Override
                         public @OnThread(Tag.Any) void simulationChangedAsync(AsyncEvent e)
                         {
-                            if (e == AsyncEvent.STOPPED)
-                            {
-                                vmComms.userCodeStopped();
-                            }
                         }
                     });
 

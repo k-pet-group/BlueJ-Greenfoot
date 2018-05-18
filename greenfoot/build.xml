@@ -14,6 +14,9 @@
     <!-- get java version to build with from the build.properties file used for BlueJ -->
     <property file="${bluej_home}/build.properties"/>
 
+    <property name="threadchecker.build" value="${bluej_home}/threadchecker/classes"/>
+    <property name="threadchecker.pluginbuild" value="${bluej_home}/threadchecker/pluginclasses"/>
+
     <!-- Greenfoot Version Number -->
     <property name="greenfoot.version.major" value="3"/>
     <property name="greenfoot.version.minor" value="1"/>
@@ -151,6 +154,7 @@
     <!-- The classpath to the greenfoot classes (once they are built) -->
     <path id="greenfoot.class.path">
         <pathelement location="${build}"/>
+        <pathelement location="${threadchecker.build}"/>
     </path>
     
     <!-- License files that will be included in the distribution -->
@@ -216,13 +220,14 @@ LICENSE.txt file that accompanied this code.${line.separator}
                  destdir="${build}">
             <classpath>
                 <path refid="bluej.class.path"/>
-                <pathelement location="${bluej_home}/threadchecker/classes"/>
+                <pathelement location="${threadchecker.build}"/>
+                <pathelement location="${threadchecker.pluginbuild}"/>
                 <pathelement location="${build_java_home}/lib/tools.jar"/>
             </classpath>
             <compilerarg line="-target 1.8" />
             <compilerarg line="-source 1.8" /> <!-- Otherwise Java 8 (and above) complains -->
             <compilerarg line="-Xmaxerrs 1000"/>
-            <!-- <compilerarg value="-Xplugin:threadchecker.TCPlugin rmiextension rmiextension.wrappers rmiextension.wrappers.event"/> -->
+            <compilerarg value="-Xplugin:threadchecker.TCPlugin"/>
         </compile>
         <copy todir="${build}">
             <fileset dir="${bluej_home}/threadchecker/classes">
@@ -236,6 +241,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <compile srcdir="${test.src}" destdir="${build}">
             <classpath>
                 <path refid="bluej.class.path"/>
+                <pathelement location="${threadchecker.build}"/>
             </classpath>
             <compilerarg line="-target 8" />
         </compile>
@@ -397,7 +403,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
     <target name="copy-common-class">
         <javadoc destdir="common" sourcefiles="common/${common.class}.java"
                          Version="yes" notree="yes" noindex="yes" nohelp="yes" nonavbar="yes"
-                         classpath="${build}:common/${common.class}/lib/${common.class}.jar"
+                         classpath="${build}:common/${common.class}/lib/${common.class}.jar:${threadchecker.build}"
                          encoding="UTF-8"
                          executable="${build_java_home}/${java_command_dir_name}/javadoc"
                          additionalparam="-Xdoclint:none"

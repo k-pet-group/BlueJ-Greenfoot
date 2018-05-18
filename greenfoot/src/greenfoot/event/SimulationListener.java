@@ -69,6 +69,11 @@ public interface SimulationListener
         NEW_ACT_ROUND,
 
         /**
+         * Execution of an "Act" round has completed.
+         */
+        END_ACT_ROUND,
+
+        /**
          * A task was queued to run on the simulation thread and is now being run.
          */
         QUEUED_TASK_BEGIN,

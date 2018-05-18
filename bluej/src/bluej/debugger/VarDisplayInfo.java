@@ -7,6 +7,7 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.lang.reflect.Modifier;
+import java.util.function.Supplier;
 
 /**
  * Created by neil on 18/05/2017.
@@ -18,7 +19,8 @@ public class VarDisplayInfo
     private final String name;
     private final String value;
     // If null, means item was not an inspectable object (probably null or primitive):
-    private final FXPlatformSupplier<DebuggerObject> getObjectToInspect;
+    @OnThread(Tag.Any)
+    private final Supplier<DebuggerObject> getObjectToInspect;
 
     @OnThread(Tag.FXPlatform)
     public VarDisplayInfo(DebuggerField field)
@@ -55,7 +57,7 @@ public class VarDisplayInfo
     }
 
     @OnThread(Tag.FXPlatform)
-    public VarDisplayInfo(JavaType vartype, LocalVariable var, String value, FXPlatformSupplier<DebuggerObject> getObjectToInspect)
+    public VarDisplayInfo(JavaType vartype, LocalVariable var, String value, Supplier<DebuggerObject> getObjectToInspect)
     {
         access = null;
         type = vartype.toString(true);
@@ -84,7 +86,8 @@ public class VarDisplayInfo
         return value;
     }
 
-    public FXPlatformSupplier<DebuggerObject> getFetchObject()
+    @OnThread(Tag.Any)
+    public Supplier<DebuggerObject> getFetchObject()
     {
         return getObjectToInspect;
     }
