@@ -375,14 +375,22 @@ class TCScanner extends TreePathScanner<Void, Void>
         TypeMirror methodType = trees.getTypeMirror(getCurrentPath());
         Collection<? extends TypeMirror> superTypes = allSuperTypes(trees.getTypeMirror(typeScopeStack.getLast().path));
         
-        // Check if this method declares an annotation absent from
-        // its parent, and warn that it can be circumvented:
-        checkAgainstOverridden(method.getName(), getSourceTag(method, () -> cu.getPackageName().toString() + typeScopeStack.stream().limit(typeScopeStack.size()).map(TCScanner::typeToName).collect(Collectors.joining("."))), methodType, superTypes, false, method);
-         
-        addCur(methodScopeStack, method);
-        Void r = super.visitMethod(method, arg1);
-        this.methodScopeStack.removeLast();
-        return r;
+        // Skip methods with @SuppressWarnings("threadchecker")
+        if (!suppressesChecker(method))
+        {
+            // Check if this method declares an annotation absent from
+            // its parent, and warn that it can be circumvented:
+            checkAgainstOverridden(method.getName(), getSourceTag(method, () -> cu.getPackageName().toString() + typeScopeStack.stream().limit(typeScopeStack.size()).map(TCScanner::typeToName).collect(Collectors.joining("."))), methodType, superTypes, false, method);
+
+            addCur(methodScopeStack, method);
+            Void r = super.visitMethod(method, arg1);
+            this.methodScopeStack.removeLast();
+            return r;
+        }
+        else
+        {
+            return null;
+        }
     }
 
     /**
@@ -1177,6 +1185,20 @@ class TCScanner extends TreePathScanner<Void, Void>
     private LocatedTag getSourceTag(MethodTree t, Supplier<String> enclosingStem)
     {
         return checkSingle(t.getModifiers().getAnnotations().stream().map(a -> getSourceTag(a, () -> enclosingStem.get() + "." + t.getName().toString() + " method")), t);
+    }
+
+    /**
+     * Is the method tagged as @SuppressWarnings, where one of the strings is "threadchecker"?
+     */
+    private boolean suppressesChecker(MethodTree t)
+    {
+        return t.getModifiers().getAnnotations().stream().anyMatch(a -> {
+            if (a.getAnnotationType().toString().equals("SuppressWarnings"))
+            {
+                return a.getArguments().stream().map(Object::toString).anyMatch(c -> c.contains("threadchecker"));
+            }
+            return false;
+        });
     }
     
     /**
