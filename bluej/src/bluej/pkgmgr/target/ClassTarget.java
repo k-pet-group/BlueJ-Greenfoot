@@ -202,6 +202,9 @@ public class ClassTarget extends DependentTarget
     
     // flag to prevent recursive calls to analyseDependancies()
     private boolean analysing = false;
+    
+    // Whether the current compilation is invalid due to edits since compilation began
+    private boolean compilationInvalid = false;
 
     private boolean isMoveable = true;
     private SourceType sourceAvailable;
@@ -509,6 +512,8 @@ public class ClassTarget extends DependentTarget
      */
     public void markCompiling(int compilationSequence)
     {
+        compilationInvalid = false;
+        
         if (getState() == State.HAS_ERROR)
         {
             setState(State.NEEDS_COMPILE);
@@ -520,7 +525,8 @@ public class ClassTarget extends DependentTarget
         }
         if (editor != null)
         {
-            if (editor.compileStarted(compilationSequence)) {
+            if (editor.compileStarted(compilationSequence))
+            {
                 markKnownError(true);
             }
         }
@@ -889,6 +895,9 @@ public class ClassTarget extends DependentTarget
      */
     public void invalidate()
     {
+        // Mark any current compilation as stale:
+        compilationInvalid = true;
+        
         if (hasSourceCode())
         {
             markModified();
@@ -997,9 +1006,17 @@ public class ClassTarget extends DependentTarget
         return visible;
     }
 
-    public void markCompiled(boolean classesKept)
+    /**
+     * Mark the class as having compiled, either successfully or not.
+     */
+    public void markCompiled(boolean successful)
     {
-        setState(State.COMPILED);
+        if (! compilationInvalid && successful)
+        {
+            setState(State.COMPILED);
+        }
+        // Note: we assume that errors have already been marked, so there's no need to mark
+        // an error state now for an unsuccessful compilation.
     }
 
     public static class SourceFileInfo
