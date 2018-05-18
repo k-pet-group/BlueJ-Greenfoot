@@ -989,8 +989,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                 JavaFXUtil.makeMenuItem("menu.help.discuss", null,
                         () -> openWebBrowser(Config.getPropString("greenfoot.url.discuss")), null)
         );
-        
-        return new MenuBar(
+
+        MenuBar menuBar = new MenuBar(
             scenarioMenu,
             new Menu(Config.getString("menu.edit"), null,
                 JavaFXUtil.makeMenuItem("new.other.class", new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN),
@@ -1004,6 +1004,9 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             toolsMenu,
             helpMenu
         );
+
+        menuBar.setUseSystemMenuBar(true);
+        return menuBar;
     }
 
     /**
