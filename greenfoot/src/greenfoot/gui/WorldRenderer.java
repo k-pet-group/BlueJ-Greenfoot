@@ -47,8 +47,6 @@ import java.util.Set;
 public class WorldRenderer
 {
     private static final Color BACKGROUND = Color.WHITE;
-    @OnThread(value = Tag.Any, requireSynchronized = true)
-    private World world;
     
     /** The actor being dragged. Null if no dragging. */
     private Actor dragActor;
@@ -65,15 +63,15 @@ public class WorldRenderer
     /**
      * Render the currently held world into the given image.  It is assumed
      * that the image size matches the current world size.
+     * 
+     * @param drawWorld The world to draw (may be null, in which case a blank image is drawn)
+     * @param worldImage The image to draw onto, which is assumed to be
+     *                   of the right size for the world (or desired blank size
+     *                   if drawWorld is null)
      */
-    public void renderWorld(BufferedImage worldImage)
+    public void renderWorld(World drawWorld, BufferedImage worldImage)
     {
         Graphics2D g2 = (Graphics2D)worldImage.getGraphics();
-        World drawWorld;
-        synchronized (this)
-        {
-            drawWorld = world;
-        }
         
         if (drawWorld == null)
         {
@@ -213,14 +211,5 @@ public class WorldRenderer
 
             g.drawImage(dragImage, x, y, null);
         }
-    }
-
-    /**
-     * Set the current world.
-     */
-    @OnThread(Tag.Any)
-    public synchronized void setWorld(World world)
-    {
-        this.world = world;
     }
 }

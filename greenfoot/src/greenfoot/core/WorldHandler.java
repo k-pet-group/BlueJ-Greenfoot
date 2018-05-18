@@ -156,7 +156,7 @@ public class WorldHandler
             }
 
             @Override
-            public void paint(boolean forcePaint)
+            public void paint(World drawWorld, boolean forcePaint)
             {
                 
             }
@@ -754,6 +754,6 @@ public class WorldHandler
      */
     public void paint(boolean forcePaint)
     {
-        handlerDelegate.paint(forcePaint);
+        handlerDelegate.paint(world, forcePaint);
     }
 }

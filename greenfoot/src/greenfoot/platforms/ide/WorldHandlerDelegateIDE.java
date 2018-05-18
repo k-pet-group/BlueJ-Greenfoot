@@ -95,7 +95,7 @@ public class WorldHandlerDelegateIDE
 
     @Override
     @OnThread(Tag.Simulation)
-    public void paint(boolean forcePaint)
+    public void paint(World drawWorld, boolean forcePaint)
     {
         vmCommsSimulation.paintRemote(forcePaint ? PaintWhen.FORCE : PaintWhen.IF_DUE);
     }

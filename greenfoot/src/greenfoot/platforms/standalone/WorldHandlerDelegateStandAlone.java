@@ -49,8 +49,6 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     @OnThread(Tag.Any)
     private final GreenfootScenarioViewer viewer;
     private boolean lockScenario;
-    @OnThread(value = Tag.Any, requireSynchronized = true)
-    private World world;
     private final WorldRenderer worldRenderer = new WorldRenderer();
     // Time last frame was painted, from System.nanoTime
     private long lastFramePaint;
@@ -107,8 +105,6 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     @OnThread(Tag.Any)
     public void setWorld(final World oldWorld, final World newWorld)
     {
-        this.world = newWorld;
-        worldRenderer.setWorld(newWorld);
     }
     
     @Override
@@ -125,8 +121,6 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     @OnThread(Tag.Any)
     public void discardWorld(World world)
     {
-        this.world = null;
-        worldRenderer.setWorld(null);
         // Remove the current world image:
         BufferedImage image = pendingImage.getAndSet(null);
         if (image != null)
@@ -153,15 +147,9 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     }
 
     @Override
-    public void paint(boolean forcePaint)
+    public void paint(World world, boolean forcePaint)
     {
-        World worldRef;
-        synchronized (this)
-        {
-            worldRef = this.world;
-        }
-        
-        if (worldRef == null)
+        if (world == null)
             return;
         
         long now = System.nanoTime();
@@ -170,8 +158,8 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
             return;
         lastFramePaint = now;
         
-        int imageWidth = WorldVisitor.getWidthInPixels(worldRef);
-        int imageHeight = WorldVisitor.getHeightInPixels(worldRef);
+        int imageWidth = WorldVisitor.getWidthInPixels(world);
+        int imageHeight = WorldVisitor.getHeightInPixels(world);
 
         BufferedImage worldImage = oldImages.poll();
         // Re-use the image if it's available and the right size,
@@ -182,7 +170,7 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
             worldImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_ARGB);
         }
 
-        worldRenderer.renderWorld(worldImage);
+        worldRenderer.renderWorld(world, worldImage);
         // Set the latest world image as pending, and get the old one to
         // keep for re-use:
         BufferedImage oldImage = pendingImage.getAndSet(worldImage);

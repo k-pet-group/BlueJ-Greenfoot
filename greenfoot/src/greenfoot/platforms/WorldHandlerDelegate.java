@@ -75,9 +75,10 @@ public interface WorldHandlerDelegate
 
     /**
      * Repaint the world.
+     * @param drawWorld The world to be painted
      * @param forcePaint Force paint (ignore any optimisations to not paint frames too often, etc)
      */
-    void paint(boolean forcePaint);
+    void paint(World drawWorld, boolean forcePaint);
 
     /**
      * The simulation had some user code which threw an exception
