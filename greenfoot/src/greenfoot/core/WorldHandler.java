@@ -75,6 +75,7 @@ public class WorldHandler
     private static WorldHandler instance;
     @OnThread(Tag.Any)
     private final List<WorldListener> worldListeners = new ArrayList<>();
+    @OnThread(Tag.Any)
     private WorldHandlerDelegate handlerDelegate;
     @OnThread(Tag.Any)
     private final MousePollingManager mousePollingManager;
@@ -155,7 +156,7 @@ public class WorldHandler
             }
 
             @Override
-            public void paint(boolean forcePaint)
+            public void paint(World drawWorld, boolean forcePaint)
             {
                 
             }
@@ -365,6 +366,7 @@ public class WorldHandler
     /**
      * Clear the "world is set" flag.
      */
+    @OnThread(Tag.Any)
     public synchronized void clearWorldSet()
     {
         worldIsSet = false;
@@ -437,6 +439,7 @@ public class WorldHandler
      * It is called where there is an error instantiated the world class
      * (as a result of a user interactive creation, not user code)
      */
+    @OnThread(Tag.Any)
     private void worldInstantiationError()
     {
     }
@@ -646,33 +649,28 @@ public class WorldHandler
     @OnThread(Tag.Any)
     public void finishDrag(int dragId)
     {
-        // if the operation was cancelled, add the object back into the
-        // world at its original position
-        if (this.dragId == dragId)
-        {
-            if (dragActorMoved)
+        Simulation.getInstance().runLater(() -> {
+            // if the operation was cancelled, add the object back into the
+            // world at its original position
+            if (this.dragId == dragId)
             {
-                // This makes sure that a single (final) setLocation
-                // call is received by the actor when dragging ends.
-                // This matters if the actor has overridden setLocation
-                Simulation.getInstance().runLater(new SimulationRunnable() {
-                    private Actor dragActor = WorldHandler.this.dragActor;
-                    @Override
-                    public void run()
-                    {
-                        int ax = ActorVisitor.getX(dragActor);
-                        int ay = ActorVisitor.getY(dragActor);
-                        // First we set the position to be the pre-drag position.
-                        // This means that if the user overrides setLocation and
-                        // chooses not to call the inherited setLocation, the position
-                        // will be as if the drag never happened:
-                        ActorVisitor.setLocationInPixels(dragActor, dragBeginX, dragBeginY);
-                        dragActor.setLocation(ax, ay);
-                    }
-                });
+                if (dragActorMoved)
+                {
+                    // This makes sure that a single (final) setLocation
+                    // call is received by the actor when dragging ends.
+                    // This matters if the actor has overridden setLocation
+                    int ax = ActorVisitor.getX(dragActor);
+                    int ay = ActorVisitor.getY(dragActor);
+                    // First we set the position to be the pre-drag position.
+                    // This means that if the user overrides setLocation and
+                    // chooses not to call the inherited setLocation, the position
+                    // will be as if the drag never happened:
+                    ActorVisitor.setLocationInPixels(dragActor, dragBeginX, dragBeginY);
+                    dragActor.setLocation(ax, ay);
+                }
+                dragActor = null;
             }
-            dragActor = null;
-        }
+        });
     }
 
     @OnThread(Tag.Simulation)
@@ -730,14 +728,15 @@ public class WorldHandler
     @OnThread(Tag.Any)
     public void continueDragging(int dragId, int x, int y)
     {
-        if (dragId == this.dragId)
-        {
-            Simulation.getInstance().runLater(() -> {
+        Simulation.getInstance().runLater(() -> {
+            if (dragId == this.dragId)
+            {
                 drag(dragActor, new Point(x, y));
                 // We're gonna need another paint after this:
                 Simulation.getInstance().paintRemote(true);
-            });
-        }
+                
+            }
+        });
     }
 
     /**
@@ -755,6 +754,6 @@ public class WorldHandler
      */
     public void paint(boolean forcePaint)
     {
-        handlerDelegate.paint(forcePaint);
+        handlerDelegate.paint(world, forcePaint);
     }
 }

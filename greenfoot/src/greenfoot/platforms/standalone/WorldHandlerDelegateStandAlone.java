@@ -46,9 +46,9 @@ import java.util.concurrent.atomic.AtomicReference;
 @OnThread(Tag.Simulation)
 public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
 {
-    private GreenfootScenarioViewer viewer;
+    @OnThread(Tag.Any)
+    private final GreenfootScenarioViewer viewer;
     private boolean lockScenario;
-    private World world;
     private final WorldRenderer worldRenderer = new WorldRenderer();
     // Time last frame was painted, from System.nanoTime
     private long lastFramePaint;
@@ -102,13 +102,13 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     }
 
     @Override
+    @OnThread(Tag.Any)
     public void setWorld(final World oldWorld, final World newWorld)
     {
-        this.world = newWorld;
-        worldRenderer.setWorld(newWorld);
     }
     
     @Override
+    @OnThread(Tag.Any)
     public void instantiateNewWorld(String className, Runnable runIfError)
     {
         WorldHandler.getInstance().clearWorldSet();
@@ -118,10 +118,9 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
         }
     }
 
+    @OnThread(Tag.Any)
     public void discardWorld(World world)
     {
-        this.world = null;
-        worldRenderer.setWorld(null);
         // Remove the current world image:
         BufferedImage image = pendingImage.getAndSet(null);
         if (image != null)
@@ -148,7 +147,7 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
     }
 
     @Override
-    public void paint(boolean forcePaint)
+    public void paint(World world, boolean forcePaint)
     {
         if (world == null)
             return;
@@ -171,7 +170,7 @@ public class WorldHandlerDelegateStandAlone implements WorldHandlerDelegate
             worldImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_ARGB);
         }
 
-        worldRenderer.renderWorld(worldImage);
+        worldRenderer.renderWorld(world, worldImage);
         // Set the latest world image as pending, and get the old one to
         // keep for re-use:
         BufferedImage oldImage = pendingImage.getAndSet(worldImage);

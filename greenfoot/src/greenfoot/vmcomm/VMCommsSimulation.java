@@ -188,7 +188,6 @@ public class VMCommsSimulation
     public void setWorld(World world)
     {
         this.world = world;
-        worldRenderer.setWorld(world);
     }
 
     public static enum PaintWhen { FORCE, IF_DUE, NO_PAINT}
@@ -236,7 +235,7 @@ public class VMCommsSimulation
                 }
             }
             
-            worldRenderer.renderWorld(worldImage);
+            worldRenderer.renderWorld(world, worldImage);
             
             synchronized (this)
             {
