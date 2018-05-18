@@ -300,7 +300,7 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
     }
 
     @Override
-    public void doReset()
+    public void userReset()
     {
         Simulation.getInstance().setEnabled(false);
         WorldHandler.getInstance().discardWorld();

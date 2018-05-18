@@ -492,6 +492,13 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         }
     }
 
+    @Override
+    public void userReset()
+    {
+        DataCollector.recordGreenfootEvent(project, GreenfootInterfaceEvent.WORLD_RESET);
+        doReset();
+    }
+    
     /**
      * Perform a reset. This discards the world, and instantiates a new one (if possible).
      * If the simulation thread has been halted via the debugger, it is resumed.
@@ -500,7 +507,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     public void doReset()
     {
         controlPanel.disableControlPanelButtons(true);
-        DataCollector.recordGreenfootEvent(project, GreenfootInterfaceEvent.WORLD_RESET);
         debugHandler.getVmComms().discardWorld();
         if (currentWorld != null && currentWorld.isCompiled())
         {
