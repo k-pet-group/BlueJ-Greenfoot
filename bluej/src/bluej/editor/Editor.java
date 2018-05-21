@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,7 +23,6 @@ package bluej.editor;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.function.Consumer;
 
 import bluej.compiler.CompileType;
 import bluej.compiler.Diagnostic;
@@ -271,8 +270,6 @@ public interface Editor
      * @param after will be passed true if the call did not exist already and was inserted
      */
     void insertMethodCallInConstructor(String className, CallElement methodCall, FXPlatformConsumer<Boolean> after);
-
-    void cancelFreshState();
 
     /**
      * Focuses the method of the given name in the editor.  If the paramTypes are non-null

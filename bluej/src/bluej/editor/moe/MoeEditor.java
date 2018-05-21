@@ -2624,7 +2624,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
     // --------------------------------------------------------------------
 
-    @Override
+    /**
+     * Schedule compilation, if any edits have occurred since last compile.
+     */
     @OnThread(Tag.FXPlatform)
     public void cancelFreshState()
     {

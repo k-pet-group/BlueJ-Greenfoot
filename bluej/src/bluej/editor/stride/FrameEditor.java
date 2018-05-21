@@ -103,7 +103,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -698,13 +697,6 @@ public class FrameEditor implements Editor
             public boolean compileStarted(int compilationSequence)
             {
                 return FrameEditor.this.compileStarted(compilationSequence);
-            }
-
-            @Override
-            @OnThread(Tag.FXPlatform)
-            public void cancelFreshState()
-            {
-                FrameEditor.this.cancelFreshState();
             }
 
             @Override
@@ -1308,13 +1300,6 @@ public class FrameEditor implements Editor
     public void showNextError()
     {
        panel.nextError();
-    }
-
-    @Override
-    public void cancelFreshState()
-    {
-        if (panel != null)
-            panel.cancelFreshState();
     }
 
     @Override

@@ -341,10 +341,4 @@ public class Editor
 
         return new TextLocation(location.getLine() - 1, location.getColumn() - 1);
     }
-
-    public void cancelFreshState()
-    {
-        bjEditor.cancelFreshState();
-    }
 }
-
