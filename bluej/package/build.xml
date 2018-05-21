@@ -70,6 +70,7 @@
         <include name="lib/images/*.icns" />
         <include name="lib/fonts/*.ttf" />
         <include name="lib/afrikaans/" />
+        <include name="lib/arabic/" />
     	<include name="lib/catalan/" />
         <include name="lib/chinese/" />
         <include name="lib/czech/" />

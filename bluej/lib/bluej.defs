@@ -39,23 +39,25 @@
 
 bluej.language1=english:English:eng
 bluej.language2=afrikaans:Afrikaans:afr
-bluej.language3=catalan:Catalan:cat
-bluej.language4=chinese:Chinese:zho
-bluej.language5=czech:Czech:ces
-bluej.language6=danish:Danish:dan
-bluej.language7=dutch:Dutch:nld
-bluej.language8=french:French:fra
-bluej.language9=german:German:deu
-bluej.language10=greek:Greek:ell
-bluej.language11=italian:Italian:ita
-bluej.language12=japanese:Japanese:jpn
-bluej.language13=korean:Korean:kor
-bluej.language14=polish:Polish:pol
-bluej.language15=portuguese:Portuguese:por
-bluej.language16=russian:Russian:rus
-bluej.language17=slovak:Slovak:slk
-bluej.language18=spanish:Spanish:spa
-bluej.language19=swedish:Swedish:swe
+bluej.language3=arabic:Arabic:ara
+bluej.language4=catalan:Catalan:cat
+bluej.language5=chinese:Chinese:zho
+bluej.language6=czech:Czech:ces
+bluej.language7=danish:Danish:dan
+bluej.language8=dutch:Dutch:nld
+bluej.language9=french:French:fra
+bluej.language10=german:German:deu
+bluej.language11=greek:Greek:ell
+bluej.language12=italian:Italian:ita
+bluej.language13=japanese:Japanese:jpn
+bluej.language14=korean:Korean:kor
+bluej.language15=polish:Polish:pol
+bluej.language16=portuguese:Portuguese:por
+bluej.language17=russian:Russian:rus
+bluej.language18=slovak:Slovak:slk
+bluej.language19=spanish:Spanish:spa
+bluej.language20=swedish:Swedish:swe
+
 
 
 #####################################################################

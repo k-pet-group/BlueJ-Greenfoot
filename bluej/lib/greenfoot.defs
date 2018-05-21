@@ -28,6 +28,7 @@
 ## a new language, please send it to support@greenfoot.org
 #####################################################################
 bluej.language=english
+#bluej.language=arabic
 #bluej.language=chinese
 #bluej.language=czech
 #bluej.language=dutch
