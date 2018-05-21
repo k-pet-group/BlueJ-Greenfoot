@@ -1509,7 +1509,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                         contextMenu.getItems().add(makeInspectMenuItem(world));
 
                         MenuItem saveTheWorld = new MenuItem(Config.getString("save.world"));
-                        // Temporary while developing - print out saved world to Terminal window:
+                        JavaFXUtil.addStyleClass(saveTheWorld, MENU_STYLE_INBUILT);
                         saveTheWorld.setOnAction(e -> {
                             saveTheWorldRecorder.writeCode(className -> ((ClassTarget) project.getUnnamedPackage().getTarget(className)).getEditor());
                         });
