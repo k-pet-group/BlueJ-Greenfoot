@@ -111,6 +111,7 @@ public class ControlPanel extends GridPane
         int min = 0;
         int max = Simulation.MAX_SIMULATION_SPEED;
         speedSlider = new Slider();
+        speedSlider.setValue(min + (max - min) / 2);
         speedSlider.setShowTickLabels(false);
         speedSlider.setShowTickMarks(true);
         speedSlider.setMin(min);

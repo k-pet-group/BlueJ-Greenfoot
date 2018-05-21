@@ -306,8 +306,7 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
     @Override
     public void doRunPause()
     {
-        // TODO support toggling of pause status
-        Simulation.getInstance().setPaused(false);
+        Simulation.getInstance().togglePaused();
     }
 
     @Override

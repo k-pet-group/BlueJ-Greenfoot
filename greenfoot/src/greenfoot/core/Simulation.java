@@ -620,6 +620,15 @@ public class Simulation extends Thread
     }
 
     /**
+     * Toggles the running/paused state of the simulation.
+     */
+    @OnThread(Tag.Any)
+    public synchronized void togglePaused()
+    {
+        setPaused(!paused);
+    }
+    
+    /**
      * Pauses and unpauses the simulation.
      */
     @OnThread(Tag.Any)
