@@ -529,7 +529,7 @@ public class ClassTarget extends DependentTarget
         {
             if (editor.compileStarted(compilationSequence))
             {
-                markKnownError(true);
+                setState(State.HAS_ERROR);
             }
         }
     }
@@ -2695,17 +2695,6 @@ public class ClassTarget extends DependentTarget
     }
 
     /**
-     * Mark that there is a known compilation error with this target.
-     * (Mark is cleared when state is set to COMPILING).
-     */
-    private void markKnownError(boolean classesKept)
-    {
-        // Errors are marked as part of compilation, so we expect that a suitable ClassEvent
-        // is generated when compilation finishes; no need for it here.
-        setState(State.HAS_ERROR);
-    }
-    
-    /**
      * Display a compilation diagnostic (error message), if possible and appropriate. The editor
      * decides if it is appropriate to display the error and may have a policy where eg it only
      * shows a limited number of errors.
@@ -2731,7 +2720,7 @@ public class ClassTarget extends DependentTarget
             return false;
         }
         
-        markKnownError(compileType.keepClasses());
+        setState(State.HAS_ERROR);
         return ed.displayDiagnostic(diagnostic, errorIndex, compileType);
     }
     
