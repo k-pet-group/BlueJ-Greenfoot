@@ -54,6 +54,7 @@ import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
+import bluej.compiler.Diagnostic;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
@@ -2697,11 +2698,41 @@ public class ClassTarget extends DependentTarget
      * Mark that there is a known compilation error with this target.
      * (Mark is cleared when state is set to COMPILING).
      */
-    public void markKnownError(boolean classesKept)
+    private void markKnownError(boolean classesKept)
     {
         // Errors are marked as part of compilation, so we expect that a suitable ClassEvent
         // is generated when compilation finishes; no need for it here.
         setState(State.HAS_ERROR);
+    }
+    
+    /**
+     * Display a compilation diagnostic (error message), if possible and appropriate. The editor
+     * decides if it is appropriate to display the error and may have a policy where eg it only
+     * shows a limited number of errors.
+     * 
+     * @param diagnostic   the compiler-generated diagnostic
+     * @param errorIndex   the index of the error in this batch (first error is 0)
+     * @param compileType  the type of compilation leading to the error
+     * @return    true if the diagnostic was displayed to the user
+     */
+    public boolean showDiagnostic(Diagnostic diagnostic, int errorIndex, CompileType compileType)
+    {
+        // If an edit has been made since the compilation started, we don't want to display the
+        // error since it may no longer be present, and if it is it will be shown by a later
+        // compilation anyway:
+        if (compilationInvalid)
+        {
+            return false;
+        }
+        
+        Editor ed = getEditor();
+        if (ed == null)
+        {
+            return false;
+        }
+        
+        markKnownError(compileType.keepClasses());
+        return ed.displayDiagnostic(diagnostic, errorIndex, compileType);
     }
     
     /**

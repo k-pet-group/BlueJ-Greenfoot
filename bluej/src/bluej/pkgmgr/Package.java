@@ -2343,9 +2343,13 @@ public final class Package
         return t;
     }
     
-    // Reminds me of http://thedailywtf.com/Articles/What_Is_Truth_0x3f_.aspx :-)
+    /**
+     * An enumeration for indicating whether a compilation diagnostic was actually displayed to the
+     * user.
+     */
     private static enum ErrorShown
     {
+        // Reminds me of http://thedailywtf.com/Articles/What_Is_Truth_0x3f_.aspx :-)
         ERROR_SHOWN, ERROR_NOT_SHOWN, EDITOR_NOT_FOUND
     }
     
@@ -2381,8 +2385,7 @@ public final class Package
             if (project.isClosing()) {
                 return ErrorShown.ERROR_NOT_SHOWN;
             }
-            t.markKnownError(compileType.keepClasses());
-            boolean shown = targetEditor.displayDiagnostic(diagnostic, errorIndex, compileType);
+            boolean shown = t.showDiagnostic(diagnostic, errorIndex, compileType);
             return shown ? ErrorShown.ERROR_SHOWN : ErrorShown.ERROR_NOT_SHOWN;
         }
         else {
@@ -2945,37 +2948,40 @@ public final class Package
          */
         private boolean errorMessage(Diagnostic diagnostic, CompileType type)
         {
-                numErrors += 1;
-                ErrorShown messageShown;
+            numErrors += 1;
+            ErrorShown messageShown;
 
-                if (diagnostic.getFileName() == null) {
-                    showMessageWithText("compiler-error", diagnostic.getMessage());
-                    return true;
-                }
+            if (diagnostic.getFileName() == null)
+            {
+                showMessageWithText("compiler-error", diagnostic.getMessage());
+                return true;
+            }
                 
-                String message = diagnostic.getMessage();
-                // See if we can help the user a bit more if they've mis-spelt a method:
+            String message = diagnostic.getMessage();
+            // See if we can help the user a bit more if they've mis-spelt a method:
             if (message.contains("cannot find symbol") && message.contains("method")) {
-                    messageShown = showEditorDiagnostic(diagnostic,
-                            new MisspeltMethodChecker(message,
-                                    (int) diagnostic.getStartColumn(),
-                                    (int) diagnostic.getStartLine(),
-                                    project), numErrors - 1, type);
-                } else {
-                    messageShown = showEditorDiagnostic(diagnostic, null, numErrors - 1, type);
-                }
-                // Display the error message in the source editor
-                switch (messageShown)
-                {
-                case EDITOR_NOT_FOUND:
-                    showMessageWithText("error-in-file", diagnostic.getFileName() + ":" +
-                            diagnostic.getStartLine() + "\n" + message);
-                    return true;
-                case ERROR_SHOWN:
-                    return true;
-                default:
-                    return false;
-                }
+                messageShown = showEditorDiagnostic(diagnostic,
+                        new MisspeltMethodChecker(message,
+                                (int) diagnostic.getStartColumn(),
+                                (int) diagnostic.getStartLine(),
+                                project), numErrors - 1, type);
+            }
+            else
+            {
+                messageShown = showEditorDiagnostic(diagnostic, null, numErrors - 1, type);
+            }
+            // Display the error message in the source editor
+            switch (messageShown)
+            {
+            case EDITOR_NOT_FOUND:
+                showMessageWithText("error-in-file", diagnostic.getFileName() + ":" +
+                        diagnostic.getStartLine() + "\n" + message);
+                return true;
+            case ERROR_SHOWN:
+                return true;
+            default:
+                return false;
+            }
         }
 
         /**
