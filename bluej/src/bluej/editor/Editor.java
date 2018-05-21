@@ -157,7 +157,7 @@ public interface Editor
     void changeName(String title, String filename, String javaFilename, String docFileName);
 
     /**
-     * Set the "compiled" status
+     * Set the "compiled" status, as shown in the class diagram.
      * 
      * @param compiled    true if the class has been compiled
      */

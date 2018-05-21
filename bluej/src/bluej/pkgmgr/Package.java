@@ -2727,47 +2727,37 @@ public final class Package
                     continue;
                 }
 
-                if (type.keepClasses()) {
-                    if (successful) {
-                        t.endCompile();
-
-                        //check if there already exists a class in a library with that name 
-                        Class<?> c = loadClass(getQualifiedName(t.getIdentifierName()));
-                        if (c!=null){
-                            if (! checkClassMatchesFile(c, t.getClassFile())) {
-                                String conflict=Package.getResourcePath(c);
-                                String ident = t.getIdentifierName()+":";
-                                DialogManager.showMessageWithPrefixTextFX(null, "compile-class-library-conflict", ident, conflict);
-                            }
-                        }
-
-                        /*
-                         * compute ctxt files (files with comments and parameters
-                         * names)
-                         */
-                        try {
-                            ClassInfo info = t.getSourceInfo().getInfo(t.getJavaSourceFile(), t.getPackage());
-
-                            if (info != null) {
-                                OutputStream out = new FileOutputStream(t.getContextFile());
-                                info.getComments().store(out, "BlueJ class context");
-                                out.close();
-                            }
-                        }
-                        catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                }
-
                 t.markCompiled(successful, type);
                 t.setQueued(false);
-                if (t.editorOpen())
+                
+                if (t.isCompiled())
                 {
-                    t.getEditor().compileFinished(successful, type.keepClasses());
-                }
-                if (successful && t.editorOpen()) {
-                    t.getEditor().setCompiled(true);
+                    //check if there already exists a class in a library with that name 
+                    Class<?> c = loadClass(getQualifiedName(t.getIdentifierName()));
+                    if (c!=null){
+                        if (! checkClassMatchesFile(c, t.getClassFile())) {
+                            String conflict=Package.getResourcePath(c);
+                            String ident = t.getIdentifierName()+":";
+                            DialogManager.showMessageWithPrefixTextFX(null, "compile-class-library-conflict", ident, conflict);
+                        }
+                    }
+
+                    /*
+                     * compute ctxt files (files with comments and parameters
+                     * names)
+                     */
+                    try {
+                        ClassInfo info = t.getSourceInfo().getInfo(t.getJavaSourceFile(), t.getPackage());
+
+                        if (info != null) {
+                            OutputStream out = new FileOutputStream(t.getContextFile());
+                            info.getComments().store(out, "BlueJ class context");
+                            out.close();
+                        }
+                    }
+                    catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
             

@@ -1013,7 +1013,14 @@ public class ClassTarget extends DependentTarget
      */
     public void markCompiled(boolean successful, CompileType compileType)
     {
-        if (successful && ! compilationInvalid && compileType.keepClasses())
+        if (compilationInvalid)
+        {
+            // We pass "classesKept" as false since the generated classes are invalid now:
+            editor.compileFinished(successful, false);
+            return;
+        }
+        
+        if (successful && compileType.keepClasses())
         {
             // If the src file has last-modified date in the future, fix the date.
             // this will remove "uncompiled" stripes on the class
@@ -1026,9 +1033,19 @@ public class ClassTarget extends DependentTarget
             if (newCompiledState)
             {
                 setState(State.COMPILED);
+                endCompile();
             }
         }
 
+        if (editor != null)
+        {
+            editor.compileFinished(successful, compileType.keepClasses());
+            if (isCompiled())
+            {
+                editor.setCompiled(true);
+            }
+        }
+        
         // Note: we assume that errors have already been marked, so there's no need to mark
         // an error state now for an unsuccessful compilation.
     }
@@ -1393,7 +1410,7 @@ public class ClassTarget extends DependentTarget
      * We load the compiled class if possible and check it the compilation has
      * resulted in it taking a different role (ie abstract to applet)
      */
-    public void endCompile()
+    private void endCompile()
     {
         Class<?> cl = getPackage().loadClass(getQualifiedName());
 
