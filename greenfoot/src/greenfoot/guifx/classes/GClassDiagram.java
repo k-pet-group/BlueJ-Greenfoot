@@ -228,11 +228,11 @@ public class GClassDiagram extends BorderPane implements ClassIconFetcher
         
         // First, we must take out any World and Actor classes:
         List<GClassNode> worldSubclasses = findAllSubclasses("greenfoot.World", classTargets, GClassType.WORLD);
-        GClassNode worldClassesInfo = new GClassNode(GClassType.WORLD, worldSubclasses, selectionManager);
+        GClassNode worldClassesInfo = new BuiltInGClassNode(GClassType.WORLD, worldSubclasses, selectionManager);
         worldClasses.setClasses(Collections.singletonList(worldClassesInfo));
 
         List<GClassNode> actorSubclasses = findAllSubclasses("greenfoot.Actor", classTargets, GClassType.ACTOR);
-        GClassNode actorClassesInfo = new GClassNode(GClassType.ACTOR, actorSubclasses, selectionManager);
+        GClassNode actorClassesInfo = new BuiltInGClassNode(GClassType.ACTOR, actorSubclasses, selectionManager);
         actorClasses.setClasses(Collections.singletonList(actorClassesInfo));
         
         // All other classes can be found by passing null, see docs on findAllSubclasses:
