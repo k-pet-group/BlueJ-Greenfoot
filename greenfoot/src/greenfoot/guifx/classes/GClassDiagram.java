@@ -63,6 +63,8 @@ import java.util.Properties;
 @OnThread(Tag.FXPlatform)
 public class GClassDiagram extends BorderPane implements ClassIconFetcher
 {
+    private final ContextMenu contextMenu;
+
     /**
      * Gets an observable expression with the image for the given class
      * @param name The fully qualified name of the class
@@ -163,18 +165,24 @@ public class GClassDiagram extends BorderPane implements ClassIconFetcher
         BorderPane.setMargin(otherClasses, new Insets(0, 0, ClassGroup.VERTICAL_SPACING, 0));
         setMaxWidth(USE_PREF_SIZE);
         setMaxHeight(Double.MAX_VALUE);
+
+        // Context menu items never change, so just initialise once:
+        contextMenu = new ContextMenu();
+        // If they right-click on us, we show new-class and import-class actions:
+        contextMenu.getItems().add(JavaFXUtil.makeMenuItem(
+                Config.getString("new.other.class"),
+                () -> greenfootStage.newNonImageClass(project.getUnnamedPackage(), null), null));
+        contextMenu.getItems().add(JavaFXUtil.makeMenuItem(
+                Config.getString("import.action"),
+                () -> greenfootStage.doImportClass(), null));
         
         setOnContextMenuRequested(e -> {
-            e.consume();
-            // If they right-click on us, we show new-class and import-class actions:
-            ContextMenu contextMenu = new ContextMenu();
-            contextMenu.getItems().add(JavaFXUtil.makeMenuItem(
-                    Config.getString("new.other.class"),
-                    () -> greenfootStage.newNonImageClass(project.getUnnamedPackage(), null), null));
-            contextMenu.getItems().add(JavaFXUtil.makeMenuItem(
-                    Config.getString("import.action"),
-                    () -> greenfootStage.doImportClass(), null));
+            if (contextMenu.isShowing())
+            {
+                contextMenu.hide();
+            }            
             contextMenu.show(this, e.getScreenX(), e.getScreenY());
+            e.consume();
         });
     }
     
