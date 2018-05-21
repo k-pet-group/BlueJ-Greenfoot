@@ -228,6 +228,10 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
         sim = Simulation.getInstance();
         sim.attachWorldHandler(worldHandler);
         controls = new ControlPanel(this, null);
+        if (lockScenario)
+        {
+            controls.lockControls();
+        }
 
         // Make sure the SoundCollection is initialized and listens for events
         sim.addSimulationListener(SoundFactory.getInstance().getSoundCollection());
