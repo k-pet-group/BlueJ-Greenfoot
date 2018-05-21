@@ -159,7 +159,7 @@ public class KeyboardManager
         if (keycode.ordinal() >= KeyCode.NUMPAD0.ordinal() && keycode.ordinal() <= KeyCode.NUMPAD9.ordinal()) {
             // At least on linux, we can only get these codes if numlock is on; in that
             // case we want to map to a digit anyway.
-            return "" + ('0' + (keycode.ordinal() - KeyCode.NUMPAD0.ordinal()));
+            return "" + (char)('0' + (keycode.ordinal() - KeyCode.NUMPAD0.ordinal()));
         }
 
         // Seems on linux (at least) we can't get the numlock state (get an
