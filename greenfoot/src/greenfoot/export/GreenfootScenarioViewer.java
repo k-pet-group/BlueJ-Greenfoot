@@ -116,12 +116,12 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
     }
 
 
-    private void buildGUI()
+    private void buildGUI(boolean hideControls)
     {
         ScrollPane worldViewScroll = new UnfocusableScrollPane(worldDisplay);
                
         setCenter(worldViewScroll);
-        if (!Config.getPropBoolean("scenario.hideControls",false)){
+        if (!hideControls){
             //show controls.
             setBottom(controls);
         } 
@@ -138,6 +138,7 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
         
         final String worldClassName = Config.getPropString("main.class"); 
         final boolean lockScenario = Config.getPropBoolean("scenario.lock");
+        final boolean hideControls = Config.getPropBoolean("scenario.hideControls", false);
 
         try {
             GreenfootUtil.initialise(new GreenfootUtilDelegateStandAlone());
@@ -160,7 +161,7 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
                 worldHandler.setWorld(world, false);
             }
             
-            buildGUI();
+            buildGUI(hideControls);
             
             controls.updateState(State.PAUSED, false);
 
@@ -210,6 +211,12 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
                     worldHandler.getMouseManager().mouseExited();
                 }
             });
+            
+            // If we are hiding controls, auto-run:
+            if (hideControls)
+            {
+                Simulation.getInstance().setPaused(false);
+            }
         }        
         catch (SecurityException | IllegalArgumentException | ClassNotFoundException | NoSuchMethodException e) {
             e.printStackTrace();
@@ -228,6 +235,10 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
         sim = Simulation.getInstance();
         sim.attachWorldHandler(worldHandler);
         controls = new ControlPanel(this, null);
+        if (lockScenario)
+        {
+            controls.lockControls();
+        }
 
         // Make sure the SoundCollection is initialized and listens for events
         sim.addSimulationListener(SoundFactory.getInstance().getSoundCollection());
@@ -295,8 +306,7 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
     @Override
     public void doRunPause()
     {
-        // TODO support toggling of pause status
-        Simulation.getInstance().setPaused(false);
+        Simulation.getInstance().togglePaused();
     }
 
     @Override

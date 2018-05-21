@@ -78,6 +78,8 @@ public class ControlPanel extends GridPane
     private final BooleanProperty runDisabled = new SimpleBooleanProperty(true);
     private final BooleanProperty pauseDisabled = new SimpleBooleanProperty(true);
     private final BooleanBinding runPauseDisabled = runDisabled.and(pauseDisabled);
+    private final Button actButton;
+    private final Label speedLabel;
 
     /**
      * Make a new control panel.
@@ -90,7 +92,7 @@ public class ControlPanel extends GridPane
     public ControlPanel(ControlPanelListener listener, Node executionTwirler)
     {
         this.listener = listener;
-        Button actButton = new Button(Config.getString("run.once"));
+        actButton = new Button(Config.getString("run.once"));
         actButton.setTooltip(new Tooltip(Config.getString("controls.runonce.shortDescription")));
         actButton.setGraphic(ACT_ICON);
         runPauseButton = new Button(RUN_BUTTON_TEXT);
@@ -109,6 +111,7 @@ public class ControlPanel extends GridPane
         int min = 0;
         int max = Simulation.MAX_SIMULATION_SPEED;
         speedSlider = new Slider();
+        speedSlider.setValue(min + (max - min) / 2);
         speedSlider.setShowTickLabels(false);
         speedSlider.setShowTickMarks(true);
         speedSlider.setMin(min);
@@ -132,7 +135,7 @@ public class ControlPanel extends GridPane
         controlPanel.setPrefColumns(3);
         controlPanel.getStyleClass().add("buttons-panel");
         controlPanel.setAlignment(Pos.CENTER);
-        Label speedLabel = new Label(Config.getString("controls.speed.label"));
+        speedLabel = new Label(Config.getString("controls.speed.label"));
         // Let speed label shrink to nothing if not enough space:
         speedLabel.setMinWidth(0.0);
         add(controlPanel, 0, 0);
@@ -216,6 +219,16 @@ public class ControlPanel extends GridPane
         speedSlider.setValue(simSpeed);
     }
 
+    /**
+     * Locks the controls: hides the act button and the speed slider.
+     */
+    public void lockControls()
+    {
+        actButton.setVisible(false);
+        speedSlider.setVisible(false);
+        speedLabel.setVisible(false);
+    }
+    
     /**
      * Make the act/run/pause/reset menu items for GreenfootStage.
      * They are made here because their disabled state is managed by ControlPanel.

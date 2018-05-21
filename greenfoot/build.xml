@@ -764,6 +764,8 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <copy file="resources/images/step.png" todir="${standalone.build}"/>
         <copy file="resources/images/pause.png" todir="${standalone.build}"/>
         <copy file="resources/images/reset.png" todir="${standalone.build}"/>
+        <!-- Copy CSS styling, for control panel -->
+        <copy file="lib/stylesheets/greenfoot.css" todir="${standalone.build}"/>
 
         <!-- Copy bluej.Config classes to allow use of i18n labels  -->
         <copy todir="${standalone.build}">

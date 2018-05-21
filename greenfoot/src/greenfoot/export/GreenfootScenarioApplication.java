@@ -37,7 +37,9 @@ public class GreenfootScenarioApplication extends Application
     {
         Platform.setImplicitExit(true);
         GreenfootScenarioViewer greenfootScenarioViewer = new GreenfootScenarioViewer();
-        primaryStage.setScene(new Scene(greenfootScenarioViewer));        
+        Scene scene = new Scene(greenfootScenarioViewer);
+        scene.getStylesheets().add("greenfoot.css");
+        primaryStage.setScene(scene);        
         primaryStage.show();
         primaryStage.setOnHiding(e -> {
             Simulation.getInstance().abort();
