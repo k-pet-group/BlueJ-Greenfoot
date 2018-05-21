@@ -190,6 +190,8 @@ public class LocalGClassNode extends GClassNode implements TargetListener
         {
             curContextMenu.hide();
             curContextMenu = null;
+            // Must hide our parent node's context menu manually:
+            classDiagram.hideContextMenu();
         }
         ContextMenu contextMenu = new ContextMenu();
         

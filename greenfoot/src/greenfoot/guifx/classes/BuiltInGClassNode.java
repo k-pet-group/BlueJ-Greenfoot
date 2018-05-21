@@ -17,6 +17,7 @@ public class BuiltInGClassNode extends GClassNode
 {
     // Will always be ACTOR or WORLD, never OTHER
     private final GClassType type;
+    private final GClassDiagram classDiagram;
 
     /**
      * Constructor for a GClassNode for one of the API base classes: World or Actor.
@@ -25,10 +26,11 @@ public class BuiltInGClassNode extends GClassNode
      * @param subClasses   all nodes for the direct subclasses of this node
      * @param selectionManager   the selection manager
      */
-    public BuiltInGClassNode(GClassType type, List<GClassNode> subClasses, ClassDisplaySelectionManager selectionManager)
+    public BuiltInGClassNode(GClassType type, List<GClassNode> subClasses, GClassDiagram classDiagram)
     {
-        super("greenfoot." + shortName(type), shortName(type), null, subClasses, selectionManager);
+        super("greenfoot." + shortName(type), shortName(type), null, subClasses, classDiagram.getSelectionManager());
         this.type = type;
+        this.classDiagram = classDiagram;
     }
 
     /**
@@ -60,6 +62,8 @@ public class BuiltInGClassNode extends GClassNode
             {
                 curContextMenu.hide();
                 curContextMenu = null;
+                // Must hide our parent node's context menu manually:
+                classDiagram.hideContextMenu();
             }
             curContextMenu = new ContextMenu();
 

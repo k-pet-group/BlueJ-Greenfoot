@@ -177,15 +177,23 @@ public class GClassDiagram extends BorderPane implements ClassIconFetcher
                 () -> greenfootStage.doImportClass(), null));
         
         setOnContextMenuRequested(e -> {
-            if (contextMenu.isShowing())
-            {
-                contextMenu.hide();
-            }            
+            hideContextMenu();
             contextMenu.show(this, e.getScreenX(), e.getScreenY());
             e.consume();
         });
     }
-    
+
+    /**
+     * Hide the context menu if it is showing.
+     */
+    protected void hideContextMenu()
+    {
+        if (contextMenu.isShowing())
+        {
+            contextMenu.hide();
+        }
+    }
+
     /**
      * Set the project for this class diagram.
      * 
@@ -228,11 +236,11 @@ public class GClassDiagram extends BorderPane implements ClassIconFetcher
         
         // First, we must take out any World and Actor classes:
         List<GClassNode> worldSubclasses = findAllSubclasses("greenfoot.World", classTargets, GClassType.WORLD);
-        GClassNode worldClassesInfo = new BuiltInGClassNode(GClassType.WORLD, worldSubclasses, selectionManager);
+        GClassNode worldClassesInfo = new BuiltInGClassNode(GClassType.WORLD, worldSubclasses, this);
         worldClasses.setClasses(Collections.singletonList(worldClassesInfo));
 
         List<GClassNode> actorSubclasses = findAllSubclasses("greenfoot.Actor", classTargets, GClassType.ACTOR);
-        GClassNode actorClassesInfo = new BuiltInGClassNode(GClassType.ACTOR, actorSubclasses, selectionManager);
+        GClassNode actorClassesInfo = new BuiltInGClassNode(GClassType.ACTOR, actorSubclasses, this);
         actorClasses.setClasses(Collections.singletonList(actorClassesInfo));
         
         // All other classes can be found by passing null, see docs on findAllSubclasses:
