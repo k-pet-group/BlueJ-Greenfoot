@@ -276,7 +276,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         setTitle(STAGE_TITLE);
 
         stages.add(this);
-        
+
         BlueJEvent.addListener(this);
         soundRecorder = new SoundRecorderControls(project);
 
@@ -324,7 +324,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
         if (project != null)
         {
-            showProject(project, greenfootDebugHandler);
+            showProject(project, greenfootDebugHandler, true);
         }
         // Do this whether we have a project or not:
         updateBackgroundMessage();
@@ -358,10 +358,12 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     
     /**
      * Show a particular project in this window.
-     * @param project   The project to display
-     * @param greenfootDebugHandler   The debug handler for this project
+     * @param project                The project to display
+     * @param greenfootDebugHandler  The debug handler for this project
+     * @param newWindow              True if the window to host this scenario has just been created,
+     *                               false otherwise.
      */
-    private void showProject(Project project, GreenfootDebugHandler greenfootDebugHandler)
+    private void showProject(Project project, GreenfootDebugHandler greenfootDebugHandler, boolean newWindow)
     {
         setTitle(STAGE_TITLE + ": " + project.getProjectName());
         
@@ -398,26 +400,37 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         JavaFXUtil.addChangeListenerPlatform(worldVisible, b -> updateBackgroundMessage());
 
         scenarioInfo = new ScenarioInfo(lastSavedProperties);
-        String xPosition = lastSavedProperties.getProperty("xPosition");
-        String yPosition = lastSavedProperties.getProperty("yPosition");
-        if (xPosition != null)
+        if (newWindow)
         {
-            getStage().setX(Double.valueOf(xPosition));
-        }
-        if (yPosition != null)
-        {
-            getStage().setY(Double.valueOf(yPosition));
+            String xPosition = lastSavedProperties.getProperty("xPosition");
+            String yPosition = lastSavedProperties.getProperty("yPosition");
+            if (xPosition != null)
+            {
+                setX(Double.valueOf(xPosition));
+            }
+            if (yPosition != null)
+            {
+                setY(Double.valueOf(yPosition));
+            }
         }
 
         String width = lastSavedProperties.getProperty("width");
         String height = lastSavedProperties.getProperty("height");
         if (width != null)
         {
-            getStage().setWidth(Double.valueOf(width));
+            Double savedWidth = Double.valueOf(width);
+            if (newWindow || (savedWidth > getWidth()))
+            {
+                setWidth(savedWidth);
+            }
         }
         if (height != null)
         {
-            getStage().setHeight(Double.valueOf(height));
+            Double savedHeight = Double.valueOf(height);
+            if (newWindow || (savedHeight > getHeight()))
+            {
+                setHeight(savedHeight);
+            }
         }
     }
 
@@ -485,7 +498,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     {
         if (stages.size() == 1 && stages.get(0).project == null)
         {
-            stages.get(0).showProject(project, greenfootDebugHandler);
+            stages.get(0).showProject(project, greenfootDebugHandler, false);
             return stages.get(0);
         }
         else
