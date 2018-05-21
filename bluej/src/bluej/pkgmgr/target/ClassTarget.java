@@ -1011,12 +1011,24 @@ public class ClassTarget extends DependentTarget
     /**
      * Mark the class as having compiled, either successfully or not.
      */
-    public void markCompiled(boolean successful)
+    public void markCompiled(boolean successful, CompileType compileType)
     {
-        if (! compilationInvalid && successful)
+        if (successful && ! compilationInvalid && compileType.keepClasses())
         {
-            setState(State.COMPILED);
+            // If the src file has last-modified date in the future, fix the date.
+            // this will remove "uncompiled" stripes on the class
+            fixSourceModificationDate();
+            
+            // Empty class files should not be marked compiled,
+            // even though compilation is "successful".
+            boolean newCompiledState = upToDate();
+            newCompiledState &= !hasKnownError();
+            if (newCompiledState)
+            {
+                setState(State.COMPILED);
+            }
         }
+
         // Note: we assume that errors have already been marked, so there's no need to mark
         // an error state now for an unsuccessful compilation.
     }

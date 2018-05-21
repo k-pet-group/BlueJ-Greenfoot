@@ -2727,8 +2727,6 @@ public final class Package
                     continue;
                 }
 
-                boolean newCompiledState = successful;
-
                 if (type.keepClasses()) {
                     if (successful) {
                         t.endCompile();
@@ -2759,18 +2757,10 @@ public final class Package
                         catch (Exception ex) {
                             ex.printStackTrace();
                         }
-                        // If the src file has last-modified date in the future, fix the date.
-                        // this will remove uncompiled strips on the class
-                        t.fixSourceModificationDate();
-                        // Empty class files should not be marked compiled,
-                        // even though compilation is "successful".
-                        newCompiledState &= t.upToDate();
-                        newCompiledState &= !t.hasKnownError();
-
-                        t.markCompiled(newCompiledState);
                     }
                 }
 
+                t.markCompiled(successful, type);
                 t.setQueued(false);
                 if (t.editorOpen())
                 {
