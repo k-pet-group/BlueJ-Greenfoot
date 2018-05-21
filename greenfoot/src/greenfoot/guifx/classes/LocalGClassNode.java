@@ -53,6 +53,7 @@ import java.util.List;
  */
 public class LocalGClassNode extends GClassNode implements TargetListener
 {
+    private final GClassType type;
     private GClassDiagram classDiagram;
     private final ClassTarget classTarget;
     private String imageFilename;
@@ -189,6 +190,8 @@ public class LocalGClassNode extends GClassNode implements TargetListener
         {
             curContextMenu.hide();
             curContextMenu = null;
+            // Must hide our parent node's context menu manually:
+            classDiagram.hideContextMenu();
         }
         ContextMenu contextMenu = new ContextMenu();
         

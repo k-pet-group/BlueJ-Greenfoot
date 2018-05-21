@@ -43,52 +43,21 @@ import java.util.List;
  * Information about a class in the tree: its name, image (can be null),
  * its direct subclasses (may be empty), and the display items for it (once shown)
  */
-public class GClassNode
+public abstract class GClassNode
 {
     private final String fullyQualifiedName;
     private final String displayName;
     private final List<GClassNode> subClasses = new ArrayList<>();
     private final SimpleObjectProperty<Image> image = new SimpleObjectProperty<>(null);
 
-    private final ClassDisplaySelectionManager selectionManager;
+    protected final ClassDisplaySelectionManager selectionManager;
     protected ContextMenu curContextMenu = null;
-    protected GClassType type;
     
     // If non-null, exists *and* is already a child of the enclosing ClassGroup
     protected ClassDisplay display;
     
     // The arrow (which may have several offshoot arms from multiple subclasses).
     private InheritArrow arrowFromSub;
-
-    /**
-     * Constructor for a GClassNode for one of the API base classes: World or Actor.
-     * 
-     * @param type   the class type
-     * @param subClasses   all nodes for the direct subclasses of this node
-     * @param selectionManager   the selection manager
-     */
-    public GClassNode(GClassType type, List<GClassNode> subClasses, ClassDisplaySelectionManager selectionManager)
-    {
-        this.selectionManager = selectionManager;
-        this.type = type;
-        this.subClasses.addAll(subClasses);
-        
-        switch (type)
-        {
-            case WORLD:
-                fullyQualifiedName = "greenfoot.World";
-                displayName = "World";
-                break;
-            case ACTOR:
-                fullyQualifiedName = "greenfoot.Actor";
-                displayName = "Actor";
-                break;
-            default:
-                throw new RuntimeException();
-        }
-        
-        Collections.sort(this.subClasses, Comparator.comparing(ci -> ci.displayName));
-    }
     
     protected GClassNode(String fullyQualifiedName, String displayName, Image image,
             List<GClassNode> subClasses, ClassDisplaySelectionManager selectionManager)
@@ -153,45 +122,7 @@ public class GClassNode
      * Set up any listeners on the ClassDisplay item.  Here ready for overriding
      * in subclasses.
      */
-    protected void setupClassDisplay(GreenfootStage greenfootStage, ClassDisplay display)
-    {
-        if (display.getQualifiedName().startsWith("greenfoot."))
-        {
-            FXPlatformRunnable showDocs = () -> {
-                greenfootStage.openBrowser(display.getQualifiedName().replace(".", "/") + ".html");
-            };
-
-            display.setOnContextMenuRequested(e -> {
-                e.consume();
-                if (curContextMenu != null)
-                {
-                    curContextMenu.hide();
-                    curContextMenu = null;
-                }
-                curContextMenu = new ContextMenu();
-
-                
-                curContextMenu.getItems().add(GClassDiagram.contextInbuilt(
-                        Config.getString("show.apidoc"), showDocs));
-                curContextMenu.getItems().add(new SeparatorMenuItem());
-                curContextMenu.getItems().add(GClassDiagram.contextInbuilt(
-                        Config.getString("new.sub.class"), () -> {
-                    greenfootStage.newSubClassOf(display.getQualifiedName(), type);
-                }));
-
-                // Select item when we show context menu for it:
-                selectionManager.select(display);
-                curContextMenu.show(display, e.getScreenX(), e.getScreenY());
-            });
-
-            display.setOnMouseClicked(e -> {
-                if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 2)
-                {
-                    showDocs.run();
-                }
-            });
-        }
-    }
+    protected abstract void setupClassDisplay(GreenfootStage greenfootStage, ClassDisplay display);
 
     /**
      * Gets the InheritArrow for this item.  Will always return the same InheritArrow
