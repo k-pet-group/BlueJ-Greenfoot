@@ -1740,6 +1740,15 @@ public class BlueJSyntaxView
     @OnThread(Tag.FXPlatform)
     public Node getParagraphicGraphic(int lineNumber)
     {
+        // RichTextFX since version 0.9.0 started to generate -1 as a line number, when
+        // constructing new lines before making them visible. Apparently this is not
+        // considered a bug. Since there is no point doing anything in this case, we
+        // just return immediately:
+        if (lineNumber < 0)
+        {
+            return null;
+        }
+        
         // RichTextFX numbers from 0, but javac numbers from 1:
         lineNumber += 1;
         Label label = new Label("" + lineNumber);
@@ -1881,15 +1890,7 @@ public class BlueJSyntaxView
      */
     EnumSet<ParagraphAttribute> getParagraphAttributes(int lineNumber)
     {
-        ScopeInfo scopeInfo = null;
-        // The following condition is added as a version of RichTextFX library (0.9.0) started
-        // to generate -1 as a line number. They are contacted and we are waiting to see if this
-        // is by design or a bug, however, for now we should protect the statement to avoid
-        // firing IndexOutOfBoundsException.
-        if (lineNumber > 0 )
-        {
-            scopeInfo = editorPane.getParagraph(lineNumber - 1).getParagraphStyle();
-        }
+        ScopeInfo scopeInfo = editorPane.getParagraph(lineNumber - 1).getParagraphStyle();
         if (scopeInfo == null)
         {
             return EnumSet.noneOf(ParagraphAttribute.class);

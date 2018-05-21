@@ -934,7 +934,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
             compilationQueued = false;
         }
 
-        compiledProperty.set(successful && classesKept);
         if (isVisible() && classesKept)
         {
             // Compilation requested via the editor interface has completed
@@ -2544,13 +2543,13 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
 
     /**
-     * Toggle the editor's 'compiled' status. If compiled, setEnabled the breakpoint function.
+     * Toggle the editor's 'compiled' status. This affects display (left-hand margin colour)
+     * and whether breakpoints can be set.
      */
     private void setCompileStatus(boolean compiled)
     {
         actions.getActionByName("toggle-breakpoint").setEnabled(compiled && viewingCode());
-        if (sourceIsCode && !compiled)
-            compiledProperty.set(false);
+        compiledProperty.set(compiled);
     }
 
     /**
@@ -2624,7 +2623,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
     // --------------------------------------------------------------------
 
-    @Override
+    /**
+     * Schedule compilation, if any edits have occurred since last compile.
+     */
     @OnThread(Tag.FXPlatform)
     public void cancelFreshState()
     {

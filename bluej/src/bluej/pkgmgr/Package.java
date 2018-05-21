@@ -2343,9 +2343,13 @@ public final class Package
         return t;
     }
     
-    // Reminds me of http://thedailywtf.com/Articles/What_Is_Truth_0x3f_.aspx :-)
+    /**
+     * An enumeration for indicating whether a compilation diagnostic was actually displayed to the
+     * user.
+     */
     private static enum ErrorShown
     {
+        // Reminds me of http://thedailywtf.com/Articles/What_Is_Truth_0x3f_.aspx :-)
         ERROR_SHOWN, ERROR_NOT_SHOWN, EDITOR_NOT_FOUND
     }
     
@@ -2381,8 +2385,7 @@ public final class Package
             if (project.isClosing()) {
                 return ErrorShown.ERROR_NOT_SHOWN;
             }
-            t.markKnownError(compileType.keepClasses());
-            boolean shown = targetEditor.displayDiagnostic(diagnostic, errorIndex, compileType);
+            boolean shown = t.showDiagnostic(diagnostic, errorIndex, compileType);
             return shown ? ErrorShown.ERROR_SHOWN : ErrorShown.ERROR_NOT_SHOWN;
         }
         else {
@@ -2605,7 +2608,7 @@ public final class Package
             this.chainedObservers = new ArrayList<>(chainedObservers);
         }
         
-        private void markAsCompiling(CompileInputFile[] sources, boolean clearErrorState, int compilationSequence)
+        private void markAsCompiling(CompileInputFile[] sources, int compilationSequence)
         {
             for (int i = 0; i < sources.length; i++) {
                 String fileName = sources[i].getJavaCompileInputFile().getPath();
@@ -2616,7 +2619,7 @@ public final class Package
 
                     if (t instanceof ClassTarget) {
                         ClassTarget ct = (ClassTarget) t;
-                        ct.markCompiling(clearErrorState, compilationSequence);
+                        ct.markCompiling(compilationSequence);
                     }
                 }
             }
@@ -2656,7 +2659,7 @@ public final class Package
             }
 
             // Change view of source classes.
-            markAsCompiling(sources, true, compilationSequence);
+            markAsCompiling(sources, compilationSequence);
 
             for (FXCompileObserver chainedObserver : chainedObservers)
             {
@@ -2724,57 +2727,37 @@ public final class Package
                     continue;
                 }
 
-                boolean newCompiledState = successful;
-
-                if (type.keepClasses()) {
-                    if (successful) {
-                        t.endCompile();
-
-                        //check if there already exists a class in a library with that name 
-                        Class<?> c = loadClass(getQualifiedName(t.getIdentifierName()));
-                        if (c!=null){
-                            if (! checkClassMatchesFile(c, t.getClassFile())) {
-                                String conflict=Package.getResourcePath(c);
-                                String ident = t.getIdentifierName()+":";
-                                DialogManager.showMessageWithPrefixTextFX(null, "compile-class-library-conflict", ident, conflict);
-                            }
-                        }
-
-                        /*
-                         * compute ctxt files (files with comments and parameters
-                         * names)
-                         */
-                        try {
-                            ClassInfo info = t.getSourceInfo().getInfo(t.getJavaSourceFile(), t.getPackage());
-
-                            if (info != null) {
-                                OutputStream out = new FileOutputStream(t.getContextFile());
-                                info.getComments().store(out, "BlueJ class context");
-                                out.close();
-                            }
-                        }
-                        catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
-                        // If the src file has last-modified date in the future, fix the date.
-                        // this will remove uncompiled strips on the class
-                        t.fixSourceModificationDate();
-                        // Empty class files should not be marked compiled,
-                        // even though compilation is "successful".
-                        newCompiledState &= t.upToDate();
-                        newCompiledState &= !t.hasKnownError();
-
-                        t.markCompiled(newCompiledState);
-                    }
-                }
-
+                t.markCompiled(successful, type);
                 t.setQueued(false);
-                if (t.editorOpen())
+                
+                if (t.isCompiled())
                 {
-                    t.getEditor().compileFinished(successful, type.keepClasses());
-                }
-                if (successful && t.editorOpen()) {
-                    t.getEditor().setCompiled(true);
+                    //check if there already exists a class in a library with that name 
+                    Class<?> c = loadClass(getQualifiedName(t.getIdentifierName()));
+                    if (c!=null){
+                        if (! checkClassMatchesFile(c, t.getClassFile())) {
+                            String conflict=Package.getResourcePath(c);
+                            String ident = t.getIdentifierName()+":";
+                            DialogManager.showMessageWithPrefixTextFX(null, "compile-class-library-conflict", ident, conflict);
+                        }
+                    }
+
+                    /*
+                     * compute ctxt files (files with comments and parameters
+                     * names)
+                     */
+                    try {
+                        ClassInfo info = t.getSourceInfo().getInfo(t.getJavaSourceFile(), t.getPackage());
+
+                        if (info != null) {
+                            OutputStream out = new FileOutputStream(t.getContextFile());
+                            info.getComments().store(out, "BlueJ class context");
+                            out.close();
+                        }
+                    }
+                    catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
             
@@ -2945,37 +2928,40 @@ public final class Package
          */
         private boolean errorMessage(Diagnostic diagnostic, CompileType type)
         {
-                numErrors += 1;
-                ErrorShown messageShown;
+            numErrors += 1;
+            ErrorShown messageShown;
 
-                if (diagnostic.getFileName() == null) {
-                    showMessageWithText("compiler-error", diagnostic.getMessage());
-                    return true;
-                }
+            if (diagnostic.getFileName() == null)
+            {
+                showMessageWithText("compiler-error", diagnostic.getMessage());
+                return true;
+            }
                 
-                String message = diagnostic.getMessage();
-                // See if we can help the user a bit more if they've mis-spelt a method:
+            String message = diagnostic.getMessage();
+            // See if we can help the user a bit more if they've mis-spelt a method:
             if (message.contains("cannot find symbol") && message.contains("method")) {
-                    messageShown = showEditorDiagnostic(diagnostic,
-                            new MisspeltMethodChecker(message,
-                                    (int) diagnostic.getStartColumn(),
-                                    (int) diagnostic.getStartLine(),
-                                    project), numErrors - 1, type);
-                } else {
-                    messageShown = showEditorDiagnostic(diagnostic, null, numErrors - 1, type);
-                }
-                // Display the error message in the source editor
-                switch (messageShown)
-                {
-                case EDITOR_NOT_FOUND:
-                    showMessageWithText("error-in-file", diagnostic.getFileName() + ":" +
-                            diagnostic.getStartLine() + "\n" + message);
-                    return true;
-                case ERROR_SHOWN:
-                    return true;
-                default:
-                    return false;
-                }
+                messageShown = showEditorDiagnostic(diagnostic,
+                        new MisspeltMethodChecker(message,
+                                (int) diagnostic.getStartColumn(),
+                                (int) diagnostic.getStartLine(),
+                                project), numErrors - 1, type);
+            }
+            else
+            {
+                messageShown = showEditorDiagnostic(diagnostic, null, numErrors - 1, type);
+            }
+            // Display the error message in the source editor
+            switch (messageShown)
+            {
+            case EDITOR_NOT_FOUND:
+                showMessageWithText("error-in-file", diagnostic.getFileName() + ":" +
+                        diagnostic.getStartLine() + "\n" + message);
+                return true;
+            case ERROR_SHOWN:
+                return true;
+            default:
+                return false;
+            }
         }
 
         /**

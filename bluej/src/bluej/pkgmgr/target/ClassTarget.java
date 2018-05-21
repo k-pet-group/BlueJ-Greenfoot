@@ -54,6 +54,7 @@ import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
+import bluej.compiler.Diagnostic;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerObject;
@@ -202,6 +203,9 @@ public class ClassTarget extends DependentTarget
     
     // flag to prevent recursive calls to analyseDependancies()
     private boolean analysing = false;
+    
+    // Whether the current compilation is invalid due to edits since compilation began
+    private boolean compilationInvalid = false;
 
     private boolean isMoveable = true;
     private SourceType sourceAvailable;
@@ -501,18 +505,31 @@ public class ClassTarget extends DependentTarget
         }
     }
 
-    public void markCompiling(boolean clearErrorState, int compilationSequence)
+    /**
+     * Compilation of the class represented by this target has begun.
+     * 
+     * @param compilationSequence   compilation sequence identifier which can be used to associate
+     *                              related compilation events.
+     */
+    public void markCompiling(int compilationSequence)
     {
-        if (clearErrorState && getState() == State.HAS_ERROR)
+        // The results of compilation will be invalid if the editor contents have not been saved:
+        compilationInvalid = (editor != null) ? editor.isModified() : false; 
+        
+        if (getState() == State.HAS_ERROR)
+        {
             setState(State.NEEDS_COMPILE);
+        }
 
-        if (getSourceType() == SourceType.Stride) {
+        if (getSourceType() == SourceType.Stride)
+        {
             getEditor(); // Create editor if necessary
         }
         if (editor != null)
         {
-            if (editor.compileStarted(compilationSequence)) {
-                markKnownError(true);
+            if (editor.compileStarted(compilationSequence))
+            {
+                setState(State.HAS_ERROR);
             }
         }
     }
@@ -880,6 +897,9 @@ public class ClassTarget extends DependentTarget
      */
     public void invalidate()
     {
+        // Mark any current compilation as stale:
+        compilationInvalid = true;
+        
         if (hasSourceCode())
         {
             markModified();
@@ -988,9 +1008,46 @@ public class ClassTarget extends DependentTarget
         return visible;
     }
 
-    public void markCompiled(boolean classesKept)
+    /**
+     * Mark the class as having compiled, either successfully or not.
+     */
+    public void markCompiled(boolean successful, CompileType compileType)
     {
-        setState(State.COMPILED);
+        if (compilationInvalid)
+        {
+            // We pass "classesKept" as false since the generated classes are invalid now:
+            editor.compileFinished(successful, false);
+            return;
+        }
+        
+        if (successful && compileType.keepClasses())
+        {
+            // If the src file has last-modified date in the future, fix the date.
+            // this will remove "uncompiled" stripes on the class
+            fixSourceModificationDate();
+            
+            // Empty class files should not be marked compiled,
+            // even though compilation is "successful".
+            boolean newCompiledState = upToDate();
+            newCompiledState &= !hasKnownError();
+            if (newCompiledState)
+            {
+                setState(State.COMPILED);
+                endCompile();
+            }
+        }
+
+        if (editor != null)
+        {
+            editor.compileFinished(successful, compileType.keepClasses());
+            if (isCompiled())
+            {
+                editor.setCompiled(true);
+            }
+        }
+        
+        // Note: we assume that errors have already been marked, so there's no need to mark
+        // an error state now for an unsuccessful compilation.
     }
 
     public static class SourceFileInfo
@@ -1353,7 +1410,7 @@ public class ClassTarget extends DependentTarget
      * We load the compiled class if possible and check it the compilation has
      * resulted in it taking a different role (ie abstract to applet)
      */
-    public void endCompile()
+    private void endCompile()
     {
         Class<?> cl = getPackage().loadClass(getQualifiedName());
 
@@ -2667,14 +2724,33 @@ public class ClassTarget extends DependentTarget
     }
 
     /**
-     * Mark that there is a known compilation error with this target.
-     * (Mark is cleared when state is set to COMPILING).
+     * Display a compilation diagnostic (error message), if possible and appropriate. The editor
+     * decides if it is appropriate to display the error and may have a policy where eg it only
+     * shows a limited number of errors.
+     * 
+     * @param diagnostic   the compiler-generated diagnostic
+     * @param errorIndex   the index of the error in this batch (first error is 0)
+     * @param compileType  the type of compilation leading to the error
+     * @return    true if the diagnostic was displayed to the user
      */
-    public void markKnownError(boolean classesKept)
+    public boolean showDiagnostic(Diagnostic diagnostic, int errorIndex, CompileType compileType)
     {
-        // Errors are marked as part of compilation, so we expect that a suitable ClassEvent
-        // is generated when compilation finishes; no need for it here.
+        // If an edit has been made since the compilation started, we don't want to display the
+        // error since it may no longer be present, and if it is it will be shown by a later
+        // compilation anyway:
+        if (compilationInvalid)
+        {
+            return false;
+        }
+        
+        Editor ed = getEditor();
+        if (ed == null)
+        {
+            return false;
+        }
+        
         setState(State.HAS_ERROR);
+        return ed.displayDiagnostic(diagnostic, errorIndex, compileType);
     }
     
     /**
