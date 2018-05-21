@@ -44,7 +44,6 @@ import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.debugmgr.objectbench.ResultWatcherBase;
-import bluej.editor.Editor;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.AboutDialogTemplate;
 import bluej.pkgmgr.Package;
@@ -331,14 +330,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             if (focused && project != null)
             {
                 DataCollector.recordGreenfootEvent(project, GreenfootInterfaceEvent.WINDOW_ACTIVATED);
-                for (ClassTarget classTarget : project.getUnnamedPackage().getClassTargets())
-                {
-                    Editor editor = classTarget.getEditorIfOpen();
-                    if (editor != null)
-                    {
-                        editor.cancelFreshState();
-                    }
-                }
                 if (worldDisplay.isGreyedOut() && stateProperty.get() != State.UNCOMPILED)
                 {
                     doReset();
