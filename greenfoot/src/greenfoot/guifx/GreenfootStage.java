@@ -301,7 +301,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         JavaFXUtil.expandScrollPaneContent(worldViewScroll);
         worldViewScroll.visibleProperty().bind(worldVisible);
         StackPane worldPane = new StackPane(backgroundMessage, worldViewScroll);
-        GreenfootStageContentPane contentPane = new GreenfootStageContentPane(worldPane, classDiagramScroll, controlPanel);
+        ImageView shareIcon = new ImageView(new Image(
+                getClass().getClassLoader().getResourceAsStream("export-publish.png")));
+        shareIcon.setPreserveRatio(true);
+        shareIcon.setFitHeight(24.0);
+        Button shareButton = new Button(Config.getString("export.project"), shareIcon);
+        shareButton.setFocusTraversable(false);
+        shareButton.setOnAction(e -> doShare());
+        GreenfootStageContentPane contentPane = new GreenfootStageContentPane(
+                worldPane, shareButton, classDiagramScroll, controlPanel);
         BorderPane root = new BorderPane(contentPane, makeMenu(), null, null, null);
         glassPane = new Pane();
         glassPane.setMouseTransparent(true);
