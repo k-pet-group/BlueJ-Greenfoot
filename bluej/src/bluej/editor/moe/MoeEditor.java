@@ -900,17 +900,21 @@ public final class MoeEditor extends ScopeColorsBorderPane
         {
             // We can collapse multiple compiles, but we cannot collapse an explicit compilation
             // (resulting class files kept) into a non-explicit compilation (result discarded).
-            if (! compilationQueued ||
-                    (ctype != CompileType.ERROR_CHECK_ONLY && ! compilationQueuedExplicit))
+            if (! compilationQueued )
             {
                 watcher.scheduleCompilation(true, reason, ctype);
                 compilationQueued = true;
             }
-            else if (compilationStarted)
+            else if (compilationStarted ||
+                    (ctype != CompileType.ERROR_CHECK_ONLY && ! compilationQueuedExplicit))
             {
-                // since a previously queued compilation has already started, we need to queue a second
-                // compilation after it finishes. We override any currently queued ERROR_CHECK_ONLY
-                // since explicit compiles should take precedence:
+                // Either: a previously queued compilation has already started
+                // Or: we have queued an error-check-only compilation, but are being asked to
+                //     schedule a full (explicit) compile which keeps the resulting classes.
+                //
+                // In either case, we need to queue a second compilation after the current one
+                // finishes. We override any currently queued ERROR_CHECK_ONLY since explicit
+                // compiles should take precedence:
                 if (! requeueForCompilation || ctype == CompileType.ERROR_CHECK_ONLY)
                 {
                     requeueForCompilation = true;
@@ -927,8 +931,18 @@ public final class MoeEditor extends ScopeColorsBorderPane
         compilationStarted = false;
         if (requeueForCompilation) {
             requeueForCompilation = false;
-            compilationQueuedExplicit = (requeueType != CompileType.ERROR_CHECK_ONLY);
-            watcher.scheduleCompilation(true, requeueReason, requeueType);
+            if (classesKept)
+            {
+                // If the classes were kept, that means the compilation is valid and the source
+                // hasn't changed since. There is then no need for another recompile, even if
+                // we thought we needed one before.
+                compilationQueued = false;
+            }
+            else
+            {
+                compilationQueuedExplicit = (requeueType != CompileType.ERROR_CHECK_ONLY);
+                watcher.scheduleCompilation(true, requeueReason, requeueType);
+            }
         }
         else {
             compilationQueued = false;
