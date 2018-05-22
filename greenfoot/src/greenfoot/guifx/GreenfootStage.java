@@ -725,6 +725,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         // Setting the state will update background message:
         stateProperty.set(State.NO_PROJECT);
         setTitle(STAGE_TITLE);
+        currentWorld = null;
     }
 
     /**
