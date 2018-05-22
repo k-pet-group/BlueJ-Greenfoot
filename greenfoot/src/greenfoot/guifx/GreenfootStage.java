@@ -154,6 +154,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
     // Details of the new actor while it is being placed (null otherwise):
     private final ObjectProperty<NewActor> newActorProperty = new SimpleObjectProperty<>(null);
     private final WorldDisplay worldDisplay;
+    // The scroll pane to host the world display
+    private final UnfocusableScrollPane worldViewScroll;
     private final GClassDiagram classDiagram;
     // The currently-showing context menu, or null if none
     private ContextMenu contextMenu;
@@ -295,7 +297,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         classDiagramScroll.setMinViewportWidth(150.0);
         classDiagramScroll.setMinViewportHeight(200.0);
 
-        ScrollPane worldViewScroll = new UnfocusableScrollPane(worldDisplay);
+        worldViewScroll = new UnfocusableScrollPane(worldDisplay);
         worldViewScroll.getStyleClass().add("world-display-scroll");
         JavaFXUtil.expandScrollPaneContent(worldViewScroll);
         worldViewScroll.visibleProperty().bind(worldVisible);
@@ -723,6 +725,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         // Setting the state will update background message:
         stateProperty.set(State.NO_PROJECT);
         setTitle(STAGE_TITLE);
+        currentWorld = null;
     }
 
     /**
@@ -1375,9 +1378,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         if (worldImg == null || worldImg.getWidth() != width || worldImg.getHeight() != height)
         {
             worldImg = new WritableImage(width == 0 ? 1 : width, height == 0 ? 1 : height);
-            // We don't call sizeToScene() directly while holding the file lock because it can cause us to re-enter
-            // the animation timer (see commit comment).  So we set this flag to true as a way of queueing up the request:
-            JavaFXUtil.runAfterCurrent(() -> sizeToScene());
+
+            if (worldViewScroll.getWidth() < worldImg.getWidth() ||
+                    worldViewScroll.getHeight() < worldImg.getHeight())
+            {
+                // We don't call sizeToScene() directly while holding the file lock because it can
+                // cause us to re-enter the animation timer (see commit comment).  So we set this
+                // flag to true as a way of queueing up the request:
+                JavaFXUtil.runAfterCurrent(() -> sizeToScene());
+            }
         }
         worldImg.getPixelWriter().setPixels(0, 0, width, height, PixelFormat.getIntArgbInstance(),
                 buffer, width);
