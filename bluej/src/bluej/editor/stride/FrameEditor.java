@@ -928,7 +928,7 @@ public class FrameEditor implements Editor
     @Override
     public boolean isModified() 
     {
-        return !isCompiled;
+        return changedSinceLastSave;
     }
 
     @Override
