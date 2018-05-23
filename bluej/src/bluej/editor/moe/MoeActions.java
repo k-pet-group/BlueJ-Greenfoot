@@ -1830,7 +1830,7 @@ public final class MoeActions
             int end = c.getCaretDot();
             prevWordAct.actionPerformed();
             int begin = c.getCaretDot();
-            c.replaceText(begin, end - begin, "");
+            c.replaceText(begin, end, "");
         });
     }
 
