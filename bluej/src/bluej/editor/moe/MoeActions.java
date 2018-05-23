@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -403,9 +403,6 @@ public final class MoeActions
      * itself), and TAB characters at beginnings of lines in the template will
      * be converted to a spaced tab according to the current tabsize.
      *
-     * @param textPane
-     *            The editor pane to enter the text into
-     * @param editor
      * @param templateName
      *            The name of the template (without path or suffix)
      */
@@ -923,7 +920,7 @@ public final class MoeActions
      * Convert all tabs in this text to spaces, maintaining the current
      * indentation.
      *
-     * @param textPane The text pane to convert
+     * @param editor  Reference to the editor
      * @return  The number of tab characters converted
      */
     private static int convertTabsToSpaces(MoeEditor editor)
