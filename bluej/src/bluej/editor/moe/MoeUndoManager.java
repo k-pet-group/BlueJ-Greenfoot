@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,7 +21,6 @@
  */
 package bluej.editor.moe;
 
-import bluej.utility.Debug;
 import bluej.utility.javafx.FXPlatformRunnable;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.BooleanProperty;
@@ -44,7 +43,10 @@ public class MoeUndoManager
 
     public MoeUndoManager(MoeEditorPane editorPane)
     {
-        undoManager = UndoUtils.richTextUndoManager(editorPane);
+        // We uses a plain text undo manager instead of a rich text one.
+        // This is to avoid making the undo manager to record the automatic
+        // styling that MoeEditor performs.
+        undoManager = UndoUtils.plainTextUndoManager(editorPane);
     }
 
     public UndoManager getUndoManager()
