@@ -1216,7 +1216,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      */
     private void setupWorldDrawingAndEvents()
     {
-        getScene().addEventFilter(KeyEvent.ANY, e -> {
+        worldDisplay.addEventFilter(KeyEvent.ANY, e -> {
             // Ignore keypresses if we are currently waiting for an ask-answer:
             if (worldDisplay.isAsking())
             {
