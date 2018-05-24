@@ -1395,7 +1395,7 @@ public class ClassTarget extends DependentTarget
     }
 
     @Override
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type)
     {
         if (Config.isGreenfoot() && type == CompileType.EXPLICIT_USER_COMPILE)

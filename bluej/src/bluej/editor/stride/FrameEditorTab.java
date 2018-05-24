@@ -75,7 +75,6 @@ import bluej.utility.BackgroundConsumer;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.javafx.CircleCountdown;
-import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
@@ -797,8 +796,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         return topLevelFrameProperty.getValue();
     }
 
-    //package-visible
-    void withTopLevelFrame(FXConsumer<TopLevelFrame<? extends TopLevelCodeElement>> action)
+    @OnThread(Tag.FXPlatform)
+    public void withTopLevelFrame(FXPlatformConsumer<TopLevelFrame<? extends TopLevelCodeElement>> action)
     {
         JavaFXUtil.onceNotNull(topLevelFrameProperty, action);
     }
@@ -918,6 +917,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         return debugVarVisibleProperty;
     }
 
+    @OnThread(Tag.FXPlatform)
     public void addExtends(String className)
     {
         withTopLevelFrame(f -> {
@@ -926,6 +926,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         });
     }
 
+    @OnThread(Tag.FXPlatform)
     public void removeExtendsClass()
     {
         withTopLevelFrame(f -> {
@@ -934,6 +935,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         });
     }
 
+    @OnThread(Tag.FXPlatform)
     public void addImplements(String className)
     {
         withTopLevelFrame(f -> {
@@ -942,6 +944,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         });
     }
 
+    @OnThread(Tag.FXPlatform)
     public void removeExtendsOrImplementsInterface(String interfaceName)
     {
         withTopLevelFrame(f -> {
@@ -950,6 +953,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         });
     }
 
+    @OnThread(Tag.FXPlatform)
     private void saveAfterAutomatedEdit()
     {
         modifiedFrame(null, true);
@@ -1372,6 +1376,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         withTopLevelFrame(f -> f.focusOnBody(TopLevelFrame.BodyFocus.BEST_PICK));
     }
 
+    @OnThread(Tag.FXPlatform)
     public void cancelFreshState()
     {
         withTopLevelFrame(f -> f.getAllFrames().forEach(Frame::markNonFresh));
@@ -1852,6 +1857,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void withCompletions(PosInSourceDoc pos, ExpressionSlot<?> completing, CodeElement codeEl, FXPlatformConsumer<List<AssistContentThreadSafe>> handler)
     {
         withTopLevelFrame(_frame -> JavaFXUtil.runNowOrLater(() -> {
@@ -2023,14 +2029,15 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void afterRegenerateAndReparse(FXPlatformRunnable action)
     {
         withTopLevelFrame(f -> {
-            JavaFXUtil.runNowOrLater(() -> {
-                regenerateAndReparse();
-                if (action != null)
-                    action.run();
-            });
+            regenerateAndReparse();
+            if (action != null)
+            {
+                action.run();
+            }
         });
     }
 
@@ -2141,6 +2148,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         withTypes(null, true, Kind.all(), handler);
     }
     
+    @OnThread(Tag.FXPlatform)
     public void removeImports(List<String> importTargets)
     {
         withTopLevelFrame(topLevelFrame -> JavaFXUtil.runNowOrLater(() -> {
@@ -2162,10 +2170,11 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         }));
     }
     
+    @OnThread(Tag.FXPlatform)
     public void insertAppendMethod(NormalMethodElement method, FXPlatformConsumer<Boolean> after)
     {
         // TODO maybe we have to insert it into the element not the frames.
-        withTopLevelFrame(topLevelFrame -> JavaFXUtil.runNowOrLater(() -> {
+        withTopLevelFrame(topLevelFrame -> {
             for (NormalMethodFrame normalMethodFrame : (List<NormalMethodFrame>) topLevelFrame.getMethods()) {
                 // Check if it already exists
                 if (normalMethodFrame.getName().equals(method.getName())) {
@@ -2177,20 +2186,21 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
             // method not found, create it
             insertMethodElementAtTheEnd(method);
             after.accept(false);
-        }));
+        });
     }
     
+    @OnThread(Tag.FXPlatform)
     public void insertMethodCallInConstructor(CallElement methodCall, FXPlatformConsumer<Boolean> after)
     {
         // TODO maybe we have to insert it into the element not the frames.
-        withTopLevelFrame(topLevelFrame -> JavaFXUtil.runNowOrLater(() -> {
+        withTopLevelFrame(topLevelFrame -> {
             if (topLevelFrame.getConstructors().isEmpty())
             {
                 topLevelFrame.addDefaultConstructor();
             }
             for (ConstructorFrame constructorFrame : topLevelFrame.getConstructors())
             {
-                for (CodeFrame innerFrame : constructorFrame.getMembersFrames())
+                for (CodeFrame<?> innerFrame : constructorFrame.getMembersFrames())
                 {
                     if (innerFrame instanceof CallFrame)
                     {
@@ -2206,7 +2216,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
                 insertElementIntoMethod(methodCall, constructorFrame);
             }
             after.accept(false);
-        }));
+        });
     }
 
     @OnThread(Tag.FXPlatform)
@@ -2790,6 +2800,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void notifyUnselected()
     {
         cancelFreshState();

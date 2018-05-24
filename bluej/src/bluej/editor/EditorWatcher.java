@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2014,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2013,2014,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,8 +30,6 @@ import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.stride.generic.Frame;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 
 /**
  * Interface between the editor and the rest of BlueJ
@@ -87,7 +85,6 @@ public interface EditorWatcher
      * @param reason    Reason for compilation, used for data recording purposes
      * @param type      The type of compilation, used to decide whether to keep or discard the generated .class files.
      */
-    @OnThread(Tag.Any)
     public void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type);
 
     /**
