@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2014,2015,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,7 +21,6 @@
  */
 package bluej.debugmgr.inspector;
 
-import javax.swing.SwingUtilities;
 import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Optional;
@@ -390,6 +389,8 @@ public abstract class Inspector extends Stage
         buttonPanel.getChildren().add(inspectButton);
 
         getButton = new Button(getLabel);
+        // getButton is only used in BlueJ
+        getButton.setVisible(!Config.isGreenfoot());
         getButton.setDisable(true);
         getButton.setOnAction(e -> doGet());
         buttonPanel.getChildren().add(getButton);
