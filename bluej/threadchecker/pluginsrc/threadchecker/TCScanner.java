@@ -1462,28 +1462,10 @@ class TCScanner extends TreePathScanner<Void, Void>
                 .map(arg -> trees.getTypeMirror(new TreePath(getCurrentPath(), arg)))
                 .collect(Collectors.toList());
         
-        Tree parent = getCurrentPath().getParentPath().getLeaf();
-        // If we have a lambda type, and match it,
-        // then we must be making an anonymous inner class
-        TypeMirror lambdaClassType = calculatedExpectedLambdaType(parent, node);
-        boolean matchesLambda = false;
-        if (lambdaClassType != null && isSameType(lambdaClassType, trees.getTypeMirror(trees.getPath(cu, node.getIdentifier())))
-                && node.getClassBody() != null)
-        {
-            Optional<LocatedTag> lambdaAnn = lambdaClassToAnn(parent, lambdaClassType, node, false);
-            if (lambdaAnn != null)
-            {
-                matchesLambda = true;
-                lambdaScopeStack.addLast(lambdaAnn.orElse(null));
-            }
-        }
-        
         WrapDescent wrap = checkInvocation(elements.getName("<init>"), node.getIdentifier(), trees.getTypeMirror(trees.getPath(cu, node.getIdentifier())), null, argTypes, arg1, node);
         if (wrap.before != null) wrap.before.run();
         Void r = super.visitNewClass(node, arg1);
         if (wrap.after != null) wrap.after.run();
-        if (matchesLambda)
-            lambdaScopeStack.removeLast();
         return r;
     }
 
