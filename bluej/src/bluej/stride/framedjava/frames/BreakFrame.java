@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,21 +26,15 @@
 package bluej.stride.framedjava.frames;
 
 
-import java.util.List;
-
-import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
-import bluej.stride.framedjava.ast.HighlightedBreakpoint;
-import bluej.stride.framedjava.canvases.JavaCanvas;
 import bluej.stride.framedjava.elements.BreakElement;
 import bluej.stride.generic.DefaultFrameFactory;
 import bluej.stride.generic.FrameCanvas;
 import bluej.stride.generic.FrameFactory;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.SingleLineFrame;
-import bluej.stride.operations.FrameOperation;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
@@ -148,7 +142,6 @@ public class BreakFrame extends SingleLineFrame
         final double ourX = getNode().localToScene(0, 0).getX();
         final double theirX = outer.getContentSceneBounds().getMinX();
 
-
         double width = ourX - theirX;
         rectangle.setWidth(width + 1.0); // to break border of break
         // Round it to integer height:
@@ -173,10 +166,9 @@ public class BreakFrame extends SingleLineFrame
             xOffset = new SimpleDoubleProperty(0.0);
             yOffset = new SimpleDoubleProperty(0.0);
 
-            JavaFXUtil.onceInScene(getNode(), () -> {
-                getEditor().getCodeOverlayPane().addOverlay(overlay, getNode(), xOffset, yOffset);
-                adjustOverlayBounds();
-            });
+            JavaFXUtil.onceInScene(overlay, this::adjustOverlayBounds);
+            getEditor().getCodeOverlayPane().addOverlay(overlay, getNode(), xOffset, yOffset);
+            
             JavaFXUtil.addChangeListener(getNode().localToSceneTransformProperty(), t -> adjustOverlayBounds());
             JavaFXUtil.addChangeListener(getNode().boundsInLocalProperty(), b -> adjustOverlayBounds());
         }
