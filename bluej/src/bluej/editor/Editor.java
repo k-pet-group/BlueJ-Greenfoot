@@ -35,8 +35,6 @@ import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXRunnable;
 import javafx.print.PrinterJob;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 
 
 /**
@@ -60,7 +58,6 @@ public interface Editor
      * 
      * @param vis  true to make the editor visible, or false to hide it.
      */
-    @OnThread(Tag.FXPlatform)
     void setEditorVisible(boolean vis);
 
     /**
@@ -88,7 +85,6 @@ public interface Editor
     /**
      * Close the editor window.
      */
-    @OnThread(Tag.FXPlatform)
     void close();
 
     /**
@@ -135,9 +131,7 @@ public interface Editor
      *  
      *  @param msg the message to display
      */
-    @OnThread(Tag.FXPlatform)
     public void writeMessage(String msg);
-
 
     /**
      * Remove the step mark (the mark that shows the current line when
@@ -204,7 +198,6 @@ public interface Editor
     /**
      * Returns an action which will print the contents of the editor
      */
-    @OnThread(Tag.FXPlatform)
     FXRunnable printTo(PrinterJob printerJob, PrintSize printSize, boolean printLineNumbers, boolean printBackground);
 
     /**

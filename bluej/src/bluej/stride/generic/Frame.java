@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,10 +32,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import bluej.Config;
-import bluej.stride.framedjava.frames.CallFrame;
 import bluej.stride.framedjava.slots.StructuredSlot;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
-import javafx.application.Platform;
 import javafx.beans.binding.When;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -59,7 +57,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.transform.Transform;
 
 import bluej.collect.StrideEditReason;
 import bluej.stride.framedjava.elements.CodeElement;
@@ -1594,14 +1591,6 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         effort += getAllFrames().filter(f -> f != this).mapToInt(Frame::calculateEffort).sum();
         // We omit how much effort it was to add extensions, etc: this only needs to be a rough calculation.
         return effort;
-    }
-
-    /**
-     * Perform an action once this frame is actually added to a scene.
-     */
-    protected final void onceInScene(FXRunnable action)
-    {
-        JavaFXUtil.onceNotNull(getNode().sceneProperty(), s -> action.run());
     }
 
     /**

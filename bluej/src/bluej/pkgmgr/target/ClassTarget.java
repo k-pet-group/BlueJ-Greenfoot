@@ -1395,13 +1395,22 @@ public class ClassTarget extends DependentTarget
     }
 
     @Override
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type)
     {
-        if (Config.isGreenfoot())
+        if (Config.isGreenfoot() && type == CompileType.EXPLICIT_USER_COMPILE)
+        {
+            // We compile the package rather than just the class for explicit compiles in
+            // Greenfoot, but mark this target as modified first so that we do also compile
+            // this class even if we wouldn't otherwise (and can report the result to the
+            // editor, which is expecting to receive it):
+            markModified();
             getPackage().getProject().scheduleCompilation(immediate, reason, type, getPackage());
+        }
         else
+        {
             getPackage().getProject().scheduleCompilation(immediate, reason, type, this);
+        }
     }
 
     /**

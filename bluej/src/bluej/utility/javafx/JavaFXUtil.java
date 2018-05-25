@@ -1217,23 +1217,23 @@ public class JavaFXUtil
 
     /**
      * Runs the given action (on the FX Platform thread) once the given node
-     * gets added to the scene.
+     * gets added to a scene.
      */
     public static void onceInScene(Node node, FXPlatformRunnable action)
     {
-        // Fairly sure scene property can only change on FX thread, but no
-        // harm using runNowOrLater:
-        onceNotNull(node.sceneProperty(), s -> runNowOrLater(action));
+        onceBecomesNotNull(node.sceneProperty(), s -> action.run());
     }
 
     /** 
-     * Waits for the observable value to become non-null, then calls the given function on the value once.
+     * Waits for the observable value to become non-null (if it is not already), then calls the
+     * given function on the value once.
      *
      * @param observable The value to wait to become non-null.
      * @param callback The callback to call with the non-null value.  If
      *                 observable's value is already non-null, called immediately before returning
      */
-    public static <T6> void onceNotNull(ObservableValue<T6> observable, FXConsumer<T6> callback)
+    @OnThread(Tag.FXPlatform)
+    public static <T6> void onceNotNull(ObservableValue<T6> observable, FXPlatformConsumer<T6> callback)
     {
         T6 t = observable.getValue();
         
@@ -1243,12 +1243,25 @@ public class JavaFXUtil
             return;
         }
         
-        // Can't be a lambda because we need a reference to ourselves to self-remove:
-        ChangeListener<? super T6> listener = new ChangeListener<T6>() {
+        onceBecomesNotNull(observable, callback);
+    }
     
+    /** 
+     * Waits for the observable value to become non-null, then calls the given function on the
+     * value once.
+     *
+     * @param observable The value to wait to become non-null.
+     * @param callback The callback to call with the non-null value.
+     */
+    @OnThread(Tag.FX)
+    public static <T> void onceBecomesNotNull(ObservableValue<T> observable, FXPlatformConsumer<T> callback)
+    {
+        // Can't be a lambda because we need a reference to ourselves to self-remove:
+        ChangeListener<? super T> listener = new ChangeListener<T>() {
             @Override
-            public void changed(ObservableValue<? extends T6> observable,
-                    T6 oldValue, T6 newVal)
+            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+            public void changed(ObservableValue<? extends T> observable,
+                    T oldValue, T newVal)
             {
                 if (newVal != null)
                 {
@@ -1267,7 +1280,8 @@ public class JavaFXUtil
      * @param callback The callback to call with the true value.
      *                 If observable's value is already true, call immediately before returning
      */
-    public static void onceTrue(ObservableValue<Boolean> observable, FXConsumer<Boolean> callback)
+    @OnThread(Tag.FXPlatform)
+    public static void onceTrue(ObservableValue<Boolean> observable, FXPlatformConsumer<Boolean> callback)
     {
         boolean value = observable.getValue();
 
@@ -1279,8 +1293,8 @@ public class JavaFXUtil
 
         // Can't be a lambda because we need a reference to ourselves to self-remove:
         ChangeListener<Boolean> listener = new ChangeListener<Boolean>() {
-
             @Override
+            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
             public void changed(ObservableValue<? extends Boolean> observable,
                                 Boolean oldValue, Boolean newVal)
             {
