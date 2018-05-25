@@ -265,22 +265,23 @@ public abstract class CodeError
      * When the error indicator is visible, and the given fresh property is false,
      * records the shown-error-indicator event with the editor.
      */
+    @OnThread(Tag.FXPlatform)
     public void bindFresh(ObservableBooleanValue fresh, InteractionManager editor)
     {
         freshProperty.bind(fresh);
         if (!visibleProperty().get())
         {
             // Add a listener to send an event when we become visible:
-            JavaFXUtil.addSelfRemovingListener(visibleProperty(), vis -> {
+            JavaFXUtil.listenOnce(visibleProperty(), vis -> {
                 if (vis) // Should always be true, but check anyway
                 {
-                    JavaFXUtil.runNowOrLater(() -> editor.recordErrorIndicatorShown(getIdentifier()));
+                    editor.recordErrorIndicatorShown(getIdentifier());
                 }
             });
         }
         else
         {
-            JavaFXUtil.runNowOrLater(() -> editor.recordErrorIndicatorShown(getIdentifier()));
+            editor.recordErrorIndicatorShown(getIdentifier());
         }
     }
 

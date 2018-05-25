@@ -178,7 +178,8 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
      * frameEnabledProperty, or whether we are showing a preview of the enabled or disabled
      * state.
      */
-    private final ObjectProperty<FramePreviewEnabled> framePreviewEnableProperty = new SimpleObjectProperty(FramePreviewEnabled.PREVIEW_NONE);
+    private final ObjectProperty<FramePreviewEnabled> framePreviewEnableProperty =
+            new SimpleObjectProperty<>(FramePreviewEnabled.PREVIEW_NONE);
 
     /**
      * Tracks whether this frame is the source of a current drag operation.  If so,
@@ -643,7 +644,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         // without making Frame (rather than subclasses) implement CodeFrame, which wouldn't
         // work because we'd lose the useful type parameter on CodeFrame
         if (this instanceof CodeFrame)
-            ((CodeFrame)this).setElementEnabled(enabled);
+            ((CodeFrame<?>)this).setElementEnabled(enabled);
         
         if (!enabled)
         {
@@ -1139,13 +1140,17 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
         return Stream.concat(Stream.of(this), getCanvases().flatMap(c -> c.getBlocksSubtype(Frame.class).stream()).flatMap(Frame::getAllFrames));
     }
 
-    /** Sets this frame to be fresh */
+    /**
+     * Sets this frame to be fresh
+     */
+    @OnThread(Tag.FXPlatform)
     public void markFresh()
     {
         fresh.set(true);
     }
 
     /** Sets this frame to be non-fresh */
+    @OnThread(Tag.FXPlatform)
     public void markNonFresh()
     {
         // Don't mark it non-fresh just because they've hit ctrl-space:
@@ -1155,7 +1160,8 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
 
     protected boolean isShowingSuggestions()
     {
-        return getEditableSlots().anyMatch(s -> s instanceof StructuredSlot && ((StructuredSlot)s).isShowingSuggestions());
+        return getEditableSlots().anyMatch(s -> s instanceof StructuredSlot &&
+                ((StructuredSlot<?,?,?>)s).isShowingSuggestions());
     }
 
     /** Checks wheter this frame is fresh */

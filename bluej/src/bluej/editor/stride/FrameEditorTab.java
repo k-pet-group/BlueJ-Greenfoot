@@ -155,7 +155,8 @@ import java.util.stream.Stream;
  * (frames, slots, etc) via the InteractionManager interface, so that class is a good place
  * to understand the public interface of this class.
  */
-public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements InteractionManager, SuggestionListParent
+@OnThread(Tag.FX)
+public class FrameEditorTab extends FXTab implements InteractionManager, SuggestionListParent
 {
     @OnThread(Tag.Any)
     private final static List<Future<List<AssistContentThreadSafe>>> popularImports = new ArrayList<>();
@@ -1369,8 +1370,8 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         return getParent().catalogueShowingProperty();
     }
 
-    @OnThread(Tag.FXPlatform)
     @Override
+    @OnThread(Tag.FXPlatform)
     public void focusWhenShown()
     {
         withTopLevelFrame(f -> f.focusOnBody(TopLevelFrame.BodyFocus.BEST_PICK));
@@ -1869,10 +1870,13 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void withSuperConstructors(FXPlatformConsumer<List<AssistContentThreadSafe>> handler)
     {
         TopLevelCodeElement codeEl = getSource();
-        JavaFXUtil.runNowOrLater(() -> handler.accept(Utility.mapList(codeEl.getSuperConstructors(), c -> new AssistContentThreadSafe(new ConstructorCompletion(c, Collections.emptyMap(), editor.getJavadocResolver())))));
+        handler.accept(Utility.mapList(codeEl.getSuperConstructors(),
+                c -> new AssistContentThreadSafe(new ConstructorCompletion(c, Collections.emptyMap(),
+                        editor.getJavadocResolver()))));
     }
 
     @Override
@@ -2267,7 +2271,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
     @OnThread(Tag.Any)
     public Map<SuggestionList.SuggestionShown, Collection<AssistContentThreadSafe>> getImportSuggestions()
     {
-        HashMap<String, Pair<SuggestionList.SuggestionShown, AssistContentThreadSafe>> imports = new HashMap();
+        HashMap<String, Pair<SuggestionList.SuggestionShown, AssistContentThreadSafe>> imports = new HashMap<>();
         // Add popular:
         Stream.<Pair<SuggestionShown, AssistContentThreadSafe>>concat(
             popularImports.stream().flatMap(imps -> getFutureList(imps).stream().map(ac -> new Pair<>(SuggestionList.SuggestionShown.COMMON, ac))),
@@ -2735,10 +2739,13 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
         return contentRoot.cssHighlightColorProperty().get();
     }
 
+    @SuppressWarnings("unchecked")
     public void focusMethod(String methodName)
     {
         if (getTopLevelFrame() != null) {
-            for (NormalMethodFrame normalMethodFrame : (List<NormalMethodFrame>) getTopLevelFrame().getMethods()) {
+            for (NormalMethodFrame normalMethodFrame :
+                    (List<NormalMethodFrame>) getTopLevelFrame().getMethods())
+            {
                 // TODO include the params no etc to increase accuracy
                 if (normalMethodFrame.getName().equals(methodName)) {
                     normalMethodFrame.focusName();
@@ -2959,6 +2966,7 @@ public @OnThread(Tag.FX) class FrameEditorTab extends FXTab implements Interacti
      * @return      If the frame is a code frame, an XPath String identifying the location of that frame.
      *              Otherwise, null.
      */
+    @SuppressWarnings("unchecked")
     private String getXPath(Frame frame)
     {
         return (frame instanceof CodeFrame)

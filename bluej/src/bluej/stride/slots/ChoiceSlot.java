@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,7 +34,6 @@ import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
-import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
@@ -377,7 +376,6 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
         }
 
         @Override
-        @OnThread(value = Tag.FXPlatform, ignoreParent = true)
         public void cut()
         {
             copy();
@@ -507,7 +505,7 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
         return dummyField;
     }
 
-    public Stream getCurrentErrors()
+    public Stream<CodeError> getCurrentErrors()
     {
         // TODO 
         return Stream.empty();

@@ -604,7 +604,7 @@ public class JavaFXUtil
         alert.initModality(Modality.WINDOW_MODAL);
         if (bringToFront)
         {
-            addSelfRemovingListener(alert.showingProperty(), showing -> {
+            listenOnce(alert.showingProperty(), showing -> {
                     if (showing) {
                         Utility.bringToFrontFX(alert.getDialogPane().getScene().getWindow());
                     }
@@ -1404,6 +1404,36 @@ public class JavaFXUtil
                 prop.removeListener(this);
             }
             
+        };
+        prop.addListener(l);
+        return () -> prop.removeListener(l);
+    }
+
+    /**
+     * Creates a ChangeListener that will execute the given action (with the new value)
+     * once, on the first change, and then remove itself as a listener. The observable should
+     * only be changed on the FX Platform thread.
+     * 
+     * Also returns an action that can remove the listener earlier.
+     * 
+     * @param prop The observable value
+     * @param callback A listener, to be called at most once, on the first change of "prop"
+     * @return An action which, if run, removes this listener.  If the listener has already
+     *         been run once, has no effect.
+     */
+    @OnThread(Tag.FXPlatform)
+    public static <T> FXPlatformRunnable listenOnce(ObservableValue<T> prop,
+            FXPlatformConsumer<T> callback)
+    {
+        ChangeListener<T> l = new ChangeListener<T>() {
+            @Override
+            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+            public void changed(ObservableValue<? extends T> observable,
+                    T oldValue, T newValue)
+            {
+                callback.accept(newValue);
+                prop.removeListener(this);
+            }
         };
         prop.addListener(l);
         return () -> prop.removeListener(l);

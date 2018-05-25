@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2015,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -713,7 +713,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         setScaleX(0.2);
         setScaleY(0.2);
         // Don't start the animations until we are in our right position:
-        JavaFXUtil.addSelfRemovingListener(layoutYProperty(), layoutY -> {
+        JavaFXUtil.listenOnce(layoutYProperty(), layoutY -> {
             setVisible(true);
             ScaleTransition scale = new ScaleTransition(Duration.millis(300), this);
             scale.setFromX(0.2);
@@ -737,8 +737,11 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
                 }
 
                 new ParallelTransition(scale, move).play();
-            } else
+            }
+            else
+            {
                 scale.play();
+            }
         });
 
     }

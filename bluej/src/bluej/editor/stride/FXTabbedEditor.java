@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2014,2015,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -556,6 +556,7 @@ public @OnThread(Tag.FX) class FXTabbedEditor
     /**
      * Brings the tab to the front: unminimises window, brings window to the front, and selects the tab
      */
+    @OnThread(Tag.FXPlatform)
     public void bringToFront(Tab tab)
     {
         stage.setIconified(false);
