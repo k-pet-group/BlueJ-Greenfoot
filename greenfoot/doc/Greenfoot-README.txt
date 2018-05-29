@@ -1,4 +1,4 @@
-Greenfoot version: 3.1.0-shm
+Greenfoot version: 3.5.0
 
 Information about Greenfoot
 -----------------------
