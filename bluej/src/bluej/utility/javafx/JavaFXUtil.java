@@ -575,14 +575,32 @@ public class JavaFXUtil
                 ((FXConsumer<Boolean>)listener::accept).accept(newVal));
     }
 
+    /**
+     * Run an action on the FX platform thread - either now (if called on the platform thread) or
+     * at some indeterminate time (if called from a different thread).
+     * <p>
+     * This method is inherently dangerous and its use should usually be avoided.
+     * <p>
+     * Calling this from a method tagged with @OnThread(Tag.FX) will potentially run the action
+     * simultaneously with the calling thread, which may well cause concurrency bugs. Furthermore
+     * if on the "FX" (loading) thread then the design should generally not require swapping to the
+     * FX platform thread at all.
+     * <p>
+     * Calling this from a method tagged with @OnThread(Tag.FXPlatform) is redundant. Instead, just
+     * run the action directly. 
+     */
     @OnThread(Tag.Any)
+    @SuppressWarnings("threadchecker")
     public static void runNowOrLater(FXPlatformRunnable action)
     {
         if (Platform.isFxApplicationThread())
-            // Circumvent thread checker (nasty!)
-            ((Runnable)action::run).run();
+        {
+            action.run();
+        }
         else
+        {
             Platform.runLater(action::run);
+        }
     }
 
     /**
