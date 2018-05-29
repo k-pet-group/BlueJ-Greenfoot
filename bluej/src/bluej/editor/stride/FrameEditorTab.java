@@ -2010,13 +2010,13 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void withAccessibleMembers(PosInSourceDoc pos,
             Set<CompletionKind> kinds, boolean includeOverriden, FXPlatformConsumer<List<AssistContentThreadSafe>> handler)
     {
         TopLevelCodeElement allCode = getSource();
-        JavaFXUtil.runNowOrLater(() -> handler.accept(Utility.mapList(
-                editor.getAvailableMembers(allCode, pos, kinds, includeOverriden)
-                , AssistContentThreadSafe::copy)));
+        handler.accept(Utility.mapList(editor.getAvailableMembers(allCode, pos, kinds, includeOverriden)
+                , AssistContentThreadSafe::copy));
     }
 
     @OnThread(Tag.FXPlatform)
@@ -2723,14 +2723,13 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void updateErrorOverviewBar()
     {
         // This method is called as a canvas begins to unfold/fold.  So we add a delay
         // before we recalculate the positions, to make sure the canvas has reached
         // its final size.  At worst, we recalculate twice; no big deal:
-        JavaFXUtil.runNowOrLater(() ->
-            JavaFXUtil.runAfter(Duration.millis(500), () -> updateErrorOverviewBar(false))
-        );
+        JavaFXUtil.runAfter(Duration.millis(500), () -> updateErrorOverviewBar(false));
     }
 
     @Override
