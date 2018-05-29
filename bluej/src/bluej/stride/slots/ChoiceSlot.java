@@ -353,8 +353,15 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
         }
     }
     
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     private class DummyTextField extends TextField
     {
+        @OnThread(Tag.FX)
+        public DummyTextField()
+        {
+            // Nothing to do.
+        }
+        
         @Override
         public void appendText(String s)
         {
@@ -438,7 +445,7 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
             else
             {
                 curDisplay.setText(newVal);
-                JavaFXUtil.runNowOrLater(() -> dropdown.get().updateVisual(newVal));
+                dropdown.get().updateVisual(newVal);
             }
         }
     }

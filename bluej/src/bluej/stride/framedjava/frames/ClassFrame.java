@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -157,7 +157,8 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         extendsInheritedCanvases.addListener((ListChangeListener<? super InheritedCanvas>) c ->
             inheritedLabel.setDisable(extendsInheritedCanvases.isEmpty())
         );
-        JavaFXUtil.addChangeListener(inheritedLabel.expandedProperty(), b -> editor.updateErrorOverviewBar());
+        JavaFXUtil.addChangeListenerPlatform(inheritedLabel.expandedProperty(),
+                b -> editor.updateErrorOverviewBar());
 
         // We must keep hold of an explicit reference to this binding, rather than inlining it.
         // If you do not keep this stored in a field, it will get GC-ed.
