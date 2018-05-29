@@ -782,7 +782,9 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
     @Override
     public Stream<FrameCanvas> getPersistentCanvases()
     {
-        return getCanvases().filter(canvas -> !extendsInheritedCanvases.contains(canvas));
+        List<FrameCanvas> extendsFrameCanvases = extendsInheritedCanvases.stream()
+                .map(inheritedCanvas -> inheritedCanvas.canvas).collect(Collectors.toList());
+        return getCanvases().filter(canvas -> !extendsFrameCanvases.contains(canvas));
     }
 
     @Override
