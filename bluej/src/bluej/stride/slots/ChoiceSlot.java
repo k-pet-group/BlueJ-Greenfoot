@@ -190,6 +190,113 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
         setValue(null);
     }
     
+    @OnThread(Tag.FXPlatform)
+    class ChoiceSuggestionListener implements SuggestionListListener
+    {
+        public void suggestionListChoiceClicked(SuggestionList suggestionList, int highlighted)
+        {
+            if (highlighted != -1)
+                setValue(choices.get(highlighted));
+            editor.endRecordingState(ChoiceSlot.this);
+            row.focusRight(ChoiceSlot.this);
+        }
+        
+        @Override
+        public Response suggestionListKeyTyped(SuggestionList suggestionList, KeyEvent event, int highlighted)
+        {
+            if (event.getCharacter().equals(" "))
+            {
+                Optional<T> completion = getCompletion(highlighted);
+                if (completion.isPresent())
+                {
+                    setValue(completion.get());
+                    row.focusRight(ChoiceSlot.this);
+                    return Response.DISMISS;
+                }
+                else
+                {
+                    // Ignore the space, and continue:
+                    return Response.CONTINUE;
+                }
+            }
+            else
+            {
+                dummyField.fireEvent(event.copyFor(null, dummyField));
+                return Response.CONTINUE;
+            }
+        }
+        
+
+        @Override
+        public Response suggestionListKeyPressed(SuggestionList suggestionList, KeyEvent event, int highlighted)
+        {
+            switch (event.getCode())
+            {
+                case ENTER:
+                    row.focusRight(ChoiceSlot.this);
+                    suggestionListFocusStolen(highlighted);
+                    return Response.DISMISS;
+                case ESCAPE:
+                    setValue(previousSelection);
+                    row.focusRight(ChoiceSlot.this);
+                    return Response.DISMISS;
+                case LEFT:
+                    row.focusLeft(ChoiceSlot.this);
+                    suggestionListFocusStolen(highlighted);
+                    return Response.DISMISS;
+                case RIGHT:
+                    row.focusRight(ChoiceSlot.this);
+                    suggestionListFocusStolen(highlighted);
+                    return Response.DISMISS;
+                case TAB:
+                    if (event.isShiftDown())
+                        row.focusLeft(ChoiceSlot.this);
+                    else
+                        row.focusRight(ChoiceSlot.this);
+                    suggestionListFocusStolen(highlighted);
+                    return Response.DISMISS;
+                default:
+                    return Response.CONTINUE;
+            }
+        }
+
+        @Override
+        public void hidden()
+        {
+            JavaFXUtil.setPseudoclass("bj-transparent", true, pane);
+            editor.endRecordingState(ChoiceSlot.this);
+            dropdown.set(null);
+        }
+        
+        private Optional<T> getCompletion(int highlighted)
+        {
+            // Pick a value if one was available to complete:
+            if (highlighted != -1)//&& curDisplay.getText().length() > 0)
+            {
+                return Optional.of(choices.get(highlighted));
+            }
+            else if (dropdown.get().eligibleCount() == 1  && curDisplay.getText().length() > 0)
+            {
+                return Optional.of(choices.get(dropdown.get().getFirstEligible()));
+            }
+            return Optional.empty();
+        }
+
+        @Override
+        public void suggestionListFocusStolen(int highlighted)
+        {
+            // Pick a value if one was available to complete:
+            Optional<T> completion = getCompletion(highlighted);
+            if (completion.isPresent())
+            {
+                setValue(completion.get());
+            }
+            else
+            {
+                setValue(previousSelection);
+            }
+        }
+    }
     
     /**
      * Shows the suggestions dropdown, and highlights the given item (null means no highlight)
@@ -197,112 +304,14 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
     @OnThread(Tag.FXPlatform)
     public void showSuggestions(T curHighlight)
     {
-        dropdown.set(new SuggestionList(editor, Utility.mapList(choices, t -> new SuggestionDetails(t.toString())), null, SuggestionList.SuggestionShown.RARE, i -> { i = i < 0 ? 0 : i; futureDisplay.setText(choices.get(i).toString()); }, new SuggestionListListener() {
-            public void suggestionListChoiceClicked(SuggestionList suggestionList, int highlighted)
-            {
-                if (highlighted != -1)
-                    setValue(choices.get(highlighted));
-                editor.endRecordingState(ChoiceSlot.this);
-                row.focusRight(ChoiceSlot.this);
-            }
-            
-            @Override
-            public Response suggestionListKeyTyped(SuggestionList suggestionList, KeyEvent event, int highlighted)
-            {
-                if (event.getCharacter().equals(" "))
-                {
-                    Optional<T> completion = getCompletion(highlighted);
-                    if (completion.isPresent())
-                    {
-                        setValue(completion.get());
-                        row.focusRight(ChoiceSlot.this);
-                        return Response.DISMISS;
-                    }
-                    else
-                    {
-                        // Ignore the space, and continue:
-                        return Response.CONTINUE;
-                    }
-                }
-                else
-                {
-                    dummyField.fireEvent(event.copyFor(null, dummyField));
-                    return Response.CONTINUE;
-                }
-            }
-            
-
-            @Override
-            public Response suggestionListKeyPressed(SuggestionList suggestionList, KeyEvent event, int highlighted)
-            {
-                switch (event.getCode())
-                {
-                    case ENTER:
-                        row.focusRight(ChoiceSlot.this);
-                        suggestionListFocusStolen(highlighted);
-                        return Response.DISMISS;
-                    case ESCAPE:
-                        setValue(previousSelection);
-                        row.focusRight(ChoiceSlot.this);
-                        return Response.DISMISS;
-                    case LEFT:
-                        row.focusLeft(ChoiceSlot.this);
-                        suggestionListFocusStolen(highlighted);
-                        return Response.DISMISS;
-                    case RIGHT:
-                        row.focusRight(ChoiceSlot.this);
-                        suggestionListFocusStolen(highlighted);
-                        return Response.DISMISS;
-                    case TAB:
-                        if (event.isShiftDown())
-                            row.focusLeft(ChoiceSlot.this);
-                        else
-                            row.focusRight(ChoiceSlot.this);
-                        suggestionListFocusStolen(highlighted);
-                        return Response.DISMISS;
-                    default:
-                        return Response.CONTINUE;
-                }
-            }
-
-            @Override
-            public void hidden()
-            {
-                JavaFXUtil.setPseudoclass("bj-transparent", true, pane);
-                editor.endRecordingState(ChoiceSlot.this);
-                dropdown.set(null);
-            }
-            
-            private Optional<T> getCompletion(int highlighted)
-            {
-                // Pick a value if one was available to complete:
-                if (highlighted != -1)//&& curDisplay.getText().length() > 0)
-                {
-                    return Optional.of(choices.get(highlighted));
-                }
-                else if (dropdown.get().eligibleCount() == 1  && curDisplay.getText().length() > 0)
-                {
-                    return Optional.of(choices.get(dropdown.get().getFirstEligible()));
-                }
-                return Optional.empty();
-            }
-
-            @Override
-            public void suggestionListFocusStolen(int highlighted)
-            {
-                // Pick a value if one was available to complete:
-                Optional<T> completion = getCompletion(highlighted);
-                if (completion.isPresent())
-                {
-                    setValue(completion.get());
-                }
-                else
-                {
-                    setValue(previousSelection);
-                }
-            }
-            
-        }));
+        dropdown.set(
+            new SuggestionList(editor,
+                Utility.mapList(choices, t -> new SuggestionDetails(t.toString())), null,
+                SuggestionList.SuggestionShown.RARE, i -> {
+                    i = i < 0 ? 0 : i; futureDisplay.setText(choices.get(i).toString());
+                },
+                new ChoiceSuggestionListener())
+            );
                 
         dropdown.get().show(pane, new BoundingBox(0, 0, 0, pane.heightProperty().get()));
         

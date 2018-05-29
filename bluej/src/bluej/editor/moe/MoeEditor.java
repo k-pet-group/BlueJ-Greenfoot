@@ -3288,10 +3288,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 }
 
                 @Override
-                @OnThread(Tag.FX)
                 public void setupSuggestionWindow(Stage window)
                 {
-                    JavaFXUtil.runNowOrLater(() -> sourcePane.setFakeCaret(true));
+                    sourcePane.setFakeCaret(true);
                 }
             }, suggestionDetails, null, SuggestionShown.RARE, i ->
             {

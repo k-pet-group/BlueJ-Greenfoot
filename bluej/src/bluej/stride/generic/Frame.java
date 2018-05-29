@@ -1109,6 +1109,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
      * @param src The item in which delete was pressed
      * @return True if we deleted ourselves in response, otherwise false
      */
+    @OnThread(Tag.FXPlatform)
     public boolean deleteAtEnd(FrameContentItem srcRow, HeaderItem src)
     {
         return false;
@@ -1158,6 +1159,7 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
             fresh.set(false);
     }
 
+    @OnThread(Tag.FXPlatform)
     protected boolean isShowingSuggestions()
     {
         return getEditableSlots().anyMatch(s -> s instanceof StructuredSlot &&

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2015,2016,2018 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -291,19 +291,19 @@ public class FrameContentRow implements FrameContentItem, SlotParent<HeaderItem>
         parentFrame.focusUp(this, cursorToEnd);
     }
 
-    @OnThread(Tag.FXPlatform)
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean backspaceAtStart(HeaderItem src)
     {
         return parentFrame.backspaceAtStart(this, src);
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean deleteAtEnd(HeaderItem src)
     {
         return parentFrame.deleteAtEnd(this, src);
     }
-
 
     @Override
     public void setView(Frame.View oldView, Frame.View newView, SharedTransition animation)

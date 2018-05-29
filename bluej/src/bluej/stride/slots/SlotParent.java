@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,7 @@ package bluej.stride.slots;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+@OnThread(Tag.FXPlatform)
 public interface SlotParent<T> extends FocusParent<T>
 {
     /**
@@ -34,10 +35,9 @@ public interface SlotParent<T> extends FocusParent<T>
      * @return True if we have focused into another slot, or deleted this slot, or somehow it is invalid to retain
      * focus in the src slot
      */
-    @OnThread(Tag.FXPlatform)
     public boolean backspaceAtStart(T src);
+
     public boolean deleteAtEnd(T src);
 
-    @OnThread(Tag.FXPlatform)
     public void escape(T src);
 }

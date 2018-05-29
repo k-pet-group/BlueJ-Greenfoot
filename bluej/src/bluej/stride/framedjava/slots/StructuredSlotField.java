@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,7 +27,9 @@ import java.util.stream.Stream;
 
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableStringValue;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -48,6 +50,7 @@ import bluej.stride.generic.InteractionManager;
 import bluej.stride.slots.EditableSlot.MenuItems;
 import bluej.utility.javafx.DelegableScalableTextField;
 import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.HangingFlowPane;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.SharedTransition;
@@ -92,8 +95,8 @@ class StructuredSlotField implements StructuredSlotComponent
         if (stringLiteral)
             JavaFXUtil.addStyleClass(field, "expression-string-literal");
         
-         Runnable shrinkGrow = () -> {
-             boolean suggesting = parent.suggestingFor(StructuredSlotField.this);
+        FXPlatformRunnable shrinkGrow = () -> {
+            boolean suggesting = parent.suggestingFor(StructuredSlotField.this);
             if (field.isFocused() == false && !suggesting)
             {
                 notifyLostFocus(null);
@@ -103,27 +106,49 @@ class StructuredSlotField implements StructuredSlotComponent
                 // If we have focus, don't shrink, stay visible:
                 JavaFXUtil.setPseudoclass("bj-transparent", false, field);
             }
-            
         };
         
-        field.focusedProperty().addListener((a, b, focused) -> {
-            shrinkGrow.run();
-            // In effect it moved, by gaining or losing focus:
-            parent.caretMoved();
-            if (focused)
+        field.focusedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean old, Boolean focused)
             {
-                parent.getSlot().notifyGainFocus(this);
+                shrinkGrow.run();
+                // In effect it moved, by gaining or losing focus:
+                parent.caretMoved();
+                if (focused)
+                {
+                    parent.getSlot().notifyGainFocus(StructuredSlotField.this);
+                }
             }
         });
-        field.textProperty().addListener((a, b, c) -> {
-            shrinkGrow.run();
-            if (!stringLiteral)
-                updateBreaks();
+        
+        field.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            @OnThread(value = Tag.FXPlatform, ignoreParent = true)            
+            public void changed(ObservableValue<? extends String> observable, String oldValue,
+                    String newValue)
+            {
+                shrinkGrow.run();
+                if (!stringLiteral)
+                {
+                    updateBreaks();
+                }
+            }
         });
-        field.promptTextProperty().addListener((a, b, c) -> {
-            shrinkGrow.run();
-            if (!stringLiteral)
-                updateBreaks();
+
+        field.promptTextProperty().addListener(new ChangeListener<String>() {
+            @Override
+            @OnThread(value = Tag.FXPlatform, ignoreParent = true)            
+            public void changed(ObservableValue<? extends String> observable, String oldValue,
+                    String newValue)
+            {
+                shrinkGrow.run();
+                if (!stringLiteral)
+                {
+                    updateBreaks();
+                }
+            }
         });
         
         JavaFXUtil.initializeCustomHelp(parent.getEditor(), field, this::calculateTooltip, true);
@@ -440,9 +465,23 @@ class StructuredSlotField implements StructuredSlotComponent
         }
     }
     
-    /*package-visible*/ void cut() { field.cut(); }
-    /*package-visible*/ void copy() { field.copy(); }
-    /*package-visible*/ void paste() { field.paste(); }
+    @OnThread(Tag.FXPlatform)
+    public void cut()
+    {
+        field.cut();
+    }
+    
+    @OnThread(Tag.FXPlatform)
+    public void copy()
+    {
+        field.copy();
+    }
+    
+    @OnThread(Tag.FXPlatform)
+    public void paste()
+    {
+        field.paste();
+    }
 
     @Override
     public boolean isAlmostBlank() { return isEmpty(); }
@@ -473,11 +512,13 @@ class StructuredSlotField implements StructuredSlotComponent
         field.setDisable(!editable);
     }
 
+    @OnThread(Tag.FXPlatform)
     public void nextWord()
     {
         field.nextWord();
     }
 
+    @OnThread(Tag.FXPlatform)
     public void previousWord()
     {
         field.previousWord();

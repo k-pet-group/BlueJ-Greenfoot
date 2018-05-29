@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -54,7 +54,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.effect.BlendMode;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -92,6 +91,7 @@ import bluej.utility.javafx.ScalableHeightLabel;
  *  Direct suggestions are always shown first, and similar suggestions are shown beneath
  *  a suitable label.
  */
+@OnThread(Tag.FXPlatform)
 public class SuggestionList
 {
     // The next available SuggestionList ID; must be static to be unique across all instances:
@@ -131,12 +131,6 @@ public class SuggestionList
         }
     }
 
-    /**
-     * Maximum edit distance: deliberately tight to avoid too many far-out suggestions
-     * showing up in the "Similar" list.
-     */
-    private static final int MAX_EDIT_DISTANCE = 1;
-    
     /**
      * Element containing all the suggestion items:
      */
@@ -553,7 +547,6 @@ public class SuggestionList
         {
             for (int i = 0; i < choices.size(); i++)
             {
-                final int index = i + j*choices.size();
                 SuggestionDetails choice = choices.get(i);
                 SuggestionListItem sugg = new SuggestionListItem(i, targetType != null && choice.type != null ? targetType.equals(choice.type) : false, j == 0);
                 doubleSuggestions.add(sugg);
@@ -1143,6 +1136,7 @@ public class SuggestionList
         return suggestionListId;
     }
 
+    @OnThread(Tag.FXPlatform)
     public static interface SuggestionListParent
     {
         /**

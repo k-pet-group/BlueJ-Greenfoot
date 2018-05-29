@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -204,7 +204,9 @@ class BracketedStructured<INFIX extends InfixStructured<SLOT, INFIX>, SLOT exten
         return content;
     }
 
-    public void insertAfter(String text) {
+    @OnThread(Tag.FXPlatform)
+    public void insertAfter(String text)
+    {
         parent.insertNext(this, text);
     }
 
@@ -214,11 +216,12 @@ class BracketedStructured<INFIX extends InfixStructured<SLOT, INFIX>, SLOT exten
         return "" + opening + content.testingGetState(pos) + closing;
     }
 
-    InfixStructured testingContent()
+    public INFIX testingContent()
     {
         return content;
     }
 
+    @OnThread(Tag.FXPlatform)
     public CaretPos flatten(boolean atEnd, StructuredSlot.ModificationToken token)
     {
         return parent.flattenCompound(this, atEnd, token);
