@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2013,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -42,10 +42,24 @@ import bluej.utility.FileUtility;
 import bluej.utility.JavaNames;
 import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.event.EventHandler;
 import javafx.print.PrinterJob;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckMenuItem;
@@ -62,6 +76,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+
 import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.flowless.VirtualizedScrollPane;
 import org.fxmisc.richtext.CharacterHit;
@@ -75,21 +90,9 @@ import org.fxmisc.richtext.model.SegmentOps;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * The Frame part of the Terminal window used for I/O when running programs
@@ -736,7 +739,7 @@ public final class Terminal
             errorText.styleProperty().bind(PrefMgr.getEditorFontCSS(true));
             errorText.setEditable(false);
             errorText.plainTextChanges().subscribe(c -> scanForStackTrace());
-            Consumer<MouseEvent> onClick = e ->
+            EventHandler<MouseEvent> onClick = e ->
             {
                 CharacterHit hit = errorText.hit(e.getX(), e.getY());
 
@@ -752,8 +755,8 @@ public final class Terminal
                     errorText.moveTo(hit.getInsertionIndex(), SelectionPolicy.CLEAR);
                 }
             };
-            errorText.setOnOutsideSelectionMousePress(onClick);
-            errorText.setOnInsideSelectionMousePressRelease(onClick);
+            errorText.setOnOutsideSelectionMousePressed(onClick);
+            errorText.setOnInsideSelectionMousePressReleased(onClick);
         }
         splitPane.getItems().add(errorScrollPane);
         Config.rememberDividerPosition(window, splitPane, "bluej.terminal.dividerpos");
