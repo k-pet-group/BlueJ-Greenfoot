@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2016,2018 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -238,6 +238,7 @@ public class TypeSlot extends StructuredSlot<TypeSlotFragment, InfixType, TypeCo
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean deleteAtEnd()
     {
         // Must make sure that we run all listeners, and not short-circuit because one returned true:

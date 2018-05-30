@@ -210,7 +210,8 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
 
         importTriangleLabel = new TriangleLabel(editor, t -> importCanvas.growUsing(t.getProgress()),
                 t -> importCanvas.shrinkUsing(t.getOppositeProgress()), importCanvas.getShowingProperty());
-        JavaFXUtil.addChangeListener(importTriangleLabel.expandedProperty(), b -> editor.updateErrorOverviewBar());
+        JavaFXUtil.addChangeListenerPlatform(importTriangleLabel.expandedProperty(),
+                b -> editor.updateErrorOverviewBar());
         importRow = new FrameContentRow(this, importsLabel, importTriangleLabel);
         //alterImports(editor.getImports());
 

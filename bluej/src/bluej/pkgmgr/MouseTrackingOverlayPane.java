@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 2016,2018  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,21 +23,16 @@ package bluej.pkgmgr;
 
 import java.util.ArrayList;
 import java.util.List;
-import javafx.application.Platform;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 
-import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -59,28 +54,25 @@ public class MouseTrackingOverlayPane extends Pane
     private final BooleanProperty mouseInsideProperty = new SimpleBooleanProperty(false);
     private final List<MousePositionListener> listeners = new ArrayList<>();
     
-    @OnThread(value = Tag.Any)
     public MouseTrackingOverlayPane()
     {
         // Ideally, we'd track mouse movement on our own pane, but we need to
         // be mouse transparent so that even if the overlay overlaps the mouse cursor,
         // the user can still click on the item beneath.  So we track mouse movements
         // on our parent node:
-        JavaFXUtil.runNowOrLater(() -> {
-            setMouseTransparent(true);
-            JavaFXUtil.onceNotNull(parentProperty(), parent ->
+        setMouseTransparent(true);
+        JavaFXUtil.onceNotNull(parentProperty(), parent ->
+        {
+            parent.addEventFilter(MouseEvent.MOUSE_MOVED, e ->
             {
-                parent.addEventFilter(MouseEvent.MOUSE_MOVED, e ->
-                {
-                    Point2D p = MouseTrackingOverlayPane.this.sceneToLocal(e.getSceneX(), e.getSceneY());
-                    mouseX.set(p.getX());
-                    mouseY.set(p.getY());
-                    for (MousePositionListener l : listeners)
-                        l.mouseMoved(e.getSceneX(), e.getSceneY());
-                });
-                parent.addEventFilter(MouseEvent.MOUSE_ENTERED, e -> mouseInsideProperty.set(true));
-                parent.addEventFilter(MouseEvent.MOUSE_EXITED, e -> mouseInsideProperty.set(false));
+                Point2D p = MouseTrackingOverlayPane.this.sceneToLocal(e.getSceneX(), e.getSceneY());
+                mouseX.set(p.getX());
+                mouseY.set(p.getY());
+                for (MousePositionListener l : listeners)
+                    l.mouseMoved(e.getSceneX(), e.getSceneY());
             });
+            parent.addEventFilter(MouseEvent.MOUSE_ENTERED, e -> mouseInsideProperty.set(true));
+            parent.addEventFilter(MouseEvent.MOUSE_EXITED, e -> mouseInsideProperty.set(false));
         });
     }
 

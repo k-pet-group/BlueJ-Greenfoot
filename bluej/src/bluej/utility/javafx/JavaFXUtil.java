@@ -575,14 +575,32 @@ public class JavaFXUtil
                 ((FXConsumer<Boolean>)listener::accept).accept(newVal));
     }
 
+    /**
+     * Run an action on the FX platform thread - either now (if called on the platform thread) or
+     * at some indeterminate time (if called from a different thread).
+     * <p>
+     * This method is inherently dangerous and its use should usually be avoided.
+     * <p>
+     * Calling this from a method tagged with @OnThread(Tag.FX) will potentially run the action
+     * simultaneously with the calling thread, which may well cause concurrency bugs. Furthermore
+     * if on the "FX" (loading) thread then the design should generally not require swapping to the
+     * FX platform thread at all.
+     * <p>
+     * Calling this from a method tagged with @OnThread(Tag.FXPlatform) is redundant. Instead, just
+     * run the action directly. 
+     */
     @OnThread(Tag.Any)
+    @SuppressWarnings("threadchecker")
     public static void runNowOrLater(FXPlatformRunnable action)
     {
         if (Platform.isFxApplicationThread())
-            // Circumvent thread checker (nasty!)
-            ((Runnable)action::run).run();
+        {
+            action.run();
+        }
         else
+        {
             Platform.runLater(action::run);
+        }
     }
 
     /**
@@ -604,7 +622,7 @@ public class JavaFXUtil
         alert.initModality(Modality.WINDOW_MODAL);
         if (bringToFront)
         {
-            addSelfRemovingListener(alert.showingProperty(), showing -> {
+            listenOnce(alert.showingProperty(), showing -> {
                     if (showing) {
                         Utility.bringToFrontFX(alert.getDialogPane().getScene().getWindow());
                     }
@@ -1408,6 +1426,36 @@ public class JavaFXUtil
         prop.addListener(l);
         return () -> prop.removeListener(l);
     }
+
+    /**
+     * Creates a ChangeListener that will execute the given action (with the new value)
+     * once, on the first change, and then remove itself as a listener. The observable should
+     * only be changed on the FX Platform thread.
+     * 
+     * Also returns an action that can remove the listener earlier.
+     * 
+     * @param prop The observable value
+     * @param callback A listener, to be called at most once, on the first change of "prop"
+     * @return An action which, if run, removes this listener.  If the listener has already
+     *         been run once, has no effect.
+     */
+    @OnThread(Tag.FXPlatform)
+    public static <T> FXPlatformRunnable listenOnce(ObservableValue<T> prop,
+            FXPlatformConsumer<T> callback)
+    {
+        ChangeListener<T> l = new ChangeListener<T>() {
+            @Override
+            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+            public void changed(ObservableValue<? extends T> observable,
+                    T oldValue, T newValue)
+            {
+                callback.accept(newValue);
+                prop.removeListener(this);
+            }
+        };
+        prop.addListener(l);
+        return () -> prop.removeListener(l);
+    }
     
     /**
      * Makes one list (dest) always contain the contents of the other (src) until the returned
@@ -1449,12 +1497,15 @@ public class JavaFXUtil
         return () -> property.removeListener(wrapped);
     }
 
-    /** Like addChangeListener, but for when the item will definitely only be changed on the platform thread */
-    @OnThread(Tag.FXPlatform)
-    public static <T> FXPlatformRunnable addChangeListenerPlatform(ObservableValue<T> property, FXPlatformConsumer<T> listener)
+    /**
+     * Like addChangeListener, but for when the item will definitely only be changed on the platform thread
+     */
+    @OnThread(Tag.FX)
+    @SuppressWarnings("threadchecker")
+    public static <T> FXPlatformRunnable addChangeListenerPlatform(ObservableValue<T> property,
+            FXPlatformConsumer<T> listener)
     {
-        // Defeat thread checker:
-        ChangeListener<T> wrapped = (a, b, newVal) -> ((FXConsumer<T>)listener::accept).accept(newVal);
+        ChangeListener<T> wrapped = (a, b, newVal) -> listener.accept(newVal);
         property.addListener(wrapped);
         return () -> property.removeListener(wrapped);
     }

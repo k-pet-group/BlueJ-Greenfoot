@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2012,2013,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,7 +25,6 @@ import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
-import java.awt.Insets;
 import java.awt.Shape;
 import java.awt.Window;
 import java.io.BufferedReader;
@@ -71,9 +70,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.swing.AbstractButton;
 import javax.swing.UIDefaults;
-import javax.swing.border.Border;
 import javax.swing.text.TabExpander;
 
 import bluej.prefmgr.PrefMgr;
@@ -542,7 +539,7 @@ public class Utility
         appToFront();
     }
 
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     public static void bringToFrontFX(final javafx.stage.Window window)
     {
         // If not showing at all we return now.
@@ -1400,9 +1397,9 @@ public class Utility
     }
 
     @FunctionalInterface
-    public static interface BackgroundRunnable
+    public static interface BackgroundRunnable extends Runnable
     {
-        @OnThread(Tag.Worker)
+        @OnThread(value = Tag.Worker, ignoreParent = true)
         public void run();
     }
 
@@ -1410,13 +1407,7 @@ public class Utility
     @OnThread(Tag.Any)
     public static void runBackground(BackgroundRunnable r)
     {
-        long queue = System.currentTimeMillis();
-        background.execute(() -> {
-            long started = System.currentTimeMillis();
-            r.run();
-            long ended = System.currentTimeMillis();
-            //Debug.time("Queue->start: " + (started - queue) + " start->end:" + (ended - started) + " " + r);
-        });
+        background.execute(r);
     }
 
     public static <T> Stream<T> streamOptional(Optional<T> optional)

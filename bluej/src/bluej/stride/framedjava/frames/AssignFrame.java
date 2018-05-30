@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,24 +26,17 @@
 package bluej.stride.framedjava.frames;
 
 
-import java.util.List;
-
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
-import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameContentItem;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
-import bluej.stride.framedjava.ast.HighlightedBreakpoint;
-import bluej.stride.framedjava.canvases.JavaCanvas;
 import bluej.stride.framedjava.elements.AssignElement;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.FilledExpressionSlot;
-import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.FrameFactory;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.SingleLineFrame;
-import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.Focus;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
@@ -158,6 +151,7 @@ public class AssignFrame extends SingleLineFrame
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean deleteAtEnd(FrameContentItem row, HeaderItem src)
     {
         if (src == slotLHS)
@@ -168,6 +162,7 @@ public class AssignFrame extends SingleLineFrame
         return false;
     }
 
+    @OnThread(Tag.FXPlatform)
     private void collapseIntoMethodCall()
     {
         getParentCanvas().replaceBlock(this, new CallFrame(getEditor(), slotLHS.getText(), slotRHS.getText()));        

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2015,2016,2018 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,11 +22,9 @@
 package bluej.stride.framedjava.frames;
 
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -46,19 +44,16 @@ import bluej.stride.generic.FrameFactory;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.RecallableFocus;
 import bluej.stride.generic.SingleLineFrame;
-import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.TextSlot;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotTraversalChars;
 import bluej.stride.slots.CompletionCalculator;
 import bluej.stride.slots.SuggestionList;
-import bluej.stride.slots.SuggestionList.SuggestionDetails;
 import bluej.stride.slots.SuggestionList.SuggestionListListener;
 
 import bluej.editor.stride.FrameCatalogue;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
-import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -87,6 +82,7 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
             private List<Pair<SuggestionList.SuggestionShown, String>> imports;
             
             @Override
+            @OnThread(Tag.FXPlatform)
             public void withCalculatedSuggestionList(PosInSourceDoc pos, CodeElement codeEl,
                                                      SuggestionListListener clickListener,
                                                      FXPlatformConsumer<SuggestionList> handler)
@@ -102,10 +98,11 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
                         ).sorted().distinct().map(v -> new Pair<SuggestionList.SuggestionShown, String>(e.getKey(), v))
                 ).collect(Collectors.toList());
                 SuggestionList suggestionDisplay = new SuggestionList(editor, Utility.mapList(imports, imp -> new SuggestionList.SuggestionDetails(imp.getValue(), null, null, imp.getKey())), null, SuggestionList.SuggestionShown.COMMON, null, clickListener);
-                JavaFXUtil.runNowOrLater(() -> handler.accept(suggestionDisplay));
+                handler.accept(suggestionDisplay);
             }
             
             @Override
+            @OnThread(Tag.FXPlatform)
             public boolean execute(TextField field, int highlighted, int startOfCurWord)
             {
                 if (highlighted >= 0)

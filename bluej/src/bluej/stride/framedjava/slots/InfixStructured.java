@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -850,6 +850,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean selectNextWord(StructuredSlotField f)
     {
         setAnchorIfUnset(getCurrentPos());
@@ -873,6 +874,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean selectPreviousWord(StructuredSlotField f)
     {
         setAnchorIfUnset(getCurrentPos());
@@ -893,6 +895,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean cut()
     {
         copy();
@@ -1134,12 +1137,14 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean deleteSelection()
     {
-        return modificationReturn(token -> deleteSelection_(getCurrentPos(), token) != null);
+        return modificationReturnPlatform(token -> deleteSelectionImpl(getCurrentPos(), token) != null);
     }
     
-    CaretPos deleteSelection_(CaretPos cur, StructuredSlot.ModificationToken token)
+    @OnThread(Tag.FXPlatform)
+    private CaretPos deleteSelectionImpl(CaretPos cur, StructuredSlot.ModificationToken token)
     {
         if (anchorPos == null || anchorPos.equals(cur))
         {
@@ -1165,7 +1170,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             {
                 InfixStructured nested = ((BracketedStructured)fields.get(start.index)).getContent();
                 nested.setAnchorIfUnset(start.subPos);
-                return new CaretPos(start.index, nested.deleteSelection_(end.subPos, token));
+                return new CaretPos(start.index, nested.deleteSelectionImpl(end.subPos, token));
             }
             else if (fields.get(start.index) instanceof StringLiteralExpression)
             {
@@ -1304,8 +1309,9 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         }
     }
     
-    // Package visible
-    CaretPos flattenCompound(StructuredSlotComponent item, boolean caretAtEnd, StructuredSlot.ModificationToken token)
+    @OnThread(Tag.FXPlatform)
+    public CaretPos flattenCompound(StructuredSlotComponent item, boolean caretAtEnd,
+            StructuredSlot.ModificationToken token)
     {
         return flattenCompound(fields.indexOf(item), caretAtEnd, token);
     }
@@ -1316,6 +1322,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
      * into the "index" position in this InfixStructured.  Used when deleting brackets but you want
      * to retain the content.
      */
+    @OnThread(Tag.FXPlatform)
     private CaretPos flattenCompound(int index, boolean atEnd, StructuredSlot.ModificationToken token)
     {
         StructuredSlotField fieldBefore = (StructuredSlotField) fields.get(index - 1);
@@ -1329,7 +1336,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         if (operators.remove(index-1, token) != null) throw new IllegalStateException();
         
         int len = fieldBefore.getText().length();
-        CaretPos mid = insert_(fieldBefore, len, content, false, token);
+        CaretPos mid = insertImpl(fieldBefore, len, content, false, token);
         // TODO stop using testing method here:
         testingInsert(mid, after);
         if (atEnd)
@@ -1342,14 +1349,16 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
      * variable indicating if the deletion is requested at the last caret position
      * in the given field.
      */
+    @OnThread(Tag.FXPlatform)
     public boolean deleteNext(StructuredSlotField f, int posInField, boolean atEnd)
     {
-        modification(token -> positionCaret(deleteNext_(f, posInField, atEnd, token)));
+        modificationPlatform(token -> positionCaret(deleteNextImpl(f, posInField, atEnd, token)));
         return true;
     }
     
-    // package-visible (for testing), implementation of deleteNext
-    CaretPos deleteNext_(StructuredSlotField f, int posInField, boolean atEnd, StructuredSlot.ModificationToken token)
+    @OnThread(Tag.FXPlatform)
+    private CaretPos deleteNextImpl(StructuredSlotField f, int posInField, boolean atEnd,
+            StructuredSlot.ModificationToken token)
     {
         int index = findField(f);
         // Have we requested a delete-next at the end of a field
@@ -1455,15 +1464,18 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     /**
      * Handles inserting the given text at the given caret position in the given slot-field.
      */
+    @OnThread(Tag.FXPlatform)
     public void insert(StructuredSlotField f, int posInField, String text)
     {
-        modification(token -> insert_(f, posInField, text, true, token));
+        modificationPlatform(token -> insertImpl(f, posInField, text, true, token));
     }
     
     /**
-     * Package-visible implementation of insert method, used directly by test classes.
+     * Implementation of insert method, used directly by test classes.
      */
-    CaretPos insert_(StructuredSlotField f, int posInField, String text, boolean user, StructuredSlot.ModificationToken token)
+    @OnThread(Tag.FXPlatform)
+    public CaretPos insertImpl(StructuredSlotField f, int posInField, String text, boolean user,
+            StructuredSlot.ModificationToken token)
     {
         if ( parent == null && !text.isEmpty() && text.length() > 0 && closingChars.contains(text.charAt(0)) ) {
             slot.focusNext();
@@ -1480,7 +1492,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         // Unless it's a opening bracket, any insertion must involve first deleting the selection:
         if (text.length() > 0 && !isOpeningBracket(text.charAt(0)) && text.charAt(0) != '\"' && text.charAt(0) != '\'')
         {
-            CaretPos postDeletion = deleteSelection_(pos, token);
+            CaretPos postDeletion = deleteSelectionImpl(pos, token);
             if (postDeletion != null)
                 pos = postDeletion;
         }
@@ -1515,18 +1527,20 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         return pos; // Returned for testing purposes
     }
     
+    @OnThread(Tag.FXPlatform)
     CaretPos insertAtPos(CaretPos p, String after, StructuredSlot.ModificationToken token)
     {
         StructuredSlotComponent f = fields.get(p.index);
         if (f instanceof StructuredSlotField) {
-            return insert_((StructuredSlotField)fields.get(p.index), p.subPos.index, after, false, token);
+            return insertImpl((StructuredSlotField)fields.get(p.index), p.subPos.index, after, false, token);
         }
         if (f instanceof StringLiteralExpression) {
-            return insert_(((StringLiteralExpression)fields.get(p.index)).getField(), p.subPos.index, after, false, token);
+            return insertImpl(((StringLiteralExpression)fields.get(p.index)).getField(), p.subPos.index, after, false, token);
         }
         return new CaretPos(p.index, ((BracketedStructured)fields.get(p.index)).testingContent().insertAtPos(p.subPos, after, token));
     }
 
+    @OnThread(Tag.FXPlatform)
     protected CaretPos insertChar(CaretPos pos, char c, boolean user, StructuredSlot.ModificationToken token)
     {
         final StructuredSlotComponent slot = fields.get(pos.index);
@@ -1588,7 +1602,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             {
                 // If there is a selection, enclose that in the bracket/quote:                
                 String content = anchorPos.before(pos) ? getCopyText(anchorPos, pos) : getCopyText(pos, anchorPos);
-                pos = deleteSelection_(pos, token);
+                pos = deleteSelectionImpl(pos, token);
                 pos = insertChar(pos, c, false, token);
                 insertAtPos(pos, content, token);
                 return new CaretPos(pos.index + 1, new CaretPos(0, null));
@@ -1762,10 +1776,12 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         return status;
     }
 
+    @OnThread(Tag.FXPlatform)
     private CaretPos checkFieldChange(int index, CaretPos pos, StructuredSlot.ModificationToken token)
     {
         return checkFieldChange(index, pos, false, false, token);
     }
+    
     /**
      * Checks the field at the given index, and performs any rearrangements necessary that
      * relate to floating point literals.  This may involve turning a dot in a field into an
@@ -1774,6 +1790,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
      * Returns the new position (adjustment of the passed pos)
      * 
      */
+    @OnThread(Tag.FXPlatform)
     private CaretPos checkFieldChange(int index, CaretPos pos, boolean addedDot, boolean user, StructuredSlot.ModificationToken token)
     {
         if (fields.get(index) instanceof StringLiteralExpression)
@@ -2193,6 +2210,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
 
     }
 
+    @OnThread(Tag.FXPlatform)
     public void insertNext(BracketedStructured bracketedExpression, String text)
     {
         int index = fields.indexOf(bracketedExpression);
@@ -2222,26 +2240,28 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     // If rememberPos is any other char, remember pos at first occurrence of that char in the string
     // e.g. "a+$b", '$' will give the caret position just before the b. The instance of rememberPos
     // will be ignored (it will not be inserted).
-    CaretPos testingInsert(String text, char rememberPos)
+    @OnThread(Tag.FXPlatform)
+    public CaretPos testingInsert(String text, char rememberPos)
     {
-        return modificationReturn(token -> {
+        return modificationReturnPlatform(token -> {
             int index = text.indexOf(rememberPos);
             if (rememberPos != '\0' && index != -1)
             {
                 String before = text.substring(0, index);
                 String after = text.substring(index + 1);
-                CaretPos p = insert_((StructuredSlotField)fields.get(0), 0, before, false, token);
+                CaretPos p = insertImpl((StructuredSlotField)fields.get(0), 0, before, false, token);
                 testingInsert(p, after);
                 return p;
             }
 
-            return insert_((StructuredSlotField)fields.get(0), 0, text, false, token);
+            return insertImpl((StructuredSlotField)fields.get(0), 0, text, false, token);
         });
     }
     
+    @OnThread(Tag.FXPlatform)
     CaretPos testingInsert(CaretPos p, String after)
     {
-        return modificationReturn(token -> insertAtPos(p, after, token));
+        return modificationReturnPlatform(token -> insertAtPos(p, after, token));
     }
 
     @OnThread(Tag.FXPlatform)
@@ -2258,6 +2278,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         });
     }
     
+    @OnThread(Tag.FXPlatform)
     CaretPos testingDelete(CaretPos p)
     {
         StructuredSlotComponent s = fields.get(p.index);
@@ -2269,19 +2290,22 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         else
             return new CaretPos(p.index, ((BracketedStructured)fields.get(p.index)).testingContent().testingDelete(p.subPos));
         
-        return modificationReturn(token -> deleteNext_(f, p.subPos.index, p.subPos.index == f.getText().length(), token));
+        return modificationReturnPlatform(token ->
+                deleteNextImpl(f, p.subPos.index, p.subPos.index == f.getText().length(), token));
     }
     
+    @OnThread(Tag.FXPlatform)
     CaretPos testingDeleteSelection(CaretPos start, CaretPos end)
     {
         anchorPos = start;
-        return modificationReturn(token -> deleteSelection_(end, token));
+        return modificationReturnPlatform(token -> deleteSelectionImpl(end, token));
     }
 
+    @OnThread(Tag.FXPlatform)
     CaretPos testingInsertWithSelection(CaretPos start, CaretPos end, char c)
     {
         anchorPos = start;
-        return modificationReturn(token -> insertAtPos(end, "" + c, token));
+        return modificationReturnPlatform(token -> insertAtPos(end, "" + c, token));
     }
 
     @OnThread(Tag.FXPlatform)
@@ -2293,7 +2317,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             // Blank the field (easier than working out prefixes etc)
             ((StructuredSlotField) f).setText("", token);
             // And insert the new name.  It may have a dot in it, so caret may move to another field:
-            p = insert_((StructuredSlotField)f, 0, name, false, token);
+            p = insertImpl((StructuredSlotField)f, 0, name, false, token);
             if (params != null)
             {
                 StringBuilder commas = new StringBuilder();
@@ -2582,12 +2606,18 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
             return RangeType.RANGE_NON_CONSTANT;
     }
 
-    //package-visible
-    void paste()
+    @OnThread(Tag.FXPlatform)
+    public void paste()
     {
-        StructuredSlotField focused = fields.stream().filter(f -> f instanceof StructuredSlotField && f.isFocused()).map(f -> (StructuredSlotField)f).findFirst().orElse(null);
+        StructuredSlotField focused = fields.stream()
+                .filter(f -> f instanceof StructuredSlotField && f.isFocused())
+                .map(f -> (StructuredSlotField)f)
+                .findFirst()
+                .orElse(null);
         if (focused != null)
+        {
             focused.paste();
+        }
     }
 
     //package-visible
@@ -2596,6 +2626,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
         return slot;
     }
 
+    @OnThread(Tag.FXPlatform)
     public boolean suggestingFor(StructuredSlotField f)
     {
         if (slot == null)

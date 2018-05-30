@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,8 +22,9 @@
 package bluej.utility.javafx;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import javafx.beans.binding.DoubleBinding;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.css.CssMetaData;
 import javafx.css.SimpleStyleableDoubleProperty;
 import javafx.css.Styleable;
@@ -33,10 +34,8 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 
-import bluej.utility.Debug;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -51,7 +50,7 @@ public class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTe
 
     private final SimpleStyleableDoubleProperty bjMinWidthProperty() { return bjMinWidthProperty; }
 
-    private static final CssMetaData<DelegableScalableTextField, Number> BJ_MIN_WIDTH_META_DATA =
+    private static final CssMetaData<DelegableScalableTextField<?>, Number> BJ_MIN_WIDTH_META_DATA =
             JavaFXUtil.cssSize("-bj-min-width", DelegableScalableTextField::bjMinWidthProperty);
 
     private static final List<CssMetaData <? extends Styleable, ? > > cssMetaDataList =
@@ -66,7 +65,9 @@ public class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTe
     private final DELEGATE_IDENT delegateId;
     
     @Override
-    public void insertText(int index, String text) {
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+    public void insertText(int index, String text)
+    {
         delegate.insert(delegateId, index, text);
     }
     
@@ -85,9 +86,11 @@ public class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTe
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public boolean deleteNextChar()
     {
-        if (delegate.deleteSelection() || delegate.deleteNext(delegateId, getCaretPosition(), getCaretPosition() == getLength()))
+        if (delegate.deleteSelection() ||
+                delegate.deleteNext(delegateId, getCaretPosition(), getCaretPosition() == getLength()))
         {
             return true;
         }
@@ -98,13 +101,17 @@ public class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTe
     }
 
     @Override
-    public void previousWord() {
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+    public void previousWord()
+    {
         if (!delegate.previousWord(delegateId, getCaretPosition() == 0))
             super.previousWord();
     }
 
     @Override
-    public void nextWord() {
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+    public void nextWord()
+    {
         if (!delegate.nextWord(delegateId, getCaretPosition() == getLength()))
         {
             inNextWord = true;
@@ -114,14 +121,17 @@ public class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTe
     }
     
     @Override
-    public void endOfNextWord() {
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+    public void endOfNextWord()
+    {
         if (!delegate.endOfNextWord(delegateId, getCaretPosition() == getLength()))
+        {
             super.endOfNextWord();
+        }
     }
 
-
-
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void backward()
     {
         delegate.deselect();
@@ -136,6 +146,7 @@ public class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTe
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void cut()
     {
         if (!delegate.cut())
@@ -143,6 +154,7 @@ public class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTe
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void copy()
     {
         if (!delegate.copy())
@@ -150,6 +162,7 @@ public class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTe
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void forward()
     {
         delegate.deselect();
@@ -160,18 +173,21 @@ public class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTe
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void appendText(String text)
     {
         insertText(getText().length(), text);
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void replaceText(IndexRange range, String text)
     {
         replaceText(range.getStart(), range.getEnd(), text);
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void replaceText(int start, int end, String text)
     {
         // Do not delete, we'll handle case there is a selection:
@@ -180,12 +196,14 @@ public class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTe
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void deleteText(IndexRange range)
     {
         super.deleteText(range.getStart(), range.getEnd());
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void deleteText(int start, int end)
     {
         delegate.delete(delegateId, start, end);
@@ -193,6 +211,7 @@ public class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTe
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void selectBackward()
     {
         if (!delegate.selectBackward(delegateId, getCaretPosition())) {
@@ -201,100 +220,20 @@ public class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTe
     }
     
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void deselect() {
         delegate.deselect();
         super.deselect();
     }
 
-
-
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void selectForward()
     {
         if (!delegate.selectForward(delegateId, getCaretPosition(), getCaretPosition() == getLength()))
             super.selectForward();
     }
 
-
-
-    // package-visible
-    /*
-    static class CustomContent implements Content
-    {
-        public String s = "";
-        private final List<ChangeListener<? super String>> listeners = new ArrayList<>();
-        private final ExpressionSlot expressionSlot;
-        private final List<InvalidationListener> invalidatedListeners = new ArrayList<>();
-        
-        public CustomContent(ExpressionSlot expressionSlot) {
-            this.expressionSlot = expressionSlot;
-        }
-
-        @Override
-        public String get(int start, int end)
-        {
-            return s.substring(start, end);
-        }
-
-        @Override
-        public void insert(int index, String text, boolean notifyListeners) {
-            System.out.println("Inserting " + text);
-            expressionSlot.insert(this, index, text);
-            invalidatedListeners.forEach(l -> l.invalidated(this));
-        }
-
-        @Override
-        public void delete(int start, int end, boolean notifyListeners)
-        {
-            String prev = s;
-            s = s.substring(0, start) + s.substring(end);
-            
-            if (notifyListeners && !s.equals(prev))
-                listeners.forEach(l -> l.changed(this, prev, s));
-        }
-
-        @Override
-        public int length() {
-            return s.length();
-        }
-
-        @Override
-        public String get() {
-            return s;
-        }
-
-        @Override
-        public void addListener(ChangeListener<? super String> listener) {
-            if (!listeners.contains(listener))
-                listeners.add(listener);
-        }
-
-        @Override
-        public void removeListener(ChangeListener<? super String> listener) {
-            listeners.removeIf(l -> l == listener);   
-        }
-
-        @Override
-        public String getValue() {
-            return s;
-        }
-
-        @Override
-        public void addListener(InvalidationListener listener) {
-            if (!invalidatedListeners.contains(listener))
-                invalidatedListeners.add(listener);
-            
-        }
-
-        @Override
-        public void removeListener(InvalidationListener listener) {
-            invalidatedListeners.removeIf(l -> l == listener);
-            
-        }
-        
-    }
-    public final TempTextField.CustomContent cc;
-    */
     public DelegableScalableTextField(TextFieldDelegate<DELEGATE_IDENT> delegate, DELEGATE_IDENT ident, String content)
     {
         super(content);
@@ -364,13 +303,21 @@ public class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTe
                 e.consume();
         });
         
-        caretPositionProperty().addListener((a, b, c) -> delegate.caretMoved());
+        caretPositionProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+            public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
+            {
+                delegate.caretMoved();
+            }
+        });
         
         addEventHandler(KeyEvent.KEY_PRESSED, e -> { if (e.getCode() == KeyCode.ESCAPE) delegate.escape(); });
         
     }
     
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void selectNextWord()
     {
         if (!delegate.selectNextWord(delegateId))
@@ -378,6 +325,7 @@ public class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTe
     }
     
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void selectEndOfNextWord()
     {
         if (!delegate.selectNextWord(delegateId))
@@ -385,6 +333,7 @@ public class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTe
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void selectPreviousWord()
     {
         if (!delegate.selectPreviousWord(delegateId))
@@ -392,44 +341,51 @@ public class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTe
     }
 
     @Override
-    public void selectAll() {
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+    public void selectAll()
+    {
         if (!delegate.selectAll(delegateId))
             super.selectAll();
     }
+    
     @Override
-    public void home() {
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+    public void home()
+    {
         delegate.deselect();
         if (!delegate.home(delegateId))
             super.home();
     }
 
     @Override
-    public void end() {
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+    public void end()
+    {
         delegate.deselect();
         if (!delegate.end(delegateId, inNextWord))
             super.end();
     }
 
-
-
     @Override
-    public void selectHome() {
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+    public void selectHome()
+    {
         if (!delegate.selectHome(delegateId, getCaretPosition()))
             super.selectHome();
     }
 
-
-
     @Override
-    public void selectEnd() {
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+    public void selectEnd()
+    {
         if (!delegate.selectEnd(delegateId, getCaretPosition()))
             super.selectEnd();
     }
 
-
-
     @Override
-    public void paste() {
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+    public void paste()
+    {
         Clipboard clipboard = Clipboard.getSystemClipboard();
         if (clipboard.hasString())
         {
@@ -437,7 +393,6 @@ public class DelegableScalableTextField<DELEGATE_IDENT> extends ScalableHeightTe
             insertText(getCaretPosition(), clipboard.getString());
         }
     }
-
 
     public double calculateSceneX(int caretPos)
     {

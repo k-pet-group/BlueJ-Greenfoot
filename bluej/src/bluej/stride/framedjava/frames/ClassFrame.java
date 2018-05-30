@@ -157,7 +157,8 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         extendsInheritedCanvases.addListener((ListChangeListener<? super InheritedCanvas>) c ->
             inheritedLabel.setDisable(extendsInheritedCanvases.isEmpty())
         );
-        JavaFXUtil.addChangeListener(inheritedLabel.expandedProperty(), b -> editor.updateErrorOverviewBar());
+        JavaFXUtil.addChangeListenerPlatform(inheritedLabel.expandedProperty(),
+                b -> editor.updateErrorOverviewBar());
 
         // We must keep hold of an explicit reference to this binding, rather than inlining it.
         // If you do not keep this stored in a field, it will get GC-ed.

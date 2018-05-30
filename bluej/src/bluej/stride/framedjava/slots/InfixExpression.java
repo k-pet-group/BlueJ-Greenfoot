@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2016,2018 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -231,7 +231,7 @@ public class InfixExpression extends InfixStructured<ExpressionSlot<?>, InfixExp
                 // No fixed arity; we know field must be near-blank, so just
                 // replace it with the right number of commas (may be zero):
                 boolean wasFocused = isFocused();
-                modification(token -> {
+                modificationPlatform(token -> {
                     blank(token);
                     for (int i = 0; i < match.size() - 1; i++)
                     {
