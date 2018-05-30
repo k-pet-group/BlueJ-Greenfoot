@@ -289,6 +289,12 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         backgroundMessage.getStyleClass().add("background-message");
         
         worldDisplay = new WorldDisplay();
+        worldDisplay.setOnMouseClicked(event -> {
+            if (event.getButton() == MouseButton.PRIMARY && stateProperty.get() == State.RUNNING)
+            {
+                worldDisplay.requestFocus();
+            }
+        });
         
         classDiagram = new GClassDiagram(this);
         ScrollPane classDiagramScroll = new UnfocusableScrollPane(classDiagram);
@@ -848,6 +854,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             DataCollector.recordGreenfootEvent(project, GreenfootInterfaceEvent.WORLD_RUN);
             debugHandler.getVmComms().runSimulation();
             stateProperty.set(State.PAUSED_REQUESTED_ACT_OR_RUN);
+            worldDisplay.requestFocus();
         }
         else if (stateProperty.get() == State.RUNNING)
         {
