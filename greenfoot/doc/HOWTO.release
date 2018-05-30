@@ -1,16 +1,20 @@
 Prerequisites:
  build.properties in both the greenfoot and bluej source directories should be 
  modified to match your configuration.  (For BlueJ, copy build.properties.template
- to build.properties and then edit.)
+ to build.properties and then edit. In most cases the Greenfoot build.properties
+ will not need to be modified.)
 
 
-Building Greenfoot RC:
+Building Greenfoot:
 
-Before you start building, check the copyright years, which is usually needed only once
-every year. The line to be updated is 'menu.help.copyright.line0', which is in the labels file:
-'labels/english/greenfoot/greenfoot-labels'.
 
- 1. Update version number in build.xml. If there are API changes, make sure that:
+Before build:
+
+ 1. Check the copyright years (for the "About" dialog). The line to be updated is
+    'menu.help.copyright.line0', which is in the labels file:
+    'labels/english/greenfoot/greenfoot-labels'.
+
+ 2. Update version number in build.xml. If there are API changes, make sure that:
     - the API version has also been updated (see instructions in comments in build.xml)
     - the labels have been updated with description of the API changes (see build.xml)
     - the @version javadoc tag has been correctly set for any user-visible Greenfoot
@@ -18,20 +22,38 @@ every year. The line to be updated is 'menu.help.copyright.line0', which is in t
     Add a GUID to package/winsetup/version-guid file (Get one at guidgen.com)
     Then, run "ant update-version-number". This propagates the changes to various files.
     
- 2. Test bundled scenarios and make sure they are compatible with the new API version.
- 3. Tag the RC in version control
- 4. Different Systems:
-    - Debian package: run "fakeroot ant debian" to build the Debian/Ubuntu ".deb" package. You can only do this on
-      a system which has the "dpkg-deb" and "fakeroot" utilities installed.
+ 3. Test bundled scenarios and make sure they are compatible with the new API version.
+ 
+Build process:
+ 
+ 4. Run "ant clean" in both bluej and greenfoot directories, and ensure source tree is clean.
+ 5. Run "ant ready-to-run-greenfoot" in the bluej directory.
+ 6. Run "ant ready-to-run" in the greenfoot directory.
+ 7. Different Systems:
+    - Debian package:
+      - run "fakeroot ant debian" to build the Debian/Ubuntu ".deb" package. You can only do this on
+        a system which has the "dpkg-deb" and "fakeroot" utilities installed. Alternatively:
+      - run "ant dist" followed by "ant debian-dist", the latter must be run as root.
     - Mac: run "ant mac" (see below for more details).
     - Windows launcher and installer: run "ant windows" (see below for more details).
- 5. Copy the builds and source to greenfoot.org.
- 6. Run "ant urls-rc" to check files are in the right place.
+    
+Post build:
+    
+ 8. Copy the builds and source to greenfoot.org.
+ 9. Run "ant urls-rc" to check files are in the right place.
+ 
+Release:
+
+10. Create/update release tag in version control (GREENFOOT-RELEASE-x.y.z).
+11. Create new version in bug tracker.
+12. Update web pages (see below).
 
 If necessary:
- 7. If the API version has changed, copy Greenfoot-core-X.X.X-jar to the gallery: /home/mygame/mygame/public/sharedjars/
- 8. If any of the 3rd party libraries have changed copy them to: /home/mygame/mygame/public/sharedjars/
- 9. If the licenses have changed, update GREENFOOT_LICENSES and copy LICENSE.txt and/or THIRDPARTYLICENSE.txt to: www.greenfoot.org/about
+13. If the API version has changed, copy Greenfoot-core-X.X.X-jar to the gallery:
+    /home/mygame/mygame/public/sharedjars/
+14. If any of the 3rd party libraries have changed copy them to:
+    /home/mygame/mygame/public/sharedjars/
+
 
 
 Building and Signing on Mac:
@@ -51,25 +73,6 @@ Building and Signing on Mac:
             spctl -a -t exec -vv Greenfoot.app/
 
 
-
-Subversion:
- Create tag dir (not needed when using Eclipse):
-  svn+ssh://cvs.bluej.org/home/bluej/svnroot/tags/GREENFOOT_RELEASE_X_Y_Z
- Tag BlueJ 
-  Don't forget bluej at the end of the path
-  from: svn+ssh://cvs.bluej.org/home/bluej/svnroot/trunk/bluej
-  to: svn+ssh://cvs.bluej.org/home/bluej/svnroot/tags/GREENFOOT_RELEASE_X_Y_Z/bluej
- Tag Greenfoot 
-  Don't forget greenfoot at the end of the path
-  from: svn+ssh://cvs.bluej.org/home/bluej/svnroot/trunk/greenfoot
-  to: svn+ssh://cvs.bluej.org/home/bluej/svnroot/tags/GREENFOOT_RELEASE_X_Y_Z/greenfoot
- 
- 
- 
-Trac: 
- Create new version and new milestone version.
- Check that all bugs for this milestone are closed or updated to a new milestone.
- 
  
 Web-pages to update on www.greenfoot.org.
 These need uploading files to the greenfoot home folder:
@@ -82,6 +85,3 @@ These pages can be edited directly:
   download/old-downloads.html
   version_history
  
-Email:
- send email to greenfoot-announce
- Notify users listed in GREENFOOT_NOTIFY.txt
