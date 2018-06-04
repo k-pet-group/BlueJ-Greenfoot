@@ -102,9 +102,11 @@ public class NewImageDialog extends FXCustomizedDialog<File>
         GridPane.setHgrow(name, Priority.ALWAYS);
 
         width = new Spinner(1, MAX_IMAGE_WIDTH, imageWidth);
+        width.setEditable(true);
         detailsPanel.addRow(1, new Label(Config.getString("imagelib.new.image.width")), width);
 
         height = new Spinner(1, MAX_IMAGE_HEIGHT, imageHeight);
+        height.setEditable(true);
         detailsPanel.addRow(2, new Label(Config.getString("imagelib.new.image.height")), height);
 
         setContentPane(detailsPanel);
