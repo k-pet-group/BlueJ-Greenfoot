@@ -37,7 +37,7 @@ public class ExportInfo extends ScenarioInfo
     private boolean update = false;
     private String updateDescription;
     private Image image;
-    private String exportName;
+    private String exportFileName;
     private String userName;
     private String password;
     private boolean keepSavedScreenshot;
@@ -88,51 +88,81 @@ public class ExportInfo extends ScenarioInfo
         this.update = update;
     }
 
+    /**
+     * Returns the image that is to be used as icon for this scenario.
+     */
     public Image getImage()
     {
         return image;
     }
 
+    /**
+     * Sets the image that is to be used as icon for this scenario.
+     */
     public void setImage(Image image)
     {
         this.image = image;
     }
 
-    public String getExportName()
+    /**
+     * Returns the file name that will be exported to. Used for local export.
+     */
+    public String getExportFileName()
     {
-        return exportName;
+        return exportFileName;
     }
 
-    public void setExportName(String exportName)
+    /**
+     * Sets the file name that will be exported to. Used in local export.
+     */
+    public void setExportFileName(String exportFileName)
     {
-        this.exportName = exportName;
+        this.exportFileName = exportFileName;
     }
 
+    /**
+     * Returns the user name. Used for web publish.
+     */
     public String getUserName()
     {
         return userName;
     }
 
+    /**
+     * Sets the user name. Used in web publish.
+     */
     public void setUserName(String userName)
     {
         this.userName = userName;
     }
 
+    /**
+     * Returns the user's password. Used for web publish.
+     */
     public String getPassword()
     {
         return password;
     }
 
+    /**
+     * Sets the user's password. Used in web publish.
+     */
     public void setPassword(String password)
     {
         this.password = password;
     }
 
+    /**
+     * Returns True if the scenario's screenshot to be kept, false otherwise.
+     */
     public boolean isKeepSavedScreenshot()
     {
         return keepSavedScreenshot;
     }
 
+    /**
+     * Sets True if the scenario's screenshot should be kept, false otherwise.
+     */
     public void setKeepSavedScreenshot(boolean keepSavedScreenshot)
     {
         this.keepSavedScreenshot = keepSavedScreenshot;

@@ -79,7 +79,7 @@ public abstract class ExportLocalTab extends ExportTab
     /**
      * Return the directory where the scenario should be exported.
      */
-    public String getExportName()
+    public String getExportFileName()
     {
         return targetDirField.getText();
     }
@@ -164,7 +164,7 @@ public abstract class ExportLocalTab extends ExportTab
     protected ExportInfo getExportInfo()
     {
         ExportInfo info = new ExportInfo(scenarioInfo);
-        info.setExportName(getExportName());
+        info.setExportFileName(getExportFileName());
         return info;
     }
 }

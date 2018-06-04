@@ -328,7 +328,7 @@ public class Exporter implements PublishListener
     private void makeApplication()
     {
         dialog.setProgress(true, Config.getString("export.progress.writingJar"));
-        File exportFile = new File(scenarioInfo.getExportName());
+        File exportFile = new File(scenarioInfo.getExportFileName());
         File exportDir = exportFile.getParentFile();
         String jarName = exportFile.getName();
 
@@ -382,7 +382,7 @@ public class Exporter implements PublishListener
     {
         dialog.setProgress(true, Config.getString("export.progress.writingGfar"));
         
-        File exportFile = new File(scenarioInfo.getExportName());
+        File exportFile = new File(scenarioInfo.getExportFileName());
         File exportDir = exportFile.getParentFile();
         String gfarName = exportFile.getName();
        

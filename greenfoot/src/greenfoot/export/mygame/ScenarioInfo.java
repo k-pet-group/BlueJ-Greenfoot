@@ -77,7 +77,7 @@ public class ScenarioInfo
         includeSource = src.includeSource;
         locked = src.locked;
     }
-    
+
     /**
      * Construct a scenario info object and load related properties.
      *
@@ -88,6 +88,10 @@ public class ScenarioInfo
         load(properties);
     }
 
+    /**
+     * Sets the exported scenario's title, if it is not null, after trimming.
+     * @param title  The title as String. Could be null.
+     */
     public void setTitle(String title)
     {
         if (title != null)
@@ -95,82 +99,130 @@ public class ScenarioInfo
             this.title = title.trim();
         }
     }
-    
+
+    /**
+     * Returns the scenario title.
+     */
     public String getTitle()
     {
         return title;
     }
 
+    /**
+     * Sets the scenario's short description.
+     */
     public void setShortDescription(String shortDesc)
     {
         shortDescription = shortDesc;
     }
-    
+
+    /**
+     * Returns the scenario short description.
+     */
     public String getShortDescription()
     {
         return shortDescription;
     }
-    
+
+    /**
+     * Sets the scenario description.
+     */
     public void setLongDescription(String longDesc)
     {
         longDescription = longDesc;
     }
-    
+
+    /**
+     * Returns the scenario description.
+     */
     public String getLongDescription()
     {
         return longDescription;
     }
-    
+
+    /**
+     * Sets the list of the scenario's tags.
+     * @param tags  A list of strings each represents an individual tag.
+     */
     public void setTags(List<String> tags)
     {
         this.tags = tags;
     }
- 
+
+    /**
+     * Returns a list of the scenario's tags.
+     */
     public List<String> getTags()
     {
         return tags;
     }
-    
+
+    /**
+     * Sets the scenario's URL.
+     */
     public void setUrl(String url)
     {
         this.url = url;
     }
-    
+
+    /**
+     * Returns the scenario's URL.
+     */
     public String getUrl()
     {
         return url;
     }
-    
+
+    /**
+     * Returns True if the source code is included, false otherwise.
+     */
     public boolean isIncludeSource()
     {
         return includeSource;
     }
-    
+
+    /**
+     * Sets if the source code should be included or not.
+     * @param includeSource True if the source code should be included.
+     */
     public void setIncludeSource(boolean includeSource)
     {
         this.includeSource = includeSource;
     }
-    
+
+    /**
+     * Returns True if the scenario is locked, false otherwise.
+     */
     public boolean isLocked()
     {
         return locked;
     }
-    
+
+    /**
+     * Sets if the scenario is locked or not.
+     * @param locked True if the scenario should be locked.
+     */
     public void setLocked(boolean locked)
     {
         this.locked = locked;
     }
-    
+
+    /**
+     * Returns True if the exported scenario's controls are hidden, false otherwise.
+     */
     public boolean isHideControls()
     {
         return hideControls;
     }
 
+    /**
+     * Sets True if the exported scenario's controls should be hidden, false otherwise.
+     */
     public void setHideControls(boolean hideControls)
     {
         this.hideControls = hideControls;
     }
-    
+
     /**
      * Stores the scenario information into the specified project properties.
      */
