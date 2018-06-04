@@ -196,21 +196,13 @@ public class ScenarioInfo
 
     /**
      * Attempts to load previously saved ScenarioInfo for this project.
-     * 
-     * @return true if it found and loaded the stored values.
      */
-    public boolean load(Properties properties)
+    public void load(Properties properties)
     {
-        //if it is a saved scenario it should have at least a title set
-        if (properties.getProperty(PUBLISH_TITLE) == null)
-        {
-            return false;
-        }
-
-        setTitle(properties.getProperty(PUBLISH_TITLE));
-        setShortDescription(properties.getProperty(PUBLISH_SHORT_DESC));
-        setLongDescription(properties.getProperty(PUBLISH_LONG_DESC));
-        setUrl(properties.getProperty(PUBLISH_URL));
+        setTitle(properties.getProperty(PUBLISH_TITLE, ""));
+        setShortDescription(properties.getProperty(PUBLISH_SHORT_DESC, ""));
+        setLongDescription(properties.getProperty(PUBLISH_LONG_DESC, ""));
+        setUrl(properties.getProperty(PUBLISH_URL, ""));
 
         List<String> tagList = new LinkedList<>();
         String tags = properties.getProperty(PUBLISH_TAGS);
@@ -223,7 +215,6 @@ public class ScenarioInfo
         setIncludeSource(Boolean.parseBoolean(properties.getProperty(PUBLISH_HAS_SOURCE, "false")));
         setLocked(Boolean.parseBoolean(properties.getProperty(PUBLISH_LOCKED, "true")));
         setUpdateDescription(properties.getProperty(PUBLISH_UPDATE_DESC));
-        return true;
     }
 
     /**
