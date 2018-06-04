@@ -314,6 +314,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         shareIcon.setFitHeight(24.0);
         Button shareButton = new Button(Config.getString("export.project"), shareIcon);
         shareButton.setFocusTraversable(false);
+        shareButton.disableProperty().bind(hasNoProject);
         shareButton.setOnAction(e -> doShare());
         GreenfootStageContentPane contentPane = new GreenfootStageContentPane(
                 worldPane, shareButton, classDiagramScroll, controlPanel);
