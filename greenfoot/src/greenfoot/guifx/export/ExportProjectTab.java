@@ -22,6 +22,8 @@
 package greenfoot.guifx.export;
 
 import static greenfoot.export.Exporter.ExportFunction;
+
+import greenfoot.export.mygame.ExportInfo;
 import greenfoot.export.mygame.ScenarioInfo;
 
 import java.io.File;
@@ -56,13 +58,21 @@ public class ExportProjectTab extends ExportLocalTab
     {
         return ExportFunction.PROJECT;
     }
-
+    
     @Override
-    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     protected void updateInfoFromFields()
     {
         super.updateInfoFromFields();
         scenarioInfo.setLocked(isLockScenario());
         scenarioInfo.setHideControls(isHideControls());
+    }
+
+    @Override
+    protected ExportInfo getExportInfo()
+    {
+        ExportInfo info = super.getExportInfo();
+        info.setLocked(isLockScenario());
+        info.setHideControls(isHideControls());
+        return info;
     }
 }

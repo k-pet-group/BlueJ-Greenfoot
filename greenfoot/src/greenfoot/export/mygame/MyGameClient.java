@@ -91,7 +91,7 @@ public class MyGameClient
     
     public final MyGameClient submit(String hostAddress, String uid, String password,
             String jarFileName, File sourceFile, File screenshotFile, int width, int height,
-            ScenarioInfo info)
+            ExportInfo info)
         throws IOException
     {
         DefaultHttpClient httpClient = getHttpClient();

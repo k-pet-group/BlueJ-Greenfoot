@@ -24,6 +24,7 @@ package greenfoot.guifx.export;
 
 import bluej.Config;
 import greenfoot.export.Exporter;
+import greenfoot.export.mygame.ExportInfo;
 import greenfoot.export.mygame.ScenarioInfo;
 
 import javafx.beans.property.BooleanProperty;
@@ -44,7 +45,7 @@ import threadchecker.Tag;
  * @author Michael Kolling
  * @author Amjad Altadmri
  */
-@OnThread(Tag.FXPlatform)
+@OnThread(value = Tag.FXPlatform, ignoreParent = true)
 public abstract class ExportTab extends Tab
 {
     protected final CheckBox lockScenario = new CheckBox(Config.getString("export.lock.label"));
@@ -127,11 +128,16 @@ public abstract class ExportTab extends Tab
      * Return the export function for the tab.
      */
     public abstract Exporter.ExportFunction getFunction();
+    
+    /**
+     * Update stored scenario information with the current values entered in the dialog.
+     * The stored scenario information is saved with the scenario, so the user does not need to
+     * re-enter certain details.
+     */
+    protected abstract void updateInfoFromFields();
 
     /**
-     * Updates the given scenarioInfo with the current values
-     * typed into the dialog.
+     * Updates the given ExportInfo with the current values entered in the dialog.
      */
-    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
-    protected abstract void updateInfoFromFields();
+    protected abstract ExportInfo getExportInfo();
 }

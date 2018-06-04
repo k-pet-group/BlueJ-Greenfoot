@@ -231,7 +231,7 @@ XOM XML Object Modeller library (Lesser GNU Public License v2.1)
 ----------------------------------------------------------------
 "xom-1.2.9.jar" comprises the XOM library (http://www.cafeconleche.org/XOM/), used
 by BlueJ. It is distributed under the terms of the LGPL v2.1, as found in the
-"GNU-LGPL-v2.1.txt" file.refs/heads/*
+"GNU-LGPL-v2.1.txt" file.
 
 
 
