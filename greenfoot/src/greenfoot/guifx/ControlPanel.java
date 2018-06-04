@@ -69,8 +69,12 @@ public class ControlPanel extends GridPane
     private static final Node ACT_ICON = GreenfootUtil.makeActIcon();
     private static final Node RESET_ICON = GreenfootUtil.makeResetIcon();
     
+    private final Button actButton;
     private final Button runPauseButton;
+    private final Label speedLabel;
     private final Slider speedSlider;
+
+    private State state;
     private final ControlPanelListener listener;
 
     private final BooleanProperty actDisabled = new SimpleBooleanProperty(true);
@@ -78,8 +82,6 @@ public class ControlPanel extends GridPane
     private final BooleanProperty runDisabled = new SimpleBooleanProperty(true);
     private final BooleanProperty pauseDisabled = new SimpleBooleanProperty(true);
     private final BooleanBinding runPauseDisabled = runDisabled.and(pauseDisabled);
-    private final Button actButton;
-    private final Label speedLabel;
 
     /**
      * Make a new control panel.
@@ -166,13 +168,14 @@ public class ControlPanel extends GridPane
     }
 
     /**
-     * It disables or enables the Act, Run and Pause buttons. This is used to disable those buttons
-     * while resetting takes place.
+     * It disables or enables the Act, Run and Pause buttons. This is used
+     * to disable those buttons while resetting takes place.
+     *
      * @param value The true or false value to disable or enable the buttons
      */
     public void disableControlPanelButtons(boolean value)
     {
-        actDisabled.setValue(value);
+        actDisabled.setValue(value || state == State.RUNNING);
         runDisabled.setValue(value);
         pauseDisabled.setValue(value);
     }
@@ -182,6 +185,7 @@ public class ControlPanel extends GridPane
      */
     public void updateState(State newState, boolean atBreakpoint)
     {
+        this.state = newState;
         actDisabled.setValue(newState != State.PAUSED || atBreakpoint);
         runDisabled.setValue(newState != State.PAUSED || atBreakpoint);
         pauseDisabled.setValue(newState != State.RUNNING || atBreakpoint);
