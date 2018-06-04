@@ -21,10 +21,6 @@
  */
 package threadchecker;
 
-import java.io.BufferedOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -373,7 +369,7 @@ class TCScanner extends TreePathScanner<Void, Void>
     public Void visitMethod(MethodTree method, Void arg1)
     {
         TypeMirror methodType = trees.getTypeMirror(getCurrentPath());
-        Collection<? extends TypeMirror> superTypes = allSuperTypes(trees.getTypeMirror(typeScopeStack.getLast().path));
+        Collection<? extends TypeMirror> superTypes = allSuperTypes(trees.getTypeMirror(typeScopeStack.getLast().path), method);
         
         // Skip methods with @SuppressWarnings("threadchecker")
         if (!suppressesChecker(method))
@@ -677,7 +673,7 @@ class TCScanner extends TreePathScanner<Void, Void>
             return defaultReturn;
         }
         
-        Collection<? extends TypeMirror> superTypes = allSuperTypes(trees.getTypeMirror(typeScopeStack.getLast().path));
+        Collection<? extends TypeMirror> superTypes = allSuperTypes(trees.getTypeMirror(typeScopeStack.getLast().path), lhs);
         
         LocatedTag invokedOnTag = null;
         
@@ -796,7 +792,7 @@ class TCScanner extends TreePathScanner<Void, Void>
                 final TypeMirror invokeTargetTypeFinal = invokeTargetType;
                 LocatedTag directTag = getRemoteTag(e, () -> invokeTargetTypeFinal.toString() + "." + e.getSimpleName().toString(), errorLocation);
             
-                Collection<? extends TypeMirror> invokeTargetSuperTypes = allSuperTypes(invokeTargetType);
+                Collection<? extends TypeMirror> invokeTargetSuperTypes = allSuperTypes(invokeTargetType, lhs);
             
                 LocatedTag overridden = checkAgainstOverridden(name, directTag, e.asType(), invokeTargetSuperTypes, true, errorLocation);
              
@@ -943,8 +939,11 @@ class TCScanner extends TreePathScanner<Void, Void>
             methodAnn = getSourceTag(surroundingMethod, () -> cu.getPackageName().toString() + typeScopeStack.stream().limit(typeScopeStack.size() - 1).map(TCScanner::typeToName).collect(Collectors.joining(".")));
             classAnn = getSourceTag(typeScopeStack.get(typeScopeStack.size() - 2).item, () -> cu.getPackageName().toString() + typeScopeStack.stream().limit(typeScopeStack.size() - 2).map(TCScanner::typeToName).collect(Collectors.joining(".")));
             knownMethodAnn = methodAnns.stream()
-                    .filter(m -> allSuperTypes(trees.getTypeMirror(typeScopeStack.get(typeScopeStack.size() - 2).path)).stream().
-                                   anyMatch(ty -> m.matches(ty, methodName, methodType)))
+                    .filter(m -> allSuperTypes(
+                            trees.getTypeMirror(typeScopeStack.get(typeScopeStack.size() - 2).path),
+                            errorLocation)
+                                .stream()
+                                .anyMatch(ty -> m.matches(ty, methodName, methodType)))
                     .map(m -> m.tag)
                     .findFirst().orElse(null);
         }
@@ -956,8 +955,8 @@ class TCScanner extends TreePathScanner<Void, Void>
             methodAnn = getSourceTag(methodScopeStack.getLast().item, () -> cu.getPackageName().toString() + typeScopeStack.stream().limit(typeScopeStack.size()).map(TCScanner::typeToName).collect(Collectors.joining(".")));
             classAnn = getSourceTag(typeScopeStack.getLast().item, () -> cu.getPackageName().toString() + typeScopeStack.stream().limit(typeScopeStack.size() - 1).map(TCScanner::typeToName).collect(Collectors.joining(".")));
             knownMethodAnn = methodAnns.stream()
-                    .filter(m -> allSuperTypes(trees.getTypeMirror(typeScopeStack.getLast().path)).stream().
-                                   anyMatch(ty -> m.matches(ty, methodName, methodType)))
+                    .filter(m -> allSuperTypes(trees.getTypeMirror(typeScopeStack.getLast().path),
+                            errorLocation).stream().anyMatch(ty -> m.matches(ty, methodName, methodType)))
                     .map(m -> m.tag)
                     .findFirst().orElse(null);
         }
@@ -1076,12 +1075,22 @@ class TCScanner extends TreePathScanner<Void, Void>
     }
 
     // Gets all supertypes (including interfaces) of the given type:
-    private Collection<? extends TypeMirror> allSuperTypes(TypeMirror orig)
+    private Collection<? extends TypeMirror> allSuperTypes(TypeMirror orig, Tree errorLocation)
     {
         if (orig == null)
+        {
             return Collections.emptyList();
+        }
+        
+        LocatedTag ttag = getRemoteTag(types.asElement(orig), () -> orig.toString(), errorLocation);
+        if (ttag != null && ttag.ignoreParent())
+        {
+            return Collections.emptyList();
+        }
+        
         List<? extends TypeMirror> supers = types.directSupertypes(orig);
-        return Stream.concat(supers.stream(), supers.stream().flatMap(t -> allSuperTypes(t).stream())).collect(Collectors.toList());
+        return Stream.concat(supers.stream(), supers.stream()
+                .flatMap(t -> allSuperTypes(t, errorLocation).stream())).collect(Collectors.toList());
     }
 
     /**
@@ -1534,7 +1543,8 @@ class TCScanner extends TreePathScanner<Void, Void>
         if (tag != null) 
         {
             // Our present tag:
-            Collection<? extends TypeMirror> superTypes = allSuperTypes(trees.getTypeMirror(typeScopeStack.getLast().path));
+            Collection<? extends TypeMirror> superTypes = allSuperTypes(
+                    trees.getTypeMirror(typeScopeStack.getLast().path), node);
 
             Optional<LocatedTag> ann = getCurrentTag(superTypes, node);
             
@@ -1649,7 +1659,8 @@ class TCScanner extends TreePathScanner<Void, Void>
                 
             }
             // Give it default tag from class if none explicitly:
-            Collection<? extends TypeMirror> superTypes = allSuperTypes(trees.getTypeMirror(typeScopeStack.getLast().path));
+            Collection<? extends TypeMirror> superTypes = allSuperTypes(
+                    trees.getTypeMirror(typeScopeStack.getLast().path), node);
 
             Optional<LocatedTag> ann = getCurrentTag(superTypes, cu);
             fields.put(node.getName().toString(), ann.orElse(null));
