@@ -88,51 +88,81 @@ public class ExportInfo extends ScenarioInfo
         this.update = update;
     }
 
+    /**
+     * Returns the image that is to be used as icon for this scenario.
+     */
     public Image getImage()
     {
         return image;
     }
 
+    /**
+     * Sets the image that is to be used as icon for this scenario.
+     */
     public void setImage(Image image)
     {
         this.image = image;
     }
 
+    /**
+     * Returns the file name that will be exported to. Used for local export.
+     */
     public String getExportName()
     {
         return exportName;
     }
 
+    /**
+     * Sets the file name that will be exported to. Used in local export.
+     */
     public void setExportName(String exportName)
     {
         this.exportName = exportName;
     }
 
+    /**
+     * Returns the user name. Used for web publish.
+     */
     public String getUserName()
     {
         return userName;
     }
 
+    /**
+     * Sets the user name. Used in web publish.
+     */
     public void setUserName(String userName)
     {
         this.userName = userName;
     }
 
+    /**
+     * Returns the user's password. Used for web publish.
+     */
     public String getPassword()
     {
         return password;
     }
 
+    /**
+     * Sets the user's password. Used in web publish.
+     */
     public void setPassword(String password)
     {
         this.password = password;
     }
 
+    /**
+     * Returns True if the scenario's screenshot to be kept, false otherwise.
+     */
     public boolean isKeepSavedScreenshot()
     {
         return keepSavedScreenshot;
     }
 
+    /**
+     * Sets True if the scenario's screenshot should be kept, false otherwise.
+     */
     public void setKeepSavedScreenshot(boolean keepSavedScreenshot)
     {
         this.keepSavedScreenshot = keepSavedScreenshot;
