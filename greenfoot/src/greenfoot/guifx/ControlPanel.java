@@ -138,6 +138,7 @@ public class ControlPanel extends GridPane
         speedLabel = new Label(Config.getString("controls.speed.label"));
         // Let speed label shrink to nothing if not enough space:
         speedLabel.setMinWidth(0.0);
+        speedLabel.setDisable(true);
         add(controlPanel, 0, 0);
         GridPane speedAndTwirler = new GridPane();
         speedAndTwirler.add(speedLabel, 0, 0);
@@ -186,6 +187,7 @@ public class ControlPanel extends GridPane
         pauseDisabled.setValue(newState != State.RUNNING || atBreakpoint);
         resetDisabled.setValue(newState == State.NO_PROJECT || newState == State.UNCOMPILED);
         speedSlider.setDisable(newState == State.NO_PROJECT);
+        speedLabel.setDisable(newState == State.NO_PROJECT);
 
         boolean showingPause = newState == State.RUNNING || newState == State.RUNNING_REQUESTED_PAUSE;
         if (showingPause)
