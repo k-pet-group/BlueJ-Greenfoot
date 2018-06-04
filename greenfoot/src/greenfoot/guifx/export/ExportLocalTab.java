@@ -23,6 +23,7 @@ package greenfoot.guifx.export;
 
 import bluej.Config;
 import bluej.utility.DialogManager;
+import greenfoot.export.mygame.ExportInfo;
 import greenfoot.export.mygame.ScenarioInfo;
 
 import java.io.File;
@@ -154,9 +155,16 @@ public abstract class ExportLocalTab extends ExportTab
     }
 
     @Override
-    @OnThread(Tag.FXPlatform)
     protected void updateInfoFromFields()
     {
-        scenarioInfo.setExportName(getExportName());
+        // Nothing to do.
+    }
+    
+    @Override
+    protected ExportInfo getExportInfo()
+    {
+        ExportInfo info = new ExportInfo(scenarioInfo);
+        info.setExportName(getExportName());
+        return info;
     }
 }

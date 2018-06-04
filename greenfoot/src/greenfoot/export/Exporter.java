@@ -29,7 +29,7 @@ import bluej.utility.Utility;
 import greenfoot.event.PublishEvent;
 import greenfoot.event.PublishListener;
 import greenfoot.export.mygame.MyGameClient;
-import greenfoot.export.mygame.ScenarioInfo;
+import greenfoot.export.mygame.ExportInfo;
 import greenfoot.guifx.export.ExportDialog;
 import greenfoot.guifx.export.ProxyAuthDialog;
 import greenfoot.util.GreenfootUtil;
@@ -120,7 +120,7 @@ public class Exporter implements PublishListener
 
     private Project project;
     private ScenarioSaver scenarioSaver;
-    private ScenarioInfo scenarioInfo;
+    private ExportInfo scenarioInfo;
     private String worldName;
     private double worldWidth;
     private double worldHeight;
@@ -146,7 +146,7 @@ public class Exporter implements PublishListener
      */
     @OnThread(Tag.Worker)
     public void doExport(Project project, ExportDialog dialog, ScenarioSaver scenarioSaver,
-                         ScenarioInfo scenarioInfo, ExportFunction function, String worldName,
+                         ExportInfo scenarioInfo, ExportFunction function, String worldName,
                          double worldWidth, double worldHeight)
     {
         this.project = project;
@@ -290,14 +290,7 @@ public class Exporter implements PublishListener
         dialog.setProgress(true, Config.getString("export.progress.publishing"));
         try
         {
-            ScenarioInfo exportedInfo = new ScenarioInfo();
-            exportedInfo.setTitle(scenarioName);
-            exportedInfo.setShortDescription(scenarioInfo.getShortDescription());
-            exportedInfo.setUpdateDescription(scenarioInfo.getUpdateDescription());
-            exportedInfo.setLongDescription(scenarioInfo.getLongDescription());
-            exportedInfo.setUpdate(scenarioInfo.isUpdate());
-            exportedInfo.setTags(scenarioInfo.getTags());
-            exportedInfo.setUrl(scenarioInfo.getUrl());
+            ExportInfo exportedInfo = scenarioInfo;
             
             int uploadSize = (int) tmpJarFile.length();
             if (tmpImgFile != null)

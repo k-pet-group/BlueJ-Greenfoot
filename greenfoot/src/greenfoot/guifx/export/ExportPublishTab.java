@@ -30,6 +30,7 @@ import bluej.utility.javafx.JavaFXUtil;
 
 import static greenfoot.export.Exporter.ExportFunction;
 import greenfoot.export.mygame.ExistingScenarioChecker;
+import greenfoot.export.mygame.ExportInfo;
 import greenfoot.export.mygame.MyGameClient;
 import greenfoot.export.mygame.ScenarioInfo;
 import greenfoot.export.ScenarioSaver;
@@ -444,27 +445,29 @@ public class ExportPublishTab extends ExportTab
         setUpdate(true);
     }
 
-    /**
-     * Updates the given scenarioInfo with the current values typed into the
-     * dialog.
-     */
     @Override
     protected void updateInfoFromFields()
     {
         scenarioInfo.setTitle(getTitle());
         scenarioInfo.setShortDescription(getShortDescription());
         scenarioInfo.setLongDescription(getLongDescription());
-        scenarioInfo.setUpdateDescription(getUpdateDescription());
         scenarioInfo.setUrl(getURL());
         scenarioInfo.setTags(getTags());
         scenarioInfo.setLocked(isLockScenario());
         scenarioInfo.setIncludeSource(isIncludeSource());
-
-        scenarioInfo.setUserName(getUserName());
-        scenarioInfo.setPassword(getPassword());
-        scenarioInfo.setImage(getImage());
-        scenarioInfo.setKeepSavedScreenshot(isKeepSavedScreenshot());
-        scenarioInfo.setUpdate(isUpdate());
+    }
+    
+    @Override
+    protected ExportInfo getExportInfo()
+    {
+        ExportInfo info = new ExportInfo(scenarioInfo);
+        info.setUpdateDescription(getUpdateDescription());
+        info.setUserName(getUserName());
+        info.setPassword(getPassword());
+        info.setImage(getImage());
+        info.setKeepSavedScreenshot(isKeepSavedScreenshot());
+        info.setUpdate(isUpdate());
+        return info;
     }
 
     private void checkForExistingScenario()

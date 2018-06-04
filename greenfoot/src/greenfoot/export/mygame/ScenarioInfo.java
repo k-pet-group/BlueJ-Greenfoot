@@ -21,17 +21,18 @@
  */
 package greenfoot.export.mygame;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
-import javafx.scene.image.Image;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * Holds various information about a scenario.
+ * Holds various information about a scenario that is persisted when the scenario is saved.
+ * @see ExportInfo
  * 
  * @author Davin McCall
  */
@@ -41,12 +42,11 @@ public class ScenarioInfo
     private String title;
     private String shortDescription;
     private String longDescription;
-    private String updateDescription;
     private List<String> tags = Collections.emptyList();
     private String url;
     private boolean includeSource;
     private boolean locked;
-    private boolean update = false;
+    private boolean hideControls;
     
     private static final String PUBLISH_TITLE = "publish.title";
     private static final String PUBLISH_SHORT_DESC = "publish.shortDesc";
@@ -55,23 +55,29 @@ public class ScenarioInfo
     private static final String PUBLISH_TAGS = "publish.tags";
     private static final String PUBLISH_HAS_SOURCE = "publish.hasSource";
     private static final String PUBLISH_LOCKED = "publish.locked";
-    private static final String PUBLISH_UPDATE_DESC = "publish.updateDesc";
-
-    // Fields which will not be saved in the scenario local properties,
-    // but will be passed to the exporter. Some of them may be saved in
-    // the exported version, depending on the exported version type.
-    private Image image;
-    private String exportName;
-    private String userName;
-    private String password;
-    private boolean hideControls;
-    private boolean keepSavedScreenshot;
 
     /**
      * Construct a scenario info object without loading any properties.
      */
-    public ScenarioInfo() { }
+    public ScenarioInfo()
+    {
+        // Nothing to do.
+    }
 
+    /**
+     * Construct a scenario info object by copying fields from another.
+     */
+    public ScenarioInfo(ScenarioInfo src)
+    {
+        title = src.title;
+        shortDescription = src.shortDescription;
+        longDescription = src.longDescription;
+        tags = new ArrayList<String>(src.tags);
+        url = src.url;
+        includeSource = src.includeSource;
+        locked = src.locked;
+    }
+    
     /**
      * Construct a scenario info object and load related properties.
      *
@@ -135,6 +141,11 @@ public class ScenarioInfo
         return url;
     }
     
+    public boolean isIncludeSource()
+    {
+        return includeSource;
+    }
+    
     public void setIncludeSource(boolean includeSource)
     {
         this.includeSource = includeSource;
@@ -150,9 +161,14 @@ public class ScenarioInfo
         this.locked = locked;
     }
     
-    public boolean isIncludeSource()
+    public boolean isHideControls()
     {
-        return includeSource;
+        return hideControls;
+    }
+
+    public void setHideControls(boolean hideControls)
+    {
+        this.hideControls = hideControls;
     }
     
     /**
@@ -167,7 +183,6 @@ public class ScenarioInfo
         setPropertyIfNotNull(properties, PUBLISH_TAGS, getTagsAsString());
         setPropertyIfNotNull(properties, PUBLISH_HAS_SOURCE, Boolean.toString(isIncludeSource()));
         setPropertyIfNotNull(properties, PUBLISH_LOCKED, Boolean.toString(isLocked()));
-        setPropertyIfNotNull(properties, PUBLISH_UPDATE_DESC, getUpdateDescription());
     }
 
     /**
@@ -214,104 +229,5 @@ public class ScenarioInfo
 
         setIncludeSource(Boolean.parseBoolean(properties.getProperty(PUBLISH_HAS_SOURCE, "false")));
         setLocked(Boolean.parseBoolean(properties.getProperty(PUBLISH_LOCKED, "true")));
-        setUpdateDescription(properties.getProperty(PUBLISH_UPDATE_DESC));
-    }
-
-    /**
-     * If we're updating an existing scenario, return a description of the update.
-     * @see #isUpdate()
-     */
-    public String getUpdateDescription()
-    {
-        return updateDescription;
-    }
-
-    /**
-     * Set the update description (if this is an update).
-     * @param updateDescription   The update description provided by the user.
-     * @see #setUpdate(boolean)
-     */
-    public void setUpdateDescription(String updateDescription)
-    {
-        this.updateDescription = updateDescription;
-    }
-
-    /**
-     * Check whether this is (as far as we're aware) an update of an existing scenario.
-     * If it is {@link #getUpdateDescription()} will return a description of the update.
-     */
-    public boolean isUpdate()
-    {
-        return update;
-    }
-
-    /**
-     * Specify whether this is an update of an existing scenario. Also use
-     * {@link #setUpdateDescription(String)} to set the update description
-     * as provided by the user.
-     */
-    public void setUpdate(boolean update)
-    {
-        this.update = update;
-    }
-
-    public Image getImage()
-    {
-        return image;
-    }
-
-    public void setImage(Image image)
-    {
-        this.image = image;
-    }
-
-    public String getExportName()
-    {
-        return exportName;
-    }
-
-    public void setExportName(String exportName)
-    {
-        this.exportName = exportName;
-    }
-
-    public String getUserName()
-    {
-        return userName;
-    }
-
-    public void setUserName(String userName)
-    {
-        this.userName = userName;
-    }
-
-    public String getPassword()
-    {
-        return password;
-    }
-
-    public void setPassword(String password)
-    {
-        this.password = password;
-    }
-
-    public boolean isHideControls()
-    {
-        return hideControls;
-    }
-
-    public void setHideControls(boolean hideControls)
-    {
-        this.hideControls = hideControls;
-    }
-
-    public boolean isKeepSavedScreenshot()
-    {
-        return keepSavedScreenshot;
-    }
-
-    public void setKeepSavedScreenshot(boolean keepSavedScreenshot)
-    {
-        this.keepSavedScreenshot = keepSavedScreenshot;
     }
 }

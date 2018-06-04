@@ -32,6 +32,8 @@ import bluej.utility.Utility;
 
 import greenfoot.export.Exporter;
 import static greenfoot.export.Exporter.ExportFunction;
+
+import greenfoot.export.mygame.ExportInfo;
 import greenfoot.export.mygame.ScenarioInfo;
 import greenfoot.export.ScenarioSaver;
 
@@ -222,9 +224,10 @@ public class ExportDialog extends FXCustomizedDialog<Void>
     {
         if (getSelectedTab().prePublish())
         {
+            ExportInfo info = getSelectedTab().getExportInfo();
             exportingProperty.set(true);
             scenarioSaver.doSave();
-            new ExportThread().start();
+            new ExportThread(info).start();
         }
     }
 
@@ -237,15 +240,22 @@ public class ExportDialog extends FXCustomizedDialog<Void>
         private final double snapshotHeight;
         private final String displayName;
         private final ExportFunction function;
+        private final ExportInfo info;
         
-        // Fetch some values we need while on the FX thread:
+        /**
+         * Construct an export thread, which will use the given ExportInfo information.
+         * 
+         * @param info  the information for export. The new thread assumes ownership of
+         *              this object.
+         */
         @OnThread(Tag.FXPlatform)
-        public ExportThread()
+        public ExportThread(ExportInfo info)
         {
             snapshotWidth = snapshot.getWidth();
             snapshotHeight = snapshot.getHeight();
             displayName = currentWorld.getDisplayName();
             function = getSelectedFunction();
+            this.info = info;
         }
         
         @Override
@@ -255,7 +265,7 @@ public class ExportDialog extends FXCustomizedDialog<Void>
             try
             {
                 Exporter exporter = Exporter.getInstance();
-                exporter.doExport(project, ExportDialog.this, scenarioSaver, scenarioInfo, function,
+                exporter.doExport(project, ExportDialog.this, scenarioSaver, info, function,
                         displayName, snapshotWidth, snapshotHeight);
             }
             finally
