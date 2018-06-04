@@ -37,7 +37,7 @@ public class ExportInfo extends ScenarioInfo
     private boolean update = false;
     private String updateDescription;
     private Image image;
-    private String exportName;
+    private String exportFileName;
     private String userName;
     private String password;
     private boolean keepSavedScreenshot;
@@ -107,17 +107,17 @@ public class ExportInfo extends ScenarioInfo
     /**
      * Returns the file name that will be exported to. Used for local export.
      */
-    public String getExportName()
+    public String getExportFileName()
     {
-        return exportName;
+        return exportFileName;
     }
 
     /**
      * Sets the file name that will be exported to. Used in local export.
      */
-    public void setExportName(String exportName)
+    public void setExportFileName(String exportFileName)
     {
-        this.exportName = exportName;
+        this.exportFileName = exportFileName;
     }
 
     /**
