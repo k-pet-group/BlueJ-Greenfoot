@@ -119,7 +119,6 @@ public class Exporter implements PublishListener
     private MyGameClient webPublisher;
 
     private Project project;
-    private ScenarioSaver scenarioSaver;
     private ExportInfo scenarioInfo;
     private String worldName;
     private double worldWidth;
@@ -151,7 +150,6 @@ public class Exporter implements PublishListener
     {
         this.project = project;
         this.dialog = dialog;
-        this.scenarioSaver = scenarioSaver;
         this.scenarioInfo = scenarioInfo;
         this.worldName = worldName;
         this.worldWidth = worldWidth;
