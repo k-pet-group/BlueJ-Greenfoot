@@ -244,24 +244,31 @@ public class ControlPanel extends GridPane
     public List<MenuItem> makeMenuItems()
     {
         return Arrays.asList(
-        JavaFXUtil.makeMenuItem("run.once",
-                new ImageView(new Image(getClass().getClassLoader().getResourceAsStream("step.png"))),
+        JavaFXUtil.makeMenuItem("run.once", getIcon("step.png"),
                 new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN),
                 listener::act, actDisabled),
-                JavaFXUtil.makeMenuItem("controls.run.button",
-                        new ImageView(new Image(getClass().getClassLoader().getResourceAsStream("run.png"))),
+                JavaFXUtil.makeMenuItem("controls.run.button", getIcon("run.png"),
                         new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN),
                         listener::doRunPause, runDisabled),
-                JavaFXUtil.makeMenuItem("controls.pause.button",
-                        new ImageView(new Image(getClass().getClassLoader().getResourceAsStream("pause.png"))),
+                JavaFXUtil.makeMenuItem("controls.pause.button", getIcon("pause.png"),
                         new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN,
                                 KeyCombination.SHIFT_DOWN),
                         listener::doRunPause, pauseDisabled),
-                JavaFXUtil.makeMenuItem("reset.world",
-                        new ImageView(new Image(getClass().getClassLoader().getResourceAsStream("reset.png"))),
+                JavaFXUtil.makeMenuItem("reset.world", getIcon("reset.png"),
                         new KeyCodeCombination(KeyCode.T, KeyCombination.SHORTCUT_DOWN),
                         listener::userReset, resetDisabled)
         );
+    }
+
+    /**
+     * Loads an image from resources and put it in an imageView to be used as an icon.
+     *
+     * @param fileName The file name of the image
+     * @return An image view containing the image.
+     */
+    private ImageView getIcon(String fileName)
+    {
+        return new ImageView(new Image(getClass().getClassLoader().getResourceAsStream(fileName)));
     }
 
     /**
