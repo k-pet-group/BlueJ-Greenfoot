@@ -21,8 +21,6 @@
  */
 package greenfoot.guifx;
 
-import bluej.BlueJEvent;
-import bluej.BlueJEventListener;
 import bluej.Boot;
 import bluej.Config;
 import bluej.Main;
@@ -38,7 +36,6 @@ import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerResult;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
-import bluej.debugmgr.ExecutionEvent;
 import bluej.debugmgr.Invoker;
 import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.objectbench.InvokeListener;
@@ -139,7 +136,7 @@ import static greenfoot.vmcomm.Command.*;
  * Greenfoot's main window: a JavaFX replacement for GreenfootFrame which lives on the server VM.
  */
 @OnThread(Tag.FXPlatform)
-public class GreenfootStage extends Stage implements BlueJEventListener, FXCompileObserver,
+public class GreenfootStage extends Stage implements FXCompileObserver,
         SimulationStateListener, PackageUI, ControlPanelListener, ScenarioSaver
 {
     private static final String STAGE_TITLE = "Greenfoot";
@@ -237,10 +234,14 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         private final Region previewNode;
         // Property tracking whether current location is valid or not
         private final BooleanProperty cannotDrop = new SimpleBooleanProperty(true);
-        // The execution event that created the actor, if the actor has already been created:
-        private final ExecutionEvent creationEvent;
+        // The object representing the actor, if the actor has already been created:
+        private final DebuggerObject actorObject;
         // The type name if the actor has not been constructed:
         private final String typeName;
+        // The invoker record for the construction:
+        private final InvokerRecord invokerRecord;
+        // The parameter types of the construction:
+        private final JavaType[] paramTypes;
 
         private Region makePreviewNode(ImageView imageView)
         {
@@ -252,17 +253,37 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             return stackPane;
         }
 
-        public NewActor(ImageView imageView, ExecutionEvent creationEvent)
+        /**
+         * Create a NewActor wrapper for an already-constructed actor object.
+         * 
+         * @param imageView    An image view with the actor image
+         * @param actorObject  The actor itself
+         * @param ir           Invoker record representing the constructor invocation
+         * @param paramTypes   Parameter types of the constructor call
+         */
+        public NewActor(ImageView imageView, DebuggerObject actorObject,
+                InvokerRecord ir, JavaType[] paramTypes)
         {
             this.previewNode = makePreviewNode(imageView);
-            this.creationEvent = creationEvent;
+            this.actorObject = actorObject;
+            this.invokerRecord = ir;
+            this.paramTypes = paramTypes;
             this.typeName = null;
         }
 
+        /**
+         * Create a NewActor proxy for a yet-to-be constructed actor object. This is used while
+         * shift-click creation of an actor is performed.
+         * 
+         * @param imageView    An image view with the actor image
+         * @param typeName     The name of the actor class
+         */
         public NewActor(ImageView imageView, String typeName)
         {
             this.previewNode = makePreviewNode(imageView);
-            this.creationEvent = null;
+            this.actorObject = null;
+            this.invokerRecord = null;
+            this.paramTypes = null;
             this.typeName = typeName;
         }
     }
@@ -279,7 +300,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
 
         stages.add(this);
 
-        BlueJEvent.addListener(this);
         soundRecorder = new SoundRecorderControls(project);
 
         executionTwirler = new ExecutionTwirler(project, greenfootDebugHandler);
@@ -710,7 +730,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
         else
         {
             stages.remove(this);
-            BlueJEvent.removeListener(this);
             close();
         }
     }
@@ -1122,15 +1141,15 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     // would have taken a lot of code changes to route through to VMReference:
                     DebuggerObject xObject = project.getDebugger().getMirror("" + (int) dest.getX());
                     DebuggerObject yObject = project.getDebugger().getMirror("" + (int) dest.getY());
-                    DebuggerObject actor = null;
-                    ExecutionEvent executionEvent = newActorProperty.get().creationEvent;
-                    if (executionEvent != null)
+                    DebuggerObject actor = newActorProperty.get().actorObject;
+                    if (actor != null)
                     {
-                        // Place the already-constructed actor:
-                        actor = executionEvent.getResultObject();
+                        // Place the already-constructed actor.
+                        saveTheWorldRecorder.createActor(actor,
+                                newActorProperty.get().invokerRecord.getArgumentValues(),
+                                newActorProperty.get().paramTypes);
                         // Can't place same instance twice:
                         newActorProperty.set(null);
-                        saveTheWorldRecorder.createActor(executionEvent.getResultObject(), executionEvent.getParameters(), executionEvent.getSignature());
                     }
                     else
                     {
@@ -1261,7 +1280,8 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             {
                 eventType = KEY_UP;
 
-                if (e.getCode() == KeyCode.SHIFT && newActorProperty.get() != null && newActorProperty.get().creationEvent == null)
+                if (e.getCode() == KeyCode.SHIFT && newActorProperty.get() != null
+                        && newActorProperty.get().actorObject == null)
                 {
                     newActorProperty.set(null);
                 }
@@ -1589,55 +1609,6 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
             project.getInspectorInstance(debuggerObject, debuggerObject.getClassName(), project.getUnnamedPackage(), ir, this, null);  // shows the inspector
         });
         return inspectItem;
-    }
-
-    /**
-     * Overrides BlueJEventListener method
-     */
-    @Override
-    public void blueJEvent(int eventId, Object arg)
-    {
-        // Look for results of actor/world/other-object construction:
-        if (eventId == BlueJEvent.EXECUTION_RESULT)
-        {
-            ExecutionEvent executionEvent = (ExecutionEvent)arg;
-            // Was it a constructor of a class in the default package?
-            if (executionEvent.getMethodName() == null && executionEvent.getPackage().getQualifiedName().equals(""))
-            {
-                String className = executionEvent.getClassName();
-                Target t = project.getTarget(className);
-                // Should always be a ClassTarget but just in case:
-                if (t instanceof ClassTarget)
-                {
-                    ClassTarget ct = (ClassTarget) t;
-                    Reflective typeReflective = ct.getTypeReflective();
-                    if (typeReflective != null && getActorReflective().isAssignableFrom(typeReflective))
-                    {
-                        // It's an actor!
-                        ImageView imageView = getImageViewForClass(typeReflective);
-                        if (imageView != null)
-                        {
-                            newActorProperty.set(new NewActor(imageView, executionEvent));
-                        }
-                    }
-                    else if (typeReflective != null && getWorldReflective().isAssignableFrom(typeReflective))
-                    {
-                        // It's a world
-                        currentWorld = ct;
-                        // Not a good idea to call back debugger from a listener, so runLater:
-                        JavaFXUtil.runAfterCurrent(() -> project.getDebugger()
-                                .instantiateClass("greenfoot.core.SetWorldHelper",
-                                        new String[]{"java.lang.Object"},
-                                        new DebuggerObject[]{executionEvent.getResultObject()}));
-                    }
-                    else
-                    {
-                        // If neither actor nor world, we just inspect the constructed object:
-                        project.getInspectorInstance(executionEvent.getResultObject(), "<object>", executionEvent.getPackage(), null, this, null);
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -2254,14 +2225,70 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
      * PackageUI getStage() implementation.
      * @see bluej.pkgmgr.PackageUI#getStage()
      */
-    @OnThread(Tag.FXPlatform)
     @Override
+    @OnThread(Tag.FXPlatform)
     public Stage getStage()
     {
         return this;
     }
     
-    @OnThread(Tag.FXPlatform)
+    /**
+     * We have the result of an interactive object construction. Do the appropriate thing
+     * depending on the object type.
+     * 
+     * @param result      The result object
+     * @param ir          The invocation record for the invocation which created the object
+     * @param paramTypes  The parameter types for the constructor call
+     */
+    private void gotConstructionResult(DebuggerObject result, InvokerRecord ir, JavaType[] paramTypes)
+    {
+        Reflective typeReflective = result.getGenType().getReflective();
+        if (typeReflective != null)
+        {
+            // We need to convert the reflective to a JavaReflective in order for the
+            // "isAssignableFrom" tests below to work.
+            Class<?> cl = project.loadClass(typeReflective.getName());
+            if (cl != null)
+            {
+                typeReflective = new JavaReflective(cl);
+            }
+            else {
+                typeReflective = null;
+            }
+        }
+        
+        if (typeReflective != null && getActorReflective().isAssignableFrom(typeReflective))
+        {
+            // It's an actor!
+            ImageView imageView = getImageViewForClass(typeReflective);
+            if (imageView != null)
+            {
+                newActorProperty.set(new NewActor(imageView, result, ir, paramTypes));
+            }
+        }
+        else if (typeReflective != null && getWorldReflective().isAssignableFrom(typeReflective))
+        {
+            // It's a world
+            String className = result.getGenType().getErasedType().toString();
+            Target t = project.getTarget(className);
+            if (t instanceof ClassTarget)
+            {
+                currentWorld = (ClassTarget)t;
+            }
+            
+            // Not a good idea to call back debugger from a listener, so runLater:
+            JavaFXUtil.runAfterCurrent(() -> project.getDebugger()
+                    .instantiateClass("greenfoot.core.SetWorldHelper",
+                            new String[]{"java.lang.Object"},
+                            new DebuggerObject[] { result }));
+        }
+        else
+        {
+            // If neither actor nor world, we just inspect the constructed object:
+            project.getInspectorInstance(result, "<object>", project.getUnnamedPackage(), null, this, null);
+        }
+    }
+
     @Override
     public void callStaticMethodOrConstructor(CallableView cv)
     {
@@ -2288,7 +2315,7 @@ public class GreenfootStage extends Stage implements BlueJEventListener, FXCompi
                     debugHandler.addObject(result, result.getGenType(), name);
                     project.getDebugger().addObject(project.getPackage("").getId(), name, result);
                     
-                    // TODO save interaction in the saveTheWorldRecorder?
+                    gotConstructionResult(result, ir, cv.getParamTypes(false));
                 }
 
                 @Override
