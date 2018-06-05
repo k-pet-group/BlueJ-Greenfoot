@@ -420,7 +420,8 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         currentWorld = lastInstantiatedWorldName != null
                 ? (ClassTarget) project.getTarget(lastInstantiatedWorldName)
                 : null;
-        if (currentWorld != null && currentWorld.isCompiled())
+        if (currentWorld != null && currentWorld.isCompiled()
+                && hasNoArgConstructor(currentWorld.getTypeReflective()))
         {
             // We send a reset to make a new world after the project properties have been sent across:
             debugHandler.getVmComms().instantiateWorld(lastInstantiatedWorldName);
@@ -552,7 +553,8 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     {
         controlPanel.disableControlPanelButtons(true);
         debugHandler.getVmComms().discardWorld();
-        if (currentWorld != null && currentWorld.isCompiled())
+        if (currentWorld != null && currentWorld.isCompiled()
+                && hasNoArgConstructor(currentWorld.getTypeReflective()))
         {
             debugHandler.getVmComms().instantiateWorld(currentWorld.getQualifiedName());
         }
