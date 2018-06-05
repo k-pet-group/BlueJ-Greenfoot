@@ -64,7 +64,8 @@ class GreenfootStageContentPane extends Pane
         
         final double idealWorldWidth = worldViewScroll.prefWidth(-1);
 
-        // The share button gets its ideal height:
+        // The share button gets its ideal width and height:
+        final double shareButtonWidth = shareButton.prefWidth(-1);
         final double shareButtonHeight = shareButton.prefHeight(-1);
         
         // Class diagram height is known: our height minus padding minus shareButtonHeight
@@ -86,7 +87,7 @@ class GreenfootStageContentPane extends Pane
         }
         // Make sure the width is not smaller than a minimum required
         // to show the share button properly.
-        classDiagramWidth = Math.max(classDiagramWidth, 100);
+        classDiagramWidth = Math.max(classDiagramWidth, shareButtonWidth + 2 * CLASS_DIAGRAM_PADDING);
         
         // The control panel is always its preferred height:
         final double worldWidth = ourWidth - (classDiagramWidth + 2 * CLASS_DIAGRAM_PADDING);
