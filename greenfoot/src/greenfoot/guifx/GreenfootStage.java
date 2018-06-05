@@ -832,9 +832,6 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
      */
     private void doShare()
     {
-        // TODO These two conditions are good enough currently for all cases, however
-        // more testing is needed and maybe changing to direct test for the project
-        // compilation status.
         if (worldDisplay.isGreyedOut() || stateProperty.get() == State.UNCOMPILED)
         {
             DialogManager.showErrorFX(this, "export-compile-not-compiled");
