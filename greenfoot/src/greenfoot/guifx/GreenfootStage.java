@@ -247,7 +247,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         {
             ImageView cannotDropIcon = new ImageView(this.getClass().getClassLoader().getResource("noParking.png").toExternalForm());
             cannotDropIcon.visibleProperty().bind(cannotDrop);
-            StackPane.setAlignment(cannotDropIcon, Pos.TOP_RIGHT);
+            StackPane.setAlignment(cannotDropIcon, Pos.CENTER);
             StackPane stackPane = new StackPane(imageView, cannotDropIcon);
             stackPane.setEffect(new DropShadow(10.0, 3.0, 3.0, Color.BLACK));
             return stackPane;
@@ -1175,6 +1175,11 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                     }
 
                 }
+                else
+                {
+                    // They clicked but outside the world: discard pending actor:
+                    newActorProperty.set(null);
+                }
             }
         });
         newActorProperty.addListener(new ChangeListener<NewActor>()
@@ -1245,14 +1250,13 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
      */
     private void setupWorldDrawingAndEvents()
     {
-        worldDisplay.addEventFilter(KeyEvent.ANY, e -> {
+        getScene().addEventFilter(KeyEvent.ANY, e -> {
             // Ignore keypresses if we are currently waiting for an ask-answer:
             if (worldDisplay.isAsking())
             {
                 return;
             }
 
-            int eventType;
             if (e.getEventType() == KeyEvent.KEY_PRESSED)
             {
                 if (e.getCode() == KeyCode.ESCAPE && newActorProperty.get() != null)
@@ -1275,20 +1279,34 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                         newActorProperty.set(new NewActor(getImageViewForClass(type), selectedClassTarget.getBaseName()));
                     }
                 }
-
-                eventType = KEY_DOWN;
             }
             else if (e.getEventType() == KeyEvent.KEY_RELEASED)
             {
-                eventType = KEY_UP;
-
                 if (e.getCode() == KeyCode.SHIFT && newActorProperty.get() != null
                         && newActorProperty.get().actorObject == null)
                 {
                     newActorProperty.set(null);
                 }
             }
-            else if (e.getEventType() == KeyEvent.KEY_TYPED)
+        });
+        
+        worldDisplay.addEventFilter(KeyEvent.ANY, e -> {
+            // Ignore keypresses if we are currently waiting for an ask-answer:
+            if (worldDisplay.isAsking())
+            {
+                return;
+            }
+            
+            int eventType;
+            if (e.getEventType().equals(KeyEvent.KEY_PRESSED))
+            {
+                eventType = KEY_DOWN;
+            }
+            else if (e.getEventType().equals(KeyEvent.KEY_RELEASED))
+            {
+                eventType = KEY_UP;
+            }
+            else if (e.getEventType().equals(KeyEvent.KEY_TYPED))
             {
                 eventType = KEY_TYPED;
             }
@@ -1296,7 +1314,6 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             {
                 return;
             }
-
             debugHandler.getVmComms().sendKeyEvent(eventType, e.getCode(), e.getText());
             e.consume();
         });
