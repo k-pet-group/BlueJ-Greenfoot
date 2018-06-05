@@ -2366,7 +2366,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
      */
     public void doNewProject(SourceType sourceType)
     {
-        String title = Config.getString("greenfoot.utilDelegate.newScenario");
+        String title = Config.getString("greenfoot.utilDelegate.newScenario") + " - " + sourceType;
         File newnameFile = FileUtility.getSaveProjectFX(this.getStage(), title);
         if (newnameFile == null)
         {
