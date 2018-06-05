@@ -1173,6 +1173,11 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                     }
 
                 }
+                else
+                {
+                    // They clicked but outside the world: discard pending actor:
+                    newActorProperty.set(null);
+                }
             }
         });
         newActorProperty.addListener(new ChangeListener<NewActor>()
