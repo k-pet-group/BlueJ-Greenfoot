@@ -23,20 +23,18 @@ package greenfoot.util;
 
 import bluej.Boot;
 import bluej.Config;
-import bluej.pkgmgr.target.ClassTarget;
-import bluej.utility.Debug;
-import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.GreenfootImage;
 import greenfoot.UserInfo;
 import greenfoot.core.ImageCache;
 import greenfoot.platforms.GreenfootUtilDelegate;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.RenderingHints;
 import java.awt.color.ColorSpace;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.font.TextAttribute;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
 import java.awt.image.ImageObserver;
@@ -48,37 +46,25 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.swing.border.Border;
+import javax.swing.Action;
+import javax.swing.JButton;
 
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.layout.StackPane;
-import javafx.scene.shape.Arc;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Polyline;
-import javafx.stage.Stage;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -212,6 +198,8 @@ public class GreenfootUtil
 
     /**
      * The green &gt; symbol for act.
+     * Currently, can't be used in a menuItem as JavaFX doesn't deal
+     * with this type of nodes properly on menuItem, at least on Mac.
      */
     @OnThread(Tag.FXPlatform)
     public static Node makeActIcon()
@@ -225,6 +213,8 @@ public class GreenfootUtil
 
     /**
      * The green triangle symbol for run.
+     * Currently, can't be used in a menuItem as JavaFX doesn't deal
+     * with this type of nodes properly on menuItem, at least on Mac.
      */
     @OnThread(Tag.FXPlatform)
     public static Node makeRunIcon()
@@ -238,6 +228,8 @@ public class GreenfootUtil
 
     /**
      * The red pause icon.
+     * Currently, can't be used in a menuItem as JavaFX doesn't deal
+     * with this type of nodes properly on menuItem, at least on Mac.
      */
     @OnThread(Tag.FXPlatform)
     public static Node makePauseIcon()
@@ -252,6 +244,8 @@ public class GreenfootUtil
 
     /**
      * The brown reset icon.
+     * Currently, can't be used in a menuItem as JavaFX doesn't deal
+     * with this type of nodes properly on menuItem, at least on Mac.
      */
     @OnThread(Tag.FXPlatform)
     public static Node makeResetIcon()

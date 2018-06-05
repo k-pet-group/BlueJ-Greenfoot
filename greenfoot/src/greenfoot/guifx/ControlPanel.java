@@ -39,6 +39,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -242,20 +244,31 @@ public class ControlPanel extends GridPane
     public List<MenuItem> makeMenuItems()
     {
         return Arrays.asList(
-        JavaFXUtil.makeMenuItem("run.once",
+        JavaFXUtil.makeMenuItem("run.once", getIcon("step.png"),
                 new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN),
                 listener::act, actDisabled),
-                JavaFXUtil.makeMenuItem("controls.run.button",
+                JavaFXUtil.makeMenuItem("controls.run.button", getIcon("run.png"),
                         new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN),
                         listener::doRunPause, runDisabled),
-                JavaFXUtil.makeMenuItem("controls.pause.button",
+                JavaFXUtil.makeMenuItem("controls.pause.button", getIcon("pause.png"),
                         new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN,
                                 KeyCombination.SHIFT_DOWN),
                         listener::doRunPause, pauseDisabled),
-                JavaFXUtil.makeMenuItem("reset.world",
+                JavaFXUtil.makeMenuItem("reset.world", getIcon("reset.png"),
                         new KeyCodeCombination(KeyCode.T, KeyCombination.SHORTCUT_DOWN),
                         listener::userReset, resetDisabled)
         );
+    }
+
+    /**
+     * Loads an image from resources and put it in an imageView to be used as an icon.
+     *
+     * @param fileName The file name of the image
+     * @return An image view containing the image.
+     */
+    private ImageView getIcon(String fileName)
+    {
+        return new ImageView(new Image(getClass().getClassLoader().getResourceAsStream(fileName)));
     }
 
     /**
