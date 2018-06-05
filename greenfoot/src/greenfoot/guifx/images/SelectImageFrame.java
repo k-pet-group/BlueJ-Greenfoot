@@ -28,6 +28,7 @@ import greenfoot.guifx.classes.LocalGClassNode;
 
 import java.io.File;
 import javafx.scene.control.ButtonType;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 
 /**
@@ -51,6 +52,10 @@ public class SelectImageFrame extends FXCustomizedDialog<File>
         
         ImageLibPane imageLibPane = new ImageLibPane(this.asWindow(), project, classNode);
         setContentPane(imageLibPane);
+        final Window window = this.getDialogPane().getScene().getWindow();
+        Stage stage = (Stage) window;
+        stage.setMinWidth(600);
+        stage.setMinHeight(500);
 
         // Ok and cancel buttons
         getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, ButtonType.OK);
