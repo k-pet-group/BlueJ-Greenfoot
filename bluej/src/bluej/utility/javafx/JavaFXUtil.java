@@ -805,6 +805,25 @@ public class JavaFXUtil
     }
 
     /**
+     * Make a single menu item with a graphics node.
+     * 
+     * @param nameKey The key to lookup via Config.getString for the name
+     * @param icon The node which has the icon of the menu item
+     * @param accelerator The accelerator if any (null if none)
+     * @param action The action to perform when the menu item is activated
+     * @param binding  The binding for disabling the menu item (may be null).
+     * 
+     * @return The MenuItem combining all these items.
+     */
+    public static MenuItem makeMenuItem(String nameKey, Node icon, KeyCombination accelerator,
+                                        FXPlatformRunnable action, ObservableValue<Boolean> binding)
+    {
+        MenuItem item = makeMenuItem(nameKey, accelerator, action, binding);
+        item.setGraphic(icon);
+        return item;
+    }
+
+    /**
      * Make a single menu item.
      * 
      * @param nameKey The key to lookup via Config.getString for the name

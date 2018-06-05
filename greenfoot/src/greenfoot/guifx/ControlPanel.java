@@ -39,6 +39,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -243,16 +245,20 @@ public class ControlPanel extends GridPane
     {
         return Arrays.asList(
         JavaFXUtil.makeMenuItem("run.once",
+                new ImageView(new Image(getClass().getClassLoader().getResourceAsStream("step.png"))),
                 new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN),
                 listener::act, actDisabled),
                 JavaFXUtil.makeMenuItem("controls.run.button",
+                        new ImageView(new Image(getClass().getClassLoader().getResourceAsStream("run.png"))),
                         new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN),
                         listener::doRunPause, runDisabled),
                 JavaFXUtil.makeMenuItem("controls.pause.button",
+                        new ImageView(new Image(getClass().getClassLoader().getResourceAsStream("pause.png"))),
                         new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN,
                                 KeyCombination.SHIFT_DOWN),
                         listener::doRunPause, pauseDisabled),
                 JavaFXUtil.makeMenuItem("reset.world",
+                        new ImageView(new Image(getClass().getClassLoader().getResourceAsStream("reset.png"))),
                         new KeyCodeCombination(KeyCode.T, KeyCombination.SHORTCUT_DOWN),
                         listener::userReset, resetDisabled)
         );
