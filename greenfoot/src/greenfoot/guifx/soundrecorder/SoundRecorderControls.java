@@ -105,6 +105,8 @@ public class SoundRecorderControls extends Stage
     {
         this.setWidth(450);
         this.setHeight(400);
+        this.setMinWidth(450);
+        this.setMinHeight(400);
         setTitle(Config.getString("soundRecorder.title"));
         Image icon = BlueJTheme.getApplicationFxIcon("greenfoot", false);
         if (icon != null)
