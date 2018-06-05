@@ -170,16 +170,19 @@ public class ControlPanel extends GridPane
     }
 
     /**
-     * It disables or enables the Act, Run and Pause buttons. This is used
-     * to disable those buttons while resetting takes place.
+     * It disables or enables the Act, Run and Pause properties, which reflect
+     * this state on the corresponding menu items and buttons. This is used
+     * to disable menuItems/buttons while resetting takes place. It also makes
+     * sure the the act and run are paused while Running the scenario, and
+     * pause is disabled while in Paused state.
      *
      * @param value The true or false value to disable or enable the buttons
      */
     public void disableControlPanelButtons(boolean value)
     {
         actDisabled.setValue(value || state == State.RUNNING);
-        runDisabled.setValue(value);
-        pauseDisabled.setValue(value);
+        runDisabled.setValue(value || state == State.RUNNING);
+        pauseDisabled.setValue(value || state == State.PAUSED);
     }
 
     /**
