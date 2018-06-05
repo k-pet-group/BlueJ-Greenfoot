@@ -247,7 +247,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         {
             ImageView cannotDropIcon = new ImageView(this.getClass().getClassLoader().getResource("noParking.png").toExternalForm());
             cannotDropIcon.visibleProperty().bind(cannotDrop);
-            StackPane.setAlignment(cannotDropIcon, Pos.TOP_RIGHT);
+            StackPane.setAlignment(cannotDropIcon, Pos.CENTER);
             StackPane stackPane = new StackPane(imageView, cannotDropIcon);
             stackPane.setEffect(new DropShadow(10.0, 3.0, 3.0, Color.BLACK));
             return stackPane;
