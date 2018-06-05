@@ -257,11 +257,7 @@ public class ExportPublishTab extends ExportTab
      */
     private boolean isKeepSavedScreenshot()
     {
-        if (update && keepScenarioScreenshot != null)
-        {
-            return keepScenarioScreenshot.isSelected();
-        }
-        return false;
+        return update && keepScenarioScreenshot.isSelected();
     }
 
     /**
@@ -428,10 +424,7 @@ public class ExportPublishTab extends ExportTab
     }
 
     /**
-     * Attempts to load details already stored for this scenario
-     * at previous publish.
-     * 
-     * Must be called from the event thread.
+     * Loads details already stored for this scenario at previous publish (if they exist).
      */
     private void loadStoredScenarioInfo()
     {
@@ -442,7 +435,7 @@ public class ExportPublishTab extends ExportTab
         processTags(scenarioInfo.getTags());
         lockScenario.setSelected(scenarioInfo.isLocked());
         includeSource.setSelected(scenarioInfo.isIncludeSource());
-        setUpdate(true);
+        setUpdate(!scenarioInfo.getTitle().isEmpty());
     }
 
     @Override
