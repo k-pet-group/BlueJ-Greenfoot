@@ -756,4 +756,21 @@ public class WorldHandler
     {
         handlerDelegate.paint(world, forcePaint);
     }
+
+    /**
+     * The focus has changed on the world display, so tell the keyboard manager.
+     * @param focused true if gained focus, false if lost focus.
+     */
+    @OnThread(Tag.FXPlatform)
+    public void worldFocusChanged(boolean focused)
+    {
+        if (focused)
+        {
+            keyboardManager.focusGained();
+        }
+        else
+        {
+            keyboardManager.focusLost();
+        }
+    }
 }

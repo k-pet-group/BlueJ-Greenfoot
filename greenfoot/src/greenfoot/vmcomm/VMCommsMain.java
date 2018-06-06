@@ -610,4 +610,13 @@ public class VMCommsMain implements Closeable
         sharedMemoryByte.position(0);
         sharedMemoryByte.put(new byte[MAPPED_SIZE], 0, MAPPED_SIZE);
     }
+
+    /**
+     * The world display has gained or lost focus
+     * @param focused true if the world display gained focus, false if it lost focus
+     */
+    public synchronized void worldFocusChanged(boolean focused)
+    {
+        pendingCommands.add(new Command(focused ? COMMAND_WORLD_FOCUS_GAINED : COMMAND_WORLD_FOCUS_LOST));
+    }
 }

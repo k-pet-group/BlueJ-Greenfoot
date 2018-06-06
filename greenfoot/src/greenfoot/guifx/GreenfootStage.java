@@ -315,6 +315,9 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 worldDisplay.requestFocus();
             }
         });
+        JavaFXUtil.addFocusListener(worldDisplay, focused -> {
+            debugHandler.getVmComms().worldFocusChanged(focused);
+        });
         
         classDiagram = new GClassDiagram(this);
         ScrollPane classDiagramScroll = new UnfocusableScrollPane(classDiagram);
