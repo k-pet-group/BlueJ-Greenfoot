@@ -72,6 +72,11 @@ public class Command
     // Discard the world, but don't make a new one
     public static final int COMMAND_DISCARD_WORLD = 29;
     public static final int COMMAND_SET_SPEED = 30;
+
+    public static final int COMMAND_WORLD_FOCUS_GAINED = 40;
+    public static final int COMMAND_WORLD_FOCUS_LOST = 41;
+    
+    
     // Commands are assigned a stricly increasing ID:
     private static int nextCommandSequence = 1;
 

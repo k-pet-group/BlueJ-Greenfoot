@@ -129,6 +129,7 @@ public class VMCommsMain implements Closeable
     private final Thread ioThread;
 
     private boolean delayLoop;
+    private int askId = -1;
 
     /**
      * Constructor for VMCommsMain. Creates a temporary file and maps it into memory.
@@ -298,7 +299,7 @@ public class VMCommsMain implements Closeable
             worldWasDiscarded = false;
         }
         
-        if (promptCodepoints != null)
+        if (promptCodepoints != null && askId > lastAnswer)
         {
             stage.receivedAsk(promptCodepoints);
             promptCodepoints = null;
@@ -404,6 +405,7 @@ public class VMCommsMain implements Closeable
                     int askId = sharedMemory.get();
                     if (askId > 0 && askId > lastAnswer)
                     {
+                        this.askId = askId;
                         // Length followed by codepoints for the prompt string:
                         int askLength = sharedMemory.get();
                         promptCodepoints = new int[askLength];
@@ -609,5 +611,14 @@ public class VMCommsMain implements Closeable
         // Zero the buffer:
         sharedMemoryByte.position(0);
         sharedMemoryByte.put(new byte[MAPPED_SIZE], 0, MAPPED_SIZE);
+    }
+
+    /**
+     * The world display has gained or lost focus
+     * @param focused true if the world display gained focus, false if it lost focus
+     */
+    public synchronized void worldFocusChanged(boolean focused)
+    {
+        pendingCommands.add(new Command(focused ? COMMAND_WORLD_FOCUS_GAINED : COMMAND_WORLD_FOCUS_LOST));
     }
 }

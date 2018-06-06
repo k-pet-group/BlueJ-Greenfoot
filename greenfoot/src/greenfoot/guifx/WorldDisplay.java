@@ -103,6 +103,8 @@ public class WorldDisplay extends StackPane
             imageView.setDisable(false);
             imageView.setEffect(null);
             withAnswer.accept(ans);
+            // Put focus back on the world display:
+            requestFocus();
         });
     }
 

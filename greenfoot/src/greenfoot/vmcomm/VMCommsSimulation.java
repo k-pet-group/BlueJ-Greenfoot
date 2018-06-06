@@ -550,6 +550,12 @@ public class VMCommsSimulation
                     case Command.COMMAND_SET_SPEED:
                         Simulation.getInstance().setSpeed(data[1]);
                         break;
+                    case Command.COMMAND_WORLD_FOCUS_GAINED:
+                        WorldHandler.getInstance().worldFocusChanged(true);
+                        break;
+                    case Command.COMMAND_WORLD_FOCUS_LOST:
+                        WorldHandler.getInstance().worldFocusChanged(false);
+                        break;
                 }
             }
         }

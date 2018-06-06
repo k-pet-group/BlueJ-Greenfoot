@@ -269,12 +269,12 @@ public class KeyboardManager
         }
     }
 
-    public void focusGained(FocusEvent e) { }
+    public void focusGained() { }
 
     /**
      * If we loose focus, we should treat all keys as not pressed anymore
      */
-    public void focusLost(FocusEvent e)
+    public void focusLost()
     {
         releaseAllKeys();
     }
