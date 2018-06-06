@@ -34,8 +34,15 @@ Build process:
       - run "fakeroot ant debian" to build the Debian/Ubuntu ".deb" package. You can only do this on
         a system which has the "dpkg-deb" and "fakeroot" utilities installed. Alternatively:
       - run "ant dist" followed by "ant debian-dist", the latter must be run as root.
-    - Mac: run "ant mac" (see below for more details).
-    - Windows launcher and installer: run "ant windows" (see below for more details).
+    - Mac: 
+      - check prerequisites are installed (see bluej/doc/HOWTO.make-mac-release).
+      - run "ant mac" (see below for more details).
+    - Windows:
+      - check prerequisites are installed (see bluej/doc/HOWTO.make-win-version).
+      - run "ant windows" (see below for more details).
+    - Generic installer:
+      - the generic installer is build as part of any of the above, and can be built alone
+        using "ant dist".
     
 Post build:
     
