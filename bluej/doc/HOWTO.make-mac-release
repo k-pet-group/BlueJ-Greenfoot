@@ -1,6 +1,22 @@
 Building Mac OS X release bundles
 ---------------------------------
 
+Prerequisites
+-------------
+
+You will require the command line compiler utilities (Clang/GCC) normally associated with
+XCode, and a macOS SDK; these are needed to build the native launcher executable that is
+packaged in the final application bundle.
+
+You can find the required downloads at: https://developer.apple.com/download/
+
+Releases will be built against the MacOS 10.12 SDK. See "Obtaining the MacOS 10.12 SDK"
+section below.
+
+
+Build process
+-------------
+
 There is one bundle generated for Mac OS X: The regular one which includes a JDK.
 
 1. Follow instructions in HOWTO.make-release, up to the point where it tells
@@ -9,7 +25,6 @@ There is one bundle generated for Mac OS X: The regular one which includes a JDK
 
 2. From the BlueJ source directory, run "ant mac".  You must have the key
    on your system and a working Internet connection to sign.
-
 
 
 Signing on Mac (now all done automatically):
@@ -35,9 +50,34 @@ To sign manually (now included in ant task):
     codesign -f -s "Developer ID Application: Michael Kolling" BlueJ.app
 
 
-
 To verify:
     - On the terminal, execute:
         codesign --verify --deep --verbose=4 BlueJ.app/
 
         spctl -a -t exec -vv BlueJ.app/
+
+
+Obtaining the MacOS 10.12 SDK
+-----------------------------
+
+This is available from a number of sources, but if it cannot be found elsewhere it can be
+extracted from the following package, available from the Apple developer downloads (link above):
+
+   Command Line Tools (macOS 10.12) for XCode 8.3
+
+Note that you will not be able to install this exact package on newer versions of OS X.  
+Extract the top level package using xar:
+
+   mkdir t; cd t
+   xar -xf /Volumes/Command\ Line\ Developer\ Tools/Command\ Line\ Tools\ \(macOS\ Sierra\ version\ 10.12\).pkg
+
+Then extract the SDK sub-package, using pbzx from:
+     https://github.com/NiklasRosenstein/pbzx/releases
+
+   mkdir t; cd t
+   pbzx -n ../CLTools_SDK_OSX1012.pkg/Payload | cpio -i
+
+Finally, link the SDK from the system directory:
+
+   cd /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs
+   sudo -ln ~/t/t/Library/Developer/CommandLineTools/SDKs/MacOSX10.12.sdk .
