@@ -116,11 +116,20 @@ JLayer MP3 processing library (Lesser GNU Public License v2.1)
 It is distributed under the terms of the LGPL v2.1, as found in the
 "GNU-LGPL-v2.1.txt" file.
 
+
 JUnit (Common Public License v1.0)
 ----------------------------------
 "junit-4.11.jar" is part of the JUnit unit testing library (http://junit.org/) which is
 used by BlueJ. It is distributed under the terms of the Common Public License
 version 1.0, as found in the "CPL-v1.0.txt" file.
+
+
+NSMenuFX library (3-clause BSD license)
+---------------------------------------
+"nsmenufx-2.1.4.jar", the NSMenuFX library (https://github.com/codecentric/NSMenuFX),
+is a library to customize the OS X menu bar when it is on FX to be able to customize
+the auto-generated application menu. This version is distributed under the terms of
+the BSD license as found in the "nsmenufx-BSD.txt" file.
 
 
 OpenCSV (Apache License version 2.0)
