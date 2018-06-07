@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 
+import bluej.JavaFXThreadingRule;
 import bluej.editor.moe.ScopeColors;
 import javafx.embed.swing.JFXPanel;
 import junit.framework.TestCase;
@@ -49,26 +50,30 @@ import bluej.parser.lexer.LocatableToken;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.pkgmgr.JavadocResolver;
 import bluej.utility.JavaReflective;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 
-public class CompletionTest extends TestCase
+import static org.junit.Assert.*;
+
+public class CompletionTest
 {
+    @Rule
+    public JavaFXThreadingRule javafxRule = new JavaFXThreadingRule();
+    
+    @BeforeClass
+    public static void initConfig()
     {
         InitConfig.init();
-        // Initialise JavaFX:
-        new JFXPanel();
     }
     
     private TestEntityResolver resolver;
     
-    @Override
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         resolver = new TestEntityResolver(new ClassLoaderResolver(this.getClass().getClassLoader()));
-    }
-    
-    @Override
-    protected void tearDown() throws Exception
-    {
     }
     
     /**
@@ -94,6 +99,7 @@ public class CompletionTest extends TestCase
     /**
      * Basic field access test.
      */
+    @Test
     public void testFieldAccess()
     {
         String aClassSrc = "class A {" +
@@ -121,6 +127,7 @@ public class CompletionTest extends TestCase
     /**
      * Field access - array declarators after field name
      */
+    @Test
     public void testArrayFieldAccess()
     {
         String aClassSrc = "class A {" +
@@ -137,7 +144,8 @@ public class CompletionTest extends TestCase
         JavaType ftype = fields.get("f").getType();
         assertEquals("int[]", ftype.toString());
     }
-    
+
+    @Test
     public void testCompletionAfterArrayElement() throws Exception
     {
         String aClassSrc = "class A {\n" +         // 0 - 10
@@ -161,6 +169,7 @@ public class CompletionTest extends TestCase
     /**
      * Test multiple field declarations in one statement.
      */
+    @Test
     public void testMultiFieldAccess()
     {
         String aClassSrc = "class A {" +
@@ -188,6 +197,7 @@ public class CompletionTest extends TestCase
     /**
      * Access of a static field from another class
      */
+    @Test
     public void test2()
     {
         String aClassSrc = "class A {" +
@@ -215,6 +225,7 @@ public class CompletionTest extends TestCase
     /**
      * Completion from an expression involving a local variable
      */
+    @Test
     public void test3() throws Exception
     {
         String aClassSrc = "class A {\n" +   //       10 
@@ -236,6 +247,7 @@ public class CompletionTest extends TestCase
     }
     
     /** Test that a for-loop initializer creates a recognized variable */
+    @Test
     public void testForInitializer() throws Exception
     {
         String aClassSrc = "class A {\n" +   //       10 
@@ -260,6 +272,7 @@ public class CompletionTest extends TestCase
     /**
      * Test a variable reference.
      */
+    @Test
     public void testVariableRef() throws Exception
     {
         String aClassSrc = "class A {\n" +   //       10 
@@ -284,6 +297,7 @@ public class CompletionTest extends TestCase
     /**
      * Check that forward variable references aren't allowed
      */
+    @Test
     public void testNoBwardVarRef() throws Exception
     {
         String aClassSrc = "class A {\n" +   //       10 
@@ -307,6 +321,7 @@ public class CompletionTest extends TestCase
      * Test an expression referencing the containing class, and make sure it resolves
      * correctly.
      */
+    @Test
     public void testSelfRef() throws Exception
     {
         String aClassSrc = "package abc;\n" + //       13  
@@ -331,6 +346,7 @@ public class CompletionTest extends TestCase
      * Completion from an expression involving inner classes accessing variables 
      * within the inner class
      */
+    @Test
     public void testInnerClasses() throws Exception
     {
         String aClassSrc = "class A {\n" +                  //10   
@@ -362,6 +378,7 @@ public class CompletionTest extends TestCase
      * Completion from an expression involving inner classes accessing variables 
      * within the outer class
      */
+    @Test
     public void testInnerClasses2() throws Exception
     {
         String aClassSrc = "class A {\n" +                  //10   
@@ -388,7 +405,8 @@ public class CompletionTest extends TestCase
         assertNotNull(accessType);
         assertEquals("A$B", accessType.getReflective().getName());
     }
-    
+
+    @Test
     public void testInnerClasses3() throws Exception
     {
         String aClassSrc =
@@ -417,7 +435,8 @@ public class CompletionTest extends TestCase
         assertNotNull(outer);
         assertEquals("A", outer.getName());
     }
-    
+
+    @Test
     public void testInnerClasses4() throws Exception
     {
         String aClassSrc =
@@ -444,7 +463,8 @@ public class CompletionTest extends TestCase
         assertEquals(1, supers.size());
         assertEquals("java.lang.Thread", supers.get(0).toString());
     }
-    
+
+    @Test
     public void testPartial() throws Exception
     {
         String aClassSrc = "class A {\n" +   // 0 - 10
@@ -471,6 +491,7 @@ public class CompletionTest extends TestCase
      * This is a regression test. Attempting code completion just after a semicolon
      * could cause an exception.
      */
+    @Test
     public void testAfterStatement() throws Exception
     {
         String aClassSrc = "class A {\n" +   // 0 - 10
@@ -490,6 +511,7 @@ public class CompletionTest extends TestCase
         assertEquals("A", suggests.getSuggestionType().toString());
     }
 
+    @Test
     public void testThisDot() throws Exception
     {
         String aClassSrc = "class A {\n" +   // 0 - 10
@@ -510,6 +532,7 @@ public class CompletionTest extends TestCase
         assertFalse(suggests.isStatic());
     }
 
+    @Test
     public void testTparCompletion() throws Exception
     {
         String aClassSrc = "class A<T extends String & Runnable> {\n" +   // 0 - 39
@@ -529,7 +552,8 @@ public class CompletionTest extends TestCase
         assertEquals("java.lang.String", suggests.getSuggestionType().toString());
         assertFalse(suggests.isStatic());
     }
-    
+
+    @Test
     public void testTparCompletion2() throws Exception
     {
         String aClassSrc = "class A<T extends String & Runnable> {\n" +   // 0 - 39
@@ -555,7 +579,8 @@ public class CompletionTest extends TestCase
         assertEquals("java.lang.String", suggests.getSuggestionType().toString());
         assertFalse(suggests.isStatic());
     }
-    
+
+    @Test
     public void testTparCompletion3() throws Exception
     {
         String aClassSrc = "class A<T extends String & Runnable> {\n" +   // 0 - 39
@@ -581,7 +606,8 @@ public class CompletionTest extends TestCase
         assertEquals("java.lang.String", suggests.getSuggestionType().toString());
         assertFalse(suggests.isStatic());
     }
-    
+
+    @Test
     public void testTparCompletion4() throws Exception
     {
         String aClassSrc = "class A<T extends String, U extends T> {\n" +   // 0 - 41
@@ -603,7 +629,8 @@ public class CompletionTest extends TestCase
         assertEquals("java.lang.String", stypes[0].toString());
         assertFalse(suggests.isStatic());
     }
-    
+
+    @Test
     public void testTparCompletion5() throws Exception
     {
         String aClassSrc = "class A {\n" +      // 0 - 10
@@ -625,7 +652,8 @@ public class CompletionTest extends TestCase
         assertEquals("java.lang.String", stypes[0].toString());
         assertFalse(suggests.isStatic());
     }
-    
+
+    @Test
     public void testCompletionOnKeyword1() throws Exception
     {
         String aClassSrc = "class A {\n" +   // 0 - 10
@@ -648,7 +676,8 @@ public class CompletionTest extends TestCase
         assertNotNull(stoken);
         assertEquals("for", stoken.getText());
     }
-    
+
+    @Test
     public void testCompletionOnKeyword2() throws Exception
     {
         String aClassSrc = "class A {\n" +   // 0 - 10
@@ -671,7 +700,8 @@ public class CompletionTest extends TestCase
         assertNotNull(stoken);
         assertEquals("new", stoken.getText());
     }
-    
+
+    @Test
     public void testCompletionOnKeyword3() throws Exception
     {
         String aClassSrc = "class A {\n" +   // 0 - 10
@@ -695,6 +725,7 @@ public class CompletionTest extends TestCase
         assertEquals("new", stoken.getText());
     }
 
+    @Test
     public void testCompletionOnKeyword4() throws Exception
     {
         String aClassSrc = "class A {\n" +   // 0 - 10
@@ -718,6 +749,7 @@ public class CompletionTest extends TestCase
         assertEquals("for", stoken.getText());
     }
 
+    @Test
     public void testCompletionResolution() throws Exception
     {
         String canvasSrc = "class Canvas { }\n";
@@ -746,6 +778,7 @@ public class CompletionTest extends TestCase
         assertNull(stoken);
     }
 
+    @Test
     public void testCompletionResolution2() throws Exception
     {
         String aClassSrc =
@@ -770,7 +803,8 @@ public class CompletionTest extends TestCase
         LocatableToken stoken = suggests.getSuggestionToken();
         assertNull(stoken);
     }
-    
+
+    @Test
     public void testCompletionInArrayElement() throws Exception
     {
         String aClassSrc =
@@ -790,7 +824,8 @@ public class CompletionTest extends TestCase
         assertEquals("A", suggests.getSuggestionType().toString());
         assertEquals("s", suggests.getSuggestionToken().getText());
     }
-    
+
+    @Test
     public void testCompletionOnGenericType() throws Exception
     {
         String aClassSrc =
@@ -838,6 +873,7 @@ public class CompletionTest extends TestCase
     /**
      * Regression test for bug #288
      */
+    @Test
     public void testInterNewCompletion() throws Exception
     {
         String aClassSrc =
@@ -855,7 +891,8 @@ public class CompletionTest extends TestCase
         CodeSuggestions suggests = aNode.getExpressionType(53, doc);
         assertNotNull(suggests);
     }
-    
+
+    @Test
     public void testPartialExpressionCompletion() throws Exception
     {
         String aClassSrc =
@@ -875,7 +912,8 @@ public class CompletionTest extends TestCase
         CodeSuggestions suggests = aNode.getExpressionType(56, doc);
         assertNotNull(suggests);
     }
-    
+
+    @Test
     public void testRegression312() throws Exception
     {
         String aClassSrc =
@@ -914,7 +952,8 @@ public class CompletionTest extends TestCase
         
         assertNotNull(acontent);
     }
-    
+
+    @Test
     public void testRegression340() throws Exception
     {
         String aClassSrc =
@@ -933,7 +972,8 @@ public class CompletionTest extends TestCase
         CodeSuggestions suggests = aNode.getExpressionType(80, doc);
         assertNotNull(suggests);
     }
-    
+
+    @Test
     public void testCompletionAfterAnonClass() throws Exception
     {
         String aClassSrc =
@@ -956,7 +996,8 @@ public class CompletionTest extends TestCase
         assertNotNull(suggests);
         assertTrue(new GenTypeClass(new JavaReflective(Thread.class)).isAssignableFrom(suggests.getSuggestionType()));
     }
-    
+
+    @Test
     public void testAfterArrayInitList() throws Exception
     {
         String aClassSrc =
@@ -975,7 +1016,8 @@ public class CompletionTest extends TestCase
         assertNotNull(suggests);
         assertEquals("java.lang.String[]", suggests.getSuggestionType().toString());
     }
-    
+
+    @Test
     public void test360() throws Exception
     {
         String cSrc = "package tpkg;\n" +
@@ -1010,7 +1052,8 @@ public class CompletionTest extends TestCase
         assertNotNull(suggests);
         assertEquals("tpkg.C", suggests.getSuggestionType().toString());
     }
-    
+
+    @Test
     public void testVarargsParam() throws Exception
     {
         String aClassSrc =
@@ -1029,7 +1072,8 @@ public class CompletionTest extends TestCase
         assertNotNull(suggests);
         assertEquals("java.lang.String[]", suggests.getSuggestionType().toString());        
     }
-    
+
+    @Test
     public void testMultiFieldDecWithInner() throws Exception
     {
         String aClassSrc =
@@ -1059,6 +1103,7 @@ public class CompletionTest extends TestCase
         assertEquals("java.lang.Runnable", suggests.getSuggestionType().toString());
     }
 
+    @Test
     public void testRegression571()
     {
         // Exception when completing on invalid code:

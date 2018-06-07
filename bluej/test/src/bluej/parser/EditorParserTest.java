@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import bluej.JavaFXThreadingRule;
 import bluej.editor.moe.ScopeColors;
 import junit.framework.TestCase;
 import bluej.debugger.gentype.GenTypeClass;
@@ -40,24 +41,30 @@ import bluej.parser.entity.TypeEntity;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 
-public class EditorParserTest extends TestCase
+import static org.junit.Assert.*;
+
+public class EditorParserTest
 {
+    @Rule
+    public JavaFXThreadingRule javafxRule = new JavaFXThreadingRule();
+
+    @BeforeClass
+    public static void initConfig()
     {
         InitConfig.init();
     }
     
     private TestEntityResolver resolver;
     
-    @Override
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         resolver = new TestEntityResolver(new ClassLoaderResolver(this.getClass().getClassLoader()));
-    }
-    
-    @Override
-    protected void tearDown() throws Exception
-    {
     }
     
     /**
@@ -72,6 +79,7 @@ public class EditorParserTest extends TestCase
         return document.getParser();
     }
 
+    @Test
     public void test1()
     {
         String sourceCode = ""
@@ -94,7 +102,8 @@ public class EditorParserTest extends TestCase
         assertEquals(ParsedNode.NODETYPE_TYPEDEF, classBNP.getNode().getNodeType());
         assertEquals(13, classBNP.getPosition());
     }
-    
+
+    @Test
     public void test1a()
     {
         String sourceCode = ""
@@ -118,6 +127,7 @@ public class EditorParserTest extends TestCase
     /**
      * Test that a method defined inside a class is recognized properly.
      */
+    @Test
     public void test2()
     {
         String aClassSrc = "class A {\n" +
@@ -143,6 +153,7 @@ public class EditorParserTest extends TestCase
     /**
      * Test that a broken method call doesn't interfere with containing method position/size
      */
+    @Test
     public void test3()
     {
         String aClassSrc = "class A {\n" +   // position 0
@@ -168,6 +179,7 @@ public class EditorParserTest extends TestCase
     /**
      * Test parsing a broken source doesn't break the parser...
      */
+    @Test
     public void testBroken()
     {
         String sourceCode = ""
@@ -181,7 +193,8 @@ public class EditorParserTest extends TestCase
         ParsedCUNode pcuNode = cuForSource(sourceCode, "");
         assertNotNull(pcuNode);
     }
-    
+
+    @Test
     public void testSuperclass()
     {
         String sourceCode = ""
@@ -211,6 +224,7 @@ public class EditorParserTest extends TestCase
         assertEquals("A", supers.get(0).toString());
     }
 
+    @Test
     public void testImport()
     {
         String abcSrc = "package xyz; public class abc { public static class def { }}";
@@ -234,7 +248,8 @@ public class EditorParserTest extends TestCase
         assertNotNull(fVal);
         assertEquals("abc.def", fVal.getType().toString());
     }
-    
+
+    @Test
     public void testSLComment()
     {
         String sourceCode = ""
@@ -258,7 +273,8 @@ public class EditorParserTest extends TestCase
         assertEquals(29, top.getPosition());
         assertEquals(39, top.getEnd());
     }
-    
+
+    @Test
     public void testRecursiveTypedef()
     {
         String sourceCode = "interface Sort<T extends Comparable<T>> { }\n";
@@ -274,7 +290,8 @@ public class EditorParserTest extends TestCase
         
         InfoParser.parse(new StringReader(sourceCode), resolver, "");
     }
-    
+
+    @Test
     public void testClassModifiers()
     {
         String sourceCode = ""
@@ -307,7 +324,8 @@ public class EditorParserTest extends TestCase
         assertTrue(bClass.getReflective().isStatic());
         assertFalse(bClass.isInterface());
     }
-    
+
+    @Test
     public void testIfNesting()
     {
         String sourceCode = ""
@@ -340,7 +358,8 @@ public class EditorParserTest extends TestCase
         assertEquals(48, nap.getPosition());
         assertEquals(108, nap.getEnd());
     }
-    
+
+    @Test
     public void testTicket467()
     {
         String sourceCode = ""
@@ -369,7 +388,8 @@ public class EditorParserTest extends TestCase
         assertEquals(51, nap.getPosition());
         assertEquals(70, nap.getEnd());
     }
-    
+
+    @Test
     public void testTryCatch()
     {
         String sourceCode = ""
@@ -403,6 +423,7 @@ public class EditorParserTest extends TestCase
         assertEquals(62, nap.getEnd());
     }
 
+    @Test
     public void testWhile()
     {
         String sourceCode = ""
@@ -431,7 +452,8 @@ public class EditorParserTest extends TestCase
         assertEquals(45, nap.getPosition());
         assertEquals(67, nap.getEnd());
     }
-    
+
+    @Test
     public void testLambda()
     {
         String sourceCode = ""
