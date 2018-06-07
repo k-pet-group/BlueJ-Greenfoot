@@ -15,6 +15,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -107,6 +108,12 @@ class ProjectLocationDialog
                 return null;
         });
         dialog.setResizable(true);
+
+        final Window window = dialogPane.getScene().getWindow();
+        Stage stage = (Stage) window;
+        stage.setMinWidth(450);
+        stage.setMinHeight(260);
+
         updateOKButton(false);
     }
 
