@@ -23,6 +23,7 @@ package bluej.parser;
 
 import java.util.List;
 
+import bluej.JavaFXThreadingRule;
 import bluej.editor.moe.ScopeColors;
 import junit.framework.TestCase;
 import bluej.editor.moe.MoeSyntaxDocument;
@@ -37,24 +38,32 @@ import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ParsedTypeNode;
 import bluej.parser.nodes.TypeInnerNode;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 
-public class IncrementalParseTest extends TestCase
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+public class IncrementalParseTest
 {
+    @Rule
+    public JavaFXThreadingRule javafxRule = new JavaFXThreadingRule();
+
+    @BeforeClass
+    public static void initConfig()
     {
         InitConfig.init();
     }
     
     private TestEntityResolver resolver;
     
-    @Override
-    protected void setUp() throws Exception
+    @Before
+    public void setUp() throws Exception
     {
         resolver = new TestEntityResolver(new ClassLoaderResolver(this.getClass().getClassLoader()));
-    }
-    
-    @Override
-    protected void tearDown() throws Exception
-    {
     }
     
     /**
@@ -69,6 +78,7 @@ public class IncrementalParseTest extends TestCase
         return document;
     }
     
+    @Test
     public void test1() throws Exception
     {
         String aSrc = "class A {\n" +   // 0 - 10
@@ -96,6 +106,7 @@ public class IncrementalParseTest extends TestCase
         assertEquals(33, nap.getSize());
     }
 
+    @Test
     public void test2() throws Exception
     {
         String aSrc = "class A {\n" +   // 0 - 10
@@ -125,6 +136,7 @@ public class IncrementalParseTest extends TestCase
         assertEquals(53, nap.getSize());
     }
 
+    @Test
     public void test3() throws Exception
     {
         String aSrc = "class A {\n" +   // 0 - 10
@@ -149,7 +161,8 @@ public class IncrementalParseTest extends TestCase
         assertEquals(0, nap.getPosition());
         assertEquals(11, nap.getSize());
     }
-    
+
+    @Test
     public void test4() throws Exception
     {
         String aSrc = "class A {\n" +         // 0 - 10
@@ -203,6 +216,7 @@ public class IncrementalParseTest extends TestCase
         assertEquals(17+13, nap.getSize());
     }
 
+    @Test
     public void test5() throws Exception
     {
         // A class with an extra closing '}':
@@ -237,7 +251,8 @@ public class IncrementalParseTest extends TestCase
         assertEquals(0, nap.getPosition());
         assertEquals(12, nap.getSize());
     }
-    
+
+    @Test
     public void test6() throws Exception
     {
         // A class with an extra closing '}':
@@ -279,7 +294,8 @@ public class IncrementalParseTest extends TestCase
         assertEquals(9, nap.getPosition());
         assertEquals(11, nap.getEnd());
     }
-    
+
+    @Test
     public void test7() throws Exception
     {
         String aSrc = "class A {\n" +         // 0 - 10
@@ -362,7 +378,8 @@ public class IncrementalParseTest extends TestCase
         assertEquals(21, nap.getPosition());
         assertEquals(27, nap.getEnd());
     }
-    
+
+    @Test
     public void test8() throws Exception
     {
         String aSrc = "class A {\n" +         // 0 - 10
@@ -395,7 +412,8 @@ public class IncrementalParseTest extends TestCase
         assertEquals(0, nap.getPosition());
         assertEquals(67 - 12, nap.getSize());
     }
-    
+
+    @Test
     public void test9() throws Exception
     {
         String aSrc = "class A {\n" +         // 0 - 10
@@ -473,6 +491,7 @@ public class IncrementalParseTest extends TestCase
         assertEquals(54, nap.getEnd());
     }
 
+    @Test
     public void test10() throws Exception
     {
         String aSrc = 
@@ -506,7 +525,8 @@ public class IncrementalParseTest extends TestCase
         assertEquals(0, nap.getPosition());
         assertEquals(28, nap.getSize());
     }
-    
+
+    @Test
     public void test11() throws Exception
     {
         // Regression test for bug #276
@@ -590,7 +610,8 @@ public class IncrementalParseTest extends TestCase
         // The field following was removed, or is at a suitable place
         assertTrue(nnap == null || nnap.getPosition() >= nap.getEnd());
     }
-    
+
+    @Test
     public void test12() throws Exception
     {
         String aSrc = "class A {\n" +         // 0 - 10
@@ -676,6 +697,7 @@ public class IncrementalParseTest extends TestCase
         assertEquals(18, nap.getSize());
     }
 
+    @Test
     public void test13() throws Exception
     {
         String aSrc = "class A {\n" +         // 0 - 10
@@ -716,7 +738,8 @@ public class IncrementalParseTest extends TestCase
         assertEquals(9, nap.getPosition());
         assertEquals(43, nap.getSize());
     }
-    
+
+    @Test
     public void testChangeSuper() throws Exception
     {
         String aSrc = "class A {\n" +         // 0 - 10
@@ -776,6 +799,7 @@ public class IncrementalParseTest extends TestCase
     /**
      * Test for bug #317 regression.
      */
+    @Test
     public void testRegression317() throws Exception
     {
         MoeSyntaxDocument aDoc = docForSource("", "");
@@ -834,7 +858,8 @@ public class IncrementalParseTest extends TestCase
         assertEquals(13, nap.getPosition());
         assertEquals(19, nap.getSize());
     }
-    
+
+    @Test
     public void testImportStmt() throws Exception
     {
         MoeSyntaxDocument aDoc = docForSource("import somepkg.*; ;", "");
@@ -855,6 +880,7 @@ public class IncrementalParseTest extends TestCase
         assertEquals(18, nap.getSize());        
     }
 
+    @Test
     public void testImportStmt2() throws Exception
     {
         MoeSyntaxDocument aDoc = docForSource("import somepkg.* abc/* a comment */;", "");
@@ -870,7 +896,8 @@ public class IncrementalParseTest extends TestCase
         assertNotNull(nap);
         assertEquals(33, nap.getSize());        
     }
-    
+
+    @Test
     public void testRegression331() throws Exception
     {
         String aSrc = "class A {\n" +         // 0 - 10
@@ -903,7 +930,8 @@ public class IncrementalParseTest extends TestCase
         assertEquals(0, nap.getPosition());
         assertEquals(72, nap.getSize());
     }
-    
+
+    @Test
     public void testRegression331p2() throws Exception
     {
         // Note the comment is significant in this.
@@ -932,7 +960,8 @@ public class IncrementalParseTest extends TestCase
         assertEquals(0, nap.getPosition());
         assertEquals(86, nap.getSize());
     }
-    
+
+    @Test
     public void testNewStmt() throws Exception
     {
         String aSrc = "class A {\n" +         // 0 - 10 
@@ -985,6 +1014,7 @@ public class IncrementalParseTest extends TestCase
     }
 
     // Should not throw an exception...
+    @Test
     public void testRegression393() throws Exception
     {
         // Note the comment is significant in this.
@@ -999,7 +1029,8 @@ public class IncrementalParseTest extends TestCase
         aDoc.remove(47, 1); // remove '/' at start of comment
         aDoc.getParser();
     }
-    
+
+    @Test
     public void testRegression440() throws Exception
     {
         // Note the comment is significant in this.
@@ -1064,7 +1095,8 @@ public class IncrementalParseTest extends TestCase
         assertEquals(41, nap.getPosition());
         assertEquals(74 + 6, nap.getSize());
     }
-    
+
+    @Test
     public void testMultipleDeclaration() throws Exception
     {
         String aSrc = "class A {\n" +  // 0 - 10

@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import bluej.JavaFXThreadingRule;
 import bluej.editor.moe.ScopeColors;
 import junit.framework.TestCase;
 import bluej.debugger.gentype.GenTypeClass;
@@ -42,17 +43,29 @@ import bluej.parser.entity.PackageResolver;
 import bluej.parser.entity.TypeEntity;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.utility.JavaReflective;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 
-public class TextAnalyserTest extends TestCase
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+public class TextAnalyserTest
 {
-    private TestEntityResolver resolver;
-    
+    @Rule
+    public JavaFXThreadingRule javafxRule = new JavaFXThreadingRule();
+
+    @BeforeClass
+    public static void initConfig()
     {
         InitConfig.init();
     }
     
-    @Override
-    protected void setUp() throws Exception
+    private TestEntityResolver resolver;
+    
+    @Before
+    public void setUp() throws Exception
     {
         resolver = new TestEntityResolver(new ClassLoaderResolver(this.getClass().getClassLoader()));
     }
@@ -69,6 +82,7 @@ public class TextAnalyserTest extends TestCase
         return document.getParser();
     }
 
+    @Test
     public void test1() throws Exception
     {
         List<GenTypeParameter> tpars = new ArrayList<GenTypeParameter>();
@@ -91,7 +105,8 @@ public class TextAnalyserTest extends TestCase
         // The return should be a capture of '? super String'
         assertEquals("java.lang.Object", mcd.retType.getErasedType().toString());
     }
-    
+
+    @Test
     public void test2() throws Exception
     {
         String aClassSrc = "import java.util.List;\n" +
@@ -126,7 +141,8 @@ public class TextAnalyserTest extends TestCase
          MethodCallDesc mcd = choices.get(0);
          assertEquals("java.lang.String", mcd.retType.toString());
     }
-    
+
+    @Test
     public void test3() throws Exception
     {
         String aClassSrc = "import java.util.List;\n" +
@@ -161,7 +177,8 @@ public class TextAnalyserTest extends TestCase
          MethodCallDesc mcd = choices.get(0);
          assertEquals("java.lang.String", mcd.retType.toString());
     }
-    
+
+    @Test
     public void testEagerReturnTypeResolutionA1() throws Exception
     {
         String aClassSrc = "class Test1<T> {\n" +

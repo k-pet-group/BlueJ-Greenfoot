@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+import bluej.JavaFXThreadingRule;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.ScopeColors;
 import bluej.parser.entity.ClassLoaderResolver;
@@ -39,14 +40,21 @@ import bluej.parser.entity.PackageResolver;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
+import org.junit.Rule;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * Run a whole directory of sample source files through our parser.
  *
  * @author  Andrew Patterson
  */
-public class BasicParseTest extends junit.framework.TestCase
+public class BasicParseTest
 {
+    @Rule
+    public JavaFXThreadingRule javafxRule = new JavaFXThreadingRule();
+    
     /**
      * Get a data or result file from our hidden stash..
      * NOTE: the stash of data files is in the ast/data directory.
@@ -59,24 +67,6 @@ public class BasicParseTest extends junit.framework.TestCase
             return null;
         else
             return new File(url.getFile());
-    }
-    
-    /**
-     * Sets up the test fixture.
-     *
-     * Called before every test case method.
-     */
-    protected void setUp()
-    {
-    }
-
-    /**
-     * Tears down the test fixture.
-     *
-     * Called after every test case method.
-     */
-    protected void tearDown()
-    {
     }
 
     /**
@@ -101,6 +91,7 @@ public class BasicParseTest extends junit.framework.TestCase
      * 
      * @throws Exception
      */
+    @Test
     public void testNoParseExceptionsOnStandardCode()
         throws Exception
     {
@@ -119,14 +110,16 @@ public class BasicParseTest extends junit.framework.TestCase
         assertNotNull(InfoParser.parse(getFile("F.dat")));
         assertNotNull(InfoParser.parse(getFile("G.dat")));
     }
-    
+
+    @Test
     public void testNoParseExceptionsOnGenerics()
         throws Exception
     {
         // Parse generics
         assertNotNull(InfoParser.parse(getFile("15_generic.dat")));
     }
-    
+
+    @Test
     public void testCode()
     {
         InitConfig.init();
@@ -142,7 +135,8 @@ public class BasicParseTest extends junit.framework.TestCase
         ClassInfo info = InfoParser.parse(sr, ter, "testpkg");
         assertNotNull(info);
     }
-    
+
+    @Test
     public void testValidClassInfo()
         throws Exception
     {
@@ -286,7 +280,8 @@ public class BasicParseTest extends junit.framework.TestCase
         assertEquals(1, interfaceSel.getEndLine());
         assertEquals(32, interfaceSel.getEndColumn());
     }
-    
+
+    @Test
     public void testValidClassInfo2() throws Exception
     {
         StringReader sr = new StringReader(
@@ -304,7 +299,8 @@ public class BasicParseTest extends junit.framework.TestCase
         assertTrue(implemented.contains("java.lang.Runnable"));
         assertTrue(implemented.contains("java.lang.Iterable"));
     }
-    
+
+    @Test
     public void testValidClassInfo3() throws Exception
     {
         StringReader sr = new StringReader(
@@ -326,6 +322,7 @@ public class BasicParseTest extends junit.framework.TestCase
     /**
      * Test recognition of interfaces
      */
+    @Test
     public void testValidClassInfo4() throws Exception
     {
         StringReader sr = new StringReader(
@@ -338,6 +335,7 @@ public class BasicParseTest extends junit.framework.TestCase
     /**
      * Test recognition of enumerations
      */
+    @Test
     public void testValidClassInfo5() throws Exception
     {
         StringReader sr = new StringReader(
@@ -347,7 +345,8 @@ public class BasicParseTest extends junit.framework.TestCase
         assertNotNull(info);
         assertTrue(info.isEnum());
     }
-    
+
+    @Test
     public void testMultiDimensionalArrayParam() throws Exception
     {
         File file = getFile("I.dat");
@@ -362,7 +361,8 @@ public class BasicParseTest extends junit.framework.TestCase
         String paramNames = comments.getProperty("comment" + commentNum + ".params");
         assertEquals(paramNames, "args");
     }
-    
+
+    @Test
     public void testCommentExtraction() throws Exception
     {
         String aSrc = "class A {\n"
@@ -378,6 +378,7 @@ public class BasicParseTest extends junit.framework.TestCase
         assertTrue(findTarget(comments, "void method3(java.lang.String[])") != -1);
     }
 
+    @Test
     public void testCommentExtraction2() throws Exception
     {
         String aSrc = "class A<T> {\n"
@@ -391,6 +392,7 @@ public class BasicParseTest extends junit.framework.TestCase
         assertTrue(findTarget(comments, "void method2(java.lang.Object[])") != -1);
     }
 
+    @Test
     public void testCommentExtraction3() throws Exception
     {
         String aSrc = "import java.util.*;\n" 
@@ -402,7 +404,8 @@ public class BasicParseTest extends junit.framework.TestCase
         Properties comments = info.getComments();
         assertTrue(findTarget(comments, "void method1(java.util.List)") != -1);
     }
-    
+
+    @Test
     public void testCommentExtraction4() throws Exception
     {
         String aSrc = "class A<T> {\n"
@@ -415,7 +418,8 @@ public class BasicParseTest extends junit.framework.TestCase
         assertTrue(findTarget(comments, "void method1(A)") != -1);
         assertTrue(findTarget(comments, "void method2(A)") != -1);
     }
-    
+
+    @Test
     public void testMultipleInterfaceExtends() throws Exception
     {
         String aSrc = "interface A extends B, C { }";
@@ -423,7 +427,8 @@ public class BasicParseTest extends junit.framework.TestCase
         ClassInfo info = InfoParser.parse(new StringReader(aSrc), null, null);
         assertNotNull(info);
     }
-    
+
+    @Test
     public void testClassTpars() throws Exception
     {
         String aSrc = "class B {\n"
@@ -446,7 +451,8 @@ public class BasicParseTest extends junit.framework.TestCase
         document.insertString(0, sourceCode);
         return document.getParser();
     }
-    
+
+    @Test
     public void testInterfaceSelections()
     {
         InitConfig.init();
@@ -476,7 +482,8 @@ public class BasicParseTest extends junit.framework.TestCase
         assertEquals(23, isels.get(2).getColumn());  // ","
         assertEquals(25, isels.get(3).getColumn());  // "J"
     }
-    
+
+    @Test
     public void testDependencyAnalysis()
         throws Exception
     {
@@ -507,6 +514,7 @@ public class BasicParseTest extends junit.framework.TestCase
      * In this example, the "I" in the method body refers to the inner class "I" and
      * should not generate an external reference.
      */
+    @Test
     public void testDependencyAnalysis2() throws Exception
     {
         InitConfig.init();
@@ -531,6 +539,7 @@ public class BasicParseTest extends junit.framework.TestCase
     /**
      * Test loop iterator variable declaration dependency
      */
+    @Test
     public void testDependencyAnalysis3() throws Exception
     {
         InitConfig.init();
@@ -557,6 +566,7 @@ public class BasicParseTest extends junit.framework.TestCase
     /**
      * Test reference to class via static method call
      */
+    @Test
     public void testDependencyAnalysis4() throws Exception
     {
         InitConfig.init();
@@ -583,6 +593,7 @@ public class BasicParseTest extends junit.framework.TestCase
     /**
      * Test that type parameters are recognized and that they shadow classes with the same name
      */
+    @Test
     public void testDependencyAnalysis5() throws Exception
     {
         InitConfig.init();
@@ -605,6 +616,7 @@ public class BasicParseTest extends junit.framework.TestCase
     /**
      * Test dependency analysis within a named package
      */
+    @Test
     public void testDependencyAnalysis6() throws Exception
     {
         InitConfig.init();
@@ -629,6 +641,7 @@ public class BasicParseTest extends junit.framework.TestCase
     /**
      * Test dependency analysis handles qualified names
      */
+    @Test
     public void testDependencyAnalysis7() throws Exception
     {
         InitConfig.init();
@@ -657,6 +670,7 @@ public class BasicParseTest extends junit.framework.TestCase
     /**
      * Test that an imported class shadows another class in the same package.
      */
+    @Test
     public void testDependencyAnalysis8() throws Exception
     {
         InitConfig.init();
@@ -682,6 +696,7 @@ public class BasicParseTest extends junit.framework.TestCase
     /**
      * Test reference to class via static value reference
      */
+    @Test
     public void testDependencyAnalysis9() throws Exception
     {
         InitConfig.init();
@@ -705,6 +720,7 @@ public class BasicParseTest extends junit.framework.TestCase
     /**
      * Test that a type argument generates a dependency.
      */
+    @Test
     public void testDependencyAnalysis10()
     {
         InitConfig.init();
@@ -729,6 +745,7 @@ public class BasicParseTest extends junit.framework.TestCase
     /**
      * Test that a type parameter bound generates a dependency.
      */
+    @Test
     public void testDependencyAnalysis11()
     {
         InitConfig.init();
@@ -747,7 +764,8 @@ public class BasicParseTest extends junit.framework.TestCase
 
         assertTrue(used.contains("I"));
     }
-    
+
+    @Test
     public void testDependencyAnalysis12()
     {
         InitConfig.init();
@@ -772,6 +790,7 @@ public class BasicParseTest extends junit.framework.TestCase
         assertTrue(used.contains("J"));
     }
 
+    @Test
     public void testDependencyAnalysis13()
     {
         InitConfig.init();
@@ -795,7 +814,8 @@ public class BasicParseTest extends junit.framework.TestCase
         assertTrue(used.contains("I"));
         assertTrue(used.contains("J"));
     }
-    
+
+    @Test
     public void testClassModifiers()
     {
         InitConfig.init();
@@ -813,7 +833,8 @@ public class BasicParseTest extends junit.framework.TestCase
         assertFalse(info.isInterface());
         assertFalse(info.isEnum());
     }
-        
+
+    @Test
     public void testAnnotation1()
     {
         String aSrc = "public @interface UnderConstruction {\n" +
@@ -833,6 +854,7 @@ public class BasicParseTest extends junit.framework.TestCase
     /**
      * Parse some code with an error in it (regression test).
      */
+    @Test
     public void testParseBroken()
     {
         String aSrc = "class A {\n" +

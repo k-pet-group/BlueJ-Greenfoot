@@ -259,6 +259,10 @@ public class BlueJSyntaxView
      */
     public void recalculateScopes(Map<Integer, ScopeInfo> pendingScopes, int firstLineIncl, int lastLineIncl)
     {
+        // editorPane is null during testing -- just skip updating the scopes in that case:
+        if (editorPane == null)
+            return;
+        
         recalcScopeMarkers(pendingScopes,
                 (widthProperty == null || widthProperty.get() == 0) ? 200 :
                         ((int)widthProperty.get() - PARAGRAPH_MARGIN),
