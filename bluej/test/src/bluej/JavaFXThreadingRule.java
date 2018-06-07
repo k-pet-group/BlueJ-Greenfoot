@@ -9,6 +9,7 @@ import org.junit.runners.model.Statement;
 
 import javax.swing.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A JUnit {@link Rule} for running tests on the JavaFX thread and performing
@@ -60,6 +61,8 @@ public class JavaFXThreadingRule implements TestRule
 
             final CountDownLatch countDownLatch = new CountDownLatch(1);
 
+            rethrownException = null;
+            
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
@@ -71,7 +74,7 @@ public class JavaFXThreadingRule implements TestRule
                     countDownLatch.countDown();
                 }});
 
-            countDownLatch.await();
+            countDownLatch.await(60, TimeUnit.SECONDS);
 
             // if an exception was thrown by the statement during evaluation,
             // then re-throw it to fail the test
@@ -79,22 +82,42 @@ public class JavaFXThreadingRule implements TestRule
                 throw rethrownException;
             }
         }
-
-        protected void setupJavaFX() throws InterruptedException {
-
+        protected void setupJavaFX() throws Throwable
+        {
+            System.out.println("javafx initialising...");
+            System.out.flush();
             long timeMillis = System.currentTimeMillis();
 
             final CountDownLatch latch = new CountDownLatch(1);
+            
+            rethrownException = null;
 
             SwingUtilities.invokeLater(() -> {
                 // initializes JavaFX environment
-                new JFXPanel();
+                try
+                {
+                    new JFXPanel();
+                }
+                catch (Throwable e)
+                {
+                    rethrownException = e;
+                }
 
                 latch.countDown();
             });
 
-            System.out.println("javafx initialising...");
-            latch.await();
+            
+            if (!latch.await(10, TimeUnit.SECONDS))
+            {
+                if (rethrownException != null)
+                {
+                    throw rethrownException;
+                }
+                else
+                {
+                    throw new RuntimeException("Timed out awaiting JavaFX initialisation");
+                }
+            }
             System.out.println("javafx is initialised in " + (System.currentTimeMillis() - timeMillis) + "ms");
         }
 
