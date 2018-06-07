@@ -38,7 +38,6 @@ import greenfoot.platforms.standalone.ActorDelegateStandAlone;
 import greenfoot.platforms.standalone.GreenfootUtilDelegateStandAlone;
 import greenfoot.platforms.standalone.WorldHandlerDelegateStandAlone;
 import greenfoot.sound.SoundFactory;
-import greenfoot.util.AskHandler;
 import greenfoot.util.GreenfootUtil;
 import greenfoot.util.StandalonePropStringManager;
 import javafx.application.Platform;
@@ -83,8 +82,7 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
 
     @OnThread(Tag.Any)
     private Constructor<?> worldConstructor;
-
-    private AskHandler askHandler;
+    
     private final WorldDisplay worldDisplay = new WorldDisplay();
     private boolean updatingSliderFromSimulation = false;
 
