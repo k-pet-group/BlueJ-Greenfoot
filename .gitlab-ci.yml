@@ -5,8 +5,11 @@ before_script:
 stages:
  - build
 
+variables:
+  JAVA_HOME: /usr/lib/jvm/java-8-oracle
+
 antbuild:
   stage: build
   script:
-    - cd bluej && ant rebuild-ready
+    - cd bluej && ant rebuild-ready && xvfb-run ant test
     - cd ../greenfoot && ant clean && ant ready-to-run

@@ -83,7 +83,7 @@
         <pathelement location="${bluej_home}/lib/opencsv-2.3.jar"/>
         <pathelement location="${bluej_home}/lib/xom-1.2.9.jar"/>
         <pathelement location="${bluej_home}/lib/diffutils-1.2.1.jar"/>
-        <pathelement location="${build_java_home}/jre/lib/jfxrt.jar"/>
+        <pathelement location="${build_java_home}/jre/lib/ext/jfxrt.jar"/>
     </path>
     <!-- The sourcepath to the bluej classes-->
     <path id="bluej.src.path">
