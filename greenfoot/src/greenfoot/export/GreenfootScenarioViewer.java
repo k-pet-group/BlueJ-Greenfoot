@@ -22,7 +22,6 @@
 package greenfoot.export;
 
 import bluej.Config;
-import bluej.utility.Debug;
 import bluej.utility.javafx.UnfocusableScrollPane;
 import greenfoot.World;
 import greenfoot.core.ExportedProjectProperties;
@@ -38,7 +37,6 @@ import greenfoot.platforms.standalone.ActorDelegateStandAlone;
 import greenfoot.platforms.standalone.GreenfootUtilDelegateStandAlone;
 import greenfoot.platforms.standalone.WorldHandlerDelegateStandAlone;
 import greenfoot.sound.SoundFactory;
-import greenfoot.util.AskHandler;
 import greenfoot.util.GreenfootUtil;
 import greenfoot.util.StandalonePropStringManager;
 import javafx.application.Platform;
@@ -62,6 +60,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -83,8 +82,7 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
 
     @OnThread(Tag.Any)
     private Constructor<?> worldConstructor;
-
-    private AskHandler askHandler;
+    
     private final WorldDisplay worldDisplay = new WorldDisplay();
     private boolean updatingSliderFromSimulation = false;
 
@@ -271,28 +269,19 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
         return null;
     }
     
-    @OnThread(Tag.Any)
+    @OnThread(Tag.Simulation)
     public String ask(final String prompt)
     {
-        final AtomicReference<Callable<String>> c = new AtomicReference<Callable<String>>();
-        try
-        {
-            EventQueue.invokeAndWait(new Runnable() {public void run() {
-                //c.set(askHandler.ask(prompt, canvas.getPreferredSize().width));
-            }});
-        }
-        catch (InvocationTargetException | InterruptedException e)
-        {
-            Debug.reportError(e);
-        }
+        final CompletableFuture<String> answer = new CompletableFuture<>();
+        Platform.runLater(() -> worldDisplay.ensureAsking(prompt, answer::complete));
         
         try
         {
-            return c.get().call();
+            return answer.get();
         }
         catch (Exception e)
         {
-            Debug.reportError(e);
+            e.printStackTrace();
             return null;
         }
     }

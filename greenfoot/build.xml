@@ -729,7 +729,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <include name="greenfoot/gui/DragListener.java"/>
             <include name="greenfoot/gui/DropTarget.java"/>
             <include name="greenfoot/gui/WorldCanvas.java"/>
-            <include name="greenfoot/gui/AskPanel.java"/>
          
             <include name="greenfoot/gui/input/KeyboardManager.java"/>
             
