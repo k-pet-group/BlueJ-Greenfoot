@@ -34,6 +34,7 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -110,6 +111,11 @@ public class NewImageDialog extends FXCustomizedDialog<File>
         detailsPanel.addRow(2, new Label(Config.getString("imagelib.new.image.height")), height);
 
         setContentPane(detailsPanel);
+
+        final Window window = this.getDialogPane().getScene().getWindow();
+        Stage stage = (Stage) window;
+        stage.setMinWidth(345);
+        stage.setMinHeight(240);
 
         // add buttons
         getDialogPane().getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
