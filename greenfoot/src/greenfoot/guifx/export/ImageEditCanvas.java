@@ -121,6 +121,10 @@ public class ImageEditCanvas extends Canvas
                 }
             }
 
+            // Clear the rectangle before redrawing again to clear
+            // any left over artifacts.
+            graphics.clearRect(0, 0, getWidth(), getHeight());
+
             // Scale around center of canvas
             graphics.translate(getWidth() / 2, getHeight() / 2);
             graphics.scale(scaleFactor, scaleFactor);
