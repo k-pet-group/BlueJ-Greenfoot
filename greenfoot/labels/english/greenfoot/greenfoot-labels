@@ -74,6 +74,8 @@ pause.simulation=Pause
 show.apidoc=Open Documentation
 save.world=Save the World
 
+newProject.prompt=Enter a name for the new scenario
+
 # Remove class confirmation
 remove.confirm.title=Confirm deleting of class
 remove.confirm.text1=About to delete class
