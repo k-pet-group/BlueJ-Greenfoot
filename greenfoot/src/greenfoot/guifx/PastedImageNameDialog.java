@@ -27,15 +27,15 @@ import bluej.utility.javafx.FXCustomizedDialog;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -88,7 +88,26 @@ public class PastedImageNameDialog extends FXCustomizedDialog<File>
 
         VBox bodyPanel = new VBox(20, new ImageView(image), fileNameRow);
         bodyPanel.setAlignment(Pos.CENTER);
-        setContentPane(bodyPanel);
+        ScrollPane sp = new ScrollPane();
+        sp.setContent(bodyPanel);
+        setContentPane(sp);
+
+        // Setting the minimum size for the stage to avoid controls appearing messed up.
+        final Window window = this.getDialogPane().getScene().getWindow();
+        Stage stage = (Stage) window;
+        stage.setMinWidth(350);
+        stage.setMinHeight(300);
+
+        // Setting the maximum size for the dialog pane to avoid large size windows.
+        // The dialog pane is used here instead of the stage because if the stage is set up to a maximum size
+        // and the image is too big, then the Ok/Cancel buttons and scroll bars will disappear.
+        // appearing messed up.
+        this.getDialogPane().setMaxWidth(900);
+        this.getDialogPane().setMaxHeight(900);
+
+        // Position the stage in the top-left of the owner
+        stage.setX(this.getOwner().getX() + 50 );
+        stage.setY(this.getOwner().getY() + 50);
 
         // add buttons
         getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
