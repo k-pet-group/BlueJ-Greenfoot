@@ -433,7 +433,7 @@ public class MousePollTest extends TestCase
     {
 
         final World world = WorldCreator.createWorld(20, 20, 10);
-        final MousePollingManager mouseMan = new MousePollingManager(new WorldLocator() {
+        mouseMan = new MousePollingManager(new WorldLocator() {
             public Actor getTopMostActorAt(int worldPixelPositionX, int worldPixelPositionY)
             {
                 Collection<?> actors = WorldVisitor.getObjectsAtPixel(world,
