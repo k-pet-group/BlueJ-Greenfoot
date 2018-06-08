@@ -60,7 +60,6 @@ public class WorldHandler
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private boolean worldIsSet;
 
-    private World initialisingWorld;
     // Note: this field is used by name in GreenfootDebugHandler, so don't rename/remove without altering that code.
     @OnThread(Tag.Any)
     private volatile World world;
@@ -325,7 +324,6 @@ public class WorldHandler
      */
     public void setInitialisingWorld(World world)
     {
-        this.initialisingWorld = world;
         handlerDelegate.initialisingWorld();
     }
 
@@ -449,12 +447,7 @@ public class WorldHandler
      */
     public synchronized World getWorld()
     {
-        if (world == null) {
-            return initialisingWorld;
-        }
-        else {
-            return world;
-        }
+        return world;
     }
     
     /**
