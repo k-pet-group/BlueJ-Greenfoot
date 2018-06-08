@@ -28,6 +28,7 @@ import greenfoot.TestUtilDelegate;
 import greenfoot.World;
 import greenfoot.WorldCreator;
 import greenfoot.WorldVisitor;
+import greenfoot.core.Simulation;
 import greenfoot.gui.input.mouse.MousePollingManager;
 import greenfoot.gui.input.mouse.WorldLocator;
 import greenfoot.util.GreenfootUtil;
@@ -65,6 +66,7 @@ public class MousePollTest extends TestCase
     protected void setUp()
     {
         GreenfootUtil.initialise(new TestUtilDelegate());
+        Simulation.initialize();
         
         //set up world with two actors
         world = WorldCreator.createWorld(200, 200, 1);

@@ -252,18 +252,23 @@ LICENSE.txt file that accompanied this code.${line.separator}
     </target>
 
     <target name="test" depends="compile-test">
-        <junit printsummary="yes" haltonfailure="no">
+        <!-- Need to turn verbosity back on to see the test output: -->
+        <script language="javascript">
+            var logger = project.getBuildListeners().firstElement();
+            logger.setMessageOutputLevel(2);
+        </script>
+        
+        <junit printsummary="yes" haltonfailure="yes">
             <classpath>
                 <pathelement location="${build}" />
                 <path refid="bluej.class.path" />
             </classpath>
 
-            <formatter type="plain" />
+            <formatter type="brief" usefile="false" />
 
-            <batchtest fork="yes" todir="${test.report}">
+            <batchtest fork="yes" skipnontests="true">
                 <fileset dir="${test.src}">
-                    <include name="**/*Test*.java" />
-                    <exclude name="**/TestObject.java" />
+                    <include name="**/*.java" />
                 </fileset>
             </batchtest>
         </junit>

@@ -25,6 +25,7 @@ import greenfoot.TestUtilDelegate;
 import greenfoot.World;
 import greenfoot.TestObject;
 import greenfoot.WorldCreator;
+import greenfoot.core.Simulation;
 import greenfoot.util.GreenfootUtil;
 
 import java.util.Collection;
@@ -44,7 +45,8 @@ public class InRangeTest extends TestCase
     protected void setUp()
         throws Exception
     {
-        GreenfootUtil.initialise(new TestUtilDelegate());        
+        GreenfootUtil.initialise(new TestUtilDelegate());
+        Simulation.initialize();
     }
 
     @SuppressWarnings("unchecked")
