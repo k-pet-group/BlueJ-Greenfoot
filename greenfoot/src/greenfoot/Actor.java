@@ -22,7 +22,6 @@
 package greenfoot;
 
 import greenfoot.collision.ibsp.Rect;
-import greenfoot.core.WorldHandler;
 import greenfoot.platforms.ActorDelegate;
 import greenfoot.util.GreenfootUtil;
 import threadchecker.OnThread;
@@ -556,8 +555,8 @@ public abstract class Actor
      * Calculates the bounds.
      */
     private void calcBounds()
-    {        
-        World w = getActiveWorld();
+    {
+        World w = getWorld();
         if(w == null) {
             return;
         }
@@ -644,8 +643,8 @@ public abstract class Actor
      * Translate a cell coordinate into a pixel. This will return the coordinate of the centre of he cell.
      */
     int toPixel(int x)
-    {        
-        World aWorld = getActiveWorld();
+    {
+        World aWorld = getWorld();
         if(aWorld == null) {
             // Should never happen
             throw new IllegalStateException(NO_WORLD);
@@ -1108,21 +1107,4 @@ public abstract class Actor
         return delegate.getImage(clazz.getName());
     }
 
-    /**
-     * Get the active world. This method will return the instantiated world,
-     * even if the object is not yet added to a world.
-     */
-    World getActiveWorld()
-    {
-        if(world != null) {
-            return world;
-        }
-        WorldHandler handler = WorldHandler.getInstance();
-        if (handler != null) {
-            return handler.getWorld();
-        }
-        else {
-            return null;
-        }
-    }
 }
