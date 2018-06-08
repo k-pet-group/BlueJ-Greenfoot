@@ -187,6 +187,10 @@ public class MousePollingManager
             if (gotNewDragStartEvent)
             {
                 dragStartData.setActors(locator);
+                // We need to also set the actor on the drag-ended if it both
+                // started this frame (true if gotNewDragStartEvent was true) and
+                // ended this frame (check inside setDragStartActor):
+                currentData.setDragStartActor(dragStartData);
                 gotNewDragStartEvent = false;
             }
             
@@ -478,7 +482,7 @@ public class MousePollingManager
 
                 futureData.mouseClicked(x, y, getButton(button), 1);
                 
-                futureData.mouseDragEnded(x, y, getButton(button), dragStartData.getActor());
+                futureData.mouseDragEnded(x, y, getButton(button), dragStartData);
                 isDragging = false;
                 potentialNewDragData = new MouseEventData();
             }
