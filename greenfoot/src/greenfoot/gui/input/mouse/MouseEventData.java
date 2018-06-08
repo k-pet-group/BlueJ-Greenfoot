@@ -52,6 +52,7 @@ class MouseEventData
     private MouseInfo mousePressedInfo;
     private MouseInfo mouseDraggedInfo;
     private MouseInfo mouseMovedInfo;
+    private MouseEventData dragStartedBy;
 
     public void init()
     {
@@ -152,7 +153,7 @@ class MouseEventData
         return checkObject(obj, mouseDragEndedInfo);
     }
 
-    public void mouseDragEnded(int x, int y, int button, Actor actor)
+    public void mouseDragEnded(int x, int y, int button, MouseEventData dragStartData)
     {
         MouseInfo tempPressedInfo = mousePressedInfo;
         MouseInfo tempClickedInfo = mouseClickedInfo;
@@ -163,7 +164,8 @@ class MouseEventData
         mouseInfo = mouseDragEndedInfo;
         MouseInfoVisitor.setButton(mouseInfo, button);
         MouseInfoVisitor.setLoc(mouseInfo, x, y);
-        MouseInfoVisitor.setActor(mouseInfo, actor);
+        MouseInfoVisitor.setActor(mouseInfo, dragStartData.getActor());
+        this.dragStartedBy = dragStartData;
     }
 
     public void mouseExited()
@@ -263,6 +265,19 @@ class MouseEventData
             {
                 MouseInfoVisitor.setActor(info, locator.getTopMostActorAt(info.getX(), info.getY()));
             }
+        }
+    }
+
+    /**
+     * If drag ended, and was started by the given MouseEventData, copy the drag-start
+     * actor to the drag-end info.
+     */
+    public void setDragStartActor(MouseEventData dragStartData)
+    {
+        // 
+        if (mouseDragEndedInfo != null && dragStartedBy == dragStartData)
+        {
+            MouseInfoVisitor.setActor(mouseDragEndedInfo, dragStartData.getActor());
         }
     }
 }

@@ -25,6 +25,7 @@ import greenfoot.TestUtilDelegate;
 import greenfoot.World;
 import greenfoot.TestObject;
 import greenfoot.WorldCreator;
+import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.util.GreenfootUtil;
 
@@ -45,7 +46,8 @@ public class IntersectionTest extends TestCase
     protected void setUp()
         throws Exception
     {
-        GreenfootUtil.initialise(new TestUtilDelegate());        
+        GreenfootUtil.initialise(new TestUtilDelegate());
+        Simulation.initialize();
     }
     
     @SuppressWarnings("unchecked")

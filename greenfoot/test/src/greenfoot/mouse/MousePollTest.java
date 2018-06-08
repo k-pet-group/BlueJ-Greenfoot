@@ -28,6 +28,7 @@ import greenfoot.TestUtilDelegate;
 import greenfoot.World;
 import greenfoot.WorldCreator;
 import greenfoot.WorldVisitor;
+import greenfoot.core.Simulation;
 import greenfoot.gui.input.mouse.MousePollingManager;
 import greenfoot.gui.input.mouse.WorldLocator;
 import greenfoot.util.GreenfootUtil;
@@ -54,7 +55,7 @@ public class MousePollTest extends TestCase
     private MousePollingManager mouseMan; 
     
     /** Panel used to simulate events on */
-    private JPanel panel = null;
+    private JPanel panel = new JPanel();
 
     private World world;
     private TestObject actorAtClick;
@@ -65,6 +66,7 @@ public class MousePollTest extends TestCase
     protected void setUp()
     {
         GreenfootUtil.initialise(new TestUtilDelegate());
+        Simulation.initialize();
         
         //set up world with two actors
         world = WorldCreator.createWorld(200, 200, 1);
@@ -433,7 +435,7 @@ public class MousePollTest extends TestCase
     {
 
         final World world = WorldCreator.createWorld(20, 20, 10);
-        final MousePollingManager mouseMan = new MousePollingManager(new WorldLocator() {
+        mouseMan = new MousePollingManager(new WorldLocator() {
             public Actor getTopMostActorAt(int worldPixelPositionX, int worldPixelPositionY)
             {
                 Collection<?> actors = WorldVisitor.getObjectsAtPixel(world,

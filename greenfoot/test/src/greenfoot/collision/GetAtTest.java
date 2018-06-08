@@ -28,6 +28,7 @@ import greenfoot.TestObject;
 import greenfoot.TestUtilDelegate;
 import greenfoot.World;
 import greenfoot.WorldCreator;
+import greenfoot.core.Simulation;
 import greenfoot.util.GreenfootUtil;
 import junit.framework.TestCase;
 
@@ -39,7 +40,8 @@ public class GetAtTest extends TestCase
     protected void setUp()
         throws Exception
     {
-        GreenfootUtil.initialise(new TestUtilDelegate());        
+        GreenfootUtil.initialise(new TestUtilDelegate());
+        Simulation.initialize();
     }
     
     public void testPixelOdd()

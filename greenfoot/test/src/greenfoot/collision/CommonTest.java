@@ -23,6 +23,10 @@ package greenfoot.collision;
 
 import java.util.List;
 
+import greenfoot.TestUtilDelegate;
+import greenfoot.core.Simulation;
+import greenfoot.platforms.ide.GreenfootUtilDelegateIDE;
+import greenfoot.util.GreenfootUtil;
 import junit.framework.TestCase;
 import greenfoot.World;
 import greenfoot.TestObject;
@@ -40,6 +44,8 @@ public class CommonTest extends TestCase
     
     protected void setUp()        
     {
+        GreenfootUtil.initialise(new TestUtilDelegate());
+        Simulation.initialize();
         world = WorldCreator.createWorld(10,10,10);
         obj1 = new TestObject(10,10);
         world.addObject(obj1, 0, 0);
