@@ -54,7 +54,7 @@ public class MousePollTest extends TestCase
     private MousePollingManager mouseMan; 
     
     /** Panel used to simulate events on */
-    private JPanel panel = null;
+    private JPanel panel = new JPanel();
 
     private World world;
     private TestObject actorAtClick;
