@@ -48,6 +48,7 @@ import bluej.pkgmgr.PackageUI;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.ProjectUtils;
 import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.DependentTarget;
 import bluej.pkgmgr.target.ReadmeTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.prefmgr.PrefMgr;
@@ -1970,6 +1971,10 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             ProjectUtils.createSkeleton(className, superClassName, newFile,
                     templateFileName, project.getProjectCharset().toString());
             ClassTarget newClass = pkg.addClass(className);
+
+            // The stride class needs to be compiled to be placed correctly on the class diagram.
+            pkg.compile(newClass, CompileReason.LOADED, CompileType.INDIRECT_USER_COMPILE);
+
             return classDiagram.addClass(newClass);
         }
         catch (IOException ioe)
