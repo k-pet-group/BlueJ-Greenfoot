@@ -277,7 +277,6 @@ public class FrameEditor implements Editor
                 throw new IOException(result.exception);
             }
             
-            setSaved();
             if (watcher != null)
             {
                 watcher.recordStrideEdit(result.javaResult.javaSourceStringContent,
@@ -323,19 +322,25 @@ public class FrameEditor implements Editor
     }
 
     /**
-     * Saves the code on the FX thread.  If any IOException occurs, it is caught and returned
-     * (so it can be re-thrown on the Swing thread).  Otherwise, the saved XML source is returned.
-     * Null is never returned
+     * Saves the code, if it has been modified since it was last saved. If any IOException occurs,
+     * it is caught and returned; otherwise, the saved XML source is returned.<p>
+     * 
+     * The Java source is also generated if it is stale or has not yet been generated.
      */
     @OnThread(Tag.FXPlatform)
     private SaveResult saveFX()
     {
-        if (!changedSinceLastSave) {
-            return new SaveResult(lastSavedSource, lastSavedJava);
-        }
-
         try
         {
+            if (!changedSinceLastSave)
+            {
+                if (lastSavedJava == null)
+                {
+                    lastSavedJava = saveJava(lastSource, true);
+                }
+                return new SaveResult(lastSavedSource, lastSavedJava);
+            }
+            
             // If frame editor is closed, we just need to write the Java code
             if (panel == null || panel.getSource() == null)
             {
@@ -359,6 +364,7 @@ public class FrameEditor implements Editor
             changedSinceLastSave = false;
             lastSavedSource = Utility.serialiseCodeToString(source.toXML());
         
+            setSaved();
             panel.saved();
             lastSource = panel.getSource();
             return new SaveResult(lastSavedSource, lastSavedJava);
