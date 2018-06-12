@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -100,9 +100,6 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -129,10 +126,8 @@ public class FrameEditor implements Editor
     @OnThread(Tag.FX) private SaveJavaResult lastSavedJava = null;
     
     /** Location of the .stride file */
-    @OnThread(Tag.Any) private final ReadWriteLock filenameLock = new ReentrantReadWriteLock();
-    // These fields should only be used with the lock above, but once locked, can be accessed from any thread:
-    @OnThread(Tag.Any) private File frameFilename;
-    @OnThread(Tag.Any) private File javaFilename;
+    private File frameFilename;
+    private File javaFilename;
     
     @OnThread(Tag.FX) private final EntityResolver resolver;
     private final EditorWatcher watcher;
@@ -355,13 +350,9 @@ public class FrameEditor implements Editor
                 return new SaveResult(Utility.serialiseCodeToString(lastSource.toXML()), null); // classFrame not initialised yet
 
             // Save Frame source:
-            Lock readLock = filenameLock.readLock();            
-            readLock.lock();
-            try (FileOutputStream os = new FileOutputStream(frameFilename)) {
+            try (FileOutputStream os = new FileOutputStream(frameFilename))
+            {
                 Utility.serialiseCodeTo(source.toXML(), os);
-            }
-            finally {
-                readLock.unlock();
             }
 
             lastSavedJava = saveJava(panel.getSource(), true);
