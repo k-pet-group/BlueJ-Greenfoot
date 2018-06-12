@@ -249,7 +249,7 @@ public class FrameEditor implements Editor
             {
                 // runLater so that the panel will have been added:
                 JavaFXUtil.runPlatformLater(() -> {
-                    _saveFX();
+                    saveFX();
                     // No relevant other compilation, so use -1 as identifier:
                     findLateErrors(-1);
                 });
@@ -278,7 +278,7 @@ public class FrameEditor implements Editor
     {
         if (changedSinceLastSave)
         {
-            SaveResult result = _saveFX();
+            SaveResult result = saveFX();
             if (result.exception != null)
             {
                 throw new IOException(result.exception);
@@ -340,7 +340,7 @@ public class FrameEditor implements Editor
      * Null is never returned
      */
     @OnThread(Tag.FXPlatform)
-    private SaveResult _saveFX()
+    private SaveResult saveFX()
     {
         if (!changedSinceLastSave) {
             return new SaveResult(lastSavedSource, lastSavedJavaFX);
@@ -915,7 +915,7 @@ public class FrameEditor implements Editor
         watcher.clearAllBreakpoints();
 
         if (javaSource.get() == null) {
-            IOException e = _saveFX().exception;
+            IOException e = saveFX().exception;
             if (e != null)
                 Debug.reportError(e);
         }
@@ -1040,7 +1040,7 @@ public class FrameEditor implements Editor
                 {
                     // First, save, so that the AST elements all have the correct references back to
                     // the GUI frames which generated them:
-                    Exception ex = _saveFX().exception;
+                    Exception ex = saveFX().exception;
                     if (ex != null)
                     {
                         Debug.reportError(ex);
@@ -1336,7 +1336,7 @@ public class FrameEditor implements Editor
     @OnThread(Tag.FXPlatform)
     public void recordEdits(StrideEditReason reason)
     {
-        SaveResult result = _saveFX();
+        SaveResult result = saveFX();
         if (result.exception == null)
         {
             watcher.recordStrideEdit(result.javaResult.javaSourceStringContent, result.savedSource, reason);
