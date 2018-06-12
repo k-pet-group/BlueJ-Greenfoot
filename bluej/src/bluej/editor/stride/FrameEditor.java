@@ -121,9 +121,8 @@ public class FrameEditor implements Editor
     /** Whether the code has been successfully compiled since last edit */
     @OnThread(Tag.FXPlatform) private boolean isCompiled;
     
-    // If the code has been changed since last save (only modify on FX thread):
-    // Start true, because we haven't actually saved before, so technically we have changed:
-    @OnThread(Tag.FXPlatform) private boolean changedSinceLastSave = true;
+    // If the code has been changed since last save:
+    @OnThread(Tag.FXPlatform) private boolean changedSinceLastSave = false;
     // The code at point of last save (only modify on FX thread)
     @OnThread(Tag.FX) private String lastSavedSource = null;
     // Only touch on FX thread:
@@ -277,15 +276,31 @@ public class FrameEditor implements Editor
     @Override
     public void save() throws IOException
     {
-        SaveResult result = _saveFX();
-        if (result.exception != null)
-            throw new IOException(result.exception);
-        
-        setSaved();
-        if (watcher != null)
-            watcher.recordStrideEdit(result.javaResult.javaSourceStringContent, result.savedSource, null);
-        if (result.javaResult != null)
-            this.lastSavedJavaSwing = result.javaResult;
+        if (changedSinceLastSave)
+        {
+            SaveResult result = _saveFX();
+            if (result.exception != null)
+            {
+                throw new IOException(result.exception);
+            }
+            
+            setSaved();
+            if (watcher != null)
+            {
+                watcher.recordStrideEdit(result.javaResult.javaSourceStringContent,
+                        result.savedSource, null);
+            }
+            if (result.javaResult != null)
+            {
+                this.lastSavedJavaSwing = result.javaResult;
+            }
+        }
+        else if (lastSavedJavaFX == null)
+        {
+            // If we haven't generated Java yet, we should do so:
+            lastSavedJavaFX = saveJava(lastSource, true);
+            lastSavedJavaSwing = lastSavedJavaFX;
+        }
     }
     
     /**
