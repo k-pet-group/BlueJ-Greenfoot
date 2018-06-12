@@ -125,10 +125,8 @@ public class FrameEditor implements Editor
     @OnThread(Tag.FXPlatform) private boolean changedSinceLastSave = false;
     // The code at point of last save (only modify on FX thread)
     @OnThread(Tag.FX) private String lastSavedSource = null;
-    // Only touch on FX thread:
-    @OnThread(Tag.FX) private SaveJavaResult lastSavedJavaFX = null;
-    // Only touch on FX thread:
-    @OnThread(Tag.FXPlatform) private SaveJavaResult lastSavedJavaSwing = null;
+    // The generated Java code at point of last save:
+    @OnThread(Tag.FX) private SaveJavaResult lastSavedJava = null;
     
     /** Location of the .stride file */
     @OnThread(Tag.Any) private final ReadWriteLock filenameLock = new ReentrantReadWriteLock();
@@ -290,16 +288,11 @@ public class FrameEditor implements Editor
                 watcher.recordStrideEdit(result.javaResult.javaSourceStringContent,
                         result.savedSource, null);
             }
-            if (result.javaResult != null)
-            {
-                this.lastSavedJavaSwing = result.javaResult;
-            }
         }
-        else if (lastSavedJavaFX == null)
+        else if (lastSavedJava == null)
         {
             // If we haven't generated Java yet, we should do so:
-            lastSavedJavaFX = saveJava(lastSource, true);
-            lastSavedJavaSwing = lastSavedJavaFX;
+            lastSavedJava = saveJava(lastSource, true);
         }
     }
     
@@ -343,7 +336,7 @@ public class FrameEditor implements Editor
     private SaveResult saveFX()
     {
         if (!changedSinceLastSave) {
-            return new SaveResult(lastSavedSource, lastSavedJavaFX);
+            return new SaveResult(lastSavedSource, lastSavedJava);
         }
 
         try
@@ -371,13 +364,13 @@ public class FrameEditor implements Editor
                 readLock.unlock();
             }
 
-            lastSavedJavaFX = saveJava(panel.getSource(), true);
+            lastSavedJava = saveJava(panel.getSource(), true);
             changedSinceLastSave = false;
             lastSavedSource = Utility.serialiseCodeToString(source.toXML());
         
             panel.saved();
             lastSource = panel.getSource();
-            return new SaveResult(lastSavedSource, lastSavedJavaFX);
+            return new SaveResult(lastSavedSource, lastSavedJava);
         }
         catch (IOException e)
         {
@@ -782,12 +775,12 @@ public class FrameEditor implements Editor
     @Override
     public boolean displayDiagnostic(final Diagnostic diagnostic, int errorIndex, CompileType compileType)
     {
-        if (lastSavedJavaSwing != null && lastSavedJavaSwing.javaSource != null && lastSavedJavaSwing.xpathLocations != null)
+        if (lastSavedJava != null && lastSavedJava.javaSource != null && lastSavedJava.xpathLocations != null)
         {
-            JavaFragment fragment = lastSavedJavaSwing.javaSource.findError((int)diagnostic.getStartLine(), (int)diagnostic.getStartColumn(), (int)diagnostic.getEndLine(), (int)diagnostic.getEndColumn(), diagnostic.getMessage());
+            JavaFragment fragment = lastSavedJava.javaSource.findError((int)diagnostic.getStartLine(), (int)diagnostic.getStartColumn(), (int)diagnostic.getEndLine(), (int)diagnostic.getEndColumn(), diagnostic.getMessage());
             if (fragment != null)
             {
-                String xpath = lastSavedJavaSwing.xpathLocations.locationFor(fragment);
+                String xpath = lastSavedJava.xpathLocations.locationFor(fragment);
                 int start = fragment.getErrorStartPos((int)diagnostic.getStartLine(), (int)diagnostic.getStartColumn());
                 int end = fragment.getErrorEndPos((int)diagnostic.getEndLine(), (int)diagnostic.getEndColumn());
                 if (xpath != null)
