@@ -274,20 +274,11 @@ public class FrameEditor implements Editor
         }
     }
 
-    /**
-     * Saves the code.  Because this comes from Editor, it must be done on the Swing thread,
-     * and is assumed to only return after saving.
-     *
-     * But because the frame editor is in FX, we must trigger the save on  the FX thread and wait
-     * for it.  Thus it's important that nothing ever runs on the FX thread which waits for the Swing
-     * thread, because it could deadlock with this code.
-     */
     @Override
     public void save() throws IOException
     {
         SaveResult result = _saveFX();
-        // result can be null if an exception occurred completing the future
-        if (result != null && result.exception != null)
+        if (result.exception != null)
             throw new IOException(result.exception);
         
         setSaved();
