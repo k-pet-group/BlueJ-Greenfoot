@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -100,9 +100,6 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -121,21 +118,16 @@ public class FrameEditor implements Editor
     /** Whether the code has been successfully compiled since last edit */
     @OnThread(Tag.FXPlatform) private boolean isCompiled;
     
-    // If the code has been changed since last save (only modify on FX thread):
-    // Start true, because we haven't actually saved before, so technically we have changed:
-    @OnThread(Tag.FXPlatform) private boolean changedSinceLastSave = true;
+    // If the code has been changed since last save:
+    @OnThread(Tag.FXPlatform) private boolean changedSinceLastSave = false;
     // The code at point of last save (only modify on FX thread)
     @OnThread(Tag.FX) private String lastSavedSource = null;
-    // Only touch on FX thread:
-    @OnThread(Tag.FX) private SaveJavaResult lastSavedJavaFX = null;
-    // Only touch on FX thread:
-    @OnThread(Tag.FXPlatform) private SaveJavaResult lastSavedJavaSwing = null;
+    // The generated Java code at point of last save:
+    @OnThread(Tag.FX) private SaveJavaResult lastSavedJava = null;
     
     /** Location of the .stride file */
-    @OnThread(Tag.Any) private final ReadWriteLock filenameLock = new ReentrantReadWriteLock();
-    // These fields should only be used with the lock above, but once locked, can be accessed from any thread:
-    @OnThread(Tag.Any) private File frameFilename;
-    @OnThread(Tag.Any) private File javaFilename;
+    private File frameFilename;
+    private File javaFilename;
     
     @OnThread(Tag.FX) private final EntityResolver resolver;
     private final EditorWatcher watcher;
@@ -250,7 +242,7 @@ public class FrameEditor implements Editor
             {
                 // runLater so that the panel will have been added:
                 JavaFXUtil.runPlatformLater(() -> {
-                    _saveFX();
+                    saveFX();
                     // No relevant other compilation, so use -1 as identifier:
                     findLateErrors(-1);
                 });
@@ -274,27 +266,28 @@ public class FrameEditor implements Editor
         }
     }
 
-    /**
-     * Saves the code.  Because this comes from Editor, it must be done on the Swing thread,
-     * and is assumed to only return after saving.
-     *
-     * But because the frame editor is in FX, we must trigger the save on  the FX thread and wait
-     * for it.  Thus it's important that nothing ever runs on the FX thread which waits for the Swing
-     * thread, because it could deadlock with this code.
-     */
     @Override
     public void save() throws IOException
     {
-        SaveResult result = _saveFX();
-        // result can be null if an exception occurred completing the future
-        if (result != null && result.exception != null)
-            throw new IOException(result.exception);
-        
-        setSaved();
-        if (watcher != null)
-            watcher.recordStrideEdit(result.javaResult.javaSourceStringContent, result.savedSource, null);
-        if (result.javaResult != null)
-            this.lastSavedJavaSwing = result.javaResult;
+        if (changedSinceLastSave)
+        {
+            SaveResult result = saveFX();
+            if (result.exception != null)
+            {
+                throw new IOException(result.exception);
+            }
+            
+            if (watcher != null)
+            {
+                watcher.recordStrideEdit(result.javaResult.javaSourceStringContent,
+                        result.savedSource, null);
+            }
+        }
+        else if (lastSavedJava == null)
+        {
+            // If we haven't generated Java yet, we should do so:
+            lastSavedJava = saveJava(lastSource, true);
+        }
     }
     
     /**
@@ -329,19 +322,25 @@ public class FrameEditor implements Editor
     }
 
     /**
-     * Saves the code on the FX thread.  If any IOException occurs, it is caught and returned
-     * (so it can be re-thrown on the Swing thread).  Otherwise, the saved XML source is returned.
-     * Null is never returned
+     * Saves the code, if it has been modified since it was last saved. If any IOException occurs,
+     * it is caught and returned; otherwise, the saved XML source is returned.<p>
+     * 
+     * The Java source is also generated if it is stale or has not yet been generated.
      */
     @OnThread(Tag.FXPlatform)
-    private SaveResult _saveFX()
+    private SaveResult saveFX()
     {
-        if (!changedSinceLastSave) {
-            return new SaveResult(lastSavedSource, lastSavedJavaFX);
-        }
-
         try
         {
+            if (!changedSinceLastSave)
+            {
+                if (lastSavedJava == null)
+                {
+                    lastSavedJava = saveJava(lastSource, true);
+                }
+                return new SaveResult(lastSavedSource, lastSavedJava);
+            }
+            
             // If frame editor is closed, we just need to write the Java code
             if (panel == null || panel.getSource() == null)
             {
@@ -356,22 +355,19 @@ public class FrameEditor implements Editor
                 return new SaveResult(Utility.serialiseCodeToString(lastSource.toXML()), null); // classFrame not initialised yet
 
             // Save Frame source:
-            Lock readLock = filenameLock.readLock();            
-            readLock.lock();
-            try (FileOutputStream os = new FileOutputStream(frameFilename)) {
+            try (FileOutputStream os = new FileOutputStream(frameFilename))
+            {
                 Utility.serialiseCodeTo(source.toXML(), os);
             }
-            finally {
-                readLock.unlock();
-            }
 
-            lastSavedJavaFX = saveJava(panel.getSource(), true);
+            lastSavedJava = saveJava(panel.getSource(), true);
             changedSinceLastSave = false;
             lastSavedSource = Utility.serialiseCodeToString(source.toXML());
         
+            setSaved();
             panel.saved();
             lastSource = panel.getSource();
-            return new SaveResult(lastSavedSource, lastSavedJavaFX);
+            return new SaveResult(lastSavedSource, lastSavedJava);
         }
         catch (IOException e)
         {
@@ -776,12 +772,12 @@ public class FrameEditor implements Editor
     @Override
     public boolean displayDiagnostic(final Diagnostic diagnostic, int errorIndex, CompileType compileType)
     {
-        if (lastSavedJavaSwing != null && lastSavedJavaSwing.javaSource != null && lastSavedJavaSwing.xpathLocations != null)
+        if (lastSavedJava != null && lastSavedJava.javaSource != null && lastSavedJava.xpathLocations != null)
         {
-            JavaFragment fragment = lastSavedJavaSwing.javaSource.findError((int)diagnostic.getStartLine(), (int)diagnostic.getStartColumn(), (int)diagnostic.getEndLine(), (int)diagnostic.getEndColumn(), diagnostic.getMessage());
+            JavaFragment fragment = lastSavedJava.javaSource.findError((int)diagnostic.getStartLine(), (int)diagnostic.getStartColumn(), (int)diagnostic.getEndLine(), (int)diagnostic.getEndColumn(), diagnostic.getMessage());
             if (fragment != null)
             {
-                String xpath = lastSavedJavaSwing.xpathLocations.locationFor(fragment);
+                String xpath = lastSavedJava.xpathLocations.locationFor(fragment);
                 int start = fragment.getErrorStartPos((int)diagnostic.getStartLine(), (int)diagnostic.getStartColumn());
                 int end = fragment.getErrorEndPos((int)diagnostic.getEndLine(), (int)diagnostic.getEndColumn());
                 if (xpath != null)
@@ -909,7 +905,7 @@ public class FrameEditor implements Editor
         watcher.clearAllBreakpoints();
 
         if (javaSource.get() == null) {
-            IOException e = _saveFX().exception;
+            IOException e = saveFX().exception;
             if (e != null)
                 Debug.reportError(e);
         }
@@ -1034,7 +1030,7 @@ public class FrameEditor implements Editor
                 {
                     // First, save, so that the AST elements all have the correct references back to
                     // the GUI frames which generated them:
-                    Exception ex = _saveFX().exception;
+                    Exception ex = saveFX().exception;
                     if (ex != null)
                     {
                         Debug.reportError(ex);
@@ -1330,7 +1326,7 @@ public class FrameEditor implements Editor
     @OnThread(Tag.FXPlatform)
     public void recordEdits(StrideEditReason reason)
     {
-        SaveResult result = _saveFX();
+        SaveResult result = saveFX();
         if (result.exception == null)
         {
             watcher.recordStrideEdit(result.javaResult.javaSourceStringContent, result.savedSource, reason);

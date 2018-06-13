@@ -286,9 +286,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         matchBrackets = PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS);
 
         initWindow(parameters.getProjectResolver());
-        if (watcher != null && parameters.isCode() && !parameters.isCompiled()) {
-            scheduleCompilation(CompileReason.LOADED, CompileType.ERROR_CHECK_ONLY);
-        }
         callbackOnOpen = parameters.getCallbackOnOpen();
 
         this.fxTabbedEditor = getDefaultEditor.get();
@@ -524,6 +521,12 @@ public final class MoeEditor extends ScopeColorsBorderPane
         if (vis)
         {
             checkBracketStatus();
+            
+            if (sourceIsCode && !compiledProperty.get() && sourceDocument.notYetShown)
+            {
+                // Schedule a compilation so we can find and display any errors:
+                scheduleCompilation(CompileReason.LOADED, CompileType.ERROR_CHECK_ONLY);
+            }
 
             // Make sure caret is visible after open:
             //sourcePane.requestFollowCaret();
