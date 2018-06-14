@@ -33,7 +33,6 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.RenderingHints;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorConvertOp;
@@ -82,8 +81,6 @@ public class GreenfootUtil
     private static GreenfootUtilDelegate delegate;
     private static ImageCache imageCache;
 
-    private static final Color urlColor = new Color(0, 90, 200);
-    
     private static boolean haveCheckedForMp3 = false;
     private static boolean mp3available = false;
     
@@ -107,95 +104,6 @@ public class GreenfootUtil
         return name;
     }
     
-    /**
-     * Scale an image, but avoid stretching small images and changing of the image's
-     * aspect ratio. If the input image is smaller than the desired size, it is centered
-     * in the output image.
-     * 
-     * @param inputImage  The image to scale
-     * @param w           The desired width
-     * @param h           The desired height
-     * @return         The scaled image
-     */
-    public static Image getScaledImage(Image inputImage, int w, int h)
-    {
-        ImageWaiter waiter = new ImageWaiter(inputImage);
-        
-        waiter.waitDimensions();
-        int inputw = waiter.width;
-        int inputh = waiter.height;
-        
-        // If the image is already the correct size, return it.
-        if (w == inputw && h == inputh) {
-            return inputImage;
-        }
-        
-        // Otherwise create a new image
-        BufferedImage rImage = GraphicsUtilities.createCompatibleTranslucentImage(w, h);
-        Graphics2D graphics = rImage.createGraphics();
-        // We'd like interpolated image rendering.
-        graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        
-        // if the input image is smaller in both dimensions than the required
-        // image, just stamp it.
-        if (inputw <= w && inputh <= h) {
-            int xoffs = (w - inputw) / 2;
-            int yoffs = (h - inputh) / 2;
-            // graphics.drawImage(inputImage, xoffs, yoffs, null);
-            waiter.drawWait(graphics, xoffs, yoffs);
-        }
-        else {
-            // Otherwise, scale the image, maintaining the aspect ratio
-            float xscale = (float) w / inputw; // required scaling horizontal
-            float yscale = (float) h / inputh; // required scaling vertical
-        
-            // The scale factor we use must be the lower of the required horizontal
-            // scaling and required vertical scaling. We then use the scale for both
-            // horizontal and vertical scaling, thereby preserving aspect ratio.
-            float scale = xscale < yscale ? xscale : yscale;
-            
-            // Scale, and check that rounding hasn't caused problems
-            int neww = (int)(inputw * scale);
-            int newh = (int)(inputh * scale);
-            if (neww > inputw) {
-                neww = inputw;
-            }
-            if (newh > inputh) {
-                newh = inputh;
-            }
-            if (neww < 1) {
-                neww = 1;
-            }
-            if (newh < 1) {
-                newh = 1;
-            }
-            if (neww < w && newh < h) {
-                neww++; newh++;
-            }
-
-            // draw the scaled image centered
-            int xoffs = (w - neww) / 2;
-            int yoffs = (h - newh) / 2;
-            // graphics.drawImage(inputImage, xoffs, yoffs, neww, newh, null);
-            
-            // This can throw an exception if the image is too big:
-            try {
-                waiter.drawWait(graphics, xoffs, yoffs, neww, newh);
-            }
-            catch (java.lang.OutOfMemoryError oome) {
-                // draw a white background overlaid with a red cross
-                graphics.setColor(Color.white);
-                graphics.fillRect(1, 1, w - 2, h - 2);
-                graphics.setColor(Color.red);
-                graphics.drawRect(0, 0, w - 1, h - 1);
-                graphics.drawLine(0, 0, w, h);
-                graphics.drawLine(0, h, w, 0);
-            }
-        }
-        graphics.dispose();
-        return rImage;
-    }
-
     /**
      * The green &gt; symbol for act.
      * Currently, can't be used in a menuItem as JavaFX doesn't deal
