@@ -1,4 +1,4 @@
-Intra-VM Design
+Inter-VM Design
 ===============
 This document describes how various cross-VM activities take place in Greenfoot, such as dragging
 actors in the world display, right-clicking on them, starting the simulation, drawing the world,
@@ -6,14 +6,18 @@ sending keyboard and mouse events and so on.  This code is necessarily split in 
 source (since sender and receiver will always be in different classes in different VMs), so this
 document serves as a way to document per functionality in one place.
 
+Most of the implementation of the inter-VM communication can be found in the following two
+classes:
+
+ - greenfoot.vmcomm.VMCommsMain  (main VM side)
+ - greenfoot.vmcomm.VMCommsSimulation   ("debug" VM side)
+
 
 Types of cross-VM communication
 ===============================
 The server VM and debug VM are connected via the Java Debug Interface (JDI) and share a memory
-buffer.  The shared memory buffer is fast and good for transferring a lot of byte-level data
-synchronously (i.e. when both VMs are free and ready to communicate), but JDI is useful where
-more complex values (e.g. object references) need to be transferred or asynchronous communication
-may be needed.
+buffer.  The shared memory buffer is fast and good for transferring a lot of byte-level data, but
+JDI is useful where more complex values (e.g. object references) need to be transferred.
 
 There are two main ways for the server VM to communicate to the debug VM:
  - Inserting some commands into the shared memory buffer
@@ -114,6 +118,7 @@ communication of the new position is done via a shared memory command.
 The third aspect is stopping the drag.  This happens when the mouse is released on the server VM.
 This communication is also done via a shared memory command.
 
+
 setWorld
 --------
 
@@ -124,6 +129,7 @@ and passed to GreenfootRecorder, which needs to know it for spotting method call
 (as opposed to actors).
 
 (Shared memory can't be used here because we need the reference of the world object)
+
 
 Greenfoot.ask
 -------------
@@ -136,4 +142,4 @@ to the server VM, and we don't have a command list+ack from debug to server VM l
 opposite direction.  So we just include the request in every frame from the debug VM until it
 is answered, using an ask ID to identify ask requests so that the server VM can tell if it's
 a new request or a stale request.  The answer is sent as a command from server VM to debug VM,
-which will get acknowledged as usual. 
+which will get acknowledged as usual.
