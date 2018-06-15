@@ -157,16 +157,15 @@ the auto-generated application menu. This version is distributed under the terms
 the BSD license as found in the "nsmenufx-BSD.txt" file.
 
 
-RichTextFX (2-clause BSD license)
----------------------------------
+RichTextFX (GPLv2 with classpath exception, and 2-clause BSD licenses)
+----------------------------------------------------------------------
 "richtextfx-fat-0.9.0.jar" is the RichTextFX library (https://github.com/TomasMikula/RichTextFX)
-and its dependencies, which all have the option to be licensed under the BSD 2-clause
-license (see the BSD-2clause.txt file), with the following copyrights:
-ReactFX: Copyright (c) 2013-2014, Tomas Mikula
-UndoFX: Copyright (c) 2014, Tomas Mikula
-Flowless: Copyright (c) 2014, TomasMikula
-WellBehavedFX: Copyright (c) 2014, TomasMikula
-RichTextFX: Copyright (c) 2013-2017, Tomas Mikula and contributors
+and its dependencies. RichTextFX itself is dual licensed and is used in BlueJ under the GPLv2
+with classpath exception (the license of BlueJ itself). The dependencies are under a BSD 2-clause
+license, and include:
+
+ReactFX: license found in the "ReactFX-BSD.txt" file;
+UndoFX, Flowless, and WellBehavedFX: license found in the "TomasMikula-BSD.txt" file.
 
 
 Roboto Mono fonts (Apache License version 2.0)
