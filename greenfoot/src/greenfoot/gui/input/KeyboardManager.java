@@ -26,14 +26,9 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.awt.Toolkit;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
-import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -76,14 +71,15 @@ public class KeyboardManager
      * Clear the latched state of keys which were down, but are no longer
      * down.
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.Simulation)
     public synchronized void clearLatchedKeys()
     {
-        for (KeyCode keyCode : KeyCode.values())
+        for (Iterator<String> i = keyLatched.iterator(); i.hasNext(); )
         {
+            String keyCode = i.next();
             if (!keyDown.contains(keyCode))
             {
-                keyLatched.remove(keyCode);
+                i.remove();
             }
         }
     }
@@ -223,10 +219,16 @@ public class KeyboardManager
         // Handle the keys where the Greenfoot name doesn't line up with the FX KeyCode.getName():
         switch (keycode)
         {
-            case ESCAPE: return "escape";
-            case BACK_SPACE: return "backspace";
-            case QUOTE: return "\'";
-            case CONTROL: return "control";
+            case ESCAPE:
+                return "escape";
+            case BACK_SPACE:
+                return "backspace";
+            case QUOTE:
+                return "\'";
+            case CONTROL:
+                return "control";
+            default:
+                break;
         }
         // By default, use the key text lower-cased if present:
         if (!keyText.isEmpty())
