@@ -194,8 +194,8 @@ primary BlueJ license).
 
 ---
 
-The greenfoot.util.ShadowRenderer and greenfoot.util.GraphicsUtilities classes contain code
-originally written by Romain Guy, distributed under the following license:
+The greenfoot.util.GraphicsUtilities classes contain code originally written by Romain Guy,
+distributed under the following license:
 
 --- begin ---
 This product includes software developed by Romain Guy:

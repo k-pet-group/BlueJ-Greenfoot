@@ -29,9 +29,7 @@ import greenfoot.UserInfo;
 import greenfoot.core.ImageCache;
 import greenfoot.platforms.GreenfootUtilDelegate;
 
-import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
@@ -491,18 +489,6 @@ public class GreenfootUtil
             return false;
         }
         return ! Modifier.isAbstract(cls.getModifiers());
-    }
-    
-    /**
-     * Creates a new image which is a copy of the original with a drop shadow added.
-     */
-    public static BufferedImage createDragShadow(BufferedImage image)
-    {
-        BufferedImage dragImage = ShadowRenderer.createDropShadow(image, 3, 0.3f, Color.BLACK);
-        Graphics2D g2 = dragImage.createGraphics();
-        g2.drawImage(image, 0, 0, null);
-        g2.dispose();
-        return dragImage;
     }
     
     /**
