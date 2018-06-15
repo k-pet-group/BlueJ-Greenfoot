@@ -137,9 +137,7 @@ public class KeyboardManager
     {
         String keyName = getKeyName(keyCode, keyText);
         keyDown.remove(keyName);
-        if (keyName != null) {
-            lastKeyTyped = keyName;
-        }
+        lastKeyTyped = keyName;
     }
 
     /**
