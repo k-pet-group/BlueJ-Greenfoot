@@ -125,16 +125,6 @@ Git support. It is distributed under the terms of the Eclipse Distribution Licen
 as found in the "EDL-v1.0.txt" file.
 
 
-JNA (Apache License version 2.0)
---------------------------------
-"jna-4.2.0.jar" and "jna-platform-4.2.0" are part of the Java Native Access library
-(JNA; https://github.com/java-native-access/jna). This library is used by BlueJ directly
-and also by SVNKit (which is in turn used by BlueJ).
-The copyright holder allows distribution of JNA under a choice of two licenses.
-In BlueJ it is distributed under the terms of the Apache License version 2.0, as found
-in the "Apache-License-2.0.txt" file.
-
-
 JSch Java Secure Channel (BSD-style license)
 --------------------------------------------------
 "jsch-0.1.53.jar" provides a pure java implementation of SSH2 for JGit library, 
@@ -283,8 +273,6 @@ httpclient-4.1.1.jar                     Apache License v2.0
 httpcore-4.1.jar                         Apache License v2.0
 httpmime-4.1.1.jar                       Apache License v2.0
 javassist-3.18.0.jar                     Apache License v2.0
-jna-4.2.0.jar                            Apache License v2.0
-jna-platform-4.2.0.jar                   Apache License v2.0
 jsch-0.1.53.jar                          BSD License
 junit-4.11.jar                           Common Public License v1.0
 nsmenufx-2.1.4.jar                       BSD license

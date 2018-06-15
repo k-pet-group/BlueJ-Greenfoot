@@ -143,8 +143,6 @@ Alternatively:
        - httpcore-4.1.jar
        - httpmime-4.1.1.jar
        - javassist-3.18.0.jar
-       - jna-4.2.0.jar
-       - jna-platform-4.2.0.jar
        - jsch-0.1.53
        - junit-4.11.jar
        - nsmenufx-2.1.4.jar

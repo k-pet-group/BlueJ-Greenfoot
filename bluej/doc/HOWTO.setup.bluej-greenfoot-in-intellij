@@ -65,12 +65,7 @@ Modules (in order):
        Click the "+" and select Library and select "bluej-lib".
 
 After adding these modules, try compiling (Build menu -> Build Project).  It should be successful.
-Then to set up Greenfoot, add these two further modules:
-
-    "greenfoot-native" module.  Content root and module file location: bjgf/greenfoot/native.
-       It should automatically tag src (which is really bjgf/greenfoot/native/src) as a source directory.
-       Under Dependencies, click "+" and select "JARs or Directories" then select bjgf/bluej/lib/jna-4.2.0.jar
-       and bjgf/bluej/lib/jna-platform-4.2.0.jar
+Then to set up Greenfoot, add this additional module:
 
     "greenfoot" module.  Content root and module file location: bjgf/greenfoot.
        It should automatically tag src (which is really bjgf/greenfoot/src) as a source directory.
@@ -80,7 +75,7 @@ Then to set up Greenfoot, add these two further modules:
        "threadchecker", ""bluej-boot", "bluej" and "greenfoot-native".
        Click the "+" again and select Library and select "bluej-lib" and "greenfoot-lib".
 
-After adding these modules, try compiling again (Build menu -> Build Project).  It should be successful.
+After adding this modules, try compiling again (Build menu -> Build Project).  It should be successful.
 
 In Project tab on left-hand side (show by hovering over very bottom-left icon in window, then clicking Project),
   find bluej/build.xml.  Right-click on it and select "Add as Ant build file" (near bottom).
