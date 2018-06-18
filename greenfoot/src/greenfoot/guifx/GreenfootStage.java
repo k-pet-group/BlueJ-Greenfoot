@@ -568,7 +568,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         {
             debugHandler.getVmComms().instantiateWorld(currentWorld.getQualifiedName());
         }
-        stateProperty.set(State.PAUSED);
+        stateProperty.set(State.NO_WORLD);
         debugHandler.simulationThreadResumeOnResetClick();
     }
 
