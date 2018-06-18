@@ -47,11 +47,7 @@ public class ReparseRunner implements FXPlatformRunnable
     public ReparseRunner(MoeEditor editor)
     {
         this.editor = editor;
-        if (Config.isRaspberryPi()){
-            this.procTime = 150; //allow more time for processing on the Raspberry pi.
-        } else{
-            this.procTime = 15;
-        }
+        this.procTime = 15;
     }
     
     public void run()
