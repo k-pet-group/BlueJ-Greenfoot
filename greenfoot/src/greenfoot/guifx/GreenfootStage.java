@@ -1702,7 +1702,6 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     @Override
     public void endCompile(CompileInputFile[] sources, boolean succesful, CompileType type, int compilationSequence)
     {
-        stateProperty.set(State.PAUSED);
         // We only create the world if the window is focused, otherwise
         // we let it remain greyed out:
         if (isFocused())
