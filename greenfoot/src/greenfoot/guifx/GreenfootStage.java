@@ -1723,8 +1723,9 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     public void simulationPaused()
     {
         Platform.runLater(() -> {
-            // We can see this message when closing a project, in which case we want to ignore it:
-            if (project != null)
+            // We can see this message when closing a project, or when the world has been removed,
+            // in which case we want to ignore it:
+            if (project != null && stateProperty.get() != State.NO_WORLD)
             {
                 stateProperty.set(State.PAUSED);
             }
