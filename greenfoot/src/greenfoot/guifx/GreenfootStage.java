@@ -371,7 +371,14 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             if (focused && project != null)
             {
                 DataCollector.recordGreenfootEvent(project, GreenfootInterfaceEvent.WINDOW_ACTIVATED);
-                if (worldDisplay.isGreyedOut() && stateProperty.get() != State.UNCOMPILED && !worldDisplay.isAsking())
+                // If any classes are uncompiled, compile-all.  If all compiled, may need a reset:
+                if (project.getUnnamedPackage().getClassTargets().stream()
+                        .anyMatch(ct -> !ct.isCompiled()))
+                {
+                    project.scheduleCompilation(true, CompileReason.USER,
+                        CompileType.EXPLICIT_USER_COMPILE, project.getUnnamedPackage());
+                }
+                else if (worldDisplay.isGreyedOut() && !worldDisplay.isAsking())
                 {
                     doReset();
                 }
