@@ -16,8 +16,8 @@ Contents:
 1. COPYRIGHT NOTICES
 ====================
 
-Licenses of third-party software used in BlueJ require the following notices be present in
-the BlueJ documentation:
+Licenses of third-party software used in Greenfoot require the following notices be present in
+the Greenfoot documentation:
 
 
 Apache HttpComponents Client
@@ -63,7 +63,7 @@ license can be found in the "Apache-License-2.0.txt" file.
 Apache HttpComponents library (Apache License version 2.0)
 ----------------------------------------------------------
 Various components of the Apache HttpComponents library (https://hc.apache.org/) are
-used by BlueJ:
+used by Greenfoot:
   httpclient-4.1.1.jar
   httpcore-4.1.1.jar
   httpmime-4.1.1.jar 
@@ -74,8 +74,9 @@ license can be found in the "Apache-License-2.0.txt" file.
 Diffutils (Apache License version 2.0)
 --------------------------------------
 "diffutils-1.2.1.jar" is from the Diff Utils library, for computing diffs (deltas) between
-text files. It is used by BlueJ for (opt-in) data collection purposes. More information on
-this library can be found on the Google Code page for the project:
+text files. It is used by BlueJ for (opt-in) data collection purposes, which is not normally
+active for Greenfoot. More information on this library can be found on the Google Code page
+for the project:
 
 https://code.google.com/p/java-diff-utils/
 
@@ -86,7 +87,7 @@ The library is distributed under the Apache License version 2.0, as found in the
 Guava - Google Core library (Apache License version 2.0)
 --------------------------------------------------------
 "guava-17.0.jar" is from the Google Core libraries for Java
-(https://github.com/google/guava) which BlueJ uses.
+(https://github.com/google/guava) which Greenfoot uses.
 It is distributed under the Apache License version 2.0, as found in the
 "Apache-License-2.0.txt" file.
 
@@ -103,7 +104,7 @@ It is available under the "3 clause BSD" license as found in the
 Javassist library (Apache License version 2.0)
 ----------------------------------------------
 "javassist-3.18.0" is the Javassist library (http://jboss-javassist.github.io/javassist/),
-a bytecode engineering library used by BlueJ.
+a bytecode engineering library used by Greenfoot.
 Javassist is Copyright (C) 1999-2013, Shigeru Chiba.
 The copyright holder allows distribution of Javassist under a choice of several licenses.
 In Greenfoot it is distributed under the terms of the Apache License version 2.0, as found
@@ -120,7 +121,7 @@ It is distributed under the terms of the LGPL v2.1, as found in the
 JUnit (Common Public License v1.0)
 ----------------------------------
 "junit-4.11.jar" is part of the JUnit unit testing library (http://junit.org/) which is
-used by BlueJ. It is distributed under the terms of the Common Public License
+used by Greenfoot. It is distributed under the terms of the Common Public License
 version 1.0, as found in the "CPL-v1.0.txt" file.
 
 
@@ -140,12 +141,37 @@ distributed under the terms of the Apache License version 2.0, as found in the
 "Apache-License-2.0.txt" file.
 
 
+RichTextFX (GPLv2 with classpath exception, and 2-clause BSD licenses)
+----------------------------------------------------------------------
+"richtextfx-fat-0.9.0.jar" is the RichTextFX library (https://github.com/TomasMikula/RichTextFX)
+and its dependencies. RichTextFX itself is dual licensed and is used in BlueJ under the GPLv2
+with classpath exception (the license of Greenfoot itself). The dependencies are under a BSD
+2-clause license, and include:
+
+ReactFX: license found in the "ReactFX-BSD.txt" file;
+UndoFX, Flowless, and WellBehavedFX: license found in the "TomasMikula-BSD.txt" file.
+
+
+Roboto Mono fonts (Apache License version 2.0)
+----------------------------------------------
+"RobotoMono-{Bold,BoldItalic,Italic,Regular}.ttf", the Roboto Mono font, is used in the Java
+editor. It is distributed under the terms of the Apache License version 2.0, as found in the
+"Apache-License-2.0.txt" file.
+
+
 Sequence Library (3-clause BSD license)
 ---------------------------------------
 "sequence-library-1.0.3.jar" is part of a sequence library, available in source form
 from the subversion repository at http://svn.svnkit.com/repos/3rdparty (under the path
 de.regnis.q.sequence). This version is distributed under the terms of the BSD license
 as found in the "sequence-library-BSD.txt" file.
+
+
+Source Sans Pro fonts (SIL Open Font License version 1.1)
+---------------------------------------------------------
+"SourceSansPro-{Bold,BoldItalic,Italic,Regular}.ttf", the Source Sans Pro font, is used
+in the Stride editor. It is distributed under the terms of the SIL Open Font License
+as found in the "SIL-OFL-1.1.txt" file.
 
 
 XOM XML Object Modeller library (Lesser GNU Public License v2.1)
@@ -194,8 +220,8 @@ primary BlueJ license).
 
 ---
 
-The greenfoot.util.ShadowRenderer and greenfoot.util.GraphicsUtilities classes contain code
-originally written by Romain Guy, distributed under the following license:
+The greenfoot.util.GraphicsUtilities classes contain code originally written by Romain Guy,
+distributed under the following license:
 
 --- begin ---
 This product includes software developed by Romain Guy:
@@ -254,6 +280,7 @@ to the terms of these licenses.
 
 5. SUMMARY OF THIRD-PARTY JAR FILES AND LICENSES
 
+AppleJavaExtensions.jar                  BSD-like license
 commons-logging-api-1.1.2.jar            Apache License v2.0
 commons-vfs2-2.0.jar                     Apache License v2.0
 diffutils-1.2.1.jar                      Apache License v2.0
@@ -266,6 +293,8 @@ javassist-3.18.0.jar                     Apache License v2.0
 jl1.0.1.jar                              Lesser GPL v2.1
 junit-4.11.jar                           Common Public License v1.0
 opencsv-2.3.jar                          Apache License v2.0
+nsmenufx-2.1.4.jar                       BSD license
+richtextfx-fat-0.9.0.jar                 BSD License
 sequence-library-1.0.3.jar               BSD License
 xom-1.2.9.jar                            Lesser GPL v2.1
 

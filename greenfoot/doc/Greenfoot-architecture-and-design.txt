@@ -37,17 +37,19 @@ BlueJ will load Greenfoot as an extension - the class GreenfootExtension is load
 and the startup method is called. At this point Greenfoot registers an event listener
 (using BlueJ's extensions mechanism) to be notified when BlueJ has finished starting up.
 
-When BlueJ has completed normal startup, it calls the bluejReady(...) method, which creates
-a GreenfootLauncherBlueJVM instance.
+When BlueJ has completed normal startup, it calls the initialOpenComplete() method of the
+greenfoot.guifx.GreenfootGuiHandler class, which proceeds to create the user interface
+(GreenfootStage).
 
 So far, everything described as occurred on the main VM.
 
-When the ProjectManager is notified that a project has been opened, it registers a listener
-on the debugger for the project (GreenfootDebugHandler) which will be notified when the
-secondary VM has started (processDebuggerEvent(...)) and which will launch the secondary
-VM side of Greenfoot using BlueJ's invocation mechanism. Specifically it creates an instance
-of GreenfootLauncherDebugVM in the debug VM, passing various important paths (including
-the path of the shared memory file for communication) as arguments.
+When a scenario is opened (including the case where Greenfoot is started and the previous
+scenario is re-opened automatically), the ProjectManager (greenfoot.core.ProjectManager) is
+notified; it registers a listener on the debugger for the project (GreenfootDebugHandler) which
+will be notified when the secondary VM has started (processDebuggerEvent(...)) and which will
+launch the secondary VM side of Greenfoot using BlueJ's invocation mechanism. Specifically it
+creates an instance of GreenfootLauncherDebugVM in the debug VM, passing various important paths
+(including the path of the shared memory file for communication) as arguments.
 
 At this point, the debug VM is initialised, and startup is complete.
 

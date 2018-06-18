@@ -95,7 +95,6 @@
 		<include name="*" />
 		<!-- exclude licenses only applicable to files not distributed with Greenfoot --> 
 		<exclude name="antlr-BSD.txt" />
-		<exclude name="CDDL-v1.0.txt" />
 		<exclude name="EDL-v1.0.txt" />
 		<exclude name="jsch-BSD.txt" />
 		<exclude name="slf4j-MIT.txt" />

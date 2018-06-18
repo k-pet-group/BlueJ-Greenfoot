@@ -125,16 +125,6 @@ Git support. It is distributed under the terms of the Eclipse Distribution Licen
 as found in the "EDL-v1.0.txt" file.
 
 
-JNA (Apache License version 2.0)
---------------------------------
-"jna-4.2.0.jar" and "jna-platform-4.2.0" are part of the Java Native Access library
-(JNA; https://github.com/java-native-access/jna). This library is used by BlueJ directly
-and also by SVNKit (which is in turn used by BlueJ).
-The copyright holder allows distribution of JNA under a choice of two licenses.
-In BlueJ it is distributed under the terms of the Apache License version 2.0, as found
-in the "Apache-License-2.0.txt" file.
-
-
 JSch Java Secure Channel (BSD-style license)
 --------------------------------------------------
 "jsch-0.1.53.jar" provides a pure java implementation of SSH2 for JGit library, 
@@ -157,16 +147,15 @@ the auto-generated application menu. This version is distributed under the terms
 the BSD license as found in the "nsmenufx-BSD.txt" file.
 
 
-RichTextFX (2-clause BSD license)
----------------------------------
+RichTextFX (GPLv2 with classpath exception, and 2-clause BSD licenses)
+----------------------------------------------------------------------
 "richtextfx-fat-0.9.0.jar" is the RichTextFX library (https://github.com/TomasMikula/RichTextFX)
-and its dependencies, which all have the option to be licensed under the BSD 2-clause
-license (see the BSD-2clause.txt file), with the following copyrights:
-ReactFX: Copyright (c) 2013-2014, Tomas Mikula
-UndoFX: Copyright (c) 2014, Tomas Mikula
-Flowless: Copyright (c) 2014, TomasMikula
-WellBehavedFX: Copyright (c) 2014, TomasMikula
-RichTextFX: Copyright (c) 2013-2017, Tomas Mikula and contributors
+and its dependencies. RichTextFX itself is dual licensed and is used in BlueJ under the GPLv2
+with classpath exception (the license of BlueJ itself). The dependencies are under a BSD 2-clause
+license, and include:
+
+ReactFX: license found in the "ReactFX-BSD.txt" file;
+UndoFX, Flowless, and WellBehavedFX: license found in the "TomasMikula-BSD.txt" file.
 
 
 Roboto Mono fonts (Apache License version 2.0)
@@ -284,8 +273,6 @@ httpclient-4.1.1.jar                     Apache License v2.0
 httpcore-4.1.jar                         Apache License v2.0
 httpmime-4.1.1.jar                       Apache License v2.0
 javassist-3.18.0.jar                     Apache License v2.0
-jna-4.2.0.jar                            Apache License v2.0
-jna-platform-4.2.0.jar                   Apache License v2.0
 jsch-0.1.53.jar                          BSD License
 junit-4.11.jar                           Common Public License v1.0
 nsmenufx-2.1.4.jar                       BSD license

@@ -95,8 +95,6 @@ public class Boot
         JLAYER_MP3_JAR, "opencsv-2.3.jar", "xom-1.2.9.jar",
         "lang-stride.jar",
         "nsmenufx-2.1.4.jar", "richtextfx-fat-0.9.0.jar",
-        // We don't add JNA to our JARs.  See GreenfootUtil class for more details
-        //"jna-4.2.0.jar", "jna-platform-4.2.0.jar",
         "guava-17.0.jar", "javassist-3.18.0.jar", "commons-vfs2-2.0.jar",
         "httpclient-4.1.1.jar", "httpcore-4.1.jar", "httpmime-4.1.1.jar"};
     private static final int greenfootUserBuildJars = 4;
