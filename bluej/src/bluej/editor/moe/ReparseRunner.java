@@ -50,7 +50,7 @@ public class ReparseRunner implements FXPlatformRunnable
         if (Config.isRaspberryPi()){
             this.procTime = 150; //allow more time for processing on the Raspberry pi.
         } else{
-            this.procTime = 5;
+            this.procTime = 15;
         }
     }
     
