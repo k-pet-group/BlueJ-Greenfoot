@@ -99,7 +99,13 @@ public class GreenfootRecorder
         String root = actor.getClassName().replace("." , "").replace("$", "");
         root = root.substring(0, 1).toLowerCase() + root.substring(1);
         String name = root;
-        for (int i = 1; objectNames.values().contains(name); i++)
+        // The first item has no number (e.g. crab), the next one is crab2, then crab3, etc.  There is no crab1.
+        // General note: it's important that this naming mechanism remains consistent across Greenfoot versions,
+        // because we rely on the names being the same sequence to do save-the-world updates, i.e. if someone
+        // has got crab, crab2, crab3, and we save the world again, it's only by naming the objects using
+        // the same algorithm that we know the next one should be crab4 (the alternative of introspecting the
+        // prepare method to see the existing names would be too intricate -- this way is simple best-effort).
+        for (int i = 2; objectNames.values().contains(name); i++)
         {
             name = root + i;
         }
