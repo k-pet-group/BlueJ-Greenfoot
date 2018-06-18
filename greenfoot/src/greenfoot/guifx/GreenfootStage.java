@@ -185,6 +185,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     
     private final ObjectProperty<State> stateProperty = new SimpleObjectProperty<>(State.NO_PROJECT);
     private boolean atBreakpoint = false;
+    private boolean simulationRunning = false;
 
     // Details for pick requests that we have sent to the debug VM:
     private static enum PickType
@@ -561,7 +562,6 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     @OnThread(Tag.FXPlatform)
     public void doReset()
     {
-        controlPanel.disableControlPanelButtons(true);
         debugHandler.getVmComms().discardWorld();
         if (currentWorld != null && currentWorld.isCompiled()
                 && hasNoArgConstructor(currentWorld.getTypeReflective()))
@@ -1447,7 +1447,10 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         worldDisplay.setImage(worldImg);
         worldInstantiationError = false;
         worldVisible.set(true);
-        controlPanel.disableControlPanelButtons(false);
+        if (stateProperty.get() == State.NO_WORLD)
+        {
+            stateProperty.set(simulationRunning ? State.RUNNING : State.PAUSED);
+        }
     }
     
     /**
@@ -1715,7 +1718,14 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     @OnThread(Tag.Any)
     public void simulationStartedRunning()
     {
-        Platform.runLater(() -> stateProperty.set(State.RUNNING));
+        Platform.runLater(() -> {
+            simulationRunning = true;
+            // Set the state now only if we have received the world already:
+            if (stateProperty.get() != State.NO_WORLD)
+            {
+                stateProperty.set(State.RUNNING);
+            }
+        });
     }
 
     @Override
@@ -1723,6 +1733,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     public void simulationPaused()
     {
         Platform.runLater(() -> {
+            simulationRunning = false;
             // We can see this message when closing a project, or when the world has been removed,
             // in which case we want to ignore it:
             if (project != null && stateProperty.get() != State.NO_WORLD)
