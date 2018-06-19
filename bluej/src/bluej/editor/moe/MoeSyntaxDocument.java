@@ -590,6 +590,12 @@ public class MoeSyntaxDocument
      */
     public void applyPendingScopeBackgrounds()
     {
+        // Don't try to apply styles if parser is not enabled:
+        if (parsedNode == null)
+        {
+            return;
+        }
+
         // Prevent re-entry, which can it seems can occur when applying
         // token highlight styles:
         if (applyingScopeBackgrounds)
