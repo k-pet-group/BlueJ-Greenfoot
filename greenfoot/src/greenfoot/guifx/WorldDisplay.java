@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2017  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2017,2018  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,7 +27,6 @@ import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -151,5 +150,14 @@ public class WorldDisplay extends StackPane
     public boolean isGreyedOut()
     {
         return imageView.getEffect() != null;
+    }
+
+    /**
+     * Returns a rendered image which illustrates a snapshot of the world display.
+     * @return the rendered image
+     */
+    public Image getSnapshot()
+    {
+        return imageView.snapshot(null, null);
     }
 }
