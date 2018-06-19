@@ -1059,16 +1059,12 @@ public class FrameEditor implements Editor
         }
     }
 
-    @OnThread(Tag.FX)
     public void codeModified()
     {
-        JavaFXUtil.runNowOrLater(() ->
-        {
-            changedSinceLastSave = true;
-            isCompiled = false;
-            watcher.modificationEvent(this);
-            watcher.scheduleCompilation(false, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
-        });
+        changedSinceLastSave = true;
+        isCompiled = false;
+        watcher.modificationEvent(this);
+        watcher.scheduleCompilation(false, CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
     }
     
     @Override
@@ -1233,6 +1229,7 @@ public class FrameEditor implements Editor
             createPanel(false, false);
         }
         panel.insertAppendMethod(method, after);
+        codeModified();
     }
 
     @Override
@@ -1243,6 +1240,7 @@ public class FrameEditor implements Editor
             createPanel(false, false);
         }
         panel.insertMethodCallInConstructor(methodName, after);
+        codeModified();
     }
 
     @Override
@@ -1253,6 +1251,7 @@ public class FrameEditor implements Editor
             createPanel(false, false);
         }
         panel.removeImports(importTargets);
+        codeModified();
     }
 
     @OnThread(Tag.FX)
