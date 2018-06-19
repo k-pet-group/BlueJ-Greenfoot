@@ -3517,12 +3517,13 @@ public final class MoeEditor extends ScopeColorsBorderPane
                     text += codeElement.toJavaSource().toTemporaryJavaCodeString();
                 }
                 appendTextToNode(existingMethodNode, text);
-                after.accept(true);
+                after.accept(false);
                 return;
             }
             
             //Make a new method:
             appendTextToNode(classNode, method.toJavaSource().toTemporaryJavaCodeString());
+            after.accept(true);
         }
         after.accept(false);
     }

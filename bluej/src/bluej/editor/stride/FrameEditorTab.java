@@ -2183,13 +2183,13 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
                 // Check if it already exists
                 if (normalMethodFrame.getName().equals(method.getName())) {
                     insertMethodContentsIntoMethodFrame(method, normalMethodFrame);
-                    after.accept(true);
+                    after.accept(false);
                     return;
                 }
             }
             // method not found, create it
             insertMethodElementAtTheEnd(method);
-            after.accept(false);
+            after.accept(true);
         });
     }
     
