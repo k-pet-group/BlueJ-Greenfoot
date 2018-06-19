@@ -71,7 +71,10 @@ public interface WorldHandlerDelegate
      */
     public String ask(String prompt);
 
-    public default void initialisingWorld() {};
+    /**
+     * A world of the given class name is now being initialised.
+     */
+    public default void initialisingWorld(String className) {};
 
     /**
      * Repaint the world.
@@ -85,4 +88,9 @@ public interface WorldHandlerDelegate
      * that was not caught by the user code.
      */
     void notifyStoppedWithError();
+
+    /**
+     * The world construction has completed.
+     */
+    default void finishedInitialisingWorld() {};
 }

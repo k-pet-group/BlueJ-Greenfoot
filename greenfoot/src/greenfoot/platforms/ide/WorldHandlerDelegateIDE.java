@@ -87,10 +87,17 @@ public class WorldHandlerDelegateIDE
     }
 
     @Override
-    public void initialisingWorld()
+    public void initialisingWorld(String className)
     {
         worldInitialising = true;
+        mostRecentlyInstantiatedWorldClassName = className;
         actorsToName.clear();
+    }
+
+    @Override
+    public void finishedInitialisingWorld()
+    {
+        worldInitialising = false;
     }
 
     @Override
