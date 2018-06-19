@@ -521,6 +521,11 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                     message = Config.getString("centrePanel.message.createWorldClass");
                 }
             }
+            else if (!currentWorld.isCompiled())
+            {
+                message = Config.getString("centrePanel.message.compile1")
+                        + " " + Config.getString("centrePanel.message.compile2");
+            }
             else
             {
                 message = "";
