@@ -1599,13 +1599,14 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                         contextMenu.setOnHidden(e -> {
                             contextMenu = null;
                         });
-                        ObjectWrapper.createMethodMenuItems(contextMenu.getItems(), project.loadClass(world.getClassName()), new RecordInvoke(world), "", true);
+                        ObjectWrapper.createMethodMenuItems(contextMenu.getItems(),
+                                project.loadClass(world.getClassName()), new RecordInvoke(world), "", true);
                         contextMenu.getItems().add(makeInspectMenuItem(world));
 
                         MenuItem saveTheWorld = new MenuItem(Config.getString("save.world"));
                         JavaFXUtil.addStyleClass(saveTheWorld, MENU_STYLE_INBUILT);
                         saveTheWorld.setOnAction(e -> {
-                            saveTheWorldRecorder.writeCode(className -> ((ClassTarget) project.getUnnamedPackage().getTarget(className)).getEditor());
+                            saveTheWorldRecorder.writeCode(className -> ((ClassTarget) target).getEditor());
                         });
                         contextMenu.getItems().add(saveTheWorld);
 
