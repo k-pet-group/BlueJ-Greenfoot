@@ -324,7 +324,7 @@ public class WorldHandler
      */
     public void setInitialisingWorld(World world)
     {
-        handlerDelegate.initialisingWorld();
+        handlerDelegate.initialisingWorld(world.getClass().getName());
     }
 
     /** 
@@ -765,5 +765,13 @@ public class WorldHandler
         {
             keyboardManager.focusLost();
         }
+    }
+
+    /**
+     * Notify that the world construction has completed.
+     */
+    public void finishedInitialisingWorld()
+    {
+        handlerDelegate.finishedInitialisingWorld();
     }
 }
