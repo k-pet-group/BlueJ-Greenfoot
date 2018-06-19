@@ -64,8 +64,8 @@
     -fx-background-color: transparent;
 }
 .export-tab:selected {
-    -fx-border-color: export-background;
-    -fx-background-color: export-background;
+    -fx-background-color: export-background !important;
+    -fx-background-insets: -1 !important;
 }
 .export-tab-content {
     -fx-padding: 10px;
