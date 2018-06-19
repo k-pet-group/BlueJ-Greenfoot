@@ -2177,7 +2177,6 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     @OnThread(Tag.FXPlatform)
     public void insertAppendMethod(NormalMethodElement method, FXPlatformConsumer<Boolean> after)
     {
-        // TODO maybe we have to insert it into the element not the frames.
         withTopLevelFrame(topLevelFrame -> {
             for (NormalMethodFrame normalMethodFrame : (List<NormalMethodFrame>) topLevelFrame.getMethods()) {
                 // Check if it already exists
