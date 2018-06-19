@@ -64,7 +64,9 @@ public abstract class ExportTab extends Tab
     {
         setClosable(false);
         this.scenarioInfo = scenarioInfo;
-        setGraphic(new ImageView(new Image(getClass().getClassLoader().getResourceAsStream(iconName))));
+        ImageView imageView = new ImageView(new Image(getClass().getClassLoader().getResourceAsStream(iconName)));
+        imageView.setPreserveRatio(true);
+        setGraphic(imageView);
 
         lockScenario.setSelected(true);
         lockScenario.setTooltip(new Tooltip(Config.getString("export.lock.description")));
