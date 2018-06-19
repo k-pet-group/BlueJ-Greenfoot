@@ -28,7 +28,6 @@ import greenfoot.core.ExportedProjectProperties;
 import greenfoot.core.Simulation;
 import greenfoot.core.WorldHandler;
 import greenfoot.event.SimulationListener;
-import greenfoot.guifx.AskPaneFX;
 import greenfoot.guifx.ControlPanel;
 import greenfoot.guifx.ControlPanel.ControlPanelListener;
 import greenfoot.guifx.GreenfootStage.State;
@@ -50,7 +49,6 @@ import javafx.scene.layout.BorderPane;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.FileNotFoundException;
@@ -59,9 +57,7 @@ import java.io.InputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * This class can view and run a Greenfoot scenario. It is not possible to
@@ -72,12 +68,8 @@ import java.util.concurrent.atomic.AtomicReference;
 @OnThread(Tag.FXPlatform)
 public class GreenfootScenarioViewer extends BorderPane implements ControlPanelListener, SimulationListener
 {
-    private static String scenarioName;
-
-    private boolean showControls;
     private ExportedProjectProperties properties;
     private Simulation sim;
-    private AskPaneFX askPanel;
     private ControlPanel controls;
 
     @OnThread(Tag.Any)
@@ -372,7 +364,7 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
         else if (eventType == AsyncEvent.DISABLED)
         {
             Platform.runLater(() -> {
-                controls.updateState(State.UNCOMPILED, false);
+                controls.updateState(State.NO_WORLD, false);
             });
         }
         else if (eventType == AsyncEvent.CHANGED_SPEED)

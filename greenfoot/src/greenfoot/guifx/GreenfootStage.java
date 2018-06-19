@@ -48,7 +48,6 @@ import bluej.pkgmgr.PackageUI;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.ProjectUtils;
 import bluej.pkgmgr.target.ClassTarget;
-import bluej.pkgmgr.target.DependentTarget;
 import bluej.pkgmgr.target.ReadmeTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.prefmgr.PrefMgr;
@@ -181,11 +180,13 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
 
     public static enum State
     {
-        RUNNING, RUNNING_REQUESTED_PAUSE, PAUSED, PAUSED_REQUESTED_ACT_OR_RUN, UNCOMPILED, NO_PROJECT;
+        RUNNING, RUNNING_REQUESTED_PAUSE, PAUSED, PAUSED_REQUESTED_ACT_OR_RUN, NO_WORLD, NO_PROJECT;
     }
     
     private final ObjectProperty<State> stateProperty = new SimpleObjectProperty<>(State.NO_PROJECT);
     private boolean atBreakpoint = false;
+    private boolean simulationRunning = false;
+    private boolean waitingForDiscard = false;
 
     // Details for pick requests that we have sent to the debug VM:
     private static enum PickType
@@ -482,7 +483,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     private void updateBackgroundMessage()
     {
         final String message;
-        if (stateProperty.get() == State.UNCOMPILED && !classDiagram.hasUserWorld())
+        if (stateProperty.get() == State.NO_WORLD && !classDiagram.hasUserWorld())
         {
             // May be totally blank project (in which case state remains as UNCOMPILED),
             // hint to the user to create a world:
@@ -562,15 +563,26 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     @OnThread(Tag.FXPlatform)
     public void doReset()
     {
-        controlPanel.disableControlPanelButtons(true);
-        debugHandler.getVmComms().discardWorld();
+        discardWorld();
         if (currentWorld != null && currentWorld.isCompiled()
                 && hasNoArgConstructor(currentWorld.getTypeReflective()))
         {
             debugHandler.getVmComms().instantiateWorld(currentWorld.getQualifiedName());
         }
-        stateProperty.set(State.PAUSED);
         debugHandler.simulationThreadResumeOnResetClick();
+    }
+    
+    /**
+     * Discard the current world, if any, by issuing a command to the remote VM.
+     */
+    private void discardWorld()
+    {
+        if (stateProperty.get() != State.NO_WORLD)
+        {
+            debugHandler.getVmComms().discardWorld();
+            stateProperty.set(State.NO_WORLD);
+            waitingForDiscard = true;
+        }
     }
 
     /**
@@ -843,7 +855,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
      */
     private void doShare()
     {
-        if (worldDisplay.isGreyedOut() || stateProperty.get() == State.UNCOMPILED)
+        if (stateProperty.get() == State.NO_WORLD)
         {
             DialogManager.showErrorFX(this, "export-compile-not-compiled");
         }
@@ -1448,7 +1460,10 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         worldDisplay.setImage(worldImg);
         worldInstantiationError = false;
         worldVisible.set(true);
-        controlPanel.disableControlPanelButtons(false);
+        if (stateProperty.get() == State.NO_WORLD && ! waitingForDiscard)
+        {
+            stateProperty.set(simulationRunning ? State.RUNNING : State.PAUSED);
+        }
     }
     
     /**
@@ -1456,7 +1471,9 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
      */
     public void worldDiscarded()
     {
+        waitingForDiscard = false;
         worldDisplay.greyOutWorld();
+        stateProperty.set(State.NO_WORLD);
     }
     
     /**
@@ -1689,8 +1706,8 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type, int compilationSequence)
     {
         // Grey out the world display until compilation finishes:
+        discardWorld();
         worldDisplay.greyOutWorld();
-        stateProperty.set(State.UNCOMPILED);
         updateBackgroundMessage();
     }
 
@@ -1703,7 +1720,6 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     @Override
     public void endCompile(CompileInputFile[] sources, boolean succesful, CompileType type, int compilationSequence)
     {
-        stateProperty.set(State.PAUSED);
         // We only create the world if the window is focused, otherwise
         // we let it remain greyed out:
         if (isFocused())
@@ -1717,7 +1733,16 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     @OnThread(Tag.Any)
     public void simulationStartedRunning()
     {
-        Platform.runLater(() -> stateProperty.set(State.RUNNING));
+        Platform.runLater(() -> {
+            simulationRunning = true;
+            // If the world constructor calls Greenfoot.start() we can see the simulation start
+            // before we know whether world creation is successful. Therefore, set the state now
+            // only if we have received the world already:
+            if (stateProperty.get() != State.NO_WORLD)
+            {
+                stateProperty.set(State.RUNNING);
+            }
+        });
     }
 
     @Override
@@ -1725,8 +1750,10 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     public void simulationPaused()
     {
         Platform.runLater(() -> {
-            // We can see this message when closing a project, in which case we want to ignore it:
-            if (project != null)
+            simulationRunning = false;
+            // We can see this message when closing a project, or when the world has been removed,
+            // in which case we want to ignore it:
+            if (project != null && stateProperty.get() != State.NO_WORLD)
             {
                 stateProperty.set(State.PAUSED);
             }
@@ -1778,7 +1805,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             curDragRequest = -1;
             currentWorld = null;
             worldVisible.set(false);
-            stateProperty.set(State.UNCOMPILED);
+            stateProperty.set(State.NO_WORLD);
             // This will set up pendingCommands, ready for when
             // the new debug VM can process data:
             loadAndMirrorProperties();
@@ -2155,8 +2182,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
      */
     public void classModified()
     {
-        debugHandler.getVmComms().discardWorld();
-        stateProperty.set(State.UNCOMPILED);
+        discardWorld();
     }
 
     /**
