@@ -377,7 +377,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                         .anyMatch(ct -> !ct.isCompiled()))
                 {
                     project.scheduleCompilation(true, CompileReason.USER,
-                        CompileType.EXPLICIT_USER_COMPILE, project.getUnnamedPackage());
+                        CompileType.INDIRECT_USER_COMPILE, project.getUnnamedPackage());
                 }
                 else if (worldDisplay.isGreyedOut() && !worldDisplay.isAsking())
                 {

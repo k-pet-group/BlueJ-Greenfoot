@@ -47,6 +47,6 @@ public enum CompileType
 
     public boolean showEditorOnError()
     {
-        return this != ERROR_CHECK_ONLY;
+        return this == EXPLICIT_USER_COMPILE;
     }
 }
