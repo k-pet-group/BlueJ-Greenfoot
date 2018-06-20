@@ -107,26 +107,42 @@ public class ImageEditCanvas extends Canvas
         {
             Affine oldTx = graphics.getTransform();
 
+            final double canvasWidth = getWidth();
+            final double canvasHeight = getHeight();
+            final double imageWidth = image.getWidth();
+            final double imageHeight = image.getHeight();
+
+            // Make sure the image centers the canvas horizontally when it is narrower.
+            if (imageWidth * scaleFactor <= canvasWidth)
+            {
+                fitX();
+            }
+            // Make sure the image centers the canvas vertically when it is shorter.
+            if (imageHeight * scaleFactor <= canvasHeight)
+            {
+                fitY();
+            }
+
             // Snap if size fits
             double xSnapped = x;
             double ySnapped = y; 
             if (Math.abs(scaleFactor - minScaleFactor) < .0000001)
             {
-                double xs = (image.getWidth() / 2 + xSnapped) * scaleFactor;
-                double ys = (image.getHeight() / 2 + ySnapped) * scaleFactor;
+                double xs = (imageWidth / 2 + xSnapped) * scaleFactor;
+                double ys = (imageHeight / 2 + ySnapped) * scaleFactor;
                 if (Math.abs(xs) < snapThreshold && Math.abs(ys) < snapThreshold)
                 {
-                    xSnapped = -image.getWidth() / 2;
-                    ySnapped = -image.getHeight() / 2;
+                    xSnapped = -imageWidth / 2;
+                    ySnapped = -imageHeight / 2;
                 }
             }
 
             // Clear the rectangle before redrawing again to clear
             // any left over artifacts.
-            graphics.clearRect(0, 0, getWidth(), getHeight());
+            graphics.clearRect(0, 0, canvasWidth, canvasHeight);
 
             // Scale around center of canvas
-            graphics.translate(getWidth() / 2, getHeight() / 2);
+            graphics.translate(canvasWidth / 2, canvasHeight / 2);
             graphics.scale(scaleFactor, scaleFactor);
             graphics.translate(xSnapped, ySnapped);
 
@@ -140,10 +156,26 @@ public class ImageEditCanvas extends Canvas
      */
     public void fit()
     {
-        x = -image.getWidth() / 2;
-        y = -image.getHeight() / 2;
+        fitX();
+        fitY();
 
         setScale(minScaleFactor);
+    }
+
+    /**
+     * Move the image on X coordinates so that it centers the canvas horizontally.
+     */
+    private void fitX()
+    {
+        x = -image.getWidth() / 2;
+    }
+
+    /**
+     * Move the image on Y coordinates so that it centers the canvas vertically.
+     */
+    private void fitY()
+    {
+        y = -image.getHeight() / 2;
     }
 
     /**
