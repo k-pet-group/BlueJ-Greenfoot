@@ -45,11 +45,6 @@ public class ImageEditCanvas extends Canvas
     private double scaleFactor = 1;
     /** Minimum scale factor */
     private double minScaleFactor;
-    /**
-     * Threshold for which to snap to initial position (only if scale factor is
-     * the initial size)
-     */
-    private int snapThreshold = 7;
 
     /**
      * Create a new image canvas.
@@ -62,17 +57,6 @@ public class ImageEditCanvas extends Canvas
     {
         super(width, height);
         setImage(image);
-    }
-
-    /**
-     * Set the distance form which snapping should start. Only used when the
-     * image is scaled to the same size as the desired size.
-     *
-     * @param threshold The Snap threshold value.
-     */
-    public void setSnapThreshold(int threshold)
-    {
-        this.snapThreshold = threshold;
     }
 
     /**
@@ -122,6 +106,10 @@ public class ImageEditCanvas extends Canvas
             {
                 double xs = (imageWidth / 2 + xSnapped) * scaleFactor;
                 double ys = (imageHeight / 2 + ySnapped) * scaleFactor;
+
+                //Threshold for which to snap to initial position (only if scale
+                // factor is the initial size).
+                final int snapThreshold = 7;
                 if (Math.abs(xs) < snapThreshold && Math.abs(ys) < snapThreshold)
                 {
                     xSnapped = -imageWidth / 2;
@@ -195,26 +183,10 @@ public class ImageEditCanvas extends Canvas
      */
     public void fit()
     {
-        fitX();
-        fitY();
+        x = -image.getWidth() / 2;
+        y = -image.getHeight() / 2;
 
         setScale(minScaleFactor);
-    }
-
-    /**
-     * Move the image on X coordinates so that it centers the canvas horizontally.
-     */
-    private void fitX()
-    {
-        x = -image.getWidth() / 2;
-    }
-
-    /**
-     * Move the image on Y coordinates so that it centers the canvas vertically.
-     */
-    private void fitY()
-    {
-        y = -image.getHeight() / 2;
     }
 
     /**
@@ -259,7 +231,7 @@ public class ImageEditCanvas extends Canvas
      * Returns the minimum scaling that will be allowed. The minimum scaling is
      * usually set so that the scaled size of the image is not smaller than the
      * canvas size.
-     * 
+     *
      */
     public double getMinimumScale()
     {
