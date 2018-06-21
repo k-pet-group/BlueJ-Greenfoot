@@ -107,7 +107,7 @@ public class ImageEditCanvas extends Canvas
                 double xs = (imageWidth / 2 + xSnapped) * scaleFactor;
                 double ys = (imageHeight / 2 + ySnapped) * scaleFactor;
 
-                //Threshold for which to snap to initial position (only if scale
+                // Threshold for which to snap to initial position (only if scale
                 // factor is the initial size).
                 final int snapThreshold = 7;
                 if (Math.abs(xs) < snapThreshold && Math.abs(ys) < snapThreshold)
