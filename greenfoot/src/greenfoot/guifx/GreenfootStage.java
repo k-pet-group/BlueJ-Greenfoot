@@ -869,7 +869,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             try
             {
                 new ExportDialog(this, project, this, scenarioInfo, currentWorld,
-                        worldDisplay.snapshot(null, null)).showAndWait();
+                        worldDisplay.getSnapshot()).showAndWait();
             }
             catch (ExportException e)
             {

@@ -33,6 +33,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 
@@ -124,8 +125,10 @@ public class ImageEditPane extends HBox
 
         // A Pane with a border to contain the image canvas only.
         // It has been added so that the borders are not drawn on
-        // the canvas, but just outside it.
-        Pane border = new Pane(imageCanvas);
+        // the canvas, but just outside it. The BorderPane is used
+        // instead of Pane as the Pane causes the imageCanvas to
+        // be shifted one pixel left and up for some reason.
+        BorderPane border = new BorderPane(imageCanvas);
         border.getStyleClass().add("image-canvas");
 
         getChildren().addAll(border, sliderPane);

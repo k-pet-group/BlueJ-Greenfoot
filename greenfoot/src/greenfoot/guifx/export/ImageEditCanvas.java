@@ -45,11 +45,6 @@ public class ImageEditCanvas extends Canvas
     private double scaleFactor = 1;
     /** Minimum scale factor */
     private double minScaleFactor;
-    /**
-     * Threshold for which to snap to initial position (only if scale factor is
-     * the initial size)
-     */
-    private int snapThreshold = 7;
 
     /**
      * Create a new image canvas.
@@ -62,17 +57,6 @@ public class ImageEditCanvas extends Canvas
     {
         super(width, height);
         setImage(image);
-    }
-
-    /**
-     * Set the distance form which snapping should start. Only used when the
-     * image is scaled to the same size as the desired size.
-     *
-     * @param threshold The Snap threshold value.
-     */
-    public void setSnapThreshold(int threshold)
-    {
-        this.snapThreshold = threshold;
     }
 
     /**
@@ -107,28 +91,91 @@ public class ImageEditCanvas extends Canvas
         {
             Affine oldTx = graphics.getTransform();
 
+            final double canvasWidth = getWidth();
+            final double canvasHeight = getHeight();
+            final double imageWidth = image.getWidth();
+            final double imageHeight = image.getHeight();
+
+            x = ensureSuitableCoordinate(x, canvasWidth, imageWidth);
+            y = ensureSuitableCoordinate(y, canvasHeight, imageHeight);
+
             // Snap if size fits
             double xSnapped = x;
             double ySnapped = y; 
             if (Math.abs(scaleFactor - minScaleFactor) < .0000001)
             {
-                double xs = (image.getWidth() / 2 + xSnapped) * scaleFactor;
-                double ys = (image.getHeight() / 2 + ySnapped) * scaleFactor;
+                double xs = (imageWidth / 2 + xSnapped) * scaleFactor;
+                double ys = (imageHeight / 2 + ySnapped) * scaleFactor;
+
+                // Threshold for which to snap to initial position (only if scale
+                // factor is the initial size).
+                final int snapThreshold = 7;
                 if (Math.abs(xs) < snapThreshold && Math.abs(ys) < snapThreshold)
                 {
-                    xSnapped = -image.getWidth() / 2;
-                    ySnapped = -image.getHeight() / 2;
+                    xSnapped = -imageWidth / 2;
+                    ySnapped = -imageHeight / 2;
                 }
             }
 
+            // Clear the rectangle before redrawing again to clear
+            // any left over artifacts.
+            graphics.clearRect(0, 0, canvasWidth, canvasHeight);
+
             // Scale around center of canvas
-            graphics.translate(getWidth() / 2, getHeight() / 2);
+            graphics.translate(canvasWidth / 2, canvasHeight / 2);
             graphics.scale(scaleFactor, scaleFactor);
             graphics.translate(xSnapped, ySnapped);
 
             graphics.drawImage(image, 0, 0);
             graphics.setTransform(oldTx);
         }
+    }
+
+    /**
+     * Study the value of a passed coordinate (i.e. x or y) to guarantee it is
+     * within acceptable values to keep the image reasonably within the canvas.
+     * The method returns the same coordinate value if it is acceptable,
+     * otherwise the nearest calculated value will be returned.
+     * The following conditions are to be met:
+     *  - The image centers the canvas on a dimension where its edge on that
+     *    dimension is smaller than the canvas's.
+     *  - The image shouldn't be moved beyond the canvas's edge leaving an
+     *    apparent background on a dimension where it is bigger than the canvas's.
+     *
+     * @param coordinate  The value of a coordinate (x or y) that need to be tested.
+     * @param canvasEdge  The length of the canvas's edge.
+     * @param imageEdge   The length of the image's edge.
+     * @return The coordinate value suitable to show the image reasonably in the canvas.
+     */
+    private double ensureSuitableCoordinate(double coordinate, double canvasEdge, double imageEdge)
+    {
+        double maxCoordinate = -(canvasEdge / scaleFactor) / 2;
+        double minCoordinate = -(imageEdge + maxCoordinate);
+
+        // If the image's edge is smaller than the canvas's, make
+        // sure the image centers the canvas on that dimension.
+        if (imageEdge * scaleFactor <= canvasEdge)
+        {
+            return -imageEdge / 2;
+        }
+
+        // If the coordinate value is to the right/below of the
+        // canvas's left/top edge, return the that edge.
+        if (coordinate > maxCoordinate)
+        {
+            return maxCoordinate;
+        }
+
+        // If the coordinate value will cause the image's to be more to
+        // the left/up than the canvas's right/bottom edge, return the
+        // minimum coordinate value to guarantee it will stay at that edge.
+        if (coordinate < minCoordinate)
+        {
+            return minCoordinate;
+        }
+
+        // If all conditions are not met, the initial value is acceptable.
+        return coordinate;
     }
 
     /**
@@ -184,7 +231,7 @@ public class ImageEditCanvas extends Canvas
      * Returns the minimum scaling that will be allowed. The minimum scaling is
      * usually set so that the scaled size of the image is not smaller than the
      * canvas size.
-     * 
+     *
      */
     public double getMinimumScale()
     {

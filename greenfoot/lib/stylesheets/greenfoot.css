@@ -135,8 +135,13 @@
     -fx-border-color: black;
     -fx-padding: 10 10 10 10;
 }
-.world-display-wrapper, .image-edit-pane .image-canvas {
+.world-display-wrapper {
     -fx-border-style: solid outside;
+    -fx-border-width: 1;
+    -fx-border-color: black;
+}
+.image-edit-pane .image-canvas {
+    -fx-border-style: solid inside;
     -fx-border-width: 1;
     -fx-border-color: black;
 }
