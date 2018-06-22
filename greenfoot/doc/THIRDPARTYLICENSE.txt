@@ -9,8 +9,7 @@ Contents:
 1. Copyright notices
 2. Libraries used and their licenses
 3. Licenses for code not part of libraries
-4. Libraries and code included with but not used by Greenfoot
-5. Summary of jar files and licenses
+4. Summary of jar files and licenses
 
 
 1. COPYRIGHT NOTICES
@@ -256,29 +255,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --- end ---
 
 
-4. LIBRARIES AND CODE INCLUDED WITH BUT NOT USED BY GREENFOOT
-
-The common classes included with Greenfoot (which can be imported into scenarios using
-the "Import Class" menu item) include a "Weather" class. This class uses two APIs:
- 1- "Wunderground core" 1.0.8 (https://code.google.com/p/wunderground-core/),
-     in file greenfoot/common/Weather/lib/wunderground-core.jar, is distributed under
-     the GNU General Public License version 3. The text of this license can be found
-     in the file "GNU-GPL-v3.txt".
- 2- "MyGeoLoc" 1.0 (https://code.google.com/p/mygeoloc/), in source form under the
-     directory greenfoot/common/Weather/src/com/smartechz/, is distributed under the
-     GNU Lesser General Public License version 3. The text of this license can be found
-     in the file "GNU-LGPL-v3.txt".
- 
-The MyGeoLoc code is compiled (along with other code) into a binary .jar file,
-Weather.jar. This file is distributed under the Lesser GNU Public License version 3.
-
-Because Greenfoot does not directly link to these libraries, distribution of Greenfoot
-itself (other than these components) is not bound by the terms of their licenses. Any
-Greenfoot project that uses these libaries, however, must only be distributed according
-to the terms of these licenses.
-
-
-5. SUMMARY OF THIRD-PARTY JAR FILES AND LICENSES
+4. SUMMARY OF THIRD-PARTY JAR FILES AND LICENSES
 
 AppleJavaExtensions.jar                  BSD-like license
 commons-logging-api-1.1.2.jar            Apache License v2.0

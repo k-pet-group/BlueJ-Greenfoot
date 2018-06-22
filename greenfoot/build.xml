@@ -383,26 +383,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <antcall target="copy-common-class">
             <param name="common.class" value="Map"/>
         </antcall>
-
-        <antcall target="build-common-jar">
-            <param name="common.class" value="Weather"/>
-        </antcall>
-        <antcall target="copy-common-class">
-            <param name="common.class" value="Weather"/>
-        </antcall>
-    </target>
-
-    <target name="build-common-jar" description="Create a jar with a common class dependencies." >
-        <mkdir dir="common/${common.class}/classes"/>
-        <!-- Should first delete the class files in common (depend on clean-common) -->
-        <compile srcdir="common/${common.class}/src" destdir="common/${common.class}/classes">
-            <classpath>
-                <fileset dir="common/${common.class}/lib/">
-                    <include name="*.jar"/>
-                </fileset>
-            </classpath>
-        </compile>
-        <jar jarfile="common/${common.class}/lib/${common.class}.jar" basedir="common/${common.class}/classes"/>
     </target>
 
     <target name="copy-common-class">
@@ -588,19 +568,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
         </delete>
         
         <delete dir="${package}/scenarios"/>
-        
-        <!-- Weather helper classes and jars -->
-        <antcall target="clean-common-weather"/>
-    </target>
-
-
-    <target name="clean-common-weather" description="clean up Weather .jar and classes folder to be built again" >
-        <delete file="common/Weather/lib/Weather.jar"/>
-        <delete includeemptydirs="true">
-        <fileset dir="common/Weather">
-            <include name="classes" />
-        </fileset>
-        </delete>
     </target>
 
 
@@ -818,7 +785,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 
                 <include name="common/**/*.java" />
                 <include name="common/**/*.jar" />
-                <exclude name="common/Weather/lib/Weather.jar" />
                 <include name="common/*.png" />
                 <include name="common/*.gif" />
                 <include name="imagelib/**/*" />           
