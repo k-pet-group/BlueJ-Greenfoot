@@ -746,6 +746,7 @@ public class FrameEditor implements Editor
             }
 
             @Override
+            @OnThread(Tag.FXPlatform)
             public void setHeaderImage(Image image)
             {
                 FrameEditor.this.setHeaderImage(image);
