@@ -895,6 +895,8 @@ about.theTeam=$APPNAME team:
 about.openFolder=Open Folder
 about.general.title=General
 about.translators.title=Translators
+about.contributors.title=Contributors
+about.previousTeamMembers.title=Previous Team Members:
 
 # Work Indicator
 workIndicator.resetMachine=Reset Java Virtual Machine@^R

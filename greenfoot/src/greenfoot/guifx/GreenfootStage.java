@@ -2233,8 +2233,17 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 "Spanish",    "José Lerma, Esteban Manriquez, Kenneth Daly, Iris Gutierrez and Luis Mijangos",
         };
 
+        String[] previousTeamMembers = {
+                "Michael Berry",
+                "Fabio Hedayioglu",
+                "Poul Henriksen",
+                "Philip Stevens",
+                "Ian Utting",
+                "Marion Zalk",
+        };
+
         new AboutDialogTemplate(parentWindow, Boot.GREENFOOT_VERSION, "https://greenfoot.org/",
-                image, translatorNames).showAndWait();
+                image, translatorNames, previousTeamMembers).showAndWait();
     }
 
     /**
