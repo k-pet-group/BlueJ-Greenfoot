@@ -69,9 +69,10 @@ public class AboutDialogTemplate extends Dialog<Void>
      * @param websiteURL   A url for the application website.
      * @param image        The splash screen image for the application.
      * @param translators  An array containing the translators names.
+     * @param previousTeamMembers An array containing previous team members names.
      */
     public AboutDialogTemplate(Window parent, String version, String websiteURL, Image image,
-                               String[] translators)
+                               String[] translators, String[] previousTeamMembers)
     {
         initOwner(parent);
         initModality(Modality.WINDOW_MODAL);
@@ -91,7 +92,7 @@ public class AboutDialogTemplate extends Dialog<Void>
         getDialogPane().getButtonTypes().add(ButtonType.CLOSE);
 
         TabPane tabs = JavaFXUtil.withStyleClass(new TabPane(
-                createMainTab(version, websiteURL, image), createTranslatorsTab(translators)),
+                createMainTab(version, websiteURL, image), createContributorsTab(translators, previousTeamMembers)),
                 "about-tabs");
 
         getDialogPane().setContent(tabs);
@@ -120,7 +121,7 @@ public class AboutDialogTemplate extends Dialog<Void>
 
         // Create team names list
         String teamText = String.join(", ", "Amjad Altadmri", "Neil Brown", "Hamza Hamza",
-                "Michael Kölling", "Davin McCall", "Ian Utting");
+                "Michael Kölling", "Davin McCall" + ".");
 
         bottom.getChildren().add(JavaFXUtil.withStyleClass(
                 new Label(Config.getString("about.theTeam") + " " + teamText),
@@ -192,13 +193,29 @@ public class AboutDialogTemplate extends Dialog<Void>
      * Construct the tab which contains the Translators information.
      *
      * @param translators  An array containing the translators names. Could be null.
+     * @param previousTeamMembers An array containing previous team members names.
      */
-    private Tab createTranslatorsTab(String[] translators)
+    private Tab createContributorsTab(String[] translators, String[] previousTeamMembers)
     {
-        Tab tab = new Tab(Config.getString("about.translators.title"));
+        Tab tab = new Tab(Config.getString("about.contributors.title"));
         tab.setClosable(false);
+
+        VBox vbox = new VBox();
+        if (previousTeamMembers != null)
+        {
+            Label teamTitle = new Label("\n" + Config.getString("about.previousTeamMembers.title") + "\n");
+            teamTitle.getStyleClass().add("about-contributors-title");
+            String names = String.join(", ", previousTeamMembers);
+            Label teamLabel = new Label(names + ".");
+            teamLabel.setPrefWidth(500);
+            teamLabel.setWrapText(true);
+            vbox.getChildren().addAll(teamTitle, teamLabel);
+        }
         if (translators != null)
         {
+            Label translatorTitle = new Label("\n" + Config.getString("about.translators.title") + "\n");
+            translatorTitle.getStyleClass().add("about-contributors-title");
+            vbox.getChildren().add(translatorTitle);
             ObservableList<Pair<String, String>> pairs = FXCollections.observableArrayList();
             for (int i = 0; i <translators.length - 1; i += 2)
             {
@@ -219,9 +236,9 @@ public class AboutDialogTemplate extends Dialog<Void>
             nameColumn.setCellValueFactory(param -> new ReadOnlyStringWrapper(param.getValue().getValue()));
 
             tableView.getColumns().setAll(languageColumn, nameColumn);
-
-            tab.setContent(tableView);
+            vbox.getChildren().add(tableView);
         }
+        tab.setContent(vbox);
         return tab;
     }
 }

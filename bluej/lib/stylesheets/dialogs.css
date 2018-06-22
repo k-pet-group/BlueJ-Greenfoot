@@ -129,6 +129,9 @@
 .about-translators-table .table-row-cell .table-cell {
     -fx-border-width: 0px;
 }
+.about-contributors-title {
+    -fx-font-weight: bold;
+}
 
 /* Version check dialog */
 .version-check-dialog-content {

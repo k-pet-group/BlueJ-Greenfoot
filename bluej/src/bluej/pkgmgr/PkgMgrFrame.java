@@ -1974,7 +1974,7 @@ public class PkgMgrFrame
     {
         Image image = Config.getFixedImageAsFXImage("about-logo.png");
         new AboutDialogTemplate(stageProperty.getValue(), bluej.Boot.BLUEJ_VERSION,
-                "http://www.bluej.org/", image, null).showAndWait();
+                "http://www.bluej.org/", image, null, null).showAndWait();
     }
 
     /**
