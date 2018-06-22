@@ -35,6 +35,7 @@ import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXRunnable;
 import javafx.print.PrinterJob;
+import javafx.scene.image.Image;
 
 
 /**
@@ -307,4 +308,10 @@ public interface Editor
      * Other imports which may overlap (e.g. java.awt.*, java.util.List) will not be altered.
      */
     void removeImports(List<String> importTargets);
+
+    /**
+     * Set the header image (in the tab header) for this editor
+     * @param image The image to use (any size).
+     */
+    void setHeaderImage(Image image);
 }

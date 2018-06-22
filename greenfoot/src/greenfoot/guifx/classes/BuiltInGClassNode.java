@@ -28,9 +28,21 @@ public class BuiltInGClassNode extends GClassNode
      */
     public BuiltInGClassNode(GClassType type, List<GClassNode> subClasses, GClassDiagram classDiagram)
     {
-        super("greenfoot." + shortName(type), shortName(type), null, subClasses, classDiagram.getSelectionManager());
+        super(null, subClasses, classDiagram.getSelectionManager());
         this.type = type;
         this.classDiagram = classDiagram;
+    }
+
+    @Override
+    public String getQualifiedName()
+    {
+        return "greenfoot." + shortName(type);
+    }
+
+    @Override
+    public String getDisplayName()
+    {
+        return shortName(type);
     }
 
     /**

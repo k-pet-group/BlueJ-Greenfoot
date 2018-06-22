@@ -45,10 +45,8 @@ import java.util.List;
  */
 public abstract class GClassNode
 {
-    private final String fullyQualifiedName;
-    private final String displayName;
     private final List<GClassNode> subClasses = new ArrayList<>();
-    private final SimpleObjectProperty<Image> image = new SimpleObjectProperty<>(null);
+    protected Image image;
 
     protected final ClassDisplaySelectionManager selectionManager;
     protected ContextMenu curContextMenu = null;
@@ -58,25 +56,26 @@ public abstract class GClassNode
     
     // The arrow (which may have several offshoot arms from multiple subclasses).
     private InheritArrow arrowFromSub;
-    
-    protected GClassNode(String fullyQualifiedName, String displayName, Image image,
+
+    /**
+     * Create a GClassNode
+     * @param image The image to use (null if none)
+     * @param subClasses The list of subclasses to display beneath us
+     * @param selectionManager The central manager for class selection.
+     */
+    protected GClassNode(Image image,
             List<GClassNode> subClasses, ClassDisplaySelectionManager selectionManager)
     {
         this.selectionManager = selectionManager;
-        this.fullyQualifiedName = fullyQualifiedName;
-        this.displayName = displayName;
-        this.image.set(image);
+        this.image = image;
         this.subClasses.addAll(subClasses);
-        Collections.sort(this.subClasses, Comparator.comparing(ci -> ci.displayName));
+        Collections.sort(this.subClasses, Comparator.comparing(ci -> ci.getDisplayName()));
     }
 
     /**
      * Gets the qualified name of the class.
      */
-    public String getQualifiedName()
-    {
-        return fullyQualifiedName;
-    }
+    public abstract String getQualifiedName();
 
     /**
      * Adds a subclass to the list of subclasses.
@@ -85,7 +84,7 @@ public abstract class GClassNode
     public void add(GClassNode classInfo)
     {
         subClasses.add(classInfo);
-        Collections.sort(this.subClasses, Comparator.comparing(ci -> ci.displayName));
+        Collections.sort(this.subClasses, Comparator.comparing(ci -> ci.getDisplayName()));
     }
 
     /**
@@ -99,10 +98,7 @@ public abstract class GClassNode
     /**
      * Gets the display name for the class (the unqualified name)
      */
-    public String getDisplayName()
-    {
-        return displayName;
-    }
+    public abstract String getDisplayName();
 
     /**
      * Gets the ClassDisplay for this item.  Will always return the same ClassDisplay
@@ -112,7 +108,7 @@ public abstract class GClassNode
     {
         if (display == null)
         {
-            display = new ClassDisplay(displayName, fullyQualifiedName, image.get(), selectionManager);
+            display = new ClassDisplay(getDisplayName(), getQualifiedName(), image, selectionManager);
             setupClassDisplay(greenfootStage, display);
         }
         return display;
@@ -144,15 +140,6 @@ public abstract class GClassNode
     public void tidyup()
     {   
     }
-
-    /**
-     * Gets an observable expression for the class image, which will change
-     * if this class's image changes.
-     */
-    public ObjectExpression<Image> getImageExpression()
-    {
-        return image;
-    }
     
     /**
      * Get the image filename for the image associated with this class. If not specifically set,
@@ -169,7 +156,7 @@ public abstract class GClassNode
      */
     protected void setImage(Image newImage)
     {
-        image.set(newImage);
+        image = newImage;
         if (display != null)
         {
             display.setImage(newImage);

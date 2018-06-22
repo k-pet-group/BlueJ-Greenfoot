@@ -94,6 +94,7 @@ import javafx.print.PrinterJob;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyEvent;
@@ -289,7 +290,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         callbackOnOpen = parameters.getCallbackOnOpen();
 
         this.fxTabbedEditor = getDefaultEditor.get();
-        this.fxTab = new MoeFXTab(this, fxWindowTitle, parameters.getClassIconFetcher(), windowTitle);
+        this.fxTab = new MoeFXTab(this, fxWindowTitle);
     }
 
     /**
@@ -3982,6 +3983,16 @@ public final class MoeEditor extends ScopeColorsBorderPane
             r.add(text);
         }
         return r;
+    }
+
+    /**
+     * Set the header image (in the tab header) for this editor
+     * @param image The image to use (any size).
+     */
+    @Override
+    public void setHeaderImage(Image image)
+    {
+        fxTab.setHeaderImage(image);
     }
 
     @OnThread(Tag.FXPlatform)

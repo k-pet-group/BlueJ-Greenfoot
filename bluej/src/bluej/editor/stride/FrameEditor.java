@@ -81,6 +81,7 @@ import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.print.PrinterJob;
+import javafx.scene.image.Image;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -743,6 +744,13 @@ public class FrameEditor implements Editor
             {
                 FrameEditor.this.removeImports(importTargets);
             }
+
+            @Override
+            @OnThread(Tag.FXPlatform)
+            public void setHeaderImage(Image image)
+            {
+                FrameEditor.this.setHeaderImage(image);
+            }
         };
     }
 
@@ -1252,6 +1260,19 @@ public class FrameEditor implements Editor
         }
         panel.removeImports(importTargets);
         codeModified();
+    }
+
+    /**
+     * Set the header image (in the tab header) for this editor
+     * @param image The image to use (any size).
+     */
+    @Override
+    public void setHeaderImage(Image image)
+    {
+        if (panel != null)
+        {
+            panel.setHeaderImage(image);
+        }
     }
 
     @OnThread(Tag.FX)

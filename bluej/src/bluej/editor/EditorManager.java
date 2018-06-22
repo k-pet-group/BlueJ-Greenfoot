@@ -27,7 +27,6 @@ import java.util.function.Supplier;
 import bluej.editor.moe.MoeEditorManager;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.parser.entity.EntityResolver;
-import bluej.pkgmgr.ClassIconFetcher;
 import bluej.pkgmgr.JavadocResolver;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXSupplier;
@@ -66,7 +65,6 @@ public abstract class EditorManager
      * @param windowTitle  title of window (usually class name)
      * @param watcher      an watcher to be notified of edit events
      * @param compiled     true, if the class has been compiled
-     * @param classIconFetcher  Allows fetching of class-specific images (e.g. in Greenfoot)
      * @param projectResolver   A resolver for external symbols
      * @param javadocResolver   A resolver for javadoc on external methods
      * 
@@ -79,7 +77,6 @@ public abstract class EditorManager
         FXSupplier<FXTabbedEditor> fxTabbedEditor,
         EditorWatcher watcher, 
         boolean compiled,
-        ClassIconFetcher classIconFetcher,
         EntityResolver projectResolver,
         JavadocResolver javadocResolver, FXPlatformRunnable callbackOnOpen);
 

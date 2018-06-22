@@ -1186,18 +1186,25 @@ public class ClassTarget extends DependentTarget
             EntityResolver resolver = new PackageResolver(project.getEntityResolver(),
                     getPackage().getQualifiedName());
 
+
+            final FXPlatformRunnable openCallback = () -> {
+                recordEditorOpen();
+                for (TargetListener stateListener : stateListeners)
+                {
+                    stateListener.editorOpened();
+                }
+            };
             if (sourceAvailable == SourceType.Java || sourceAvailable == SourceType.NONE) {
                 editor = EditorManager.getEditorManager().openClass(filename, docFilename,
                         project.getProjectCharset(),
-                        getBaseName(), project::getDefaultFXTabbedEditor, this, isCompiled(), project, resolver,
-                        project.getJavadocResolver(), this::recordEditorOpen);
+                        getBaseName(), project::getDefaultFXTabbedEditor, this, isCompiled(), resolver,
+                        project.getJavadocResolver(), openCallback);
             }
             else if (sourceAvailable == SourceType.Stride) {
                 File frameSourceFile = getFrameSourceFile();
                 File javaSourceFile = getJavaSourceFile();
                 JavadocResolver javadocResolver = project.getJavadocResolver();
                 Package pkg = getPackage();
-                final FXPlatformRunnable openCallback = this::recordEditorOpen;
                 editor = new FrameEditor(frameSourceFile, javaSourceFile, this, resolver, javadocResolver, pkg, openCallback);
             }
             

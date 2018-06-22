@@ -418,7 +418,6 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         project.getUnnamedPackage().addCompileObserver(this);
         greenfootDebugHandler.setPickListener(this::pickResults);
         greenfootDebugHandler.setSimulationListener(this);
-        project.setClassIconFetcherDelegate(classDiagram);
         showingDebugger.bindBidirectional(project.debuggerShowing());
         
         classDiagram.setProject(project);
@@ -1854,10 +1853,23 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             localImageFile = new File(imagesDir, originalImageFile.getName());
             GreenfootUtil.copyFile(originalImageFile, localImageFile);
         }
-        classNode.setImageFilename(localImageFile.getName());
+        String imageFileName = localImageFile.getName();
+        classNode.setImageFilename(imageFileName);
+        String qualifiedName = classNode.getQualifiedName();
+        saveAndMirrorClassImageFilename(qualifiedName, imageFileName);
+    }
+
+    /**
+     * Save image file name for the given class to the project file, and mirror to the debug VM.
+     * @param qualifiedName The qualified name of the class
+     * @param imageFileName The file name of the image to use for that class.
+     */
+    public void saveAndMirrorClassImageFilename(String qualifiedName, String imageFileName)
+    {
+        doSave();
         debugHandler.getVmComms().sendProperty(
-                "class." + classNode.getQualifiedName() + ".image",
-                localImageFile.getName());
+                "class." + qualifiedName + ".image",
+                imageFileName);
     }
 
     /**

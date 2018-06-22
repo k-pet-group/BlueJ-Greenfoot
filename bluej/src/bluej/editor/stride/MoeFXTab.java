@@ -22,9 +22,9 @@
 package bluej.editor.stride;
 
 import bluej.editor.moe.MoeEditor;
-import bluej.pkgmgr.ClassIconFetcher;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.ObjectExpression;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableStringValue;
@@ -52,18 +52,21 @@ public @OnThread(Tag.FXPlatform) class MoeFXTab extends FXTab
     private final MoeEditor moeEditor;
     private final TabMenuManager menuManager;
     private final StringProperty windowTitleProperty = new SimpleStringProperty();
-    private final ClassIconFetcher classIconFetcher;
-    private final String className;
+    private final SimpleObjectProperty<Image> classIcon;
     private FXTabbedEditor parent;
 
+    /**
+     * Make a Tab to contain a MoeEditor
+     * @param moeEditor The MoeEditor to put in the tab
+     * @param windowTitle The title of the tab
+     */
     @OnThread(Tag.FXPlatform)
-    public MoeFXTab(MoeEditor moeEditor, String windowTitle, ClassIconFetcher classIconFetcher, String className)
+    public MoeFXTab(MoeEditor moeEditor, String windowTitle)
     {
         super(false);
         this.moeEditor = moeEditor;
         this.windowTitleProperty.set(windowTitle);
-        this.classIconFetcher = classIconFetcher;
-        this.className = className;
+        this.classIcon = new SimpleObjectProperty<>();
         menuManager = new TabMenuManager(this)
         {
             @Override
@@ -133,11 +136,7 @@ public @OnThread(Tag.FXPlatform) class MoeFXTab extends FXTab
         Label titleLabel = new Label(windowTitleProperty.get());
         titleLabel.textProperty().bind(windowTitleProperty); // Is this right?
         HBox tabHeader = new HBox(titleLabel);
-        ObjectExpression<Image> imageProperty = classIconFetcher.fetchFor(className);
-        if (imageProperty != null)
-        {
-            tabHeader.getChildren().add(makeClassGraphicIcon(imageProperty, 16, false));
-        }
+        tabHeader.getChildren().add(makeClassGraphicIcon(classIcon, 16, false));
         tabHeader.setAlignment(Pos.CENTER);
         tabHeader.setSpacing(3.0);
         tabHeader.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
@@ -181,4 +180,12 @@ public @OnThread(Tag.FXPlatform) class MoeFXTab extends FXTab
         return moeEditor;
     }
 
+    /**
+     * Set the header image (in the tab header) for this editor
+     * @param image The image to use (any size).
+     */
+    public void setHeaderImage(Image image)
+    {
+        classIcon.set(image);
+    }
 }

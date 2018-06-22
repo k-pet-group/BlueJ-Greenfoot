@@ -23,6 +23,7 @@ package greenfoot.guifx.classes;
 
 import bluej.Config;
 import bluej.debugger.gentype.Reflective;
+import bluej.editor.Editor;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.ClassTarget;
@@ -69,13 +70,25 @@ public class LocalGClassNode extends GClassNode implements TargetListener
     public LocalGClassNode(GClassDiagram classDiagram, ClassTarget classTarget,
             List<GClassNode> subClasses, GClassType type)
     {
-        super(classTarget.getQualifiedName(), classTarget.getBaseName(),
-                getImageForClass(classTarget), subClasses, classDiagram.getSelectionManager());
+        super(getImageForClass(classTarget), subClasses, classDiagram.getSelectionManager());
         this.imageFilename = classTarget.getPackage().getLastSavedProperties()
                 .getProperty("class." + classTarget.getQualifiedName() + ".image");
         this.classDiagram = classDiagram;
         this.classTarget = classTarget;
         this.type = type;
+        setImageForEditor();
+    }
+
+    @Override
+    public String getQualifiedName()
+    {
+        return classTarget.getQualifiedName();
+    }
+
+    @Override
+    public String getDisplayName()
+    {
+        return classTarget.getBaseName();
     }
 
     /**
@@ -141,6 +154,31 @@ public class LocalGClassNode extends GClassNode implements TargetListener
     }
 
     @Override
+    public void editorOpened()
+    {
+        setImageForEditor();
+    }
+
+    /**
+     * Set the header image for the editor, if it has been opened.
+     */
+    private void setImageForEditor()
+    {
+        Editor editor = classTarget.getEditorIfOpen();
+        if (editor != null)
+        {
+            editor.setHeaderImage(image);
+        }
+    }
+
+    @Override
+    protected void setImage(Image newImage)
+    {
+        super.setImage(newImage);
+        setImageForEditor();
+    }
+
+    @Override
     public void stateChanged(State newState)
     {
         Paint fill;
@@ -166,6 +204,8 @@ public class LocalGClassNode extends GClassNode implements TargetListener
     @Override
     public void renamed(String newName)
     {
+        classDiagram.getGreenfootStage().saveAndMirrorClassImageFilename(newName, getImageFilename());
+        
         // The ordering may have changed, easiest thing to do is
         // just recalculate the whole lot:
         classDiagram.recalculateGroups();

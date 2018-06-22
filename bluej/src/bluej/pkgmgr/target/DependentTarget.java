@@ -571,6 +571,12 @@ public abstract class DependentTarget extends EditableTarget
     public static interface TargetListener
     {
         /**
+         * Called when the editor has been opened.  If the same Editor instance is opened and closed
+         * multiple times, this method is called on every open.
+         */
+        public void editorOpened();
+        
+        /**
          * Called when state has changed
          */
         public void stateChanged(State newState);
