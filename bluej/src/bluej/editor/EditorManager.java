@@ -65,7 +65,6 @@ public abstract class EditorManager
      * @param windowTitle  title of window (usually class name)
      * @param watcher      an watcher to be notified of edit events
      * @param compiled     true, if the class has been compiled
-     * @param classIconFetcher  Allows fetching of class-specific images (e.g. in Greenfoot)
      * @param projectResolver   A resolver for external symbols
      * @param javadocResolver   A resolver for javadoc on external methods
      * 

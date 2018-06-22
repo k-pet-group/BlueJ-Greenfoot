@@ -1859,6 +1859,11 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         saveAndMirrorClassImageFilename(qualifiedName, imageFileName);
     }
 
+    /**
+     * Save image file name for the given class to the project file, and mirror to the debug VM.
+     * @param qualifiedName The qualified name of the class
+     * @param imageFileName The file name of the image to use for that class.
+     */
     public void saveAndMirrorClassImageFilename(String qualifiedName, String imageFileName)
     {
         doSave();

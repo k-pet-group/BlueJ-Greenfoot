@@ -56,7 +56,13 @@ public abstract class GClassNode
     
     // The arrow (which may have several offshoot arms from multiple subclasses).
     private InheritArrow arrowFromSub;
-    
+
+    /**
+     * Create a GClassNode
+     * @param image The image to use (null if none)
+     * @param subClasses The list of subclasses to display beneath us
+     * @param selectionManager The central manager for class selection.
+     */
     protected GClassNode(Image image,
             List<GClassNode> subClasses, ClassDisplaySelectionManager selectionManager)
     {

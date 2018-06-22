@@ -290,7 +290,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         callbackOnOpen = parameters.getCallbackOnOpen();
 
         this.fxTabbedEditor = getDefaultEditor.get();
-        this.fxTab = new MoeFXTab(this, fxWindowTitle, windowTitle);
+        this.fxTab = new MoeFXTab(this, fxWindowTitle);
     }
 
     /**

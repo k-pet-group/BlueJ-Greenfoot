@@ -53,17 +53,20 @@ public @OnThread(Tag.FXPlatform) class MoeFXTab extends FXTab
     private final TabMenuManager menuManager;
     private final StringProperty windowTitleProperty = new SimpleStringProperty();
     private final SimpleObjectProperty<Image> classIcon;
-    private final String className;
     private FXTabbedEditor parent;
 
+    /**
+     * Make a Tab to contain a MoeEditor
+     * @param moeEditor The MoeEditor to put in the tab
+     * @param windowTitle The title of the tab
+     */
     @OnThread(Tag.FXPlatform)
-    public MoeFXTab(MoeEditor moeEditor, String windowTitle, String className)
+    public MoeFXTab(MoeEditor moeEditor, String windowTitle)
     {
         super(false);
         this.moeEditor = moeEditor;
         this.windowTitleProperty.set(windowTitle);
         this.classIcon = new SimpleObjectProperty<>();
-        this.className = className;
         menuManager = new TabMenuManager(this)
         {
             @Override
