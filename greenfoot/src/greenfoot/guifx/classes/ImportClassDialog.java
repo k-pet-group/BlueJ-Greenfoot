@@ -238,12 +238,22 @@ public class ImportClassDialog extends Dialog<File>
         public ImportableGClassNode(File file)
         {
             super(
-                GreenfootUtil.removeExtension(file.getName()),
-                GreenfootUtil.removeExtension(file.getName()), 
                 JavaFXUtil.loadImage(findImage(file)),
                 Collections.emptyList(),
                 classDisplaySelectionManager);
             this.file = file;
+        }
+
+        @Override
+        public String getQualifiedName()
+        {
+            return GreenfootUtil.removeExtension(file.getName());
+        }
+
+        @Override
+        public String getDisplayName()
+        {
+            return getQualifiedName();
         }
 
         @Override

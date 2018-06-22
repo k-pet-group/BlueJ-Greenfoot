@@ -45,8 +45,6 @@ import java.util.List;
  */
 public abstract class GClassNode
 {
-    private final String fullyQualifiedName;
-    private final String displayName;
     private final List<GClassNode> subClasses = new ArrayList<>();
     private final SimpleObjectProperty<Image> image = new SimpleObjectProperty<>(null);
 
@@ -59,24 +57,19 @@ public abstract class GClassNode
     // The arrow (which may have several offshoot arms from multiple subclasses).
     private InheritArrow arrowFromSub;
     
-    protected GClassNode(String fullyQualifiedName, String displayName, Image image,
+    protected GClassNode(Image image,
             List<GClassNode> subClasses, ClassDisplaySelectionManager selectionManager)
     {
         this.selectionManager = selectionManager;
-        this.fullyQualifiedName = fullyQualifiedName;
-        this.displayName = displayName;
         this.image.set(image);
         this.subClasses.addAll(subClasses);
-        Collections.sort(this.subClasses, Comparator.comparing(ci -> ci.displayName));
+        Collections.sort(this.subClasses, Comparator.comparing(ci -> ci.getDisplayName()));
     }
 
     /**
      * Gets the qualified name of the class.
      */
-    public String getQualifiedName()
-    {
-        return fullyQualifiedName;
-    }
+    public abstract String getQualifiedName();
 
     /**
      * Adds a subclass to the list of subclasses.
@@ -85,7 +78,7 @@ public abstract class GClassNode
     public void add(GClassNode classInfo)
     {
         subClasses.add(classInfo);
-        Collections.sort(this.subClasses, Comparator.comparing(ci -> ci.displayName));
+        Collections.sort(this.subClasses, Comparator.comparing(ci -> ci.getDisplayName()));
     }
 
     /**
@@ -99,10 +92,7 @@ public abstract class GClassNode
     /**
      * Gets the display name for the class (the unqualified name)
      */
-    public String getDisplayName()
-    {
-        return displayName;
-    }
+    public abstract String getDisplayName();
 
     /**
      * Gets the ClassDisplay for this item.  Will always return the same ClassDisplay
@@ -112,7 +102,7 @@ public abstract class GClassNode
     {
         if (display == null)
         {
-            display = new ClassDisplay(displayName, fullyQualifiedName, image.get(), selectionManager);
+            display = new ClassDisplay(getDisplayName(), getQualifiedName(), image.get(), selectionManager);
             setupClassDisplay(greenfootStage, display);
         }
         return display;

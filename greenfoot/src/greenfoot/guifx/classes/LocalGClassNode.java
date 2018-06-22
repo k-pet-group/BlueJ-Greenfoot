@@ -69,13 +69,24 @@ public class LocalGClassNode extends GClassNode implements TargetListener
     public LocalGClassNode(GClassDiagram classDiagram, ClassTarget classTarget,
             List<GClassNode> subClasses, GClassType type)
     {
-        super(classTarget.getQualifiedName(), classTarget.getBaseName(),
-                getImageForClass(classTarget), subClasses, classDiagram.getSelectionManager());
+        super(getImageForClass(classTarget), subClasses, classDiagram.getSelectionManager());
         this.imageFilename = classTarget.getPackage().getLastSavedProperties()
                 .getProperty("class." + classTarget.getQualifiedName() + ".image");
         this.classDiagram = classDiagram;
         this.classTarget = classTarget;
         this.type = type;
+    }
+
+    @Override
+    public String getQualifiedName()
+    {
+        return classTarget.getQualifiedName();
+    }
+
+    @Override
+    public String getDisplayName()
+    {
+        return classTarget.getBaseName();
     }
 
     /**
