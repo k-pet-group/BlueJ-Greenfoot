@@ -204,6 +204,8 @@ public class LocalGClassNode extends GClassNode implements TargetListener
     @Override
     public void renamed(String newName)
     {
+        classDiagram.getGreenfootStage().saveAndMirrorClassImageFilename(newName, getImageFilename());
+        
         // The ordering may have changed, easiest thing to do is
         // just recalculate the whole lot:
         classDiagram.recalculateGroups();

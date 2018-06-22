@@ -1853,10 +1853,18 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             localImageFile = new File(imagesDir, originalImageFile.getName());
             GreenfootUtil.copyFile(originalImageFile, localImageFile);
         }
-        classNode.setImageFilename(localImageFile.getName());
+        String imageFileName = localImageFile.getName();
+        classNode.setImageFilename(imageFileName);
+        String qualifiedName = classNode.getQualifiedName();
+        saveAndMirrorClassImageFilename(qualifiedName, imageFileName);
+    }
+
+    public void saveAndMirrorClassImageFilename(String qualifiedName, String imageFileName)
+    {
+        doSave();
         debugHandler.getVmComms().sendProperty(
-                "class." + classNode.getQualifiedName() + ".image",
-                localImageFile.getName());
+                "class." + qualifiedName + ".image",
+                imageFileName);
     }
 
     /**
