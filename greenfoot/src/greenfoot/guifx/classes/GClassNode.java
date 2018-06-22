@@ -46,7 +46,7 @@ import java.util.List;
 public abstract class GClassNode
 {
     private final List<GClassNode> subClasses = new ArrayList<>();
-    private final SimpleObjectProperty<Image> image = new SimpleObjectProperty<>(null);
+    protected Image image;
 
     protected final ClassDisplaySelectionManager selectionManager;
     protected ContextMenu curContextMenu = null;
@@ -61,7 +61,7 @@ public abstract class GClassNode
             List<GClassNode> subClasses, ClassDisplaySelectionManager selectionManager)
     {
         this.selectionManager = selectionManager;
-        this.image.set(image);
+        this.image = image;
         this.subClasses.addAll(subClasses);
         Collections.sort(this.subClasses, Comparator.comparing(ci -> ci.getDisplayName()));
     }
@@ -102,7 +102,7 @@ public abstract class GClassNode
     {
         if (display == null)
         {
-            display = new ClassDisplay(getDisplayName(), getQualifiedName(), image.get(), selectionManager);
+            display = new ClassDisplay(getDisplayName(), getQualifiedName(), image, selectionManager);
             setupClassDisplay(greenfootStage, display);
         }
         return display;
@@ -134,15 +134,6 @@ public abstract class GClassNode
     public void tidyup()
     {   
     }
-
-    /**
-     * Gets an observable expression for the class image, which will change
-     * if this class's image changes.
-     */
-    public ObjectExpression<Image> getImageExpression()
-    {
-        return image;
-    }
     
     /**
      * Get the image filename for the image associated with this class. If not specifically set,
@@ -159,7 +150,7 @@ public abstract class GClassNode
      */
     protected void setImage(Image newImage)
     {
-        image.set(newImage);
+        image = newImage;
         if (display != null)
         {
             display.setImage(newImage);

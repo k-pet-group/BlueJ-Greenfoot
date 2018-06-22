@@ -23,7 +23,6 @@ package greenfoot.guifx.classes;
 
 import bluej.Config;
 import bluej.debugger.gentype.Reflective;
-import bluej.pkgmgr.ClassIconFetcher;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
@@ -61,33 +60,9 @@ import java.util.Properties;
  * For now, this is very primitive, but is useful for implementing other Greenfoot functionality.
  */
 @OnThread(Tag.FXPlatform)
-public class GClassDiagram extends BorderPane implements ClassIconFetcher
+public class GClassDiagram extends BorderPane
 {
     private final ContextMenu contextMenu;
-
-    /**
-     * Gets an observable expression with the image for the given class
-     * @param name The fully qualified name of the class
-     * @return The observable expression with that class's image.  Valid as long
-     *         as the class is not removed or renamed.  If no such class can be
-     *         found, null will be returned.  If the class is found but has no image,
-     *         an observable with null inside will be returned.
-     */
-    @Override
-    public @OnThread(Tag.FXPlatform) ObjectExpression<Image> fetchFor(String name)
-    {
-        for (ClassGroup classGroup : Arrays.asList(worldClasses, actorClasses, otherClasses))
-        {
-            for (GClassNode gClassNode : Utility.iterableStream(classGroup.streamAllClasses()))
-            {
-                if (gClassNode.getQualifiedName().equals(name))
-                {
-                    return gClassNode.getImageExpression();
-                }
-            }
-        }
-        return null;
-    }
 
     /**
      * Is there a user-made World subclass (i.e. excluding World itself)?

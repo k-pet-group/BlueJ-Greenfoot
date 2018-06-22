@@ -23,6 +23,7 @@ package greenfoot.guifx.classes;
 
 import bluej.Config;
 import bluej.debugger.gentype.Reflective;
+import bluej.editor.Editor;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.ClassTarget;
@@ -75,6 +76,7 @@ public class LocalGClassNode extends GClassNode implements TargetListener
         this.classDiagram = classDiagram;
         this.classTarget = classTarget;
         this.type = type;
+        setImageForEditor();
     }
 
     @Override
@@ -149,6 +151,31 @@ public class LocalGClassNode extends GClassNode implements TargetListener
         classTarget.addListener(this);
         // Make sure we correctly show the initial state:
         stateChanged(classTarget.getState());
+    }
+
+    @Override
+    public void editorOpened()
+    {
+        setImageForEditor();
+    }
+
+    /**
+     * Set the header image for the editor, if it has been opened.
+     */
+    private void setImageForEditor()
+    {
+        Editor editor = classTarget.getEditorIfOpen();
+        if (editor != null)
+        {
+            editor.setHeaderImage(image);
+        }
+    }
+
+    @Override
+    protected void setImage(Image newImage)
+    {
+        super.setImage(newImage);
+        setImageForEditor();
     }
 
     @Override

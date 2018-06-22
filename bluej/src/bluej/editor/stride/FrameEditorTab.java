@@ -347,20 +347,6 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
             return;
         startedInitialising = true;
 
-        // Name starts blank, so this listener will pick up the name "change" when we first load the name:
-        JavaFXUtil.addChangeListenerPlatform(nameProperty, name -> {
-            ObjectExpression<Image> classIconExpression = project.fetchFor(name);
-            if (classIconExpression == null)
-            {
-                imageProperty.unbind();
-                imageProperty.set(null);
-            }
-            else
-            {
-                imageProperty.bind(classIconExpression);
-            }
-        });
-
         // We put all the info in the graphic, so that we can use the graphic as a drag target:
         setText("");
         Label titleLabel = new Label(initialSource.getName());
@@ -2981,5 +2967,14 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     private LocationMap getLocationMap()
     {
         return getTopLevelFrame().getCode().toXML().buildLocationMap();
+    }
+
+    /**
+     * Set the header image (in the tab header)
+     * @param image The image to use (any size).
+     */
+    protected void setHeaderImage(Image image)
+    {
+        imageProperty.set(image);
     }
 }

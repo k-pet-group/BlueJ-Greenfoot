@@ -25,7 +25,6 @@ import java.util.Properties;
 
 import bluej.editor.EditorWatcher;
 import bluej.parser.entity.EntityResolver;
-import bluej.pkgmgr.ClassIconFetcher;
 import bluej.pkgmgr.JavadocResolver;
 import bluej.utility.javafx.FXPlatformRunnable;
 
@@ -36,7 +35,6 @@ import bluej.utility.javafx.FXPlatformRunnable;
  */
 public class MoeEditorParameters
 {
-    private final ClassIconFetcher classIconFetcher;
     private String title;
     private boolean isCode;
     private boolean isCompiled;
@@ -49,7 +47,7 @@ public class MoeEditorParameters
     private FXPlatformRunnable callbackOnOpen;
 
     public MoeEditorParameters(String title, EditorWatcher watcher,
-                               Properties resources, ClassIconFetcher classIconFetcher, EntityResolver projectResolver,
+                               Properties resources, EntityResolver projectResolver,
                                JavadocResolver javadocResolver)
     {
         this.title = title;
@@ -57,7 +55,6 @@ public class MoeEditorParameters
         this.resources = resources;
         this.projectResolver = projectResolver;
         this.javadocResolver = javadocResolver;
-        this.classIconFetcher = classIconFetcher;
     }
 
     public String getTitle()
@@ -158,13 +155,5 @@ public class MoeEditorParameters
     public void setCompiled(boolean compiled)
     {
         isCompiled = compiled;
-    }
-
-    /**
-     * Gets the ClassIconFetcher stored in this parameters object
-     */
-    public ClassIconFetcher getClassIconFetcher()
-    {
-        return classIconFetcher;
     }
 }

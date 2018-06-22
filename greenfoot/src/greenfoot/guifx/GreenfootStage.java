@@ -418,7 +418,6 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         project.getUnnamedPackage().addCompileObserver(this);
         greenfootDebugHandler.setPickListener(this::pickResults);
         greenfootDebugHandler.setSimulationListener(this);
-        project.setClassIconFetcherDelegate(classDiagram);
         showingDebugger.bindBidirectional(project.debuggerShowing());
         
         classDiagram.setProject(project);

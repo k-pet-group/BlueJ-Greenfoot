@@ -26,7 +26,6 @@ import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.parser.entity.EntityResolver;
-import bluej.pkgmgr.ClassIconFetcher;
 import bluej.pkgmgr.JavadocResolver;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXSupplier;
@@ -79,7 +78,6 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
      * @param windowTitle  title of window (usually class name)
      * @param watcher      an watcher to be notified of edit events
      * @param compiled     true, if the class has been compiled
-     * @param classIconFetcher  Allows fetching of class-specific images (e.g. in Greenfoot)
      * @param projectResolver   A resolver for external symbols
      * 
      * @return          the new editor, or null if there was a problem
@@ -92,12 +90,11 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
                 FXSupplier<FXTabbedEditor> fxTabbedEditor,
                 EditorWatcher watcher, 
                 boolean compiled,
-                ClassIconFetcher classIconFetcher,
                 EntityResolver projectResolver,
                 JavadocResolver javadocResolver,
                 FXPlatformRunnable callbackOnOpen)
     {
-        return openEditor (filename, docFilename, charset, true, windowTitle, fxTabbedEditor, watcher, compiled, classIconFetcher,
+        return openEditor (filename, docFilename, charset, true, windowTitle, fxTabbedEditor, watcher, compiled,
                            projectResolver, javadocResolver, callbackOnOpen);
     }
 
@@ -118,7 +115,7 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
     @Override
     public Editor openText(String filename, Charset charset, String windowTitle, FXSupplier<FXTabbedEditor> fxTabbedEditor)
     {
-        return openEditor(filename, null, charset, false, windowTitle, fxTabbedEditor, null, false, name -> null, null, null, null);
+        return openEditor(filename, null, charset, false, windowTitle, fxTabbedEditor, null, false, null, null, null);
     }
 
     @Override
@@ -171,7 +168,6 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
      * @param windowTitle  title of window (usually class name)
      * @param watcher      an object interested in editing events
      * @param compiled     true, if the class has been compiled
-     * @param classIconFetcher  Allows fetching of class-specific images (e.g. in Greenfoot).
      * @param projectResolver   a resolver for external symbols
      * @returns       the new editor, or null if there was a problem
      */
@@ -180,7 +176,6 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
             boolean isCode, String windowTitle,
             FXSupplier<FXTabbedEditor> fxTabbedEditor,
             EditorWatcher watcher, boolean compiled,
-            ClassIconFetcher classIconFetcher,
             EntityResolver projectResolver,
             JavadocResolver javadocResolver,
             FXPlatformRunnable callbackOnOpen)
@@ -188,7 +183,7 @@ public final class MoeEditorManager extends bluej.editor.EditorManager
         MoeEditor editor;
 
         MoeEditorParameters mep = new MoeEditorParameters(windowTitle, watcher,
-                resources, classIconFetcher, projectResolver, javadocResolver);
+                resources, projectResolver, javadocResolver);
         mep.setCode(isCode);
         mep.setShowToolbar(showToolBar);
         mep.setShowLineNum(showLineNum);

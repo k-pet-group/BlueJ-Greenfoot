@@ -27,7 +27,6 @@ import java.util.function.Supplier;
 import bluej.editor.moe.MoeEditorManager;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.parser.entity.EntityResolver;
-import bluej.pkgmgr.ClassIconFetcher;
 import bluej.pkgmgr.JavadocResolver;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXSupplier;
@@ -79,7 +78,6 @@ public abstract class EditorManager
         FXSupplier<FXTabbedEditor> fxTabbedEditor,
         EditorWatcher watcher, 
         boolean compiled,
-        ClassIconFetcher classIconFetcher,
         EntityResolver projectResolver,
         JavadocResolver javadocResolver, FXPlatformRunnable callbackOnOpen);
 
