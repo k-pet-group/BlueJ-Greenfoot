@@ -9,8 +9,7 @@ Contents:
 1. Copyright notices
 2. Libraries used and their licenses
 3. Licenses for code not part of libraries
-4. Libraries and code included with but not used by Greenfoot
-5. Summary of jar files and licenses
+4. Summary of jar files and licenses
 
 
 1. COPYRIGHT NOTICES
@@ -256,7 +255,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 --- end ---
 
 
-5. SUMMARY OF THIRD-PARTY JAR FILES AND LICENSES
+4. SUMMARY OF THIRD-PARTY JAR FILES AND LICENSES
 
 AppleJavaExtensions.jar                  BSD-like license
 commons-logging-api-1.1.2.jar            Apache License v2.0
