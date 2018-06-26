@@ -37,7 +37,7 @@
   \begin{center}
     \includegraphics[width=10cm]{../../lib/images/bluej-icon-256.png}\\
     \huge BlueJ Blackbox Data Collection\\~\\Researchers' Handbook
-    (version 2.0, 18 August 2017)
+    (version 2.0.1, 26 June 2018)
   \end{center}
 \end{titlepage}
 
@@ -1656,7 +1656,7 @@ recording on black.
 
 \section{SSH Access}
 
-The white machine can be accessed by SSHing to |white.kent.ac.uk| on the
+The white machine can be accessed by SSHing to |white.bluej.org| on the
 standard port (22).  The machine runs Ubuntu.  If you need any software
 installed, then we can install any standard Ubuntu packages for you (email
 |blackbox-admin@bluej.org|).
@@ -1669,7 +1669,7 @@ interface.  If you want to access the database directly from your own machine,
 you can use an SSH tunnel:
 
 \begin{lstlisting}
-ssh -L 3307:localhost:3306 ssh_username@white.kent.ac.uk
+ssh -L 3307:localhost:3306 ssh_username@white.bluej.org
 \end{lstlisting}
 
 While that SSH session is open, you can access the database by running:
@@ -1688,7 +1688,7 @@ white machine, on |http://localhost:3080/feed|.  It is probably easiest to
 port-forward 3080 to your local machine using:
 
 \begin{lstlisting}
-ssh -L 3080:localhost:3080 ssh_username@white.kent.ac.uk
+ssh -L 3080:localhost:3080 ssh_username@white.bluej.org
 \end{lstlisting}
 
 Then access |http://localhost:3080/feed| on your own machine.  You can find
