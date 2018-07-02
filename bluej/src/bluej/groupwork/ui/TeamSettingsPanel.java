@@ -89,7 +89,7 @@ public class TeamSettingsPanel extends VBox
 
     private final TextField serverField = new TextField();
     private final TextField prefixField = new TextField();
-    private final ComboBox protocolComboBox = new ComboBox();
+    private final ComboBox<String> protocolComboBox = new ComboBox<>();
     private final TextField uriField = new TextField();
 
     private final TextField yourNameField = new TextField();
@@ -101,20 +101,6 @@ public class TeamSettingsPanel extends VBox
     private CheckBox useAsDefault;
     private ServerType selectedServerType = null;
 
-    /*String[] personalLabels = {
-            "team.settings.yourName",
-            "team.settings.yourEmail",
-            "team.settings.user",
-            "team.settings.password",
-            "team.settings.group"
-    };
-
-    String[] locationLabels = {
-            "team.settings.prefix",
-            "team.settings.uri",
-            "team.settings.protocol"
-    };*/
-
     public TeamSettingsPanel(TeamSettingsController teamSettingsController, TeamSettingsDialog dialog, ObservableList<String> styleClass)
     {
         this.teamSettingsController = teamSettingsController;
@@ -122,7 +108,7 @@ public class TeamSettingsPanel extends VBox
 
         JavaFXUtil.addStyleClass(this, "panel");
 
-        serverTypes = new HorizontalRadio(Arrays.asList(ServerType.Subversion, ServerType.Git));
+        serverTypes = new HorizontalRadio<>(Arrays.asList(ServerType.Subversion, ServerType.Git));
         serverTypes.select(ServerType.Subversion);
 
         HBox serverTypeBox = new HBox();
@@ -159,27 +145,6 @@ public class TeamSettingsPanel extends VBox
             useAsDefault.setDisable(true);
         }
     }
-
-    /*private GridPane addPane(String[] labels)
-    {
-        GridPane gridPane = new GridPane();
-        JavaFXUtil.addStyleClass(gridPane, "grid");
-
-        List<TextField> fields = new ArrayList<>();
-
-        for (int i = 0; i < labels.length; i++) {
-            Label label = new Label(Config.getString(labels[i]));
-            label.setPrefWidth(100);
-            gridPane.add(label, 0, i);
-
-            TextField field = new TextField();
-            fields.add(field);
-            JavaFXUtil.addChangeListener(field.textProperty(), text -> updateOKButton());
-            gridPane.add(field, 1, i);
-        }
-
-        return gridPane;
-    }*/
 
     private GridPane createGridPane()
     {
@@ -568,24 +533,4 @@ public class TeamSettingsPanel extends VBox
         serverLabel.setDisable(true);
         protocolLabel.setDisable(true);
     }
-
-   /* class specialTextField
-    {
-        public TextField field;
-        public Label label;
-        public int special = 0;
-
-        public specialTextField(String name)
-        {
-            label = new Label(name);
-            field = new TextField();
-            field.setPromptText(name);
-        }
-
-        public specialTextField(String name, int special)
-        {
-            this(name);
-            this.special = special;
-        }
-    }*/
 }
