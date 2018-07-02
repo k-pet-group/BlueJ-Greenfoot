@@ -79,9 +79,11 @@ public interface TeamworkProvider
     public boolean needsEmail();
     
     /**
-     * opens the repository and returns the stored email
+     * Retrieve the user's email address as configured in the version control metadata associated
+     * with a project, if any.
+     * 
      * @param projectPath path to the BlueJ project
-     * @return String with the stored email in the repo.
+     * @return the configured email address, if any, or null
      */
     public String getYourEmailFromRepo(File projectPath);
 

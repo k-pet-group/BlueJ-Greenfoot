@@ -269,7 +269,18 @@ public class TeamSettingsPanel extends VBox
                 Debug.reportError(type + " is not recognisable as s server type");
         }
     }
-        
+    
+    /**
+     * Set a text field's text property, adjusting null to the empty string.
+     * 
+     * @param field  the text field to set the text for
+     * @param value  the value to set the text property to, or null for the empty string
+     */
+    private void setTextFieldText(TextField field, String value)
+    {
+        field.setText(value == null ? "" : value);
+    }
+
     private void setupContent()
     {
         String user = teamSettingsController.getPropString("bluej.teamsettings.user");
@@ -304,20 +315,22 @@ public class TeamSettingsPanel extends VBox
         // We always go through the providers.  If the user had no preference,
         // we select the first one, and update the email/name enabled states accordingly:
         List<TeamworkProvider> teamProviders = teamSettingsController.getTeamworkProviders();
-        for (int index = 0; index < teamProviders.size(); index++) {
+        for (int index = 0; index < teamProviders.size(); index++)
+        {
             TeamworkProvider provider = teamProviders.get(index);
             if (provider.getProviderName().equalsIgnoreCase(providerName)
-                || (providerName == null && index == 0)) { // Select first if no stored preference
+                || (providerName == null && index == 0))
+            {
+                // Select first if no stored preference:
                 serverTypes.select(ServerType.valueOf(teamProviders.get(index).getProviderName()));
-                //checks if this provider needs your name and your e-mail.
-                if (provider.needsEmail()){
-                    if (teamSettingsController.getProject() != null){
-                        //settings panel being open within a project.
-                        //fill the data.
+                if (provider.needsEmail())
+                {
+                    if (teamSettingsController.getProject() != null)
+                    {
                         File respositoryRoot = teamSettingsController.getProject().getProjectDir();
-                        yourEmailField.setText(provider.getYourEmailFromRepo(respositoryRoot));
+                        setTextFieldText(yourEmailField, provider.getYourEmailFromRepo(respositoryRoot));
                         yourEmailField.setDisable(true);
-                        yourNameField.setText(provider.getYourNameFromRepo(respositoryRoot));
+                        setTextFieldText(yourNameField, provider.getYourNameFromRepo(respositoryRoot));
                         yourNameField.setDisable(true);
                         this.useAsDefault.setSelected(true); // on git we always save.
                     }
@@ -502,15 +515,18 @@ public class TeamSettingsPanel extends VBox
         return useAsDefault.isSelected();
     }
     
-    private String getYourName(){
+    private String getYourName()
+    {
         return yourNameField.getText();
     }
     
-    private String getYourEmail(){
+    private String getYourEmail()
+    {
         return yourEmailField.getText();
     }
     
-    public TeamSettings getSettings() {
+    public TeamSettings getSettings()
+    {
         TeamSettings result = new TeamSettings(getSelectedProvider(), getProtocolKey(),
                 getServer(), getPrefix(), getGroup(), getUser(), getPassword());
         result.setYourEmail(getYourEmail());

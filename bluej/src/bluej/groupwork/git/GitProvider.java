@@ -292,40 +292,54 @@ public class GitProvider implements TeamworkProvider
     }
     
     /**
-     * opens the Git repository and returns the stored Name
+     * Find the user email as configured for the repository, if any.
+     * 
      * @param projectPath path to the BlueJ project
-     * @return String with the stored name in the Git repo.
+     * @return the stored name, if any, or null
      */
     @Override
     public String getYourNameFromRepo(File projectPath) 
     {
         String result = null;
-        try {
-            try (Git repo = Git.open(projectPath)) {
-                StoredConfig repoConfig = repo.getRepository().getConfig(); //get repo config
-                result = repoConfig.getString("user", null, "name"); //recover the user name
+        try
+        {
+            try (Git repo = Git.open(projectPath))
+            {
+                StoredConfig repoConfig = repo.getRepository().getConfig();
+                result = repoConfig.getString("user", null, "name");
                 repo.close();
             } //close the repo
-        } catch (IOException ex) { }
+        }
+        catch (IOException ex)
+        {
+            Debug.reportError("Git: Could not get user name from repository", ex);
+        }
         return result;
     }
     
     /**
-     * opens the Git repository and returns the stored email
+     * Find the user email as configured for the repository, if any.
+     * 
      * @param projectPath path to the BlueJ project
-     * @return String with the stored email in the Git repo.
+     * @return the stored email address, if any, or null
      */
     @Override
     public String getYourEmailFromRepo(File projectPath) 
     {
         String result = null;
-        try {
-            try (Git repo = Git.open(projectPath)) {
-                StoredConfig repoConfig = repo.getRepository().getConfig(); //get repo config
-                result = repoConfig.getString("user", null, "email"); //recover the user email
+        try
+        {
+            try (Git repo = Git.open(projectPath))
+            {
+                StoredConfig repoConfig = repo.getRepository().getConfig();
+                result = repoConfig.getString("user", null, "email");
                 repo.close();
-            } //close the repo
-        } catch (IOException ex) { }
+            }
+        }
+        catch (IOException ex)
+        {
+            Debug.reportError("Git: Could not get user email from repository", ex);
+        }
         return result;
     }
 
