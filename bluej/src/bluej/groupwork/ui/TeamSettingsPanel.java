@@ -212,25 +212,13 @@ public class TeamSettingsPanel extends VBox
 
         setProviderSettings();
 
-        switch (type) {
-            case Subversion:
-                useAsDefault.setDisable(false);
-                break;
-            case Git:
-                // on git we always save.
-                useAsDefault.setSelected(true);
-                useAsDefault.setDisable(true);
-                break;
-            default:
-                Debug.reportError(type + " is not recognisable as s server type");
-        }
+        useAsDefault.setDisable(false);
     }
 
     private void preparePersonalPane(ServerType type)
     {
         personalPane.getChildren().clear();
 
-//        yourNameField.setPromptText(Config.getString("team.settings.yourName"));
         // Request focus on the username field by default.
         yourNameField.requestFocus();
 
@@ -332,7 +320,6 @@ public class TeamSettingsPanel extends VBox
                         yourEmailField.setDisable(true);
                         setTextFieldText(yourNameField, provider.getYourNameFromRepo(respositoryRoot));
                         yourNameField.setDisable(true);
-                        this.useAsDefault.setSelected(true); // on git we always save.
                     }
                 }
                 break;
