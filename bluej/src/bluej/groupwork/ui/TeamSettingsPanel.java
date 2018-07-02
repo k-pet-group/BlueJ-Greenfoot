@@ -282,9 +282,7 @@ public class TeamSettingsPanel extends VBox
                     {
                         File respositoryRoot = teamSettingsController.getProject().getProjectDir();
                         setTextFieldText(yourEmailField, provider.getYourEmailFromRepo(respositoryRoot));
-                        yourEmailField.setDisable(true);
                         setTextFieldText(yourNameField, provider.getYourNameFromRepo(respositoryRoot));
-                        yourNameField.setDisable(true);
                     }
                 }
                 break;
