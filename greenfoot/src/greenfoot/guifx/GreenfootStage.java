@@ -581,7 +581,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
      */
     private void discardWorld()
     {
-        if (stateProperty.get() != State.NO_WORLD)
+        if (stateProperty.get() != State.NO_WORLD && stateProperty.get() != State.NO_PROJECT)
         {
             debugHandler.getVmComms().discardWorld();
             stateProperty.set(State.NO_WORLD);
