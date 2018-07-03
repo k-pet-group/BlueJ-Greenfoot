@@ -307,8 +307,7 @@ public class GitProvider implements TeamworkProvider
             {
                 StoredConfig repoConfig = repo.getRepository().getConfig();
                 result = repoConfig.getString("user", null, "name");
-                repo.close();
-            } //close the repo
+            }
         }
         catch (IOException ex)
         {
@@ -333,7 +332,6 @@ public class GitProvider implements TeamworkProvider
             {
                 StoredConfig repoConfig = repo.getRepository().getConfig();
                 result = repoConfig.getString("user", null, "email");
-                repo.close();
             }
         }
         catch (IOException ex)
