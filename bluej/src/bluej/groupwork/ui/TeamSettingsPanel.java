@@ -89,7 +89,7 @@ public class TeamSettingsPanel extends VBox
 
     private final TextField serverField = new TextField();
     private final TextField prefixField = new TextField();
-    private final ComboBox protocolComboBox = new ComboBox();
+    private final ComboBox<String> protocolComboBox = new ComboBox<>();
     private final TextField uriField = new TextField();
 
     private final TextField yourNameField = new TextField();
@@ -101,20 +101,6 @@ public class TeamSettingsPanel extends VBox
     private CheckBox useAsDefault;
     private ServerType selectedServerType = null;
 
-    /*String[] personalLabels = {
-            "team.settings.yourName",
-            "team.settings.yourEmail",
-            "team.settings.user",
-            "team.settings.password",
-            "team.settings.group"
-    };
-
-    String[] locationLabels = {
-            "team.settings.prefix",
-            "team.settings.uri",
-            "team.settings.protocol"
-    };*/
-
     public TeamSettingsPanel(TeamSettingsController teamSettingsController, TeamSettingsDialog dialog, ObservableList<String> styleClass)
     {
         this.teamSettingsController = teamSettingsController;
@@ -122,7 +108,7 @@ public class TeamSettingsPanel extends VBox
 
         JavaFXUtil.addStyleClass(this, "panel");
 
-        serverTypes = new HorizontalRadio(Arrays.asList(ServerType.Subversion, ServerType.Git));
+        serverTypes = new HorizontalRadio<>(Arrays.asList(ServerType.Subversion, ServerType.Git));
         serverTypes.select(ServerType.Subversion);
 
         HBox serverTypeBox = new HBox();
@@ -160,27 +146,6 @@ public class TeamSettingsPanel extends VBox
         }
     }
 
-    /*private GridPane addPane(String[] labels)
-    {
-        GridPane gridPane = new GridPane();
-        JavaFXUtil.addStyleClass(gridPane, "grid");
-
-        List<TextField> fields = new ArrayList<>();
-
-        for (int i = 0; i < labels.length; i++) {
-            Label label = new Label(Config.getString(labels[i]));
-            label.setPrefWidth(100);
-            gridPane.add(label, 0, i);
-
-            TextField field = new TextField();
-            fields.add(field);
-            JavaFXUtil.addChangeListener(field.textProperty(), text -> updateOKButton());
-            gridPane.add(field, 1, i);
-        }
-
-        return gridPane;
-    }*/
-
     private GridPane createGridPane()
     {
         GridPane pane = new GridPane();
@@ -212,25 +177,13 @@ public class TeamSettingsPanel extends VBox
 
         setProviderSettings();
 
-        switch (type) {
-            case Subversion:
-                useAsDefault.setDisable(false);
-                break;
-            case Git:
-                // on git we always save.
-                useAsDefault.setSelected(true);
-                useAsDefault.setDisable(true);
-                break;
-            default:
-                Debug.reportError(type + " is not recognisable as s server type");
-        }
+        useAsDefault.setDisable(false);
     }
 
     private void preparePersonalPane(ServerType type)
     {
         personalPane.getChildren().clear();
 
-//        yourNameField.setPromptText(Config.getString("team.settings.yourName"));
         // Request focus on the username field by default.
         yourNameField.requestFocus();
 
@@ -269,7 +222,18 @@ public class TeamSettingsPanel extends VBox
                 Debug.reportError(type + " is not recognisable as s server type");
         }
     }
-        
+    
+    /**
+     * Set a text field's text property, adjusting null to the empty string.
+     * 
+     * @param field  the text field to set the text for
+     * @param value  the value to set the text property to, or null for the empty string
+     */
+    private void setTextFieldText(TextField field, String value)
+    {
+        field.setText(value == null ? "" : value);
+    }
+
     private void setupContent()
     {
         String user = teamSettingsController.getPropString("bluej.teamsettings.user");
@@ -304,22 +268,21 @@ public class TeamSettingsPanel extends VBox
         // We always go through the providers.  If the user had no preference,
         // we select the first one, and update the email/name enabled states accordingly:
         List<TeamworkProvider> teamProviders = teamSettingsController.getTeamworkProviders();
-        for (int index = 0; index < teamProviders.size(); index++) {
+        for (int index = 0; index < teamProviders.size(); index++)
+        {
             TeamworkProvider provider = teamProviders.get(index);
             if (provider.getProviderName().equalsIgnoreCase(providerName)
-                || (providerName == null && index == 0)) { // Select first if no stored preference
+                || (providerName == null && index == 0))
+            {
+                // Select first if no stored preference:
                 serverTypes.select(ServerType.valueOf(teamProviders.get(index).getProviderName()));
-                //checks if this provider needs your name and your e-mail.
-                if (provider.needsEmail()){
-                    if (teamSettingsController.getProject() != null){
-                        //settings panel being open within a project.
-                        //fill the data.
+                if (provider.needsEmail())
+                {
+                    if (teamSettingsController.getProject() != null)
+                    {
                         File respositoryRoot = teamSettingsController.getProject().getProjectDir();
-                        yourEmailField.setText(provider.getYourEmailFromRepo(respositoryRoot));
-                        yourEmailField.setDisable(true);
-                        yourNameField.setText(provider.getYourNameFromRepo(respositoryRoot));
-                        yourNameField.setDisable(true);
-                        this.useAsDefault.setSelected(true); // on git we always save.
+                        setTextFieldText(yourEmailField, provider.getYourEmailFromRepo(respositoryRoot));
+                        setTextFieldText(yourNameField, provider.getYourNameFromRepo(respositoryRoot));
                     }
                 }
                 break;
@@ -502,15 +465,18 @@ public class TeamSettingsPanel extends VBox
         return useAsDefault.isSelected();
     }
     
-    private String getYourName(){
+    private String getYourName()
+    {
         return yourNameField.getText();
     }
     
-    private String getYourEmail(){
+    private String getYourEmail()
+    {
         return yourEmailField.getText();
     }
     
-    public TeamSettings getSettings() {
+    public TeamSettings getSettings()
+    {
         TeamSettings result = new TeamSettings(getSelectedProvider(), getProtocolKey(),
                 getServer(), getPrefix(), getGroup(), getUser(), getPassword());
         result.setYourEmail(getYourEmail());
@@ -565,24 +531,4 @@ public class TeamSettingsPanel extends VBox
         serverLabel.setDisable(true);
         protocolLabel.setDisable(true);
     }
-
-   /* class specialTextField
-    {
-        public TextField field;
-        public Label label;
-        public int special = 0;
-
-        public specialTextField(String name)
-        {
-            label = new Label(name);
-            field = new TextField();
-            field.setPromptText(name);
-        }
-
-        public specialTextField(String name, int special)
-        {
-            this(name);
-            this.special = special;
-        }
-    }*/
 }
