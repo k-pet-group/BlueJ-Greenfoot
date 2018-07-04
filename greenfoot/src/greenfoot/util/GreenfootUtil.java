@@ -23,18 +23,11 @@ package greenfoot.util;
 
 import bluej.Boot;
 import bluej.Config;
-import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.GreenfootImage;
 import greenfoot.UserInfo;
 import greenfoot.core.ImageCache;
 import greenfoot.platforms.GreenfootUtilDelegate;
 
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.color.ColorSpace;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorConvertOp;
-import java.awt.image.ImageObserver;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -49,18 +42,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-
-import javax.swing.Action;
-import javax.swing.JButton;
-
-import javafx.scene.Node;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.shape.LineTo;
-import javafx.scene.shape.MoveTo;
-import javafx.scene.shape.Path;
-import javafx.scene.shape.Polygon;
-import javafx.scene.shape.Polyline;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -87,231 +68,6 @@ public class GreenfootUtil
     {
         delegate = newDelegate;
         imageCache = ImageCache.getInstance();
-    }
-    
-    /**
-     * Extracts the name of a class from the qualified class name.
-     */
-    public static String extractClassName(String qualifiedName)
-    {
-        int index = qualifiedName.lastIndexOf('.');
-        String name = qualifiedName;
-        if (index >= 0) {
-            name = qualifiedName.substring(index + 1);
-        }
-        return name;
-    }
-    
-    /**
-     * The green &gt; symbol for act.
-     * Currently, can't be used in a menuItem as JavaFX doesn't deal
-     * with this type of nodes properly on menuItem, at least on Mac.
-     */
-    @OnThread(Tag.FXPlatform)
-    public static Node makeActIcon()
-    {
-        return JavaFXUtil.withStyleClass(new Polyline(
-                0, 0,
-                12, 5,
-                0, 10
-        ), "act-icon");
-    }
-
-    /**
-     * The green triangle symbol for run.
-     * Currently, can't be used in a menuItem as JavaFX doesn't deal
-     * with this type of nodes properly on menuItem, at least on Mac.
-     */
-    @OnThread(Tag.FXPlatform)
-    public static Node makeRunIcon()
-    {
-        return JavaFXUtil.withStyleClass(new Polygon(
-            0, 0,
-                12, 5,
-                0, 10
-        ), "run-icon");
-    }
-
-    /**
-     * The red pause icon.
-     * Currently, can't be used in a menuItem as JavaFX doesn't deal
-     * with this type of nodes properly on menuItem, at least on Mac.
-     */
-    @OnThread(Tag.FXPlatform)
-    public static Node makePauseIcon()
-    {
-        return JavaFXUtil.withStyleClass(new Path(
-            new MoveTo(2, 0),
-                new LineTo(2, 10),
-                new MoveTo(8, 0),
-                new LineTo(8, 10)
-        ), "pause-icon");
-    }
-
-    /**
-     * The brown reset icon.
-     * Currently, can't be used in a menuItem as JavaFX doesn't deal
-     * with this type of nodes properly on menuItem, at least on Mac.
-     */
-    @OnThread(Tag.FXPlatform)
-    public static Node makeResetIcon()
-    {
-        Canvas canvas = new Canvas(15, 15);
-        GraphicsContext g = canvas.getGraphicsContext2D();
-        g.setStroke(javafx.scene.paint.Color.SADDLEBROWN);
-        g.setLineWidth(2);
-        g.setFill(null);
-        int centreX = 7;
-        int centreY = 7;
-        // The loop part, with a 100 degree slightly asymmetric gap:
-        g.arc(centreX, centreY, 5, 5, 135, 260);
-        g.stroke();
-        // sin(45) = cos(45) = 1/sqrt(2):
-        double arcEndX = centreX - 5 / Math.sqrt(2);
-        double arcEndY = centreY - 5 / Math.sqrt(2);
-        // Tweak the positioning of the arrow head to make it look right at small scale:
-        arcEndX += 1.0;
-        // Triangle should point at 45 degrees, but looks better if curving down, so 25 is about right
-        int triangleHeading = 25;
-        // The size of the arrow head, measured by distance from the centre:
-        int arrowRadius = 4;
-        g.setFill(g.getStroke());
-        g.setStroke(null);
-        // Arrow head is a rotated equilateral triangle around arcEndX, arcEndY:
-        g.fillPolygon(new double[] {
-            arcEndX + arrowRadius * Math.cos(Math.toRadians(triangleHeading)),
-            arcEndX + arrowRadius * Math.cos(Math.toRadians(triangleHeading + 120)),
-            arcEndX + arrowRadius * Math.cos(Math.toRadians(triangleHeading + 240))}, new double[]{
-            arcEndY - arrowRadius * Math.sin(Math.toRadians(triangleHeading)),
-            arcEndY - arrowRadius * Math.sin(Math.toRadians(triangleHeading + 120)),
-            arcEndY - arrowRadius * Math.sin(Math.toRadians(triangleHeading + 240))
-            },
-            3
-        );
-        return canvas;
-    }
-
-    /**
-     * A class which conveniently allows us to synchronously retrieve the
-     * width and height of an Image, and to draw the image to a graphics
-     * context.
-     * 
-     * @author Davin McCall
-     */
-    public static class ImageWaiter implements ImageObserver
-    {
-        public int width;
-        public int height;
-        public boolean done;
-        public boolean gotDimensions;
-        public Image src;
-        
-        public ImageWaiter(Image src)
-        {
-            this.src = src;
-            done = false;
-            gotDimensions = false;
-            synchronized (this) {
-                width = src.getWidth(this);
-                height = src.getHeight(this);
-                if (width != -1 && height != -1) {
-                    gotDimensions = true;
-                }
-            }
-        }
-        
-        /**
-         * Wait until we have the dimensions of the image.
-         */
-        public synchronized void waitDimensions()
-        {
-            try {
-                while (! gotDimensions) {
-                    wait();
-                }
-            }
-            catch (InterruptedException ie) {}
-        }
-        
-        /**
-         * Draw the source image to a graphics context and wait for the drawing
-         * operation to complete.
-         * 
-         * @param canvas   The graphics context to draw to
-         * @param x        The x position to draw to
-         * @param y        The y position to draw to
-         */
-        public synchronized void drawWait(Graphics canvas, int x, int y)
-        {
-            done = canvas.drawImage(src, x, y, this);
-            try {
-                while (! done) {
-                    wait();
-                }
-            }
-            catch (InterruptedException ie) {}
-        }
-        
-        /**
-         * Scale and draw the source image to a graphics context and wait for the
-         * drawing operation to complete.
-         * 
-         * @param canvas   The graphics context to draw to
-         * @param x        The x position to draw to
-         * @param y        The y position to draw to
-         * @param w        The width to scale to
-         * @param h        The height to scale to
-         */
-        public synchronized void drawWait(Graphics canvas, int x, int y, int w, int h)
-        {
-            done = canvas.drawImage(src, x, y, w, h, this);
-            try {
-                while (! done) {
-                    wait();
-                }
-            }
-            catch (InterruptedException ie) {}
-        }
-        
-        /*
-         * This is the asynchronous callback for when the dimensions of the image
-         * become available, or the draw operation finishes.
-         * 
-         *  (non-Javadoc)
-         * @see java.awt.image.ImageObserver#imageUpdate(java.awt.Image, int, int, int, int, int)
-         */
-        @Override
-        public synchronized boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height)
-        {
-            // First stage: get image dimensions
-            if (! gotDimensions) {
-                if ((infoflags & WIDTH) != 0) {
-                    this.width = width;
-                }
-                
-                if ((infoflags & HEIGHT) != 0) {
-                    this.height = height;
-                }
-                
-                if (this.width != -1 && this.height != -1) {
-                    gotDimensions = true;
-                    notify();
-                    return false;
-                }
-                else {
-                    return true;
-                }
-            }
-            
-            // Second stage: wait for draw operation to complete
-            if ((infoflags & (FRAMEBITS | ALLBITS | ERROR | ABORT)) != 0) {
-                done = true;
-                notify();
-                return false;
-            }
-            
-            return true;
-        }
     }
     
     /**
@@ -489,17 +245,6 @@ public class GreenfootUtil
             return false;
         }
         return ! Modifier.isAbstract(cls.getModifiers());
-    }
-    
-    /**
-     * Create a new button for the use in the Greenfoot UI. 
-     */
-    @OnThread(Tag.Swing)
-    public static JButton createButton(Action action)
-    {
-        JButton button = new JButton(action);
-        button.setFocusable(false);
-        return button;
     }
     
     /**
@@ -749,13 +494,5 @@ public class GreenfootUtil
     public static List<UserInfo> getNearbyUserData(int maxAmount)
     {
         return delegate.getNearbyUserInfo(maxAmount);
-    }
-    
-    /**
-     * Convert an image to grayscale.
-     */
-    public static void convertToGreyImage(BufferedImage image)
-    {
-        new ColorConvertOp(ColorSpace.getInstance(ColorSpace.CS_GRAY), null).filter(image, image);
     }
 }

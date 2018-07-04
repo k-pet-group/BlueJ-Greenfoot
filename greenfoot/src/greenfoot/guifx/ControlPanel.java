@@ -25,7 +25,6 @@ import bluej.Config;
 import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.core.Simulation;
 import greenfoot.guifx.GreenfootStage.State;
-import greenfoot.util.GreenfootUtil;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -34,6 +33,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
@@ -48,6 +49,11 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.TilePane;
+import javafx.scene.shape.LineTo;
+import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.Path;
+import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Polyline;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -66,10 +72,11 @@ public class ControlPanel extends GridPane
     private static final String RUN_BUTTON_TEXT = Config.getString("controls.run.button");
     private static final String RUN_BUTTON_TOOLTIP_TEXT = Config.getString("controls.run.shortDescription");
     private static final String PAUSE_BUTTON_TOOLTIP_TEXT = Config.getString("controls.pause.shortDescription");
-    private static final Node RUN_ICON = GreenfootUtil.makeRunIcon();
-    private static final Node PAUSE_ICON = GreenfootUtil.makePauseIcon();
-    private static final Node ACT_ICON = GreenfootUtil.makeActIcon();
-    private static final Node RESET_ICON = GreenfootUtil.makeResetIcon();
+    
+    private final Node run_icon = makeRunIcon();
+    private final Node pause_icon = makePauseIcon();
+    private final Node act_icon = makeActIcon();
+    private final Node reset_icon = makeResetIcon();
     
     private final Button actButton;
     private final Button runPauseButton;
@@ -97,13 +104,13 @@ public class ControlPanel extends GridPane
         this.listener = listener;
         actButton = new Button(Config.getString("run.once"));
         actButton.setTooltip(new Tooltip(Config.getString("controls.runonce.shortDescription")));
-        actButton.setGraphic(ACT_ICON);
+        actButton.setGraphic(act_icon);
         runPauseButton = new Button(RUN_BUTTON_TEXT);
-        runPauseButton.setGraphic(RUN_ICON);
+        runPauseButton.setGraphic(run_icon);
         runPauseButton.setTooltip(new Tooltip(RUN_BUTTON_TOOLTIP_TEXT));
         Button resetButton = new Button(Config.getString("reset.world"));
         resetButton.setTooltip(new Tooltip(Config.getString("controls.reset.shortDescription")));
-        resetButton.setGraphic(RESET_ICON);
+        resetButton.setGraphic(reset_icon);
         actButton.disableProperty().bind(actDisabled);
         runPauseButton.disableProperty().bind(runPauseDisabled);
         resetButton.disableProperty().bind(resetDisabled);
@@ -187,7 +194,7 @@ public class ControlPanel extends GridPane
             // tooltip with the same text causes it to disappear needlessly if the user is currently viewing it:
             if (!runPauseButton.getText().equals(PAUSE_BUTTON_TEXT))
             {
-                runPauseButton.setGraphic(PAUSE_ICON);
+                runPauseButton.setGraphic(pause_icon);
                 runPauseButton.setText(PAUSE_BUTTON_TEXT);
                 runPauseButton.setTooltip(new Tooltip(PAUSE_BUTTON_TOOLTIP_TEXT));
             }
@@ -197,7 +204,7 @@ public class ControlPanel extends GridPane
             // Ditto: only change text and tooltip if needed
             if (!runPauseButton.getText().equals(RUN_BUTTON_TEXT))
             {
-                runPauseButton.setGraphic(RUN_ICON);
+                runPauseButton.setGraphic(run_icon);
                 runPauseButton.setText(RUN_BUTTON_TEXT);
                 runPauseButton.setTooltip(new Tooltip(RUN_BUTTON_TOOLTIP_TEXT));
             }
@@ -282,4 +289,103 @@ public class ControlPanel extends GridPane
          */
         void setSpeedFromSlider(int speed);
     }
+    
+    /**
+     * The green &gt; symbol for act.
+     * Currently, can't be used in a menuItem as JavaFX doesn't deal
+     * with this type of nodes properly on menuItem, at least on Mac.
+     */
+    @OnThread(Tag.FXPlatform)
+    private static Node makeActIcon()
+    {
+        return JavaFXUtil.withStyleClass(
+                new Polyline(
+                    0, 0,
+                    12, 5,
+                    0, 10
+                ),
+                "act-icon");
+    }
+
+    /**
+     * The green triangle symbol for run.
+     * Currently, can't be used in a menuItem as JavaFX doesn't deal
+     * with this type of nodes properly on menuItem, at least on Mac.
+     */
+    @OnThread(Tag.FXPlatform)
+    private static Node makeRunIcon()
+    {
+        return JavaFXUtil.withStyleClass(
+                new Polygon(
+                    0, 0,
+                    12, 5,
+                    0, 10
+                ), 
+                "run-icon");
+    }
+
+    /**
+     * The red pause icon.
+     * Currently, can't be used in a menuItem as JavaFX doesn't deal
+     * with this type of nodes properly on menuItem, at least on Mac.
+     */
+    @OnThread(Tag.FXPlatform)
+    private static Node makePauseIcon()
+    {
+        return JavaFXUtil.withStyleClass(
+                new Path(
+                    new MoveTo(2, 0),
+                    new LineTo(2, 10),
+                    new MoveTo(8, 0),
+                    new LineTo(8, 10)
+                ),
+                "pause-icon");
+    }
+
+    /**
+     * The brown reset icon.
+     * Currently, can't be used in a menuItem as JavaFX doesn't deal
+     * with this type of nodes properly on menuItem, at least on Mac.
+     */
+    @OnThread(Tag.FXPlatform)
+    private static Node makeResetIcon()
+    {
+        Canvas canvas = new Canvas(15, 15);
+        GraphicsContext g = canvas.getGraphicsContext2D();
+        g.setStroke(javafx.scene.paint.Color.SADDLEBROWN);
+        g.setLineWidth(2);
+        g.setFill(null);
+        int centreX = 7;
+        int centreY = 7;
+        // The loop part, with a 100 degree slightly asymmetric gap:
+        g.arc(centreX, centreY, 5, 5, 135, 260);
+        g.stroke();
+        // sin(45) = cos(45) = 1/sqrt(2):
+        double arcEndX = centreX - 5 / Math.sqrt(2);
+        double arcEndY = centreY - 5 / Math.sqrt(2);
+        // Tweak the positioning of the arrow head to make it look right at small scale:
+        arcEndX += 1.0;
+        // Triangle should point at 45 degrees, but looks better if curving down, so 25 is about right
+        int triangleHeading = 25;
+        // The size of the arrow head, measured by distance from the centre:
+        int arrowRadius = 4;
+        g.setFill(g.getStroke());
+        g.setStroke(null);
+        // Arrow head is a rotated equilateral triangle around arcEndX, arcEndY:
+        g.fillPolygon(
+                new double[] {
+                    arcEndX + arrowRadius * Math.cos(Math.toRadians(triangleHeading)),
+                    arcEndX + arrowRadius * Math.cos(Math.toRadians(triangleHeading + 120)),
+                    arcEndX + arrowRadius * Math.cos(Math.toRadians(triangleHeading + 240))
+                },
+                new double[] {
+                    arcEndY - arrowRadius * Math.sin(Math.toRadians(triangleHeading)),
+                    arcEndY - arrowRadius * Math.sin(Math.toRadians(triangleHeading + 120)),
+                    arcEndY - arrowRadius * Math.sin(Math.toRadians(triangleHeading + 240))
+                },
+                3
+        );
+        return canvas;
+    }
+    
 }
