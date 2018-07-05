@@ -194,9 +194,9 @@ public class GClassDiagram extends BorderPane
     /**
      * Looks up list of ClassTargets in the project, and puts them into a tree structure
      * according to their superclass relations, with Actor and World subclasses
-     * going into their own group.
+     * going into their own group. It needs to be called whenever the class inheritance hierarchy changes.
      */
-    void recalculateGroups()
+    public void recalculateGroups()
     {
         ArrayList<ClassTarget> originalClassTargets = project.getUnnamedPackage().getClassTargets();
         
