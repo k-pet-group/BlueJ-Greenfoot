@@ -1732,6 +1732,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             doReset();
         }
         updateBackgroundMessage();
+        classDiagram.recalculateGroups();
     }
 
     @Override
