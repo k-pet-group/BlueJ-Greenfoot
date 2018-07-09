@@ -70,7 +70,7 @@ public class LocalGClassNode extends GClassNode implements TargetListener
     public LocalGClassNode(GClassDiagram classDiagram, ClassTarget classTarget,
             List<GClassNode> subClasses, GClassType type)
     {
-        super(getImageForClass(classTarget), subClasses, classDiagram.getSelectionManager());
+        super(getImageForClass(classTarget, type), subClasses, classDiagram.getSelectionManager());
         this.imageFilename = classTarget.getPackage().getLastSavedProperties()
                 .getProperty("class." + classTarget.getQualifiedName() + ".image");
         this.classDiagram = classDiagram;
@@ -94,9 +94,16 @@ public class LocalGClassNode extends GClassNode implements TargetListener
     /**
      * Get the image for a class, if any. A class "inherits" its super-class image if it does not
      * have a specific image set. May return null.
+     * @param classTarget The ClassTarget to get image for.
+     * @param type The source type of this class node.
+     * @return The image for the class or null if it has no image.
      */
-    private static Image getImageForClass(ClassTarget classTarget)
+    private static Image getImageForClass(ClassTarget classTarget, GClassType type)
     {
+        if (type == GClassType.OTHER)
+        {
+            return null;
+        }
         return JavaFXUtil.loadImage(getImageFilename(classTarget));
     }
     
