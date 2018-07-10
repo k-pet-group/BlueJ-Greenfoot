@@ -2617,6 +2617,16 @@ public final class MoeEditor extends ScopeColorsBorderPane
             recordEdit(true);
 
             cancelFreshState();
+
+            // This is a workaround to overcome a bug in RichTextFX lib,
+            // which in some cases used to cause the editor to not scroll
+            // to follow cursor.
+            // The re-layout enforcing is inside a runAfterCurrent to avoid
+            // an IllegalArgumentException caused by state inconsistency.
+            JavaFXUtil.runAfterCurrent(() -> {
+                ensureCaretVisible();
+                layout();
+            });
         }
         oldCaretLineNumber = getLineNumberAt(caretPos);
     }
