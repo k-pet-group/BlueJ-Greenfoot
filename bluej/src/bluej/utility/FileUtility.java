@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2016,2018  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,7 +21,6 @@
  */
 package bluej.utility;
 
-import java.awt.Component;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -34,8 +33,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import javax.swing.JFileChooser;
 
 import bluej.pkgmgr.Package;
 import javafx.stage.DirectoryChooser;
@@ -64,9 +61,6 @@ public class FileUtility
      * @see FileUtility#getVistaWriteCapabilities(File)
      */
     public enum WriteCapabilities {READ_ONLY, NORMAL_WRITE, VIRTUALIZED_WRITE, UNKNOWN}
-
-    private static JFileChooser pkgChooserNonBlueJ = null;
-    private static PackageChooser directoryChooser = null;
 
     /**
      * Gets a directory containing a project to open.
@@ -231,84 +225,10 @@ public class FileUtility
         return chosen;
     }
 
-    /**
-     *  Get a directory name from the user, using a file selection dialogue.
-     *  If cancelled or an invalid name was specified, return null.
-     *  
-     *  @param parent   The parent component for the dialog display
-     *  @param buttonLabel  The label for the select button
-     *  @param existingOnly  Whether only existing directories should be
-     *                       selectable
-     *  @param rememberDir  Whether to remember the parent directory of
-     *                      the selected directory across sessions 
-     */
-    public static File getDirName(Component parent, String title,
-            String buttonLabel, boolean existingOnly, boolean rememberDir)
-    {
-        return getDirName(parent, title, buttonLabel, null, existingOnly, rememberDir);
-    }
-    
-    /**
-     *  Get a directory name from the user, using a file selection dialogue.
-     *  If cancelled or an invalid name was specified, return null.
-     *  
-     *  @param parent   The parent component for the dialog display
-     *  @param buttonLabel  The label for the select button
-     *  @param startDir The directory to show in the file chooser to begin with
-     *  @param existingOnly  Whether only existing directories should be
-     *                       selectable
-     *  @param rememberDir  Whether to remember the parent directory of
-     *                      the selected directory across sessions 
-     */
-    public static File getDirName(Component parent, String title,
-            String buttonLabel, File startDir, boolean existingOnly, boolean rememberDir)
-    {
-        PackageChooser newChooser = getDirectoryChooser();
-        if (startDir != null)
-        {
-            newChooser.setCurrentDirectory(startDir);
-        }
-        newChooser.setFileFilter(newChooser.getAcceptAllFileFilter());
-        newChooser.setAllowNewFiles(! existingOnly);
-        
-        newChooser.setDialogTitle(title);
-
-        int result = newChooser.showDialog(parent, buttonLabel);
-
-        if (result == JFileChooser.APPROVE_OPTION) {
-            if (rememberDir) {
-                if (newChooser.getSelectedFile().getParentFile() != null)
-                {
-                    PrefMgr.setProjectDirectory(newChooser.getSelectedFile().getParentFile().getPath());
-                }
-            }
-            return newChooser.getSelectedFile();
-        }
-        else if (result == JFileChooser.CANCEL_OPTION) {
-            return null;
-        }
-        else {
-            DialogManager.showError(parent, "error-no-name");
-            return null;
-        }
-    }
-
     @OnThread(Tag.FX)
     public static ExtensionFilter getJavaStrideSourceFilterFX()
     {
         return new ExtensionFilter("Java/Stride source", "*." + SourceType.Java.getExtension(), "*." + SourceType.Stride.getExtension());
-    }
-
-    /**
-     * return a file chooser for choosing any directory
-     */
-    private static PackageChooser getDirectoryChooser()
-    {
-        if (directoryChooser == null) {
-            directoryChooser = new PackageChooser(PrefMgr.getProjectDirectory(), false, false);
-        }
-        
-        return directoryChooser;
     }
 
     /**

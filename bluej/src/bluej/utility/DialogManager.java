@@ -24,20 +24,12 @@ package bluej.utility;
 import bluej.BlueJTheme;
 import bluej.Config;
 
-import java.awt.Component;
 import java.awt.Toolkit;
-import java.awt.Window;
 import java.awt.datatransfer.StringSelection;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -62,22 +54,6 @@ public class DialogManager
 {
     private static final String DLG_FILE_NAME = "dialogues";
     private static final String GREENFOOT_DLG_FILE_NAME = "greenfoot/dialogues";
-
-    /**
-     * Show an information dialog with message and "OK" button. The
-     * message itself is identified by a message ID (a short string)
-     * which is looked up in the language specific dialogue text file
-     * (eg. "dialogues.english").
-     */
-    public static void showMessage(Component parent, String msgID)
-    {
-        String message = getMessage(msgID);
-        if (message != null)
-            JOptionPane.showMessageDialog(parent, message,
-                                          Config.getApplicationName() + ":  " +
-                                          Config.getString("dialogmgr.message"),
-                                          JOptionPane.INFORMATION_MESSAGE);
-    }
 
     /**
      * Show an information dialog with message and "OK" button. The
@@ -153,18 +129,6 @@ public class DialogManager
         }
     }
 
-
-    /**
-     * Show an information dialog with a text and "OK" button. The text
-     * is shown as it is passed in here. This method should only be used
-     * if the text has already been localised (translated into the local
-     * language). Most of the time "showMessage" (above) should be used.
-     */
-    public static void showText(Component parent, String text)
-    {
-        JOptionPane.showMessageDialog(parent, text);
-    }
-
     @OnThread(Tag.FXPlatform)
     public static void showTextWithCopyButtonFX(javafx.stage.Window parent, String text, String title)
     {
@@ -188,17 +152,6 @@ public class DialogManager
         alert.initModality(Modality.WINDOW_MODAL);
         alert.setHeaderText("");
         alert.showAndWait();
-    }
-
-    /**
-     * Show an error dialog with message and "OK" button.
-     */
-    public static void showError(Component parent, String msgID)
-    {
-        String message = getMessage(msgID);
-        if (message != null) {
-            showErrorText(parent, message);
-        }
     }
 
     /**
@@ -259,20 +212,6 @@ public class DialogManager
         if (message != null) {
             showErrorTextFX(parent, message);
         }
-    }
-
-    /**
-     * Show an error dialog with an already-localized message and "OK" button.
-     * 
-     * @param parent   The component to position the dialog over
-     * @param message  The message text to display (should be localized)
-     */
-    public static void showErrorText(Component parent, String message)
-    {
-        JOptionPane.showMessageDialog(parent, message,
-                Config.getApplicationName() + ":  " +
-                Config.getString("dialogmgr.error"),
-                JOptionPane.ERROR_MESSAGE);
     }
 
     /**
@@ -542,44 +481,17 @@ public class DialogManager
 
     // --- utility methods to position dialogues and other windows ---
 
-    /**
-     * centreDialog - try to center a dialog within its parent frame
-     */
-    public static void centreDialog(JDialog dialog)
-    {
-        centreWindow(dialog, (Window)dialog.getParent());
-    }
-
-    /**
-     * centreWindow - try to center a window within a parent window
-     */
-    public static void centreWindow(Window child, Window parent)
-    {
-        child.setLocationRelativeTo(parent);
-    }
-
     @OnThread(Tag.FXPlatform)
-    public static void centreDialog(Dialog dialog)
+    public static void centreDialog(Dialog<?> dialog)
     {
         dialog.setOnShown(event -> centreWindow(dialog, dialog.getOwner()));
     }
 
     @OnThread(Tag.FXPlatform)
-    private static void centreWindow(Dialog dialog, javafx.stage.Window owner)
+    private static void centreWindow(Dialog<?> dialog, javafx.stage.Window owner)
     {
         dialog.setX(owner.getX() + owner.getWidth()/2d - dialog.getWidth()/2d);
         dialog.setY(owner.getY() + owner.getHeight()/2d - dialog.getHeight()/2d);
-    }
-
-    public static void addOKCancelButtons(JPanel panel, JButton okButton, JButton cancelButton) 
-    {
-        if (Config.isMacOS()) {
-            panel.add(cancelButton);
-            panel.add(okButton);
-        } else {
-            panel.add(okButton);
-            panel.add(cancelButton);
-        }
     }
 
     private static class MessageAndButtons
