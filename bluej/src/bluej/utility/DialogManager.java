@@ -361,17 +361,19 @@ public class DialogManager
             message = Utility.mergeStrings(message, subs);
             List<ButtonType> buttons = new ArrayList<>();
             boolean hasThirdButton = !"null".equals(button3);
-            buttons.add(new ButtonType(button1, hasThirdButton ? ButtonBar.ButtonData.CANCEL_CLOSE : ButtonBar.ButtonData.NO));
-            buttons.add(new ButtonType(button2, hasThirdButton ? ButtonBar.ButtonData.NO : ButtonBar.ButtonData.YES));
+            buttons.add(new ButtonType(button1));
+            buttons.add(new ButtonType(button2));
             if (hasThirdButton)
-                buttons.add(new ButtonType(button3, ButtonBar.ButtonData.YES));
+            {
+                buttons.add(new ButtonType(button3));
+            }
 
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION, message, buttons.toArray(new ButtonType[0]));
             alert.initOwner(parent);
             alert.initModality(Modality.WINDOW_MODAL);
             alert.setHeaderText("");
             alert.setTitle(Config.getApplicationName() + ":  " +
-                Config.getString("dialogmgr.question"));
+                    Config.getString("dialogmgr.question"));
             return alert.showAndWait().map(buttons::indexOf).orElse(buttons.size() - 1);
         }
         return 0;
@@ -380,7 +382,10 @@ public class DialogManager
     /**
      * Brings up a two or three button question dialog. The question message and
      * the buttons are read from the dialogues file; the information text is passed
-     * to be appended to the question message.
+     * to be appended to the question message.<p>
+     * 
+     * The first option should be the affirmative, the second should be negative,
+     * and the third (if present) should be the cancellation option. 
      *
      * <p>If the third button text is "null", it is not shown. Returns the button
      * index that was selected (0..2).
@@ -403,33 +408,24 @@ public class DialogManager
 
             List<ButtonType> buttons = new ArrayList<>();
             boolean hasThirdButton = !"null".equals(button3);
-            buttons.add(new ButtonType
-                    (button2, hasThirdButton ? ButtonBar.ButtonData.CANCEL_CLOSE : ButtonBar.ButtonData.NO));
-            buttons.add(new ButtonType
-                    (button1, hasThirdButton ? ButtonBar.ButtonData.NO : ButtonBar.ButtonData.YES));
+            buttons.add(new ButtonType(button1, ButtonBar.ButtonData.YES));
+            buttons.add(new ButtonType(button2,
+                    hasThirdButton ?  ButtonBar.ButtonData.NO : ButtonBar.ButtonData.CANCEL_CLOSE));
             if (hasThirdButton)
             {
-                buttons.add(new ButtonType(button3, ButtonBar.ButtonData.YES));
+                buttons.add(new ButtonType(button3, ButtonBar.ButtonData.CANCEL_CLOSE));
             }
 
-            Alert alert;
-            if (!Config.isMacOS())
-            {
-                alert = new Alert(Alert.AlertType.CONFIRMATION, message, buttons.toArray(new ButtonType[0]));
-            }
-            else
-            {
-                Collections.reverse(Arrays.asList(buttons));
-                alert = new Alert(Alert.AlertType.CONFIRMATION, message, buttons.toArray(new ButtonType[0]));
-            }
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, message,
+                    buttons.toArray(new ButtonType[0]));
 
             alert.initOwner(parent);
             alert.initModality(Modality.WINDOW_MODAL);
             alert.setHeaderText("");
             alert.setTitle(Config.getApplicationName() + ":  " +
                     Config.getString("dialogmgr.question"));
-            return alert.showAndWait().map(buttons::indexOf).
-                    orElse(buttons.size() - 1);
+            
+            return alert.showAndWait().map(buttons::indexOf).orElse(buttons.size() - 1);
         }
         return 0;
     }
