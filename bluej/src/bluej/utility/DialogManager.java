@@ -49,7 +49,7 @@ import threadchecker.Tag;
  *
  * @author Michael Kolling
  */
-@OnThread(Tag.Swing)
+@OnThread(Tag.FXPlatform)
 public class DialogManager
 {
     private static final String DLG_FILE_NAME = "dialogues";
@@ -61,7 +61,6 @@ public class DialogManager
      * which is looked up in the language specific dialogue text file
      * (eg. "dialogues.english"). Then replacing variables with subs.
      */
-    @OnThread(Tag.FXPlatform)
     public static void showMessageFX(javafx.stage.Window parent, String msgID, String... subs)
     {
         String message = getMessage(msgID);
@@ -86,7 +85,6 @@ public class DialogManager
      * (eg. "dialogues.english"). A text (given in a parameter) is appended
      * to the message.
      */
-    @OnThread(Tag.FXPlatform)
     public static void showMessageWithTextFX(javafx.stage.Window parent, String msgID,
                                              String text)
     {
@@ -110,7 +108,6 @@ public class DialogManager
      * as a prefix to the message. Some text (given as a parameter -
      * innerText) is inserted within the message itself. 
      */
-    @OnThread(Tag.FXPlatform)
     public static void showMessageWithPrefixTextFX(javafx.stage.Window parent, String msgID,
                                                    String text, String innerText)
     {
@@ -129,7 +126,6 @@ public class DialogManager
         }
     }
 
-    @OnThread(Tag.FXPlatform)
     public static void showTextWithCopyButtonFX(javafx.stage.Window parent, String text, String title)
     {
         Alert alert = new Alert(Alert.AlertType.INFORMATION, text, ButtonType.OK, ButtonType.APPLY);
@@ -144,7 +140,6 @@ public class DialogManager
         }
     }
 
-    @OnThread(Tag.FXPlatform)
     public static void showTextFX(javafx.stage.Window parent, String text)
     {
         Alert alert = new Alert(Alert.AlertType.INFORMATION, text, ButtonType.OK);
@@ -163,7 +158,6 @@ public class DialogManager
      * @param cancelButton  The true/false value to indicate if the dialog includes "Cancel" button
      * @return The button's index selected by the user
      */
-    @OnThread(Tag.FXPlatform)
     public static int showInfoTextFX(javafx.stage.Window parent, String title,
                                      String message, boolean cancelButton)
     {
@@ -205,7 +199,6 @@ public class DialogManager
     /**
      * Show an error dialog with message and "OK" button.
      */
-    @OnThread(Tag.FXPlatform)
     public static void showErrorFX(javafx.stage.Window parent, String msgID)
     {
         String message = getMessage(msgID);
@@ -220,7 +213,6 @@ public class DialogManager
      * @param parent   The component to position the dialog over
      * @param message  The message text to display (should be localized)
      */
-    @OnThread(Tag.FXPlatform)
     public static void showErrorTextFX(javafx.stage.Window parent, String message)
     {
         Alert alert = new Alert(Alert.AlertType.ERROR, message, ButtonType.OK);
@@ -233,7 +225,6 @@ public class DialogManager
         alert.showAndWait();
     }
 
-    @OnThread(Tag.FXPlatform)
     public static void showErrorWithTextFX(javafx.stage.Window parent, String msgID,
                                            String text)
     {
@@ -254,7 +245,6 @@ public class DialogManager
      * the second is assumed to be NO.  With three buttons, the first two
      * are assumed to be yes, the third is NO.
      */
-    @OnThread(Tag.FXPlatform)
     public static int askQuestionFX(javafx.stage.Window parent, String msgID)
     {
         MessageAndButtons messageAndButtons = new MessageAndButtons(getMessage(msgID));
@@ -285,7 +275,6 @@ public class DialogManager
      * <p>If the third button text is "null", it is not shown. Returns the button
      * index that was selected (0..2).
      */
-    @OnThread(Tag.FXPlatform)
     public static int askQuestionFX(javafx.stage.Window parent, String msgID, String [] subs)
     {
         String message = getMessage(msgID);
@@ -329,7 +318,6 @@ public class DialogManager
      * <p>If the third button text is "null", it is not shown. Returns the button
      * index that was selected (0..2).
      */
-    @OnThread(Tag.FXPlatform)
     public static int askQuestionFX(javafx.stage.Window parent, String msgID, String  infoText)
     {
         String message = getMessage(msgID);
@@ -379,7 +367,6 @@ public class DialogManager
      * 
      * @return The string supplied by the user, or null if the dialog was cancelled.
      */
-    @OnThread(Tag.FXPlatform)
     public static String askStringFX(javafx.stage.Window parent, String msgID)
     {
         String response = "";
@@ -414,7 +401,6 @@ public class DialogManager
      * 
      * @return The string supplied by the user, or null if the dialog was cancelled.
      */
-    @OnThread(Tag.FXPlatform)
     public static String askStringFX(javafx.stage.Window parent, String msgID, String defaultText)
     {
         String response = "";
@@ -481,13 +467,11 @@ public class DialogManager
 
     // --- utility methods to position dialogues and other windows ---
 
-    @OnThread(Tag.FXPlatform)
     public static void centreDialog(Dialog<?> dialog)
     {
         dialog.setOnShown(event -> centreWindow(dialog, dialog.getOwner()));
     }
 
-    @OnThread(Tag.FXPlatform)
     private static void centreWindow(Dialog<?> dialog, javafx.stage.Window owner)
     {
         dialog.setX(owner.getX() + owner.getWidth()/2d - dialog.getWidth()/2d);
