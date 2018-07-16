@@ -917,15 +917,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <fileset dir="${bluej_home}/package/winsetup" includes="greenfoot.wxs" />
         </replaceregexp>
 
-        <mkdir dir="${bluej_home}/util/classes"/>
-        <compile srcdir="${bluej_home}/util/src" destdir="${bluej_home}/util/classes"/>
-        <java classname="DrawVersionOnSplash" classpath="${bluej_home}/util/classes">
-            <arg value="resources/images/greenfoot-splash.png"/> <!-- original -->
-            <arg value="Version ${greenfoot.version}"/> <!-- text -->
-            <arg value="14"/> <!-- font size -->
-            <arg value="187"/> <!-- X position -->
-            <arg value="219"/> <!-- Y position -->
-            <arg value="${bluej_home}/boot/resources/bluej/gen-greenfoot-splash.png"/> <!-- destination -->
-        </java>
+        <copy file="resources/images/greenfoot-splash.png" todir="${bluej_home}/boot/resources/bluej"/>
+        <copy file="resources/images/greenfoot-splash@2x.png" todir="${bluej_home}/boot/resources/bluej"/>
     </target>
 </project>
