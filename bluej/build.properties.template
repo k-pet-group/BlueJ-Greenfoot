@@ -15,7 +15,7 @@
 # compilation should be done on the minimum supported JDK for
 # BlueJ (which is currently Java 8)
 #####################################################################
-build_java_home=/Library/Java/JavaVirtualMachines/jdk1.8.0_131.jdk/Contents/Home
+build_java_home=/Library/Java/JavaVirtualMachines/jdk1.8.0_172.jdk/Contents/Home
 
 java_command_dir_name=bin
 
@@ -28,11 +28,11 @@ run_java_home=${build_java_home}
 #####################################################################
 # The JDK for bundling with Mac OS and Windows builds.
 #####################################################################
-mac_bundled_jdk_path=/Library/Java/JavaVirtualMachines/jdk1.8.0_131.jdk
+mac_bundled_jdk_path=/Library/Java/JavaVirtualMachines/jdk1.8.0_172.jdk
 
 # NOTE: THIS MUST BE A 32-BIT JDK, or the resulting bundle will not
 # work properly on 32-bit Windows versions.
-win_bundled_jdk_path=c:/Program Files (x86)/Java/jdk1.8.0_60
+win_bundled_jdk_path=c:/Program Files (x86)/Java/jdk1.8.0_172
 
 #####################################################################
 # This property defines where the "Wix" bin directory (containing

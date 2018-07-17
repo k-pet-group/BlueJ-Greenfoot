@@ -687,7 +687,7 @@
 	            <include name="test/**/*"/>
             	<exclude name="test/classes/**"/>
             	<include name="util/**/*.java"/>
-	            <include name="build.properties"/>   
+	            <include name="build.properties.template"/>
 	            <include name="build.xml"/>  
 	            <include name="shared.xml"/>  
 	            <exclude name="**/.*"/>
