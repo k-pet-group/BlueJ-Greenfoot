@@ -182,7 +182,7 @@
             </fileset>
             <fileset dir="${boot.resources}">
                 <include name="bluej/gen-bluej-splash*.png"/>
-                <include name="bluej/gen-greenfoot-splash*.png"/>
+                <include name="bluej/greenfoot-splash*.png"/>
             </fileset>
             <manifest>
                 <attribute name="Main-Class" value="bluej.Boot"/>
