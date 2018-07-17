@@ -61,8 +61,8 @@ frame.viewmenu.fontsmaller=Zmen\u0161i\u0165 ve\u013ekos\u0165 p\u00edsma
 frame.viewmenu.fontdefault=Predvolen\u00e1 ve\u013ekos\u0165 p\u00edsma
 
 # Information:
-# The '$' will be replaced by the name of the superclass:
-frame.class.inherited.from=Odvoden\u00e9 od $
+# The '$$' will be replaced by the name of the superclass:
+frame.class.inherited.from=Odvoden\u00e9 od $$
 
 frame.undobanner.text=Pr\u00e1ve ste vymazali ve\u013ek\u00fa \u010das\u0165 k\u00f3du. Ak to nebol \u00famysel, m\u00f4\u017eete
 frame.undobanner.button=Vr\u00e1ti\u0165 zmenu nasp\u00e4\u0165
