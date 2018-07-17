@@ -18,3 +18,5 @@
 /doc/API/**/*
 /lib/*/greenfoot/**/*
 /lib/greenfoot
+/boot/resources/bluej/greenfoot-splash.png
+/boot/resources/bluej/greenfoot-splash@2x.png
