@@ -93,7 +93,7 @@ frame.slot.cut=Cut
 frame.slot.copy=Copy
 frame.slot.paste=Paste
 frame.slot.recent=Recent Values
-frame.slot.goto=Go to definition of $
+frame.slot.goto=Go to definition of $$
 
 
 # View menu:
@@ -109,8 +109,8 @@ frame.viewmenu.fontdefault=Reset font size
 
 
 # Information:
-# The '$' will be replaced by the name of the superclass:
-frame.class.inherited.from=Inherited from $
+# The '$$' will be replaced by the name of the superclass:
+frame.class.inherited.from=Inherited from $$
 
 frame.undobanner.text=You just deleted a large piece of code.  If you didn't mean to, you can
 frame.undobanner.button=Undo this change
@@ -152,9 +152,9 @@ frame.class.add.this=Add this(..) call
 frame.class.add.throw=Add throws declaration
 frame.class.constructor.doc.prompt=Describe your constructor here...
 frame.class.method.doc.prompt=Describe your method here...
-frame.class.overrides.from=overrides method from $
-frame.class.remove.extends.from=Remove 'extends $'
-frame.class.remove.implements=Remove 'implements $'
+frame.class.overrides.from=overrides method from $$
+frame.class.remove.extends.from=Remove 'extends $$'
+frame.class.remove.implements=Remove 'implements $$'
 frame.class.remove.super=Remove super/this call
 frame.class.toggle.abstract=Toggle abstract
 frame.switch.remove.default=Remove default, keep contents
@@ -174,7 +174,7 @@ frame.operation.delete=Delete
 frame.operation.delete.outer=Delete outer frame
 frame.operation.disable=Disable
 frame.operation.enable=Enable
-frame.operation.make=Make $
+frame.operation.make=Make $$
 frame.operation.paste=Paste
-frame.operation.remove=Remove $
-frame.operation.toggle=Toggle $
+frame.operation.remove=Remove $$
+frame.operation.toggle=Toggle $$

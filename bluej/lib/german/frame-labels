@@ -91,7 +91,7 @@ frame.slot.cut=Ausschneiden
 frame.slot.copy=Kopieren
 frame.slot.paste=Einf\u00fcgen
 frame.slot.recent=Letzte Werte
-frame.slot.goto=Gehe zu Definition von $
+frame.slot.goto=Gehe zu Definition von $$
 
 
 # View menu:
@@ -107,8 +107,8 @@ frame.viewmenu.fontdefault=Setze Schriftgr\u00f6\u00dfe zur\u00fcck
 
 
 # Information:
-# The '$' will be replaced by the name of the superclass:
-frame.class.inherited.from=geerbt von $
+# The '$$' will be replaced by the name of the superclass:
+frame.class.inherited.from=geerbt von $$
 
 frame.undobanner.text=Sie haben gerade sehr viel Quelltext gel\u00dfscht. Wenn dies keine Absicht war, k\u00dfnnen Sie...
 frame.undobanner.button=Die \u00c4nderungen r\u00fcckg\u00e4ngig machen
@@ -150,9 +150,9 @@ frame.class.add.this=F\u00fcge this(..)-Aufruf hinzu
 frame.class.add.throw=throw-Deklaration hinzuf\u00fcgen
 frame.class.constructor.doc.prompt=Beschreiben Sie Ihren Konstruktor hier...
 frame.class.method.doc.prompt=Beschreiben Sie Ihre Methode hier...
-frame.class.overrides.from=\u00fcberschreibt Methode von $
-frame.class.remove.extends.from=entferne 'extends from $'
-frame.class.remove.implements=entferne 'implements $'
+frame.class.overrides.from=\u00fcberschreibt Methode von $$
+frame.class.remove.extends.from=entferne 'extends from $$'
+frame.class.remove.implements=entferne 'implements $$'
 frame.class.remove.super=Entferne super/this-Aufruf
 frame.class.toggle.abstract=abstract umschalten
 frame.switch.remove.default=Entferne default, behalte Inhalt
@@ -172,7 +172,7 @@ frame.operation.delete=L\u00e4schen
 frame.operation.delete.outer=Umgebenden Frame l\u00dfschen
 frame.operation.disable=Deaktivieren
 frame.operation.enable=Aktivieren
-frame.operation.make=$ einschalten
+frame.operation.make=$$ einschalten
 frame.operation.paste=Einf\u00fcgen
-frame.operation.remove=$ entfernen
-frame.operation.toggle=$ umschalten
+frame.operation.remove=$$ entfernen
+frame.operation.toggle=$$ umschalten

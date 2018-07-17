@@ -66,8 +66,8 @@ frame.viewmenu.fontsmaller=Zmen\u0161it velikost p\u00edsma
 frame.viewmenu.fontdefault=Obnovit velikost p\u00edsma
 
 # Information:
-# The '$' will be replaced by the name of the superclass:
-frame.class.inherited.from=Zd\u011bd\u011bno z $
+# The '$$' will be replaced by the name of the superclass:
+frame.class.inherited.from=Zd\u011bd\u011bno z $$
 
 frame.undobanner.text=Smazali jste velk\u00fd objem k\u00f3du. Nebylo-li to va\u0161\u00edm \u00famyslem, m\u016f\u017eete:
 frame.undobanner.button=Odvolat zm\u011bny
