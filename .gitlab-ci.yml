@@ -11,5 +11,7 @@ variables:
 antbuild:
   stage: build
   script:
-    - cd bluej && ant rebuild-ready && xvfb-run ant test
-    - cd ../greenfoot && ant clean && ant ready-to-run && xvfb-run ant test
+    - cd bluej
+    - ant clean && ant update-version-number && ant ready-to-run && xvfb-run ant test
+    - cd ../greenfoot
+    - ant clean && ant update-version-number && ant ready-to-run && xvfb-run ant test
