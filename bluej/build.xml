@@ -433,6 +433,7 @@
 
         <mkdir dir="util/classes"/>
         <compile srcdir="util/src" destdir="util/classes"/>
+        <mkdir dir="boot/resources/bluej"/>
         <java classname="DrawVersionOnSplash" classpath="util/classes">
             <arg value="resources/unversioned-bluej-splash.png"/> <!-- original -->
             <arg value="Version ${bluej.version}"/> <!-- text -->
