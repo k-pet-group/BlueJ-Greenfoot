@@ -193,7 +193,17 @@ public class Simulation extends Thread
                     runOneLoop(worldHandler.getWorld());
                 }
 
-                delay();
+                // Don't delay if doing a single cycle:
+                boolean currentlyPaused;
+                synchronized (this)
+                {
+                    currentlyPaused = paused;
+                }
+                
+                if (!currentlyPaused)
+                {
+                    delay();
+                }
             }
             catch (ActInterruptedException e) {
                 // Someone interrupted the user code. We ignore it and let
