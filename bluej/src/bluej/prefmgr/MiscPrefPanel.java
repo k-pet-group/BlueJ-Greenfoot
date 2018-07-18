@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2013,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2012,2013,2016,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -172,10 +172,8 @@ public class MiscPrefPanel extends VBox
                 shortcutText += accelerator.getKeyChar();
             }
         }
-        
-        contents.add(new Label(Config.getString("playername.dialog.help")));
-        
-        playerNameField = new TextField(Config.getPropString("extensions.rmiextension.RMIExtension.settings.greenfoot.player.name", "Player"));
+
+        playerNameField = new TextField(Config.getPropString("greenfoot.player.name", "Player1"));
         playerNameField.setPrefColumnCount(20);
         contents.add(PrefMgrDialog.labelledItem("playername.dialog.help", playerNameField));
         
@@ -221,7 +219,7 @@ public class MiscPrefPanel extends VBox
         }
         else
         {
-            playerNameField.setText(Config.getPropString("extensions.rmiextension.RMIExtension.settings.greenfoot.player.name", "Player"));
+            playerNameField.setText(Config.getPropString("greenfoot.player.name", "Player1"));
         }
     }
 
@@ -247,8 +245,9 @@ public class MiscPrefPanel extends VBox
         String jdkURL = jdkURLField.getText();
         Config.putPropString(jdkURLPropertyName, jdkURL);
 
-        if (Config.isGreenfoot()) {
-            Config.putPropString("extensions.rmiextension.RMIExtension.settings.greenfoot.player.name", playerNameField.getText());
+        if (Config.isGreenfoot())
+        {
+            Config.putPropString("greenfoot.player.name", playerNameField.getText());
         }
     }
 }
