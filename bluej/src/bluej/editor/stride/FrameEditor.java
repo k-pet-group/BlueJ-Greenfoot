@@ -818,6 +818,10 @@ public class FrameEditor implements Editor
     public void setStepMark(int lineNumber, String message, boolean isBreak,
             DebuggerThread thread)
     {
+        // Disable Stride debugger:
+        if (true)
+            return;
+        
         removeStepMark();
         setVisibleFX(true, true);
         HashMap<String, DebugVarInfo> vars = new HashMap<String, DebugVarInfo>();
