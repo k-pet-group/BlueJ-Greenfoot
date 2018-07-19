@@ -1889,18 +1889,20 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         NewClassDialog dialog = new NewClassDialog(this, sourceType);
         dialog.setSuggestedClassName("CopyOf" + originalClassName);
         dialog.disableLanguageBox(true);
-        dialog.showAndWait().ifPresent(newClassInfo -> {
-            String newClassName = newClassInfo.className;
+
+        dialog.showAndWait().ifPresent(newClassInfo ->
+        {
+            final String newClassName = newClassInfo.className;
+            final String extension = sourceType.getExtension();
+            final Package pkg = originalClassTarget.getPackage();
+            final File dir = pkg.getProject().getProjectDir();
+            final File originalFile = new File(dir, originalClassName + "." + extension);
+            final File newFile = new File(dir, newClassName + "." + extension);
             try
             {
-                File dir = originalClassTarget.getPackage().getProject().getProjectDir();
-                final String extension = sourceType.getExtension();
-                File newFile = new File(dir, newClassName + "." + extension);
-                File originalFile = new File(dir, originalClassName + "." + extension);
                 ProjectUtils.duplicate(originalClassName, newClassName, originalFile, newFile, sourceType);
-                ClassTarget newClass = originalClassTarget.getPackage().addClass(newClassName);
+                ClassTarget newClass = pkg.addClass(newClassName);
                 LocalGClassNode newNode = classDiagram.addClass(newClass);
-                
                 String originalImage = originalNode.getImageFilename();
                 if (originalImage != null)
                 {
@@ -1908,6 +1910,9 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                     File srcImage = new File(imagesDir, originalImage);
                     setImageToClassNode(newNode, srcImage);
                 }
+
+                // The class needs to be compiled for the state of the scenario to be correct.
+                pkg.compile(newClass, CompileReason.LOADED, CompileType.INDIRECT_USER_COMPILE);
             }
             catch (IOException ioe)
             {
@@ -1927,10 +1932,11 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         {
             boolean librariesImportedFlag = false;
             String className = GreenfootUtil.removeExtension(srcFile.getName());
+            final Package pkg = project.getUnnamedPackage();
 
             // Check if a class of the same name already exists in the project.
             // Renaming would be too tricky, so just issue error and stop in that case:
-            for (ClassTarget preexist : project.getUnnamedPackage().getClassTargets())
+            for (ClassTarget preexist : pkg.getClassTargets())
             {
                 if (preexist.getQualifiedName().equals(className))
                 {
@@ -1967,8 +1973,8 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             }
 
             // We must reload the package to be able to access the GClass object:
-            project.getUnnamedPackage().reload();
-            ClassTarget gclass = (ClassTarget)project.getUnnamedPackage().getTarget(className);
+            pkg.reload();
+            ClassTarget gclass = (ClassTarget)pkg.getTarget(className);
 
             if (gclass == null)
             {
@@ -1984,7 +1990,10 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 GreenfootUtil.copyFile(srcImage, destImage);
                 setImageToClassNode(gclassNode, destImage);
             }
-            
+
+            // The class needs to be compiled for the state of the scenario to be correct.
+            pkg.compile(gclass, CompileReason.LOADED, CompileType.INDIRECT_USER_COMPILE);
+
             if (librariesImportedFlag)
             {
                 // Must restart debug VM to load the imported library:
