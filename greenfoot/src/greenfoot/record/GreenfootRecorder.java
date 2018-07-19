@@ -55,6 +55,9 @@ public class GreenfootRecorder
     public static final String METHOD_RETURN = "void";
     public static final String METHOD_NAME = "prepare";
     private String lastWorldClass;
+    
+    // Only valid if no run has occurred in the mean time. 
+    private boolean validToSave = false;
 
     /**
      * Construct a new GreenfootRecorder instance.
@@ -210,15 +213,14 @@ public class GreenfootRecorder
      * successfully returns.
      * 
      * @param className  The name of the class to which the called method belongs
-     * @param methodName  The method name
+     * @param method     The method
      * @param args       The arguments to the method, as a
      * @param argTypes
      */
     public void callStaticMethod(String className, Method method, String[] args, JavaType[] argTypes)
     {
-        // No difference in syntax, so no need to replicate the code:
-        // TODO get static method calls working again
-        //callActorOrWorldMethod(null, className, method, args, argTypes);
+        code.add(callElement(className + "." + method.getName() + 
+                "(" + withCommas(args, argTypes, method.isVarArgs()) + ")"));
     }
     
     /**
@@ -304,9 +306,19 @@ public class GreenfootRecorder
         return new CallElement(content, content);
     }
 
+    /**
+     * Write the recorded code to the world class. 
+     * @param getEditor A function that takes a world class name and returns an editor
+     * @return True if world code successfully saved, false if it could not because save the world isn't valid.
+     */
     @OnThread(Tag.FXPlatform)
-    public void writeCode(FXPlatformFunction<String, Editor> getEditor)
+    public boolean writeCode(FXPlatformFunction<String, Editor> getEditor)
     {
+        if (!validToSave)
+        {
+            return false;
+        }
+        
         NormalMethodElement method = getPrepareMethod();
         CallElement methodCall = getPrepareMethodCall();
 
@@ -325,5 +337,24 @@ public class GreenfootRecorder
         // (by inserting code depending on objects no longer there) but that
         // seems less likely:
         clearCode(false);
+        
+        return true;
+    }
+
+    /**
+     * Mark the recording as not valid (because Act/Run has been used)
+     */
+    public void invalidateRecording()
+    {
+        validToSave = false;
+    }
+
+    /**
+     * Mark the recording as valid, because the user has manually created a World, 
+     * or triggered a reset (including by recompiling or focusing main window).
+     */
+    public void recordingValid()
+    {
+        validToSave = true;
     }
 }

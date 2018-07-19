@@ -574,6 +574,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             debugHandler.getVmComms().instantiateWorld(currentWorld.getQualifiedName());
         }
         debugHandler.simulationThreadResumeOnResetClick();
+        saveTheWorldRecorder.recordingValid();
     }
     
     /**
@@ -887,6 +888,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             DataCollector.recordGreenfootEvent(project, GreenfootInterfaceEvent.WORLD_ACT);
             debugHandler.getVmComms().act();
             stateProperty.set(State.PAUSED_REQUESTED_ACT_OR_RUN);
+            saveTheWorldRecorder.invalidateRecording();
         }
     }
     
@@ -900,6 +902,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             DataCollector.recordGreenfootEvent(project, GreenfootInterfaceEvent.WORLD_RUN);
             debugHandler.getVmComms().runSimulation();
             stateProperty.set(State.PAUSED_REQUESTED_ACT_OR_RUN);
+            saveTheWorldRecorder.invalidateRecording();
             worldDisplay.requestFocus();
         }
         else if (stateProperty.get() == State.RUNNING)
@@ -1610,7 +1613,10 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                         MenuItem saveTheWorld = new MenuItem(Config.getString("save.world"));
                         JavaFXUtil.addStyleClass(saveTheWorld, MENU_STYLE_INBUILT);
                         saveTheWorld.setOnAction(e -> {
-                            saveTheWorldRecorder.writeCode(className -> ((ClassTarget) target).getEditor());
+                            if (!saveTheWorldRecorder.writeCode(className -> ((ClassTarget) target).getEditor()))
+                            {
+                                DialogManager.showErrorFX(this, "cannot-save-world");
+                            }
                         });
                         contextMenu.getItems().add(saveTheWorld);
 
@@ -2366,6 +2372,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                     .instantiateClass("greenfoot.core.SetWorldHelper",
                             new String[]{"java.lang.Object"},
                             new DebuggerObject[] { result }));
+            saveTheWorldRecorder.recordingValid();
         }
         else
         {
@@ -2418,7 +2425,8 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 @Override
                 protected void addInteraction(InvokerRecord ir)
                 {
-                    // Nothing we can do
+                    saveTheWorldRecorder.callStaticMethod(cv.getClassName(), ((MethodView) cv).getMethod(),
+                            ir.getArgumentValues(), cv.getParamTypes(false));
                 }
             };
         }
