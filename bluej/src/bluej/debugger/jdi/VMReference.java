@@ -913,7 +913,7 @@ class VMReference
      *            when a BlueJEvent is generated for a breakpoint, this
      *            parameter is passed as the event parameter
      */
-    public FXPlatformSupplier<DebuggerResult> runShellClass(String className)
+    public DebuggerResult runShellClass(String className)
     {
         // Calls to this method are protected by serverThreadLock in JdiDebugger
         
@@ -939,16 +939,16 @@ class VMReference
                 ObjectReference exception = getStaticFieldObject(serverClass, ExecServer.EXCEPTION_NAME);
                 if (exception != null) {
                     exceptionEvent(new InvocationException(exception));
-                    return () -> new DebuggerResult(lastException);
+                    return new DebuggerResult(lastException);
                 }
             }
             
             ObjectReference objR = getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
-            return () -> new DebuggerResult(JdiObject.getDebuggerObject(objR));
+            return new DebuggerResult(JdiObject.getDebuggerObject(objR));
         }
         catch (VMDisconnectedException e) {
             exitStatus = Debugger.TERMINATED;
-            return () -> new DebuggerResult(exitStatus);
+            return new DebuggerResult(exitStatus);
         }
         catch (Exception e) {
             // remote invocation failed
@@ -958,7 +958,7 @@ class VMReference
             lastException = new ExceptionDescription("Internal BlueJ error: unexpected exception in remote VM\n" + e);
         }
         
-        return () -> new DebuggerResult(lastException);
+        return new DebuggerResult(lastException);
     }
     
     /**

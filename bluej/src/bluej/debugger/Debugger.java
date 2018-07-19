@@ -226,7 +226,7 @@ public abstract class Debugger
      * "Run" a class (i.e. invoke its main method without arguments)
      */
     @OnThread(Tag.Any)
-    public abstract FXPlatformSupplier<DebuggerResult> runClassMain(String className)
+    public abstract DebuggerResult runClassMain(String className)
         throws ClassNotFoundException;
 
     /**

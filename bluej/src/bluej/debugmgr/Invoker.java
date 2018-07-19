@@ -54,7 +54,6 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
@@ -1151,14 +1150,14 @@ public class Invoker
         new Thread() {
             public void run() {
                 try {
-                    final FXPlatformSupplier<DebuggerResult> result = debugger.runClassMain(shellClassName);
+                    DebuggerResult result = debugger.runClassMain(shellClassName);
                     
                     Platform.runLater(new Runnable() {
                         public void run() {
                             // the execution is completed, get the result if there was one
                             // (this could be either a construction or a function result)
                             
-                            handleResult(result.get(), constructing);
+                            handleResult(result, constructing);
                             finishCall(true);
                         }
                     });

@@ -661,7 +661,7 @@ public class JdiDebugger extends Debugger
      */
     @Override
     @OnThread(Tag.Any)
-    public FXPlatformSupplier<DebuggerResult> runClassMain(String className)
+    public DebuggerResult runClassMain(String className)
         throws ClassNotFoundException
     {
         VMReference vmr = getVM();
@@ -670,7 +670,7 @@ public class JdiDebugger extends Debugger
                 return vmr.runShellClass(className);
             }
             else {
-                return null;
+                return new DebuggerResult(Debugger.TERMINATED);
             }
         }
     }
