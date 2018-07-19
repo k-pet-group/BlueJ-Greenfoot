@@ -2423,7 +2423,8 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 @Override
                 protected void addInteraction(InvokerRecord ir)
                 {
-                    // Nothing we can do
+                    saveTheWorldRecorder.callStaticMethod(cv.getClassName(), ((MethodView) cv).getMethod(),
+                            ir.getArgumentValues(), cv.getParamTypes(false));
                 }
             };
         }

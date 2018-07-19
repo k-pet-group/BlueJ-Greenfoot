@@ -213,15 +213,13 @@ public class GreenfootRecorder
      * successfully returns.
      * 
      * @param className  The name of the class to which the called method belongs
-     * @param methodName  The method name
+     * @param method     The method
      * @param args       The arguments to the method, as a
      * @param argTypes
      */
     public void callStaticMethod(String className, Method method, String[] args, JavaType[] argTypes)
     {
-        // No difference in syntax, so no need to replicate the code:
-        // TODO get static method calls working again
-        //callActorOrWorldMethod(null, className, method, args, argTypes);
+        code.add(callElement(className + "." + method.getName() + "(" + withCommas(args, argTypes, method.isVarArgs()) + ")"));
     }
     
     /**
