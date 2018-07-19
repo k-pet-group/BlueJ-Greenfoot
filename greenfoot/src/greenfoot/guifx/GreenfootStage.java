@@ -2367,12 +2367,18 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 currentWorld = (ClassTarget)t;
             }
             
-            // Not a good idea to call back debugger from a listener, so runLater:
-            JavaFXUtil.runAfterCurrent(() -> project.getDebugger()
+            // Shouldn't wait on debug VM in the UI thread, so run in a separate thread:
+            new Thread()
+            {
+                public void run()
+                {
+                    project.getDebugger()
                     .instantiateClass("greenfoot.core.SetWorldHelper",
                             new String[]{"java.lang.Object"},
-                            new DebuggerObject[] { result }));
-            saveTheWorldRecorder.recordingValid();
+                            new DebuggerObject[] { result });
+                    Platform.runLater(() -> saveTheWorldRecorder.recordingValid());
+                }
+            }.start();
         }
         else
         {
