@@ -243,8 +243,6 @@ public class GreenfootRecorder
     {
         world = newWorld;
         lastWorldClass = newWorld.getClassName();
-        // new World means we're okay to save from now on:
-        validToSave = true;
     }
 
     /**
@@ -348,5 +346,14 @@ public class GreenfootRecorder
     public void invalidateRecording()
     {
         validToSave = false;
+    }
+
+    /**
+     * Mark the recording as valid, because the user has manually created a World, 
+     * or triggered a reset (including by recompiling or focusing main window).
+     */
+    public void recordingValid()
+    {
+        validToSave = true;
     }
 }

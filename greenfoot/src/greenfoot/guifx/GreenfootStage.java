@@ -574,6 +574,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             debugHandler.getVmComms().instantiateWorld(currentWorld.getQualifiedName());
         }
         debugHandler.simulationThreadResumeOnResetClick();
+        saveTheWorldRecorder.recordingValid();
     }
     
     /**
@@ -2371,6 +2372,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                     .instantiateClass("greenfoot.core.SetWorldHelper",
                             new String[]{"java.lang.Object"},
                             new DebuggerObject[] { result }));
+            saveTheWorldRecorder.recordingValid();
         }
         else
         {
