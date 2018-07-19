@@ -55,6 +55,9 @@ public class GreenfootRecorder
     public static final String METHOD_RETURN = "void";
     public static final String METHOD_NAME = "prepare";
     private String lastWorldClass;
+    
+    // Only valid if no run has occurred in the mean time. 
+    private boolean validToSave = false;
 
     /**
      * Construct a new GreenfootRecorder instance.
@@ -242,6 +245,8 @@ public class GreenfootRecorder
     {
         world = newWorld;
         lastWorldClass = newWorld.getClassName();
+        // new World means we're okay to save from now on:
+        validToSave = true;
     }
 
     /**
@@ -304,9 +309,19 @@ public class GreenfootRecorder
         return new CallElement(content, content);
     }
 
+    /**
+     * Write the recorded code to the world class. 
+     * @param getEditor A function that takes a world class name and returns an editor
+     * @return True if world code successfully saved, false if it could not because save the world isn't valid.
+     */
     @OnThread(Tag.FXPlatform)
-    public void writeCode(FXPlatformFunction<String, Editor> getEditor)
+    public boolean writeCode(FXPlatformFunction<String, Editor> getEditor)
     {
+        if (!validToSave)
+        {
+            return false;
+        }
+        
         NormalMethodElement method = getPrepareMethod();
         CallElement methodCall = getPrepareMethodCall();
 
@@ -325,5 +340,15 @@ public class GreenfootRecorder
         // (by inserting code depending on objects no longer there) but that
         // seems less likely:
         clearCode(false);
+        
+        return true;
+    }
+
+    /**
+     * Mark the recording as not valid (because Act/Run has been used)
+     */
+    public void invalidateRecording()
+    {
+        validToSave = false;
     }
 }
