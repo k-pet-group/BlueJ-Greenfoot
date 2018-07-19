@@ -1143,6 +1143,33 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     }
 
     /**
+     * A helper method used for adding actors to the world as part of the shift-click "quick add"
+     * functionality. This must not be called from the UI event thread.
+     * 
+     * @param dest  the destination coordinates in the world (pixels)
+     * @param cell  the destination coordinates in the world (cells)
+     * @param actor  the actor to be added
+     */
+    @OnThread(Tag.Any)
+    @SuppressWarnings("threadchecker")
+    private void addActorQuick(Point2D dest, Point2D cell, DebuggerObject actor)
+    {
+        // Note: threadchecker checking disabled due to incorrect tagging of "getMirror" method.
+        
+        saveTheWorldRecorder.addActorToWorld(actor, (int)cell.getX(), (int)cell.getY());
+
+        // Bit hacky to pass positions as strings, but mirroring the values as integers
+        // would have taken a lot of code changes to route through to VMReference:
+        DebuggerObject xObject = project.getDebugger().getMirror("" + (int) dest.getX());
+        DebuggerObject yObject = project.getDebugger().getMirror("" + (int) dest.getY());
+        
+        project.getDebugger().instantiateClass(
+                "greenfoot.core.AddToWorldHelper",
+                new String[] {"java.lang.Object", "java.lang.String", "java.lang.String"},
+                new DebuggerObject[] {actor, xObject, yObject});
+    }
+    
+    /**
      * Setup mouse listeners for showing a new actor underneath the mouse cursor
      */
     private void setupMouseForPlacingNewActor(StackPane stackPane)
@@ -1166,11 +1193,8 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 Point2D dest = worldDisplay.sceneToWorld(lastMousePosInScene);
                 if (worldDisplay.worldContains(dest))
                 {
-                    // Bit hacky to pass positions as strings, but mirroring the values as integers
-                    // would have taken a lot of code changes to route through to VMReference:
-                    DebuggerObject xObject = project.getDebugger().getMirror("" + (int) dest.getX());
-                    DebuggerObject yObject = project.getDebugger().getMirror("" + (int) dest.getY());
                     DebuggerObject actor = newActorProperty.get().actorObject;
+                    Point2D cell = pixelToCellCoordinates(dest);
                     if (actor != null)
                     {
                         // Place the already-constructed actor.
@@ -1179,28 +1203,33 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                                 newActorProperty.get().paramTypes);
                         // Can't place same instance twice:
                         newActorProperty.set(null);
+                        new Thread()
+                        {
+                            public void run()
+                            {
+                                addActorQuick(dest, cell, actor);
+                            }
+                        }.start();
                     }
                     else
                     {
                         // Must be shift-clicking; will need to make a new instance:
-                        DebuggerResult result = project.getDebugger().instantiateClass(newActorProperty.get().typeName).get();
-                        if (result.getResultObject() != null)
-                        {
-                            actor = result.getResultObject();
-                            saveTheWorldRecorder.createActor(actor, new String[0], new JavaType[0]);
-                        }
+                        new Thread() {
+                            public void run()
+                            {
+                                DebuggerResult result = project.getDebugger()
+                                        .instantiateClass(newActorProperty.get().typeName);
+                                DebuggerObject actor = result.getResultObject();
+                                
+                                if (actor != null)
+                                {
+                                    saveTheWorldRecorder.createActor(actor, new String[0],
+                                            new JavaType[0]);
+                                    addActorQuick(dest, cell, actor);
+                                }
+                            }
+                        }.start();
                     }
-                    if (actor != null)
-                    {
-                        Point2D cell = pixelToCellCoordinates(dest);
-                        saveTheWorldRecorder.addActorToWorld(actor, (int)cell.getX(), (int)cell.getY());
-
-                        project.getDebugger().instantiateClass(
-                                "greenfoot.core.AddToWorldHelper",
-                                new String[]{"java.lang.Object", "java.lang.String", "java.lang.String"},
-                                new DebuggerObject[]{actor, xObject, yObject});
-                    }
-
                 }
                 else
                 {

@@ -36,8 +36,6 @@ import bluej.compiler.CompileType;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerResult;
-import bluej.debugger.ExceptionDescription;
-import bluej.debugmgr.ResultWatcher;
 import bluej.editor.Editor;
 import bluej.extensions.BlueJ;
 import bluej.extensions.SourceType;
@@ -45,10 +43,8 @@ import bluej.pkgmgr.DocPathEntry;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
-import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
-import bluej.utility.javafx.FXPlatformSupplier;
 import greenfoot.core.GreenfootMain.VersionCheckInfo;
 import greenfoot.core.GreenfootMain.VersionInfo;
 import greenfoot.util.Version;
@@ -500,14 +496,13 @@ public class ProjectManager
             argObjects[i] = debugger.getMirror(consParams[i]);
         }
         
-        new Thread() {
+        new Thread()
+        {
             public void run()
             {
-
-                FXPlatformSupplier<DebuggerResult> instantiation = debugger.instantiateClass(launchClass, argTypes, argObjects);
+                DebuggerResult result = debugger.instantiateClass(launchClass, argTypes, argObjects);
                 
                 Platform.runLater(() -> {
-                    DebuggerResult result = instantiation.get();
                     final DebuggerObject debugObject = result.getResultObject();
                     
                     if (debugObject != null)
