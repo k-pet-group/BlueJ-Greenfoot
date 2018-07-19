@@ -22,6 +22,7 @@
 package greenfoot.export;
 
 import bluej.Config;
+import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.UnfocusableScrollPane;
 import greenfoot.World;
 import greenfoot.core.ExportedProjectProperties;
@@ -46,6 +47,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -108,7 +110,8 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
 
     private void buildGUI(boolean hideControls)
     {
-        ScrollPane worldViewScroll = new UnfocusableScrollPane(worldDisplay);
+        ScrollPane worldViewScroll = new UnfocusableScrollPane(new StackPane(worldDisplay));
+        JavaFXUtil.expandScrollPaneContent(worldViewScroll);
                
         setCenter(worldViewScroll);
         if (!hideControls){
