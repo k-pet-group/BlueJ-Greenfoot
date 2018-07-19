@@ -219,7 +219,8 @@ public class GreenfootRecorder
      */
     public void callStaticMethod(String className, Method method, String[] args, JavaType[] argTypes)
     {
-        code.add(callElement(className + "." + method.getName() + "(" + withCommas(args, argTypes, method.isVarArgs()) + ")"));
+        code.add(callElement(className + "." + method.getName() + 
+                "(" + withCommas(args, argTypes, method.isVarArgs()) + ")"));
     }
     
     /**
