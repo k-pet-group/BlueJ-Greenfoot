@@ -54,7 +54,6 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
@@ -95,15 +94,6 @@ public class Invoker
     {
         return SHELLNAME + (shellNumber++);
     }
-
-    /**
-     * To allow each method/constructor dialog to have a call history we need to
-     * cache the dialogs we create. We store the mapping from method to dialog
-     * in this hashtable.
-     */
-    private static Map<MethodView, MethodDialog> methods = new HashMap<MethodView, MethodDialog>();
-    private static Map<ConstructorView, ConstructorDialog> constructors =
-        new HashMap<ConstructorView, ConstructorDialog>();
 
     @OnThread(Tag.FXPlatform)
     private Stage parent;
@@ -530,13 +520,13 @@ public class Invoker
                 public void run() {
                     Platform.runLater(Invoker.this::closeCallDialog);
                     
-                    final FXPlatformSupplier<DebuggerResult> result = debugger.instantiateClass(className);
+                    DebuggerResult result = debugger.instantiateClass(className);
 
                     Platform.runLater(() -> {
                         // the execution is completed, get the result if there was one
                         // (this could be either a construction or a function result)
 
-                        handleResult(result.get(), false); // handles error situations
+                        handleResult(result, false); // handles error situations
                     });
                 }
             }.start();
@@ -1160,14 +1150,14 @@ public class Invoker
         new Thread() {
             public void run() {
                 try {
-                    final FXPlatformSupplier<DebuggerResult> result = debugger.runClassMain(shellClassName);
+                    DebuggerResult result = debugger.runClassMain(shellClassName);
                     
                     Platform.runLater(new Runnable() {
                         public void run() {
                             // the execution is completed, get the result if there was one
                             // (this could be either a construction or a function result)
                             
-                            handleResult(result.get(), constructing);
+                            handleResult(result, constructing);
                             finishCall(true);
                         }
                     });

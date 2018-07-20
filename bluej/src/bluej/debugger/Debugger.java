@@ -226,7 +226,7 @@ public abstract class Debugger
      * "Run" a class (i.e. invoke its main method without arguments)
      */
     @OnThread(Tag.Any)
-    public abstract FXPlatformSupplier<DebuggerResult> runClassMain(String className)
+    public abstract DebuggerResult runClassMain(String className)
         throws ClassNotFoundException;
 
     /**
@@ -235,7 +235,7 @@ public abstract class Debugger
      * @return   The result of the constructor call
      */
     @OnThread(Tag.Any)
-    public abstract FXPlatformSupplier<DebuggerResult> instantiateClass(String className);
+    public abstract DebuggerResult instantiateClass(String className);
 
     /**
      * Instantiate a class using a specific constructor for that class.
@@ -246,7 +246,8 @@ public abstract class Debugger
      * @return   The result of the constructor call
      */
     @OnThread(Tag.Any)
-    public abstract FXPlatformSupplier<DebuggerResult> instantiateClass(String className, String [] paramTypes, DebuggerObject [] args);
+    public abstract DebuggerResult instantiateClass(String className, String [] paramTypes,
+            DebuggerObject [] args);
     
     /**
      * Get a class from the virtual machine, using the current classloader.

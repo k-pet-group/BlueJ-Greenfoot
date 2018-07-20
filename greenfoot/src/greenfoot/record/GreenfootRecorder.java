@@ -170,6 +170,7 @@ public class GreenfootRecorder
      * @param x       The actor's x position
      * @param y       The actor's y position
      */
+    @OnThread(Tag.Any)
     public synchronized void addActorToWorld(DebuggerObject actor, int x, int y)
     {
         String actorObjectName = objectNames.get(actor);

@@ -661,7 +661,7 @@ public class JdiDebugger extends Debugger
      */
     @Override
     @OnThread(Tag.Any)
-    public FXPlatformSupplier<DebuggerResult> runClassMain(String className)
+    public DebuggerResult runClassMain(String className)
         throws ClassNotFoundException
     {
         VMReference vmr = getVM();
@@ -670,7 +670,7 @@ public class JdiDebugger extends Debugger
                 return vmr.runShellClass(className);
             }
             else {
-                return null;
+                return new DebuggerResult(Debugger.TERMINATED);
             }
         }
     }
@@ -713,7 +713,7 @@ public class JdiDebugger extends Debugger
      */
     @Override
     @OnThread(Tag.Any)
-    public FXPlatformSupplier<DebuggerResult> instantiateClass(String className)
+    public DebuggerResult instantiateClass(String className)
     {
         VMReference vmr = getVM();
         if (vmr != null) {
@@ -722,7 +722,7 @@ public class JdiDebugger extends Debugger
             }
         }
         else {
-            return () -> new DebuggerResult(Debugger.TERMINATED);
+            return new DebuggerResult(Debugger.TERMINATED);
         }
     }
     
@@ -731,7 +731,7 @@ public class JdiDebugger extends Debugger
      */
     @Override
     @OnThread(Tag.Any)
-    public FXPlatformSupplier<DebuggerResult> instantiateClass(String className, String[] paramTypes, DebuggerObject[] args)
+    public DebuggerResult instantiateClass(String className, String[] paramTypes, DebuggerObject[] args)
     {
         // If there are no arguments, use the default constructor
         if (paramTypes == null || args == null || paramTypes.length == 0 || args.length == 0) {
@@ -752,7 +752,7 @@ public class JdiDebugger extends Debugger
             }
         }
         else {
-            return () -> new DebuggerResult(Debugger.TERMINATED);
+            return new DebuggerResult(Debugger.TERMINATED);
         }
     }
     

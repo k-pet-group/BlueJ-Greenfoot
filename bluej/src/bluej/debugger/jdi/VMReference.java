@@ -913,7 +913,7 @@ class VMReference
      *            when a BlueJEvent is generated for a breakpoint, this
      *            parameter is passed as the event parameter
      */
-    public FXPlatformSupplier<DebuggerResult> runShellClass(String className)
+    public DebuggerResult runShellClass(String className)
     {
         // Calls to this method are protected by serverThreadLock in JdiDebugger
         
@@ -939,16 +939,16 @@ class VMReference
                 ObjectReference exception = getStaticFieldObject(serverClass, ExecServer.EXCEPTION_NAME);
                 if (exception != null) {
                     exceptionEvent(new InvocationException(exception));
-                    return () -> new DebuggerResult(lastException);
+                    return new DebuggerResult(lastException);
                 }
             }
             
             ObjectReference objR = getStaticFieldObject(serverClass, ExecServer.METHOD_RETURN_NAME);
-            return () -> new DebuggerResult(JdiObject.getDebuggerObject(objR));
+            return new DebuggerResult(JdiObject.getDebuggerObject(objR));
         }
         catch (VMDisconnectedException e) {
             exitStatus = Debugger.TERMINATED;
-            return () -> new DebuggerResult(exitStatus);
+            return new DebuggerResult(exitStatus);
         }
         catch (Exception e) {
             // remote invocation failed
@@ -958,13 +958,13 @@ class VMReference
             lastException = new ExceptionDescription("Internal BlueJ error: unexpected exception in remote VM\n" + e);
         }
         
-        return () -> new DebuggerResult(lastException);
+        return new DebuggerResult(lastException);
     }
     
     /**
      * Invoke the default constructor for some class, and return the resulting object.
      */
-    public FXPlatformSupplier<DebuggerResult> instantiateClass(String className)
+    public DebuggerResult instantiateClass(String className)
     {
         ObjectReference obj = null;
         exitStatus = Debugger.NORMAL_EXIT;
@@ -974,7 +974,7 @@ class VMReference
         catch (VMDisconnectedException e) {
             exitStatus = Debugger.TERMINATED;
             // return null; // debugger state change handled elsewhere
-            return () -> new DebuggerResult(Debugger.TERMINATED);
+            return new DebuggerResult(Debugger.TERMINATED);
         }
         catch (Exception e) {
             // remote invocation failed
@@ -984,11 +984,11 @@ class VMReference
             lastException = new ExceptionDescription("Internal BlueJ error: unexpected exception in remote VM\n" + e);
         }
         if (obj == null) {
-            return () -> new DebuggerResult(lastException);
+            return new DebuggerResult(lastException);
         }
         else {
             ObjectReference objFinal = obj;
-            return () -> new DebuggerResult(JdiObject.getDebuggerObject(objFinal));
+            return new DebuggerResult(JdiObject.getDebuggerObject(objFinal));
         }
     }
 
@@ -1004,7 +1004,7 @@ class VMReference
      * @return  The newly constructed object (or null if error/exception
      *          occurs)
      */
-    public FXPlatformSupplier<DebuggerResult> instantiateClass(String className, String [] paramTypes, ObjectReference [] args)
+    public DebuggerResult instantiateClass(String className, String [] paramTypes, ObjectReference [] args)
     {
         ObjectReference obj = null;
         exitStatus = Debugger.NORMAL_EXIT;
@@ -1013,7 +1013,7 @@ class VMReference
         }
         catch (VMDisconnectedException e) {
             exitStatus = Debugger.TERMINATED;
-            return () -> new DebuggerResult(exitStatus); // debugger state change handled elsewhere
+            return new DebuggerResult(exitStatus); // debugger state change handled elsewhere
         }
         catch (Exception e) {
             // remote invocation failed
@@ -1023,11 +1023,11 @@ class VMReference
             lastException = new ExceptionDescription("Internal BlueJ error: unexpected exception in remote VM\n" + e);
         }
         if (obj == null) {
-            return () -> new DebuggerResult(lastException);
+            return new DebuggerResult(lastException);
         }
         else {
             ObjectReference objFinal = obj;
-            return () -> new DebuggerResult(JdiObject.getDebuggerObject(objFinal));
+            return new DebuggerResult(JdiObject.getDebuggerObject(objFinal));
         }
     }
     
