@@ -218,6 +218,7 @@ public class GreenfootMain extends Thread
      * by its key. The default value will be returned if the key is not in
      * the properties keys.
      */
+    @OnThread(Tag.Any)
     public static String getPropString(String key, String defaultValue)
     {
         return projectProperties.getString(key, defaultValue);

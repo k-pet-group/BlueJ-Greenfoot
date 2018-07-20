@@ -125,7 +125,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     {
         return getUserName() != null && !getUserName().isEmpty();
     }
-    
+
     public String getUserName()
     {
         return GreenfootMain.getPropString("greenfoot.player.name", "Player1");
