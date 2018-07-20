@@ -567,6 +567,9 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     @OnThread(Tag.FXPlatform)
     public void doReset()
     {
+        //we pause before reset to prevent waiting too long in a delay between act frames
+        debugHandler.getVmComms().pauseSimulation();
+
         discardWorld();
         if (currentWorld != null && currentWorld.isCompiled()
                 && hasNoArgConstructor(currentWorld.getTypeReflective()))
