@@ -21,8 +21,6 @@
  */
 package greenfoot.core;
 
-import bluej.Boot;
-import bluej.collect.DataSubmissionFailedDialog;
 import greenfoot.event.SimulationListener;
 import greenfoot.vmcomm.VMCommsSimulation;
 import greenfoot.platforms.ide.ActorDelegateIDE;
@@ -31,10 +29,7 @@ import greenfoot.sound.SoundFactory;
 import greenfoot.util.Version;
 
 import java.awt.EventQueue;
-import java.io.File;
 import java.lang.reflect.Field;
-import java.rmi.RemoteException;
-
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 
@@ -199,35 +194,22 @@ public class GreenfootMain extends Thread
     @OnThread(Tag.Any)
     public static Version getAPIVersion()
     {
-        if (version == null) {
-            try {
+        if (version == null)
+        {
+            try
+            {
                 Class<?> bootCls = Class.forName("bluej.Boot");
                 Field field = bootCls.getField("GREENFOOT_API_VERSION");
                 String versionStr = (String) field.get(null);
                 version = new Version(versionStr);
             }
-            catch (ClassNotFoundException e) {
-                Debug.reportError("Could not get Greenfoot API version", e);
-                throw new InternalGreenfootError(e);
-            }
-            catch (SecurityException e) {
-                Debug.reportError("Could not get Greenfoot API version", e);
-                throw new InternalGreenfootError(e);
-            }
-            catch (NoSuchFieldException e) {
-                Debug.reportError("Could not get Greenfoot API version", e);
-                throw new InternalGreenfootError(e);
-            }
-            catch (IllegalArgumentException e) {
-                Debug.reportError("Could not get Greenfoot API version", e);
-                throw new InternalGreenfootError(e);
-            }
-            catch (IllegalAccessException e) {
+            catch (ClassNotFoundException | SecurityException | NoSuchFieldException |
+                    IllegalArgumentException | IllegalAccessException e)
+            {
                 Debug.reportError("Could not get Greenfoot API version", e);
                 throw new InternalGreenfootError(e);
             }
         }
-
         return version;
     }
 
