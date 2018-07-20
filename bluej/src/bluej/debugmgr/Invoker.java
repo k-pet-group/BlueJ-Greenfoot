@@ -164,6 +164,7 @@ public class Invoker
         this.objectBench = objectBench;
         this.debugger = debugger;
         this.nameTransform = new NameTransform() {
+            @OnThread(Tag.Any)
             public String transform(String typeName)
             {
                 return typeName;

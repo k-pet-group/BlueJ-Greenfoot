@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2014,2018  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,7 +33,7 @@ import threadchecker.Tag;
  * 
  * @author Davin McCall
  */
-@OnThread(Tag.FXPlatform)
+@OnThread(Tag.Any)
 public class JavaUtils15 extends JavaUtils
 {
     /*
