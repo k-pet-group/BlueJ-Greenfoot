@@ -1342,7 +1342,15 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 return;
             }
             debugHandler.getVmComms().sendKeyEvent(eventType, e.getCode(), e.getText());
-            e.consume();
+            
+            // Don't consume keypresses involving control because they might be menu accelerators.
+            // Consume anything else, including anything involving alt, because we don't want alt
+            // to trigger the menu like it usually would on Windows.
+            // On MacOS consuming the key doesn't prevent the menu accelerators firing.
+            if (!e.isControlDown() || (e.isAltDown() && Config.isWinOS()))
+            {
+                e.consume();
+            }
         });
 
         worldDisplay.setOnContextMenuRequested(e -> {
