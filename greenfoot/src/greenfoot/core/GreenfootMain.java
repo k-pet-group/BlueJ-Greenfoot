@@ -39,7 +39,7 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * The main class for greenfoot. This is a singelton (in the JVM). Since each
+ * The main class for greenfoot. This is a singleton (in the JVM). Since each
  * project is opened in its own JVM there can be several Greenfoot instances,
  * but each will be in its own JVM so it is effectively a singleton.
  * 
@@ -82,7 +82,7 @@ public class GreenfootMain extends Thread
      * Initializes the singleton. This can only be done once - subsequent calls
      * will have no effect.
      * 
-     * @param rBlueJ   remote BlueJ instance
+     * @param projDir     The project directory
      * @param shmFilePath The path to the shared-memory file to be mmap-ed for communication
      */
     @OnThread(Tag.Any)
@@ -105,7 +105,7 @@ public class GreenfootMain extends Thread
     // ----------- instance methods ------------
 
     /**
-     * Contructor is private. This class is initialised via the 'initialize'
+     * Constructor is private. This class is initialised via the 'initialize'
      * method (above).
      */
     private GreenfootMain(String projDir, String shmFilePath)
