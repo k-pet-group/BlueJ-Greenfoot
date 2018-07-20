@@ -24,40 +24,29 @@ package greenfoot.platforms.ide;
 import greenfoot.GreenfootImage;
 import greenfoot.UserInfo;
 import greenfoot.UserInfoVisitor;
+import greenfoot.core.GreenfootMain;
 import greenfoot.platforms.GreenfootUtilDelegate;
 
-import java.awt.Component;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.charset.IllegalCharsetNameException;
-import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 import bluej.Config;
-import bluej.extensions.ProjectNotOpenException;
-import bluej.extensions.SourceType;
 import bluej.runtime.ExecServer;
-import bluej.utility.BlueJFileReader;
 import bluej.utility.Debug;
-import bluej.utility.DialogManager;
-import bluej.utility.Utility;
-
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -100,7 +89,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     @OnThread(Tag.Any)
     public Iterable<String> getSoundFiles()
     {
-        ArrayList<String> files = new ArrayList<String>();
+        ArrayList<String> files = new ArrayList<>();
         try
         {
             URL url = getResource("sounds");
@@ -136,10 +125,10 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     {
         return getUserName() != null && !getUserName().isEmpty();
     }
-    
+
     public String getUserName()
     {
-        return Config.getPropString("greenfoot.player.name", "Player1");
+        return GreenfootMain.getPropString("greenfoot.player.name", "Player1");
     }
 
     @Override
@@ -153,7 +142,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         if (all == null)
             return null; // Error reading file
         
-        for (int i = 0; i < all.size();i++)
+        for (int i = 0; i < all.size(); i++)
         {
             if (getUserName().equals(all.get(i).getUserName()))
             {
@@ -233,7 +222,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         catch (FileNotFoundException e)
         {
             // No previous storage, make a new blank one:
-            all = new ArrayList<String[]>();
+            all = new ArrayList<>();
         }
         catch (IOException e)
         {
@@ -279,7 +268,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     {
         try
         {
-            ArrayList<UserInfo> ret = new ArrayList<UserInfo>();
+            ArrayList<UserInfo> ret = new ArrayList<>();
             
             CSVReader csv = new CSVReader(new InputStreamReader(new FileInputStream("storage.csv"), "UTF-8"));
             
@@ -307,7 +296,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         catch (FileNotFoundException e)
         {
             // No previous storage, return the blank list:
-            return new ArrayList<UserInfo>();
+            return new ArrayList<>();
         }
         catch (IOException e)
         {
@@ -358,7 +347,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
         }
         
         if (index == -1 || maxAmount == 0)
-            return new ArrayList<UserInfo>();
+            return new ArrayList<>();
         
         int availableBefore = index;
         int availableAfter = all.size() - 1 - index;

@@ -597,11 +597,17 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     private void loadAndMirrorProperties()
     {
         Properties props = project.getUnnamedPackage().getLastSavedProperties();
-        for (String key : props.stringPropertyNames()) 
+
+        for (String key : props.stringPropertyNames())
         {
             String value = props.getProperty(key);
             debugHandler.getVmComms().sendProperty(key, value);
         }
+
+        // Add the player name property from the user properties.
+        final String playerNameKey = "greenfoot.player.name";
+        debugHandler.getVmComms().sendProperty(playerNameKey, Config.getPropString(playerNameKey, "Player1"));
+
         // Load the speed into our slider and inform debug VM:
         int speed = 50;
         try
@@ -1121,8 +1127,12 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
      */
     private void setPlayer()
     {
-        SetPlayerDialog dlg = new SetPlayerDialog(this, Config.getPropString("greenfoot.player.name", "Player1"));
-        dlg.showAndWait().ifPresent(name -> Config.putPropString("greenfoot.player.name", name));
+        final String propertyKey = "greenfoot.player.name";
+        SetPlayerDialog dlg = new SetPlayerDialog(this, Config.getPropString(propertyKey, "Player1"));
+        dlg.showAndWait().ifPresent(name -> {
+            Config.putPropString(propertyKey, name);
+            debugHandler.getVmComms().sendProperty(propertyKey, name);
+        });
     }
 
     /**

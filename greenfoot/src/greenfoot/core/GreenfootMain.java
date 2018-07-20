@@ -21,8 +21,6 @@
  */
 package greenfoot.core;
 
-import bluej.Boot;
-import bluej.collect.DataSubmissionFailedDialog;
 import greenfoot.event.SimulationListener;
 import greenfoot.vmcomm.VMCommsSimulation;
 import greenfoot.platforms.ide.ActorDelegateIDE;
@@ -31,10 +29,7 @@ import greenfoot.sound.SoundFactory;
 import greenfoot.util.Version;
 
 import java.awt.EventQueue;
-import java.io.File;
 import java.lang.reflect.Field;
-import java.rmi.RemoteException;
-
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 
@@ -44,7 +39,7 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * The main class for greenfoot. This is a singelton (in the JVM). Since each
+ * The main class for greenfoot. This is a singleton (in the JVM). Since each
  * project is opened in its own JVM there can be several Greenfoot instances,
  * but each will be in its own JVM so it is effectively a singleton.
  * 
@@ -78,13 +73,16 @@ public class GreenfootMain extends Thread
     /** Greenfoot is a singleton - this is the instance. */
     private static GreenfootMain instance;
 
+    // The project properties on the debugVM
+    private static ShadowProjectProperties projectProperties;
+
     // ----------- static methods ------------
 
     /**
      * Initializes the singleton. This can only be done once - subsequent calls
      * will have no effect.
      * 
-     * @param rBlueJ   remote BlueJ instance
+     * @param projDir     The project directory
      * @param shmFilePath The path to the shared-memory file to be mmap-ed for communication
      */
     @OnThread(Tag.Any)
@@ -107,7 +105,7 @@ public class GreenfootMain extends Thread
     // ----------- instance methods ------------
 
     /**
-     * Contructor is private. This class is initialised via the 'initialize'
+     * Constructor is private. This class is initialised via the 'initialize'
      * method (above).
      */
     private GreenfootMain(String projDir, String shmFilePath)
@@ -115,7 +113,7 @@ public class GreenfootMain extends Thread
         instance = this;
         try {
 
-            ShadowProjectProperties projectProperties = new ShadowProjectProperties();
+            projectProperties = new ShadowProjectProperties();
             ActorDelegateIDE.setupAsActorDelegate(projectProperties);
 
             EventQueue.invokeLater(new Runnable() {
@@ -196,35 +194,33 @@ public class GreenfootMain extends Thread
     @OnThread(Tag.Any)
     public static Version getAPIVersion()
     {
-        if (version == null) {
-            try {
+        if (version == null)
+        {
+            try
+            {
                 Class<?> bootCls = Class.forName("bluej.Boot");
                 Field field = bootCls.getField("GREENFOOT_API_VERSION");
                 String versionStr = (String) field.get(null);
                 version = new Version(versionStr);
             }
-            catch (ClassNotFoundException e) {
-                Debug.reportError("Could not get Greenfoot API version", e);
-                throw new InternalGreenfootError(e);
-            }
-            catch (SecurityException e) {
-                Debug.reportError("Could not get Greenfoot API version", e);
-                throw new InternalGreenfootError(e);
-            }
-            catch (NoSuchFieldException e) {
-                Debug.reportError("Could not get Greenfoot API version", e);
-                throw new InternalGreenfootError(e);
-            }
-            catch (IllegalArgumentException e) {
-                Debug.reportError("Could not get Greenfoot API version", e);
-                throw new InternalGreenfootError(e);
-            }
-            catch (IllegalAccessException e) {
+            catch (ClassNotFoundException | SecurityException | NoSuchFieldException |
+                    IllegalArgumentException | IllegalAccessException e)
+            {
                 Debug.reportError("Could not get Greenfoot API version", e);
                 throw new InternalGreenfootError(e);
             }
         }
-
         return version;
+    }
+
+    /**
+     * Get a property string from the shadow properties on the debugVM
+     * by its key. The default value will be returned if the key is not in
+     * the properties keys.
+     */
+    @OnThread(Tag.Any)
+    public static String getPropString(String key, String defaultValue)
+    {
+        return projectProperties.getString(key, defaultValue);
     }
 }
