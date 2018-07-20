@@ -73,7 +73,7 @@ public class GreenfootMain extends Thread
     /** Greenfoot is a singleton - this is the instance. */
     private static GreenfootMain instance;
 
-    // The project properties on the simulationVM
+    // The project properties on the debugVM
     private static ShadowProjectProperties projectProperties;
 
     // ----------- static methods ------------
@@ -214,7 +214,7 @@ public class GreenfootMain extends Thread
     }
 
     /**
-     * Get a property string from the shadow properties on the simulationVM
+     * Get a property string from the shadow properties on the debugVM
      * by its key. The default value will be returned if the key is not in
      * the properties keys.
      */

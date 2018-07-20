@@ -598,15 +598,16 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     {
         Properties props = project.getUnnamedPackage().getLastSavedProperties();
 
-        // Add the player name property from the user properties.
-        final String playerNameKey = "greenfoot.player.name";
-        props.put(playerNameKey, Config.getPropString(playerNameKey, "Player1"));
-
-        for (String key : props.stringPropertyNames()) 
+        for (String key : props.stringPropertyNames())
         {
             String value = props.getProperty(key);
             debugHandler.getVmComms().sendProperty(key, value);
         }
+
+        // Add the player name property from the user properties.
+        final String playerNameKey = "greenfoot.player.name";
+        debugHandler.getVmComms().sendProperty(playerNameKey, Config.getPropString(playerNameKey, "Player1"));
+
         // Load the speed into our slider and inform debug VM:
         int speed = 50;
         try
