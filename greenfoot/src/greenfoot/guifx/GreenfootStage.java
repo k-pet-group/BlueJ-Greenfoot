@@ -597,6 +597,11 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     private void loadAndMirrorProperties()
     {
         Properties props = project.getUnnamedPackage().getLastSavedProperties();
+
+        // Add the player name property from the user properties.
+        final String playerNameKey = "greenfoot.player.name";
+        props.put(playerNameKey, Config.getPropString(playerNameKey, "Player1"));
+
         for (String key : props.stringPropertyNames()) 
         {
             String value = props.getProperty(key);

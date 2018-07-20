@@ -24,6 +24,7 @@ package greenfoot.platforms.ide;
 import greenfoot.GreenfootImage;
 import greenfoot.UserInfo;
 import greenfoot.UserInfoVisitor;
+import greenfoot.core.GreenfootMain;
 import greenfoot.platforms.GreenfootUtilDelegate;
 
 import java.awt.Component;
@@ -139,7 +140,7 @@ public class GreenfootUtilDelegateIDE implements GreenfootUtilDelegate
     
     public String getUserName()
     {
-        return Config.getPropString("greenfoot.player.name", "Player1");
+        return GreenfootMain.getPropString("greenfoot.player.name", "Player1");
     }
 
     @Override

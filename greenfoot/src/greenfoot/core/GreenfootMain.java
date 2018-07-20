@@ -78,6 +78,9 @@ public class GreenfootMain extends Thread
     /** Greenfoot is a singleton - this is the instance. */
     private static GreenfootMain instance;
 
+    // The project properties on the simulationVM
+    private static ShadowProjectProperties projectProperties;
+
     // ----------- static methods ------------
 
     /**
@@ -115,7 +118,7 @@ public class GreenfootMain extends Thread
         instance = this;
         try {
 
-            ShadowProjectProperties projectProperties = new ShadowProjectProperties();
+            projectProperties = new ShadowProjectProperties();
             ActorDelegateIDE.setupAsActorDelegate(projectProperties);
 
             EventQueue.invokeLater(new Runnable() {
@@ -226,5 +229,15 @@ public class GreenfootMain extends Thread
         }
 
         return version;
+    }
+
+    /**
+     * Get a property string from the shadow properties on the simulationVM
+     * by its key. The default value will be returned if the key is not in
+     * the properties keys.
+     */
+    public static String getPropString(String key, String defaultValue)
+    {
+        return projectProperties.getString(key, defaultValue);
     }
 }
