@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2012,2014,2015,2016,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -53,7 +53,7 @@ import java.util.regex.Pattern;
  *   
  * @author Davin McCall
  */
-@OnThread(Tag.FXPlatform)
+@OnThread(Tag.Any)
 public abstract class JavaUtils
 {
     private static JavaUtils jutils;
@@ -227,7 +227,6 @@ public abstract class JavaUtils
      * @param tparams  The map (String -> GenType) for class type parameters
      * @return The long description string.
      */
-    @OnThread(Tag.FXPlatform)
     abstract public String getLongDesc(Method method, String [] paramnames,
             Map<String,GenTypeParameter> tparams) throws ClassNotFoundException;
     
@@ -260,7 +259,6 @@ public abstract class JavaUtils
     /**
      * Get the return type of a method.
      */
-    @OnThread(Tag.FXPlatform)
     abstract public JavaType getReturnType(Method method) throws ClassNotFoundException;
     
     abstract public JavaType getRawReturnType(Method method);
@@ -329,7 +327,6 @@ public abstract class JavaUtils
      * @param raw     whether to return the raw versions of argument types
      * @return  the argument types
      */
-    @OnThread(Tag.FXPlatform)
     abstract public JavaType[] getParamGenTypes(Method method, boolean raw) throws ClassNotFoundException;
     
     /**
@@ -338,7 +335,6 @@ public abstract class JavaUtils
      * 
      * @param constructor The constructor to get the parameters for.
      */
-    @OnThread(Tag.FXPlatform)
     abstract public String[] getParameterTypes(Constructor<?> constructor) throws ClassNotFoundException;
     
     /**
@@ -350,7 +346,6 @@ public abstract class JavaUtils
      * @param constructor  the constructor whose argument types to get
      * @return  the argument types
      */
-    @OnThread(Tag.FXPlatform)
     abstract public JavaType[] getParamGenTypes(Constructor<?> constructor) throws ClassNotFoundException;
     
     /**
@@ -360,7 +355,6 @@ public abstract class JavaUtils
      * @param tparams   A list of GenTypeDeclTpar
      * @return          A map (String -> GenTypeSolid)
      */
-    @OnThread(Tag.FXPlatform)
     public static Map<String,GenTypeSolid> TParamsToMap(List<GenTypeDeclTpar> tparams)
     {
         Map<String,GenTypeSolid> rmap = new HashMap<String,GenTypeSolid>();
@@ -383,7 +377,6 @@ public abstract class JavaUtils
      * 
      * @return  true if the access is allowed, false otherwise
      */
-    @OnThread(Tag.FXPlatform)
     public static boolean checkMemberAccess(Reflective container, GenTypeSolid targetType,
             Reflective accessor, int modifiers, boolean isStatic)
     {
@@ -643,7 +636,6 @@ public abstract class JavaUtils
     /**
      * Get a GenType corresponding to the (raw) class c
      */
-    @OnThread(Tag.FXPlatform)
     public static JavaType genTypeFromClass(Class<?> c)
     {
         if (c.isPrimitive()) {

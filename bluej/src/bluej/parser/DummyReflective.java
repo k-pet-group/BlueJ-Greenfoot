@@ -34,6 +34,8 @@ import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
 import bluej.utility.JavaReflective;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * This class acts as purely as an access source in TextAnalyzer. It
@@ -42,6 +44,7 @@ import bluej.utility.JavaReflective;
  * 
  * @author Davin McCall
  */
+@OnThread(Tag.Any)
 public class DummyReflective extends Reflective
 {
     private String name;

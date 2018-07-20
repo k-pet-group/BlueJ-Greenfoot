@@ -38,12 +38,15 @@ import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
 import bluej.utility.JavaReflective;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A Reflective implementation for arrays (which defers most functionality to the component reflective)
  * 
  * @author Davin McCall
  */
+@OnThread(Tag.Any)
 public class ParsedArrayReflective extends Reflective
 {
     private Reflective component;

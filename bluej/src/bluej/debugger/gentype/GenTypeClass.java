@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2013,2014,2017  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2013,2014,2017,2018  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -20,9 +20,6 @@
  LICENSE.txt file that accompanied this code.
  */
 package bluej.debugger.gentype;
-
-import threadchecker.OnThread;
-import threadchecker.Tag;
 
 import java.util.*;
 
@@ -610,7 +607,6 @@ public class GenTypeClass extends GenTypeSolid
      * 
      * @return the map (of String -> GenTypeParameterizable).
      */
-    @OnThread(Tag.FXPlatform)
     public Map<String,GenTypeParameter> getMap()
     {
         if (isRaw()) {
