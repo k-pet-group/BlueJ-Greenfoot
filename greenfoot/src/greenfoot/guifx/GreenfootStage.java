@@ -1126,8 +1126,12 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
      */
     private void setPlayer()
     {
-        SetPlayerDialog dlg = new SetPlayerDialog(this, Config.getPropString("greenfoot.player.name", "Player1"));
-        dlg.showAndWait().ifPresent(name -> Config.putPropString("greenfoot.player.name", name));
+        final String propertyKey = "greenfoot.player.name";
+        SetPlayerDialog dlg = new SetPlayerDialog(this, Config.getPropString(propertyKey, "Player1"));
+        dlg.showAndWait().ifPresent(name -> {
+            Config.putPropString(propertyKey, name);
+            debugHandler.getVmComms().sendProperty(propertyKey, name);
+        });
     }
 
     /**
