@@ -440,6 +440,17 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
 
         JavaFXUtil.addChangeListenerPlatform(worldVisible, b -> updateBackgroundMessage());
 
+        PrefMgr.playerName.addListener(new ChangeListener<String>()
+        {
+            @Override
+            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+            public void changed(ObservableValue<? extends String> observable, String oldValue,
+                                String newValue)
+            {
+                sendPropertyToDebugVM("greenfoot.player.name", newValue);
+            }
+        });
+
         scenarioInfo = new ScenarioInfo(lastSavedProperties);
         if (newWindow)
         {
@@ -604,12 +615,11 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         for (String key : props.stringPropertyNames())
         {
             String value = props.getProperty(key);
-            debugHandler.getVmComms().sendProperty(key, value);
+            sendPropertyToDebugVM(key, value);
         }
 
         // Add the player name property from the user properties.
-        final String playerNameKey = "greenfoot.player.name";
-        debugHandler.getVmComms().sendProperty(playerNameKey, Config.getPropString(playerNameKey, "Player1"));
+        sendPropertyToDebugVM("greenfoot.player.name", PrefMgr.playerName.get());
 
         // Load the speed into our slider and inform debug VM:
         int speed = 50;
@@ -1130,12 +1140,18 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
      */
     private void setPlayer()
     {
-        final String propertyKey = "greenfoot.player.name";
-        SetPlayerDialog dlg = new SetPlayerDialog(this, Config.getPropString(propertyKey, "Player1"));
-        dlg.showAndWait().ifPresent(name -> {
-            Config.putPropString(propertyKey, name);
-            debugHandler.getVmComms().sendProperty(propertyKey, name);
-        });
+        SetPlayerDialog dlg = new SetPlayerDialog(this, PrefMgr.playerName.get());
+        dlg.showAndWait().ifPresent(name -> PrefMgr.playerName.set(name));
+    }
+
+    /**
+     * Send an updated property value.
+     * @param key    The property name
+     * @param value  The property value
+     */
+    public void sendPropertyToDebugVM(String key, String value)
+    {
+        debugHandler.getVmComms().sendProperty(key, value);
     }
 
     /**
@@ -1924,9 +1940,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     public void saveAndMirrorClassImageFilename(String qualifiedName, String imageFileName)
     {
         doSave();
-        debugHandler.getVmComms().sendProperty(
-                "class." + qualifiedName + ".image",
-                imageFileName);
+        sendPropertyToDebugVM("class." + qualifiedName + ".image", imageFileName);
     }
 
     /**

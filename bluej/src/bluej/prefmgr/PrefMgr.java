@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2013,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,6 +37,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableIntegerValue;
 
 import threadchecker.OnThread;
@@ -136,6 +137,9 @@ public class PrefMgr
     // slightly shrunken and doesn't set family
     @OnThread(Tag.FX)
     private static StringExpression editorFontSizeOnlyCSS;
+
+    // A property to hold the greenfoot player's name
+    public static StringProperty playerName;
 
     /**
      * Private constructor to prevent instantiation
@@ -455,6 +459,13 @@ public class PrefMgr
             default:
                 printFontSize = PrintSize.STANDARD;
                 break;
+        }
+
+        if (Config.isGreenfoot())
+        {
+            playerName = new SimpleStringProperty(Config.getPropString("greenfoot.player.name", "Player1"));
+            JavaFXUtil.addChangeListener(playerName,
+                    name -> Config.putPropString("greenfoot.player.name", name));
         }
     }
 

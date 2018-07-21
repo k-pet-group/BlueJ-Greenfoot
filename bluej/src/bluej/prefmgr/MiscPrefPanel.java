@@ -173,7 +173,7 @@ public class MiscPrefPanel extends VBox
             }
         }
 
-        playerNameField = new TextField(Config.getPropString("greenfoot.player.name", "Player1"));
+        playerNameField = new TextField(PrefMgr.playerName.get());
         playerNameField.setPrefColumnCount(20);
         contents.add(PrefMgrDialog.labelledItem("playername.dialog.help", playerNameField));
         
@@ -219,7 +219,7 @@ public class MiscPrefPanel extends VBox
         }
         else
         {
-            playerNameField.setText(Config.getPropString("greenfoot.player.name", "Player1"));
+            playerNameField.setText(PrefMgr.playerName.get());
         }
     }
 
@@ -247,7 +247,7 @@ public class MiscPrefPanel extends VBox
 
         if (Config.isGreenfoot())
         {
-            Config.putPropString("greenfoot.player.name", playerNameField.getText());
+            PrefMgr.playerName.set(playerNameField.getText());
         }
     }
 }
