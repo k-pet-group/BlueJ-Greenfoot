@@ -440,7 +440,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
 
         JavaFXUtil.addChangeListenerPlatform(worldVisible, b -> updateBackgroundMessage());
 
-        PrefMgr.addPlayerNameChangeListener(new ChangeListener<String>()
+        PrefMgr.playerName.addListener(new ChangeListener<String>()
         {
             @Override
             @OnThread(value = Tag.FXPlatform, ignoreParent = true)
@@ -616,7 +616,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         }
 
         // Add the player name property from the user properties.
-        sendPropertyToDebugVM("greenfoot.player.name", PrefMgr.getPlayerName());
+        sendPropertyToDebugVM("greenfoot.player.name", PrefMgr.playerName.get());
 
         // Load the speed into our slider and inform debug VM:
         int speed = 50;
@@ -1137,8 +1137,8 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
      */
     private void setPlayer()
     {
-        SetPlayerDialog dlg = new SetPlayerDialog(this, PrefMgr.getPlayerName());
-        dlg.showAndWait().ifPresent(name -> PrefMgr.setPlayerName(name));
+        SetPlayerDialog dlg = new SetPlayerDialog(this, PrefMgr.playerName.get());
+        dlg.showAndWait().ifPresent(name -> PrefMgr.playerName.set(name));
     }
 
     /**

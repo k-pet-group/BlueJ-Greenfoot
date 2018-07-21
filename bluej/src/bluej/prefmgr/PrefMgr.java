@@ -138,8 +138,8 @@ public class PrefMgr
     @OnThread(Tag.FX)
     private static StringExpression editorFontSizeOnlyCSS;
 
-    // For Greenfoot only.
-    private static StringProperty playerName;
+    // A property to hold the greenfoot player's name
+    public static StringProperty playerName;
 
     /**
      * Private constructor to prevent instantiation
@@ -464,6 +464,8 @@ public class PrefMgr
         if (Config.isGreenfoot())
         {
             playerName = new SimpleStringProperty(Config.getPropString("greenfoot.player.name", "Player1"));
+            JavaFXUtil.addChangeListener(playerName,
+                    name -> Config.putPropString("greenfoot.player.name", name));
         }
     }
 
@@ -508,37 +510,5 @@ public class PrefMgr
         {
             return Config.getString("editor.printDialog.fontSize." + this.name().toLowerCase());
         }
-    }
-
-    /**
-     * Add a change listener for when the value of the greenfoot player name
-     * changes.
-     *
-     * @param listener A change listener.
-     */
-    public static void addPlayerNameChangeListener(ChangeListener<String> listener)
-    {
-        playerName.addListener(listener);
-    }
-
-    /**
-     * Returns the greenfoot player name.
-     * @return The player name set for greenfoot.
-     */
-    public static String getPlayerName()
-    {
-        return playerName.get();
-    }
-
-    /**
-     * Sets the greenfoot player name. This is also reflected on the
-     * player name property.
-     *
-     * @param name The player name.
-     */
-    public static void setPlayerName(String name)
-    {
-        Config.putPropString("greenfoot.player.name", name);
-        playerName.set(name);
     }
 }
