@@ -66,6 +66,10 @@ If necessary:
 Building and Signing on Mac:
     To build:
         - run "ant mac" in the greenfoot source directory.
+        
+    Note: In order for the bundle to be signed, the certificate must be in the keychain on the
+    machine on which the above command is run (and an internet connection must be active). If it
+    is not available, the bundle should still be generated but the signing step will fail.
 
     To sign manually (now done automatically):
         - On the terminal, execute:

@@ -23,8 +23,11 @@ There is one bundle generated for Mac OS X: The regular one which includes a JDK
    you to read this file. Your build.properties file must specify a
    suitable mac_bundled_jdk_path.
 
-2. From the BlueJ source directory, run "ant mac".  You must have the key
-   on your system and a working Internet connection to sign.
+2. From the BlueJ source directory, run "ant mac".
+
+   Note: In order for the bundle to be signed, the certificate must be in the keychain on the
+   machine on which the above command is run (and an internet connection must be active). If it is
+   not available, the bundle should still be generated but the signing step will fail.
 
 
 Signing on Mac (now all done automatically):
