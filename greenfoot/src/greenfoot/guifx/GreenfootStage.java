@@ -398,7 +398,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     }
     
     /**
-     * Show a particular project in this window.
+     * Show a particular project in this window.  Only called once for any single GreenfootStage object.
      * @param project                The project to display
      * @param greenfootDebugHandler  The debug handler for this project
      * @param newWindow              True if the window to host this scenario has just been created,
@@ -484,6 +484,8 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 setHeight(savedHeight);
             }
         }
+
+        stateProperty.set(State.NO_WORLD);
     }
 
     /**
