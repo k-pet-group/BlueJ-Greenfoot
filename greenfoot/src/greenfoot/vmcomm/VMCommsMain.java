@@ -108,7 +108,8 @@ public class VMCommsMain implements Closeable
     private boolean haveUpdatedErrorCount = false;
     private long lastExecStartTime;
     private int updatedSimulationSpeed = -1;
-    private boolean worldWasDiscarded = false;
+    private boolean worldChanged = false;
+    private boolean worldPresentAfterChange = false;
     private int[] promptCodepoints = null;
 
     /**
@@ -121,8 +122,8 @@ public class VMCommsMain implements Closeable
     private int lastAnswer = -1;
     // A count of errors on the debug VM.  We keep count too so that we know when it has changed:
     private int previousStoppedWithErrorCount;
-    // Whether the previous frame had a world present:
-    private boolean hadWorld = false;
+    // The world counter during the previous frame (zero = no world):
+    private int prevWorldCounter = 0;
     // The world cell size (0 if no world)
     private int worldCellSize;
     
@@ -269,7 +270,16 @@ public class VMCommsMain implements Closeable
         
         checkingIO = true;
 
-        if (haveUpdatedImage)
+        // We should only draw if either the world didn't change, or there
+        // was a change, but a world is left.  i.e. don't draw if the world got removed:
+        boolean shouldDraw = !worldChanged || worldPresentAfterChange;
+        if (worldChanged)
+        {
+            stage.worldChanged(worldPresentAfterChange);
+            worldChanged = false;
+        }
+        
+        if (haveUpdatedImage && shouldDraw)
         {
             // skip: sequence number, last paint sequence, then:
             IntBuffer copy = sharedMemory.asReadOnlyBuffer();
@@ -291,13 +301,7 @@ public class VMCommsMain implements Closeable
         {
             stage.notifySimulationSpeed(updatedSimulationSpeed);
             updatedSimulationSpeed = -1;
-        }
-        
-        if (worldWasDiscarded)
-        {
-            stage.worldDiscarded();
-            worldWasDiscarded = false;
-        }
+        }        
         
         if (promptCodepoints != null && askId > lastAnswer)
         {
@@ -392,12 +396,14 @@ public class VMCommsMain implements Closeable
                         updatedSimulationSpeed = simSpeed;
                     }
     
-                    boolean worldPresent = (sharedMemory.get() == 1);
-                    if (worldPresent != hadWorld) {
-                        if (! worldPresent) {
-                            worldWasDiscarded = true;
-                        }
-                        hadWorld = worldPresent;
+                    int worldCounter = sharedMemory.get();
+                    // If the new counter is different (zero/non-zero change, or incremented),
+                    // store that into our fields:
+                    if (worldCounter != prevWorldCounter)
+                    {
+                        worldChanged = true;
+                        worldPresentAfterChange = worldCounter != 0;
+                        prevWorldCounter = worldCounter;
                     }
                     
                     worldCellSize = sharedMemory.get();
@@ -607,7 +613,7 @@ public class VMCommsMain implements Closeable
         setSpeedCommandCount = 0;
         lastAnswer = -1;
         previousStoppedWithErrorCount = 0;
-        hadWorld = false;
+        prevWorldCounter = 0;
         // Zero the buffer:
         sharedMemoryByte.position(0);
         sharedMemoryByte.put(new byte[MAPPED_SIZE], 0, MAPPED_SIZE);

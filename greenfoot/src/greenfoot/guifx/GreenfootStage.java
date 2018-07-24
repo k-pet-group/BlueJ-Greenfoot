@@ -1540,13 +1540,23 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     }
     
     /**
-     * A "world discarded" notification has been received from the remote VM.
+     * When processing messages from the remote VM, we discovered the world has changed.
+     * 
+     * @param worldPresent True if a world is present after the change.
      */
-    public void worldDiscarded()
+    public void worldChanged(boolean worldPresent)
     {
+        // We assume that a world change after issuing a discard is in
+        // response to the discard.  If the world is no longer there, the
+        // discard finished in isolation.  If a new world is there, it might
+        // already be recreated after a discard as part of a reset, but the
+        // initial discard must still have succeeded:
         waitingForDiscard = false;
-        worldDisplay.greyOutWorld();
-        stateProperty.set(State.NO_WORLD);
+        if (!worldPresent)
+        {
+            worldDisplay.greyOutWorld();
+            stateProperty.set(State.NO_WORLD);
+        }
     }
     
     /**
