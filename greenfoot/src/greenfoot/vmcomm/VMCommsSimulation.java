@@ -30,8 +30,6 @@ import greenfoot.core.WorldHandler;
 import greenfoot.gui.WorldRenderer;
 import greenfoot.gui.input.KeyboardManager;
 import greenfoot.gui.input.mouse.MousePollingManager;
-import greenfoot.vmcomm.Command;
-import greenfoot.vmcomm.VMCommsMain;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import threadchecker.OnThread;
@@ -119,7 +117,7 @@ public class VMCommsSimulation
      *                          at the point when some execution that may contain user code last started on
      *                          the simulation thread, or 0L if user code is not currently running.
      * Pos 7+(W*H): The current simulation speed (1 to 100)
-     * Pos 8+(W*H): 1 if a world is currently installed, or 0 if there is no world.
+     * Pos 8+(W*H): world counter if a world is currently installed, or 0 if there is no world.
      * Pos 9+(W*H): The world cell size in pixels
      * Pos 10+(W*H): -1 if not currently awaiting a Greenfoot.ask() answer.
      *              If awaiting, it is count (P) of following codepoints which make up prompt.
@@ -141,6 +139,8 @@ public class VMCommsSimulation
     private int stoppedWithErrorCount = 0;
     // When did user code last start?
     private long startOfCurExecution = 0;
+    // A strictly incrementing counter, incremented each time the world changes.
+    private int worldCounter = 0;
     private World world;
 
     /**
@@ -185,9 +185,13 @@ public class VMCommsSimulation
      * Can be called from any thread.
      */
     @OnThread(Tag.Any)
-    public void setWorld(World world)
+    public synchronized void setWorld(World world)
     {
-        this.world = world;
+        if (this.world != world)
+        {
+            this.worldCounter += 1;
+            this.world = world;
+        }
     }
 
     public static enum PaintWhen { FORCE, IF_DUE, NO_PAINT}
@@ -292,7 +296,16 @@ public class VMCommsSimulation
             fileLock = shmFileChannel.lock(VMCommsMain.SERVER_AREA_OFFSET_BYTES,
                     VMCommsMain.SERVER_AREA_SIZE_BYTES, false);
 
-            boolean doUpdateImage = updateImage;
+            boolean doUpdateImage;
+            World curWorld;
+            int curWorldCounter;
+            synchronized (this)
+            {
+                // Don't send double-buffered image if world has since disappeared:
+                doUpdateImage = updateImage && world != null;
+                curWorld = this.world;
+                curWorldCounter = this.worldCounter;
+            }
             
             sharedMemory.position(1);
             int recvSeq = sharedMemory.get();
@@ -376,8 +389,8 @@ public class VMCommsSimulation
             {
                 sharedMemory.put(0);
             }
-            sharedMemory.put(world == null ? 0 : 1);
-            sharedMemory.put(world == null ? 0 : WorldVisitor.getCellSize(world));
+            sharedMemory.put(curWorld == null ? 0 : curWorldCounter);
+            sharedMemory.put(curWorld == null ? 0 : WorldVisitor.getCellSize(curWorld));
             
             // If not asking, put -1
             synchronized (this)
