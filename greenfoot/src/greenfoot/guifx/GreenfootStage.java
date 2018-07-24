@@ -225,6 +225,17 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     // This change is needed as we now wipe the properties file each time
     // before saving to avoid stacking unneeded properties hanging forever.
     private ScenarioInfo scenarioInfo;
+    
+    private ChangeListener<String> playerNameListener = new ChangeListener<String>()
+    {
+        @Override
+        @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+        public void changed(ObservableValue<? extends String> observable, String oldValue,
+                            String newValue)
+        {
+            sendPropertyToDebugVM("greenfoot.player.name", newValue);
+        }
+    };
 
     /**
      * Details for a new actor being added to the world, after you have made it
@@ -440,16 +451,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
 
         JavaFXUtil.addChangeListenerPlatform(worldVisible, b -> updateBackgroundMessage());
 
-        PrefMgr.playerName.addListener(new ChangeListener<String>()
-        {
-            @Override
-            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
-            public void changed(ObservableValue<? extends String> observable, String oldValue,
-                                String newValue)
-            {
-                sendPropertyToDebugVM("greenfoot.player.name", newValue);
-            }
-        });
+        PrefMgr.getPlayerName().addListener(playerNameListener);
 
         scenarioInfo = new ScenarioInfo(lastSavedProperties);
         if (newWindow)
@@ -619,7 +621,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         }
 
         // Add the player name property from the user properties.
-        sendPropertyToDebugVM("greenfoot.player.name", PrefMgr.playerName.get());
+        sendPropertyToDebugVM("greenfoot.player.name", PrefMgr.getPlayerName().get());
 
         // Load the speed into our slider and inform debug VM:
         int speed = 50;
@@ -753,6 +755,8 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
      */
     private void doClose(boolean keepLast)
     {
+        PrefMgr.getPlayerName().removeListener(playerNameListener);
+        
         if (numberOfOpenProjects <= 1 && ! keepLast)
         {
             // We quit with the current scenario still open, so that it will be saved to the
@@ -1140,8 +1144,8 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
      */
     private void setPlayer()
     {
-        SetPlayerDialog dlg = new SetPlayerDialog(this, PrefMgr.playerName.get());
-        dlg.showAndWait().ifPresent(name -> PrefMgr.playerName.set(name));
+        SetPlayerDialog dlg = new SetPlayerDialog(this, PrefMgr.getPlayerName().get());
+        dlg.showAndWait().ifPresent(name -> PrefMgr.getPlayerName().set(name));
     }
 
     /**
