@@ -37,7 +37,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableIntegerValue;
 
 import threadchecker.OnThread;
@@ -138,8 +137,8 @@ public class PrefMgr
     @OnThread(Tag.FX)
     private static StringExpression editorFontSizeOnlyCSS;
 
-    // A property to hold the greenfoot player's name
-    public static StringProperty playerName;
+    // A property to hold the Greenfoot player's name
+    private static StringProperty playerName;
 
     /**
      * Private constructor to prevent instantiation
@@ -399,6 +398,15 @@ public class PrefMgr
         }
         
         return strideFontSize;
+    }
+    
+    /**
+     * Get the property holding the player name, used for Greenfoot (set to determine what UserInfo
+     * "current user" name will return).
+     */
+    public static StringProperty getPlayerName()
+    {
+        return playerName;
     }
 
     /**
