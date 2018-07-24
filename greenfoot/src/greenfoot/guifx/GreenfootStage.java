@@ -506,43 +506,40 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         {
             message = "";
         }
-        else
+        else if (stateProperty.get() == State.NO_WORLD || stateProperty.get() == State.PAUSED)
         {
-            if (stateProperty.get() == State.NO_PROJECT)
+            // If we are paused, but no world is visible, the user either
+            // needs to instantiate a world (if they have one) or create a world class
+            if (worldInstantiationError)
             {
-                message = Config.getString("centrePanel.message.openScenario");
+                message = Config.getString("centrePanel.message.error1") + " " + Config.getString("centrePanel.message.error2");
             }
-            else if (stateProperty.get() == State.PAUSED)
+            else if (classDiagram.hasInstantiatableWorld())
             {
-                // If we are paused, but no world is visible, the user either
-                // needs to instantiate a world (if they have one) or create a world class
-                if (worldInstantiationError)
-                {
-                    message = Config.getString("centrePanel.message.error1") + " " + Config.getString("centrePanel.message.error2");
-                }
-                else if (classDiagram.hasInstantiatableWorld())
-                {
-                    message = Config.getString("centrePanel.message.createWorldObject");
-                }
-                else if (classDiagram.hasUserWorld())
-                {
-                    message = Config.getString("centrePanel.message.missingWorldConstructor1")
+                message = Config.getString("centrePanel.message.createWorldObject");
+            }
+            else if (classDiagram.hasUserWorld())
+            {
+                message = Config.getString("centrePanel.message.missingWorldConstructor1")
                         + " " + Config.getString("centrePanel.message.missingWorldConstructor2");
-                }
-                else
-                {
-                    message = Config.getString("centrePanel.message.createWorldClass");
-                }
-            }
-            else if (currentWorld != null && !currentWorld.isCompiled())
-            {
-                message = Config.getString("centrePanel.message.compile1")
-                        + " " + Config.getString("centrePanel.message.compile2");
             }
             else
             {
-                message = "";
+                message = Config.getString("centrePanel.message.createWorldClass");
             }
+        }
+        else if (stateProperty.get() == State.NO_PROJECT)
+        {
+            message = Config.getString("centrePanel.message.openScenario");
+        }
+        else if (currentWorld != null && !currentWorld.isCompiled())
+        {
+            message = Config.getString("centrePanel.message.compile1")
+                    + " " + Config.getString("centrePanel.message.compile2");
+        }
+        else
+        {
+            message = "";
         }
         backgroundMessage.setText(message);
     }
