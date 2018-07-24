@@ -356,18 +356,19 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         setMinWidth(700);
         setMinHeight(400);
 
+        setOnCloseRequest((e) -> {
+            doClose(false);
+        });
+        
+        JavaFXUtil.addChangeListenerPlatform(stateProperty, this::updateGUIState);
+
         if (project != null)
         {
             showProject(project, greenfootDebugHandler, true);
         }
         // Do this whether we have a project or not:
         updateBackgroundMessage();
-                
-        setOnCloseRequest((e) -> {
-            doClose(false);
-        });
         
-        JavaFXUtil.addChangeListenerPlatform(stateProperty, this::updateGUIState);
         JavaFXUtil.addChangeListenerPlatform(focusedProperty(), focused -> {
             if (focused && project != null)
             {
