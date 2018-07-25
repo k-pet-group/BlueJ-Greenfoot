@@ -177,6 +177,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     private final ControlPanel controlPanel;
     
     private DebuggerObject draggedActor;
+    private AnimationTimer vmCommsHandler;
 
     public static enum State
     {
@@ -373,6 +374,8 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         
         JavaFXUtil.addChangeListenerPlatform(stateProperty, this::updateGUIState);
 
+        setupKeyAndMouseHandlers();
+
         if (project != null)
         {
             showProject(project, greenfootDebugHandler, true);
@@ -441,7 +444,16 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         soundRecorder.setProject(project);
         executionTwirler.setProject(project, greenfootDebugHandler);
 
-        setupWorldDrawingAndEvents();
+        vmCommsHandler = new AnimationTimer()
+        {
+            @Override
+            public void handle(long now)
+            {
+                debugHandler.getVmComms().checkIO(GreenfootStage.this);
+            }
+        };
+        vmCommsHandler.start();
+        
         loadAndMirrorProperties();
         Properties lastSavedProperties = project.getUnnamedPackage().getLastSavedProperties();
         String lastInstantiatedWorldName = lastSavedProperties.getProperty("world.lastInstantiated");
@@ -801,6 +813,11 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         {
             showingDebugger.unbindBidirectional(project.debuggerShowing());
             project = null;
+        }
+        if (vmCommsHandler != null)
+        {
+            vmCommsHandler.stop();
+            vmCommsHandler = null;
         }
         hasNoProject.set(true);
         worldDisplay.setImage(null);
@@ -1339,12 +1356,17 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     }
     
     /**
-     * Sets up the drawing of the world from the shared memory buffer, and the writing
+     * Sets up the writing
      * of keyboard and mouse events back to the buffer.
      */
-    private void setupWorldDrawingAndEvents()
+    private void setupKeyAndMouseHandlers()
     {
         getScene().addEventFilter(KeyEvent.ANY, e -> {
+            if (project == null)
+            {
+                return;
+            }
+            
             // Ignore keypresses if we are currently waiting for an ask-answer:
             if (worldDisplay.isAsking())
             {
@@ -1385,6 +1407,11 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         });
         
         worldDisplay.addEventFilter(KeyEvent.ANY, e -> {
+            if (project == null)
+            {
+                return;
+            }
+            
             // Ignore keypresses if we are currently waiting for an ask-answer:
             if (worldDisplay.isAsking())
             {
@@ -1421,6 +1448,11 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         });
 
         worldDisplay.setOnContextMenuRequested(e -> {
+            if (project == null)
+            {
+                return;
+            }
+            
             boolean paused = stateProperty.get() == State.PAUSED;
             if (paused)
             { 
@@ -1429,6 +1461,11 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             }
         });
         worldDisplay.addEventFilter(MouseEvent.ANY, e -> {
+            if (project == null)
+            {
+                return;
+            }
+            
             boolean paused = stateProperty.get() == State.PAUSED;
             Point2D worldPos = worldDisplay.sceneToWorld(new Point2D(e.getSceneX(), e.getSceneY()));
             int eventType;
@@ -1498,15 +1535,6 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 eventType, (int)worldPos.getX(), (int)worldPos.getY(),
                 button.ordinal(), e.getClickCount());
         });
-
-        new AnimationTimer()
-        {
-            @Override
-            public void handle(long now)
-            {
-                debugHandler.getVmComms().checkIO(GreenfootStage.this);
-            }
-        }.start();
     }
 
     /**
