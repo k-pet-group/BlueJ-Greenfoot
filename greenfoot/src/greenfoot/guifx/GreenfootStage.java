@@ -641,21 +641,21 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         sendPropertyToDebugVM("greenfoot.player.name", PrefMgr.getPlayerName().get());
 
         // Load the speed into our slider and inform debug VM:
-        int speed = 50;
+        lastUserSetSpeed = 50;
         try
         {
             String speedString = project.getUnnamedPackage().getLastSavedProperties().getProperty("simulation.speed");
             if (speedString != null)
             {
-                speed = Integer.valueOf(speedString);
+                lastUserSetSpeed = Integer.valueOf(speedString);
             }
         }
         catch (NumberFormatException e)
         {
             // Just leave it as the default 50 if there is a problem
         }
-        controlPanel.setSpeed(speed);
-        debugHandler.getVmComms().setSimulationSpeed(speed);
+        controlPanel.setSpeed(lastUserSetSpeed);
+        debugHandler.getVmComms().setSimulationSpeed(lastUserSetSpeed);
     }
 
     /**
