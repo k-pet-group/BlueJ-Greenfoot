@@ -399,7 +399,12 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     }
     
     /**
-     * Show a particular project in this window.  Only called once for any single GreenfootStage object.
+     * Show a particular project in this window.  May be called
+     * multiple times for the same GreenfootStage if it is the
+     * only window and the project is closed and another opened again.
+     * Therefore everything in here should be able to be
+     * executed multiple times for consecutive project opens.
+     * 
      * @param project                The project to display
      * @param greenfootDebugHandler  The debug handler for this project
      * @param newWindow              True if the window to host this scenario has just been created,
