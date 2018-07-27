@@ -65,7 +65,9 @@ public class BuiltInGClassNode extends GClassNode
     protected void setupClassDisplay(GreenfootStage greenfootStage, ClassDisplay display)
     {
         FXPlatformRunnable showDocs = () -> {
-            greenfootStage.openBrowser(display.getQualifiedName().replace(".", "/") + ".html");
+            String docUrl = Config.getBlueJLibDir().getParentFile().toURI().toString();
+            docUrl += "/doc/API/" + display.getQualifiedName().replace(".", "/") + ".html";
+            greenfootStage.openBrowser(docUrl);
         };
 
         display.setOnContextMenuRequested(e -> {
