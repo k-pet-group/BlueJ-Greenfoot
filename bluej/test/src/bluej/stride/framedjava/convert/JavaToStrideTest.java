@@ -659,7 +659,7 @@ public class JavaToStrideTest
                 )
             );
         }
-        return genOneOf(all.toArray(new Supplier[0]));
+        return genOneOf(all);
     }
 
     private static FilledExpressionSlotFragment genCall()
