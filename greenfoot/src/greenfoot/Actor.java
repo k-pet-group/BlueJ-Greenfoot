@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2016  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2016,2018  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -782,7 +782,7 @@ public abstract class Actor
 
             for (int e = 0; e < 4; e++) {
                 int scalar = reX * (otherX[e] - myX[v1]) + reY * (otherY[e] - myY[v1]);
-                if (scalar < 0) {
+                if (scalar <= 0) {
                     continue vloop;
                 }
             }
