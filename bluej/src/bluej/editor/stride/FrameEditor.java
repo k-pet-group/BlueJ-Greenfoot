@@ -333,7 +333,7 @@ public class FrameEditor implements Editor
     {
         try
         {
-            if (!changedSinceLastSave)
+            if (!changedSinceLastSave && lastSavedSource != null)
             {
                 if (lastSavedJava == null)
                 {

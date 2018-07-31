@@ -404,7 +404,14 @@ public class FrameCursor implements RecallableFocus
         // for the cursor:
         shrinkingHeightBindings.get(editor).shrink(this,HIDE_HEIGHT,false);
                                 
-        JavaFXUtil.addChangeListener(node.focusedProperty(), nowFocused -> animateShowHide(nowFocused, false));
+        JavaFXUtil.addChangeListener(node.focusedProperty(), nowFocused -> {
+            // Oddly, we can get told we are focused even after we have left the Scene,
+            // so we add a check here to guard against that:
+            if (node.getScene() != null)
+            {
+                animateShowHide(nowFocused, false);
+            }
+        });
         JavaFXUtil.addChangeListener(node.localToSceneTransformProperty(), t -> JavaFXUtil.runNowOrLater(() -> adjustDragTargetPosition()));
         
         if (editor != null) {
