@@ -108,7 +108,7 @@ public final class PackageEditor extends StackPane
 
     // Two class layers: one front (for normal classes),
     // and one back (for test classes)
-    private final AnchorPane frontClassLayer = new AnchorPane();
+    private final AnchorPane frontClassLayer = new AnchorPaneExtraSpacing();
     private final AnchorPane backClassLayer = new AnchorPane();
     // The layer at the front on which we draw the selection rectangle:
     private Pane selectionLayer = new Pane();
@@ -1064,5 +1064,40 @@ public final class PackageEditor extends StackPane
     public void callStaticMethodOrConstructor(CallableView view)
     {
         pmf.callStaticMethodOrConstructor(view);
+    }
+
+    /**
+     * An AnchorPane with extra space at the right and bottom.
+     * There's no API/CSS for this, so we override the size computations
+     * and add the spacing to the parent's return value.
+     */
+    @OnThread(Tag.FX)
+    private static class AnchorPaneExtraSpacing extends AnchorPane
+    {
+        public static final double EXTRA_SPACE = 40.0;
+
+        @Override
+        protected double computePrefWidth(double height)
+        {
+            return super.computePrefWidth(height) + EXTRA_SPACE;
+        }
+
+        @Override
+        protected double computePrefHeight(double width)
+        {
+            return super.computePrefHeight(width) + EXTRA_SPACE;
+        }
+
+        @Override
+        protected double computeMinHeight(double width)
+        {
+            return super.computeMinHeight(width) + EXTRA_SPACE;
+        }
+
+        @Override
+        protected double computeMinWidth(double height)
+        {
+            return super.computeMinWidth(height) + EXTRA_SPACE;
+        }
     }
 }
