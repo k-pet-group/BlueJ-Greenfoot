@@ -428,6 +428,10 @@ jar-extraction-error
 An error occurred in extracting the archive contents. The debug
 log may contain more information.
 
+jar-executable-uncompiled-project
+Some classes in the project are uncompiled.
+All classes must be compiled before you can create an executable Jar file.
+
 file-save-error-before-compile
 One or more files could not be saved, so compilation was cancelled.
 
