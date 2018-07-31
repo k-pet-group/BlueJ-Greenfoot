@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2018  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -160,6 +160,36 @@ public class IntersectionTest extends TestCase
         assertNull( o2.getOneIntersectingObjectP(TestObject.class));        
         o1.setRotation(90);
         assertEquals(o1, o2.getOneIntersectingObjectP(TestObject.class));      
+    }
+    
+    /**
+     * Tests intersection when both actors are rotated by the same multiple of 90 degrees
+     */
+    public void testRotationIntersectionBoth()
+    {
+        world = WorldCreator.createWorld(100, 100, 1);
+        TestObject actor1 = new TestObject(3,3);
+        TestObject actor2 = new TestObject(3,3);
+        
+        int xoffs = 2;
+        int yoffs = 0;
+        for (int rot = 0; rot < 360; rot += 90) {
+            actor1.setRotation(rot);
+            actor2.setRotation(rot);
+            world.addObject(actor1, 50, 50);
+            world.addObject(actor2, 50 + xoffs, 50 + yoffs);
+            
+            // Actors should just overlap:
+            assertTrue(actor2.isTouchingP(TestObject.class));
+            
+            // rotate the offset position by 90 degrees:
+            int pyoffs = yoffs;
+            yoffs = xoffs;
+            xoffs = -pyoffs;
+            
+            world.removeObject(actor1);
+            world.removeObject(actor2);
+        }
     }
     
     public void testIntersectionSmallObject()
