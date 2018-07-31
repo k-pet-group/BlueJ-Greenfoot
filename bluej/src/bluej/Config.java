@@ -1465,7 +1465,7 @@ public final class Config
     public static File getTemplateDir()
     {
     	if (templateDir == null) {
-    		String path = commandProps.getProperty("bluej.templatePath" , "");
+    		String path = getPropString("bluej.templatePath", "");
     		if(path.length() == 0) {
     			templateDir = getLanguageFile("templates");
     			if (! templateDir.exists()) {
@@ -1494,7 +1494,7 @@ public final class Config
      */
     public static File getClassTemplateDir()
     {
-        return new File(getTemplateDir().getPath() + "/newclass");
+        return new File(getTemplateDir(), "newclass");
     }
 
     /**

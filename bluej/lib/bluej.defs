@@ -305,18 +305,20 @@ bluej.macos.screenmenubar=true
 ## name you choose should start with "applet", "interface" or
 ## "abstract", respectively. Everything else will be treated as a
 ## standard class.
+##
 ## More information is in
 ##      <bluej-home>/lib/<language>/templates/newclass/README
+##
 ## The bluej.templatePath property can be used to choose a different
 ## directory to store the templates (the default is
-## <bluej_home>/lib/<language>/templates/newclass).
+## <bluej_home>/lib/<language>/templates).
 ## Note: if the path contains backslashes, they must be written as
 ## double-backslashes (see example).
 #######################################################################
 
 bluej.classTemplates.java = stdclass abstract interface unittest enum
 bluej.classTemplates.stride = stdclass abstract interface
-#bluej.templatePath = /home/mik/bluej/lib/english/templates/newclass
+#bluej.templatePath = /home/mik/bluej/lib/english/templates
 #bluej.templatePath = F:\\shared\\bluej\\templates
 
 #######################################################################
