@@ -1231,6 +1231,16 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     }
 
     /**
+     * Get all packages from the project. The returned collection is a live view
+     * and should not be modified directly.
+     * @return  all the packages in the current project.
+     */
+    public Collection<Package> getProjectPackages()
+    {
+        return packages.values();
+    }
+
+    /**
      * Return the extensions BProject associated with this Project.
      * There should be only one BProject object associated with each Project.
      * @return the BProject associated with this Project.
