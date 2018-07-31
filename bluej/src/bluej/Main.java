@@ -115,12 +115,6 @@ public class Main
         if (Config.isMacOS()) {
             prepareMacOSApp();
         }
-
-        if (Config.isGreenfoot()) {
-            // Avoid having to put the Greenfoot classes on the system classpath:
-            // (only an issue with JDK 7u21, 6u45, and later).
-            System.setProperty("java.rmi.server.useCodebaseOnly", "false");
-        }
         
         // process command line arguments, start BlueJ!
         SwingUtilities.invokeLater(() -> {
