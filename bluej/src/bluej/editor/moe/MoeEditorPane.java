@@ -57,6 +57,8 @@ import javafx.scene.paint.ImagePattern;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import javax.swing.text.DefaultEditorKit;
+
 /**
  * MoeJEditorPane - an editor pane implementation based on StyledTextArea from the RichTextFX library.
  *
@@ -330,5 +332,20 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
     public void setFakeCaret(boolean on)
     {
         setShowCaret(on ? CaretVisibility.ON : CaretVisibility.AUTO);
+    }
+
+    /**
+     * Select word using our rules. By default, RichTextFX doesn't count
+     * dots as word separator, so double-clicking "foo.bar" selects
+     * the whole lot.  We override to only select the part on our
+     * side of the dot.
+     */
+    @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+    public void selectWord()
+    {
+        MoeActions actions = MoeActions.getActions(editor);
+        actions.getActionByName(DefaultEditorKit.beginWordAction).actionPerformed();
+        actions.getActionByName(DefaultEditorKit.selectionEndWordAction).actionPerformed();
     }
 }
