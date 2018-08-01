@@ -500,8 +500,10 @@
     -fx-spacing: 0.8em;
 }
 
-.team-update-files .main-pane .button-hbox {
+.team-update-files > .button-hbox {
      -fx-spacing: 0.5em;
+     -fx-padding: 0.833em;
+     -fx-alignment: center-right;
 }
 
 .team-status {
