@@ -397,7 +397,8 @@ public final class Terminal
             try
             {
                 FileWriter writer = new FileWriter(fileName);
-                writer.write(text.getText());
+                String output = text.getText().replace("\n", System.lineSeparator())   ;
+                writer.write(output);
                 writer.close();
             }
             catch (IOException ex)
