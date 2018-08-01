@@ -240,8 +240,13 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
 
     private void removeModifiedLayouts()
     {
-        // remove modified layouts from list of files shown for commit
-        updateListModel.removeAll(changedLayoutFiles);
+        // remove modified layouts from list of files shown for commit:
+        updateListModel.removeIf(updateStatus ->
+            changedLayoutFiles.stream().anyMatch(statusInfo ->
+                updateStatus.infoStatus != null &&
+                        statusInfo.getFile().equals(updateStatus.infoStatus.getFile())
+            )
+        );
 
         if(updateListModel.isEmpty()) {
             updateListModel.add(noFilesToUpdate);
