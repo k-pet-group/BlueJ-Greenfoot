@@ -263,8 +263,11 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
      */
     private void addModifiedLayouts()
     {
-        if(updateListModel.contains(noFilesToUpdate)) {
-            updateListModel.remove(noFilesToUpdate);
+        updateListModel.remove(noFilesToUpdate);
+        
+        for (TeamStatusInfo statusInfo : changedLayoutFiles)
+        {
+            updateListModel.add(new UpdateStatus(statusInfo));
         }
     }
 
