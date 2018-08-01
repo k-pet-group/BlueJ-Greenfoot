@@ -272,19 +272,6 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
     }
 
     /**
-     * Get a set (of File) containing the layout files which need to be updated.
-     */
-    public Set<File> getChangedLayoutFiles()
-    {
-        return changedLayoutFiles.stream().map(TeamStatusInfo::getFile).collect(Collectors.toSet());
-    }
-
-    public boolean includeLayout()
-    {
-        return includeLayoutCheckbox != null && includeLayoutCheckbox.isSelected();
-    }
-
-    /**
      * Start the activity indicator.
      */
     public void startProgress()
