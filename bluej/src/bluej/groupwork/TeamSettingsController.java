@@ -212,7 +212,8 @@ public class TeamSettingsController
     }
     
     /**
-     * Initialize the repository.
+     * Initialize the repository and make sure that authentication details (username/password) have
+     * been provided.
      */
     public boolean initRepository()
     {
@@ -225,20 +226,7 @@ public class TeamSettingsController
      */
     private boolean initRepository(boolean auth)
     {
-        if (repository == null) {
-            TeamworkProvider provider = settings.getProvider();
-            if (password == null && auth) {
-                if ( ! getTeamSettingsDialog().showAndWait().isPresent() ) {
-                    return false;
-                }
-            }
-            try {
-                repository = provider.getRepository(projectDir, settings);
-            } catch (UnsupportedSettingException e) {
-                DialogManager.showErrorFX(teamSettingsDialog.asWindow(), e.getLocalizedMessage());
-            }
-        }
-        return true;
+        return trytoEstablishRepository(auth) != null;
     }
     
     /**
