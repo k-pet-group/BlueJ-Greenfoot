@@ -561,17 +561,6 @@ Sie k\u00f6nnen ein Projekt nicht in ein existierendes Projekt
 importieren. W\u00e4hlen Sie einen normalen Ordner als Ziel
  f\u00fcr den Import.
 
-not-all-compiled
-Nicht alle Klassen dieses Projekts sind kompiliert. Um die MIDlet-Suite
-bereitstellen zu k\u00f6nnen, m\u00fcssen Sie alle Klassen des Projekts kompilieren.
-
-error-midleticon-exists
-Die Datei, die Sie ausgew\u00e4hlt haben, ist bereits im res/icons-Verzeichnis
-dieses Projekts. M\u00f6chten Sie sie \u00fcberschreiben?
-\u00dcberschreiben
-Abbrechen
-null
-
 stuck-at-breakpoint
 Ihr Programm l\u00e4uft bereits und hat an einem Haltepunkt angehalten.
 Sie k\u00f6nnen keine weitere Ausf\u00fchrung starten, w\u00e4hrend die aktuelle

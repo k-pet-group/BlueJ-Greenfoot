@@ -557,17 +557,6 @@ team-cannot-import-into-existing-project
 You can't import a project into an existing project. Select
 a normal folder as the destination for the import.
 
-not-all-compiled
-Not all classes in this project are compiled. To deploy the MIDlet
-suite in this project you must compile all classes in the project.
-
-error-midleticon-exists
-The file you have selected is already in this project's res/icons directory.
-Do you want to overwrite it?
-Overwrite
-Cancel
-null
-
 stuck-at-breakpoint
 Your program is already running, and stopped at a breakpoint.
 You cannot start another execution while the current one is still
