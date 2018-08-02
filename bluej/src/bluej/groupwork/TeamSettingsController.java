@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2015,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -212,29 +212,21 @@ public class TeamSettingsController
     }
     
     /**
-     * Initialize the repository.
+     * Initialize the repository and make sure that authentication details (username/password) have
+     * been provided.
      */
     public boolean initRepository()
     {
         return initRepository(true);
     }
     
-    public boolean initRepository(boolean auth)
+    /**
+     * Initialise the repository, with optional authentication details. This can be used to
+     * intialise the repository without opening the team settings dialog.
+     */
+    private boolean initRepository(boolean auth)
     {
-        if (repository == null) {
-            TeamworkProvider provider = settings.getProvider();
-            if (password == null && auth) {
-                if ( ! getTeamSettingsDialog().showAndWait().isPresent() ) {
-                    return false;
-                }
-            }
-            try {
-                repository = provider.getRepository(projectDir, settings);
-            } catch (UnsupportedSettingException e) {
-                DialogManager.showErrorFX(teamSettingsDialog.asWindow(), e.getLocalizedMessage());
-            }
-        }
-        return true;
+        return trytoEstablishRepository(auth) != null;
     }
     
     /**
@@ -273,7 +265,7 @@ public class TeamSettingsController
      */
     public FileFilter getFileFilter(boolean includeLayout, boolean includeDirectories)
     {
-        initRepository();
+        initRepository(false);
         FileFilter repositoryFilter = null;
         if (repository != null) {
             repositoryFilter = repository.getMetadataFilter();
@@ -416,8 +408,6 @@ public class TeamSettingsController
     {
         if (teamSettingsDialog == null) {
             teamSettingsDialog = new TeamSettingsDialog(PkgMgrFrame.getMostRecent().getFXWindow(), this);
-            // TODO This shouldn't happen here, it should be after
-            // a successful operation, such as a Checkout.
             disableRepositorySettings();
         }
 

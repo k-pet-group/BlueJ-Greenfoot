@@ -40,6 +40,7 @@ import bluej.utility.DialogManager;
 import bluej.utility.FXWorker;
 import bluej.utility.javafx.FXCustomizedDialog;
 import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.NoMultipleSelectionModel;
 import bluej.utility.Utility;
 
 import java.io.File;
@@ -105,8 +106,8 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
     private PushAction pushAction;
     private CommitAndPushWorker commitAndPushWorker;
 
-    //sometimes, usually after a conflict resolution, we need to push in order
-    //to update HEAD.
+    // Sometimes, usually after a conflict resolution, we may need to push in order
+    // to update HEAD, even though no files show as changed:
     private boolean pushWithNoChanges = false;
 
     public CommitAndPushFrame(Project proj, Window owner)
@@ -127,7 +128,8 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         ListView<TeamStatusInfo> commitFiles = new ListView<>(commitListModel);
         commitFiles.setPlaceholder(new Label(Config.getString("team.nocommitfiles")));
         commitFiles.setCellFactory(param -> new TeamStatusInfoCell(project));
-        commitFiles.setDisable(true);
+        commitFiles.setSelectionModel(new NoMultipleSelectionModel<>());
+        commitFiles.disableProperty().bind(Bindings.isEmpty(commitListModel));
 
         ScrollPane commitFileScrollPane = new ScrollPane(commitFiles);
         commitFileScrollPane.setFitToWidth(true);
@@ -170,7 +172,8 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
 
         Label pushFilesLabel = new Label(Config.getString("team.commitPush.push.files"));
         pushFiles.setCellFactory(param -> new TeamStatusInfoCell(project));
-        pushFiles.setDisable(true);
+        pushFiles.setSelectionModel(new NoMultipleSelectionModel<>());
+        pushFiles.disableProperty().bind(Bindings.isEmpty(pushListModel));
         ScrollPane pushFileScrollPane = new ScrollPane(pushFiles);
         pushFileScrollPane.setFitToWidth(true);
         pushFileScrollPane.setFitToHeight(true);
@@ -292,14 +295,6 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
     }
 
     /**
-     * Remove a file from the list of changes layout files.
-     */
-    private void removeChangedLayoutFile(File file)
-    {
-        changedLayoutFiles.removeIf(info -> info.getFile().equals(file));
-    }
-
-    /**
      * Get a set of the layout files which have changed (with status info).
      *
      * @return the set of the layout files which have changed.
@@ -354,11 +349,6 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
     public Project getProject()
     {
         return project;
-    }
-
-    private void setLayoutChanged(boolean hasChanged)
-    {
-        includeLayout.setDisable(!hasChanged);
     }
 
     @OnThread(Tag.FXPlatform)
@@ -447,7 +437,6 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
             stopProgress();
             if (!aborted) {
                 if (result.isError()) {
-//                    CommitAndPushFrame.this.dialogThenHide(() -> TeamUtils.handleServerResponseFX(result, CommitAndPushFrame.this.asWindow()));
                     TeamUtils.handleServerResponseFX(result, CommitAndPushFrame.this.asWindow());
                     CommitAndPushFrame.this.hide();
                 } else if (response != null) {
@@ -709,7 +698,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
             }
 
             if (!remote) {
-                setLayoutChanged(!changedLayoutFiles.isEmpty());
+                includeLayout.setDisable(!!changedLayoutFiles.isEmpty());
             }
         }
 
