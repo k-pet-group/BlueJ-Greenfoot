@@ -388,6 +388,7 @@ BlueJ was unable to create a virtual machine (VM) to execute projects.
 This is a serious problem - you will not be able to create objects 
 or execute methods without solving it. Often this is caused by overly
 restrictive firewall settings.
+:
 Please see <http://www.bluej.org/help/faq.html#socket-exc> for more
 information.
 
@@ -402,9 +403,11 @@ save it to.
 project-is-virtualized
 The project you are opening is being virtualized by Windows. This 
 usually happens when the project is stored somewhere in the 
-"Program Files" directory. 
+"Program Files" directory.
+:
 When a project is being virtualized by Windows you will get errors 
 when trying to create objects and invoke methods.
+:
 To use this project, you should move the project to a different
 location. This can be accomplished by choosing "save as" from 
 the Project menu after closing this dialog.
@@ -534,7 +537,9 @@ in team settings.
 
 team-binary-conflict
 A conflict was detected when trying to update the following file:
+:
     $
+:
 The file was changed locally, but there are also changes in the
 repository.
 Keep my version
@@ -543,7 +548,9 @@ null
 
 team-error-saving-project
 An error occurred when trying to save the project files:
+:
 	$
+:
 Committing or updating may have unexpected results.
 
 team-cannot-import-into-existing-project
@@ -584,10 +591,10 @@ This project has Subversion meta-data in a format which BlueJ
 might not fully support. (This could be the case if the project
 was checked out using BlueJ version 3.1.6, which created meta-data
 in an unsupported format).
-    
+:
 You can resolve this by checking out the project again into a new
 folder.
-    
+:
 If you continue to work with this project, some Teamwork functions
 (status, commit etc) may not function properly. 
 

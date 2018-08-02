@@ -458,6 +458,10 @@ public class DialogManager
         }
         else
         {
+            // Replace single ':' with a blank line; this allows messages to include blank lines:
+            message = message.replace("\n:\n", "\n\n");
+            message = message.replace("\r\n:\r\n", "\r\n\r\n");
+            
             for (String sub : subs) {
                 message = message.replace("$", sub);
             }
