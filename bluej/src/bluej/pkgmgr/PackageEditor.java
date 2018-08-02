@@ -1074,7 +1074,7 @@ public final class PackageEditor extends StackPane
     @OnThread(Tag.FX)
     private static class AnchorPaneExtraSpacing extends AnchorPane
     {
-        public static final double EXTRA_SPACE = 40.0;
+        public static final double EXTRA_SPACE = 20.0;
 
         @Override
         protected double computePrefWidth(double height)
