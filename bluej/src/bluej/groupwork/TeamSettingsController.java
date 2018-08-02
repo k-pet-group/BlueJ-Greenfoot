@@ -219,7 +219,11 @@ public class TeamSettingsController
         return initRepository(true);
     }
     
-    public boolean initRepository(boolean auth)
+    /**
+     * Initialise the repository, with optional authentication details. This can be used to
+     * intialise the repository without opening the team settings dialog.
+     */
+    private boolean initRepository(boolean auth)
     {
         if (repository == null) {
             TeamworkProvider provider = settings.getProvider();
@@ -273,7 +277,7 @@ public class TeamSettingsController
      */
     public FileFilter getFileFilter(boolean includeLayout, boolean includeDirectories)
     {
-        initRepository();
+        initRepository(false);
         FileFilter repositoryFilter = null;
         if (repository != null) {
             repositoryFilter = repository.getMetadataFilter();
