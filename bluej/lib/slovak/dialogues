@@ -547,19 +547,6 @@ team-cannot-import-into-existing-project
 Nem\u00f4\u017eete importova\u0165 projekt do jestvuj\u00faceho projektu.
 Zvo\u013ete oby\u010dajn\u00fd prie\u010dinok ako cie\u013e importu.
 
-not-all-compiled
-V\u00a0tomto projekte sa nach\u00e1dzaj\u00fa triedy, ktor\u00e9 nie s\u00fa prelo\u017een\u00e9.
-Ak chcete publikova\u0165 skupinu MIDletov (MIDlet suite) z\u00a0tohto
-projektu, tak mus\u00edte najsk\u00f4r prelo\u017ei\u0165 v\u0161etky triedy.
-
-error-midleticon-exists
-S\u00fabor, ktor\u00fd ste vybrali, u\u017e v\u00a0prie\u010dinku
-\u201eres/icons\u201c tohto projektu jestvuje.
-Chcete ho prep\u00edsa\u0165?
-Prep\u00edsa\u0165
-Zru\u0161i\u0165
-null
-
 stuck-at-breakpoint
 V\u00e1\u0161 program je pr\u00e1ve spusten\u00fd, av\u0161ak jeho \u010dinnos\u0165 je
 pozastaven\u00e1 na bode preru\u0161enia. Nem\u00f4\u017eete ho op\u00e4tovne

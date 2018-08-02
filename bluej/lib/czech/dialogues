@@ -555,19 +555,6 @@ team-cannot-import-into-existing-project
 Nem\u016f\u017eete vlo\u017eit a projekt do existuj\u00edc\u00edho projektu.
 Vyberte jako c\u00edl oby\u010dejnou slo\u017eku neobsahuj\u00edc\u00ed soubory projektu.
 
-not-all-compiled
-V dan\u00e9m projektu nebyly n\u011bkter\u00e9 t\u0159\u00eddy p\u0159elo\u017eeny.
-Chcete-li ulo\u017eit skupinu MIDlet\u016f (MIDlet suite)
-tohoto projektu, mus\u00edte p\u0159elo\u017eit v\u0161echny t\u0159\u00eddy.
-
-error-midleticon-exists
-Soubor, kter\u00fd jste vybrali,
-je ji\u017e ve slo\u017ece res/icons tohoto projektu.
-Chcete jej p\u0159epsat?
-P\u0159epsat
-Storno
-null
-
 stuck-at-breakpoint
 V\u00e1\u0161 program je ji\u017e vykon\u00e1v\u00e1n a zastavil se na zar\u00e1\u017ece (breakpoint).
 Dokud bude program aktivn\u00ed, nebudete jej moci spustit znovu.

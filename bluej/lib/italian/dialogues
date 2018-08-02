@@ -504,23 +504,12 @@ null
 
 team-error-saving-project
 Un errore durante il tentativo di salvare i file di progetto:
- $
- Pubbliccare o l'aggiornamento pu\u00f2 avere risultati imprevisti.
+    $
+Pubbliccare o l'aggiornamento pu\u00f2 avere risultati imprevisti.
 
 team-cannot-import-into-existing-project
 Non \u00e8 possibile importare un progetto in un progetto esistente. Selezionare
 una normale cartella come destinazione per l'importazione.
-
-not-all-compiled
-Non tutte le classi di questo progetto sono compilate. Per distribuire la MIDlet
-suite in questo progetto \u00e8 necessario compilare tutte le classi del progetto.
-
-error-midleticon-exists
-Il file che hai selezionata come icona gi\u00e0 \u00e8 presente in questo progetto.
-Vuoi sovrascrivere?
-Sovrascrivi
-Cancella
-null
 
 stuck-at-breakpoint
 Il programma \u00e8 gi\u00e0 in esecuzione, e fermato al breakpoint.

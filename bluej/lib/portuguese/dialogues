@@ -559,19 +559,6 @@ team-cannot-import-into-existing-project
 Voc\u00EA n\u00E3o pode importar um projeto em um projeto existente.
 Selecione uma pasta normal como o destino para a importa\u00E7\u00E3o.
 
-not-all-compiled
-Nem todas as classes neste projeto est\u00E3o compiladas.
-Para implantar o MIDlet su\u00EDte neste projeto voc\u00EA deve
-compilar todas as classes no projeto.
-
-error-midleticon-exists
-O arquivo que voc\u00EA selecionou j\u00E1 est\u00E1 no
-diret\u00F3rio res /icons deste projecto.
-Voc\u00EA quer substitu\u00ED-lo?
-Sobrescrever
-Cancelar
-null
-
 stuck-at-breakpoint
 Seu programa j\u00E1 est\u00E1 em execu\u00E7\u00E3o, e parou em
 um ponto de interrup\u00E7\u00E3o. Voc\u00EA n\u00E3o pode iniciar
