@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2016,2017  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2016,2017,2018  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,7 +23,7 @@ package bluej.groupwork.actions;
 
 import bluej.Config;
 import bluej.pkgmgr.PkgMgrFrame;
-
+import bluej.pkgmgr.Project;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -34,11 +34,10 @@ import javafx.scene.control.Tooltip;
 
 /**
  * An abstract class for team actions.
- *
- * This is similar to FXAbstractAction but is different in that each
- * button or menu item is not constructed here, but is instead
- * adapted with an explicit reference to the PkgMgrFrame
- * (see useButton, useMenuItem)
+ * <p>
+ * This is similar to FXAbstractAction but is different in that each button or menu item is not
+ * constructed here, but is instead adapted with an explicit reference to either the PkgMgrFrame
+ * or Project (see useButton, useMenuItem methods).
  * 
  * @author fisker
  */
@@ -91,8 +90,8 @@ public abstract class TeamAction
     }
 
     /**
-     * Sets the given button to activate this action on click,
-     * and use this action's title and disabled state
+     * Sets the given button, which is associated with a PkgMgrFrame, to activate this action on
+     * click, and use this action's title and disabled state.
      */
     public void useButton(PkgMgrFrame pmf, ButtonBase button)
     {
@@ -108,6 +107,23 @@ public abstract class TeamAction
     }
 
     /**
+     * Sets the given button to activate this action on click, and use this action's title and
+     * disabled state.
+     */
+    public void useButton(Project project, ButtonBase button)
+    {
+        button.textProperty().unbind();
+        button.textProperty().bind(name);
+        button.disableProperty().unbind();
+        button.disableProperty().bind(disabled);
+        button.setOnAction(e -> actionPerformed(project));
+        if (shortDescription != null)
+        {
+            Tooltip.install(button, new Tooltip(shortDescription));
+        }
+    }
+    
+    /**
      * Sets the given menu item to activate this action,
      * and use this action's title and disabled state
      */
@@ -120,5 +136,19 @@ public abstract class TeamAction
         menuItem.setOnAction(e -> actionPerformed(pmf));
     }
 
-    protected abstract void actionPerformed(PkgMgrFrame pmf);
+    /**
+     * The action was attached to a button not associated with a PkgMgrFrame.
+     */
+    protected void actionPerformed(Project project)
+    {
+        // not all actions require a project-oriented action
+    }
+
+    /**
+     * The action was attached to a button or menu item associated with a PkgMgrFrame.
+     */
+    protected void actionPerformed(PkgMgrFrame pmf)
+    {
+        actionPerformed(pmf.getProject());
+    }
 }

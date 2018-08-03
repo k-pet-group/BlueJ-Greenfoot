@@ -2130,15 +2130,15 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     /**
      * Get the commit dialog for this project
      */
-    public CommitAndPushInterface getCommitCommentsDialog(PkgMgrFrame pmf)
+    public CommitAndPushInterface getCommitCommentsDialog()
     {
         // lazy instantiation of commit comments frame
         if (commitCommentsFrame == null) {
             if (this.teamSettingsController.isDVCS()) {
                 //a dcvs repository uses a different window.
-                commitCommentsFrame = new CommitAndPushFrame(this, pmf.getFXWindow());
+                commitCommentsFrame = new CommitAndPushFrame(this);
             } else {
-                commitCommentsFrame = new CommitCommentsFrame(this, pmf.getFXWindow());
+                commitCommentsFrame = new CommitCommentsFrame(this);
             }
         }
         return commitCommentsFrame;
@@ -2147,10 +2147,11 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     /**
      * Get the update dialog for this project
      */
-    public UpdateFilesFrame getUpdateDialog(PkgMgrFrame pmf)
+    public UpdateFilesFrame getUpdateDialog()
     {
-        if (updateFilesFrame == null) {
-            updateFilesFrame = new UpdateFilesFrame(this, pmf.getFXWindow());
+        if (updateFilesFrame == null)
+        {
+            updateFilesFrame = new UpdateFilesFrame(this);
         }
         return updateFilesFrame;
     }
@@ -2216,14 +2217,13 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     }
 
     /**
-     * return the associated status window
+     * Get the team status window associated with this project.
      */
-    public StatusFrame getStatusWindow(FXPlatformSupplier<javafx.stage.Window> parent)
+    public StatusFrame getStatusWindow()
     {
-        if(statusFrame == null) {
-            statusFrame = new StatusFrame(this, parent.get());
-            final StatusFrame f = this.statusFrame;
-            f.setLocationRelativeTo(parent.get());
+        if (statusFrame == null)
+        {
+            statusFrame = new StatusFrame(this);
         }
         return statusFrame;
     }

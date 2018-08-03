@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2012,2014,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2012,2014,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -113,17 +113,13 @@ public class UpdateAction extends TeamAction
     }
 
     @Override
-    protected void actionPerformed(PkgMgrFrame pmf)
+    protected void actionPerformed(Project project)
     {
-        project = updateFrame.getProject();
+        updateFrame.startProgress();
+        PkgMgrFrame.displayMessage(project, Config.getString("team.update.statusMessage"));
 
-        if (project != null) {
-            updateFrame.startProgress();
-            PkgMgrFrame.displayMessage(project, Config.getString("team.update.statusMessage"));
-
-            worker = new UpdateWorker(project, statusHandle, filesToUpdate, filesToForceUpdate);
-            worker.start();
-        }
+        worker = new UpdateWorker(project, statusHandle, filesToUpdate, filesToForceUpdate);
+        worker.start();
         updateFrame.disableLayoutCheck();
     }
 

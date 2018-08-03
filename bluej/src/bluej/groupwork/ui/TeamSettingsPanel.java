@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2015,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -50,7 +50,6 @@ import bluej.groupwork.TeamSettingsController;
 import bluej.groupwork.TeamSettingsController.ServerType;
 import bluej.groupwork.TeamworkProvider;
 import bluej.groupwork.actions.ValidateConnectionAction;
-import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.Debug;
 import bluej.utility.javafx.HorizontalRadio;
 import bluej.utility.javafx.JavaFXUtil;
@@ -131,7 +130,7 @@ public class TeamSettingsPanel extends VBox
 
         ValidateConnectionAction validateConnectionAction = new ValidateConnectionAction(this, dialog::getOwner);
         Button validateButton = new Button();
-        validateConnectionAction.useButton(PkgMgrFrame.getMostRecent(), validateButton);
+        validateConnectionAction.useButton(teamSettingsController.getProject(), validateButton);
 
         getChildren().addAll(createPropertiesContainer(Config.getString("team.settings.location"), locationPane),
                              createPropertiesContainer(Config.getString("team.settings.personal"), personalPane),

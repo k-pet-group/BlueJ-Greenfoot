@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2014,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2012,2014,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -113,24 +113,22 @@ public class CommitAction extends TeamAction
     }
     
     @Override
-    protected void actionPerformed(PkgMgrFrame pmf)
+    protected void actionPerformed(Project project)
     {
-        Project project = commitCommentsFrame.getProject();
-        
-        if (project != null) {
-            commitCommentsFrame.startProgress();
-            if (project.getTeamSettingsController().isDVCS()){
-                //if DVCS, display message on commit/push window.
-                commitCommentsFrame.displayMessage(Config.getString("team.commit.statusMessage"));
-            } else {
-                //if svn, display the message on the main BlueJ window.
-                PkgMgrFrame.displayMessage(project, Config.getString("team.commit.statusMessage"));
-            }
-            
-            //doCommit(project);
-            worker = new CommitWorker(project);
-            worker.start();
+        commitCommentsFrame.startProgress();
+        if (project.getTeamSettingsController().isDVCS())
+        {
+            // if DVCS, display message on commit/push window.
+            commitCommentsFrame.displayMessage(Config.getString("team.commit.statusMessage"));
         }
+        else
+        {
+            // if svn, display the message on the main BlueJ window.
+            PkgMgrFrame.displayMessage(project, Config.getString("team.commit.statusMessage"));
+        }
+        
+        worker = new CommitWorker(project);
+        worker.start();
     }
     
     /**

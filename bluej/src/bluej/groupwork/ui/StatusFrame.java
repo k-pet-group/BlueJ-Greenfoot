@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 1999-2009,2012,2014,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2014,2016,2017,2018  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -86,14 +86,13 @@ public class StatusFrame extends FXCustomizedDialog<Void>
      * Creates a new instance of StatusFrame. Called via factory method
      * getStatusWindow.
      */
-    public StatusFrame(Project project, Window owner)
+    public StatusFrame(Project project)
     {
-        super(owner, "team.status", "team-status");
+        super(null, "team.status", "team-status");
         this.project = project;
         isDVCS = project.getTeamSettingsController().isDVCS();
         getDialogPane().setContent(makeMainPane());
         prepareButtonPane();
-        DialogManager.centreDialog(this);
     }
 
     @Override

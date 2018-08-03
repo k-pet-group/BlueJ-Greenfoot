@@ -98,13 +98,15 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
 
     private final boolean isDVCS;
 
-    public UpdateFilesFrame(Project project, Window owner)
+    /**
+     * Constructor for UpdateFilesFrame.
+     */
+    public UpdateFilesFrame(Project project)
     {
-        super(owner, "team.update.title", "team-update-files");
+        super(null, "team.update.title", "team-update-files");
         this.project = project;
         isDVCS = project.getTeamSettingsController().isDVCS();
         buildUI();
-        DialogManager.centreDialog(this);
     }
 
     @Override
@@ -112,7 +114,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
     {
         updateAction = new UpdateAction(this);
         Button updateButton = new Button();
-        updateAction.useButton(PkgMgrFrame.getMostRecent(), updateButton);
+        updateAction.useButton(project, updateButton);
         updateButton.requestFocus();
         
         progressBar = new ActivityIndicator();
@@ -131,7 +133,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
     private void buildUI()
     {
         VBox mainPane = new VBox();
-        JavaFXUtil.addStyleClass(mainPane, "main-pane");/////
+        JavaFXUtil.addStyleClass(mainPane, "main-pane");
 
         updateListModel = FXCollections.observableArrayList();
         Label updateFilesLabel = new Label(Config.getString("team.update.files"));
@@ -153,18 +155,13 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
             CheckBox layoutCheck = (CheckBox)event.getSource();
             includeLayout = layoutCheck.isSelected();
             resetForcedFiles();
-            if (includeLayout) {
+            if (includeLayout)
+            {
                 addModifiedLayouts();
-                if (updateAction.isDisabled()) {
-                    updateAction.setEnabled(true);
-                }
             }
-            // unselected
-            else {
+            else
+            {
                 removeModifiedLayouts();
-                if(isUpdateListEmpty()) {
-                    updateAction.setEnabled(false);
-                }
             }
         });
 
@@ -233,11 +230,6 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
         }
     }
 
-    public void reset()
-    {
-        updateListModel.clear();
-    }
-
     private void removeModifiedLayouts()
     {
         // remove modified layouts from list of files shown for commit:
@@ -248,22 +240,29 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
             )
         );
 
-        if(updateListModel.isEmpty()) {
-            updateListModel.add(noFilesToUpdate);
+        if(updateListModel.isEmpty())
+        {
+            if (pullWithNoChanges)
+            {
+                updateListModel.add(needUpdate);
+            }
+            else
+            {
+                updateListModel.add(noFilesToUpdate);
+                updateAction.setEnabled(false);
+            }
         }
     }
 
-    private boolean isUpdateListEmpty()
-    {
-        return updateListModel.isEmpty() || updateListModel.contains(noFilesToUpdate);
-    }
-
     /**
-     * Add the modified layouts to the displayed list of files to be updated.
+     * Add the modified layouts to the displayed list of files to be updated. Should only be
+     * called if there is at least one modified layout file.
      */
     private void addModifiedLayouts()
     {
         updateListModel.remove(noFilesToUpdate);
+        updateListModel.remove(needUpdate);
+        updateAction.setEnabled(true);
         
         for (TeamStatusInfo statusInfo : changedLayoutFiles)
         {
@@ -290,15 +289,6 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
     public Project getProject()
     {
         return project;
-    }
-
-    /**
-     * The layout has changed. Enable the "include layout" checkbox, etc.
-     */
-    private void setLayoutChanged()
-    {
-        includeLayoutCheckbox.setDisable(false);
-        includeLayoutCheckbox.setSelected(includeLayout);
     }
 
     public void disableLayoutCheck()
@@ -421,15 +411,22 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
                     updateAction.setFilesToUpdate(updateFiles);
                     resetForcedFiles();
 
-                    if (includeLayout && ! changedLayoutFiles.isEmpty()) {
-                        addModifiedLayouts();
+                    if (includeLayout && ! changedLayoutFiles.isEmpty())
+                    {
+                        for (TeamStatusInfo statusInfo : changedLayoutFiles)
+                        {
+                            updateListModel.add(new UpdateStatus(statusInfo));
+                        }
                     }
 
-                    if(updateListModel.isEmpty() && !pullWithNoChanges) {
+                    if(updateListModel.isEmpty() && !pullWithNoChanges)
+                    {
                         updateListModel.add(noFilesToUpdate);
                     }
-                    else {
-                        if (isDVCS && pullWithNoChanges && updateListModel.isEmpty()) {
+                    else
+                    {
+                        if (isDVCS && pullWithNoChanges && updateListModel.isEmpty())
+                        {
                             updateListModel.add(needUpdate);
                         }
                         updateAction.setEnabled(true);
@@ -437,7 +434,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
                 }
             }
         }
-
+        
         /**
          * Go through the status list, and figure out which files to update, and
          * which to force update.
@@ -497,7 +494,8 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
             }
 
             if (! changedLayoutFiles.isEmpty()) {
-                setLayoutChanged();
+                includeLayoutCheckbox.setDisable(false);
+                includeLayoutCheckbox.setSelected(includeLayout);
             }
         }
     }
