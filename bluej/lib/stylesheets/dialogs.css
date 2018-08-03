@@ -148,7 +148,7 @@
     -fx-spacing: 2em;
 }
 .export-dialog-userlibs {
-    -fx-padding: 0 3em 0 3em;
+    -fx-padding: 0.5em;
     -fx-hgap: 1em;
     -fx-vgap: 1em;
 }
