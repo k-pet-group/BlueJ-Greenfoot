@@ -96,6 +96,11 @@ public class TeamSettingsPanel extends VBox
     private final TextField userField = new TextField();
     private final PasswordField passwordField = new PasswordField();
     private final TextField groupField = new TextField();
+    
+    /** identifies which field is the primary server information field */
+    private TextField locationPrimaryField;
+    /** identifiers which field is the primary personal information field */
+    private TextField personalPrimaryField;
 
     private CheckBox useAsDefault;
     private ServerType selectedServerType = null;
@@ -144,6 +149,28 @@ public class TeamSettingsPanel extends VBox
             useAsDefault.setDisable(true);
         }
     }
+    
+    /**
+     * Request focus to whatever field seems the most likely to be filled out next.
+     */
+    public void doRequestFocus()
+    {
+        if (locationPrimaryField != null && locationPrimaryField.getText().isEmpty())
+        {
+            // If the location hasn't been specified, that should be first:
+            locationPrimaryField.requestFocus();
+        }
+        else if (personalPrimaryField.getText().isEmpty())
+        {
+            // Otherwise, if the name/username hasn't been set, select that:
+            personalPrimaryField.requestFocus();
+        }
+        else
+        {
+            // Otherwise, select the password field:
+            passwordField.requestFocus();
+        }
+    }
 
     private GridPane createGridPane()
     {
@@ -183,20 +210,19 @@ public class TeamSettingsPanel extends VBox
     {
         personalPane.getChildren().clear();
 
-        // Request focus on the username field by default.
-        yourNameField.requestFocus();
-
         switch (type) {
             case Subversion:
                 personalPane.addRow(0, userLabel, userField);
                 personalPane.addRow(1, passwordLabel, passwordField);
                 personalPane.addRow(2, groupLabel, groupField);
+                personalPrimaryField = userField;
                 break;
             case Git:
                 personalPane.addRow(0, yourNameLabel, yourNameField);
                 personalPane.addRow(1, yourEmailLabel, yourEmailField);
                 personalPane.addRow(2, userLabel, userField);
                 personalPane.addRow(3, passwordLabel, passwordField);
+                personalPrimaryField = yourNameField;
                 break;
             default:
                 Debug.reportError(type + " is not recognisable as s server type");
@@ -213,9 +239,11 @@ public class TeamSettingsPanel extends VBox
                 locationPane.addRow(0, serverLabel, serverField);
                 locationPane.addRow(1, prefixLabel, prefixField);
                 locationPane.addRow(2, protocolLabel, protocolComboBox);
+                locationPrimaryField = serverField;
                 break;
             case Git:
                 locationPane.addRow(0, uriLabel, uriField);
+                locationPrimaryField = uriField;
                 break;
             default:
                 Debug.reportError(type + " is not recognisable as s server type");

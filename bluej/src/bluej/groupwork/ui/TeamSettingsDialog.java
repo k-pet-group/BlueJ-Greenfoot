@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,7 +25,7 @@ import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamSettingsController;
 import bluej.utility.DialogManager;
 import bluej.utility.javafx.FXCustomizedDialog;
-
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Window;
@@ -67,7 +67,12 @@ public class TeamSettingsDialog extends FXCustomizedDialog<TeamSettings>
         teamSettingsPanel = new TeamSettingsPanel(teamSettingsController, this, getDialogPane().getStyleClass());
         getDialogPane().setContent(teamSettingsPanel);
         DialogManager.centreDialog(this);
-
+        
+        setOnShown(e -> {
+            // The dialog logic steals focus to one of the buttons, we need a runLater to steal it back:
+            JavaFXUtil.runAfterCurrent(() -> teamSettingsPanel.doRequestFocus()); 
+        });
+        
         setResultConverter(bt -> bt == ButtonType.OK ? getSettings() : null);
     }
 
