@@ -30,14 +30,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import bluej.utility.javafx.UnfocusableScrollPane;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
-import javafx.scene.control.Separator;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -168,9 +163,12 @@ class ExportDialog extends Dialog<ExportDialog.ExportInfo>
                 userLibPanel = new GridPane();
                 JavaFXUtil.addStyleClass(userLibPanel, "export-dialog-userlibs");
                 userLibPanel.setAlignment(Pos.CENTER);
+                ScrollPane userLibPanelScrollPane = new UnfocusableScrollPane(userLibPanel);
+                JavaFXUtil.expandScrollPaneContent(userLibPanelScrollPane);
+                userLibPanelScrollPane.setMaxHeight(150.0);
                 fillUserLibPanel(projectInfo, Collections.emptyList());
                 mainPanel.getChildren().add(new Label(libsLabel));
-                mainPanel.getChildren().add(userLibPanel);
+                mainPanel.getChildren().add(userLibPanelScrollPane);
             }
 
             sourceBox = new CheckBox(sourceLabel);
