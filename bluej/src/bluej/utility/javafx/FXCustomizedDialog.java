@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2017  Michael Kolling and John Rosenberg
+ Copyright (C) 2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -83,15 +83,24 @@ public class FXCustomizedDialog<R> extends Dialog<R>
         return scene.getWindow();
     }
 
-    public void setLocationRelativeTo(Node comp)
-    {
-
-    }
-
-    @OnThread(Tag.FXPlatform)
+    /**
+     * For a dialog that has yet to be made visible, position it centred over the given window.
+     * (The positioning takes effect once the dialog becomes visible. This method is designed
+     * to only be called on not visible windows, and only once before the window is made visible).
+     */
     public void setLocationRelativeTo(Window window)
     {
-
+        // We rely on the width and height being adjusted when the dialog becomes visible.
+        
+        JavaFXUtil.addSelfRemovingListener(widthProperty(), (newval) -> {
+            double xpos = window.getX() + (window.getWidth() - newval.doubleValue()) / 2;
+            setX(xpos);
+        });
+        
+        JavaFXUtil.addSelfRemovingListener(heightProperty(), (newval) -> {
+            double xpos = window.getY() + (window.getHeight() - newval.doubleValue()) / 2;
+            setY(xpos);
+        });
     }
 
     protected void dialogThenHide(FXPlatformRunnable action)
