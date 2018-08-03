@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 1999-2009,2010,2014,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2014,2016,2017,2018  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -50,7 +50,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.stage.Window;
 
 import bluej.Config;
 import bluej.groupwork.CommitFilter;
@@ -64,7 +63,6 @@ import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.actions.CommitAction;
 import bluej.pkgmgr.BlueJPackageFile;
-import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.utility.DialogManager;
 import bluej.utility.FXWorker;
@@ -97,13 +95,12 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
     private final CheckBox includeLayout = new CheckBox(Config.getString("team.commit.includelayout"));
     private final ActivityIndicator progressBar = new ActivityIndicator();
 
-    public CommitCommentsFrame(Project project, Window owner)
+    public CommitCommentsFrame(Project project)
     {
-        super(owner, "team.commit.title", "team-commit-comments");
+        super(null, "team.commit.title", "team-commit-comments");
         this.project = project;
         getDialogPane().setContent(makeMainPane());
         prepareButtonPane();
-        DialogManager.centreDialog(this);
     }
 
     /**
@@ -127,7 +124,7 @@ public class CommitCommentsFrame extends FXCustomizedDialog<Void> implements Com
 
         commitAction = new CommitAction(this);
         Button commitButton = new Button();
-        commitAction.useButton(PkgMgrFrame.getMostRecent(), commitButton);
+        commitAction.useButton(project, commitButton);
         commitButton.requestFocus();
         //Bind commitText properties to enable the commit button if there is a comment.
         commitText.disableProperty().bind(Bindings.isEmpty(commitListModel));

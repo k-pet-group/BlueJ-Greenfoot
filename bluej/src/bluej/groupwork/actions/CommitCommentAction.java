@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,6 +25,8 @@ import bluej.Config;
 import bluej.groupwork.ui.CommitAndPushInterface;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
+import javafx.stage.Stage;
+import javafx.stage.Window;
 
 
 /**
@@ -43,13 +45,23 @@ public class CommitCommentAction extends TeamAction
     }
 
     @Override
-    public void actionPerformed(PkgMgrFrame pmf)
+    public void actionPerformed(PkgMgrFrame frame)
     {
-        if(!pmf.isEmptyFrame()) {
-            Project project = pmf.getProject();
-            CommitAndPushInterface dialog = project.getCommitCommentsDialog(pmf);
+        Project project = frame.getProject();
+        CommitAndPushInterface dialog = project.getCommitCommentsDialog();
 
+        Window dialogWin = dialog.asWindow();
+        if (dialog.asWindow().isShowing())
+        {
+            if (dialogWin instanceof Stage)
+            {
+                ((Stage)dialogWin).toFront();
+            }
+        }
+        else
+        {
             dialog.reset();
+            dialog.setLocationRelativeTo(frame.getFXWindow());
             dialog.setVisible(true);
         }
     }

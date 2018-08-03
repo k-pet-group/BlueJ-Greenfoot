@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,7 +25,7 @@ import bluej.groupwork.TeamSettings;
 import bluej.groupwork.TeamworkProvider;
 import bluej.groupwork.ui.CheckConnectionDialog;
 import bluej.groupwork.ui.TeamSettingsPanel;
-import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.Project;
 import bluej.utility.javafx.FXPlatformSupplier;
 
 import javafx.stage.Window;
@@ -51,7 +51,7 @@ public class ValidateConnectionAction extends TeamAction
     }
     
     @Override
-    protected void actionPerformed(PkgMgrFrame pmf)
+    protected void actionPerformed(Project project)
     {
         TeamworkProvider provider = teamSettingsPanel.getSelectedProvider();
         TeamSettings settings = teamSettingsPanel.getSettings();

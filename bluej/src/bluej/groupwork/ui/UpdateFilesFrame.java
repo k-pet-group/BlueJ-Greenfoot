@@ -98,13 +98,15 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
 
     private final boolean isDVCS;
 
-    public UpdateFilesFrame(Project project, Window owner)
+    /**
+     * Constructor for UpdateFilesFrame.
+     */
+    public UpdateFilesFrame(Project project)
     {
-        super(owner, "team.update.title", "team-update-files");
+        super(null, "team.update.title", "team-update-files");
         this.project = project;
         isDVCS = project.getTeamSettingsController().isDVCS();
         buildUI();
-        DialogManager.centreDialog(this);
     }
 
     @Override
@@ -112,7 +114,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
     {
         updateAction = new UpdateAction(this);
         Button updateButton = new Button();
-        updateAction.useButton(PkgMgrFrame.getMostRecent(), updateButton);
+        updateAction.useButton(project, updateButton);
         updateButton.requestFocus();
         
         progressBar = new ActivityIndicator();

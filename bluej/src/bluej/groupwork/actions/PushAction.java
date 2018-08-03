@@ -28,7 +28,6 @@ import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.ui.CommitAndPushFrame;
-import bluej.groupwork.ui.CommitAndPushInterface;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.utility.FXWorker;
@@ -84,21 +83,16 @@ public class PushAction extends TeamAction
     }
 
     @Override
-    protected void actionPerformed(PkgMgrFrame pkgMgrFrame)
+    protected void actionPerformed(Project project)
     {
-        Project project = commitCommentsFrame.getProject();
+        commitCommentsFrame.startProgress();
+        commitCommentsFrame.displayMessage(Config.getString("team.push.statusMessage"));
+        setEnabled(false);
+        this.filesToPush.clear();
+        filesToPush.addAll(commitCommentsFrame.getFilesToPush());
 
-        if (project != null) {
-            commitCommentsFrame.startProgress();
-            commitCommentsFrame.displayMessage(Config.getString("team.push.statusMessage"));
-            setEnabled(false);
-            this.filesToPush.clear();
-            filesToPush.addAll(commitCommentsFrame.getFilesToPush());
-
-            //doCommit(project);
-            worker = new PushAction.PushWorker(project);
-            worker.start();
-        }
+        worker = new PushAction.PushWorker(project);
+        worker.start();
     }
 
     /**
@@ -108,7 +102,6 @@ public class PushAction extends TeamAction
      */
     private class PushWorker extends FXWorker
     {
-
         private TeamworkCommand command;
         private TeamworkCommandResult result = null;
         private final boolean hasPassword;

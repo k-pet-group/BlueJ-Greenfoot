@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -34,7 +34,6 @@ import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.pkgmgr.BlueJPackageFile;
-import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.utility.DialogManager;
 import bluej.utility.FXWorker;
@@ -110,14 +109,13 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
     // to update HEAD, even though no files show as changed:
     private boolean pushWithNoChanges = false;
 
-    public CommitAndPushFrame(Project proj, Window owner)
+    public CommitAndPushFrame(Project proj)
     {
-        super(owner, "team.commit.dcvs.title", "team-commit-push");
+        super(null, "team.commit.dcvs.title", "team-commit-push");
         project = proj;
         repository = project.getTeamSettingsController().trytoEstablishRepository(false);
         getDialogPane().setContent(makeMainPane());
         prepareButtonPane();
-        DialogManager.centreDialog(this);
     }
 
     /**
@@ -143,7 +141,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
 
         commitAction = new CommitAction(this);
         Button commitButton = new Button();
-        commitAction.useButton(PkgMgrFrame.getMostRecent(), commitButton);
+        commitAction.useButton(project, commitButton);
         commitButton.requestFocus();
         //Bind commitText properties to enable the commit button if there is a comment.
         commitText.disableProperty().bind(Bindings.isEmpty(commitListModel));
@@ -168,7 +166,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
 
         pushAction = new PushAction(this);
         Button pushButton = new Button();
-        pushAction.useButton(PkgMgrFrame.getMostRecent(), pushButton);
+        pushAction.useButton(project, pushButton);
 
         Label pushFilesLabel = new Label(Config.getString("team.commitPush.push.files"));
         pushFiles.setCellFactory(param -> new TeamStatusInfoCell(project));
