@@ -42,7 +42,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.Window;
 
 import bluej.Config;
 import bluej.groupwork.actions.UpdateAction;
@@ -57,7 +56,6 @@ import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.UpdateFilter;
 import bluej.pkgmgr.BlueJPackageFile;
-import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.utility.DialogManager;
 import bluej.utility.FXWorker;
@@ -284,11 +282,6 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
     public void stopProgress()
     {
         progressBar.setRunning(false);
-    }
-
-    public Project getProject()
-    {
-        return project;
     }
 
     public void disableLayoutCheck()
