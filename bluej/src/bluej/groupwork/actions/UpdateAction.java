@@ -52,7 +52,6 @@ import bluej.utility.DialogManager;
 import bluej.utility.FXWorker;
 import bluej.utility.JavaNames;
 
-import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -67,7 +66,6 @@ import threadchecker.Tag;
 @OnThread(Tag.FXPlatform)
 public class UpdateAction extends TeamAction
 {
-    private Project project;
     private boolean includeLayout = true;
     private UpdateFilesFrame updateFrame;
     private UpdateWorker worker;
@@ -136,6 +134,7 @@ public class UpdateAction extends TeamAction
 
     private class UpdateWorker extends FXWorker implements UpdateListener
     {
+        private Project project;
         private TeamworkCommand command;
         private TeamworkCommandResult result;
         private boolean aborted;
@@ -143,6 +142,7 @@ public class UpdateAction extends TeamAction
         public UpdateWorker(Project project, StatusHandle statusHandle,
                             Set<File> filesToUpdate, Set<File> filesToForceUpdate)
         {
+            this.project = project;
             command = statusHandle.updateTo(this, filesToUpdate, filesToForceUpdate);
         }
 
