@@ -128,6 +128,7 @@ import bluej.views.MethodView;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ContextMenu;
@@ -136,6 +137,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
@@ -243,6 +245,7 @@ public class ClassTarget extends DependentTarget
     private boolean showingInterface;
     private boolean drawingExtends = false;
     private Label nameLabel;
+    private Label noSourceLabel;
 
     /**
      * Create a new class target in package 'pkg'.
@@ -285,7 +288,7 @@ public class ClassTarget extends DependentTarget
         pane.setTop(new VBox(stereotypeLabel, nameLabel));
         canvas = new ResizableCanvas() {
             @Override
-            @OnThread(Tag.FX)
+            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
             public void resize(double width, double height)
             {
                 super.resize(width, height);
@@ -293,6 +296,14 @@ public class ClassTarget extends DependentTarget
             }
         };
         pane.setCenter(canvas);
+
+        // We need to add label to the stack pane element
+        // to be used later for visual indication that class lacks source
+        noSourceLabel = new Label("");
+        StackPane stackPane = new StackPane(pane.getCenter(), noSourceLabel);
+        stackPane.setAlignment(noSourceLabel, Pos.TOP_CENTER);
+        stackPane.setAlignment(canvas, Pos.CENTER);
+        pane.setCenter(stackPane);
 
         // This must come after GUI init because it might try to affect GUI:
         calcSourceAvailable();
@@ -2399,7 +2410,7 @@ public class ClassTarget extends DependentTarget
         }
     }
 
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     @Override
     protected void redraw()
     {
@@ -2408,15 +2419,23 @@ public class ClassTarget extends DependentTarget
         double height = canvas.getHeight();
         g.clearRect(0, 0, width, height);
 
-        // Draw either grey or red stripes:
-        if (getState() != State.COMPILED)
+        calcSourceAvailable();
+        if (sourceAvailable == SourceType.NONE)
         {
-            // We could draw the stripes manually each time, but that
-            // could get quite time-consuming when we have lots of classes.
-            // Instead, we create an image of the given stripes which
-            // we can draw tiled to save time.
-            g.setFill(hasKnownError() ? getRedStripeFill() : getGreyStripeFill());
-            g.fillRect(0, 0, width, height);
+            noSourceLabel.setText("(no source)");
+        }
+        else
+        {
+            // Draw either grey or red stripes:
+            if (getState() != State.COMPILED)
+            {
+                // We could draw the stripes manually each time, but that
+                // could get quite time-consuming when we have lots of classes.
+                // Instead, we create an image of the given stripes which
+                // we can draw tiled to save time.
+                g.setFill(hasKnownError() ? getRedStripeFill() : getGreyStripeFill());
+                g.fillRect(0, 0, width, height);
+            }
         }
 
         if (this.selected && isResizable())
