@@ -51,7 +51,7 @@ public class CommitCommentAction extends TeamAction
         CommitAndPushInterface dialog = project.getCommitCommentsDialog();
 
         Window dialogWin = dialog.asWindow();
-        if (dialog.asWindow().isShowing())
+        if (dialog.isShowing())
         {
             if (dialogWin instanceof Stage)
             {

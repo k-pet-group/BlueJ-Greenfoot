@@ -79,4 +79,9 @@ public interface CommitAndPushInterface
     public Window asWindow();
     
     public void setLocationRelativeTo(Window w);
+    
+    /**
+     * Check whether the dialog is currently open.
+     */
+    public boolean isShowing();
 }
