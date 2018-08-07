@@ -529,11 +529,8 @@ The server could not log you in - check your username/password and
 repository in team settings.
 
 team-authorisation-problem
-Operation not authorised by the server. If this server allows 
-public reading access to the project, like github, then your 
-username/password may be wrong. 
-Check your username/password and repository settings 
-in team settings.
+The operation was not authorised by the server. Check your username,
+password and repository in team settings.
 
 team-binary-conflict
 A conflict was detected when trying to update the following file:
@@ -570,7 +567,10 @@ the program is stuck in a loop, you can use the debugger to
 terminate it.
 
 run-on-fx
-This project uses JavaFX.  Would you like BlueJ to run all future method invocations in this project on the JavaFX thread, to avoid threading exceptions?  You can change this option later in the Preferences.  If unsure, say "Use JavaFX thread".
+This project uses JavaFX.  Would you like BlueJ to run all future
+method invocations in this project on the JavaFX thread, to avoid
+threading exceptions?  You can change this option later in the
+Preferences.  If unsure, say "Use JavaFX thread".
 Use JavaFX thread
 Use separate thread
 null

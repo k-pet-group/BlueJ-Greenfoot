@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -38,7 +38,6 @@ import bluej.utility.javafx.JavaFXUtil;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
-import java.util.Arrays;
 
 /**
  * A dialog which displays an activity indicator while connection settings are
@@ -91,13 +90,15 @@ public class CheckConnectionDialog extends FXCustomizedDialog<Void>
             public void run() {
                 final TeamworkCommandResult res = provider.checkConnection(settings);
                 Platform.runLater(() -> {
-                    if (!res.isError()) {
+                    if (!res.isError())
+                    {
                         connLabel.setText(Config.getString("team.checkconn.ok"));
-                    } else {
-                        String message = res.getErrorMessage().replaceAll("\r?\n|\r", "");
+                    }
+                    else
+                    {
                         connLabel.setText(Config.getString("team.checkconn.bad")
                                 + System.getProperty("line.separator") + System.getProperty("line.separator")
-                                + message);
+                                + res.getErrorMessage());
                     }
                     activityIndicator.setProgress(1.0);
                 });
