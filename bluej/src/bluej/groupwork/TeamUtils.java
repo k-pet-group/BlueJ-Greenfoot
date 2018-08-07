@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014,2016,2018  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,6 +32,9 @@ import threadchecker.Tag;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 
+/**
+ * Utilities for teamwork functionality.
+ */
 public class TeamUtils
 {
     /**
@@ -44,13 +47,15 @@ public class TeamUtils
     @OnThread(Tag.FXPlatform)
     public static void handleServerResponseFX(TeamworkCommandResult result, final Window window)
     {
-        if (result != null) {
-            if (result.wasAuthFailure()) {
+        if (result != null)
+        {
+            if (result.wasAuthFailure())
+            {
                 DialogManager.showErrorFX(window, "team-authentication-problem");
             }
-            else if (result.isError() && ! result.wasAborted()) {
-                String message = result.getErrorMessage().replaceAll("\r?\n|\r", "");
-                DialogManager.showErrorTextFX(window, message);
+            else if (result.isError() && ! result.wasAborted())
+            {
+                DialogManager.showErrorTextFX(window, result.getErrorMessage());
             }
         }
     }
