@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2016,2018 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,20 +31,18 @@ import javafx.scene.control.MultipleSelectionModel;
  * Useful when you want to display information in a listview, but you don't need
  * the selection capability, you just want an easy way to display read-only info.
  */
-public class NoMultipleSelectionModel<T> extends MultipleSelectionModel
+public class NoMultipleSelectionModel<T> extends MultipleSelectionModel<T>
 {
-    private ObservableList emptyList = FXCollections.observableArrayList();
-
     @Override
     public ObservableList<Integer> getSelectedIndices()
     {
-        return emptyList;
+        return FXCollections.emptyObservableList();
     }
 
     @Override
     public ObservableList<T> getSelectedItems()
     {
-        return emptyList;
+        return FXCollections.emptyObservableList();
     }
 
     @Override
