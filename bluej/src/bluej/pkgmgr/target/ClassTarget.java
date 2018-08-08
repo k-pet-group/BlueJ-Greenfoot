@@ -2422,7 +2422,7 @@ public class ClassTarget extends DependentTarget
         calcSourceAvailable();
         if (sourceAvailable == SourceType.NONE)
         {
-            noSourceLabel.setText("(no source)");
+            noSourceLabel.setText("(" + Config.getString("classTarget.noSource") + ")");
         }
         else
         {
