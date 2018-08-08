@@ -79,6 +79,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
     private CheckBox includeLayoutCheckbox;
     private ActivityIndicator progressBar;
     private UpdateAction updateAction;
+    private Button updateButton;
     private UpdateWorker updateWorker;
 
     private Project project;
@@ -103,6 +104,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
     {
         super(null, "team.update.title", "team-update-files");
         this.project = project;
+        updateAction.useButton(project, updateButton);
         isDVCS = project.getTeamSettingsController().isDVCS();
         buildUI();
     }
@@ -111,8 +113,9 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
     protected Node wrapButtonBar(Node original)
     {
         updateAction = new UpdateAction(this);
-        Button updateButton = new Button();
-        updateAction.useButton(project, updateButton);
+        updateButton = new Button();
+        // Note that we can't connect the button and action yet as we are called by the
+        // superclass constructor, and project is not set yet.
         updateButton.requestFocus();
         
         progressBar = new ActivityIndicator();
