@@ -638,23 +638,32 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
             CommitFilter filter = new CommitFilter();
             Map<File, File> modifiedLayoutDirs = new HashMap<>();
 
-            for (TeamStatusInfo statusInfo : info) {
+            for (TeamStatusInfo statusInfo : info)
+            {
                 File file = statusInfo.getFile();
                 boolean isPkgFile = BlueJPackageFile.isPackageFileName(file.getName());
                 //select status to use.
                 Status status = statusInfo.getStatus(!remote);
 
                 if (filter.accept(statusInfo, !remote)) {
-                    if (!isPkgFile) {
+                    if (!isPkgFile)
+                    {
                         filesToCommit.add(file);
                     }
-                    // It is a package file. In case it's a change to its existence, it should be committed
                     else if (status == Status.NEEDS_ADD || status == Status.DELETED
-                            || status == Status.CONFLICT_LDRM) {
+                            || status == Status.CONFLICT_LDRM)
+                    {
+                        // It is a package file, added or removed: it should be committed
+                        filesToCommit.add(file);
+                    }
+                    else if (status == Status.NEEDS_MERGE)
+                    {
+                        // It needs to be committed to resolve a merge conflict:
                         filesToCommit.add(file);
                     }
                     // It is a package file, without a change to its existence.
-                    else {
+                    else
+                    {
                         // add file to list of files that may be added to commit
                         File parentFile = file.getParentFile();
                         if (!modifiedLayoutDirs.containsKey(parentFile)) {

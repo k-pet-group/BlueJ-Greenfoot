@@ -65,7 +65,10 @@ public class TeamStatusInfo
 
         /** The local version has been modified */
         NEEDS_COMMIT("needsCommit", "dcvs.local.modified", "dcvs.remote.modified", NEEDSCOMMIT_COLOR),
-        /** The repository version is newer, but the file is also locally modified */
+        /**
+         * The repository version is newer, but the file is also locally modified; for local
+         * status, indicates merge commit is required.
+         */
         NEEDS_MERGE("needsMerge", "needsMerge", "needsMerge"),
         /** The file exists locally, but not in the repository */
         NEEDS_ADD("needsAdd", "dcvs.local.new", "dcvs.remote.new", NEEDSCOMMIT_COLOR),
