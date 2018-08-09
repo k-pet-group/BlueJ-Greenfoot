@@ -918,3 +918,6 @@ newProject.error.nameEmpty=Name cannot be empty
 newProject.error.compoundExist=Path already exists
 newProject.error.pathInvalid=Path is invalid
 newProject.prompt=Enter a name for the new project
+
+# Class Diagram
+classTarget.noSource=no source
