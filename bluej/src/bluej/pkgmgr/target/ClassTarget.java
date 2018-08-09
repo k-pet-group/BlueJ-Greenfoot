@@ -301,8 +301,8 @@ public class ClassTarget extends DependentTarget
         // to be used later for visual indication that class lacks source
         noSourceLabel = new Label("");
         StackPane stackPane = new StackPane(pane.getCenter(), noSourceLabel);
-        stackPane.setAlignment(noSourceLabel, Pos.TOP_CENTER);
-        stackPane.setAlignment(canvas, Pos.CENTER);
+        StackPane.setAlignment(noSourceLabel, Pos.TOP_CENTER);
+        StackPane.setAlignment(canvas, Pos.CENTER);
         pane.setCenter(stackPane);
 
         // This must come after GUI init because it might try to affect GUI:
@@ -338,17 +338,27 @@ public class ClassTarget extends DependentTarget
         });
     }
     
+    /**
+     * Check whether the class has source, and of what type.
+     */
     private void calcSourceAvailable()
     {
         if (getFrameSourceFile().canRead())
+        {
             sourceAvailable = SourceType.Stride;
+            noSourceLabel.setText("");
+        }
         else if (getJavaSourceFile().canRead())
+        {
             sourceAvailable = SourceType.Java;
+            noSourceLabel.setText("");
+        }
         else
         {
             sourceAvailable = SourceType.NONE;
             // Can't have been modified since compile since there's no source to modify:
             setState(State.COMPILED);
+            noSourceLabel.setText("(" + Config.getString("classTarget.noSource") + ")");
         }
     }
 
@@ -1475,6 +1485,7 @@ public class ClassTarget extends DependentTarget
                 // skeleton successfully generated
                 setState(State.NEEDS_COMPILE);
                 sourceAvailable = sourceType;
+                noSourceLabel.setText("");
                 return true;
             }
             return false;
@@ -2419,23 +2430,15 @@ public class ClassTarget extends DependentTarget
         double height = canvas.getHeight();
         g.clearRect(0, 0, width, height);
 
-        calcSourceAvailable();
-        if (sourceAvailable == SourceType.NONE)
+        // Draw either grey or red stripes:
+        if (getState() != State.COMPILED)
         {
-            noSourceLabel.setText("(" + Config.getString("classTarget.noSource") + ")");
-        }
-        else
-        {
-            // Draw either grey or red stripes:
-            if (getState() != State.COMPILED)
-            {
-                // We could draw the stripes manually each time, but that
-                // could get quite time-consuming when we have lots of classes.
-                // Instead, we create an image of the given stripes which
-                // we can draw tiled to save time.
-                g.setFill(hasKnownError() ? getRedStripeFill() : getGreyStripeFill());
-                g.fillRect(0, 0, width, height);
-            }
+            // We could draw the stripes manually each time, but that
+            // could get quite time-consuming when we have lots of classes.
+            // Instead, we create an image of the given stripes which
+            // we can draw tiled to save time.
+            g.setFill(hasKnownError() ? getRedStripeFill() : getGreyStripeFill());
+            g.fillRect(0, 0, width, height);
         }
 
         if (this.selected && isResizable())
