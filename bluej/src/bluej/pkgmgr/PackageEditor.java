@@ -38,6 +38,7 @@ import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.extmgr.FXMenuManager;
 import bluej.pkgmgr.target.ClassTarget;
+import bluej.utility.DialogManager;
 import bluej.utility.Utility;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -1024,6 +1025,13 @@ public final class PackageEditor extends StackPane
                 // Finished; we can actually add the dependency
                 // Take a copy because we're going to null it:
                 ClassTarget subClassFinal = this.extendsSubClass;
+                if (!subClassFinal.hasSourceCode())
+                {
+                    DialogManager.showErrorFX(pmf.getFXWindow(),
+                            "no-extends-arrow-from-no-source-class");
+                    clearState();
+                    return false;
+                }
                 ClassTarget superClass = (ClassTarget)target;
                 if (subClassFinal.isInterface())
                 {

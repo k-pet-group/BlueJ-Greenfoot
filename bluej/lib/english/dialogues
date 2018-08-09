@@ -589,3 +589,6 @@ If you continue to work with this project, some Teamwork functions
 
 cannot-open-browser
 The web browser could not be opened.
+
+no-extends-arrow-from-no-source-class
+Classes without source code cannot be changed to extend a new class.
