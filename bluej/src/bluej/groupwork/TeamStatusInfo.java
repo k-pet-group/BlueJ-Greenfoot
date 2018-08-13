@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016,2017 Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2016,2017,2018 Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,53 +27,67 @@ import javafx.scene.paint.Color;
 import java.io.File;
 
 /**
- * Team status information for a file
+ * Team status information for a file.
+ * 
+ * <p>For "regular" non-distributed version control, the single status reflects both the changes
+ * made locally and (potentially) any changes made in later versions in the repository.
+ * 
+ * <p>For distributed version control with non-linear history (Git), the general status indicates
+ * changes between the local working copy and the head of the local branch, and the "remote"
+ * status indicates differences between the head of the local branch and the head of the remote
+ * branch. Note that the staging area is largely irrelevant.
  * 
  * @author Davin McCall
  */
 public class TeamStatusInfo
 {
+    private final static String prefix = "team.statusinfo.";
+
+    private final static Color UPTODATE_COLOR = Color.BLACK;
+    private final static Color CONFLICT_COLOR = Color.rgb(137,13,19);    // darker red
+    private final static Color NEEDSUPDATE_COLOR = Color.rgb(11,57,120); // blue
+    private final static Color REMOVED_COLOR = Color.rgb(135,150,170);   // grey-blue
+    private final static Color NEEDSCOMMIT_COLOR = Color.rgb(10,85,15);  // green
+    private final static Color DELETED_COLOR = Color.rgb(122,143,123);   // grey-green
+    
     private File file;
     private String localVersion;
     private String remoteVersion;
     private Status status;
     private Status remoteStatus;
-    private final static String prefix = "team.statusinfo.";
 
-    private final static Color UPTODATE_COLOR = Color.BLACK;
-    private final static Color CONFLICT_COLOR = Color.rgb(137,13,19);   // darker red
-    private final static Color NEEDSUPDATE_COLOR = Color.rgb(11,57,120);  // blue
-    private final static Color REMOVED_COLOR = Color.rgb(135,150,170);     // grey-blue
-    private final static Color NEEDSCOMMIT_COLOR = Color.rgb(10,85,15);   // green
-    private final static Color DELETED_COLOR = Color.rgb(122,143,123);      // grey-green
-
+    /**
+     * A single status value for either overall/local or remote status. 
+     */
     public enum Status
     {
         /** The file is up-to-date, the local revision is the same as in the repository */
         UP_TO_DATE("upToDate", "", "", UPTODATE_COLOR),
-        /* File is up-to-date on the remote repository*/
-        // REMOTE_STATUS_UPTODATE = UP_TO_DATE
-
+        
         /** The file doesn't exist locally, but is in the repository */
         NEEDS_CHECKOUT("needsCheckout", "", "dcvs.remote.needs.pull", NEEDSUPDATE_COLOR),
+        
         /** The file has been deleted locally, but the deletion hasn't been committed yet */
         DELETED("deleted", "dcvs.local.deleted", "dcvs.remote.deleted", DELETED_COLOR),
+        
         /** The repository version is newer */
         NEEDS_UPDATE("needsUpdate", "", "dcvs.remote.needs.pull", NEEDSUPDATE_COLOR),
-        /* File has been modified on remote repository */
-        //REMOTE_STATUS_MODIFIED = NEEDS_UPDATE
 
         /** The local version has been modified */
         NEEDS_COMMIT("needsCommit", "dcvs.local.modified", "dcvs.remote.modified", NEEDSCOMMIT_COLOR),
+
         /**
          * The repository version is newer, but the file is also locally modified; for local
          * status, indicates merge commit is required.
          */
         NEEDS_MERGE("needsMerge", "needsMerge", "needsMerge"),
+
         /** The file exists locally, but not in the repository */
         NEEDS_ADD("needsAdd", "dcvs.local.new", "dcvs.remote.new", NEEDSCOMMIT_COLOR),
+
         /** The file exists locally, but has been removed in the repository */
         REMOVED("removed", "", "dcvs.remote.needs.pull", REMOVED_COLOR),
+
         /**
          * An unresolved conflict. This can happen when:<ul>
          * <li>when two binary files have been modified maybe?
@@ -83,33 +97,38 @@ public class TeamStatusInfo
          * commit or a forced update.
          */
         UNRESOLVED("unresolved", "unresolved", "unresolved"),
+
         /**
          * There are conflicts now present in the local file. The local file
          * needs to be edited to resolve the conflicts. (This state occurs
          * after an update which merged changes from the repository).
          */
         HAS_CONFLICTS("hasConflicts", "hasConflicts", "hasConflicts"),
+
         /** Unknown */
         WEIRD("weird", "weird", "weird"),
+
         /** It has no status, only used for default constructor while waiting for cvs */
         BLANK("", "", ""),
+
         /**
          * The file has been created locally, but a file with the same name has been
          * added in the repository. This is a conflict.
          */
         CONFLICT_ADD("conflictAdd", "conflictAdd", "conflictAdd"),
+
         /**
          * Locally modified, but deleted in repository (conflict)
          */
         CONFLICT_LMRD("conflictLMRD", "conflictLMRD", "conflictLMRD"),
+
         /**
          * Locally deleted, but modified in repository (conflict)
          */
         CONFLICT_LDRM("conflictLDRM", "conflictLDRM", "conflictLDRM"),
+
         /** The file was renamed **/
         RENAMED("renamed", "renamed", "renamed"),
-        /* File has been renamed */
-        //REMOTE_STATUS_RENAMED = RENAMED;
 
         /** File needs to be pushed to remote repository */
         NEEDS_PUSH("dcvs.needsPush", "", "dcvs.needsPush");
@@ -176,14 +195,15 @@ public class TeamStatusInfo
         this.remoteStatus = remoteStatus;
     }
     
+    /**
+     * Constructor for TeamStatusInfo.
+     */
     public TeamStatusInfo(File file, String localVersion, String remoteVersion, Status status)
     {
         this.file = file;
         this.localVersion = localVersion;
         this.remoteVersion = remoteVersion;
         this.status = status;
-        //no information about the remote status, therefore assume it is up-to-date:
-        //this will be re-writen by getStatus command, if necessary.
         this.remoteStatus = Status.UP_TO_DATE;
     }
 
