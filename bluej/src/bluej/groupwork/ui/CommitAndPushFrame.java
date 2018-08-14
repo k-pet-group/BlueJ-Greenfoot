@@ -495,56 +495,6 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
                             || !modifiedLayoutFilesInPush.isEmpty();
 
                     pushAction.setEnabled(this.isPushAvailable);
-
-                    // in the case we are committing the resolution of a merge, we should check if
-                    // the same file that is being marked as otherConflicton the remote branch is
-                    // being committed to the local branch. if it is, then this is the user
-                    // resolution to the conflict and we should proceed with the commit. and then
-                    // with the push as normal.
-                    boolean conflicts;
-                    conflicts = !mergeConflictsInPush.isEmpty() || !deleteConflictsInPush.isEmpty()
-                            || !otherConflictsInPush.isEmpty() || !needsMergeInPush.isEmpty();
-                    if (commitAction.isDisabled() && conflicts) {
-                        // there is a file in some of the conflict list.
-                        // check if this fill will commit normally. if it will, we should allow.
-                        Set<File> conflictingFilesInPush = new HashSet<>();
-                        conflictingFilesInPush.addAll(mergeConflictsInPush);
-                        conflictingFilesInPush.addAll(deleteConflictsInPush);
-                        conflictingFilesInPush.addAll(otherConflictsInPush);
-                        conflictingFilesInPush.addAll(needsMergeInPush);
-
-                        for (File conflictEntry : conflictingFilesInPush) {
-                            if (filesToCommit.contains(conflictEntry)) {
-                                conflictingFilesInPush.remove(conflictEntry);
-                                mergeConflictsInPush.remove(conflictEntry);
-                                deleteConflictsInPush.remove(conflictEntry);
-                                otherConflictsInPush.remove(conflictEntry);
-                                needsMergeInPush.remove(conflictEntry);
-
-                            }
-                            if (filesToAdd.contains(conflictEntry)) {
-                                conflictingFilesInPush.remove(conflictEntry);
-                                mergeConflictsInPush.remove(conflictEntry);
-                                deleteConflictsInPush.remove(conflictEntry);
-                                otherConflictsInPush.remove(conflictEntry);
-                                needsMergeInPush.remove(conflictEntry);
-                            }
-                            if (filesToDelete.contains(conflictEntry)) {
-                                conflictingFilesInPush.remove(conflictEntry);
-                                mergeConflictsInPush.remove(conflictEntry);
-                                deleteConflictsInPush.remove(conflictEntry);
-                                otherConflictsInPush.remove(conflictEntry);
-                                needsMergeInPush.remove(conflictEntry);
-                            }
-                        }
-                        conflicts = !conflictingFilesInPush.isEmpty();
-                    }
-
-                    if (commitAction.isDisabled() && conflicts) {
-                        handleConflicts(mergeConflictsInPush, deleteConflictsInPush,
-                                otherConflictsInPush, null);
-                        return;
-                    }
                 }
 
                 if (!commitListModel.isEmpty()) {
