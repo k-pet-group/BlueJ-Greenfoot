@@ -107,7 +107,8 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
 
     // Sometimes, usually after a conflict resolution, we may need to push in order
     // to update HEAD, even though no files show as changed:
-    private boolean pushWithNoChanges = false;
+    private boolean pushNeeded = false;
+    private boolean updateNeeded = false;
 
     public CommitAndPushFrame(Project proj)
     {
@@ -412,7 +413,8 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         public void statusComplete(StatusHandle statusHandle)
         {
             commitAction.setStatusHandle(statusHandle);
-            pushWithNoChanges = statusHandle.pushNeeded();
+            pushNeeded = statusHandle.pushNeeded();
+            updateNeeded = statusHandle.pullNeeded();
             pushAction.setStatusHandle(statusHandle);
         }
 
@@ -434,11 +436,15 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         public void finished()
         {
             stopProgress();
-            if (!aborted) {
-                if (result.isError()) {
+            if (!aborted)
+            {
+                if (result.isError())
+                {
                     TeamUtils.handleServerResponseFX(result, CommitAndPushFrame.this.asWindow());
                     CommitAndPushFrame.this.hide();
-                } else if (response != null) {
+                }
+                else if (response != null)
+                {
                     //populate files to commit.
                     Set<File> filesToCommit = new HashSet<>();
                     Set<File> filesToAdd = new LinkedHashSet<>();
@@ -455,10 +461,9 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
                             needsMerge, modifiedLayoutFiles, false);
 
                     if (!mergeConflicts.isEmpty() || !deleteConflicts.isEmpty()
-                            || !otherConflicts.isEmpty() || !needsMerge.isEmpty()) {
-
-                        handleConflicts(mergeConflicts, deleteConflicts,
-                                otherConflicts, needsMerge);
+                            || !otherConflicts.isEmpty() || !needsMerge.isEmpty())
+                    {
+                        handleConflicts(mergeConflicts, deleteConflicts, otherConflicts, needsMerge);
                         return;
                     }
 
@@ -470,41 +475,59 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
                     updateListModel(commitListModel, filesToAdd, info);
                     updateListModel(commitListModel, filesToDelete, info);
 
-                    //populate files ready to push.
-                    Set<File> filesToCommitInPush = new HashSet<>();
-                    Set<File> filesToAddInPush = new HashSet<>();
-                    Set<File> filesToDeleteInPush = new HashSet<>();
-                    Set<File> mergeConflictsInPush = new HashSet<>();
-                    Set<File> deleteConflictsInPush = new HashSet<>();
-                    Set<File> otherConflictsInPush = new HashSet<>();
-                    Set<File> needsMergeInPush = new HashSet<>();
-                    Set<File> modifiedLayoutFilesInPush = new HashSet<>();
-
-                    getCommitFileSets(info, filesToCommitInPush, filesToAddInPush, filesToDeleteInPush,
-                            mergeConflictsInPush, deleteConflictsInPush, otherConflictsInPush,
-                            needsMergeInPush, modifiedLayoutFilesInPush, true);
-
-                    //update commitListModel
-                    updateListModel(pushListModel, filesToCommitInPush, info);
-                    updateListModel(pushListModel, filesToAddInPush, info);
-                    updateListModel(pushListModel, filesToDeleteInPush, info);
-                    updateListModel(pushListModel, modifiedLayoutFilesInPush, info);
-
-                    this.isPushAvailable = pushWithNoChanges || !filesToCommitInPush.isEmpty()
-                            || !filesToAddInPush.isEmpty() || !filesToDeleteInPush.isEmpty()
-                            || !modifiedLayoutFilesInPush.isEmpty();
+                    if (updateNeeded)
+                    {
+                        // It's not possible to push if the remote branch is ahead
+                        pushListModel.clear();
+                        isPushAvailable = false;
+                    }
+                    else
+                    {
+                        // populate files ready to push:
+                        Set<File> filesToCommitInPush = new HashSet<>();
+                        Set<File> filesToAddInPush = new HashSet<>();
+                        Set<File> filesToDeleteInPush = new HashSet<>();
+                        Set<File> mergeConflictsInPush = new HashSet<>();
+                        Set<File> deleteConflictsInPush = new HashSet<>();
+                        Set<File> otherConflictsInPush = new HashSet<>();
+                        Set<File> needsMergeInPush = new HashSet<>();
+                        Set<File> modifiedLayoutFilesInPush = new HashSet<>();
+    
+                        getCommitFileSets(info, filesToCommitInPush, filesToAddInPush, filesToDeleteInPush,
+                                mergeConflictsInPush, deleteConflictsInPush, otherConflictsInPush,
+                                needsMergeInPush, modifiedLayoutFilesInPush, true);
+    
+                        //update commitListModel
+                        updateListModel(pushListModel, filesToCommitInPush, info);
+                        updateListModel(pushListModel, filesToAddInPush, info);
+                        updateListModel(pushListModel, filesToDeleteInPush, info);
+                        updateListModel(pushListModel, modifiedLayoutFilesInPush, info);
+    
+                        this.isPushAvailable = pushNeeded || !filesToCommitInPush.isEmpty()
+                                || !filesToAddInPush.isEmpty() || !filesToDeleteInPush.isEmpty()
+                                || !modifiedLayoutFilesInPush.isEmpty();
+                    }
 
                     pushAction.setEnabled(this.isPushAvailable);
                 }
 
-                if (!commitListModel.isEmpty()) {
+                if (!commitListModel.isEmpty())
+                {
                     commitText.requestFocus();
                 }
 
-                if (pushListModel.isEmpty()){
-                    if (isPushAvailable){
+                if (pushListModel.isEmpty())
+                {
+                    if (isPushAvailable)
+                    {
                         pushFiles.setPlaceholder(new Label(Config.getString("team.pushNeeded")));
-                    } else {
+                    }
+                    else if (updateNeeded)
+                    {
+                        pushFiles.setPlaceholder(new Label(Config.getString("team.pullNeeded")));
+                    }
+                    else
+                    {
                         pushFiles.setPlaceholder(new Label(Config.getString("team.nopushfiles")));
                     }
                 }
