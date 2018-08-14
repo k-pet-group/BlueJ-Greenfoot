@@ -78,56 +78,62 @@ public class GitUtilities
     }
     
     /**
-     * get the diffs between two revtrees.
-     * @param repo repository
-     * @param masterString 
-     * @param forkPoint
-     * @return 
+     * Get the diffs between two revisions.
+     * 
+     * @param repo reference to the repository
+     * @param revId   the commit (branch, etc) to diff to
+     * @param forkPoint  the commit to diff from
      */
-    public static List<DiffEntry> getDiffs(Git repo, String masterString, RevCommit forkPoint)
+    public static List<DiffEntry> getDiffs(Git repo, String revId, RevCommit forkPoint)
     {
         if (forkPoint == null)
+        {
             return Collections.emptyList();
+        }
 
         List<DiffEntry> diffs = new ArrayList<>();
-        try {
-
-            ObjectId master = repo.getRepository().resolve(masterString);
-
+        try
+        {
+            ObjectId master = repo.getRepository().resolve(revId);
             RevTree masterTree = getTree(repo.getRepository(), master);
-
             ObjectId branchBId = repo.getRepository().resolve(forkPoint.getName());
-
             RevTree ForkTree = getTree(repo.getRepository(), branchBId);
 
-            //Head and  repositories differ. We need to investigate further.
-            if (ForkTree != null) {
-                try (ObjectReader reader = repo.getRepository().newObjectReader()) {
+            // Head and  repositories differ. We need to investigate further.
+            if (ForkTree != null)
+            {
+                try (ObjectReader reader = repo.getRepository().newObjectReader())
+                {
                     CanonicalTreeParser masterTreeIter = new CanonicalTreeParser();
                     masterTreeIter.reset(reader, masterTree);
 
                     CanonicalTreeParser forkTreeIter = new CanonicalTreeParser();
                     forkTreeIter.reset(reader, ForkTree);
 
-                    //perform a diff between the local and remote tree
-                    DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream());
-                    df.setRepository(repo.getRepository());
-                    List<DiffEntry> entries = df.scan(forkTreeIter, masterTreeIter);
+                    // perform a diff between the local and remote tree:
+                    try (DiffFormatter df = new DiffFormatter(new ByteArrayOutputStream()))
+                    {
+                        df.setRepository(repo.getRepository());
+                        List<DiffEntry> entries = df.scan(forkTreeIter, masterTreeIter);
 
-                    entries.stream().forEach((entry) -> {
-                        diffs.add(entry);
-                    });
-
+                        entries.stream().forEach((entry) -> {
+                            diffs.add(entry);
+                        });
+                    }
                 }
             }
-        } catch (IncorrectObjectTypeException ex) {
+        }
+        catch (IncorrectObjectTypeException ex)
+        {
             Debug.reportError(ex.getMessage());
-        } catch (RevisionSyntaxException | IOException ex) {
+        }
+        catch (RevisionSyntaxException | IOException ex)
+        {
             Debug.reportError(ex.getMessage());
         }
         return diffs;
     }
-    
+
     /**
      * Find the last point in two branches where they where the same.
      * @param repository

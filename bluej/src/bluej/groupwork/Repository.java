@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2016,2018  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -80,18 +80,19 @@ public interface Repository
      * This is used *only* by distributed version control.
      */
     public TeamworkCommand pushChanges();
+    
     /**
      * Get status of all the given files.
-     * Returns a List of TeamStatusInfo.
      *
      * @param listener  A listener to be notified of the status of each requested file.
      *                For version management systems which version directories, the status
      *                of directories will be reported before files they contain.
      * @param filter  A file filter to determine which files and directories to include
      *                in the returned statuses
-     * @param includeRemote  Whether to include remote files (files which do not exist
-     *                       locally, but which do exist in the repository), regardless of
-     *                       whether they are listed in the files argument.
+     * @param includeRemote 
+     *                Whether to include remote files (files which do not exist locally, but which
+     *                do exist in the repository), regardless of whether they are listed in the
+     *                files argument.
      */
     public TeamworkCommand getStatus(StatusListener listener, FileFilter filter, boolean includeRemote);
     

@@ -47,6 +47,7 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.errors.NoWorkTreeException;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.lib.IndexDiff;
+
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -82,6 +83,10 @@ public class GitStatusCommand extends GitCommand
             //check local status
             org.eclipse.jgit.api.Status s = repo.status().call();
 
+            // A file which has had changes merged as a result of a pull will be in a "unmerged"
+            // state, and will appear in "uncommitted changes" as well as "conflicting" (with
+            // BOTH_MODIFIED or one of the other "stages").
+            
             s.getMissing().stream()
                     .filter(p -> filter.accept(new File(gitPath, p)))
                     .forEach(item -> {
@@ -89,6 +94,16 @@ public class GitStatusCommand extends GitCommand
                         returnInfo.add(teamInfo);
                     });
 
+            // "removed" files have been staged for removal ("git rm")
+            s.getRemoved().stream()
+                    .filter(p -> filter.accept(new File(gitPath, p)))
+                    .forEach(item -> {
+                        // Note this status might get altered below, if the file has been re-created
+                        // in the meantime:
+                        returnInfo.add(new TeamStatusInfo(new File(gitPath, item), "", null,
+                                Status.DELETED));
+                    });
+            
             s.getUncommittedChanges().stream()
                     .filter(p -> filter.accept(new File(gitPath, p)))
                     .forEach(item -> {
@@ -108,17 +123,21 @@ public class GitStatusCommand extends GitCommand
                     .filter(p -> filter.accept(new File(gitPath, p)))
                     .forEach(item -> returnInfo.add(new TeamStatusInfo(new File(gitPath, item), "", null, Status.NEEDS_ADD)));
 
-            s.getRemoved().stream()
-                    .filter(p -> filter.accept(new File(gitPath, p)))
-                    .forEach(item -> returnInfo.add(new TeamStatusInfo(new File(gitPath, item), "", null, Status.REMOVED)));
-            
             s.getConflicting().stream()
                     .filter(p -> filter.accept(new File(gitPath, p)))
                     .forEach(item -> {
-                        TeamStatusInfo teamInfo = new TeamStatusInfo(new File(gitPath, item), "", null, Status.NEEDS_MERGE);
-                        TeamStatusInfo existingStatusInfo = getTeamStatusInfo(returnInfo, teamInfo.getFile());
-                        if (existingStatusInfo == null){
+                        TeamStatusInfo teamInfo = getTeamStatusInfo(returnInfo, new File(gitPath, item));
+                        if (teamInfo == null)
+                        {
+                            Debug.message("Git unexpected status: file is "
+                                    + "conflicting but not otherwise noted? (" + item + ")");
+                            teamInfo = new TeamStatusInfo(new File(gitPath, item), "", null, Status.NEEDS_MERGE);
                             returnInfo.add(teamInfo);
+                        }
+                        else
+                        {
+                            // For local status, NEEDS_MERGE actually means "needs commit to resolve merge".
+                            teamInfo.setStatus(Status.NEEDS_MERGE);
                         }
                     });
             
@@ -135,8 +154,8 @@ public class GitStatusCommand extends GitCommand
                         if (statusInfo.getStatus() == Status.BLANK){
                             statusInfo.setStatus(Status.CONFLICT_LMRD);
                         } else if (statusInfo.getStatus() == Status.NEEDS_COMMIT && !statusInfo.getFile().exists()){
-                            //if the file doesn't exist, but git report as needs commit, it means that the file was in a LMRD state,
-                            //but the user choose to delete it.
+                            // if the file doesn't exist, but git report as needs commit, it means that the file was in a LMRD state,
+                            // but the user choose to delete it.
                             statusInfo.setStatus(Status.DELETED);
                         }
                         break;
