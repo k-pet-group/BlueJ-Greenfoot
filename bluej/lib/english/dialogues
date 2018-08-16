@@ -521,9 +521,6 @@ team-empty-message
 An unknown error occurred. Check the team settings to make sure your
 repository settings are correct.
 
-team-invalid-cvsroot
-Invalid CVS root - check your team settings.
-
 team-authentication-problem
 The server could not log you in - check your username/password and
 repository in team settings.
@@ -553,6 +550,10 @@ Committing or updating may have unexpected results.
 team-cannot-import-into-existing-project
 You can't import a project into an existing project. Select
 a normal folder as the destination for the import.
+
+team-commit-needed
+You have local changes that need to be committed before you can
+update.
 
 stuck-at-breakpoint
 Your program is already running, and stopped at a breakpoint.

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,9 @@ import bluej.groupwork.TeamworkCommandError;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.UpdateListener;
 import bluej.groupwork.UpdateResults;
+import bluej.utility.Debug;
+import bluej.utility.DialogManager;
+
 import static bluej.groupwork.git.GitUtilities.findForkPoint;
 import static bluej.groupwork.git.GitUtilities.getDiffFromList;
 import static bluej.groupwork.git.GitUtilities.getDiffs;
@@ -101,6 +104,7 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
             merge.include(repo.getRepository().resolve("origin/master")); // merge with remote repository.
             MergeResult mergeResult = merge.call();
             Map<String, int[][]> allConflicts;
+            
             switch (mergeResult.getMergeStatus()) {
                 case FAST_FORWARD:
                     //no conflicts. this was a fast-forward merge. files where only added.
@@ -127,17 +131,27 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
                 case FAILED:
                     //proceed with conflict resolution if jGit managed to identify conflicts.
                     allConflicts = mergeResult.getConflicts();
-                    if (allConflicts != null) {
-                        allConflicts.keySet().stream().map((path) -> new File(gitPath, path)).forEach((f) -> {
-                            conflicts.add(f);
+                    if (allConflicts != null)
+                    {
+                        // I am not convinced this can actually happen, but this code exists so I
+                        // will leave it for now and log the occurrence:
+                        Debug.log("Git merge FAILED with conflicts list? conflicts = " + allConflicts);
+                        allConflicts.keySet().stream().forEach(path -> {
+                            conflicts.add(new File(gitPath, path));
                         });
-                    } else {
-                        return new TeamworkCommandError(Config.getString("team.error.needsPull"), Config.getString("team.error.needsPull"));
+                    }
+                    else
+                    {
+                        // The cause(s) can be found via getFailingPaths(), in practice the reason
+                        // is that either the tree or index is dirty (contains uncommitted
+                        // changes).
+                        String conflictMessage = DialogManager.getMessage("team-commit-needed");
+                        return new TeamworkCommandError(conflictMessage, conflictMessage);
                     }
             }
-            //now we need to find out what files where affected by this merge.
-            //to do so, we compare the commits affected by this merge.
-            
+
+            // now we need to find out what files where affected by this merge.
+            // to do so, we compare the commits affected by this merge.
             listOfDiffsLocal = getDiffs(repo, headBeforeMerge.getName(), forkPoint);
             listOfDiffsRemote = getDiffs(repo, headOfRemoteBeforeMerge.getName(), forkPoint);
             processChanges(repo, conflicts);
@@ -145,11 +159,19 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
             if (!conflicts.isEmpty() || !binaryConflicts.isEmpty()) {
                 Platform.runLater(() -> listener.handleConflicts(this));
             }
-        } catch (IOException ex) {
+        }
+        catch (IOException ex)
+        {
             return new TeamworkCommandError(ex.getMessage(), ex.getLocalizedMessage());
-        } catch (CheckoutConflictException ex) {
-            return new TeamworkCommandError(ex.getMessage(), ex.getLocalizedMessage());
-        } catch (GitAPIException ex) {
+        }
+        catch (CheckoutConflictException ex)
+        {
+            // This occurs when the working tree has modifications to files that would be updated. 
+            String conflictMessage = DialogManager.getMessage("team-commit-needed");
+            return new TeamworkCommandError(conflictMessage, conflictMessage);
+        }
+        catch (GitAPIException ex)
+        {
             return new TeamworkCommandError(ex.getMessage(), ex.getLocalizedMessage());
         }
         return new TeamworkCommandResult();
