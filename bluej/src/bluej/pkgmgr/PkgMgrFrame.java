@@ -21,10 +21,7 @@
  */
 package bluej.pkgmgr;
 
-import bluej.BlueJEvent;
-import bluej.BlueJEventListener;
-import bluej.BlueJTheme;
-import bluej.Config;
+import bluej.*;
 import bluej.pkgmgr.AboutDialogTemplate;
 import bluej.classmgr.BPClassLoader;
 import bluej.collect.DataCollector;
@@ -1972,9 +1969,45 @@ public class PkgMgrFrame
      */
     public void aboutBlueJ()
     {
+        String[] translatorNames = {
+                "Afrikaans",    "Petri Jooste",
+                "Arabic",       "Abdelkader Zitouni",
+                "Catalan",      "Santiago Manrique",
+                "Chinese",      "Ma Wing Ho and Biao Ma",
+                "Czech",        "Rudolf PECINOVSKÝ",
+                "Danish",       "Jacob Nordfalk",
+                "Dutch",        "Kris Coolsaet",
+                "French",       "Laurent Pierron",
+                "German",       "Michael Kolling, Stefan Mueller, Thomas Röfer, and Martin Schleyer",
+                "Greek",        "Ioannis G. Baltopoulos",
+                "Hindi",        "Tajvir Singh",
+                "Italian",      "Angelo Papadia and Luzio Menna",
+                "Montenegrin",  "Omer Djokic",
+                "Persian",      "M. Shahdoost",
+                "Portuguese",   "Fabio Hedayioglu and Fred Guedes Pereira",
+                "Russian",      "Sergey Zemlyannikov",
+                "Slovak",       "Roman Horváth",
+                "Spanish",      "Aldo Mettini, Viviana Marcela Alvarez Tomé, and José Ramón Puente Lerma",
+        };
+
+        String[] previousTeamMembers = {
+                "Amjad Altadmri",
+                "Damiano Bolla",
+                "Fabio Hedayioglu",
+                "Poul Henriksen",
+                "Clive MilleR",
+                "Andrew Patterson",
+                "Bruce Quig",
+                "John Rosenberg",
+                "Phil Stevens",
+                "Ian Utting",
+                "Cecilia Vargas",
+                "Marion Zalk",
+        };
+
         Image image = Config.getFixedImageAsFXImage("about-logo.png");
-        new AboutDialogTemplate(stageProperty.getValue(), bluej.Boot.BLUEJ_VERSION,
-                "http://www.bluej.org/", image, null, null).showAndWait();
+        new AboutDialogTemplate(getFXWindow(), Boot.BLUEJ_VERSION,
+                "http://www.bluej.org/", image, translatorNames, previousTeamMembers).showAndWait();
     }
 
     /**
