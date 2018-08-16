@@ -443,11 +443,31 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
          */
         private void getUpdateFileSet(List<TeamStatusInfo> info, Set<File> filesToUpdate, Set<File> conflicts, Set<File> modifiedLayoutFiles)
         {
+            if (isDVCS)
+            {
+                getUpdateFileSetDist(info, filesToUpdate, conflicts, modifiedLayoutFiles);
+            }
+            else
+            {
+                getUpdateFileSetNondist(info, filesToUpdate, conflicts, modifiedLayoutFiles);
+            }
+
+            if (! changedLayoutFiles.isEmpty()) {
+                includeLayoutCheckbox.setDisable(false);
+                includeLayoutCheckbox.setSelected(includeLayout);
+            }
+        }
+        
+        /**
+         * Go through file statuses and determine which files will be updated (non-distributed version control).
+         */
+        private void getUpdateFileSetNondist(List<TeamStatusInfo> info, Set<File> filesToUpdate,
+                Set<File> conflicts, Set<File> modifiedLayoutFiles)
+        {
             UpdateFilter filter = new UpdateFilter();
             TeamViewFilter viewFilter = new TeamViewFilter();
             for (TeamStatusInfo statusInfo : info) {
-                //update must look in the remoteStatus in a DVCS. if not DVCS, look into the local status.
-                Status status = statusInfo.getStatus(!isDVCS);
+                Status status = statusInfo.getStatus(true);
                 if (filter.accept(statusInfo)) {
                     if (!BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())) {
                         updateListModel.add(new UpdateStatus(statusInfo));
@@ -488,10 +508,44 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
                     }
                 }
             }
+        }
 
-            if (! changedLayoutFiles.isEmpty()) {
-                includeLayoutCheckbox.setDisable(false);
-                includeLayoutCheckbox.setSelected(includeLayout);
+        /**
+         * Go through file statuses and determine which files will be updated (distributed version control).
+         */
+        private void getUpdateFileSetDist(List<TeamStatusInfo> info, Set<File> filesToUpdate,
+                Set<File> conflicts, Set<File> modifiedLayoutFiles)
+        {
+            UpdateFilter filter = new UpdateFilter();
+            TeamViewFilter viewFilter = new TeamViewFilter();
+            for (TeamStatusInfo statusInfo : info) {
+                Status status = statusInfo.getStatus(false);
+                if (filter.acceptDist(status)) {
+                    if (! BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName()))
+                    {
+                        updateListModel.add(new UpdateStatus(statusInfo));
+                        filesToUpdate.add(statusInfo.getFile());
+                    }
+                    else {
+                        if (! viewFilter.accept(statusInfo)) {
+                            // If the file should not be viewed, just ignore it.
+                        }
+                        else if (status != Status.NEEDS_UPDATE && status != Status.NEEDS_MERGE)
+                        {
+                            // The package file is new or removed. There is no
+                            // option not to include it in the update.
+                            updateListModel.add(new UpdateStatus(statusInfo));
+                            forcedLayoutFiles.add(statusInfo.getFile());
+                        }
+                        else
+                        {
+                            // add file to list of layout files that may optionally be updated:
+                            modifiedLayoutFiles.add(statusInfo.getFile());
+                            // keep track of StatusInfo objects representing changed diagrams
+                            changedLayoutFiles.add(statusInfo);
+                        }
+                    }
+                }
             }
         }
     }

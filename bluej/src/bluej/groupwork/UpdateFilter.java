@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -66,6 +66,25 @@ public class UpdateFilter
         }
     
         return false;
+    }
+    
+    /**
+     * For the given remote status, check whether an update will affect the file.
+     */
+    public boolean acceptDist(Status remoteStatus)
+    {
+        switch (remoteStatus)
+        {
+            case CONFLICT_ADD:
+            case CONFLICT_LDRM:
+            case CONFLICT_LMRD:
+            case NEEDS_CHECKOUT:
+            case NEEDS_UPDATE:
+            case NEEDS_MERGE:
+                return true;
+            default:
+                return false;
+        }
     }
     
     /**
