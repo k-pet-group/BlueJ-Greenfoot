@@ -394,14 +394,9 @@ public abstract class Target
             height = Math.max(Integer.parseInt(props.getProperty(prefix + ".height")), 1);
         }
         catch (NumberFormatException nfe) {}
-        
-        final int xPosFinal = xpos;
-        final int yPosFinal = ypos;
-        final int widthFinal = width;
-        final int heightFinal = height;
-        setPos(xPosFinal, yPosFinal);
-        setSize(widthFinal, heightFinal);
-        //Debug.printCallStack("Loading");
+
+        setPos(xpos, ypos);
+        setSize(width, height);
     }
 
     /**
