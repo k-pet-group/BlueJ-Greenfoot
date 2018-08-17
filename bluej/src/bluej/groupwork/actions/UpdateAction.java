@@ -451,6 +451,10 @@ public class UpdateAction extends TeamAction
                         blueJconflicts, nonBlueJConflicts);
                 conflictsDialog.show();
             }
+            else if (updateServerResponse.mergeCommitNeeded())
+            {
+                DialogManager.showMessageFX(null, "team-merge-commit-needed");
+            }
         }
 
         public void abort()

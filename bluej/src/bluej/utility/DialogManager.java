@@ -60,6 +60,11 @@ public class DialogManager
      * message itself is identified by a message ID (a short string)
      * which is looked up in the language specific dialogue text file
      * (eg. "dialogues.english"). Then replacing variables with subs.
+     * 
+     * @param parent  the parent window for the information dialog; may be null
+     * @param msgId   the message ID. The dialogs texts will be searched for a message with the given ID.
+     * @param subs    any string substitutions for the message. Dollar symbols in the message text
+     *                will be substituted with these strings..
      */
     public static void showMessageFX(javafx.stage.Window parent, String msgID, String... subs)
     {
