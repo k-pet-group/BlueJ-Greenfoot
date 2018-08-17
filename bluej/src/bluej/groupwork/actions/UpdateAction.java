@@ -445,7 +445,7 @@ public class UpdateAction extends TeamAction
                 
                 // Show the conflicts dialog as a child of the first appropriate PkgMgr frame. We
                 // can't make it a child of the update frame because that will close.
-                Window stage = targets.get(0).getPackage().getUI().getStage();
+                Window stage = targets.isEmpty() ? null : targets.get(0).getPackage().getUI().getStage();
 
                 ConflictsDialog conflictsDialog = new ConflictsDialog(project, stage,
                         blueJconflicts, nonBlueJConflicts);
