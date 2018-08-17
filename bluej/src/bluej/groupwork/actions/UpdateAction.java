@@ -51,7 +51,7 @@ import bluej.pkgmgr.target.Target;
 import bluej.utility.DialogManager;
 import bluej.utility.FXWorker;
 import bluej.utility.JavaNames;
-
+import javafx.stage.Window;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -353,15 +353,11 @@ public class UpdateAction extends TeamAction
         @OnThread(Tag.FXPlatform)
         public void handleConflicts(final UpdateResults updateServerResponse)
         {
-            if (updateServerResponse == null) {
+            if (updateServerResponse.getConflicts().isEmpty()
+                    && updateServerResponse.getBinaryConflicts().isEmpty())
+            {
                 return;
             }
-
-            if (updateServerResponse.getConflicts().size() <= 0
-                    && updateServerResponse.getBinaryConflicts().size() <= 0) {
-                return;
-            }
-
 
             /** A list of files to replace with repository version */
             Set<File> filesToOverride = new HashSet<>();
@@ -394,8 +390,7 @@ public class UpdateAction extends TeamAction
             List<String> nonBlueJConflicts = new LinkedList<String>();
             List<Target> targets = new LinkedList<Target>();
 
-            for (Iterator<File> i = updateServerResponse.getConflicts().iterator();
-                 i.hasNext(); )
+            for (Iterator<File> i = updateServerResponse.getConflicts().iterator(); i.hasNext(); )
             {
                 File file = i.next();
 
@@ -447,8 +442,12 @@ public class UpdateAction extends TeamAction
             {
                 project.clearAllSelections();
                 project.selectTargetsInGraphs(targets);
+                
+                // Show the conflicts dialog as a child of the first appropriate PkgMgr frame. We
+                // can't make it a child of the update frame because that will close.
+                Window stage = targets.get(0).getPackage().getUI().getStage();
 
-                ConflictsDialog conflictsDialog = new ConflictsDialog(project, updateFrame.asWindow(),
+                ConflictsDialog conflictsDialog = new ConflictsDialog(project, stage,
                         blueJconflicts, nonBlueJConflicts);
                 conflictsDialog.show();
             }
