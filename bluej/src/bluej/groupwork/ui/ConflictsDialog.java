@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 1999-2009,2010,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2016,2017,2018  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -51,15 +51,16 @@ import threadchecker.Tag;
 @OnThread(Tag.FXPlatform)
 public class ConflictsDialog extends FXCustomizedDialog<Void>
 {
-    //    private Label heading;
     private List<String> bluejConflicts;
     private List<String> nonBluejConflicts;
     private Project project;
 
     /**
-     * @param project
-     * @param bluejConflicts
-     * @param nonBlueJConflicts
+     * Constructor for ConflictsDialog.
+     * 
+     * @param project   the project in which the conflicts occurred. 
+     * @param bluejConflicts     the conflicting files which are managed by BlueJ (*.java, README.txt)
+     * @param nonBlueJConflicts  other conflicting files
      */
     public ConflictsDialog(Project project, Window owner,
                            List<String> bluejConflicts, List<String> nonBlueJConflicts)
@@ -70,32 +71,38 @@ public class ConflictsDialog extends FXCustomizedDialog<Void>
         this.nonBluejConflicts = nonBlueJConflicts;
 
         getDialogPane().setContent(makeMainPane());
-        //close button
         getDialogPane().getButtonTypes().setAll(ButtonType.CLOSE);
-        DialogManager.centreDialog(this);
+        if (owner != null)
+        {
+            DialogManager.centreDialog(this);
+        }
     }
 
     private Pane makeMainPane()
     {
         VBox mainPanel = new VBox();
 
-        Pane bluejConflictsPanel = makeConflictsPanel(Config.getString("team.conflicts.classes"), bluejConflicts);
-        mainPanel.getChildren().add(bluejConflictsPanel);
+        if (! bluejConflicts.isEmpty())
+        {
+            Pane bluejConflictsPanel = makeConflictsPanel(
+                    Config.getString("team.conflicts.classes"), bluejConflicts);
+            mainPanel.getChildren().add(bluejConflictsPanel);
+        }
 
-        Pane nonBluejConflictsPanel = makeConflictsPanel(Config.getString("team.conflicts.classes"), nonBluejConflicts);
-        if (nonBluejConflicts.size() > 0) {
+        if (! nonBluejConflicts.isEmpty())
+        {
+            Pane nonBluejConflictsPanel = makeConflictsPanel(
+                    Config.getString("team.conflicts.files"), nonBluejConflicts);
             mainPanel.getChildren().add(nonBluejConflictsPanel);
         }
 
-        //resolve button
         Button resolveButton = new Button(Config.getString("team.conflicts.show"));
         resolveButton.setOnAction(event -> {
             project.openEditorsForSelectedTargets();
-            // move to resolve button
             close();
         });
         resolveButton.requestFocus();
-        resolveButton.setDisable(bluejConflicts.size() <= 0);
+        resolveButton.setDisable(bluejConflicts.isEmpty());
         mainPanel.getChildren().add(resolveButton);
 
         return mainPanel;
@@ -109,8 +116,6 @@ public class ConflictsDialog extends FXCustomizedDialog<Void>
         VBox conflictsPanel = new VBox();
         conflictsPanel.setAlignment(Pos.BASELINE_LEFT);
 
-        //the conflicting files labels
-        //TODO make it stream
         for (Iterator<String> i = conflicts.iterator(); i.hasNext();) {
             String conflict = i.next();
             conflictsPanel.getChildren().add(new Label(conflict));
@@ -120,9 +125,8 @@ public class ConflictsDialog extends FXCustomizedDialog<Void>
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
 
-        //heading
         labelPanel.getChildren().addAll(new Label(headline),
-                                        new Separator(Orientation.VERTICAL), //5
+                                        new Separator(Orientation.VERTICAL),
                                         scrollPane);
 
         return labelPanel;
