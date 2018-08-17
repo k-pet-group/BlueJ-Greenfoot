@@ -3099,7 +3099,6 @@ public class PkgMgrFrame
 
             // If this is the first frame create the extension tools menu now.
             // (Otherwise, it will be created during project open.)
-            // (Otherwise, it will be created during project open.)
             if (frameCount() <= 1)
             {
                 mixedMenu.runAtEnd(() -> {
