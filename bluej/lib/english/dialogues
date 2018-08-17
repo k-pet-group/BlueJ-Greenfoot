@@ -555,6 +555,10 @@ team-commit-needed
 You have local changes that need to be committed before you can
 update.
 
+team-merge-commit-needed
+The update resulted in merges which have not automatically been
+committed. You should commit now.
+
 stuck-at-breakpoint
 Your program is already running, and stopped at a breakpoint.
 You cannot start another execution while the current one is still

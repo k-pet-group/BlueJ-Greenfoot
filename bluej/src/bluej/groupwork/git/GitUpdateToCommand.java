@@ -179,6 +179,15 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
 
     @Override
     @OnThread(Tag.Any)
+    public boolean mergeCommitNeeded()
+    {
+        // Note that we only issue a handle-conflicts call if there were conflicts, in which case
+        // a merge commit is certainly needed.
+        return true;
+    }
+    
+    @Override
+    @OnThread(Tag.Any)
     public List<File> getConflicts()
     {
         return conflicts;
