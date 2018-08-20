@@ -21,7 +21,6 @@
  */
 package bluej.groupwork.git;
 
-import bluej.Config;
 import bluej.groupwork.TeamworkCommandError;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.UpdateListener;
@@ -33,9 +32,10 @@ import static bluej.groupwork.git.GitUtilities.findForkPoint;
 import static bluej.groupwork.git.GitUtilities.getDiffFromList;
 import static bluej.groupwork.git.GitUtilities.getDiffs;
 import static bluej.groupwork.git.GitUtilities.getFileNameFromDiff;
-import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -46,6 +46,7 @@ import javafx.application.Platform;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.api.MergeResult;
+import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.diff.DiffEntry;
@@ -94,8 +95,16 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
             merge.setFastForward(MergeCommand.FastForwardMode.FF);
             merge.setStrategy(MergeStrategy.RECURSIVE);
 
-            //before performing the merge, move package.bluej in order to avoid uneccessary conflicts.
-            File packageBluejBackup = moveFile("package", "bluej");
+            if (! forceFiles.isEmpty())
+            {
+                Path basePath = Paths.get(this.getRepository().getProjectPath().toString());
+                CheckoutCommand ccommand = repo.checkout();
+                for (File f : forceFiles)
+                {
+                    ccommand.addPath(GitUtilities.getRelativeFileName(basePath, f));
+                }
+                ccommand.call();
+            }
 
             ObjectId headBeforeMerge = repo.getRepository().resolve("HEAD");
             ObjectId headOfRemoteBeforeMerge = repo.getRepository().resolve("origin/master");
@@ -107,29 +116,17 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
             
             switch (mergeResult.getMergeStatus()) {
                 case FAST_FORWARD:
-                    //no conflicts. this was a fast-forward merge. files where only added.
-                    //if package.bluej is in forceFiles, then leave the repo as it is.
-                    if (packageBluejBackup != null) {
-                        if (!forceFiles.stream().anyMatch(file -> file.getName().equals("package.bluej"))) {
-                            //package.bluej is not in the forceFiles list, therefore must be restored.
-                            //move package.bluej back.
-                            Files.move(packageBluejBackup, new File(getRepository().getProjectPath(), "package.bluej"));
-                        } else {
-                            //remove the backup copy.
-                            packageBluejBackup.delete();
-                        }
-                    }
+                    // No conflicts; this was a fast-forward.
                     break;
                 case CONFLICTING:
-                    //update the head to compare in order to process the changes.
-                    //update the conflicts list.
+                    // Update the conflicts list.
                     allConflicts = mergeResult.getConflicts();
                     allConflicts.keySet().stream().map((path) -> new File(gitPath, path)).forEach((f) -> {
                         conflicts.add(f);
                     });
                     break;
                 case FAILED:
-                    //proceed with conflict resolution if jGit managed to identify conflicts.
+                    // Proceed with conflict resolution if jGit managed to identify conflicts.
                     allConflicts = mergeResult.getConflicts();
                     if (allConflicts != null)
                     {
@@ -148,6 +145,12 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
                         String conflictMessage = DialogManager.getMessage("team-commit-needed");
                         return new TeamworkCommandError(conflictMessage, conflictMessage);
                     }
+                    break;
+                case ALREADY_UP_TO_DATE:
+                    // Nothing changed.
+                    break;
+                default:
+                    Debug.reportError("Unknown/unhandled Git merge status: " + mergeResult.getMergeStatus());
             }
 
             // now we need to find out what files where affected by this merge.
@@ -247,28 +250,4 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
         }
 
     }
-
-    /**
-     * move a file from a location to a temporary location.
-     *
-     * @param fileName
-     * @param extension
-     * @return the new file.
-     * @throws IOException
-     */
-    private File moveFile(String fileName, String extension) throws IOException
-    {
-        File result = null;
-        File projectPath = getRepository().getProjectPath();
-        File[] matchingFiles;
-        matchingFiles = projectPath.listFiles((File dir, String name) -> name.startsWith(fileName) && name.endsWith(extension));
-        //there must be exactly one file.
-        if (matchingFiles.length == 1) {
-            result = File.createTempFile(fileName, extension);
-            Files.move(matchingFiles[0], result);
-        }
-
-        return result;
-    }
-
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 2016,2018  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,7 @@ import bluej.utility.Debug;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -54,7 +55,6 @@ import threadchecker.Tag;
  */
 public class GitUtilities
 {
-
     /**
      * given a objectID, returns the RevTree it belongs to.
      *
@@ -284,5 +284,23 @@ public class GitUtilities
         int behindCount = bts.getBehindCount();
         return behindCount;
     }
-    
+
+    /**
+     * Calculates the path of a file relative to the project. It also makes sure that the
+     * separator is a Unix standard one, i.e. "/", as this is what jGit lib is expecting.
+     * see: http://bugs.bluej.org/browse/BLUEJ-1084
+     *
+     * @param basePath The project path
+     * @param file     The file which relative path is needed
+     * @return         The relative path of the file to the project
+     */
+    public static String getRelativeFileName(Path basePath, File file)
+    {
+        String fileName = basePath.relativize(file.toPath()).toString();
+        if (!File.separator.equals("/"))
+        {
+            fileName = fileName.replace(File.separator, "/");
+        }
+        return fileName;
+    }
 }
