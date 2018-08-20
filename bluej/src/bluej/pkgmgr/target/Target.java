@@ -293,7 +293,10 @@ public abstract class Target
             {
                 // We will still have focus, so rather than
                 // clear selection completely, just select us:
-                pkg.getEditor().selectOnly(this);
+                if (pkg.getEditor()!= null)
+                {
+                    pkg.getEditor().selectOnly(this);
+                }
                 e.consume();
             }
             else if (e.getCode() == KeyCode.A && !e.isAltDown()) // Allow Ctrl or Cmd, or plain

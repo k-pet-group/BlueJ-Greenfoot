@@ -609,6 +609,18 @@ public class PkgMgrFrame
                     {
                         recentFrame = frame;
                     }
+                    else
+                    {
+                        if (Config.isWinOS())
+                        {
+                            // We need to fire ESCAPE key-press and ESCAPE key-release events
+                            // because alt-tab triggers the menu and menu cannot be cancelled programmatically
+                            frame.getFXWindow().getScene().getFocusOwner().fireEvent(
+                                    new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.ESCAPE, false, false, false, false));
+                            frame.getFXWindow().getScene().getFocusOwner().fireEvent(
+                                    new KeyEvent(KeyEvent.KEY_RELEASED, "", "", KeyCode.ESCAPE, false, false, false, false));
+                        }
+                    }
                 })
         );
 
