@@ -214,7 +214,7 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
                 f.delete();
                 listener.fileRemoved(f);
             } else {
-                listener.fileUpdated(f);
+                listener.fileModified(f);
             }
         }
     }
@@ -229,7 +229,7 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
             switch (remoteDiffItem.getChangeType()) {
                 case ADD:
                 case COPY:
-                    Platform.runLater(() -> listener.fileAdded(file));
+                    Platform.runLater(() -> listener.fileModified(file));
                     break;
                 case DELETE:
                     if (localDiffItem != null && localDiffItem.getChangeType() == DiffEntry.ChangeType.MODIFY) {
@@ -240,11 +240,11 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
                     if (!file.exists()) {
                         Platform.runLater(() -> listener.fileRemoved(file));
                     } else {
-                        Platform.runLater(() -> listener.fileUpdated(file));
+                        Platform.runLater(() -> listener.fileModified(file));
                     }
                     break;
                 case MODIFY:
-                    Platform.runLater(() -> listener.fileUpdated(file));
+                    Platform.runLater(() -> listener.fileModified(file));
                     break;
             }
         }

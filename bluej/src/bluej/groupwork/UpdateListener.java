@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,19 +36,14 @@ import threadchecker.Tag;
 public interface UpdateListener
 {
     /**
-     * A file was added locally.
+     * A file was added or modified locally.
      */
-    public void fileAdded(File f);
+    public void fileModified(File f);
     
     /**
      * A file was removed locally.
      */
     public void fileRemoved(File f);
-    
-    /**
-     * A file was updated.
-     */
-    public void fileUpdated(File f);
     
     /**
      * A directory (and all files within) was removed.
