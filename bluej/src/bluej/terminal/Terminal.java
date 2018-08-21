@@ -306,7 +306,7 @@ public final class Terminal
 
     private void sendInput(boolean eof)
     {
-        String inputString = this.input.getText() + "\n";
+        String inputString = this.input.getText() + (eof ? "" : "\n");
         buffer.putString(inputString);
         if (eof)
         {
