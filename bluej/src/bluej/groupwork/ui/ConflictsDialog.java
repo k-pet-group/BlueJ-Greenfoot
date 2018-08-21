@@ -74,7 +74,7 @@ public class ConflictsDialog extends FXCustomizedDialog<Void>
         getDialogPane().getButtonTypes().setAll(ButtonType.CLOSE);
         if (owner != null)
         {
-            DialogManager.centreDialog(this);
+            setLocationRelativeTo(owner);
         }
     }
 
