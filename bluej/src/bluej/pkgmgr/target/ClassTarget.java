@@ -1868,6 +1868,12 @@ public class ClassTarget extends DependentTarget
 
             deleteSourceFiles();
             getClassFile().delete();
+            // Delete subclass files like Foo$1.class, Foo$Inner.class
+            for (File innerClassFile : getInnerClassFiles())
+            {
+                innerClassFile.delete();
+            }
+            
             getContextFile().delete();
             getDocumentationFile().delete();
 
