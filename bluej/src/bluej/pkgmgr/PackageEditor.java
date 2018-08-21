@@ -494,7 +494,9 @@ public final class PackageEditor extends StackPane
             // We want to cancel selection if codepad gets focus (for example) but not
             // if the reason for our loss of focus is that the whole window has lost focus:
             if (!targetHasFocus() && getFXWindow().isFocused())
+            {
                 selectionController.clearSelection();
+            }
         });
     }
 
