@@ -1868,6 +1868,18 @@ public class ClassTarget extends DependentTarget
 
             deleteSourceFiles();
             getClassFile().delete();
+            // Delete subclass files like Foo$1.class, Foo$Inner.class
+            for (File possibleClassFile : getPackage().getPath().listFiles())
+            {
+                // If the user has a separate class named Foo$AB it will get deleted too,
+                // but I think we just don't care (and we're only deleting .class, not .java)
+                if (possibleClassFile.getName().startsWith(getBaseName() + "$")
+                        && possibleClassFile.getName().endsWith(".class"))
+                {
+                    possibleClassFile.delete();
+                }
+            }
+            
             getContextFile().delete();
             getDocumentationFile().delete();
 
