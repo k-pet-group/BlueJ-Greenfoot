@@ -481,10 +481,20 @@ public class DialogManager
         dialog.setOnShown(event -> centreWindow(dialog, dialog.getOwner()));
     }
 
+    /**
+     * Centre a dialog over another window. The dialog's position and size must be available,
+     * which generally requires it to have been shown.
+     * 
+     * @param dialog  the dialog to position
+     * @param owner   the window over which to centre the dialog. If null, nothing is done.
+     */
     private static void centreWindow(Dialog<?> dialog, javafx.stage.Window owner)
     {
-        dialog.setX(owner.getX() + owner.getWidth()/2d - dialog.getWidth()/2d);
-        dialog.setY(owner.getY() + owner.getHeight()/2d - dialog.getHeight()/2d);
+        if (owner != null)
+        {
+            dialog.setX(owner.getX() + owner.getWidth()/2d - dialog.getWidth()/2d);
+            dialog.setY(owner.getY() + owner.getHeight()/2d - dialog.getHeight()/2d);
+        }
     }
 
     private static class MessageAndButtons
