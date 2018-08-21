@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2018  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -65,13 +65,12 @@ public class GitCommitAllCommand extends GitCommand
             //stage new files
 
             //jGit works with relative paths.
-            Path basePath;
-            basePath = Paths.get(this.getRepository().getProjectPath().toString());
+            Path basePath = Paths.get(this.getRepository().getProjectPath().toString());
 
             //files for addition
             for (File f : newFiles)
             {
-                String fileName = getRelativeFileName(basePath, f);
+                String fileName = GitUtilities.getRelativeFileName(basePath, f);
                 if (!fileName.isEmpty() && !f.isDirectory())
                 {
                     repo.add().addFilepattern(fileName).call();
@@ -81,7 +80,7 @@ public class GitCommitAllCommand extends GitCommand
             //files for removal
             for (File f : deletedFiles)
             {
-                String fileName = getRelativeFileName(basePath, f);
+                String fileName = GitUtilities.getRelativeFileName(basePath, f);
                 if (!fileName.isEmpty())
                 {
                     repo.rm().addFilepattern(fileName).call();
@@ -99,7 +98,7 @@ public class GitCommitAllCommand extends GitCommand
             //modified files
             for (File f : files)
             {
-                String fileName = getRelativeFileName(basePath, f);
+                String fileName = GitUtilities.getRelativeFileName(basePath, f);
                 if (!fileName.isEmpty() && !f.isDirectory())
                 {
                     if (!deletedFiles.contains(f))
@@ -123,24 +122,5 @@ public class GitCommitAllCommand extends GitCommand
         }
 
         return new TeamworkCommandResult();
-    }
-
-    /**
-     * Calculates the path of a file relative to the project. It also makes sure that the
-     * separator is a Unix standard one, i.e. "/", as this is what jGit lib is expecting.
-     * see: http://bugs.bluej.org/browse/BLUEJ-1084
-     *
-     * @param basePath The project path
-     * @param file     The file which relative path is needed
-     * @return         The relative path of the file to the project
-     */
-    private String getRelativeFileName(Path basePath, File file)
-    {
-        String fileName = basePath.relativize(file.toPath()).toString();
-        if (!File.separator.equals("/"))
-        {
-            fileName = fileName.replace(File.separator, "/");
-        }
-        return fileName;
     }
 }
