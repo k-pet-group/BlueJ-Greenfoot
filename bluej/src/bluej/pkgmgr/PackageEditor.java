@@ -491,7 +491,9 @@ public final class PackageEditor extends StackPane
         // If none of our children have focus any more
         // after processing has completed, select none:
         JavaFXUtil.runAfterCurrent(() -> {
-            if (!targetHasFocus())
+            // We want to cancel selection if codepad gets focus (for example) but not
+            // if the reason for our loss of focus is that the whole window has lost focus:
+            if (!targetHasFocus() && getFXWindow().isFocused())
                 selectionController.clearSelection();
         });
     }
