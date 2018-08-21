@@ -335,8 +335,8 @@ editor.printer.continued=continua
 
 pkgmgr.chooseUsesFrom=Selecione a classe da qual ela depende
 pkgmgr.chooseUsesTo=Selecione a classe da qual ela dependente
-pkgmgr.chooseInhFrom=Selecione a superclasse
-pkgmgr.chooseInhTo=Selecione a subclasse
+pkgmgr.chooseInhFrom=Selecione a subclasse
+pkgmgr.chooseInhTo=Selecione a superclasse
 pkgmgr.chooseArrow=Selecione a seta a apagar
 pkgmgr.packageSaved=Pacote salvo
 pkgmgr.info.printing=Imprimindo...

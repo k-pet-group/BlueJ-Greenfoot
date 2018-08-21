@@ -112,7 +112,7 @@ public final class PackageEditor extends StackPane
     private final AnchorPane frontClassLayer = new AnchorPaneExtraSpacing();
     private final AnchorPane backClassLayer = new AnchorPane();
     // The layer at the front on which we draw the selection rectangle:
-    private Pane selectionLayer = new Pane();
+    private final Pane selectionLayer = new Pane();
     // The label to show a massage to create or add a class
     protected Label noClassesExistedMessage;
     // The layer at the back where we draw the arrows:
@@ -171,7 +171,6 @@ public final class PackageEditor extends StackPane
 
         JavaFXUtil.addChangeListenerPlatform(arrowLayer.widthProperty(), s -> repaint());
         JavaFXUtil.addChangeListenerPlatform(arrowLayer.heightProperty(), s -> repaint());
-        selectionLayer = new Pane();
         // The mouse events occur on us not on the selection layer.
         // We don't want the display getting in the way of mouse events:
         selectionLayer.setMouseTransparent(true);
@@ -492,8 +491,12 @@ public final class PackageEditor extends StackPane
         // If none of our children have focus any more
         // after processing has completed, select none:
         JavaFXUtil.runAfterCurrent(() -> {
-            if (!targetHasFocus())
+            // We want to cancel selection if codepad gets focus (for example) but not
+            // if the reason for our loss of focus is that the whole window has lost focus:
+            if (!targetHasFocus() && getFXWindow().isFocused())
+            {
                 selectionController.clearSelection();
+            }
         });
     }
 
