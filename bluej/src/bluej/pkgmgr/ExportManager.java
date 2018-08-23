@@ -69,6 +69,7 @@ final class ExportManager
     private static final String sourceSuffix = "." + SourceType.Java.toString().toLowerCase();
     private static final String contextSuffix = ".ctxt";
     private static final String packageFilePrefix = "bluej.pk";
+    private static final String packageFileSuffix = ".bluej";
     private static final String packageFileBackup = "bluej.pkh";
 
     private final PkgMgrFrame frame;
@@ -277,10 +278,10 @@ final class ExportManager
         if(fileName.equals(packageFileBackup))
             return true;
         
-        if(fileName.endsWith(sourceSuffix))
+        if(fileName.endsWith(sourceSuffix) || fileName.endsWith(sourceSuffix + "~"))
             return skipSource;
-
-        if(fileName.startsWith(packageFilePrefix) || fileName.endsWith(contextSuffix))
+        if(fileName.startsWith(packageFilePrefix) || fileName.endsWith(packageFileSuffix) ||
+                fileName.endsWith(contextSuffix))
             return skipPkg;
 
         return false;
