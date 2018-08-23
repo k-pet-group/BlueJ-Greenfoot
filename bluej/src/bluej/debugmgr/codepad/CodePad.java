@@ -41,6 +41,7 @@ import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -78,6 +79,7 @@ import javafx.scene.shape.Path;
 import javafx.scene.shape.QuadCurveTo;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
@@ -245,6 +247,7 @@ public class CodePad extends VBox
     {
         private final ImageView graphic;
         private Path arrow;
+        private FXPlatformRunnable cancelAddToBench;
 
         public OutputSuccessRow(String text, ObjectInfo objInfo)
         {
@@ -268,14 +271,36 @@ public class CodePad extends VBox
                         graphic.setMouseTransparent(false);
                 });
                 graphic.setCursor(Cursor.HAND);
-                // Use pressed so if they try a drag, it still works:
-                graphic.addEventHandler(MouseEvent.MOUSE_PRESSED, e -> {
-                    // Don't really care about click count; double click can do it too, that's fine.
-                    if (e.getButton() == MouseButton.PRIMARY)
+                graphic.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
+                    if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 1)
                     {
-                        Stage fxWindow = frame.getFXWindow();
-                        Point2D from = graphic.localToScene(new Point2D(0.0, 0.0));
-                        frame.getPackage().getEditor().raisePutOnBenchEvent(fxWindow, objInfo.obj, objInfo.obj.getGenType(), objInfo.ir, true, Optional.of(from));
+                        // It seems odd to nest a run-later inside a delay, but JavaFX doesn't let you
+                        // show a modal dialog from an animation (which is how delay is implemented)
+                        // hence we use animation for delay, then run-later to be able to go modal.
+                        // If a double-click occurs soon after the single-click, the
+                        // single-click transfer will be cancelled in favour of the double-click
+                        // inspect.
+                        cancelAddToBench = JavaFXUtil.runAfter(Duration.millis(500), () -> JavaFXUtil.runAfterCurrent(() -> {
+                            Stage fxWindow = frame.getFXWindow();
+                            Point2D from = graphic.localToScene(new Point2D(0.0, 0.0));
+                            frame.getPackage().getEditor().raisePutOnBenchEvent(fxWindow, objInfo.obj, objInfo.obj.getGenType(), objInfo.ir, true, Optional.of(from));
+                            cancelAddToBench = null;
+                        }));
+                        e.consume();
+                    }
+                    else if (e.getButton() == MouseButton.PRIMARY && e.getClickCount() == 2)
+                    {
+                        // Cancel the single click that was adding to bench:
+                        if (cancelAddToBench != null)
+                        {
+                            cancelAddToBench.run();
+                            cancelAddToBench = null;
+                        }
+                        Project project = frame.getProject();
+                        if (project != null)
+                        {
+                            project.getInspectorInstance(objInfo.obj, "", frame.getPackage(), objInfo.ir, frame.getFXWindow(), graphic).bringToFront();
+                        }
                         e.consume();
                     }
                 });
