@@ -45,9 +45,11 @@ import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.EditableTarget;
 import bluej.pkgmgr.target.PackageTarget;
 import bluej.pkgmgr.target.ReadmeTarget;
 import bluej.pkgmgr.target.Target;
+import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FXWorker;
 import bluej.utility.JavaNames;
@@ -157,15 +159,14 @@ public class UpdateAction extends TeamAction
         /* (non-Javadoc)
          * @see bluej.groupwork.UpdateListener#fileAdded(java.io.File)
          */
+        @Override
         @OnThread(Tag.FXPlatform)
-        public void fileAdded(final File f)
+        public void fileModified(final File f)
         {
-            project.prepareCreateDir(f.getParentFile());
-
             String fileName = f.getName();
-            if (! fileName.endsWith(".java") &&
-                    ! fileName.endsWith(".class") &&
-                    ! BlueJPackageFile.isPackageFileName(fileName)) {
+            boolean isPkgFile = BlueJPackageFile.isPackageFileName(fileName);
+            if (! fileName.endsWith(".java") && ! fileName.endsWith(".class") && ! isPkgFile)
+            {
                 return;
             }
 
@@ -175,41 +176,63 @@ public class UpdateAction extends TeamAction
                 return;
             }
 
-            if (BlueJPackageFile.isPackageFileName(fileName)) {
-                if (packageName.length() > 0) {
+            if (isPkgFile)
+            {
+                if (packageName.length() > 0)
+                {
                     // If we now have a new package, we might need to add it
                     // as a target in an existing package
                     String parentPackageName = JavaNames.getPrefix(packageName);
                     Package parentPackage = project.getCachedPackage(parentPackageName);
-                    if (parentPackage != null) {
+                    if (parentPackage != null)
+                    {
                         Target t = parentPackage.addPackage(JavaNames.getBase(packageName));
                         parentPackage.positionNewTarget(t);
+                    }
+                }
+                
+                Package filePackage = project.getCachedPackage(packageName);
+                if (filePackage != null && includeLayout)
+                {
+                    // There's a pre-existing package, so we assume this is a modification:
+                    try
+                    {
+                        filePackage.reReadGraphLayout();
+                    }
+                    catch (IOException ioe)
+                    {
+                        Debug.reportError("Error re-reading package file (team update)", ioe);
                     }
                 }
             }
             else {
                 int n = fileName.lastIndexOf(".");
                 String name = fileName.substring(0, n);
-                if (! JavaNames.isIdentifier(name)) {
+                if (! JavaNames.isIdentifier(name))
+                {
                     return;
                 }
 
                 Package pkg = project.getCachedPackage(packageName);
-                if (pkg == null) {
+                if (pkg == null)
+                {
                     return;
                 }
+                
                 Target t = pkg.getTarget(name);
-                if (t != null && ! (t instanceof ClassTarget)) {
-                    return;
-                }
-
-                ClassTarget ct = (ClassTarget) t;
-                if (ct == null) {
-                    ct = pkg.addClass(name);
+                if (t == null)
+                {
+                    // Addition of a new class:
+                    ClassTarget ct = pkg.addClass(name);
                     pkg.positionNewTarget(ct);
                     DataCollector.addClass(pkg, ct);
+                    return;
                 }
-                ct.reload();
+                
+                if (t instanceof ClassTarget)
+                {
+                    ((ClassTarget) t).reload();
+                }
             }
         }
 
@@ -266,73 +289,6 @@ public class UpdateAction extends TeamAction
                 {
                     ct.remove();
                 }
-            }
-        }
-
-        /* (non-Javadoc)
-         * @see bluej.groupwork.UpdateListener#fileUpdated(java.io.File)
-         */
-        @OnThread(Tag.FXPlatform)
-        public void fileUpdated(final File f)
-        {
-            String fileName = f.getName();
-            if (!fileName.endsWith(".java") &&
-                    !fileName.endsWith(".class") &&
-                    !BlueJPackageFile.isPackageFileName(fileName))
-            {
-                return;
-            }
-
-            // First find out the package name...
-            String packageName = project.getPackageForFile(f);
-            if (packageName == null)
-            {
-                return;
-            }
-            Package pkg = project.getCachedPackage(packageName);
-            if (pkg == null)
-            {
-                return;
-            }
-
-            if (BlueJPackageFile.isPackageFileName(fileName))
-            {
-                try
-                {
-                    if (includeLayout)
-                    {
-                        pkg.reReadGraphLayout();
-                    }
-                }
-                catch (IOException ioe)
-                {
-                    ioe.printStackTrace();
-                }
-            }
-            else
-            {
-                int n = fileName.lastIndexOf(".");
-                String name = fileName.substring(0, n);
-                Target t = pkg.getTarget(name);
-
-
-                if (t == null && f.exists())
-                {
-                    //create new target.
-                    ClassTarget ct = pkg.addClass(name);
-                    pkg.positionNewTarget(ct);
-                    DataCollector.addClass(pkg, ct);
-                    ct.reload();
-                    return;
-                }
-
-                if (!(t instanceof ClassTarget))
-                {
-                    return;
-                }
-
-                ClassTarget ct = (ClassTarget) t;
-                ct.reload();
             }
         }
 

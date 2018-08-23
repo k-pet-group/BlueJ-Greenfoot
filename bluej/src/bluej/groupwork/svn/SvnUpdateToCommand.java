@@ -172,11 +172,11 @@ public class SvnUpdateToCommand extends SvnCommand implements UpdateResults
                 Iterator<File> i;
                 for (i = addedList.iterator(); i.hasNext(); )
                 {
-                    listener.fileAdded(i.next());
+                    listener.fileModified(i.next());
                 }
                 for (i = updatedList.iterator(); i.hasNext(); )
                 {
-                    listener.fileUpdated(i.next());
+                    listener.fileModified(i.next());
                 }
                 for (i = removedList.iterator(); i.hasNext(); )
                 {

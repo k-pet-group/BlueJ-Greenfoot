@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2015,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -78,8 +78,8 @@ public class GitStatusCommand extends GitCommand
         LinkedList<TeamStatusInfo> returnInfo = new LinkedList<>();
         File gitPath = this.getRepository().getProjectPath();
 
-        try (Git repo = Git.open(this.getRepository().getProjectPath())) {
-
+        try (Git repo = Git.open(this.getRepository().getProjectPath()))
+        {
             //check local status
             org.eclipse.jgit.api.Status s = repo.status().call();
 
@@ -123,6 +123,7 @@ public class GitStatusCommand extends GitCommand
                     .filter(p -> filter.accept(new File(gitPath, p)))
                     .forEach(item -> returnInfo.add(new TeamStatusInfo(new File(gitPath, item), "", null, Status.NEEDS_ADD)));
 
+            Map<String, IndexDiff.StageState> conflictsMap = s.getConflictingStageState();
             s.getConflicting().stream()
                     .filter(p -> filter.accept(new File(gitPath, p)))
                     .forEach(item -> {
@@ -136,49 +137,31 @@ public class GitStatusCommand extends GitCommand
                         }
                         else
                         {
-                            // For local status, NEEDS_MERGE actually means "needs commit to resolve merge".
-                            teamInfo.setStatus(Status.NEEDS_MERGE);
+                            IndexDiff.StageState sstate = conflictsMap.get(item);
+                            // Note: for local status, NEEDS_MERGE actually means "needs commit to
+                            // resolve merge".
+                            switch (sstate)
+                            {
+                                case DELETED_BY_THEM:
+                                    teamInfo.setStatus(Status.CONFLICT_LMRD);
+                                    break;
+                                case DELETED_BY_US:
+                                    teamInfo.setStatus(Status.CONFLICT_LDRM);
+                                    break;
+                                case BOTH_ADDED:
+                                    teamInfo.setStatus(Status.CONFLICT_ADD);
+                                    break;
+                                case BOTH_MODIFIED:
+                                    teamInfo.setStatus(Status.NEEDS_MERGE);
+                                    break;
+                                default:
+                                    Debug.message("Git status, unknown/unhandled conflict state: " + sstate + " (" + item + ")");
+                                    teamInfo.setStatus(Status.NEEDS_MERGE);
+                            }
                         }
                     });
-            
-            Map<String, IndexDiff.StageState> conflictsMap = s.getConflictingStageState();
-            conflictsMap.keySet().forEach(key -> {
-                File file = new File(gitPath, key);
-                TeamStatusInfo statusInfo = getTeamStatusInfo(returnInfo, file);
-                if (statusInfo == null) {
-                    statusInfo = new TeamStatusInfo(file, "", null, Status.BLANK);
-                }
-                IndexDiff.StageState state = conflictsMap.get(key);
-                switch (state) {
-                    case DELETED_BY_THEM:
-                        if (statusInfo.getStatus() == Status.BLANK){
-                            statusInfo.setStatus(Status.CONFLICT_LMRD);
-                        } else if (statusInfo.getStatus() == Status.NEEDS_COMMIT && !statusInfo.getFile().exists()){
-                            // if the file doesn't exist, but git report as needs commit, it means that the file was in a LMRD state,
-                            // but the user choose to delete it.
-                            statusInfo.setStatus(Status.DELETED);
-                        }
-                        break;
-                    case DELETED_BY_US:
-                        if (statusInfo.getStatus() == Status.BLANK){
-                            statusInfo.setStatus(Status.CONFLICT_LDRM);
-                        } else if (!statusInfo.getFile().exists()){
-                            statusInfo.setStatus(Status.DELETED);
-                        }
-                        break;
-                    case BOTH_ADDED:
-                        statusInfo.setStatus(Status.CONFLICT_ADD);
-                        break;
-                    case BOTH_MODIFIED:
-                        //if status is needs commit, it means that the conflict was resolved.
-                        if (statusInfo.getStatus() != Status.NEEDS_COMMIT){
-                            statusInfo.setStatus(Status.NEEDS_MERGE);
-                        }
-                        break;
-                }
-            });
 
-            //check for files to push to remote repository.
+            // check for files to push to remote repository.
             List<DiffEntry> listOfDiffsLocal, listOfDiffsRemote;
 
             if (includeRemote) {
@@ -213,7 +196,9 @@ public class GitStatusCommand extends GitCommand
                 }
                 listener.statusComplete(new GitStatusHandle(getRepository(), didFilesChange && isAheadOnly(repo), didFilesChange && getBehindCount(repo) > 0));
             }
-        } catch (IOException | GitAPIException | NoWorkTreeException | GitTreeException ex) {
+        }
+        catch (IOException | GitAPIException | NoWorkTreeException | GitTreeException ex)
+        {
             Debug.reportError("Git status command exception", ex);
             return new TeamworkCommandError(ex.getMessage(), ex.getLocalizedMessage());
         }
