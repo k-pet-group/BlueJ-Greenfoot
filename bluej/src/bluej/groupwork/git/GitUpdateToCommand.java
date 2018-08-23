@@ -28,10 +28,6 @@ import bluej.groupwork.UpdateResults;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 
-import static bluej.groupwork.git.GitUtilities.findForkPoint;
-import static bluej.groupwork.git.GitUtilities.getDiffFromList;
-import static bluej.groupwork.git.GitUtilities.getDiffs;
-import static bluej.groupwork.git.GitUtilities.getFileNameFromDiff;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -47,12 +43,10 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.MergeCommand;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.CheckoutCommand;
+import org.eclipse.jgit.api.CheckoutCommand.Stage;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.diff.DiffEntry;
-import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.merge.MergeStrategy;
-import org.eclipse.jgit.revwalk.RevCommit;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -71,9 +65,6 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
     private final List<File> conflicts = new ArrayList<>();
     @OnThread(Tag.Any)
     private final Set<File> binaryConflicts = new HashSet<>();
-    private List<DiffEntry> listOfDiffsLocal;
-    @OnThread(Tag.Any)
-    private List<DiffEntry> listOfDiffsRemote;
 
     @OnThread(Tag.Any)
     public GitUpdateToCommand(GitRepository repository, UpdateListener listener, Set<File> files, Set<File> forceFiles)
@@ -87,7 +78,8 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
     @OnThread(Tag.Worker)
     public TeamworkCommandResult getResult()
     {
-        try (Git repo = Git.open(this.getRepository().getProjectPath())) {
+        try (Git repo = Git.open(this.getRepository().getProjectPath()))
+        {
             File gitPath = this.getRepository().getProjectPath();
 
             MergeCommand merge = repo.merge();
@@ -106,10 +98,22 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
                 ccommand.call();
             }
 
-            ObjectId headBeforeMerge = repo.getRepository().resolve("HEAD");
-            ObjectId headOfRemoteBeforeMerge = repo.getRepository().resolve("origin/master");
-
-            RevCommit forkPoint = findForkPoint(repo.getRepository(), "origin/master", "HEAD");
+            repo.getRepository().getListenerList().addWorkingTreeModifiedListener(e -> {
+                for (String modified : e.getModified())
+                {
+                    Platform.runLater(() -> {
+                        listener.fileModified(new File(getRepository().getProjectPath(), modified));
+                    });
+                }
+                
+                for (String deleted : e.getDeleted())
+                {
+                    Platform.runLater(() -> {
+                        listener.fileRemoved(new File(getRepository().getProjectPath(), deleted));
+                    });
+                }
+            });
+                        
             merge.include(repo.getRepository().resolve("origin/master")); // merge with remote repository.
             MergeResult mergeResult = merge.call();
             Map<String, int[][]> allConflicts;
@@ -153,12 +157,6 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
                     Debug.reportError("Unknown/unhandled Git merge status: " + mergeResult.getMergeStatus());
             }
 
-            // now we need to find out what files where affected by this merge.
-            // to do so, we compare the commits affected by this merge.
-            listOfDiffsLocal = getDiffs(repo, headBeforeMerge.getName(), forkPoint);
-            listOfDiffsRemote = getDiffs(repo, headOfRemoteBeforeMerge.getName(), forkPoint);
-            processChanges(repo, conflicts);
-            
             if (!conflicts.isEmpty() || !binaryConflicts.isEmpty()) {
                 Platform.runLater(() -> listener.handleConflicts(this));
             }
@@ -207,47 +205,21 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
     @OnThread(Tag.FXPlatform)
     public void overrideFiles(Set<File> files)
     {
-        for (File f : files) {
-            DiffEntry remoteDiffItem = getDiffFromList(new File(f.getName()), listOfDiffsRemote);
-            if (remoteDiffItem != null && remoteDiffItem.getChangeType() == DiffEntry.ChangeType.DELETE) {
-                //remove file.
-                f.delete();
-                listener.fileRemoved(f);
-            } else {
-                listener.fileModified(f);
+        try (Git repo = Git.open(this.getRepository().getProjectPath()))
+        {
+            Path basePath = Paths.get(this.getRepository().getProjectPath().toString());
+            CheckoutCommand ccommand = repo.checkout();
+            for (File f : files)
+            {
+                ccommand.addPath(GitUtilities.getRelativeFileName(basePath, f));
             }
+            ccommand.setStage(Stage.THEIRS);
+            ccommand.setForce(true);
+            ccommand.call();
         }
-    }
-
-    @OnThread(Tag.Worker)
-    private void processChanges(Git repo, List<File> conflicts)
-    {
-        for (DiffEntry remoteDiffItem : listOfDiffsRemote) {
-            File file = new File(this.getRepository().getProjectPath(), getFileNameFromDiff(remoteDiffItem));
-            DiffEntry localDiffItem = getDiffFromList(remoteDiffItem, listOfDiffsLocal);
-            
-            switch (remoteDiffItem.getChangeType()) {
-                case ADD:
-                case COPY:
-                    Platform.runLater(() -> listener.fileModified(file));
-                    break;
-                case DELETE:
-                    if (localDiffItem != null && localDiffItem.getChangeType() == DiffEntry.ChangeType.MODIFY) {
-                        //use the file selection mechanism.
-                        conflicts.remove(file);
-                        binaryConflicts.add(file);
-                    }
-                    if (!file.exists()) {
-                        Platform.runLater(() -> listener.fileRemoved(file));
-                    } else {
-                        Platform.runLater(() -> listener.fileModified(file));
-                    }
-                    break;
-                case MODIFY:
-                    Platform.runLater(() -> listener.fileModified(file));
-                    break;
-            }
+        catch (IOException | GitAPIException exc)
+        {
+            Debug.reportError("Git override files failed", exc);
         }
-
     }
 }
