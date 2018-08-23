@@ -656,6 +656,8 @@ public final class MoeEditor extends ScopeColorsBorderPane
     @OnThread(Tag.FXPlatform)
     public void close()
     {
+        cancelFreshState();
+        
         try {
             save();
         }
