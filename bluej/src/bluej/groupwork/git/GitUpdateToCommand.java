@@ -46,7 +46,6 @@ import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.CheckoutCommand.Stage;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.merge.MergeStrategy;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -218,21 +217,24 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
     @OnThread(Tag.FXPlatform)
     public void overrideFiles(Set<File> files)
     {
-        try (Git repo = Git.open(this.getRepository().getProjectPath()))
+        if (! files.isEmpty())
         {
-            Path basePath = Paths.get(this.getRepository().getProjectPath().toString());
-            CheckoutCommand ccommand = repo.checkout();
-            for (File f : files)
+            try (Git repo = Git.open(this.getRepository().getProjectPath()))
             {
-                ccommand.addPath(GitUtilities.getRelativeFileName(basePath, f));
+                Path basePath = Paths.get(this.getRepository().getProjectPath().toString());
+                CheckoutCommand ccommand = repo.checkout();
+                for (File f : files)
+                {
+                    ccommand.addPath(GitUtilities.getRelativeFileName(basePath, f));
+                }
+                ccommand.setStage(Stage.THEIRS);
+                ccommand.setForce(true);
+                ccommand.call();
             }
-            ccommand.setStage(Stage.THEIRS);
-            ccommand.setForce(true);
-            ccommand.call();
-        }
-        catch (IOException | GitAPIException exc)
-        {
-            Debug.reportError("Git override files failed", exc);
+            catch (IOException | GitAPIException exc)
+            {
+                Debug.reportError("Git override files failed", exc);
+            }
         }
     }
 }
