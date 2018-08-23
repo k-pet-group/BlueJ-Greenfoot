@@ -144,7 +144,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
         } else {
             updateFiles.setCellFactory(param -> new FileRendererCell(project));//
         }
-        updateFiles.setDisable(true);
+        updateFiles.setEditable(false);
 
         ScrollPane updateFileScrollPane = new ScrollPane(updateFiles);
         updateFileScrollPane.setFitToWidth(true);
