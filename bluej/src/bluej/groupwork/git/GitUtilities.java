@@ -38,12 +38,11 @@ import org.eclipse.jgit.errors.RevisionSyntaxException;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
-import org.eclipse.jgit.lib.ReflogEntry;
-import org.eclipse.jgit.lib.ReflogReader;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.revwalk.filter.RevFilter;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -136,35 +135,25 @@ public class GitUtilities
 
     /**
      * Find the last point in two branches where they where the same.
-     * @param repository
-     * @param base
-     * @param tip
-     * @return
-     * @throws IOException 
+     * 
+     * @param repository  the repository
+     * @param base        the name of the first ref
+     * @param tip         the name of the second ref
+     * @return  the merge point, or null if there is none.
+     * @throws IOException  if an IO error occurs
      */
     public static RevCommit findForkPoint(Repository repository, String base, String tip) throws IOException
     {
         try (RevWalk walk = new RevWalk(repository)) {
             RevCommit tipCommit = walk.lookupCommit(repository.resolve(tip));
-            ReflogReader reflogReader = repository.getReflogReader(base);
-            // Can't find base point:
-            if (reflogReader == null)
-                return null;
-            List<ReflogEntry> reflog = reflogReader.getReverseEntries();
-            if (reflog.isEmpty()) {
-                return null; // no fork point.
-            }
-            for (int i = 0; i <= reflog.size(); i++) {
-                ObjectId id = i < reflog.size() ? reflog.get(i).getNewId() : reflog.get(i - 1).getOldId();
-                RevCommit commit = walk.lookupCommit(id);
-                if (walk.isMergedInto(commit, tipCommit)) {
-                    //found the fork point.
-                    walk.parseBody(commit);
-                    return commit;
-                }
-            }
+            RevCommit baseCommit = walk.lookupCommit(repository.resolve(base));
+            
+            walk.setRevFilter(RevFilter.MERGE_BASE);
+            walk.markStart(tipCommit);
+            walk.markStart(baseCommit);
+            RevCommit mergeBase = walk.next();
+            return mergeBase;
         }
-        return null; //no fork point.
     }
     
     public static String getFileNameFromDiff(DiffEntry entry)
