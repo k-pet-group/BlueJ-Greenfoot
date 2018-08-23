@@ -46,6 +46,7 @@ import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.CheckoutCommand.Stage;
 import org.eclipse.jgit.api.errors.CheckoutConflictException;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.merge.MergeStrategy;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -66,8 +67,18 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
     @OnThread(Tag.Any)
     private final Set<File> binaryConflicts = new HashSet<>();
 
+    /**
+     * Construct a GitUpdateToCommand command object.
+     * 
+     * <p>Note that this always "updates to" (merges with) origin/master. The fetch should have
+     * been performed previously. 
+     * 
+     * @param repository  the repository
+     * @param listener    the listener for notification of file changes
+     * @param forceFiles  the files to "force update"
+     */
     @OnThread(Tag.Any)
-    public GitUpdateToCommand(GitRepository repository, UpdateListener listener, Set<File> files, Set<File> forceFiles)
+    public GitUpdateToCommand(GitRepository repository, UpdateListener listener, Set<File> forceFiles)
     {
         super(repository);
         this.forceFiles = forceFiles;
@@ -150,9 +161,11 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
                         return new TeamworkCommandError(conflictMessage, conflictMessage);
                     }
                     break;
+                case MERGED:
                 case ALREADY_UP_TO_DATE:
-                    // Nothing changed.
+                    // Changes merged and committed as a merge, or nothing changed.
                     break;
+                    
                 default:
                     Debug.reportError("Unknown/unhandled Git merge status: " + mergeResult.getMergeStatus());
             }
