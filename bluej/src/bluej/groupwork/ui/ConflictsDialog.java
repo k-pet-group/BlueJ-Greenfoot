@@ -23,7 +23,6 @@ package bluej.groupwork.ui;
 
 import bluej.Config;
 import bluej.pkgmgr.Project;
-import bluej.utility.DialogManager;
 import bluej.utility.javafx.FXCustomizedDialog;
 
 import java.util.Iterator;

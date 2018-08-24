@@ -763,6 +763,7 @@ team.statusinfo.dcvs.remote.new=Needs push (new)
 team.statusinfo.dcvs.remote.modified=Needs push (modified)
 team.statusinfo.dcvs.remote.deleted=Needs push (deleted)
 team.statusinfo.dcvs.remote.needs.pull=Needs update
+team.statusinfo.dcvs.remote.removed=Needs update (removed)
 team.statusinfo.dcvs.remote.needs.push=Needs push
 
 team.settings.title = Team Settings

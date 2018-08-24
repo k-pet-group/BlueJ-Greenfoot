@@ -22,6 +22,7 @@
 package bluej.groupwork;
 
 import bluej.groupwork.TeamStatusInfo.Status;
+
 /**
  * Class to filter TeamStatusInfo objects to calculate those classes that will 
  * be changed when we next update. 
@@ -81,6 +82,7 @@ public class UpdateFilter
             case NEEDS_CHECKOUT:
             case NEEDS_UPDATE:
             case NEEDS_MERGE:
+            case REMOVED:
                 return true;
             default:
                 return false;
