@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2013,2015  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2013,2015,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -757,6 +757,15 @@ int WINAPI WinMain
         }
     }
 
+    // Check to see if there's a currently selected VM
+    checkCurrentVM();
+    if (!forceVMselect && !goodVMs.empty()) {
+        const string &jdkLocation = *(goodVMs.begin());
+        if (launchVM(jdkLocation)) {
+            return 0;
+        }
+    }
+
     // Check for VM in bluej.defs
     string defsVm = getBlueJProperty(VM_PROP);
     if (defsVm.length() != 0) {
@@ -775,16 +784,6 @@ int WINAPI WinMain
             }
             goodVMs.insert(defsVm);
         } 
-    }
-    
-    // Check to see if there's a currently selected VM
-    checkCurrentVM();
-
-    if (!forceVMselect && !goodVMs.empty()) {
-        const string &jdkLocation = *(goodVMs.begin());
-        if (launchVM(jdkLocation)) {
-            return 0;
-        }
     }
 
     // Locate other VMs
