@@ -192,6 +192,8 @@ public final class PackageEditor extends StackPane
                 stopNewInherits();
             // Don't consume either way
         });
+        
+        setPrefHeight(400.0);
     }
 
     @OnThread(Tag.FXPlatform)
