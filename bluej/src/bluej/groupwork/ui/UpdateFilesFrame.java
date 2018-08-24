@@ -140,9 +140,9 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
         Label updateFilesLabel = new Label(Config.getString("team.update.files"));
         ListView<UpdateStatus> updateFiles = new ListView<>(updateListModel);
         if (isDVCS) {
-            updateFiles.setCellFactory(param -> new FileRendererCell(project, true));//
+            updateFiles.setCellFactory(param -> new FileRendererCell(project, true));
         } else {
-            updateFiles.setCellFactory(param -> new FileRendererCell(project));//
+            updateFiles.setCellFactory(param -> new FileRendererCell(project));
         }
         updateFiles.setEditable(false);
 
@@ -306,8 +306,8 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
     }
 
     /**
-     * Inner class to do the actual cvs status check to populate commit dialog
-     * to ensure that the UI is not blocked during remote call
+     * Worker to do the actual status check (to populate commit dialog) in the background, to
+     * avoid blocking the UI.
      */
     class UpdateWorker extends FXWorker implements StatusListener
     {

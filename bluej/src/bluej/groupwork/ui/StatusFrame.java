@@ -38,7 +38,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.SortType;
 import javafx.scene.control.TableView;
 import javafx.scene.layout.BorderPane;
-import javafx.stage.Window;
 
 import bluej.Config;
 import bluej.collect.DataCollector;
@@ -51,7 +50,6 @@ import bluej.groupwork.TeamViewFilter;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.pkgmgr.Project;
-import bluej.utility.DialogManager;
 import bluej.utility.FXWorker;
 import bluej.utility.javafx.FXCustomizedDialog;
 import bluej.utility.javafx.JavaFXUtil;
