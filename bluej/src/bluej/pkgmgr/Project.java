@@ -1577,9 +1577,13 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         // if there is a breakpoint in a JavaFX class and we are restarting VM
         // before FX launch, then we set the breakpoints before launching the FX app:
         packages.values().forEach(Package::reInitBreakpoints);
-        PkgMgrFrame frame = PkgMgrFrame.findFrame(getUnnamedPackage());
-        if (frame != null) {
-            frame.bringToFront();
+        if (Config.isMacOS())
+        {
+            PkgMgrFrame frame = PkgMgrFrame.findFrame(getUnnamedPackage());
+            if (frame != null)
+            {
+                frame.bringToFront();
+            }
         }
 
         BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_DONE, null);
