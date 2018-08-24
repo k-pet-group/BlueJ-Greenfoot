@@ -82,6 +82,7 @@ public class UpdateFilter
             case NEEDS_CHECKOUT:
             case NEEDS_UPDATE:
             case NEEDS_MERGE:
+            case REMOVED:
                 return true;
             default:
                 return false;

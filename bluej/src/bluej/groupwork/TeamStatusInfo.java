@@ -86,7 +86,7 @@ public class TeamStatusInfo
         NEEDS_ADD("needsAdd", "dcvs.local.new", "dcvs.remote.new", NEEDSCOMMIT_COLOR),
 
         /** The file exists locally, but has been removed in the repository */
-        REMOVED("removed", "", "dcvs.remote.needs.pull", REMOVED_COLOR),
+        REMOVED("removed", "", "dcvs.remote.removed", REMOVED_COLOR),
 
         /**
          * An unresolved conflict. This can happen when:<ul>
@@ -159,7 +159,7 @@ public class TeamStatusInfo
         public String getDCVSStatusString(boolean remote)
         {
             String label = (remote) ? dcvsRemoteStatusString : dcvsStatusString;
-            return label.isEmpty() ? "" : Config.getString( prefix + label);
+            return label.isEmpty() ? "" : Config.getString(prefix + label);
         }
 
         /**
