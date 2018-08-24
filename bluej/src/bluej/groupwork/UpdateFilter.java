@@ -22,6 +22,7 @@
 package bluej.groupwork;
 
 import bluej.groupwork.TeamStatusInfo.Status;
+
 /**
  * Class to filter TeamStatusInfo objects to calculate those classes that will 
  * be changed when we next update. 
