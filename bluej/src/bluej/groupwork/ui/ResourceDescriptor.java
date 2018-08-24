@@ -108,12 +108,13 @@ public class ResourceDescriptor
     }
 
     /**
-     *  Builds and returns a resource description for a file in a distributed version control system.
+     * Builds and returns a resource description for a file in a distributed version control system.
      *
      * @param project  The project that includes the file.
      * @param info     Team status information for the file.
      * @param annotate Should annotation be added to the description.
-     * @param remote   Which description is needed, the remote one (<code>true</code>) or the local one (<code>false</code>).
+     * @param remote   Which description is needed, the remote one (<code>true</code>) or the
+     *                 local one (<code>false</code>).
      * @return         A description for the file's team status.
      */
     public static String getDCVSResource(Project project, TeamStatusInfo info, boolean annotate, boolean remote)
@@ -132,11 +133,11 @@ public class ResourceDescriptor
                 case NEEDS_UPDATE:
                 case NEEDS_COMMIT:
                     //substitute for the new labels from teamstatusinfo
-                    status += " (" + infoStatus.getDCVSStatusString(remote) + ")";
+                    status += " - " + infoStatus.getDCVSStatusString(remote);
                     break;
                 case NEEDS_MERGE:
                     if (!isPkgFile) {
-                        status += " (" + infoStatus.getDCVSStatusString(remote) + ")";
+                        status += " - " + infoStatus.getDCVSStatusString(remote);
                     }
                     break;
                 default:
