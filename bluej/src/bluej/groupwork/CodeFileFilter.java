@@ -118,7 +118,7 @@ public class CodeFileFilter implements FileFilter, FilenameFilter
         }
 
         // Exclude everything inside the "doc" top-level directory:
-        File tdir = dir;
+        File tdir = file;
         String tname = name;
         while (! tdir.equals(projectDir)) {
             tname = tdir.getName();
