@@ -108,11 +108,14 @@ public class SubversionProvider implements TeamworkProvider
         client.username(settings.getUserName());
         client.password(settings.getPassword());
         
+        String svnUrl = null;
         try {
-            client.info2(makeSvnUrl(settings), Revision.HEAD, Revision.HEAD, false);
+            svnUrl = makeSvnUrl(settings);
+            client.info2(svnUrl, Revision.HEAD, Revision.HEAD, false);
             return new TeamworkCommandResult();
         }
         catch (ClientException ce) {
+            Debug.reportError(svnUrl, ce);
             return new TeamworkCommandError(ce.getMessage(), ce.getLocalizedMessage());
         }
         catch (UnsupportedSettingException e) {
