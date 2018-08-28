@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2015,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2015,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -115,6 +115,7 @@ public class SubversionProvider implements TeamworkProvider
             return new TeamworkCommandResult();
         }
         catch (ClientException ce) {
+            Debug.log("Subversion connection error:");
             Debug.reportError(svnUrl, ce);
             return new TeamworkCommandError(ce.getMessage(), ce.getLocalizedMessage());
         }
