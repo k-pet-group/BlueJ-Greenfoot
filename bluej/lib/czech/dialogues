@@ -488,11 +488,6 @@ Zkontrolujte pou\u017eit\u00fd p\u0159ipojovac\u00ed \u0159et\u011bzec.
 team-denied-invalidUser
 \u0160patn\u00e9 u\u017eivatelsk\u00e9 jm\u00e9no \u010di heslo \u2013 p\u0159\u00edstup zam\u00edtnut.
 
-team-denied-invalidUserOrnotExported
-P\u0159\u00edstup byl zam\u00edtnut. Zkontrolujte detaily sv\u00e9 autentifikace
-(u\u017eivatelsk\u00e9 jm\u00e9no a heslo). Nepo\u017eaduje-li protokol
-u\u017eivatelsk\u00e9 jm\u00e9no, \u00falo\u017ei\u0161t\u011b nebylo exportov\u00e1no.
-
 team-noRepository-uri
 \u00dalo\u017ei\u0161t\u011b nebylo nalezeno: $
 
