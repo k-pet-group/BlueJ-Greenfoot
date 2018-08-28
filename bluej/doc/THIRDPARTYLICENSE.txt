@@ -90,6 +90,11 @@ https://code.google.com/p/java-diff-utils/
 The library is distributed under the Apache License version 2.0, as found in the
 "Apache-License-2.0.txt" file.
 
+EdDSA-Java (CC0 1.0 Universal)
+------------------------------
+"eddsa-0.2.0.jar" is a Java implementation of the EdDSA algorithm, used by the trilead
+library for doing SSH connections for SVNkit.  It is distributed under the CC0 1.0 Universal
+licence, as found in the "CC0-1.0-Universal.txt" file.
 
 Guava - Google Core library (Apache License version 2.0)
 --------------------------------------------------------
@@ -116,6 +121,13 @@ Javassist is Copyright (C) 1999-2013, Shigeru Chiba.
 The copyright holder allows distribution of Javassist under a choice of several licenses.
 In BlueJ it is distributed under the terms of the Apache License version 2.0, as found
 in the "Apache-License-2.0.txt" file.
+
+jBCrypt library (ISC License)
+-----------------------------
+
+jBCrypt is a Java implementation of the BCrypt algorithm, which is referenced by
+the trilead library for doing SSH connections with SVNkit.  It is licensed under the
+ISC licence, as found in the "jbcrypt-ISC.txt" file.
 
 
 JGit library (Eclipse Distribution License version 1.0)
