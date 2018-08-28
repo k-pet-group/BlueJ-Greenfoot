@@ -483,11 +483,6 @@ spr\u00e1vnos\u0165 re\u0165azca pou\u017eit\u00e9ho na pripojenie.
 team-denied-invalidUser
 Pr\u00edstup bol zamietnut\u00fd. Nespr\u00e1vne meno alebo heslo.
 
-team-denied-invalidUserOrnotExported
-Pr\u00edstup bol zamietnut\u00fd. Pros\u00edm, overte va\u0161e autentika\u010dn\u00e9 \u00fadaje (pou\u017e\u00edvate\u013esk\u00e9
-meno a\u00a0heslo), ak s\u00fa vy\u017eadovan\u00e9. Ak tento protokol nevy\u017eaduje pou\u017e\u00edvate\u013esk\u00e9
-meno, tak neboli spr\u00e1vne exportovan\u00e9 \u00fadaje ukladacieho priestoru.
-
 team-noRepository-uri
 Ukladac\u00ed priestor nebol n\u00e1jden\u00fd: $
 
