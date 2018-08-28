@@ -91,9 +91,8 @@ public class CheckoutAction extends TeamAction
                 //if not DVCS, we need to select module.
                 ModuleSelectDialog moduleDialog = new ModuleSelectDialog(oldFrame::getFXWindow, repository);
                 moduleDialog.setLocationRelativeTo(oldFrame.getFXWindow());
-                moduleDialog.showAndWait();
+                String moduleName = moduleDialog.showAndWait().orElse(null);
 
-                String moduleName = moduleDialog.getModuleName();
                 if (moduleName == null)
                     return; //null module.
 

@@ -21,6 +21,7 @@
  */
 package bluej.groupwork.ui;
 
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Button;
@@ -55,7 +56,7 @@ import threadchecker.Tag;
  * @author Amjad Altadmri
  */
 @OnThread(Tag.FXPlatform)
-public class ModuleSelectDialog extends FXCustomizedDialog<Void>
+public class ModuleSelectDialog extends FXCustomizedDialog<String>
 {
     private Repository repository;
     private ModuleListerWorker worker;
@@ -64,9 +65,7 @@ public class ModuleSelectDialog extends FXCustomizedDialog<Void>
     // Module text field
     private final TextField moduleField = new TextField();
     // Modules list
-    private final ListView moduleList = new ListView();
-
-    private boolean wasOk;
+    private final ListView<String> moduleList = new ListView<>();
 
     public ModuleSelectDialog(FXPlatformSupplier<Window> owner, Repository repository)
     {
@@ -83,30 +82,18 @@ public class ModuleSelectDialog extends FXCustomizedDialog<Void>
         HBox moduleBox = new HBox();
         moduleBox.getChildren().addAll(new Label(Config.getString("team.moduleselect.label")), moduleField);
 
-        /*moduleList.setSelectionMode(ObservableList.SINGLE_SELECTION);
-        moduleList.getSelectionModel().addListSelectionListener(
-                // ---- ListSelectionListener interface ----
-
-        public void valueChanged(ListSelectionEvent e)
-        {
-            if (! e.getValueIsAdjusting()) {
-                int selected = moduleList.getSelectedIndex();
-                if (selected != -1) {
-                    String module = moduleList.getModel().getElementAt(selected).toString();
-                    moduleField.setText(module);
-                }
-            }
-        }
-        );
-        */
-
+        JavaFXUtil.addChangeListenerPlatform(moduleList.getSelectionModel().selectedItemProperty(), sel -> {
+            moduleField.setText(sel);
+        });
+        
         moduleList.setOnMouseClicked(event -> {
-            if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2) {
-//                int index = moduleList.getlocationToIndex(event.getSource());
-//                int index = moduleList.getEditingIndex();??
-                if (moduleList.getItems().contains(event.getSource())) {
-                    wasOk = true;
-                    hide();
+            if (event.getButton() == MouseButton.PRIMARY && event.getClickCount() == 2)
+            {
+                String selectedItem = moduleList.getSelectionModel().getSelectedItem();
+                if (selectedItem != null)
+                {
+                    setResult(selectedItem);
+                    close();
                 }
             }
         });
@@ -143,7 +130,7 @@ public class ModuleSelectDialog extends FXCustomizedDialog<Void>
         Button okButton = (Button) getDialogPane().lookupButton(ButtonType.OK);
         okButton.disableProperty().bind(moduleField.textProperty().isEmpty());
         okButton.setOnAction(event -> {
-            wasOk = true;
+            setResult(moduleField.getText());
             close();
         });
 
@@ -152,20 +139,6 @@ public class ModuleSelectDialog extends FXCustomizedDialog<Void>
                 worker.abort();
             }
         });
-    }
-
-    /**
-     * Get the selected module name, or null if no module was selected
-     * (dialog was cancelled).
-     */
-    public String getModuleName()
-    {
-        if (wasOk) {
-            return moduleField.getText();
-        }
-        else {
-            return null;
-        }
     }
 
     /**
