@@ -112,7 +112,18 @@ public class GitUpdateToCommand extends GitCommand implements UpdateResults
                 for (String modified : e.getModified())
                 {
                     Platform.runLater(() -> {
-                        listener.fileModified(new File(getRepository().getProjectPath(), modified));
+                        // Oddly (perhaps a bug), JGit reports removed files as "modified" if
+                        // there is a conflict on update. We detect if a file is actually
+                        // removed by checking if it exists:
+                        File f = new File(getRepository().getProjectPath(), modified);
+                        if (f.exists())
+                        {
+                            listener.fileModified(f);
+                        }
+                        else
+                        {
+                            listener.fileRemoved(f);
+                        }
                     });
                 }
                 
