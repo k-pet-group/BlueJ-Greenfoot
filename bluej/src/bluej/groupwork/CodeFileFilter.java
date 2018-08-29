@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2017  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2017,2018  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -118,7 +118,7 @@ public class CodeFileFilter implements FileFilter, FilenameFilter
         }
 
         // Exclude everything inside the "doc" top-level directory:
-        File tdir = dir;
+        File tdir = file;
         String tname = name;
         while (! tdir.equals(projectDir)) {
             tname = tdir.getName();
