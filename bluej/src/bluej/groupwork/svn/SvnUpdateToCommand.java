@@ -271,6 +271,11 @@ public class SvnUpdateToCommand extends SvnCommand implements UpdateResults
                             // (keepLocal == true) or completely remove the file.
                             String [] paths = new String[] { file.getPath() };
                             client.remove(paths, "", true, keepLocal, Collections.emptyMap());
+                            
+                            if (!keepLocal)
+                            {
+                                Platform.runLater(() -> listener.fileRemoved(file));
+                            }
 
                             return;
                         }
