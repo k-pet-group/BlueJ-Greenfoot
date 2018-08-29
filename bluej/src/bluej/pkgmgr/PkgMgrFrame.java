@@ -22,6 +22,7 @@
 package bluej.pkgmgr;
 
 import bluej.*;
+import bluej.pkgmgr.AboutDialogTemplate;
 import bluej.classmgr.BPClassLoader;
 import bluej.collect.DataCollector;
 import bluej.compiler.CompileReason;
@@ -418,12 +419,28 @@ public class PkgMgrFrame
             StackPane bottomPaneAndOverlay = new StackPane(bottomPane, bottomOverlay);
             SplitPane.setResizableWithParent(bottomPaneAndOverlay, false);
             StackPane topPaneAndOverlay = new StackPane(topPane, topOverlay);
-            
+            // SplitPane has a really odd behaviour.  If you set the divider position
+            // and it starts a layout pass where the top and bottom both have enough
+            // room to be their min sizes, but not enough for preferred, SplitPane
+            // will resize, even if the bottom pane has setResizableWithParent set to false.
+            // Which just seems wrong -- and it causes the divider to not resume
+            // in the position which we faithfully saved and restored.  Over time the divider
+            // creeps upward.  Here's the work-around: we set the top pane to also
+            // not be resizable, which prevents SplitPane messing with the divider position.
+            // But we only want to disable resizing of the top during loading; if the user
+            // later resizes the pane, we do want to resize the top.  There's not an obvious
+            // event to listen for to decide when to allow resizing (showing isn't the right time
+            // because a layout pulse happens later), so here we use a timer.  Ugly but can't
+            // see a better option.  5 seconds seems to be enough even on my slow machine
+            // that it's loaded up, but hopefully short enough it doesn't interfere with actual
+            // user resizes:
+            SplitPane.setResizableWithParent(topPaneAndOverlay, false);
+            JavaFXUtil.runAfter(Duration.seconds(5.0), () -> SplitPane.setResizableWithParent(topPaneAndOverlay, true));
             topBottomSplit = new SplitPane(topPaneAndOverlay, bottomPaneAndOverlay);
             JavaFXUtil.addStyleClass(topBottomSplit, "top-bottom-split");
             topBottomSplit.setOrientation(Orientation.VERTICAL);
             // Default position:
-            loadVerticalDividerPosition(0.85);
+            topBottomSplit.setDividerPositions(0.8);
             // We add a mouse handler so that if you drag at the intersection of the split
             // panes' dividers, you move both dividers at once.
             EventHandler<MouseEvent> handler = new EventHandler<MouseEvent>()
@@ -569,36 +586,6 @@ public class PkgMgrFrame
         {
             objbench = new ObjectBench(this);
         }
-    }
-
-    /**
-     * Load the position of the divider between class diagram and object bench+codpad
-     * @param position The position, on a scale from 0 to 1.
-     */
-    private void loadVerticalDividerPosition(double position)
-    {
-        // SplitPane has a really odd behaviour.  If you set the divider position
-        // and it starts a layout pass where the top and bottom both have enough
-        // room to be their min sizes, but not enough for preferred, SplitPane
-        // will resize, even if the bottom pane has setResizableWithParent set to false.
-        // Which just seems wrong -- and it causes the divider to not resume
-        // in the position which we faithfully saved and restored.  Over time the divider
-        // creeps upward.  Here's the work-around: we set the top pane to also
-        // not be resizable, which prevents SplitPane messing with the divider position.
-        // But we only want to disable resizing of the top during loading; if the user
-        // later resizes the pane, we do want to resize the top.  There's not an obvious
-        // event to listen for to decide when to allow resizing (really we want to listen
-        // for when the layout pass finishes but JavaFX 8 doesn't have an API for that),
-        // so we request a layout use a run later: 
-
-        SplitPane.setResizableWithParent(topBottomSplit.getItems().get(0), false);
-        topBottomSplit.setDividerPositions(position);
-        // We may be called before the root has been created, so wait for root to be non-null:
-        JavaFXUtil.onceNotNull(paneProperty, root -> {
-            root.requestLayout();
-            JavaFXUtil.runAfterCurrent(() -> 
-                SplitPane.setResizableWithParent(topBottomSplit.getItems().get(0), true));
-        });
     }
 
     /**
@@ -1076,9 +1063,14 @@ public class PkgMgrFrame
                         s.setWidth(800.0);
                         s.setHeight(600.0);
                     }
-                    
-                    loadVerticalDividerPosition(mainDivPos != null ? Double.parseDouble(mainDivPos) : 0.85);
-                    
+                    if (mainDivPos != null)
+                    {
+                        topBottomSplit.setDividerPositions(Double.parseDouble(mainDivPos));
+                    }
+                    else
+                    {
+                        topBottomSplit.setDividerPositions(0.8);
+                    }
                     if (bottomDivPos != null)
                     {
                         // If code pad is already showing, just set the divider position:
