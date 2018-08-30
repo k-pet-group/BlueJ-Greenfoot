@@ -1836,8 +1836,9 @@ public class ClassTarget extends DependentTarget
     private boolean doClassNameChange(String newName)
     {
         //need to check that class does not already exist
-        if (getPackage().getTarget(newName) != null) {
-            getPackage().showError("duplicate-name");
+        if (getPackage().getTarget(newName) != null)
+        {
+            getEditor().writeMessage((Config.getString("editor.info.duplication")));
             return false;
         }
 
