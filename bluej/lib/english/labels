@@ -336,6 +336,7 @@ editor.info.docNoFrames = Frame display is disabled in editor preview.
 editor.info.tabsExpanded = Converted all TABs to spaces. (You are working\nwith soft TABs, the file contained hard TABs.)
 editor.info.perfectIndent = Indentation was already correct
 editor.printer.continued=continued
+editor.info.duplication = A class with this name already exists in this package.
 #End Editor labels
 
 pkgmgr.chooseUsesFrom=Select the class where the dependency is from
