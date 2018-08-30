@@ -90,11 +90,13 @@ https://code.google.com/p/java-diff-utils/
 The library is distributed under the Apache License version 2.0, as found in the
 "Apache-License-2.0.txt" file.
 
+
 EdDSA-Java (CC0 1.0 Universal)
 ------------------------------
 "eddsa-0.2.0.jar" is a Java implementation of the EdDSA algorithm, used by the trilead
 library for doing SSH connections for SVNkit.  It is distributed under the CC0 1.0 Universal
 licence, as found in the "CC0-1.0-Universal.txt" file.
+
 
 Guava - Google Core library (Apache License version 2.0)
 --------------------------------------------------------
@@ -122,12 +124,12 @@ The copyright holder allows distribution of Javassist under a choice of several 
 In BlueJ it is distributed under the terms of the Apache License version 2.0, as found
 in the "Apache-License-2.0.txt" file.
 
+
 jBCrypt library (ISC License)
 -----------------------------
-
-jBCrypt is a Java implementation of the BCrypt algorithm, which is referenced by
-the trilead library for doing SSH connections with SVNkit.  It is licensed under the
-ISC licence, as found in the "jbcrypt-ISC.txt" file.
+jBCrypt (in "jbcrypt-1.0.0.jar") is a Java implementation of the BCrypt algorithm, which is
+referenced by the trilead library for doing SSH connections with SVNkit.  It is licensed under
+the ISC licence, as found in the "jbcrypt-ISC.txt" file.
 
 
 JGit library (Eclipse Distribution License version 1.0)
@@ -223,9 +225,9 @@ is distributed as part of SVNKit.
 
 Trilead SSH library (BSD-like license)
 --------------------------------------
-"trilead.jar" comprises the Trilead library, used by BlueJ to provide SSH support for
-version control. It is distributed under a BSD-like license as found in the
-"trilead.txt" file.
+"trilead-ssh2-build-217-jenkins-11.jar" comprises the Trilead library, used by BlueJ
+to provide SSH support for version control. It is distributed under a BSD-like license
+as found in the "trilead.txt" file.
 
 
 XOM XML Object Modeller library (Lesser GNU Public License v2.1)
@@ -279,12 +281,14 @@ AppleJavaExtensions.jar                  BSD-like license
 commons-logging-api-1.1.2.jar            Apache License v2.0
 commons-vfs2-2.0.jar                     Apache License v2.0
 diffutils-1.2.1.jar                      Apache License v2.0
+eddsa-0.2.0.jar                          CC0 1.0 Universal license
 guava-17.0.jar                           Apache License v2.0
 hamcrest-core-1.3.jar                    BSD License
 httpclient-4.1.1.jar                     Apache License v2.0
 httpcore-4.1.jar                         Apache License v2.0
 httpmime-4.1.1.jar                       Apache License v2.0
 javassist-3.18.0.jar                     Apache License v2.0
+jbcrypt-1.0.0.jar                        ISC License
 jsch-0.1.53.jar                          BSD License
 junit-4.11.jar                           Common Public License v1.0
 nsmenufx-2.1.4.jar                       BSD license
@@ -296,5 +300,5 @@ slf4j-jdk14-1.7.2.jar                    MIT License
 sqljet-1.1.10.jar                        TMate Open Source License
 svnkit-javahl.jar                        Subversion License
 svnkit.jar                               TMate Open Source License
-trilead.jar                              BSD-like license
+trilead-ssh2-build-217-jenkins-11.jar    BSD-like license
 xom-1.2.9.jar                            Lesser GPL v2.1
