@@ -56,7 +56,7 @@ public class Boot
     // and then the update-version target should be executed.
     public static final int BLUEJ_VERSION_MAJOR = 4;
     public static final int BLUEJ_VERSION_MINOR = 1;
-    public static final int BLUEJ_VERSION_RELEASE = 2;
+    public static final int BLUEJ_VERSION_RELEASE = 3;
     public static final String BLUEJ_VERSION_SUFFIX = "";
 
     // public static final int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
