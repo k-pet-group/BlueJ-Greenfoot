@@ -109,10 +109,8 @@ class ProjectLocationDialog
         });
         dialog.setResizable(true);
 
-        final Window window = dialogPane.getScene().getWindow();
-        Stage stage = (Stage) window;
-        stage.setMinWidth(450);
-        stage.setMinHeight(260);
+        content.setMinWidth(450);
+        content.setMinHeight(120);
 
         updateOKButton(false);
     }
