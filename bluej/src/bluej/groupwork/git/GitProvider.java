@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2015,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -249,7 +249,11 @@ public class GitProvider implements TeamworkProvider
      * malformed uri.
      * 
      * @param gitUrlString the string containing the connection uri;
-     * @return 
+     * @return A {@link TeamworkCommandResult} with a useful error if the problem
+     *         is that we cannot connect at all to the server, but a successful
+     *         result if we can connect to the server.  The username/password is not
+     *         checked, and neither is the server type.  We only open a socket,
+     *         no more.
      */
     public static TeamworkCommandResult connectionDiagnosis(String gitUrlString)
     {

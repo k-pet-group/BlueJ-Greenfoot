@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2015,2016,2018  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -87,7 +87,11 @@ public class GitCloneCommand extends GitCommand
                 }
                 //problem connecting to the server. we need further diagnosis.
                 TeamworkCommandResult diagnosis = connectionDiagnosis(reposUrl);
-                return diagnosis;
+                if (diagnosis.isError())
+                {
+                    return diagnosis;
+                }
+                // Otherwise, return generic message.
             }
 
             return new TeamworkCommandError(ex.getMessage(), ex.getLocalizedMessage());
