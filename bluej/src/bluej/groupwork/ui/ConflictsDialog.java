@@ -97,8 +97,9 @@ public class ConflictsDialog extends FXCustomizedDialog<Void>
 
         Button resolveButton = new Button(Config.getString("team.conflicts.show"));
         resolveButton.setOnAction(event -> {
-            project.openEditorsForSelectedTargets();
+            // Close first, or else the bring-to-front doesn't work when showing the editors:
             close();
+            project.openEditorsForSelectedTargets();
         });
         resolveButton.requestFocus();
         resolveButton.setDisable(bluejConflicts.isEmpty());
