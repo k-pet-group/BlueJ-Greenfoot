@@ -156,7 +156,7 @@ public class PastedImageNameDialog extends FXCustomizedDialog<File>
         {
             // No need to repeat the error message here and in case writing the image returned false.
         }
-        DialogManager.showErrorFX(asWindow(), Config.getString("imagelib-writing-image-failed"));
+        DialogManager.showErrorFX(asWindow(), "imagelib-writing-image-failed");
         return false;
     }
 }
