@@ -75,7 +75,6 @@ import bluej.utility.FileUtility.WriteCapabilities;
 import bluej.utility.ImportScanner;
 import bluej.utility.JavaNames;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.View;
 import javafx.animation.Interpolator;
@@ -83,7 +82,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.ScaleTransition;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -94,7 +92,6 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Window;
 import javafx.util.Duration;
@@ -1473,21 +1470,30 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
      */
     public void clearAllSelections()
     {
-        packages.values().stream().map(Package::getEditor).forEach(PackageEditor::clearSelection);
+        for (Package pkg : packages.values())
+        {
+            PackageEditor ed = pkg.getEditor();
+            if (ed != null)
+            {
+                ed.clearSelection();
+            }
+        }
     }
 
     /**
-     * Make the grapheditors of this project clear their selection and select
-     * the targets given in the parameter targets.
+     * Make the package editors for this project select the targets given in the 
+     * <code>targets</code> parameter. Pre-existing selections remain selected. Targets in a
+     * package with no editor open will not be selected.
      *
-     * @param targets a list of Targets
+     * @param targets  a list of Targets 
      */
     public void selectTargetsInGraphs(List<Target> targets)
     {
-        for (Iterator<Target> i = targets.iterator(); i.hasNext();) {
-            Target target = i.next();
-            if (target != null){
-                PackageEditor packageEditor = target.getPackage().getEditor();
+        for (Target target : targets)
+        {
+            PackageEditor packageEditor = target.getPackage().getEditor();
+            if (packageEditor != null)
+            {
                 packageEditor.addToSelection(target);
                 packageEditor.repaint();
             }
@@ -1500,11 +1506,6 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
      *
      * <p>Use ReadmeTarget.README_ID ("@README") as the target base name to get the
      * readme target for a package.
-     *
-     * Given the path and name of a target in the project, return the target or
-     * null if the target doesn't exist
-     * @param pathAndName
-     * @return the target
      */
     public Target getTarget(String targetId)
     {
@@ -1536,7 +1537,6 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
                 Editor editor = classTarget.getEditor();
                 if (editor != null) {
                     editor.setEditorVisible(true);
-                    // TODO: make moe select the ======== part of cvs conflicts
                 }
             }
         }

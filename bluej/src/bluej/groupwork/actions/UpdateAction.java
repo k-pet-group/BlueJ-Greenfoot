@@ -45,7 +45,6 @@ import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
-import bluej.pkgmgr.target.EditableTarget;
 import bluej.pkgmgr.target.PackageTarget;
 import bluej.pkgmgr.target.ReadmeTarget;
 import bluej.pkgmgr.target.Target;
@@ -390,6 +389,11 @@ public class UpdateAction extends TeamAction
                     {
                         blueJconflicts.add(fileName);
                         targets.add(target);
+                        // Force the package frame open, if it isn't already:
+                        if (target.getPackage().getUI() == null)
+                        {
+                            PkgMgrFrame.createFrame(target.getPackage(), PkgMgrFrame.getMostRecent());
+                        }
                     }
                 }
             }
@@ -483,8 +487,6 @@ public class UpdateAction extends TeamAction
 
     /**
      * Strip the dot-suffix from a file name.
-     * @param filename
-     * @return
      */
     private String filenameToTargetIdentifier(String filename)
     {
