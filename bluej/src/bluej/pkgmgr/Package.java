@@ -572,7 +572,8 @@ public final class Package
     }
     
     /**
-     * Get the editor for this package, as a PackageEditor. This should be considered deprecated.
+     * Get the editor for this package, as a PackageEditor. This should be considered deprecated;
+     * use getUI() instead if possible. May return null.
      */
     @OnThread(Tag.Any)
     public synchronized PackageEditor getEditor()
