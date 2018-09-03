@@ -179,7 +179,7 @@ public class TeamSettingsController
                 }
                 catch (UnsupportedSettingException e)
                 {
-                    DialogManager.showErrorFX(teamSettingsDialog.asWindow(), e.getLocalizedMessage());
+                    DialogManager.showErrorTextFX(teamSettingsDialog.asWindow(), e.getLocalizedMessage());
                 }
             }
             else {
@@ -192,7 +192,7 @@ public class TeamSettingsController
                 return settings.getProvider().getRepository(projectDir, settings);
             }
             catch (UnsupportedSettingException e) {
-                DialogManager.showErrorFX(teamSettingsDialog.asWindow(), e.getLocalizedMessage());
+                DialogManager.showErrorTextFX(teamSettingsDialog.asWindow(), e.getLocalizedMessage());
             }
         }
         else {
@@ -203,7 +203,7 @@ public class TeamSettingsController
                     repository = settings.getProvider().getRepository(projectDir, settings);
                 }
                 catch (UnsupportedSettingException e) {
-                    DialogManager.showErrorFX(teamSettingsDialog.asWindow(), e.getLocalizedMessage());
+                    DialogManager.showErrorTextFX(teamSettingsDialog.asWindow(), e.getLocalizedMessage());
                 }
             }
         }
