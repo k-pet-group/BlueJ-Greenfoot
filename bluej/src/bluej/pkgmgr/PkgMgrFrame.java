@@ -2064,8 +2064,6 @@ public class PkgMgrFrame
 
                     getObjectBench().addObject(wrapper);
                     getPackage().getDebugger().addObject(pkg.get().getId(), wrapper.getName(), result);
-
-                    getObjectBench().addInteraction(ir);
                 }
 
                 @Override
