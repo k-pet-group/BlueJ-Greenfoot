@@ -800,7 +800,6 @@ graph.tooltip.classBroken=T\u00e1to trieda nemohla by\u0165 korektne spracovan\u
 # Copyright
 
 menu.help.copyright.title=Autorsk\u00e9 pr\u00e1va n\u00e1stroja BlueJ
-menu.help.copyright.line0=BlueJ \u00a9 2000 \u2013 2017 Michael K\u00f6lling, John Rosenberg.
 menu.help.copyright.line1=Prostredie BlueJ je \u0161\u00edrite\u013en\u00e9 v\u00a0s\u00falade s\u00a0licenciou GNU
 menu.help.copyright.line2=General Public License verzia 2 s\u00a0v\u00fdnimkou Classpath.
 menu.help.copyright.line3=Viac inform\u00e1ci\u00ed n\u00e1jdete v\u00a0s\u00faboroch LICENSE.txt

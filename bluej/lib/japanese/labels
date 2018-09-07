@@ -576,14 +576,6 @@ tooltip.showUses=\u30af\u30e9\u30b9\u9593\u306e\u6240\u6709\u95a2\u4fc2\u3092\u3
 tooltip.showExtends=\u30af\u30e9\u30b9\u9593\u306e\u7d99\u627f\u95a2\u4fc2\u3092\u30c8\u30b0\u30eb\u8868\u793a\u3057\u307e\u3059
 tooltip.progress=\u30ef\u30fc\u30af\u30a4\u30f3\u30b8\u30b1\u30fc\u30bf: VM\u304c\u5b9f\u884c\u4e2d\u306e\u3068\u304d\u306b\u305d\u308c\u3092\u793a\u3057\u307e\u3059
 
-#Copyright
-
-menu.help.copyright.title=BlueJ Copyright
-menu.help.copyright.line1=BlueJ is available free of charge and may be
-menu.help.copyright.line2=redistributed freely. It may not be sold for
-menu.help.copyright.line3=profit or included in other packages which
-menu.help.copyright.line4=are sold for profit without written authorisation.
-
 # About
 
 about.version=$APPNAME \u30d0\u30fc\u30b8\u30e7\u30f3

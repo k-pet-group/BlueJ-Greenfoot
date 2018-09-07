@@ -2026,11 +2026,13 @@ public class PkgMgrFrame
      */
     public void showCopyright()
     {
-        DialogManager.showTextFX(getFXWindow(), Arrays.asList(
-            Config.getString("menu.help.copyright.line0"), " ",
-            Config.getString("menu.help.copyright.line1"), Config.getString("menu.help.copyright.line2"),
-            Config.getString("menu.help.copyright.line3"), Config.getString("menu.help.copyright.line4")
-            ).stream().collect(Collectors.joining("\n")));
+        DialogManager.showTextFX(getFXWindow(), String.join("\n",
+                "BlueJ \u00a9 2000-2018 Michael K\u00F6lling, John Rosenberg.", "",
+                Config.getString("menu.help.copyright.line1"),
+                Config.getString("menu.help.copyright.line2"),
+                Config.getString("menu.help.copyright.line3"),
+                Config.getString("menu.help.copyright.line4")
+            ));
     }
 
     /**
