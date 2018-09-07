@@ -1986,7 +1986,7 @@ public class PkgMgrFrame
                 "Arabic",       "Abdelkader Zitouni",
                 "Catalan",      "Santiago Manrique",
                 "Chinese",      "Ma Wing Ho and Biao Ma",
-                "Czech",        "Rudolf PECINOVSKÝ",
+                "Czech",        "Rudolf Pecinovský",
                 "Danish",       "Jacob Nordfalk",
                 "Dutch",        "Kris Coolsaet",
                 "French",       "Laurent Pierron",
@@ -2003,11 +2003,10 @@ public class PkgMgrFrame
         };
 
         String[] previousTeamMembers = {
-                "Amjad Altadmri",
                 "Damiano Bolla",
                 "Fabio Hedayioglu",
                 "Poul Henriksen",
-                "Clive MilleR",
+                "Clive Miller",
                 "Andrew Patterson",
                 "Bruce Quig",
                 "John Rosenberg",
