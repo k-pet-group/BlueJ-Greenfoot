@@ -29,18 +29,7 @@ import java.lang.reflect.Modifier;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 import bluej.extensions.event.DependencyEvent;
 import bluej.views.CallableView;
@@ -1544,7 +1533,7 @@ public final class Package
             return;
         }
 
-        searchCompile(ct, new QuietPackageCompileObserver(null), reason, type);
+        searchCompile(ct, new QuietPackageCompileObserver(Collections.emptyList()), reason, type);
     }
 
     /**
