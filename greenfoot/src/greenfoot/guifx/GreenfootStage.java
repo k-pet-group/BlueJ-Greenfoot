@@ -1471,7 +1471,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             int eventType;
             if (e.getEventType() == MouseEvent.MOUSE_CLICKED)
             {
-                if (e.getButton() == MouseButton.PRIMARY)
+                if (e.getButton() == MouseButton.PRIMARY && (!Config.isMacOS() || !e.isControlDown()))
                 {
                     hideContextMenu();
                     if (paused)
