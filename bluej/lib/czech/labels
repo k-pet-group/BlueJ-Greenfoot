@@ -828,7 +828,6 @@ graph.tooltip.classBroken=Tato t\u0159\u00edda nem\u016f\u017ee b\u00fdt nyn\u00
 #Copyright
 
 menu.help.copyright.title=Autorsk\u00e1 pr\u00e1va BlueJ
-menu.help.copyright.line0=BlueJ \u00a9 2000-2015 Michael K\u00f6lling, John Rosenberg.
 menu.help.copyright.line1=Prost\u0159ed\u00ed BlueJ je dostupn\u00e9 pod licenc\u00ed GNU General Public Licence\u0020
 menu.help.copyright.line2=verze 2 s v\u00fdjimkou pro Classpath (Classpath exception)
 menu.help.copyright.line3=Dal\u0161\u00ed informace najdete v souborech LICENCE.TXT\u0020
