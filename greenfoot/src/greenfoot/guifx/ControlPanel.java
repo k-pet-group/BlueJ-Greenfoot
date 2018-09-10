@@ -102,13 +102,13 @@ public class ControlPanel extends GridPane
     public ControlPanel(ControlPanelListener listener, Node executionTwirler)
     {
         this.listener = listener;
-        actButton = new Button(Config.getString("run.once"));
+        actButton = unfocusableButton(Config.getString("run.once"));
         actButton.setTooltip(new Tooltip(Config.getString("controls.runonce.shortDescription")));
         actButton.setGraphic(act_icon);
-        runPauseButton = new Button(RUN_BUTTON_TEXT);
+        runPauseButton = unfocusableButton(RUN_BUTTON_TEXT);
         runPauseButton.setGraphic(run_icon);
         runPauseButton.setTooltip(new Tooltip(RUN_BUTTON_TOOLTIP_TEXT));
-        Button resetButton = new Button(Config.getString("reset.world"));
+        Button resetButton = unfocusableButton(Config.getString("reset.world"));
         resetButton.setTooltip(new Tooltip(Config.getString("controls.reset.shortDescription")));
         resetButton.setGraphic(reset_icon);
         actButton.disableProperty().bind(actDisabled);
@@ -120,7 +120,14 @@ public class ControlPanel extends GridPane
         }
         int min = 0;
         int max = Simulation.MAX_SIMULATION_SPEED;
-        speedSlider = new Slider();
+        speedSlider = new Slider() {
+            @Override
+            @OnThread(Tag.FX)
+            public void requestFocus()
+            {
+                // Not focusable
+            }
+        };
         speedSlider.setValue(min + (max - min) / 2);
         speedSlider.setShowTickLabels(false);
         speedSlider.setShowTickMarks(true);
@@ -173,6 +180,21 @@ public class ControlPanel extends GridPane
         rightHalf.setPercentWidth(40);
         getColumnConstraints().setAll(leftHalf, rightHalf);
         getStyleClass().add("control-panel");
+    }
+
+    /**
+     * Makes a button with the given text, which cannot be focused.
+     */
+    private static Button unfocusableButton(String text)
+    {
+        return new Button(text) {
+            @Override
+            @OnThread(Tag.FX)
+            public void requestFocus()
+            {
+                // Not focusable
+            }
+        };
     }
 
     /**
