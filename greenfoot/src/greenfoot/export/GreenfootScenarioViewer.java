@@ -158,7 +158,7 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
             
             controls.updateState(State.PAUSED, false);
 
-            addEventFilter(KeyEvent.ANY, e -> {
+            JavaFXUtil.onceNotNull(sceneProperty(), scene -> scene.addEventFilter(KeyEvent.ANY, e -> {
                 if (e.getEventType() == KeyEvent.KEY_PRESSED)
                 {
                     worldHandler.getKeyboardManager().keyPressed(e.getCode(), e.getText());
@@ -171,7 +171,7 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
                 {
                     worldHandler.getKeyboardManager().keyTyped(e.getCode(), e.getText());
                 }
-            });
+            }));
             worldDisplay.addEventFilter(MouseEvent.ANY, e -> {
                 MouseButton button = e.getButton();
                 if (Config.isMacOS() && button == MouseButton.PRIMARY && e.isControlDown())
