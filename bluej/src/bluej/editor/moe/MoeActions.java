@@ -1508,22 +1508,34 @@ public final class MoeActions
     private MoeAbstractAction cutAction()
     {
         return action("cut-to-clipboard", Category.EDIT, () -> {
-            editor.getSourcePane().cut();
+            // Menu shortcut can trigger when e.g. find pane is focused, don't act if not focused:
+            if (editor.getSourcePane().isFocused())
+            {
+                editor.getSourcePane().cut();
+            }
         });
     }
 
     private MoeAbstractAction copyAction()
     {
         return action("copy-to-clipboard", Category.EDIT, () -> {
-            editor.getSourcePane().copy();
+            // Menu shortcut can trigger when e.g. find pane is focused, don't act if not focused:
+            if (editor.getSourcePane().isFocused())
+            {
+                editor.getSourcePane().copy();
+            }
         });
     }
 
     private MoeAbstractAction pasteAction()
     {
         return action("paste-from-clipboard", Category.EDIT, () -> {
-            editor.getSourcePane().paste();
-            editor.getSourcePane().requestFollowCaret();
+            // Menu shortcut can trigger when e.g. find pane is focused, don't act if not focused:
+            if (editor.getSourcePane().isFocused())
+            {
+                editor.getSourcePane().paste();
+                editor.getSourcePane().requestFollowCaret();
+            }
         });
     }
 
