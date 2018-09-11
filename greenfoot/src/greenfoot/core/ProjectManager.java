@@ -483,7 +483,8 @@ public class ProjectManager
                 Config.getBlueJLibDir().getAbsolutePath(),
                 Config.getUserConfigDir().getAbsolutePath(),
                 tmpPropsFile == null ? "" : tmpPropsFile.getAbsolutePath(),
-                shmFile == null ? "" : shmFile.getAbsolutePath() };
+                shmFile == null ? "" : shmFile.getAbsolutePath(),
+                Integer.toString(greenfootDebugHandler.getShmFileSize()) };
 
         Package pkg = project.getPackage("");
         final Debugger debugger = pkg.getProject().getDebugger();

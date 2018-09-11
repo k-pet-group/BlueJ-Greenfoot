@@ -143,6 +143,8 @@ public class VMCommsSimulation
     // A strictly incrementing counter, incremented each time the world changes.
     private int worldCounter = 0;
     private World world;
+    // Size of the shared memory file
+    private final int fileSize;
 
     /**
      * Construct a VMCommsSimulation.
@@ -152,17 +154,18 @@ public class VMCommsSimulation
      */
     @SuppressWarnings("resource")
     @OnThread(Tag.Any)
-    public VMCommsSimulation(ShadowProjectProperties projectProperties, String shmFilePath)
+    public VMCommsSimulation(ShadowProjectProperties projectProperties, String shmFilePath, int fileSize)
     {
         this.projectProperties = projectProperties;
         worldRenderer = new WorldRenderer();
         try
         {
             shmFileChannel = new RandomAccessFile(shmFilePath, "rw").getChannel();
-            MappedByteBuffer mbb = shmFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, 10_000_000L);
+            this.fileSize = fileSize;
+            MappedByteBuffer mbb = shmFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, fileSize);
             sharedMemory = mbb.asIntBuffer();
             putLock = shmFileChannel.lock(VMCommsMain.USER_AREA_OFFSET_BYTES,
-                    VMCommsMain.USER_AREA_SIZE_BYTES, false);
+                    fileSize - VMCommsMain.USER_AREA_OFFSET_BYTES, false);
             
             new Thread() {
                 @OnThread(value = Tag.Worker,ignoreParent = true)
@@ -429,7 +432,7 @@ public class VMCommsSimulation
             
             fileLock.release();
             putLock = shmFileChannel.lock(VMCommsMain.USER_AREA_OFFSET_BYTES,
-                    VMCommsMain.USER_AREA_SIZE_BYTES, false);
+                    fileSize - VMCommsMain.USER_AREA_OFFSET_BYTES, false);
             syncLock.release();
         }
         catch (IOException ex)
@@ -457,7 +460,10 @@ public class VMCommsSimulation
             }
             catch (Exception e) {}
             // Note: the user will see this message in the terminal, so it should be helpful:
-            Debug.message("World size is too large.  World sizes with more than around 2.5 million pixels are not supported.");
+            Debug.message("World size is too large.  If your world contains more than around 2.5 million pixels you will need to do the following.\n"
+                + "Close your project, then edit project.greenfoot in a text editor to add the following line:\n"
+                + "shm.size=20000000\n"
+                + "(The default is 10000000.)  Save the file and re-open the project in Greenfoot.");
         }
             
         if (answer[0] != null)

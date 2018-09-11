@@ -83,6 +83,7 @@ import greenfoot.util.GreenfootUtil;
 import greenfoot.vmcomm.GreenfootDebugHandler;
 import greenfoot.vmcomm.GreenfootDebugHandler.SimulationStateListener;
 
+import greenfoot.vmcomm.VMCommsMain;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
@@ -841,6 +842,11 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             // Collect the various properties to be written out:
             Properties p = project.getProjectPropertiesCopy();
             p.setProperty("simulation.speed", Integer.toString(lastUserSetSpeed));
+            // Only save if not default:
+            if (debugHandler.getShmFileSize() != VMCommsMain.DEFAULT_MAPPED_SIZE)
+            {
+                p.setProperty("shm.size", Integer.toString(debugHandler.getShmFileSize()));
+            }
             p.put("width", Integer.toString((int) this.getWidth()));
             p.put("height", Integer.toString((int) this.getHeight()));
             p.put("xPosition", Integer.toString((int) this.getX()));

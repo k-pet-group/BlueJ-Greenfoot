@@ -59,7 +59,7 @@ public class GreenfootLauncherDebugVM
      * @param prjDir         The project directory
      * @param rmiServiceName  The name of the RMI service to connect to
      */
-    public GreenfootLauncherDebugVM(String prjDir, String libDirPath, String userPrefDirPath, String propsFilePath, String shmFilePath)
+    public GreenfootLauncherDebugVM(String prjDir, String libDirPath, String userPrefDirPath, String propsFilePath, String shmFilePath, String shmFileSize)
     {
         instance = this;
         
@@ -95,7 +95,7 @@ public class GreenfootLauncherDebugVM
                 Debug.setDebugStream(new PrintWriter(System.err));
                 
                 GreenfootUtil.initialise(GreenfootUtilDelegateIDE.getInstance());
-                GreenfootMain.initialize(prjDir, shmFilePath);
+                GreenfootMain.initialize(prjDir, shmFilePath, Integer.parseInt(shmFileSize));
             }
         }.start();
     }
