@@ -118,7 +118,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     {
         this.project = project;
         greenfootRecorder = new GreenfootRecorder();
-        vmComms = new VMCommsMain();
+        vmComms = new VMCommsMain(project);
     }
         
     /**
@@ -208,6 +208,15 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     {
         return vmComms.getSharedFile();
     }
+
+    /**
+     * Get the size of the temporary file used as the shared memory communication backing.
+     */
+    @OnThread(Tag.FXPlatform)
+    public int getShmFileSize()
+    {
+        return vmComms.getSharedFileSize();
+    }    
     
     /**
      * Get the recorder instance which tracks actor creation.

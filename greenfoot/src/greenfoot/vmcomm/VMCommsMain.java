@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 import greenfoot.guifx.GreenfootStage;
 import javafx.scene.input.KeyCode;
@@ -78,17 +79,17 @@ public class VMCommsMain implements Closeable
     // be deadlock. No process holds all three locks at once and each process always holds at
     // least one lock.
 
-    public static final int MAPPED_SIZE = 10_000_000;
+    public static final int DEFAULT_MAPPED_SIZE = 20_000_000;
     public static final int USER_AREA_OFFSET = 0x1000; // offset in 4-byte chunks; 16KB worth.
     public static final int USER_AREA_OFFSET_BYTES = USER_AREA_OFFSET * 4;
-    public static final int USER_AREA_SIZE_BYTES = MAPPED_SIZE - USER_AREA_OFFSET_BYTES;
-    
+
     public static final int SERVER_AREA_OFFSET_BYTES = 4;
     public static final int SERVER_AREA_SIZE_BYTES = USER_AREA_OFFSET_BYTES - SERVER_AREA_OFFSET_BYTES;
     
     public static final int SYNC_AREA_OFFSET_BYTES = 0;
     public static final int SYNC_AREA_SIZE_BYTES = 4;
     
+    private final int fileSize;
     private File shmFile;
     private FileChannel fc;
     private MappedByteBuffer sharedMemoryByte;
@@ -138,11 +139,13 @@ public class VMCommsMain implements Closeable
      * @throws IOException  if the file could not be created or mapped.
      */
     @SuppressWarnings("resource")
-    public VMCommsMain() throws IOException
+    public VMCommsMain(Project project) throws IOException
     {
+        fileSize = Integer.parseInt(project.getUnnamedPackage().getLastSavedProperties().getProperty("shm.size", Integer.toString(DEFAULT_MAPPED_SIZE)));
+        
         shmFile = File.createTempFile("greenfoot", "shm");
         fc = new RandomAccessFile(shmFile, "rw").getChannel();
-        sharedMemoryByte = fc.map(MapMode.READ_WRITE, 0, MAPPED_SIZE);
+        sharedMemoryByte = fc.map(MapMode.READ_WRITE, 0, fileSize);
         sharedMemory = sharedMemoryByte.asIntBuffer();
         
         // Obtain the put-area lock right from the start:
@@ -202,13 +205,21 @@ public class VMCommsMain implements Closeable
     }
     
     /**
-     * Get the name of the file user for this communication channel.
+     * Get the name of the file used for this communication channel.
      */
     public File getSharedFile()
     {
         return shmFile;
     }
-    
+
+    /**
+     * Get the size of the file used for this communication channel.
+     */
+    public int getSharedFileSize()
+    {
+        return fileSize;
+    }
+
     /**
      * Write commands into the shared memory buffer.
      */
@@ -336,7 +347,7 @@ public class VMCommsMain implements Closeable
         try
         {
             putLock.release();
-            fileLock = sharedMemoryLock.lock(USER_AREA_OFFSET_BYTES, USER_AREA_SIZE_BYTES, false);
+            fileLock = sharedMemoryLock.lock(USER_AREA_OFFSET_BYTES, fileSize - USER_AREA_OFFSET_BYTES, false);
             syncLock.release();
 
             int seq = sharedMemory.get(USER_AREA_OFFSET);
@@ -433,6 +444,11 @@ public class VMCommsMain implements Closeable
         catch (IOException ex)
         {
             Debug.reportError(ex);
+        }
+        catch (IllegalArgumentException ex)
+        {
+            // Happens when world size is too large: swallow quietly, as will happen repeatedly.
+            // The exception will be reported to the user from the debug VM side.
         }
         finally
         {
@@ -616,7 +632,7 @@ public class VMCommsMain implements Closeable
         prevWorldCounter = 0;
         // Zero the buffer:
         sharedMemoryByte.position(0);
-        sharedMemoryByte.put(new byte[MAPPED_SIZE], 0, MAPPED_SIZE);
+        sharedMemoryByte.put(new byte[fileSize], 0, fileSize);
     }
 
     /**

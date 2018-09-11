@@ -39,6 +39,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.BufferOverflowException;
 import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -142,6 +143,8 @@ public class VMCommsSimulation
     // A strictly incrementing counter, incremented each time the world changes.
     private int worldCounter = 0;
     private World world;
+    // Size of the shared memory file
+    private final int fileSize;
 
     /**
      * Construct a VMCommsSimulation.
@@ -151,17 +154,18 @@ public class VMCommsSimulation
      */
     @SuppressWarnings("resource")
     @OnThread(Tag.Any)
-    public VMCommsSimulation(ShadowProjectProperties projectProperties, String shmFilePath)
+    public VMCommsSimulation(ShadowProjectProperties projectProperties, String shmFilePath, int fileSize)
     {
         this.projectProperties = projectProperties;
         worldRenderer = new WorldRenderer();
         try
         {
             shmFileChannel = new RandomAccessFile(shmFilePath, "rw").getChannel();
-            MappedByteBuffer mbb = shmFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, 10_000_000L);
+            this.fileSize = fileSize;
+            MappedByteBuffer mbb = shmFileChannel.map(FileChannel.MapMode.READ_WRITE, 0, fileSize);
             sharedMemory = mbb.asIntBuffer();
             putLock = shmFileChannel.lock(VMCommsMain.USER_AREA_OFFSET_BYTES,
-                    VMCommsMain.USER_AREA_SIZE_BYTES, false);
+                    fileSize - VMCommsMain.USER_AREA_OFFSET_BYTES, false);
             
             new Thread() {
                 @OnThread(value = Tag.Worker,ignoreParent = true)
@@ -289,6 +293,7 @@ public class VMCommsSimulation
         String[] answer = new String[] {null};
         
         FileLock fileLock = null;
+        FileLock syncLock = null;
         
         try
         {
@@ -422,12 +427,12 @@ public class VMCommsSimulation
             putLock.release();
 
             // Lock the synchronisation area (C) to make sure that the server has acquired our put area:
-            FileLock syncLock = shmFileChannel.lock(VMCommsMain.SYNC_AREA_OFFSET_BYTES,
+            syncLock = shmFileChannel.lock(VMCommsMain.SYNC_AREA_OFFSET_BYTES,
                     VMCommsMain.SYNC_AREA_SIZE_BYTES, false);
             
             fileLock.release();
             putLock = shmFileChannel.lock(VMCommsMain.USER_AREA_OFFSET_BYTES,
-                    VMCommsMain.USER_AREA_SIZE_BYTES, false);
+                    fileSize - VMCommsMain.USER_AREA_OFFSET_BYTES, false);
             syncLock.release();
         }
         catch (IOException ex)
@@ -438,6 +443,27 @@ public class VMCommsSimulation
             }
             catch (Exception e) {}
             Debug.reportError(ex);
+        }
+        catch (BufferOverflowException ex)
+        {
+            try
+            {
+                putLock.release();
+                if (fileLock != null)
+                {
+                    fileLock.release();
+                }
+                if (syncLock != null)
+                {
+                    syncLock.release();
+                }
+            }
+            catch (Exception e) {}
+            // Note: the user will see this message in the terminal, so it should be helpful:
+            Debug.message("World size is too large.  If your world contains more than around 2.5 million pixels you will need to do the following.\n"
+                + "Close your project, then edit project.greenfoot in a text editor to add the following line:\n"
+                + "shm.size=40000000\n"
+                + "(The default is 20000000, keep increasing if needed.)  Save the file and re-open the project in Greenfoot.");
         }
             
         if (answer[0] != null)

@@ -86,11 +86,11 @@ public class GreenfootMain extends Thread
      * @param shmFilePath The path to the shared-memory file to be mmap-ed for communication
      */
     @OnThread(Tag.Any)
-    public static void initialize(String projDir, String shmFilePath)
+    public static void initialize(String projDir, String shmFilePath, int shmFileSize)
     {
         System.setProperty("apple.laf.useScreenMenuBar", "true");
         if (instance == null) {
-            instance = new GreenfootMain(projDir, shmFilePath);
+            instance = new GreenfootMain(projDir, shmFilePath, shmFileSize);
         }
     }
 
@@ -108,7 +108,7 @@ public class GreenfootMain extends Thread
      * Constructor is private. This class is initialised via the 'initialize'
      * method (above).
      */
-    private GreenfootMain(String projDir, String shmFilePath)
+    private GreenfootMain(String projDir, String shmFilePath, int shmFileSize)
     {
         instance = this;
         try {
@@ -125,7 +125,7 @@ public class GreenfootMain extends Thread
                     Platform.setImplicitExit(false);
 
                     // Some first-time initializations
-                    VMCommsSimulation vmComms = new VMCommsSimulation(projectProperties, shmFilePath);
+                    VMCommsSimulation vmComms = new VMCommsSimulation(projectProperties, shmFilePath, shmFileSize);
 
                     WorldHandlerDelegateIDE worldHandlerDelegate = new WorldHandlerDelegateIDE(vmComms);
                     WorldHandler.initialise(worldHandlerDelegate);
