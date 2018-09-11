@@ -377,4 +377,12 @@ public class LocalGClassNode extends GClassNode implements TargetListener
             setImage(null);
         }
     }
+
+    /**
+     * Get the class target of this class
+     */
+    public ClassTarget getClassTarget()
+    {
+        return classTarget;
+    }
 }
