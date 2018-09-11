@@ -2602,8 +2602,9 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 unNamedPkg.save(props);
                 ProjectManager.instance().launchProject(proj);
                 GreenfootStage stage = findStageForProject(proj);
-                stage.createNewClass(unNamedPkg, "greenfoot.World",
+                LocalGClassNode worldClass = stage.createNewClass(unNamedPkg, "greenfoot.World",
                         "MyWorld", sourceType, getWorldTemplateFileName(true, sourceType));
+                stage.currentWorld = worldClass.getClassTarget();
                 stage.toFront();
                 return true;
             }
