@@ -79,7 +79,7 @@ public class VMCommsMain implements Closeable
     // be deadlock. No process holds all three locks at once and each process always holds at
     // least one lock.
 
-    public static final int DEFAULT_MAPPED_SIZE = 10_000_000;
+    public static final int DEFAULT_MAPPED_SIZE = 20_000_000;
     public static final int USER_AREA_OFFSET = 0x1000; // offset in 4-byte chunks; 16KB worth.
     public static final int USER_AREA_OFFSET_BYTES = USER_AREA_OFFSET * 4;
 
