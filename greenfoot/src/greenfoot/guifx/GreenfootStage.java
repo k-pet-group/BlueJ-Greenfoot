@@ -1565,11 +1565,21 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 JavaFXUtil.runAfterCurrent(() -> sizeToScene());
             }
         }
-        worldImg.getPixelWriter().setPixels(0, 0, width, height, PixelFormat.getIntArgbInstance(),
-                buffer, width);
-        worldDisplay.setImage(worldImg);
-        worldInstantiationError = false;
-        worldVisible.set(true);
+        try
+        {
+            worldImg.getPixelWriter().setPixels(0, 0, width, height, PixelFormat.getIntArgbInstance(),
+                    buffer, width);
+            worldDisplay.setImage(worldImg);
+            worldInstantiationError = false;
+            worldVisible.set(true);
+        }
+        catch (IndexOutOfBoundsException ex)
+        {
+            Debug.reportError("Error receiving world (world image probably too large)", ex);
+            worldInstantiationError = true;
+            worldVisible.set(false);
+        }
+        
         if (stateProperty.get() == State.NO_WORLD && ! waitingForDiscard)
         {
             stateProperty.set(simulationRunning ? State.RUNNING : State.PAUSED);

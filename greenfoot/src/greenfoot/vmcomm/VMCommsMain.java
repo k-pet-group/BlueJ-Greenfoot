@@ -434,6 +434,11 @@ public class VMCommsMain implements Closeable
         {
             Debug.reportError(ex);
         }
+        catch (IllegalArgumentException ex)
+        {
+            // Happens when world size is too large: swallow quietly, as will happen repeatedly.
+            // The exception will be reported to the user from the debug VM side.
+        }
         finally
         {
             // Re-acquire the put-area lock (A), and then release the get-area lock (B)

@@ -39,6 +39,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.BufferOverflowException;
 import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
@@ -289,6 +290,7 @@ public class VMCommsSimulation
         String[] answer = new String[] {null};
         
         FileLock fileLock = null;
+        FileLock syncLock = null;
         
         try
         {
@@ -422,7 +424,7 @@ public class VMCommsSimulation
             putLock.release();
 
             // Lock the synchronisation area (C) to make sure that the server has acquired our put area:
-            FileLock syncLock = shmFileChannel.lock(VMCommsMain.SYNC_AREA_OFFSET_BYTES,
+            syncLock = shmFileChannel.lock(VMCommsMain.SYNC_AREA_OFFSET_BYTES,
                     VMCommsMain.SYNC_AREA_SIZE_BYTES, false);
             
             fileLock.release();
@@ -438,6 +440,24 @@ public class VMCommsSimulation
             }
             catch (Exception e) {}
             Debug.reportError(ex);
+        }
+        catch (BufferOverflowException ex)
+        {
+            try
+            {
+                putLock.release();
+                if (fileLock != null)
+                {
+                    fileLock.release();
+                }
+                if (syncLock != null)
+                {
+                    syncLock.release();
+                }
+            }
+            catch (Exception e) {}
+            // Note: the user will see this message in the terminal, so it should be helpful:
+            Debug.message("World size is too large.  World sizes with more than around 2.5 million pixels are not supported.");
         }
             
         if (answer[0] != null)
