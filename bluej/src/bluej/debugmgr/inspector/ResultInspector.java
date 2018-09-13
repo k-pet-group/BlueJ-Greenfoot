@@ -163,6 +163,12 @@ public class ResultInspector extends Inspector
         resultType = methodReturnType;
     }
 
+    @Override
+    protected boolean shouldAutoUpdate()
+    {
+        return false;
+    }
+
     /**
      * Returns a single string representing the return value.
      */

@@ -177,6 +177,12 @@ public class ClassInspector extends Inspector
         return false;
     }
 
+    @Override
+    protected boolean shouldAutoUpdate()
+    {
+        return Config.isGreenfoot();
+    }
+
     /**
      * True if this inspector is used to display a method call result.
      */

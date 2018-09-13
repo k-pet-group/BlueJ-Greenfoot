@@ -223,6 +223,12 @@ public class ObjectInspector extends Inspector
         return stackPane;
     }
 
+    @Override
+    protected boolean shouldAutoUpdate()
+    {
+        return Config.isGreenfoot();
+    }
+
     /**
      * True if this inspector is used to display a method call result.
      */
