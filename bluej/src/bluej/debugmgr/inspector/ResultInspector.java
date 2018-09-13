@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015,2016,2017  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015,2016,2017,2018  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -161,6 +161,12 @@ public class ResultInspector extends Inspector
         }
 
         resultType = methodReturnType;
+    }
+
+    @Override
+    protected boolean shouldAutoUpdate()
+    {
+        return false;
     }
 
     /**

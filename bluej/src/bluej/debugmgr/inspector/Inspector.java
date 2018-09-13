@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.scene.Cursor;
@@ -54,6 +56,8 @@ import bluej.testmgr.record.InvokerRecord;
 import bluej.testmgr.record.ObjectInspectInvokerRecord;
 import bluej.utility.DialogManager;
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.stage.WindowEvent;
+import javafx.util.Duration;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -76,7 +80,7 @@ public abstract class Inspector extends Stage
     protected final static String inspectLabel = Config.getString("debugger.inspector.inspect");
     protected final static String getLabel = Config.getString("debugger.inspector.get");
     protected final static String close = Config.getString("close");
- 
+    
     // === instance variables ===
     
     protected FieldList fieldList = null;
@@ -172,9 +176,38 @@ public abstract class Inspector extends Stage
 
         //setOnShown(e -> org.scenicview.ScenicView.show(getScene()));
 
+        // If appropriate (object/class inspector in Greenfoot), update the
+        // inspector content every second while the window is showing:
+        final Timeline autoUpdate = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            update();
+        }));
+        autoUpdate.setCycleCount(Timeline.INDEFINITE);
+        addEventHandler(WindowEvent.ANY, e -> {
+            boolean shown = e.getEventType() == WindowEvent.WINDOW_SHOWN;
+            boolean hidden = e.getEventType() == WindowEvent.WINDOW_HIDDEN;
+            
+            if (hidden)
+            {
+                autoUpdate.stop();
+            }
+            else if (shown && shouldAutoUpdate())
+            {
+                // Start updating:
+                autoUpdate.playFromStart();
+            }
+        });
+        
         initFieldList();
+        
+        
     }
-    
+
+    /**
+     * Should we auto-update the inspector window every second while it is showing?
+     * Currently true for class and object inspectors in Greenfoot only.
+     */
+    protected abstract boolean shouldAutoUpdate();
+
     /**
      * Initializes the list of fields. This creates the component that shows the
      * fields.
