@@ -323,6 +323,11 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         backgroundMessage = new Label();
         backgroundMessage.getStyleClass().add("background-message");
         
+        Label hungMessage = new Label();
+        hungMessage.setText(Config.getString("centrePanel.message.hung"));
+        hungMessage.getStyleClass().add("hung-message");
+        hungMessage.setVisible(false);
+        
         worldDisplay = new WorldDisplay();
         worldDisplay.setOnMouseClicked(event -> {
             if (event.getButton() == MouseButton.PRIMARY && stateProperty.get() == State.RUNNING)
@@ -332,6 +337,12 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         });
         JavaFXUtil.addFocusListener(worldDisplay, focused -> {
             debugHandler.getVmComms().worldFocusChanged(focused);
+        });
+        executionTwirler.setWhileTwirling(twirling -> {
+            // We show hung text if we are twirling and either:
+            //  - We are awaiting a reset (greyed out not due to asking)
+            //  - We are awaiting a pause
+            hungMessage.setVisible(twirling && ((worldDisplay.isGreyedOut() && !worldDisplay.isAsking()) || stateProperty.get() == State.RUNNING_REQUESTED_PAUSE));
         });
         
         classDiagram = new GClassDiagram(this);
@@ -345,7 +356,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         worldViewScroll.getStyleClass().add("world-display-scroll");
         JavaFXUtil.expandScrollPaneContent(worldViewScroll);
         worldViewScroll.visibleProperty().bind(worldVisible);
-        StackPane worldPane = new StackPane(backgroundMessage, worldViewScroll);
+        StackPane worldPane = new StackPane(backgroundMessage, worldViewScroll, hungMessage);
         ImageView shareIcon = new ImageView(new Image(
                 getClass().getClassLoader().getResourceAsStream("export-publish.png")));
         shareIcon.setPreserveRatio(true);

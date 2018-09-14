@@ -1,11 +1,35 @@
+/*
+ This file is part of the Greenfoot program. 
+ Copyright (C) 2018  Poul Henriksen and Michael Kolling 
+ 
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+ 
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of f
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+ 
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ 
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package greenfoot.guifx;
 
 import bluej.Config;
 import bluej.pkgmgr.Project;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.vmcomm.GreenfootDebugHandler;
+import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
+import javafx.animation.ParallelTransition;
 import javafx.animation.RotateTransition;
 import javafx.animation.Timeline;
 import javafx.geometry.Side;
@@ -25,9 +49,11 @@ import threadchecker.Tag;
 public class ExecutionTwirler extends MenuButton
 {
     // The animation to spin the twirl icon:
-    private final RotateTransition rotateTransition;
+    private final Animation animation;
     private Project project;
     private GreenfootDebugHandler greenfootDebugHandler;
+    private FXPlatformConsumer<Boolean> twirlListener;
+    
 
     /**
      * Create the component
@@ -43,11 +69,19 @@ public class ExecutionTwirler extends MenuButton
         imageView.setFitHeight(15.0);
         imageView.setPreserveRatio(true);
         setGraphic(imageView);
-        
-        rotateTransition = new RotateTransition(Duration.millis(3000), imageView);
+
+        RotateTransition rotateTransition = new RotateTransition(Duration.millis(3000), imageView);
         rotateTransition.setInterpolator(Interpolator.LINEAR);
         rotateTransition.setByAngle(360);
         rotateTransition.setCycleCount(RotateTransition.INDEFINITE);
+        Timeline callTwirlListener = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            if (twirlListener != null)
+            {
+                twirlListener.accept(isVisible());
+            }
+        }));
+        callTwirlListener.setCycleCount(Animation.INDEFINITE);
+        animation = new ParallelTransition(rotateTransition, callTwirlListener);
         
         // Start invisible:
         setVisible(false);
@@ -79,7 +113,9 @@ public class ExecutionTwirler extends MenuButton
     public void startTwirling()
     {
         setVisible(true);
-        rotateTransition.playFromStart();
+        // Important not to play from start, as this method is called repeatedly
+        // while the animation is already running:
+        animation.play();
     }
 
     /**
@@ -88,6 +124,19 @@ public class ExecutionTwirler extends MenuButton
     public void stopTwirling()
     {
         setVisible(false);
-        rotateTransition.stop();
+        animation.stop();
+        if (twirlListener != null)
+        {
+            twirlListener.accept(isVisible());
+        }
+    }
+
+    /**
+     * Set an action to execute while the twirler is twirling.
+     * @param twirlListener Takes boolean (are we twirling or not?) 
+     */
+    public void setWhileTwirling(FXPlatformConsumer<Boolean> twirlListener)
+    {
+        this.twirlListener = twirlListener;
     }
 }
