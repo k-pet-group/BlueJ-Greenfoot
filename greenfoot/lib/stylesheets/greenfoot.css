@@ -153,6 +153,7 @@
 
 .background-message {
     -fx-text-alignment: center;
+    -fx-alignment: center;
     -fx-wrap-text: true;
     -fx-label-padding: 40px;
     -fx-text-fill: gray;
