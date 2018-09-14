@@ -23,6 +23,9 @@ package greenfoot.guifx.classes;
 
 import bluej.Config;
 import bluej.debugger.gentype.Reflective;
+import bluej.extensions.ClassNotFoundException;
+import bluej.extensions.PackageNotFoundException;
+import bluej.extensions.ProjectNotOpenException;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
@@ -245,7 +248,28 @@ public class GClassDiagram extends BorderPane
             
             ClassTarget classTarget = classTargetAndVal.getKey();
             bluej.parser.symtab.ClassInfo classInfo = classTarget.analyseSource();
-            String superClass = classInfo == null ? null : classInfo.getSuperclass();
+            String superClassName = null;
+            if (classInfo != null)
+            {
+                superClassName = classInfo.getSuperclass();
+            }
+            else
+            {
+                try {
+                    Class<?> javaClass = classTarget.getBClassTarget().getBClass().getJavaClass();
+                    if (javaClass != null)
+                    {
+                        Class<?> superClass = javaClass.getSuperclass();
+                        if (superClass != null)
+                        {
+                            superClassName = superClass.getName();
+                        }
+                    }
+                }
+                catch (ProjectNotOpenException | ClassNotFoundException | PackageNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
             boolean includeAtThisLevel;
             if (parentClassName == null)
             {
@@ -253,13 +277,14 @@ public class GClassDiagram extends BorderPane
                 // may have a parent class (e.g. java.util.List) that is not in the list of class targets, but
                 // the class should still be included at the top-level.  The key test for top-level is:
                 //   Is the parent class either null, or not present in the list?
-
-                includeAtThisLevel = superClass == null || !classTargets.keySet().stream().anyMatch(ct -> Objects.equals(ct.getQualifiedName(), superClass));
+                String finalSuperClassName = superClassName;
+                includeAtThisLevel = finalSuperClassName == null || !classTargets.keySet().stream().anyMatch(ct -> Objects.equals(ct.getQualifiedName(), finalSuperClassName));
             }
+
             else
             {
                 // Does it directly inherit from the requested class?
-                includeAtThisLevel = Objects.equals(superClass, parentClassName);
+                includeAtThisLevel = Objects.equals(superClassName, parentClassName);
             }
 
             if (includeAtThisLevel)
