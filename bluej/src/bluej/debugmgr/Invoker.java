@@ -147,8 +147,9 @@ public class Invoker
         this.parent = frame;
         this.member = member;
         this.watcher = watcher;
-        if (member instanceof ConstructorView) {
-            this.objName = member.getClassName().toLowerCase();
+        if (member instanceof ConstructorView)
+        {
+            this.objName = debugger.guessNewName(member.getClassName());
             constructing = true;
         }
         else if (member instanceof MethodView) {
