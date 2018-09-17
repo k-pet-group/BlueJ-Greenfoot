@@ -41,6 +41,7 @@ import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.debugmgr.objectbench.ResultWatcherBase;
+import bluej.editor.Editor;
 import bluej.extensions.SourceType;
 import bluej.pkgmgr.AboutDialogTemplate;
 import bluej.pkgmgr.Package;
@@ -59,6 +60,7 @@ import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.JavaReflective;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXPlatformFunction;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.UnfocusableScrollPane;
 import bluej.views.CallableView;
@@ -1085,6 +1087,23 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
 
         Menu toolsMenu = new Menu(Config.getString("menu.tools"), null);
         toolsMenu.getItems().addAll(
+                JavaFXUtil.makeMenuItem("save.world", () -> {
+                    FXPlatformFunction<String, Editor> fetchEditorByName = className -> {
+                        Target t = project.getTarget(className);
+                        if (t instanceof ClassTarget)
+                        {
+                            return ((ClassTarget) t).getEditor();
+                        }
+                        else
+                        {
+                            return null;
+                        }
+                    };
+                    if (!saveTheWorldRecorder.writeCode(fetchEditorByName))
+                    {
+                        DialogManager.showErrorFX(this, "cannot-save-world");
+                    }
+                }, null),
                 JavaFXUtil.makeMenuItem("menu.tools.generateDoc",new KeyCodeCombination(KeyCode.G, KeyCombination.SHORTCUT_DOWN),
                         this::generateDocumentation, hasNoProject),
                 JavaFXUtil.makeCheckMenuItem(Config.getString("menu.soundRecorder"),
