@@ -1114,7 +1114,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         int lineNumber = map.getElementIndex(offset);
 
         Element lineElement = map.getElement(lineNumber);
-        if (offset >= lineElement.getEndOffset()) {
+        if (offset > lineElement.getEndOffset()) {
             return null;
         }
         
@@ -1272,7 +1272,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         int lineOffset = lineElement.getStartOffset();
         int lineLen = lineElement.getEndOffset() - lineOffset;
 
-        if (col >= lineLen) {
+        if (col > lineLen) {
             throw new IllegalArgumentException("column=" + location.getColumn() + " greater than line len=" + lineLen);
         }
 
