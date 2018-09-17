@@ -554,9 +554,14 @@ public class Utility
         appToFront();
     }
 
-
+    /**
+     * Bring the application to the foreground, if possible.
+     */
     public static void appToFront()
     {
+        // This can be called on the user VM as well as the main VM. On Debian with OpenJDK we
+        // might not have JavaFX available, so should not use JavaFX classes here.
+        
         if (Config.isMacOS()) {
             Application.getApplication().requestForeground(false);
             return;
@@ -584,11 +589,7 @@ public class Utility
                     // input if the script is executed while a popup window is showing.
                     // In an attempt to avoid that we'll wait for the script to execute
                     // now:
-                    if (Platform.isFxApplicationThread())
-                        // Don't wait on FX as it makes call to FX thread, so would deadlock:
-                        new ProcessWaiter(p);
-                    else
-                        new ProcessWaiter(p).waitForProcess(500);
+                    new ProcessWaiter(p).waitForProcess(500);
                 }
             }
             catch (IOException e) {
