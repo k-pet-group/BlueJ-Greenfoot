@@ -82,7 +82,7 @@ PART III - RELEASING BLUEJ
 13. Also in the bugs database, add the new version so that bugs can be reported against
     it.
     
-14. Update the support form at http://www.bluej.org/help/supportform.html - the drop-down
+14. Update the support form at https://www.bluej.org/support.html - the drop-down
     version field should have the new version added as an option.
 
 15. Send a mail message to bluej-announce@bluej.org, announcing the release.
