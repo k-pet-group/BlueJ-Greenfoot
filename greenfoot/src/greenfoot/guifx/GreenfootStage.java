@@ -477,6 +477,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         {
             // We send a reset to make a new world after the project properties have been sent across:
             debugHandler.getVmComms().instantiateWorld(lastInstantiatedWorldName);
+            saveTheWorldRecorder.recordingValid();
         }
 
         JavaFXUtil.addChangeListenerPlatform(worldVisible, b -> updateBackgroundMessage());
