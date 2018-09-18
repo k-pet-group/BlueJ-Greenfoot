@@ -188,14 +188,15 @@ public class Greenfoot
     }
 
     /**
-     * True if the mouse has been clicked (pressed and released) on the given
+     * True if the mouse has been released (changed from pressed to non-pressed) on the given
      * object. If the parameter is an Actor the method will only return true if
      * the mouse has been clicked on the given actor. If there are several
      * actors at the same place, only the top most actor will receive the click.
      * If the parameter is a World then true will be returned if the mouse was
      * clicked on the world background. If the parameter is null,
      * then true will be returned for any click, independent of the target 
-     * clicked on.
+     * clicked on.  Note that mouseClicked does not require the press to have
+     * occurred on the parameter object, just that the release did.
      * 
      * @param obj Typically one of Actor, World or null
      * @return True if the mouse has been clicked as explained above
