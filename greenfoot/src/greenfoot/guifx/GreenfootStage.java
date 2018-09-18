@@ -1087,7 +1087,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
 
         Menu toolsMenu = new Menu(Config.getString("menu.tools"), null);
         toolsMenu.getItems().addAll(
-                JavaFXUtil.makeMenuItem("save.world", () -> {
+                JavaFXUtil.makeMenuItem(Config.getString("save.world"), () -> {
                     FXPlatformFunction<String, Editor> fetchEditorByName = className -> {
                         Target t = project.getTarget(className);
                         if (t instanceof ClassTarget)
