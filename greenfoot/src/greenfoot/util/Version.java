@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2016  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2016,2018  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -177,7 +177,7 @@ public class Version
     {
         StringBuffer message = new StringBuffer(Config.getString("project.version.older.part1") + this
                 + Config.getString("project.version.older.part2") + apiVersion
-                + Config.getString("project.version.older.part3") + "\n");
+                + Config.getString("project.version.older.part3") + "\n\n");
         
         int changeNumber = 1;
         String changesString = Config.getString("project.version.changes." + changeNumber, "EMPTY").trim();
@@ -192,7 +192,7 @@ public class Version
             Version changeVersion = new Version(versionString);
             if(this.isOlderAndBreaking(changeVersion)) {
                 String text = changesString.substring(spaceIndex + 1);  
-                message.append("\n \n  " + text);
+                message.append(text + "\n");
             }
             changeNumber++;
             changesString = Config.getString("project.version.changes." + changeNumber, "EMPTY");
