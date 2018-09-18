@@ -1612,7 +1612,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         }
         catch (IndexOutOfBoundsException ex)
         {
-            Debug.reportError("Error receiving world (world image probably too large)", ex);
+            Debug.reportError("Error receiving world (world image probably too large)");
             worldInstantiationError = true;
             worldVisible.set(false);
         }
