@@ -1914,6 +1914,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             {
                 stateProperty.set(State.RUNNING);
             }
+            project.getTerminal().activate(true);
         });
     }
 
@@ -1929,6 +1930,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             {
                 stateProperty.set(State.PAUSED);
             }
+            project.getTerminal().activate(false);
         });
     }
 
