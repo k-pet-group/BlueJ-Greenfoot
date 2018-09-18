@@ -1896,16 +1896,27 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         }
 
         Platform.runLater(new Runnable() {
-            public void run() {
-                if (event.getID() == DebuggerEvent.DEBUGGER_STATECHANGED) {
+            public void run()
+            {
+                if (event.getID() == DebuggerEvent.DEBUGGER_STATECHANGED)
+                {
+                    int newState = event.getNewState();
+                    int oldState = event.getOldState();
+                    
+                    if (newState == Debugger.RUNNING)
+                    {
+                        getTerminal().activate(true);
+                    }
+                    else if (newState == Debugger.IDLE)
+                    {
+                        getTerminal().activate(false);
+                    }
+                    
                     PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(Project.this);
 
                     if (frames == null) {
                         return;
                     }
-
-                    int newState = event.getNewState();
-                    int oldState = event.getOldState();
 
                     for (int i = 0; i < frames.length; i++)
                         frames[i].setDebuggerState(newState);
