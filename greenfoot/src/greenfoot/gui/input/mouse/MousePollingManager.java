@@ -21,16 +21,11 @@
  */
 package greenfoot.gui.input.mouse;
 
-import greenfoot.Actor;
 import greenfoot.MouseInfo;
 import greenfoot.gui.input.mouse.MouseEventData;
 
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 
-import bluej.Config;
-import javafx.geometry.Point2D;
 import javafx.scene.input.MouseButton;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -367,10 +362,10 @@ public class MousePollingManager
                 return;
             }
             registerEventRecieved();
-            x = locator.getTranslatedX(x);
-            y = locator.getTranslatedY(y);
+            int tx = locator.getTranslatedX(x);
+            int ty = locator.getTranslatedY(y);
             
-            mouseData.mouseClicked(x, y, getButton(button), clickCount);
+            mouseData.mouseClicked(tx, ty, x, y, getButton(button), clickCount);
             isDragging = false;
         }
     }
@@ -388,8 +383,9 @@ public class MousePollingManager
                 return 2;
             case SECONDARY:
                 return 3;
+            default:
+                return 0;
         }
-        return 0;
     }
 
     /**
@@ -430,9 +426,9 @@ public class MousePollingManager
         
             // This might be the beginning of a drag so we store it
             dragStartData = new MouseEventData();
-            x = locator.getTranslatedX(x);
-            y = locator.getTranslatedY(y);
-            dragStartData.mousePressed(x, y, getButton(button));
+            int tx = locator.getTranslatedX(x);
+            int ty = locator.getTranslatedY(y);
+            dragStartData.mousePressed(tx, ty, x, y, getButton(button));
             gotNewDragStartEvent = true;
 
             // We only really want to register this event as a press if there is no higher priorities
@@ -441,7 +437,7 @@ public class MousePollingManager
                 return;
             }
             registerEventRecieved();
-            mouseData.mousePressed(x, y, getButton(button));
+            mouseData.mousePressed(tx, ty, x, y, getButton(button));
             isDragging = false;
         }
     }
@@ -477,12 +473,12 @@ public class MousePollingManager
                     return;
                 }
                 registerEventRecieved();
-                x = locator.getTranslatedX(x);
-                y = locator.getTranslatedY(y);
+                int tx = locator.getTranslatedX(x);
+                int ty = locator.getTranslatedY(y);
 
-                futureData.mouseClicked(x, y, getButton(button), 1);
+                futureData.mouseClicked(tx, ty, x, y, getButton(button), 1);
                 
-                futureData.mouseDragEnded(x, y, getButton(button), dragStartData);
+                futureData.mouseDragEnded(tx, ty, x, y, getButton(button), dragStartData);
                 isDragging = false;
                 potentialNewDragData = new MouseEventData();
             }
@@ -514,9 +510,9 @@ public class MousePollingManager
             registerEventRecieved();
             
             // Find and store the actor that relates to this drag.
-            x = locator.getTranslatedX(x);
-            y = locator.getTranslatedY(y);
-            futureData.mouseDragged(x, y, dragStartData.getButton(), dragStartData.getActor());
+            int tx = locator.getTranslatedX(x);
+            int ty = locator.getTranslatedY(y);
+            futureData.mouseDragged(tx, ty, x, y, dragStartData.getButton(), dragStartData.getActor());
         }
     }
 
@@ -524,10 +520,9 @@ public class MousePollingManager
      * The mouse got moved to the given world location
      * @param x The pixel location in the world (not cells)
      * @param y The pixel location in the world (not cells)
-     * @param button The button reported by the original event.
      */
     @OnThread(Tag.Any)
-    public void mouseMoved(int x, int y, MouseButton button)
+    public void mouseMoved(int x, int y)
     {
         if (locator == null)
         {
@@ -542,9 +537,9 @@ public class MousePollingManager
                 return;
             }
             registerEventRecieved();
-            x = locator.getTranslatedX(x);
-            y = locator.getTranslatedY(y);
-            futureData.mouseMoved(x, y, getButton(button));
+            int tx = locator.getTranslatedX(x);
+            int ty = locator.getTranslatedY(y);
+            futureData.mouseMoved(tx, ty, x, y);
             isDragging = false;
         }
     }

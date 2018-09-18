@@ -185,7 +185,7 @@ public class GreenfootScenarioViewer extends BorderPane implements ControlPanelL
                 }
                 else if (e.getEventType() == MouseEvent.MOUSE_MOVED)
                 {
-                    worldHandler.getMouseManager().mouseMoved((int)e.getX(), (int)e.getY(), button);
+                    worldHandler.getMouseManager().mouseMoved((int)e.getX(), (int)e.getY());
                 }
                 else if (e.getEventType() == MouseEvent.MOUSE_DRAGGED)
                 {

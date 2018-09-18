@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2011,2012  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2011,2012,2018  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -65,7 +65,8 @@ class MouseEventData
         {
             MouseInfo blankedMouseInfo = MouseInfoVisitor.newMouseInfo();
             // Only retain info on latest location, not clicks etc:
-            MouseInfoVisitor.setLoc(blankedMouseInfo, mouseInfo.getX(), mouseInfo.getY());
+            MouseInfoVisitor.setLoc(blankedMouseInfo, mouseInfo.getX(), mouseInfo.getY(),
+                    MouseInfoVisitor.getPx(mouseInfo), MouseInfoVisitor.getPy(mouseInfo));
             mouseInfo = blankedMouseInfo;
         }
         
@@ -86,13 +87,22 @@ class MouseEventData
         return checkObject(obj, mousePressedInfo);
     }
 
-    public void mousePressed(int x, int y, int button)
+    /**
+     * Record a mouse press event in the event data.
+     * 
+     * @param x   x-coordinate in world cells
+     * @param y   y-coordinate in world cells
+     * @param px    x-coordinate in pixels
+     * @param py    y-coordinate in pixels
+     * @param button    which button was pressed.
+     */
+    public void mousePressed(int x, int y, int px, int py, int button)
     {
         init();
         mousePressedInfo = MouseInfoVisitor.newMouseInfo();
         mouseInfo = mousePressedInfo;  
         MouseInfoVisitor.setButton(mouseInfo, button);
-        MouseInfoVisitor.setLoc(mouseInfo, x, y);
+        MouseInfoVisitor.setLoc(mouseInfo, x, y, px, py);
     }
 
     public boolean isMouseClickedOn(Object obj)
@@ -110,7 +120,17 @@ class MouseEventData
         return mouseClickedInfo != null;
     }
     
-    public void mouseClicked(int x, int y, int button, int clickCount)
+    /**
+     * Record a mouse click in the event data.
+     * 
+     * @param x   x-coordinate in world cells
+     * @param y   y-coordinate in world cells
+     * @param px    x-coordinate in pixels
+     * @param py    y-coordinate in pixels
+     * @param button    which button was clicked
+     * @param clickCount   the click count (how many times the button has been clicked)
+     */
+    public void mouseClicked(int x, int y, int px, int py, int button, int clickCount)
     {
         MouseInfo tempPressedInfo = mousePressedInfo;        
         init();       
@@ -119,7 +139,7 @@ class MouseEventData
         mouseClickedInfo = MouseInfoVisitor.newMouseInfo();;
         mouseInfo = mouseClickedInfo;
         MouseInfoVisitor.setButton(mouseInfo, button);
-        MouseInfoVisitor.setLoc(mouseInfo, x, y);
+        MouseInfoVisitor.setLoc(mouseInfo, x, y, px, py);
         MouseInfoVisitor.setClickCount(mouseInfo, clickCount);
     }
 
@@ -133,13 +153,23 @@ class MouseEventData
         return checkObject(obj, mouseDraggedInfo);
     }
 
-    public void mouseDragged(int x, int y, int button, Actor actor)
+    /**
+     * Record a mouse drag in the event data.
+     * 
+     * @param x   x-coordinate in world cells
+     * @param y   y-coordinate in world cells
+     * @param px    x-coordinate in pixels
+     * @param py    y-coordinate in pixels
+     * @param button    which button is pressed
+     * @param actor    the actor being dragged.
+     */
+    public void mouseDragged(int x, int y, int px, int py, int button, Actor actor)
     {
         init();
         mouseDraggedInfo = MouseInfoVisitor.newMouseInfo();
         mouseInfo = mouseDraggedInfo;
         MouseInfoVisitor.setButton(mouseInfo, button);
-        MouseInfoVisitor.setLoc(mouseInfo, x, y);
+        MouseInfoVisitor.setLoc(mouseInfo, x, y, px, py);
         MouseInfoVisitor.setActor(mouseInfo, actor);
     }
 
@@ -153,7 +183,17 @@ class MouseEventData
         return checkObject(obj, mouseDragEndedInfo);
     }
 
-    public void mouseDragEnded(int x, int y, int button, MouseEventData dragStartData)
+    /**
+     * Record a mouse drag ending in the event data.
+     * 
+     * @param x   x-coordinate in world cells
+     * @param y   y-coordinate in world cells
+     * @param px    x-coordinate in pixels
+     * @param py    y-coordinate in pixels
+     * @param button    which button was pressed
+     * @param dragStartData  the data object holding information about the drag start event.
+     */
+    public void mouseDragEnded(int x, int y, int px, int py, int button, MouseEventData dragStartData)
     {
         MouseInfo tempPressedInfo = mousePressedInfo;
         MouseInfo tempClickedInfo = mouseClickedInfo;
@@ -163,7 +203,7 @@ class MouseEventData
         mouseDragEndedInfo = MouseInfoVisitor.newMouseInfo();;
         mouseInfo = mouseDragEndedInfo;
         MouseInfoVisitor.setButton(mouseInfo, button);
-        MouseInfoVisitor.setLoc(mouseInfo, x, y);
+        MouseInfoVisitor.setLoc(mouseInfo, x, y, px, py);
         MouseInfoVisitor.setActor(mouseInfo, dragStartData.getActor());
         this.dragStartedBy = dragStartData;
     }
@@ -184,13 +224,20 @@ class MouseEventData
         return checkObject(obj, mouseMovedInfo);
     }
 
-    public void mouseMoved(int x, int y, int button)
+    /**
+     * Record a mouse movement (with no buttons down) in the event data.
+     * 
+     * @param x   x-coordinate in world cells
+     * @param y   y-coordinate in world cells
+     * @param px    x-coordinate in pixels
+     * @param py    y-coordinate in pixels
+     */
+    public void mouseMoved(int x, int y, int px, int py)
     {
         init();
         mouseMovedInfo = MouseInfoVisitor.newMouseInfo();;
         mouseInfo = mouseMovedInfo;
-        MouseInfoVisitor.setButton(mouseInfo, button);
-        MouseInfoVisitor.setLoc(mouseInfo, x, y);
+        MouseInfoVisitor.setLoc(mouseInfo, x, y, px, py);
     }
 
     public Actor getActor()
@@ -263,7 +310,9 @@ class MouseEventData
         {
             if (info != null && info.getActor() == null)
             {
-                MouseInfoVisitor.setActor(info, locator.getTopMostActorAt(info.getX(), info.getY()));
+                int x = MouseInfoVisitor.getPx(info);
+                int y = MouseInfoVisitor.getPy(info);
+                MouseInfoVisitor.setActor(info, locator.getTopMostActorAt(x, y));
             }
         }
     }

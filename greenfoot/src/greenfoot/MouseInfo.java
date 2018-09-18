@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2018  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -39,6 +39,9 @@ public class MouseInfo
     private int button;
     private int x;
     private int y;
+    // px and py are pixel coordinates (x and y are world cell coordinates):
+    private int px;
+    private int py;
     private int clickCount;;
     
     /**
@@ -107,10 +110,12 @@ public class MouseInfo
         this.button = button;
     }
 
-    void setLoc(int x, int y)
+    void setLoc(int x, int y, int px, int py)
     {
         this.x = x;
         this.y = y;
+        this.px = px;
+        this.py = py;
     }
 
     void setActor(Actor actor)
@@ -121,7 +126,23 @@ public class MouseInfo
     void setClickCount(int clickCount)
     {
         this.clickCount = clickCount;
-    }    
+    }
+    
+    /**
+     * Get the x position, in pixel coordinates.
+     */
+    int getPx()
+    {
+        return px;
+    }
+    
+    /**
+     * Get the y position, in pixel coordinates.
+     */
+    int getPy()
+    {
+        return py;
+    }
     
     public String toString() 
     {

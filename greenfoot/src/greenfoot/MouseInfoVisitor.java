@@ -34,12 +34,22 @@ import threadchecker.Tag;
 @OnThread(Tag.Any)
 public class MouseInfoVisitor
 {
-    public static void setActor(MouseInfo info, Actor actor) {
+    public static void setActor(MouseInfo info, Actor actor)
+    {
         info.setActor(actor);
     }    
 
-    public static void setLoc(MouseInfo info, int x, int y) {
-        info.setLoc(x, y);
+    /**
+     * Set the event location for a MouseInfo.
+     * @param info   the mouseinfo object
+     * @param x      the x-coordinate (in world cells)
+     * @param y      the y-coordinate (in world cells)
+     * @param px     the x-coordinate (in pixels)
+     * @param py     the y-coordinate (in pixels)
+     */
+    public static void setLoc(MouseInfo info, int x, int y, int px, int py)
+    {
+        info.setLoc(x, y, px, py);
     }
 
     public static void setButton(MouseInfo info, int button)
@@ -55,5 +65,21 @@ public class MouseInfoVisitor
     public static void setClickCount(MouseInfo mouseInfo, int clickCount)
     {
         mouseInfo.setClickCount(clickCount);
+    }
+    
+    /**
+     * Get the x-coordinate in pixels from a MouseInfo object.
+     */
+    public static int getPx(MouseInfo info)
+    {
+        return info.getPx();
+    }
+    
+    /**
+     * Get the y-coordinate in pixels from a MouseInfo object.
+     */
+    public static int getPy(MouseInfo info)
+    {
+        return info.getPy();
     }
 }
