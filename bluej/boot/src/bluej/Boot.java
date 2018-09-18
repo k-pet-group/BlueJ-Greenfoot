@@ -573,14 +573,17 @@ public class Boot
                 urlList.add(toAdd.toURI().toURL());
         }
     
-        if (isSystem) {
+        if (isSystem)
+        {
             // We also need to add tools.jar on some systems
             URL toolsURL = getToolsURL();
             if(toolsURL != null)
                 urlList.add(toolsURL);
         }
-        if (isGreenfoot)
+        else
         {
+            // Only need to specially add JavaFX for the user VM, it will
+            // already be on classpath for server VM:
             if (jfxrtJar != null && jfxrtJar.length() != 0) {
                 urlList.add(new File(jfxrtJar).toURI().toURL());
             }
