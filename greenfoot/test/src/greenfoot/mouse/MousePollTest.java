@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2018  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -121,7 +121,7 @@ public class MousePollTest extends TestCase
                 mouseMan.mouseReleased(x, y, button);
                 break;
             case MouseEvent.MOUSE_MOVED:
-                mouseMan.mouseMoved(x, y, button);
+                mouseMan.mouseMoved(x, y);
                 break;
             case MouseEvent.MOUSE_EXITED:
                 mouseMan.mouseExited();

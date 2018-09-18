@@ -539,7 +539,7 @@ public class VMCommsSimulation
                         mouseManager.mouseDragged(x, y, MouseButton.values()[button]);
                         break;
                     case Command.MOUSE_MOVED:
-                        mouseManager.mouseMoved(x, y, MouseButton.values()[button]);
+                        mouseManager.mouseMoved(x, y);
                         break;
                     case Command.MOUSE_EXITED:
                         mouseManager.mouseExited();

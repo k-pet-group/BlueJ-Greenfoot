@@ -595,8 +595,8 @@ public class VMCommsMain implements Closeable
      * Send a mouse event.
      * 
      * @param eventType   The event type
-     * @param x           The mouse x-coordinate
-     * @param y           The mouse y-coordinate
+     * @param x           The mouse x-coordinate (in pixels)
+     * @param y           The mouse y-coordinate (in pixels)
      * @param button      The button pressed (for button events)
      * @param clickCount  The click count (for click events)
      */
