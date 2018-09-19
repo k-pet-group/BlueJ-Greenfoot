@@ -119,11 +119,6 @@
     <!-- Location of the packed files for distribution -->
     <property name="package" location="package"/>
 
-    <!-- Files that are used in tutorial -->
-    <fileset id="tutorial.files" dir="resources/tutorial/">
-        <include name="**"/>
-    </fileset>
-
     <!-- Source files that make up the Greenfoot API -->
     <fileset id="api-source.files" dir="${src}" defaultexcludes="yes">
         <include name="greenfoot/Actor.java" />
@@ -413,12 +408,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
         </copy>
     </target>
 
-    <target name="copy-tutorial" description="Copies the projects tutorial and tutorial project to BlueJ" >
-        <copy todir="${bluej_home}/package/tutorial">
-            <fileset refid="tutorial.files"/>
-        </copy>
-    </target>
-        
     <target name="copy-license" description="Copies the license files to BlueJ" >
         <copy todir="${bluej_home}/package/">
             <fileset refid="greenfoot.license.files"/>
@@ -483,7 +472,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <copy file="resources/images/dropdown.png" todir="images"/>
 </target>
 
-    <target name="dist" depends="ready-to-run, clean-scenarios, copy-scenarios, copy-license, copy-tutorial, zip-source" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
+    <target name="dist" depends="ready-to-run, clean-scenarios, copy-scenarios, copy-license, zip-source" description="Generate the distribution. Also runs the bluej.dist-greenfoot" >
         <copy file="doc/Greenfoot-README.txt" todir="${bluej_home}/doc"/>
     
         <!-- Run the BlueJ dist-->
@@ -595,8 +584,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
             </arg>
             <arg value="-greenfootclassesdir=${build}"/>
             <arg value="-greenfoot.scenarios=${greenfoot.scenarios}"/>
-            <arg value="-greenfoot.tutorial=${greenfoot.tutorial}"/>
-            <arg value="-greenfoot.tutorial.scenario=${greenfoot.tutorial.scenario}"/>
             <arg value="-bluej.compiler.showunchecked=false"/>
         </java>
     </target>
@@ -621,8 +608,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
             </arg>
             <arg value="-greenfootclassesdir=${build}"/>
             <arg value="-greenfoot.scenarios=${greenfoot.scenarios}"/>
-            <arg value="-greenfoot.tutorial=${greenfoot.tutorial}"/>
-            <arg value="-greenfoot.tutorial.scenario=${greenfoot.tutorial.scenario}"/>
             <arg value="-bluej.compiler.showunchecked=false"/>
             <arg value="-greenfoot.gameserver.address=http://localhost:3000"/>
             <arg value="-greenfoot.gameserver.createAccount.address=http://localhost:3000/users/new"/>
