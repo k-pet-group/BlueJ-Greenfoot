@@ -80,10 +80,6 @@
         <include name="scenarios/" />
     </patternset>
 
-    <patternset id="greenfoot.tutorial">
-        <include name="tutorial/" />
-    </patternset>
-
     <patternset id="greenfoot.license.files">
         <include name="GREENFOOT_LICENSES.txt" />
     	<include name="LICENSE.txt" />
@@ -117,12 +113,6 @@
             <fileset dir="${bluej_home}/package">
                 <patternset refid="greenfoot.scenarios" />
             </fileset>
-        	<!-- Tutorial is out-of-date; exclude it for now -->
-        	<!--
-            <fileset dir="${bluej_home}/package">
-                <patternset refid="greenfoot.tutorial" />
-            </fileset>
-            -->
         </copy>
         <copy todir="install_tmp/doc" preservelastmodified="true">
             <fileset dir="${greenfoot_home}/doc">
@@ -210,7 +200,6 @@
     
     <target name="greenfoot-dist-cleanup">
         <delete dir="${bluej_home}/package/scenarios" />
-        <delete dir="${bluej_home}/package/tutorial" />
         <delete>
             <fileset dir="${bluej_home}/package">
                 <patternset refid="greenfoot.license.files" />
@@ -517,9 +506,6 @@
         <copy todir="gf-examples-tmp">
             <fileset dir="${bluej_home}/package">
                 <patternset refid="greenfoot.scenarios" />
-            </fileset>
-            <fileset dir="${bluej_home}/package">
-                <patternset refid="greenfoot.tutorial" />
             </fileset>
             <fileset dir="${bluej_home}/package">
                 <patternset refid="greenfoot.license.files" />
