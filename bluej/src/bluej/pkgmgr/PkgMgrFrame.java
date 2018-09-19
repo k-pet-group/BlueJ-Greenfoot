@@ -2743,14 +2743,12 @@ public class PkgMgrFrame
                 if(machineIcon != null) {
                     machineIcon.setIdle();
                 }
-                getProject().getTerminal().activate(false);
                 break;
 
             case Debugger.RUNNING :
                 if(machineIcon != null) {
                     machineIcon.setRunning();
                 }
-                getProject().getTerminal().activate(true);
                 break;
 
             case Debugger.SUSPENDED :

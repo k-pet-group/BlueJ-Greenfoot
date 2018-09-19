@@ -453,10 +453,14 @@ class JdiThread extends DebuggerThread
     {
         try
         {
-            if(rt.isSuspended())
+            if (rt.isSuspended())
             {
                 StackFrame frame = rt.frame(frameNo);
                 List<LocalVariable> vars = frame.visibleVariables();
+                if (index >= vars.size())
+                {
+                    return false;
+                }
                 LocalVariable var = vars.get(index);
                 Value val = frame.getValue(var);
                 return (val instanceof ObjectReference);
