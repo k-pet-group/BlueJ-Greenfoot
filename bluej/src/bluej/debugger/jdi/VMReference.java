@@ -33,6 +33,7 @@ import java.io.Writer;
 import java.net.InetAddress;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -132,7 +133,7 @@ import javafx.application.Platform;
  * @author Michael Kolling
  */
 @OnThread(Tag.Any)
-class VMReference
+public class VMReference
 {
     // the class name of the execution server class running on the remote VM
     static final String SERVER_CLASSNAME = ExecServer.class.getName();
@@ -144,7 +145,7 @@ class VMReference
     static final String SERVER_SUSPEND_METHOD_NAME = "vmSuspend";
 
     // the name of the method used to show  the terminal on input
-    static final String SERVER_SHOW_TERMINAL_ON_INPUT_NAME = "showTerminalOnInput";
+    public static final String SERVER_SHOW_TERMINAL_ON_INPUT_NAME = "showTerminalOnInput";
 
     // A map which can be used to map instances of VirtualMachine to VMReference 
     private static Map<VirtualMachine, VMReference> vmToReferenceMap = new HashMap<VirtualMachine, VMReference>();
@@ -1277,7 +1278,7 @@ class VMReference
         // if the breakpoint is marked with the SERVER_SHOW_TERMINAL_ON_INPUT_NAME
         //
         else if (event.request().getProperty(SERVER_SHOW_TERMINAL_ON_INPUT_NAME) != null) {
-                this.term.showOnInput();
+            this.term.showOnInput();
         }
         else {
             // breakpoint set by user in user code
@@ -1324,7 +1325,18 @@ class VMReference
 
     public boolean screenBreakpointEvent(LocatableEvent event, int debuggerEventType)
     {
-        return owner.screenBreakpoint(event.thread(), debuggerEventType, makeBreakpointProperties(event.request()));
+        BreakpointProperties props = makeBreakpointProperties(event.request());
+        for (String special : Arrays.asList(
+                SERVER_STARTED_METHOD_NAME, 
+                SERVER_SUSPEND_METHOD_NAME, 
+                SERVER_SHOW_TERMINAL_ON_INPUT_NAME))
+        {
+            if (props.get(special) != null)
+            {
+                return true;
+            }
+        }
+        return owner.screenBreakpoint(event.thread(), debuggerEventType, props);
     }
 
     // ==== code for active debugging: setting breakpoints, stepping, etc ===
