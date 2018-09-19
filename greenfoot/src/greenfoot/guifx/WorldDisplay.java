@@ -23,6 +23,7 @@ package greenfoot.guifx;
 
 import bluej.utility.javafx.FXPlatformConsumer;
 import javafx.geometry.Point2D;
+import javafx.scene.Node;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
@@ -159,5 +160,13 @@ public class WorldDisplay extends StackPane
     public Image getSnapshot()
     {
         return imageView.snapshot(null, null);
+    }
+    
+    /**
+     * Get the node containing the actual world image (sans any spacing/border).
+     */
+    public Node getImageView()
+    {
+        return imageView;
     }
 }

@@ -107,6 +107,6 @@ public class Command
      */
     public static boolean isMouseEvent(int event)
     {
-        return event >= MOUSE_CLICKED && event <= MOUSE_MOVED;
+        return event >= MOUSE_CLICKED && event <= MOUSE_EXITED;
     }
 }
