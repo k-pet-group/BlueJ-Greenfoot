@@ -392,12 +392,10 @@ public class MousePollingManager
      * The mouse left the world area.
      */
     @OnThread(Tag.Any)
-    public void mouseExited()
+    public synchronized void mouseExited()
     {
-        synchronized (this)
-        {
-            futureData.mouseExited();
-        }
+        futureData.mouseExited();
+        registerEventRecieved();
     }
 
     /**
