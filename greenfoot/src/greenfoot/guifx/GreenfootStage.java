@@ -1497,7 +1497,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 pickRequest(worldPos.getX(), worldPos.getY(), PickType.CONTEXT_MENU);
             }
         });
-        worldDisplay.addEventFilter(MouseEvent.ANY, e -> {
+        worldDisplay.getImageView().addEventFilter(MouseEvent.ANY, e -> {
             if (project == null)
             {
                 return;
