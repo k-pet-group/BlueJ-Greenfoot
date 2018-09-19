@@ -33,11 +33,10 @@ if [ ! -e "$JAVAPATH/jre/lib/ext/jfxrt.jar" ]; then
 fi
 
 
-"$JAVAPATH/bin/java" -Djavafx.embed.singleThread=true -Dawt.useSystemAAFontSettings=on -Xmx512M -cp "$CP" bluej.Boot \
+"$JAVAPATH/bin/java" -Djavafx.embed.singleThread=true -Dawt.useSystemAAFontSettings=on -Xmx512M \
+    -cp "$CP" bluej.Boot \
     -greenfoot=true -bluej.compiler.showunchecked=false \
     -greenfoot.scenarios=/usr/share/doc/Greenfoot/scenarios \
-    -greenfoot.tutorial=file:///usr/share/doc/Greenfoot/tutorial/tutorial.html \
-    -greenfoot.tutorial.scenario=wombats \
     -greenfoot.url.javadoc=file:///usr/share/doc/Greenfoot/API/ \
     ${JFXRTOPT:+"$JFXRTOPT"} \
     "$@"
