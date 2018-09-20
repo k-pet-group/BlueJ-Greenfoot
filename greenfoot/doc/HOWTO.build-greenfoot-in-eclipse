@@ -115,6 +115,9 @@ Next, you need to set up a Greenfoot project.
    * Run the bluej "ready-to-run" target by double clicking on it in
      the Ant view .
 
+   * Run the greenfoot "update-version-number" task to generate splash screens
+     (needed once unless version changes).
+
    * Run the greenfoot "ready-to-run" target by double clicking on it
      in the Ant view
      

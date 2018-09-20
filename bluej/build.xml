@@ -184,7 +184,7 @@
             </fileset>
             <fileset dir="${boot.resources}">
                 <include name="bluej/gen-bluej-splash*.png"/>
-                <include name="bluej/greenfoot-splash*.png"/>
+                <include name="bluej/gen-greenfoot-splash*.png"/>
             </fileset>
             <manifest>
                 <attribute name="Main-Class" value="bluej.Boot"/>
@@ -439,6 +439,7 @@
         <java classname="DrawVersionOnSplash" classpath="util/classes">
             <arg value="resources/unversioned-bluej-splash.png"/> <!-- original -->
             <arg value="Version ${bluej.version}"/> <!-- text -->
+            <arg value="${bluej_home}/lib/fonts/SourceSansPro-Bold.ttf"/> <!-- font -->
             <arg value="16"/> <!-- font size -->
             <arg value="237"/> <!-- X position -->
             <arg value="130"/> <!-- Y position -->
@@ -447,6 +448,7 @@
         <java classname="DrawVersionOnSplash" classpath="util/classes">
             <arg value="resources/unversioned-bluej-splash@2x.png"/> <!-- original -->
             <arg value="Version ${bluej.version}"/> <!-- text -->
+            <arg value="${bluej_home}/lib/fonts/SourceSansPro-Bold.ttf"/> <!-- font -->
             <arg value="32"/> <!-- font size -->
             <arg value="470"/> <!-- X position -->
             <arg value="260"/> <!-- Y position -->

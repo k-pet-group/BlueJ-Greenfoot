@@ -85,6 +85,9 @@ Copy bluej/build.properties.template to bluej/build.properties and edit
   to set build_java_home to be the path of your JDK.  On Windows,
   use forward slashes in paths to avoid issues.
 
+Before you can run the BlueJ configuration for the first time, you need to run the ant target
+  "update-version-number" from the BlueJ ant file.
+
 Finally, set up the run configurations.  Go to Run menu > Edit Configurations...
 Click the "+" in top-left to add new config, select Application from drop-down menu.
 
@@ -103,6 +106,6 @@ Run this configuration, and it should work.  Then go back to Edit Configurations
 
 Before you can run the Greenfoot configuration for the first time, you need to run the ant target
   "ready-to-run-greenfoot" from the *BlueJ* ant file, and then also the
-  "ready-to-run" target from the Greenfoot ant file.  Once done,
+  "ready-to-run" and "update-version-number" targets from the Greenfoot ant file.  Once done,
   you should be able to run the Greenfoot configuration successfully.
 

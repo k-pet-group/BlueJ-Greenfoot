@@ -217,7 +217,7 @@ public class Boot
             @OnThread(Tag.FXPlatform)
             public Image get()
             {
-                URL url = getClass().getResource(isGreenfoot ? "greenfoot-splash.png" : "gen-bluej-splash.png");
+                URL url = getClass().getResource(isGreenfoot ? "gen-greenfoot-splash.png" : "gen-bluej-splash.png");
                 if (url != null)
                     return new Image(url.toString());
                 else

@@ -183,6 +183,9 @@ Alternatively:
    * drag-n-drop the bluej/build.xml file from the bluej project into
      the Ant view.
 
+   * double click on the "update-version-number" task to generate splash screens 
+     (needed once unless version changes).
+
    * double click on the "ready-to-run" target to build.
 
 
