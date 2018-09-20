@@ -901,8 +901,26 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <replaceregexp byline="true" match="(\s*&lt;Property\s+Id=&quot;SOFTWAREVERSION&quot;\s+Value=).*" replace="\1&quot;${greenfoot.version.nosuffix}&quot;/&gt;">
             <fileset dir="${bluej_home}/package/winsetup" includes="greenfoot.wxs" />
         </replaceregexp>
-
-        <copy file="resources/images/greenfoot-splash.png" todir="${bluej_home}/boot/resources/bluej"/>
-        <copy file="resources/images/greenfoot-splash@2x.png" todir="${bluej_home}/boot/resources/bluej"/>
+        
+        <mkdir dir="${bluej_home}/util/classes"/>
+        <compile srcdir="${bluej_home}/util/src" destdir="${bluej_home}/util/classes"/>
+        <java classname="DrawVersionOnSplash" classpath="${bluej_home}/util/classes">
+            <arg value="resources/images/greenfoot-splash.png"/> <!-- original -->
+            <arg value="Version ${greenfoot.version}"/> <!-- text -->
+            <arg value="${bluej_home}/lib/fonts/SourceSansPro-Bold.ttf"/> <!-- font -->
+            <arg value="16"/> <!-- font size -->
+            <arg value="165"/> <!-- X position -->
+            <arg value="145"/> <!-- Y position -->
+            <arg value="${bluej_home}/boot/resources/bluej/gen-greenfoot-splash.png"/> <!-- destination -->
+        </java>
+        <java classname="DrawVersionOnSplash" classpath="${bluej_home}/util/classes">
+            <arg value="resources/images/greenfoot-splash@2x.png"/> <!-- original -->
+            <arg value="Version ${greenfoot.version}"/> <!-- text -->
+            <arg value="${bluej_home}/lib/fonts/SourceSansPro-Bold.ttf"/> <!-- font -->
+            <arg value="32"/> <!-- font size -->
+            <arg value="330"/> <!-- X position -->
+            <arg value="290"/> <!-- Y position -->
+            <arg value="${bluej_home}/boot/resources/bluej/gen-greenfoot-splash@2x.png"/> <!-- destination -->
+        </java>
     </target>
 </project>
