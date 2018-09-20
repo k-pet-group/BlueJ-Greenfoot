@@ -2016,7 +2016,7 @@ public class PkgMgrFrame
                 "Marion Zalk",
         };
 
-        Image image = Config.getFixedImageAsFXImage("about-logo.png");
+        Image image = new Image(Boot.class.getResource("gen-bluej-splash.png").toString());
         new AboutDialogTemplate(getFXWindow(), Boot.BLUEJ_VERSION,
                 "http://www.bluej.org/", image, translatorNames, previousTeamMembers).showAndWait();
     }
