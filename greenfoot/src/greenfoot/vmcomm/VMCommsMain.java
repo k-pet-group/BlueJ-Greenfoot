@@ -144,6 +144,7 @@ public class VMCommsMain implements Closeable
         fileSize = Integer.parseInt(project.getUnnamedPackage().getLastSavedProperties().getProperty("shm.size", Integer.toString(DEFAULT_MAPPED_SIZE)));
         
         shmFile = File.createTempFile("greenfoot", "shm");
+        shmFile.deleteOnExit();
         fc = new RandomAccessFile(shmFile, "rw").getChannel();
         sharedMemoryByte = fc.map(MapMode.READ_WRITE, 0, fileSize);
         sharedMemory = sharedMemoryByte.asIntBuffer();
