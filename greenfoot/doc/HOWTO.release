@@ -1,3 +1,15 @@
+How to build a Greenfoot release
+================================
+
+This file contains instructions for building releases of Greenfoot, for all supported operating
+systems.
+
+Note that Greenfoot is built on top of BlueJ. If building from the distributed source bundle,
+you will find both a "bluej" and "greenfoot" directory (the former contains the complete BlueJ
+source code). The steps below are run/applied in the greenfoot directory except where otherwise
+specified.
+
+
 Prerequisites:
  build.properties in both the greenfoot and bluej source directories should be 
  modified to match your configuration.  (For BlueJ, copy build.properties.template
@@ -19,8 +31,11 @@ Before build:
     - the labels have been updated with description of the API changes (see build.xml)
     - the @version javadoc tag has been correctly set for any user-visible Greenfoot
       classes which are affected by the API changes.
-    Add a GUID to package/winsetup/version-guid file (Get one at guidgen.com)
+    Add a GUID to bluej/package/winsetup/version-guid file (Get one at guidgen.com)
     Then, run "ant update-version-number". This propagates the changes to various files.
+    
+    NOTE: you must run "ant update-version-number" to generate the spash screen image,
+          even if you do not change the version number.
     
  3. Test bundled scenarios and make sure they are compatible with the new API version.
  
@@ -39,7 +54,7 @@ Build process:
       - run "ant mac" (see below for more details).
     - Windows:
       - check prerequisites are installed (see bluej/doc/HOWTO.make-win-version).
-      - run "ant windows" (see below for more details).
+      - run "ant windows".
     - Generic installer:
       - the generic installer is build as part of any of the above, and can be built alone
         using "ant dist".
@@ -64,20 +79,21 @@ If necessary:
 
 
 Building and Signing on Mac:
-    To build:
-        - run "ant mac" in the greenfoot source directory.
+    Follow steps 1-6 above, and check prerequisites in bluej/doc/HOWTO.make-mac-release. To build,
+    run "ant mac" in the greenfoot source directory. This will sign and verify automatically, if
+    the appropriate certificate is found and an internet connection is available. 
         
-    Note: In order for the bundle to be signed, the certificate must be in the keychain on the
-    machine on which the above command is run (and an internet connection must be active). If it
-    is not available, the bundle should still be generated but the signing step will fail.
+        Note: In order for the bundle to be signed, the certificate must be in the keychain on the
+        machine on which the above command is run (and an internet connection must be active). If it
+        is not available, the bundle should still be generated but the signing step will fail.
 
-    To sign manually (now done automatically):
+    To sign manually:
         - On the terminal, execute:
             codesign -s "Developer ID Application: Michael Kolling" Greenfoot.app/Contents/JDK/
 
             codesign -f -s "Developer ID Application: Michael Kolling" Greenfoot.app
 
-    To verify manually (now done automatically):
+    To verify manually:
         - On the terminal, execute:
             codesign --verify --deep --verbose=4 Greenfoot.app/
 
