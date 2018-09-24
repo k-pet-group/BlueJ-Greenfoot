@@ -888,7 +888,7 @@ class TCScanner extends TreePathScanner<Void, Void>
 
     private void issueError(String errorMsg, Tree errorLocation)
     {
-        long startPosition = trees.getSourcePositions​().getStartPosition(cu, errorLocation);
+        long startPosition = trees.getSourcePositions().getStartPosition(cu, errorLocation);
         String link = cu.getLineMap() == null ? "" : cu.getSourceFile().getName() + ":" + cu.getLineMap().getLineNumber(startPosition) + ": error:"; // [line added as IntelliJ location link]";
         trees.printMessage(Kind.ERROR, "\n" + link + errorMsg, errorLocation, cu);
     }
