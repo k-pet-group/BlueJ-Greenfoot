@@ -83,7 +83,6 @@ import com.sun.source.util.SimpleTreeVisitor;
 import com.sun.source.util.TreePath;
 import com.sun.source.util.TreePathScanner;
 import com.sun.source.util.Trees;
-import com.sun.tools.javac.tree.JCTree;
 
 /**
  * A visitor class that visits the whole AST and does checks against the
@@ -889,7 +888,8 @@ class TCScanner extends TreePathScanner<Void, Void>
 
     private void issueError(String errorMsg, Tree errorLocation)
     {
-        String link = cu.getLineMap() == null ? "" : cu.getSourceFile().getName() + ":" + cu.getLineMap().getLineNumber(((JCTree)errorLocation).getStartPosition()) + ": error:"; // [line added as IntelliJ location link]";
+        long startPosition = trees.getSourcePositions().getStartPosition(cu, errorLocation);
+        String link = cu.getLineMap() == null ? "" : cu.getSourceFile().getName() + ":" + cu.getLineMap().getLineNumber(startPosition) + ": error:"; // [line added as IntelliJ location link]";
         trees.printMessage(Kind.ERROR, "\n" + link + errorMsg, errorLocation, cu);
     }
 

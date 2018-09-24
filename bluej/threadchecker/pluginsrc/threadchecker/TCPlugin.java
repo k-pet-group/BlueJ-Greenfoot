@@ -33,25 +33,33 @@ public class TCPlugin implements Plugin
     
     private class TCTaskListener implements TaskListener
     {
-        private TCScanner scanner;
-        
+        private TCScanner scanner = null;
+        private JavacTask task;
+        private String[] ignorePackages;
+
         public TCTaskListener(JavacTask task, String[] ignorePackages)
         {
-            try
-            {
-                this.scanner = new TCScanner(task, Arrays.asList(ignorePackages));
-            }
-            catch (NoSuchMethodException e)
-            {
-                e.printStackTrace();
-            }
+            this.task = task;
+            this.ignorePackages = ignorePackages;
         }
-        
+
         @Override
         public void finished(TaskEvent evt)
         {
             if (evt.getKind() == TaskEvent.Kind.ANALYZE)
             {
+                if (scanner == null)
+                {
+                    try
+                    {
+                        this.scanner = new TCScanner(task, Arrays.asList(ignorePackages));
+                    }
+                    catch (NoSuchMethodException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+
                 scanner.scan(evt.getCompilationUnit(), null);
                 // Uncomment to get tags dump:
                 /*
@@ -70,8 +78,8 @@ public class TCPlugin implements Plugin
         @Override
         public void started(TaskEvent arg0)
         {
-            
+
         }
-        
+
     }
 }

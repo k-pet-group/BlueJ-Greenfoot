@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -50,11 +50,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 
-import com.sun.javafx.stage.StageHelper;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.application.Preloader;
-import javafx.collections.ListChangeListener;
+import javafx.collections.ListChangeListener.Change;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.Stage;
 
@@ -1021,11 +1020,9 @@ public class ExecServer
         @OnThread(Tag.FXPlatform)
         public void start(Stage primaryStage) throws Exception
         {
-            // Add a listener for a new Stage appearing
-
-            // Must initialise Stage class before using StageHelper:
-            new Stage();
-            StageHelper.getStages().addListener((ListChangeListener<Stage>)c -> {
+            // Add a listener for a new Stage appearing:
+            javafx.stage.Window.getWindows().addListener(
+                    (Change<? extends javafx.stage.Window> c) -> {
                 boolean anyAdded = false;
                 while (c.next())
                     anyAdded |= c.wasAdded();

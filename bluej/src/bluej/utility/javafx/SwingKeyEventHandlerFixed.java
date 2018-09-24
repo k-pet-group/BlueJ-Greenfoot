@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2016  Michael Kolling and John Rosenberg
+ Copyright (C) 2016,2018  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -26,11 +26,11 @@ import javafx.embed.swing.SwingNode;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import sun.swing.JLightweightFrame;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.awt.AWTEvent;
+import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.lang.reflect.Field;
@@ -43,15 +43,15 @@ import java.security.PrivilegedAction;
  * In SwingNode, there is a SwingKeyEventHandler class which translates
  * FX keypresses into Swing keypresses.  Unfortunately it has a bug,
  * wherein AltGr shortcuts on Windows (which are used frequently by
- * some non-English users) do not work correctly.  This is bug:
+ * some non-English users) do not work correctly.  This is bug:<p>
  *
  * https://bugs.openjdk.java.net/browse/JDK-8088471
  *
- * And currently has no fix date.  Thankfully, a commenter on the bug
+ * <p>And currently has no fix date.  Thankfully, a commenter on the bug
  * pointed to a solution: overriding the handler to suppress modifiers
  * on a particular event.
  *
- * So this class is a near-copy of SwingNode.SwingKeyEventHandler,
+ * <p>So this class is a near-copy of SwingNode.SwingKeyEventHandler,
  * with that suggested fix.  Since some of the fields and classes we are
  * using are private or package-private, we have to use reflection
  * to access them.  Not nice, but I can't see any other way to do it.
@@ -92,7 +92,7 @@ public class SwingKeyEventHandlerFixed implements EventHandler<KeyEvent>
 
     public void handleSub(javafx.scene.input.KeyEvent event) throws IllegalAccessException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException
     {
-        JLightweightFrame frame = (JLightweightFrame) lwFrameField.get(swingNode);
+        Component frame = (Component) lwFrameField.get(swingNode);
         if (frame == null) {
             return;
         }
@@ -123,7 +123,7 @@ public class SwingKeyEventHandlerFixed implements EventHandler<KeyEvent>
 
 
         int swingModifiers = (Integer)fxKeyModsToKeyMods.invoke(null, event);
-        int swingKeyCode = event.getCode().impl_getCode();
+        int swingKeyCode = event.getCode().getCode();
         char swingChar = event.getCharacter().charAt(0);
 
         // A workaround. Some swing L&F's process mnemonics on KEY_PRESSED,

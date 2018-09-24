@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2014, Oracle and/or its affiliates. Copyright (c) 2015, Michael Koelling and John Rosenborg. All rights reserved.
+ * Copyright (c) 2011, 2014, Oracle and/or its affiliates.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -24,31 +24,33 @@
  */
 package bluej.utility.javafx;
 
+/*
+ * This file contains source taken from Oracle JavaFX "FlowPane" class, available under the
+ * GPL-with-classpath-exception license as per the original copyright notice above. Modifications
+ * have been made for use in BlueJ/Greenfoot.
+ * 
+ * Modified: 2015, 2018.
+ */
+
 import javafx.css.SimpleStyleableDoubleProperty;
 import javafx.scene.layout.*;
-    import java.util.ArrayList;
-    import java.util.Collections;
-    import java.util.List;
-    import javafx.beans.property.DoubleProperty;
-    import javafx.beans.property.DoublePropertyBase;
-    import javafx.beans.property.ObjectProperty;
-    import javafx.css.CssMetaData;
-    import javafx.css.StyleableDoubleProperty;
-    import javafx.css.StyleableObjectProperty;
-    import javafx.css.StyleableProperty;
-    import javafx.geometry.HPos;
-    import javafx.geometry.Insets;
-    import javafx.geometry.Orientation;
-    import javafx.geometry.Pos;
-    import javafx.geometry.VPos;
-    import javafx.scene.Node;
-    import com.sun.javafx.css.converters.EnumConverter;
-    import com.sun.javafx.css.converters.SizeConverter;
-    import java.util.function.Function;
-    import javafx.css.Styleable;
-
-    import static javafx.geometry.Orientation.*;
-    import javafx.util.Callback;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.DoublePropertyBase;
+import javafx.beans.property.ObjectProperty;
+import javafx.css.CssMetaData;
+import javafx.css.StyleableObjectProperty;
+import javafx.css.StyleableProperty;
+import javafx.css.converter.EnumConverter;
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
+import javafx.geometry.VPos;
+import javafx.scene.Node;
+import javafx.css.Styleable;
 
 /**
  * FlowPane lays out its children in a flow that wraps at the flowpane's boundary.
