@@ -26,7 +26,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,7 +33,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import bluej.debugger.gentype.ConstructorReflective;
 import bluej.debugger.gentype.FieldReflective;
@@ -279,7 +277,8 @@ public class JavaReflective extends Reflective
 
             // See JLS section 10.7: arrays have a "public final int length" field
             if (c.isArray()) {
-                rmap.put("length", new FieldReflective("length", JavaPrimitiveType.getInt(), Modifier.PUBLIC | Modifier.FINAL, this));
+                rmap.put("length", new FieldReflective("length", JavaPrimitiveType.getInt(),
+                        Modifier.PUBLIC | Modifier.FINAL, this));
             }
 
             return rmap;
@@ -347,7 +346,10 @@ public class JavaReflective extends Reflective
 
             // See JLS section 10.7: arrays have a "public Object clone()" method
             if (c.isArray()) {
-                rmap.put("clone", Collections.singleton(new MethodReflective("clone", new GenTypeClass(new JavaReflective(Object.class)), new ArrayList<GenTypeDeclTpar>(), new ArrayList<JavaType>(), this, false, Modifier.PUBLIC)));
+                rmap.put("clone", Collections.singleton(new MethodReflective("clone", 
+                        new GenTypeClass(new JavaReflective(Object.class)),
+                        new ArrayList<GenTypeDeclTpar>(), new ArrayList<JavaType>(), this, false,
+                        Modifier.PUBLIC)));
             }
 
             return rmap;
@@ -361,30 +363,41 @@ public class JavaReflective extends Reflective
     @Override
     public List<ConstructorReflective> getDeclaredConstructors()
     {
-        return Utility.mapList(Arrays.<Constructor<?>>asList(c.getDeclaredConstructors()), con -> {
-
-            List<GenTypeDeclTpar> tpars = JavaUtils.getJavaUtils().getTypeParams(con);
-
-            // We need to create a map from each type parameter name to its type
-            // as a GenTypeDeclTpar
-            Map<String, GenTypeDeclTpar> tparMap = new HashMap<String, GenTypeDeclTpar>();
-            storeTparMappings(tpars, tparMap);
-
-            try {
-                JavaType [] paramTypes = JavaUtils.getJavaUtils().getParamGenTypes(con);
-                List<JavaType> paramTypesList = new ArrayList<JavaType>(paramTypes.length);
-                for (JavaType paramType : paramTypes) {
-                    paramTypesList.add(paramType.mapTparsToTypes(tparMap).getUpperBound());
+        List<ConstructorReflective> r = new ArrayList<>();
+        
+        try {
+            for (Constructor<?> con : c.getDeclaredConstructors())
+            {
+                List<GenTypeDeclTpar> tpars = JavaUtils.getJavaUtils().getTypeParams(con);
+    
+                // We need to create a map from each type parameter name to its type
+                // as a GenTypeDeclTpar
+                Map<String, GenTypeDeclTpar> tparMap = new HashMap<String, GenTypeDeclTpar>();
+                storeTparMappings(tpars, tparMap);
+                
+                try
+                {
+                    JavaType [] paramTypes = JavaUtils.getJavaUtils().getParamGenTypes(con);
+                    List<JavaType> paramTypesList = new ArrayList<JavaType>(paramTypes.length);
+                    for (JavaType paramType : paramTypes)
+                    {
+                        paramTypesList.add(paramType.mapTparsToTypes(tparMap).getUpperBound());
+                    }
+    
+                    r.add(new ConstructorReflective(tpars, paramTypesList, this,
+                            JavaUtils.getJavaUtils().isVarArgs(con), con.getModifiers()));
                 }
-
-                return new ConstructorReflective(tpars, paramTypesList,
-                        this,
-                        JavaUtils.getJavaUtils().isVarArgs(con), con.getModifiers());
+                catch (ClassNotFoundException exc)
+                {
+                    // Ignore this one
+                }
             }
-            catch (ClassNotFoundException cnfe) {
-                return null;
-            }
-        }).stream().filter(c -> c != null).collect(Collectors.toList());
+        }
+        catch (LinkageError | SecurityException exc) {
+            // getDelaredConstructors can throw LinkageErrors if classes are missing.
+        }
+        
+        return r;
     }
 
     /**
