@@ -219,8 +219,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <pathelement location="${threadchecker.pluginbuild}"/>
                 <pathelement location="${build_java_home}/lib/tools.jar"/>
             </classpath>
-            <compilerarg line="-target 9" />
-            <compilerarg line="-source 9" /> <!-- Otherwise Java 8 (and above) complains -->
             <compilerarg line="-Xmaxerrs 1000"/>
             <compilerarg value="-Xplugin:threadchecker.TCPlugin"/>
         </compile>
