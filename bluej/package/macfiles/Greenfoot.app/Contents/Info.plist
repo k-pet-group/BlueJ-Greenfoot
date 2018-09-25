@@ -63,8 +63,6 @@
 		<key>ClassPath</key>
 		<array>
 			<string>$JAVAROOT/bluej.jar</string>
-			<string>$JAVAROOT/AppleJavaExtensions.jar</string>
-			<string>$JVMROOT/Home/lib/tools.jar</string>
 		</array>
 		<key>MainClass</key>
 		<string>bluej.Boot</string>
