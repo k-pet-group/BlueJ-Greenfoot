@@ -525,8 +525,8 @@ public class Boot
         javaHomeDir = new File(System.getProperty("java.home"));
 
         try {
-            runtimeClassPath = getKnownJars(getBluejLibDir(), runtimeJars, true, numBuildJars);
-            runtimeUserClassPath = getKnownJars(getBluejLibDir(), userJars, false, numUserBuildJars);
+            runtimeClassPath = getKnownJars(getBluejLibDir(), runtimeJars, false, numBuildJars);
+            runtimeUserClassPath = getKnownJars(getBluejLibDir(), userJars, true, numUserBuildJars);
         }
         catch (Exception exc) {
             exc.printStackTrace();
@@ -539,8 +539,7 @@ public class Boot
      * @param libDir  the BlueJ "lib" dir (where the jars are stored)
      * @param jars    the names of the jar files whose urls to add in the
      *                returned list
-     * @param isSystem  True if tools.jar should be included in the returned
-     *                  list, on systems that need it
+     * @param isForUserVM  True if any jar files required for the user VM should be included.
      * @param numBuildJars  The number of jar files in the jars array which
      *                  are built from the BlueJ source. If running from eclipse
      *                  these can be replaced with a single entry - the classes
@@ -549,7 +548,7 @@ public class Boot
      * @return  URLs of the required JAR files
      * @exception  MalformedURLException  for any problems with the URLs
      */
-    private URL[] getKnownJars(File libDir, String[] jars, boolean isSystem, int numBuildJars) 
+    private URL[] getKnownJars(File libDir, String[] jars, boolean isForUserVM, int numBuildJars) 
         throws MalformedURLException
     {
         boolean useClassesDir = commandLineProps.getProperty("useclassesdir", "false").equals("true");
@@ -594,18 +593,12 @@ public class Boot
                 urlList.add(toAdd.toURI().toURL());
         }
     
-        if (isSystem)
-        {
-            // We also need to add tools.jar on some systems
-            URL toolsURL = getToolsURL();
-            if(toolsURL != null)
-                urlList.add(toolsURL);
-        }
-        else
+        if (isForUserVM)
         {
             // Only need to specially add JavaFX for the user VM, it will
             // already be on classpath for server VM:
-            if (jfxrtJar != null && jfxrtJar.length() != 0) {
+            if (jfxrtJar != null && jfxrtJar.length() != 0)
+            {
                 urlList.add(new File(jfxrtJar).toURI().toURL());
             }
         }
@@ -613,40 +606,9 @@ public class Boot
     }
     
     /**
-     * Get the URL of the  current tools.jar file
-     * Looks for lib/tools.jar in the current javaHome
-     * and in the parent of it.
-     * tools.jar is needed on many (but not all!) systems. Currently, 
-     * MacOS is the only system known to us without a tools URL, but 
-     * there may be others in the furure. This method returns null
-     * if tools.jar does not exist.
-     *
-     * @return   The URL of the tools.jar file for the current Java implementation, or null.
-     * @exception  MalformedURLException  for any problems with the URL
-     */
-    private URL getToolsURL() 
-        throws MalformedURLException
-    {
-        File toolsFile = new File(javaHomeDir, "lib/tools.jar");
-        if (toolsFile.canRead())
-            return toolsFile.toURI().toURL();
-
-        File parentDir = javaHomeDir.getParentFile();
-        toolsFile = new File(parentDir, "lib/tools.jar");
-        if (toolsFile.canRead())
-            return toolsFile.toURI().toURL();
-        else {
-            // on other systems where we don't find it, we just warn. We don't expect it
-            // to happen, but you never know...
-            System.err.println("class Boot: tools.jar not found. Potential problem for execution.  (Java Home: " + javaHomeDir.getAbsolutePath() + ")");
-            return null;
-        }
-    }
-    
-    /**
-     * Returns command line specified properties. <br>
+     * Returns command line specified properties.
      * 
-     * Properties can be specified with -... command line options. For example: -bluej.debug=true
+     * <p>Properties can be specified with -... command line options. For example: -bluej.debug=true
      * @return The command line specified properties
      */
     public Properties getCommandLineProperties()
