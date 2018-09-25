@@ -12,8 +12,6 @@
                     srcdir="@{srcdir}"
                     destdir="@{destdir}"
                     excludes="@{excludes}"
-                    source="9"
-                    target="9"
                     deprecation="yes"
                     includeantruntime="false"
                     debug="true"

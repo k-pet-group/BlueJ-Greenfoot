@@ -27,6 +27,7 @@
 ## text files in that directory. If you make a language version for
 ## a new language, please send it to support@greenfoot.org
 #####################################################################
+
 bluej.language=english
 #bluej.language=arabic
 #bluej.language=chinese
@@ -108,7 +109,8 @@ greenfoot.gameserver.createAccount.address=http://www.greenfoot.org/users/new
 ## Normally it should not be necessary to change this.
 ##
 #####################################################################
-bluej.compiler.options=-source 9 -target 9
+
+#bluej.compiler.options=-source 10 -target 10
 
 #####################################################################
 ## Options for starting the internal virtual machine.
@@ -129,6 +131,7 @@ bluej.vm.args=-Dawt.useSystemAAFontSettings=on -XX:MaxGCPauseMillis=50
 ## for your system if it exists. If defined here, this overrides the
 ## default.
 #####################################################################
+
 #greenfoot.editor.image=/Applications/Adobe Photoshop CS3/Adobe Photoshop CS3.app
 
 greenfoot.image.create.width=150
