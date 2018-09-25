@@ -15,11 +15,6 @@ IntelliJ will pop up dialogs often during setup asking if you want to add variou
 
 Go to File -> Project Structure...  and select the top Project item on the left.
   Select your Project SDK (aka JDK) to be latest JDK 1.8.
-  Make sure that your JDK has lib/tools.jar on the classpath: go to File->Project Structure
-  then select SDKs (which is actually shared between projects), select the SDK you want,
-  click Edit, and if blah/blah/jdkpath/lib/tools.jar is not on the list, click the "+"
-  in the far top right and navigate to the lib/tools.jar file to add it to the list.
-  (This may become non-applicable after JDK9).
 
   Set the language level to Java 8.
 
