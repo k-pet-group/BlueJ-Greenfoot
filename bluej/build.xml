@@ -486,6 +486,7 @@
         <ant dir="package" target="clean"/>
         <delete quiet="true" dir="${threadchecker.build}" />
         <delete quiet="true" dir="${threadchecker.pluginbuild}" />
+    	<delete quiet="true" dir="${test.build}" />
     </target>
 
     <target name="pi4j-compile">
