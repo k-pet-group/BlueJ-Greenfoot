@@ -236,7 +236,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <path refid="bluej.class.path"/>
                 <pathelement location="${threadchecker.build}"/>
             </classpath>
-            <compilerarg line="-target 9" />
         </compile>
     </target>
 

@@ -576,9 +576,13 @@ public class JavaToStrideTest
         ));
         all.addAll(terminals);
         if (maxDepth <= 1)
-            return genOneOf(terminals.toArray(new Supplier[0]));
+        {
+            return JavaToStrideTest.<CodeElement>genOneOf(terminals.toArray(new Supplier[0]));
+        }
         else
-            return genOneOf(all.toArray(new Supplier[0]));
+        {
+            return JavaToStrideTest.<CodeElement>genOneOf(all.toArray(new Supplier[0]));
+        }
     }
 
     private static CaseElement genCase()
@@ -662,7 +666,7 @@ public class JavaToStrideTest
                 )
             );
         }
-        return genOneOf(all.toArray(new Supplier[0]));
+        return JavaToStrideTest.<FilledExpressionSlotFragment>genOneOf(all.toArray(new Supplier[0]));
     }
 
     private static FilledExpressionSlotFragment genCall()

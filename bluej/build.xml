@@ -102,8 +102,6 @@
             </classpath>
             <compilerarg value="-Xmaxerrs"/><compilerarg value="100"/>
             <compilerarg value="-Xplugin:threadchecker.TCPlugin org.reflections"/>
-        	<!-- we use some private packages/classes currently: -->
-            <compilerarg line="--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED"/>
         </compile>
     	<copy todir="${boot.build}">
     	    <fileset dir="${boot.resources}" />
@@ -166,6 +164,7 @@
                  destdir="${test.build}">
             <classpath>
                 <path refid="bluej.class.path"/>
+                <pathelement location="${threadchecker.build}"/>
                 <pathelement location="${boot.build}"/>
                 <pathelement location="${core.build}"/>
             </classpath>
@@ -487,6 +486,7 @@
         <ant dir="package" target="clean"/>
         <delete quiet="true" dir="${threadchecker.build}" />
         <delete quiet="true" dir="${threadchecker.pluginbuild}" />
+    	<delete quiet="true" dir="${test.build}" />
     </target>
 
     <target name="pi4j-compile">
