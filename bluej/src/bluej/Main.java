@@ -279,7 +279,8 @@ public class Main
         });
 
         Desktop.getDesktop().setOpenFileHandler(e ->  {
-            if (launched) {
+            if (launched)
+            {
                 List<File> files = e.getFiles();
                 Platform.runLater(() ->
                 {
@@ -289,7 +290,8 @@ public class Main
                     }
                 });
             }
-            else {
+            else
+                {
                 initialProjects = e.getFiles();
             }
         });

@@ -238,7 +238,7 @@
                debug="true"
         >
         	<compilerarg line="-source 6"/>
-    		<compilerarg line="-target 1.6"/>
+    		<compilerarg line="-target 6"/>
     	</javac>
 
         <!-- bundle the resulting class into the final distribution jar file -->
