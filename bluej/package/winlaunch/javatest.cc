@@ -23,7 +23,7 @@
 /**
  * Routines to test for a JDK.
  *
- * We need a java.exe, and a tools.jar file before we
+ * We need a java.exe, and a javac.exe file before we
  * believe that we have a JDK.
  */
  
@@ -59,12 +59,13 @@ bool testJdkPath(string jdkLocation, string *reason)
 		return false;
 	}
 	
-	string toolsJarLocation = jdkLocation + TEXT("lib\\tools.jar");
+	string javacExeLocation = jdkLocation + TEXT("bin\\javac.exe");
 	result = GetBinaryType(toolsJarLocation.c_str(), &binaryType);
-	if (result == 0 && GetLastError() != ERROR_BAD_EXE_FORMAT) {
+	if (result == 0) {
 		// No tools.jar
 		if (reason != NULL) {
-			*reason = TEXT("There is no tools.jar file - maybe this is just a JRE (and not a JDK).");
+			*reason = TEXT("The javac.exe file does not exist or is not executable - "
+					"maybe this is just a JRE (and not a JDK).");
 		}
 		return false;
 	}

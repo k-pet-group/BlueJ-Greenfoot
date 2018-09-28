@@ -64,7 +64,6 @@
             
             <classpath>
                 <pathelement location="${boot.jar}"/>
-                <pathelement location="${run_java_home}/lib/tools.jar"/>
                 <pathelement location="/System/Library/Java"/>
             </classpath>
             <arg value="-useclassesdir=true -bluej.debug=true"/>

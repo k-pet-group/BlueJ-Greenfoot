@@ -272,8 +272,7 @@ bool launchVMexternal(string jdkLocation)
     }
 
     commandLine += TEXT("-classpath ");
-    string classPathString = bluejPath + TEXT("\\lib\\bluej.jar;");
-    classPathString += jdkLocation + TEXT("\\lib\\tools.jar");
+    string classPathString = bluejPath + TEXT("\\lib\\bluej.jar");
     commandLine += escapeCmdlineParam(classPathString);
 
     commandLine += TEXT(" bluej.Boot");
@@ -373,8 +372,7 @@ bool launchVM(string jdkLocation)
     char * jdkLocACP = wideToACP(jdkLocation);
 
     std::string classPathOpt = "-Djava.class.path=";
-    (classPathOpt += bjDirACP) += "\\lib\\bluej.jar;";
-    (classPathOpt += jdkLocACP) += "\\lib\\tools.jar";
+    (classPathOpt += bjDirACP) += "\\lib\\bluej.jar";
 
     delete [] bjDirACP;
     delete [] jdkLocACP;

@@ -47,7 +47,7 @@ public class Installer extends JFrame
 
 
     // File to test for JDK (relative to javaPath):
-    static private String jdkFile = "/lib/tools.jar";
+    static private String jdkFile = "/lib/jdk.deploy.jar";
 
     static final int BUFFER_SIZE=8192;
 
@@ -424,7 +424,7 @@ public class Installer extends JFrame
            "JDK directory. The JDK directory is the directory \n" +
            "that JDK (aka Java 2 SDK) was installed to. It must \n" +
            "have a subdirectory \"lib\" with a file named \n" +
-           "\"tools.jar\" in it.");
+           "\"jdk.deploy.jar\" in it.");
     }
 
     /**

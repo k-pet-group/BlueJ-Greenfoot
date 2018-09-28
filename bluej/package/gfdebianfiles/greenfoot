@@ -5,7 +5,7 @@ unset JAVAPATH
 FOUND="false"
 for VMNAME in java-8-oracle jdk-8-oracle java-8-openjdk ; do
     for JDKCANDIDATE in /usr/lib/jvm/"$VMNAME"* ; do
-        if [ -e "$JDKCANDIDATE"/lib/tools.jar ]; then
+        if [ -e "$JDKCANDIDATE"/bin/javac ]; then
             JAVAPATH="$JDKCANDIDATE"
                 FOUND="true"
             break
@@ -22,7 +22,7 @@ if [ x"$JAVAPATH" = x"" ]; then
     exit 1
 fi
 
-CP="/usr/share/greenfoot/bluej.jar:$JAVAPATH/lib/tools.jar"
+CP="/usr/share/greenfoot/bluej.jar"
 JFXRTOPT=""
 
 if [ ! -e "$JAVAPATH/jre/lib/ext/jfxrt.jar" ]; then
@@ -31,7 +31,6 @@ if [ ! -e "$JAVAPATH/jre/lib/ext/jfxrt.jar" ]; then
         JFXRTOPT="-jfxrt.jarpath=/usr/share/java/openjfx/jre/lib/ext/jfxrt.jar"
     fi
 fi
-
 
 "$JAVAPATH/bin/java" -Djavafx.embed.singleThread=true -Dawt.useSystemAAFontSettings=on -Xmx512M \
     -cp "$CP" bluej.Boot \

@@ -83,7 +83,6 @@
         <pathelement location="${bluej_home}/lib/opencsv-2.3.jar"/>
         <pathelement location="${bluej_home}/lib/xom-1.2.9.jar"/>
         <pathelement location="${bluej_home}/lib/diffutils-1.2.1.jar"/>
-        <pathelement location="${build_java_home}/jre/lib/ext/jfxrt.jar"/>
     </path>
     <!-- The sourcepath to the bluej classes-->
     <path id="bluej.src.path">
@@ -217,7 +216,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <path refid="bluej.class.path"/>
                 <pathelement location="${threadchecker.build}"/>
                 <pathelement location="${threadchecker.pluginbuild}"/>
-                <pathelement location="${build_java_home}/lib/tools.jar"/>
             </classpath>
             <compilerarg line="-Xmaxerrs 1000"/>
             <compilerarg value="-Xplugin:threadchecker.TCPlugin"/>
@@ -564,7 +562,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <!-- <path refid="bluej.class.path"/> -->
                 <path refid="bluej.src.path"/>
                 <pathelement location="${bluej_home}/lib" />
-                <pathelement location="${build_java_home}/lib/tools.jar"/>
                 <pathelement location="/System/Library/Java"/>
                 <!-- <pathelement location="${build}"/> -->
             </classpath>
@@ -588,7 +585,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <pathelement location="${bluej_home}/boot/classes" />
                 <!-- <path refid="bluej.class.path"/> -->
                 <path refid="bluej.src.path"/>
-                <pathelement location="${build_java_home}/lib/tools.jar"/>
                 <pathelement location="/System/Library/Java"/>
                 <!-- <pathelement location="${build}"/> -->
             </classpath>
@@ -615,9 +611,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <arg value="${greenfoot.standalone.labels}"/>
 
             <classpath>
-                <!--path refid="bluej.class.path"/>
-                <pathelement location="${build_java_home}/lib/tools.jar"/>
-                <pathelement location="/System/Library/Java"/-->
                 <pathelement location="${greenfoot.standalone.scenario}"/>
                 <pathelement location="${build}"/>
                 <path refid="bluej.class.path"/>
@@ -635,7 +628,6 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <classpath>
                 <path refid="bluej.class.path"/>
                 <pathelement location="${bluej_home}/threadchecker/classes"/>
-                <pathelement location="${build_java_home}/lib/tools.jar"/>
             </classpath>
 
             <include name="greenfoot/core/WorldHandler.java"/>

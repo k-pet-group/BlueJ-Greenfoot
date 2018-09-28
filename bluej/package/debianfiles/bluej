@@ -5,7 +5,7 @@ unset JAVAPATH
 FOUND="false"
 for VMNAME in java-8-oracle jdk-8-oracle java-8-openjdk ; do
     for JDKCANDIDATE in /usr/lib/jvm/"$VMNAME"* ; do
-        if [ -e "$JDKCANDIDATE"/lib/tools.jar ]; then
+        if [ -e "$JDKCANDIDATE"/bin/javac ]; then
 	        JAVAPATH="$JDKCANDIDATE"
                 FOUND="true"
 	        break
@@ -27,7 +27,7 @@ if grep -q "BCM270" /proc/cpuinfo; then
     export J2D_PIXMAPS=shared
 fi
 
-CP="/usr/share/bluej/bluej.jar:$JAVAPATH/lib/tools.jar"
+CP="/usr/share/bluej/bluej.jar"
 JFXRTOPT=""
 
 # If JavaFX library is not within the JDK, look for OpenJFX:
