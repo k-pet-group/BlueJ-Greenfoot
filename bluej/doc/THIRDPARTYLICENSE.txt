@@ -48,16 +48,6 @@ is also distributed as part of the SVNKit library, which BlueJ uses. It is distr
 under the BSD license as found in "antlr-BSD.txt".
 
 
-Apple Java Extensions (BSD-like license)
-----------------------------------------
-"AppleJavaExtensions.jar" is the Apple Java Extensions stub library, which provides
-stubs for Java methods that provide Mac OS X specific functionality, so that code using
-these functions can be compiled on other operating systems. The license can be found in
-the "AppleJavaExtensions.txt" file. More information on the Apple Java Extensions can
-be found here:
-https://developer.apple.com/legacy/library/samplecode/AppleJavaExtensions/Introduction/Intro.html
-
-
 Apache Commons libraries (Apache License version 2.0)
 -----------------------------------------------------
 Various components of the Apache Commons libraries (https://commons.apache.org/) are
@@ -277,7 +267,6 @@ primary BlueJ license).
 4. SUMMARY OF THIRD-PARTY JAR FILES AND LICENSES
 
 antlr-runtime-3.4.jar                    BSD License
-AppleJavaExtensions.jar                  BSD-like license
 commons-logging-api-1.1.2.jar            Apache License v2.0
 commons-vfs2-2.0.jar                     Apache License v2.0
 diffutils-1.2.1.jar                      Apache License v2.0

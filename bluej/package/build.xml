@@ -26,7 +26,6 @@
         <include name="lib/lang-stride.jar" />
         <include name="lib/junit-4.11.jar" />
     	<include name="lib/hamcrest-core-1.3.jar" />
-        <include name="lib/AppleJavaExtensions.jar" />
         <include name="lib/sshconnection.jar" />
         <include name="lib/org-netbeans-lib-cvsclient.jar" />
         <include name="lib/jsch.jar" />
