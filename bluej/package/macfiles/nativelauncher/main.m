@@ -38,8 +38,6 @@
 
 #define UNSPECIFIED_ERROR "An unknown error occurred."
 
-#define LIBJLI_DYLIB "/Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/lib/jli/libjli.dylib"
-
 typedef int (JNICALL *JLI_Launch_t)(int argc, char ** argv,
                                     int jargc, const char** jargv,
                                     int appclassc, const char** appclassv,
@@ -98,18 +96,7 @@ int launch(char *commandName) {
 
     const char *libjliPath = NULL;
     NSString *runtimePath = nil;
-    
-    /*
-    if (runtime != nil) {
-        runtimePath = [[[NSBundle mainBundle] builtInPlugInsPath] stringByAppendingPathComponent:runtime];
-        libjliPath = [[runtimePath stringByAppendingPathComponent:@"Home/jre/lib/jli/libjli.dylib"] fileSystemRepresentation];
-    } else {
-    	// Not really sure what to use for runtimePath, this will do for now.
-    	runtimePath = @"/System/Library/Frameworks/JavaVM.framework/Versions/CurrentJDK";
-        libjliPath = LIBJLI_DYLIB;
-    }
-    */
-    
+        
     runtimePath = [[mainBundle bundlePath] stringByAppendingPathComponent:@"Contents/JDK"];
     libjliPath = [[runtimePath stringByAppendingPathComponent:@"Home/jre/lib/jli/libjli.dylib"] fileSystemRepresentation];
 
