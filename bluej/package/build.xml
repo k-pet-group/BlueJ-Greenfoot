@@ -26,7 +26,6 @@
         <include name="lib/lang-stride.jar" />
         <include name="lib/junit-4.11.jar" />
     	<include name="lib/hamcrest-core-1.3.jar" />
-        <include name="lib/AppleJavaExtensions.jar" />
         <include name="lib/sshconnection.jar" />
         <include name="lib/org-netbeans-lib-cvsclient.jar" />
         <include name="lib/jsch.jar" />
@@ -238,8 +237,8 @@
                includes="Installer.java"
                debug="true"
         >
-        	<compilerarg line="-source 1.3"/>
-    		<compilerarg line="-target 1.3"/>
+        	<compilerarg line="-source 6"/>
+    		<compilerarg line="-target 6"/>
     	</javac>
 
         <!-- bundle the resulting class into the final distribution jar file -->
@@ -299,6 +298,10 @@
             <fileset dir="${zip_dir}/lib/" />
         </move>
         <delete dir="${zip_dir}/BlueJ.app/Contents/Resources/Java/lib" />
+
+        <copy todir="${zip_dir}/BlueJ.app/Contents/Resources/Java/javafx">
+            <fileset dir="${openjfx_path}" />
+        </copy>
 
         <!-- ZIP it -->
         <zip destfile="${dist.mac.legacy}" duplicate="fail">

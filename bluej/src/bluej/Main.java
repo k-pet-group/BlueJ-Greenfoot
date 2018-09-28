@@ -30,9 +30,6 @@ import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.javafx.JavaFXUtil;
-import com.apple.eawt.AppEvent;
-import com.apple.eawt.Application;
-import com.apple.eawt.QuitResponse;
 import de.codecentric.centerdevice.MenuToolkit;
 import de.codecentric.centerdevice.dialogs.about.AboutStageBuilder;
 import javafx.application.Platform;
@@ -43,6 +40,8 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.desktop.QuitResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -188,26 +187,22 @@ public class Main
     /**
      * Prepare MacOS specific behaviour (About menu, Preferences menu, Quit
      * menu)
-     */ 
+     */
     private static void prepareMacOSApp()
     {
         storedContextClassLoader = Thread.currentThread().getContextClassLoader();
         initialProjects = Boot.getMacInitialProjects();
-        Application macApp = Application.getApplication();
 
         // Even though BlueJ is JavaFX, the open-files handling still goes
-        // through the com.eawt.*/AppleJavaExtensions handling, once it is loaded
+        // through the java.awt.Desktop handling, once it is loaded
         // So we must do the handler set up for AWT/Swing even though we're running
-        // in JavaFX.  May need revisiting in Java 9 or whenever they fix the Mac
-        // open files handling issue:
-        prepareMacOSMenuSwing(macApp);
+        // in JavaFX.
+        prepareMacOSMenuSwing();
 
         // We are using the NSMenuFX library to fix Mac Application menu only when it is a FX
         // menu. When the JDK APIs (i.e. handleAbout() etc) are fixed, both should go back to
         // the way as in prepareMacOSMenuSwing().
-        if (macApp != null) {
-            prepareMacOSMenuFX();
-        }
+        prepareMacOSMenuFX();
 
         // This is not included in the above condition to avoid future bugs,
         // as this is not related to the application menu and will not be affected
@@ -263,58 +258,43 @@ public class Main
     }
 
     /**
-     * Prepare Mac Application Swing menu using the com.apple.eawt APIs.
+     * Prepare Mac Application Swing menu using the java.awt.Desktop APIs.
      */
-    private static void prepareMacOSMenuSwing(Application macApp)
+    @SuppressWarnings("threadchecker")
+    private static void prepareMacOSMenuSwing()
     {
-        if (macApp != null) {
-            macApp.setAboutHandler(new com.apple.eawt.AboutHandler() {
-                @Override
-                public void handleAbout(AppEvent.AboutEvent e)
-                {
-                    Platform.runLater(() -> guiHandler.handleAbout());
-                }
-            });
+        Desktop.getDesktop().setAboutHandler(e -> {
+            Platform.runLater(() -> guiHandler.handleAbout());
+        });
 
-            macApp.setPreferencesHandler(new com.apple.eawt.PreferencesHandler() {
-                @Override
-                public void handlePreferences(AppEvent.PreferencesEvent e)
-                {
-                    Platform.runLater(() -> guiHandler.handlePreferences());
-                }
-            });
+        Desktop.getDesktop().setPreferencesHandler(e -> {
+            Platform.runLater(() -> guiHandler.handlePreferences());
+        });
 
-            macApp.setQuitHandler(new com.apple.eawt.QuitHandler() {
-                @Override
-                public void handleQuitRequestWith(AppEvent.QuitEvent e, QuitResponse response)
-                {
-                    macEventResponse = response;
-                    Platform.runLater(() -> guiHandler.handleQuit());
-                    // response.confirmQuit() does not need to be called, since System.exit(0) is called explcitly
-                    // response.cancelQuit() is called to cancel (in wantToQuit())
-                }
-            });
+        Desktop.getDesktop().setQuitHandler((e, response) -> {
+            macEventResponse = response;
+            Platform.runLater(() -> guiHandler.handleQuit());
+            // response.confirmQuit() does not need to be called, since System.exit(0) is called explcitly
+            // response.cancelQuit() is called to cancel (in wantToQuit())
+        });
 
-            macApp.setOpenFileHandler(new com.apple.eawt.OpenFilesHandler() {
-                @Override
-                public void openFiles(AppEvent.OpenFilesEvent e)
+        Desktop.getDesktop().setOpenFileHandler(e ->  {
+            if (launched)
+            {
+                List<File> files = e.getFiles();
+                Platform.runLater(() ->
                 {
-                    if (launched) {
-                        List<File> files = e.getFiles();
-                        Platform.runLater(() ->
-                        {
-                            for (File file : files)
-                            {
-                                PkgMgrFrame.doOpen(file, null);
-                            }
-                        });
+                    for (File file : files)
+                    {
+                        PkgMgrFrame.doOpen(file, null);
                     }
-                    else {
-                        initialProjects = e.getFiles();
-                    }
-                }
-            });
-        }
+                });
+            }
+            else
+                {
+                initialProjects = e.getFiles();
+            }
+        });
 
         Boot.getInstance().setQuitHandler(() -> Platform.runLater(() -> guiHandler.handleQuit()));
     }

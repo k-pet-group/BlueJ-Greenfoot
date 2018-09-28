@@ -92,7 +92,7 @@ public class Boot
     public static final String[] GREENFOOT_EXPORT_JARS = {JLAYER_MP3_JAR, "lang-stride.jar"};
     private static final String[] greenfootUserJars = {"extensions" + File.separatorChar + "greenfoot.jar", 
         "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
-        "AppleJavaExtensions.jar", "junit-4.11.jar", "hamcrest-core-1.3.jar", "bluej.jar",
+        "junit-4.11.jar", "hamcrest-core-1.3.jar", "bluej.jar",
         "diffutils-1.2.1.jar", "commons-logging-api-1.1.2.jar",
         JLAYER_MP3_JAR, "opencsv-2.3.jar", "xom-1.2.9.jar",
         "lang-stride.jar",
@@ -108,7 +108,6 @@ public class Boot
     // The first lot are the ones to run BlueJ itself
     private static final String[] bluejJars = { "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
         "antlr-runtime-3.4.jar",
-        "AppleJavaExtensions.jar",
         "commons-logging-api-1.1.2.jar",
         "commons-vfs2-2.0.jar",
         "diffutils-1.2.1.jar",

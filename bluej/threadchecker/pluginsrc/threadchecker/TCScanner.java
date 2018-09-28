@@ -285,19 +285,6 @@ class TCScanner extends TreePathScanner<Void, Void>
         
         // AWT events are dispatched from the Swing thread:
         methodAnns.add(new MethodRef("java.awt.DefaultKeyboardFocusManager", "processKeyEvent", new LocatedTag(Tag.Swing, false, false, "<AWT events>")));
-
-        try
-        {
-            methodAnns.add(new MethodRef("com.apple.eawt.PreferencesHandler", "handlePreferences", new LocatedTag(Tag.Swing, false, false, "<EAWT>")));
-            methodAnns.add(new MethodRef("com.apple.eawt.AboutHandler", "handleAbout", new LocatedTag(Tag.Swing, false, false, "<EAWT>")));
-            methodAnns.add(new MethodRef("com.apple.eawt.QuitHandler", "handleQuitRequestWith", new LocatedTag(Tag.Swing, false, false, "<EAWT>")));
-            methodAnns.add(new MethodRef("com.apple.eawt.OpenFilesHandler", "openFiles", new LocatedTag(Tag.Swing, false, false, "<EAWT>")));
-        }
-        catch (NoSuchMethodException e)
-        {
-            // This happens on Windows, because the Mac methods are unknown.  It's fine, just continue on our way.
-        }
-        
     }
     
     private static String typeToName(PathAnd<ClassTree> t)

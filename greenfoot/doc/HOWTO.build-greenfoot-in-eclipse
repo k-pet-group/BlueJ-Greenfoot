@@ -275,21 +275,4 @@ Window->Preferences->Ant->Runtime global settings.
 Alternative solution: make sure that javadoc is in the system path.
 
 
-5. Ant target run-greenfoot fails with class not found exception 
-for com.apple.eawt.AboutHandler
-
-This occurs when the AppleJavaExtensions.jar isn't found in the 
-classpath of the run-greenfoot ant target for some reason.
-
-If everything is configured properly, then this shouldn't occur.
-However, it can happen after following the steps for the initial
-import and after having run project->clean->"clean all" in
-Eclipse. Re-running both ant clean targets and then both ant
-ready-to-run targets usually fixes this.
-
-A hack to avoid this permanently is to simply add the following
-pathelement in the run-greenfoot target in greenfoot/build.xml:
-
-<pathelement location="${bluej_home}/lib/AppleJavaExtensions.jar" />
-
 
