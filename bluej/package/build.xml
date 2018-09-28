@@ -300,6 +300,10 @@
         </move>
         <delete dir="${zip_dir}/BlueJ.app/Contents/Resources/Java/lib" />
 
+        <copy todir="${zip_dir}/BlueJ.app/Contents/Resources/Java/javafx">
+            <fileset dir="${openjfx_path}" />
+        </copy>
+
         <!-- ZIP it -->
         <zip destfile="${dist.mac.legacy}" duplicate="fail">
             <zipfileset dir="mac_tmp" excludes="${executable_files}" />
