@@ -70,7 +70,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import javax.swing.UIDefaults;
+import javax.swing.*;
 import javax.swing.text.TabExpander;
 
 import bluej.prefmgr.PrefMgr;
@@ -87,8 +87,6 @@ import nu.xom.Serializer;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
-
-import com.apple.eawt.Application;
 
 /**
  * Some generally useful utility methods available to all of bluej.
@@ -563,7 +561,7 @@ public class Utility
         // might not have JavaFX available, so should not use JavaFX classes here.
         
         if (Config.isMacOS()) {
-            Application.getApplication().requestForeground(false);
+            SwingUtilities.invokeLater(() -> Desktop.getDesktop().requestForeground(false));
             return;
         }
 
