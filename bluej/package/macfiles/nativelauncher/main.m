@@ -98,13 +98,18 @@ int launch(char *commandName) {
     NSString *runtimePath = nil;
         
     runtimePath = [[mainBundle bundlePath] stringByAppendingPathComponent:@"Contents/JDK"];
-    libjliPath = [[runtimePath stringByAppendingPathComponent:@"Home/jre/lib/jli/libjli.dylib"] fileSystemRepresentation];
+    libjliPath = [[runtimePath stringByAppendingPathComponent:@"Home/lib/jli/libjli.dylib"] fileSystemRepresentation];
 
     void *libJLI = dlopen(libjliPath, RTLD_LAZY);
 
     JLI_Launch_t jli_LaunchFxnPtr = NULL;
     if (libJLI != NULL) {
         jli_LaunchFxnPtr = dlsym(libJLI, "JLI_Launch");
+    }
+    else {
+        [[NSException exceptionWithName:@JAVA_LAUNCH_ERROR
+                reason:[NSString stringWithFormat:@"%@ path %@ dlerror %@", @"JLI_Dylib_Not_Opened", [NSString stringWithUTF8String: libjliPath], [NSString stringWithUTF8String: dlerror()]]
+                userInfo: nil] raise];
     }
 
     if (jli_LaunchFxnPtr == NULL) {
