@@ -54,6 +54,19 @@
     <property name="lang-stride.jar" value="${bluej_home}/lib/lang-stride.jar"/>
     <property name="greenfoot-native.jar" value="${bluej_home}/lib/greenfoot-native.jar"/>
 
+    <path id="javafx.class.path">
+        <pathelement location="${openjfx_path}/lib/javafx.base.jar"/>
+        <pathelement location="${openjfx_path}/lib/javafx.controls.jar"/>
+        <!-- Needed because of NSMenuFX -->
+        <pathelement location="${openjfx_path}/lib/javafx.fxml.jar"/>
+        <pathelement location="${openjfx_path}/lib/javafx.graphics.jar"/>
+        <!-- Needed for sound support, which is BlueJ because of Stride support for sound preview -->
+        <pathelement location="${openjfx_path}/lib/javafx.media.jar"/>
+        <pathelement location="${openjfx_path}/lib/javafx.properties.jar"/>
+        <pathelement location="${openjfx_path}/lib/javafx.swing.jar"/>
+        <pathelement location="${openjfx_path}/lib/javafx.web.jar"/>
+    </path>
+    
     <!-- Set up classpath (does not include jar files built by us) -->
     <path id="bluej.class.path">
         <pathelement location="${bluej_home}/lib/AppleJavaExtensions.jar"/>
@@ -96,6 +109,7 @@
             <classpath>
                 <pathelement location="${threadchecker.build}"/>
                 <pathelement location="${threadchecker.pluginbuild}"/>
+                <path refid="javafx.class.path"/>
                 <pathelement location="${bluej_home}/lib/AppleJavaExtensions.jar"/>
                 <pathelement location="${bluej_home}/lib/nsmenufx-2.1.4.jar"/>
             </classpath>
@@ -141,6 +155,7 @@
                            bluej/editor/moe/**,
                            ${srcexcludes}">
             <classpath>
+                <path refid="javafx.class.path"/>
                 <path refid="bluej.class.path"/>
                 <pathelement location="${threadchecker.build}"/>
                 <pathelement location="${threadchecker.pluginbuild}"/>
@@ -162,6 +177,7 @@
         <compile srcdir="${test.src}"
                  destdir="${test.build}">
             <classpath>
+                <path refid="javafx.class.path"/>
                 <path refid="bluej.class.path"/>
                 <pathelement location="${threadchecker.build}"/>
                 <pathelement location="${boot.build}"/>
@@ -314,6 +330,7 @@
         
         <junit printsummary="yes" haltonfailure="yes">
             <classpath>
+                <path refid="javafx.class.path"/>
                 <path refid="bluej.class.path"/>
                 <pathelement location="${boot.jar}"/>
                 <pathelement location="${core.jar}"/>

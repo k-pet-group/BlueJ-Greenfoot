@@ -17,6 +17,12 @@
 #####################################################################
 build_java_home=/Library/Java/JavaVirtualMachines/jdk1.8.0_172.jdk/Contents/Home
 
+#####################################################################
+# Directory containing legal/lib subdirectories with the JARs
+# for JavaFX 11:
+#####################################################################
+openjfx_path=/Users/neil/src/javafx11.0
+
 java_command_dir_name=bin
 
 #####################################################################
