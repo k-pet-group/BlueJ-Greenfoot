@@ -303,13 +303,14 @@ public class ImportScanner
         Set<URL> urls = new HashSet<>();
         urls.addAll(ClasspathHelper.forClassLoader(classLoadersList.toArray(new ClassLoader[0])));
         urls.addAll(Arrays.asList(Boot.getInstance().getRuntimeUserClassPath()));
+        // We need to change our scanning for Java 9:
         // By default, rt.jar doesn't appear on the classpath, but it contains all the core classes:
-        try {
-            urls.add(Boot.getJREJar("rt.jar"));
-        }
-        catch (MalformedURLException e) {
-            Debug.reportError(e);
-        }
+        //try {
+            //urls.add(Boot.getJREJar("rt.jar"));
+        //}
+        //catch (MalformedURLException e) {
+            //Debug.reportError(e);
+        //}
         
         // Stop jnilib files being processed on Mac:
         urls.removeIf(u -> u.toExternalForm().endsWith("jnilib") || u.toExternalForm().endsWith("zip"));

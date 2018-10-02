@@ -63,6 +63,14 @@
 		<key>ClassPath</key>
 		<array>
 			<string>$JAVAROOT/bluej.jar</string>
+			<string>$JAVAROOT/javafx/lib/javafx.base.jar</string>
+			<string>$JAVAROOT/javafx/lib/javafx.controls.jar</string>
+			<string>$JAVAROOT/javafx/lib/javafx.fxml.jar</string>
+			<string>$JAVAROOT/javafx/lib/javafx.graphics.jar</string>
+			<string>$JAVAROOT/javafx/lib/javafx.media.jar</string>
+			<string>$JAVAROOT/javafx/lib/javafx.properties.jar</string>
+			<string>$JAVAROOT/javafx/lib/javafx.swing.jar</string>
+			<string>$JAVAROOT/javafx/lib/javafx.web.jar</string>
 		</array>
 		<key>MainClass</key>
 		<string>bluej.Boot</string>
