@@ -168,7 +168,7 @@
         <copy todir="install_tmp" file="greenfoot-splash.png" />
 
         <!-- compile the installer -->
-        <!-- Note: can't use compile task here because we are setting source 1.3 -->
+        <!-- Note: can't use compile task here because we are setting source 6 -->
         <javac
                executable="${build_java_home}/${java_command_dir_name}/javac"
                fork="yes"
@@ -178,8 +178,8 @@
                includeantruntime="false"
                debug="true"
         >
-            <compilerarg line="-source 1.3" />
-            <compilerarg line="-target 1.3" />
+            <compilerarg line="-source 6" />
+            <compilerarg line="-target 6" />
         </javac>
 
         <!-- bundle the resulting class into the final distribution jar file -->
@@ -240,6 +240,10 @@
             <fileset dir="${zip_dir}/lib/" />
         </move>
         <delete dir="${zip_dir}/Greenfoot.app/Contents/Resources/Java/lib" />
+
+        <copy todir="${zip_dir}/Greenfoot.app/Contents/Resources/Java/javafx">
+            <fileset dir="${openjfx_path}" />
+        </copy>
 
         <!-- Move the documentation into the app: -->
         <move todir="${zip_dir}/Greenfoot.app/Contents/Resources">

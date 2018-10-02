@@ -66,6 +66,19 @@
     <!-- Name and location of the jlayer jar -->  
     <property name="jlayer.jar.name" value="jl1.0.1.jar"/>  
     <property name="jlayer.jar.path" value="${bluej_home}/lib/${jlayer.jar.name}"/>
+
+    <path id="javafx.class.path">
+        <pathelement location="${openjfx_path}/lib/javafx.base.jar"/>
+        <pathelement location="${openjfx_path}/lib/javafx.controls.jar"/>
+        <!-- Needed because of NSMenuFX -->
+        <pathelement location="${openjfx_path}/lib/javafx.fxml.jar"/>
+        <pathelement location="${openjfx_path}/lib/javafx.graphics.jar"/>
+        <!-- Needed for sound support, which is BlueJ because of Stride support for sound preview -->
+        <pathelement location="${openjfx_path}/lib/javafx.media.jar"/>
+        <pathelement location="${openjfx_path}/lib/javafx.properties.jar"/>
+        <pathelement location="${openjfx_path}/lib/javafx.swing.jar"/>
+        <pathelement location="${openjfx_path}/lib/javafx.web.jar"/>
+    </path>
         
     <!-- The classpath to the bluej classes-->
     <path id="bluej.class.path">
@@ -213,6 +226,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <compile srcdir="${src}"
                  destdir="${build}">
             <classpath>
+                <path refid="javafx.class.path"/>
                 <path refid="bluej.class.path"/>
                 <pathelement location="${threadchecker.build}"/>
                 <pathelement location="${threadchecker.pluginbuild}"/>
@@ -231,6 +245,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <!-- Compile the java code from ${test.src} into ${build} -->
         <compile srcdir="${test.src}" destdir="${build}">
             <classpath>
+                <path refid="javafx.class.path"/>
                 <path refid="bluej.class.path"/>
                 <pathelement location="${threadchecker.build}"/>
             </classpath>
@@ -251,6 +266,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <junit printsummary="yes" haltonfailure="yes">
             <classpath>
                 <pathelement location="${build}" />
+                <path refid="javafx.class.path"/>
                 <path refid="bluej.class.path" />
             </classpath>
 
@@ -273,6 +289,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
                 <compile srcdir="scenarios/@{scenario}" destdir="scenarios/@{scenario}">
                     <classpath>
                         <path refid="greenfoot.class.path"/>
+                        <path refid="javafx.class.path"/>
                         <path refid="bluej.class.path"/>
                     </classpath>
                 </compile>
@@ -613,6 +630,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <classpath>
                 <pathelement location="${greenfoot.standalone.scenario}"/>
                 <pathelement location="${build}"/>
+                <path refid="javafx.class.path"/>
                 <path refid="bluej.class.path"/>
             </classpath>
 
@@ -626,6 +644,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <!-- Compile the java code from ${src} into ${build} -->
         <compile srcdir="${src}" destdir="${standalone.build}">
             <classpath>
+                <path refid="javafx.class.path"/>
                 <path refid="bluej.class.path"/>
                 <pathelement location="${bluej_home}/threadchecker/classes"/>
             </classpath>
