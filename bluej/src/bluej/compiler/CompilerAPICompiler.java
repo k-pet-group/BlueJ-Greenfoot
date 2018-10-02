@@ -189,7 +189,7 @@ public class CompilerAPICompiler extends Compiler
             List<File> pathList = new ArrayList<File>();
             List<File> outputList = new ArrayList<File>();
             outputList.add(getDestDir());
-            Collections.addAll(pathList, getClassPath());
+            pathList.addAll(getClassPath());
             
             // In BlueJ, the destination directory and the source path are
             // always the same

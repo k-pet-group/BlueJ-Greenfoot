@@ -95,7 +95,7 @@ public final class BPClassLoader extends URLClassLoader
      * current BlueJ.
      * @return a non null array of Files, may be empty if no library at all is defined.
      */
-    public final File[] getClassPathAsFiles()
+    public final List<File> getClassPathAsFiles()
     {
         return Utility.urlsToFiles(getURLs());
     }

@@ -41,19 +41,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.BiConsumer;
@@ -963,34 +952,17 @@ public class Utility
      * @param files an array of files.
      * @return a non null string, possibly empty.
      */
-    public static final String toClasspathString(File[] files)
+    public static final String toClasspathString(List<File> files)
     {
-        if ((files == null) || (files.length < 1)) {
+        if (files == null) {
             return "";
         }
 
-        boolean addSeparator = false; // Do not add a separator at the beginning
-        StringBuffer buf = new StringBuffer();
-
-        for (int index = 0; index < files.length; index++) {
-            File file = files[index];
-
-            // It may happen that one entry is null, strange, but just skip it.
-            if (file == null) {
-                continue;
-            }
-
-            if (addSeparator) {
-                buf.append(File.pathSeparatorChar);
-            }
-
-            buf.append(file.toString());
-
-            // From now on, you have to add a separator.
-            addSeparator = true;
-        }
-
-        return buf.toString();
+        // It may happen that one entry is null, strange, but just skip it.
+        return files.stream()
+                .filter(f -> f != null)
+                .map(f -> f.toString())
+                .collect(Collectors.joining(File.pathSeparator));
     }
     
     /**
@@ -999,10 +971,10 @@ public class Utility
      * @param urls  an array of URL to be converted
      * @return  a non null (but possibly empty) array of File
      */
-    public static final File[] urlsToFiles(URL[] urls)
+    public static final List<File> urlsToFiles(URL[] urls)
     {
         if ((urls == null) || (urls.length < 1)) {
-            return new File[0];
+            return Collections.emptyList();
         }
 
         List<File> rlist = new ArrayList<File>();
@@ -1019,7 +991,7 @@ public class Utility
             }
         }
 
-        return rlist.toArray(new File[rlist.size()]);
+        return rlist;
     }
 
     /**

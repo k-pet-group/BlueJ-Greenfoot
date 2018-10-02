@@ -212,11 +212,11 @@ public class VMReference
 
         // launch the VM using the runtime classpath.
         Boot boot = Boot.getInstance();
-        File [] filesPath = Utility.urlsToFiles(boot.getRuntimeUserClassPath());
-        File [] libraryPaths = Utility.urlsToFiles(libraries);
-        File [] classPath = new File[filesPath.length + libraryPaths.length];
-        System.arraycopy(filesPath, 0, classPath, 0, filesPath.length);
-        System.arraycopy(libraryPaths, 0, classPath, filesPath.length, libraryPaths.length);
+        List<File> filesPath = Utility.urlsToFiles(boot.getRuntimeUserClassPath());
+        List<File> libraryPaths = Utility.urlsToFiles(libraries);
+        List<File> classPath = new ArrayList<>(filesPath.size() + libraryPaths.size());
+        classPath.addAll(filesPath);
+        classPath.addAll(libraryPaths);
         String allClassPath = Utility.toClasspathString(classPath);
         
         ArrayList<String> paramList = new ArrayList<String>(11);

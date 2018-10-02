@@ -39,7 +39,7 @@ abstract class Compiler
     public static final String COMPILER_OPTIONS = "bluej.compiler.options";
     
     private File destDir;
-    private File[] classPath;
+    private List<File> classPath;
     /** "boot" class path - may be null if not specified */
     private File[] bootClassPath;
     private boolean debug;
@@ -57,7 +57,7 @@ abstract class Compiler
         this.destDir = destDir;
     }
 
-    public void setClasspath(File [] classPath)
+    public void setClasspath(List<File> classPath)
     {
         this.classPath = classPath;
     }
@@ -97,7 +97,7 @@ abstract class Compiler
         return destDir;
     }
     
-    public File[] getClassPath()
+    public List<File> getClassPath()
     {
         return classPath;
     }
