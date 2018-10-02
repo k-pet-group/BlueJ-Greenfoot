@@ -213,9 +213,11 @@ public class VMReference
         // launch the VM using the runtime classpath.
         Boot boot = Boot.getInstance();
         List<File> filesPath = Utility.urlsToFiles(boot.getRuntimeUserClassPath());
+        List<File> javafxPath = Utility.urlsToFiles(boot.getJavaFXClassPath());
         List<File> libraryPaths = Utility.urlsToFiles(libraries);
-        List<File> classPath = new ArrayList<>(filesPath.size() + libraryPaths.size());
+        List<File> classPath = new ArrayList<>();
         classPath.addAll(filesPath);
+        classPath.addAll(javafxPath);
         classPath.addAll(libraryPaths);
         String allClassPath = Utility.toClasspathString(classPath);
         
