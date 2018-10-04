@@ -60,7 +60,7 @@ bool testJdkPath(string jdkLocation, string *reason)
 	}
 	
 	string javacExeLocation = jdkLocation + TEXT("bin\\javac.exe");
-	result = GetBinaryType(toolsJarLocation.c_str(), &binaryType);
+	result = GetBinaryType(javacExeLocation.c_str(), &binaryType);
 	if (result == 0) {
 		// No tools.jar
 		if (reason != NULL) {
