@@ -437,6 +437,10 @@
             <fileset dir="${win_bundled_jdk_path}" />
         </copy>
 
+        <copy todir="winsetup/standalone/bluej/lib/javafx">
+            <fileset dir="${openjfx_path}" />
+        </copy>
+
         <!-- Fix the path to the JDK in bluej.defs -->
         <replaceregexp byline="true">
             <regexp pattern="#bluej\.windows\.vm=.*"/>
@@ -523,6 +527,10 @@
 		<copy todir="winsetup/SourceDir/jdk">
 			<fileset dir="${win_bundled_jdk_path}" />
 		</copy>
+
+        <copy todir="winsetup/SourceDir/lib/javafx">
+            <fileset dir="${openjfx_path}" />
+        </copy>
 		
 		<!-- The heat tool scans all the files in SourceDir and generates
 		     a WiX file that has all the XML needed for installing all those files -->
