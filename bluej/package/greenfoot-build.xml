@@ -342,7 +342,7 @@
 
     <target name="windows-launcher">
         <!-- build launcher -->
-        <exec dir="winlaunch" executable="${msys_bash}">
+        <exec dir="winlaunch" executable="${msys_bash}" failonerror="true">
             <!-- We must use the login flag or none of the PATH etc variables get set: -->
             <arg line="--login"/>
             <!-- Must cd to right directory, then run make: -->
@@ -352,7 +352,7 @@
 
     <target name="windows-launcher-usb">
         <!-- build launcher -->
-        <exec dir="winusblaunch" executable="${msys_bash}">
+        <exec dir="winusblaunch" executable="${msys_bash}" failonerror="true">
             <!-- We must use the login flag or none of the PATH etc variables get set: -->
             <arg line="--login"/>
             <!-- Must cd to right directory, then run make: -->
@@ -376,6 +376,10 @@
         <!-- Copy the JDK to be bundled -->
         <copy todir="winsetup/standalone/greenfoot/jdk">
             <fileset dir="${win_bundled_jdk_path}" />
+        </copy>
+
+        <copy todir="winsetup/standalone/greenfoot/lib/javafx">
+            <fileset dir="${openjfx_path}" />
         </copy>
 
         <!-- Fix the path to the JDK in greenfoot.defs -->
@@ -406,14 +410,17 @@
         <unzip src="greenfoot-dist.jar" dest="winsetup/SourceDir" />
 
         <exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="-arch x64"/>
             <arg line="CheckboxExtrasDlg.wxs"/>
         </exec>
         
         <exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="-arch x64"/>
             <arg line="ui.wxs"/>
         </exec>
         
         <exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="-arch x64"/>
             <arg line="greenfoot.wxs"/>
         </exec>
         
@@ -423,6 +430,7 @@
             <arg line="dir SourceDir -cg GreenfootFiles -dr INSTALLDIR -ke -gg -srd -sfrag -sreg -template fragment -out greenfoot-install-files.wxs"/>
         </exec>
         <exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="-arch x64"/>
             <arg line="greenfoot-install-files.wxs"/>
         </exec>
         
@@ -448,6 +456,10 @@
 		<copy todir="winsetup/SourceDir/jdk">
 			<fileset dir="${win_bundled_jdk_path}" />
 		</copy>
+
+        <copy todir="winsetup/SourceDir/lib/javafx">
+            <fileset dir="${openjfx_path}" />
+        </copy>
 		
 		<!-- The heat tool scans all the files in SourceDir and generates
 		     a WiX file that has all the XML needed for installing all those files -->
@@ -456,18 +468,22 @@
 		</exec>
 
 		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="-arch x64"/>
 			<arg line="CheckboxExtrasDlg.wxs"/>
 		</exec>
 			
 		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="-arch x64"/>
 			<arg line="ui.wxs"/>
 		</exec>
 			
 		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="-arch x64"/>
 			<arg line="greenfoot.wxs"/>
 		</exec>
 			
 		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="-arch x64"/>
 			<arg line="greenfoot-install-files.wxs"/>
 		</exec>
 			
