@@ -394,7 +394,7 @@
 
     <target name="windows-launcher">
         <!-- build launcher -->
-        <exec dir="winlaunch" executable="${msys_bash}">
+        <exec dir="winlaunch" executable="${msys_bash}" failonerror="true">
             <!-- We must use the login flag or none of the PATH etc variables get set: -->
             <arg line="--login"/>
             <!-- Must cd to right directory, then run make: -->
@@ -404,7 +404,7 @@
 
     <target name="windows-launcher-usb">
         <!-- build launcher -->
-        <exec dir="winusblaunch" executable="${msys_bash}">
+        <exec dir="winusblaunch" executable="${msys_bash}" failonerror="true">
             <!-- We must use the login flag or none of the PATH etc variables get set: -->
             <arg line="--login"/>
             <!-- Must cd to right directory, then run make: -->
