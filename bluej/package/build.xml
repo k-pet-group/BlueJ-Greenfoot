@@ -477,14 +477,17 @@
         </fixcrlf>
 		
 		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="-arch x64"/>
 			<arg line="CheckboxExtrasDlg.wxs"/>
 		</exec>
 			
 		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="-arch x64"/>
 			<arg line="ui.wxs"/>
 		</exec>
 			
 		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="-arch x64"/>
 			<arg line="bluej.wxs"/>
 		</exec>
 			
@@ -494,6 +497,7 @@
 			<arg line="dir SourceDir -cg BlueJFiles -dr INSTALLDIR -ke -gg -srd -sfrag -template fragment -out bluej-install-files.wxs"/>
 		</exec>
 		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="-arch x64"/>
 			<arg line="bluej-install-files.wxs"/>
 		</exec>
 			
@@ -539,18 +543,22 @@
 		</exec>
 
 		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="-arch x64"/>
 			<arg line="CheckboxExtrasDlg.wxs"/>
 		</exec>
 			
 		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="-arch x64"/>
 			<arg line="ui.wxs"/>
 		</exec>
 			
 		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="-arch x64"/>
 			<arg line="bluej.wxs"/>
 		</exec>
 			
 		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="-arch x64"/>
 			<arg line="bluej-install-files.wxs"/>
 		</exec>
 			
