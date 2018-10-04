@@ -692,11 +692,13 @@
 	            <include name="package/**/*" />     
 	            <exclude name="package/commons-*"/>
 	            <exclude name="package/${bluej.source.zip}"/>
+                <exclude name="package/BlueJ*.msi"/>
 	            <exclude name="package/BlueJ*.jar"/>
 	            <exclude name="package/BlueJ*.zip"/>
             	<exclude name="package/bluej*.deb"/>
 	            <exclude name="package/bluej-dist.jar"/>
 	            <exclude name="package/install_tmp/"/>
+                <exclude name="package/winsetup/*.msi"/>
 	            <include name="test/**/*"/>
             	<exclude name="test/classes/**"/>
             	<include name="util/**/*.java"/>
