@@ -113,7 +113,7 @@
                 <pathelement location="${bluej_home}/lib/nsmenufx-2.1.4.jar"/>
             </classpath>
             <compilerarg value="-Xmaxerrs"/><compilerarg value="100"/>
-            <compilerarg value="-Xplugin:threadchecker.TCPlugin org.reflections"/>
+            <compilerarg value="-Xplugin:threadchecker.TCPlugin"/>
         </compile>
         <copy todir="${boot.build}">
             <fileset dir="${boot.resources}" />
@@ -161,7 +161,7 @@
                 <pathelement location="${boot.jar}"/>
             </classpath>
             <compilerarg value="-Xmaxerrs"/><compilerarg value="1000"/>
-            <compilerarg value="-Xplugin:threadchecker.TCPlugin org.reflections"/>
+            <compilerarg value="-Xplugin:threadchecker.TCPlugin"/>
 
             <!-- <compilerarg value="-J-XX:+UnlockCommercialFeatures"/>
             <compilerarg value="-J-XX:+FlightRecorder"/>

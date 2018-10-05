@@ -259,16 +259,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
----
-
-The Reflections code in org.reflections was taken from the Reflections library by ronamo,
-master version from https://github.com/ronmamo/reflections on 2014-05-30, after commit
-662061c7544a6fb4155dbfa8b95d4d5c7a372806.  The code was originally licensed under the WTFPL,
-and is distributed as part of BlueJ under the GPLv2 license with Classpath exception (the
-primary BlueJ license). 
-
-
-
 4. SUMMARY OF THIRD-PARTY JAR FILES AND LICENSES
 
 antlr-runtime-3.4.jar                    BSD License
