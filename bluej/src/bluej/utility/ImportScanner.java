@@ -42,18 +42,15 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import bluej.Config;
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ClassInfo;
+import io.github.classgraph.ScanResult;
 import javafx.application.Platform;
 import nu.xom.Attribute;
 import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.ParsingException;
-import org.reflections.Reflections;
-import org.reflections.ReflectionsException;
-import org.reflections.scanners.SubTypesScanner;
-import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
-import org.reflections.util.FilterBuilder;
 
 import bluej.Boot;
 import bluej.parser.ImportedTypeCompletion;
@@ -72,8 +69,6 @@ public class ImportScanner
     private final Object monitor = new Object();
     // Root package with "" as ident.
     private CompletableFuture<RootPackageInfo> root;
-    // The Reflections library we use to actually do the scanning:
-    private Reflections reflections;
     // The Project which we are scanning for:
     private Project project;
 
@@ -134,17 +129,15 @@ public class ImportScanner
                 // worker thread, it is safe to use wait afterwards; without risk of deadlock:
                 try
                 {
-                    Class<?> c = reflections.typeNameToClass(prefix + s);
+                    Class<?> c = project.getClassLoader().loadClass(prefix + s);
                     CompletableFuture<AssistContentThreadSafe> f = new CompletableFuture<>();
                     Platform.runLater(() -> f.complete(new AssistContentThreadSafe(new ImportedTypeCompletion(c, javadocResolver))));
                     return f.get();
                 }
-                catch (ReflectionsException e)
+                catch (ClassNotFoundException e)
                 {
-                    // Don't report this one; it happens frequently, for example
-                    // when the user is typing in an import in a Stride import frame.
-                    // We check j, ja, jav, ... java.ut, java.uti, etc.
-                    // No need to report an exception for every bad import
+                    // This happens reasonably often while the user is typing in an import in Stride, there's no
+                    // need to report it every time.
                     return null;
                 }
                 catch (Exception e)
@@ -266,11 +259,11 @@ public class ImportScanner
      * GUI thread where it could block the GUI for a long time.
      */
     @OnThread(Tag.Worker)
-    public List<AssistContentThreadSafe> getImportedTypes(String importSrc, JavadocResolver javadocResolver)
+    public List<AssistContentThreadSafe> getImportedTypes(String importSrc)
     {
         try
         {
-            return getRoot().get().getImportedTypes("", Arrays.asList(importSrc.split("\\.", -1)).iterator(), javadocResolver);
+            return getRoot().get().getImportedTypes("", Arrays.asList(importSrc.split("\\.", -1)).iterator(), project.getJavadocResolver());
         }
         catch (InterruptedException | ExecutionException e)
         {
@@ -278,14 +271,23 @@ public class ImportScanner
             return Collections.emptyList();
         }
     }
-    
-    // Gets the class loader config to pass to the Reflections library
+
+    /**
+     * Gets a list of ClassGraph items which can be used to find available classes.
+     * 
+     * Because of the way ClassGraph works, one item is not enough for all classes;
+     * we use one for system classes and one for user classes.
+     */
     @OnThread(Tag.Worker)
-    private ConfigurationBuilder getClassloaderConfig()
+    private List<ClassGraph> getClassloaderConfig()
     {
-        List<ClassLoader> classLoadersList = new ArrayList<ClassLoader>();
-        classLoadersList.add(ClasspathHelper.contextClassLoader());
-        classLoadersList.add(ClasspathHelper.staticClassLoader());
+        // When you override the class loaders in ClassGraph's config, it no longer
+        // loads the JDK classes.  So we have one ClassGraph for user code libraries
+        // (e.g. JUnit, pi4j, other configured BlueJ libraries):
+        ArrayList<ClassLoader> cl = new ArrayList<>();
+        cl.add(ClassLoader.getSystemClassLoader());
+        cl.add(ClassLoader.getPlatformClassLoader());
+        
         try
         {
             CompletableFuture<ClassLoader> projectClassLoader = new CompletableFuture<>();
@@ -293,92 +295,31 @@ public class ImportScanner
             Platform.runLater(() -> {
                 projectClassLoader.complete(project.getClassLoader());
             });
-            classLoadersList.add(projectClassLoader.get());
+            cl.add(projectClassLoader.get());
         }
         catch (InterruptedException | ExecutionException e)
         {
             Debug.reportError(e);
         }
-        
-        Set<URL> urls = new HashSet<>();
-        urls.addAll(ClasspathHelper.forClassLoader(classLoadersList.toArray(new ClassLoader[0])));
-        urls.addAll(Arrays.asList(Boot.getInstance().getRuntimeUserClassPath()));
-        // We need to change our scanning for Java 9:
-        // By default, rt.jar doesn't appear on the classpath, but it contains all the core classes:
-        //try {
-            //urls.add(Boot.getJREJar("rt.jar"));
-        //}
-        //catch (MalformedURLException e) {
-            //Debug.reportError(e);
-        //}
-        
-        // Stop jnilib files being processed on Mac:
-        urls.removeIf(u -> u.toExternalForm().endsWith("jnilib") || u.toExternalForm().endsWith("zip"));
-        
-        urls.removeIf(u -> {
-            if ("file".equals(u.getProtocol())) {
-                try {
-                    File f = new File(u.toURI());
-                    if (f.getName().startsWith(".")) return true;
-                    if (f.getName().endsWith(".so")) return true;
-                }
-                catch (URISyntaxException usexc) {}
-            }
-            return false; 
-        });
+        cl.add(new URLClassLoader(Boot.getInstance().getRuntimeUserClassPath()));
 
-        //Debug.message("Class loader URLs:");
-        //urls.stream().sorted(Comparator.comparing(URL::toString)).forEach(u -> Debug.message("  " + u));
+        // We hide bluej.* classes as users shouldn't be accessing them:
+        ClassGraph userClassGraph = new ClassGraph()
+                .overrideClassLoaders(cl.toArray(new ClassLoader[0]))
+                .blacklistPackages("bluej.*");
+        
+        // We have a separate class graph for system libraries (java.*, javafx.*), from which
+        // we only take public packages, thus avoiding all the com.sun classes and so on:
+        // This has to be separate because enableSystemPackages() doesn't work alongside 
+        // overrideClassLoaders():
+        ClassGraph systemClassGraph = new ClassGraph()
+            .enableSystemPackages()
+            .whitelistPackages("java.*", "javax.*", "javafx.*");
 
-        ClassLoader cl = new URLClassLoader(urls.toArray(new URL[0]));
-        
-        return new ConfigurationBuilder()
-            .setScanners(new SubTypesScanner(false /* don't exclude Object.class */))
-            .setUrls(urls)
-            .addClassLoader(cl)
-            .useParallelExecutor();
-    }
-
-    /**
-     * Creates a Reflections instance ready to do import scanning.
-     * @param importSrcs Currently not used by caller, but narrows imports down
-     * @return
-     */
-    @OnThread(Tag.Worker)
-    private Reflections getReflections(List<String> importSrcs)
-    {
-        FilterBuilder filter = new FilterBuilder();
-        
-        for (String importSrc : importSrcs)
-        {
-            if (importSrc.endsWith(".*"))
-            {
-                // Chop off star but keep the dot, then escape dots:
-                String importSrcRegex = importSrc.substring(0, importSrc.length() - 1).replace(".","\\.");
-                filter = filter.include(importSrcRegex + ".*"); 
-            }
-            else
-            {
-                // Look for that exactly.  It seems we need .* because I think the library
-                // uses the same filter to match files as classes, so an exact match will miss the class file:
-                filter = filter.include(importSrc.replace(".", "\\.") + ".*");
-            }
-        }
-        // Exclude $1, etc classes -- they cannot be used directly, and asking about them causes errors:
-        filter = filter.exclude(".*\\$\\d.*");
-        filter = filter.exclude("com\\.sun\\..*");
-        
-        try
-        {
-            return new Reflections(getClassloaderConfig()
-                .filterInputsBy(filter)
-                );
-        }
-        catch (Throwable e)
-        {
-            Debug.reportError(e);
-            return null;
-        }
+        return Arrays.asList(
+            userClassGraph.enableClassInfo(),
+            systemClassGraph.enableClassInfo()
+        );
     }
 
     /**
@@ -391,27 +332,27 @@ public class ImportScanner
     @OnThread(Tag.Worker)
     private RootPackageInfo findAllTypes()
     {
-        reflections = getReflections(Collections.emptyList());
-        
-        if (reflections == null)
-            return new RootPackageInfo();
-        
-        Set<String> classes;
-        try
-        {
-            classes = reflections.getSubTypeNamesOf(Object.class);
-        }
-        catch (Throwable t)
-        {
-            Debug.reportError(t);
-            classes = new HashSet<>();
-        }
-        
-        // Also add Object itself, not found by default:
-        classes.add(Object.class.getName());
-
+        List<ClassGraph> classGraphs = getClassloaderConfig();
         RootPackageInfo r = new RootPackageInfo();
-        classes.forEach(c -> r.addClass(c));
+        
+        if (classGraphs != null)
+        {
+            final int threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 1);
+            for (ClassGraph classGraph : classGraphs)
+            {
+                try (ScanResult result = classGraph.scan(threads))
+                {
+                    for (ClassInfo c : result.getAllClasses())
+                    {
+                        r.addClass(c.getName());
+                    }
+                }
+                catch (Throwable t)
+                {
+                    Debug.reportError(t);
+                }
+            }
+        }
         return r;
     }
 

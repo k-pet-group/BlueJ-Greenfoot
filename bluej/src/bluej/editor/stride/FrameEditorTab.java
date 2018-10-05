@@ -327,7 +327,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         Utility.runBackground(() -> {
             try
             {
-                f.complete(project.getImportScanner().getImportedTypes(x, javadocResolver));
+                f.complete(project.getImportScanner().getImportedTypes(x));
             }
             catch (Throwable t)
             {
