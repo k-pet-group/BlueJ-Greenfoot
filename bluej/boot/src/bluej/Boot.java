@@ -109,6 +109,7 @@ public class Boot
     // The first lot are the ones to run BlueJ itself
     private static final String[] bluejJars = { "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
         "antlr-runtime-3.4.jar",
+        "classgraph-4.2.6.jar",
         "commons-logging-api-1.1.2.jar",
         "commons-vfs2-2.0.jar",
         "diffutils-1.2.1.jar",

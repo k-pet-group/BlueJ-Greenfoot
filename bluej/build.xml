@@ -92,6 +92,7 @@
         <pathelement location="${bluej_home}/lib/org.eclipse.jgit-4.9.0.jar"/>
         <pathelement location="${bluej_home}/lib/nsmenufx-2.1.4.jar"/>
         <pathelement location="${bluej_home}/lib/richtextfx-fat-0.9.0.jar"/>
+        <pathelement location="${bluej_home}/lib/classgraph-4.2.6.jar"/>
     </path>
 
     <import file="shared.xml"/>
@@ -539,6 +540,7 @@
                 <exclude name="antlr-runtime-3.4.jar"/>
                 <exclude name="commons-logging-api-1.1.2.jar"/>
                 <exclude name="commons-vfs2-2.0.jar"/>
+                <exclude name="classgraph-4.2.6.jar"/>
                 <exclude name="diffutils-1.2.1.jar"/>
                 <exclude name="eddsa-0.2.0.jar"/>
                 <exclude name="guava-17.0.jar"/>

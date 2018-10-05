@@ -68,6 +68,11 @@ used by BlueJ:
 These components are distributed under the Apache License version 2.0. A copy of this
 license can be found in the "Apache-License-2.0.txt" file.  
  
+ClassGraph library (MIT License)
+--------------------------------
+"classgraph-4.2.6.jar" is from the ClassGraph library, which allows scanning of Java
+libraries for a list of present classes.  It is released by Luke Hutchison under
+the MIT License, and is available at https://github.com/classgraph/classgraph
 
 Diffutils (Apache License version 2.0)
 --------------------------------------
