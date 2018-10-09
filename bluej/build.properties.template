@@ -3,9 +3,8 @@
 #####################################################################
 ##
 ## This file contains user system related properties for building
-## bluej via ant. Tis file gets includes into bluej's main build.xml
-## via the property ant task. This means build.xml does not need to 
-## contain machine specific config information.
+## bluej via ant. This file is included into bluej's main build.xml
+## so that it does not need to contain machine specific configuration.
 ##
 #####################################################################
 
@@ -13,32 +12,38 @@
 # the build_java_home is used to find the compiler to fork and the
 # tools.jar file to use with it. Note that in general all
 # compilation should be done on the minimum supported JDK for
-# BlueJ (which is currently Java 8)
+# BlueJ.
 #####################################################################
-build_java_home=/Library/Java/JavaVirtualMachines/jdk1.8.0_172.jdk/Contents/Home
+build_java_home=/Library/Java/JavaVirtualMachines/jdk11.jdk/Contents/Home
 
-#####################################################################
-# Directory containing legal/lib subdirectories with the JARs
-# for JavaFX 11:
-#####################################################################
-openjfx_path=/Users/neil/src/javafx11.0
+## Example for Windows:
+#build_java_home=c:/Program Files/Java/jdk11
 
+# The folder under build_java_home containing the binaries:
 java_command_dir_name=bin
 
 #####################################################################
+# Directory containing legal/lib subdirectories with the JARs
+# for JavaFX. This is used for building/running and is also bundled
+# into Mac/Windows distributable packages.
+#####################################################################
+openjfx_path=/Users/me/opt/javafx11.0
+
+#####################################################################
 # the run_java_home is used to find the jvm to run and the 
-# corresponding tools.jar file. Usually the same as above.
+# corresponding tools.jar file. Usually the same as build_java_home.
 #####################################################################
 run_java_home=${build_java_home}
 
 #####################################################################
 # The JDK for bundling with Mac OS and Windows builds.
 #####################################################################
-mac_bundled_jdk_path=/Library/Java/JavaVirtualMachines/jdk1.8.0_172.jdk
+mac_bundled_jdk_path=${build_java_home}
 
-# NOTE: THIS MUST BE A 32-BIT JDK, or the resulting bundle will not
-# work properly on 32-bit Windows versions.
-win_bundled_jdk_path=c:/Program Files (x86)/Java/jdk1.8.0_172
+win_bundled_jdk_path=${build_java_home}
+
+# Note that for win_bundled_jdk_path a 32-bit JDK was previously favoured, to
+# allow BlueJ to run on 32-bit machines. JDK 11 is now 64-bit only.
 
 #####################################################################
 # This property defines where the "Wix" bin directory (containing
