@@ -320,12 +320,6 @@
     </target>
 
     <target name="test" depends="compile-core, compile-test">
-        <!-- Need to turn verbosity back on to see the test output: -->
-        <script language="javascript">
-            var logger = project.getBuildListeners().firstElement();
-            logger.setMessageOutputLevel(2);
-        </script>
-        
         <junit printsummary="yes" haltonfailure="yes">
             <classpath>
                 <path refid="javafx.class.path"/>
