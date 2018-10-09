@@ -256,13 +256,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <!-- Useful for running threadchecker -->
     </target>
 
-    <target name="test" depends="compile-test">
-        <!-- Need to turn verbosity back on to see the test output: -->
-        <script language="javascript">
-            var logger = project.getBuildListeners().firstElement();
-            logger.setMessageOutputLevel(2);
-        </script>
-        
+    <target name="test" depends="compile-test" description="Run tests">
         <junit printsummary="yes" haltonfailure="yes">
             <classpath>
                 <pathelement location="${build}" />
