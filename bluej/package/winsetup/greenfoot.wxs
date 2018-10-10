@@ -11,7 +11,7 @@
     
     <Package Id='*' Keywords='Installer' Description="Greenfoot Installer"
       Manufacturer='Greenfoot'
-      InstallerVersion='100' Languages='1033' Compressed='yes' SummaryCodepage='1252' />
+      InstallerVersion='200' Languages='1033' Compressed='yes' SummaryCodepage='1252' />
     
     <!-- Embeds all the files to install inside the MSI -->
     <Media Id='1' Cabinet='Greenfoot.cab' EmbedCab='yes' />
@@ -41,7 +41,7 @@
          and that's where the ant rules unzip all the files that we want distributed. -->
     <Directory Id='TARGETDIR' Name='SourceDir'>
        <!-- The default install location is effectively: C:\Program Files\Greenfoot -->
-	   <Directory Id='ProgramFilesFolder'>    
+	   <Directory Id='ProgramFiles64Folder'>    
 	     <Directory Id='INSTALLDIR' Name='!(loc.SOFTWARE)'/>
 	   </Directory>   
     

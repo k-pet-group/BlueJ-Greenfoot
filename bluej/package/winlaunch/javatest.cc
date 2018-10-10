@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2018  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -60,7 +60,7 @@ bool testJdkPath(string jdkLocation, string *reason)
 	}
 	
 	string javacExeLocation = jdkLocation + TEXT("bin\\javac.exe");
-	result = GetBinaryType(toolsJarLocation.c_str(), &binaryType);
+	result = GetBinaryType(javacExeLocation.c_str(), &binaryType);
 	if (result == 0) {
 		// No tools.jar
 		if (reason != NULL) {

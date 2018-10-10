@@ -33,4 +33,4 @@ usblaunch.o: usblaunch.cc
 	g++ -DAPPNAME=$(APPNAME) -DEXENAME=$(EXENAME) -Os -I"$(JDKDIR)/include" -I"$(JDKDIR)/include/win32" -c usblaunch.cc -o usblaunch.o
 
 clean:
-	rm -f $(OBJECTS)
+	del $(OBJECTS)

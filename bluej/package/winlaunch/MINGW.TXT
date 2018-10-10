@@ -1,43 +1,27 @@
-Setting up the MinGW environment for building the Bluej launcher
-----------------------------------------------------------------
+Setting up the MinGW64 environment for building the Bluej launcher
+------------------------------------------------------------------
 
-MinGW (http://www.mingw.org) is a GNU-like environment for Windows.
+MinGW is a GNU-like environment for Windows.  MinGW64 is a 64-bit version.
+The launcher must be 64-bit because the JVM (including its DLLs) is 64-bit, 
+and thus a 64-bit environment (and 64-bit Windows) is required to build the 
+launcher.
 
-The files, currently, hosted at: https://sourceforge.net/projects/mingw/files/
+Download and install the MinGW64 distribution from:
 
+https://sourceforge.net/projects/mingw-w64/files/
 
-You'll need the following MinGW packages (unpack them into \mingw):
+Beneath the files list are a list of quick links.  Download the version:
 
-- gcc (MinGW/Base/gcc/Version4/gcc-4.5.2-1/gcc-core-4.5.2-1-mingw32-bin.tar.lzma)
-- g++ (MinGW/Base/gcc/Version4/gcc-4.5.2-1/gcc-c%2B%2B-4.5.2-1-mingw32-bin.tar.lzma)
-- binutils (MinGW/Base/binutils/binutils-2.21/binutils-2.21-3-mingw32-bin.tar.lzma)
-- GNU make (MinGW/Extension/make/make-3.82-mingw32/make-3.82-5-mingw32-bin.tar.lzma)
-- MinGW API for Windows (MinGW/Base/w32api/w32api-3.17/w32api-3.17-2-mingw32-dev.tar.lzma)
-- MinGW runtime (MinGW/Base/mingwrt/mingwrt-3.18/mingwrt-3.18-mingw32-dev.tar.gz)
-- gmp library (MinGW/Base/gmp/gmp-5.0.1-1/libgmp-5.0.1-1-mingw32-dll-10.tar.lzma)
-- mpfr library (MinGW/Base/mpfr/mpfr-2.4.1-1/libmpfr-2.4.1-1-mingw32-dll-1.tar.lzma)
-- mpc library (MinGW/Base/mpc/mpc-0.8.1-1/libmpc-0.8.1-1-mingw32-dll-2.tar.lzma)
-- iconv library (MinGW/Base/libiconv/libiconv-1.13.1-1/libiconv-1.13.1-1-mingw32-dll-2.tar.lzma)
-- libintl library (MinGW/Base/gettext/gettext-0.17-1/libintl-0.17-1-mingw32-dll-8.tar.lzma)
+    GCC-8.1.0 x86_64-posix-seh
+    
+Direct link is currently:
 
-And the following Msys packages (unpack them into \msys\1.0):
+https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win64/Personal%20Builds/mingw-builds/8.1.0/threads-posix/seh/x86_64-8.1.0-release-posix-seh-rt_v6-rev0.7z
 
-- MSYS base system (MSYS/Base/msys-core/msys-1.0.17-1/msysCORE-1.0.17-1-msys-1.0.17-bin.tar.lzma)
-- bash shell (MSYS/Base/bash/bash-3.1.17-4/bash-3.1.17-4-msys-1.0.16-bin.tar.lzma)
-- mintty terminal emulator (MSYS/Extension/mintty/mintty-0.9.9/mintty-0.9.9-1-msys-1.0.16-bin.tar.lzma)
-- regex library (MSYS/Base/regex/regex-1.20090805-2/libregex-1.20090805-2-msys-1.0.13-dll-1.tar.lzma)
-- termcap library (MSYS/Base/termcap/termcap-0.20050421_1-2/libtermcap-0.20050421_1-2-msys-1.0.13-dll-0.tar.lzma)
+Make sure build.properties has a line like this pointing to the mingw64 directory:
 
-Additional setup required:
+mingw_root=C:/mingw64/mingw64
 
-- create home directory:
-   /msys/1.0/home/(username)
-
-- edit /msys/1.0/etc/fstab.sample, copy to fstab, set:
-   C:/Docume~1/(username)/workspace   /workspace
-   C:/msys/1.0/home                   /home
-
-  "workspace" should be a mount point somewhere convenient underneath your BlueJ project directory.
-  Note you must use the shortened name for paths with spaces, hence "Docume~1" above.
-
-- set up a shortcut to run "mintty -" or "bash -login"
+(If you unzip MinGW64 to c:\mingw64, you want to point the variable to the mingw64
+directory that is inside that, as above, or manually collapse the directories if
+you prefer, to avoid the duplicated path.)

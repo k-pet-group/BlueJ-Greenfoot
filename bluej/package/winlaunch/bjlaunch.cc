@@ -273,6 +273,15 @@ bool launchVMexternal(string jdkLocation)
 
     commandLine += TEXT("-classpath ");
     string classPathString = bluejPath + TEXT("\\lib\\bluej.jar");
+    string sep(TEXT(";"));
+    classPathString += sep + bluejPath + TEXT("\\lib\\javafx\\lib\\javafx.base.jar");
+    classPathString += sep + bluejPath + TEXT("\\lib\\javafx\\lib\\javafx.controls.jar");
+    classPathString += sep + bluejPath + TEXT("\\lib\\javafx\\lib\\javafx.fxml.jar");
+    classPathString += sep + bluejPath + TEXT("\\lib\\javafx\\lib\\javafx.graphics.jar");
+    classPathString += sep + bluejPath + TEXT("\\lib\\javafx\\lib\\javafx.media.jar");
+    classPathString += sep + bluejPath + TEXT("\\lib\\javafx\\lib\\javafx.properties.jar");
+    classPathString += sep + bluejPath + TEXT("\\lib\\javafx\\lib\\javafx.swing.jar");
+    classPathString += sep + bluejPath + TEXT("\\lib\\javafx\\lib\\javafx.web.jar");
     commandLine += escapeCmdlineParam(classPathString);
 
     commandLine += TEXT(" bluej.Boot");
@@ -349,12 +358,12 @@ bool launchVM(string jdkLocation)
     // The msvcrXXX.dll is sometimes in the system directory, but if it's not it won't be found
     // automatically. We use SetDllDirectory to specify the search location:
 
-    string jvmDllPath = jdkLocation + TEXT("\\jre\\bin");
+    string jvmDllPath = jdkLocation + TEXT("\\bin");
     SetDllDirectory(jvmDllPath.c_str());
 
     // Now load the JVM.
     HINSTANCE hJavalib;
-    jvmDllPath += TEXT("\\client\\jvm.dll");
+    jvmDllPath += TEXT("\\server\\jvm.dll");
     hJavalib = LoadLibrary(jvmDllPath.c_str());
     SetDllDirectory(NULL);
 
@@ -373,6 +382,15 @@ bool launchVM(string jdkLocation)
 
     std::string classPathOpt = "-Djava.class.path=";
     (classPathOpt += bjDirACP) += "\\lib\\bluej.jar";
+    const char* sep = ";";
+    ((classPathOpt += sep) += bjDirACP) += "\\lib\\javafx\\lib\\javafx.base.jar";
+    ((classPathOpt += sep) += bjDirACP) += "\\lib\\javafx\\lib\\javafx.controls.jar";
+    ((classPathOpt += sep) += bjDirACP) += "\\lib\\javafx\\lib\\javafx.fxml.jar";
+    ((classPathOpt += sep) += bjDirACP) += "\\lib\\javafx\\lib\\javafx.graphics.jar";
+    ((classPathOpt += sep) += bjDirACP) += "\\lib\\javafx\\lib\\javafx.media.jar";
+    ((classPathOpt += sep) += bjDirACP) += "\\lib\\javafx\\lib\\javafx.properties.jar";
+    ((classPathOpt += sep) += bjDirACP) += "\\lib\\javafx\\lib\\javafx.swing.jar";
+    ((classPathOpt += sep) += bjDirACP) += "\\lib\\javafx\\lib\\javafx.web.jar";
 
     delete [] bjDirACP;
     delete [] jdkLocACP;
