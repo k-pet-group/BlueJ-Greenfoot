@@ -53,8 +53,8 @@ win_bundled_jdk_path=${build_java_home}
 wix_bin=C:/Program Files (x86)/Windows Installer XML v3.10/bin
 
 #####################################################################
-# This property defines where the bash executable for MinGW/MSYS
-# lives, for building the Windows launcher EXE
+# This property defines where MinGW64 is installed.  Directly inside
+# this directory should be bin, lib, etc
 #####################################################################
-msys_bash=C:/MinGW/msys/1.0/bin/bash.exe
+mingw_root=C:/mingw64/mingw64
 

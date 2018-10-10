@@ -372,11 +372,9 @@
     <loadresource property="mingw_jdk">
         <propertyresource name="build_java_home"/>
         <filterchain>
-            <prefixlines prefix="/"/>
             <tokenfilter>
                 <filetokenizer/>
                 <replacestring from="\" to="/"/>
-                <replacestring from=":" to=""/>
             </tokenfilter>
         </filterchain>
     </loadresource>
@@ -394,21 +392,17 @@
 
     <target name="windows-launcher">
         <!-- build launcher -->
-        <exec dir="winlaunch" executable="${msys_bash}" failonerror="true">
-            <!-- We must use the login flag or none of the PATH etc variables get set: -->
-            <arg line="--login"/>
-            <!-- Must cd to right directory, then run make: -->
-            <arg line="-c &quot;cd ${mingw_bluej_home}/package/winlaunch;make clean bjlaunch.exe BUILD=bluej JDKDIR='${mingw_jdk}'&quot;"/>
+        <exec dir="winlaunch" executable="${mingw_root}/bin/mingw32-make.exe" failonerror="true">
+            <arg line="clean bjlaunch.exe BUILD=bluej JDKDIR='${mingw_jdk}'"/>
+            <env key="PATH" path="${env.PATH}:${mingw_root}/bin"/>
         </exec>
     </target>
 
     <target name="windows-launcher-usb">
         <!-- build launcher -->
-        <exec dir="winusblaunch" executable="${msys_bash}" failonerror="true">
-            <!-- We must use the login flag or none of the PATH etc variables get set: -->
-            <arg line="--login"/>
-            <!-- Must cd to right directory, then run make: -->
-            <arg line="-c &quot;cd ${mingw_bluej_home}/package/winusblaunch;make clean bluej.exe BUILD=bluej JDKDIR='${mingw_jdk}'&quot;"/>
+        <exec dir="winusblaunch" executable="${mingw_root}/bin/mingw32-make.exe" failonerror="true">
+            <arg line="clean bluej.exe BUILD=bluej JDKDIR='${mingw_jdk}'"/>
+            <env key="PATH" path="${env.PATH}:${mingw_root}/bin"/>
         </exec>
     </target>
 

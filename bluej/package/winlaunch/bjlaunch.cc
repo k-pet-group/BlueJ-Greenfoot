@@ -358,12 +358,12 @@ bool launchVM(string jdkLocation)
     // The msvcrXXX.dll is sometimes in the system directory, but if it's not it won't be found
     // automatically. We use SetDllDirectory to specify the search location:
 
-    string jvmDllPath = jdkLocation + TEXT("\\jre\\bin");
+    string jvmDllPath = jdkLocation + TEXT("\\bin");
     SetDllDirectory(jvmDllPath.c_str());
 
     // Now load the JVM.
     HINSTANCE hJavalib;
-    jvmDllPath += TEXT("\\client\\jvm.dll");
+    jvmDllPath += TEXT("\\server\\jvm.dll");
     hJavalib = LoadLibrary(jvmDllPath.c_str());
     SetDllDirectory(NULL);
 

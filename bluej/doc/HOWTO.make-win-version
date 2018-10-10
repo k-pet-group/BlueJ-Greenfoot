@@ -8,7 +8,7 @@ Building the new Windows installer (msi package) requires the WiX toolset:
 
 	http://wixtoolset.org/
 
-You also need MinGW/MSYS to build the launcher. Details of which packages/versions and
+You also need MinGW64 to build the launcher. Details of which packages/versions and
 installation procedure are in package/winlaunch/MINGW.TXT.
  
 

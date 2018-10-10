@@ -43,4 +43,4 @@ bjdialog.o: bjdialog.cc
 
 
 clean:
-	rm -f $(OBJECTS)
+	del $(OBJECTS)
