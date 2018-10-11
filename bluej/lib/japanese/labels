@@ -121,7 +121,6 @@ prefmgr.edit.editorfontsize=\u30d5\u30a9\u30f3\u30c8\u30b5\u30a4\u30ba
 prefmgr.edit.usesyntaxhilighting=\u6587\u6cd5\u306e\u30cf\u30a4\u30e9\u30a4\u30c8\u8868\u793a\u3092\u4f7f\u3046
 prefmgr.edit.autoindent=\u81ea\u52d5\u5b57\u4e0b\u3052 (\u30bf\u30d6\u30ad\u30fc\u3092\u5165\u529b)
 prefmgr.edit.displaylinenumbers=\u884c\u756a\u53f7\u3092\u8868\u793a
-prefmgr.edit.makeBackup=\u30bd\u30fc\u30b9\u30d5\u30a1\u30a4\u30eb\u306e\u30d0\u30c3\u30af\u30a2\u30c3\u30d7\u3092\u4f5c\u6210
 prefmgr.edit.matchBrackets=Match brackets
 
 # Extensions Manager Help panel

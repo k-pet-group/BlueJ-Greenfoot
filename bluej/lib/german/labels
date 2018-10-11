@@ -122,7 +122,6 @@ prefmgr.edit.colortransparency=Strukturhervorhebung
 prefmgr.edit.usesyntaxhilighting=Syntaxhervorhebung verwenden
 prefmgr.edit.autoindent=Auto-Einr\u00fccken (Eingabe- und Tab-Tasten)
 prefmgr.edit.displaylinenumbers=Zeilennummern anzeigen
-prefmgr.edit.makeBackup=Sicherungskopien der Quelltexte machen
 prefmgr.edit.matchBrackets=Zusammengeh\u00f6rende Klammern
 prefmgr.edit.keybindingstitle=Tastaturbelegung
 prefmgr.edit.highlightLighter=Heller

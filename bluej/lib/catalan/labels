@@ -106,7 +106,6 @@ prefmgr.edit.editorfontsize=Grand\u00E0ria de la font
 prefmgr.edit.usesyntaxhilighting=Utilitza sintaxi ressaltada
 prefmgr.edit.autoindent=Autosagnat (Tecles Enter i Tab)
 prefmgr.edit.displaylinenumbers=Mostra n\u00FAmeros de l\u00EDnia
-prefmgr.edit.makeBackup=Crea c\u00F2pies dels arxius font
 prefmgr.edit.matchBrackets=Associa par\u00E8ntesis
 extmgr.title=BlueJ\: Extensions instal\u00B7lades
 extmgr.extensions=Extensions

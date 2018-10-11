@@ -387,7 +387,6 @@ bluej.terminal.encoding=UTF-8
 bluej.editor.autoIndent=true
 bluej.editor.syntaxHilighting=true
 bluej.editor.displayLineNumbers=false
-bluej.editor.makeBackup=false
 bluej.editor.matchBrackets=true
 
 bluej.editor.tabsize=4
