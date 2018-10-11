@@ -313,50 +313,32 @@
         <antcall target="greenfoot-dist-cleanup" />
     </target>
 
-    <!-- To turn Windows path into MinGW path, remove colon and replace
-             backslash with forward slash, and prefix with forward slash.
-             So C:\Java\jdk1.8.0_60 becomes /c/Java/jdk1.8.0_60 -->
-
+    <!-- To make sure Windows paths don't have problems with escapes, replace
+             backslash with forward slash.
+             So C:\Java\jdk1.8.0_60 becomes c:/Java/jdk1.8.0_60 -->
     <loadresource property="mingw_jdk">
         <propertyresource name="build_java_home"/>
         <filterchain>
-            <prefixlines prefix="/"/>
             <tokenfilter>
                 <filetokenizer/>
                 <replacestring from="\" to="/"/>
-                <replacestring from=":" to=""/>
-            </tokenfilter>
-        </filterchain>
-    </loadresource>
-    <loadresource property="mingw_bluej_home">
-        <propertyresource name="bluej_home"/>
-        <filterchain>
-            <prefixlines prefix="/"/>
-            <tokenfilter>
-                <filetokenizer/>
-                <replacestring from="\" to="/"/>
-                <replacestring from=":" to=""/>
             </tokenfilter>
         </filterchain>
     </loadresource>
 
     <target name="windows-launcher">
         <!-- build launcher -->
-        <exec dir="winlaunch" executable="${msys_bash}" failonerror="true">
-            <!-- We must use the login flag or none of the PATH etc variables get set: -->
-            <arg line="--login"/>
-            <!-- Must cd to right directory, then run make: -->
-            <arg line="-c &quot;cd ${mingw_bluej_home}/package/winlaunch;make clean gflaunch.exe BUILD=greenfoot JDKDIR='${mingw_jdk}'&quot;"/>
+        <exec dir="winlaunch" executable="${mingw_root}/bin/mingw32-make.exe" failonerror="true">
+            <arg line="clean gflaunch.exe BUILD=greenfoot JDKDIR='${mingw_jdk}'"/>
+            <env key="PATH" path="${mingw_root}/bin:${env.PATH}"/>
         </exec>
     </target>
 
     <target name="windows-launcher-usb">
         <!-- build launcher -->
-        <exec dir="winusblaunch" executable="${msys_bash}" failonerror="true">
-            <!-- We must use the login flag or none of the PATH etc variables get set: -->
-            <arg line="--login"/>
-            <!-- Must cd to right directory, then run make: -->
-            <arg line="-c &quot;cd ${mingw_bluej_home}/package/winusblaunch;make clean greenfoot.exe BUILD=greenfoot JDKDIR='${mingw_jdk}'&quot;"/>
+        <exec dir="winusblaunch" executable="${mingw_root}/bin/mingw32-make.exe" failonerror="true">
+            <arg line="clean greenfoot.exe BUILD=greenfoot JDKDIR='${mingw_jdk}'"/>
+            <env key="PATH" path="${mingw_root}/bin:${env.PATH}"/>
         </exec>
     </target>
 
