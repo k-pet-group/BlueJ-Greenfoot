@@ -18,7 +18,7 @@
         <include name="lib/bluejext.jar" />
         <include name="lib/lang-stride.jar" />
         <include name="lib/junit-4.11.jar" />
-	    <include name="lib/hamcrest-core-1.3.jar" />
+        <include name="lib/hamcrest-core-1.3.jar" />
         <include name="lib/commons-logging-api-1.1.2.jar" />
         <include name="lib/diffutils-1.2.1.jar" />
         <include name="lib/httpclient-4.1.1.jar" />
@@ -81,24 +81,24 @@
 
     <patternset id="greenfoot.license.files">
         <include name="GREENFOOT_LICENSES.txt" />
-    	<include name="LICENSE.txt" />
-    	<include name="THIRDPARTYLICENSE.txt" />
-    	<include name="thirdpartylicenses/**" />
+        <include name="LICENSE.txt" />
+        <include name="THIRDPARTYLICENSE.txt" />
+        <include name="thirdpartylicenses/**" />
     </patternset>
-	
-	<patternset id = "greenfoot.bluej.license.files">
-		<include name="*" />
-		<!-- exclude licenses only applicable to files not distributed with Greenfoot --> 
-		<exclude name="antlr-BSD.txt" />
-		<exclude name="EDL-v1.0.txt" />
-		<exclude name="jsch-BSD.txt" />
-		<exclude name="slf4j-MIT.txt" />
-		<exclude name="sqljet.txt" />
-		<exclude name="svnkit*.txt" />
-		<exclude name="trilead.txt" />
-	</patternset>
+    
+    <patternset id = "greenfoot.bluej.license.files">
+        <include name="*" />
+        <!-- exclude licenses only applicable to files not distributed with Greenfoot --> 
+        <exclude name="antlr-BSD.txt" />
+        <exclude name="EDL-v1.0.txt" />
+        <exclude name="jsch-BSD.txt" />
+        <exclude name="slf4j-MIT.txt" />
+        <exclude name="sqljet.txt" />
+        <exclude name="svnkit*.txt" />
+        <exclude name="trilead.txt" />
+    </patternset>
 
-	<target name="pre-dist">
+    <target name="pre-dist">
         <delete dir="install_tmp" failonerror="false"/>
         <mkdir dir="install_tmp" />
 
@@ -117,27 +117,27 @@
             <fileset dir="${greenfoot_home}/doc">
                 <patternset refid="greenfoot.license.files" />
             </fileset>
-		</copy>
+        </copy>
         <copy todir="install_tmp/doc/thirdpartylicenses" preservelastmodified="true">
-        	<fileset dir="${bluej_home}/doc/thirdpartylicenses">
-        		<patternset refid="greenfoot.bluej.license.files" />
-        	</fileset>
-		</copy>
-        	
+            <fileset dir="${bluej_home}/doc/thirdpartylicenses">
+                <patternset refid="greenfoot.bluej.license.files" />
+            </fileset>
+        </copy>
+            
         <copy tofile="install_tmp/README.TXT"
-    		file="${greenfoot_home}/doc/Greenfoot-README.txt" />
-		
+            file="${greenfoot_home}/doc/Greenfoot-README.txt" />
+        
         <!-- jar the entire distribution into one jar file            -->
         <!-- (use zip instead of jar to avoid generation of manifest) -->
         <zip zipfile="${bluej.dist.jar}"
              basedir="install_tmp"
              compress="yes"
         />
-	</target>
-	
+    </target>
+    
     <target name="dist">
-		<antcall target="pre-dist" />
-    	
+        <antcall target="pre-dist" />
+        
         <delete dir="install_tmp" />
         <mkdir dir="install_tmp" />
 
@@ -207,17 +207,17 @@
     </target>
 
     <target name="mac-dist">
-    	<antcall target="pre-dist" />
+        <antcall target="pre-dist" />
         <delete dir="mac_tmp" />
         
-    	<!-- Create the directory which will be the top level directory when unzipped-->
+        <!-- Create the directory which will be the top level directory when unzipped-->
         <property name="zip_dir" location="mac_tmp/Greenfoot ${greenfoot.version}/" />
         <mkdir dir="${zip_dir}" />
         
         <!-- Files in this list will get the executable attribute set -->
         <property name="executable_files" value="**/PkgInfo,**/JavaApplicationStub" />
 
-    	<!-- Legacy build -->
+        <!-- Legacy build -->
         <!-- copy the skeleton mac dir -->
         <copy todir="${zip_dir}/Greenfoot.app">
             <fileset dir="macfiles/Greenfoot-legacy.app"/> 
@@ -229,7 +229,7 @@
             <substitution expression="${greenfoot.version}" />
             <fileset dir="${zip_dir}/Greenfoot.app/Contents" includes="Info.plist" />
         </replaceregexp>
-    	
+        
         <!-- construct the directory structure we want for the distribution -->
         <copy todir="${zip_dir}" preservelastmodified="true">
             <fileset dir="install_tmp"/>
@@ -260,12 +260,12 @@
             <!-- Make the files executable that need to be executable -->
             <zipfileset dir="mac_tmp" filemode="755" includes="${executable_files}" />
         </zip>
-    	
-    	<!-- Bundled JDK build -->
-    	<!-- rename Greenfoot.app to Greenfoot-legacy.app -->
-    	<move file="${zip_dir}/Greenfoot.app" tofile="${zip_dir}/Greenfoot-legacy.app" />
-    		
-    	<!-- copy the skeleton mac dir -->
+        
+        <!-- Bundled JDK build -->
+        <!-- rename Greenfoot.app to Greenfoot-legacy.app -->
+        <move file="${zip_dir}/Greenfoot.app" tofile="${zip_dir}/Greenfoot-legacy.app" />
+            
+        <!-- copy the skeleton mac dir -->
         <copy todir="${zip_dir}/Greenfoot.app" preservelastmodified="true">
             <fileset dir="macfiles/Greenfoot.app"/>
         </copy>
@@ -275,9 +275,9 @@
             <arg value="compile.sh"/>
             <env key="JAVA_HOME" value="${build_java_home}"/>
         </exec>
-    	
-    	<!-- copy the native launcher into place -->
-    	<copy file="macfiles/nativelauncher/JavaAppLauncher" todir="${zip_dir}/Greenfoot.app/Contents/MacOS" />
+        
+        <!-- copy the native launcher into place -->
+        <copy file="macfiles/nativelauncher/JavaAppLauncher" todir="${zip_dir}/Greenfoot.app/Contents/MacOS" />
         
         <!-- update version number -->
         <replaceregexp byline="true">
@@ -285,32 +285,32 @@
             <substitution expression="${greenfoot.version}" />
             <fileset dir="${zip_dir}/Greenfoot.app/Contents" includes="Info.plist" />
         </replaceregexp>
-    	
-    	<!-- Move contents from legacy app to new app -->
+        
+        <!-- Move contents from legacy app to new app -->
         <move file="${zip_dir}/Greenfoot-legacy.app/Contents/Resources/Java"
-        	todir="${zip_dir}/Greenfoot.app/Contents/Resources" />
+            todir="${zip_dir}/Greenfoot.app/Contents/Resources" />
         <move file="${zip_dir}/Greenfoot-legacy.app/Contents/Resources/doc"
               todir="${zip_dir}/Greenfoot.app/Contents/Resources" />
         
-    	<!-- Remove the legacy app -->
-    	<delete dir="${zip_dir}/Greenfoot-legacy.app" />
+        <!-- Remove the legacy app -->
+        <delete dir="${zip_dir}/Greenfoot-legacy.app" />
 
         <property name="executable_files2" value="**/PkgInfo,**/JavaAppLauncher" />
         <chmod perm="+x">
             <fileset dir="${zip_dir}/Greenfoot.app/Contents" includes="${executable_files2}" />
         </chmod>
-    	
-    	<chmod perm="+x" file="bundle-mac.sh" />
+        
+        <chmod perm="+x" file="bundle-mac.sh" />
         <exec executable="bundle-mac.sh" resolveexecutable="true" outputproperty="bundleoutput">
             <arg value="${zip_dir}" />
-        	<arg value="Greenfoot.app" />
-        	<arg value="${mac_bundled_jdk_path}" />
-        	<arg value="${greenfoot.dist.mac}" />
+            <arg value="Greenfoot.app" />
+            <arg value="${mac_bundled_jdk_path}" />
+            <arg value="${greenfoot.dist.mac}" />
         </exec>
         <echo message="${bundleoutput}"/>
-    	
+        
         <delete dir="mac_tmp" />
-    	<antcall target="greenfoot-dist-cleanup" />
+        <antcall target="greenfoot-dist-cleanup" />
     </target>
 
     <!-- To turn Windows path into MinGW path, remove colon and replace
@@ -440,58 +440,58 @@
         <delete dir="winsetup/SourceDir" />
     </target>
 
-	<target name="windows-msi-bundled-dist" depends="dist,windows-launcher">
-		<delete dir="winsetup/SourceDir" />
-		<delete dir="winsetup" includes="*.wixobj" />
-		<unzip src="greenfoot-dist.jar" dest="winsetup/SourceDir" />
-		
-		<!-- Fix the path to the JDK in bluej.defs -->
+    <target name="windows-msi-bundled-dist" depends="dist,windows-launcher">
+        <delete dir="winsetup/SourceDir" />
+        <delete dir="winsetup" includes="*.wixobj" />
+        <unzip src="greenfoot-dist.jar" dest="winsetup/SourceDir" />
+        
+        <!-- Fix the path to the JDK in bluej.defs -->
         <replaceregexp byline="true">
             <regexp pattern="#greenfoot\.windows\.vm=.*"/>
             <substitution expression="greenfoot.windows.vm=jdk"/>
             <fileset dir="winsetup/SourceDir/lib" includes="greenfoot.defs"/>
         </replaceregexp>
 
-		<!-- Copy the JDK to be bundled -->
-		<copy todir="winsetup/SourceDir/jdk">
-			<fileset dir="${win_bundled_jdk_path}" />
-		</copy>
+        <!-- Copy the JDK to be bundled -->
+        <copy todir="winsetup/SourceDir/jdk">
+            <fileset dir="${win_bundled_jdk_path}" />
+        </copy>
 
         <copy todir="winsetup/SourceDir/lib/javafx">
             <fileset dir="${openjfx_path}" />
         </copy>
-		
-		<!-- The heat tool scans all the files in SourceDir and generates
-		     a WiX file that has all the XML needed for installing all those files -->
-		<exec dir="winsetup" executable="${wix_bin}/heat.exe">
-		    <arg line="dir SourceDir -cg GreenfootFiles -dr INSTALLDIR -ke -gg -srd -sfrag -template fragment -out greenfoot-install-files.wxs"/>
-		</exec>
+        
+        <!-- The heat tool scans all the files in SourceDir and generates
+             a WiX file that has all the XML needed for installing all those files -->
+        <exec dir="winsetup" executable="${wix_bin}/heat.exe">
+            <arg line="dir SourceDir -cg GreenfootFiles -dr INSTALLDIR -ke -gg -srd -sfrag -template fragment -out greenfoot-install-files.wxs"/>
+        </exec>
 
-		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+        <exec dir="winsetup" executable="${wix_bin}/candle.exe">
             <arg line="-arch x64"/>
-			<arg line="CheckboxExtrasDlg.wxs"/>
-		</exec>
-			
-		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="CheckboxExtrasDlg.wxs"/>
+        </exec>
+            
+        <exec dir="winsetup" executable="${wix_bin}/candle.exe">
             <arg line="-arch x64"/>
-			<arg line="ui.wxs"/>
-		</exec>
-			
-		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="ui.wxs"/>
+        </exec>
+            
+        <exec dir="winsetup" executable="${wix_bin}/candle.exe">
             <arg line="-arch x64"/>
-			<arg line="greenfoot.wxs"/>
-		</exec>
-			
-		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="greenfoot.wxs"/>
+        </exec>
+            
+        <exec dir="winsetup" executable="${wix_bin}/candle.exe">
             <arg line="-arch x64"/>
-			<arg line="greenfoot-install-files.wxs"/>
-		</exec>
-			
-		<exec dir="winsetup" executable="${wix_bin}/light.exe">
-			<arg line="-ext WixUIExtension -loc greenfoot.wxl greenfoot.wixobj CheckboxExtrasDlg.wixobj ui.wixobj greenfoot-install-files.wixobj -o greenfoot-${greenfoot.version}-bundled.msi"/>
-		</exec>
-		<delete dir="winsetup/SourceDir" />
-	</target>
+            <arg line="greenfoot-install-files.wxs"/>
+        </exec>
+            
+        <exec dir="winsetup" executable="${wix_bin}/light.exe">
+            <arg line="-ext WixUIExtension -loc greenfoot.wxl greenfoot.wixobj CheckboxExtrasDlg.wixobj ui.wixobj greenfoot-install-files.wixobj -o greenfoot-${greenfoot.version}-bundled.msi"/>
+        </exec>
+        <delete dir="winsetup/SourceDir" />
+    </target>
 
     <target name="debian-dist">
         <mkdir dir="gfdeb" />
@@ -557,7 +557,7 @@
         
         <copy todir="gfdeb/usr/share/doc/Greenfoot" file="${greenfoot_home}/doc/LICENSE.txt" />
         <copy todir="gfdeb/usr/share/doc/Greenfoot" file="${greenfoot_home}/doc/THIRDPARTYLICENSE.txt" />
-    	<copy tofile="gfdeb/usr/share/doc/Greenfoot/README.txt" file="${greenfoot_home}/doc/Greenfoot-README.txt" />
+        <copy tofile="gfdeb/usr/share/doc/Greenfoot/README.txt" file="${greenfoot_home}/doc/Greenfoot-README.txt" />
 
         <!-- desktop app extras -->
         <copy todir="gfdeb/usr/share">

@@ -471,7 +471,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <copy file="resources/images/export-webpage.png" todir="images"/>
         <!-- Menu button used in image library dialog (gear with drop-arrow) -->
         <copy file="resources/images/menu-button.png" todir="images"/>
-    	<!-- Execution/activity twirler -->
+        <!-- Execution/activity twirler -->
         <copy file="resources/images/swirl.png" todir="images"/>
         <copy file="resources/images/dropdown.png" todir="images"/>
 </target>

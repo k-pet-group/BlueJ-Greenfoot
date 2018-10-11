@@ -16,7 +16,7 @@
     
     <property name="bluej.source.zip" value="BlueJ-source-${bluej.version.nodots}${bluej.rcsuffix}.zip"/>
     
-	<!-- Library files to be installed as part of BlueJ -->
+    <!-- Library files to be installed as part of BlueJ -->
     <patternset id="bluej.libfiles">
         <exclude name="**/.#*" />
         <include name="lib/bluej.jar" />
@@ -25,7 +25,7 @@
         <include name="lib/bluejext.jar" />
         <include name="lib/lang-stride.jar" />
         <include name="lib/junit-4.11.jar" />
-    	<include name="lib/hamcrest-core-1.3.jar" />
+        <include name="lib/hamcrest-core-1.3.jar" />
         <include name="lib/sshconnection.jar" />
         <include name="lib/org-netbeans-lib-cvsclient.jar" />
         <include name="lib/jsch.jar" />
@@ -38,10 +38,10 @@
         <include name="lib/sequence-library-1.0.3.jar"/>
         <include name="lib/sqljet-1.1.10.jar"/>
         <include name="lib/httpclient-4.1.1.jar" />
-    	<include name="lib/httpcore-4.1.jar" />
-    	<include name="lib/httpmime-4.1.1.jar" />
-    	<include name="lib/commons-logging-api-1.1.2.jar" />
-    	<include name="lib/diffutils-1.2.1.jar" />
+        <include name="lib/httpcore-4.1.jar" />
+        <include name="lib/httpmime-4.1.1.jar" />
+        <include name="lib/commons-logging-api-1.1.2.jar" />
+        <include name="lib/diffutils-1.2.1.jar" />
         <include name="lib/commons-vfs2-2.0.jar" />
         <include name="lib/guava-17.0.jar" />
         <include name="lib/javassist-3.18.0.jar" />
@@ -72,7 +72,7 @@
         <include name="lib/fonts/*.ttf" />
         <include name="lib/afrikaans/" />
         <include name="lib/arabic/" />
-    	<include name="lib/catalan/" />
+        <include name="lib/catalan/" />
         <include name="lib/chinese/" />
         <include name="lib/czech/" />
         <include name="lib/danish/" />
@@ -93,8 +93,8 @@
         <include name="lib/extensions/" />
         <include name="lib/stylesheets/" />
         <include name="lib/tutorial/" />
-    	<exclude name="lib/*/greenfoot-labels" />
-    	<exclude name="lib/*/greenfootAPI" />
+        <exclude name="lib/*/greenfoot-labels" />
+        <exclude name="lib/*/greenfootAPI" />
     </patternset>
 
     <patternset id="bluej.examples">
@@ -130,18 +130,18 @@
         <include name="lib/bluej.defs" />
         <include name="lib/moe.defs" />
         <include name="lib/*/templates/**" />
-    	<include name="doc/*.txt" />
-    	<include name="doc/*.TXT" />
-    	<include name="doc/HOWTO.*" />
+        <include name="doc/*.txt" />
+        <include name="doc/*.TXT" />
+        <include name="doc/HOWTO.*" />
     </patternset>
-	<patternset id="bluej.textfiles.iso88591">
+    <patternset id="bluej.textfiles.iso88591">
         <include name="lib/*/labels" />
         <include name="lib/*/dialogues" />
         <include name="lib/*/*.help" />
-	</patternset>
-	
-	<!-- Builds the bluej-dist.jar file -->
-	<target name="pre-dist">
+    </patternset>
+    
+    <!-- Builds the bluej-dist.jar file -->
+    <target name="pre-dist">
         <delete dir="install_tmp" />
         <mkdir dir="install_tmp"/>
 
@@ -154,9 +154,9 @@
                 <patternset refid="bluej.icons" />
             </fileset>
             <fileset refid="bluej.license.files"/>
-        	<fileset dir="${bluej_home}/doc">
-				<include name="README.TXT"/>        	
-        	</fileset>
+            <fileset dir="${bluej_home}/doc">
+                <include name="README.TXT"/>            
+            </fileset>
         </copy>
 
         <!-- make sure the people .class files are dated in the future so they
@@ -186,12 +186,12 @@
              basedir="install_tmp"
              compress="yes"
         />
-		
+        
         <delete dir="install_tmp" />
-	</target>
+    </target>
     
     <target name="dist">
-    	<antcall target="pre-dist" />
+        <antcall target="pre-dist" />
         
         <mkdir dir="install_tmp"/>
 
@@ -237,9 +237,9 @@
                includes="Installer.java"
                debug="true"
         >
-        	<compilerarg line="-source 6"/>
-    		<compilerarg line="-target 6"/>
-    	</javac>
+            <compilerarg line="-source 6"/>
+            <compilerarg line="-target 6"/>
+        </javac>
 
         <!-- bundle the resulting class into the final distribution jar file -->
         <jar jarfile="${dist.jarinstaller}"
@@ -310,10 +310,10 @@
             <zipfileset dir="mac_tmp" filemode="755" includes="${executable_files}" />
         </zip>
 
-    	<!-- Bundled JDK build -->
-    	<!-- rename BlueJ.app to BlueJ-legacy.app -->
-    	<move file="${zip_dir}/BlueJ.app" tofile="${zip_dir}/BlueJ-legacy.app" />
-    	
+        <!-- Bundled JDK build -->
+        <!-- rename BlueJ.app to BlueJ-legacy.app -->
+        <move file="${zip_dir}/BlueJ.app" tofile="${zip_dir}/BlueJ-legacy.app" />
+        
         <!-- copy the skeleton mac dir -->
         <copy todir="${zip_dir}/BlueJ.app">
             <fileset dir="macfiles/BlueJ.app"/> 
@@ -324,24 +324,24 @@
             <arg value="compile.sh"/>
             <env key="JAVA_HOME" value="${build_java_home}"/>
         </exec>
-    	
-    	<!-- copy the native launcher into place -->
-    	<copy todir="${zip_dir}/BlueJ.app/Contents/MacOS" file="macfiles/nativelauncher/JavaAppLauncher" />
-    	
+        
+        <!-- copy the native launcher into place -->
+        <copy todir="${zip_dir}/BlueJ.app/Contents/MacOS" file="macfiles/nativelauncher/JavaAppLauncher" />
+        
         <!-- update version number -->
         <replaceregexp byline="true">
             <regexp pattern="VERSION" />
             <substitution expression="${bluej.version}" />
             <fileset dir="${zip_dir}/BlueJ.app/Contents" includes="Info.plist" />
         </replaceregexp>
-    	
-    	<!-- Move contents from legacy app to new app -->
+        
+        <!-- Move contents from legacy app to new app -->
         <move file="${zip_dir}/BlueJ-legacy.app/Contents/Resources/Java"
-        	todir="${zip_dir}/BlueJ.app/Contents/Resources" />
+            todir="${zip_dir}/BlueJ.app/Contents/Resources" />
 
-    	<!-- Remove the legacy app -->
-    	<delete dir="${zip_dir}/BlueJ-legacy.app" />
-    	
+        <!-- Remove the legacy app -->
+        <delete dir="${zip_dir}/BlueJ-legacy.app" />
+        
         <property name="executable_files2" value="**/PkgInfo,**/JavaAppLauncher" />
         <chmod perm="+x">
             <fileset dir="${zip_dir}/BlueJ.app/Contents" includes="${executable_files2}" />
@@ -349,15 +349,15 @@
 
         <!-- codesign needs Internet connection to verify current time -->
         <echo message="Signing and verifying bundle (NOTE: Internet connection is required to sign)"/>
-    	<chmod perm="+x" file="bundle-mac.sh" />
+        <chmod perm="+x" file="bundle-mac.sh" />
         <exec executable="bundle-mac.sh" resolveexecutable="true" outputproperty="bundleoutput">
             <arg value="${zip_dir}" />
-        	<arg value="BlueJ.app" />
-        	<arg value="${mac_bundled_jdk_path}" />
-        	<arg value="${basedir}/${dist.mac}" />
+            <arg value="BlueJ.app" />
+            <arg value="${mac_bundled_jdk_path}" />
+            <arg value="${basedir}/${dist.mac}" />
         </exec>
         <echo message="${bundleoutput}"/>
-    	
+        
         <delete dir="mac_tmp" />
 
         <echo message="----------------------------------------------------------------------------"/>
@@ -456,11 +456,11 @@
 
         <delete dir="winsetup/standalone" />
     </target>
-	
-	<target name="windows-msi-dist" depends="dist,windows-launcher">
-		<delete dir="winsetup/SourceDir" />
-		<delete dir="winsetup" includes="*.wixobj" />
-		<unzip src="${dist.jar}" dest="winsetup/SourceDir" />
+    
+    <target name="windows-msi-dist" depends="dist,windows-launcher">
+        <delete dir="winsetup/SourceDir" />
+        <delete dir="winsetup" includes="*.wixobj" />
+        <unzip src="${dist.jar}" dest="winsetup/SourceDir" />
 
         <!-- make sure line endings are in windows format -->
         <fixcrlf srcdir="winsetup/SourceDir" eol="crlf" encoding="ISO-8859-1">
@@ -469,42 +469,42 @@
         <fixcrlf srcdir="winsetup/SourceDir" eol="crlf" encoding="UTF-8">
             <patternset refid="bluej.textfiles.utf8" />
         </fixcrlf>
-		
-		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+        
+        <exec dir="winsetup" executable="${wix_bin}/candle.exe">
             <arg line="-arch x64"/>
-			<arg line="CheckboxExtrasDlg.wxs"/>
-		</exec>
-			
-		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="CheckboxExtrasDlg.wxs"/>
+        </exec>
+            
+        <exec dir="winsetup" executable="${wix_bin}/candle.exe">
             <arg line="-arch x64"/>
-			<arg line="ui.wxs"/>
-		</exec>
-			
-		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="ui.wxs"/>
+        </exec>
+            
+        <exec dir="winsetup" executable="${wix_bin}/candle.exe">
             <arg line="-arch x64"/>
-			<arg line="bluej.wxs"/>
-		</exec>
-			
-		<!-- The heat tool scans all the files in SourceDir and generates
-		     a WiX file that has all the XML needed for installing all those files -->
-		<exec dir="winsetup" executable="${wix_bin}/heat.exe">
-			<arg line="dir SourceDir -cg BlueJFiles -dr INSTALLDIR -ke -gg -srd -sfrag -template fragment -out bluej-install-files.wxs"/>
-		</exec>
-		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="bluej.wxs"/>
+        </exec>
+            
+        <!-- The heat tool scans all the files in SourceDir and generates
+             a WiX file that has all the XML needed for installing all those files -->
+        <exec dir="winsetup" executable="${wix_bin}/heat.exe">
+            <arg line="dir SourceDir -cg BlueJFiles -dr INSTALLDIR -ke -gg -srd -sfrag -template fragment -out bluej-install-files.wxs"/>
+        </exec>
+        <exec dir="winsetup" executable="${wix_bin}/candle.exe">
             <arg line="-arch x64"/>
-			<arg line="bluej-install-files.wxs"/>
-		</exec>
-			
-		<exec dir="winsetup" executable="${wix_bin}/light.exe">
-			<arg line="-ext WixUIExtension -loc bluej.wxl bluej.wixobj CheckboxExtrasDlg.wixobj ui.wixobj bluej-install-files.wixobj -o bluej-${bluej.version}.msi"/>
-		</exec>
-		<delete dir="winsetup/SourceDir" />
-	</target>
+            <arg line="bluej-install-files.wxs"/>
+        </exec>
+            
+        <exec dir="winsetup" executable="${wix_bin}/light.exe">
+            <arg line="-ext WixUIExtension -loc bluej.wxl bluej.wixobj CheckboxExtrasDlg.wixobj ui.wixobj bluej-install-files.wixobj -o bluej-${bluej.version}.msi"/>
+        </exec>
+        <delete dir="winsetup/SourceDir" />
+    </target>
 
-	<target name="windows-msi-bundled-dist" depends="dist,windows-launcher">
-		<delete dir="winsetup/SourceDir" />
-		<delete dir="winsetup" includes="*.wixobj" />
-		<unzip src="${dist.jar}" dest="winsetup/SourceDir" />
+    <target name="windows-msi-bundled-dist" depends="dist,windows-launcher">
+        <delete dir="winsetup/SourceDir" />
+        <delete dir="winsetup" includes="*.wixobj" />
+        <unzip src="${dist.jar}" dest="winsetup/SourceDir" />
 
         <!-- make sure line endings are in windows format -->
         <fixcrlf srcdir="winsetup/SourceDir" eol="crlf" encoding="ISO-8859-1">
@@ -513,202 +513,202 @@
         <fixcrlf srcdir="winsetup/SourceDir" eol="crlf" encoding="UTF-8">
             <patternset refid="bluej.textfiles.utf8" />
         </fixcrlf>
-		
-		<!-- Fix the path to the JDK in bluej.defs -->
+        
+        <!-- Fix the path to the JDK in bluej.defs -->
         <replaceregexp byline="true">
             <regexp pattern="#bluej\.windows\.vm=.*"/>
             <substitution expression="bluej.windows.vm=jdk"/>
             <fileset dir="winsetup/SourceDir/lib" includes="bluej.defs"/>
         </replaceregexp>
 
-		<!-- Copy the JDK to be bundled -->
-		<copy todir="winsetup/SourceDir/jdk">
-			<fileset dir="${win_bundled_jdk_path}" />
-		</copy>
+        <!-- Copy the JDK to be bundled -->
+        <copy todir="winsetup/SourceDir/jdk">
+            <fileset dir="${win_bundled_jdk_path}" />
+        </copy>
 
         <copy todir="winsetup/SourceDir/lib/javafx">
             <fileset dir="${openjfx_path}" />
         </copy>
-		
-		<!-- The heat tool scans all the files in SourceDir and generates
-		     a WiX file that has all the XML needed for installing all those files -->
-		<exec dir="winsetup" executable="${wix_bin}/heat.exe">
-			<arg line="dir SourceDir -cg BlueJFiles -dr INSTALLDIR -ke -gg -srd -sfrag -sreg -scom template fragment -out bluej-install-files.wxs"/>
-		</exec>
+        
+        <!-- The heat tool scans all the files in SourceDir and generates
+             a WiX file that has all the XML needed for installing all those files -->
+        <exec dir="winsetup" executable="${wix_bin}/heat.exe">
+            <arg line="dir SourceDir -cg BlueJFiles -dr INSTALLDIR -ke -gg -srd -sfrag -sreg -scom template fragment -out bluej-install-files.wxs"/>
+        </exec>
 
-		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+        <exec dir="winsetup" executable="${wix_bin}/candle.exe">
             <arg line="-arch x64"/>
-			<arg line="CheckboxExtrasDlg.wxs"/>
-		</exec>
-			
-		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="CheckboxExtrasDlg.wxs"/>
+        </exec>
+            
+        <exec dir="winsetup" executable="${wix_bin}/candle.exe">
             <arg line="-arch x64"/>
-			<arg line="ui.wxs"/>
-		</exec>
-			
-		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="ui.wxs"/>
+        </exec>
+            
+        <exec dir="winsetup" executable="${wix_bin}/candle.exe">
             <arg line="-arch x64"/>
-			<arg line="bluej.wxs"/>
-		</exec>
-			
-		<exec dir="winsetup" executable="${wix_bin}/candle.exe">
+            <arg line="bluej.wxs"/>
+        </exec>
+            
+        <exec dir="winsetup" executable="${wix_bin}/candle.exe">
             <arg line="-arch x64"/>
-			<arg line="bluej-install-files.wxs"/>
-		</exec>
-			
-		<exec dir="winsetup" executable="${wix_bin}/light.exe">
-			<arg line="-ext WixUIExtension -loc bluej.wxl bluej.wixobj CheckboxExtrasDlg.wixobj ui.wixobj bluej-install-files.wixobj -o bluej-${bluej.version}-bundled.msi"/>
-		</exec>
+            <arg line="bluej-install-files.wxs"/>
+        </exec>
+            
+        <exec dir="winsetup" executable="${wix_bin}/light.exe">
+            <arg line="-ext WixUIExtension -loc bluej.wxl bluej.wixobj CheckboxExtrasDlg.wixobj ui.wixobj bluej-install-files.wixobj -o bluej-${bluej.version}-bundled.msi"/>
+        </exec>
         <copy file="winsetup/bluej-${bluej.version}-bundled.msi" tofile="${dist.win}.msi"/>
-		<delete dir="winsetup/SourceDir" />
-	</target>
-		
-	<target name="debian-dist">
-		<mkdir dir="bluejdeb" />
-		<copy todir="bluejdeb">
-			<fileset dir="debianfiles" includes="DEBIAN/**" />
-		</copy>
-		
-		<mkdir dir="bluejdeb/usr" />
-		<mkdir dir="bluejdeb/usr/bin" />
-		<copy todir="bluejdeb/usr/bin" file="debianfiles/bluej" />
-		<chmod perm="ugo+x" file="bluejdeb/usr/bin/bluej" verbose="true" />
-		
-		<!-- lib files -->
-		<mkdir dir="bluejdeb/usr/share/bluej" />
-		<mkdir dir="bluejdeb-lib-tmp" />
+        <delete dir="winsetup/SourceDir" />
+    </target>
+        
+    <target name="debian-dist">
+        <mkdir dir="bluejdeb" />
+        <copy todir="bluejdeb">
+            <fileset dir="debianfiles" includes="DEBIAN/**" />
+        </copy>
+        
+        <mkdir dir="bluejdeb/usr" />
+        <mkdir dir="bluejdeb/usr/bin" />
+        <copy todir="bluejdeb/usr/bin" file="debianfiles/bluej" />
+        <chmod perm="ugo+x" file="bluejdeb/usr/bin/bluej" verbose="true" />
+        
+        <!-- lib files -->
+        <mkdir dir="bluejdeb/usr/share/bluej" />
+        <mkdir dir="bluejdeb-lib-tmp" />
         <copy todir="bluejdeb-lib-tmp">
             <fileset dir="${bluej_home}">
-            	<patternset refid="bluej.libdirs" />
-            	<patternset refid="bluej.libfiles" />
+                <patternset refid="bluej.libdirs" />
+                <patternset refid="bluej.libfiles" />
             </fileset>
         </copy>
-		<move todir="bluejdeb/usr/share/bluej">
-			<fileset dir="bluejdeb-lib-tmp/lib">
-				<patternset includes="**" />
-			</fileset>
-		</move>
-		<delete dir="bluejdeb-lib-tmp" />
-		
-		<!-- examples and documentation -->
-		<mkdir dir="bluej-examples-tmp" />
+        <move todir="bluejdeb/usr/share/bluej">
+            <fileset dir="bluejdeb-lib-tmp/lib">
+                <patternset includes="**" />
+            </fileset>
+        </move>
+        <delete dir="bluejdeb-lib-tmp" />
+        
+        <!-- examples and documentation -->
+        <mkdir dir="bluej-examples-tmp" />
         <copy todir="bluej-examples-tmp">
             <fileset dir="${bluej_home}">
                 <patternset refid="bluej.examples" />
             </fileset>
         </copy>
-		<mkdir dir="bluejdeb/usr/share/doc/BlueJ" />
+        <mkdir dir="bluejdeb/usr/share/doc/BlueJ" />
         <move todir="bluejdeb/usr/share/doc/BlueJ">
             <fileset dir="bluej-examples-tmp/examples">
                 <patternset includes="**" />
             </fileset>
         </move>
-		<delete dir="bluej-examples-tmp" />
-		<copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/LICENSE.txt" />
-		<copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/THIRDPARTYLICENSE.txt" />
-		<copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/README.TXT" />
+        <delete dir="bluej-examples-tmp" />
+        <copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/LICENSE.txt" />
+        <copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/THIRDPARTYLICENSE.txt" />
+        <copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/README.TXT" />
 
-		<!-- desktop app extras -->
-		<copy todir="bluejdeb/usr/share">
-			<fileset dir="debianfiles">
-				<patternset includes="applications/**,icons/**,pixmaps/**" />
-			</fileset>
-		</copy>
+        <!-- desktop app extras -->
+        <copy todir="bluejdeb/usr/share">
+            <fileset dir="debianfiles">
+                <patternset includes="applications/**,icons/**,pixmaps/**" />
+            </fileset>
+        </copy>
 
-	    <!-- update version number -->
-	    <replaceregexp byline="true">
-	        <regexp pattern="VERSION" />
-	        <substitution expression="${bluej.version.debian}" />
-	        <fileset dir="bluejdeb/DEBIAN" includes="control" />
-	    </replaceregexp>
-		
-		<!-- you must do this as root, sigh -->
+        <!-- update version number -->
+        <replaceregexp byline="true">
+            <regexp pattern="VERSION" />
+            <substitution expression="${bluej.version.debian}" />
+            <fileset dir="bluejdeb/DEBIAN" includes="control" />
+        </replaceregexp>
+        
+        <!-- you must do this as root, sigh -->
                 <!-- (but we can also do it using fakeroot -->
-		<chown owner="root">
-			<fileset dir="bluejdeb">
-				<patternset includes="**" />
-			</fileset>
-			<dirset dir="bluejdeb">
-				<patternset includes="**" />
-			</dirset>			
-		</chown>
-		<chgrp group="root">
-			<fileset dir="bluejdeb">
-				<patternset includes="**" />
-			</fileset>
-			<dirset dir="bluejdeb">
-				<patternset includes="**" />
-			</dirset>			
-		</chgrp>
+        <chown owner="root">
+            <fileset dir="bluejdeb">
+                <patternset includes="**" />
+            </fileset>
+            <dirset dir="bluejdeb">
+                <patternset includes="**" />
+            </dirset>            
+        </chown>
+        <chgrp group="root">
+            <fileset dir="bluejdeb">
+                <patternset includes="**" />
+            </fileset>
+            <dirset dir="bluejdeb">
+                <patternset includes="**" />
+            </dirset>            
+        </chgrp>
                 <chmod perm="g-w">
-			<fileset dir="bluejdeb">
-				<patternset includes="**" />
-			</fileset>
-			<dirset dir="bluejdeb">
-				<patternset includes="**" />
-			</dirset>			
+            <fileset dir="bluejdeb">
+                <patternset includes="**" />
+            </fileset>
+            <dirset dir="bluejdeb">
+                <patternset includes="**" />
+            </dirset>            
                 </chmod>
-		
-		<chmod perm="755" file="bluejdeb/DEBIAN/postinst" />
-		<chmod perm="755" file="bluejdeb/DEBIAN/postrm" />
-		<exec executable="dpkg-deb" searchpath="true">
-			<arg value="-b" />
-			<arg file="bluejdeb" />
-			<arg value="${dist.linux}.deb" />
-		</exec>
-		
-		<delete dir="bluejdeb" />
-	</target>
+        
+        <chmod perm="755" file="bluejdeb/DEBIAN/postinst" />
+        <chmod perm="755" file="bluejdeb/DEBIAN/postrm" />
+        <exec executable="dpkg-deb" searchpath="true">
+            <arg value="-b" />
+            <arg file="bluejdeb" />
+            <arg value="${dist.linux}.deb" />
+        </exec>
+        
+        <delete dir="bluejdeb" />
+    </target>
 
     <target name="zip-source"  description="create a zip of all the sources and other resources needed to build BlueJ." >
         <zip destfile="${bluej.source.zip}" compress="yes">
             <zipfileset dir="${bluej_home}" defaultexcludes="yes">
-	            <include name="src/**/*.java" />       
-	            <include name="boot/src/**/*.java" />       
-	            <include name="boot/resources/bluej/*.png" />
+                <include name="src/**/*.java" />       
+                <include name="boot/src/**/*.java" />       
+                <include name="boot/resources/bluej/*.png" />
                 <include name="threadchecker/src/**/*" />
                 <include name="threadchecker/pluginsrc/**/*" />
-	            <include name="doc/HOWTO.*" />    
-	            <include name="doc/THIRDPARTYLICENSE.txt" />
-	            <include name="doc/LICENSE.txt" />
-            	<include name="doc/README.TXT" />
+                <include name="doc/HOWTO.*" />    
+                <include name="doc/THIRDPARTYLICENSE.txt" />
+                <include name="doc/LICENSE.txt" />
+                <include name="doc/README.TXT" />
                 <include name="doc/BlueJ-architecture-and-design.txt" />
-            	<include name="doc/BlueJ-parser.txt" />
+                <include name="doc/BlueJ-parser.txt" />
                 <include name="doc/Pi4J-readme.txt"/>
-            	<include name="doc/threading-issues.txt" />
+                <include name="doc/threading-issues.txt" />
                 <include name="doc/thirdpartylicenses/*" />
-	            <include name="examples/**/*" />          
-	            <include name="icons/**/*" />           
-	            <include name="lib/**/*" />
+                <include name="examples/**/*" />          
+                <include name="icons/**/*" />           
+                <include name="lib/**/*" />
 
-            	<!-- exclude Greenfoot files -->
-	            <exclude name="lib/jl*"/>
-	            <exclude name="lib/bluej.jar"/>
-	            <exclude name="lib/bluejcore.jar"/>
-	            <exclude name="lib/bluejeditor.jar"/>
-		        <exclude name="lib/bluejext.jar"/>
+                <!-- exclude Greenfoot files -->
+                <exclude name="lib/jl*"/>
+                <exclude name="lib/bluej.jar"/>
+                <exclude name="lib/bluejcore.jar"/>
+                <exclude name="lib/bluejeditor.jar"/>
+                <exclude name="lib/bluejext.jar"/>
                 <exclude name="lib/lang-stride.jar"/>
-		        <exclude name="lib/extensions/greenfoot.jar"/>
-		        <exclude name="lib/greenfoot/"/>
-            	
-	            <include name="package/**/*" />     
-	            <exclude name="package/commons-*"/>
-	            <exclude name="package/${bluej.source.zip}"/>
+                <exclude name="lib/extensions/greenfoot.jar"/>
+                <exclude name="lib/greenfoot/"/>
+                
+                <include name="package/**/*" />     
+                <exclude name="package/commons-*"/>
+                <exclude name="package/${bluej.source.zip}"/>
                 <exclude name="package/BlueJ*.msi"/>
-	            <exclude name="package/BlueJ*.jar"/>
-	            <exclude name="package/BlueJ*.zip"/>
-            	<exclude name="package/bluej*.deb"/>
-	            <exclude name="package/bluej-dist.jar"/>
-	            <exclude name="package/install_tmp/"/>
+                <exclude name="package/BlueJ*.jar"/>
+                <exclude name="package/BlueJ*.zip"/>
+                <exclude name="package/bluej*.deb"/>
+                <exclude name="package/bluej-dist.jar"/>
+                <exclude name="package/install_tmp/"/>
                 <exclude name="package/winsetup/*.msi"/>
-	            <include name="test/**/*"/>
-            	<exclude name="test/classes/**"/>
-            	<include name="util/**/*.java"/>
-	            <include name="build.properties.template"/>
-	            <include name="build.xml"/>  
-	            <include name="shared.xml"/>  
-	            <exclude name="**/.*"/>
-	        </zipfileset>
+                <include name="test/**/*"/>
+                <exclude name="test/classes/**"/>
+                <include name="util/**/*.java"/>
+                <include name="build.properties.template"/>
+                <include name="build.xml"/>  
+                <include name="shared.xml"/>  
+                <exclude name="**/.*"/>
+            </zipfileset>
         </zip>
     </target>
     
