@@ -124,7 +124,6 @@ prefmgr.edit.colortransparency=Zv\u00fdrazn\u011bn\u00ed oblast\u00ed
 prefmgr.edit.usesyntaxhilighting=Pou\u017e\u00edvat barevn\u00e9 zv\u00fdraz\u0148ov\u00e1n\u00ed syntaxe
 prefmgr.edit.autoindent=Automatick\u00e9 odsazov\u00e1n\u00ed (Enter a TAB)
 prefmgr.edit.displaylinenumbers=Zobrazovat \u010d\u00edsla \u0159\u00e1dk\u016f
-prefmgr.edit.makeBackup=Vytv\u00e1\u0159et z\u00e1lo\u017en\u00ed kopie zdrojov\u00fdch soubor\u016f
 prefmgr.edit.matchBrackets=P\u00e1rovat z\u00e1vorky
 prefmgr.edit.keybindingstitle=Kl\u00e1vesov\u00e9 zkratky
 prefmgr.edit.highlightLighter=Sv\u011btlej\u0161\u00ed

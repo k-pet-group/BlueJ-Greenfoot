@@ -123,7 +123,6 @@ prefmgr.edit.colortransparency=Colorazione sintattica
 prefmgr.edit.usesyntaxhilighting=Attiva la colorazione sintattica
 prefmgr.edit.autoindent=Attiva il rientro automatico (con Invio e Tab)
 prefmgr.edit.displaylinenumbers=Mostra i numeri di linea
-prefmgr.edit.makeBackup=Tieni una copia di sicurezza dei file sorgente
 prefmgr.edit.matchBrackets=Mostra le parentesi corrispondenti
 prefmgr.edit.keybindingstitle=Combinazioni di tasti
 prefmgr.edit.highlightLighter=Chiaro

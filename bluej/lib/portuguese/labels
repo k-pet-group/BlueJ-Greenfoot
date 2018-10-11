@@ -119,7 +119,6 @@ prefmgr.edit.colortransparency=Destacamento de contexto
 prefmgr.edit.usesyntaxhilighting=Usar sintaxe destacada
 prefmgr.edit.autoindent=Auto-endentac\u00E3o (teclas Enter e Tab)
 prefmgr.edit.displaylinenumbers=Exibir n\u00FAmeros de linhas
-prefmgr.edit.makeBackup=Fazer backup dos arquivos fontes
 prefmgr.edit.matchBrackets=Casar colchetes
 prefmgr.edit.keybindingstitle=atalhos do teclado
 prefmgr.edit.highlightLighter=Claro

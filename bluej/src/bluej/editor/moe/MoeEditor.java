@@ -173,7 +173,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     final static String COMPILED = "compiled";
     // file suffixes
     private final static String CRASHFILE_SUFFIX = "#";
-    private final static String BACKUP_SUFFIX = "~";
 
     // -------- CLASS VARIABLES --------
     private static boolean matchBrackets = false;
@@ -594,10 +593,8 @@ public final class MoeEditor extends ScopeColorsBorderPane
             Writer writer = null;
             try {
                 // The crash file is used during writing and will remain in
-                // case of a crash during the write operation. The backup
-                // file always contains the last version.
+                // case of a crash during the write operation.
                 String crashFilename = filename + CRASHFILE_SUFFIX;
-                String backupFilename = filename + BACKUP_SUFFIX;
 
                 // make a backup to the crash file
                 FileUtility.copyFile(filename, crashFilename);
@@ -607,20 +604,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 sourcePane.write(writer);
                 writer.close(); writer = null;
                 lastModified = new File(filename).lastModified();
+                File crashFile = new File(crashFilename);
+                crashFile.delete();
 
-                if (PrefMgr.getFlag(PrefMgr.MAKE_BACKUP)) {
-                    // if all went well, rename the crash file as a normal
-                    // backup
-                    File crashFile = new File(crashFilename);
-                    File backupFile = new File(backupFilename);
-                    backupFile.delete();
-                    crashFile.renameTo(backupFile);
-                }
-                else {
-                    File crashFile = new File(crashFilename);
-                    crashFile.delete();
-                }
-                
                 // Do this last, as it may trigger further actions in the watcher:
                 setSaved();
             }

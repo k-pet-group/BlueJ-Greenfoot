@@ -119,7 +119,6 @@ prefmgr.edit.colortransparency=Farebn\u00e9 ozna\u010denie blokov
 prefmgr.edit.usesyntaxhilighting=Pou\u017e\u00edva\u0165 farebn\u00e9 zv\u00fdraz\u0148ovanie syntaxe
 prefmgr.edit.autoindent=Automatick\u00e9 odsadzovanie (kl\u00e1vesy Enter a\u00a0tabul\u00e1tor)
 prefmgr.edit.displaylinenumbers=Zobrazova\u0165 \u010d\u00edsla riadkov
-prefmgr.edit.makeBackup=Vytv\u00e1ra\u0165 z\u00e1lo\u017en\u00e9 k\u00f3pie zdrojov\u00fdch s\u00faborov
 prefmgr.edit.matchBrackets=Ozna\u010dova\u0165 s\u00fahlasn\u00e9 z\u00e1tvorky
 prefmgr.edit.keybindingstitle=Kl\u00e1vesov\u00e9 skratky
 prefmgr.edit.highlightLighter=Svetlej\u0161ie

@@ -90,7 +90,6 @@ prefmgr.edit.editorfontsize=Skriftst\u00F8rrelse
 prefmgr.edit.usesyntaxhilighting=Brug syntaksfremh\u00E6vning
 prefmgr.edit.autoindent=Automatisk indrykning (Enter og Tab tasterne)
 prefmgr.edit.displaylinenumbers=Vis linjenumre
-prefmgr.edit.makeBackup=Lav sikkerhedskopi af kildekodefiler
 prefmgr.edit.matchBrackets=Parring af parenteser
 prefmgr.edit.keybindingstitle=Tastaturbindinger
 prefmgr.edit.colortransparency=Fremh\u00E6vning af virkefelt

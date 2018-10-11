@@ -105,7 +105,6 @@ prefmgr.edit.editorfontsize=Lettertype in punten
 prefmgr.edit.usesyntaxhilighting=Java sleutelwoorden in andere kleur
 prefmgr.edit.autoindent=Automatisch inspringen (Enter en Tab toetsen)
 prefmgr.edit.displaylinenumbers=Regelnummers laten zien
-prefmgr.edit.makeBackup=Maak een backup van de bronbestanden
 prefmgr.edit.matchBrackets=Laat bijbehorende haakje zien
 
 

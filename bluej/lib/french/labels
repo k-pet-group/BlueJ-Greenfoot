@@ -107,7 +107,6 @@ prefmgr.edit.colortransparency=Scope Highlighting
 prefmgr.edit.usesyntaxhilighting=Activer la coloration syntaxique
 prefmgr.edit.autoindent=Auto-indentation (touches Enter et Tab)
 prefmgr.edit.displaylinenumbers=Afficher num\u00E9ros de ligne
-prefmgr.edit.makeBackup=Sauvegarder les fichiers sources
 prefmgr.edit.matchBrackets=Equilibrer les accolades
 prefmgr.edit.keybindingstitle=Raccourcis clavier
 prefmgr.edit.highlightLighter=Plus clair
