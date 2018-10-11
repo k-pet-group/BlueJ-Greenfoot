@@ -382,7 +382,7 @@
         <!-- build launcher -->
         <exec dir="winlaunch" executable="${mingw_root}/bin/mingw32-make.exe" failonerror="true">
             <arg line="clean bjlaunch.exe BUILD=bluej JDKDIR='${mingw_jdk}'"/>
-            <env key="PATH" path="${env.PATH}:${mingw_root}/bin"/>
+            <env key="PATH" path="${mingw_root}/bin:${env.PATH}"/>
         </exec>
     </target>
 
@@ -390,7 +390,7 @@
         <!-- build launcher -->
         <exec dir="winusblaunch" executable="${mingw_root}/bin/mingw32-make.exe" failonerror="true">
             <arg line="clean bluej.exe BUILD=bluej JDKDIR='${mingw_jdk}'"/>
-            <env key="PATH" path="${env.PATH}:${mingw_root}/bin"/>
+            <env key="PATH" path="${mingw_root}/bin:${env.PATH}"/>
         </exec>
     </target>
 
