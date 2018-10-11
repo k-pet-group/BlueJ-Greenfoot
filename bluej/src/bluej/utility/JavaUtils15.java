@@ -147,7 +147,7 @@ public class JavaUtils15 extends JavaUtils
         throws ClassNotFoundException
     {
         String name = getTypeParameters(constructor);
-        name += constructor.getName();        
+        name += constructor.getDeclaringClass().getSimpleName();
         name += typeParamsToString(constructor.getDeclaringClass().getTypeParameters(), false); 
 
         // Get the names without introducing ellipsis for varargs
