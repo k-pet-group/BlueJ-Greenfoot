@@ -365,27 +365,15 @@
 
     </target>
 
-    <!-- To turn Windows path into MinGW path, remove colon and replace
-             backslash with forward slash, and prefix with forward slash.
-             So C:\Java\jdk1.8.0_60 becomes /c/Java/jdk1.8.0_60 -->
-
+    <!-- To make sure Windows paths don't have problems with escapes, replace
+             backslash with forward slash.
+             So C:\Java\jdk1.8.0_60 becomes c:/Java/jdk1.8.0_60 -->
     <loadresource property="mingw_jdk">
         <propertyresource name="build_java_home"/>
         <filterchain>
             <tokenfilter>
                 <filetokenizer/>
                 <replacestring from="\" to="/"/>
-            </tokenfilter>
-        </filterchain>
-    </loadresource>
-    <loadresource property="mingw_bluej_home">
-        <propertyresource name="bluej_home"/>
-        <filterchain>
-            <prefixlines prefix="/"/>
-            <tokenfilter>
-                <filetokenizer/>
-                <replacestring from="\" to="/"/>
-                <replacestring from=":" to=""/>
             </tokenfilter>
         </filterchain>
     </loadresource>
