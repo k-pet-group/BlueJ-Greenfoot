@@ -63,6 +63,7 @@ import bluej.pkgmgr.target.Target;
 import bluej.pkgmgr.target.role.UnitTestClassRole;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
+import bluej.terminal.Terminal;
 import bluej.testmgr.TestDisplayFrame;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.BlueJFileReader;
@@ -2407,18 +2408,16 @@ public class PkgMgrFrame
     }
 
     /**
-     * The user function to remove an arrow from the dagram was invoked.
-     * 
-     * public void doRemoveArrow() { pkg.setState(Package.S_DELARROW);
-     * setStatus(Config.getString("pkgmgr.chooseArrow")); }
-     */
-
-    /**
      * The user function to test all classes in a package
      */
     public void doTest()
     {
         runTestsAction.setAvailable(false);
+        Terminal terminal = this.getPackage().getProject().getTerminal();
+        if (terminal.clearOnMethodCall())
+        {
+            terminal.clear();
+        }
 
         List<ClassTarget> l = getPackage().getTestTargets();
 
