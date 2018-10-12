@@ -38,6 +38,7 @@ import bluej.pkgmgr.TestRunnerThread;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.DependentTarget.State;
 import bluej.pkgmgr.target.Target;
+import bluej.terminal.Terminal;
 import bluej.testmgr.TestDisplayFrame;
 import bluej.testmgr.record.ExistingFixtureInvokerRecord;
 import bluej.utility.Debug;
@@ -289,12 +290,18 @@ public class UnitTestClassRole extends ClassRole
     @Override
     public void run(final PkgMgrFrame pmf, final ClassTarget ct, final String param)
     {
+        Terminal terminal = pmf.getPackage().getProject().getTerminal();
+        if (terminal.clearOnMethodCall())
+        {
+            terminal.clear();
+
+        }
         if (param != null) {
             // Only running a single test
             Project proj = pmf.getProject();
             TestDisplayFrame.getTestDisplay().startTest(proj, 1);
         }
-        
+
         new TestRunnerThread(pmf, ct, param).start();
     }
     

@@ -522,6 +522,14 @@ public final class Terminal
         newMethodCall = true;
     }
 
+    /**
+     * Check if "clear on method call" option is selected.
+     */
+    public boolean clearOnMethodCall()
+    {
+        return clearOnMethodCall.getValue();
+    }
+
     private static <S> ReadOnlyStyledDocument<Void, String, S> styled(String text, S style)
     {
         return ReadOnlyStyledDocument.fromString(text, null, style, SegmentOps.styledTextOps());
