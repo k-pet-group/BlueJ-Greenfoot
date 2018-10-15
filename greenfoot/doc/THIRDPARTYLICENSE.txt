@@ -54,7 +54,6 @@ Apache Commons libraries (Apache License version 2.0)
 Various components of the Apache Commons libraries (https://commons.apache.org/) are
 used by Greenfoot:
   commons-logging-api-1.1.2.jar
-  commons-vfs2-2.0.jar
 These components are distributed under the Apache License version 2.0. A copy of this
 license can be found in the "Apache-License-2.0.txt" file.  
 
@@ -105,16 +104,6 @@ Hamcrest (3-clause BSD license)
 is used by Greenfoot.
 It is available under the "3 clause BSD" license as found in the
 "hamcrest-BSD.txt" file.
-
-
-Javassist library (Apache License version 2.0)
-----------------------------------------------
-"javassist-3.18.0" is the Javassist library (http://jboss-javassist.github.io/javassist/),
-a bytecode engineering library used by Greenfoot.
-Javassist is Copyright (C) 1999-2013, Shigeru Chiba.
-The copyright holder allows distribution of Javassist under a choice of several licenses.
-In Greenfoot it is distributed under the terms of the Apache License version 2.0, as found
-in the "Apache-License-2.0.txt" file.
 
 
 JLayer MP3 processing library (Lesser GNU Public License v2.1)
@@ -265,7 +254,6 @@ hamcrest-core-1.3.jar                    BSD License
 httpclient-4.1.1.jar                     Apache License v2.0
 httpcore-4.1.jar                         Apache License v2.0
 httpmime-4.1.1.jar                       Apache License v2.0
-javassist-3.18.0.jar                     Apache License v2.0
 jl1.0.1.jar                              Lesser GPL v2.1
 junit-4.11.jar                           Common Public License v1.0
 opencsv-2.3.jar                          Apache License v2.0

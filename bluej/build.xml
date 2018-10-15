@@ -86,8 +86,6 @@
         <pathelement location="${bluej_home}/lib/diffutils-1.2.1.jar"/>
         <pathelement location="${bluej_home}/lib/xom-1.2.9.jar"/>
         <pathelement location="${bluej_home}/lib/guava-17.0.jar"/>
-        <pathelement location="${bluej_home}/lib/javassist-3.18.0.jar"/>
-        <pathelement location="${bluej_home}/lib/commons-vfs2-2.0.jar"/>
         <pathelement location="${bluej_home}/lib/jsch-0.1.53.jar"/>
         <pathelement location="${bluej_home}/lib/org.eclipse.jgit-4.9.0.jar"/>
         <pathelement location="${bluej_home}/lib/nsmenufx-2.1.4.jar"/>
@@ -539,7 +537,6 @@
 
                 <exclude name="antlr-runtime-3.4.jar"/>
                 <exclude name="commons-logging-api-1.1.2.jar"/>
-                <exclude name="commons-vfs2-2.0.jar"/>
                 <exclude name="classgraph-4.2.6.jar"/>
                 <exclude name="diffutils-1.2.1.jar"/>
                 <exclude name="eddsa-0.2.0.jar"/>
@@ -548,7 +545,6 @@
                 <exclude name="httpclient-4.1.1.jar"/>
                 <exclude name="httpcore-4.1.jar"/>
                 <exclude name="httpmime-4.1.1.jar"/>
-                <exclude name="javassist-3.18.0.jar"/>
                 <exclude name="jbcrypt-1.0.0.jar"/>
                 <exclude name="junit-4.11.jar"/>
                 <exclude name="nsmenufx-2.1.4.jar"/>
