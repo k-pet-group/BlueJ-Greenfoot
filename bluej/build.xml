@@ -114,8 +114,8 @@
             <compilerarg value="-Xmaxerrs"/><compilerarg value="100"/>
             <compilerarg value="-Xplugin:threadchecker.TCPlugin org.reflections"/>
         </compile>
-    	<copy todir="${boot.build}">
-    	    <fileset dir="${boot.resources}" />
+        <copy todir="${boot.build}">
+            <fileset dir="${boot.resources}" />
         </copy>
     </target>
 
