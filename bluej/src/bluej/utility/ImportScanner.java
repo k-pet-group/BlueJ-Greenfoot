@@ -70,7 +70,7 @@ public class ImportScanner
     // Root package with "" as ident.
     private CompletableFuture<RootPackageInfo> root;
     // The Project which we are scanning for:
-    private Project project;
+    private final Project project;
 
     public ImportScanner(Project project)
     {
@@ -121,7 +121,7 @@ public class ImportScanner
          * @param name The unqualified type name, e.g. "String".
          */
         @OnThread(Tag.Worker)
-        private AssistContentThreadSafe getType(String prefix, String name, JavadocResolver javadocResolver, ClassLoader projectClassLoader)
+        private AssistContentThreadSafe getType(String prefix, String name, JavadocResolver javadocResolver)
         {
             return types.computeIfAbsent(name, s -> {
                 // To safely get an AssistContentThreadSafe, we must create one from the FXPlatform thread.
@@ -129,16 +129,22 @@ public class ImportScanner
                 // worker thread, it is safe to use wait afterwards; without risk of deadlock:
                 try
                 {
-                    Class<?> c = projectClassLoader.loadClass(prefix + s);
                     CompletableFuture<AssistContentThreadSafe> f = new CompletableFuture<>();
-                    Platform.runLater(() -> f.complete(new AssistContentThreadSafe(new ImportedTypeCompletion(c, javadocResolver))));
+                    Platform.runLater(() -> {
+                        Class<?> c = project.loadClass(prefix + s);
+
+                        // This happens reasonably often while the user is typing in an import in Stride,
+                        // so it's not necessarily a bug:
+                        if (c == null)
+                        {
+                            f.complete(null);
+                        }
+                        else
+                        {
+                            f.complete(new AssistContentThreadSafe(new ImportedTypeCompletion(c, javadocResolver)));
+                        }
+                    });
                     return f.get();
-                }
-                catch (ClassNotFoundException e)
-                {
-                    // This happens reasonably often while the user is typing in an import in Stride, there's no
-                    // need to report it every time.
-                    return null;
                 }
                 catch (Exception e)
                 {
@@ -160,7 +166,7 @@ public class ImportScanner
          * @return The 
          */
         @OnThread(Tag.Worker)
-        public List<AssistContentThreadSafe> getImportedTypes(String prefix, Iterator<String> idents, JavadocResolver javadocResolver, ClassLoader projectClassLoader)
+        public List<AssistContentThreadSafe> getImportedTypes(String prefix, Iterator<String> idents, JavadocResolver javadocResolver)
         {
             if (!idents.hasNext())
                 return Collections.emptyList();
@@ -172,20 +178,20 @@ public class ImportScanner
 
                 // Take a copy in case it causes problems that getType modifies the collection
                 Collection<String> typeNames = new ArrayList<>(types.keySet());
-                return typeNames.stream().map(t -> getType(prefix, t, javadocResolver, projectClassLoader)).filter(ac -> ac != null).collect(Collectors.toList());
+                return typeNames.stream().map(t -> getType(prefix, t, javadocResolver)).filter(ac -> ac != null).collect(Collectors.toList());
             }
             else if (idents.hasNext())
             {
                 // Still more identifiers to follow.  Look for package:
                 if (subPackages.containsKey(s))
-                    return subPackages.get(s).getImportedTypes(prefix + s + ".", idents, javadocResolver, projectClassLoader);
+                    return subPackages.get(s).getImportedTypes(prefix + s + ".", idents, javadocResolver);
                 else
                     return Collections.emptyList();
             }
             else
             {
                 // Final identifier, not an asterisk, look for class:
-                AssistContentThreadSafe ac = getType(prefix, s, javadocResolver, projectClassLoader);
+                AssistContentThreadSafe ac = getType(prefix, s, javadocResolver);
                 if (ac != null)
                     return Collections.singletonList(ac);
                 else
@@ -259,11 +265,11 @@ public class ImportScanner
      * GUI thread where it could block the GUI for a long time.
      */
     @OnThread(Tag.Worker)
-    public List<AssistContentThreadSafe> getImportedTypes(String importSrc, ClassLoader projectClassLoader)
+    public List<AssistContentThreadSafe> getImportedTypes(String importSrc)
     {
         try
         {
-            return getRoot().get().getImportedTypes("", Arrays.asList(importSrc.split("\\.", -1)).iterator(), project.getJavadocResolver(), projectClassLoader);
+            return getRoot().get().getImportedTypes("", Arrays.asList(importSrc.split("\\.", -1)).iterator(), project.getJavadocResolver());
         }
         catch (InterruptedException | ExecutionException e)
         {
