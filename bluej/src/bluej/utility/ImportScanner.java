@@ -285,8 +285,6 @@ public class ImportScanner
         // loads the JDK classes.  So we have one ClassGraph for user code libraries
         // (e.g. JUnit, pi4j, other configured BlueJ libraries):
         ArrayList<ClassLoader> cl = new ArrayList<>();
-        cl.add(ClassLoader.getSystemClassLoader());
-        cl.add(ClassLoader.getPlatformClassLoader());
         
         try
         {
