@@ -121,7 +121,7 @@ public class ImportScanner
          * @param name The unqualified type name, e.g. "String".
          */
         @OnThread(Tag.Worker)
-        private AssistContentThreadSafe getType(String prefix, String name, JavadocResolver javadocResolver)
+        private AssistContentThreadSafe getType(String prefix, String name, JavadocResolver javadocResolver, ClassLoader projectClassLoader)
         {
             return types.computeIfAbsent(name, s -> {
                 // To safely get an AssistContentThreadSafe, we must create one from the FXPlatform thread.
@@ -129,7 +129,7 @@ public class ImportScanner
                 // worker thread, it is safe to use wait afterwards; without risk of deadlock:
                 try
                 {
-                    Class<?> c = project.getClassLoader().loadClass(prefix + s);
+                    Class<?> c = projectClassLoader.loadClass(prefix + s);
                     CompletableFuture<AssistContentThreadSafe> f = new CompletableFuture<>();
                     Platform.runLater(() -> f.complete(new AssistContentThreadSafe(new ImportedTypeCompletion(c, javadocResolver))));
                     return f.get();
@@ -160,7 +160,7 @@ public class ImportScanner
          * @return The 
          */
         @OnThread(Tag.Worker)
-        public List<AssistContentThreadSafe> getImportedTypes(String prefix, Iterator<String> idents, JavadocResolver javadocResolver)
+        public List<AssistContentThreadSafe> getImportedTypes(String prefix, Iterator<String> idents, JavadocResolver javadocResolver, ClassLoader projectClassLoader)
         {
             if (!idents.hasNext())
                 return Collections.emptyList();
@@ -172,20 +172,20 @@ public class ImportScanner
 
                 // Take a copy in case it causes problems that getType modifies the collection
                 Collection<String> typeNames = new ArrayList<>(types.keySet());
-                return typeNames.stream().map(t -> getType(prefix, t, javadocResolver)).filter(ac -> ac != null).collect(Collectors.toList());
+                return typeNames.stream().map(t -> getType(prefix, t, javadocResolver, projectClassLoader)).filter(ac -> ac != null).collect(Collectors.toList());
             }
             else if (idents.hasNext())
             {
                 // Still more identifiers to follow.  Look for package:
                 if (subPackages.containsKey(s))
-                    return subPackages.get(s).getImportedTypes(prefix + s + ".", idents, javadocResolver);
+                    return subPackages.get(s).getImportedTypes(prefix + s + ".", idents, javadocResolver, projectClassLoader);
                 else
                     return Collections.emptyList();
             }
             else
             {
                 // Final identifier, not an asterisk, look for class:
-                AssistContentThreadSafe ac = getType(prefix, s, javadocResolver);
+                AssistContentThreadSafe ac = getType(prefix, s, javadocResolver, projectClassLoader);
                 if (ac != null)
                     return Collections.singletonList(ac);
                 else
@@ -259,11 +259,11 @@ public class ImportScanner
      * GUI thread where it could block the GUI for a long time.
      */
     @OnThread(Tag.Worker)
-    public List<AssistContentThreadSafe> getImportedTypes(String importSrc)
+    public List<AssistContentThreadSafe> getImportedTypes(String importSrc, ClassLoader projectClassLoader)
     {
         try
         {
-            return getRoot().get().getImportedTypes("", Arrays.asList(importSrc.split("\\.", -1)).iterator(), project.getJavadocResolver());
+            return getRoot().get().getImportedTypes("", Arrays.asList(importSrc.split("\\.", -1)).iterator(), project.getJavadocResolver(), projectClassLoader);
         }
         catch (InterruptedException | ExecutionException e)
         {
