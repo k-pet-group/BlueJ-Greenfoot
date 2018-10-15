@@ -320,7 +320,7 @@ public class ImportScanner
             .enableSystemPackages()
             .whitelistPackages("java.*", "javax.*", "javafx.*");
 
-        return Arrays.asList(
+        return List.of(
             userClassGraph.enableClassInfo(),
             systemClassGraph.enableClassInfo()
         );
