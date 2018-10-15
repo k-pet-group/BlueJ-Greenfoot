@@ -54,7 +54,6 @@ Apache Commons libraries (Apache License version 2.0)
 Various components of the Apache Commons libraries (https://commons.apache.org/) are
 used by Greenfoot:
   commons-logging-api-1.1.2.jar
-  commons-vfs2-2.0.jar
 These components are distributed under the Apache License version 2.0. A copy of this
 license can be found in the "Apache-License-2.0.txt" file.  
 
@@ -69,6 +68,13 @@ used by Greenfoot:
 These components are distributed under the Apache License version 2.0. A copy of this
 license can be found in the "Apache-License-2.0.txt" file.  
  
+
+ClassGraph library (MIT License)
+--------------------------------
+"classgraph-4.2.6.jar" is from the ClassGraph library, which allows scanning of Java
+libraries for a list of present classes.  It is released by Luke Hutchison under
+the MIT License, and is available at https://github.com/classgraph/classgraph
+
 
 Diffutils (Apache License version 2.0)
 --------------------------------------
@@ -98,16 +104,6 @@ Hamcrest (3-clause BSD license)
 is used by Greenfoot.
 It is available under the "3 clause BSD" license as found in the
 "hamcrest-BSD.txt" file.
-
-
-Javassist library (Apache License version 2.0)
-----------------------------------------------
-"javassist-3.18.0" is the Javassist library (http://jboss-javassist.github.io/javassist/),
-a bytecode engineering library used by Greenfoot.
-Javassist is Copyright (C) 1999-2013, Shigeru Chiba.
-The copyright holder allows distribution of Javassist under a choice of several licenses.
-In Greenfoot it is distributed under the terms of the Apache License version 2.0, as found
-in the "Apache-License-2.0.txt" file.
 
 
 JLayer MP3 processing library (Lesser GNU Public License v2.1)
@@ -211,14 +207,6 @@ SOFTWARE.
 
 ---
 
-The Reflections code in org.reflections was taken from the Reflections library by ronamo,
-master version from https://github.com/ronmamo/reflections on 2014-05-30, after commit
-662061c7544a6fb4155dbfa8b95d4d5c7a372806.  The code was originally licensed under the WTFPL,
-and is distributed as part of BlueJ under the GPLv2 license with Classpath exception (the
-primary BlueJ license). 
-
----
-
 The greenfoot.util.GraphicsUtilities classes contain code originally written by Romain Guy,
 distributed under the following license:
 
@@ -259,14 +247,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 AppleJavaExtensions.jar                  BSD-like license
 commons-logging-api-1.1.2.jar            Apache License v2.0
-commons-vfs2-2.0.jar                     Apache License v2.0
+classgraph-4.2.6.jar                     MIT License
 diffutils-1.2.1.jar                      Apache License v2.0
 guava-17.0.jar                           Apache License v2.0
 hamcrest-core-1.3.jar                    BSD License
 httpclient-4.1.1.jar                     Apache License v2.0
 httpcore-4.1.jar                         Apache License v2.0
 httpmime-4.1.1.jar                       Apache License v2.0
-javassist-3.18.0.jar                     Apache License v2.0
 jl1.0.1.jar                              Lesser GPL v2.1
 junit-4.11.jar                           Common Public License v1.0
 opencsv-2.3.jar                          Apache License v2.0

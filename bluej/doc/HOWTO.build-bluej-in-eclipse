@@ -134,7 +134,6 @@ Alternatively:
 
        - antlr-runtime-3.4.jar
        - commons-logging-api-1.1.2.jar
-       - commons-vfs2-2.0.jar
        - diffutils-1.2.1.jar
        - eddsa-0.2.0.jar
        - guava-17.0.jar
@@ -142,7 +141,6 @@ Alternatively:
        - httpclient-4.1.1.jar
        - httpcore-4.1.jar
        - httpmime-4.1.1.jar
-       - javassist-3.18.0.jar
        - jbcrypt-1.0.0.jar
        - jsch-0.1.53
        - junit-4.11.jar

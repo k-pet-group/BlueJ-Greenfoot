@@ -98,7 +98,7 @@ public class Boot
         JLAYER_MP3_JAR, "opencsv-2.3.jar", "xom-1.2.9.jar",
         "lang-stride.jar",
         "nsmenufx-2.1.4.jar", "richtextfx-fat-0.9.0.jar",
-        "guava-17.0.jar", "javassist-3.18.0.jar", "commons-vfs2-2.0.jar",
+        "guava-17.0.jar",
         "httpclient-4.1.1.jar", "httpcore-4.1.jar", "httpmime-4.1.1.jar"};
     private static final int greenfootUserBuildJars = 4;
     public static String GREENFOOT_VERSION = "3.5.1";
@@ -109,8 +109,8 @@ public class Boot
     // The first lot are the ones to run BlueJ itself
     private static final String[] bluejJars = { "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
         "antlr-runtime-3.4.jar",
+        "classgraph-4.2.6.jar",
         "commons-logging-api-1.1.2.jar",
-        "commons-vfs2-2.0.jar",
         "diffutils-1.2.1.jar",
         "eddsa-0.2.0.jar",
         "guava-17.0.jar",
@@ -118,7 +118,6 @@ public class Boot
         "httpclient-4.1.1.jar",
         "httpcore-4.1.jar",
         "httpmime-4.1.1.jar",
-        "javassist-3.18.0.jar",
         "jbcrypt-1.0.0.jar",
         "jsch-0.1.53.jar",
         "junit-4.11.jar",

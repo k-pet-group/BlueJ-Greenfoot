@@ -239,6 +239,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     private StringExpression strideFontCSS;
     private final SimpleObjectProperty<Image> imageProperty = new SimpleObjectProperty<>(null);
 
+    @OnThread(Tag.FXPlatform)
     public FrameEditorTab(Project project, EntityResolver resolver, FrameEditor editor, TopLevelCodeElement initialSource)
     {
         super(true);
@@ -319,15 +320,16 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         }
     }
 
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     private Future<List<AssistContentThreadSafe>> importsUpdated(final String x)
     {
         JavadocResolver javadocResolver = project.getJavadocResolver();
+        ClassLoader classLoader = project.getClassLoader();
         CompletableFuture<List<AssistContentThreadSafe>> f = new CompletableFuture<>();
         Utility.runBackground(() -> {
             try
             {
-                f.complete(project.getImportScanner().getImportedTypes(x, javadocResolver));
+                f.complete(project.getImportScanner().getImportedTypes(x));
             }
             catch (Throwable t)
             {
