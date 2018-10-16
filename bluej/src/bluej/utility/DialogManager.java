@@ -334,7 +334,6 @@ public class DialogManager
             String button3 = message.substring(button3Index+1);
             String button2 = message.substring(button2Index+1, button3Index);
             String button1 = message.substring(button1Index+1, button2Index);
-            System.out.println(button1);
             message = message.substring(0, button1Index);
             message = infoText + message;
 
