@@ -155,7 +155,6 @@ public class CompilerAPICompiler extends Compiler
                         // Japanese version of above
                         return;
                     }
-                    System.out.println(message); 
                     diagType = bluej.compiler.Diagnostic.WARNING;
                     long beginCol = diag.getColumnNumber();
                     long endCol = diag.getEndPosition() - diag.getPosition() + beginCol;
