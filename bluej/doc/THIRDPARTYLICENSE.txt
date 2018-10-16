@@ -171,6 +171,11 @@ license, and include:
 ReactFX: license found in the "ReactFX-BSD.txt" file;
 UndoFX, Flowless, and WellBehavedFX: license found in the "TomasMikula-BSD.txt" file.
 
+The RichTextFX source includes a small patch to 0.9.0 to fix a bug.  The
+patched source is available at:
+https://bluej.org/download/files/source/richtextfx-0.9.0-src-patched.zip
+The patch is available in doc/richtextfx-0.9.0-leak.patch
+
 
 Roboto Mono fonts (Apache License version 2.0)
 ----------------------------------------------
