@@ -1,0 +1,15 @@
+diff -ru ../RichTextFX-0.9.0/richtextfx/src/main/java/org/fxmisc/richtext/GenericStyledArea.java richtextfx/src/main/java/org/fxmisc/richtext/GenericStyledArea.java
+--- ../RichTextFX-0.9.0/richtextfx/src/main/java/org/fxmisc/richtext/GenericStyledArea.java	2018-04-12 14:40:48.000000000 +0100
++++ richtextfx/src/main/java/org/fxmisc/richtext/GenericStyledArea.java	2018-10-16 13:34:53.000000000 +0100
+@@ -1467,9 +1467,11 @@
+                 firstParPseudoClass.unsubscribe();
+                 lastParPseudoClass.unsubscribe();
+ 
++                box.caretsProperty().clear();                
+                 caretSubscription.unsubscribe();
+                 hasCaretPseudoClass.unsubscribe();
+ 
++                box.selectionsProperty().clear();
+                 selectionSubscription.unsubscribe();
+             }
+         };
