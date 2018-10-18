@@ -150,9 +150,6 @@ public class Boot
         "javafx.web.jar"
     };
     
-    /** path of the JavaFX runtime Jar, if needed */
-    private static String jfxrtJar;
-    
     private static boolean isGreenfoot = false;
     private static File bluejLibDir;
     private static final ArrayList<File> macInitialProjects = new ArrayList<>();
@@ -234,8 +231,19 @@ public class Boot
      */
     public URL[] getJavaFXClassPath()
     {
-        // Note: this assumes JavaFX is bundled.  Will need adjusting for Linux/Generic
-        File javafxLibPath = new File(new File(getBluejLibDir(), "javafx"), "lib");
+        String javafxPathProp = commandLineProps.getProperty("javafxpath", null);
+        File javafxPath;
+        if (javafxPathProp != null)
+        {
+            javafxPath = new File(javafxPathProp);
+        }
+        else
+        {
+            // If no javafxpath property passed, assume JavaFX is bundled
+            javafxPath = new File(getBluejLibDir(), "javafx");
+        }
+        
+        File javafxLibPath = new File(javafxPath, "lib");
 
         URL[] urls = new URL[javafxJars.length];
         for (int i = 0; i < javafxJars.length; i++)
@@ -295,8 +303,6 @@ public class Boot
             numBuildJars = greenfootUserBuildJars;
             numUserBuildJars = greenfootUserBuildJars;
         }
-
-        jfxrtJar = commandLineProps.getProperty("jfxrt.jarpath");
         
         try {
             instance = new Boot(commandLineProps, image);
@@ -630,10 +636,7 @@ public class Boot
         {
             // Only need to specially add JavaFX for the user VM, it will
             // already be on classpath for server VM:
-            if (jfxrtJar != null && jfxrtJar.length() != 0)
-            {
-                urlList.add(new File(jfxrtJar).toURI().toURL());
-            }
+            urlList.addAll(Arrays.asList(getJavaFXClassPath()));
         }
         return (URL[]) urlList.toArray(new URL[0]);
     }

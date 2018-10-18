@@ -164,6 +164,7 @@ Next, you need to set up a Greenfoot project.
 -greenfoot=true
 -greenfootclassesdir=[path to 'classes' directory within greenfoot as seen from bluej project, e.g. ../greenfoot/classes]
 -useclassesdir=true
+-javafxpath=/path/to/javafx
 -bluej.debug=true
 -bluej.compiler.showunchecked=false
 
