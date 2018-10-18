@@ -31,10 +31,18 @@ CP="/usr/share/bluej/bluej.jar"
 JFXRTOPT=""
 
 # If JavaFX library is not within the JDK, look for OpenJFX:
-if [ ! -e "$JAVAPATH/jre/lib/ext/jfxrt.jar" ]; then
-    if [ -e "/usr/share/java/openjfx/jre/lib/ext/jfxrt.jar" ]; then
-        CP="$CP:/usr/share/java/openjfx/jre/lib/ext/jfxrt.jar"
-        JFXRTOPT="-jfxrt.jarpath=/usr/share/java/openjfx/jre/lib/ext/jfxrt.jar"
+if [ ! -e "$JAVAPATH/lib/javafx.graphics.jar" ]; then
+    if [ -e "/usr/share/openjfx/lib/javafx.graphics.jar" ]; then
+        JAVAFXPATH=/usr/share/openjfx
+        CP="$CP:$JAVAFXPATH/lib/javafx.base.jar"
+        CP="$CP:$JAVAFXPATH/lib/javafx.controls.jar"
+        CP="$CP:$JAVAFXPATH/lib/javafx.fxml.jar"
+        CP="$CP:$JAVAFXPATH/lib/javafx.graphics.jar"
+        CP="$CP:$JAVAFXPATH/lib/javafx.media.jar"
+        CP="$CP:$JAVAFXPATH/lib/javafx.properties.jar"
+        CP="$CP:$JAVAFXPATH/lib/javafx.swing.jar"
+        CP="$CP:$JAVAFXPATH/lib/javafx.web.jar"
+        JFXRTOPT="-javafxpath=$JAVAFXPATH"
     fi
 fi
 

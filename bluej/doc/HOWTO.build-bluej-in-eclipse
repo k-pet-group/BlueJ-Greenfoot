@@ -211,6 +211,7 @@ Alternatively:
 
 -useclassesdir=true 
 -bluej.debug=true
+-javafxpath=/path/to/javafx
 
 
    In the JRE tab:

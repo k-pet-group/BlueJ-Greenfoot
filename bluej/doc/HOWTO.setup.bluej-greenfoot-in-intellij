@@ -87,16 +87,18 @@ Finally, set up the run configurations.  Go to Run menu > Edit Configurations...
 Click the "+" in top-left to add new config, select Application from drop-down menu.
 
   Name the configuration "BlueJ".  Main class is "bluej.Boot".  Program arguments should be:
-    -useclassesdir=true -bluej.debug=true
+    -useclassesdir=true -bluej.debug=true -javafxpath=/path/to/javafx
   The first one tells it to use the "classes" subdirectory for class files rather than looking for
   the JARs which we build for the release.  The second tells it to spit out debug output on stderr
-  rather than to the bluej log file (you definitely want this during development).
+  rather than to the bluej log file (you definitely want this during development).  The third tells
+  it where JavaFX is located for the purposes of dynamically forming the classpath.  The directory
+  you give should have a lib subdirectory with javafx.graphics.jar in it.
   Set the working directory to bjgf/bluej, and set the classpath to be for module "bluej".
 
 Run this configuration, and it should work.  Then go back to Edit Configurations..., select the
   Copy Configuration icon (third from top left of window) and call the copy Greenfoot.  Only change
   needed is to set the arguments to:
-    -useclassesdir=true -bluej.debug=true -greenfoot=true -greenfootclassesdir=bjgf/greenfoot/classes
+    -useclassesdir=true -bluej.debug=true -javafxpath=/path/to/javafx -greenfoot=true -greenfootclassesdir=bjgf/greenfoot/classes
   (Remember to replace bjgf with full path).
 
 Before you can run the Greenfoot configuration for the first time, you need to run the ant target
