@@ -60,10 +60,10 @@ Ett fel intr\u00e4ffade n\u00e4r tangentbordskommandona
 f\u00f6rs\u00f6kte sparas. Kommandona sparades inte.
 
 error-no-templates
-The specified template directory (the directory where
-BlueJ finds the class templates) does not exist. It
-is defined with the property "bluej.templatePath" in
-<bluej-home>/lib/bluej/defs. Check and fix this property.
+Den valda mappen f\u00F6r mallar (mappen d\u00E4r BlueJ hittar
+klassmallarna) existerar inte. Den defineras med
+egenskapen "bluej.templatePath" i
+<bluej-home>/lib/bluej/defs. Kontrollera denna egenskap.
 
 skeleton-error
 Klassens default-mall kunde inte skapas.
@@ -91,15 +91,15 @@ applikationen. Det \u00e4r m\u00f6jligt att n\u00e5gra eller
 alla filer inte har blivit korrekt kopierade.
 
 error-writing-jar
-The jar file could not be written correctly.
-(Check the file system for access rights and
-disk space availability.)
+Jar-filen kunde inte skrivas korrekt.
+Kontrollera filsystemet f\u00F6r r\u00E4ttigheter och
+diskutrymme.
 
 error-file-exists
-The jar file you have selected already exists.
-Do you want to continue?
-Overwrite
-Cancel
+Jar-filen du valt existerar redan.
+Vill du forts\u00E4tta?
+Skriv \u00F6ver
+Avbryt
 null
 
 invalid-class-name
@@ -128,40 +128,40 @@ vara en Java k\u00e4llkodsfil
 (namnet m\u00e5ste sluta med ".java")
 
 docdir-blocked-by-file
-The directory for the documentation could
-not be created in the project directory
-because there is a file with same name.
+Mappen f\u00F6r dokumentation kunde
+inte skapas i projektets mapp f\u00F6r att
+det redan finns en fil med samma namn.
 
 docdir-not-created
-The directory for the documentation could
-not be created in the project directory.
+Mappen f\u00F6r dokumentation kunde inte skapas
+i projektets mapp.
 
 no-permission-for-docdir
-The directory for the documentation could
-not be created in the project directory
-because of insufficient rights.
+Mappen f\u00F6r dokumentation kunde inte skapas
+i projektets mapp pga otillr\u00E4ckliga
+r\u00E4ttigheter.
 
 show-or-generate
-Do you want to show the documentation
-generated previously, or do you want
-to regenerate the whole documentation?
-Just Show
-Regenerate
-Cancel
+Vill du visa dokumentationen som
+genererats tidigare eller vill du
+skapa om hela dokumentationen?
+Visa endast
+Skapa om
+Avbryt
 
 doctool-error
-Javadoc reported an error. It could be that there is a
-syntax error in one of the files you tried to generate
-a documentation for. It could also be that the JDK
-documentation URL specified in the preferences is incorrect.
-Make sure that all your Java files are compiled and the
-documentation URL is accessible or disabled. Then try again.
-If this message appears again you should check the log file
-with the error messages from Javadoc:
+Javadoc rapporterade ett fel. Det kan bero p\u00E5 ett
+syntax-fel i en av filerna som du f\u00F6rs\u00F6kte generera
+dokumentation f\u00F6r. Det kan ocks\u00E5 bero p\u00E5 att JDK-
+dokumentationens URL i inst\u00E4llningar \u00E4r felaktig.
+Kontrollera att dina Java-filer \u00E4r kompilerade
+och att dokumentationens URL \u00E4r tillg\u00E4nglig eller avaktiverad.
+F\u00F6rs\u00F6k sedan igen. Om detta meddelande uppkommer igen,
+kolla i logg-filen med Javadoc-felmeddelanden:
 
 severe-doc-trouble
-An exception occured during the call
-to the external documentation tool.
+Ett undantag intr\u00E4ffade n\u00E4r det
+externa dokumentationsverktyget kallades.
 
 no-java-sources-found
 Inga Java k\u00e4llkodsfiler kunde
@@ -191,20 +191,19 @@ Avbryt
 null
 
 really-remove-package
-Removing this package will permanently
-delete the package directory (including ALL
-the contents of that directory).
-Do you want to continue?
-Remove
-Cancel
+Att ta bort detta paket kommer permanent
+att ta bort paketets mapp (inklusive ALLT
+inneh\u00E5ll i den mappen).
+Vill du forts\u00E4tta?
+Ta bort
+Avbryt
 null
 
 remove-package-open
-The package you have selected for
-deletion has some sub-packages opened
-within BlueJ. You must close these
-packages before you will be allowed
-to delete this package.
+Paketet du valt f\u00F6r borttagning har
+n\u00E5gra sub-paket \u00F6ppnade i BlueJ. Du
+m\u00E5ste st\u00E4nga dessa subpaket innan
+du kan ta bort detta paket.
 
 package-does-not-exist
 Fel vid \u00f6ppning av paket.
@@ -244,21 +243,21 @@ Avbryt
 null
 
 open-non-bluej-already-bluej
-The directory you have selected is already
-a BlueJ project.
+Mappen du valt \u00E4r redan
+ett BlueJ-projekt.
 
 open-non-bluej-invalid
-You have indicated you wish to open this
-directory as a BlueJ project, however a file
-has been found with a package statement that
-is incompatible with the current directory
-structure. (For example, if the Java class
-Shape has a package line of com.aa, then the
-file Shape.java must be in a directory aa
-which is itself in a directory com. This com
-directory in turn must be in another directory
-which is the directory you should point BlueJ
-to when attempting to open it).
+Du har indikerat att du vill \u00F6ppna denna
+mapp som ett BlueJ-projekt men en fil
+har hittats med ett paket som \u00E4r
+inkompatibelt med nuvarnade mappstruktur.
+Till exempel, om Java-klassen Shape har
+en paket-rad com.aa s\u00E5 m\u00E5ste filen
+Shape-java ligga i mappen aa som i sin tur
+ligger i mappen com. Denna com-mapp m\u00E5ste i
+sin tur ligga i en annan mapp. Det \u00E4r den
+mappen som du borde meka BlueJ till n\u00E4r
+du f\u00F6rs\u00F6ker \u00F6ppna.
 
 import-into-current
 Du har redan ett paket \u00f6ppet i det h\u00e4r f\u00f6nstret.
@@ -270,22 +269,22 @@ Nytt Projekt
 null
 
 package-name-invalid
-You have changed the package statement
-to a package which does not exist in this project.
-If you wish to move this class to another
-package you must create the destination
-package first. The package statement has been
-reverted back to its original form.
+Du har \u00E4ndrat paketets uttryck till ett paket som
+inte existerar i det h\u00E4r projektet.
+Om du \u00F6nskar flytta denna klass till ett annat paket
+s\u00E5 m\u00E5ste du skapa destinationspaketet f\u00F6rst.
+Paketets uttryck har \u00E5terst\u00E4llts till
+dess originalform.
 
 package-name-changed
-You have changed the package statement which
-tells Java the package this class is in. Do you
-want to move this class to the indicated package
-or do you want to leave the class where it is
-(the package statement will be reverted back to
-its original form)?
-Move
-Revert
+Du har \u00E4ndrat paketets uttryck som s\u00E4ger till
+Java vilket paket klassen ligger i. Vill du
+flytta denna klass till det indikerade paketet
+eller vill du l\u00E4mna klassen d\u00E4r den \u00E4r?
+(paketets uttryck kommer att \u00E5terst\u00E4llas till
+dess originalform).
+Flytta
+\u00E5terst\u00E4ll
 null
 
 ask-index
@@ -294,9 +293,9 @@ Inspektera Array
 null
 
 classmgr-changes-no-effect
-The changes you have made to the class libraries
-will not take effect until the next time you
-start BlueJ.
+\u00E4ndringarna du gjort till klassens bibliotek
+kommer inte att g\u00E4lla f\u00F6rr\u00E4n n\u00E4sta g\u00E5ng du
+startar BlueJ.
 
 # editor:
 #########
@@ -306,9 +305,9 @@ Ingen s\u00f6kstr\u00e4ng \u00e4r angiven.
 (Markera en text eller anv\u00e4nd 'Hitta' f\u00f6rst.)
 
 default-keys
-Do you really want to discard all your
-key bindings and set the default
-bindings?
-Set defaults
-Cancel
+Vill du verkligen ta bort alla dina
+tangentbindningar och \u00E5terst\u00E4lla
+standardtangenterna?
+\u00E5terst\u00E4ll standard
+Avbryt
 null

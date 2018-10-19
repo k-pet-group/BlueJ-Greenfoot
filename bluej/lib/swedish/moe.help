@@ -10,17 +10,17 @@ delete-previous=\n Radera tecknet n\u00e4rmast f\u00f6reg\u00e5ende mark\u00f6re
 delete-next=\n Radera tecknet n\u00e4rmast efter mark\u00f6ren.
 copy-to-clipboard=\n Kopiera markerad text till klippboken. D\u00e4rifr\u00e5n kan den\n sedan klistras in n\u00e5gon annanstans (se paste-from-clipboard).
 cut-to-clipboard=\n Klipp ut markerad text till klippboken. D\u00e4rifr\u00e5n kan den\n sedan klistras in n\u00e5gon annanstans (se paste-from-clipboard).
-copy-line=\n Copy the current line to the clipboard. Successive \n copy operations add to the clipbord.
-cut-line=\n Cut the current line to the clipboard. Successive \n cut operations add to the clipbord.
-cut-end-of-line=\n Cut the end of the current line to the clipboard.\n Successive cut operations add to the clipbord.
-cut-word=\n Cut the current word to the clipboard. Successive \n cut operations add to the clipbord.
-cut-end-of-word=\n Cut the end of the current word to the clipboard.\n Successive cut operations add to the clipbord.
+copy-line=\n Kopiera markerad rad till klippboken. Efterf\u00F6ljande \n kopieringar l\u00E4ggs till i urklipp.
+cut-line=\n Klipp ut den markerade raden till klippboken. Efterf\u00F6ljande \n klipp l\u00E4ggs till i urklipp.
+cut-end-of-line=\n Klipp ut slutet p\u00E5 raden till klippboken.\n Efterf\u00F6ljande klipp l\u00E4ggs till i urklipp.
+cut-word=\n Klipp ut det markerade ordet till klippboken. Efterf\u00F6ljande \n klipp l\u00E4ggs till i urklipp.
+cut-end-of-word=\n Klipp ut slutet av det markerade ordet till klippboken.\n Efterf\u00F6ljande klipp l\u00E4ggs till i urklipp.
 paste-from-clipboard=\n Klistra in den text som f\u00f6r n\u00e4rvarande finns i klippboken.\n Inklippet kommer hamna d\u00e4r mark\u00f6ren befinner sig.
 insert-tab=\n Infoga ett tabulatortecken.
-insert-spaced-tab=\n Insert spaces to the next TAB position. (That is: perform\n a TAB operation using spaces instead of a real TAB character).
+insert-spaced-tab=\n Infoga mellanslag framtill t\u00E4xta tabbposition. (Dvs: Genomf\u00F6r\n en tabbe med mellanslag ist\u00E4llet f\u00F6r en riktig tabbe).
 insert-break=\n Infoga ett radslutstecken d\u00e4r mark\u00f6ren befinner sig.
-insert-break-and-indent=\n Insert a line break at the caret position\n and indent as the line above.
-indent=\n Adjust the indentation of the current line to be the same as that\n of the line above.
+insert-break-and-indent=\n Infoga ett radslutstecken vid vald position\n och indentera som raden ovan.
+indent=\n Justera indenteringen av vald rad till samma som raden ovan.
 insert-method=\n Infoga mall f\u00f6r Java metod.
 comment=\n Kommentera bort markerad kod.\n Koden kan l\u00e4tt \u00e5terst\u00e4llas senare (se uncomment).
 uncomment=\n Ta bort kommentarsymboler fr\u00e5n markerad text. (se comment)
@@ -35,16 +35,16 @@ selection-up=\n Ut\u00f6ka markering en rad upp\u00e5t.
 selection-down=\n Ut\u00f6ka markering en rad ned\u00e5t.
 selection-begin-word=\n Flytta slutet av markeringen till b\u00f6rjan av\n aktuellt ord.
 selection-end-word=\n Flytta slutet av markeringen till slutet av\n aktuellt ord.
-selection-previous-word=\n Move the end of the selection to the beginning of\n the previous word.
-selection-next-word=\n Move the end of the selection to the beginning of\n the next word.
-selection-begin-line=\n Move the end of the selection to the beginning of\n the current line.
-selection-end-line=\n Move the end of the selection to the end of\n the current line.
-selection-begin-paragraph=\n Move the end of the selection to the beginning of\n the current paragraph.
-selection-end-paragraph=\n Move the end of the selection to the end of\n the current paragraph.
-selection-page-up=\n Move the end of the selection one page up.
-selection-page-down=\n Move the end of the selection one page down.
-selection-begin=\n Move the end of the selection to the beginning of the text.
-selection-end=\n Move the end of the selection to the end of the text.
+selection-previous-word=\n Flytta slutet av markeringen till b\u00F6rjan av\n f\u00F6reg\u00E5ende ord.
+selection-next-word=\n Flytta slutet av markeringen till b\u00F6rjan av\n n\u00E4sta ord.
+selection-begin-line=\n Flytta slutet av markeringen till b\u00F6rjan av\n denna rad.
+selection-end-line=\n Flytta slutet av markeringen till slutet av\n denna rad.
+selection-begin-paragraph=\n Flytta slutet av markeringen till b\u00F6rjan av\n detta stycke.
+selection-end-paragraph=\n Flytta slutet av markeringen till slutet av\n detta stycke.
+selection-page-up=\n Flytta slutet av markeringen en sida upp.
+selection-page-down=\n Flytta slutet av markeringen en sida ner.
+selection-begin=\n Flytta slutet av markeringen till b\u00F6rjan av texten.
+selection-end=\n Flytta slutet av markeringen till slutet av texten.
 
 ## move and scroll functions
 
@@ -52,66 +52,60 @@ caret-backward=\n Move the caret (cursor) one character backwards.
 caret-forward=\n Move the caret one character forward.
 caret-up=\n Move the caret one line up.
 caret-down=\n Move the caret one line down.
-caret-begin-word=\n Move the caret to the beginning of the current word.
-caret-end-word=\n Move the caret to the end of the current word.
-caret-previous-word=\n Move the caret to the beginning of the previous word.
-caret-next-word=\n Move the caret to the beginning of the next word.
-caret-begin-line=\n Move the caret to the beginning of the current line.
-caret-end-line=\n Move the caret to the end of the current line.
-caret-begin-paragraph=\n Move the caret to the beginning of the current paragraph.
-caret-end-paragraph=\n Move the caret to the end of the current paragraph.
+caret-begin-word=\n Move the caret till b\u00F6rjan av the current word.
+caret-end-word=\n Move the caret till slutet av the current word.
+caret-previous-word=\n Move the caret till b\u00F6rjan av the previous word.
+caret-next-word=\n Move the caret till b\u00F6rjan av the next word.
+caret-begin-line=\n Move the caret till b\u00F6rjan av the current line.
+caret-end-line=\n Move the caret till slutet av the current line.
+caret-begin-paragraph=\n Move the caret till b\u00F6rjan av the current paragraph.
+caret-end-paragraph=\n Move the caret till slutet av the current paragraph.
 page-up=\n Move the caret one page up.
 page-down=\n Move the caret one page down.
-caret-begin=\n Move the caret to the beginning of the text.
-caret-end=\n Move the caret to the end of the text.
+caret-begin=\n Move the caret till b\u00F6rjan av the text.
+caret-end=\n Move the caret till slutet av the text.
 
 ## class functions
 
-save=\n Save this class. Note that it is rarely necessary to explicitely save\n the class because closing it saves it automatically.
-reload=\n Reload the class from its source file. This operation will discard\n all changes made after the last (implicit or explicit) save operation.
-close=\n Close this class. The source text is automatically saved.
-print=\n Open a print dialog to start a print job.
-page-setup=\n Open a page-setup dialog to specify page layout.
+save=\n Spara den h\u00E4r klassen. Notera att det s\u00E4llan \u00E4r n\u00F6dv\u00E4ndigt att uttryckligen spara klassen pga att den sparas automatiskt vid st\u00E4ngning.
+reload=\n Ladda om klassen fr\u00E5n dess k\u00E4llfil. Deetta kommer att\n ta bort alla \u00E4ndringar gjorda sedan senaste (automatiska eller explicita) sparningen.
+close=\n St\u00E4ng den h\u00E4r klassen. K\u00E4llfilen sparas automatiskt.
+print=\n \u00F6ppna en utskriftsidalog f\u00F6r att starta en utskrift.
+page-setup=\n \u00F6ppna sidinst\u00E4llningar f\u00F6r att specifiera en sidlayout.
 
 
 ## customisation functions
 
-key-bindings=\n View and change the key bindings for Moe's user functions.
-preferences=\n Specify some preference settings for the editor.
+key-bindings=\n Se och \u00E4ndra tangentkombinationer f\u00F6r Moe's anv\u00E4ndarfunktioner.
+preferences=\n Specificera vissa inst\u00E4llningar f\u00F6r redigeraren.
 
 
 ## help functions
 
-describe-key=\n After invoking this function, type a key. The name of the\n function bound to this key is displayed.
-help-mouse=\n Display mouse button bindings.
-show-manual=\n Open a web browser to show the Moe User Manual.
-about-editor=\n Display a brief note about Moe.
+describe-key=\n Efter att denna funktion kallats, tryck p\u00E5 en tangent.\n Namnet p\u00E5 funktionen bunden till tangenten visas.
+help-mouse=\n Visa musknappbindningar.
+show-manual=\n \u00F6ppnar en webbl\u00E4sare f\u00F6r att visa manualen f\u00F6r Moe.
+about-editor=\n Visa en kort notis om Moe.
 
 
 ## misc functions
 
-undo=\n Undo the last edit operation. (This can then be re-done with 'redo'.)
-redo=\n Redo the last operation that was undone.
+undo=\n \u00E5ngra den senaste operationen (den kan sedan g\u00F6ras om med 'upprepa')
+redo=\n Upprepa den senaste operationen som \u00E5ngrades.
 
-find=\n Open a dialog to start a search for a string in the text. The dialog\n allows to start searches backward or forward.
-find-backward=\n Like find, but the make 'Backward' the default button.
-find-next= If a selection is on, find the next occurrence of the selected text. If no\n selection is on, search again for the same string that was used in the\n last search. Stop at the end of the text. If called again after the end\n of the text was reached, wrap around and continue search from the top.
-find-next-reverse=\n Like find-next, but reverse the search direction.
-replace=\n Replace one text string with another.
+find=\n \u00F6ppna en dialogruta f\u00F6r att s\u00F6ka efter en str\u00E4ng i text.\n Dialogen m\u00F6jligg\u00F6r s\u00F6kningar bakl\u00E4nges och framl\u00E4nges.
+find-backward=\n Som hitta, men med 'Bakl\u00E4nges' som standardknapp.
+find-next= Om markering \u00E4r p\u00E5, hitta n\u00E4sta f\u00F6rekomst av den markerade texten. Om ingen\n markering \u00E4r p\u00E5, s\u00F6k igen efter den senaste str\u00E4ngen. Sluta p\u00E5 slutet av texten.\n Om detta kallas igen efter textens slut, b\u00F6rja om s\u00F6kningen fr\u00E5n b\u00F6rjan.
+find-next-reverse=\n Som s\u00F6k n\u00E4sta men i omv\u00E4nd riktning.
+replace=\n Ers\u00E4tt en str\u00E4ng med en annan.
 
-compile=\n Compile the current class. The class is automatically\n saved before being compiled.
-toggle-interface-view=\n Toggle the display between interface and source view.\n The interface view shpws the class interface in Javadoc format.
-toggle-breakpoint=\n Set or clear a breakpoint in the current line.
+compile=\n Kompilera nuvarande klass. Klassen sparas automatiskt\ innan den kompileras.
+toggle-interface-view=\n St\u00E4ng av eller s\u00E4tt p\u00E5 visning mellan gr\u00E4nssnitt och k\u00E4llkod.\n Gr\u00E4nssnittet visar klassen i Javadoc-format.
+toggle-breakpoint=\n Ange eller ta bort en brytpunkt p\u00E5 vald rad.
 
 ## help texts for adding key bindings
 
 press-key=\n Ange \u00f6nskat tangentkommando genom att trycka ner tangenterna...
 cannot-redefine=\n Tangenter som resulterar i utskrift p\u00e5 sk\u00e4rmen kan inte omdefinieras.
-
-
-
-
-
-
 
 
