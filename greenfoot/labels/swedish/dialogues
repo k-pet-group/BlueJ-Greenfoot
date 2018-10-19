@@ -1,0 +1,100 @@
+editor-crashed
+Det verkar som att Greenfoot kraschade n\u00E4r man skrev denna klass
+till disken senast. K\u00E4llkoden kanske
+saknas eller \u00E4r inkomplett.
+Det borde finnas en backup av denna klass
+i projektets mapp. Om den h\u00E4r klassen verkar skadad:
+   1 - Avsluta Greenfoot
+   2 - Backa upp din projektmapp (bara i fall att)
+   3 - Leta efter en backup p\u00E5 denna java-fil
+       i projektets mapp. D\u00F6p om den till dess
+       originalnamn (med '.java' som \u00E4ndelse)
+
+error-create-vm
+Greenfoot kunde inte skapa en virtual machine (VM) f\u00F6r att exekvera
+scenario. Detta orsakas ofta av \u00F6verdrivet restriktiva brandv\u00E4ggs.
+inst\u00E4llningar. Se[ http://www.greenfoot.org/doc/firewall ] f\u00F6r
+mer information.
+
+project-is-readonly
+Detta scenario \u00F6ppnas i nedast l\u00E4s-l\u00E4ge:
+:
+    $
+:
+F\u00F6r att anv\u00E4nda detta scenario beh\u00F6ver du f\u00F6rst v\u00E4lja
+en ny plats att spara det till.
+
+cannot-save-project
+Scenariot kunde inte sparas till den valda platsen.
+Kontrollera att du har r\u00E4ttighet att skriva till
+platsen eller v\u00E4lj en annan plats.
+
+cannot-create-project
+Scenariot kunde inte skapas. Kontrollera att
+mappen som inneh\u00E5ller projetet \u00E4r skrivbar.
+
+error-saving-project
+Ett fel uppstod n\u00E4r scenariot skulle sparas till disken.
+Projektet kanske inte sparades korrekt!
+
+project-already-exists
+Det valda projektets mapp existerar redan. F\u00F6r att skapa
+ett nytt scenario, v\u00E4lj en plats och anv\u00E4nd ett unikt
+namn (du m\u00E5ste specifiera namnet i fildialogen).
+
+could-not-open-project
+Scenariot kunde inte \u00F6ppnas. Kontrollera att du har
+r\u00E4ttigheter att skriva till mappen som har filerna i sig.
+
+archive-not-greenfoot-project
+Arkivet du valde verkar inte inneh\u00E5lla ett
+Greenfoot-scenariot. F\u00F6rs\u00F6k extrahera akrivet
+med ett annat verktyg.
+
+no-clipboard-image-data
+Det finns ingen bild i urklipp s\u00E5 ingen bild kan klistras in.
+
+file-exists-overwrite
+Filen "$" existerar redan. Vill du skriva \u00F6ver den?
+Skriv \u00F6ver
+Avbryt
+null
+
+imagelib-delete-confirm
+Vill du verkligen ta bort "$"?
+Ta bort
+Avbryt
+null
+
+import-image-exists
+Projektet inneh\u00E5ller redan en bildfil med namnet $.
+Den importerade klassen kommer att anv\u00E4nda den existerande bilden.
+
+import-class-exists
+Projektet inneh\u00E5ller redan en klass med namnet $.
+En klass med samma namn kan inte importeras.
+
+imagelib-writing-image-failed
+Kan ej skriva bildfilen till disken. Kontrollera att disken
+har utrymme och inte \u00E4r skrivskyddad.
+
+cannot-read-apidoc
+API-dokumentationen saknas eller kan ej l\u00E4sas:
+
+export-compile-not-compiled
+Alla klasser i scenariot \u00E4r inte kompilerade. F\u00F6r att
+forts\u00E4tta exportera, kolla efter fel f\u00F6rst.
+
+error-open-readme
+Scenarioinformationen (README) kunde inte \u00F6ppnas. Den kanske har
+tagits bort eller har felaktiga r\u00E4ttigheter.
+
+greenfoot-importfix-question
+VIll du automatiskt uppdatera koden f\u00F6r att matcha denna \u00E4ndring?
+Ja, uppdatera koden
+Nej, jag uppdaterar manuellt
+null
+
+cannot-save-world
+Det g\u00E5r inte att spara v\u00E4rlden efter anv\u00E4ndning av Agera/K\u00F6r.
+\u00E5terst\u00E4ll, starta v\u00E4rlden och spara innan du anv\u00E4nder Agera/K\u00F6r.
