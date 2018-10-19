@@ -69,7 +69,6 @@ caret-end \n Mou el punt d'inserci\u00f3 al final del text.
 ## class functions 
  
 save \n Desa aquesta classe. Observeu que rarament \u00e9s necessari desar de forma expl\u00edcita la classe, ja que es desa autom\u00e0ticament abans de tancar-la.
-reload \n Obre novament la classe de l'arxiu font. Aquesta operaci\u00f3 descarta \ntots els canvis fets despr\u00e9s de l'\u00faltima operaci\u00f3 d'enregistrament (impl\u00edcita o expl\u00edcita).
 close \N Tanca aquesta classe. El text font es desa autom\u00e0ticament.
 print \n Obre un di\u00e0leg d'impressi\u00f3 per comen\u00e7ar la impressi\u00f3 del treball.
 page-setup \n Obre un di\u00e0leg de configuraci\u00f3 de p\u00e0gina per especificar el format.

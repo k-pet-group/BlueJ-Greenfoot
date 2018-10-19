@@ -160,7 +160,6 @@ editor.helpLabel = Help
 
 # item labels (can be omitted if same as action name)
 editor.saveLabel = Opslaan
-editor.reloadLabel = Opnieuw lezen
 editor.printLabel = Afdrukken...
 editor.closeLabel =Sluiten
 
@@ -232,8 +231,6 @@ editor.info.newFile = Nieuwe file
 editor.info.errorSaving = Fout bij het opslaan van de file!
 editor.info.compiled = Klasse is gecompileerd - geen syntax fouten
 editor.info.noChanges = Geen wijzigingen om op te slaan
-editor.info.cannotReload = Opnieuw lezen lukt niet, want deze file is nooit opgeslagen!
-editor.info.reload = (\"Opnieuw lezen\" leest de file zoals die de laatste keer was opgeslagen op disk.)
 editor.info.emptySearchString = Lege zoektekst
 editor.info.notFound = Niet gevonden (zoek opnieuw vanaf het begin).
 editor.info.compiling = Compileren...

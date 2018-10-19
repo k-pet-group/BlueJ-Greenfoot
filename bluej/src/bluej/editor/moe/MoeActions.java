@@ -988,7 +988,6 @@ public final class MoeActions
 
         MoeAbstractAction[] myActions = {
                 saveAction(),
-                reloadAction(),
                 printAction(),
                 closeAction(),
 
@@ -1113,7 +1112,6 @@ public final class MoeActions
 
 
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.S, SHORTCUT_MASK), "save");
-        // "reload" not bound
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.P, SHORTCUT_MASK), "print");
         // "page-setup" not bound
         addKeyCombinationForAction(new KeyCodeCombination(KeyCode.W, SHORTCUT_MASK), "close");
@@ -1223,17 +1221,6 @@ public final class MoeActions
     private MoeAbstractAction saveAction()
     {
         return action("save", Category.CLASS, () -> getEditor().userSave());
-    }
-
-    // --------------------------------------------------------------------
-
-    /**
-     * Reload has been chosen. Ask "Really?" and call "doReload" if the answer
-     * is yes.
-     */
-    private MoeAbstractAction reloadAction()
-    {
-        return action("reload", Category.CLASS, () -> getEditor().reload());
     }
 
     // --------------------------------------------------------------------

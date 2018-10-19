@@ -1534,25 +1534,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
     
     /**
-     * User requests "reload"
-     */
-    public void reload()
-    {
-        if (filename == null) {
-            info.message (Config.getString("editor.info.cannotReload"), Config.getString("editor.info.reload"));
-        }
-        else if (saveState.isChanged())
-        {
-            int answer = DialogManager.askQuestionFX(fxTabbedEditor.getWindow(), "really-reload");
-            if (answer == 0)
-                doReload();
-        }
-        else {
-            doReload();
-        }
-    }
-
-    /**
      * Prints source code from Editor
      * 
      * @param printerJob  A PrinterJob to print to.
@@ -3009,7 +2990,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     private MenuBar createMenuBar()
     {
         return new MenuBar(
-            createMenu("class", "save reload - print - close"),
+            createMenu("class", "save - print - close"),
             createMenu("edit", "undo redo - cut-to-clipboard copy-to-clipboard paste-from-clipboard - indent-block deindent-block comment-block uncomment-block autoindent - insert-method add-javadoc"),
             createMenu("tools", "find find-next find-next-backward replace go-to-line - compile toggle-breakpoint - toggle-interface-view"),
             createMenu("option", "increase-font decrease-font reset-font - key-bindings preferences")

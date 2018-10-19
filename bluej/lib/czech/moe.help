@@ -82,7 +82,6 @@ caret-end=\n Posunout kurzor na konec textu.
 ## class functions
 
 save=\n Ulo\u017eit t\u0159\u00eddu. Norm\u00e1ln\u011b nen\u00ed t\u0159eba t\u0159\u00eddu ukl\u00e1dat ru\u010dn\u011b,\n t\u0159\u00edda je ulo\u017eena automaticky p\u0159ed p\u0159ekladem a p\u0159i zav\u0159en\u00ed editoru.
-reload=\n Znovu nahr\u00e1t t\u0159\u00eddu ze souboru. P\u0159i t\u00e9to operaci\n jsou zapomenuty v\u0161echny zm\u011bny od posledn\u00edho ulo\u017een\u00ed.
 close=\n Zav\u0159\u00edt t\u0159\u00eddu. Zdrojov\u00fd k\u00f3d je automaticky ulo\u017een.
 print=\n Otev\u0159\u00edt tiskov\u00fd dialog.
 page-setup=\n Otev\u0159\u00edt dialog s nastaven\u00edm vzhledu tiskov\u00e9 str\u00e1nky.

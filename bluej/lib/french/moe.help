@@ -73,7 +73,6 @@ caret-end=\n Avance le curseur \u00e0 la fin du texte.
 ## class functions
 
 save=\n Enregistre cette classe.  Ceci est rarement n\u00e9cessaire car elle\n est enregistr\u00e9e automatiquement \u00e0 sa fermeture ou compilation.
-reload=\n R\u00e9tablit la classe depuis son fichier source.  Cette op\u00e9ration supprime\n tous les changements apport\u00e9s depuis le plus r\u00e9cent enregistrement.
 close=\n Ferme cette classe.  Le fichier source est automatiquement enregistr\u00e9.
 print=\n Invoque le dialogue d'impression.
 page-setup=\n Invoque le dialogue de mise en page.

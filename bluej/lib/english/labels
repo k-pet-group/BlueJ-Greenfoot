@@ -189,7 +189,6 @@ editor.helpLabel = _Help
 
 # item labels (can be omitted if same as action name)
 editor.saveLabel = Save
-editor.reloadLabel = Reload
 editor.printLabel = Print...
 editor.closeLabel =Close
 
@@ -314,8 +313,6 @@ editor.info.errorSaving = Error in saving file!
 editor.info.compiled = Class compiled - no syntax errors
 editor.info.compileError = Error(s) found in class.\nPress $ or click link on right to go to next error.
 editor.info.noChanges = No changes need to be saved
-editor.info.cannotReload = Can not reload - this text was never saved!
-editor.info.reload = (\"Reload\" reloads the last saved state from disk.)
 editor.info.emptySearchString = Empty search string.
 editor.info.notFound = Not found (search again to wrap around).
 editor.info.compiling = Compiling...

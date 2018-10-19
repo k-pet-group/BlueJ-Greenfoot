@@ -68,7 +68,6 @@ caret-end=\n Move the caret till slutet av the text.
 ## class functions
 
 save=\n Spara den h\u00E4r klassen. Notera att det s\u00E4llan \u00E4r n\u00F6dv\u00E4ndigt att uttryckligen spara klassen pga att den sparas automatiskt vid st\u00E4ngning.
-reload=\n Ladda om klassen fr\u00E5n dess k\u00E4llfil. Deetta kommer att\n ta bort alla \u00E4ndringar gjorda sedan senaste (automatiska eller explicita) sparningen.
 close=\n St\u00E4ng den h\u00E4r klassen. K\u00E4llfilen sparas automatiskt.
 print=\n \u00F6ppna en utskriftsidalog f\u00F6r att starta en utskrift.
 page-setup=\n \u00F6ppna sidinst\u00E4llningar f\u00F6r att specifiera en sidlayout.

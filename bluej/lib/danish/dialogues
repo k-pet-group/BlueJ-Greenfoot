@@ -242,13 +242,6 @@ Luk alle
 Fortryd
 null
 
-really-reload
-Genindl\u00E6sning smider \u00E6ndringer, siden sidste redigering, v\u00E6k.
-Er du sikker?
-Genindl\u00E6s
-Fortryd
-null
-
 changed-on-disk
 Kildekode-filen er \u00E6ndret p\u00E5 disken. Vil du
 genindl\u00E6se den fra disk? Dette vil smide \u00E6ndringer

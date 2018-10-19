@@ -73,7 +73,6 @@ caret-end=\n Cursor an das Textende.
 ## class functions
 
 save=\n Klasse speichern. Wird selten ben\u00f6tigt, weil die Klasse beim\n Schliessen automatisch gespeichert wird.
-reload=\n Klasse von ihrer Sourcedatei neu laden. Dies verwirft alle\n \u00c4nderungen, die seit dem letzten Speichern vorgenommen wurden.
 close=\n Klasse schliessen. Der Sourcetext wird automatisch\n gespeichert.
 print=\n Einen Druckdialog \u00f6ffnen, um einen Druckvorgang\n zu starten.
 page-setup=\n Dialog zur Seiteneinrichtung \u00f6ffnen, um das\n Seitenlayout festzulegen.

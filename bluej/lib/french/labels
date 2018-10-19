@@ -165,7 +165,6 @@ editor.helpLabel=Aide
 
 # item labels (can be omitted if same as action name)
 editor.saveLabel=Enregistrer
-editor.reloadLabel=R\u00E9tablir
 editor.printLabel=Imprimer...
 editor.closeLabel = Fermer
 
@@ -280,8 +279,6 @@ editor.info.version=Moe version
 editor.info.errorSaving=Erreur de sauvegarde du fichier \!
 editor.info.compiled=Classe compil\u00E9e - pas d'erreur de syntaxe
 editor.info.noChanges=Aucune modification \u00E0 enregistrer
-editor.info.cannotReload=R\u00E9tablissement impossible - ce texte n'a pas \u00E9t\u00E9 enregistr\u00E9 \!
-editor.info.reload=("R\u00E9tablir" r\u00E9tablit la derni\u00E8re version enregistr\u00E9e sur disque)
 editor.info.emptySearchString=Cha\u00EEne \u00E0 chercher vide
 editor.info.notFound=Introuvable (continuer la recherche pour reprendre au d\u00E9but)
 editor.info.compiling=Compilation en cours...

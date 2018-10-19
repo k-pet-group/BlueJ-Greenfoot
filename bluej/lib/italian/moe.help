@@ -70,7 +70,6 @@ caret-end=\n Sposta il cursore alla fine del testo.
 ## funzioni di classe
 
 save=\n Salva la classe. Da notare che raramente \u00e8 necessario salvare esplicitamente\n la classe, dato che viene salvata automaticamente alla chiusura.
-reload=\n Ricarica la classe dal file sorgente. Questa operazione annulla tutti\n i cambiamenti fatti dall'ultimo salvataggio (implicito o esplicito).
 close=\n Chiude la classe. Il testo sorgente \u00e8 salvato automaticamente.
 print=\n Apre una finestra di dialogo per iniziare una stampa.
 page-setup=\n Apre una finestra di dialogo per specificare le impostazioni della pagina.
