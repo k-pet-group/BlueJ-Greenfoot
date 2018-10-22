@@ -391,11 +391,12 @@
 
     <target name="windows-launcher">
         <!-- build launcher -->
+    	<echo message="mingw_bluej_home = ${mingw_bluej_home}" />
         <exec dir="winlaunch" executable="${msys_bash}">
             <!-- We must use the login flag or none of the PATH etc variables get set: -->
             <arg line="--login"/>
             <!-- Must cd to right directory, then run make: -->
-            <arg line="-c &quot;cd ${mingw_bluej_home}/package/winlaunch;make clean bjlaunch.exe BUILD=bluej JDKDIR='${mingw_jdk}'&quot;"/>
+            <arg line="-c &quot;cd ${mingw_bluej_home}/package/winlaunch; mingw32-make clean bjlaunch.exe BUILD=bluej JDKDIR='${mingw_jdk}'&quot;"/>
         </exec>
     </target>
 
@@ -405,7 +406,7 @@
             <!-- We must use the login flag or none of the PATH etc variables get set: -->
             <arg line="--login"/>
             <!-- Must cd to right directory, then run make: -->
-            <arg line="-c &quot;cd ${mingw_bluej_home}/package/winusblaunch;make clean bluej.exe BUILD=bluej JDKDIR='${mingw_jdk}'&quot;"/>
+            <arg line="-c &quot;cd ${mingw_bluej_home}/package/winusblaunch; mingw32-make clean bluej.exe BUILD=bluej JDKDIR='${mingw_jdk}'&quot;"/>
         </exec>
     </target>
 
