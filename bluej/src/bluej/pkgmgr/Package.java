@@ -1519,7 +1519,7 @@ public final class Package
             }
 
             if (assocTarget != null) {
-                searchCompile(assocTarget, new QuietPackageCompileObserver(null), reason, type);
+                searchCompile(assocTarget, new QuietPackageCompileObserver(Collections.emptyList()), reason, type);
             }
         }
     }
