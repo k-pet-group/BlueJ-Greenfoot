@@ -73,7 +73,6 @@ caret-end=\n Verplaats de cursor naar het einde van de tekst.
 ## class functions
 
 save=\n Opslaan van deze class in de source file. Dit gebeurt\n automatisch bij het afsluiten.
-reload=\n Opnieuw lezen van deze class uit de source file.\n Alle wijzigingen sinds de laatste keer opslaan\n worden ongedaan gemaakt.
 close=\n Afsluiten van deze class. Alle wijzigingen worden\n opgeslagen in de source file van deze class.
 print=\n Afdrukken window.
 page-setup=\n Pagina instellen window.

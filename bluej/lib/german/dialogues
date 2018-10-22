@@ -273,14 +273,6 @@ Alle beenden
 Abbrechen
 null
 
-really-reload
-"Neu laden" nimmt alle \u00c4nderungen zur\u00fcck, die
-seit dem letzten Speichern vorgenommen wurden.
-Sind Sie sicher?
-Neu laden
-Abbrechen
-null
-
 changed-on-disk
 Die Quelldatei auf der Platte wurde ver\u00e4ndert. Wollen
 Sie sie wirklich neu laden? Dadurch gehen alle

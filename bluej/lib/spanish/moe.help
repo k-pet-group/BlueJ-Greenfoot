@@ -69,7 +69,6 @@ caret-end=\n Move the caret to the end of the text.
 ## class functions
 
 save=\n Save this class. Note that it is rarely necessary to explicitely save\n the class because closing it saves it automatically.
-reload=\n Reload the class from its source file. This operation will discard\n all changes made after the last (implicit or explicit) save operation.
 close=\n Close this class. The source text is automatically saved.
 print=\n Open a print dialog to start a print job.
 page-setup=\n Open a page-setup dialog to specify page layout.

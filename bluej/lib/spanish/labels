@@ -191,7 +191,6 @@ editor.helpLabel = _Ayuda
 
 # item labels (can be omitted if same as action name)
 editor.saveLabel = Guardar
-editor.reloadLabel = Recargar
 editor.printLabel = Imprimir...
 editor.closeLabel =Cerrar
 
@@ -308,8 +307,6 @@ editor.info.version = Moe versi\u00f3n
 editor.info.errorSaving = Ocurri\u00f3 un error mientras se guardaba el archivo!
 editor.info.compiled = Clase compilada - no hay errores de sintaxis
 editor.info.noChanges = No hay modificaciones que necesiten ser guardadas
-editor.info.cannotReload = No se puede volver a cargar - este texto nunca fue guardado!
-editor.info.reload = (\"Reload\" vuelve a cargar el \u00faltimo estado guardado desde disco.)
 editor.info.emptySearchString = Cadena de b\u00fasqueda vac\u00eda.
 editor.info.notFound = No encontrada (buscar de nuevo desde el comienzo).
 editor.info.compiling = Compilando...

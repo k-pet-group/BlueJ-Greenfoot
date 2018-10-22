@@ -187,7 +187,6 @@ editor.helpLabel=_Pomocn\u00edk
 
 # item labels (can be omitted if same as action name)
 editor.saveLabel=Ulo\u017ei\u0165
-editor.reloadLabel=Op\u00e4tovne na\u010d\u00edta\u0165
 editor.printLabel=Tla\u010di\u0165\u2026
 editor.closeLabel=Zavrie\u0165
 
@@ -306,8 +305,6 @@ editor.info.version=Verzia editora Moe
 editor.info.errorSaving=Pri ukladan\u00ed s\u00faboru nastala chyba!
 editor.info.compiled=Trieda bola prelo\u017een\u00e1 \u2013 \u017eiadne syntaktick\u00e9 chyby
 editor.info.noChanges=\u017diadne zmeny, nie je potrebn\u00e9 uklada\u0165
-editor.info.cannotReload=P\u00f4vodn\u00e1 verzia s\u00faboru nem\u00f4\u017ee by\u0165 op\u00e4tovne na\u010d\u00edtan\u00e1, s\u00fabor nebol nikdy ulo\u017een\u00fd!
-editor.info.reload=(\u201eOp\u00e4tovne na\u010d\u00edta\u0165\u201c na\u010d\u00edta stav s\u00faboru pri jeho poslednom ulo\u017een\u00ed.)
 editor.info.emptySearchString=Nie je \u010do h\u013eada\u0165.
 editor.info.notFound=Nebolo n\u00e1jden\u00e9 (\u010fal\u0161ie h\u013eadanie bude pokra\u010dova\u0165 od za\u010diatku).
 editor.info.compiling=Preklad\u00e1m\u2026

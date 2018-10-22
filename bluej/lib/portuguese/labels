@@ -192,7 +192,6 @@ editor.helpLabel=Ajuda
 
 #labels dos itens
 editor.saveLabel=Salvar
-editor.reloadLabel=Recarregar
 editor.printLabel=Imprimir...
 
 
@@ -309,8 +308,6 @@ editor.info.version=Vers\u00E3o do Moe
 editor.info.errorSaving=Erro ao salvar arquivo\!
 editor.info.compiled=Classe compilada - nenhum erro de sintaxe
 editor.info.noChanges=Nenhuma mudan\u00E7a a ser salva
-editor.info.cannotReload=N\u00E3o \u00E9 poss\u00EDvel recarregar - este texto nunca foi salvo\!
-editor.info.reload=("Recarregar" recarrega a \u00FAltima vers\u00E3o salva em disco.)
 editor.info.emptySearchString=String de busca vazia.
 editor.info.notFound=N\u00E3o encontrado (procurando novamente do in\u00EDcio).
 editor.info.compiling=Compilando...

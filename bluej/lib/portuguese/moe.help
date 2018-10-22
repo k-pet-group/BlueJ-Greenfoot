@@ -70,7 +70,6 @@ caret-end=\n Move o cursor para o final do texto.
 ## fun\u00e7\u00f5es de classe
 
 save=\n Salva esta classe. Note que \u00e9 raro salvar explicitamente\n uma classe porque a opera\u00e7\u00e3o fechar faz isso automaticamente.
-reload=\n Recarrega a class a partir do arquivo fonte. Esta opera\u00e7\u00e3o descartar\u00e1\n todas as modifica\u00e7\u00f5es feitas ap\u00f3s a \u00faltima opera\u00e7\u00e3o de salvamento.
 close=\n Salva a classe. O c\u00f3digo \u00e9 salvo automaticamente.
 print=\n Abre o di\u00e1logo imprimir para iniciar a impress\u00e3o
 page-setup=\n Abre um di\u00e1logo de configura\u00e7\u00e3o da p\u00e1gina para defini\u00e7\u00e3o de um layout.

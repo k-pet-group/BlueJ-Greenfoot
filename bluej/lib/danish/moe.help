@@ -57,7 +57,6 @@ page-down=\n Flyt mark\u00F8ren en side ned.
 caret-begin=\n Flyt mark\u00F8ren til begyndelsen af teksten.
 caret-end=\n Flyt mark\u00F8ren til slutningen af teksten.
 save=\n Gem denne klasse. Bem\u00E6rk at det sj\u00E6ldent er n\u00F8dvendigt at gemme klassen\n eksplicit fordi lukning af den, gemmer den automatisk.
-reload=\n Genindl\u00E6s klassen fra dens kildekode fil. Denne operation vil smide alle\n \u00E6ndringer v\u00E6k, der er lavet siden sidste gemning (implicit eller eksplicit).
 close=\n Luk denne klasse. Kildekode teksten gemmes automatisk.
 print=\n \u00C5bn en udskrift-dialog for at starte et udskrifts-job.
 page-setup=\n \u00C5bn en side-ops\u00E6tnings-dialog for at specificere et side-layout.

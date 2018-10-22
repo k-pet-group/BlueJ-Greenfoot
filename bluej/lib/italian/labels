@@ -196,7 +196,6 @@ editor.helpLabel = _Aiuto
 
 # item labels (can be omitted if same as action name)
 editor.saveLabel = Salva
-editor.reloadLabel = Ricarica
 editor.printLabel = Stampa...
 editor.closeLabel =Chiudi
 
@@ -315,8 +314,6 @@ editor.info.version = versione Moe
 editor.info.errorSaving = Errore nel salvataggio del file!
 editor.info.compiled = Classe compilata - nessun errore sintattico
 editor.info.noChanges = Non ci sono cambiamenti da salvare
-editor.info.cannotReload = Non \u00e8 possibile ricaricare - questo testo non \u00e8 stato mai salvato!
-editor.info.reload = (\"Ricarica\" ricarica da disco l'ultimo stato salvato.)
 editor.info.emptySearchString = Stringa di ricerca vuota.
 editor.info.notFound = Non trovato.
 editor.info.compiling = Compilo...

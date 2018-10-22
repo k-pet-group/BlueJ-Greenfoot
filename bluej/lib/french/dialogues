@@ -253,13 +253,6 @@ Quitter tout
 Annuler
 null
 
-really-reload
-R\u00e9tablir supprime toutes les modifications effectu\u00e9es
-depuis le dernier enregistrement.  \u00cates-vous certain ?
-R\u00e9tablir
-Annuler
-null
-
 changed-on-disk
 Le fichier source a chang\u00e9. Voulez-vous le
 recharger \u00e0 partir de votre disque? Cela va \u00e9craser les

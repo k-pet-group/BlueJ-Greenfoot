@@ -225,14 +225,6 @@ Abandonar todo
 Cancelar
 null
 
-really-reload
-Recargar descarta todos los cambios desde la
-ultima edici\u00f3n.
-Esta seguro?
-Recargar
-Cancelar
-null
-
 really-print
 La anchura del texto es mayor que la anchura
 del papel. Lineas anchas deben ser recortadas.

@@ -247,13 +247,6 @@ Quit All
 Cancel
 null
 
-really-reload
-Reload discards all changes since the last edit.
-Are you sure?
-Reload
-Cancel
-null
-
 changed-on-disk
 The source file has changed on disk. Do you want to
 reload it from disk? This will discard changes made

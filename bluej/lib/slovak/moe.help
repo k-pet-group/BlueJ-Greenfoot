@@ -74,7 +74,6 @@ caret-end=\n Posun\u00fa\u0165 kurzor na koniec textu.
 ## class functions
 
 save=\n Ulo\u017ei\u0165 t\u00fato triedu. Za norm\u00e1lnych okolnost\u00ed nie je potrebn\u00e9 triedu uklada\u0165 ru\u010dne,\n trieda je ulo\u017een\u00e1 automaticky pred prekladom a\u00a0pri zatvoren\u00ed editora.
-reload=\n Nahra\u0165 triedu sp\u00e4tne zo s\u00faboru. Pri tejto oper\u00e1cii\n bud\u00fa zru\u0161en\u00e9 v\u0161etky zmeny od posledn\u00e9ho ulo\u017eenia (automatick\u00e9ho alebo ru\u010dn\u00e9ho).
 close=\n Zavrie\u0165 t\u00fato triedu. Zdrojov\u00fd k\u00f3d je automaticky ulo\u017een\u00fd.
 print=\n Otvori\u0165 tla\u010dov\u00fd dial\u00f3g na zah\u00e1jenie tla\u010de.
 page-setup=\n Otvori\u0165 dial\u00f3g s\u00a0nastaven\u00edm vzh\u013eadu tla\u010dovej str\u00e1nky.

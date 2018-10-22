@@ -70,7 +70,6 @@ caret-end=\n Skuif die wyser na die einde van die teks.
 ## class functions
 
 save=\n Stoor hierdie klas. Dit is gewoonlik nie nodig om die klas eksplisiet te stoor nie\n want dit word outomaties gestoor voor dit toegemaak of gekompileer word.
-reload=\n Herlaai die klas vanaf die bronl\u00eaer. Hiedie bewerking maak\n alle veranderinge sedert die laaste (implisiete of eksplisiete) stoor ongedaan.
 close=\n Maak hierdie klas toe. Die bronkode word outomaties gestoor.
 print=\n Maak 'n dialoogkassie oop waarvandaan drukwerk aangevra kan word.
 page-setup=\n Maak 'n dialoogkassie oop waarop die bladsy-uitleg van drukwerk gespesifiseer kan word.

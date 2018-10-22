@@ -253,13 +253,6 @@ Chiudi tutti
 Cancella
 null
 
-really-reload
-Ricarica la versione originale togliendo ogni cambiamento.
-Sei sicuro?
-Ricarica
-Cancella
-null
-
 changed-on-disk
 Il codice sorgente \u00e8 cambiato sul disco. Vuoi
 ricaricarlo dal disco? I cambiamenti saranno mostrati 

@@ -192,7 +192,6 @@ editor.helpLabel=_N\u00e1pov\u011bda
 
 # item labels (can be omitted if same as action name)
 editor.saveLabel=Ulo\u017eit
-editor.reloadLabel=Znovu na\u010d\u00edst
 editor.printLabel=Tisk...
 editor.closeLabel=Zav\u0159\u00edt
 
@@ -310,8 +309,6 @@ editor.info.version=Verze editoru Moe
 editor.info.errorSaving=P\u0159i ukl\u00e1d\u00e1n\u00ed souboru nastala chyba!
 editor.info.compiled=T\u0159\u00edda byla \u00fasp\u011b\u0161n\u011b p\u0159elo\u017eena - \u017e\u00e1dn\u00e9 syntaktick\u00e9 chyby
 editor.info.noChanges=\u017d\u00e1dn\u00e9 zm\u011bny nen\u00ed t\u0159eba ukl\u00e1dat
-editor.info.cannotReload=P\u016fvodn\u00ed verze souboru nem\u016f\u017ee b\u00fdt na\u010dtena, soubor nebyl nikdy ulo\u017een!
-editor.info.reload=("Znovu na\u010d\u00edst" na\u010dte stav souboru ulo\u017een\u00fd na disku.)
 editor.info.emptySearchString=Nen\u00ed co hledat.
 editor.info.notFound=Nenalezeno (dal\u0161\u00edm hled\u00e1n\u00ed budete pokra\u010dovat v hled\u00e1n\u00ed od za\u010d\u00e1tku).
 editor.info.compiling=P\u0159ekl\u00e1d\u00e1m...
