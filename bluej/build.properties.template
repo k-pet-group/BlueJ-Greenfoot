@@ -38,7 +38,10 @@ run_java_home=${build_java_home}
 #####################################################################
 # The JDK for bundling with Mac OS and Windows builds.
 #####################################################################
-mac_bundled_jdk_path=${build_java_home}
+mac_bundled_jdk_path=/Library/Java/JavaVirtualMachines/jdk11.jdk
+
+# Note: above should generally be the same as build_java_home, with
+# "/Contents/Home" removed from tail.
 
 win_bundled_jdk_path=${build_java_home}
 
