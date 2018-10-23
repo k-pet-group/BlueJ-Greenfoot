@@ -23,12 +23,6 @@
         </sequential>
     </macrodef>
 
-    <!-- Set the log output to quiet by default: -->
-    <script language="javascript">
-    var logger = project.getBuildListeners().firstElement();
-    logger.setMessageOutputLevel(1);
-    </script>
-
     <target name="check-fakeroot">
         <fail message="You must run 'fakeroot ant', not just 'ant', running as ${user.name}">
             <condition>
