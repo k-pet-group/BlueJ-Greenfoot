@@ -578,26 +578,40 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
      * 
      * @param object   The object to add
      * @param type     The type of the object
-     * @param name     The desired name of the object
-     * @return    The actual chosen name
+     * @return    The name of the object as it is known to the debugger
      */
     @OnThread(Tag.FXPlatform)
-    public String addSelectedObject(DebuggerObject object, GenTypeClass type, String name)
+    public String addSelectedObject(DebuggerObject object, GenTypeClass type)
     {
-        while (objectBench.get(name) != null)
+        GreenfootObject selectedObject = null;
+        
+        for (GreenfootObject benchObj : objectBench.values())
         {
-            name += "_"; // TODO improve
+            if (benchObj.getDebuggerObject().equals(object))
+            {
+                selectedObject = benchObj;
+                break;
+            }
         }
         
-        GreenfootObject newObj = new GreenfootObject(object, type, name);
-        objectBench.put(name, newObj);
+        // If the object isn't on the bench yet, we must add it now:
+        if (selectedObject == null)
+        {
+            String name = project.getDebugger().guessNewName(object);
+            project.getDebugger().addObject("", name, object);
+        
+            GreenfootObject newObj = new GreenfootObject(object, type, name);
+            objectBench.put(name, newObj);
+            
+            selectedObject = newObj;
+        }
         
         for (ObjectBenchListener l : benchListeners)
         {
-            l.objectEvent(new ObjectBenchEvent(this, ObjectBenchEvent.OBJECT_SELECTED, newObj));
+            l.objectEvent(new ObjectBenchEvent(this, ObjectBenchEvent.OBJECT_SELECTED, selectedObject));
         }
         
-        return name;
+        return selectedObject.getName();
     }
     
     @Override
@@ -637,6 +651,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     {
         private GenTypeClass type;
         private String name;
+        private DebuggerObject debuggerObject;
         
         /**
          * Construct a GreenfootObject with the given name and type.
@@ -645,6 +660,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
         {
             this.type = type;
             this.name = name;
+            this.debuggerObject = object;
         }
         
         @Override
@@ -657,6 +673,14 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
         public String getName()
         {
             return name;
+        }
+        
+        /**
+         * Get the DebuggerObject that this GreenfootObject wraps.
+         */
+        public DebuggerObject getDebuggerObject()
+        {
+            return debuggerObject;
         }
         
         @Override
