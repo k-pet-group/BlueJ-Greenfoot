@@ -2331,9 +2331,8 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         {
             // We must put the object on the bench so that it has a name on the debug VM
             // side.  Without a name, you can't call a method on it using the BlueJ workers.
-            // Also, the object bench gets cleared on compile, so that takes care of clean-up:
-            String objInstanceName = debugHandler.addObject(target, target.getGenType(), target.getClassName().toLowerCase());
-            project.getDebugger().addObject(project.getPackage("").getId(), objInstanceName, target);
+            // The object bench gets cleared on compile, so that takes care of clean-up:
+            String objInstanceName = debugHandler.ensureObjectOnBench(target, target.getGenType()).getName();
 
             ResultWatcher watcher = new ResultWatcherBase(target, objInstanceName,
                     project.getUnnamedPackage(), GreenfootStage.this, mv) {
