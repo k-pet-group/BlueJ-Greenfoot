@@ -573,15 +573,13 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     }
     
     /**
-     * Add an object to the "object bench" and fire an event to listeners notifying that the new object has
-     * been selected.
-     * 
-     * @param object   The object to add
-     * @param type     The type of the object
-     * @return    The name of the object as it is known to the debugger
+     * Ensure that an object is "on the bench" (known to the debugger and invoker).
+     * @param object  The object to put (or find) on the bench
+     * @param type  The type of the object
+     * @return  The wrapped bench object
      */
     @OnThread(Tag.FXPlatform)
-    public String addSelectedObject(DebuggerObject object, GenTypeClass type)
+    public NamedValue ensureObjectOnBench(DebuggerObject object, GenTypeClass type)
     {
         GreenfootObject selectedObject = null;
         
@@ -598,13 +596,29 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
         if (selectedObject == null)
         {
             String name = project.getDebugger().guessNewName(object);
-            project.getDebugger().addObject("", name, object);
-        
+            project.getDebugger().addObject(project.getPackage("").getId(), name, object);
+
             GreenfootObject newObj = new GreenfootObject(object, type, name);
             objectBench.put(name, newObj);
             
             selectedObject = newObj;
         }
+        
+        return selectedObject;
+    }
+    
+    /**
+     * Add an object to the "object bench" and fire an event to listeners notifying that the new object has
+     * been selected.
+     * 
+     * @param object   The object to add
+     * @param type     The type of the object
+     * @return    The name of the object as it is known to the debugger
+     */
+    @OnThread(Tag.FXPlatform)
+    public String addSelectedObject(DebuggerObject object, GenTypeClass type)
+    {
+        NamedValue selectedObject = ensureObjectOnBench(object, type);
         
         for (ObjectBenchListener l : benchListeners)
         {
