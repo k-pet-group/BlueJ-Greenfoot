@@ -19,7 +19,7 @@ Before build:
     - the labels have been updated with description of the API changes (see build.xml)
     - the @version javadoc tag has been correctly set for any user-visible Greenfoot
       classes which are affected by the API changes.
-    Add a GUID to package/winsetup/version-guid file (Get one at guidgen.com)
+    Add a GUID to bluej/package/winsetup/version-guid file (Get one at guidgen.com)
     Then, run "ant update-version-number". This propagates the changes to various files.
     
  3. Test bundled scenarios and make sure they are compatible with the new API version.
