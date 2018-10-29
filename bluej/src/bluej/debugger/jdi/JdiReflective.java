@@ -394,7 +394,7 @@ public class JdiReflective extends Reflective
         // go through each base type in turn.
         while (s.hasNext()) {
             // We now have a base.
-            GenTypeClass t = typeFromSignature(s, declTpars, rclass).asClass();
+            GenTypeClass t = typeFromSignature(s, declTpars, rclass).asSolid().asClass();
             rlist.add(t);
         }
         return rlist;
@@ -607,20 +607,22 @@ public class JdiReflective extends Reflective
      *                 may be null.
      * @param parent   The parent type
      */
-    public static JavaType typeFromSignature(StringIterator i,
+    public static GenTypeParameter typeFromSignature(StringIterator i,
             Map<String,? extends GenTypeParameter> tparams, ReferenceType parent)
     {
         char c = i.next();
         if (c == '[') {
             // array
-            JavaType t = typeFromSignature(i, tparams, parent);
+            // Note that getting a capture isn't really correct, but allows to create an array of a
+            // wildcard:
+            JavaType t = typeFromSignature(i, tparams, parent).getTparCapture();
             return t.getArray();
         }
         if (c == 'T') {
             // type parameter
             String tname = readClassName(i);
             if (tparams != null && tparams.get(tname) != null) {
-                return tparams.get(tname).asType();
+                return tparams.get(tname);
             }
             else {
                 return new GenTypeTpar(tname);
@@ -764,7 +766,8 @@ public class JdiReflective extends Reflective
             // The class may or may not be loaded.
             String tname = t.signature();
             if (tname.startsWith("[")) {
-                JavaType arrayType = typeFromSignature(new StringIterator(tname), null, (ReferenceType) t);
+                JavaType arrayType = typeFromSignature(new StringIterator(tname), null, (ReferenceType) t)
+                        .asType();
                 return arrayType;
             }
             else {
@@ -843,7 +846,7 @@ public class JdiReflective extends Reflective
         StringIterator iterator = new StringIterator(gensig);
 
         // Parse the signature, using the determined tpar mappings.
-        return typeFromSignature(iterator, tparams, parent.obj.referenceType());
+        return typeFromSignature(iterator, tparams, parent.obj.referenceType()).getTparCapture();
     }
 
     /**
@@ -879,7 +882,7 @@ public class JdiReflective extends Reflective
 
         // if the generic signature wasn't null, get the type from it.
         StringIterator iterator = new StringIterator(gensig);
-        return typeFromSignature(iterator, null, parent);
+        return typeFromSignature(iterator, null, parent).getTparCapture();
     }
 
     /**
@@ -910,7 +913,7 @@ public class JdiReflective extends Reflective
         StringIterator iterator = new StringIterator(genericSignature);
         Map<String,GenTypeParameter> tparams = new HashMap<String,GenTypeParameter>();
         addDefaultParamBases(tparams, new JdiReflective(declaringType));
-        return typeFromSignature(iterator, tparams, declaringType);
+        return typeFromSignature(iterator, tparams, declaringType).getTparCapture();
     }
     
     /**
@@ -950,7 +953,7 @@ public class JdiReflective extends Reflective
         StringIterator iterator = new StringIterator(gensig);
         Map<String,GenTypeParameter> tparams = new HashMap<String,GenTypeParameter>();
         addDefaultParamBases(tparams, new JdiReflective(declType));
-        return typeFromSignature(iterator, tparams, declType);
+        return typeFromSignature(iterator, tparams, declType).getTparCapture();
     }
 
     /**
@@ -1012,7 +1015,7 @@ public class JdiReflective extends Reflective
             }
             
             StringIterator i = new StringIterator(genSig);
-            JavaType ftype = typeFromSignature(i, null, rclass);
+            JavaType ftype = typeFromSignature(i, null, rclass).getTparCapture();
             FieldReflective fref = new FieldReflective(field.name(),
                     ftype, field.modifiers(), this);
             rfields.put(field.name(), fref);
@@ -1049,11 +1052,11 @@ public class JdiReflective extends Reflective
             
             List<JavaType> paramTypes = new ArrayList<JavaType>();
             while (i.peek() != ')') {
-                paramTypes.add(typeFromSignature(i, null, rclass));
+                paramTypes.add(typeFromSignature(i, null, rclass).getTparCapture());
             }
             
             i.next(); // skip ')'
-            JavaType returnType = typeFromSignature(i, null, rclass);
+            JavaType returnType = typeFromSignature(i, null, rclass).getTparCapture();
             
             boolean isVarArgs = method.isVarArgs();
             int modifiers = method.modifiers();
@@ -1096,7 +1099,7 @@ public class JdiReflective extends Reflective
 
             List<JavaType> paramTypes = new ArrayList<JavaType>();
             while (i.peek() != ')') {
-                paramTypes.add(typeFromSignature(i, null, rclass));
+                paramTypes.add(typeFromSignature(i, null, rclass).getTparCapture());
             }
 
             i.next(); // skip ')'
