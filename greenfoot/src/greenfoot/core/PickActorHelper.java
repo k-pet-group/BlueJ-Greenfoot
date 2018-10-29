@@ -76,7 +76,9 @@ public class PickActorHelper
                 // If there are any actors at that point, drag the topmost one:
                 if (actorPicks.length > 0)
                 {
-                    worldHandler.startDrag(actorPicks[0], new Point(x, y), this.pickId);
+                    // The top-most actor is actually the last in the list:
+                    Actor topMost = actorPicks[actorPicks.length - 1];
+                    worldHandler.startDrag(topMost, new Point(x, y), this.pickId);
                 }
             }
             picked();
