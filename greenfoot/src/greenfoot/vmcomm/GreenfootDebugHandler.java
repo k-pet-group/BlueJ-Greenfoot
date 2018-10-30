@@ -573,31 +573,59 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     }
     
     /**
+     * Ensure that an object is "on the bench" (known to the debugger and invoker).
+     * @param object  The object to put (or find) on the bench
+     * @param type  The type of the object
+     * @return  The wrapped bench object
+     */
+    @OnThread(Tag.FXPlatform)
+    public NamedValue ensureObjectOnBench(DebuggerObject object, GenTypeClass type)
+    {
+        GreenfootObject selectedObject = null;
+        
+        for (GreenfootObject benchObj : objectBench.values())
+        {
+            if (benchObj.getDebuggerObject().equals(object))
+            {
+                selectedObject = benchObj;
+                break;
+            }
+        }
+        
+        // If the object isn't on the bench yet, we must add it now:
+        if (selectedObject == null)
+        {
+            String name = project.getDebugger().guessNewName(object);
+            project.getDebugger().addObject(project.getPackage("").getId(), name, object);
+
+            GreenfootObject newObj = new GreenfootObject(object, type, name);
+            objectBench.put(name, newObj);
+            
+            selectedObject = newObj;
+        }
+        
+        return selectedObject;
+    }
+    
+    /**
      * Add an object to the "object bench" and fire an event to listeners notifying that the new object has
      * been selected.
      * 
      * @param object   The object to add
      * @param type     The type of the object
-     * @param name     The desired name of the object
-     * @return    The actual chosen name
+     * @return    The name of the object as it is known to the debugger
      */
     @OnThread(Tag.FXPlatform)
-    public String addSelectedObject(DebuggerObject object, GenTypeClass type, String name)
+    public String addSelectedObject(DebuggerObject object, GenTypeClass type)
     {
-        while (objectBench.get(name) != null)
-        {
-            name += "_"; // TODO improve
-        }
-        
-        GreenfootObject newObj = new GreenfootObject(object, type, name);
-        objectBench.put(name, newObj);
+        NamedValue selectedObject = ensureObjectOnBench(object, type);
         
         for (ObjectBenchListener l : benchListeners)
         {
-            l.objectEvent(new ObjectBenchEvent(this, ObjectBenchEvent.OBJECT_SELECTED, newObj));
+            l.objectEvent(new ObjectBenchEvent(this, ObjectBenchEvent.OBJECT_SELECTED, selectedObject));
         }
         
-        return name;
+        return selectedObject.getName();
     }
     
     @Override
@@ -637,6 +665,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     {
         private GenTypeClass type;
         private String name;
+        private DebuggerObject debuggerObject;
         
         /**
          * Construct a GreenfootObject with the given name and type.
@@ -645,6 +674,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
         {
             this.type = type;
             this.name = name;
+            this.debuggerObject = object;
         }
         
         @Override
@@ -657,6 +687,14 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
         public String getName()
         {
             return name;
+        }
+        
+        /**
+         * Get the DebuggerObject that this GreenfootObject wraps.
+         */
+        public DebuggerObject getDebuggerObject()
+        {
+            return debuggerObject;
         }
         
         @Override
