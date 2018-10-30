@@ -34,6 +34,7 @@ import bluej.compiler.FXCompileObserver;
 import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerResult;
+import bluej.debugger.ExceptionDescription;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.Invoker;
@@ -181,6 +182,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     
     private DebuggerObject draggedActor;
     private AnimationTimer vmCommsHandler;
+    private boolean constructingWorld = false;
 
     public static enum State
     {
@@ -478,8 +480,10 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 && hasNoArgConstructor(currentWorld.getTypeReflective()))
         {
             // We send a reset to make a new world after the project properties have been sent across:
+            constructingWorld = true;
             debugHandler.getVmComms().instantiateWorld(lastInstantiatedWorldName);
             saveTheWorldRecorder.recordingValid();
+            updateBackgroundMessage();
         }
 
         JavaFXUtil.addChangeListenerPlatform(worldVisible, b -> updateBackgroundMessage());
@@ -540,13 +544,17 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         {
             message = "";
         }
-        else if (stateProperty.get() == State.NO_WORLD || stateProperty.get() == State.PAUSED)
+        else if (stateProperty.get() == State.NO_WORLD)
         {
             // If we are paused, but no world is visible, the user either
             // needs to instantiate a world (if they have one) or create a world class
             if (worldInstantiationError)
             {
                 message = Config.getString("centrePanel.message.error1") + " " + Config.getString("centrePanel.message.error2");
+            }
+            else if (constructingWorld)
+            {
+                message = Config.getString("centrePanel.message.initialising");
             }
             else if (classDiagram.hasInstantiatableWorld())
             {
@@ -619,6 +627,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         if (currentWorld != null && currentWorld.isCompiled()
                 && hasNoArgConstructor(currentWorld.getTypeReflective()))
         {
+            constructingWorld = true;
             debugHandler.getVmComms().instantiateWorld(currentWorld.getQualifiedName());
         }
         debugHandler.simulationThreadResumeOnResetClick();
@@ -1636,6 +1645,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         // already be recreated after a discard as part of a reset, but the
         // initial discard must still have succeeded:
         waitingForDiscard = false;
+        constructingWorld = false;
         if (!worldPresent)
         {
             worldDisplay.greyOutWorld();
@@ -1957,6 +1967,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     {
         Platform.runLater(() -> {
             worldInstantiationError = true;
+            constructingWorld = false;
             // This will update the background message:
             worldVisible.set(false);
         });
@@ -1971,6 +1982,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             worldDisplay.setImage(null);
             worldInstantiationError = false;
             settingSpeedFromSimulation = false;
+            constructingWorld = false;
             lastExecStartTime = 0L;
             atBreakpoint = false;
             nextPickId = 1;
@@ -2560,7 +2572,24 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         ResultWatcher watcher = null;
         Package pkg = project.getPackage("");
 
-        if (cv instanceof ConstructorView) {
+        if (cv instanceof ConstructorView)
+        {
+            // Is it a World subclass?  If so, count it as constructing a world.
+            Class<?> viewClass = cv.getDeclaringView().getViewClass();
+            try
+            {
+                // Must use same class loader for the World class for this to work:
+                if (viewClass.getClassLoader().loadClass("greenfoot.World").isAssignableFrom(viewClass))
+                {
+                    constructingWorld = true;
+                    updateBackgroundMessage();
+                }
+            }
+            catch (ClassNotFoundException e)
+            {
+                // Just don't set the flag.
+            }
+            
             // if we are constructing an object, create a watcher that waits for
             // completion of the call and then places the object on the object
             // bench
@@ -2587,6 +2616,22 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 protected void addInteraction(InvokerRecord ir)
                 {
                     // Nothing we can do here.
+                }
+
+                @Override
+                public void putException(ExceptionDescription exception, InvokerRecord ir)
+                {
+                    constructingWorld = false;
+                    updateBackgroundMessage();
+                    super.putException(exception, ir);
+                }
+
+                @Override
+                public void putError(String msg, InvokerRecord ir)
+                {
+                    constructingWorld = false;
+                    updateBackgroundMessage();
+                    super.putError(msg, ir);
                 }
             };
         }
