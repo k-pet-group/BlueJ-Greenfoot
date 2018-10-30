@@ -544,7 +544,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         {
             message = "";
         }
-        else if (stateProperty.get() == State.NO_WORLD || stateProperty.get() == State.PAUSED)
+        else if (stateProperty.get() == State.NO_WORLD)
         {
             // If we are paused, but no world is visible, the user either
             // needs to instantiate a world (if they have one) or create a world class
@@ -1650,10 +1650,6 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         {
             worldDisplay.greyOutWorld();
             stateProperty.set(State.NO_WORLD);
-        }
-        else
-        {
-            updateBackgroundMessage();
         }
     }
     
