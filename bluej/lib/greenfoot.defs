@@ -19,7 +19,6 @@
 #####################################################################
 
 
-
 #####################################################################
 ## The interface language. A directory must exist for the language in
 ## <GREENFOOT_HOME>/lib. Language directories can be created by copying
@@ -43,6 +42,7 @@ bluej.language=english
 #bluej.language=russian
 #bluej.language=spanish
 
+
 #####################################################################
 ## User's home directory. This is also defined by Java, and if that's
 ## fine for you, don't specify this property. This property, if
@@ -60,11 +60,14 @@ bluej.language=english
 
 #bluej.userHome=/home/mik/tmp
 
+
 #####################################################################
 ## If you have a translated version of the Greenfoot API documentation
 ## you can change this URL to point at it.
 #####################################################################
+
 #greenfoot.url.javadoc=file:///Greenfoot/labels/german/greenfoot/API/index.html
+
 
 #####################################################################
 ## URLs for the Greenfoot manuals and documentation. If you have the
@@ -88,6 +91,7 @@ greenfoot.url.javaStdLib=https://docs.oracle.com/javase/8/docs/api/
 # Options for the generation of the JavaDoc shown in the documentation view of the editor.
 doctool.options=-author -version -nodeprecated -protected  -Xdoclint:none
 
+
 #####################################################################
 ## Information about the game server to publish to via the 'Export'
 ## function
@@ -101,6 +105,7 @@ greenfoot.gameserver.createAccount.address=http://www.greenfoot.org/users/new
 #proxy.host=
 #proxy.port=80
 
+
 #####################################################################
 ## Compiler options. 
 ## 
@@ -110,7 +115,8 @@ greenfoot.gameserver.createAccount.address=http://www.greenfoot.org/users/new
 ##
 #####################################################################
 
-#bluej.compiler.options=-source 10 -target 10
+#bluej.compiler.options=
+
 
 #####################################################################
 ## Options for starting the internal virtual machine.
@@ -123,7 +129,8 @@ greenfoot.gameserver.createAccount.address=http://www.greenfoot.org/users/new
 ## if not configured properly.  
 #####################################################################
 
-bluej.vm.args=-Dawt.useSystemAAFontSettings=on -XX:MaxGCPauseMillis=50
+bluej.vm.args=-XX:MaxGCPauseMillis=50
+
 
 #####################################################################
 ## External program used for editing images.
@@ -136,6 +143,7 @@ bluej.vm.args=-Dawt.useSystemAAFontSettings=on -XX:MaxGCPauseMillis=50
 
 greenfoot.image.create.width=150
 greenfoot.image.create.height=150
+
 
 #####################################################################
 ## The VM that the windows client should use. When Greenfoot is
@@ -151,4 +159,4 @@ greenfoot.image.create.height=150
 #greenfoot.windows.vm=X\:\\Programming Apps\\JDK_1.7.0_55
 
 # command line arguments, if any:
-greenfoot.windows.vm.args=-Xmx512M -Djavafx.embed.singleThread=true
+greenfoot.windows.vm.args=-Djavafx.embed.singleThread=true
