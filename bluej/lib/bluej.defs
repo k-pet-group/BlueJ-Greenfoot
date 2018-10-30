@@ -59,7 +59,6 @@ bluej.language19=spanish:Spanish:spa
 bluej.language20=swedish:Swedish:swe
 
 
-
 #####################################################################
 ## The JVM language and region. 
 ## This is different to the value above which sets the language for 
@@ -98,6 +97,7 @@ bluej.language20=swedish:Swedish:swe
 #vm.country=FR
 #vm.country=CZ
 #vm.country=DK
+
 
 #####################################################################
 ## URLs for the BlueJ manuals and documentation. If you have the
@@ -174,6 +174,7 @@ bluej.numberOfRecentProjects=12
 
 #bluej.userHome=/home/mik/tmp
 
+
 #####################################################################
 ## Where the "userlib" directory is. This directory contains java
 ## libraries, in the form of jar and zip files, which will be
@@ -193,6 +194,7 @@ bluej.numberOfRecentProjects=12
 
 #bluej.userlibLocation=C\:\\some\\directory\\somewhere
 
+
 #####################################################################
 ## Where the extensions folder is. This is the folder which is
 ## searched for extensions (in jar files) when BlueJ starts.
@@ -203,12 +205,14 @@ bluej.numberOfRecentProjects=12
 
 #bluej.extensions.systempath=C\:\\some\\other\\directory
 
+
 #####################################################################
 ## Allow BlueJ to automatically open any projects that were open when 
 ## it was last closed down.   
 #####################################################################
 
 bluej.autoOpenLastProject=true
+
 
 #####################################################################
 ## Web browser. The following are the commands used for opening a
@@ -225,6 +229,7 @@ bluej.autoOpenLastProject=true
 # replaced by the URL to be opened.
 browserCmd1=firefox -remote openURL($)
 browserCmd2=firefox $
+
 
 #######################################################################
 ## Documentation generation. This specifies the command used for
@@ -320,6 +325,7 @@ bluej.classTemplates.java = stdclass abstract interface unittest enum
 bluej.classTemplates.stride = stdclass abstract interface
 #bluej.templatePath = /home/mik/bluej/lib/english/templates
 #bluej.templatePath = F:\\shared\\bluej\\templates
+
 
 #######################################################################
 ## Fonts. You can choose a font size for most of the interface
@@ -431,6 +437,7 @@ bluej.teamwork.showtools=false
 # classes in a non-typesafe manner (java 1.5+ only)
 bluej.compiler.unchecked=true
 
+
 #####################################################################
 ## Options for starting the internal virtual machine.
 ## bluej.vm.args provides arguments to the debug VM that 
@@ -457,6 +464,7 @@ bluej.vm.args=-ea
 
 # -ea : enable assertions
 
+
 #####################################################################
 ## bluej.windows.vm.args provides arguments to the Java VM that 
 ## launches the bluej GUI on Windows only. These arguments do not apply to  
@@ -470,7 +478,7 @@ bluej.vm.args=-ea
 ## Java defaults need to be modified.  
 #####################################################################
 
-bluej.windows.vm.args=-Xmx512M -Djavafx.embed.singleThread=true
+bluej.windows.vm.args=-Djavafx.embed.singleThread=true
 
 
 #####################################################################
@@ -488,12 +496,14 @@ bluej.windows.vm.args=-Xmx512M -Djavafx.embed.singleThread=true
 
 bluej.vm.transport=dt_shmem
 
+
 #######################################################################
 ## Debugging. When true, debug output goes to console; when false, it
 ##  is written to a log file in the user's bluej settings directory.
 #######################################################################
 
 bluej.debug=false
+
 
 #######################################################################
 ## Images.
