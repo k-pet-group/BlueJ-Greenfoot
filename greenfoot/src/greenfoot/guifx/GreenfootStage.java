@@ -2417,6 +2417,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 "Portuguese", "Paulo Abadie and Fabio Hedayioglu",
                 "Russian",    "Sergey Zemlyannikov",
                 "Spanish",    "José Lerma, Esteban Manriquez, Kenneth Daly, Iris Gutierrez and Luis Mijangos",
+                "Swedish",    "Daniel Norrman"
         };
 
         String[] previousTeamMembers = {

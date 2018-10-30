@@ -2000,6 +2000,7 @@ public class PkgMgrFrame
                 "Russian",      "Sergey Zemlyannikov",
                 "Slovak",       "Roman Horváth",
                 "Spanish",      "Aldo Mettini, Viviana Marcela Alvarez Tomé, and José Ramón Puente Lerma",
+                "Swedish",      "Daniel Norrman"
         };
 
         String[] previousTeamMembers = {
