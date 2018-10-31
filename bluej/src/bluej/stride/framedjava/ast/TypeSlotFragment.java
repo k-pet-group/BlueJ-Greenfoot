@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,25 +21,18 @@
  */
 package bluej.stride.framedjava.ast;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.stream.Stream;
 
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
-import bluej.stride.framedjava.errors.DirectSlotError;
-import bluej.stride.framedjava.errors.EmptyError;
-import bluej.stride.framedjava.errors.SyntaxCodeError;
-import bluej.stride.framedjava.errors.UnknownTypeError;
-import bluej.stride.framedjava.errors.UnneededSemiColonError;
+import bluej.stride.framedjava.errors.*;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.TypeSlot;
 import bluej.stride.generic.InteractionManager;
+import bluej.utility.javafx.FXPlatformConsumer;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -95,35 +88,117 @@ public class TypeSlotFragment extends StructuredSlotFragment
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public Future<List<DirectSlotError>> findLateErrors(InteractionManager editor, CodeElement parent, LocationMap rootPathMap)
+    public Future<List<DirectSlotError>> findLateErrors(InteractionManager editor, CodeElement parent,
+                                                        LocationMap rootPathMap)
     {
         CompletableFuture<List<DirectSlotError>> f = new CompletableFuture<>();
-        
-        // No point looking for a type that isn't syntactically valid:
-        // Also, don't mess with arrays or generics or qualified types:
-        if (hasEarlyErrors || content.contains("[") || content.contains("<") || content.contains("."))
+
+        ArrayList<Integer> indexOfErrors = new ArrayList<>();
+        ArrayList<String> typesList = new ArrayList<>();
+
+        if (hasEarlyErrors)
         {
             f.complete(Collections.emptyList());
             return f;
         }
-        
+
+        // Handle Generic types or Array types
+        if ((content.contains("<") && content.contains(">")) ||
+                (content.contains("[") && content.contains("]")))
+        {
+            // Replacing all the "<" and ">" with "," makes searching for type errors
+            // inside a generic content easier.
+            String modifiedContent = content.replaceAll("[<>\\]\\[]", ",");
+            int index = 0;
+            while (!modifiedContent.equals(""))
+            {
+                String type = modifiedContent.substring(0, modifiedContent.indexOf(","));
+                if (!type.equals(""))
+                {
+                    indexOfErrors.add(index);
+                    typesList.add(type);
+                }
+                index = index + type.length() + 1;
+                modifiedContent = modifiedContent.substring(modifiedContent.indexOf(",") + 1);
+                if (!modifiedContent.contains(",") && !modifiedContent.equals(""))
+                {
+                    indexOfErrors.add(index);
+                    typesList.add(modifiedContent);
+                    break;
+                }
+            }
+
+            return checkForTypeErrors(typesList, indexOfErrors, editor, rootPathMap);
+        }
+
+        // No point looking for a type that isn't syntactically valid:
+        // Also, don't mess with arrays or generics or qualified types:
+        if (content.contains("[") || content.contains("<") || content.contains("."))
+        {
+            f.complete(Collections.emptyList());
+            return f;
+        }
+
         editor.withTypes(types -> {
-            
+
             if (types.containsKey(content))
             {
                 // Match -- no error
                 f.complete(Collections.emptyList());
                 return;
             }
-            // Otherwise, give error and suggest corrections 
-            final UnknownTypeError error = new UnknownTypeError(this, content, slot::setText, editor, types.values().stream(), editor.getImportSuggestions().values().stream().flatMap(Collection::stream)) {};
+            // Otherwise, give error and suggest corrections
+            final UnknownTypeError error = new UnknownTypeError(this, content, slot::setText, editor,
+                    types.values().stream(), editor.getImportSuggestions().values().stream().
+                    flatMap(Collection::stream)) {};
             error.recordPath(rootPathMap.locationFor(this));
             f.complete(Arrays.asList(error));
         });
         return f;
     }
-    
 
+    /**
+     * It checks for type errors and it returns a list of errors (wrapped as a Future).
+     * @param typesList the list of found types
+     * @param indexList the list of type indexes in the slot
+     * @param editor the editor of the class
+     * @param rootPathMap the root map from JavaFragment to XPath String identifying the location of that fragment.
+     * @return the Future list of errors
+     */
+    @OnThread(Tag.FXPlatform)
+    private Future<List<DirectSlotError>> checkForTypeErrors(
+            ArrayList<String> typesList, ArrayList<Integer> indexList, InteractionManager editor,
+            LocationMap rootPathMap)
+    {
+        CompletableFuture<List<DirectSlotError>> f = new CompletableFuture<>();
+        ArrayList<DirectSlotError> listOfErrors = new ArrayList<>();
+        editor.withTypes(types -> {
+
+            int i = 0;
+            for(String t : typesList)
+            {
+                if (types.containsKey(t))
+                {
+                    // Match -- no error
+                    i = i + 1;
+                    continue;
+                }
+
+                int startPosInSlot = indexList.get(i);
+                int endPosInSlot = startPosInSlot + t.length();
+                FXPlatformConsumer<String> replace = s -> slot.replace(startPosInSlot, endPosInSlot, false, s);
+                final UnknownTypeError error = new UnknownTypeError(this, t, replace, editor,
+                        types.values().stream(), editor.getImportSuggestions().values().stream().
+                        flatMap(Collection::stream));
+                error.recordPath(rootPathMap.locationFor(this));
+                listOfErrors.add(error);
+                i = i + 1;
+            }
+            f.complete(listOfErrors);
+        });
+        return f;
+    }
+    
     @Override
     public TypeSlot getSlot()
     {
