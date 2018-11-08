@@ -1054,7 +1054,6 @@ public class ClassTarget extends DependentTarget
             if (newCompiledState)
             {
                 setState(State.COMPILED);
-                endCompile();
             }
         }
 
@@ -1447,7 +1446,7 @@ public class ClassTarget extends DependentTarget
      * We load the compiled class if possible and check it the compilation has
      * resulted in it taking a different role (ie abstract to applet)
      */
-    private void endCompile()
+    public void analyseAfterCompile()
     {
         Class<?> cl = getPackage().loadClass(getQualifiedName());
 
