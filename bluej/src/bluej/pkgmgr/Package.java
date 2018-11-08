@@ -2703,6 +2703,8 @@ public final class Package
         @Override
         public void endCompile(CompileInputFile[] sources, boolean successful, CompileType type, int compilationSequence)
         {
+            List<ClassTarget> targetsToAnalyse = new ArrayList<>();
+            
             for (int i = 0; i < sources.length; i++) {
                 String filename = sources[i].getJavaCompileInputFile().getPath();
 
@@ -2718,6 +2720,10 @@ public final class Package
                 }
 
                 t.markCompiled(successful, type);
+                if (t.getState() == State.COMPILED)
+                {
+                    targetsToAnalyse.add(t);
+                }
                 t.setQueued(false);
                 
                 if (t.isCompiled())
@@ -2749,6 +2755,11 @@ public final class Package
                         ex.printStackTrace();
                     }
                 }
+            }
+
+            for (ClassTarget classTarget : targetsToAnalyse)
+            {
+                classTarget.analyseAfterCompile();
             }
             
             if (type.keepClasses())
