@@ -551,7 +551,8 @@ public class Boot
             Class<?> mainClass = Class.forName("bluej.Main", true, runtimeLoader);
             mainClass.getDeclaredConstructor().newInstance();
             
-        } catch (ClassNotFoundException | InstantiationException | NoSuchMethodException | InvocationTargetException | IllegalAccessException exc) {
+        } catch (ClassNotFoundException | InstantiationException | NoSuchMethodException 
+                | InvocationTargetException | IllegalAccessException exc) {
             throw new RuntimeException(exc);
         }
     }
