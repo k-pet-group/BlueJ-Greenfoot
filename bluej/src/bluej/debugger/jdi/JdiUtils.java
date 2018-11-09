@@ -52,18 +52,9 @@ public abstract class JdiUtils
      */
     public static JdiUtils getJdiUtils()
     {
-        if (jutils != null)
+        if (jutils == null)
         {
-            return jutils;
-        }
-        try
-        {
-            Class<?> J15Class = Class.forName("bluej.debugger.jdi.JdiUtils15");
-            jutils = (JdiUtils)J15Class.getDeclaredConstructor().newInstance();
-        }
-        catch (ClassNotFoundException | IllegalAccessException | InstantiationException
-                | NoSuchMethodException | InvocationTargetException e)
-        {
+            jutils = new JdiUtils15();
         }
         return jutils;
     }
