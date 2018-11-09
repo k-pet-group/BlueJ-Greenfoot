@@ -501,12 +501,15 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
     {
         final List<FrameCanvas> canvases = Arrays.asList(constructorsCanvas, methodsCanvas);
 
-        int startingCanvas = 0;
+        int startingCanvas = -1; // It's incremented before use
+        Frame startingFrame = null;
         // Guaranteed to pick a canvas if canDoBirdseye returned true:
-        while (canvases.get(startingCanvas).blockCount() == 0)
+        while (startingFrame == null)
+        {
             startingCanvas += 1;
-
-        Frame startingFrame = canvases.get(startingCanvas).getBlockContents().get(0);
+            startingFrame = canvases.get(startingCanvas).getBlockContents().stream()
+                    .filter(f -> f instanceof CommentFrame).findFirst().orElse(null);
+        }
 
         // See if focus owner belongs in any of these frames:
         Node focusOwner = canvases.get(0).getNode().getScene().getFocusOwner();
@@ -514,7 +517,7 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         {
             for (Frame f : canvases.get(i).getBlockContents())
             {
-                if (nodeInside(focusOwner, (Parent)f.getNode()) || f.getCursorBefore().getNode() == focusOwner || (f.getCursorAfter().getFrameAfter() == null && f.getCursorAfter().getNode() == focusOwner))
+                if (!(f instanceof CommentFrame) && nodeInside(focusOwner, (Parent)f.getNode()) || f.getCursorBefore().getNode() == focusOwner || (f.getCursorAfter().getFrameAfter() == null && f.getCursorAfter().getNode() == focusOwner))
                 {
                     startingCanvas = i;
                     startingFrame = f;
@@ -594,52 +597,68 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
             @Override
             public void up()
             {
-                Frame before = canvases.get(canvasIndex).getFrameBefore(canvases.get(canvasIndex).getCursorBefore(frame));
-                if (before == null)
+                // If candidate is null, we're at the end of a canvas.
+                Frame candidate = canvases.get(canvasIndex).getFrameBefore(canvases.get(canvasIndex).getCursorBefore(frame));
+                int prospective = canvasIndex;
+                while (candidate == null || candidate instanceof CommentFrame)
                 {
-                    int prospective = canvasIndex - 1;
-                    while (prospective >= 0)
+                    if (candidate == null)
                     {
-                        if (canvases.get(prospective).blockCount() > 0)
-                        {
-                            canvasIndex = prospective;
-                            frame = canvases.get(canvasIndex).getFrameBefore(canvases.get(canvasIndex).getLastCursor());
-                            return;
-                        }
-                        // Keep looking back
+                        // At beginning of one canvas, so go to previous:
                         prospective -= 1;
+                        if (prospective < 0)
+                        {
+                            // Gone beyond beginning:
+                            candidate = null;
+                            break;
+                        }
+                        candidate = canvases.get(prospective).getFrameBefore(canvases.get(prospective).getLastCursor());
                     }
-                    // Nothing above us; nowhere to go
+                    else
+                    {
+                        // Still may be opportunity to look upwards within this canvas:
+                        candidate = canvases.get(prospective).getFrameBefore(canvases.get(prospective).getCursorBefore(candidate));
+                    }
                 }
-                else
+
+                if (candidate != null && !(candidate instanceof CommentFrame))
                 {
-                    frame = before;
+                    frame = candidate;
+                    canvasIndex = prospective;
                 }
             }
 
             @Override
             public void down()
             {
-                Frame after = canvases.get(canvasIndex).getFrameAfter(canvases.get(canvasIndex).getCursorAfter(frame));
-                if (after == null)
+                // If candidate is null, we're at the end of a canvas.
+                Frame candidate = canvases.get(canvasIndex).getFrameAfter(canvases.get(canvasIndex).getCursorAfter(frame));
+                int prospective = canvasIndex;
+                while (candidate == null || candidate instanceof CommentFrame)
                 {
-                    int prospective = canvasIndex + 1;
-                    while (prospective < canvases.size())
+                    if (candidate == null)
                     {
-                        if (canvases.get(prospective).blockCount() > 0)
-                        {
-                            canvasIndex = prospective;
-                            frame = canvases.get(canvasIndex).getFrameAfter(canvases.get(canvasIndex).getFirstCursor());
-                            return;
-                        }
-                        // Keep looking forward
+                        // At end of one canvas, so go to next:
                         prospective += 1;
+                        if (prospective >= canvases.size())
+                        {
+                            // Gone beyond end:
+                            candidate = null;
+                            break;
+                        }                        
+                        candidate = canvases.get(prospective).getFrameAfter(canvases.get(prospective).getFirstCursor());
                     }
-                    // Nothing below us; nowhere to go
+                    else
+                    {
+                        // Still may be opportunity to look downwards within this canvas:
+                        candidate = canvases.get(prospective).getFrameAfter(canvases.get(prospective).getCursorAfter(candidate));
+                    }
                 }
-                else
+
+                if (candidate != null && !(candidate instanceof CommentFrame))
                 {
-                    frame = after;
+                    frame = candidate;
+                    canvasIndex = prospective;
                 }
             }
         };
@@ -702,7 +721,10 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
     public boolean canDoBirdseye()
     {
         // Only if we have some members:
-        return !(constructorsCanvas.getBlockContents().isEmpty() && methodsCanvas.getBlockContents().isEmpty());
+        return Stream.concat(
+                constructorsCanvas.getBlockContents().stream(),
+                methodsCanvas.getBlockContents().stream())
+            .anyMatch(f -> !(f instanceof CommentFrame));
     }
 
     @Override
