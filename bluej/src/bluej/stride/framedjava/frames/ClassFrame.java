@@ -517,7 +517,11 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         {
             for (Frame f : canvases.get(i).getBlockContents())
             {
-                if (!(f instanceof CommentFrame) && nodeInside(focusOwner, (Parent)f.getNode()) || f.getCursorBefore().getNode() == focusOwner || (f.getCursorAfter().getFrameAfter() == null && f.getCursorAfter().getNode() == focusOwner))
+                if (!(f instanceof CommentFrame)
+                    && (nodeInside(focusOwner, (Parent)f.getNode()) 
+                        || f.getCursorBefore().getNode() == focusOwner
+                        || (f.getCursorAfter().getFrameAfter() == null 
+                            && f.getCursorAfter().getNode() == focusOwner)))
                 {
                     startingCanvas = i;
                     startingFrame = f;
@@ -598,7 +602,8 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
             public void up()
             {
                 // If candidate is null, we're at the end of a canvas.
-                Frame candidate = canvases.get(canvasIndex).getFrameBefore(canvases.get(canvasIndex).getCursorBefore(frame));
+                Frame candidate = canvases.get(canvasIndex).getFrameBefore(
+                                    canvases.get(canvasIndex).getCursorBefore(frame));
                 int prospective = canvasIndex;
                 while (candidate == null || candidate instanceof CommentFrame)
                 {
@@ -612,12 +617,14 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
                             candidate = null;
                             break;
                         }
-                        candidate = canvases.get(prospective).getFrameBefore(canvases.get(prospective).getLastCursor());
+                        candidate = canvases.get(prospective).getFrameBefore(
+                                        canvases.get(prospective).getLastCursor());
                     }
                     else
                     {
                         // Still may be opportunity to look upwards within this canvas:
-                        candidate = canvases.get(prospective).getFrameBefore(canvases.get(prospective).getCursorBefore(candidate));
+                        candidate = canvases.get(prospective).getFrameBefore(
+                                        canvases.get(prospective).getCursorBefore(candidate));
                     }
                 }
 
@@ -632,7 +639,8 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
             public void down()
             {
                 // If candidate is null, we're at the end of a canvas.
-                Frame candidate = canvases.get(canvasIndex).getFrameAfter(canvases.get(canvasIndex).getCursorAfter(frame));
+                Frame candidate = canvases.get(canvasIndex).getFrameAfter(
+                                    canvases.get(canvasIndex).getCursorAfter(frame));
                 int prospective = canvasIndex;
                 while (candidate == null || candidate instanceof CommentFrame)
                 {
@@ -646,12 +654,14 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
                             candidate = null;
                             break;
                         }                        
-                        candidate = canvases.get(prospective).getFrameAfter(canvases.get(prospective).getFirstCursor());
+                        candidate = canvases.get(prospective).getFrameAfter(
+                                        canvases.get(prospective).getFirstCursor());
                     }
                     else
                     {
                         // Still may be opportunity to look downwards within this canvas:
-                        candidate = canvases.get(prospective).getFrameAfter(canvases.get(prospective).getCursorAfter(candidate));
+                        candidate = canvases.get(prospective).getFrameAfter(
+                                        canvases.get(prospective).getCursorAfter(candidate));
                     }
                 }
 
