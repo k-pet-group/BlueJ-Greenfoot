@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -195,7 +195,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         constructors = TopLevelCodeElement.fillChildrenElements(this, el, "constructors");
         methods = TopLevelCodeElement.fillChildrenElements(this, el, "methods");
        
-        enable = new Boolean(el.getAttributeValue("enable"));
+        enable = Boolean.valueOf(el.getAttributeValue("enable"));
         this.projectResolver = projectResolver;
         this.openingCurly = new FrameFragment(null, this, "{");
         this.closingCurly = new FrameFragment(null, this, "}");

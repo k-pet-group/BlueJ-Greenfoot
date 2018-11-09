@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -89,7 +89,7 @@ public class VarElement extends CodeElement implements JavaSingleLineDebugHandle
         Attribute valueAttribute = el.getAttribute("value");
         varValue = (valueAttribute == null) ? null : new FilledExpressionSlotFragment(valueAttribute.getValue(), el.getAttributeValue("value-java"));
         
-        enable = new Boolean(el.getAttributeValue("enable"));
+        enable = Boolean.valueOf(el.getAttributeValue("enable"));
     }
 
     public VarElement(String access, String type, String name, String value)

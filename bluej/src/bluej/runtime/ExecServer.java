@@ -551,7 +551,7 @@ public class ExecServer
             }
 
             if (testCase == null) {
-                testCase = cl.newInstance();
+                testCase = cl.getDeclaredConstructor().newInstance();
             }
                         
             // cannot execute setUp directly because it is protected

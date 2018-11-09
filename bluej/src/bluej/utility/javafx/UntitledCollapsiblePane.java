@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2016,2017 Michael Kölling and John Rosenberg
+ Copyright (C) 2016,2017,2018 Michael Kölling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -174,20 +174,35 @@ public class UntitledCollapsiblePane extends Pane
     }
 
     private void layoutChildren(double x, double y,
-                                            final double w, final double h) {
+                                            final double w, final double h)
+    {
 
         // header
-        final double arrowSize = snapSize(arrow.TRIANGLE_DEPTH + 2 * arrowPadding);
+        final double arrowSize;
 
         if (isVertical())
+        {
+            arrowSize = snapSizeY(arrow.TRIANGLE_DEPTH + 2 * arrowPadding);
             arrowWrapper.resize(w, arrowSize);
+        }
         else
+        {
+            arrowSize = snapSizeX(arrow.TRIANGLE_DEPTH + 2 * arrowPadding);
             arrowWrapper.resize(arrowSize, h);
+        }
         positionInArea(arrowWrapper, x, y,
-            isVertical() ? w : arrowSize, isVertical() ? arrowSize : h, 0, HPos.CENTER, VPos.CENTER);
+                isVertical() ? w : arrowSize, isVertical() ? arrowSize : h, 0, HPos.CENTER, VPos.CENTER);
 
         // content size, in the dimension in which we collapse (height if arrow at top, else width)
-        final double contentSize = snapSize((isVertical() ? h : w) - arrowSize);
+        final double contentSize;
+        if (isVertical())
+        {
+            contentSize = snapSizeY(h - arrowSize);
+        }
+        else
+        {
+            contentSize = snapSizeX(w - arrowSize);
+        }
 
         if (isVertical())
         {
