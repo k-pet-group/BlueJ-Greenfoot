@@ -411,7 +411,7 @@ public class FrameCanvas implements FrameContentItem
     {
         int index = blockContents.indexOf(block);
         if (index < 0)
-            throw new IllegalArgumentException("getCursorBefore: canvas does not contain specified block");
+            throw new IllegalArgumentException("getCursorAfter: canvas does not contain specified block");
         else
             return cursors.get(index + 1);
     }
