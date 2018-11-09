@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -411,7 +411,7 @@ public class FrameCanvas implements FrameContentItem
     {
         int index = blockContents.indexOf(block);
         if (index < 0)
-            throw new IllegalArgumentException("getCursorBefore: canvas does not contain specified block");
+            throw new IllegalArgumentException("getCursorAfter: canvas does not contain specified block");
         else
             return cursors.get(index + 1);
     }
