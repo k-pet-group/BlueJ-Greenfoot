@@ -203,7 +203,7 @@ public class ExtensionWrapper
         extensionBluej = ExtensionBridge.newBluej(this, prefManager);
 
         try {
-            extensionInstance = (Extension)extensionClass.newInstance();
+            extensionInstance = (Extension)extensionClass.getDeclaredConstructor().newInstance();
         } catch (Throwable ex) {
             extensionInstance = null;
             extensionStatusString = "newExtension: Exception=" + ex.getMessage();

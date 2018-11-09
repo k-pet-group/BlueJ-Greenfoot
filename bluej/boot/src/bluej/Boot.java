@@ -32,6 +32,7 @@ import threadchecker.Tag;
 import java.awt.Desktop;
 import java.awt.EventQueue;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -548,9 +549,9 @@ public class Boot
  
             // Construct a bluej.Main object. This starts BlueJ "proper".
             Class<?> mainClass = Class.forName("bluej.Main", true, runtimeLoader);
-            mainClass.newInstance();
+            mainClass.getDeclaredConstructor().newInstance();
             
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException exc) {
+        } catch (ClassNotFoundException | InstantiationException | NoSuchMethodException | InvocationTargetException | IllegalAccessException exc) {
             throw new RuntimeException(exc);
         }
     }
