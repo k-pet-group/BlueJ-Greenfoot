@@ -89,7 +89,7 @@ public class VarElement extends CodeElement implements JavaSingleLineDebugHandle
         Attribute valueAttribute = el.getAttribute("value");
         varValue = (valueAttribute == null) ? null : new FilledExpressionSlotFragment(valueAttribute.getValue(), el.getAttributeValue("value-java"));
         
-        enable = new Boolean(el.getAttributeValue("enable"));
+        enable = Boolean.valueOf(el.getAttributeValue("enable"));
     }
 
     public VarElement(String access, String type, String name, String value)

@@ -167,7 +167,7 @@ public class ScratchImport
         case 1: return null; //Undefined -- is null okay?
         case 2: // True 
         case 3: // False
-            return new ScratchPrimitive(new Boolean(id == 2));
+            return new ScratchPrimitive(Boolean.valueOf(id == 2));
         case 4: //4-byte integer
             return new ScratchPrimitive(new BigDecimal(readInt(input, 4)));
         case 5: //2-byte integer 
