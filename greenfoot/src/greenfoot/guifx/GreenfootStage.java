@@ -2773,7 +2773,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         }
         else
         {
-            target.getEditor().setEditorVisible(true);
+            target.getEditor().setEditorVisible(true, false);
         }
     }
 

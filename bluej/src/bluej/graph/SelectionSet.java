@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2013,2014,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2013,2014,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -109,12 +109,12 @@ public final class SelectionSet
     /**
      * Perform a double click on the selection.
      * 
-     * @param evt  The mouse event that originated this double click.
+     * @param  openInNewWindow if this is true, the editor opens in a new window.
      */
-    public void doubleClick()
+    public void doubleClick(boolean openInNewWindow)
     {
         for (Target element : elements) {
-            element.doubleClick();
+            element.doubleClick(openInNewWindow);
         }        
     }
 

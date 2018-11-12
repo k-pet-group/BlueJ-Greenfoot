@@ -142,7 +142,7 @@ public @OnThread(Tag.FXPlatform) class MoeFXTab extends FXTab
         tabHeader.addEventHandler(MouseEvent.MOUSE_CLICKED, e -> {
             if (e.getButton() == MouseButton.MIDDLE)
             {
-                moeEditor.setEditorVisible(false);
+                moeEditor.setEditorVisible(false, false);
             }
         });
         setGraphic(tabHeader);

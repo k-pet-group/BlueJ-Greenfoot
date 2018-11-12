@@ -328,7 +328,7 @@ public class GreenfootRecorder
         editor.insertAppendMethod(method, inserted -> {
             if (inserted)
             {
-                editor.setEditorVisible(true);
+                editor.setEditorVisible(true, false);
             }
         });
         // Now that we've inserted the code, we must reset the recorder,
