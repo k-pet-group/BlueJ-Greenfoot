@@ -286,7 +286,7 @@ public class Main
                 {
                     for (File file : files)
                     {
-                        PkgMgrFrame.doOpen(file, null);
+                        guiHandler.tryOpen(file, true);
                     }
                 });
             }
