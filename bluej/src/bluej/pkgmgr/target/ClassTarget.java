@@ -2393,11 +2393,18 @@ public class ClassTarget extends DependentTarget
 
     /**
      * Process a double click on this target. That is: open its editor.
+     *
+     * @param  openInNewWindow if this is true, the editor opens in a new window
      */
     @Override
-    public void doubleClick()
+    public void doubleClick(boolean openInNewWindow)
     {
-        open();
+        Editor editor = getEditor();
+        if(editor == null)
+        {
+            getPackage().showError("error-open-source");
+        }
+        editor.setEditorVisible(true, openInNewWindow);
     }
     /**
      * Set the size of this target.

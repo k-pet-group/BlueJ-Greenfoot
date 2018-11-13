@@ -207,7 +207,8 @@ public class FrameEditor implements Editor
     }
 
     @OnThread(Tag.FX)
-    public FrameEditor(File frameFilename, File javaFilename, EditorWatcher watcher, EntityResolver resolver, JavadocResolver javadocResolver, bluej.pkgmgr.Package pkg, FXPlatformRunnable callbackOnOpen)
+    public FrameEditor(File frameFilename, File javaFilename, EditorWatcher watcher, EntityResolver resolver,
+                       JavadocResolver javadocResolver, bluej.pkgmgr.Package pkg, FXPlatformRunnable callbackOnOpen)
     {
         this.frameFilename = frameFilename;
         this.javaFilename = javaFilename;
@@ -219,17 +220,31 @@ public class FrameEditor implements Editor
         this.callbackOnOpen = callbackOnOpen;
         lastSource = Loader.loadTopLevelElement(frameFilename, resolver);
     }
-    
+
+    /**
+     * Create a frame editor tab.
+     *
+     * @param visible Whether to make the FXTabbedEditor window visible
+     * @param toFront Whether to bring the tab to the front (i.e. select the tab)
+     * @param openInNewWindow if this is true, the editor opens in a new window
+     */
     @OnThread(Tag.FXPlatform)
-    private void createPanel(boolean visible, boolean toFront)
+    private void createPanel(boolean visible, boolean toFront, boolean openInNewWindow)
     {
-        //Debug.message("&&&&&& Creating panel: " + System.currentTimeMillis());
         this.panel = new FrameEditorTab(pkg.getProject(), resolver, this, lastSource);
-        //Debug.message("&&&&&& Adding panel to editor: " + System.currentTimeMillis());
         if (visible)
         {
-            // This calls initialiseFX:
-            pkg.getProject().getDefaultFXTabbedEditor().addTab(this.panel, visible, toFront);
+            if (openInNewWindow)
+            {
+                // This calls initialiseFX:
+                pkg.getProject().createNewFXTabbedEditor().addTab(this.panel, visible, toFront);
+            }
+            else
+            {
+                // This calls initialiseFX:
+                pkg.getProject().getDefaultFXTabbedEditor().addTab(this.panel, visible, toFront);
+            }
+
         }
         else
         {
@@ -449,7 +464,10 @@ public class FrameEditor implements Editor
 
             @Override
             @OnThread(Tag.FXPlatform)
-            public void setEditorVisible(boolean vis) { FrameEditor.this.setEditorVisible(vis); }
+            public void setEditorVisible(boolean vis, boolean openInNewWindow)
+            {
+                FrameEditor.this.setEditorVisible(vis, openInNewWindow);
+            }
 
             @Override
             @OnThread(Tag.FXPlatform)
@@ -772,7 +790,7 @@ public class FrameEditor implements Editor
     {
         //This is a message from a clickable stack trace following an exception
         JavaFXUtil.onceNotNull(javaSource, js -> JavaFXUtil.runNowOrLater(() -> {
-            setVisibleFX(true, true);
+            setVisibleFX(true, true, false);
             js.handleException(lineNumber);
         }));
     }
@@ -809,7 +827,7 @@ public class FrameEditor implements Editor
 
         if (compileType.showEditorOnError())
         {
-            setVisibleFX(true, true);
+            setVisibleFX(true, true, false);
         }
         return false;
     }
@@ -823,7 +841,7 @@ public class FrameEditor implements Editor
             return;
         
         removeStepMark();
-        setVisibleFX(true, true);
+        setVisibleFX(true, true, false);
         HashMap<String, DebugVarInfo> vars = new HashMap<String, DebugVarInfo>();
         if (thread != null) {
             DebuggerObject currentObject = thread.getCurrentObject(0);
@@ -946,7 +964,7 @@ public class FrameEditor implements Editor
         CompletableFuture<Boolean> inited = new CompletableFuture<>();
         if (panel == null)
         {
-            setVisibleFX(true, false);
+            setVisibleFX(true, false, false);
         }
         JavaFXUtil.onceTrue(panel.initialisedProperty(), init -> {
             inited.complete(init);
@@ -1008,21 +1026,25 @@ public class FrameEditor implements Editor
     }
 
     @Override
-    public void setEditorVisible(boolean vis)
+    public void setEditorVisible(boolean vis, boolean openInNewWindow)
     {
-        setVisibleFX(vis, true);
+        setVisibleFX(vis, true, openInNewWindow);
     }
 
     @OnThread(Tag.FXPlatform)
-    private void setVisibleFX(boolean show, boolean bringToFront)
+    private void setVisibleFX(boolean show, boolean bringToFront, boolean openInNewWindow)
     {
         if (panel == null && show) // No need to create the panel if we don't want to show it
         {
-            createPanel(show, bringToFront);
+            createPanel(show, bringToFront, openInNewWindow);
         }
 
         if (panel != null)
         {
+            if (openInNewWindow && !panel.isWindowVisible())
+            {
+                panel.setParent(pkg.getProject().createNewFXTabbedEditor(), true);
+            }
             panel.setWindowVisible(show, bringToFront);
             if (callbackOnOpen != null && show)
                 callbackOnOpen.run();
@@ -1238,7 +1260,7 @@ public class FrameEditor implements Editor
     {
         if (panel == null)
         {
-            createPanel(false, false);
+            createPanel(false, false, false);
         }
         panel.insertAppendMethod(method, after);
         codeModified();
@@ -1249,7 +1271,7 @@ public class FrameEditor implements Editor
     {
         if (panel == null)
         {
-            createPanel(false, false);
+            createPanel(false, false, false);
         }
         panel.insertMethodCallInConstructor(methodName, after);
         codeModified();
@@ -1260,7 +1282,7 @@ public class FrameEditor implements Editor
     {
         if (panel == null)
         {
-            createPanel(false, false);
+            createPanel(false, false, false);
         }
         panel.removeImports(importTargets);
         codeModified();
@@ -1326,7 +1348,7 @@ public class FrameEditor implements Editor
     public void focusMethod(String methodName, List<String> paramTypes)
     {
         if (panel == null) {
-            createPanel(true, true);
+            createPanel(true, true, false);
         }
         panel.focusMethod(methodName);
     }
@@ -1363,7 +1385,7 @@ public class FrameEditor implements Editor
     public void addImplements(String className, ClassInfo classInfo)
     {
         if (panel == null) {
-            createPanel(false, false);
+            createPanel(false, false, false);
         }
         JavaFXUtil.onceTrue(panel.initialisedProperty(), p -> panel.addImplements(className));
     }
@@ -1372,7 +1394,7 @@ public class FrameEditor implements Editor
     public void setExtendsClass(String className, ClassInfo classInfo)
     {
         if (panel == null) {
-            createPanel(false, false);
+            createPanel(false, false, false);
         }
         JavaFXUtil.onceTrue(panel.initialisedProperty(), p -> panel.addExtends(className));
     }
@@ -1381,7 +1403,7 @@ public class FrameEditor implements Editor
     public void removeExtendsClass(ClassInfo classInfo)
     {
         if (panel == null) {
-            createPanel(false, false);
+            createPanel(false, false, false);
         }
         JavaFXUtil.onceTrue(panel.initialisedProperty(), p -> panel.removeExtendsClass());
     }
@@ -1390,7 +1412,7 @@ public class FrameEditor implements Editor
     public void addExtendsInterface(String interfaceName, ClassInfo classInfo)
     {
         if (panel == null) {
-            createPanel(false, false);
+            createPanel(false, false, false);
         }
         JavaFXUtil.onceTrue(panel.initialisedProperty(), p -> panel.addExtends(interfaceName));
     }
@@ -1399,7 +1421,7 @@ public class FrameEditor implements Editor
     public void removeExtendsOrImplementsInterface(String interfaceName, ClassInfo classInfo)
     {
         if (panel == null) {
-            createPanel(false, false);
+            createPanel(false, false, false);
         }
         JavaFXUtil.onceTrue(panel.initialisedProperty(), p -> panel.removeExtendsOrImplementsInterface(interfaceName));
     }

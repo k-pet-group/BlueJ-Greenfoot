@@ -58,8 +58,9 @@ public interface Editor
      * following: make visible, de-iconify, bring to front of window stack.
      * 
      * @param vis  true to make the editor visible, or false to hide it.
+     * @param openInNewWindow if this is true, the editor opens in a new window
      */
-    void setEditorVisible(boolean vis);
+    void setEditorVisible(boolean vis, boolean openInNewWindow);
 
     /**
      * True if the editor is open in the tabbed window.

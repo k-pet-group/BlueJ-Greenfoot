@@ -511,12 +511,13 @@ public final class MoeEditor extends ScopeColorsBorderPane
     /**
      * Show the editor window. This includes whatever is necessary of the
      * following: make visible, de-iconify, bring to front of window stack.
-     * 
+     *
      * @param vis  The new visible value
+     * @param openInNewWindow if this is true, the editor opens in a new window
      */
     @Override
     @OnThread(Tag.FXPlatform)
-    public void setEditorVisible(boolean vis)
+    public void setEditorVisible(boolean vis, boolean openInNewWindow)
     {
         if (vis)
         {
@@ -534,8 +535,25 @@ public final class MoeEditor extends ScopeColorsBorderPane
         }
         if (fxTabbedEditor == null)
         {
-            fxTabbedEditor = defaultFXTabbedEditor.get();
+            if (openInNewWindow)
+            {
+                fxTabbedEditor = defaultFXTabbedEditor.get().getProject().createNewFXTabbedEditor();
+            }
+            else
+            {
+                fxTabbedEditor = defaultFXTabbedEditor.get();
+            }
         }
+        else
+        {
+            // Checks if the editor of the selected target is already opened in a tab inside another window,
+            // then do not open it in a new window unless the tab is closed.
+            if (openInNewWindow && !fxTabbedEditor.containsTab(fxTab) )
+            {
+                fxTabbedEditor = defaultFXTabbedEditor.get().getProject().createNewFXTabbedEditor();
+            }
+        }
+
         if (vis)
         {
             fxTabbedEditor.addTab(fxTab, vis, true);
@@ -684,8 +702,10 @@ public final class MoeEditor extends ScopeColorsBorderPane
     public boolean displayDiagnostic(Diagnostic diagnostic, int errorIndex, CompileType compileType)
     {
         if (compileType.showEditorOnError())
-            setEditorVisible(true);
-        
+        {
+            setEditorVisible(true, false);
+        }
+
         switchToSourceView();
         
         Element line = getSourceLine((int) diagnostic.getStartLine());
@@ -1744,7 +1764,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      */
     public void doClose()
     {
-        setEditorVisible(false);
+        setEditorVisible(false, false);
         if (watcher != null) {
             //setting the naviview visible property when an editor is closed
             //NAVIFX

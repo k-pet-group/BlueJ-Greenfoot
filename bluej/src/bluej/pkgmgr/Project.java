@@ -1536,7 +1536,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
                 ClassTarget classTarget = (ClassTarget) target;
                 Editor editor = classTarget.getEditor();
                 if (editor != null) {
-                    editor.setEditorVisible(true);
+                    editor.setEditorVisible(true, false);
                 }
             }
         }
