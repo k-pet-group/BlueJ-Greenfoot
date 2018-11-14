@@ -65,7 +65,15 @@ public class CSSTarget extends NonCodeEditableTarget
     @Override
     public @OnThread(Tag.FXPlatform) void doubleClick(boolean openInNewWindow)
     {
-        open();
+        Editor editor = getEditor();
+        if(editor == null)
+        {
+            getPackage().showError("error-open-source");
+        }
+        else
+        {
+            editor.setEditorVisible(true, openInNewWindow);
+        }
     }
 
     /**

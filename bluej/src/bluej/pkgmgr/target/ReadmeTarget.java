@@ -126,7 +126,7 @@ public class ReadmeTarget extends NonCodeEditableTarget
     }
 
 
-    private void openEditor()
+    private void openEditor(boolean openInNewWindow)
     {
         if (editor == null) {
             if (! getSourceFile().exists()) {
@@ -141,7 +141,7 @@ public class ReadmeTarget extends NonCodeEditableTarget
         
        // now try again to open it
        if(getEditor() != null) {
-           editor.setEditorVisible(true, false);
+           editor.setEditorVisible(true, openInNewWindow);
        }
     }
 
@@ -153,7 +153,7 @@ public class ReadmeTarget extends NonCodeEditableTarget
     @OnThread(Tag.FXPlatform)
     public void doubleClick(boolean openInNewWindow)
     {
-        openEditor();
+        openEditor(openInNewWindow);
     }
 
     /*
@@ -174,7 +174,7 @@ public class ReadmeTarget extends NonCodeEditableTarget
     private ContextMenu createMenu()
     {
         MenuItem open = new MenuItem(openStr);
-        open.setOnAction(e -> openEditor());
+        open.setOnAction(e -> openEditor(false));
         JavaFXUtil.addStyleClass(open, "class-action-inbuilt");
         return new ContextMenu(open);
     }
