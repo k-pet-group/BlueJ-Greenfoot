@@ -29,6 +29,7 @@ import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.ReadmeTarget;
 import bluej.utility.Debug;
+import bluej.utility.DialogManager;
 import bluej.utility.javafx.FXRunnable;
 import javafx.print.PrinterJob;
 import javafx.stage.Window;
@@ -82,7 +83,13 @@ public class PackagePrintManager extends Thread
         {
             ReadmeTarget readmeTgt = pkg.getReadmeTarget();
             if (readmeTgt != null)
-                printActions.add(readmeTgt.getEditor().printTo(job, printChoices.printSize, printChoices.printLineNumbers, printChoices.printHighlighting));
+            {
+                if (readmeTgt.getEditor() != null)
+                {
+                    printActions.add(readmeTgt.getEditor().printTo(job, printChoices.printSize, 
+                            printChoices.printLineNumbers, printChoices.printHighlighting));
+                }
+            }
         }
     }
 
