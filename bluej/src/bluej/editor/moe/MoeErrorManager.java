@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2011,2013,2014,2015,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 2011,2013,2014,2015,2016,2018  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -133,12 +133,14 @@ public class MoeErrorManager
 
     /**
      * Get the error code (or message) at a particular document position.
+     * If there are multiple errors at the same position it will return the 
+     * right most error at that position.
      */
     public ErrorDetails getErrorAtPosition(int pos)
     {
         return errorInfos.stream()
                 .filter(e -> e.containsPosition(pos))
-                .findFirst()
+                .reduce((first, second) -> second)
                 .orElse(null);
     }
     
