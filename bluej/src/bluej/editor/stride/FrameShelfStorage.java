@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2016  Michael Kolling and John Rosenberg
+ Copyright (C) 2016,2018  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -84,7 +84,10 @@ public class FrameShelfStorage
 
     public void deregisterShelf(FrameShelf shelfInterface)
     {
-        shelfInterface.getContent().removeListener(shelves.remove(shelfInterface));
+        if (shelves.get(shelfInterface) != null)
+        {
+            shelfInterface.getContent().removeListener(shelves.remove(shelfInterface));
+        }
     }
 
     private void pullFrom(FrameShelf changed)
