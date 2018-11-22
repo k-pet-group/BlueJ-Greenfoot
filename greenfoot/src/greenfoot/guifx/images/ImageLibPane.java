@@ -125,6 +125,8 @@ class ImageLibPane extends VBox
         this.project = project;
 
         getChildren().addAll(buildImageLists(specifiedImage), createCogMenu());
+        setItemButtons(projImageList.getSelectionModel().getSelectedItem() != null
+                && projImageList.getSelectionModel().getSelectedItem().getImageFile() != null);
     }
 
     /**
