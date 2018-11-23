@@ -140,6 +140,12 @@
     -fx-border-width: 1;
     -fx-border-color: black;
 }
+.world-display-wrapper .actor-highlight {
+    -fx-fill: null;
+    -fx-stroke-type: inside;
+    -fx-stroke-width: 2;
+    -fx-stroke-miter-limit: 1;
+}
 .image-edit-pane .image-canvas {
     -fx-border-style: solid inside;
     -fx-border-width: 1;

@@ -21,6 +21,7 @@
  */
 package bluej.pkgmgr;
 
+import bluej.debugger.DebuggerObject;
 import bluej.views.CallableView;
 import javafx.stage.Stage;
 import threadchecker.OnThread;
@@ -46,4 +47,13 @@ public interface PackageUI
      * @param view  the view representing the method/constructor to call.
      */
     public void callStaticMethodOrConstructor(CallableView view);
+
+    /**
+     * Highlights the given object, and clears highlights on all
+     * other objects.
+     * 
+     * @param currentObject The object to highlight (may be null,
+     *                      to just clear all existing highlights)
+     */
+    public void highlightObject(DebuggerObject currentObject);
 }
