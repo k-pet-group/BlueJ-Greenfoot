@@ -1082,7 +1082,7 @@ public final class PackageEditor extends StackPane
     @Override
     public void highlightObject(DebuggerObject currentObject)
     {
-        // Do nothing for this in BlueJ
+        pmf.getObjectBench().highlightObject(currentObject);
     }
 
     /**

@@ -1814,7 +1814,8 @@ public final class Package
         {
             target.removeStepMark();
         }
-        getUI().highlightObject(null);
+        if (getUI() != null)
+            getUI().highlightObject(null);
     }
 
     public synchronized void addTarget(Target t)

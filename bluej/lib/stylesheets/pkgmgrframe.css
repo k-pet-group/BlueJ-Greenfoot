@@ -235,6 +235,13 @@
     -fx-text-fill: white;
     -fx-text-alignment: center;
 }
+.object-debug-highlight {
+    -fx-fill: null;
+    -fx-stroke-type: centered;
+    -fx-stroke-width: 4;
+    -fx-stroke-dash-array: 6 10;
+    -fx-stroke: rgb(20, 140, 20);
+}
 
 /* Code Pad */
 .codepad {
