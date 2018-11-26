@@ -23,6 +23,7 @@ package bluej.debugger.jdi;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import bluej.debugger.DebuggerClass;
 import bluej.debugger.DebuggerField;
@@ -311,7 +312,7 @@ public class JdiObject extends DebuggerObject
 
         // object must be JdiObject at this point
         JdiObject test = (JdiObject)o;
-        return this.obj.equals(test.obj);
+        return Objects.equals(this.obj, test.obj);
     }
 
     /**

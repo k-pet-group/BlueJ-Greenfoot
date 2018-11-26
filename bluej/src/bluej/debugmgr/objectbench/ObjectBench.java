@@ -623,7 +623,7 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         // Clear highlights on other objects:
         for (ObjectWrapper wrapper : objects)
         {
-            wrapper.setHighlight(currentObject != null && Objects.equals(wrapper.obj.getObjectReference(), currentObject.getObjectReference()));
+            wrapper.setHighlight(currentObject != null && Objects.equals(wrapper.obj, currentObject));
         }
     }
 }
