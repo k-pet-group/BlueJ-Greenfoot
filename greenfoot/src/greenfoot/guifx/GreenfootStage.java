@@ -2819,7 +2819,8 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     {
         JavaType actorType = new GenTypeClass(new JavaReflective(Actor.class));
 
-        if (currentObject != null && currentObject.getGenType() != null && actorType.isAssignableFrom(currentObject.getGenType()))
+        if (currentObject != null && currentObject.getGenType() != null 
+            && actorType.isAssignableFrom(currentObject.getGenType()))
         {
             // It is an actor; try to find the bounds.  Do this in background thread to
             // avoid blocking the GUI thread:
@@ -2849,7 +2850,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         }
         else
         {
-            Platform.runLater(() -> worldDisplay.clearActorHighlight());
+            worldDisplay.clearActorHighlight();
         }
     }
 
@@ -2857,6 +2858,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
      * Given a debugger object (currentObject), get value of field declared in class className named
      * fieldName.  Returns null if the object is null or the field cannot be found.
      */
+    @OnThread(Tag.Any)
     private static DebuggerObject getObjectField(DebuggerObject currentObject, String className, String fieldName)
     {
         if (currentObject == null || currentObject.isNullObject())
@@ -2876,6 +2878,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
      * Given a debugger object (currentObject), get integer field declared in class className named
      * fieldName.  Returns OptionalInt.empty if the object is null or the field cannot be found.
      */
+    @OnThread(Tag.Any)
     private OptionalInt getIntegerField(DebuggerObject currentObject, String className, String fieldName)
     {
         if (currentObject == null || currentObject.isNullObject())

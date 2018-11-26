@@ -1815,7 +1815,9 @@ public final class Package
             target.removeStepMark();
         }
         if (getUI() != null)
+        {
             getUI().highlightObject(null);
+        }
     }
 
     public synchronized void addTarget(Target t)
@@ -2206,7 +2208,10 @@ public final class Package
         Editor targetEditor = editorForTarget(new File(getPath(), sourcename).getAbsolutePath(), bringToFront);
         if (targetEditor != null) {
             DebuggerObject currentObject = thread.getCurrentObject(0);
-            getUI().highlightObject(currentObject);
+            if (getUI() != null)
+            {
+                getUI().highlightObject(currentObject);
+            }
             
             targetEditor.setStepMark(lineNo, msg, reason.isSuspension(), thread);
             return targetEditor instanceof FrameEditor;

@@ -240,7 +240,9 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
 
     protected void createComponent(Label label)
     {
-        getChildren().addAll(new ObjectBackground(CORNER_SIZE, new When(focusedProperty()).then(FOCUSED_BORDER).otherwise(UNFOCUSED_BORDER)), label, highlight);
+        getChildren().addAll(new ObjectBackground(CORNER_SIZE, 
+            new When(focusedProperty()).then(FOCUSED_BORDER).otherwise(UNFOCUSED_BORDER)), 
+            label, highlight);
         setBackground(null);
         setEffect(new DropShadow(SHADOW_RADIUS, SHADOW_RADIUS/2.0, SHADOW_RADIUS/2.0, javafx.scene.paint.Color.GRAY));
     }
@@ -766,6 +768,10 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         t.play();
     }
 
+    /**
+     * Sets the highlight (for current object while debugging) on or off
+     * @param highlightOn True to highlight this object, false to turn it off
+     */
     public void setHighlight(boolean highlightOn)
     {
         highlight.setVisible(highlightOn);
@@ -774,6 +780,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
     /**
      * A Rectangle subclass that can be resized to any size during layout.
      */
+    @OnThread(Tag.FX)
     private static class ResizableRectangle extends Rectangle
     {
         @Override
