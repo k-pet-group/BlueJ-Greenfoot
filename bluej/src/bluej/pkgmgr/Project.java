@@ -1914,12 +1914,13 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
                     
                     PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(Project.this);
 
-                    if (frames == null) {
-                        return;
+                    if (frames != null)
+                    {
+                        for (int i = 0; i < frames.length; i++)
+                        {
+                            frames[i].setDebuggerState(newState);
+                        }
                     }
-
-                    for (int i = 0; i < frames.length; i++)
-                        frames[i].setDebuggerState(newState);
 
                     // check whether we just got a freshly created VM
                     if ((oldState == Debugger.NOTREADY) &&

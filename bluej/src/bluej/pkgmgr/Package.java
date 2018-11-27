@@ -31,6 +31,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 
+import bluej.debugger.DebuggerObject;
 import bluej.extensions.event.DependencyEvent;
 import bluej.views.CallableView;
 import javafx.application.Platform;
@@ -1813,6 +1814,10 @@ public final class Package
         {
             target.removeStepMark();
         }
+        if (getUI() != null)
+        {
+            getUI().highlightObject(null);
+        }
     }
 
     public synchronized void addTarget(Target t)
@@ -2190,6 +2195,9 @@ public final class Package
      * code with the relevant line highlighted.
      *
      * Note: source name is the unqualified name of the file (no path attached)
+     * 
+     * Return true if the debugger display is already taken care of, or
+     * false if you still want to show the ExecControls window afterwards.
      */
     private boolean showSource(DebuggerThread thread, String sourcename, int lineNo, ShowSourceReason reason, String msg)
     {
@@ -2199,6 +2207,12 @@ public final class Package
         // showEditorMessage:
         Editor targetEditor = editorForTarget(new File(getPath(), sourcename).getAbsolutePath(), bringToFront);
         if (targetEditor != null) {
+            DebuggerObject currentObject = thread.getCurrentObject(0);
+            if (getUI() != null)
+            {
+                getUI().highlightObject(currentObject);
+            }
+            
             targetEditor.setStepMark(lineNo, msg, reason.isSuspension(), thread);
             return targetEditor instanceof FrameEditor;
         }

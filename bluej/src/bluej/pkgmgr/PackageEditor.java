@@ -1079,6 +1079,12 @@ public final class PackageEditor extends StackPane
         pmf.callStaticMethodOrConstructor(view);
     }
 
+    @Override
+    public void highlightObject(DebuggerObject currentObject)
+    {
+        pmf.getObjectBench().highlightObject(currentObject);
+    }
+
     /**
      * An AnchorPane with extra space at the right and bottom.
      * There's no API/CSS for this, so we override the size computations

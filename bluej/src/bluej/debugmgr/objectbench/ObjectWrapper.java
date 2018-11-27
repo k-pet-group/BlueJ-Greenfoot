@@ -32,6 +32,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import bluej.views.ViewFilter.StaticOrInstance;
+import javafx.animation.Animation;
 import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
@@ -50,6 +51,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 import bluej.Config;
@@ -139,6 +141,9 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
     private String objInstanceName;
     protected String displayClassName;
     protected ContextMenu menu;
+    
+    protected final Rectangle highlight = new ResizableRectangle();
+            
 
     // back references to the containers that we live in
     private final Package pkg;
@@ -228,11 +233,16 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         Label label = new Label(getName() + ":\n" + displayClassName);
         JavaFXUtil.addStyleClass(label, "object-wrapper-text");
         createComponent(label);
+        highlight.setMouseTransparent(true);
+        highlight.setVisible(false);
+        highlight.getStyleClass().add("object-debug-highlight");
     }
 
     protected void createComponent(Label label)
     {
-        getChildren().addAll(new ObjectBackground(CORNER_SIZE, new When(focusedProperty()).then(FOCUSED_BORDER).otherwise(UNFOCUSED_BORDER)), label);
+        getChildren().addAll(new ObjectBackground(CORNER_SIZE, 
+            new When(focusedProperty()).then(FOCUSED_BORDER).otherwise(UNFOCUSED_BORDER)), 
+            label, highlight);
         setBackground(null);
         setEffect(new DropShadow(SHADOW_RADIUS, SHADOW_RADIUS/2.0, SHADOW_RADIUS/2.0, javafx.scene.paint.Color.GRAY));
     }
@@ -757,6 +767,48 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         });
         t.play();
     }
+
+    /**
+     * Sets the highlight (for current object while debugging) on or off
+     * @param highlightOn True to highlight this object, false to turn it off
+     */
+    public void setHighlight(boolean highlightOn)
+    {
+        highlight.setVisible(highlightOn);
+    }
+
+    /**
+     * A Rectangle subclass that can be resized to any size during layout.
+     */
+    @OnThread(Tag.FX)
+    private static class ResizableRectangle extends Rectangle
+    {
+        @Override
+        public boolean isResizable()
+        {
+            return true;
+        }
+
+        @Override
+        public void resize(double width, double height)
+        {
+            setWidth(width);
+            setHeight(height);
+        }
+
+        @Override
+        public double maxWidth(double height)
+        {
+            return Double.MAX_VALUE;
+        }
+
+        @Override
+        public double maxHeight(double width)
+        {
+            return Double.MAX_VALUE;
+        }
+    }
+    
     /*
     @Override
     public AccessibleContext getAccessibleContext()

@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import javafx.geometry.Point2D;
 import javafx.scene.input.KeyEvent;
@@ -550,7 +551,6 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
         setOnKeyPressed(this::keyPressed);
     }
 
-    
     // ------------- nested class ObjectBenchPanel --------------
 
     /**
@@ -609,5 +609,21 @@ public class ObjectBench extends javafx.scene.control.ScrollPane implements Valu
     public synchronized boolean objectHasFocus()
     {
         return objects.stream().anyMatch(w -> w.isFocused());
+    }
+
+    /**
+     * Highlights the given object, and clears highlights on all
+     * other objects.
+     *
+     * @param currentObject The object to highlight (may be null,
+     *                      to just clear all existing highlights)
+     */
+    public void highlightObject(DebuggerObject currentObject)
+    {
+        // Clear highlights on other objects:
+        for (ObjectWrapper wrapper : objects)
+        {
+            wrapper.setHighlight(currentObject != null && Objects.equals(wrapper.obj, currentObject));
+        }
     }
 }

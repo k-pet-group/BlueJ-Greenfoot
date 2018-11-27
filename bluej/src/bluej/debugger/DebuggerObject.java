@@ -132,4 +132,14 @@ public abstract class DebuggerObject
      * @return    The ObjectReference value
      */
     public abstract com.sun.jdi.ObjectReference getObjectReference();
+
+    /**
+     * Subclasses should implement equals and hashCode.
+     */
+    public abstract int hashCode();
+
+    /**
+     * Subclasses should implement equals and hashCode.
+     */
+    public abstract boolean equals(Object obj);
 }

@@ -35,6 +35,7 @@ import bluej.debugger.Debugger;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerResult;
 import bluej.debugger.ExceptionDescription;
+import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.Invoker;
@@ -68,6 +69,7 @@ import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 
+import greenfoot.Actor;
 import greenfoot.core.ProjectManager;
 import greenfoot.export.mygame.ScenarioInfo;
 import greenfoot.export.ScenarioSaver;
@@ -2810,5 +2812,84 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             // In case this was last world class, update background message:
             updateBackgroundMessage();
         }
+    }
+
+    @Override
+    public void highlightObject(DebuggerObject currentObject)
+    {
+        JavaType actorType = new GenTypeClass(new JavaReflective(Actor.class));
+
+        if (currentObject != null && currentObject.getGenType() != null 
+            && actorType.isAssignableFrom(currentObject.getGenType()))
+        {
+            // It is an actor; try to find the bounds.  Do this in background thread to
+            // avoid blocking the GUI thread:
+            Utility.runBackground(() -> {
+                // Since the execution is paused, probably on the simulation thread, it is
+                // a bit awkward to execute code to access the details from another thread, especially
+                // for methods like getX() that the user may have overridden with arbitrary code.  So
+                // instead we use the debugger to read the values directly out of fields in Actor/GreenfootImage:
+                
+                OptionalInt x = getIntegerField(currentObject, "greenfoot.Actor", "x");
+                OptionalInt y = getIntegerField(currentObject, "greenfoot.Actor", "y");
+                OptionalInt rotation = getIntegerField(currentObject, "greenfoot.Actor", "rotation");
+                OptionalInt width = getIntegerField(currentObject, "greenfoot.Actor", "imageWidth");
+                OptionalInt height = getIntegerField(currentObject, "greenfoot.Actor", "imageHeight");
+                DebuggerObject world = getObjectField(currentObject, "greenfoot.Actor", "world");
+                OptionalInt cellSize = getIntegerField(world, "greenfoot.World", "cellSize");
+                
+                if (x.isPresent() && y.isPresent() && width.isPresent() 
+                        && height.isPresent() && rotation.isPresent() && cellSize.isPresent())
+                {
+                    Platform.runLater(() -> worldDisplay.setActorHighlight(
+                            x.getAsInt() * cellSize.getAsInt() + (cellSize.getAsInt() / 2), 
+                            y.getAsInt() * cellSize.getAsInt() + (cellSize.getAsInt() / 2), 
+                            width.getAsInt(), height.getAsInt(), rotation.getAsInt()));
+                }
+            });
+        }
+        else
+        {
+            worldDisplay.clearActorHighlight();
+        }
+    }
+
+    /**
+     * Given a debugger object (currentObject), get value of field declared in class className named
+     * fieldName.  Returns null if the object is null or the field cannot be found.
+     */
+    @OnThread(Tag.Any)
+    private static DebuggerObject getObjectField(DebuggerObject currentObject, String className, String fieldName)
+    {
+        if (currentObject == null || currentObject.isNullObject())
+        {
+            return null;
+        }
+        
+        return currentObject.getFields().stream()
+                .filter(f -> f.getDeclaringClassName().equals(className) 
+                    && f.getName().equals(fieldName))
+                .map(f -> f.getValueObject())
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * Given a debugger object (currentObject), get integer field declared in class className named
+     * fieldName.  Returns OptionalInt.empty if the object is null or the field cannot be found.
+     */
+    @OnThread(Tag.Any)
+    private OptionalInt getIntegerField(DebuggerObject currentObject, String className, String fieldName)
+    {
+        if (currentObject == null || currentObject.isNullObject())
+        {
+            return OptionalInt.empty();
+        }
+        
+        return currentObject.getFields().stream()
+            .filter(f -> f.getDeclaringClassName().equals(className) 
+                && f.getName().equals(fieldName))
+            .mapToInt(f -> Integer.parseInt(f.getValueString()))
+            .findFirst();
     }
 }

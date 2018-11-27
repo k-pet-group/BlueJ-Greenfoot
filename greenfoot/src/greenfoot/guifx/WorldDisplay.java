@@ -22,13 +22,23 @@
 package greenfoot.guifx;
 
 import bluej.utility.javafx.FXPlatformConsumer;
+import javafx.animation.Animation;
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.transform.Rotate;
+import javafx.util.Duration;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -40,11 +50,15 @@ public class WorldDisplay extends StackPane
 {
     private final ImageView imageView = new ImageView();
     private final AskPaneFX askPane = new AskPaneFX();
+    private final Rectangle actorHighlight = new Rectangle();
+    private final Animation actorHighlightAnimation;
     
     public WorldDisplay()
     {
+        Pane highlightPane = new Pane(actorHighlight);
+        highlightPane.setMouseTransparent(true);
         // Need a stack pane to be able to provide border around image and Greenfoot.ask() :
-        StackPane stackPane = new StackPane(imageView,askPane);
+        StackPane stackPane = new StackPane(imageView, askPane, highlightPane);
         stackPane.getStyleClass().add("world-display-wrapper");
         // Make StackPane fit exactly around the contained imageView:
         stackPane.setMaxWidth(USE_PREF_SIZE);
@@ -52,6 +66,19 @@ public class WorldDisplay extends StackPane
         getChildren().addAll(stackPane);
         setMinWidth(200);
         setMinHeight(200);
+        actorHighlight.setVisible(false);
+        actorHighlight.getStyleClass().add("actor-highlight");
+        actorHighlight.getStrokeDashArray().setAll(6.0, 10.0);
+        actorHighlightAnimation = new Timeline(
+            new KeyFrame(Duration.ZERO, 
+                new KeyValue(actorHighlight.strokeDashOffsetProperty(), 0),
+                new KeyValue(actorHighlight.strokeProperty(), Color.BLACK)),
+            new KeyFrame(Duration.seconds(2),
+                new KeyValue(actorHighlight.strokeProperty(), Color.WHITE, Interpolator.EASE_BOTH)),
+            new KeyFrame(Duration.seconds(4), 
+                new KeyValue(actorHighlight.strokeDashOffsetProperty(), 16, Interpolator.LINEAR),
+                new KeyValue(actorHighlight.strokeProperty(), Color.BLACK, Interpolator.EASE_BOTH)));
+        actorHighlightAnimation.setCycleCount(Animation.INDEFINITE);
     }
 
     /**
@@ -168,5 +195,42 @@ public class WorldDisplay extends StackPane
     public Node getImageView()
     {
         return imageView;
+    }
+
+    /**
+     * Highlight the given actor bounds with a box overlay.
+     * @param x The centre X coordinate (in pixels, in the world)
+     * @param y The centre Y coordinate (in pixels, in the world)
+     * @param width The width of the image (in pixels)
+     * @param height The height of the image (in pixels)
+     * @param rotation The rotation of the actor (in degrees)
+     */
+    public void setActorHighlight(int x, int y, int width, int height, int rotation)
+    {
+        // Sanity check in case of weird dimensions or being off-screen:
+        if (x < -width || x > imageView.getImage().getWidth() + width
+            || y < -height || y > imageView.getImage().getHeight() + height
+            || width <= 0 || width > imageView.getImage().getWidth()
+            || height <=0 || height > imageView.getImage().getHeight())
+        {
+            return;
+        }            
+        
+        actorHighlight.setX(x - width / 2.0);
+        actorHighlight.setY(y - height / 2.0);
+        actorHighlight.setWidth(width);
+        actorHighlight.setHeight(height);
+        actorHighlight.getTransforms().setAll(new Rotate(rotation, x, y));
+        actorHighlight.setVisible(true);
+        actorHighlightAnimation.playFromStart();
+    }
+
+    /**
+     * Hide the highlight set by setActorHighlight
+     */
+    public void clearActorHighlight()
+    {
+        actorHighlightAnimation.stop();
+        actorHighlight.setVisible(false);
     }
 }
