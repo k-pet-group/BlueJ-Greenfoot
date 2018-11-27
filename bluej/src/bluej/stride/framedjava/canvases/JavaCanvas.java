@@ -72,6 +72,9 @@ public class JavaCanvas extends FrameCanvas
         if (special.getChildren().contains(disp) == false) {
             special.getChildren().add(disp);
         }
+        
+        editorFrm.ensureNodeVisible(special);
+        
         return disp;
 
     }

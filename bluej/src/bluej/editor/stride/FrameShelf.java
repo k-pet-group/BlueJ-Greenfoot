@@ -352,6 +352,12 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
     }
 
     @Override
+    public void ensureNodeVisible(Node node)
+    {
+        // TODO ?
+    }
+
+    @Override
     public FrameSelection getSelection()
     {
         return selection;

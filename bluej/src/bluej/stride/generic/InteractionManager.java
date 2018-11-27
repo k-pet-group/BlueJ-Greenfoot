@@ -257,6 +257,13 @@ public interface InteractionManager extends SuggestionListParent
      * Ends recording of the Frame state for Undo / Redo operations
      */
     public void endRecordingState(RecallableFocus f);
+
+    /**
+     * If the node is not visible, scrolls the view so that it is visible.
+     * If it is already visible somewhere, does not scroll (unlike scrollTo,
+     * which would still scroll to the given position).
+     */
+    public void ensureNodeVisible(Node node);
     
 
     /**
