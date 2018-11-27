@@ -871,26 +871,35 @@ public class FrameEditor implements Editor
             curBreakpoint.removeHighlight();
             curBreakpoint = null;
         }
-        try {
-            JavaSource js = javaSource.get();
-            if (js == null) {
-                js = saveJava(lastSource, true).javaSource;
-            }
-            curBreakpoint = js.handleStop(lineNumber, debugInfo);
-            if (curBreakpoint.isBreakpointFrame())
+
+        // We only want to show the step mark once the panel is initialised,
+        // which we may need to wait for if we're only now showing the editor
+        // for the first time:
+        JavaFXUtil.onceTrue(panel.initialisedProperty(), b -> {
+            try
             {
-                thread.step();
+                JavaSource js = javaSource.get();
+                if (js == null)
+                {
+                    js = saveJava(lastSource, true).javaSource;
+                }
+                curBreakpoint = js.handleStop(lineNumber, debugInfo);
+                if (curBreakpoint.isBreakpointFrame())
+                {
+                    thread.step();
+                }
+                else
+                {
+                    if (execHistory.isEmpty() || execHistory.get(execHistory.size() - 1) != curBreakpoint)
+                        execHistory.add(curBreakpoint);
+                    panel.redrawExecHistory(execHistory);
+                }
             }
-            else
+            catch (IOException ioe)
             {
-                if (execHistory.isEmpty() || execHistory.get(execHistory.size() - 1) != curBreakpoint)
-                    execHistory.add(curBreakpoint);
-                panel.redrawExecHistory(execHistory);
+                Debug.reportError("Exception attempting to save Java source for Stride class", ioe);
             }
-        }
-        catch (IOException ioe) {
-            Debug.reportError("Exception attempting to save Java source for Stride class", ioe);
-        }
+        });
         
         return true;
     }
