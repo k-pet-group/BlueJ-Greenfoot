@@ -538,10 +538,10 @@ public class FrameEditor implements Editor
             
             @Override
             @OnThread(Tag.FXPlatform)
-            public void setStepMark(int lineNumber, String message,
+            public boolean setStepMark(int lineNumber, String message,
                     boolean isBreak, DebuggerThread thread)
             {
-                FrameEditor.this.setStepMark(lineNumber, message, isBreak, thread);
+                return FrameEditor.this.setStepMark(lineNumber, message, isBreak, thread);
             }
 
             @Override
@@ -833,12 +833,12 @@ public class FrameEditor implements Editor
     }
     
     @Override
-    public void setStepMark(int lineNumber, String message, boolean isBreak,
+    public boolean setStepMark(int lineNumber, String message, boolean isBreak,
             DebuggerThread thread)
     {
         // Disable Stride debugger:
         if (true)
-            return;
+            return true;
         
         removeStepMark();
         setVisibleFX(true, true, false);
@@ -891,6 +891,8 @@ public class FrameEditor implements Editor
         catch (IOException ioe) {
             Debug.reportError("Exception attempting to save Java source for Stride class", ioe);
         }
+        
+        return true;
     }
 
     @Override

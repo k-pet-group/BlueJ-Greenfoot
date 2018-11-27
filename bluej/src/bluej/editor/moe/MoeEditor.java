@@ -744,7 +744,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
     
     @Override
-    public void setStepMark(int lineNumber, String message, boolean isBreak,
+    public boolean setStepMark(int lineNumber, String message, boolean isBreak,
             DebuggerThread thread)
     {
         switchToSourceView();
@@ -765,6 +765,8 @@ public final class MoeEditor extends ScopeColorsBorderPane
         if (message != null) {
             info.messageImportant(message);
         }
+        
+        return false;
     }
 
     /**
