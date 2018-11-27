@@ -163,14 +163,14 @@ public abstract class SandwichCanvasesElement extends ContainerCodeElement imple
         {
             final int iFinal = i;
             JavaContainerDebugHandler intermediateCanvasHandler = debug -> frame.getIntermediateCanvasDebug(iFinal).showDebugAtEnd(debug);
-            src.appened(JavaSource.createCompoundStatement(frame, this, this, intermediateCanvasHandler,
+            src.append(JavaSource.createCompoundStatement(frame, this, this, intermediateCanvasHandler,
                     getIntermediateHeaderFragment(i),
                     CodeElement.toJavaCodes(intermediateCanvasContents.get(i))));
         }
 
         if (tailCanvasContents != null) {
             JavaContainerDebugHandler tailCanvasHandler = debug -> frame.getTailCanvasDebug().showDebugAtEnd(debug);
-            src.appened(JavaSource.createCompoundStatement(frame, this, this, tailCanvasHandler,
+            src.append(JavaSource.createCompoundStatement(frame, this, this, tailCanvasHandler,
                     Arrays.asList(f(frame, tailCanvasCaption)),
                     CodeElement.toJavaCodes(tailCanvasContents)));
         }
