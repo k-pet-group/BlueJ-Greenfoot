@@ -2538,7 +2538,8 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         });
     }
 
-    private void ensureNodeVisible(Node node)
+    @Override
+    public void ensureNodeVisible(Node node)
     {
         Bounds boundsInScroll = boundsInScroll(node);
         

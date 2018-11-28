@@ -2196,7 +2196,7 @@ public final class Package
      *
      * Note: source name is the unqualified name of the file (no path attached)
      * 
-     * Return true if the debugger display is already taken care of, or
+     * @return true if the debugger display is already taken care of, or
      * false if you still want to show the ExecControls window afterwards.
      */
     private boolean showSource(DebuggerThread thread, String sourcename, int lineNo, ShowSourceReason reason, String msg)
@@ -2213,8 +2213,7 @@ public final class Package
                 getUI().highlightObject(currentObject);
             }
             
-            targetEditor.setStepMark(lineNo, msg, reason.isSuspension(), thread);
-            return targetEditor instanceof FrameEditor;
+            return targetEditor.setStepMark(lineNo, msg, reason.isSuspension(), thread);
         }
         else if (reason == ShowSourceReason.BREAKPOINT_HIT) {
             showMessageWithText("break-no-source", sourcename);

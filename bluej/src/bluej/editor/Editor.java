@@ -124,8 +124,11 @@ public interface Editor
      * @param message     Message to be displayed (may be null)
      * @param isBreak     Thread execution was suspended at the given line (i.e. breakpoint/step/halt).
      * @param thread      The thread that was suspended/selected
+     *                    
+     * @return true if the debugger display is already taken care of, or
+     *         false if you still want to show the ExecControls window afterwards.
      */
-    void setStepMark(int lineNumber, String message, boolean isBreak, DebuggerThread thread);
+    boolean setStepMark(int lineNumber, String message, boolean isBreak, DebuggerThread thread);
     
     /**
      *  Display a message into the info area.

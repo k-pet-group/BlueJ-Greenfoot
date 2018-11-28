@@ -40,15 +40,28 @@ import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.generic.Frame;
 import bluej.utility.Debug;
 
+/**
+ * A piece of Java source code, generated from some Stride code.
+ */
 public class JavaSource
 {
+    /** The list of source code lines in the Java. */
     private final List<SourceLine> lines = new ArrayList<>();
+
+    /**
+     * A single line of Java source code.
+     */
     private static class SourceLine
     {
-        private String indent; // some string of spaces
-        private final List<JavaFragment> content; // no preceding spaces, no trailing newlines
-        private final JavaSingleLineDebugHandler debugHandler; // ditto
+        /** Some string of spaces for the left indent of the line */
+        private String indent;
+        /** Just Java content,  no preceding spaces, no trailing newlines.  Will not be modified. */
+        private final List<JavaFragment> content; 
+        /** A handler for exceptions and breakpoints on this line */
+        private final JavaSingleLineDebugHandler debugHandler;
+        /** Is this line a breakpoint? */
         private final boolean breakpoint;
+        
         public SourceLine(String indent, List<JavaFragment> content,
                 JavaSingleLineDebugHandler debugHandler,
                 boolean breakpoint) {
@@ -73,83 +86,137 @@ public class JavaSource
     {
         lines.addAll(copyFrom.lines);
     }
-    
+
+    /**
+     * Creates a single line of Java code from the list of fragments, with the given debug handler.
+     */
     public JavaSource(JavaSingleLineDebugHandler debugHandler, JavaFragment... line)
     {
-        // Add them via splitter, in case they have newlines:
-        //for (String line : lines)
-        {
-            appendLine(Arrays.asList(line), debugHandler);
-        }
-    }
-    public JavaSource(JavaSingleLineDebugHandler debugHandler, List<JavaFragment> line)
-    {
-        appendLine(line, debugHandler);
+        this(debugHandler, List.of(line));
     }
 
+    /**
+     * Creates a single line of Java code from the list of fragments, with the given debug handler.
+     */
+    public JavaSource(JavaSingleLineDebugHandler debugHandler, List<JavaFragment> line)
+    {
+        appendLine(List.copyOf(line), debugHandler);
+    }
+
+    /**
+     * Appends a single line of Java code from the list of fragments, with the given debug handler.
+     */
     public void appendLine(List<JavaFragment> line, JavaSingleLineDebugHandler debugHandler)
     {
         addLine(lines.size(), line, debugHandler);
     }
-    
+
+    /**
+     * Prepends a single line of Java code from the list of fragments, with the given debug handler.
+     */
     public void prependLine(List<JavaFragment> line, JavaSingleLineDebugHandler debugHandler)
     {
         addLine(0, line, debugHandler);
     }
-    
+
+    /**
+     * Adds the contents of the given JavaSource at the beginning of this one.
+     */
     public void prepend(JavaSource src)
     {
         lines.addAll(0, src.lines);
     }
 
-    public void appened(JavaSource javaCode)
+    /**
+     * Adds the contents of the given JavaSource at the end of this one.
+     */
+    public void append(JavaSource javaCode)
     {
         lines.addAll(javaCode.lines);
     }
 
+    /**
+     * Helper method to add a new line of source code before
+     * the given position in the list of lines.
+     */
     private void addLine(int position, List<JavaFragment> line, JavaSingleLineDebugHandler debugHandler)
     {
         lines.add(position, new SourceLine("", line, debugHandler, false));
     }
 
+    /**
+     * Adds the given Java source to the end of this one,
+     * but indents it by four spaces.  Note that the given
+     * Java source is affected, so pass some JavaSource you
+     * don't mind being modified.
+     */
     public void addIndented(JavaSource javaCode)
     {
         for (SourceLine line : javaCode.lines) {
             line.indent += "    ";
         }
-        appened(javaCode);
+        append(javaCode);
     }
-    
+
+    /**
+     * A callback interface to help record the position in the Java
+     * source file of Stride code elements.
+     */
     private static interface Recorder
     {
         /**
          * To be able to match back the elements to their position
          * in each line of the Java code.
-         * @param positionInFile Position across whole file, 0 being first char
+         * @param fragment The Java fragment we are recording the position for
+         * @param posInSource Position across whole file, 0 being first char
          * @param lineNumber Line in the file
          * @param columnNumber Column in the file
+         * @param len The length of the code in the file
          */
         public void recordPosition(JavaFragment fragment, int posInSource, int lineNumber, int columnNumber, int len);
     }
-    
+
+    /**
+     * Generate the complete String of the source for saving to
+     * the actual .java file on disk.
+     */
     @OnThread(Tag.FXPlatform)
     public String toDiskJavaCodeString()
     {
         return toJavaCodeString(Destination.JAVA_FILE_TO_COMPILE, null, (frag, pos, lineNumber, columnNumber, len) -> frag.recordDiskPosition(lineNumber, columnNumber, len));
     }
 
+    /**
+     * Generates the complete string of the source, purely for in-memory code analysis purposes.
+     * @param positions A map to be filled with source code positions,
+     *                  mapping JavaFragment to their character index
+     *                  in the source.
+     * @param completing If non-null, a slot that is currently doing code completion.
+     *                   This slot will have its exact code generated, even if there's a syntax error,
+     *                   unlike the usual case where syntax errors are replaced by dummy valid code.
+     */
     @OnThread(Tag.FXPlatform)
     public String toMemoryJavaCodeString(IdentityHashMap<JavaFragment, Integer> positions, ExpressionSlot<?> completing)
     {
         return toJavaCodeString(Destination.SOURCE_DOC_TO_ANALYSE, completing, (frag, pos, a, b, c) -> positions.put(frag, pos));
     }
 
+    /**
+     * Generates the complete Java source as a String, without
+     * recording any source code positions.  Useful for incomplete
+     * pieces of Java source code, such as generated code being
+     * inserted during Greenfoot's save the world.
+     */
     @OnThread(Tag.FXPlatform)
     public String toTemporaryJavaCodeString()
     {
         return toJavaCodeString(Destination.TEMPORARY, null, (frag, pos, a, b, c) -> {});
     }
 
+    /**
+     * Helper method for generating a Java source code String,
+     * unifying the implementation of the above to***String methods.
+     */
     @OnThread(Tag.FXPlatform)
     private String toJavaCodeString(Destination dest, ExpressionSlot<?> completing, Recorder recorder)
     {
@@ -269,6 +336,13 @@ public class JavaSource
         }
     }
 
+    /**
+     * Handle a stop event (hitting a breakpoint or ending a step request)
+     * 
+     * @param line The line number (first line is 1) in the Java source
+     * @param debug The debug info to display.
+     * @return A breakpoint interface that be queried for further info
+     */
     @OnThread(Tag.FXPlatform)
     public HighlightedBreakpoint handleStop(int line, DebugInfo debug)
     {
@@ -281,7 +355,11 @@ public class JavaSource
             return null;
         }
     }
-    
+
+    /**
+     * Handle an exception that occurred.
+     * @param lineNumber The line number (first line is 1) in the Java source
+     */
     @OnThread(Tag.FXPlatform)
     public void handleException(int lineNumber)
     {
@@ -297,6 +375,11 @@ public class JavaSource
         }
     }
 
+    /**
+     * Register the current list of breakpoints with the editor
+     * watcher, and return the list of line numbers (first line is 1)
+     * in a list.
+     */
     @OnThread(Tag.FXPlatform)
     public List<Integer> registerBreakpoints(Editor editor, EditorWatcher watcher)
     {
@@ -383,11 +466,6 @@ public class JavaSource
     {
         return lines.get(i).debugHandler;
     }
-    
-    /*private static JavaFragment b(String s)
-    {
-        return new Boilerplate(s);
-    }*/
 
     public void prependJavadoc(List<String> javadocLines)
     {

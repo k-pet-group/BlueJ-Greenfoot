@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2015,2016,2018 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -163,14 +163,14 @@ public abstract class SandwichCanvasesElement extends ContainerCodeElement imple
         {
             final int iFinal = i;
             JavaContainerDebugHandler intermediateCanvasHandler = debug -> frame.getIntermediateCanvasDebug(iFinal).showDebugAtEnd(debug);
-            src.appened(JavaSource.createCompoundStatement(frame, this, this, intermediateCanvasHandler,
+            src.append(JavaSource.createCompoundStatement(frame, this, this, intermediateCanvasHandler,
                     getIntermediateHeaderFragment(i),
                     CodeElement.toJavaCodes(intermediateCanvasContents.get(i))));
         }
 
         if (tailCanvasContents != null) {
             JavaContainerDebugHandler tailCanvasHandler = debug -> frame.getTailCanvasDebug().showDebugAtEnd(debug);
-            src.appened(JavaSource.createCompoundStatement(frame, this, this, tailCanvasHandler,
+            src.append(JavaSource.createCompoundStatement(frame, this, this, tailCanvasHandler,
                     Arrays.asList(f(frame, tailCanvasCaption)),
                     CodeElement.toJavaCodes(tailCanvasContents)));
         }
