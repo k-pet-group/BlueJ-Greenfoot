@@ -55,7 +55,7 @@ public class JavaSource
     {
         /** Some string of spaces for the left indent of the line */
         private String indent;
-        /** Just Java content,  no preceding spaces, no trailing newlines */
+        /** Just Java content,  no preceding spaces, no trailing newlines.  Will not be modified. */
         private final List<JavaFragment> content; 
         /** A handler for exceptions and breakpoints on this line */
         private final JavaSingleLineDebugHandler debugHandler;
@@ -92,7 +92,7 @@ public class JavaSource
      */
     public JavaSource(JavaSingleLineDebugHandler debugHandler, JavaFragment... line)
     {
-        this(debugHandler, Arrays.asList(line));
+        this(debugHandler, List.of(line));
     }
 
     /**
@@ -100,7 +100,7 @@ public class JavaSource
      */
     public JavaSource(JavaSingleLineDebugHandler debugHandler, List<JavaFragment> line)
     {
-        appendLine(line, debugHandler);
+        appendLine(List.copyOf(line), debugHandler);
     }
 
     /**

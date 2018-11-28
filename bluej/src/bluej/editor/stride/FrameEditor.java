@@ -891,7 +891,9 @@ public class FrameEditor implements Editor
                 else
                 {
                     if (execHistory.isEmpty() || execHistory.get(execHistory.size() - 1) != curBreakpoint)
+                    {
                         execHistory.add(curBreakpoint);
+                    }
                     panel.redrawExecHistory(execHistory);
                 }
             }
