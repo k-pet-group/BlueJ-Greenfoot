@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -160,6 +160,7 @@ public final class Config
     private static boolean isDebugVm = true; // Default to true, will be corrected on main VM
     public static final String EDITOR_COUNT_JAVA = "session.numeditors.java";
     public static final String EDITOR_COUNT_STRIDE = "session.numeditors.stride";
+    private static long MAX_DEBUG_LOG_SIZE = 1048576;
 
     /**
      * Initialisation of BlueJ configuration. Must be called at startup.
@@ -669,10 +670,17 @@ public final class Config
                 File debugLogFile = new File(userdir, debugLogName);
                 // simple diversion of output stream to a log file
                 try {
-                    PrintStream outStream = new PrintStream(new FileOutputStream(debugLogFile));
+                    boolean append = debugLogFile.exists() && debugLogFile.length() < MAX_DEBUG_LOG_SIZE;
+                    
+                    PrintStream outStream = new PrintStream(new FileOutputStream(debugLogFile, append));
                     System.setOut(outStream);
                     System.setErr(outStream);
                     Debug.setDebugStream(new OutputStreamWriter(outStream));
+                    
+                    if (append)
+                    {
+                        Debug.message("====\n\n====");
+                    }
 
                     Debug.message(getApplicationName() + " run started: " + new Date());
                     if(isGreenfoot()) {
