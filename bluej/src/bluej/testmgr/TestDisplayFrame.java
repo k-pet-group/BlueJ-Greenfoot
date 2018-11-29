@@ -424,8 +424,18 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
                     imageView.setImage(failureIcon);
                 else
                     imageView.setImage(errorIcon);
-
-                setText(item.getName() + " (" + item.getRunTimeMs() + "ms)");
+                
+                // This checks if the JUnit executes all tests at the same time,
+                // We have used zero execution time for individual test as there is no way so
+                // far to extract the runtime of individual test.
+                if (item.getRunTimeMs() == 0)
+                {
+                    setText(item.getName());
+                }
+                else
+                {
+                    setText(item.getName() + " (" + item.getRunTimeMs() + "ms)");
+                }
             }
         }
     }
@@ -443,6 +453,16 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
             exceptionMessageField.setText("");
             showSourceButton.setDisable(true);
         }
+    }
+    
+    /**
+     * Set the total execution time of tests.
+     * @param value the value to which the totalTimeMs variable will be set to
+     */
+    @OnThread(Tag.FXPlatform)
+    public void setTotalTimeMs(int value)
+    {
+        totalTimeMs.set(value);
     }
 
     private void showSource(DebuggerTestResult dtr)

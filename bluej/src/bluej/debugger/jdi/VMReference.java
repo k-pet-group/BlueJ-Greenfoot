@@ -1983,16 +1983,19 @@ public class VMReference
     }
     
     /**
-     * Run a unit test method (including setup/teardown).
-     * @param cl     The class containing the method
-     * @param method The test method to run
-     * @return  null if the test passed, or an ArrayReference if it fails, with:
-     *          [0] = failure type ("failure"/"error")
-     *          [1] = the exception message
-     *          [2] = the stack trace
-     *          [3] = the class of the failure point
-     *          [4] = the source file name containing the failure point
-     *          [5] = the line number of the failure point
+     * Run a JUnit test on a single test method or all test methods (including setup/teardown).
+     * @param cl     The class containing the test methods
+     * @return  null if all tests passed, or an ArrayReference if any fails, 
+     *          which has a length of [1 + 7*(number of failures/errors)]
+     *          The first item of the array contains the runtime of executing all tests,
+     *          then each failure/error has seven consecutive items in the array which contains: 
+     *          [1] = the exception message (or "no exception message")<br>
+     *          [2] = the stack trace as a string (or "no stack trace")<br>
+     *          [3] = the name of the class in which the exception/failure occurred<br>
+     *          [4] = the source filename for where the exception/failure occurred<br>
+     *          [5] = the name of the method in which the exception/failure occurred<br>
+     *          [6] = the line number where the exception/failure occurred (a string)<br>
+     *          [7] = "failure" or "error" (string)<br>with:
      * @throws InvocationException
      */
     public Value invokeRunTest(String cl, String method)
@@ -2151,16 +2154,29 @@ public class VMReference
         // method being called, so we catch the exception and use a more
         // forceful approach in that case.
         
-        try {
-            StringReference s = machine.mirrorOf(value);
-            s.disableCollection();
+        try 
+        {
+            StringReference s = null;
+            
+            if (value != null)
+            {
+                s = machine.mirrorOf(value);
+                s.disableCollection();
+            }
             setStaticFieldValue(cl, fieldName, s);
-            s.enableCollection();
+            if (value != null)
+            {
+                s.enableCollection();
+            }
         }
         catch(ObjectCollectedException oce) {
             machine.suspend();
-            StringReference s = machine.mirrorOf(value);
-            setStaticFieldValue(cl, fieldName, s);
+            StringReference s;
+            if (value != null)
+            {
+                s = machine.mirrorOf(value);
+                setStaticFieldValue(cl, fieldName, s);
+            }
             machine.resume();
         }
     }

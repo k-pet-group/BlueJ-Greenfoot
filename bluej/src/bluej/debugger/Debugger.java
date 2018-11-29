@@ -23,11 +23,13 @@ package bluej.debugger;
 
 import java.io.File;
 import java.net.URL;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import bluej.classmgr.BPClassLoader;
 import bluej.debugger.jdi.JdiDebugger;
+import bluej.debugger.jdi.TestResultsWithRunTime;
 import bluej.utility.javafx.FXPlatformSupplier;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -207,15 +209,16 @@ public abstract class Debugger
     public abstract FXPlatformSupplier<Map<String,DebuggerObject>> runTestSetUp(String className);
 
     /**
-     * Run a single test method in a test class and return the result.
+     * Run a single test method or all test methods in a test class and return the result.
      * 
      * @param  className  the fully qualified name of the class
-     * @param  methodName the name of the method
-     * @return            a DebuggerTestResult object
+     * @param  methodName
+     *            the name of the method, it can be null if the test runs on all test methods
+     * @return a TestResultsWithRunTime object that wraps the test result and test's runtime
      */
     @OnThread(Tag.Any)
-    public abstract DebuggerTestResult runTestMethod(String className, String methodName);
-
+    public abstract TestResultsWithRunTime runTestMethod(String className, String methodName);
+    
     /**
      * Dispose all top level windows in the remote machine.
      */

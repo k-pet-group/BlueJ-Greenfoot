@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2014,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2012,2014,2016,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,6 +24,7 @@ package bluej.pkgmgr;
 import bluej.Config;
 import bluej.collect.DataCollector;
 import bluej.debugger.DebuggerTestResult;
+import bluej.debugger.jdi.TestResultsWithRunTime;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.role.UnitTestClassRole;
 import bluej.testmgr.TestDisplayFrame;
@@ -93,12 +94,14 @@ public class TestRunnerThread extends Thread
     @OnThread(value = Tag.Worker, ignoreParent = true)
     public void run()
     {
-        while (testIterator.hasNext()) {
+        while (testIterator.hasNext()) 
+        {
 
             ClassTarget ct = testIterator.next();
 
             List<String> allMethods;
-            if (methodName == null) {
+            if (methodName == null)
+            {
                 // Run all tests for a target, so find out what they are:
                 CompletableFuture<List<String>> methodsFuture = new CompletableFuture<>();
                 Platform.runLater(() -> startTestFindMethods(ct, methodsFuture));
@@ -112,19 +115,29 @@ public class TestRunnerThread extends Thread
                     allMethods = Collections.emptyList();
                 }
             }
-            else {
+            else 
+            {
                 // Run only a single test.
                 allMethods = Arrays.asList(methodName);
             }
 
             // State 1 has given us the tests we need to run. Now run them:
-            for (String methodName : allMethods)
+            if (allMethods.size() == 1)
             {
-                
-                DebuggerTestResult lastResult = project.getDebugger().runTestMethod(ct.getQualifiedName(), methodName);
-
+                TestResultsWithRunTime lastResult = project.getDebugger().runTestMethod(ct.getQualifiedName(), methodName);
                 // Add the test result to the test display frame:
-                Platform.runLater(() -> showNextResult(lastResult));
+                Platform.runLater(() -> showNextResult(lastResult.getResults().get(0)));
+            }
+            else
+            {
+                TestResultsWithRunTime lastResults = project.getDebugger().runTestMethod(ct.getQualifiedName(), null);
+                // Add all test results to the test display frame:
+                for(DebuggerTestResult result : lastResults.getResults())
+                {
+                    Platform.runLater(() -> showNextResult(result));
+                }
+                Platform.runLater(() -> TestDisplayFrame.getTestDisplay()
+                        .setTotalTimeMs(lastResults.getTotalRunTime()));
             }
         }
 
