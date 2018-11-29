@@ -1,4 +1,4 @@
-Setting up BlueJ and Greenfoot in IntelliJ 2016.*:
+Setting up BlueJ and Greenfoot in IntelliJ 2018.*:
 
 Go to File->New->Project from Version Control->Git
 URL: https://gitlab.bluej.org/gitlab-username/bjgf.git
@@ -14,12 +14,16 @@ IntelliJ will pop up dialogs often during setup asking if you want to add variou
   can always remove them again before committing.
 
 Go to File -> Project Structure...  and select the top Project item on the left.
-  Select your Project SDK (aka JDK) to be latest JDK 1.8.
+  Select your Project SDK (aka JDK) to be latest JDK 11 (or whatever we are targeting).
 
-  Set the language level to Java 8.
+  Set the language level to Java 11.
 
   Set the project-wide compiler output directory "File -> Project Structure -> Project" to
   be bjgf/output.  We won't actually use this anyway, as we will override it for each module.
+  
+In the same Project Structure window, go to the Global Libraries section.
+  Add a library named javafx-11, containing all the jars in OpenJFX
+  (download OpenJFX from http://openjfx.io if you haven't done so already)
 
 In the same Project Structure window, go to the Libraries section.
   Add a library named "bluej-lib" containing all the JARs in the bjgf/bluej/lib directory.
@@ -49,6 +53,7 @@ Modules (in order):
     "bluej-boot" module.  Content root and module file location: bjgf/bluej/boot.
        It should automatically tag src (which is really bjgf/bluej/boot/src) as a source directory.
        Under Dependencies, click the "+" and select Module Dependency... and select "threadchecker".
+         Click "+" again and select Library "javafx-11".
        Under Paths, select "Use module compile path" and enter bjgf/bluej/boot/classes for both paths.
 
     "bluej" module.  Content root and module file location: bjgf/bluej.
@@ -57,7 +62,7 @@ Modules (in order):
        Under Paths, select "Use module compile path" and enter bjgf/bluej/classes for both paths.
        Under Dependencies, click the "+" and select Module Dependency... and select "threadchecker".
        Similarly, click the "+" and select Module Dependency... and select "bluej-boot".
-       Click the "+" and select Library and select "bluej-lib".
+       Click the "+" and select Library and select "bluej-lib" and "javafx-11".
 
 After adding these modules, try compiling (Build menu -> Build Project).  It should be successful.
 Then to set up Greenfoot, add this additional module:
@@ -68,7 +73,7 @@ Then to set up Greenfoot, add this additional module:
        Under Paths, select "Use module compile path" and enter bjgf/greenfoot/classes for both paths.
        Under Dependencies, click "+" and select "Module Dependency..." and select
        "threadchecker", ""bluej-boot", "bluej" and "greenfoot-native".
-       Click the "+" again and select Library and select "bluej-lib" and "greenfoot-lib".
+       Click the "+" again and select Library and select "bluej-lib" and "greenfoot-lib" and "javafx-11".
 
 After adding this modules, try compiling again (Build menu -> Build Project).  It should be successful.
 
