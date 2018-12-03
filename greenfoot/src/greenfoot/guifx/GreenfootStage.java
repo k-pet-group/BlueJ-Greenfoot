@@ -333,6 +333,8 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         hungMessage.setText(Config.getString("centrePanel.message.hung"));
         hungMessage.getStyleClass().add("hung-message");
         hungMessage.setVisible(false);
+        // Stop hungMessage being used for layout calculation when it's not visible:
+        hungMessage.managedProperty().bind(hungMessage.visibleProperty());
         
         worldDisplay = new WorldDisplay();
         worldDisplay.setOnMouseClicked(event -> {
