@@ -109,7 +109,7 @@ class GreenfootStageContentPane extends Pane
         // Not quite accurate, but shouldn't matter when we have no real parent.
         // This is really just for calculating the initial window size:
         return worldViewScroll.prefWidth(height) + 2 * IDEAL_WORLD_PADDING /* Some world spacing */ 
-                + classDiagramScroll.prefWidth(height) + 2 * CLASS_DIAGRAM_PADDING;
+                + Math.max(shareButton.prefWidth(-1), classDiagramScroll.prefWidth(height)) + 2 * CLASS_DIAGRAM_PADDING;
     }
 
     @Override
