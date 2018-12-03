@@ -572,69 +572,117 @@ public class JdiDebugger extends Debugger
     }
 
     /**
-     * Run a single test method in a test class and return the result.
+     * Run a single test method or all test methods in a test class and return the result.
      * 
      * @param className
      *            the fully qualified name of the class
      * @param methodName
-     *            the name of the method
-     * @return a DebuggerTestResult object
+     *            the name of the method, it can be null if the test runs on all test methods
+     * @return a TestResultsWithRunTime object that wraps the test results and test's runtime
      */
     @Override
     @OnThread(Tag.Any)
-    public DebuggerTestResult runTestMethod(String className, String methodName)
+    public TestResultsWithRunTime runTestMethod(String className, String methodName) 
     {
         ArrayReference arrayRef = null;
-
-        try {
+        List<DebuggerTestResult> results = new ArrayList<>();
+        TestResultsWithRunTime testResultsWithRunTime = new TestResultsWithRunTime();
+        try
+        {
             VMReference vmr = getVM();
-            synchronized (serverThreadLock) {
-                if (vmr != null) {
+            synchronized (serverThreadLock)
+            {
+                if (vmr != null)
+                {
                     arrayRef = (ArrayReference) vmr.invokeRunTest(className, methodName);
                 }
                 
-                if (arrayRef == null || arrayRef.length() == 0) {
-                    return new JdiTestResultError(className, methodName, "VM returned unknown result", "", null, 0);
+                if (arrayRef == null || arrayRef.length() == 0)
+                {
+                    results.add(new JdiTestResultError(className, methodName, "VM returned unknown result",
+                            "", null, 0));
+                    testResultsWithRunTime.setResults(results);
+                    testResultsWithRunTime.setTotalRunTime(0);
+                    return testResultsWithRunTime;
                 }
                 
                 int runTimeMs = Integer.parseInt(((StringReference) arrayRef.getValue(0)).value());
-                
-                if (arrayRef != null && arrayRef.length() > 5) {
-                    String failureType = ((StringReference) arrayRef.getValue(7)).value();
-                    String exMsg = ((StringReference) arrayRef.getValue(1)).value();
-                    String traceMsg = ((StringReference) arrayRef.getValue(2)).value();
-                    
-                    String failureClass = ((StringReference) arrayRef.getValue(3)).value();
-                    String failureSource = ((StringReference) arrayRef.getValue(4)).value();
-                    String failureMethod = ((StringReference) arrayRef.getValue(5)).value();
-                    int lineNo = Integer.parseInt(((StringReference) arrayRef.getValue(6)).value());
-                    SourceLocation failPoint = new SourceLocation(failureClass, failureSource, failureMethod, lineNo);
-                    
-                    if (failureType.equals("failure")) {
-                        return new JdiTestResultFailure(className, methodName, exMsg, traceMsg, failPoint, runTimeMs);
+                if (arrayRef != null && arrayRef.length() >= 8) 
+                {
+                    int i = 1;
+                    while(i <= arrayRef.length() - 7)
+                    {
+                        String failureType = ((StringReference) arrayRef.getValue(i + 6)).value();
+                        String exMsg = ((StringReference) arrayRef.getValue(i)).value();
+                        String traceMsg = ((StringReference) arrayRef.getValue(i + 1)).value();
+                        String failureClass = ((StringReference) arrayRef.getValue(i + 2)).value();
+                        String failureSource = ((StringReference) arrayRef.getValue(i + 3)).value();
+                        String failureMethod = ((StringReference) arrayRef.getValue(i + 4)).value();
+                        int lineNo = Integer.parseInt(((StringReference) arrayRef.getValue(i + 5)).value());
+                        SourceLocation failPoint = new SourceLocation(failureClass, failureSource,
+                                failureMethod, lineNo);
+
+                        if (failureType.equals("failure"))
+                        {
+                            results.add(new JdiTestResultFailure(className, failureMethod, exMsg, traceMsg,
+                                   failPoint,0));
+                        }
+                        else
+                        {
+                            results.add(new JdiTestResultError(className, failureMethod, exMsg, traceMsg,
+                                    failPoint, 0));
+                        }
+
+                        i = i + 7;
                     }
-                    else {
-                        return new JdiTestResultError(className, methodName, exMsg, traceMsg, failPoint, runTimeMs);
-                    }
-                    
-                } else if (arrayRef != null && arrayRef.length() == 1) {
+                    testResultsWithRunTime.setTotalRunTime(runTimeMs);
+                    testResultsWithRunTime.setResults(results);
+                    return testResultsWithRunTime;
+                       
+                }
+                else if (arrayRef != null && arrayRef.length() == 1) 
+                {
                     // Success - extract the run time in mS
-                    return new JdiTestResult(className, methodName, runTimeMs);
+                    if (methodName != null)
+                    {
+                        results.add(new JdiTestResult(className, methodName, runTimeMs));
+                    }
+                    else
+                    {
+                        results.add(new JdiTestResult(className, "All tests are successful", runTimeMs));
+                    }
+                    testResultsWithRunTime.setResults(results);
+                    testResultsWithRunTime.setTotalRunTime(runTimeMs);
+                    return testResultsWithRunTime;
                 }
             }
         }
-        catch (InvocationException ie) {
+        catch (InvocationException ie) 
+        {
             // what to do here??
-            return new JdiTestResultError(className, methodName, "Internal invocation error", "", null, 0);
+            results.add(new JdiTestResultError(className, methodName, "Internal invocation error",
+                   "", null, 0));
+            testResultsWithRunTime.setResults(results);
+            testResultsWithRunTime.setTotalRunTime(0);
+            return testResultsWithRunTime;
+        } 
+        catch (VMDisconnectedException vmde)
+        {
+            results.add(new JdiTestResultError(className, null, "VM restarted", "",
+                    null, 0));
+            testResultsWithRunTime.setResults(results);
+            testResultsWithRunTime.setTotalRunTime(0);
+            return testResultsWithRunTime;
         }
-        catch (VMDisconnectedException vmde) {
-            return new JdiTestResultError(className, methodName, "VM restarted", "", null, 0);
-        }
-        
-        // should never get here
-        return new JdiTestResultError(className, methodName, "VM returned unknown result", "", null, 0);
-    }
 
+        // should never get here
+        results.add(new JdiTestResultError(className, methodName, "VM returned unknown result",
+                "", null, 0));
+        testResultsWithRunTime.setResults(results);
+        testResultsWithRunTime.setTotalRunTime(0);
+        return testResultsWithRunTime;
+    }
+    
     /**
      * Dispose all top level windows in the remote machine.
      */

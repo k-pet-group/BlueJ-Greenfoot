@@ -619,10 +619,13 @@ public class ExecServer
     }
 
     /**
-     * Execute a JUnit test method and return the result.<p>
-     * 
-     * The array returned in case of failure or error contains:<br>
-     *  [0] = the runtime in milliseconds expressed as a decimal integer
+     * Execute a JUnit test on a single test method or all test methods in a test class
+     * and return the result.<p>
+     *
+     * The array returned in case of failure/error has a length of [1 + 7*(number of failures/errors)].<br>
+     * The first item of the array contains the runtime of executing all tests in milliseconds expressed  
+     * as a decimal integer, then each failure/error has seven consecutive items in the array which 
+     * contains:<br> 
      *  [1] = the exception message (or "no exception message")<br>
      *  [2] = the stack trace as a string (or "no stack trace")<br>
      *  [3] = the name of the class in which the exception/failure occurred<br>
@@ -634,46 +637,65 @@ public class ExecServer
      * The array returned in case of success contains:<br>
      *  [0] = the runtime in milliseconds expressed as a decimal integer
      * 
-     * @return an array of length 8 on test failure/error, or of length 1 if the test passed
+     * @return an array of length [1 + 7*(number of failures/errors)],
+     *         or of length 1 if all tests passed
      */
     private static Object[] runTestMethod(String className, String methodName)
     {
         Class<?> cl = loadAndInitClass(className);
+        Result res;
+        if (methodName != null)
+        {
+            res = (new JUnitCore()).run(Request.method(cl, methodName));
+        }
+        else
+        {
+            res = (new JUnitCore()).run(Request.aClass(cl));
+        }
 
-        Result res = (new JUnitCore()).run(Request.method(cl, methodName));
-        if (res.wasSuccessful()) {
+        if (res.wasSuccessful())
+        {
             Object result[] = new Object[1];
             result[0] = String.valueOf(res.getRunTime());
             return result;
-        } else {
-            Object result[] = new Object[8];
+        }
+        else
+        {
+            Object[] result = new Object[1 + 7 * res.getFailureCount()];
+            result[0] = String.valueOf(res.getRunTime());
+
             List<Failure> failures = res.getFailures();
-            for (Iterator<Failure> iterator = failures.iterator(); iterator.hasNext();) {
-                Failure failure = (Failure) iterator.next();
-                if (java.lang.AssertionError.class.isAssignableFrom(failure.getException().getClass()) 
-                        || failure.getException().getClass() == junit.framework.AssertionFailedError.class) {
-                    result[7] = "failure";
+            int i = 1;
+            for (Iterator<Failure> iterator = failures.iterator(); iterator.hasNext();)
+            {
+                Failure failure = iterator.next();
+                if (java.lang.AssertionError.class.isAssignableFrom(failure.getException().getClass())
+                        || failure.getException().getClass() == junit.framework.AssertionFailedError.class)
+                {
+                    result[i + 6] = "failure"; 
                 }
-                else {
-                    result[7] = "error";
+                else
+                {
+                    result[i + 6] = "error";
                 }
 
-                result[0] = String.valueOf(res.getRunTime());
-                result[1] = failure.getMessage() != null ? failure.getMessage() : "no exception message";
-                result[2] = failure.getTrace() != null ? failure.getTrace() : "no trace";
-
+                result[i] = failure.getMessage() != null ? failure.getMessage() : "no exception message";
+                result[i + 1] = failure.getTrace() != null ? failure.getTrace() : "no trace";
                 // search the stack trace backward until finding a class not
                 // part of the org.junit framework
                 StackTraceElement [] ste = failure.getException().getStackTrace();
-                int i = 0; 
-                while(i < ste.length && ste[i].getClassName().startsWith("org.junit.")) {
-                    i++;
+                int k = 0;
+                while(k < ste.length && ste[k].getClassName().startsWith("org.junit."))
+                {
+                    k++;
                 }
+                result[i + 2] = ste[k].getClassName();
+                result[i + 3] = ste[k].getFileName();
+                result[i + 4] = ste[k].getMethodName();
+                result[i + 5] = String.valueOf(ste[k].getLineNumber());
 
-                result[3] = ste[i].getClassName();
-                result[4] = ste[i].getFileName();
-                result[5] = ste[i].getMethodName();
-                result[6] = String.valueOf(ste[i].getLineNumber());
+                // Move the index to the next failure/error space in the array if exist
+                i = i + 7;
             }
 
             return result;
