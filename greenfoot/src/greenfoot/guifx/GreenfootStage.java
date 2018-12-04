@@ -1127,7 +1127,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                         showingDebugger,
                         new KeyCodeCombination(KeyCode.B, KeyCombination.SHORTCUT_DOWN)),
                 JavaFXUtil.makeMenuItem("set.player",
-                        new KeyCodeCombination(KeyCode.P, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN),
+                        Config.GREENFOOT_SET_PLAYER_NAME_SHORTCUT,
                         this::setPlayer, hasNoProject)
         );
 

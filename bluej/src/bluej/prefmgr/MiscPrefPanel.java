@@ -40,6 +40,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
@@ -156,22 +157,8 @@ public class MiscPrefPanel extends VBox
         List<Node> contents = new ArrayList<>();
         
         // get Accelerator text
-        String shortcutText = " ";
-        KeyStroke accelerator = Config.GREENFOOT_SET_PLAYER_NAME_SHORTCUT;
-        if (accelerator != null) {
-            int modifiers = accelerator.getModifiers();
-            if (modifiers > 0) {
-                shortcutText += KeyEvent.getKeyModifiersText(modifiers);
-                shortcutText += Config.isMacOS() ? "" : "+";
-            }
-
-            int keyCode = accelerator.getKeyCode();
-            if (keyCode != 0) {
-                shortcutText += KeyEvent.getKeyText(keyCode);
-            } else {
-                shortcutText += accelerator.getKeyChar();
-            }
-        }
+        KeyCodeCombination accelerator = Config.GREENFOOT_SET_PLAYER_NAME_SHORTCUT;
+        String shortcutText = " " + accelerator.getDisplayText();
 
         playerNameField = new TextField(PrefMgr.getPlayerName().get());
         playerNameField.setPrefColumnCount(20);

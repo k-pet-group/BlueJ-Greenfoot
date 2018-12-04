@@ -113,8 +113,8 @@ public final class Config
         Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     // Bit ugly having it here, but it's needed by MiscPrefPanel (which may just be in BlueJ)
     // and by Greenfoot
-    public static final KeyStroke GREENFOOT_SET_PLAYER_NAME_SHORTCUT =
-        KeyStroke.getKeyStroke(KeyEvent.VK_P, SHORTCUT_MASK | InputEvent.SHIFT_DOWN_MASK);
+    public static final KeyCodeCombination GREENFOOT_SET_PLAYER_NAME_SHORTCUT = 
+        new KeyCodeCombination(KeyCode.P, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN);
     /** name of the icons file for the VM on Mac */
     private static final String BLUEJ_DEBUG_DOCK_ICON = "vm.icns";
     private static final String GREENFOOT_DEBUG_DOCK_ICON = "greenfootvm.icns";
