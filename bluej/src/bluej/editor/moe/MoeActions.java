@@ -57,6 +57,7 @@ import threadchecker.Tag;
 import javax.swing.KeyStroke;
 import javax.swing.text.DefaultEditorKit;
 import java.awt.Event;
+import java.awt.event.InputEvent;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -657,6 +658,11 @@ public final class MoeActions
         }
     }
 
+    // We can't use the recommended Java 9 replacement of getModifiersEx()
+    // because that is on the key event, and we are loading a KeyStroke
+    // object from a file, saved on an old BlueJ.  So we must continue
+    // checking against the old modifiers:
+    @SuppressWarnings("deprecation")
     private static KeyCodeCombination convertSwingBindingToFX(KeyStroke swing)
     {
         List<Modifier> modifiers = new ArrayList<>();
