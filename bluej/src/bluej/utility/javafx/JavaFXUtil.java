@@ -1405,7 +1405,7 @@ public class JavaFXUtil
      * @param items The items to put in the list when putInList is true
      * @return The ObservableList which will (or will not) contain the items.
      */
-    public static <T> ObservableList<T> listBool(BooleanExpression putInList, T... items)
+    public static <T> ObservableList<T> listBool(BooleanExpression putInList, List<T> items)
     {
         ObservableList<T> r = FXCollections.observableArrayList();
         if (putInList.get()) {
@@ -1420,6 +1420,25 @@ public class JavaFXUtil
             }
         });
         return r;
+    }
+
+    /**
+     * Takes a BooleanProperty and an item.  Gives back an observable list that contains
+     * a singleton list of the item when (and only when) the BooleanProperty is true, but is empty in the case
+     * that the BooleanProperty is false.  Uses JavaFX bindings to update the list's contents.
+     *
+     * Note that if no reference is maintained to the BooleanExpression, it can get GC-ed,
+     * in which case this methods will no longer update the list.  This may be what you want (once
+     * the property is no longer in use, this listener will get GC-ed too), but if you don't then
+     * make sure you store a reference to the putInList expression.
+     *
+     * @param putInList Whether the list should contain the item (true expression) or be empty (false expression)
+     * @param items The item to put in the list when putInList is true
+     * @return The ObservableList which will (or will not) contain the item.
+     */
+    public static <T> ObservableList<T> listBool(BooleanExpression putInList, T item)
+    {
+        return listBool(putInList, List.of(item));
     }
 
     /**

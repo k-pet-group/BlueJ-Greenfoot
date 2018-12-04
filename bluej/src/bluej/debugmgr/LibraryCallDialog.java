@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2016,2018  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -78,7 +78,7 @@ public class LibraryCallDialog extends Dialog<CallableView>
         Config.getString("callLibraryDialog.classNotFound2"),
     };
 
-    private ComboBox classField;
+    private ComboBox<String> classField;
     private ListView<CallableView> methodList;
     private Label textOverlay;
     private Button docButton;
@@ -224,7 +224,7 @@ public class LibraryCallDialog extends Dialog<CallableView>
             Label classLabel = new Label(
                 Config.getString("callLibraryDialog.classLabel"));
 
-            classField = new ComboBox(FXCollections.observableArrayList(history.getHistory()));
+            classField = new ComboBox<>(FXCollections.observableArrayList(history.getHistory()));
             classField.setEditable(true);
             classField.setVisibleRowCount(10);
             TextField textField = classField.getEditor();

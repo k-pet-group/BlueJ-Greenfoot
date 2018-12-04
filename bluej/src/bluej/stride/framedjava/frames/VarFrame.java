@@ -183,7 +183,7 @@ public class VarFrame extends SingleLineFrame
                 JavaFXUtil.listBool(staticModifier, staticLabel),
                 JavaFXUtil.listBool(finalModifier, finalLabel),
                 FXCollections.observableArrayList(slotType, slotName),
-                JavaFXUtil.listBool(showingValue, assignLabel, slotValue),
+                JavaFXUtil.listBool(showingValue, List.of(assignLabel, slotValue)),
                 FXCollections.observableArrayList(previewSemi)
         ));
 
