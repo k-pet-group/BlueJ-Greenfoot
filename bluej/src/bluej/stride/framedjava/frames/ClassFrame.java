@@ -167,7 +167,7 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
                 JavaFXUtil.listBool(abstractModifier, abstractLabel),
                 FXCollections.observableArrayList(headerCaptionLabel),
                 FXCollections.observableArrayList(paramName),
-                JavaFXUtil.listBool(showingExtends, extendsLabel, extendsSlot),
+                JavaFXUtil.listBool(showingExtends, List.of(extendsLabel, extendsSlot)),
                 JavaFXUtil.listBool(showInheritedToggle, inheritedLabel),
                 implementsSlot.getHeaderItems()
             ));
