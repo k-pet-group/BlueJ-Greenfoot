@@ -109,8 +109,6 @@ public final class Config
     public static final String BLUEJ_OPENPACKAGE = "bluej.openPackage";
     public static final String bluejDebugLogName = "bluej-debuglog.txt";
     public static final String greenfootDebugLogName = "greenfoot-debuglog.txt";
-    private static final int SHORTCUT_MASK =
-        Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
     // Bit ugly having it here, but it's needed by MiscPrefPanel (which may just be in BlueJ)
     // and by Greenfoot
     public static final KeyCodeCombination GREENFOOT_SET_PLAYER_NAME_SHORTCUT = 
@@ -1029,39 +1027,6 @@ public final class Config
     public static boolean hasAcceleratorKey(String strname)
     {
         return langProps.getProperty(strname, strname).indexOf('@') != -1;
-    }    
-    
-    /**
-     * parses the labels file and creates a KeyStroke with the right accelerator
-     * key and modifiers
-     * @param strname
-     * @return a KeyStroke
-     */
-    public static KeyStroke getAcceleratorKey(String strname)
-    {
-        // In principle, hasAcceleratorKey() should be invoked before invoking
-        // getAcceleratorKey() to take a suitable action according to the case
-        // in place. However, we should check again here as a precaution to avoid
-        // any future bug or NPE been thrown for no reason.
-        if (!hasAcceleratorKey(strname))
-            return null;
-
-        int index;
-        int modifiers = Toolkit.getDefaultToolkit().getMenuShortcutKeyMask();
-        String str = langProps.getProperty(strname, strname);
-        String keyString;
-        index = str.indexOf('@');
-        index++;
-        if(str.charAt(index) == '^') { //then the modifiers is CTRL + SHIFT
-            index++;
-            modifiers |= InputEvent.SHIFT_MASK;
-        }
-        keyString = str.substring(index).toUpperCase();
-        if(keyString.length() == 1) {
-            return KeyStroke.getKeyStroke(keyString.codePointAt(0), modifiers);
-        }
-        KeyStroke k1= KeyStroke.getKeyStroke(keyString);
-        return KeyStroke.getKeyStroke(k1.getKeyCode(), modifiers);
     }
 
     @OnThread(Tag.FX)
