@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2013,2014,2015,2016  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2013,2014,2015,2016,2018  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -118,7 +118,7 @@ public class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
 
         mainPanel.getChildren().add(nameBox);
 
-        language = new HorizontalRadio(Arrays.asList(SourceType.Java, SourceType.Stride));
+        language = new HorizontalRadio<>(Arrays.asList(SourceType.Java, SourceType.Stride));
         language.select(defaultSourceType);
 
         HBox langBox = new HBox();
