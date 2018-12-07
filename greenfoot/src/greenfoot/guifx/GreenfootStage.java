@@ -396,7 +396,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
 
         if (project != null)
         {
-            showProject(project, greenfootDebugHandler, true);
+            showProject(project, greenfootDebugHandler);
         }
         // Do this whether we have a project or not:
         updateBackgroundMessage();
@@ -439,10 +439,8 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
      * 
      * @param project                The project to display
      * @param greenfootDebugHandler  The debug handler for this project
-     * @param newWindow              True if the window to host this scenario has just been created,
-     *                               false otherwise.
      */
-    private void showProject(Project project, GreenfootDebugHandler greenfootDebugHandler, boolean newWindow)
+    private void showProject(Project project, GreenfootDebugHandler greenfootDebugHandler)
     {
         setTitle(STAGE_TITLE + ": " + project.getProjectName());
         
@@ -493,37 +491,26 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         PrefMgr.getPlayerName().addListener(playerNameListener);
 
         scenarioInfo = new ScenarioInfo(lastSavedProperties);
-        if (newWindow)
+        String xPosition = lastSavedProperties.getProperty("xPosition");
+        String yPosition = lastSavedProperties.getProperty("yPosition");
+        if (xPosition != null)
         {
-            String xPosition = lastSavedProperties.getProperty("xPosition");
-            String yPosition = lastSavedProperties.getProperty("yPosition");
-            if (xPosition != null)
-            {
-                setX(Double.valueOf(xPosition));
-            }
-            if (yPosition != null)
-            {
-                setY(Double.valueOf(yPosition));
-            }
+            setX(Double.valueOf(xPosition));
+        }
+        if (yPosition != null)
+        {
+            setY(Double.valueOf(yPosition));
         }
 
         String width = lastSavedProperties.getProperty("width");
         String height = lastSavedProperties.getProperty("height");
         if (width != null)
         {
-            Double savedWidth = Double.valueOf(width);
-            if (newWindow || (savedWidth > getWidth()))
-            {
-                setWidth(savedWidth);
-            }
+            setWidth(Double.valueOf(width));
         }
         if (height != null)
         {
-            Double savedHeight = Double.valueOf(height);
-            if (newWindow || (savedHeight > getHeight()))
-            {
-                setHeight(savedHeight);
-            }
+            setHeight(Double.valueOf(height));
         }
 
         stateProperty.set(State.NO_WORLD);
@@ -599,7 +586,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     {
         if (stages.size() == 1 && stages.get(0).project == null)
         {
-            stages.get(0).showProject(project, greenfootDebugHandler, false);
+            stages.get(0).showProject(project, greenfootDebugHandler);
             return stages.get(0);
         }
         else
