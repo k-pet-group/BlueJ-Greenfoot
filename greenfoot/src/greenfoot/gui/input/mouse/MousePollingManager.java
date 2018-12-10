@@ -541,5 +541,14 @@ public class MousePollingManager
             isDragging = false;
         }
     }
+
+    /**
+     * Called when the world starts running, to discard any
+     * old mouse data that may have been accumulated while paused.
+     */
+    public void startedRunning()
+    {
+        futureData = new MouseEventData();
+    }
 }
 
