@@ -672,6 +672,10 @@ public class WorldHandler
         if (e == SyncEvent.NEW_ACT_ROUND) {
             startSequence();
         }
+        else if (e == SyncEvent.STARTED)
+        {
+            mousePollingManager.startedRunning();
+        }
     }
 
     @Override
