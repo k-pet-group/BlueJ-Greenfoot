@@ -280,7 +280,19 @@ class JdiThread extends DebuggerThread
             }
 
             String name = rt.name();
-            if(name.startsWith("AWT-") ||
+
+            // Don't count the AWT and FX event threads as system threads, since user code
+            // often runs on them:
+            if (name.startsWith("AWT-Event")
+                || name.equals("JavaFX Application Thread")
+                // Sometimes on Windows, it seems the FX application thread can get a different name
+                // WindowsNativeRunLoop, but this seems transient.
+                || name.startsWith("WindowsNative"))
+            {
+                return false;
+            }
+            
+            if (name.startsWith("AWT-") ||
                     name.equals("DestroyJavaVM") ||
                     name.equals("BlueJ worker thread") ||
                     name.equals("Timer Queue") ||
@@ -290,7 +302,9 @@ class JdiThread extends DebuggerThread
                     name.equals("JavaFX-Launcher") ||
                     name.startsWith("QuantumRenderer") ||
                     name.equals("JavaFX BlueJ Helper") ||
-                    name.equals("Java2D Disposer")) {
+                    name.equals("Java2D Disposer") ||
+                    name.equals("InvokeLaterDispatcher"))
+            {
                 return true;
             }
 

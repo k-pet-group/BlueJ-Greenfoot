@@ -269,6 +269,11 @@ public class ExecControls
     {
         if (threadList != null)
         {
+            if (dt.isKnownSystemThread())
+            {
+                hideSystemThreads.set(false);
+            }
+            
             DebuggerThreadDetails details = threadList.getItems().stream()
                     .filter(d -> d.isThread(dt))
                     .findFirst().orElse(null);
