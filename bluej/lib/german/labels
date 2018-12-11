@@ -75,7 +75,6 @@ classmgr.prefpaneltitle=Bibliotheken
 classmgr.userlibraries=Benutzerbibliotheken
 classmgr.userliblibraries=Benutzerbibliotheken aus
 classmgr.addFile=Datei hinzuf\u00fcgen
-classmgr.addDir=Ordner hinzuf\u00fcgen
 classmgr.delete=L\u00f6schen
 classmgr.statuscolumn=Status
 classmgr.statusgood=Geladen

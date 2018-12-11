@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2014,2016,2017,2018  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -124,14 +124,11 @@ implements PrefPanelListener
                 Button addFileButton = new Button(Config.getString("classmgr.addFile"));
                 addFileButton.setOnAction(e -> addUserLibraryFile());
 
-                Button addDirButton = new Button(Config.getString("classmgr.addDir"));
-                addDirButton.setOnAction(e -> addUserLibraryDir());
-                
                 Button deleteButton = new Button(Config.getString("classmgr.delete"));
                 deleteButton.setOnAction(e -> deleteUserLibrary());
                 deleteButton.disableProperty().bind(userLibrariesListView.getSelectionModel().selectedItemProperty().isNull());
 
-                buttonPane.getChildren().addAll(addFileButton, addDirButton, deleteButton);
+                buttonPane.getChildren().addAll(addFileButton, deleteButton);
             }
             userLibPane.setCenter(userLibrariesListView);
             userLibPane.setRight(buttonPane);
@@ -313,20 +310,6 @@ implements PrefPanelListener
             {
                 editingUserLibraries.add(new ClassPathEntry(file.getAbsolutePath(), "", true));
             }
-            classPathModified = true;
-        }
-    }
-
-    /**
-     * Pop up a dialog to allow the user to add a library
-     * to their user library classpath.
-     **/
-    private void addUserLibraryDir()
-    {
-        File dir = FileUtility.getOpenDirFX(getScene().getWindow(), Config.getString("prefmgr.misc.addLibTitle"), false);
-
-        if (dir != null) {
-            editingUserLibraries.add(new ClassPathEntry(dir.getAbsolutePath(), "", true));
             classPathModified = true;
         }
     }
