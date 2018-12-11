@@ -153,11 +153,11 @@ public abstract class Target
         });
 
         pane.setOnMouseClicked(e -> {
-            if (e.getClickCount() > 1 && e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger())
+            if (e.getClickCount() > 1 && e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger() && e.isStillSincePress())
             {
                 doubleClick(e.isShiftDown());
             }
-            else if (e.getClickCount() == 1 && e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger())
+            else if (e.getClickCount() == 1 && e.getButton() == MouseButton.PRIMARY && !e.isPopupTrigger() && e.isStillSincePress())
             {
                 // We first check if the user was drawing an extends arrow,
                 // in which case a click will finish that off.
