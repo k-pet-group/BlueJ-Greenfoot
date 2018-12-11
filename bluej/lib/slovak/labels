@@ -75,7 +75,6 @@ classmgr.prefpaneltitle=Kni\u017enice
 classmgr.userlibraries=Pou\u017e\u00edvate\u013esk\u00e9 kni\u017enice z\u00a0konfigur\u00e1cie
 classmgr.userliblibraries=Pou\u017e\u00edvate\u013esk\u00e9 kni\u017enice z\u00a0
 classmgr.addFile=Prida\u0165 s\u00fabor
-classmgr.addDir=Prida\u0165 prie\u010dinok
 classmgr.delete=Odstr\u00e1ni\u0165
 classmgr.statuscolumn=Stav
 classmgr.statusgood=Na\u010d\u00edtan\u00e9

@@ -73,7 +73,6 @@ classmgr.prefpaneltitle=Libraries
 classmgr.userlibraries=User Libraries from config
 classmgr.userliblibraries=User Libraries from
 classmgr.addFile=Add File
-classmgr.addDir=Add Folder
 classmgr.delete=Delete
 classmgr.statuscolumn=Status
 classmgr.statusgood=Loaded

@@ -80,7 +80,6 @@ classmgr.prefpaneltitle=Knihovny
 classmgr.userlibraries=U\u017eivatelsk\u00e9 knihovny z konfigurace
 classmgr.userliblibraries=U\u017eivatelsk\u00e9 knihovny z
 classmgr.addFile=P\u0159idat soubor
-classmgr.addDir=P\u0159idat slo\u017eku
 classmgr.delete=Odstranit
 classmgr.statuscolumn=Stav
 classmgr.statusgood=Na\u010dteno
