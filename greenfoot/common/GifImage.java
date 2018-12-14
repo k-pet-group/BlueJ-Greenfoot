@@ -12,6 +12,8 @@ import java.util.ArrayList;
  * 
  * @author Michael Berry
  * @author Neil Brown
+ * 
+ * Copyright (c) 2011,2013,2014,2018
  */
 public class GifImage
 {
