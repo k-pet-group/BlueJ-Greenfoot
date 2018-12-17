@@ -12,6 +12,8 @@ import java.util.ArrayList;
  * 
  * @author Michael Berry
  * @author Neil Brown
+ * 
+ * Copyright (c) 2011,2013,2014,2018
  */
 public class GifImage
 {
@@ -363,8 +365,13 @@ public class GifImage
                         } else {
                             c = lastBgColor; // use given background color
                         }
-                        image.setColor(c);
-                        image.fillRect(lastRect.x, lastRect.y, lastRect.width, lastRect.height);
+                        for (int x = 0; x < lastRect.width; x++)
+                        {
+                            for (int y = 0; y < lastRect.height; y++)
+                            {
+                                image.setColorAt(lastRect.x + x, lastRect.y + y, c);
+                            }
+                        }
                     }
                 }
             }
