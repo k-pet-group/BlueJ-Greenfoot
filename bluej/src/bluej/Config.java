@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,7 +27,6 @@ import java.awt.Font;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -61,7 +60,6 @@ import javafx.stage.Screen;
 import javafx.stage.Window;
 
 import javax.swing.ImageIcon;
-import javax.swing.KeyStroke;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
@@ -612,6 +610,16 @@ public final class Config
     public static boolean isOpenJDK()
     {
         return System.getProperty("java.runtime.name").startsWith("OpenJDK");
+    }
+    
+    /**
+     * Whether we need to make all dialogs resizable, due to bug:
+     * https://bugs.java.com/bugdatabase/view_bug.do?bug_id=JDK-8198761
+     */
+    public static boolean makeDialogsResizable()
+    {
+        // The bug only affects Linux:
+        return Config.isLinux();
     }
     
     /**
