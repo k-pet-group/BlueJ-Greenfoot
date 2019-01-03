@@ -47,7 +47,7 @@ public class Installer extends JFrame
 
 
     // File to test for JDK (relative to javaPath):
-    static private String jdkFile = "/lib/jdk.deploy.jar";
+    static private String jdkFile = "/jmods/jdk.compiler.jmod";
 
     static final int BUFFER_SIZE=8192;
 
@@ -421,10 +421,8 @@ public class Installer extends JFrame
     {
         notifyProblem(
            "The Java directory you have specified is not a valid \n" +
-           "JDK directory. The JDK directory is the directory \n" +
-           "that JDK (aka Java 2 SDK) was installed to. It must \n" +
-           "have a subdirectory \"lib\" with a file named \n" +
-           "\"jdk.deploy.jar\" in it.");
+           "JDK directory. It must contain the file \n" +
+           jdkFile);
     }
 
     /**
