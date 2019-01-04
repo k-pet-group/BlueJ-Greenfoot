@@ -154,9 +154,9 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
     @Override
     public CodeSuggestions getCodeSuggestions(PosInSourceDoc pos, ExpressionSlot<?> completing)
     {
-        // Must get document before asking for position:
+        // Must get document before asking for completions:
         MoeSyntaxDocument doc = getSourceDocument(completing);
-        return doc.getParser().getExpressionType(0 /* TODO */, getSourceDocument(completing));
+        return doc.getParser().getExpressionType(pos.offset, getSourceDocument(completing));
     }
 
     @Override
