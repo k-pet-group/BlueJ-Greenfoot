@@ -365,7 +365,6 @@ bool launchVM(string jdkLocation)
     HINSTANCE hJavalib;
     jvmDllPath += TEXT("\\server\\jvm.dll");
     hJavalib = LoadLibrary(jvmDllPath.c_str());
-    SetDllDirectory(NULL);
 
     if (hJavalib == NULL) {
         return launchVMexternal(jdkLocation);
