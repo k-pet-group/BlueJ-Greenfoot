@@ -27,6 +27,10 @@ install.exeName=bluej
 # Required java specification version
 install.requiredJavaVersion=1.8
 
+install.javafx.classpath.unix = JAVAFX_CP="$JAVAFX_LIB/javafx.base.jar:$JAVAFX_LIB/javafx.controls.jar:$JAVAFX_LIB/javafx.fxml.jar:$JAVAFX_LIB/javafx.graphics.jar:$JAVAFX_LIB/javafx.media.jar:$JAVAFX_LIB/javafx.properties.jar:$JAVAFX_LIB/javafx.swing.jar:$JAVAFX_LIB/javafx.web.jar"
+
+install.javafx.classpath.win = set JAVAFX_CP="%JAVAFX_LIB%\\javafx.base.jar;%JAVAFX_LIB%\\javafx.controls.jar;%JAVAFX_LIB%\\javafx.fxml.jar;%JAVAFX_LIB%\\javafx.graphics.jar;%JAVAFX_LIB%\\javafx.media.jar;%JAVAFX_LIB%\\javafx.properties.jar;%JAVAFX_LIB%\\javafx.swing.jar;%JAVAFX_LIB%\\javafx.web.jar"
+
 # additional commands to be added to MacOS script before execution
 install.commands.mac = CP="$APPBASE/lib/bluej.jar:/System/Library/Java"
 
@@ -41,10 +45,10 @@ install.commands.win = set CP=~\\lib\\bluej.jar
 # (UNIX must have quotes around the $CP on the actual
 # invocation, not on the declaration of the shell variables -
 # unix is clever about the quotes and removes them)
-install.javaOpts.unix=-Dawt.useSystemAAFontSettings=on -cp "$CP"
+install.javaOpts.unix=-Dawt.useSystemAAFontSettings=on -cp "$CP:$JAVAFX_CP"
 
 # java command-line options for windows
-install.javaOpts.win=-cp %CP%
+install.javaOpts.win=-cp %CP%;%JAVAFX_CP%
 
 # Class that contains the main to execute
 install.mainClass=bluej.Boot
