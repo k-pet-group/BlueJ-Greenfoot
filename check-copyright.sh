@@ -7,7 +7,7 @@ any_errors=0
 for java_file in $(git diff --name-only HEAD~10..HEAD . | grep src.*java\$)
 do
     # Get the year of that file's latest commit and search for Copyright.*YYYY in the file:
-    if ! grep -q Copyright.*$(git log -1 --format=%ci "$java_file" | cut -c1-4) "$java_file"
+    if [ -f "$java_file" ] && ! grep -q Copyright.*$(git log -1 --format=%ci "$java_file" | cut -c1-4) "$java_file"
     then
         echo "$(basename "$java_file" .java)" \(located in "$java_file"\) needs copyright year updating
         any_errors=1
