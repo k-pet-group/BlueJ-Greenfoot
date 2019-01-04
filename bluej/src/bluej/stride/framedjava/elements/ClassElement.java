@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018,2019 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -171,7 +171,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
      * Creates a class element from the given XML element, used when loading code
      * from disk or from the clipboard.
      */
-    public ClassElement(Element el, EntityResolver projectResolver)
+    public ClassElement(Element el, EntityResolver projectResolver, String packageName)
     {
         Attribute abstractAttribute = el.getAttribute("abstract");
         abstractModifier = (abstractAttribute == null) ? false : Boolean.valueOf(abstractAttribute.getValue());
@@ -180,7 +180,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         final String extendsAttribute = el.getAttributeValue("extends");
         extendsName = (extendsAttribute != null) ? new TypeSlotFragment(extendsAttribute, el.getAttributeValue("extends-java")) : null;
 
-        packageName = (projectResolver instanceof PackageResolver) ? ((PackageResolver)projectResolver).getPkg() : "";
+        this.packageName = packageName;
 
         Element javadocEL = el.getFirstChildElement("javadoc");
         if (javadocEL != null) {

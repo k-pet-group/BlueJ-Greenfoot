@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2017 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2017,2019 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -74,11 +74,19 @@ public class FrameState
         }
     }
     
-    public ClassElement getClassElement(EntityResolver resolver)
+    /**
+     * Create a ClassElement corresponding to this FrameState.
+     * 
+     * @param resolver   The resolver used to resolve identifiers
+     * @param packageName  The name of the package containing the class (empty string for default package)
+     * @return  A new ClassElement, or null if an internal error prevents creation.
+     */
+    public ClassElement getClassElement(EntityResolver resolver, String packageName)
     {
         try
         {
-            return new ClassElement(new Builder().build(new StringReader(classElementXML)).getRootElement(), resolver);
+            return new ClassElement(new Builder().build(new StringReader(classElementXML))
+                    .getRootElement(), resolver, packageName);
         }
         catch (IOException | ParsingException e)
         {

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 2010,2016,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,8 +22,6 @@
 package bluej.parser.entity;
 
 import bluej.debugger.gentype.Reflective;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 
 
 /**
@@ -35,9 +33,11 @@ import threadchecker.Tag;
 public class PackageResolver implements EntityResolver
 {
     private EntityResolver parentResolver;
-    @OnThread(Tag.Any)
     private final String pkg;
     
+    /**
+     * Constructor a PackageResolver for the specified package and with the specified parent resolver.
+     */
     public PackageResolver(EntityResolver parentResolver, String pkg)
     {
         this.parentResolver = parentResolver;
@@ -74,11 +74,5 @@ public class PackageResolver implements EntityResolver
     public TypeEntity resolveQualifiedClass(String name)
     {
         return parentResolver.resolveQualifiedClass(name);
-    }
-
-    @OnThread(Tag.Any)
-    public String getPkg()
-    {
-        return pkg;
     }
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2019  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,8 +22,6 @@
 package bluej.parser.entity;
 
 import bluej.debugger.gentype.Reflective;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 
 /**
  * An EntityResolver, broadly speaking, resolves identifiers into packages, classes,
@@ -33,7 +31,6 @@ import threadchecker.Tag;
  * 
  * @author Davin McCall
  */
-@OnThread(Tag.FXPlatform)
 public interface EntityResolver
 {
     /**

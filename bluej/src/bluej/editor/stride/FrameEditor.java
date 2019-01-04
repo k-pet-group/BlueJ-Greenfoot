@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -218,7 +218,7 @@ public class FrameEditor implements Editor
         this.pkg = pkg;
         this.javaSource = new SimpleObjectProperty<>();
         this.callbackOnOpen = callbackOnOpen;
-        lastSource = Loader.loadTopLevelElement(frameFilename, resolver);
+        lastSource = Loader.loadTopLevelElement(frameFilename, resolver, pkg.getQualifiedName());
     }
 
     /**
@@ -1371,11 +1371,6 @@ public class FrameEditor implements Editor
         return javadocResolver;
     }
 
-    //    public void changedName(String oldName, String newName)
-//    {
-//        watcher.changedName(oldName, newName);
-//    }
-
     @OnThread(Tag.Any)
     public EditorWatcher getWatcher()
     {
@@ -1437,5 +1432,13 @@ public class FrameEditor implements Editor
             createPanel(false, false, false);
         }
         JavaFXUtil.onceTrue(panel.initialisedProperty(), p -> panel.removeExtendsOrImplementsInterface(interfaceName));
+    }
+    
+    /**
+     * Get the package of the class being edited by this editor.
+     */
+    public bluej.pkgmgr.Package getPackage()
+    {
+        return pkg;
     }
 }
