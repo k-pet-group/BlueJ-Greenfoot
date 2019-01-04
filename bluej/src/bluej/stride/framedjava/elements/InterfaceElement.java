@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2019 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import bluej.debugger.gentype.ConstructorReflective;
-import bluej.editor.moe.ScopeColors;
-import bluej.parser.entity.PackageResolver;
 import bluej.stride.framedjava.ast.FrameFragment;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.stride.generic.AssistContentThreadSafe;
@@ -42,7 +40,7 @@ import nu.xom.Element;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.editor.moe.MoeSyntaxDocument;
-import bluej.parser.CodeSuggestions;
+import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.entity.EntityResolver;
 import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.framedjava.ast.JavaFragment.PosInSourceDoc;
@@ -103,7 +101,6 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
     {
         this.frame = frame;
         this.interfaceName = interfaceName;
-        //TODO
         this.extendsTypes = extendsTypes == null ? new ArrayList<>() : new ArrayList<>(extendsTypes);
         this.documentation = documentation != null ? documentation : new JavadocUnit("");
 
@@ -121,20 +118,22 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
         this.projectResolver = projectResolver;
     }
 
-    public InterfaceElement(Element el, EntityResolver projectResolver)
+    public InterfaceElement(Element el, EntityResolver projectResolver, String packageName)
     {
         this.projectResolver = projectResolver;
         interfaceName = new NameDefSlotFragment(el.getAttributeValue("name"));
         Element javadocEL = el.getFirstChildElement("javadoc");
-        if (javadocEL != null) {
+        if (javadocEL != null)
+        {
             documentation = new JavadocUnit(javadocEL);
         }
-        if (documentation == null) {
+        else
+        {
             documentation = new JavadocUnit("");
         }
         extendsTypes = TopLevelCodeElement.xmlToTypeList(el, "extends", "extendstype", "type");
 
-        packageName = (projectResolver instanceof PackageResolver) ? ((PackageResolver)projectResolver).getPkg() : "";
+        this.packageName = packageName;
 
         imports = Utility.mapList(TopLevelCodeElement.fillChildrenElements(this, el, "imports"), e -> (ImportElement)e);
         fields = TopLevelCodeElement.fillChildrenElements(this, el, "fields");
@@ -153,11 +152,11 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
     }
 
     @Override
-    public CodeSuggestions getCodeSuggestions(PosInSourceDoc pos, ExpressionSlot<?> completing)
+    public ExpressionTypeInfo getCodeSuggestions(PosInSourceDoc pos, ExpressionSlot<?> completing)
     {
-        // Must get document before asking for position:
+        // Must get document before asking for completions:
         MoeSyntaxDocument doc = getSourceDocument(completing);
-        return doc.getParser().getExpressionType(0 /* TODO */, getSourceDocument(completing));
+        return doc.getParser().getExpressionType(pos.offset, getSourceDocument(completing));
     }
 
     @Override

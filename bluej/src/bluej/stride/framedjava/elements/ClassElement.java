@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018,2019 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -54,7 +54,7 @@ import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
 import bluej.editor.moe.MoeSyntaxDocument;
-import bluej.parser.CodeSuggestions;
+import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.ParsedReflective;
 import bluej.parser.nodes.JavaParentNode;
@@ -171,7 +171,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
      * Creates a class element from the given XML element, used when loading code
      * from disk or from the clipboard.
      */
-    public ClassElement(Element el, EntityResolver projectResolver)
+    public ClassElement(Element el, EntityResolver projectResolver, String packageName)
     {
         Attribute abstractAttribute = el.getAttribute("abstract");
         abstractModifier = (abstractAttribute == null) ? false : Boolean.valueOf(abstractAttribute.getValue());
@@ -180,7 +180,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         final String extendsAttribute = el.getAttributeValue("extends");
         extendsName = (extendsAttribute != null) ? new TypeSlotFragment(extendsAttribute, el.getAttributeValue("extends-java")) : null;
 
-        packageName = (projectResolver instanceof PackageResolver) ? ((PackageResolver)projectResolver).getPkg() : "";
+        this.packageName = packageName;
 
         Element javadocEL = el.getFirstChildElement("javadoc");
         if (javadocEL != null) {
@@ -391,7 +391,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
     
     @Override
     @OnThread(Tag.FXPlatform)
-    public CodeSuggestions getCodeSuggestions(PosInSourceDoc pos, ExpressionSlot<?> completing)
+    public ExpressionTypeInfo getCodeSuggestions(PosInSourceDoc pos, ExpressionSlot<?> completing)
     {
         // Must get document before getting position:
         MoeSyntaxDocument doc = getSourceDocument(completing);

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2013,2014,2015,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2013,2014,2015,2017,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -77,7 +77,7 @@ public class ParseUtils
      * If there are can be no valid completions in the given context, returns null.
      */
     @OnThread(Tag.FXPlatform)
-    public static AssistContent[] getPossibleCompletions(CodeSuggestions suggests, 
+    public static AssistContent[] getPossibleCompletions(ExpressionTypeInfo suggests, 
             JavadocResolver javadocResolver, AssistContentConsumer consumer)
     {
         GenTypeClass exprType = initGetPossibleCompletions(suggests);
@@ -97,7 +97,7 @@ public class ParseUtils
      * @return  A suitable GenTypeClass representing the target type for completion
      *           purposes, or null if there is no such suitable type.
      */
-    public static GenTypeClass initGetPossibleCompletions(CodeSuggestions suggests)
+    public static GenTypeClass initGetPossibleCompletions(ExpressionTypeInfo suggests)
     {
         if (suggests != null) {
             GenTypeClass exprType = suggests.getSuggestionType().asClass();
@@ -136,7 +136,7 @@ public class ParseUtils
      * @return The list of found completions.
      */
     @OnThread(Tag.FXPlatform)
-    private static List<AssistContent> getCompletionsForTarget(GenTypeClass exprType, CodeSuggestions suggests,
+    private static List<AssistContent> getCompletionsForTarget(GenTypeClass exprType, ExpressionTypeInfo suggests,
             JavadocResolver javadocResolver, AssistContentConsumer consumer)
     {
         GenTypeClass accessType = suggests.getAccessType();

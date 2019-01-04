@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -40,7 +40,7 @@ import bluej.editor.stride.FrameEditor;
 import bluej.editor.stride.MoeFXTab;
 import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.ParamInfo;
-import bluej.parser.CodeSuggestions;
+import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.ImportsCollection;
 import bluej.parser.ImportsCollection.LocatableImport;
 import bluej.parser.ParseUtils;
@@ -3255,7 +3255,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     {
         //need to recreate the dialog each time it is pressed as the values may be different
         ParsedCUNode parser = sourceDocument.getParser();
-        CodeSuggestions suggests = parser == null ? null : parser.getExpressionType(sourcePane.getCaretPosition(),
+        ExpressionTypeInfo suggests = parser == null ? null : parser.getExpressionType(sourcePane.getCaretPosition(),
                 sourceDocument);
         if (suggests != null)
         {

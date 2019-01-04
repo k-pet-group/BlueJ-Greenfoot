@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2011,2014,2019  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,7 +24,7 @@ package bluej.parser.nodes;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.Token;
-import bluej.parser.CodeSuggestions;
+import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import threadchecker.OnThread;
@@ -418,7 +418,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * Get code completion suggestions at a particular point. May return null.
      */
     @OnThread(Tag.FXPlatform)
-    public CodeSuggestions getExpressionType(int pos, MoeSyntaxDocument document)
+    public ExpressionTypeInfo getExpressionType(int pos, MoeSyntaxDocument document)
     {
         return getExpressionType(pos, 0, null, document);
     }
@@ -432,7 +432,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * @param document  The source document
      */
     @OnThread(Tag.FXPlatform)
-    protected CodeSuggestions getExpressionType(int pos, int nodePos, JavaEntity defaultType, MoeSyntaxDocument document)
+    protected ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, MoeSyntaxDocument document)
     {
         NodeAndPosition<ParsedNode> child = getNodeTree().findNode(pos, nodePos);
         if (child != null) {
@@ -444,7 +444,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
             return null;
         }
         boolean isStaticCtxt = (defaultType.resolveAsType() != null);
-        return new CodeSuggestions(atype, atype, null, isStaticCtxt, true);
+        return new ExpressionTypeInfo(atype, atype, null, isStaticCtxt, true);
     }
     
     /**

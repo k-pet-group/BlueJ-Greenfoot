@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -40,7 +40,7 @@ import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.prefmgr.PrefMgr.PrintSize;
 import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.CompletionKind;
-import bluej.parser.CodeSuggestions;
+import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.ParseUtils;
 import bluej.parser.PrefixCompletionWrapper;
 import bluej.parser.SourceLocation;
@@ -218,7 +218,7 @@ public class FrameEditor implements Editor
         this.pkg = pkg;
         this.javaSource = new SimpleObjectProperty<>();
         this.callbackOnOpen = callbackOnOpen;
-        lastSource = Loader.loadTopLevelElement(frameFilename, resolver);
+        lastSource = Loader.loadTopLevelElement(frameFilename, resolver, pkg.getQualifiedName());
     }
 
     /**
@@ -1207,7 +1207,7 @@ public class FrameEditor implements Editor
 
     public AssistContent[] getCompletions(TopLevelCodeElement allCode, PosInSourceDoc pos, ExpressionSlot<?> completing, CodeElement codeEl)
     {
-        CodeSuggestions suggests = allCode.getCodeSuggestions(pos, completing);
+        ExpressionTypeInfo suggests = allCode.getCodeSuggestions(pos, completing);
         
         ArrayList<AssistContent> joined = new ArrayList<>();
         if (suggests != null)
@@ -1228,7 +1228,7 @@ public class FrameEditor implements Editor
             {
                 // TODO in future, only do this if we are importing Greenfoot classes.
                 JavaReflective greenfootClassRef = new JavaReflective(pkg.loadClass("greenfoot.Greenfoot"));
-                CodeSuggestions greenfootClass = new CodeSuggestions(new GenTypeClass(greenfootClassRef), null, null, true, false);
+                ExpressionTypeInfo greenfootClass = new ExpressionTypeInfo(new GenTypeClass(greenfootClassRef), null, null, true, false);
                 AssistContent[] greenfootStatic = ParseUtils.getPossibleCompletions(greenfootClass, javadocResolver, null);
                 Arrays.stream(greenfootStatic).filter(ac -> ac.getKind() == CompletionKind.METHOD).forEach(ac -> joined.add(new PrefixCompletionWrapper(ac, "Greenfoot.")));
             }
@@ -1246,7 +1246,7 @@ public class FrameEditor implements Editor
     // Gets the available fields in this class (i.e. those in this class and all superclasses)
     public List<AssistContent> getAvailableMembers(TopLevelCodeElement allCode, PosInSourceDoc pos, Set<CompletionKind> kinds, boolean includeOverridden)
     {
-        CodeSuggestions suggests = allCode.getCodeSuggestions(pos, null);
+        ExpressionTypeInfo suggests = allCode.getCodeSuggestions(pos, null);
         if (suggests == null)
             return Collections.emptyList();
         List<AssistContent> members;
@@ -1371,11 +1371,6 @@ public class FrameEditor implements Editor
         return javadocResolver;
     }
 
-    //    public void changedName(String oldName, String newName)
-//    {
-//        watcher.changedName(oldName, newName);
-//    }
-
     @OnThread(Tag.Any)
     public EditorWatcher getWatcher()
     {
@@ -1437,5 +1432,13 @@ public class FrameEditor implements Editor
             createPanel(false, false, false);
         }
         JavaFXUtil.onceTrue(panel.initialisedProperty(), p -> panel.removeExtendsOrImplementsInterface(interfaceName));
+    }
+    
+    /**
+     * Get the package of the class being edited by this editor.
+     */
+    public bluej.pkgmgr.Package getPackage()
+    {
+        return pkg;
     }
 }

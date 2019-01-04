@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2012,2013,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 2012,2013,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,7 +37,6 @@ import bluej.parser.ConstructorCompletion;
 import bluej.parser.PrimitiveTypeCompletion;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.PackageOrClass;
-import bluej.pkgmgr.JavadocResolver;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
@@ -89,7 +88,6 @@ import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleExpression;
-import javafx.beans.binding.ObjectExpression;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.*;
@@ -323,8 +321,6 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     @OnThread(Tag.FXPlatform)
     private Future<List<AssistContentThreadSafe>> importsUpdated(final String x)
     {
-        JavadocResolver javadocResolver = project.getJavadocResolver();
-        ClassLoader classLoader = project.getClassLoader();
         CompletableFuture<List<AssistContentThreadSafe>> f = new CompletableFuture<>();
         Utility.runBackground(() -> {
             try
@@ -1918,15 +1914,12 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         editor.recordEdits(StrideEditReason.REDO_GLOBAL);
     }
 
+    @OnThread(Tag.FXPlatform)
     private void updateClassContents(FrameState state)
     {
         if (state != null) {
-            //Debug.time("updateClassContents", () -> {
-            final ClassElement classElement = state.getClassElement(projectResolver);
-            if (classElement == null)
-            {
-                return; // Error restoring state, will have been logged already
-            }
+            final ClassElement classElement = state.getClassElement(projectResolver,
+                    editor.getPackage().getQualifiedName());
             getTopLevelFrame().restoreCast(classElement);
             getTopLevelFrame().regenerateCode();
             Node n = state.recallFocus(getTopLevelFrame());
@@ -1934,7 +1927,6 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
             {
                 ensureNodeVisible(n);
             }
-            //});
         }
     }
 

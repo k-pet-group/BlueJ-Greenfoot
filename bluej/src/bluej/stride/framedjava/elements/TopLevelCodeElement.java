@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2019 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,19 +23,12 @@ package bluej.stride.framedjava.elements;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Future;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import bluej.debugger.gentype.ConstructorReflective;
 import bluej.stride.framedjava.ast.FrameFragment;
-import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
-import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
-import bluej.stride.framedjava.errors.DirectSlotError;
 import bluej.stride.generic.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
 import nu.xom.Attribute;
@@ -43,12 +36,11 @@ import nu.xom.Element;
 import nu.xom.Elements;
 import threadchecker.OnThread;
 import threadchecker.Tag;
-import bluej.parser.CodeSuggestions;
+import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.entity.EntityResolver;
 import bluej.stride.framedjava.ast.JavaFragment.PosInSourceDoc;
 import bluej.stride.framedjava.ast.JavaSource;
 import bluej.stride.framedjava.ast.Loader;
-import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.stride.framedjava.frames.TopLevelFrame;
 import bluej.stride.framedjava.slots.ExpressionSlot;
@@ -112,7 +104,7 @@ public interface TopLevelCodeElement
     }
 
     @OnThread(Tag.FXPlatform)
-    public CodeSuggestions getCodeSuggestions(PosInSourceDoc pos, ExpressionSlot<?> completing);
+    public ExpressionTypeInfo getCodeSuggestions(PosInSourceDoc pos, ExpressionSlot<?> completing);
 
     @OnThread(Tag.FX)
     public TopLevelFrame<? extends TopLevelCodeElement> createTopLevelFrame(InteractionManager editor);

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2014,2019  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,11 +26,16 @@ import bluej.debugger.gentype.JavaType;
 import bluej.parser.lexer.LocatableToken;
 
 /**
- * Wrapper for information about code suggestions.
+ * Wrapper for information about the type of expression appearing at a certain point in a source
+ * document, useful for (among other things) offering code completion.
+ * <p>
+ * This can handle document locations that are part-way through an expression. The "suggestion
+ * type" is the type of the expression appearing before the most recent dot, if any (or the type
+ * from which unqualified members are resolved).
  * 
  * @author Davin McCall
  */
-public class CodeSuggestions
+public class ExpressionTypeInfo
 {
     private JavaType suggestionType;
     private GenTypeClass accessType;
@@ -51,7 +56,7 @@ public class CodeSuggestions
      *                      completing.  Essentially, if plain is true then the user could be referring
      *                      to a local variable. 
      */
-    public CodeSuggestions(JavaType suggestionType, GenTypeClass accessType, LocatableToken suggestionToken, boolean staticOnly, boolean plain)
+    public ExpressionTypeInfo(JavaType suggestionType, GenTypeClass accessType, LocatableToken suggestionToken, boolean staticOnly, boolean plain)
     {
         this.suggestionToken = suggestionToken;
         this.suggestionType = suggestionType;
