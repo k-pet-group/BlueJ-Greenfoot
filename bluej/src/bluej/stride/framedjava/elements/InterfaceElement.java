@@ -40,7 +40,7 @@ import nu.xom.Element;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.editor.moe.MoeSyntaxDocument;
-import bluej.parser.CodeSuggestions;
+import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.entity.EntityResolver;
 import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.framedjava.ast.JavaFragment.PosInSourceDoc;
@@ -152,7 +152,7 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
     }
 
     @Override
-    public CodeSuggestions getCodeSuggestions(PosInSourceDoc pos, ExpressionSlot<?> completing)
+    public ExpressionTypeInfo getCodeSuggestions(PosInSourceDoc pos, ExpressionSlot<?> completing)
     {
         // Must get document before asking for completions:
         MoeSyntaxDocument doc = getSourceDocument(completing);

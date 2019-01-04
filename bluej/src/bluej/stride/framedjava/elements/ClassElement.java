@@ -54,7 +54,7 @@ import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
 import bluej.editor.moe.MoeSyntaxDocument;
-import bluej.parser.CodeSuggestions;
+import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.ParsedReflective;
 import bluej.parser.nodes.JavaParentNode;
@@ -391,7 +391,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
     
     @Override
     @OnThread(Tag.FXPlatform)
-    public CodeSuggestions getCodeSuggestions(PosInSourceDoc pos, ExpressionSlot<?> completing)
+    public ExpressionTypeInfo getCodeSuggestions(PosInSourceDoc pos, ExpressionSlot<?> completing)
     {
         // Must get document before getting position:
         MoeSyntaxDocument doc = getSourceDocument(completing);

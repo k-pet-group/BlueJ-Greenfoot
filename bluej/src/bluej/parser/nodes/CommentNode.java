@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2019  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,7 +27,7 @@ import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.MoeSyntaxDocument.Element;
 import bluej.editor.moe.Token;
 import bluej.editor.moe.Token.TokenType;
-import bluej.parser.CodeSuggestions;
+import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.DocumentReader;
 import bluej.parser.lexer.JavaLexer;
 import bluej.parser.lexer.JavaTokenTypes;
@@ -195,7 +195,7 @@ public class CommentNode extends ParsedNode
     }
     
     @Override
-    public CodeSuggestions getExpressionType(int pos, MoeSyntaxDocument document)
+    public ExpressionTypeInfo getExpressionType(int pos, MoeSyntaxDocument document)
     {
         return null;
     }

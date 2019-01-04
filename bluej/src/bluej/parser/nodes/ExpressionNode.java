@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2012,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2012,2014,2019  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,7 +27,7 @@ import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeSolid;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.MoeSyntaxDocument.Element;
-import bluej.parser.CodeSuggestions;
+import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.CompletionParser;
 import bluej.parser.DocumentReader;
 import bluej.parser.entity.EntityResolver;
@@ -61,7 +61,7 @@ public class ExpressionNode extends JavaParentNode
     }
     
     @Override
-    protected CodeSuggestions getExpressionType(int pos, int nodePos, JavaEntity defaultType, MoeSyntaxDocument document)
+    protected ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, MoeSyntaxDocument document)
     {
         valueEntityCache.clear();
         pocEntityCache.clear();
@@ -74,7 +74,7 @@ public class ExpressionNode extends JavaParentNode
     }
 
     @OnThread(Tag.FXPlatform)
-    public static CodeSuggestions suggestAsExpression(int pos, int nodePos, EntityResolver resolver,
+    public static ExpressionTypeInfo suggestAsExpression(int pos, int nodePos, EntityResolver resolver,
             JavaEntity defaultType, MoeSyntaxDocument document)
     {
         Reader r = new DocumentReader(document, nodePos, pos);
@@ -88,7 +88,7 @@ public class ExpressionNode extends JavaParentNode
         GenTypeSolid stype = parser.getSuggestionType();
         GenTypeClass atype = (defaultType != null) ? defaultType.getType().asClass() : null;
         if (stype != null) {
-            return new CodeSuggestions(stype, atype, parser.getSuggestionToken(), parser.isSuggestionStatic(), parser.isPlain());
+            return new ExpressionTypeInfo(stype, atype, parser.getSuggestionToken(), parser.isSuggestionStatic(), parser.isPlain());
         }
         else {
             return null;

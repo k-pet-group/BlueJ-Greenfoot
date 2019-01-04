@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014,2019  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,7 +25,6 @@ import java.util.List;
 
 import bluej.JavaFXThreadingRule;
 import bluej.editor.moe.ScopeColors;
-import junit.framework.TestCase;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
@@ -1176,7 +1175,7 @@ public class IncrementalParseTest
         assertEquals(cval.getType().toString(), "java.lang.Runnable");
         
         
-        CodeSuggestions suggests = aNode.getExpressionType(84, aDoc);
+        ExpressionTypeInfo suggests = aNode.getExpressionType(84, aDoc);
         assertNotNull(suggests);
         assertEquals(suggests.getSuggestionType().toString(), "java.lang.Runnable");
     }

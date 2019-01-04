@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2019  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,7 +25,7 @@ import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
 import bluej.editor.moe.MoeSyntaxDocument;
-import bluej.parser.CodeSuggestions;
+import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
 import bluej.parser.entity.TparEntity;
@@ -254,7 +254,7 @@ public class MethodNode extends JavaParentNode
     }
     
     @Override
-    protected CodeSuggestions getExpressionType(int pos, int nodePos,
+    protected ExpressionTypeInfo getExpressionType(int pos, int nodePos,
             JavaEntity defaultType, MoeSyntaxDocument document)
     {
         if (Modifier.isStatic(modifiers)) {
