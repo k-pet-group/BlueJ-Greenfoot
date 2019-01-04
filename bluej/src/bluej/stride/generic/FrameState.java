@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 
 import javafx.scene.Node;
 
-import bluej.utility.Debug;
 import nu.xom.Builder;
 import bluej.parser.entity.EntityResolver;
 import bluej.stride.framedjava.elements.ClassElement;
@@ -79,7 +78,7 @@ public class FrameState
      * 
      * @param resolver   The resolver used to resolve identifiers
      * @param packageName  The name of the package containing the class (empty string for default package)
-     * @return  A new ClassElement, or null if an internal error prevents creation.
+     * @return  A new ClassElement.
      */
     public ClassElement getClassElement(EntityResolver resolver, String packageName)
     {
@@ -90,8 +89,7 @@ public class FrameState
         }
         catch (IOException | ParsingException e)
         {
-            Debug.reportError("Error restoring state from string: ", e);
-            return null;
+            throw new RuntimeException(e);
         }
     }
     

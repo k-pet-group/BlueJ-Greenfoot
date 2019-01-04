@@ -1920,10 +1920,6 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         if (state != null) {
             final ClassElement classElement = state.getClassElement(projectResolver,
                     editor.getPackage().getQualifiedName());
-            if (classElement == null)
-            {
-                return; // Error restoring state, will have been logged already
-            }
             getTopLevelFrame().restoreCast(classElement);
             getTopLevelFrame().regenerateCode();
             Node n = state.recallFocus(getTopLevelFrame());
