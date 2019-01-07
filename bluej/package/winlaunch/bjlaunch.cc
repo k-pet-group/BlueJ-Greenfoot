@@ -641,7 +641,7 @@ int WINAPI WinMain
         // Gets the VM's absolute path
         if (! getAbsolutePath(defsVm, bluejPath, defsVm)) {
             displayMessage(TEXT("Could not determine JDK path -\n" "specified path or current directory may be too long"));
-            return 1;
+            return 0;
         }
 
         string reason;                
@@ -650,17 +650,15 @@ int WINAPI WinMain
                 return 0;
             }
             else {
-                return 1;
+                return 0;
             }
         } 
     }
 
     MessageBox (0, TEXT("No (suitable) Java JDKs were found. " APPNAME " requires JDK version " REQUIREDJAVA " or later.\n"
         "Please also note, the Java Runtime Environment (JRE) is not sufficient.\n"
-        "You must have a JDK to run " APPNAME ".\n\n"
-        "The launcher will continue to run - if you have a JDK installed, "
-        "you can browse\nfor it (use the browse button)."),
+        "You must have a JDK to run " APPNAME ".",
         TEXT(APPNAME), MB_ICONEXCLAMATION | MB_OK);
 
-    return 1;
+    return 0;
 }
