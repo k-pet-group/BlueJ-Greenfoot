@@ -7,19 +7,19 @@ ifeq ($(BUILD),bluej)
 APPNAME=\"BlueJ\"
 GREENFOOTDEF=
 EXECNAME=bjlaunch.exe
-REQUIREDJAVA=\"10\"
+REQUIREDJAVA=\"11\"
 else
 # For Greenfoot
 APPNAME=\"Greenfoot\"
 GREENFOOTDEF=-DGREENFOOT
 EXECNAME=gflaunch.exe
-REQUIREDJAVA=\"10\"
+REQUIREDJAVA=\"11\"
 endif
 
 # JDKDIR is set externally to something along the lines of:
 # /c/Program Files/Java/jdk1.6.0_45
 
-OBJECTS = resources.o bjlaunch.o javatest.o javaprops.o bjdialog.o
+OBJECTS = resources.o bjlaunch.o javatest.o javaprops.o
 CXXFLAGS = -Os -Wall
 
 $(EXECNAME): $(OBJECTS)
@@ -37,10 +37,6 @@ javaprops.o: javaprops.cc winfilebuf.h
 
 javatest.o: javatest.cc
 	g++ -DAPPNAME=$(APPNAME) $(CXXFLAGS) -Os -c javatest.cc -o javatest.o
-
-bjdialog.o: bjdialog.cc
-	g++ -DAPPNAME=$(APPNAME) $(CXXFLAGS) -Os -c bjdialog.cc -o bjdialog.o
-
 
 clean:
 	del $(OBJECTS)

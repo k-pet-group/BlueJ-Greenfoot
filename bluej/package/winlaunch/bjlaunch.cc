@@ -59,21 +59,11 @@ bool testJdkPath(string jdkLocation, string *reason);
 string readJavaProperty(string file, std::string propertyName);
 string getBlueJProperty(std::string propertyName);
 
-// Methods from bjdialog.cc
-INT_PTR CALLBACK MainDialogProc (HWND hwnd, 
-                          UINT message, 
-                          WPARAM wParam, 
-                          LPARAM lParam);
-
-
 // GLOBAL VARIABLES
 
 
 // Application instance
 HINSTANCE appInstance = 0;
-
-// The set of VMs which we have found
-std::set<string> goodVMs;
 
 // The version number, set in WinMain
 string appVersion;
@@ -104,58 +94,6 @@ static const char *VM_ARGS_PROP = "bluej.windows.vm.args";
 static const char *VM_PROP = "bluej.windows.vm";
 
 #endif
-
-// Get a registry value. The result should be delete[]'d to free it.
-// Returns NULL if there is an error or the result is not a string.
-static LPTSTR getRegistryValue(HKEY key, LPCTSTR valueName)
-{
-    DWORD dataSize = 0;
-    DWORD dataType;
-    LPTSTR result = NULL;
-
-    LONG rval = RegQueryValueEx(key, valueName, NULL, &dataType, NULL, &dataSize);
-    if (rval == ERROR_SUCCESS && dataType == REG_SZ) {
-        do {
-            int stringSize = (dataSize + sizeof(TCHAR) - 1) / sizeof(TCHAR) + 1;
-            result = new TCHAR[stringSize];
-            rval = RegQueryValueEx(key, valueName, NULL, &dataType, (BYTE *) result, &dataSize);
-            if (rval != ERROR_SUCCESS || dataType != REG_SZ) {
-                delete [] result;
-                result = NULL;
-            }
-        } while(rval == ERROR_MORE_DATA);
-    }
-
-    return result;
-}
-
-
-// Check the registry to see if a VM was selected previously.
-// If there is a selected VM, it is checked for validity and added
-// to the goodVMs set if valid.
-static void checkCurrentVM()
-{
-    string bluejRegKey = TEXT("Software\\" APPNAME "\\" APPNAME "\\");
-    bluejRegKey += appVersion;
-
-    // Check for a Current VM in the registry
-    HKEY regKey;
-    LONG rval = RegOpenKeyEx(HKEY_CURRENT_USER, bluejRegKey.c_str(), 0, KEY_READ, &regKey);
-    if (rval != ERROR_SUCCESS) {
-        // Try HKEY_LOCAL_MACHINE as well
-        rval = RegOpenKeyEx(HKEY_LOCAL_MACHINE, bluejRegKey.c_str(), 0, KEY_READ, &regKey);
-    }
-
-    if (rval == ERROR_SUCCESS) {
-        LPTSTR jdkLocation = getRegistryValue(regKey, TEXT("CurrentVM"));
-        if (jdkLocation != NULL) {
-            if (testJdkPath(jdkLocation, NULL)) {
-                goodVMs.insert(string(jdkLocation));
-            }
-        }
-        RegCloseKey(regKey);
-    }
-}
 
 // convert a UTF16 string to a UTF8 string.
 // Result should be delete[]'d when done with.
@@ -227,28 +165,6 @@ string escapeCmdlineParam(string arg)
     }
     return output;
 }
-
-
-// Save selected JDK location to the registry.
-void saveSelectedJdk(LPCTSTR jdkLocation)
-{
-    string bluejRegKey = TEXT("Software\\" APPNAME "\\" APPNAME "\\");
-    bluejRegKey += appVersion;
-
-    // Check for a Current VM in the registry
-    HKEY regKey;
-    LONG rval = RegCreateKeyEx(HKEY_CURRENT_USER, bluejRegKey.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE,
-            KEY_SET_VALUE, NULL, &regKey, NULL);
-
-    if (rval == ERROR_SUCCESS) {
-        rval = RegSetValueEx(regKey, TEXT("CurrentVM"), 0, REG_SZ, (const BYTE *) jdkLocation,
-                (lstrlen(jdkLocation) + 1) * sizeof(TCHAR));
-
-        RegCloseKey(regKey);
-    }
-}
-
-
 
 // Launch VM as an external process
 // Returns - true if successful
@@ -323,7 +239,6 @@ bool launchVMexternal(string jdkLocation)
         }
     }
 
-    saveSelectedJdk(jdkLocation.c_str());
     return true;
 }
 
@@ -365,7 +280,6 @@ bool launchVM(string jdkLocation)
     HINSTANCE hJavalib;
     jvmDllPath += TEXT("\\server\\jvm.dll");
     hJavalib = LoadLibrary(jvmDllPath.c_str());
-    SetDllDirectory(NULL);
 
     if (hJavalib == NULL) {
         return launchVMexternal(jdkLocation);
@@ -463,9 +377,6 @@ bool launchVM(string jdkLocation)
         }
 
 
-        // Must save the selected JDK first. Once we've let Java take over there doesn't
-        // seem to be any guarantee that further code in this program will be executed.
-        saveSelectedJdk(jdkLocation.c_str());
         (*jniEnv)->CallStaticVoidMethod(jniEnv, cls, mid, args);
 
         if ((*jniEnv)->ExceptionOccurred(jniEnv)) {
@@ -492,54 +403,9 @@ bool launchVM(string jdkLocation)
     return true;
 }
 
-
-
-// Find VMs under a VM provider key eg (sun, ibm)
-static void findRegistryVMs(string providerKey, int extraFlags)
-{
-    HKEY regKey;
-    LONG rval = RegOpenKeyEx(HKEY_LOCAL_MACHINE, providerKey.c_str(), 0, KEY_READ | extraFlags, &regKey);
-
-    TCHAR buffer[1024];
-
-    if (rval == ERROR_SUCCESS) {
-        DWORD dwIndex = 0;
-        do {
-            DWORD bufSize = 1024;
-            rval = RegEnumKeyEx(regKey, dwIndex, buffer, &bufSize, NULL, NULL, NULL, NULL);
-            if (rval == ERROR_SUCCESS) {
-                HKEY subKey;
-                LONG vval = RegOpenKeyEx(regKey, buffer, 0, KEY_QUERY_VALUE | extraFlags, &subKey);
-                if (vval == ERROR_SUCCESS) {
-                    if (lstrcmp(buffer, TEXT(REQUIREDJAVA)) > 0) {
-                        // Ok - suitable version
-                        LPTSTR jdkLocation = getRegistryValue(subKey, TEXT("JavaHome"));
-                        if (jdkLocation != NULL) {
-                            if (testJdkPath(jdkLocation, NULL)) {
-                                goodVMs.insert(string(jdkLocation));
-                            }
-                        }
-                    }
-                }
-            }
-            dwIndex++;
-        } while (rval != ERROR_NO_MORE_ITEMS);
-    }
-}
-
 #ifndef KEY_WOW64_64KEY
 #define KEY_WOW64_64KEY 0x100
 #endif
-
-// Find VMs from the registry
-static void findRegistryVMs()
-{
-    findRegistryVMs(TEXT("Software\\JavaSoft\\Java Development Kit"), 0);
-    findRegistryVMs(TEXT("Software\\JavaSoft\\Java Development Kit"), KEY_WOW64_64KEY);
-    findRegistryVMs(TEXT("Software\\IBM\\Java Development Kit"), 0);
-    findRegistryVMs(TEXT("Software\\IBM\\Java Development Kit"), KEY_WOW64_64KEY);
-}
-
 
 // Extract path from file
 string extractFilePath(string filename)
@@ -677,7 +543,6 @@ int WINAPI WinMain
    (HINSTANCE hInst, HINSTANCE hPrevInst, char * cmdParam, int cmdShow)
 {
     appInstance = hInst;
-    bool forceVMselect = false; // whether we MUST show window
     SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOOPENFILEERRORBOX);
 
     LPTSTR commandLine = GetCommandLine();
@@ -699,10 +564,7 @@ int WINAPI WinMain
 
     // Check parameters
     for (int i = 1; i < argCount; i++) {
-        if (lstrcmpi(TEXT("/select"), args[i]) == 0) {
-           forceVMselect = true;
-        }
-        else if (lstrcmpi(TEXT("/javaw"), args[i]) == 0) {
+        if (lstrcmpi(TEXT("/javaw"), args[i]) == 0) {
             // ignore for backwards compatibility
         }
         else if (lstrcmpi(TEXT("/externalvm"), args[i]) == 0) {
@@ -773,98 +635,30 @@ int WINAPI WinMain
         }
     }
 
-    // Check to see if there's a currently selected VM
-    checkCurrentVM();
-    if (!forceVMselect && !goodVMs.empty()) {
-        const string &jdkLocation = *(goodVMs.begin());
-        if (launchVM(jdkLocation)) {
-            return 0;
-        }
-    }
-
     // Check for VM in bluej.defs
     string defsVm = getBlueJProperty(VM_PROP);
     if (defsVm.length() != 0) {
         // Gets the VM's absolute path
         if (! getAbsolutePath(defsVm, bluejPath, defsVm)) {
             displayMessage(TEXT("Could not determine JDK path -\n" "specified path or current directory may be too long"));
-            return 1;
+            return 0;
         }
 
         string reason;                
         if (testJdkPath(defsVm, &reason)) {
-            if (! forceVMselect) {
-                if (launchVM(defsVm)) {
-                    return 0;
-                }
+            if (launchVM(defsVm)) {
+                return 0;
             }
-            goodVMs.insert(defsVm);
+            else {
+                return 0;
+            }
         } 
     }
 
-    // Locate other VMs
-    findRegistryVMs();
-    if (!forceVMselect && goodVMs.size() == 1) {
-        const string &jdkLocation = *(goodVMs.begin());
-        if (launchVM(jdkLocation)) {
-            return 0;
-        }
-    }
+    MessageBox (0, TEXT("No (suitable) Java JDKs were found. " APPNAME " requires JDK version " REQUIREDJAVA " or later.\n"
+        "Please also note, the Java Runtime Environment (JRE) is not sufficient.\n"
+        "You must have a JDK to run " APPNAME ".",
+        TEXT(APPNAME), MB_ICONEXCLAMATION | MB_OK);
 
-
-    HWND hDialog = 0;
-
-    hDialog = CreateDialog (hInst, 
-            MAKEINTRESOURCE (DLG_MAIN),
-            0,
-            MainDialogProc);
-
-    if (!hDialog)
-    {
-        TCHAR buf [100];
-        wsprintf (buf, TEXT(APPNAME " launcher could not create dialog: Error h\'%X"), GetLastError ());
-        MessageBox (0, buf, TEXT(APPNAME), MB_ICONEXCLAMATION | MB_OK);
-        return 1;
-    }
-
-
-
-    // Display the window
-    ShowWindow(hDialog, SW_SHOWNORMAL);
-
-    if (goodVMs.empty()) {
-        MessageBox (0, TEXT("No (suitable) Java JDKs were found. " APPNAME " requires JDK version " REQUIREDJAVA " or later.\n"
-                "Please also note, the Java Runtime Environment (JRE) is not sufficient.\n"
-                "You must have a JDK to run " APPNAME ".\n\n"
-                "The launcher will continue to run - if you have a JDK installed, "
-                "you can browse\nfor it (use the browse button)."),
-                TEXT(APPNAME), MB_ICONEXCLAMATION | MB_OK);
-    }
-
-
-    MSG  msg;
-    int status;
-    while ((status = GetMessage (& msg, 0, 0, 0)) != 0)
-    {
-        if (status == -1) {
-            return -1;
-        }
-
-        if (msg.message == MSG_LAUNCHVM) {
-            DestroyWindow(hDialog);
-            string jdkLocation = ((TCHAR *) msg.lParam);
-            if (launchVM(jdkLocation)) {
-                return 0;
-            }
-        }
-
-        if (!IsDialogMessage (hDialog, & msg))
-        {
-            TranslateMessage ( & msg );
-            DispatchMessage ( & msg );
-        }
-    }
-
-    // We've received WM_QUIT
-    return msg.wParam;
+    return 0;
 }
