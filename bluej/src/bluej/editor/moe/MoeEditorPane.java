@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2017  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2017,2019  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,6 +28,7 @@ import java.io.Writer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import bluej.prefmgr.PrefMgr.PrintSize;
+import javafx.scene.input.MouseButton;
 import org.fxmisc.flowless.Cell;
 import org.fxmisc.flowless.VirtualFlow;
 import org.fxmisc.flowless.VirtualFlowHit;
@@ -54,6 +55,9 @@ import javafx.scene.layout.BackgroundPosition;
 import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
 import javafx.scene.paint.ImagePattern;
+import org.fxmisc.wellbehaved.event.EventPattern;
+import org.fxmisc.wellbehaved.event.InputMap;
+import org.fxmisc.wellbehaved.event.Nodes;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -347,5 +351,22 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
         MoeActions actions = MoeActions.getActions(editor);
         actions.getActionByName(DefaultEditorKit.beginWordAction).actionPerformed();
         actions.getActionByName(DefaultEditorKit.selectionEndWordAction).actionPerformed();
+    }
+
+    @Override
+    public void selectParagraph() 
+    {
+        // In RichTextFX, triple-click should select a paragraph, however this does not work 
+        // on moe editor and rather it selects all the lines above the current line where the triple 
+        // click happens. So we need to override the triple click behaviour in RichTextFX which is 
+        // a private method that calls selectParagraph() method that we can override.
+        editor.getSourcePane().moveCaretPosition(editor.getSelectionEnd().getLine());
+        int offset = 0;
+        for (int i = 0; i < editor.getSelectionEnd().getLine(); i++) 
+        {
+            offset = offset + editor.getLineLength(i);
+        }
+        editor.getSourcePane().select(offset - editor.getLineLength(
+                editor.getSelectionEnd().getLine() - 1), offset);
     }
 }
