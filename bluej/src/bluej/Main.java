@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,13 +29,24 @@ import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import de.codecentric.centerdevice.MenuToolkit;
 import de.codecentric.centerdevice.dialogs.about.AboutStageBuilder;
 import javafx.application.Platform;
+import javafx.concurrent.Worker.State;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.web.WebView;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.util.Duration;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -46,11 +57,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Properties;
+import java.util.Scanner;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * BlueJ starts here. The Boot class, which is responsible for dealing with
@@ -61,6 +76,7 @@ import java.util.UUID;
  */
 public class Main
 {
+    private static final String MESSAGE_ROOT = "https://www.bluej.org/message/";
     /** 
      * Whether we've officially launched yet. While false "open file" requests only
      * set initialProject.
@@ -101,7 +117,12 @@ public class Main
         File bluejLibDir = Boot.getBluejLibDir();
 
         Config.initialise(bluejLibDir, commandLineProps, boot.isGreenfoot());
-        
+
+        CompletableFuture<Stage> futureMainWindow = new CompletableFuture<>();
+        // Must do this after Config initialisation:
+        if (!Config.isGreenfoot())
+            new Thread(() -> fetchAndShowCentralMsg(futureMainWindow)).start();
+
         if (guiHandler == null) {
             guiHandler = new BlueJGuiHandler();
         }
@@ -120,7 +141,8 @@ public class Main
             List<ExtensionWrapper> loadedExtensions = ExtensionsManager.getInstance().getLoadedExtensions(null);
             Platform.runLater(() -> {
                 DataCollector.bluejOpened(getOperatingSystem(), getJavaVersion(), getBlueJVersion(), getInterfaceLanguage(), loadedExtensions);
-                processArgs(args);
+                Stage stage = processArgs(args);
+                futureMainWindow.complete(stage);
             });
         });
         
@@ -138,9 +160,11 @@ public class Main
      * Start everything off. This is used to open the projects specified on the
      * command line when starting BlueJ. Any parameters starting with '-' are
      * ignored for now.
+     * 
+     * @return A handle to the main window which was opened, or null if there was no window opened.
      */
     @OnThread(Tag.FXPlatform)
-    private static void processArgs(String[] args)
+    private static Stage processArgs(String[] args)
     {
         launched = true;
         
@@ -178,10 +202,12 @@ public class Main
             }
         }
 
-        guiHandler.initialOpenComplete(oneOpened);
+        Stage window = guiHandler.initialOpenComplete(oneOpened);
         
         Boot.getInstance().disposeSplashWindow();
         ExtensionsManager.getInstance().delegateEvent(new ApplicationEvent(ApplicationEvent.APP_READY_EVENT));
+        
+        return window;
     }
 
     /**
@@ -508,5 +534,117 @@ public class Main
     public static void setGuiHandler(GuiHandler initialGUI)
     {
         Main.guiHandler = initialGUI;
+    }
+
+
+    /**
+     * Fetch and show a message from bluej.org, by looking at the central index then fetching
+     * the current message (if any, and if unseen).
+     * 
+     * @param withStage A future which will complete with a parent window (or null if none).
+     *                  The message should be shown as the modal child of this window.
+     */
+    private static void fetchAndShowCentralMsg(CompletableFuture<Stage> withStage)
+    {
+        try
+        {
+            // latest.txt should have two dates, one on each line.  Top one is
+            // start date of the message (and serves as its identifier), bottom one
+            // is the expiry date of the message.
+            Scanner scanner = new Scanner(new URL(MESSAGE_ROOT + "latest.txt").openStream(), "UTF-8").useDelimiter("\n");
+
+            LocalDate startDate = LocalDate.parse(scanner.nextLine());
+            LocalDate endDate = LocalDate.parse(scanner.nextLine());
+
+            LocalDate lastSeen = null;
+            try
+            {
+                lastSeen = LocalDate.parse(Config.getPropString(Config.MESSAGE_LATEST_SEEN));
+            }
+            catch (Exception e)
+            {
+                // Can't read saved value; just leave lastSeen as null
+            }
+
+            boolean seenMessage = lastSeen != null && (startDate.isBefore(lastSeen) || startDate.isEqual(lastSeen));
+            boolean expired = LocalDate.now().isAfter(endDate);
+
+            if (!seenMessage && !expired)
+            {
+                Platform.runLater(() -> {
+                    // Display the message in a web view component:
+                    WebView webView = new WebView();
+                    
+                    // In 5 seconds time, cancel the loading attempt - probably a connection or server issue:
+                    FXPlatformRunnable preventTimeout = JavaFXUtil.runAfter(Duration.seconds(5), () -> {
+                        webView.getEngine().getLoadWorker().cancel();
+                    });
+
+                    // Only bother showing the window once (if!) the page load has succeeded:
+                    JavaFXUtil.addChangeListener(webView.getEngine().getLoadWorker().stateProperty(), state -> {
+                        if (state == State.SUCCEEDED)
+                        {
+                            // Loaded!  Show it to the user.
+
+                            // Make sure we don't cancel now we've been successful: 
+                            preventTimeout.run();
+
+                            withStage.handle((parent, error) -> {
+                                if (parent != null)
+                                {
+                                    Platform.runLater(() -> showMessageWindow(startDate, webView, parent));
+                                }
+                                return null;
+                            });
+                        }
+                    });
+                    
+                    // Now set off the loading attempt:
+                    webView.getEngine().load(MESSAGE_ROOT + startDate.toString() + ".html");
+                });
+            }
+        }
+        catch (MalformedURLException e)
+        {
+            // Shouldn't happen:
+            Debug.reportError(e);
+        }
+        catch (IOException e)
+        {
+            // Might not have any Internet connection.
+            // Silently abandon attempt to show message
+        }
+    }
+
+    /**
+     * Shows the message fetched from the server in a new modal window.  When the window
+     * is closed, record that the user has seen the message.
+     * 
+     * @param startDate The start date (identifier) of the message being shown.
+     * @param webView The WebView component in which the message has been loaded
+     * @param parent The parent window.  Must be non-null
+     */
+    private static void showMessageWindow(LocalDate startDate, WebView webView, Stage parent)
+    {
+        Stage window = new Stage();
+        window.initModality(Modality.WINDOW_MODAL);
+        window.initOwner(parent);
+        window.setTitle("bluej.central.msg.title");
+        Button button = new Button(Config.getString("okay"));
+        button.setDefaultButton(true);
+        button.setOnAction(e -> {
+            window.hide();
+        });
+        window.setOnHidden(e -> {
+            // Record that we have seen the new message:
+            Config.recordLatestSeen(startDate);
+        });
+
+        BorderPane.setAlignment(button, Pos.CENTER);
+        BorderPane.setMargin(button, new Insets(15));
+        BorderPane.setMargin(webView, new Insets(10));
+        window.setScene(new Scene(new BorderPane(webView, null, null, button, null)));
+        window.show();
+        window.toFront();
     }
 }
