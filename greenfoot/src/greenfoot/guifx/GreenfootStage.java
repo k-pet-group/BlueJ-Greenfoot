@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2017,2018  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2017,2018,2019  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -2880,5 +2880,13 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 && f.getName().equals(fieldName))
             .mapToInt(f -> Integer.parseInt(f.getValueString()))
             .findFirst();
+    }
+
+    /**
+     * Gets a Stage reference for an open GreenfootStage, or null if there are none.
+     */
+    public static Stage getOpenStage()
+    {
+        return stages.isEmpty() ? null : stages.get(0);
     }
 }

@@ -918,3 +918,5 @@ newProject.prompt=Enter a name for the new project
 
 # Class Diagram
 classTarget.noSource=no source
+
+bluej.central.msg.title=BlueJ - Latest News

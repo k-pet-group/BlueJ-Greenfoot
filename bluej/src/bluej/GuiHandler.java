@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2018  Michael Kolling and John Rosenberg
+ Copyright (C) 2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej;
 
 import java.io.File;
 
+import javafx.stage.Stage;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -64,8 +65,9 @@ public interface GuiHandler
      * Initial opening of projects is complete.
      * 
      * @param projectOpen  true if a project was opened; false if no projects are open
+     * @return An open main window, or null if not available due to an unexpected error. 
      */
-    void initialOpenComplete(boolean projectOpen);
+    Stage initialOpenComplete(boolean projectOpen);
     
     /**
      * Perform any cleanup/save prior to application exit. The exit cannot be cancelled at this point.

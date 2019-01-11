@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2018  Michael Kolling and John Rosenberg
+ Copyright (C) 2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,6 +28,7 @@ import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.utility.Debug;
+import javafx.stage.Stage;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -68,7 +69,7 @@ public class BlueJGuiHandler implements GuiHandler
     }
     
     @Override
-    public void initialOpenComplete(boolean projectOpen)
+    public Stage initialOpenComplete(boolean projectOpen)
     {
         if (! projectOpen)
         {
@@ -76,6 +77,7 @@ public class BlueJGuiHandler implements GuiHandler
             frame.getFXWindow().setX(FIRST_X_LOCATION);
             frame.getFXWindow().setY(FIRST_Y_LOCATION);
             frame.setVisible(true);
+            return frame.getFXWindow();
         }
         else
         {
@@ -99,6 +101,8 @@ public class BlueJGuiHandler implements GuiHandler
                     Debug.message("Did not find target class in opened project: \"" + targetName + "\"");
                 }
             }
+            
+            return PkgMgrFrame.getMostRecent().getFXWindow();
         }
     }
     

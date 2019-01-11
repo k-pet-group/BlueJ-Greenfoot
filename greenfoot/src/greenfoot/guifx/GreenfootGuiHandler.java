@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2018  Poul Henriksen and Michael Kolling
+ Copyright (C) 2018,2019  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -77,10 +77,16 @@ public class GreenfootGuiHandler implements GuiHandler
     }
 
     @Override
-    public void initialOpenComplete(boolean projectOpen)
+    public Stage initialOpenComplete(boolean projectOpen)
     {
         if (! projectOpen) {
-            GreenfootStage.makeStage(null, null).show();
+            GreenfootStage stage = GreenfootStage.makeStage(null, null);
+            stage.show();
+            return stage;
+        }
+        else
+        {
+            return GreenfootStage.getOpenStage();
         }
     }
     

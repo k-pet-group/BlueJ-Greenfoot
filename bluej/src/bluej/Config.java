@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
+import java.time.LocalDate;
 import java.util.*;
 
 import javafx.beans.property.BooleanProperty;
@@ -156,6 +157,7 @@ public final class Config
     private static boolean isDebugVm = true; // Default to true, will be corrected on main VM
     public static final String EDITOR_COUNT_JAVA = "session.numeditors.java";
     public static final String EDITOR_COUNT_STRIDE = "session.numeditors.stride";
+    public static final String MESSAGE_LATEST_SEEN = "bluej.latest.msg";
     private static long MAX_DEBUG_LOG_SIZE = 1048576;
 
     /**
@@ -789,6 +791,16 @@ public final class Config
     {
         userProps.setProperty(EDITOR_COUNT_JAVA, "0");
         userProps.setProperty(EDITOR_COUNT_STRIDE, "0");
+        saveAppProperties();
+    }
+
+    /**
+     * Records the date of the latest seen message from the server and saves the bluej.properties file.
+     * @param latestSeen The id (start date) of the latest message the user has seen.
+     */
+    public static void recordLatestSeen(LocalDate latestSeen)
+    {
+        userProps.setProperty(MESSAGE_LATEST_SEEN, latestSeen.toString());
         saveAppProperties();
     }
 
