@@ -66,6 +66,7 @@ import java.util.Properties;
 import java.util.Scanner;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * BlueJ starts here. The Boot class, which is responsible for dealing with
@@ -580,11 +581,14 @@ public class Main
                         webView.getEngine().getLoadWorker().cancel();
                     });
 
+                    AtomicBoolean shownWindow = new AtomicBoolean(false);
+
                     // Only bother showing the window once (if!) the page load has succeeded:
                     JavaFXUtil.addChangeListener(webView.getEngine().getLoadWorker().stateProperty(), state -> {
-                        if (state == State.SUCCEEDED)
+                        if (state == State.SUCCEEDED && !shownWindow.get())
                         {
                             // Loaded!  Show it to the user.
+                            shownWindow.set(true);
 
                             // Make sure we don't cancel now we've been successful: 
                             preventTimeout.run();
