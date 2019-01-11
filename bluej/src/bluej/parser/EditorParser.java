@@ -142,17 +142,13 @@ public class EditorParser extends JavaParser
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     protected void error(String msg, int beginLine, int beginColumn, int endLine, int endColumn)
     {
-        // TODO make a proper listener interface
-        if (document instanceof MoeSyntaxDocument) {
-            MoeSyntaxDocument mdocument = (MoeSyntaxDocument) document;
-            Element lineEl = mdocument.getDefaultRootElement().getElement(beginLine - 1);
-            int position = lineEl.getStartOffset() + beginColumn - 1;
-            if (endLine != beginLine) {
-                lineEl = mdocument.getDefaultRootElement().getElement(endLine - 1);
-            }
-            int endPos = lineEl.getStartOffset() + endColumn - 1;
-            mdocument.parseError(position, endPos - position, msg);
+        Element lineEl = document.getDefaultRootElement().getElement(beginLine - 1);
+        int position = lineEl.getStartOffset() + beginColumn - 1;
+        if (endLine != beginLine) {
+            lineEl = document.getDefaultRootElement().getElement(endLine - 1);
         }
+        int endPos = lineEl.getStartOffset() + endColumn - 1;
+        document.parseError(position, endPos - position, msg);
     }
     
     @Override
