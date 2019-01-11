@@ -29,6 +29,7 @@ import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
+import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import de.codecentric.centerdevice.MenuToolkit;
@@ -43,10 +44,16 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.events.EventTarget;
+import org.w3c.dom.html.HTMLAnchorElement;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -61,6 +68,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.time.LocalDate;
+import java.util.EventListener;
 import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
@@ -592,6 +600,8 @@ public class Main
 
                             // Make sure we don't cancel now we've been successful: 
                             preventTimeout.run();
+                            
+                            makeLinksOpenExternally(webView.getEngine().getDocument());
 
                             withStage.handle((parent, error) -> {
                                 if (parent != null)
@@ -617,6 +627,35 @@ public class Main
         {
             // Might not have any Internet connection.
             // Silently abandon attempt to show message
+        }
+    }
+
+    /**
+     * Overrides the click behaviour of all &lt;a&gt; tags in the document
+     * so that they open in an external browser window.
+     * 
+     * @param document The document in which to override the links
+     */
+    private static void makeLinksOpenExternally(Document document)
+    {
+        // Adapted from https://stackoverflow.com/questions/15555510/javafx-stop-opening-url-in-webview-open-in-browser-instead/18536564#18536564
+        NodeList nodeList = document.getElementsByTagName("a");
+        for (int i = 0; i < nodeList.getLength(); i++)
+        {
+            Node node= nodeList.item(i);
+            EventTarget eventTarget = (EventTarget) node;
+            eventTarget.addEventListener("click", new org.w3c.dom.events.EventListener()
+            {
+                @Override
+                public void handleEvent(org.w3c.dom.events.Event evt)
+                {
+                    EventTarget target = evt.getCurrentTarget();
+                    HTMLAnchorElement anchorElement = (HTMLAnchorElement) target;
+                    String href = anchorElement.getHref();
+                    SwingUtilities.invokeLater(() -> Utility.openWebBrowser(href));
+                    evt.preventDefault();
+                }
+            }, false);
         }
     }
 
