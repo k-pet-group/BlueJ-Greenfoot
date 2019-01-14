@@ -354,19 +354,20 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void selectParagraph() 
     {
         // In RichTextFX, triple-click should select a paragraph, however this does not work 
         // on moe editor and rather it selects all the lines above the current line where the triple 
         // click happens. So we need to override the triple click behaviour in RichTextFX which is 
         // a private method that calls selectParagraph() method that we can override.
-        editor.getSourcePane().moveCaretPosition(editor.getSelectionEnd().getLine());
+        moveCaretPosition(editor.getSelectionEnd().getLine());
         int offset = 0;
         for (int i = 0; i < editor.getSelectionEnd().getLine(); i++) 
         {
             offset = offset + editor.getLineLength(i);
         }
-        editor.getSourcePane().select(offset - editor.getLineLength(
+        select(offset - editor.getLineLength(
                 editor.getSelectionEnd().getLine() - 1), offset);
     }
 }

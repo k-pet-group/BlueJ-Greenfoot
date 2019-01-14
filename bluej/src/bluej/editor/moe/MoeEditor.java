@@ -1150,6 +1150,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * @return the current end of the selection or null if no text is selected.
      */
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public SourceLocation getSelectionEnd()
     {
         // If the dot is == as the mark then there is no selection.
@@ -1318,6 +1319,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * @return       the length of the line, -1 if line is invalid
      */
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public int getLineLength(int line)
     {
         if (line < 0) {
