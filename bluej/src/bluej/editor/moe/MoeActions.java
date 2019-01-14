@@ -461,20 +461,17 @@ public final class MoeActions
         MoeSyntaxDocument doc = editor.getSourceDocument();
         Element text = doc.getDefaultRootElement();
 
-        int firstLineIndex = text.getElementIndex(selectionStart);
-        int lastLineIndex = text.getElementIndex(selectionEnd);
-        for (int i = firstLineIndex; i <= lastLineIndex; i++) {
+        int firstLineIndex = editor.getLineColumnFromOffset(selectionStart).getLine() - 1;
+        int lastLineIndex = editor.getLineColumnFromOffset(selectionEnd).getLine();
+        for (int i = firstLineIndex; i < lastLineIndex; i++) {
             Element line = text.getElement(i);
             lineAction.apply(line, doc);
         }
-
-        // Only select the lines afterwards if there was a selection beforehand:
-        if (selectionStart != selectionEnd)
-        {/*
-            editor.setSelection(firstLineIndex + 1, 1,
-            text.getElement(lastLineIndex).getEndOffset()
-                - text.getElement(firstLineIndex).getStartOffset());*/
+        if (selectionStart == selectionEnd)
+        {
+            Element line = text.getElement(selectionStart);
         }
+        editor.getSourcePane().deselect();
     }
 
     private static String getNodeContents(MoeSyntaxDocument doc, NodeAndPosition<ParsedNode> nap)
