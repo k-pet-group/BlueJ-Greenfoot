@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2017,2018  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2017,2018,2019  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -135,10 +135,16 @@ public abstract class GClassNode
 
     /**
      * Called when this GClassNode is being disposed of.  Remove
-     * any listeners, etc.
+     * any listeners, etc.  This implementation calls tidy-up on sub-classes,
+     * and any class which overrides this method must call super.tidyup()
+     * in order for sub classes to also be tidied up.
      */
     public void tidyup()
-    {   
+    {
+        for (GClassNode subClass : subClasses)
+        {
+            subClass.tidyup();
+        }
     }
     
     /**
