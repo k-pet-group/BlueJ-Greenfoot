@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program.
- Copyright (C) 2005-2009,2010,2014,2015,2016,2017,2018  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2014,2015,2016,2017,2018,2019  Poul Henriksen and Michael Kolling
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -27,6 +27,7 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.javafx.FXConsumer;
+import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.guifx.PastedImageNameDialog;
 import greenfoot.guifx.classes.LocalGClassNode;
@@ -70,6 +71,8 @@ class ImageLibPane extends VBox
 {
     private final Project project;
     private final Window container;
+    // An action to stop regularly refreshing:
+    private FXRunnable cancelRefresh;
 
     private ImageLibList projImageList;
     private ImageLibList greenfootImageList;
@@ -127,6 +130,17 @@ class ImageLibPane extends VBox
         getChildren().addAll(buildImageLists(specifiedImage), createCogMenu());
         setItemButtons(projImageList.getSelectionModel().getSelectedItem() != null
                 && projImageList.getSelectionModel().getSelectedItem().getImageFile() != null);
+        
+        container.setOnShown(e -> {
+            cancelRefresh = JavaFXUtil.runRegular(Duration.millis(1000), () -> projImageList.refresh());
+        });
+        container.setOnHidden(e -> {
+            if (cancelRefresh != null)
+            {
+                cancelRefresh.run();
+                cancelRefresh = null;
+            }
+        });
     }
 
     /**
@@ -147,7 +161,6 @@ class ImageLibPane extends VBox
         projImagesDir = new File(project.getProjectDir(), "images");
         projImageList = new ImageLibList(projImagesDir, true);
         projImageList.select(specifiedImage);
-        JavaFXUtil.runRegular(Duration.millis(1000), () -> projImageList.refresh());
         ScrollPane imageScrollPane = new ScrollPane(projImageList);
         imageScrollPane.setFitToWidth(true);
         imageScrollPane.setFitToHeight(true);
