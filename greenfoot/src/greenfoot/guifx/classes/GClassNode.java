@@ -141,6 +141,10 @@ public abstract class GClassNode
      */
     public void tidyup()
     {
+        if (display != null)
+        {
+            selectionManager.removeClassDisplay(display);
+        }
         for (GClassNode subClass : subClasses)
         {
             subClass.tidyup();
