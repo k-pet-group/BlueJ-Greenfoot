@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2017  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2017,2019  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -47,6 +47,14 @@ public class ClassDisplaySelectionManager
     public void addClassDisplay(ClassDisplay classDisplay)
     {
         classDisplayList.add(classDisplay);
+    }
+    
+    /**
+     * Remove a ClassDisplay from the set of possibly-selected classes
+     */
+    public void removeClassDisplay(ClassDisplay classDisplay)
+    {
+        classDisplayList.remove(classDisplay);
     }
 
     /**
