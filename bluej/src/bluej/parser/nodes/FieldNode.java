@@ -21,10 +21,17 @@
  */
 package bluej.parser.nodes;
 
+import bluej.debugger.gentype.JavaType;
 import bluej.editor.moe.MoeSyntaxDocument;
+import bluej.parser.DocumentReader;
 import bluej.parser.ExpressionTypeInfo;
+import bluej.parser.TextParser;
+import bluej.parser.entity.ErrorEntity;
 import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.ParsedReflective;
+import bluej.parser.entity.TypeEntity;
 import bluej.parser.entity.UnresolvedArray;
+import bluej.parser.entity.ValueEntity;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 /**
@@ -36,10 +43,14 @@ public class FieldNode extends JavaParentNode
 {
     private String name;
     private JavaEntity fieldType;
+    private boolean isVarType;  // declared with "var" (type to be inferred)?
     private FieldNode firstNode;
     private int modifiers;
     /** Number of extra array declarators */
     private int arrayDecls;
+    
+    /** The document for the source declaring this field, used for inferring "var" type fields */
+    private MoeSyntaxDocument document;
     
     /**
      * Construct a field node representing the first declared field in a field
@@ -53,6 +64,26 @@ public class FieldNode extends JavaParentNode
         this.fieldType = fieldType;
         this.arrayDecls = arrayDecls;
         this.modifiers = modifiers;
+        this.document = null;
+        this.isVarType = false;
+    }
+
+    /**
+     * Construct a field node representing the first declared variable in a variable declaration
+     * where the type is specified as "var" (i.e. the type should be inferred).
+     */
+    public FieldNode(JavaParentNode parent, String name, int arrayDecls, int modifiers,
+            MoeSyntaxDocument document)
+    {
+        super(parent);
+        // Note, we can't infer the type now, since the result may change when other edits are
+        // made. Instead, save enough information so that we can infer it on request:
+        this.name = name;
+        this.fieldType = null;
+        this.arrayDecls = arrayDecls;
+        this.modifiers = modifiers;
+        this.document = document;
+        this.isVarType = true;
     }
     
     /**
@@ -88,12 +119,89 @@ public class FieldNode extends JavaParentNode
     }
     
     /**
+     * Calculate the absolute offset of this node, by walking up the node tree.
+     */
+    private int getAbsoluteOffset()
+    {
+        int offs = 0;
+        ParsedNode pnode = getParentNode();
+        ParsedNode node = this;
+        while (pnode != null) {
+            offs += node.getOffsetFromParent();
+            node = pnode;
+            pnode = node.getParentNode();
+        }
+        return offs;
+    }
+    
+    /**
+     * Get the containing type of this field/variable.
+     */
+    private JavaEntity getContainingType()
+    {
+        ParsedNode pnode = getParentNode();
+        while (pnode.getNodeType() != ParsedNode.NODETYPE_TYPEDEF)
+        {
+            pnode = pnode.getParentNode();
+        }
+        
+        return new TypeEntity(new ParsedReflective((ParsedTypeNode) pnode));
+    }
+    
+    /**
+     * Get the initialiser-expression node and its position.
+     */
+    private NodeAndPosition<ParsedNode> getInitExpression()
+    {
+        int mypos = getAbsoluteOffset();
+        NodeAndPosition<ParsedNode> r = findNodeAtOrAfter(0, mypos);
+        return r;
+    }
+    
+    /**
      * Get the type of this field (as a JavaEntity, which needs to be resolved as a type).
      */
     public JavaEntity getFieldType()
     {
+        // Note that "var" isn't allowed in a compound (multi-variable) declaration. So it should
+        // be ok to refer to firstNode.fieldType directly here:
         JavaEntity ftype = firstNode == null ? fieldType : firstNode.fieldType;
-        for (int i = 0; i < arrayDecls; i++) {
+        if (ftype == null)
+        {
+            if (isVarType)
+            {
+                NodeAndPosition<ParsedNode> initExpr = getInitExpression();
+                
+                TextParser tp = new TextParser(this,
+                        new DocumentReader(document, initExpr.getPosition(), initExpr.getEnd()),
+                        getContainingType(),
+                        false /* static access */);
+                tp.parseExpression();
+                JavaEntity inferredTypeEnt = tp.getExpressionType();
+                if (inferredTypeEnt == null)
+                {
+                    return new ErrorEntity();
+                }
+                
+                ValueEntity inferredVal = inferredTypeEnt.resolveAsValue();
+                if (inferredVal == null)
+                {
+                    return new ErrorEntity();
+                }
+                
+                JavaType inferredType = inferredVal.getType();
+                
+                if (inferredType != null)
+                {
+                    return new TypeEntity(inferredType);
+                }
+            }
+            
+            return new ErrorEntity();
+        }
+        
+        for (int i = 0; i < arrayDecls; i++)
+        {
             ftype = new UnresolvedArray(ftype);
         }
         return ftype;
