@@ -32,8 +32,6 @@ import java.util.concurrent.Executor;
 
 import bluej.JavaFXThreadingRule;
 import bluej.editor.moe.ScopeColors;
-import javafx.embed.swing.JFXPanel;
-import junit.framework.TestCase;
 import bluej.debugger.gentype.FieldReflective;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeSolid;
@@ -245,6 +243,30 @@ public class CompletionTest
         assertNotNull(suggests);
         assertEquals("java.lang.Object", suggests.getSuggestionType().toString());
     }
+
+    /**
+     * Completion from an expression involving a local variable declared as "var"
+     */
+    @Test
+    public void test3var() throws Exception
+    {
+        String aClassSrc = "class A {\n" +   //       10 
+        "void someMethod() {\n" +            // +20 = 30 
+        "    var b = new Object();\n" +      // +26 = 56 
+        "    int a = b.hashCode();\n" +      // int a = b. <-- 70
+        "}\n" +
+        "}\n";
+        
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc);
+        
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        
+        ExpressionTypeInfo suggests = aNode.getExpressionType(70, doc);
+        assertNotNull(suggests);
+        assertEquals("java.lang.Object", suggests.getSuggestionType().toString());
+    }
     
     /** Test that a for-loop initializer creates a recognized variable */
     @Test
@@ -254,6 +276,31 @@ public class CompletionTest
         "void someMethod() {\n" +            // +20 = 30 
         "    for (Object o = null ; ; ) {\n" + // +33 = 63
         "        o.wait();\n" +              // o. <-- 73
+        "    }" +
+        "}\n" +
+        "}\n";
+        
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc);
+        
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        
+        ExpressionTypeInfo suggests = aNode.getExpressionType(73, doc);
+        assertNotNull(suggests);
+        assertEquals("java.lang.Object", suggests.getSuggestionType().toString());
+    }
+
+    /**
+     * Test that a for-loop initializer, declared with "var", creates a recognised variable
+     * */
+    @Test
+    public void testForInitializerVar() throws Exception
+    {
+        String aClassSrc = "class A {\n" +   //       10 
+        "void someMethod() {\n" +            // +20 = 30 
+        "    for (var o = null ; ; ) {\n" +  // +30 = 60
+        "        o.wait();\n" +              // o. <-- 70
         "    }" +
         "}\n" +
         "}\n";
