@@ -293,14 +293,14 @@ public class CompletionTest
 
     /**
      * Test that a for-loop initializer, declared with "var", creates a recognised variable
-     * */
+     */
     @Test
     public void testForInitializerVar() throws Exception
     {
         String aClassSrc = "class A {\n" +   //       10 
         "void someMethod() {\n" +            // +20 = 30 
-        "    for (var o = null ; ; ) {\n" +  // +30 = 60
-        "        o.wait();\n" +              // o. <-- 70
+        "    for (var o = new Object() ; ; ) {\n" +  // +38 = 68
+        "        o.wait();\n" +              // o. <-- 78
         "    }" +
         "}\n" +
         "}\n";
@@ -311,7 +311,7 @@ public class CompletionTest
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
         
-        ExpressionTypeInfo suggests = aNode.getExpressionType(73, doc);
+        ExpressionTypeInfo suggests = aNode.getExpressionType(78, doc);
         assertNotNull(suggests);
         assertEquals("java.lang.Object", suggests.getSuggestionType().toString());
     }
