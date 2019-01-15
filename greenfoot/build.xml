@@ -20,7 +20,7 @@
     <!-- Greenfoot Version Number -->
     <property name="greenfoot.version.major" value="3"/>
     <property name="greenfoot.version.minor" value="5"/>
-    <property name="greenfoot.version.micro" value="2"/>
+    <property name="greenfoot.version.micro" value="3"/>
     <property name="greenfoot.version.suffix" value="" />
     
     <!-- Greenfoot version to API mapping:        -->
