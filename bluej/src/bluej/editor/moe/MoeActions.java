@@ -469,8 +469,8 @@ public final class MoeActions
         if (selectionStart == selectionEnd)
         {
             Element line = text.getElement(selectionStart);
+            editor.getSourcePane().deselect();
         }
-        editor.getSourcePane().deselect();
     }
 
     private static String getNodeContents(MoeSyntaxDocument doc, NodeAndPosition<ParsedNode> nap)
