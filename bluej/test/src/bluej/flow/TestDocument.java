@@ -22,70 +22,135 @@
 package bluej.flow;
 
 import bluej.editor.flow.Document;
+import bluej.editor.flow.Document.Bias;
 import bluej.editor.flow.HoleDocument;
 import bluej.editor.flow.SlowDocument;
+import bluej.editor.flow.TrackedPosition;
 import bluej.flow.gen.GenRandom;
 import bluej.flow.gen.GenString;
 import com.pholser.junit.quickcheck.From;
 import com.pholser.junit.quickcheck.Property;
+import com.pholser.junit.quickcheck.When;
 import com.pholser.junit.quickcheck.random.SourceOfRandomness;
 import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnitQuickcheck.class)
 public class TestDocument
 {
-    @Property
+    @Property(shrink = false)
     public void propDocumentStringReplace(@From(GenRandom.class) Random r)
     {
-        try
+        class Pos
         {
-            Document[] documents = new Document[] { new SlowDocument(), new HoleDocument() };
-            String curContent = "";
-            GenString stringMaker = new GenString();
-            // Perform 100 replacements:
-            int lastInsert = 0;
-            for (int i = 0; i < 100; i++)
+            // One entry per document, all tracking the same position:
+            final List<TrackedPosition> onePosPerDoc;
+            final Bias bias;
+            int lastPosition;
+            
+            public Pos(Document[] documents, int initialPos, Bias bias)
             {
-                int length = curContent.length();
-                int start, end;
-                // 20% chance of inserting at same position:
-                if (r.nextInt(5) == 1)
-                {
-                    start = lastInsert;
-                }
-                else
-                {
-                    // Insert at very end of document is possible:
-                    start = r.nextInt(length + 1);
-                }
-                // 50% chance of making an insert (replacing no content):
-                if (r.nextInt(2) == 1 || start == length)
-                {
-                    end = start;
-                }
-                else
-                {
-                    end = start + r.nextInt(length - start);
-                }
-                String newContent = stringMaker.generate(new SourceOfRandomness(r), null);
-
-                // Calculate desired content and check the document matches:
-                curContent = curContent.substring(0, start) + newContent + curContent.substring(end);
-                for (Document document : documents)
-                {
-                    document.replaceText(start, end, newContent);
-                    assertEquals(curContent, document.getFullContent());
-                }
+                this.bias = bias;
+                onePosPerDoc = Arrays.stream(documents).map(d -> d.trackPosition(initialPos, bias)).collect(Collectors.toList());
+                this.lastPosition = initialPos;
             }
         }
-        catch (Throwable t)
+        
+        // Documents with identical content to test alongside each other:
+        Document[] documents = new Document[] { new SlowDocument(), new HoleDocument() };
+        String curContent = "";
+        GenString stringMaker = new GenString();
+        
+        // One entry per tracked position;
+        List<Pos> trackedPositions = new ArrayList<>();
+        
+        // Perform 100 replacements:
+        int lastInsert = 0;
+        for (int i = 0; i < 100; i++)
         {
-            t.printStackTrace();
+            int length = curContent.length();
+
+            if (r.nextInt(3) == 1)
+            {
+                // Track a random new position:
+                int newTrackPos = r.nextInt(length + 1);
+                Bias bias = Bias.values()[r.nextInt(Bias.values().length)];
+                trackedPositions.add(new Pos(documents, newTrackPos, bias));
+            }
+            
+            int start, end;
+            // 20% chance of inserting at same position:
+            if (r.nextInt(5) == 1)
+            {
+                start = lastInsert;
+            }
+            else
+            {
+                // Insert at very end of document is possible:
+                start = r.nextInt(length + 1);
+            }
+            // 50% chance of making an insert (replacing no content):
+            if (r.nextInt(2) == 1 || start == length)
+            {
+                end = start;
+            }
+            else
+            {
+                end = start + r.nextInt(length - start);
+            }
+            String newContent = stringMaker.generate(new SourceOfRandomness(r), null);
+
+            // Calculate desired content and check the document matches:
+            curContent = curContent.substring(0, start) + newContent + curContent.substring(end);
+            for (Document document : documents)
+            {
+                document.replaceText(start, end, newContent);
+                assertEquals(curContent, document.getFullContent());
+            }
+            // What is the position if we kept on typing?
+            lastInsert = start + newContent.length();
+            
+            // Update all the positions and check them:
+            for (Pos pos : trackedPositions)
+            {
+                int was = pos.lastPosition;
+                
+                if (pos.lastPosition < start)
+                {
+                    // Position is before our change, nothing to alter
+                }
+                else if (pos.lastPosition < end || (pos.lastPosition == end && pos.bias != Bias.FORWARD))
+                {
+                    // Position is in the deleted region, set to start:
+                    pos.lastPosition = start;
+                }
+                else
+                {                    
+                    // Position after change, and not in deleted region:
+                    pos.lastPosition = pos.lastPosition - (end - start) + newContent.length();
+                }
+
+                // Check line and column info.  This is O(N^3) as we add around 30 positions, then
+                // check them on each add, then scan whole document for each in case
+                // of SlowDocument.  But ~100*100*2000 isn't that bad...
+                int linesBefore = (int)curContent.substring(0, pos.lastPosition).codePoints().filter(n -> n == '\n').count();
+                int column = pos.lastPosition - (1 + curContent.lastIndexOf('\n', pos.lastPosition - 1));
+
+                for (TrackedPosition trackedPosition : pos.onePosPerDoc)
+                {
+                    assertEquals("Position was " + was + "," + pos.bias + " but then replaced " + start + "-" + end + " with " + newContent.length(), pos.lastPosition, trackedPosition.getPosition());
+                    assertEquals(linesBefore, trackedPosition.getLine());
+                    assertEquals(column, trackedPosition.getColumn());
+                }
+            }                
         }
     }
 }

@@ -61,4 +61,32 @@ public interface Document
      * Gets the length of the document in characters.
      */
     int getLength();
+
+    /**
+     * Given a character position in the document, get the (zero-based) line number of that position.
+     * @param position The character position within the entire document.
+     * @return The line number (first line is 0)
+     */
+    int getLineFromPosition(int position);
+
+    /**
+     * Given a character position in the document, get the (zero-based) column number of that position.
+     * @param position The character position within the entire document.
+     * @return The column number within that position's line (first position in column is 0)
+     */
+    int getColumnFromPosition(int position);
+
+    /**
+     * Returns a tracked position based on the given character position within the document.
+     * The tracked position will do its best to keep track of this conceptual position even if
+     * text is added or removed before the position.
+     * 
+     * @param position The character position within the entire document.
+     * @param bias The bias of the position; does it prefer to stick to the character in front of it
+     *             or the one behind it (e.g. if a new chunk of text is inserted in this position,
+     *             should we be at the beginning of the new section or the end of the new section?)
+     * @return A position which will track the given position.  Note that the document keeps
+     *         a weak reference in order to update the position.
+     */
+    TrackedPosition trackPosition(int position, Bias bias);
 }

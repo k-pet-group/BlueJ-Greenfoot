@@ -21,18 +21,29 @@
  */
 package bluej.editor.flow;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A simplistic implementation of the Document interface.  Useful for sanity checking
- * during testing.
+ * during testing.  Do not use for real!  Use HoleDocument instead.
  */
 public class SlowDocument implements Document
 {
     private String content = "";
-    
+    // We keep a strong reference, since this class is just for testing:
+    private List<TrackedPosition> trackedPositions = new ArrayList<>();
+
     @Override
     public void replaceText(int startCharIncl, int endCharExcl, String text)
     {
         content = content.substring(0, startCharIncl) + text + content.substring(endCharExcl);
+        
+        // Update tracked positions:
+        for (TrackedPosition trackedPosition : trackedPositions)
+        {
+            trackedPosition.updateTrackedPosition(startCharIncl, endCharExcl, text.length());
+        }
     }
 
     @Override
@@ -45,5 +56,45 @@ public class SlowDocument implements Document
     public int getLength()
     {
         return content.length();
+    }
+
+    @Override
+    public int getLineFromPosition(int position)
+    {
+        int line = 0;
+        for (int i = 0; i < position; i++)
+        {
+            if (content.charAt(i) == '\n')
+            {
+                line++;
+            }
+        }
+        return line;
+    }
+
+    @Override
+    public int getColumnFromPosition(int position)
+    {
+        int column = 0;
+        for (int i = 0; i < position; i++)
+        {
+            if (content.charAt(i) == '\n')
+            {
+                column = 0;
+            }
+            else
+            {
+                column++;
+            }
+        }
+        return column;
+    }
+
+    @Override
+    public TrackedPosition trackPosition(int position, Bias bias)
+    {
+        TrackedPosition trackedPosition = new TrackedPosition(this, position, bias);
+        trackedPositions.add(trackedPosition);
+        return trackedPosition;
     }
 }

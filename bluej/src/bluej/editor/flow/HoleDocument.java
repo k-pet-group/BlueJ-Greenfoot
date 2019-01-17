@@ -21,8 +21,16 @@
  */
 package bluej.editor.flow;
 
+import java.lang.ref.WeakReference;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
 public class HoleDocument implements Document
 {
+    // How much extra should we grow the array by when needed?
     private static final int GROWTH_MARGIN = 256;
     // Array which always contains, in order:
     //  content, up to holeStart (exclusive) -- may be empty if holeStart == 0
@@ -31,6 +39,18 @@ public class HoleDocument implements Document
     private char[] content;
     private int holeStart; // Index of first character in the hole.
     private int holeEnd; // Index of first character in array after the hole
+    
+    // Not including the first line, which always begins at zero.  So lineStartPositions.get(0)
+    // is the beginning of the second line...
+    private final ArrayList<TrackedPosition> lineStartPositions = new ArrayList<>();
+
+    /**
+     * We need to know all the positions so we can update them all.  But we don't want
+     * to retain them and cause a memory leak.  Rather than having a deregistration system,
+     * we just keep weak references and thus let them fall out of memory once the caller
+     * of trackPosition no longer keeps track of them.
+     */
+    private final ArrayList<WeakReference<TrackedPosition>> trackedPositions = new ArrayList<>();
     
     public HoleDocument()
     {
@@ -42,6 +62,22 @@ public class HoleDocument implements Document
     @Override
     public void replaceText(int startCharIncl, int endCharExcl, String text)
     {
+        // Get rid of any new line positions that were in removed region:
+        int indexToInsertNewNewlines = 0;
+        for (Iterator<TrackedPosition> iterator = lineStartPositions.iterator(); iterator.hasNext(); )
+        {
+            TrackedPosition lineStartPosition = iterator.next();
+            if (lineStartPosition.position <= startCharIncl)
+            {
+                indexToInsertNewNewlines++;
+            }
+            else if (lineStartPosition.position > startCharIncl && lineStartPosition.position <= endCharExcl)
+            {
+                iterator.remove();
+            }
+            
+        }
+        
         // Start by moving the hole to the modification location:
         if (holeStart < startCharIncl)
         {
@@ -80,6 +116,30 @@ public class HoleDocument implements Document
         // Add new content by copying into hole
         System.arraycopy(text.toCharArray(), 0, content, holeStart, text.length());
         holeStart += text.length();
+
+        for (Iterator<WeakReference<TrackedPosition>> iterator = trackedPositions.iterator(); iterator.hasNext(); )
+        {
+            WeakReference<TrackedPosition> trackedPositionRef = iterator.next();
+            TrackedPosition trackedPosition = trackedPositionRef.get();
+            if (trackedPosition == null)
+            {
+                iterator.remove();
+            }
+            else
+            {
+                trackedPosition.updateTrackedPosition(startCharIncl, endCharExcl, text.length());
+            }
+        }
+        
+        // Now add new positions for the added newlines:
+        for (int i = 0; i < text.length(); i++)
+        {
+            if (text.charAt(i) == '\n')
+            {
+                lineStartPositions.add(indexToInsertNewNewlines, trackPosition(i + 1 + startCharIncl, Bias.BACK));
+                indexToInsertNewNewlines += 1;
+            }
+        }
     }
 
     @Override
@@ -92,5 +152,63 @@ public class HoleDocument implements Document
     public int getLength()
     {
         return content.length - (holeEnd - holeStart);
+    }
+
+    @Override
+    public int getLineFromPosition(int position)
+    {
+        int index = Collections.binarySearch(getLineStartPositions(), position);
+        if (index >= 0)
+        {
+            // Line begins there exactly.  Answer is that index + 1, for the initial empty line:
+            return index + 1;
+        }
+        else
+        {
+            return -1 - index;
+        }
+    }
+
+    // A read-only list of the current line start positions in the document
+    private List<Integer> getLineStartPositions()
+    {
+        // No need to copy when we are read-only, just make a dummy list object: 
+        return new AbstractList<Integer>() {
+
+            @Override
+            public int size()
+            {
+                return lineStartPositions.size();
+            }
+
+            @Override
+            public Integer get(int index)
+            {
+                return lineStartPositions.get(index).position;
+            }
+        };
+    }
+
+    @Override
+    public int getColumnFromPosition(int position)
+    {
+        int lineStartIndex = getLineFromPosition(position) - 1;
+        if (lineStartIndex < 0)
+        {
+            // First line:
+            return position;
+        }
+        else
+        {
+            return position - lineStartPositions.get(lineStartIndex).position;
+        }
+    }
+
+    @Override
+    public TrackedPosition trackPosition(int position, Bias bias)
+    {
+        TrackedPosition trackedPosition = new TrackedPosition(this, position, bias);
+        trackedPositions.add(new WeakReference<>(trackedPosition));
+        return trackedPosition;
     }
 }

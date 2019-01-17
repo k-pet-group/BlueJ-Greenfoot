@@ -43,7 +43,8 @@ public class GenString extends Generator<String>
         {
             // Make ASCII more likely:
             int limit = sourceOfRandomness.nextBoolean() ? 128 : 0x10ffff;
-            int n = sourceOfRandomness.nextInt(limit);
+            // Good amount of newlines:
+            int n = sourceOfRandomness.nextInt(30) == 1 ? '\n' : sourceOfRandomness.nextInt(limit);
             if (Character.isValidCodePoint(n) && Character.isDefined(n))
             {
                 codepoints[i] = n;
