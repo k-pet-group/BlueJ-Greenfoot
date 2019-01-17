@@ -1533,8 +1533,8 @@ public final class MoeActions
     {
         return action("copy-line", Category.EDIT, () -> {
             boolean addToClipboard = lastActionWasCut;
-            editor.getSourcePane().paragraphStart(SelectionPolicy.CLEAR);
-            editor.getSourcePane().paragraphEnd(SelectionPolicy.EXTEND);
+            editor.getSourcePane().lineStart(SelectionPolicy.CLEAR);
+            editor.getSourcePane().lineEnd(SelectionPolicy.EXTEND);
             editor.getSourcePane().nextChar(SelectionPolicy.EXTEND);
             if (addToClipboard) {
                 addSelectionToClipboard(editor);
