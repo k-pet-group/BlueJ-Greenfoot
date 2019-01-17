@@ -1568,9 +1568,13 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                 button = MouseButton.SECONDARY;
             }
             
-            debugHandler.getVmComms().sendMouseEvent(
-                eventType, (int)worldPos.getX(), (int)worldPos.getY(),
-                button.ordinal(), e.getClickCount());
+            // Don't send the event if they are placing a new actor:
+            if (newActorProperty.get() == null)
+            {
+                debugHandler.getVmComms().sendMouseEvent(
+                        eventType, (int) worldPos.getX(), (int) worldPos.getY(),
+                        button.ordinal(), e.getClickCount());
+            }
         });
     }
 
