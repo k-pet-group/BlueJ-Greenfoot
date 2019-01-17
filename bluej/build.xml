@@ -80,7 +80,7 @@
     
     <!-- Set up classpath (does not include jar files built by us) -->
     <path id="bluej.class.path">
-        <pathelement location="${bluej_home}/lib/junit-4.11.jar"/>
+        <pathelement location="${bluej_home}/lib/junit-4.12.jar"/>
         <pathelement location="${bluej_home}/lib/hamcrest-core-1.3.jar"/>
         <pathelement location="${bluej_home}/lib/httpclient-4.1.1.jar"/>
         <pathelement location="${bluej_home}/lib/httpcore-4.1.jar"/>

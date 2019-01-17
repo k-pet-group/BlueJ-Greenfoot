@@ -81,7 +81,7 @@ public class Boot
     // The second group are available to user code (and to bluej)
     // bluejcore.jar is necessary as it contains the support runtime
     // (bluej.runtime.* classes).
-    private static final String[] bluejUserJars = { "bluejcore.jar", "junit-4.11.jar", "hamcrest-core-1.3.jar", "lang-stride.jar" };
+    private static final String[] bluejUserJars = { "bluejcore.jar", "junit-4.12.jar", "hamcrest-core-1.3.jar", "lang-stride.jar" };
     // The number of jar files in the user jars which are built from the
     // BlueJ classes directory
     private static final int bluejUserBuildJars = 1;
@@ -92,7 +92,7 @@ public class Boot
     public static final String[] GREENFOOT_EXPORT_JARS = {JLAYER_MP3_JAR, "lang-stride.jar"};
     private static final String[] greenfootUserJars = {"extensions" + File.separatorChar + "greenfoot.jar", 
         "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
-        "junit-4.11.jar", "hamcrest-core-1.3.jar", "bluej.jar",
+        "junit-4.12.jar", "hamcrest-core-1.3.jar", "bluej.jar",
         "classgraph-4.2.6.jar",
         "diffutils-1.2.1.jar", "commons-logging-api-1.1.2.jar",
         JLAYER_MP3_JAR, "opencsv-2.3.jar", "xom-1.2.9.jar",
@@ -117,7 +117,7 @@ public class Boot
         "httpcore-4.1.jar",
         "httpmime-4.1.1.jar",
         "jsch-0.1.53.jar",
-        "junit-4.11.jar",
+        "junit-4.12.jar",
         "lang-stride.jar",
         "nsmenufx-2.1.4.jar",
         "org.eclipse.jgit-4.9.0.jar",

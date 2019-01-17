@@ -85,7 +85,7 @@
         <pathelement location="${bluej_home}/classes"/>
         <pathelement location="${bluej_home}/boot/classes"/>
         <pathelement location="${bluej_home}/lib/antlr.jar"/>
-        <pathelement location="${bluej_home}/lib/junit-4.11.jar"/>
+        <pathelement location="${bluej_home}/lib/junit-4.12.jar"/>
         <pathelement location="${bluej_home}/lib/hamcrest-core-1.3.jar"/>
         <pathelement location="${bluej_home}/lib/AppleJavaExtensions.jar"/>
         <pathelement location="${bluej_home}/lib/commons-logging-api-1.1.2.jar"/>
