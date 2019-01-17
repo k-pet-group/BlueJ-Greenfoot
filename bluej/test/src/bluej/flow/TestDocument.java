@@ -44,7 +44,7 @@ public class TestDocument
     {
         try
         {
-            Document[] documents = new Document[]{new SlowDocument()};
+            Document[] documents = new Document[] { new SlowDocument(), new HoleDocument() };
             String curContent = "";
             GenString stringMaker = new GenString();
             // Perform 100 replacements:
