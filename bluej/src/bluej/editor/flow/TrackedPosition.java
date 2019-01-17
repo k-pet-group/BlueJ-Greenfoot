@@ -52,4 +52,16 @@ public class TrackedPosition
     {
         return position;
     }
+
+    public void moveBy(int amount)
+    {
+        if (amount <= 0)
+        {
+            position = Math.max(0, position + amount);
+        }
+        else
+        {
+            position = Math.min(position + amount, document.getLength());
+        }
+    }
 }
