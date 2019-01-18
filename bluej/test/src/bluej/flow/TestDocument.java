@@ -150,7 +150,22 @@ public class TestDocument
                     assertEquals(linesBefore, trackedPosition.getLine());
                     assertEquals(column, trackedPosition.getColumn());
                 }
-            }                
+            }
+            
+            // Check a few line start positions:
+            for (int j = 0; j < 10; j++)
+            {
+                int pos = r.nextInt(curContent.length() + 1);
+                int line = documents[0].getLineFromPosition(pos);
+                int column = documents[0].getColumnFromPosition(pos);
+
+                for (Document document : documents)
+                {
+                    assertEquals("" + pos, line, document.getLineFromPosition(pos));
+                    assertEquals("" + pos, column, document.getColumnFromPosition(pos));
+                    assertEquals(pos, document.getLineStart(line) + column);
+                }
+            }
         }
     }
 }

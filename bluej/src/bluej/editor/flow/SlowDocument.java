@@ -91,6 +91,22 @@ public class SlowDocument implements Document
     }
 
     @Override
+    public int getLineStart(int lineNumber)
+    {
+        int line = 0;
+        for (int i = 0; i < content.length(); i++)
+        {
+            if (line == lineNumber)
+                return i;
+            if (content.charAt(i) == '\n')
+            {
+                line++;
+            }
+        }
+        return content.length();
+    }
+
+    @Override
     public TrackedPosition trackPosition(int position, Bias bias)
     {
         TrackedPosition trackedPosition = new TrackedPosition(this, position, bias);

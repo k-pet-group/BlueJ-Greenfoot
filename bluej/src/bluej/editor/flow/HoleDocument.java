@@ -211,4 +211,17 @@ public class HoleDocument implements Document
         trackedPositions.add(new WeakReference<>(trackedPosition));
         return trackedPosition;
     }
+
+    @Override
+    public int getLineStart(int lineNumber)
+    {
+        if (lineNumber == 0)
+        {
+            return 0;
+        }
+        else
+        {
+            return getLineStartPositions().get(lineNumber - 1);
+        }
+    }
 }

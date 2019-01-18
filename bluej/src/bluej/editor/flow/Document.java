@@ -77,6 +77,14 @@ public interface Document
     int getColumnFromPosition(int position);
 
     /**
+     * Given a line index (first line is zero), get the character offset within
+     * the whole document of the start of that line.
+     * @param lineNumber The line number (zero-based)
+     * @return The offset within the document of that line's start
+     */
+    int getLineStart(int lineNumber);
+
+    /**
      * Returns a tracked position based on the given character position within the document.
      * The tracked position will do its best to keep track of this conceptual position even if
      * text is added or removed before the position.
