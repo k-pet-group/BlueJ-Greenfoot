@@ -2963,7 +2963,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
         //naviView.setMaximumSize(new Dimension(NAVIVIEW_WIDTH, Integer.MAX_VALUE));
         //naviView.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         //dividerPanel=new EditorDividerPanel(naviView, getNaviviewExpandedProperty());
-        //if (!Config.isRaspberryPi()) dividerPanel.setOpaque(false);
 
         //NAVIFX
         //editorPane.getChildren().add(scrollPane);

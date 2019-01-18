@@ -156,14 +156,6 @@ extmgr.error.nomain=Manifest does not contain Main-Class attribute
 extmgr.error.notsubclass=Main class is not a subclass of Extension
 extmgr.error.cannotload=Extension could not be loaded
 
-# Rasperry Pi preferences panel
-extmgr.raspberryPi.rpiPanelTitle=Rasbperry Pi
-extmgr.raspberryPi.title=JVM settings
-extmgr.raspberryPi.superUser=Run user code as root.
-prefmgr.raspberryPi.NoteLine1=Root access is required to access Gpio and hardware in the Raspberry Pi.
-prefmgr.raspberryPi.NoteLine2=To allow BlueJ to run as root, sudo must be allowed without password.
-prefmgr.raspberryPi.NoteLine3=For more information, please see faq at: http://bluej.org/faq.html#rasppi_hardware
-
 #---------------
 #Editor labels
 #---------------
@@ -875,10 +867,6 @@ collect.dialog.ethics2=If you change your mind about helping us with this work, 
 collect.status.optedin=You are currently allowing anonymous research data collection
 collect.status.nextsession=You will allow anonymous data collection research next time BlueJ is started
 collect.status.optedout=You are currently not participating in the anonymous research data collection
-
-#Raspberry Pi
-raspberrypi.error.sudo=Sudo access without password not available. Continuing without hardware access.\nFor more information, please see: http://bluej.org/faq.html#rasppi_hardware
-raspberrypi.error.sudo.title=No hardware access
 
 # About
 

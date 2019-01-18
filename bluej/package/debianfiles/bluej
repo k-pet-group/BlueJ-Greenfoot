@@ -22,11 +22,6 @@ if [ x"$JAVAPATH" = x"" ]; then
 	exit 1
 fi
 	
-#SPECIAL CASE for the Raspberry Pi
-if grep -q "BCM270" /proc/cpuinfo; then
-    export J2D_PIXMAPS=shared
-fi
-
 CP="/usr/share/bluej/bluej.jar"
 JFXRTOPT=""
 

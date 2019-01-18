@@ -368,30 +368,6 @@ public class Installer extends JFrame
         //isJDK12 = jdk12Button.isSelected();
     }
 
-    /*
-     * Check if it is a Raspberry Pi.
-     */
-    public static boolean isRaspberryPi()
-    {
-        boolean result = false;
-        try {
-            Scanner scanner = new Scanner(new File(
-                    "/proc/cpuinfo"));
-            while (scanner.hasNextLine()) {
-                String lineFromFile = scanner.nextLine();
-                if (lineFromFile.contains("BCM2708")) {
-                    result = true;
-                    break;
-                }
-            }
-            scanner.close();
-        } catch (FileNotFoundException fne) {
-            //it is not unix.
-            return false;
-        }
-        return result;
-    }
-
     /**
      * Check that the current Java version is a full JDK. Warn if not.
      */
@@ -696,10 +672,6 @@ public class Installer extends JFrame
         }
         else {
             commands = getProperty("commands.unix").toString();
-            //check if it is a Raspberry Pi.
-            if (isRaspberryPi()) {
-                out.write("export J2D_PIXMAP=shared\n");
-            }
         }
         commands += "\n" + getProperty("javafx.classpath.unix").toString();
 

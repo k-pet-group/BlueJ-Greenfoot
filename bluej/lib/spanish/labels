@@ -159,14 +159,6 @@ extmgr.error.nomain=El manifiesto no contiene el atributo Clase-Principal (Main-
 extmgr.error.notsubclass=La clase Principal no es una subclase de Extensi\u00f3n
 extmgr.error.cannotload=La extension no puede ser cargada
 
-# Rasperry Pi preferences panel
-extmgr.raspberryPi.rpiPanelTitle=Rasbperry Pi
-extmgr.raspberryPi.title= Ajuste de la JVM 
-extmgr.raspberryPi.superUser=El c\u00f3digo del usuario debe ser ejecutado como root.
-prefmgr.raspberryPi.NoteLine1=Acceso root es requerido para accesar Gpio y hardware en la Raspberry Pi.
-prefmgr.raspberryPi.NoteLine2=Para permitir a BlueJ ser ejecutada como root, sudo debe ser permitido sin password.
-prefmgr.raspberryPi.NoteLine3=Para m\u00e1s informaci\u00f3n, por favor vea la lista de preguntas frecuentes en: http://bluej.org/faq.html#rasppi_hardware
-
 #---------------
 #Editor labels
 #---------------
@@ -813,10 +805,6 @@ collect.dialog.ethics2=Si usted cambia de parecer acerca de ayudarnos con esta i
 collect.status.optedin=Usted est\u00e1 permitiendo actualmente la recolecci\u00f3n de datos an\u00f3nima para fines de investigaci\u00f3n
 collect.status.nextsession=Usted permitir\u00e1 la recolecci\u00f3n de datos an\u00f3nima para fines de investigaci\u00f3n la pr\u00f3xima vez que se inicie BlueJ
 collect.status.optedout=Usted no est\u00e1 participando en la recolecci\u00f3n de datos an\u00f3nima para fines de investigaci\u00f3n
-
-#Raspberry Pi
-raspberrypi.error.sudo=Acceso Sudo sin contrase\u00f1a no disponible. Continuando sin acceso al hardware.\nPara mayor informaci\u00f3n, por favor vea: http://bluej.org/faq.html#rasppi_hardware
-raspberrypi.error.sudo.title=No hay acceso al hardware
 
 # About
 
