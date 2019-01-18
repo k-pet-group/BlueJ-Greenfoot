@@ -289,7 +289,7 @@ public class ImportScanner
     {
         // When you override the class loaders in ClassGraph's config, it no longer
         // loads the JDK classes.  So we have one ClassGraph for user code libraries
-        // (e.g. JUnit, pi4j, other configured BlueJ libraries):
+        // (e.g. JUnit, other configured BlueJ libraries):
         ArrayList<ClassLoader> cl = new ArrayList<>();
         
         try
