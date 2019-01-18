@@ -64,4 +64,14 @@ public class TrackedPosition
             position = Math.min(position + amount, document.getLength());
         }
     }
+
+    public void moveTo(int target)
+    {
+        moveBy(target - position);
+    }
+    
+    public void moveToLineColumn(int line, int column)
+    {
+        moveTo(document.getLineStart(line) + column);
+    }
 }

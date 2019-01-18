@@ -23,12 +23,15 @@ package bluej.editor.flow;
 
 import bluej.editor.flow.Document.Bias;
 import bluej.utility.Utility;
+import javafx.geometry.BoundingBox;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Path;
+import javafx.scene.text.HitInfo;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import org.fxmisc.wellbehaved.event.InputMap;
@@ -63,10 +66,32 @@ public class FlowEditorPane extends Region
 
         Nodes.addInputMap(this, InputMap.sequence(
             InputMap.consume(KeyEvent.KEY_PRESSED, this::keyPressed),
-            InputMap.consume(MouseEvent.MOUSE_CLICKED, e -> requestFocus())
+            InputMap.consume(MouseEvent.MOUSE_CLICKED, this::mouseClicked)
         ));
     }
-    
+
+    private void mouseClicked(MouseEvent e)
+    {
+        requestFocus();
+        for (int i = 0; i < currentlyVisibleLines.size(); i++)
+        {
+            TextFlow currentlyVisibleLine = currentlyVisibleLines.get(i);
+            // getLayoutBounds() seems to get out of date, so calculate manually:
+            BoundingBox actualBounds = new BoundingBox(currentlyVisibleLine.getLayoutX(), currentlyVisibleLine.getLayoutY(), currentlyVisibleLine.getWidth(), currentlyVisibleLine.getHeight());
+            if (actualBounds.contains(e.getX(), e.getY()))
+            {
+                // Can't use parentToLocal if layout bounds may be out of date:
+                HitInfo hitInfo = currentlyVisibleLine.hitTest(new Point2D(e.getX() - currentlyVisibleLine.getLayoutX(), e.getY() - currentlyVisibleLine.getLayoutY()));
+                if (hitInfo != null)
+                {
+                    caret.moveToLineColumn(i, hitInfo.getInsertionIndex());
+                    updateRender();
+                    break;
+                }
+            }
+        }
+    }
+
     private void keyPressed(KeyEvent e)
     {
         switch (e.getCode())
