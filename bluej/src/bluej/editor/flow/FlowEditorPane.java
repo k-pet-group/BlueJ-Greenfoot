@@ -80,6 +80,11 @@ public class FlowEditorPane extends Region
     
     private void keyTyped(KeyEvent e)
     {
+        if (e.getCharacter().isEmpty())
+        {
+            return;
+        }
+        
         int start = Math.min(caret.position, anchor.position);
         int end = Math.max(caret.position, anchor.position);
         
