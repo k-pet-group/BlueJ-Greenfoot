@@ -26,11 +26,16 @@ import bluej.utility.Utility;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.control.IndexRange;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.LineTo;
+import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import javafx.scene.text.HitInfo;
@@ -40,6 +45,7 @@ import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A FlowEditorPane is a component with (optional) horizontal and vertical scroll bars.
@@ -49,6 +55,11 @@ import java.util.ArrayList;
  */
 public class FlowEditorPane extends Region
 {
+    private static final Image UNDERLINE_IMAGE = new Image(
+            // Temporary hack hard coding the path (since this isn't running under BlueJ proper, yet)
+            "file:///Users/neil/intellij/bjgf/bluej/lib/images/" + 
+            "error-underline.png");
+    
     private final ArrayList<TextLine> currentlyVisibleLines = new ArrayList<>();
     private int firstLineIndex = 0;
     
@@ -57,6 +68,8 @@ public class FlowEditorPane extends Region
     private final TrackedPosition anchor;
     private final TrackedPosition caret;
     private final Path caretShape;
+    
+    private final List<IndexRange> errorUnderlines = new ArrayList<>();
     
     public FlowEditorPane(String content)
     {
@@ -142,6 +155,19 @@ public class FlowEditorPane extends Region
                 anchor.position = caret.position;
                 updateRender();
                 break;
+            case F1:
+                // Temporarily, add error underline:
+                if (caret.position != anchor.position)
+                {
+                    errorUnderlines.add(new IndexRange(Math.min(caret.position, anchor.position), Math.max(caret.position, anchor.position)));
+                    updateRender();
+                }
+                break;
+            case F2:
+                // Temporarily, remove error underlines:
+                errorUnderlines.clear();
+                updateRender();
+                break;
         }
     }
     
@@ -192,8 +218,59 @@ public class FlowEditorPane extends Region
                 currentlyVisibleLines.get(endPos.getLine()).selectionShape.getElements().setAll(currentlyVisibleLines.get(endPos.getLine()).rangeShape(0, endPos.getColumn()));
             }
         }
+
+        for (IndexRange errorUnderline : errorUnderlines)
+        {
+            Path err = new Path();
+            err.setFill(null);
+            err.setStroke(new ImagePattern(UNDERLINE_IMAGE, 0, 0, 2, 2, false));
+            err.setMouseTransparent(true);
+            TextLine errTextLine = currentlyVisibleLines.get(document.getLineFromPosition(errorUnderline.getStart()));
+            err.getElements().setAll(keepBottom(errTextLine.rangeShape(document.getColumnFromPosition(errorUnderline.getStart()), document.getColumnFromPosition(errorUnderline.getEnd()))));
+            err.setLayoutX(errTextLine.getLayoutX());
+            err.setLayoutY(errTextLine.getLayoutY());
+            getChildren().add(err);
+        }
                 
         requestLayout();
+    }
+
+    private PathElement[] keepBottom(PathElement[] rangeShape)
+    {
+        // This corresponds to the code in PrismTextLayout.range, where
+        // the range shapes are constructed using:
+        //   MoveTo top-left
+        //   LineTo top-right
+        //   LineTo bottom-right
+        //   LineTo bottom-left ***
+        //   LineTo top-left
+        //
+        // We only want to keep the asterisked line, which is the bottom of the shape.
+        // So we convert the others to MoveTo.  If PrismTextLayout.range ever changes
+        // its implementation, we will need to change this.
+        if (rangeShape.length % 5 == 0)
+        {
+            for (int i = 0; i < rangeShape.length; i += 5)
+            {
+                if (rangeShape[0] instanceof MoveTo
+                    && rangeShape[1] instanceof LineTo
+                    && rangeShape[2] instanceof LineTo
+                    && rangeShape[3] instanceof LineTo
+                    && rangeShape[4] instanceof LineTo)
+                {
+                    rangeShape[1] = lineToMove(rangeShape[1]);
+                    rangeShape[2] = lineToMove(rangeShape[2]);
+                    rangeShape[4] = lineToMove(rangeShape[4]);
+                }
+            }
+        }
+        return rangeShape;
+    }
+
+    private PathElement lineToMove(PathElement pathElement)
+    {
+        LineTo lineTo = (LineTo)pathElement;
+        return new MoveTo(lineTo.getX(), lineTo.getY());
     }
 
     @Override
