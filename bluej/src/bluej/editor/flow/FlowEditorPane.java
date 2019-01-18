@@ -31,6 +31,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Path;
+import javafx.scene.shape.PathElement;
 import javafx.scene.text.HitInfo;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -47,11 +48,12 @@ import java.util.ArrayList;
  */
 public class FlowEditorPane extends Region
 {
-    private final ArrayList<TextFlow> currentlyVisibleLines = new ArrayList<>();
+    private final ArrayList<TextLine> currentlyVisibleLines = new ArrayList<>();
     private int firstLineIndex = 0;
     
     private final Document document;
     
+    private final TrackedPosition anchor;
     private final TrackedPosition caret;
     private final Path caretShape;
     
@@ -60,19 +62,30 @@ public class FlowEditorPane extends Region
         document = new HoleDocument();
         document.replaceText(0, 0, content);
         caret = document.trackPosition(0, Bias.FORWARD);
+        // Important that the anchor is a different object to the caret, as they will move independently:
+        anchor = document.trackPosition(0, Bias.FORWARD);
         caretShape = new Path();
         caretShape.setStroke(Color.RED);
+        caretShape.setMouseTransparent(true);
         updateRender();
 
         Nodes.addInputMap(this, InputMap.sequence(
             InputMap.consume(KeyEvent.KEY_PRESSED, this::keyPressed),
-            InputMap.consume(MouseEvent.MOUSE_CLICKED, this::mouseClicked)
+            InputMap.consume(MouseEvent.MOUSE_PRESSED, this::mousePressed),
+            InputMap.consume(MouseEvent.MOUSE_DRAGGED, this::mouseDragged)
         ));
     }
 
-    private void mouseClicked(MouseEvent e)
+    private void mousePressed(MouseEvent e)
     {
         requestFocus();
+        positionCaretAtDestination(e);
+        anchor.position = caret.position;
+        updateRender();
+    }
+
+    private void positionCaretAtDestination(MouseEvent e)
+    {
         for (int i = 0; i < currentlyVisibleLines.size(); i++)
         {
             TextFlow currentlyVisibleLine = currentlyVisibleLines.get(i);
@@ -85,11 +98,17 @@ public class FlowEditorPane extends Region
                 if (hitInfo != null)
                 {
                     caret.moveToLineColumn(i, hitInfo.getInsertionIndex());
-                    updateRender();
                     break;
                 }
             }
         }
+    }
+
+    private void mouseDragged(MouseEvent e)
+    {
+        positionCaretAtDestination(e);
+        // Don't update the anchor, though
+        updateRender();
     }
 
     private void keyPressed(KeyEvent e)
@@ -98,10 +117,12 @@ public class FlowEditorPane extends Region
         {
             case LEFT:
                 caret.moveBy(-1);
+                anchor.position = caret.position;
                 updateRender();
                 break;
             case RIGHT:
                 caret.moveBy(1);
+                anchor.position = caret.position;
                 updateRender();
                 break;
         }
@@ -114,17 +135,46 @@ public class FlowEditorPane extends Region
         for (int i = 0; i < lines.length; i++)
         {
             if (currentlyVisibleLines.size() - 1 < i)
-                currentlyVisibleLines.add(new TextFlow());
-            currentlyVisibleLines.get(i).getChildren().setAll(new Text(lines[i]));
+            {
+                currentlyVisibleLines.add(new TextLine());
+            }
+            currentlyVisibleLines.get(i).setText(lines[i]);
+            currentlyVisibleLines.get(i).selectionShape.getElements().clear();
         }
 
-        getChildren().setAll(currentlyVisibleLines);
+        getChildren().clear();
+        getChildren().addAll(currentlyVisibleLines);
         getChildren().add(caretShape);
-
-        TextFlow caretLine = currentlyVisibleLines.get(caret.getLine());
+        
+        TextLine caretLine = currentlyVisibleLines.get(caret.getLine());
         caretShape.getElements().setAll(caretLine.caretShape(caret.getColumn(), true));
         caretShape.setLayoutX(caretLine.getLayoutX());
         caretShape.setLayoutY(caretLine.getLayoutY());
+        
+        if (caret.position != anchor.position)
+        {
+            TrackedPosition startPos = caret.position < anchor.position ? caret : anchor;
+            TrackedPosition endPos = caret.position < anchor.position ? anchor : caret;
+            
+            // Simple case; one line selection:
+            if (startPos.getLine() == endPos.getLine())
+            {
+                caretLine.selectionShape.getElements().setAll(caretLine.rangeShape(startPos.getColumn(), endPos.getColumn()));
+            }
+            else
+            {
+                // Need composite of several lines
+                // Do all except last line:
+                for (int line = startPos.getLine(); line < endPos.getLine(); line++)
+                {
+                    int startOnThisLine = line == startPos.getLine() ? startPos.getColumn() : 0;
+                    PathElement[] elements = currentlyVisibleLines.get(line).rangeShape(startOnThisLine, document.getLineStart(line + 1) - document.getLineStart(line));
+                    currentlyVisibleLines.get(line).selectionShape.getElements().setAll(elements);
+                }
+                // Now do last line:
+                currentlyVisibleLines.get(endPos.getLine()).selectionShape.getElements().setAll(currentlyVisibleLines.get(endPos.getLine()).rangeShape(0, endPos.getColumn()));
+            }
+        }
                 
         requestLayout();
     }
@@ -140,6 +190,27 @@ public class FlowEditorPane extends Region
                 child.resizeRelocate(0, y, getWidth(), 20);
                 y += 20;
             }
+        }
+    }
+    
+    private class TextLine extends TextFlow
+    {
+        private final Path selectionShape = new Path();
+        
+        public TextLine()
+        {
+            setMouseTransparent(true);
+            selectionShape.setStroke(null);
+            selectionShape.setFill(Color.CORNFLOWERBLUE);
+            selectionShape.setManaged(false);
+            getChildren().add(selectionShape);
+        }
+        
+        public void setText(String text)
+        {
+            getChildren().clear();
+            getChildren().add(selectionShape);
+            getChildren().add(new Text(text));
         }
     }
 }
