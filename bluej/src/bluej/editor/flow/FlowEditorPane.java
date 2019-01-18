@@ -72,9 +72,20 @@ public class FlowEditorPane extends Region
 
         Nodes.addInputMap(this, InputMap.sequence(
             InputMap.consume(KeyEvent.KEY_PRESSED, this::keyPressed),
+            InputMap.consume(KeyEvent.KEY_TYPED, this::keyTyped),
             InputMap.consume(MouseEvent.MOUSE_PRESSED, this::mousePressed),
             InputMap.consume(MouseEvent.MOUSE_DRAGGED, this::mouseDragged)
         ));
+    }
+    
+    private void keyTyped(KeyEvent e)
+    {
+        int start = Math.min(caret.position, anchor.position);
+        int end = Math.max(caret.position, anchor.position);
+        
+        document.replaceText(start, end, e.getCharacter());
+        anchor.position = caret.position;
+        updateRender();
     }
 
     private void mousePressed(MouseEvent e)
