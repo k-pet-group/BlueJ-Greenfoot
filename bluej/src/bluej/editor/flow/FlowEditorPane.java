@@ -30,6 +30,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import javafx.scene.text.HitInfo;
@@ -210,7 +211,20 @@ public class FlowEditorPane extends Region
         {
             getChildren().clear();
             getChildren().add(selectionShape);
-            getChildren().add(new Text(text));
+            // Temporarily, for investigating syntax highlighting, we alternate colours of the words:
+            final Paint[] colors = new Paint[] { Color.RED, Color.GREEN, Color.LIGHTGRAY, Color.NAVY };
+            int nextColor = 0;
+            for (String s : text.split("((?<= )|(?= ))"))
+            {
+                Text t = new Text(s);
+                if (!s.isBlank())
+                {
+                    t.setFill(colors[nextColor]);
+                    nextColor = (nextColor + 1) % colors.length;
+                }
+                getChildren().add(t);
+            }
+            
         }
     }
 }
