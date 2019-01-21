@@ -23,7 +23,9 @@ package bluej.editor.flow;
 
 import bluej.editor.flow.Document.Bias;
 import bluej.utility.Utility;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.geometry.BoundingBox;
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.IndexRange;
@@ -38,6 +40,8 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import javafx.scene.text.HitInfo;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -62,6 +66,8 @@ public class FlowEditorPane extends Region
     
     private final ArrayList<TextLine> currentlyVisibleLines = new ArrayList<>();
     private int firstLineIndex = 0;
+    
+    double fontSize = 12;
     
     private final Document document;
     
@@ -101,7 +107,7 @@ public class FlowEditorPane extends Region
         int start = Math.min(caret.position, anchor.position);
         int end = Math.max(caret.position, anchor.position);
         
-        document.replaceText(start, end, e.getCharacter());
+        document.replaceText(start, end, e.getCharacter().equals("\r") ? "\n" : e.getCharacter());
         anchor.position = caret.position;
         updateRender();
     }
@@ -168,6 +174,14 @@ public class FlowEditorPane extends Region
                 errorUnderlines.clear();
                 updateRender();
                 break;
+            case F3:
+                fontSize += 2;
+                updateRender();
+                break;
+            case F4:
+                fontSize -= 2;
+                updateRender();
+                break;
         }
     }
     
@@ -181,7 +195,7 @@ public class FlowEditorPane extends Region
             {
                 currentlyVisibleLines.add(new TextLine());
             }
-            currentlyVisibleLines.get(i).setText(lines[i]);
+            currentlyVisibleLines.get(i).setText(lines[i], fontSize);
             currentlyVisibleLines.get(i).selectionShape.getElements().clear();
         }
 
@@ -231,8 +245,50 @@ public class FlowEditorPane extends Region
             err.setLayoutY(errTextLine.getLayoutY());
             getChildren().add(err);
         }
+        
+        // Temporary calculations for box location:
+        String docContent = document.getFullContent();
+        int nextRect = 0;
+        for (int publicLoc = docContent.indexOf("public"); publicLoc != -1; publicLoc = docContent.indexOf("public", publicLoc + 1))
+        {
+            int open = 0;
+            int closingCurly = publicLoc;
+            while (closingCurly < docContent.length())
+            {
+                closingCurly += 1;
+                if (docContent.charAt(closingCurly) == '{')
+                    open++;
+                if (docContent.charAt(closingCurly) == '}')
+                {
+                    open--;
+                    if (open == 0)
+                        break;
+                }
+            }
+            // Now draw a background box the full width of the header line, down to beneath the curly
+            double x = getCaretLikeBounds(publicLoc).getMinX();
+            double y = getCaretLikeBounds(publicLoc).getMinY();
+            double width = currentlyVisibleLines.get(document.getLineFromPosition(publicLoc)).getWidth() - x;
+            double height = getCaretLikeBounds(closingCurly).getMaxY() - y;
+            Rectangle r = new Rectangle(x, y, width, height);
+            r.setMouseTransparent(true);
+            r.setStroke(Color.GRAY);
+            r.setFill(docContent.startsWith("public class", publicLoc) ? Color.PALEGREEN : Color.LIGHTYELLOW);
+            getChildren().add(nextRect++, r);
+        }
+        
                 
         requestLayout();
+    }
+
+    // Bounds relative to editor window
+    private Bounds getCaretLikeBounds(int pos)
+    {
+        TextLine textLine = currentlyVisibleLines.get(document.getLineFromPosition(pos));
+        Path path = new Path(textLine.caretShape(document.getColumnFromPosition(pos), true));
+        path.setLayoutX(textLine.getLayoutX());
+        path.setLayoutY(textLine.getLayoutY());
+        return path.getBoundsInParent();
     }
 
     private PathElement[] keepBottom(PathElement[] rangeShape)
@@ -281,8 +337,9 @@ public class FlowEditorPane extends Region
         {
             if (child instanceof TextFlow)
             {
-                child.resizeRelocate(0, y, getWidth(), 20);
-                y += 20;
+                double height = child.prefHeight(999999.0);
+                child.resizeRelocate(0, y, child.prefWidth(height), height);
+                y += height;
             }
         }
     }
@@ -300,7 +357,7 @@ public class FlowEditorPane extends Region
             getChildren().add(selectionShape);
         }
         
-        public void setText(String text)
+        public void setText(String text, double size)
         {
             getChildren().clear();
             getChildren().add(selectionShape);
@@ -310,6 +367,7 @@ public class FlowEditorPane extends Region
             for (String s : text.split("((?<= )|(?= ))"))
             {
                 Text t = new Text(s);
+                t.setFont(new Font(size));
                 if (!s.isBlank())
                 {
                     t.setFill(colors[nextColor]);
