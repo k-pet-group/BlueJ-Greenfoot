@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2013,2015,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2013,2015,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -657,7 +657,7 @@ int WINAPI WinMain
 
     MessageBox (0, TEXT("No (suitable) Java JDKs were found. " APPNAME " requires JDK version " REQUIREDJAVA " or later.\n"
         "Please also note, the Java Runtime Environment (JRE) is not sufficient.\n"
-        "You must have a JDK to run " APPNAME ".",
+        "You must have a JDK to run " APPNAME "."),
         TEXT(APPNAME), MB_ICONEXCLAMATION | MB_OK);
 
     return 0;
