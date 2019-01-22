@@ -267,6 +267,57 @@ public class CompletionTest
         assertNotNull(suggests);
         assertEquals("java.lang.Object", suggests.getSuggestionType().toString());
     }
+
+    /**
+     * Completion from an expression involving a local variable declared as "var"
+     */
+    @Test
+    public void test4var() throws Exception
+    {
+        String aClassSrc = "class A {\n" +
+                "void someMethod() {\n" +
+                "    var b = \"hello\";\n" +
+                "    int a = b.length();\n" +
+                "}\n" +
+                "}\n";
+
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc);
+
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+
+        ExpressionTypeInfo suggests = aNode.getExpressionType(aClassSrc.indexOf("length()"), doc);
+        assertNotNull(suggests);
+        assertEquals("java.lang.String", suggests.getSuggestionType().toString());
+    }
+
+    /**
+     * Completion from an expression involving a local variable declared as "var"
+     */
+    @Test
+    public void test5var() throws Exception
+    {
+        String aClassSrc = "class A {\n" +
+                "void someMethod() {\n" +
+                "    var b = java.util.List.of(\"hello\");\n" +
+                "    int a = b.get(0).length();\n" +
+                "}\n" +
+                "}\n";
+
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc);
+
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+
+        ExpressionTypeInfo suggestsList = aNode.getExpressionType(aClassSrc.indexOf("get(0)"), doc);
+        assertNotNull(suggestsList);
+        assertEquals("java.util.List<java.lang.String>", suggestsList.getSuggestionType().toString());
+        ExpressionTypeInfo suggests = aNode.getExpressionType(aClassSrc.indexOf("length()"), doc);
+        assertNotNull(suggests);
+        assertEquals("java.lang.String", suggests.getSuggestionType().toString());
+    }
     
     /** Test that a for-loop initializer creates a recognized variable */
     @Test

@@ -61,5 +61,18 @@ public class Java11BasicParseTest
         JavaParser ip = new JavaParser(sr);
         ip.parseStatement();
     }
+
+    /**
+     * Test all the vars!
+     */
+    @Test
+    public void testVarDecl3()
+    {
+        StringReader sr = new StringReader(
+                "var var = \"var\" + var();"
+        );
+        JavaParser ip = new JavaParser(sr);
+        ip.parseStatement();
+    }
     
 }
