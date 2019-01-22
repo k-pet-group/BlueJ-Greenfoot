@@ -32,8 +32,6 @@ import java.util.concurrent.Executor;
 
 import bluej.JavaFXThreadingRule;
 import bluej.editor.moe.ScopeColors;
-import javafx.embed.swing.JFXPanel;
-import junit.framework.TestCase;
 import bluej.debugger.gentype.FieldReflective;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeSolid;
@@ -245,6 +243,81 @@ public class CompletionTest
         assertNotNull(suggests);
         assertEquals("java.lang.Object", suggests.getSuggestionType().toString());
     }
+
+    /**
+     * Completion from an expression involving a local variable declared as "var"
+     */
+    @Test
+    public void test3var() throws Exception
+    {
+        String aClassSrc = "class A {\n" +   //       10 
+        "void someMethod() {\n" +            // +20 = 30 
+        "    var b = new Object();\n" +      // +26 = 56 
+        "    int a = b.hashCode();\n" +      // int a = b. <-- 70
+        "}\n" +
+        "}\n";
+        
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc);
+        
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        
+        ExpressionTypeInfo suggests = aNode.getExpressionType(70, doc);
+        assertNotNull(suggests);
+        assertEquals("java.lang.Object", suggests.getSuggestionType().toString());
+    }
+
+    /**
+     * Completion from an expression involving a local variable declared as "var"
+     */
+    @Test
+    public void test4var() throws Exception
+    {
+        String aClassSrc = "class A {\n" +
+                "void someMethod() {\n" +
+                "    var b = \"hello\";\n" +
+                "    int a = b.length();\n" +
+                "}\n" +
+                "}\n";
+
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc);
+
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+
+        ExpressionTypeInfo suggests = aNode.getExpressionType(aClassSrc.indexOf("length()"), doc);
+        assertNotNull(suggests);
+        assertEquals("java.lang.String", suggests.getSuggestionType().toString());
+    }
+
+    /**
+     * Completion from an expression involving a local variable declared as "var"
+     */
+    @Test
+    public void test5var() throws Exception
+    {
+        String aClassSrc = "class A {\n" +
+                "void someMethod() {\n" +
+                "    var b = java.util.List.of(\"hello\");\n" +
+                "    int a = b.get(0).length();\n" +
+                "}\n" +
+                "}\n";
+
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc);
+
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+
+        ExpressionTypeInfo suggestsList = aNode.getExpressionType(aClassSrc.indexOf("get(0)"), doc);
+        assertNotNull(suggestsList);
+        assertEquals("java.util.List<java.lang.String>", suggestsList.getSuggestionType().toString());
+        ExpressionTypeInfo suggests = aNode.getExpressionType(aClassSrc.indexOf("length()"), doc);
+        assertNotNull(suggests);
+        assertEquals("java.lang.String", suggests.getSuggestionType().toString());
+    }
     
     /** Test that a for-loop initializer creates a recognized variable */
     @Test
@@ -265,6 +338,31 @@ public class CompletionTest
         resolver.addCompilationUnit("", aNode);
         
         ExpressionTypeInfo suggests = aNode.getExpressionType(73, doc);
+        assertNotNull(suggests);
+        assertEquals("java.lang.Object", suggests.getSuggestionType().toString());
+    }
+
+    /**
+     * Test that a for-loop initializer, declared with "var", creates a recognised variable
+     */
+    @Test
+    public void testForInitializerVar() throws Exception
+    {
+        String aClassSrc = "class A {\n" +   //       10 
+        "void someMethod() {\n" +            // +20 = 30 
+        "    for (var o = new Object() ; ; ) {\n" +  // +38 = 68
+        "        o.wait();\n" +              // o. <-- 78
+        "    }" +
+        "}\n" +
+        "}\n";
+        
+        PlainDocument doc = new PlainDocument();
+        doc.insertString(0, aClassSrc);
+        
+        ParsedCUNode aNode = cuForSource(aClassSrc, "");
+        resolver.addCompilationUnit("", aNode);
+        
+        ExpressionTypeInfo suggests = aNode.getExpressionType(78, doc);
         assertNotNull(suggests);
         assertEquals("java.lang.Object", suggests.getSuggestionType().toString());
     }
