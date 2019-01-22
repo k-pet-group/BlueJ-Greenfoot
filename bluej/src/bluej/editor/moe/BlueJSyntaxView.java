@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -508,11 +508,6 @@ public class BlueJSyntaxView
     protected void recalcScopeMarkers(Map<Integer, ScopeInfo> pendingScopes, int fullWidth,
             int firstLine, int lastLine, boolean onlyMethods)
     {
-        //optimization for the raspberry pi.
-        //if (strength == 0) {
-            //return;
-        //}
-        
         Element map = document.getDefaultRootElement();
         ParsedNode rootNode = document.getParsedNode();
 

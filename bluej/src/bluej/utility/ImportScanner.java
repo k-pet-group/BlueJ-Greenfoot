@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2019  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -289,7 +289,7 @@ public class ImportScanner
     {
         // When you override the class loaders in ClassGraph's config, it no longer
         // loads the JDK classes.  So we have one ClassGraph for user code libraries
-        // (e.g. JUnit, pi4j, other configured BlueJ libraries):
+        // (e.g. JUnit, other configured BlueJ libraries):
         ArrayList<ClassLoader> cl = new ArrayList<>();
         
         try

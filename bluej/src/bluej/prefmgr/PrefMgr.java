@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2013,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -147,15 +147,6 @@ public class PrefMgr
         
     }
 
-    /**
-     * Check if BlueJ is runnung on a ARM processor (Raspberry Pi). If so, sets hides the code preview.
-     * @return false if ARM processor. true otherwise.
-     */
-    public static boolean initializeisNavivewExpanded()
-    {
-        return Boolean.parseBoolean(Config.getPropString(NAVIVIEW_EXPANDED, String.valueOf(!Config.isRaspberryPi())));
-    }
-    
     @OnThread(Tag.Any)
     public static File getProjectDirectory()
     {
@@ -428,7 +419,6 @@ public class PrefMgr
 
         // preferences other than fonts:
         highlightStrength.set(Config.getPropInteger(SCOPE_HIGHLIGHTING_STRENGTH, 20));
-        isNaviviewExpanded=initializeisNavivewExpanded();
         
         projectDirectory = Config.getPropString("bluej.projectPath", System.getProperty("user.home"));
         recentProjects = readRecentProjects();

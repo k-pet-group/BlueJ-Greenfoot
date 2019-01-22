@@ -160,14 +160,6 @@ extmgr.error.nomain=Manifesto n\u00E3o cont\u00E9m atributo Main-Class
 extmgr.error.notsubclass=A classe principal n\u00E3o \u00E9 subclasse de Extension
 extmgr.error.cannotload=Extens\u00E3o n\u00E3o pode ser carregada
 
-# Painel de preferencias do Rasperry Pi
-extmgr.raspberryPi.rpiPanelTitle=Rasbperry Pi
-extmgr.raspberryPi.title=Configura\u00E7\u00F5es da JVM
-extmgr.raspberryPi.superUser=Rodar c\u00F3digo do usu\u00E1rio como root.
-prefmgr.raspberryPi.NoteLine1=Acesso ao usu\u00E1rio root \u00E9 necess\u00E1rio para acessar as GPIOs e o hardware do Raspberry Pi.
-prefmgr.raspberryPi.NoteLine2=Para permitir que BlueJ rode como root, o seu Raspberry Pi tem que permitir sudo sem senha.
-prefmgr.raspberryPi.NoteLine3=Para mais informa\u00E7\u00F5es, por favor veja a faq em: http://bluej.org/faq.html#rasppi_hardware
-
 #---------------
 #labels do Editor
 #---------------
@@ -804,10 +796,6 @@ collect.dialog.ethics2=Se voc\u00EA mudar de id\u00E9ia e n\u00E3o quiser mais n
 collect.status.optedin=Atualmente voc\u00EA est\u00E1 permitindo a coleta de dados an\u00F4nimos para pesquisa
 collect.status.nextsession=Voc\u00EA vai permitir a  coleta de dados an\u00F4nimos para pesquisa na pr\u00F3xima vez BlueJ for iniciado
 collect.status.optedout=Atualmente voc\u00EA n\u00E3o est\u00E1 participando da coleta de dados an\u00F4nimos para pesquisa
-
-#Raspberry Pi
-raspberrypi.error.sudo=Acesso de sudo sem senha n\u00E3o est\u00E1 dispon\u00EDvel. Continuando sem acesso \u00E0 hardware.\\nPara mais informa\u00E7\u00F5es, por favor consulte: http://bluej.org/faq.html#rasppi_hardware
-raspberrypi.error.sudo.title=Sem acesso \u00E0 hardware
 
 about.version=Vers\u00E3o do $APPNAME
 about.java.version=Vers\u00E3o de Java

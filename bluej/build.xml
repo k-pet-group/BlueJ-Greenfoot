@@ -495,26 +495,7 @@
         <delete quiet="true" dir="${threadchecker.pluginbuild}" />
     	<delete quiet="true" dir="${test.build}" />
     </target>
-
-    <target name="pi4j-compile">
-        <exec dir="${bluej_home}/pi4j" executable="mvn">
-            <arg line="package" />
-        </exec>
-    </target>
-    
-    <target name="clean-pi4j">
-        <exec dir="${bluej_home}/pi4j" executable="mvn">
-            <arg line="clean" />
-        </exec>
-    </target>
-    
-    <target name="pi4j-move-to-lib" depends="pi4j-compile">
-        <move file="${bluej_home}/pi4j/pi4j-distribution/target/distro-contents/lib/pi4j-device.jar" todir="${bluej_home}/lib/userlib" />
-        <move file="${bluej_home}/pi4j/pi4j-distribution/target/distro-contents/lib/pi4j-gpio-extension.jar" todir="${bluej_home}/lib/userlib" />
-        <move file="${bluej_home}/pi4j/pi4j-distribution/target/distro-contents/lib/pi4j-service.jar" todir="${bluej_home}/lib/userlib" />
-        <move file="${bluej_home}/pi4j/pi4j-distribution/target/distro-contents/lib/pi4j-core.jar" todir="${bluej_home}/lib/userlib" />
-    </target>
-    
+   
     <target name="check-licences" description="Check that no un-vetted additional libraries have been added to the source tree">
         <!-- The purpose of this target is to help ensure that libraries do not get added to the source
              tree without properly checking and complying with their license(s). -->

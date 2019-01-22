@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2015,2016,2017  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2015,2016,2017,2019  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -192,17 +192,6 @@ public class PrefMgrDialog
                     // Extensions is sixth:
                     add(5, extSwing, Config.getString("extmgr.extensions"), mgr);
                 });
-                if (Config.isRaspberryPi())
-                {
-                    //display the Raspberry Pi specific options
-                    RaspberryPiPanel rpp = new RaspberryPiPanel();
-                    SwingNode piSwing = new SwingNodeFixed();
-                    piSwing.setContent(rpp);
-                    Platform.runLater(() -> {
-                        // Pi is seventh:
-                        add(6, piSwing, Config.getString("extmgr.raspberryPi.rpiPanelTitle"), rpp);
-                    });
-                }
             }
             Platform.runLater(() -> prefPanesCreated.set(true));
         });

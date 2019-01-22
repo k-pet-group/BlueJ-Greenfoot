@@ -54,11 +54,6 @@
         <include name="lib/slf4j-jdk14-1.7.2.jar"/>
         <include name="lib/nsmenufx-2.1.4.jar"/>
         <include name="lib/richtextfx-fat-0.9.0.jar"/>
-        <!-- Pi4J -->
-        <include name="lib/userlib/pi4j-device.jar" />
-        <include name="lib/userlib/pi4j-gpio-extension.jar" />
-        <include name="lib/userlib/pi4j-service.jar" />
-        <include name="lib/userlib/pi4j-core.jar" />
         <include name="lib/windowtofront.js" />
     </patternset>
 
@@ -661,7 +656,6 @@
                 <include name="doc/README.TXT" />
                 <include name="doc/BlueJ-architecture-and-design.txt" />
                 <include name="doc/BlueJ-parser.txt" />
-                <include name="doc/Pi4J-readme.txt"/>
                 <include name="doc/threading-issues.txt" />
                 <include name="doc/thirdpartylicenses/*" />
                 <include name="examples/**/*" />          

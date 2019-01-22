@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -223,43 +223,6 @@ public class VMReference
         
         ArrayList<String> paramList = new ArrayList<String>(11);
         
-        //check if it is a raspberry pi AND we are running BlueJ (not Greenfoot). 
-        //If so, in order to make Pi4J work out of the box, run JVM with sudo.
-        if (Config.isRaspberryPi() && !Config.isGreenfoot()) {
-            Process sudoProcess = null;
-            if (PrefMgr.getFlag(PrefMgr.START_WITH_SUDO)) {
-                try {
-                    //start with sudo == true OR there is no sudo option in preferences.
-                    //test if sudo works.
-                    sudoProcess = Runtime.getRuntime().exec("/usr/bin/sudo -n echo \"\" ");
-                    sudoProcess.waitFor();
-                } catch (Exception ex) {}
-                if (sudoProcess != null && sudoProcess.exitValue() == 0){
-                    //succes! We will start with sudo
-                    paramList.add("/usr/bin/sudo");
-                    if (System.getenv("XAUTHORITY") != null && !System.getenv("XAUTHORITY").isEmpty()) {
-                        paramList.add("XAUTHORITY=" + System.getenv("XAUTHORITY"));
-                    } else {
-                        //there is no environment variable XAUTHORITY set.
-                        //check if ~/.Xauthority file does exists.
-                        String xAuthorityPath = System.getProperty("user.home") + "/.Xauthority";
-                        File f = new File(xAuthorityPath);
-                        if (f.isFile()) {
-                            //Xauthority does exist. Use it.
-                            paramList.add("XAUTHORITY=" + System.getProperty("user.home") + "/.Xauthority");
-                        }
-                    }
-                } else {
-                    //fail. Don't start with sudo, warn the user and  
-                    //set start with sudo to false
-                    Platform.runLater(() ->
-                        DialogManager.showTextFX(null, Config.getString("raspberrypi.error.sudo"))
-                    );
-                    PrefMgr.setFlag(PrefMgr.START_WITH_SUDO, false);
-                }
-            }
-            
-        }
         /* // Uncomment this if you want to get a command window showing
            // for the debug VM on Windows.  Useful to let you hit Ctrl+Break and see thread dump
            // in case of deadlock
