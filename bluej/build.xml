@@ -438,7 +438,7 @@
         <mkdir dir="util/classes"/>
         <compile srcdir="util/src" destdir="util/classes"/>
         <mkdir dir="boot/resources/bluej"/>
-        <java classname="DrawVersionOnSplash" classpath="util/classes">
+        <java classname="DrawVersionOnSplash" classpath="util/classes" fork="yes" jvm="${run_java_home}/${java_command_dir_name}/java">
             <arg value="resources/unversioned-bluej-splash.png"/> <!-- original -->
             <arg value="Version ${bluej.version}"/> <!-- text -->
             <arg value="${bluej_home}/lib/fonts/SourceSansPro-Bold.ttf"/> <!-- font -->
@@ -447,7 +447,7 @@
             <arg value="130"/> <!-- Y position -->
             <arg value="boot/resources/bluej/gen-bluej-splash.png"/> <!-- destination -->
         </java>
-        <java classname="DrawVersionOnSplash" classpath="util/classes">
+        <java classname="DrawVersionOnSplash" classpath="util/classes" fork="yes" jvm="${run_java_home}/${java_command_dir_name}/java">
             <arg value="resources/unversioned-bluej-splash@2x.png"/> <!-- original -->
             <arg value="Version ${bluej.version}"/> <!-- text -->
             <arg value="${bluej_home}/lib/fonts/SourceSansPro-Bold.ttf"/> <!-- font -->
