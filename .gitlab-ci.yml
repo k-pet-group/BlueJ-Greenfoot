@@ -1,12 +1,13 @@
 before_script:
   - cp bluej/build.properties.template bluej/build.properties
-  - sed -i 's/build_java_home=.*/build_java_home=\/usr\/lib\/jvm\/java-10-oracle\//' bluej/build.properties
+  - sed -i 's/build_java_home=.*/build_java_home=\/usr\/lib\/jvm\/java-11-oracle\//' bluej/build.properties
+  - sed -i 's/openjfx_path.*/openjfx_path=\/usr\/lib\/jvm\/java-11-oracle\//' bluej/build.properties
 
 stages:
  - build
 
 variables:
-  JAVA_HOME: /usr/lib/jvm/java-10-oracle
+  JAVA_HOME: /usr/lib/jvm/java-11-oracle
 
 antbuild:
   stage: build
