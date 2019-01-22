@@ -172,6 +172,11 @@ public class FieldNode extends JavaParentNode
             {
                 NodeAndPosition<ParsedNode> initExpr = getInitExpression();
                 
+                if (document == null)
+                {
+                    return new ErrorEntity();
+                }
+                
                 TextParser tp = new TextParser(this,
                         new DocumentReader(document, initExpr.getPosition(), initExpr.getEnd()),
                         getContainingType(),
