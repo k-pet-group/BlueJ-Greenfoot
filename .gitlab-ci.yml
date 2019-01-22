@@ -11,9 +11,4 @@ variables:
 antbuild:
   stage: build
   script:
-    - cd bluej
-    - ant clean && ant update-version-number && ant ready-to-run && xvfb-run ant test
-    - cd ../greenfoot
-    - ant clean && ant update-version-number && ant ready-to-run && xvfb-run ant test
-    - cd ..
-    - bash check-copyright.sh
+    - cd bluej && ant clean && ant update-version-number && ant ready-to-run && xvfb-run ant test && cd ../greenfoot && ant clean && ant update-version-number && ant ready-to-run && xvfb-run ant test && cd .. && bash check-copyright.sh
