@@ -354,6 +354,7 @@ public final class MoeEditorPane extends StyledTextArea<ScopeInfo, ImmutableSet<
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void selectParagraph() 
     {
         // In RichTextFX, triple-click should select a paragraph, however this does not work 

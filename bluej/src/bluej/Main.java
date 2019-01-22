@@ -597,16 +597,18 @@ public class Main
                         {
                             // Loaded!  Show it to the user.
                             shownWindow.set(true);
-
-                            // Make sure we don't cancel now we've been successful: 
-                            preventTimeout.run();
                             
-                            makeLinksOpenExternally(webView.getEngine().getDocument());
+                            // Make sure we don't cancel now we've been successful: 
+                            JavaFXUtil.runNowOrLater(() -> {
+                                preventTimeout.run();
 
+                                makeLinksOpenExternally(webView.getEngine().getDocument());
+                            });
+                                
                             withStage.handle((parent, error) -> {
                                 if (parent != null)
                                 {
-                                    Platform.runLater(() -> showMessageWindow(startDate, webView, parent));
+                                    JavaFXUtil.runNowOrLater(() -> showMessageWindow(startDate, webView, parent));
                                 }
                                 return null;
                             });
@@ -667,6 +669,7 @@ public class Main
      * @param webView The WebView component in which the message has been loaded
      * @param parent The parent window.  Must be non-null
      */
+    @OnThread(Tag.FXPlatform)
     private static void showMessageWindow(LocalDate startDate, WebView webView, Stage parent)
     {
         Stage window = new Stage();
