@@ -53,7 +53,8 @@ public class HoleDocument implements Document
      * of trackPosition no longer keeps track of them.
      */
     private final ArrayList<WeakReference<TrackedPosition>> trackedPositions = new ArrayList<>();
-    
+    private final List<DocumentListener> listeners = new ArrayList<>();
+
     public HoleDocument()
     {
         content = new char[128];
@@ -142,6 +143,8 @@ public class HoleDocument implements Document
                 indexToInsertNewNewlines += 1;
             }
         }
+        
+        listeners.forEach(DocumentListener::documentChanged);
     }
 
     @Override
@@ -272,5 +275,11 @@ public class HoleDocument implements Document
         {
             return getLineStartPositions().get(lineNumber - 1);
         }
+    }
+
+    @Override
+    public void addListener(DocumentListener listener)
+    {
+        listeners.add(listener);
     }
 }

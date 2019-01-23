@@ -57,7 +57,7 @@ import java.util.List;
  * It displays only the lines that are currently visible on screen, in what is known
  * as a virtualised container.  Scrolling re-renders the currently visible line set.
  */
-public class FlowEditorPane extends Region
+public class FlowEditorPane extends Region implements DocumentListener
 {
     private static final Image UNDERLINE_IMAGE = new Image(
             // Temporary hack hard coding the path (since this isn't running under BlueJ proper, yet)
@@ -81,6 +81,7 @@ public class FlowEditorPane extends Region
     {
         document = new HoleDocument();
         document.replaceText(0, 0, content);
+        document.addListener(this);
         caret = document.trackPosition(0, Bias.FORWARD);
         // Important that the anchor is a different object to the caret, as they will move independently:
         anchor = document.trackPosition(0, Bias.FORWARD);
@@ -184,7 +185,13 @@ public class FlowEditorPane extends Region
                 break;
         }
     }
-    
+
+    @Override
+    public void documentChanged()
+    {
+        updateRender();
+    }
+
     private void updateRender()
     {
         // For now, just render all lines:
@@ -343,7 +350,12 @@ public class FlowEditorPane extends Region
             }
         }
     }
-    
+
+    public Document getDocument()
+    {
+        return document;
+    }
+
     private class TextLine extends TextFlow
     {
         private final Path selectionShape = new Path();

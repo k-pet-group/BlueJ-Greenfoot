@@ -34,7 +34,8 @@ public class SlowDocument implements Document
 {
     private String content = "";
     // We keep a strong reference, since this class is just for testing:
-    private List<TrackedPosition> trackedPositions = new ArrayList<>();
+    private final List<TrackedPosition> trackedPositions = new ArrayList<>();
+    private final List<DocumentListener> listeners = new ArrayList<>();
 
     @Override
     public void replaceText(int startCharIncl, int endCharExcl, String text)
@@ -46,6 +47,8 @@ public class SlowDocument implements Document
         {
             trackedPosition.updateTrackedPosition(startCharIncl, endCharExcl, text.length());
         }
+        
+        listeners.forEach(DocumentListener::documentChanged);
     }
 
     @Override
@@ -123,5 +126,11 @@ public class SlowDocument implements Document
         TrackedPosition trackedPosition = new TrackedPosition(this, position, bias);
         trackedPositions.add(trackedPosition);
         return trackedPosition;
+    }
+
+    @Override
+    public void addListener(DocumentListener listener)
+    {
+        listeners.add(listener);
     }
 }

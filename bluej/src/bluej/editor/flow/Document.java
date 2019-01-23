@@ -106,4 +106,10 @@ public interface Document
      *         a weak reference in order to update the position.
      */
     TrackedPosition trackPosition(int position, Bias bias);
+
+    /**
+     * Adds a listener for changes to the document.
+     * @param listener
+     */
+    void addListener(DocumentListener listener);
 }
