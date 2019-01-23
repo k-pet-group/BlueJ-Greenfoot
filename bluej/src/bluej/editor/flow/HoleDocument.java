@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class HoleDocument implements Document
 {
@@ -210,6 +212,53 @@ public class HoleDocument implements Document
         TrackedPosition trackedPosition = new TrackedPosition(this, position, bias);
         trackedPositions.add(new WeakReference<>(trackedPosition));
         return trackedPosition;
+    }
+    
+    public Stream<CharSequence> getLines()
+    {
+        List<Integer> lineStarts = getLineStartPositions();
+        
+        return IntStream.range(0, lineStarts.size() + 1).mapToObj(lineIndex -> {
+            int startChar = lineIndex == 0 ? 0 : lineStarts.get(lineIndex - 1);
+            int endChar = lineIndex == lineStarts.size() ? getLength() : (lineStarts.get(lineIndex) - 1);
+            return subSequence(startChar, endChar);
+        });
+    }
+
+    // Only valid while document content doesn't change!
+    private CharSequence subSequence(int startChar, int endChar)
+    {
+        return new CharSequence()
+        {
+            @Override
+            public int length()
+            {
+                return endChar - startChar;
+            }
+
+            @Override
+            public char charAt(int index)
+            {
+                if (index + startChar < holeStart)
+                    return content[index + startChar];
+                else
+                    return content[index + startChar + holeEnd - holeStart];
+            }
+
+            @Override
+            public CharSequence subSequence(int start, int end)
+            {
+                return HoleDocument.this.subSequence(startChar + start, startChar + end);
+            }
+
+            @Override
+            public String toString()
+            {
+                String beforeHole = startChar < holeStart ? new String(content, startChar, Math.min(endChar, holeStart) - startChar) : "";
+                String afterHole = endChar > holeStart ? new String(content, Math.max(startChar + holeEnd - holeStart, holeEnd), endChar + holeEnd - holeStart - Math.max(startChar + holeEnd - holeStart, holeEnd)) : "";
+                return beforeHole + afterHole;
+            }
+        };
     }
 
     @Override

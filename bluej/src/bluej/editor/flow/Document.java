@@ -22,6 +22,8 @@
 
 package bluej.editor.flow;
 
+import java.util.stream.Stream;
+
 /**
  * Document: an interface for a document.
  *
@@ -83,6 +85,13 @@ public interface Document
      * @return The offset within the document of that line's start
      */
     int getLineStart(int lineNumber);
+    
+    /**
+     * Gets the lines in the document.  Undefined behaviour if the document
+     * is modified while references are still held to the return value.
+     * @return
+     */
+    Stream<CharSequence> getLines();
 
     /**
      * Returns a tracked position based on the given character position within the document.

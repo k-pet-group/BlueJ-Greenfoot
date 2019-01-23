@@ -188,7 +188,7 @@ public class FlowEditorPane extends Region
     private void updateRender()
     {
         // For now, just render all lines:
-        String[] lines = Utility.splitLines(document.getFullContent());
+        String[] lines = document.getLines().map(l -> l.toString()).toArray(String[]::new);
         for (int i = 0; i < lines.length; i++)
         {
             if (currentlyVisibleLines.size() - 1 < i)

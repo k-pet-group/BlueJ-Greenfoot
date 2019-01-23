@@ -23,6 +23,8 @@ package bluej.editor.flow;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * A simplistic implementation of the Document interface.  Useful for sanity checking
@@ -106,6 +108,15 @@ public class SlowDocument implements Document
         return content.length();
     }
 
+    @Override
+    public Stream<CharSequence> getLines()
+    {
+        Stream<String> streamedLines = Pattern.compile("\n").splitAsStream(content);
+        if (content.endsWith("\n"))
+            streamedLines = Stream.concat(streamedLines, Stream.of(""));
+        return streamedLines.map(s -> s);
+    }
+    
     @Override
     public TrackedPosition trackPosition(int position, Bias bias)
     {

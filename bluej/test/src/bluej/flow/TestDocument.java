@@ -42,6 +42,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 @RunWith(JUnitQuickcheck.class)
 public class TestDocument
@@ -165,6 +166,17 @@ public class TestDocument
                     assertEquals("" + pos, column, document.getColumnFromPosition(pos));
                     assertEquals(pos, document.getLineStart(line) + column);
                 }
+            }
+            
+            // Check that no lines have \n, and re-assembling them makes full content:
+            for (Document document : documents)
+            {
+                List<CharSequence> lines = document.getLines().collect(Collectors.toList());
+                for (CharSequence line : lines)
+                {
+                    assertFalse(line.codePoints().anyMatch(c -> c == '\n'));
+                }
+                assertEquals(curContent, lines.stream().collect(Collectors.joining("\n")));
             }
         }
     }
