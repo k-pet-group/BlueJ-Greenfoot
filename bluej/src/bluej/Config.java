@@ -634,6 +634,11 @@ public final class Config
      */
     private static Rectangle calculateScreenBounds()
     {
+        // Don't throw an exception if we're testing in headless mode:
+        if (GraphicsEnvironment.isHeadless())
+        {
+            return new Rectangle(0, 0, 1280, 1024);
+        }
         Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
         return new Rectangle(d);
     }

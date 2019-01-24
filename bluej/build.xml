@@ -103,6 +103,9 @@
         <pathelement location="${bluej_home}/lib/testlib/javaruntype-1.3.jar"/>
         <pathelement location="${bluej_home}/lib/testlib/junit-quickcheck-core-0.8.2.jar"/>
         <pathelement location="${bluej_home}/lib/testlib/ognl-3.1.12.jar"/>
+        <pathelement location="${bluej_home}/lib/testlib/openjfx-monocle-jdk-11+26.jar"/>
+        <pathelement location="${bluej_home}/lib/testlib/testfx-core-4.0.15-alpha.jar"/>
+        <pathelement location="${bluej_home}/lib/testlib/testfx-junit-4.0.15-alpha.jar"/>
     </path>
 
     <import file="shared.xml"/>
@@ -351,6 +354,16 @@
             </classpath>
 
             <formatter type="brief" usefile="false"/>
+            
+            <jvmarg value="-Djava.awt.headless=true"/>
+            <jvmarg value="-Dtestfx.robot=glass"/>
+            <jvmarg value="-Dtestfx.headless=true"/>
+            <jvmarg value="-Dprism.order=sw"/>
+            <jvmarg value="-Dprism.text=t2k"/>
+            <jvmarg value="-Dtestfx.setup.timeout=5000"/>
+            <jvmarg value="-Dglass.platform=Monocle"/>
+            <jvmarg value="-Dmonocle.platform=Headless"/>
+            <jvmarg value="-Dheadless.geometry=1280x1024-32"/>
 
             <batchtest fork="yes" skipnontests="true">
                 <fileset dir="${test.src}">
@@ -560,6 +573,8 @@
                 <exclude name="javaruntype-1.3.jar"/>
                 <exclude name="junit-quickcheck-core-0.8.2.jar"/>
                 <exclude name="ognl-3.1.12.jar"/>
+                <exclude name="testfx-core-4.0.15-alpha.jar"/>
+                <exclude name="testfx-junit-4.0.15-alpha.jar"/>
             </fileset>
         </pathconvert>
         

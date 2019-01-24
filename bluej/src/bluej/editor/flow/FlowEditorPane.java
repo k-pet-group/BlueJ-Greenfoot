@@ -366,6 +366,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         
         public TextLine()
         {
+            getStyleClass().add("text-line");
             setMouseTransparent(true);
             selectionShape.setStroke(null);
             selectionShape.setFill(Color.CORNFLOWERBLUE);

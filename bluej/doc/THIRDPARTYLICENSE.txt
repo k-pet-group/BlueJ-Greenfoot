@@ -185,6 +185,12 @@ in the Stride editor. It is distributed under the terms of the SIL Open Font Lic
 as found in the "SIL-OFL-1.1.txt" file.
 
 
+TestFX library (EUPL)
+---------------------
+TestFX (testlib/testfx-{core,junit}-4.0.15-alpha.jar) is distributed under
+the EU Public Licence.  The licence can be found in the "testfx-EUPL.txt" file.
+
+
 XOM XML Object Modeller library (Lesser GNU Public License v2.1)
 ----------------------------------------------------------------
 "xom-1.2.9.jar" comprises the XOM library (http://www.cafeconleche.org/XOM/), used
