@@ -47,6 +47,8 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +59,7 @@ import java.util.List;
  * It displays only the lines that are currently visible on screen, in what is known
  * as a virtualised container.  Scrolling re-renders the currently visible line set.
  */
+@OnThread(value = Tag.FXPlatform, ignoreParent = true)
 public class FlowEditorPane extends Region implements DocumentListener
 {
     private static final Image UNDERLINE_IMAGE = new Image(
@@ -356,6 +359,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         return document;
     }
 
+    @OnThread(Tag.FXPlatform)
     private class TextLine extends TextFlow
     {
         private final Path selectionShape = new Path();
