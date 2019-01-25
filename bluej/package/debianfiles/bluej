@@ -3,7 +3,7 @@
 unset JAVAPATH
 
 FOUND="false"
-for VMNAME in java-8-oracle jdk-8-oracle java-8-openjdk ; do
+for VMNAME in java-11-openjdk ; do
     for JDKCANDIDATE in /usr/lib/jvm/"$VMNAME"* ; do
         if [ -e "$JDKCANDIDATE"/bin/javac ]; then
 	        JAVAPATH="$JDKCANDIDATE"
@@ -27,16 +27,16 @@ JFXRTOPT=""
 
 # If JavaFX library is not within the JDK, look for OpenJFX:
 if [ ! -e "$JAVAPATH/lib/javafx.graphics.jar" ]; then
-    if [ -e "/usr/share/openjfx/lib/javafx.graphics.jar" ]; then
-        JAVAFXPATH=/usr/share/openjfx
-        CP="$CP:$JAVAFXPATH/lib/javafx.base.jar"
-        CP="$CP:$JAVAFXPATH/lib/javafx.controls.jar"
-        CP="$CP:$JAVAFXPATH/lib/javafx.fxml.jar"
-        CP="$CP:$JAVAFXPATH/lib/javafx.graphics.jar"
-        CP="$CP:$JAVAFXPATH/lib/javafx.media.jar"
-        CP="$CP:$JAVAFXPATH/lib/javafx.properties.jar"
-        CP="$CP:$JAVAFXPATH/lib/javafx.swing.jar"
-        CP="$CP:$JAVAFXPATH/lib/javafx.web.jar"
+    if [ -e "/usr/share/java/javafx-graphics-11.jar" ]; then
+        JAVAFXPATH=/usr/share/java
+        CP="$CP:$JAVAFXPATH/javafx-base-11.jar"
+        CP="$CP:$JAVAFXPATH/javafx-controls-11.jar"
+        CP="$CP:$JAVAFXPATH/javafx-fxml-11.jar"
+        CP="$CP:$JAVAFXPATH/javafx-graphics-11.jar"
+        CP="$CP:$JAVAFXPATH/javafx-media-11.jar"
+        CP="$CP:$JAVAFXPATH/javafx-properties-11.jar"
+        CP="$CP:$JAVAFXPATH/javafx-swing-11.jar"
+        CP="$CP:$JAVAFXPATH/javafx-web-11.jar"
         JFXRTOPT="-javafxpath=$JAVAFXPATH"
     fi
 fi
