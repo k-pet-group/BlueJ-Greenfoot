@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2016,2017,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -607,54 +607,46 @@ public class JdiDebugger extends Debugger
                 }
                 
                 int runTimeMs = Integer.parseInt(((StringReference) arrayRef.getValue(0)).value());
-                if (arrayRef != null && arrayRef.length() >= 8) 
+                int i = 1;
+                while (i < arrayRef.length())
                 {
-                    int i = 1;
-                    while(i <= arrayRef.length() - 7)
+                    
+                    String actualMethodName = ((StringReference) arrayRef.getValue(i)).value();
+                    String failureType = ((StringReference) arrayRef.getValue(i + 7)).value();
+                    
+                    if (failureType.equals("success"))
                     {
-                        String failureType = ((StringReference) arrayRef.getValue(i + 6)).value();
+                        results.add(new JdiTestResult(className, actualMethodName, 0));
+                        
+                    }
+                    else
+                    {
                         String exMsg = ((StringReference) arrayRef.getValue(i)).value();
-                        String traceMsg = ((StringReference) arrayRef.getValue(i + 1)).value();
-                        String failureClass = ((StringReference) arrayRef.getValue(i + 2)).value();
-                        String failureSource = ((StringReference) arrayRef.getValue(i + 3)).value();
-                        String failureMethod = ((StringReference) arrayRef.getValue(i + 4)).value();
-                        int lineNo = Integer.parseInt(((StringReference) arrayRef.getValue(i + 5)).value());
+                        String traceMsg = ((StringReference) arrayRef.getValue(i + 2)).value();
+                        String failureClass = ((StringReference) arrayRef.getValue(i + 3)).value();
+                        String failureSource = ((StringReference) arrayRef.getValue(i + 4)).value();
+                        String failureMethod = ((StringReference) arrayRef.getValue(i + 5)).value();
+                        int lineNo = Integer.parseInt(((StringReference) arrayRef.getValue(i + 6)).value());
                         SourceLocation failPoint = new SourceLocation(failureClass, failureSource,
                                 failureMethod, lineNo);
 
                         if (failureType.equals("failure"))
                         {
-                            results.add(new JdiTestResultFailure(className, failureMethod, exMsg, traceMsg,
-                                   failPoint,0));
+                            results.add(new JdiTestResultFailure(className, actualMethodName, exMsg, traceMsg,
+                                    failPoint, 0));
                         }
                         else
                         {
-                            results.add(new JdiTestResultError(className, failureMethod, exMsg, traceMsg,
+                            results.add(new JdiTestResultError(className, actualMethodName, exMsg, traceMsg,
                                     failPoint, 0));
                         }
+                    }
 
-                        i = i + 7;
-                    }
-                    testResultsWithRunTime.setTotalRunTime(runTimeMs);
-                    testResultsWithRunTime.setResults(results);
-                    return testResultsWithRunTime;
-                       
+                    i = i + 8;
                 }
-                else if (arrayRef != null && arrayRef.length() == 1) 
-                {
-                    // Success - extract the run time in mS
-                    if (methodName != null)
-                    {
-                        results.add(new JdiTestResult(className, methodName, runTimeMs));
-                    }
-                    else
-                    {
-                        results.add(new JdiTestResult(className, "All tests are successful", runTimeMs));
-                    }
-                    testResultsWithRunTime.setResults(results);
-                    testResultsWithRunTime.setTotalRunTime(runTimeMs);
-                    return testResultsWithRunTime;
-                }
+                testResultsWithRunTime.setTotalRunTime(runTimeMs);
+                testResultsWithRunTime.setResults(results);
+                return testResultsWithRunTime;
             }
         }
         catch (InvocationException ie) 
@@ -674,13 +666,6 @@ public class JdiDebugger extends Debugger
             testResultsWithRunTime.setTotalRunTime(0);
             return testResultsWithRunTime;
         }
-
-        // should never get here
-        results.add(new JdiTestResultError(className, methodName, "VM returned unknown result",
-                "", null, 0));
-        testResultsWithRunTime.setResults(results);
-        testResultsWithRunTime.setTotalRunTime(0);
-        return testResultsWithRunTime;
     }
     
     /**

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2017,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,6 +37,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -49,6 +50,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -57,12 +59,14 @@ import javafx.collections.ListChangeListener.Change;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.Stage;
 
+import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
 
 import bluej.utility.Utility;
+import org.junit.runner.notification.RunListener;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -619,87 +623,98 @@ public class ExecServer
     }
 
     /**
+     * A class to record successes and failures during a JUnit test run.
+     */
+    private static class TestRecorder extends RunListener
+    {
+        private final List<Object[]> testDetails = new ArrayList<>();
+
+        @Override
+        public void testFinished(Description description) throws Exception
+        {
+            // Finished comes after failure.  Don't add another record
+            // if we already just saw a failure for this test:
+            if (!testDetails.isEmpty() && testDetails.get(testDetails.size() - 1)[0].equals(description.getMethodName()))
+            {
+                return;
+            }
+            
+            Object[] r = new Object[8];
+            r[0] = description.getMethodName();
+            r[1] = r[2] = r[3] = r[4] = r[5] = r[6] = "";
+            r[7] = "success";
+            testDetails.add(r);
+        }
+
+        @Override
+        public void testFailure(Failure failure) throws Exception
+        {
+            Object[] r = new Object[8];
+            r[0] = failure.getDescription().getMethodName();
+            if (java.lang.AssertionError.class.isAssignableFrom(failure.getException().getClass())
+                    || failure.getException().getClass() == junit.framework.AssertionFailedError.class)
+            {
+                r[7] = "failure";
+            }
+            else
+            {
+                r[7] = "error";
+            }
+            r[1] = failure.getMessage() != null ? failure.getMessage() : "no exception message";
+            r[2] = failure.getTrace() != null ? failure.getTrace() : "no trace";
+            // search the stack trace backward until finding a class not
+            // part of the org.junit framework
+            StackTraceElement [] ste = failure.getException().getStackTrace();
+            int k = 0;
+            while(k < ste.length && ste[k].getClassName().startsWith("org.junit."))
+            {
+                k++;
+            }
+            r[3] = ste[k].getClassName();
+            r[4] = ste[k].getFileName();
+            r[5] = ste[k].getMethodName();
+            r[6] = String.valueOf(ste[k].getLineNumber());
+            testDetails.add(r);
+        }
+    }
+
+    /**
      * Execute a JUnit test on a single test method or all test methods in a test class
      * and return the result.<p>
      *
-     * The array returned in case of failure/error has a length of [1 + 7*(number of failures/errors)].<br>
+     * The array returned in case of failure/error has a length of [1 + 8*(number of methods tested)].<br>
      * The first item of the array contains the runtime of executing all tests in milliseconds expressed  
-     * as a decimal integer, then each failure/error has seven consecutive items in the array which 
-     * contains:<br> 
-     *  [1] = the exception message (or "no exception message")<br>
-     *  [2] = the stack trace as a string (or "no stack trace")<br>
-     *  [3] = the name of the class in which the exception/failure occurred<br>
-     *  [4] = the source filename for where the exception/failure occurred<br>
-     *  [5] = the name of the method in which the exception/failure occurred<br>
-     *  [6] = the line number where the exception/failure occurred (a string)<br>
-     *  [7] = "failure" or "error" (string)<br>
-     *  
-     * The array returned in case of success contains:<br>
-     *  [0] = the runtime in milliseconds expressed as a decimal integer
-     * 
-     * @return an array of length [1 + 7*(number of failures/errors)],
-     *         or of length 1 if all tests passed
+     * as a decimal integer, then each test has eight consecutive items in the array which 
+     * contains:<br>
+     *  [0] = the method name<br>
+     *  [1] = the exception message (or "no exception message"), blank if success<br>
+     *  [2] = the stack trace as a string (or "no stack trace"), blank if success<br>
+     *  [3] = the name of the class in which the exception/failure occurred, blank if success<br>
+     *  [4] = the source filename for where the exception/failure occurred, blank if success<br>
+     *  [5] = the name of the method in which the exception/failure occurred, blank if success<br>
+     *  [6] = the line number where the exception/failure occurred (a string), blank if success<br>
+     *  [7] = "failure" or "error" or "success" (string)<br>
+     *      
+     * @return an array of length [1 + 8*(number of tests run)]
      */
     private static Object[] runTestMethod(String className, String methodName)
     {
         Class<?> cl = loadAndInitClass(className);
         Result res;
+        JUnitCore jUnitCore = new JUnitCore();
+        TestRecorder recorder = new TestRecorder();
+        jUnitCore.addListener(recorder);
         if (methodName != null)
         {
-            res = (new JUnitCore()).run(Request.method(cl, methodName));
+            res = jUnitCore.run(Request.method(cl, methodName));
         }
         else
         {
-            res = (new JUnitCore()).run(Request.aClass(cl));
+            res = jUnitCore.run(Request.aClass(cl));
         }
-
-        if (res.wasSuccessful())
-        {
-            Object result[] = new Object[1];
-            result[0] = String.valueOf(res.getRunTime());
-            return result;
-        }
-        else
-        {
-            Object[] result = new Object[1 + 7 * res.getFailureCount()];
-            result[0] = String.valueOf(res.getRunTime());
-
-            List<Failure> failures = res.getFailures();
-            int i = 1;
-            for (Iterator<Failure> iterator = failures.iterator(); iterator.hasNext();)
-            {
-                Failure failure = iterator.next();
-                if (java.lang.AssertionError.class.isAssignableFrom(failure.getException().getClass())
-                        || failure.getException().getClass() == junit.framework.AssertionFailedError.class)
-                {
-                    result[i + 6] = "failure"; 
-                }
-                else
-                {
-                    result[i + 6] = "error";
-                }
-
-                result[i] = failure.getMessage() != null ? failure.getMessage() : "no exception message";
-                result[i + 1] = failure.getTrace() != null ? failure.getTrace() : "no trace";
-                // search the stack trace backward until finding a class not
-                // part of the org.junit framework
-                StackTraceElement [] ste = failure.getException().getStackTrace();
-                int k = 0;
-                while(k < ste.length && ste[k].getClassName().startsWith("org.junit."))
-                {
-                    k++;
-                }
-                result[i + 2] = ste[k].getClassName();
-                result[i + 3] = ste[k].getFileName();
-                result[i + 4] = ste[k].getMethodName();
-                result[i + 5] = String.valueOf(ste[k].getLineNumber());
-
-                // Move the index to the next failure/error space in the array if exist
-                i = i + 7;
-            }
-
-            return result;
-        }
+        
+        return Stream.concat(Stream.of(String.valueOf(res.getRunTime())),
+            recorder.testDetails.stream().flatMap(t -> Arrays.stream(t))).toArray();
     }
 
     /**
