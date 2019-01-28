@@ -2686,7 +2686,7 @@ public class PkgMgrFrame
      * in.
      */
     @Override
-    public void blueJEvent(int eventId, Object arg)
+    public void blueJEvent(int eventId, Object arg, Project prj)
     {
         switch(eventId) {
             case BlueJEvent.CREATE_VM :

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2013,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -706,11 +706,12 @@ public final class Terminal
      *                 constants defined in BlueJEvent.
      * @param arg      An event specific parameter. See BlueJEvent for
      *                 definition.
+     * @param prj      A project where the event happens
      */
     @Override
-    public void blueJEvent(int eventId, Object arg)
+    public void blueJEvent(int eventId, Object arg, Project prj)
     {
-        if(eventId == BlueJEvent.METHOD_CALL) {
+        if(eventId == BlueJEvent.METHOD_CALL && this.project == prj) {
             InvokerRecord ir = (InvokerRecord) arg;
             if (ir.getResultName() != null) {
                 constructorCall(ir);

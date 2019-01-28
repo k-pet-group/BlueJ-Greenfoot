@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2016,2017,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,6 +35,7 @@ import java.util.concurrent.CompletableFuture;
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.debugger.*;
+import bluej.pkgmgr.Project;
 import bluej.utility.javafx.FXPlatformSupplier;
 import com.sun.jdi.*;
 import threadchecker.OnThread;
@@ -731,7 +732,7 @@ public class JdiDebugger extends Debugger
         BlueJEventListener listener = new BlueJEventListener()
         {
             @Override
-            public void blueJEvent(int eventId, Object arg)
+            public void blueJEvent(int eventId, Object arg, Project prj)
             {
                 if (eventId == BlueJEvent.CREATE_VM_DONE)
                 {
