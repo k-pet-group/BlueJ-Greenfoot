@@ -31,6 +31,7 @@ import bluej.debugger.DebuggerThread;
 import bluej.editor.EditorWatcher;
 import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
 import bluej.editor.moe.MoeActions.MoeAbstractAction;
+import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr.PrintSize;
 import bluej.editor.moe.MoeErrorManager.ErrorDetails;
 import bluej.editor.moe.MoeSyntaxDocument.Element;
@@ -1415,7 +1416,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
      * A BlueJEvent was raised. Check whether it is one that we're interested in.
      */
     @Override
-    public void blueJEvent(int eventId, Object arg)
+    public void blueJEvent(int eventId, Object arg, Project prj)
     {
         switch(eventId) {
             case BlueJEvent.DOCU_GENERATED :

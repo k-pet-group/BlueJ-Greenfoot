@@ -35,6 +35,7 @@ import java.util.concurrent.CompletableFuture;
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.debugger.*;
+import bluej.pkgmgr.Project;
 import bluej.utility.javafx.FXPlatformSupplier;
 import com.sun.jdi.*;
 import threadchecker.OnThread;
@@ -716,7 +717,7 @@ public class JdiDebugger extends Debugger
         BlueJEventListener listener = new BlueJEventListener()
         {
             @Override
-            public void blueJEvent(int eventId, Object arg)
+            public void blueJEvent(int eventId, Object arg, Project prj)
             {
                 if (eventId == BlueJEvent.CREATE_VM_DONE)
                 {

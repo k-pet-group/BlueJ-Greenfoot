@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2013,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2012,2013,2016,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -388,11 +388,13 @@ public class ExtensionsManager
      *            The event id (see BlueJEvent)
      * @param arg
      *            This really depends on that event is given
+     * @param prj      
+     *            A project where the event happens
      *            
      * @see BlueJEvent
      */
     @OnThread(Tag.SwingIsFX)
-    public void blueJEvent(int eventId, Object arg)
+    public void blueJEvent(int eventId, Object arg, Project prj)
     {
         if (eventId == BlueJEvent.EXECUTION_RESULT) {
             ExecutionEvent exevent = (ExecutionEvent) arg;

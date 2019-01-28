@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2018  Michael Kolling and John Rosenberg 
+ Copyright (C) 2018,2019  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -79,7 +79,7 @@ public abstract class BluejResultWatcher extends ResultWatcherBase
     @Override
     public void beginExecution(InvokerRecord ir)
     {
-        BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir);
+        BlueJEvent.raiseEvent(BlueJEvent.METHOD_CALL, ir, pmf.getProject());
         pmf.setWaitCursor(false);
     }
 

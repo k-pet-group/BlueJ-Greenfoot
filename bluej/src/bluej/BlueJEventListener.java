@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2019  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package bluej;
 
+import bluej.pkgmgr.Project;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -41,6 +42,7 @@ public interface BlueJEventListener
      *                 constants defined in BlueJEvent.
      * @param arg      An event specific parameter. See BlueJEvent for 
      *                 definition.
+     * @param prj      A project where the event happens
      */
-    void blueJEvent(int eventId, Object arg);
+    void blueJEvent(int eventId, Object arg, Project prj);
 }
