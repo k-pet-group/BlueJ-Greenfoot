@@ -668,6 +668,7 @@ public final class Config
                         Debug.message("BlueJ version " + Boot.BLUEJ_VERSION);
                     }
                     Debug.message("Java version " + System.getProperty("java.version"));
+                    Debug.message("JavaFX version " + System.getProperty("javafx.runtime.version"));
                     Debug.message("Virtual machine: " +
                             System.getProperty("java.vm.name") + " " +
                             System.getProperty("java.vm.version") +
