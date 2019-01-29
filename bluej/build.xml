@@ -112,6 +112,8 @@
             </classpath>
             <compilerarg value="-Xmaxerrs"/><compilerarg value="100"/>
             <compilerarg value="-Xplugin:threadchecker.TCPlugin"/>
+            <!-- we use some private packages/classes currently: -->
+            <compilerarg line="--add-exports=javafx.graphics/com.sun.glass.ui=ALL-UNNAMED"/>
         </compile>
         <copy todir="${boot.build}">
             <fileset dir="${boot.resources}" />

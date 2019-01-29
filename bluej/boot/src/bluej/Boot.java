@@ -29,8 +29,6 @@ import javafx.stage.Stage;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import java.awt.Desktop;
-import java.awt.EventQueue;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.*;
@@ -204,27 +202,8 @@ public class Boot
         Application.launch(App.class, args);
     }
 
-    /**
-     * Get the list of projects which the OS has asked us to open.
-     * 
-     * <p>This has only ever been effective/important for MacOS. On other OSes, the initial project(s)
-     * are passed on the command line instead.
-     */
     public static List<File> getMacInitialProjects()
     {
-        // We need to let any AWT events process, to be sure we have seen file open requests:
-        if (! EventQueue.isDispatchThread())
-        {
-            try
-            {
-                EventQueue.invokeAndWait(() -> {});
-            }
-            catch (Exception e)
-            {
-                throw new RuntimeException(e);
-            }
-        }
-        
         return macInitialProjects;
     }
 
@@ -657,7 +636,6 @@ public class Boot
 
     public static class App extends javafx.application.Application
     {
-        @SuppressWarnings("threadchecker")
         public App()
         {
             if (System.getProperty("os.name").contains("OS X"))
@@ -670,34 +648,36 @@ public class Boot
                     macInitialProjects.addAll(e.getFiles());
                 });
                 */
-                // Will this happen when using Desktop as per below? not sure. If so we can
-                // probably defer setting the handler until after we have displayed the splash
-                // screen.
-                Runnable setHandlers = () -> {
-                    Desktop.getDesktop().setOpenFileHandler(e -> {
-                        for (File f : e.getFiles())
-                        {
-                            macInitialProjects.add(f);
-                        }
-                    });
-    
-                    Desktop.getDesktop().setQuitHandler((event, response) -> {
-                        getInstance().quitAction.run();
-                        // If that didn't actually cause exit, assume that we don't want to quit:
-                        response.cancelQuit();
-                    });
-                };
                 
-                // If JavaFX thread == AWT dispatch thread, just set the handlers now. Otherwise we must
-                // transfer to the dispatch thread.
-                if (EventQueue.isDispatchThread())
-                {
-                    setHandlers.run();
-                }
-                else
-                {
-                    EventQueue.invokeLater(setHandlers);
-                }
+                // For now, we use this code to set the event handler, but I think it will
+                // stop working come JDK 9.
+                // Note: this handler is only used during BlueJ load.  After the load, the open-files
+                // events still gets passed back to the com.eawt/AppleJavaExtensions handler, so this
+                // won't receive anything after load.  (At some point, the JDK developers are going to have
+                // to sort this mess out.)
+                com.sun.glass.ui.Application glassApp = com.sun.glass.ui.Application.GetApplication();
+                glassApp.setEventHandler(new com.sun.glass.ui.Application.EventHandler() {
+                    @Override
+                    public void handleOpenFilesAction(com.sun.glass.ui.Application app, long time, String[] files)
+                    {
+                        // It turns out that we can get a spurious file open event for the Java
+                        // classpath.  We spot this and ignore it by looking for colons in the
+                        // file path
+                        for (String f : files)
+                        {
+                            if (!f.contains(":") && !f.equals("bluej.Boot") && !f.startsWith("-"))
+                                macInitialProjects.add(new File(f));
+                        }
+                        super.handleOpenFilesAction(app, time, files);
+                    }
+
+                    @Override
+                    public void handleQuitAction(com.sun.glass.ui.Application app, long time)
+                    {
+                        getInstance().quitAction.run();
+                        super.handleQuitAction(app, time);
+                    }
+                });
             }
         }
         
