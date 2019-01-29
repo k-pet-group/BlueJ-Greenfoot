@@ -26,6 +26,7 @@ import bluej.flow.gen.GenString;
 import bluej.utility.Utility;
 import com.pholser.junit.quickcheck.From;
 import com.pholser.junit.quickcheck.Property;
+import com.pholser.junit.quickcheck.When;
 import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
 import javafx.application.Platform;
 import javafx.scene.Node;
@@ -33,6 +34,8 @@ import javafx.scene.Scene;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
+import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.testfx.framework.junit.ApplicationTest;
@@ -44,6 +47,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnitQuickcheck.class)
@@ -70,19 +74,33 @@ public class TestBasicEditorDisplay extends FXTest
         sleep(1000);
         
         List<String> lines = flowEditorPane.getDocument().getLines().map(s -> s.toString()).collect(Collectors.toList());
-        
-        // Check that text lines are there in order
-        List<String> guiLines = fx(() -> {
-            return flowEditorPane.lookupAll(".text-line").stream().sorted(Comparator.comparing(Node::getLayoutY)).map(t -> getAllText((TextFlow)t)).collect(Collectors.toList());
+
+        List<TextFlow> guiLines = fx(() -> {
+            return flowEditorPane.lookupAll(".text-line").stream().sorted(Comparator.comparing(Node::getLayoutY)).map(t -> (TextFlow)t).collect(Collectors.toList());
         });
         
-        // May not show all lines if document is truncated:
-        for (int i = 0; i < guiLines.size(); i++)
-        {
-            assertEquals(lines.get(i), guiLines.get(i));
-        }
+        // Check that text lines are there in order
+        List<String> guiLineContent = fx(() -> Utility.mapList(guiLines, this::getAllText));
         
-        // TODO check that lines have no gap, that last line is final or reaches to end of window
+        // May not show all lines if document is truncated:
+        for (int i = 0; i < guiLineContent.size(); i++)
+        {
+            assertEquals(lines.get(i), guiLineContent.get(i));
+        }
+        // Check lines cover full height of window, unless document is too short:
+        assertThat(guiLines.get(0).getLayoutY(), Matchers.lessThanOrEqualTo(0.0));
+        if (lines.size() > guiLines.size())
+        {
+            assertThat(guiLines.get(guiLines.size() - 1).getLayoutY() 
+                            + guiLines.get(guiLines.size() - 1).getHeight(),
+                Matchers.greaterThanOrEqualTo(flowEditorPane.getHeight()));
+        }
+        else
+        {
+            assertEquals(lines.size(), guiLines.size());
+        }
+                
+        // TODO check that lines have no gap
         // TODO test scrolling, clicking, caret and selection display (especially when one or both ends off-screen)
         
     }
