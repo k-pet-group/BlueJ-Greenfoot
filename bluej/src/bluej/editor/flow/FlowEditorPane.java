@@ -22,8 +22,6 @@
 package bluej.editor.flow;
 
 import bluej.editor.flow.Document.Bias;
-import bluej.utility.Utility;
-import bluej.utility.javafx.JavaFXUtil;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -35,15 +33,12 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
 import javafx.scene.text.HitInfo;
-import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
@@ -51,6 +46,7 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -66,10 +62,8 @@ public class FlowEditorPane extends Region implements DocumentListener
             // Temporary hack hard coding the path (since this isn't running under BlueJ proper, yet)
             "file:///Users/neil/intellij/bjgf/bluej/lib/images/" + 
             "error-underline.png");
-    
-    private final ArrayList<TextLine> currentlyVisibleLines = new ArrayList<>();
-    private int firstLineIndex = 0;
-    
+    private final LineDisplay lineDisplay = new LineDisplay();
+
     double fontSize = 12;
     
     private final Document document;
@@ -126,9 +120,10 @@ public class FlowEditorPane extends Region implements DocumentListener
 
     private void positionCaretAtDestination(MouseEvent e)
     {
-        for (int i = 0; i < currentlyVisibleLines.size(); i++)
+        /*
+        for (int i = 0; i < lineDisplay.currentlyVisibleLines.size(); i++)
         {
-            TextFlow currentlyVisibleLine = currentlyVisibleLines.get(i);
+            TextFlow currentlyVisibleLine = lineDisplay.currentlyVisibleLines.get(i);
             // getLayoutBounds() seems to get out of date, so calculate manually:
             BoundingBox actualBounds = new BoundingBox(currentlyVisibleLine.getLayoutX(), currentlyVisibleLine.getLayoutY(), currentlyVisibleLine.getWidth(), currentlyVisibleLine.getHeight());
             if (actualBounds.contains(e.getX(), e.getY()))
@@ -142,6 +137,7 @@ public class FlowEditorPane extends Region implements DocumentListener
                 }
             }
         }
+        */
     }
 
     private void mouseDragged(MouseEvent e)
@@ -197,26 +193,49 @@ public class FlowEditorPane extends Region implements DocumentListener
 
     private void updateRender()
     {
-        // For now, just render all lines:
-        String[] lines = document.getLines().map(l -> l.toString()).toArray(String[]::new);
-        for (int i = 0; i < lines.length; i++)
+        List<Node> prospectiveChildren = new ArrayList<>();
+        prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(document.getLines(), getHeight(), fontSize));
+        prospectiveChildren.add(caretShape);
+        
+        // This will often avoid changing the children, if the window has not been resized:
+        boolean needToChangeLinesAndCaret = false;
+        for (int i = 0; i < prospectiveChildren.size(); i++)
         {
-            if (currentlyVisibleLines.size() - 1 < i)
+            // Reference equality is fine here:
+            if (i >= getChildren().size() || prospectiveChildren.get(i) != getChildren().get(i))
             {
-                currentlyVisibleLines.add(new TextLine());
+                needToChangeLinesAndCaret = true;
+                break;
             }
-            currentlyVisibleLines.get(i).setText(lines[i], fontSize);
-            currentlyVisibleLines.get(i).selectionShape.getElements().clear();
+        }
+        if (needToChangeLinesAndCaret)
+        {
+            getChildren().setAll(prospectiveChildren);
+        }
+        else
+        {
+            // Clear rest after:
+            if (getChildren().size() > prospectiveChildren.size())
+            {
+                getChildren().subList(prospectiveChildren.size(), getChildren().size()).clear();
+            }
         }
 
-        getChildren().clear();
-        getChildren().addAll(currentlyVisibleLines);
-        getChildren().add(caretShape);
-        
-        TextLine caretLine = currentlyVisibleLines.get(caret.getLine());
-        caretShape.getElements().setAll(caretLine.caretShape(caret.getColumn(), true));
-        caretShape.setLayoutX(caretLine.getLayoutX());
-        caretShape.setLayoutY(caretLine.getLayoutY());
+        if (lineDisplay.isLineVisible(caret.getLine()))
+        {
+            TextLine caretLine = lineDisplay.getVisibleLine(caret.getLine());
+            caretShape.getElements().setAll(caretLine.caretShape(caret.getColumn(), true));
+            caretShape.setLayoutX(caretLine.getLayoutX());
+            caretShape.setLayoutY(caretLine.getLayoutY());
+            caretShape.setVisible(true);
+        }
+        else
+        {
+            caretShape.getElements().clear();
+            caretShape.setLayoutX(0);
+            caretShape.setLayoutY(0);
+            caretShape.setVisible(false);
+        }
         
         if (caret.position != anchor.position)
         {
@@ -224,9 +243,10 @@ public class FlowEditorPane extends Region implements DocumentListener
             TrackedPosition endPos = caret.position < anchor.position ? anchor : caret;
             
             // Simple case; one line selection:
-            if (startPos.getLine() == endPos.getLine())
+            if (startPos.getLine() == endPos.getLine() && lineDisplay.isLineVisible(startPos.getLine()))
             {
-                caretLine.selectionShape.getElements().setAll(caretLine.rangeShape(startPos.getColumn(), endPos.getColumn()));
+                TextLine caretLine = lineDisplay.getVisibleLine(startPos.getLine());
+                caretLine.showSelection(caretLine.rangeShape(startPos.getColumn(), endPos.getColumn()));
             }
             else
             {
@@ -235,28 +255,32 @@ public class FlowEditorPane extends Region implements DocumentListener
                 for (int line = startPos.getLine(); line < endPos.getLine(); line++)
                 {
                     int startOnThisLine = line == startPos.getLine() ? startPos.getColumn() : 0;
-                    PathElement[] elements = currentlyVisibleLines.get(line).rangeShape(startOnThisLine, document.getLineStart(line + 1) - document.getLineStart(line));
-                    currentlyVisibleLines.get(line).selectionShape.getElements().setAll(elements);
+                    TextLine textLine = lineDisplay.getVisibleLine(line);
+                    PathElement[] elements = textLine.rangeShape(startOnThisLine, document.getLineStart(line + 1) - document.getLineStart(line));
+                    textLine.showSelection(elements);
                 }
                 // Now do last line:
-                currentlyVisibleLines.get(endPos.getLine()).selectionShape.getElements().setAll(currentlyVisibleLines.get(endPos.getLine()).rangeShape(0, endPos.getColumn()));
+                lineDisplay.getVisibleLine(endPos.getLine()).showSelection(lineDisplay.getVisibleLine(endPos.getLine()).rangeShape(0, endPos.getColumn()));
             }
         }
-
+        
+        /* Code for showing error underlines
         for (IndexRange errorUnderline : errorUnderlines)
         {
             Path err = new Path();
             err.setFill(null);
             err.setStroke(new ImagePattern(UNDERLINE_IMAGE, 0, 0, 2, 2, false));
             err.setMouseTransparent(true);
-            TextLine errTextLine = currentlyVisibleLines.get(document.getLineFromPosition(errorUnderline.getStart()));
+            TextLine errTextLine = lineDisplay.currentlyVisibleLines.get(document.getLineFromPosition(errorUnderline.getStart()));
             err.getElements().setAll(keepBottom(errTextLine.rangeShape(document.getColumnFromPosition(errorUnderline.getStart()), document.getColumnFromPosition(errorUnderline.getEnd()))));
             err.setLayoutX(errTextLine.getLayoutX());
             err.setLayoutY(errTextLine.getLayoutY());
             getChildren().add(err);
         }
+        */
         
         // Temporary calculations for box location:
+        /*
         String docContent = document.getFullContent();
         int nextRect = 0;
         for (int publicLoc = docContent.indexOf("public"); publicLoc != -1; publicLoc = docContent.indexOf("public", publicLoc + 1))
@@ -278,7 +302,7 @@ public class FlowEditorPane extends Region implements DocumentListener
             // Now draw a background box the full width of the header line, down to beneath the curly
             double x = getCaretLikeBounds(publicLoc).getMinX();
             double y = getCaretLikeBounds(publicLoc).getMinY();
-            double width = currentlyVisibleLines.get(document.getLineFromPosition(publicLoc)).getWidth() - x;
+            double width = lineDisplay.currentlyVisibleLines.get(document.getLineFromPosition(publicLoc)).getWidth() - x;
             double height = getCaretLikeBounds(closingCurly).getMaxY() - y;
             Rectangle r = new Rectangle(x, y, width, height);
             r.setMouseTransparent(true);
@@ -286,20 +310,34 @@ public class FlowEditorPane extends Region implements DocumentListener
             r.setFill(docContent.startsWith("public class", publicLoc) ? Color.PALEGREEN : Color.LIGHTYELLOW);
             getChildren().add(nextRect++, r);
         }
+        */
         
                 
         requestLayout();
     }
 
-    // Bounds relative to editor window
+    private TextLine getVisibleLine(int line)
+    {
+
+        return lineDisplay.getVisibleLine(line);
+    }
+
+    private boolean isLineVisible(int line)
+    {
+        return lineDisplay.isLineVisible(line);
+    }
+
+    // Bounds relative to FlowEditorPane
+    /*
     private Bounds getCaretLikeBounds(int pos)
     {
-        TextLine textLine = currentlyVisibleLines.get(document.getLineFromPosition(pos));
+        TextLine textLine = lineDisplay.currentlyVisibleLines.get(document.getLineFromPosition(pos));
         Path path = new Path(textLine.caretShape(document.getColumnFromPosition(pos), true));
         path.setLayoutX(textLine.getLayoutX());
         path.setLayoutY(textLine.getLayoutY());
         return path.getBoundsInParent();
     }
+    */
 
     private PathElement[] keepBottom(PathElement[] rangeShape)
     {
@@ -347,7 +385,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         {
             if (child instanceof TextFlow)
             {
-                double height = child.prefHeight(999999.0);
+                double height = child.prefHeight(-1.0);
                 child.resizeRelocate(0, y, child.prefWidth(height), height);
                 y += height;
             }
@@ -359,40 +397,4 @@ public class FlowEditorPane extends Region implements DocumentListener
         return document;
     }
 
-    @OnThread(Tag.FXPlatform)
-    private class TextLine extends TextFlow
-    {
-        private final Path selectionShape = new Path();
-        
-        public TextLine()
-        {
-            getStyleClass().add("text-line");
-            setMouseTransparent(true);
-            selectionShape.setStroke(null);
-            selectionShape.setFill(Color.CORNFLOWERBLUE);
-            selectionShape.setManaged(false);
-            getChildren().add(selectionShape);
-        }
-        
-        public void setText(String text, double size)
-        {
-            getChildren().clear();
-            getChildren().add(selectionShape);
-            // Temporarily, for investigating syntax highlighting, we alternate colours of the words:
-            final Paint[] colors = new Paint[] { Color.RED, Color.GREEN, Color.LIGHTGRAY, Color.NAVY };
-            int nextColor = 0;
-            for (String s : text.split("((?<= )|(?= ))"))
-            {
-                Text t = new Text(s);
-                t.setFont(new Font(size));
-                if (!s.isBlank())
-                {
-                    t.setFill(colors[nextColor]);
-                    nextColor = (nextColor + 1) % colors.length;
-                }
-                getChildren().add(t);
-            }
-            
-        }
-    }
 }

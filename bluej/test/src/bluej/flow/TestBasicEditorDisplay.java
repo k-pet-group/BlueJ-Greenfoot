@@ -67,7 +67,7 @@ public class TestBasicEditorDisplay extends FXTest
     {
         Platform.runLater(() -> flowEditorPane.getDocument().replaceText(0, 0, content));
         
-        sleep(3000);
+        sleep(1000);
         
         List<String> lines = flowEditorPane.getDocument().getLines().map(s -> s.toString()).collect(Collectors.toList());
         
@@ -76,8 +76,15 @@ public class TestBasicEditorDisplay extends FXTest
             return flowEditorPane.lookupAll(".text-line").stream().sorted(Comparator.comparing(Node::getLayoutY)).map(t -> getAllText((TextFlow)t)).collect(Collectors.toList());
         });
         
-        // TODO will need to only look at part, once scrolling is implemented
-        assertEquals(lines, guiLines);
+        // May not show all lines if document is truncated:
+        for (int i = 0; i < guiLines.size(); i++)
+        {
+            assertEquals(lines.get(i), guiLines.get(i));
+        }
+        
+        // TODO check that lines have no gap, that last line is final or reaches to end of window
+        // TODO test scrolling, clicking, caret and selection display (especially when one or both ends off-screen)
+        
     }
     
     @OnThread(Tag.FXPlatform)
