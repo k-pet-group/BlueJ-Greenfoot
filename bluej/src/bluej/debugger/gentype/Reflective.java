@@ -191,7 +191,7 @@ public abstract class Reflective
 
 
     /**
-     * Get the module name of this type.  Returns null it not known or non-applicable.
+     * Get the module name of this type.  Returns null if not known or non-applicable.
      */
     abstract public String getModuleName();
 }
