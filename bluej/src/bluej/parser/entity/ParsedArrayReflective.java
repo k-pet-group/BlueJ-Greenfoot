@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011,2014,2015,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 2010,2011,2014,2015,2018,2019  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -166,5 +166,11 @@ public class ParsedArrayReflective extends Reflective
     public Reflective getInnerClass(String name)
     {
         return null;
+    }
+
+    @Override
+    public String getModuleName()
+    {
+        return component.getModuleName();
     }
 }

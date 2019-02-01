@@ -675,7 +675,7 @@ public class Main
         Stage window = new Stage();
         window.initModality(Modality.WINDOW_MODAL);
         window.initOwner(parent);
-        window.setTitle("bluej.central.msg.title");
+        window.setTitle(Config.getString("bluej.central.msg.title"));
         Button button = new Button(Config.getString("okay"));
         button.setDefaultButton(true);
         button.setOnAction(e -> {

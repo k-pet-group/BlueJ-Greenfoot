@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2013,2014,2015,2016,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2013,2014,2015,2016,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -494,5 +494,11 @@ public class JavaReflective extends Reflective
         }
         catch (LinkageError le) {}
         return null;
+    }
+
+    @Override
+    public String getModuleName()
+    {
+        return c.getModule() != null ? c.getModule().getName() : null;
     }
 }

@@ -944,7 +944,7 @@ public class CompletionTest
         assertEquals("java.util.List<?>", suggests.getSuggestionType().toString());
         
         AssistContent [] assists = ParseUtils.getPossibleCompletions(suggests, new JavadocResolver() {
-            public String getJavadoc(String name) { throw new IllegalStateException(); }
+            public String getJavadoc(String moduleName, String name) { throw new IllegalStateException(); }
             
             public void getJavadoc(Reflective declType, Collection<? extends ConstructorOrMethodReflective> methods)
             {
@@ -1035,7 +1035,7 @@ public class CompletionTest
             }
 
             @Override
-            public String getJavadoc(String typeName)
+            public String getJavadoc(String moduleName, String typeName)
             {
                 throw new RuntimeException("Not implemented in test stub.");
             }
