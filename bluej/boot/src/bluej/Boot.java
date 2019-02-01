@@ -241,6 +241,29 @@ public class Boot
         return urls;
     }
 
+    /**
+     * Gets the path to the JavaFX src zip, which may or may not exist.
+     * @return
+     */
+    public File getJavaFXSourcePath()
+    {
+        String javafxPathProp = commandLineProps.getProperty("javafxpath", null);
+        File javafxPath;
+        if (javafxPathProp != null)
+        {
+            javafxPath = new File(javafxPathProp);
+        }
+        else
+        {
+            // If no javafxpath property passed, assume JavaFX is bundled
+            javafxPath = new File(getBluejLibDir(), "javafx");
+        }
+
+        File javafxLibPath = new File(javafxPath, "lib");
+        File javafxSrcPath = new File(javafxLibPath, "src.zip");
+        return javafxSrcPath;
+    }
+
     @FunctionalInterface
     private static interface FXPlatformSupplier<T>
     {

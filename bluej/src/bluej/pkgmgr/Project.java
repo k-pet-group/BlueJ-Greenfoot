@@ -278,6 +278,13 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         if (jdkSourcePath != null) {
             sourcePath.add(new DocPathEntry(new File(jdkSourcePath), ""));
         }
+        
+        File javafxSourceZip = Boot.getInstance().getJavaFXSourcePath();
+        if (javafxSourceZip.isFile())
+        {
+            sourcePath.add(new DocPathEntry(javafxSourceZip, ""));
+        }
+        
 
         this.projectDir = projectDir;
         libraryUrls = getLibrariesClasspath();
