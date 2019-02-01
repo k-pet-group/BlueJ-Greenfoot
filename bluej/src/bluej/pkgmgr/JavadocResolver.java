@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2014,2015,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 2010,2014,2015,2017,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -46,7 +46,13 @@ public interface JavadocResolver
      */
     public void getJavadoc(Reflective declType, Collection<? extends ConstructorOrMethodReflective> methods);
 
-    public String getJavadoc(String typeName);
+    /**
+     * Get the Javadoc for the given type
+     * @param moduleName The enclosing module of the type if known and applicable (may be null)
+     * @param typeName The fully qualified name of the type
+     * @return The Javadoc if found, or null if not.
+     */
+    public String getJavadoc(String moduleName, String typeName);
 
     public static interface AsyncCallback
     {

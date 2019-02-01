@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014,2015,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2015,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1133,6 +1133,19 @@ public class JdiReflective extends Reflective
         }
         
         return null;
+    }
+
+    @Override
+    public String getModuleName()
+    {
+        try
+        {
+            return rclass.module() != null ? rclass.module().name() : null;
+        }
+        catch (UnsupportedOperationException e)
+        {
+            return null;
+        }
     }
 
     @OnThread(Tag.Any)

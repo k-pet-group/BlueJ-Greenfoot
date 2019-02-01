@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2017 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2017,2019 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -40,6 +40,7 @@ public class ImportedTypeCompletion extends AssistContent
     private final int modifiers;
     private final List<String> superTypes;
     private final Kind typeKind;
+    private final String moduleName;
     private boolean extractedJavadoc = false;
     private String javadoc = null; // Can be null, even after extraction
     private final JavadocResolver resolver;
@@ -52,6 +53,7 @@ public class ImportedTypeCompletion extends AssistContent
         this.canonicalName = cls.getCanonicalName();
         this.packageName = cls.getPackage().getName();
         this.modifiers = cls.getModifiers();
+        this.moduleName = cls.getModule() != null ? cls.getModule().getName() : null;
 
         this.enclosingClasses = new ArrayList<>();
         for (Class<?> i  = cls.getEnclosingClass(); i != null; i = i.getEnclosingClass())
@@ -125,7 +127,7 @@ public class ImportedTypeCompletion extends AssistContent
     {
         if (!extractedJavadoc)
         {
-            javadoc = resolver.getJavadoc(canonicalName);
+            javadoc = resolver.getJavadoc(moduleName, canonicalName);
         }
         return javadoc;
     }
