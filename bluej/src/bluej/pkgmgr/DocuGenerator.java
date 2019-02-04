@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015,2016,2019  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,6 +33,8 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import javax.swing.*;
+import javax.tools.DocumentationTool;
+import javax.tools.ToolProvider;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -180,44 +182,17 @@ public class DocuGenerator
                     
                     logWriter.println("<---- end of javadoc command ---->");
                     logWriter.flush();
+
+                    DocumentationTool docTool = ToolProvider.getSystemDocumentationTool();
                     
-                    // Call Javadoc
-                    Method executeMethod = null;
-                    try {
-                        Class<?> javadocClass = Class.forName("com.sun.tools.javadoc.Main");
-                        executeMethod = javadocClass.getMethod("execute",
-                                new Class [] {String.class, PrintWriter.class, PrintWriter.class,
-                                PrintWriter.class, String.class, String[].class});
+                    if (docTool != null)
+                    {
+                        exitValue = docTool.run(null, logStream, logStream, docuCall2);
                     }
-                    catch (ClassNotFoundException cnfe) {
-                        cnfe.printStackTrace();
-                    }
-                    catch (NoSuchMethodException nsme) {
-                        nsme.printStackTrace();
-                    }
-                    
-                    // First try and execute javadoc in the same VM via reflection:
-                    if (executeMethod != null) {
-                        try {
-                            Integer result = (Integer) executeMethod.invoke(null,
-                                    new Object [] {"javadoc", logWriter, logWriter,
-                                    logWriter, "com.sun.tools.doclets.standard.Standard",
-                                    docuCall2});
-                            exitValue = result.intValue();
-                        }
-                        catch (IllegalAccessException iae) {
-                            // Try as an external process instead
-                            executeMethod = null;
-                        }
-                        catch (InvocationTargetException ite) {
-                            exitValue = -1;
-                            ite.printStackTrace(logWriter);
-                        }
-                    }
-                    
+                    else
                     // If javadoc doesn't seem to be available via reflection,
                     // execute it as an external process
-                    if (executeMethod == null) {
+                    {
                         Process docuRun = Runtime.getRuntime().exec(docuCall);
                         
                         // because we don't know what comes first we have to start
