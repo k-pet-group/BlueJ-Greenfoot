@@ -689,6 +689,8 @@ public class Main
         BorderPane.setAlignment(button, Pos.CENTER);
         BorderPane.setMargin(button, new Insets(15));
         BorderPane.setMargin(webView, new Insets(10));
+        webView.setPrefWidth(650);
+        webView.setPrefHeight(400);
         window.setScene(new Scene(new BorderPane(webView, null, null, button, null)));
         window.show();
         window.toFront();
