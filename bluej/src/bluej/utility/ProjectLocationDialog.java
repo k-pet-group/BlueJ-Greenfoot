@@ -1,6 +1,28 @@
+/*
+ This file is part of the BlueJ program. 
+ Copyright (C) 1999-2009,2017,2018,2019  Michael Kolling and John Rosenberg 
+ 
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+ 
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+ 
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ 
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package bluej.utility;
 
 import bluej.Config;
+import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.dialog.DialogPaneAnimateError;
@@ -39,7 +61,7 @@ class ProjectLocationDialog
     private final DialogPaneAnimateError dialogPane;
     private boolean dialogHasBeenEdited = false;
 
-    public ProjectLocationDialog(Window owner, String title)
+    public ProjectLocationDialog(Project project, Window owner, String title)
     {
         dialog = new Dialog<>();
         dialog.initOwner(owner);
@@ -56,11 +78,12 @@ class ProjectLocationDialog
         gridPane.add(makeLabel(Config.getString("newProject.name")), 0, 0);
         gridPane.add(makeLabel(Config.getString("newProject.parent")), 0, 1);
         gridPane.add(makeLabel(Config.getString("newProject.path")), 0, 2);
-        nameField = new TextField("");
+        nameField = new TextField(project != null ? project.getProjectName() + "-copy" : "");
         nameField.setPromptText(Config.getString("newProject.prompt"));
         gridPane.add(nameField, 1, 0);
         JavaFXUtil.addChangeListenerPlatform(nameField.textProperty(), s -> {dialogHasBeenEdited = true;});
-        parentField = new TextField(PrefMgr.getProjectDirectory().getAbsolutePath());
+        parentField = new TextField(project != null ? project.getProjectDir().getParent() : 
+                PrefMgr.getProjectDirectory().getAbsolutePath());
         JavaFXUtil.addChangeListenerPlatform(parentField.textProperty(), s -> {dialogHasBeenEdited = true;});
         gridPane.add(parentField, 1, 1);
         Button chooseParent = new Button(Config.getString("newProject.parent.choose"));

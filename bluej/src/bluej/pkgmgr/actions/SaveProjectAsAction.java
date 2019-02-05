@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2014,2016,2018  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2014,2016,2018,2019  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -55,7 +55,7 @@ final public class SaveProjectAsAction extends PkgMgrAction
     public void saveAs(PkgMgrFrame frame, Project project)
     {
         // get a file name to save under
-        File newName = FileUtility.getSaveProjectFX(frame.getFXWindow(), Config.getString("pkgmgr.saveAs.title"));
+        File newName = FileUtility.getSaveProjectFX(project, frame.getFXWindow(), Config.getString("pkgmgr.saveAs.title"));
 
         if (newName == null)
         {

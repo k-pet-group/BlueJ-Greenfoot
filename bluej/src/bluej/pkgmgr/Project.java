@@ -478,7 +478,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
             while (!done)
             {
                 // Get a file name to save under
-                File newName = FileUtility.getSaveProjectFX(null, Config.getString("pkgmgr.saveAs.title"));
+                File newName = FileUtility.getSaveProjectFX(null, null, Config.getString("pkgmgr.saveAs.title"));
 
                 if (newName != null) {
                     int result = FileUtility.copyDirectory(projectDir, newName);

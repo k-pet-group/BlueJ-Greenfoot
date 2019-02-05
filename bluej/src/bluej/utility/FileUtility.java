@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2016,2018  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2016,2018,2019  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import bluej.pkgmgr.Package;
+import bluej.pkgmgr.Project;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -124,10 +125,10 @@ public class FileUtility
     }
 
     @OnThread(Tag.FXPlatform)
-    public static File getSaveProjectFX(Window parent, String title)
+    public static File getSaveProjectFX(Project project, Window parent, String title)
     {
         // JavaFX only has a directory-open dialog, so we use that:
-        File chosen = new ProjectLocationDialog(parent, title).showAndWait();
+        File chosen = new ProjectLocationDialog(project, parent, title).showAndWait();
 
         // If they cancelled, just stop:
         if (chosen == null)
