@@ -1601,7 +1601,7 @@ public class PkgMgrFrame
     {
         String title = Config.getString( "pkgmgr.newPkg.title" );
 
-        File newnameFile = FileUtility.getSaveProjectFX(getFXWindow(), title);
+        File newnameFile = FileUtility.getSaveProjectFX(getProject(), getFXWindow(), title);
         if (newnameFile == null)
             return;
         if (! newProject(newnameFile.getAbsolutePath()))

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -96,7 +96,8 @@ public class CheckoutAction extends TeamAction
                 if (moduleName == null)
                     return; //null module.
 
-                File parentDir = FileUtility.getSaveProjectFX(oldFrame.getFXWindow(), Config.getString("team.checkout.filechooser.title"));
+                File parentDir = FileUtility.getSaveProjectFX(oldFrame.getProject(), oldFrame.getFXWindow(),
+                        Config.getString("team.checkout.filechooser.title"));
                 if (parentDir == null)
                     return; // User cancelled
 
@@ -112,7 +113,8 @@ public class CheckoutAction extends TeamAction
                 //it is a DVCS project.
                 //there is no module selection in a DVCS project. Therefore,
                 //the selected file is the project dir.
-                File projectDir = FileUtility.getSaveProjectFX(oldFrame.getFXWindow(), Config.getString("team.checkout.DVCS.filechooser.title"));
+                File projectDir = FileUtility.getSaveProjectFX(oldFrame.getProject(),oldFrame.getFXWindow(),
+                        Config.getString("team.checkout.DVCS.filechooser.title"));
                 if (projectDir == null)
                     return;//no project dir. nothing to do.
 
