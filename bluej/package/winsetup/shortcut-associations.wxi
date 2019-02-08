@@ -40,9 +40,6 @@
 	          <Shortcut Id="MenuShortcut" 
 	                    Name="!(loc.SOFTWARE)" WorkingDirectory="INSTALLDIR"
 	                    Icon="Icon.ico" Target="[#Launcher]"/>
-	          <Shortcut Id="MenuVMShortcut" 
-	                    Name="Select !(loc.SOFTWARE) VM" WorkingDirectory="INSTALLDIR"
-	                    Icon="Icon.ico" Target="[#Launcher]" Arguments="/select"/>
 	          <Shortcut Id="ReadmeShortcut" 
 	                    Name="View README" WorkingDirectory="INSTALLDIR"
 	                    Target="[INSTALLDIR]\README.TXT" />
