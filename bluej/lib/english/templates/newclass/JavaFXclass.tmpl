@@ -22,8 +22,15 @@ public class $CLASSNAME extends Application
     private int count = 0;
     private Label myLabel = new Label("0");
 
+    /**
+     * The start method is the main entry point for every JavaFX application. 
+     * It is called after the init() method has returned and after 
+     * the system is ready for the application to begin running.
+     *
+     * @param  stage the primary stage for this application.
+     */
     @Override
-    public void start(Stage stage) throws Exception
+    public void start(Stage stage)
     {
         // Create a Button or any control item
         Button myButton = new Button("Count");
