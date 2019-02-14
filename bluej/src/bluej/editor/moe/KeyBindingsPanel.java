@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015,2016,2019  Michael Kolling and John Rosenberg 
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -290,6 +290,10 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
     private void handleAddKey()
     {
         Optional<KeyCodeCombination> newKey = new KeyCaptureDialog().showAndWait();
+        if (newKey.equals(Optional.of(ButtonType.CANCEL)))
+        {
+            return; 
+        }
         if (newKey.isPresent())
         {
             String action = functionList.getSelectionModel().getSelectedItem();
