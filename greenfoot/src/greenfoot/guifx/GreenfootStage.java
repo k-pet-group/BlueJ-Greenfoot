@@ -863,8 +863,8 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             }
             p.put("width", Integer.toString((int) this.getWidth()));
             p.put("height", Integer.toString((int) this.getHeight()));
-            p.put("xPosition", Integer.toString((int) this.getX()));
-            p.put("yPosition", Integer.toString((int) this.getY()));
+            p.put("xPosition", Integer.toString((int) Math.max(this.getX(), 0)));
+            p.put("yPosition", Integer.toString((int) Math.max(this.getY(), 0)));
             p.put("version", Boot.GREENFOOT_API_VERSION);
             if (currentWorld != null)
             {
