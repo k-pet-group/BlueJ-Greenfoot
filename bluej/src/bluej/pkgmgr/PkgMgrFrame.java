@@ -1830,8 +1830,8 @@ public class PkgMgrFrame
             p.put("objectbench.height", Integer.toString((int)objbench.getViewportBounds().getHeight()));
 
             // These are the actual ones we use in FX:
-            p.put("package.editor.x", Integer.toString((int)stageProperty.getValue().getX()));
-            p.put("package.editor.y", Integer.toString((int)stageProperty.getValue().getY()));
+            p.put("package.editor.x", Integer.toString((int) Math.max(stageProperty.getValue().getX(), 0)));
+            p.put("package.editor.y", Integer.toString((int) Math.max(stageProperty.getValue().getY(), 0)));
 
             p.put("package.frame.width", Integer.toString((int)stageProperty.getValue().getWidth()));
             p.put("package.frame.height", Integer.toString((int)stageProperty.getValue().getHeight()));
