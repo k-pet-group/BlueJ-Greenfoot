@@ -21,6 +21,7 @@
  */
 package bluej.flow;
 
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
@@ -43,6 +44,24 @@ public class FXTest extends ApplicationTest
                 future.complete(fxFetcher.get());
             });
             return future.get(5, TimeUnit.SECONDS);
+        }
+        catch (ExecutionException | TimeoutException | InterruptedException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // Switches to FX thread and executes, waiting for completion before returning.
+    protected void fx_(FXPlatformRunnable fxTask)
+    {
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+        try
+        {
+            JavaFXUtil.runNowOrLater(() -> {
+                fxTask.run();
+                future.complete(true);
+            });
+            future.get(5, TimeUnit.SECONDS);
         }
         catch (ExecutionException | TimeoutException | InterruptedException e)
         {

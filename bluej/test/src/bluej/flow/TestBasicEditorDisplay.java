@@ -22,6 +22,7 @@
 package bluej.flow;
 
 import bluej.editor.flow.FlowEditorPane;
+import bluej.flow.gen.GenRandom;
 import bluej.flow.gen.GenString;
 import bluej.utility.Utility;
 import com.pholser.junit.quickcheck.From;
@@ -45,6 +46,7 @@ import threadchecker.Tag;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -62,12 +64,14 @@ public class TestBasicEditorDisplay extends FXTest
         super.start(stage);
         this.stage = stage;
         flowEditorPane = new FlowEditorPane("");
+        flowEditorPane.setPrefWidth(800.0);
+        flowEditorPane.setPrefHeight(600.0);
         stage.setScene(new Scene(flowEditorPane));
         stage.show();
     }
 
     @Property(trials=5)
-    public void testEditor(@From(GenString.class) String content)
+    public void testEditor(@When(seed=1L) @From(GenString.class) String content, @When(seed=1L) @From (GenRandom.class) Random r)
     {
         Platform.runLater(() -> flowEditorPane.getDocument().replaceText(0, 0, content));
         
@@ -75,13 +79,36 @@ public class TestBasicEditorDisplay extends FXTest
         
         List<String> lines = flowEditorPane.getDocument().getLines().map(s -> s.toString()).collect(Collectors.toList());
 
+        checkVisibleLinesAgainst(lines);
+        for (int i = 0; i < 3; i++)
+        {
+            int newTop = r.nextInt(lines.size());
+            fx_(() -> flowEditorPane.scrollTo(newTop));
+            // Wait for layout:
+            sleep(200);
+            checkVisibleLinesAgainst(lines.subList(newTop, lines.size()));
+        }
+
+        // TODO test clicking, caret and selection display (especially when one or both ends off-screen)
+        
+    }
+
+    /**
+     * Checks that the lines in the visible editor window match with the start
+     * of the given list.  (The list may be longer than what is shown in the GUI
+     * window, and the test will still pass.)
+     * @param lines
+     */
+    @OnThread(Tag.Any)
+    private void checkVisibleLinesAgainst(List<String> lines)
+    {
         List<TextFlow> guiLines = fx(() -> {
             return flowEditorPane.lookupAll(".text-line").stream().sorted(Comparator.comparing(Node::getLayoutY)).map(t -> (TextFlow)t).collect(Collectors.toList());
         });
-        
+
         // Check that text lines are there in order
         List<String> guiLineContent = fx(() -> Utility.mapList(guiLines, this::getAllText));
-        
+
         // May not show all lines if document is truncated:
         for (int i = 0; i < guiLineContent.size(); i++)
         {
@@ -99,12 +126,15 @@ public class TestBasicEditorDisplay extends FXTest
         {
             assertEquals(lines.size(), guiLines.size());
         }
-                
-        // TODO check that lines have no gap
-        // TODO test scrolling, clicking, caret and selection display (especially when one or both ends off-screen)
-        
+        // Check lines have less than one pixel gap:
+        for (int i = 1; i < guiLines.size(); i++)
+        {
+            double bottomPrev = guiLines.get(i - 1).getLayoutBounds().getMaxY();
+            double topCur = guiLines.get(i).getLayoutBounds().getMinY();
+            assertThat(topCur, Matchers.lessThanOrEqualTo(bottomPrev + 1.0));
+        }
     }
-    
+
     @OnThread(Tag.FXPlatform)
     private String getAllText(TextFlow textFlow)
     {

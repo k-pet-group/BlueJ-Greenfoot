@@ -397,4 +397,14 @@ public class FlowEditorPane extends Region implements DocumentListener
         return document;
     }
 
+    /**
+     * Sets the given line (zero-based) to be at the top of the window,
+     * at zero offset.
+     * @param lineIndex
+     */
+    public void scrollTo(int lineIndex)
+    {
+        lineDisplay.scrollTo(lineIndex, 0.0);
+        updateRender();
+    }
 }

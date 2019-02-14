@@ -103,6 +103,14 @@ class LineDisplay
         
         return Collections.unmodifiableList(currentlyVisibleLines);
     }
-    
-    
+
+    /**
+     * Scrolls so that the given line index (zero-based) is shown at the top,
+     * with the given pixel offset (zero or negative).
+     */
+    void scrollTo(int lineIndex, double lineOffset)
+    {
+        firstVisibleLineIndex = lineIndex;
+        firstVisibleLineOffset = lineOffset;
+    }    
 }
