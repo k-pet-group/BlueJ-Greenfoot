@@ -432,7 +432,7 @@ public class MoeSyntaxDocument
             parsedNode.setParentResolver(parentResolver);
             reparseRecordTree = new NodeTree<ReparseRecord>();
             parsedNode.textInserted(this, 0, 0, getLength(),
-                    new MoeSyntaxEvent(this, 0, getLength(), true, false));
+                    new MoeSyntaxEvent(0, getLength(), true, false));
             // We can discard the MoeSyntaxEvent: the reparse will update scopes/syntax
         }
     }
@@ -481,7 +481,7 @@ public class MoeSyntaxDocument
                     }
 
                     //Debug.message("Reparsing: " + ppos + " " + pos);
-                    MoeSyntaxEvent mse = new MoeSyntaxEvent(this, -1, -1, false, false);
+                    MoeSyntaxEvent mse = new MoeSyntaxEvent(-1, -1, false, false);
                     pn.reparse(this, ppos, pos, maxParse, mse);
                     // Dump tree (for debugging):
                     //Debug.message("Dumping tree:");
@@ -854,7 +854,7 @@ public class MoeSyntaxDocument
             pendingStyleUpdates.add(i);
         }
 
-        MoeSyntaxEvent mse = new MoeSyntaxEvent(this, offset, length, true, false);
+        MoeSyntaxEvent mse = new MoeSyntaxEvent(offset, length, true, false);
         if (parsedNode != null) {
             parsedNode.textInserted(this, 0, offset, length, mse);
         }
@@ -940,7 +940,7 @@ public class MoeSyntaxDocument
         
         pendingStyleUpdates.add(offsetToPosition(offset).getMajor());
 
-        MoeSyntaxEvent mse = new MoeSyntaxEvent(this, offset, length, false, true);
+        MoeSyntaxEvent mse = new MoeSyntaxEvent(offset, length, false, true);
         if (parsedNode != null) {
             parsedNode.textRemoved(this, 0, offset, length, mse);
         }
