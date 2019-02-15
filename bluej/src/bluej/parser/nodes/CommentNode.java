@@ -123,7 +123,7 @@ public class CommentNode extends ParsedNode
     }
     
     @Override
-    public int textInserted(MoeSyntaxDocument document, int nodePos, int insPos, int length,
+    public int textInserted(ReparseableDocument document, int nodePos, int insPos, int length,
             NodeStructureListener listener)
     {
         // grow ourself:
@@ -134,7 +134,7 @@ public class CommentNode extends ParsedNode
     }
 
     @Override
-    public int textRemoved(MoeSyntaxDocument document, int nodePos, int delPos, int length,
+    public int textRemoved(ReparseableDocument document, int nodePos, int delPos, int length,
             NodeStructureListener listener)
     {
         // shrink ourself:

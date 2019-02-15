@@ -26,6 +26,7 @@ import java.util.Map.Entry;
 
 import javax.swing.text.Segment;
 
+import bluej.parser.nodes.ReparseableDocument;
 import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
 import bluej.editor.moe.BlueJSyntaxView.ScopeInfo;
 import bluej.editor.moe.Token.TokenType;
@@ -56,7 +57,7 @@ import bluej.utility.Debug;
  * @author Jo Wood (Modified to allow user-defined colours, March 2001)
  */
 @OnThread(Tag.FXPlatform)
-public class MoeSyntaxDocument
+public class MoeSyntaxDocument implements ReparseableDocument
 {
     public static final String MOE_FIND_RESULT = "moe-find-result";
     public static final String MOE_BRACKET_HIGHLIGHT = "moe-bracket-highlight";

@@ -283,8 +283,8 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * @param length     The length of the insert
      * @param listener   The listener for node structural changes
      */
-    public abstract int textInserted(MoeSyntaxDocument document, int nodePos, int insPos,
-            int length, NodeStructureListener listener);
+    public abstract int textInserted(ReparseableDocument document, int nodePos, int insPos,
+                                     int length, NodeStructureListener listener);
 
     /**
      * The specified portion of text within the node has been removed.<p>
@@ -298,11 +298,11 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * 
      * @param document   The document
      * @param nodePos    The position of "this" node (relative to the document).
-     * @param insPos     The position of the removal (relative to the document).
+     * @param delPos     The position of the removal (relative to the document).
      * @param length     The length of the removal
      * @param listener   The listener for node structural changes
      */
-    public abstract int textRemoved(MoeSyntaxDocument document, int nodePos, int delPos,
+    public abstract int textRemoved(ReparseableDocument document, int nodePos, int delPos,
             int length, NodeStructureListener listener);
 
     /**
@@ -409,7 +409,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * @param nodePos    The absolute position of this node
      * @param child      The child node which has changed size
      */
-    public void childResized(MoeSyntaxDocument document, int nodePos, NodeAndPosition<ParsedNode> child)
+    public void childResized(ReparseableDocument document, int nodePos, NodeAndPosition<ParsedNode> child)
     {
         
     }

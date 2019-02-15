@@ -361,7 +361,7 @@ public class ParsedTypeNode extends IncrementalParsingNode
     }
     
     @Override
-    public void childResized(MoeSyntaxDocument document, int nodePos, NodeAndPosition<ParsedNode> child)
+    public void childResized(ReparseableDocument document, int nodePos, NodeAndPosition<ParsedNode> child)
     {
         if (child.getNode() == inner) {
             stateMarkers[1] = child.getEnd() - nodePos;

@@ -44,8 +44,8 @@ public abstract class ParentParsedNode extends ParsedNode
     }
             
     @Override
-    public int textInserted(MoeSyntaxDocument document, int nodePos, int insPos,
-            int length, NodeStructureListener listener)
+    public int textInserted(ReparseableDocument document, int nodePos, int insPos,
+                            int length, NodeStructureListener listener)
     {
         // grow ourself:
         int newSize = getSize() + length;
@@ -88,7 +88,7 @@ public abstract class ParentParsedNode extends ParsedNode
      * Handle the case of text being inserted directly into this node (not a child).
      */
     @OnThread(Tag.FXPlatform)
-    protected int handleInsertion(MoeSyntaxDocument document, int nodePos, int insPos, int length,
+    protected int handleInsertion(ReparseableDocument document, int nodePos, int insPos, int length,
             NodeStructureListener listener)
     {
         ((MoeSyntaxDocument) document).scheduleReparse(insPos, length);
@@ -96,7 +96,7 @@ public abstract class ParentParsedNode extends ParsedNode
     }
     
     @Override
-    public int textRemoved(MoeSyntaxDocument document, int nodePos, int delPos,
+    public int textRemoved(ReparseableDocument document, int nodePos, int delPos,
             int length, NodeStructureListener listener)
     {
         // shrink ourself:
@@ -190,7 +190,7 @@ public abstract class ParentParsedNode extends ParsedNode
      * child node).
      */
     @OnThread(Tag.FXPlatform)
-    protected int handleDeletion(MoeSyntaxDocument document, int nodePos, int dpos,
+    protected int handleDeletion(ReparseableDocument document, int nodePos, int dpos,
             NodeStructureListener listener)
     {
         if (nodePos + getSize() == dpos && marksOwnEnd()) {

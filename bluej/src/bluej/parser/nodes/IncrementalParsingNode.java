@@ -590,8 +590,8 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     }
     
     @Override
-    public int textInserted(MoeSyntaxDocument document, int nodePos, int insPos,
-            int length, NodeStructureListener listener)
+    public int textInserted(ReparseableDocument document, int nodePos, int insPos,
+                            int length, NodeStructureListener listener)
     {
         for (int i = 0; i < stateMarkers.length; i++) {
             if (stateMarkers[i] > (insPos - nodePos)
@@ -610,7 +610,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     }
     
     @Override
-    public int textRemoved(MoeSyntaxDocument document, int nodePos, int delPos,
+    public int textRemoved(ReparseableDocument document, int nodePos, int delPos,
             int length, NodeStructureListener listener)
     {
         for (int i = 0; i < stateMarkers.length; i++) {
@@ -692,7 +692,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     }
     
     @Override
-    protected int handleDeletion(MoeSyntaxDocument document, int nodePos, int dpos,
+    protected int handleDeletion(ReparseableDocument document, int nodePos, int dpos,
             NodeStructureListener listener)
     {
         int offset = dpos;
