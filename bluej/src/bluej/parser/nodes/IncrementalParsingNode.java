@@ -129,7 +129,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     }
     
     @Override
-    protected int reparseNode(MoeSyntaxDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
+    protected int reparseNode(ReparseableDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
     {
         int parseEnd = Math.min(offset + maxParse, nodePos + getSize());
         int state = getCurrentState(offset - nodePos);
@@ -183,7 +183,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
         // Make a reader and parser
         int pline = document.getDefaultRootElement().getElementIndex(offset) + 1;
         int pcol = offset - document.getDefaultRootElement().getElement(pline - 1).getStartOffset() + 1;
-        Reader r = new DocumentReader(document, offset, parseEnd);
+        Reader r = document.makeReader(offset, parseEnd);
         EditorParser parser = new EditorParser(document, r, pline, pcol, offset, buildScopeStack());
                 
         LocatableToken laToken = parser.getTokenStream().LA(1);
@@ -216,7 +216,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                 boolean weCanGrow = nodePos + getSize() < document.getLength();
                 if (! weCanGrow && tokend == nap.getEnd()) {
                     // No possibility for growth.
-                    ((MoeSyntaxDocument) document).markSectionParsed(offset, tokend - offset + 1);
+                    document.markSectionParsed(offset, tokend - offset + 1);
                     return ALL_OK;
                 }
                 
@@ -243,7 +243,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                 removeChild(nap, listener);
                 // Schedule from the original offset, as we may get stuck in a loop otherwise
                 // (Because the piecemeal parse amount is less than the original node size).
-                ((MoeSyntaxDocument)document).scheduleReparse(originalOffset,
+                document.scheduleReparse(originalOffset,
                         tokend - originalOffset);
                 return ALL_OK;
             }
@@ -257,7 +257,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                     offset = nap.getPosition() + nap.getNode().getSize();
                     pline = document.getDefaultRootElement().getElementIndex(offset) + 1;
                     pcol = offset - document.getDefaultRootElement().getElement(pline - 1).getStartOffset() + 1;
-                    r = new DocumentReader(document, offset, parseEnd);
+                    r = document.makeReader(offset, parseEnd);
                     parser = new EditorParser(document, r, pline, pcol, offset, buildScopeStack());
                     laToken = parser.getTokenStream().LA(1);
                     tokpos = lineColToPos(document, laToken.getLine(), laToken.getColumn());
@@ -272,7 +272,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
         pparams.listener = listener;
         pparams.parser = parser;
         pparams.tokenStream = parser.getTokenStream();
-        pparams.document = (MoeSyntaxDocument) document;
+        pparams.document = document;
         pparams.nodePos = nodePos;
         pparams.childQueue = childQueue;
         
@@ -363,7 +363,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
                     
                     nextChild.slide(-slideAmount); // move, and insert text next
                     // There is some parsing to do in the child:
-                    int rr = nextChild.getNode().textInserted((MoeSyntaxDocument) document,
+                    int rr = nextChild.getNode().textInserted(document,
                             nextChild.getPosition(),
                             nextChild.getPosition(),
                             slideAmount, listener);
@@ -574,7 +574,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     /**
      * Convert a line and column number to an absolute position.
      */
-    protected static int lineColToPos(MoeSyntaxDocument document, int line, int col)
+    protected static int lineColToPos(ReparseableDocument document, int line, int col)
     {
         return document.getDefaultRootElement().getElement(line - 1).getStartOffset() + col - 1;
     }
@@ -650,7 +650,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
      * comment is inserted into an existing node which ends on the same line.
      */
     @OnThread(Tag.FXPlatform)
-    private int checkEnd(MoeSyntaxDocument document, int nodePos, NodeStructureListener listener)
+    private int checkEnd(ReparseableDocument document, int nodePos, NodeStructureListener listener)
     {
         int end = nodePos + getSize();
         if (end >= document.getLength()) {
@@ -667,14 +667,14 @@ public abstract class IncrementalParsingNode extends JavaParentNode
             return ALL_OK;
         }
         
-        Reader r = new DocumentReader(document, offset, nodePos + getSize());
+        Reader r = document.makeReader(offset, nodePos + getSize());
         EscapedUnicodeReader eur = new EscapedUnicodeReader(r);
         try {
             if (eur.read() == '/' && eur.read() == '/') {
                 eur.close();
                 // It's a single-line comment
-                String str = document.getText(end, 1);
-                if (str.charAt(0) != '\n') {
+                int c = document.makeReader(end, end + 1).read();
+                if (c != '\n') {
                     // The comment should extend to the end of the line, but it doesn't.
                     ParsedNode parentNode = getParentNode();
                     if (parentNode != null && parentNode.growChild(document,
@@ -743,7 +743,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
     
     @Override
     @OnThread(Tag.FXPlatform)
-    protected boolean growChild(MoeSyntaxDocument document, NodeAndPosition<ParsedNode> child,
+    protected boolean growChild(ReparseableDocument document, NodeAndPosition<ParsedNode> child,
             NodeStructureListener listener)
     {
         int mypos = child.getPosition() - child.getNode().getOffsetFromParent();
@@ -753,7 +753,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
         if (nap != null && nap.getPosition() > child.getEnd()) {
             int newSize = nap.getPosition() - child.getPosition();
             child.setSize(newSize);
-            childResized((MoeSyntaxDocument)document, mypos, child);
+            childResized(document, mypos, child);
             listener.nodeChangedLength(child, child.getPosition(), oldSize);
             return true;
         }
@@ -767,7 +767,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
             if (myEnd == nap.getEnd() && marksOwnEnd()) {
                 complete = false;
             }
-            childResized((MoeSyntaxDocument)document, mypos, child);
+            childResized(document, mypos, child);
             listener.nodeChangedLength(child, child.getPosition(), oldSize);
             return true;
         }
@@ -779,7 +779,7 @@ public abstract class IncrementalParsingNode extends JavaParentNode
             if (marksOwnEnd()) {
                 complete = false;
             }
-            childResized((MoeSyntaxDocument)document, mypos, child);
+            childResized(document, mypos, child);
             listener.nodeChangedLength(child, child.getPosition(), oldSize);
             return true;
         }
@@ -789,11 +789,11 @@ public abstract class IncrementalParsingNode extends JavaParentNode
         if (parentNode != null && parentNode.growChild(document,
                 new NodeAndPosition<ParsedNode>(this, mypos, getSize()), listener)) {
             myEnd = mypos + getSize();
-            ((MoeSyntaxDocument) document).scheduleReparse(myEnd, 0);
+            document.scheduleReparse(myEnd, 0);
             complete = false;
             int newsize = myEnd - child.getPosition();
             child.resize(newsize);
-            childResized((MoeSyntaxDocument)document, mypos, child);
+            childResized(document, mypos, child);
             listener.nodeChangedLength(child, child.getPosition(), oldSize);
             return true;
         }

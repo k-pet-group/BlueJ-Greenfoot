@@ -43,7 +43,7 @@ public class ParseParams
     public NodeStructureListener listener;
     public EditorParser parser;
     public JavaTokenFilter tokenStream;
-    public MoeSyntaxDocument document;
+    public ReparseableDocument document;
     public int nodePos;
     public LinkedList<NodeAndPosition<ParsedNode>> childQueue;
     

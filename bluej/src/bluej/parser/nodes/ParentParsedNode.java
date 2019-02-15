@@ -91,7 +91,7 @@ public abstract class ParentParsedNode extends ParsedNode
     protected int handleInsertion(ReparseableDocument document, int nodePos, int insPos, int length,
             NodeStructureListener listener)
     {
-        ((MoeSyntaxDocument) document).scheduleReparse(insPos, length);
+        document.scheduleReparse(insPos, length);
         return ALL_OK;
     }
     
@@ -197,7 +197,7 @@ public abstract class ParentParsedNode extends ParsedNode
             complete = false;
         }
         
-        ((MoeSyntaxDocument)document).scheduleReparse(dpos, 0);
+        document.scheduleReparse(dpos, 0);
         return ALL_OK;
     }
     
@@ -206,14 +206,14 @@ public abstract class ParentParsedNode extends ParsedNode
      */
     @Override
     @OnThread(Tag.FXPlatform)
-    protected int reparseNode(MoeSyntaxDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
+    protected int reparseNode(ReparseableDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
     {
         return REMOVE_NODE;
     }
     
     @Override
     @OnThread(Tag.FXPlatform)
-    protected boolean growChild(MoeSyntaxDocument document, NodeAndPosition<ParsedNode> child,
+    protected boolean growChild(ReparseableDocument document, NodeAndPosition<ParsedNode> child,
             NodeStructureListener listener)
     {
         // Without any further knowledge, we're just going to have to do a full reparse.

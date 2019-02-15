@@ -21,11 +21,13 @@
  */
 package bluej.editor.moe;
 
+import java.io.Reader;
 import java.util.*;
 import java.util.Map.Entry;
 
 import javax.swing.text.Segment;
 
+import bluej.parser.DocumentReader;
 import bluej.parser.nodes.ReparseableDocument;
 import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
 import bluej.editor.moe.BlueJSyntaxView.ScopeInfo;
@@ -339,7 +341,7 @@ public class MoeSyntaxDocument implements ReparseableDocument
     }
 
     @OnThread(Tag.Any)
-    private static class EditEvent
+    public static class EditEvent
     {
         int type; //  edit type - INSERT or DELETE
         int offset;
@@ -1184,5 +1186,11 @@ public class MoeSyntaxDocument implements ReparseableDocument
         {
             return position;
         }
+    }
+
+    @Override
+    public Reader makeReader(int startPos, int endPos)
+    {
+        return new DocumentReader(this, startPos, endPos);
     }
 }

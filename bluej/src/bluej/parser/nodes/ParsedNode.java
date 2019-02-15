@@ -315,7 +315,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * 
      * This method should always mark which range it parsed in the document.
      */
-    protected int reparseNode(MoeSyntaxDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
+    protected int reparseNode(ReparseableDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
     {
         return ALL_OK;
     }
@@ -330,7 +330,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * @param maxParse  The (advisory) maximum amount of document to re-parse in one hit
      * @param listener  The structure listener to be notified of structural changes
      */
-    public void reparse(MoeSyntaxDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
+    public void reparse(ReparseableDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
     {
         int size = getSize();
         int r = reparseNode(document, nodePos, offset, maxParse, listener);
@@ -394,7 +394,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * in size, if it occurs.
      */
     @OnThread(Tag.FXPlatform)
-    protected boolean growChild(MoeSyntaxDocument document, NodeAndPosition<ParsedNode> child,
+    protected boolean growChild(ReparseableDocument document, NodeAndPosition<ParsedNode> child,
             NodeStructureListener listener)
     {
         return false;
@@ -432,7 +432,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * @param document  The source document
      */
     @OnThread(Tag.FXPlatform)
-    protected ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, MoeSyntaxDocument document)
+    protected ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, ReparseableDocument document)
     {
         NodeAndPosition<ParsedNode> child = getNodeTree().findNode(pos, nodePos);
         if (child != null) {

@@ -50,7 +50,7 @@ public class FieldNode extends JavaParentNode
     private int arrayDecls;
     
     /** The document for the source declaring this field, used for inferring "var" type fields */
-    private MoeSyntaxDocument document;
+    private ReparseableDocument document;
     
     /**
      * Construct a field node representing the first declared field in a field
@@ -73,7 +73,7 @@ public class FieldNode extends JavaParentNode
      * where the type is specified as "var" (i.e. the type should be inferred).
      */
     public FieldNode(JavaParentNode parent, String name, int arrayDecls, int modifiers,
-            MoeSyntaxDocument document)
+            ReparseableDocument document)
     {
         super(parent);
         // Note, we can't infer the type now, since the result may change when other edits are
@@ -178,7 +178,7 @@ public class FieldNode extends JavaParentNode
                 }
                 
                 TextParser tp = new TextParser(this,
-                        new DocumentReader(document, initExpr.getPosition(), initExpr.getEnd()),
+                        document.makeReader(initExpr.getPosition(), initExpr.getEnd()),
                         getContainingType(),
                         false /* static access */);
                 tp.parseExpression();
@@ -225,7 +225,7 @@ public class FieldNode extends JavaParentNode
     }
     
     @Override
-    protected ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, MoeSyntaxDocument document)
+    protected ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, ReparseableDocument document)
     {
         NodeAndPosition<ParsedNode> child = getNodeTree().findNode(Math.max(pos - 1, 0), nodePos);
         if (child != null) {

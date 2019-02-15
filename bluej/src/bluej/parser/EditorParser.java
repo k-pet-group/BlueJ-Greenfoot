@@ -86,7 +86,7 @@ public class EditorParser extends JavaParser
     private List<JavaEntity> extendedTypes;
     private List<JavaEntity> implementedTypes;
     
-    private MoeSyntaxDocument document;
+    private ReparseableDocument document;
     
     private boolean gotExtends = false;
     private boolean gotImplements = false;
@@ -109,18 +109,7 @@ public class EditorParser extends JavaParser
         pcuNode.setParentResolver(resolver);
     }
     
-    /**
-     * Constructor for an EditorParser to parse a particular document.
-     * After construction the normal course of action is to call parseCU(ParsedCUNode).
-     */
-    public EditorParser(MoeSyntaxDocument document)
-    {
-        super(new DocumentReader(document));
-        this.document = document;
-        //pcuNode = new ParsedCUNode(document);
-    }
-    
-    public EditorParser(MoeSyntaxDocument document, Reader r, int line, int col, int pos, Stack<JavaParentNode> scopeStack)
+    public EditorParser(ReparseableDocument document, Reader r, int line, int col, int pos, Stack<JavaParentNode> scopeStack)
     {
         super(r, line, col, pos);
         this.document = document;

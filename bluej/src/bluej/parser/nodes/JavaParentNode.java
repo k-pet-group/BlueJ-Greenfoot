@@ -306,7 +306,7 @@ public abstract class JavaParentNode extends ParentParsedNode
     
     @Override
     @OnThread(Tag.FXPlatform)
-    protected ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, MoeSyntaxDocument document)
+    protected ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, ReparseableDocument document)
     {
         // Clear the caches now to remove any entries which have become invalid due
         // to editing.
@@ -330,7 +330,7 @@ public abstract class JavaParentNode extends ParentParsedNode
         Element lineEl = map.getElement(line - 1);
         startpos = Math.max(startpos, lineEl.getStartOffset());
         int col = startpos - map.getElement(line - 1).getStartOffset() + 1;
-        Reader r = new DocumentReader(document, startpos, pos);
+        Reader r = document.makeReader(startpos, pos);
         
         JavaLexer lexer = new JavaLexer(r, line, col, startpos);
         JavaTokenFilter filter = new JavaTokenFilter(lexer);

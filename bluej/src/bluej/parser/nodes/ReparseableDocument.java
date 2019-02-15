@@ -1,5 +1,9 @@
 package bluej.parser.nodes;
 
+import bluej.editor.moe.MoeSyntaxDocument;
+
+import java.io.Reader;
+
 public interface ReparseableDocument
 {
     /**
@@ -9,4 +13,16 @@ public interface ReparseableDocument
      *               the reparse when it occurs must parse at least this much.
      */
     public void scheduleReparse(int pos, int size);
+
+    public MoeSyntaxDocument.Element getDefaultRootElement();
+    
+    public int getLength();
+    
+    public Reader makeReader(int startPos, int endPos);
+
+    /**
+     * Mark a portion of the document as having been parsed. This removes any
+     * scheduled re-parses as appropriate and repaints the appropriate area.
+     */
+    public void markSectionParsed(int pos, int size);
 }

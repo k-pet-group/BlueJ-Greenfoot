@@ -255,7 +255,7 @@ public class MethodNode extends JavaParentNode
     
     @Override
     protected ExpressionTypeInfo getExpressionType(int pos, int nodePos,
-            JavaEntity defaultType, MoeSyntaxDocument document)
+            JavaEntity defaultType, ReparseableDocument document)
     {
         if (Modifier.isStatic(modifiers)) {
             JavaType dtype = defaultType.getType();
