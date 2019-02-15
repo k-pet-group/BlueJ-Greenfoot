@@ -53,18 +53,7 @@ public class ParsedCUNode extends IncrementalParsingNode
     {
         super(null);
     }
-    
-    /**
-     * Construct a parsed node for the given document. The node will
-     * assume its size is 0; the text from the document (if any) should
-     * be explicitly inserted.
-     */
-    public ParsedCUNode(MoeSyntaxDocument document)
-    {
-        super(null);
-        size = 0;
-    }
-    
+
     /**
      * Set the entity resolver used to resolve symbols.
      */

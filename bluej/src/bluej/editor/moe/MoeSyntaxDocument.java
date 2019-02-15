@@ -428,7 +428,7 @@ public class MoeSyntaxDocument
     public void enableParser(boolean force)
     {
         if (parentResolver != null || force) {
-            parsedNode = new ParsedCUNode(this);
+            parsedNode = new ParsedCUNode();
             parsedNode.setParentResolver(parentResolver);
             reparseRecordTree = new NodeTree<ReparseRecord>();
             parsedNode.textInserted(this, 0, 0, getLength(),
