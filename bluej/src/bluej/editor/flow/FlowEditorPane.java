@@ -22,6 +22,7 @@
 package bluej.editor.flow;
 
 import bluej.editor.flow.Document.Bias;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -30,6 +31,7 @@ import javafx.scene.control.IndexRange;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
@@ -48,6 +50,7 @@ import threadchecker.Tag;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A FlowEditorPane is a component with (optional) horizontal and vertical scroll bars.
@@ -73,9 +76,11 @@ public class FlowEditorPane extends Region implements DocumentListener
     private final Path caretShape;
     
     private final List<IndexRange> errorUnderlines = new ArrayList<>();
-    
+    private Pane backgroundPane;
+
     public FlowEditorPane(String content)
     {
+        backgroundPane = new Pane();
         document = new HoleDocument();
         document.replaceText(0, 0, content);
         document.addListener(this);
@@ -93,6 +98,9 @@ public class FlowEditorPane extends Region implements DocumentListener
             InputMap.consume(MouseEvent.MOUSE_PRESSED, this::mousePressed),
             InputMap.consume(MouseEvent.MOUSE_DRAGGED, this::mouseDragged)
         ));
+
+        JavaFXUtil.addChangeListenerPlatform(widthProperty(), w -> updateRender());
+        JavaFXUtil.addChangeListenerPlatform(heightProperty(), h -> updateRender());
     }
     
     private void keyTyped(KeyEvent e)
@@ -186,7 +194,7 @@ public class FlowEditorPane extends Region implements DocumentListener
     }
 
     @Override
-    public void documentChanged()
+    public void textReplaced(int start, int end, int repl)
     {
         updateRender();
     }
@@ -194,8 +202,10 @@ public class FlowEditorPane extends Region implements DocumentListener
     private void updateRender()
     {
         List<Node> prospectiveChildren = new ArrayList<>();
+        prospectiveChildren.add(backgroundPane);
         prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(document.getLines(), getHeight(), fontSize));
         prospectiveChildren.add(caretShape);
+        
         
         // This will often avoid changing the children, if the window has not been resized:
         boolean needToChangeLinesAndCaret = false;
@@ -322,7 +332,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         return lineDisplay.getVisibleLine(line);
     }
 
-    private boolean isLineVisible(int line)
+    boolean isLineVisible(int line)
     {
         return lineDisplay.isLineVisible(line);
     }
@@ -389,6 +399,10 @@ public class FlowEditorPane extends Region implements DocumentListener
                 child.resizeRelocate(0, y, child.prefWidth(height), height);
                 y += height;
             }
+            else if (child == backgroundPane)
+            {
+                child.resizeRelocate(0, 0, getWidth(), getHeight());
+            }
         }
     }
 
@@ -406,5 +420,40 @@ public class FlowEditorPane extends Region implements DocumentListener
     {
         lineDisplay.scrollTo(lineIndex, 0.0);
         updateRender();
+    }
+
+    /**
+     * If given character index within the document is on screen, then returns its X position.
+     * If it's not on screen, returns empty.
+     * @param leftOfCharIndex
+     * @return
+     */
+    public Optional<Double> getLeftEdgeX(int leftOfCharIndex)
+    {
+        int lineIndex = document.getLineFromPosition(leftOfCharIndex);
+        if (lineDisplay.isLineVisible(lineIndex))
+        {
+            TextLine line = lineDisplay.getVisibleLine(lineIndex);
+            PathElement[] elements = line.caretShape(leftOfCharIndex - document.getLineStart(lineIndex), true);
+            Path path = new Path(elements);
+            Bounds bounds = path.getBoundsInLocal();
+            return Optional.of((bounds.getMinX() + bounds.getMaxX()) / 2.0);
+        }
+        return Optional.empty();
+    }
+    
+    public Optional<double[]> getTopAndBottom(int lineIndex)
+    {
+        if (lineDisplay.isLineVisible(lineIndex))
+        {
+            Bounds bounds = lineDisplay.getVisibleLine(lineIndex).getBoundsInParent();
+            return Optional.of(new double[] {bounds.getMinY(), bounds.getMaxY()});
+        }
+        return Optional.empty();
+    }
+
+    public Pane getBackgroundPane()
+    {
+        return backgroundPane;
     }
 }

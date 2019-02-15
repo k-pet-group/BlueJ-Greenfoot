@@ -143,8 +143,11 @@ public class HoleDocument implements Document
                 indexToInsertNewNewlines += 1;
             }
         }
-        
-        listeners.forEach(DocumentListener::documentChanged);
+
+        for (DocumentListener listener : listeners)
+        {
+            listener.textReplaced(startCharIncl, endCharExcl, text.length());
+        }
     }
 
     @Override
@@ -262,6 +265,12 @@ public class HoleDocument implements Document
                 return beforeHole + afterHole;
             }
         };
+    }
+
+    @Override
+    public String getContent(int startCharIncl, int endCharExcl)
+    {
+        return subSequence(startCharIncl, endCharExcl).toString();
     }
 
     @Override

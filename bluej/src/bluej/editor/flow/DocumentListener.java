@@ -23,5 +23,5 @@ package bluej.editor.flow;
 
 public interface DocumentListener
 {
-    public void documentChanged();
+    public void textReplaced(int origStartIncl, int origEndExcl, int replacementLength);
 }

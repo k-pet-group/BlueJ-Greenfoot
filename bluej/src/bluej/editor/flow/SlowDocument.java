@@ -47,8 +47,11 @@ public class SlowDocument implements Document
         {
             trackedPosition.updateTrackedPosition(startCharIncl, endCharExcl, text.length());
         }
-        
-        listeners.forEach(DocumentListener::documentChanged);
+
+        for (DocumentListener listener : listeners)
+        {
+            listener.textReplaced(startCharIncl, endCharExcl, text.length());
+        }
     }
 
     @Override
@@ -132,5 +135,11 @@ public class SlowDocument implements Document
     public void addListener(DocumentListener listener)
     {
         listeners.add(listener);
+    }
+
+    @Override
+    public String getContent(int startCharIncl, int endCharExcl)
+    {
+        return content.substring(startCharIncl, endCharExcl);
     }
 }

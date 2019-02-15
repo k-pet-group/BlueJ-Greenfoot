@@ -112,4 +112,20 @@ public interface Document
      * @param listener
      */
     void addListener(DocumentListener listener);
+
+    /**
+     * Gets an arbitrary piece of content from the document.
+     * @param startCharIncl The start character index (inclusive) in the document as a whole (zero is first)
+     * @param endCharExcl The end character index (exclusive) in the document as a whole
+     * @return The content between those two positions.
+     */
+    String getContent(int startCharIncl, int endCharExcl);
+    
+    /**
+     * Gets the number of lines in the document.
+     */
+    default int getLineCount()
+    {
+        return getLineFromPosition(getLength()) + 1;
+    }
 }
