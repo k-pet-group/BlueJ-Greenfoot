@@ -762,17 +762,6 @@ public class MoeSyntaxDocument implements ReparseableDocument
     }
     
     /**
-     * Inform any listeners that a parse error has occurred.
-     * 
-     * @param position   The position of the parse error
-     * @param size       The size of the erroneous portion
-     * @param message    The error message
-     */
-    public void parseError(int position, int size, String message)
-    {
-    }
-
-    /**
      *
      * @param lineNumber Line number (starts at 1)
      * @param alterAttr The attributes to alter (mapped to true means add, mapped to false means remove, not present means don't alter)

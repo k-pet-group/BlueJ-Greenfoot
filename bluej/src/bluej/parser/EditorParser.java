@@ -148,7 +148,6 @@ public class EditorParser extends JavaParser
             lineEl = document.getDefaultRootElement().getElement(endLine - 1);
         }
         int endPos = lineEl.getStartOffset() + endColumn - 1;
-        document.parseError(position, endPos - position, msg);
     }
     
     @Override
