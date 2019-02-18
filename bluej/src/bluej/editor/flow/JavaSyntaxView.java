@@ -44,13 +44,18 @@ import com.google.common.collect.Multimaps;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
@@ -165,7 +170,7 @@ public class JavaSyntaxView implements ReparseableDocument
      */
     private final Map<Integer, ScopeInfo> pendingScopeBackgrounds = new HashMap<>();
     
-    private final Multimap<Integer, Rectangle> scopeBackgrounds = Multimaps.newMultimap(new HashMap<>(), ArrayList::new); 
+    private final Multimap<Integer, Node> scopeBackgrounds = Multimaps.newMultimap(new HashMap<>(), ArrayList::new); 
 
     /**
       * Are we in the middle of an update which comes from the RichTextFX stream of changes?
@@ -2239,19 +2244,52 @@ public class JavaSyntaxView implements ReparseableDocument
             for (SingleNestedScope nestedScope : info.nestedScopes)
             {
                 // Draw outer:
-                Rectangle rectangle = new Rectangle(
+                Region rectangle = new Region();
+                rectangle.setManaged(false);
+                rectangle.resizeRelocate(
                     nestedScope.leftRight.lhs, possVertBounds.get()[0], nestedScope.leftRight.rhs - nestedScope.leftRight.lhs, possVertBounds.get()[1] - possVertBounds.get()[0]
                 );
-                rectangle.setStroke(nestedScope.leftRight.edgeColor);
-                rectangle.setFill(nestedScope.leftRight.fillColor);
+                CornerRadii radii = null;
+                Insets bodyInsets = null;
+                double singleRadius = 5.0;
+                if (nestedScope.leftRight.starts && nestedScope.leftRight.ends)
+                {
+                    radii = new CornerRadii(singleRadius, false);
+                    bodyInsets = new Insets(1);
+                }
+                else if (nestedScope.leftRight.starts)
+                {
+                    radii = new CornerRadii(singleRadius, singleRadius, 0.0, 0.0, false);
+                    bodyInsets = new Insets(1, 1, 0, 1);
+                }
+                else if (nestedScope.leftRight.ends)
+                {
+                    radii = new CornerRadii(0.0, 0.0, singleRadius, singleRadius, false);
+                    bodyInsets = new Insets(0, 1, 1, 1);
+                }
+                else
+                {
+                    bodyInsets = new Insets(0, 1, 0, 1);
+                }
+                rectangle.setBackground(new Background(
+                    new BackgroundFill(nestedScope.leftRight.edgeColor, radii, null),
+                    new BackgroundFill(nestedScope.leftRight.fillColor, radii, bodyInsets)
+                ));
+                //rectangle.setStroke(nestedScope.leftRight.edgeColor);
+                //rectangle.setFill(nestedScope.leftRight.fillColor);
                 scopeBackgrounds.put(line, rectangle);
                 // Draw middle:
-                rectangle = new Rectangle(
+                /*
+                rectangle = new Region();
+                rectangle.setManaged(false);
+                rectangle.resizeRelocate(
                         nestedScope.middle.lhs, possVertBounds.get()[0], nestedScope.middle.rhs - nestedScope.middle.lhs, possVertBounds.get()[1] - possVertBounds.get()[0]
                 );
-                rectangle.setStroke(nestedScope.leftRight.edgeColor);
-                rectangle.setFill(nestedScope.middle.bodyColor);
+                rectangle.setBackground(new Background(new BackgroundFill(nestedScope.middle.bodyColor, null, null)));
+                //rectangle.setStroke(nestedScope.leftRight.edgeColor);
+                //rectangle.setFill(nestedScope.middle.bodyColor);
                 scopeBackgrounds.put(line, rectangle);
+                */
             }
         });
         pendingScopeBackgrounds.clear();

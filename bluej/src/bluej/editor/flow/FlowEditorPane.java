@@ -80,6 +80,7 @@ public class FlowEditorPane extends Region implements DocumentListener
 
     public FlowEditorPane(String content)
     {
+        setSnapToPixel(true);
         backgroundPane = new Pane();
         document = new HoleDocument();
         document.replaceText(0, 0, content);
@@ -390,13 +391,13 @@ public class FlowEditorPane extends Region implements DocumentListener
     @Override
     protected void layoutChildren()
     {
-        double y = 0;
+        double y = lineDisplay.getFirstVisibleLineOffset();
         for (Node child : getChildren())
         {
             if (child instanceof TextFlow)
             {
-                double height = child.prefHeight(-1.0);
-                child.resizeRelocate(0, y, child.prefWidth(height), height);
+                double height = snapSizeY(child.prefHeight(-1.0));
+                child.resizeRelocate(0, y, child.prefWidth(height), snapSizeY(height));
                 y += height;
             }
             else if (child == backgroundPane)

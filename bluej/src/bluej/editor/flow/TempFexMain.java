@@ -28,8 +28,12 @@ public class TempFexMain extends Application
         stage.setScene(new Scene(editorPane));
         JavaFXUtil.runAfter(Duration.seconds(1), () -> {
             ScopeColorsBorderPane scopeColors = new ScopeColorsBorderPane();
+            scopeColors.scopeBackgroundColorProperty().set(Color.WHITE);
             scopeColors.scopeClassColorProperty().set(Color.LIGHTGREEN);
             scopeColors.scopeMethodColorProperty().set(Color.GOLDENROD);
+            scopeColors.scopeClassOuterColorProperty().set(Color.GRAY);
+            scopeColors.scopeMethodOuterColorProperty().set(Color.GRAY);
+            scopeColors.scopeClassInnerColorProperty().set(Color.GRAY);
             JavaSyntaxView javaSyntaxView = new JavaSyntaxView(editorPane.getDocument(), editorPane, scopeColors);
             javaSyntaxView.flushReparseQueue();
             javaSyntaxView.recalculateAllScopes();

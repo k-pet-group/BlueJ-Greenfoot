@@ -82,7 +82,7 @@ class LineDisplay
     {
         // Start at the first visible line:
         Iterator<String> lines = allLines.skip(firstVisibleLineIndex).map(l -> l.toString()).iterator();
-        double curY = 0;
+        double curY = firstVisibleLineOffset;
         int visLineSubIndex = 0;
         while (lines.hasNext() && curY <= height)
         {
@@ -112,5 +112,10 @@ class LineDisplay
     {
         firstVisibleLineIndex = lineIndex;
         firstVisibleLineOffset = lineOffset;
-    }    
+    }
+
+    public double getFirstVisibleLineOffset()
+    {
+        return firstVisibleLineOffset;
+    }
 }
