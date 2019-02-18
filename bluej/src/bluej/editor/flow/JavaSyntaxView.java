@@ -37,6 +37,7 @@ import bluej.parser.nodes.ReparseableDocument;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.javafx.FXCache;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
@@ -57,7 +58,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.util.Duration;
 import org.fxmisc.richtext.model.StyleSpans;
@@ -136,6 +136,7 @@ public class JavaSyntaxView implements ReparseableDocument
 
     // Each item in the list maps the list index (as number of spaces) to indent amount
     private final List<Double> cachedSpaceSizes = new ArrayList<>();
+    private FlowReparseRunner reparseRunner;
 
     public static enum ParagraphAttribute
     {
@@ -247,6 +248,7 @@ public class JavaSyntaxView implements ReparseableDocument
             {
                 rootNode.textInserted(this, 0, start, repl, blankListener);
             }
+            scheduleReparseRunner();
         });
         enableParser(true);
         JavaFXUtil.addChangeListenerPlatform(editorPane.widthProperty(), w -> JavaFXUtil.runAfter(Duration.millis(500), () -> {
@@ -2521,5 +2523,51 @@ public class JavaSyntaxView implements ReparseableDocument
     {
         // TODO
         int x = 9;
+    }
+
+    private void scheduleReparseRunner() {
+        if (reparseRunner == null) {
+            reparseRunner = new FlowReparseRunner();
+            JavaFXUtil.runPlatformLater(reparseRunner);
+        }
+    }
+
+    /**
+     * Process the document re-parse queue.
+     * 
+     * <p>This is a Runnable which runs on the Swing/AWT event queue. It performs
+     * a small amount of re-parsing before re-queing itself, which allows input
+     * to be processed in the meantime.
+     * 
+     * @author Davin McCall
+     */
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+    private class FlowReparseRunner implements FXPlatformRunnable
+    {
+        private int procTime; //the time allowed for the incremental parsing before re-queueing
+        
+        public FlowReparseRunner()
+        {
+            this.procTime = 15;
+        }
+        
+        public void run()
+        {
+            long begin = System.currentTimeMillis();
+            if (PrefMgr.getScopeHighlightStrength().get() != 0 && document != null && pollReparseQueue()) {
+                // Continue processing
+                while (System.currentTimeMillis() - begin < this.procTime) {
+                    if (! pollReparseQueue()) {
+                        break;
+                    }
+                }
+                JavaFXUtil.runPlatformLater(this);
+            }
+            else {
+                // Mark that we are no longer scheduled.
+                applyPendingScopeBackgrounds();
+                reparseRunner = null;
+            }
+        }
     }
 }
