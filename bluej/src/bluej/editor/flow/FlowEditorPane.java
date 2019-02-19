@@ -29,6 +29,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.IndexRange;
 import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -89,6 +90,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         // Important that the anchor is a different object to the caret, as they will move independently:
         anchor = document.trackPosition(0, Bias.FORWARD);
         caretShape = new Path();
+        caretShape.getStyleClass().add("flow-caret");
         caretShape.setStroke(Color.RED);
         caretShape.setMouseTransparent(true);
         updateRender();
@@ -456,5 +458,18 @@ public class FlowEditorPane extends Region implements DocumentListener
     public Pane getBackgroundPane()
     {
         return backgroundPane;
+    }
+
+    public void positionCaret(int position)
+    {
+        caret.moveTo(position);
+        anchor.moveTo(position);
+        updateRender();
+    }
+
+    // For testing:
+    WritableImage snapshotBackground()
+    {
+        return backgroundPane.snapshot(null, null);
     }
 }

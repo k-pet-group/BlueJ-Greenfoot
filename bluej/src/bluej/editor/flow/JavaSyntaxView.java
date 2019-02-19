@@ -185,9 +185,9 @@ public class JavaSyntaxView implements ReparseableDocument
     /**
      * Creates a new BlueJSyntaxView.
      */
-    public JavaSyntaxView(Document document, FlowEditorPane editorPane, ScopeColors scopeColors)
+    public JavaSyntaxView(FlowEditorPane editorPane, ScopeColors scopeColors)
     {
-        this.document = document;
+        this.document = editorPane.getDocument();
         this.editorPane = editorPane;
         this.rootNode = new ParsedCUNode();
         this.reparseRecordTree = new NodeTree<ReparseRecord>();

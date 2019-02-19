@@ -34,7 +34,7 @@ public class TempFexMain extends Application
             scopeColors.scopeClassOuterColorProperty().set(Color.GRAY);
             scopeColors.scopeMethodOuterColorProperty().set(Color.GRAY);
             scopeColors.scopeClassInnerColorProperty().set(Color.GRAY);
-            JavaSyntaxView javaSyntaxView = new JavaSyntaxView(editorPane.getDocument(), editorPane, scopeColors);
+            JavaSyntaxView javaSyntaxView = new JavaSyntaxView(editorPane, scopeColors);
             javaSyntaxView.flushReparseQueue();
             javaSyntaxView.recalculateAllScopes();
             javaSyntaxView.flushReparseQueue();

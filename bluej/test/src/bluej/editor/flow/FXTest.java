@@ -19,14 +19,28 @@
  This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
-package bluej.flow;
+package bluej.editor.flow;
 
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
+import javafx.stage.Screen;
+import javafx.stage.Window;
+import org.junit.Rule;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.testfx.framework.junit.ApplicationTest;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
+import javax.imageio.ImageIO;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -34,6 +48,43 @@ import java.util.concurrent.TimeoutException;
 
 public class FXTest extends ApplicationTest
 {
+    @Rule
+    public TestWatcher screenshotOnFail = new TestWatcher()
+    {
+        @Override
+        protected void failed(Throwable e, Description description)
+        {
+            super.failed(e, description);
+            System.err.println("Screenshot of failure:");
+            fx_(() -> dumpScreenshot());
+            e.printStackTrace();
+            if (e.getCause() != null)
+                e.getCause().printStackTrace();
+        }
+    };
+
+    @OnThread(Tag.FXPlatform)
+    protected final void dumpScreenshot()
+    {
+        System.out.println(asBase64(capture(Screen.getPrimary().getBounds()).getImage()));
+    }
+
+    protected static String asBase64(Image image)
+    {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try
+        {
+            ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", baos);
+        }
+        catch (IOException e)
+        {
+            System.err.println("Cannot write screenshot: " + e.getLocalizedMessage());
+            return "";
+        }
+        String base64Image = Base64.getEncoder().encodeToString(baos.toByteArray());
+        return "<img src=\"data:image/png;base64, " + base64Image + "\">";
+    }
+    
     // Switches to FX thread, executes, then brings it back:
     protected <T> T fx(FXPlatformSupplier<T> fxFetcher)
     {

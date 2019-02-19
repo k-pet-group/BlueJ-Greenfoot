@@ -19,18 +19,13 @@
  This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
-package bluej.flow;
+package bluej.editor.flow;
 
-import bluej.editor.flow.Document;
 import bluej.editor.flow.Document.Bias;
-import bluej.editor.flow.HoleDocument;
-import bluej.editor.flow.SlowDocument;
-import bluej.editor.flow.TrackedPosition;
-import bluej.flow.gen.GenRandom;
-import bluej.flow.gen.GenString;
+import bluej.editor.flow.gen.GenRandom;
+import bluej.editor.flow.gen.GenString;
 import com.pholser.junit.quickcheck.From;
 import com.pholser.junit.quickcheck.Property;
-import com.pholser.junit.quickcheck.When;
 import com.pholser.junit.quickcheck.random.SourceOfRandomness;
 import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
 import org.junit.runner.RunWith;
