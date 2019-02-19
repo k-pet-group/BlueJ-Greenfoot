@@ -89,7 +89,7 @@ class TextLine extends TextFlow
         for (String s : text.split("((?<= )|(?= ))"))
         {
             Text t = new Text(s);
-            t.setFont(new Font(size));
+            t.setFont(new Font("Roboto Mono", size));
             if (!s.isBlank())
             {
                 t.setFill(colors[nextColor]);
