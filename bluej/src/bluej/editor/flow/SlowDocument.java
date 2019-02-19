@@ -22,6 +22,7 @@
 package bluej.editor.flow;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -117,9 +118,7 @@ public class SlowDocument implements Document
     @Override
     public Stream<CharSequence> getLines()
     {
-        Stream<String> streamedLines = Pattern.compile("\n").splitAsStream(content);
-        if (content.endsWith("\n"))
-            streamedLines = Stream.concat(streamedLines, Stream.of(""));
+        Stream<String> streamedLines = Arrays.stream(content.split("\n", -1));
         return streamedLines.map(s -> s);
     }
     
