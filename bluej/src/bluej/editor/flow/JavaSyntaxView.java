@@ -2519,14 +2519,17 @@ public class JavaSyntaxView implements ReparseableDocument
         }
     }
 
-    private void repaintLines(int pos, int size, boolean b)
+    private void repaintLines(int offset, int length, boolean restyle)
     {
-        // TODO
-        int x = 9;
+        int startLine = document.getLineFromPosition(offset);
+        int endLine = document.getLineFromPosition(offset + length);
+        recalculateScopes(pendingScopeBackgrounds, startLine, endLine);
     }
 
-    private void scheduleReparseRunner() {
-        if (reparseRunner == null) {
+    private void scheduleReparseRunner()
+    {
+        if (reparseRunner == null)
+        {
             reparseRunner = new FlowReparseRunner();
             JavaFXUtil.runPlatformLater(reparseRunner);
         }
