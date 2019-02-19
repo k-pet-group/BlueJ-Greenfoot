@@ -25,6 +25,7 @@ import bluej.Config;
 import bluej.editor.moe.ScopeColorsBorderPane;
 import bluej.editor.flow.gen.GenRandom;
 import bluej.editor.flow.gen.GenString;
+import bluej.parser.InitConfig;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Utility;
 import com.pholser.junit.quickcheck.From;
@@ -69,9 +70,7 @@ public class TestBasicEditorDisplay extends FXTest
     {
         super.start(stage);
         
-        Properties tempCommandLineProps = new Properties();
-        tempCommandLineProps.put("bluej.debug", "true");
-        Config.initialise(new File("/Users/neil/intellij/bjgf/bluej/lib"), tempCommandLineProps, false);
+        InitConfig.init();
         Config.loadFXFonts();
         PrefMgr.setScopeHighlightStrength(100);
         
