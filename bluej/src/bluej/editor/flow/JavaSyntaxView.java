@@ -2531,7 +2531,10 @@ public class JavaSyntaxView implements ReparseableDocument
         if (reparseRunner == null)
         {
             reparseRunner = new FlowReparseRunner();
-            JavaFXUtil.runPlatformLater(reparseRunner);
+            // Wait until after layout to do a reparse (as that may involve asking for positions of 
+            // characters on screen -- which will not give a valid answer until after the layout:
+            JavaFXUtil.runAfterNextLayout(editorPane.getScene(), reparseRunner);
+            editorPane.requestLayout();
         }
     }
 

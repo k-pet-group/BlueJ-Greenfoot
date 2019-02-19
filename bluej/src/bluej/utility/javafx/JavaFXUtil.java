@@ -846,6 +846,19 @@ public class JavaFXUtil
         return item;
     }
 
+    public static void runAfterNextLayout(Scene scene, FXPlatformRunnable runnable)
+    {
+        scene.addPostLayoutPulseListener(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                runPlatformLater(runnable);
+                scene.removePostLayoutPulseListener(this);
+            }
+        });
+    }
+
     /**
      * A builder pattern for lists.
      */
