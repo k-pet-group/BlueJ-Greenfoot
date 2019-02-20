@@ -45,7 +45,8 @@ public class GenString extends Generator<String>
             int limit = sourceOfRandomness.nextBoolean() ? 128 : 0x10ffff;
             // Good amount of newlines:
             int n = sourceOfRandomness.nextInt(30) == 1 ? '\n' : sourceOfRandomness.nextInt(limit);
-            if (Character.isValidCodePoint(n) && Character.isDefined(n))
+            // Avoid undefined and invalid characters:
+            if (Character.isValidCodePoint(n) && Character.isDefined(n) && n != '\r')
             {
                 codepoints[i] = n;
             }
