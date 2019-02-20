@@ -138,13 +138,16 @@ class LineDisplay
      */
     public void ensureLineVisible(int line)
     {
-        if (line < firstVisibleLineIndex)
+        // Note: if the line is the first/last visible, it may be only partially visible, so we still 
+        // scroll because we may need to move slightly to bring the whole line into view.
+        
+        if (line <= firstVisibleLineIndex)
         {
             // Scroll up:
             firstVisibleLineIndex = line;
             firstVisibleLineOffset = 0;
         }
-        else if (line >= firstVisibleLineIndex + currentlyVisibleLines.size())
+        else if (line >= firstVisibleLineIndex + currentlyVisibleLines.size() - 1)
         {
             //Debug:
             double[] ys = currentlyVisibleLines.stream().mapToDouble(l -> l.getLayoutY()).toArray();
@@ -152,7 +155,7 @@ class LineDisplay
             // Scroll down:
             double singleLineHeight = currentlyVisibleLines.get(0).getHeight();
             int numLinesCanDisplay = (int)Math.ceil(heightProperty.get() / singleLineHeight);
-            firstVisibleLineIndex = line - numLinesCanDisplay;
+            firstVisibleLineIndex = line - numLinesCanDisplay + 1;
             if (firstVisibleLineIndex < 0)
             {
                 // Just scroll to top:

@@ -113,6 +113,7 @@ public class TestBasicEditorDisplay extends FXTest
             flowEditorPane.requestFocus();
         });
 
+        Node caret = lookup(".flow-caret").query();
         int[] lineRangeVisible = flowEditorPane.getLineRangeVisible();
         int linesVisible = lineRangeVisible[1] - lineRangeVisible[0];
         for (int i = 0; i < Math.min(200, lines.size()); i++)
@@ -120,9 +121,13 @@ public class TestBasicEditorDisplay extends FXTest
             int iFinal = i;
             assertTrue("Line " + i + " should be visible, last range: " + lineRangeVisible[0] + " to " + lineRangeVisible[1], fx(() -> flowEditorPane.isLineVisible(iFinal)));
             push(KeyCode.DOWN);
+            // Allow time for relayout:
+            sleep(100);
             lineRangeVisible = fx(() -> flowEditorPane.getLineRangeVisible());
             // Check there's always the same number of lines visible, give or take a couple:
             assertThat(lineRangeVisible[1] - lineRangeVisible[0], between(linesVisible - 1, linesVisible + 1));
+            double caretY = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
+            assertThat((int)caretY, between(0, 600));
         }
 
         // TODO test clicking, caret and selection display (especially when one or both ends off-screen)
