@@ -57,6 +57,7 @@ import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(JUnitQuickcheck.class)
 public class TestBasicEditorDisplay extends FXTest
@@ -96,6 +97,7 @@ public class TestBasicEditorDisplay extends FXTest
 
         List<String> lines = flowEditorPane.getDocument().getLines().map(s -> s.toString()).collect(Collectors.toList());
 
+        fx_(() -> flowEditorPane.positionCaret(0));
         checkVisibleLinesAgainst(lines);
         for (int i = 0; i < 3; i++)
         {
@@ -104,6 +106,23 @@ public class TestBasicEditorDisplay extends FXTest
             // Wait for layout:
             sleep(200);
             checkVisibleLinesAgainst(lines.subList(newTop, lines.size()));
+        }
+        
+        fx_(() -> {
+            flowEditorPane.positionCaret(0);
+            flowEditorPane.requestFocus();
+        });
+
+        int[] lineRangeVisible = flowEditorPane.getLineRangeVisible();
+        int linesVisible = lineRangeVisible[1] - lineRangeVisible[0];
+        for (int i = 0; i < Math.min(200, lines.size()); i++)
+        {
+            int iFinal = i;
+            assertTrue("Line " + i + " should be visible, last range: " + lineRangeVisible[0] + " to " + lineRangeVisible[1], fx(() -> flowEditorPane.isLineVisible(iFinal)));
+            push(KeyCode.DOWN);
+            lineRangeVisible = fx(() -> flowEditorPane.getLineRangeVisible());
+            // Check there's always the same number of lines visible, give or take a couple:
+            assertThat(lineRangeVisible[1] - lineRangeVisible[0], between(linesVisible - 1, linesVisible + 1));
         }
 
         // TODO test clicking, caret and selection display (especially when one or both ends off-screen)

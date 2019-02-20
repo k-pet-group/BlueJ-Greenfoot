@@ -21,6 +21,8 @@
  */
 package bluej.editor.flow;
 
+import bluej.utility.javafx.FXPlatformFunction;
+import javafx.beans.binding.DoubleExpression;
 import javafx.scene.Node;
 
 import java.util.ArrayList;
@@ -47,6 +49,13 @@ class LineDisplay
     // The first line in the list corresponds to line firstVisibleLineIndex
     // in the actual document.
     private final ArrayList<TextLine> currentlyVisibleLines = new ArrayList<>();
+    
+    private final DoubleExpression heightProperty;
+
+    LineDisplay(DoubleExpression heightProperty)
+    {
+        this.heightProperty = heightProperty;
+    }
 
     /**
      * Gets the visible line object corresponding to the given document line.
@@ -78,7 +87,7 @@ class LineDisplay
      * @param fontSize The height of the font (in points)
      * @return The ordered list of visible lines
      */
-    List<Node> recalculateVisibleLines(Stream<CharSequence> allLines, double height, double fontSize)
+    List<Node> recalculateVisibleLines(Stream<CharSequence> allLines, FXPlatformFunction<Double, Double> snapHeight, double height, double fontSize)
     {
         // Start at the first visible line:
         Iterator<String> lines = allLines.skip(firstVisibleLineIndex).map(l -> l.toString()).iterator();
@@ -91,7 +100,7 @@ class LineDisplay
                 currentlyVisibleLines.add(new TextLine());
             }
             currentlyVisibleLines.get(visLineSubIndex).setText(lines.next(), fontSize);
-            curY += currentlyVisibleLines.get(visLineSubIndex).prefHeight(-1.0);
+            curY += snapHeight.apply(currentlyVisibleLines.get(visLineSubIndex).prefHeight(-1.0));
             visLineSubIndex += 1;
 
         }
@@ -117,5 +126,45 @@ class LineDisplay
     public double getFirstVisibleLineOffset()
     {
         return firstVisibleLineOffset;
+    }
+
+    public int[] getLineRangeVisible()
+    {
+        return new int[] {firstVisibleLineIndex, firstVisibleLineIndex + currentlyVisibleLines.size() - 1};
+    }
+
+    /**
+     * Scrolls the visible lines so that the given zero-based line index is in view.
+     */
+    public void ensureLineVisible(int line)
+    {
+        if (line < firstVisibleLineIndex)
+        {
+            // Scroll up:
+            firstVisibleLineIndex = line;
+            firstVisibleLineOffset = 0;
+        }
+        else if (line >= firstVisibleLineIndex + currentlyVisibleLines.size())
+        {
+            //Debug:
+            double[] ys = currentlyVisibleLines.stream().mapToDouble(l -> l.getLayoutY()).toArray();
+            
+            // Scroll down:
+            double singleLineHeight = currentlyVisibleLines.get(0).getHeight();
+            int numLinesCanDisplay = (int)Math.ceil(heightProperty.get() / singleLineHeight);
+            firstVisibleLineIndex = line - numLinesCanDisplay;
+            if (firstVisibleLineIndex < 0)
+            {
+                // Just scroll to top:
+                firstVisibleLineIndex = 0;
+                firstVisibleLineOffset = 0.0;
+            }
+            else
+            {
+                double leftOver = (numLinesCanDisplay * singleLineHeight) % heightProperty.get();
+                firstVisibleLineOffset = -leftOver;
+            }
+        }
+        // Otherwise, it is visible -- nothing to do.
     }
 }

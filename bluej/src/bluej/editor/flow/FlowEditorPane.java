@@ -66,7 +66,7 @@ public class FlowEditorPane extends Region implements DocumentListener
             // Temporary hack hard coding the path (since this isn't running under BlueJ proper, yet)
             "file:///Users/neil/intellij/bjgf/bluej/lib/images/" + 
             "error-underline.png");
-    private final LineDisplay lineDisplay = new LineDisplay();
+    private final LineDisplay lineDisplay;
 
     double fontSize = 12;
     
@@ -82,6 +82,7 @@ public class FlowEditorPane extends Region implements DocumentListener
     public FlowEditorPane(String content)
     {
         setSnapToPixel(true);
+        lineDisplay = new LineDisplay(heightProperty());
         backgroundPane = new Pane();
         document = new HoleDocument();
         document.replaceText(0, 0, content);
@@ -93,7 +94,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         caretShape.getStyleClass().add("flow-caret");
         caretShape.setStroke(Color.RED);
         caretShape.setMouseTransparent(true);
-        updateRender();
+        updateRender(false);
 
         Nodes.addInputMap(this, InputMap.sequence(
             InputMap.consume(KeyEvent.KEY_PRESSED, this::keyPressed),
@@ -102,8 +103,8 @@ public class FlowEditorPane extends Region implements DocumentListener
             InputMap.consume(MouseEvent.MOUSE_DRAGGED, this::mouseDragged)
         ));
 
-        JavaFXUtil.addChangeListenerPlatform(widthProperty(), w -> updateRender());
-        JavaFXUtil.addChangeListenerPlatform(heightProperty(), h -> updateRender());
+        JavaFXUtil.addChangeListenerPlatform(widthProperty(), w -> updateRender(false));
+        JavaFXUtil.addChangeListenerPlatform(heightProperty(), h -> updateRender(false));
     }
     
     private void keyTyped(KeyEvent e)
@@ -118,7 +119,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         
         document.replaceText(start, end, e.getCharacter().equals("\r") ? "\n" : e.getCharacter());
         anchor.position = caret.position;
-        updateRender();
+        updateRender(true);
     }
 
     private void mousePressed(MouseEvent e)
@@ -126,7 +127,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         requestFocus();
         positionCaretAtDestination(e);
         anchor.position = caret.position;
-        updateRender();
+        updateRender(true);
     }
 
     private void positionCaretAtDestination(MouseEvent e)
@@ -155,7 +156,7 @@ public class FlowEditorPane extends Region implements DocumentListener
     {
         positionCaretAtDestination(e);
         // Don't update the anchor, though
-        updateRender();
+        updateRender(true);
     }
 
     private void keyPressed(KeyEvent e)
@@ -165,33 +166,60 @@ public class FlowEditorPane extends Region implements DocumentListener
             case LEFT:
                 caret.moveBy(-1);
                 anchor.position = caret.position;
-                updateRender();
+                updateRender(true);
                 break;
             case RIGHT:
                 caret.moveBy(1);
                 anchor.position = caret.position;
-                updateRender();
+                updateRender(true);
+                break;
+            case UP:
+                if (caret.getLine() > 0)
+                {
+                    int prevLineLength = document.getLineLength(caret.getLine() - 1);
+                    caret.moveToLineColumn(caret.getLine() - 1, Math.min(caret.getColumn(), prevLineLength));
+                    anchor.position = caret.position;
+                    updateRender(true);
+                }
+                else if (caret.getLine() == 0)
+                {
+                    positionCaret(0);
+                }
+                break;
+            case DOWN:
+                int lineCount = document.getLineCount();
+                if (caret.getLine() < lineCount - 1)
+                {
+                    int nextLineLength = document.getLineLength(caret.getLine() + 1);
+                    caret.moveToLineColumn(caret.getLine() + 1, Math.min(caret.getColumn(), nextLineLength));
+                    anchor.position = caret.position;
+                    updateRender(true);
+                }
+                else if (caret.getLine() == lineCount - 1)
+                {
+                    positionCaret(document.getLength());
+                }
                 break;
             case F1:
                 // Temporarily, add error underline:
                 if (caret.position != anchor.position)
                 {
                     errorUnderlines.add(new IndexRange(Math.min(caret.position, anchor.position), Math.max(caret.position, anchor.position)));
-                    updateRender();
+                    updateRender(true);
                 }
                 break;
             case F2:
                 // Temporarily, remove error underlines:
                 errorUnderlines.clear();
-                updateRender();
+                updateRender(true);
                 break;
             case F3:
                 fontSize += 2;
-                updateRender();
+                updateRender(true);
                 break;
             case F4:
                 fontSize -= 2;
-                updateRender();
+                updateRender(true);
                 break;
         }
     }
@@ -199,14 +227,19 @@ public class FlowEditorPane extends Region implements DocumentListener
     @Override
     public void textReplaced(int start, int end, int repl)
     {
-        updateRender();
+        updateRender(false);
     }
 
-    private void updateRender()
+    private void updateRender(boolean ensureCaretVisible)
     {
+        if (ensureCaretVisible)
+        {
+            lineDisplay.ensureLineVisible(caret.getLine());
+        }
+        
         List<Node> prospectiveChildren = new ArrayList<>();
         prospectiveChildren.add(backgroundPane);
-        prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(document.getLines(), getHeight(), fontSize));
+        prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(document.getLines(), this::snapSizeY, getHeight(), fontSize));
         prospectiveChildren.add(caretShape);
         
         
@@ -340,6 +373,16 @@ public class FlowEditorPane extends Region implements DocumentListener
         return lineDisplay.isLineVisible(line);
     }
 
+    /**
+     * Gives back a two-element array, the first element being the inclusive zero-based index of the first line
+     * that is visible on screen, and the second element being the inclusive zero-based index of the last line
+     * that is visible on screen.
+     */
+    int[] getLineRangeVisible()
+    {
+        return lineDisplay.getLineRangeVisible();
+    }
+
     // Bounds relative to FlowEditorPane
     /*
     private Bounds getCaretLikeBounds(int pos)
@@ -399,7 +442,7 @@ public class FlowEditorPane extends Region implements DocumentListener
             if (child instanceof TextFlow)
             {
                 double height = snapSizeY(child.prefHeight(-1.0));
-                child.resizeRelocate(0, y, child.prefWidth(height), snapSizeY(height));
+                child.resizeRelocate(0, y, child.prefWidth(height), height);
                 y += height;
             }
             else if (child == backgroundPane)
@@ -422,7 +465,7 @@ public class FlowEditorPane extends Region implements DocumentListener
     public void scrollTo(int lineIndex)
     {
         lineDisplay.scrollTo(lineIndex, 0.0);
-        updateRender();
+        updateRender(false);
     }
 
     /**
@@ -464,7 +507,7 @@ public class FlowEditorPane extends Region implements DocumentListener
     {
         caret.moveTo(position);
         anchor.moveTo(position);
-        updateRender();
+        updateRender(true);
     }
 
     // For testing:

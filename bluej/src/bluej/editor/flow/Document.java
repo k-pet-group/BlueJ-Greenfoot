@@ -128,4 +128,15 @@ public interface Document
     {
         return getLineFromPosition(getLength()) + 1;
     }
+
+    /**
+     * Gets the length of the given (zero-based) line index.
+     */
+    default int getLineLength(int lineIndex)
+    {
+        if (lineIndex == getLineCount() - 1)
+            return getLength() - getLineStart(lineIndex);
+        else
+            return getLineStart(lineIndex + 1) - getLineStart(lineIndex);
+    }
 }
