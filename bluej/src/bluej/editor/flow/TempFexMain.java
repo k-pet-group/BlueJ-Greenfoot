@@ -24,6 +24,7 @@ package bluej.editor.flow;
 import bluej.Config;
 import bluej.editor.moe.ScopeColorsBorderPane;
 import bluej.utility.javafx.JavaFXUtil;
+import com.google.common.io.Files;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
@@ -33,7 +34,9 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 public class TempFexMain extends Application
 {
@@ -44,8 +47,7 @@ public class TempFexMain extends Application
         Properties tempCommandLineProps = new Properties();
         tempCommandLineProps.put("bluej.debug", "true");
         Config.initialise(new File("/Users/neil/intellij/bjgf/bluej/lib"), tempCommandLineProps, false);
-        FlowEditorPane editorPane = new FlowEditorPane("public class Foo\n{\n    int x = 8;\n    public static void main(String[] args) {\n" +
-                "        int local = 12;\n    }\n}\n");
+        FlowEditorPane editorPane = new FlowEditorPane(Files.readLines(new File("/Users/neil/intellij/bjgf/bluej/src/bluej/pkgmgr/PkgMgrFrame.java"), StandardCharsets.UTF_8).stream().collect(Collectors.joining("\n")));
         stage.setScene(new Scene(editorPane));
         JavaFXUtil.runAfter(Duration.seconds(1), () -> {
             ScopeColorsBorderPane scopeColors = new ScopeColorsBorderPane();
