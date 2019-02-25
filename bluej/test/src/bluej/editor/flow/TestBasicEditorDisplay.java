@@ -210,15 +210,30 @@ public class TestBasicEditorDisplay extends FXTest
         for (int i = 0; i < 10; i++)
         {
             push(KeyCode.ENTER);
-            sleep(300);
+            sleep(150);
             assertEquals(beforeEnterPoint + "\n".repeat(i + 1) + afterEnterPoint, fx(() -> flowEditorPane.getDocument().getFullContent()));
             // Scopes should still be the same:
             checkScopes(5, scope(Color.GREEN, between(0, 2), between(780, 800)));
+            y = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
             checkScopes((int) y,
                 scope(Color.GREEN, between(0, 2), between(22, 28)),
                 scope(Color.YELLOW, between(25, 30), between(50, 55))
             );
         }
+        for (int i = 0; i < 30; i++)
+        {
+            push(KeyCode.ENTER);
+        }
+        y = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
+        // Now, the top should have scrolled off, so should be nested scopes at top:
+        checkScopes((int) 5,
+            scope(Color.GREEN, between(0, 2), between(22, 28)),
+            scope(Color.YELLOW, between(25, 30), between(50, 55))
+        );
+        checkScopes((int) y,
+            scope(Color.GREEN, between(0, 2), between(22, 28)),
+            scope(Color.YELLOW, between(25, 30), between(50, 55))
+        );
         
     }
 
