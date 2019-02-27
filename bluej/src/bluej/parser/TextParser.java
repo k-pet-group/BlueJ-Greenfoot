@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2019  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1699,8 +1699,22 @@ public class TextParser extends JavaParser
                 }
             }
         }
-        else {
-            // TODO handle LITERAL_super
+        else if (token.getType() == JavaTokenTypes.LITERAL_super) 
+        {
+            for (JavaType type : accessType.getType().asClass().getReflective().getSuperTypes()) 
+            {
+                if (type != null) 
+                {
+                    valueStack.push(new ValueEntity(type));
+                } 
+                else 
+                {
+                    valueStack.push(new ErrorEntity());
+                }
+            }
+        }   
+        else 
+        {
             valueStack.push(new ErrorEntity());
         }
     }
