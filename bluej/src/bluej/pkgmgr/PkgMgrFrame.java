@@ -1733,7 +1733,18 @@ public class PkgMgrFrame
         
         if (oPath == null)
             return false;
-        
+        for (File file: oPath.listFiles())
+        {
+            if (file.isDirectory())
+            { 
+                // When opening a zip file that is made on the Mac
+                // some extra directories that could be included need to be ignored 
+                if (!file.getName().equals("__MACOSX") && Project.isProject(file.getPath()))
+                {
+                    return openProject(file.getPath());
+                }
+            }
+        };
         if (Project.isProject(oPath.getPath())) {
             return openProject(oPath.getPath());
         }
