@@ -99,6 +99,7 @@ public class PrefMgr
     @OnThread(Tag.FX)
     private static final IntegerProperty editorFontSize = new SimpleIntegerProperty(DEFAULT_JAVA_FONT_SIZE);
     private static final StringProperty editorStandardFont = new SimpleStringProperty("Roboto Mono");
+    private static final StringProperty editorFallbackFont = new SimpleStringProperty("monospace");
     @OnThread(Tag.FX)
     private static IntegerProperty strideFontSize = null; // Setup in call to strideFontSizeProperty
 
@@ -320,7 +321,7 @@ public class PrefMgr
                     "-fx-font-size: ", editorFontSize, "pt;");
             editorFontCSS = Bindings.concat(
                     "-fx-font-size: ", editorFontSize, "pt;",
-                    "-fx-font-family: \"", editorStandardFont, "\";"
+                    "-fx-font-family: \"", editorStandardFont, "\",", editorFallbackFont, ";"
             );
         }
         return includeFamily ? editorFontCSS : editorFontSizeOnlyCSS;
@@ -333,7 +334,7 @@ public class PrefMgr
      */
     public static String getEditorFontFamilyCSS()
     {
-        return "-fx-font-family: \"" + editorStandardFont.get() + "\";";
+        return "-fx-font-family: \"" + editorStandardFont.get() + "\", " + editorFallbackFont.get() + ";";
     }
 
     @OnThread(Tag.FXPlatform)
