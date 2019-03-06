@@ -373,9 +373,9 @@ public final class Terminal
      */
     public void clear()
     {
-        text.replaceText("");
+        text.replaceText(" ");
         if(errorText!=null) {
-            errorText.replaceText("");
+            errorText.replaceText(" ");
         }
         hideErrorPane();
     }
