@@ -310,6 +310,7 @@ public class PkgMgrFrame
     private UntitledCollapsiblePane teamAndTestFoldout;
     @OnThread(Tag.FX)
     private BooleanExpression teamShowSharedButtons;
+    private AboutDialogTemplate aboutDialog = null;
 
     /**
      * Create a new PkgMgrFrame which does not show a package.
@@ -2018,8 +2019,16 @@ public class PkgMgrFrame
         };
 
         Image image = new Image(Boot.class.getResource("gen-bluej-splash.png").toString());
-        new AboutDialogTemplate(getFXWindow(), Boot.BLUEJ_VERSION,
-                "http://www.bluej.org/", image, translatorNames, previousTeamMembers).showAndWait();
+        if (aboutDialog == null)
+        {
+            aboutDialog = new AboutDialogTemplate(getFXWindow().getOwner(), Boot.BLUEJ_VERSION,
+                    "http://www.bluej.org/", image, translatorNames, previousTeamMembers);
+            aboutDialog.showAndWait();
+        }
+        else if (!aboutDialog.isShowing())
+        {
+            aboutDialog.showAndWait();
+        }
     }
 
     /**
