@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2016,2017,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,6 +30,7 @@ import java.util.concurrent.CompletableFuture;
 import bluej.classmgr.BPClassLoader;
 import bluej.debugger.jdi.JdiDebugger;
 import bluej.debugger.jdi.TestResultsWithRunTime;
+import bluej.pkgmgr.Project;
 import bluej.utility.javafx.FXPlatformSupplier;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -211,13 +212,14 @@ public abstract class Debugger
     /**
      * Run a single test method or all test methods in a test class and return the result.
      * 
+     * @param  project  the current BlueJ project
      * @param  className  the fully qualified name of the class
      * @param  methodName
      *            the name of the method, it can be null if the test runs on all test methods
      * @return a TestResultsWithRunTime object that wraps the test result and test's runtime
      */
     @OnThread(Tag.Any)
-    public abstract TestResultsWithRunTime runTestMethod(String className, String methodName);
+    public abstract TestResultsWithRunTime runTestMethod(Project project, String className, String methodName);
     
     /**
      * Dispose all top level windows in the remote machine.

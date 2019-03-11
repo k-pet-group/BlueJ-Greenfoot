@@ -23,21 +23,17 @@ package bluej.debugger.jdi;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import bluej.BlueJEvent;
 import bluej.BlueJEventListener;
 import bluej.debugger.*;
 import bluej.pkgmgr.Project;
+import bluej.pkgmgr.target.ClassTarget;
 import bluej.utility.javafx.FXPlatformSupplier;
 import com.sun.jdi.*;
+import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
@@ -575,6 +571,8 @@ public class JdiDebugger extends Debugger
     /**
      * Run a single test method or all test methods in a test class and return the result.
      * 
+     * @param  project  
+     *            the current BlueJ project
      * @param className
      *            the fully qualified name of the class
      * @param methodName
@@ -583,7 +581,7 @@ public class JdiDebugger extends Debugger
      */
     @Override
     @OnThread(Tag.Any)
-    public TestResultsWithRunTime runTestMethod(String className, String methodName) 
+    public TestResultsWithRunTime runTestMethod(Project project, String className, String methodName) 
     {
         ArrayReference arrayRef = null;
         List<DebuggerTestResult> results = new ArrayList<>();
@@ -631,16 +629,48 @@ public class JdiDebugger extends Debugger
                         SourceLocation failPoint = new SourceLocation(failureClass, failureSource,
                                 failureMethod, lineNo);
 
-                        if (failureType.equals("failure"))
+                        // Remove the unnecessary stack trace parts in the JUnit test display window.
+                        Platform.runLater(() ->
                         {
-                            results.add(new JdiTestResultFailure(className, actualMethodName, exMsg, traceMsg,
-                                    failPoint, 0));
-                        }
-                        else
-                        {
-                            results.add(new JdiTestResultError(className, actualMethodName, exMsg, traceMsg,
-                                    failPoint, 0));
-                        }
+                            String lineSeparator = System.getProperty("line.separator");
+                            String[] stackTrace = traceMsg.split(lineSeparator);
+                            String filteredStack = stackTrace[0] + lineSeparator;
+                            List<String> pkg = project.getPackageNames();
+                            int j = 0;
+                            boolean found = false;
+                            for(int m = 1; m < stackTrace.length; m++)
+                            {
+                                if (!stackTrace[m].startsWith("org.junit."))
+                                {    
+                                    while (j < pkg.size() && !found)
+                                    {
+                                        for(ClassTarget cls : project.getPackage(pkg.get(j)).getClassTargets())
+                                        {
+                                            if (stackTrace[m].contains(cls.getDisplayName()))
+                                            {
+                                                filteredStack = filteredStack + stackTrace[m] + lineSeparator;
+                                                found = true;
+                                                break;
+                                            }
+                                        }
+                                        j++;
+                                    }
+                                }
+                                found = false;
+                                j = 0;
+                            }
+                        
+                            if (failureType.equals("failure"))
+                            {
+                                results.add(new JdiTestResultFailure(className, actualMethodName, exMsg, filteredStack,
+                                        failPoint, 0));
+                            }
+                            else
+                            {
+                                results.add(new JdiTestResultError(className, actualMethodName, exMsg, filteredStack,
+                                        failPoint, 0));
+                            }
+                        });
                     }
 
                     i = i + 8;
