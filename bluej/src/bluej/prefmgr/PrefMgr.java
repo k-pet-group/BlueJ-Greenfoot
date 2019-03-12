@@ -69,6 +69,7 @@ public class PrefMgr
     public static final String SCOPE_HIGHLIGHTING_STRENGTH = "bluej.editor.scopeHilightingStrength";
     public static final String NAVIVIEW_EXPANDED="bluej.naviviewExpanded.default";
     public static final String ACCESSIBILITY_SUPPORT = "bluej.accessibility.support";
+    public static final String NEWS_TESTING = "bluej.news.testing";
     public static final String START_WITH_SUDO = "bluej.startWithSudo";
     public static final String STRIDE_SIDEBAR_SHOWING = "bluej.editor.stride.sidebarShowing";
     public static final String PACKAGE_PRINT_SOURCE = "bluej.packagePrint.source";
@@ -436,6 +437,7 @@ public class PrefMgr
         flags.put(ACCESSIBILITY_SUPPORT, Config.getPropString(ACCESSIBILITY_SUPPORT, "false"));
         flags.put(START_WITH_SUDO, Config.getPropString(START_WITH_SUDO, "true"));
         flags.put(STRIDE_SIDEBAR_SHOWING, Config.getPropString(STRIDE_SIDEBAR_SHOWING, "true"));
+        flags.put(NEWS_TESTING, Config.getPropString(NEWS_TESTING, "false"));
 
         flags.put(PRINT_LINE_NUMBERS, Config.getPropString(PRINT_LINE_NUMBERS, "false"));
         flags.put(PRINT_SCOPE_HIGHLIGHTING, Config.getPropString(PRINT_SCOPE_HIGHLIGHTING, "true"));
