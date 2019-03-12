@@ -27,6 +27,7 @@ import bluej.extmgr.ExtensionWrapper;
 import bluej.extmgr.ExtensionsManager;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.Utility;
@@ -86,6 +87,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Main
 {
     private static final String MESSAGE_ROOT = "https://www.bluej.org/message/";
+    private static final String TESTING_MESSAGE_ROOT = "https://www.bluej.org/message_test/";
     /** 
      * Whether we've officially launched yet. While false "open file" requests only
      * set initialProject.
@@ -130,7 +132,7 @@ public class Main
         CompletableFuture<Stage> futureMainWindow = new CompletableFuture<>();
         // Must do this after Config initialisation:
         if (!Config.isGreenfoot())
-            new Thread(() -> fetchAndShowCentralMsg(futureMainWindow)).start();
+            new Thread(() -> fetchAndShowCentralMsg(PrefMgr.getFlag(PrefMgr.NEWS_TESTING) ?  TESTING_MESSAGE_ROOT : MESSAGE_ROOT, futureMainWindow)).start();
 
         if (guiHandler == null) {
             guiHandler = new BlueJGuiHandler();
@@ -553,14 +555,14 @@ public class Main
      * @param withStage A future which will complete with a parent window (or null if none).
      *                  The message should be shown as the modal child of this window.
      */
-    private static void fetchAndShowCentralMsg(CompletableFuture<Stage> withStage)
+    private static void fetchAndShowCentralMsg(String messageRoot, CompletableFuture<Stage> withStage)
     {
         try
         {
             // latest.txt should have two dates, one on each line.  Top one is
             // start date of the message (and serves as its identifier), bottom one
             // is the expiry date of the message.
-            Scanner scanner = new Scanner(new URL(MESSAGE_ROOT + "latest.txt").openStream(), "UTF-8").useDelimiter("\n");
+            Scanner scanner = new Scanner(new URL(messageRoot + "latest.txt").openStream(), "UTF-8").useDelimiter("\n");
 
             LocalDate startDate = LocalDate.parse(scanner.nextLine());
             LocalDate endDate = LocalDate.parse(scanner.nextLine());
@@ -616,7 +618,7 @@ public class Main
                     });
                     
                     // Now set off the loading attempt:
-                    webView.getEngine().load(MESSAGE_ROOT + startDate.toString() + ".html");
+                    webView.getEngine().load(messageRoot + startDate.toString() + ".html");
                 });
             }
         }
