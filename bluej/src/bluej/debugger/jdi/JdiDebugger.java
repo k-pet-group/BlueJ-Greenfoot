@@ -546,8 +546,12 @@ public class JdiDebugger extends Debugger
                         {
                             String fieldName = ((StringReference) arrayRefFinal.getValue(i)).value();
                             Field testField = testObject.referenceType().fieldByName(fieldName);
-                            returnMap.put(fieldName, JdiObject
-                                    .getDebuggerObject((ObjectReference) arrayRefFinal.getValue(i + 1), testField, jdiTestObject));
+                            if (!testField.typeName().matches("int|double|float|short|boolean|byte|long|char|"))
+                            {
+                                returnMap.put(fieldName, JdiObject
+                                        .getDebuggerObject((ObjectReference) arrayRefFinal.getValue(i + 1),
+                                                testField, jdiTestObject));
+                            }
                         }
                         // the resulting map consists of entries (String fieldName, JdiObject
                         // obj)
