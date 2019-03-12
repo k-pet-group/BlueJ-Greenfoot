@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -355,7 +355,8 @@ public class VarFrame extends SingleLineFrame
     {
         if (parentCanvas == null) {
             // This means that the frame is being deleted, so it has no parent.
-            // This shouldn't be reachable but it's not harmful. See: http://bugs.bluej.org/browse/BLUEJ-1068
+            // This can happen if we arrive here in the middle of an undo operation while updating the cheat sheet,
+            // but in that case just return arbitrary value, and cheat sheet will be updated again later:
             return false;
         }
         return parentCanvas.getParent().getChildKind(parentCanvas) == CanvasParent.CanvasKind.FIELDS;
