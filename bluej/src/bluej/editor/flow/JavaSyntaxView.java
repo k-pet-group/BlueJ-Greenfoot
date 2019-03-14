@@ -819,7 +819,7 @@ public class JavaSyntaxView implements ReparseableDocument
         int column = document.getColumnFromPosition(startOffset);
         int line = document.getLineFromPosition(startOffset);
         String lineText = new Element(line).getText();
-        boolean allSpaces = (column == 0) || lineText.lastIndexOf(' ', column - 1) == 0;
+        boolean allSpaces = (column == 0) || lineText.substring(0, column).codePoints().allMatch(n -> n == ' ');
 
         if (!editorPane.isLineVisible(line) && (!allSpaces || cachedSpaceSizes.size() <= 4))
         {
