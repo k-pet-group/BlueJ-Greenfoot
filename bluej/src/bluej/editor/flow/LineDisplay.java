@@ -170,4 +170,9 @@ class LineDisplay
         }
         // Otherwise, it is visible -- nothing to do.
     }
+
+    public int getVisibleLineCount()
+    {
+        return currentlyVisibleLines.size();
+    }
 }

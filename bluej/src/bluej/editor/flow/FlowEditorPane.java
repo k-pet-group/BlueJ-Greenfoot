@@ -161,6 +161,7 @@ public class FlowEditorPane extends Region implements DocumentListener
 
     private void keyPressed(KeyEvent e)
     {
+        int lineCount = document.getLineCount();
         switch (e.getCode())
         {
             case LEFT:
@@ -187,17 +188,32 @@ public class FlowEditorPane extends Region implements DocumentListener
                 }
                 break;
             case DOWN:
-                int lineCount = document.getLineCount();
-                if (caret.getLine() < lineCount - 1)
+                if (caret.getLine() + 1 < lineCount)
                 {
                     int nextLineLength = document.getLineLength(caret.getLine() + 1);
                     caret.moveToLineColumn(caret.getLine() + 1, Math.min(caret.getColumn(), nextLineLength));
                     anchor.position = caret.position;
                     updateRender(true);
                 }
-                else if (caret.getLine() == lineCount - 1)
+                else if (caret.getLine() + 1 == lineCount)
                 {
                     positionCaret(document.getLength());
+                }
+                break;
+            case PAGE_DOWN:
+                int pageSize = Math.max(1, lineDisplay.getVisibleLineCount() - 1);
+                if (caret.getLine() + pageSize < lineCount)
+                {
+                    int targetLineLength = document.getLineLength(caret.getLine() + pageSize);
+                    caret.moveToLineColumn(caret.getLine() + pageSize, Math.min(caret.getColumn(), targetLineLength));
+                    anchor.position = caret.position;
+                    updateRender(true);
+                }
+                else
+                {
+                    positionCaret(document.getLength());
+                    anchor.position = caret.position;
+                    updateRender(true);
                 }
                 break;
             case F1:
