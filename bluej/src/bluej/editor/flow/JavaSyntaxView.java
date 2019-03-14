@@ -23,6 +23,7 @@ package bluej.editor.flow;
 
 import bluej.Config;
 import bluej.editor.flow.JavaSyntaxView.ScopeInfo.SingleNestedScope;
+import bluej.editor.flow.LineDisplay.LineDisplayListener;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.MoeSyntaxEvent;
 import bluej.editor.moe.MoeSyntaxEvent.NodeChangeRecord;
@@ -83,7 +84,7 @@ import java.util.*;
  * @author Davin McCall
  */
 @OnThread(Tag.FXPlatform)
-public class JavaSyntaxView implements ReparseableDocument
+public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 {
     /** Maximum amount of document to reparse in one hit (advisory) */
     private final static int MAX_PARSE_PIECE = 8000;
@@ -195,6 +196,7 @@ public class JavaSyntaxView implements ReparseableDocument
         this.imageCache = new FXCache<>(s -> drawImageFor(s, imageCacheLineHeight), 40);
         this.scopeColors = scopeColors;
         resetColors();
+        editorPane.addLineDisplayListener(this);
         JavaFXUtil.addChangeListenerPlatform(PrefMgr.getScopeHighlightStrength(), str -> {
             resetColors();
             imageCache.clear();
@@ -319,7 +321,7 @@ public class JavaSyntaxView implements ReparseableDocument
      * @param firstLineIncl  the first line in the range to update (inclusive).
      * @param lastLineIncl   the last line in the range to update (inclusive).
      */
-    public void recalculateScopes(Map<Integer, ScopeInfo> pendingScopes, int firstLineIncl, int lastLineIncl)
+    private void recalculateScopes(Map<Integer, ScopeInfo> pendingScopes, int firstLineIncl, int lastLineIncl)
     {
         // editorPane is null during testing -- just skip updating the scopes in that case:
         if (editorPane == null)
@@ -2524,6 +2526,18 @@ public class JavaSyntaxView implements ReparseableDocument
         int startLine = document.getLineFromPosition(offset);
         int endLine = document.getLineFromPosition(offset + length);
         recalculateScopes(pendingScopeBackgrounds, startLine, endLine);
+    }
+
+
+    @Override
+    public void lineVisibilityChanged(int fromLineIndexIncl, int toLineIndexIncl)
+    {
+        JavaFXUtil.runAfterNextLayout(editorPane.getScene(), () -> {
+            scopeBackgrounds.clear();
+            // We repaint all because the vertical positions will have changed:
+            recalculateScopes(pendingScopeBackgrounds, fromLineIndexIncl, toLineIndexIncl);
+            applyPendingScopeBackgrounds();
+        });
     }
 
     private void scheduleReparseRunner()

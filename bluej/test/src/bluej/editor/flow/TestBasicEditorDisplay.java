@@ -91,7 +91,7 @@ public class TestBasicEditorDisplay extends FXTest
     }
 
     @Property(trials=5)
-    public void testEditor(@When(seed=1L) @From(GenString.class) String content, @When(seed=1L) @From (GenRandom.class) Random r)
+    public void testEditor(@From(GenString.class) String content, @From (GenRandom.class) Random r)
     {
         setText(content);
 
@@ -134,7 +134,7 @@ public class TestBasicEditorDisplay extends FXTest
         
     }
 
-    private void setText(@When(seed = 1L) @From(GenString.class) String content)
+    private void setText(String content)
     {
         fx_(() -> flowEditorPane.getDocument().replaceText(0, 0, content));
         sleep(1000);
@@ -234,6 +234,26 @@ public class TestBasicEditorDisplay extends FXTest
             scope(Color.GREEN, between(0, 2), between(22, 28)),
             scope(Color.YELLOW, between(25, 30), between(50, 55))
         );
+        
+        // Get back to top:
+        push(KeyCode.PAGE_UP);
+        push(KeyCode.PAGE_UP);
+        checkScopes(5, scope(Color.GREEN, between(0, 2), between(780, 800)));
+        fx_(() -> flowEditorPane.positionCaret(beforeEnterPoint.length()));
+        sleep(500);
+
+        for (int i = 0; i < 40; i++)
+        {
+            // Check scope position as we scroll down:
+            if (i == 0)
+                checkScopes(5, scope(Color.GREEN, between(0, 2), between(780, 800)));
+            y = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
+            checkScopes((int)y,
+                    scope(Color.GREEN, between(0, 2), between(22, 28)),
+                    scope(Color.YELLOW, between(25, 30), between(50, 55))
+            );
+            push(KeyCode.DOWN);
+        }
         
     }
 

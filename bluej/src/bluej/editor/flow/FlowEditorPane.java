@@ -22,6 +22,7 @@
 package bluej.editor.flow;
 
 import bluej.editor.flow.Document.Bias;
+import bluej.editor.flow.LineDisplay.LineDisplayListener;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
@@ -162,6 +163,7 @@ public class FlowEditorPane extends Region implements DocumentListener
     private void keyPressed(KeyEvent e)
     {
         int lineCount = document.getLineCount();
+        int pageSize = Math.max(1, lineDisplay.getVisibleLineCount() - 1);
         switch (e.getCode())
         {
             case LEFT:
@@ -187,6 +189,21 @@ public class FlowEditorPane extends Region implements DocumentListener
                     positionCaret(0);
                 }
                 break;
+            case PAGE_UP:
+                if (caret.getLine() - pageSize > 0)
+                {
+                    int targetLineLength = document.getLineLength(caret.getLine() - pageSize);
+                    caret.moveToLineColumn(caret.getLine() - pageSize, Math.min(caret.getColumn(), targetLineLength));
+                    anchor.position = caret.position;
+                    updateRender(true);
+                }
+                else
+                {
+                    positionCaret(0);
+                    anchor.position = caret.position;
+                    updateRender(true);
+                }
+                break;
             case DOWN:
                 if (caret.getLine() + 1 < lineCount)
                 {
@@ -201,7 +218,6 @@ public class FlowEditorPane extends Region implements DocumentListener
                 }
                 break;
             case PAGE_DOWN:
-                int pageSize = Math.max(1, lineDisplay.getVisibleLineCount() - 1);
                 if (caret.getLine() + pageSize < lineCount)
                 {
                     int targetLineLength = document.getLineLength(caret.getLine() + pageSize);
@@ -530,5 +546,10 @@ public class FlowEditorPane extends Region implements DocumentListener
     WritableImage snapshotBackground()
     {
         return backgroundPane.snapshot(null, null);
+    }
+
+    public void addLineDisplayListener(LineDisplayListener lineDisplayListener)
+    {
+        lineDisplay.addLineDisplayListener(lineDisplayListener);
     }
 }

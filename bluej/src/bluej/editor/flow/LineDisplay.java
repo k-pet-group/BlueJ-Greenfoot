@@ -50,6 +50,8 @@ class LineDisplay
     // in the actual document.
     private final ArrayList<TextLine> currentlyVisibleLines = new ArrayList<>();
     
+    private final ArrayList<LineDisplayListener> lineDisplayListeners = new ArrayList<>();
+    
     private final DoubleExpression heightProperty;
 
     LineDisplay(DoubleExpression heightProperty)
@@ -110,6 +112,13 @@ class LineDisplay
             currentlyVisibleLines.subList(visLineSubIndex, currentlyVisibleLines.size()).clear();
         }
         
+        // Notify any rendering listeners of new line exposure:
+        int[] lineRangeVisible = getLineRangeVisible();
+        for (LineDisplayListener lineDisplayListener : lineDisplayListeners)
+        {
+            lineDisplayListener.lineVisibilityChanged(lineRangeVisible[0], lineRangeVisible[1]);
+        }
+        
         return Collections.unmodifiableList(currentlyVisibleLines);
     }
 
@@ -128,6 +137,10 @@ class LineDisplay
         return firstVisibleLineOffset;
     }
 
+    /**
+     * First element is the first line index (zero-based) that is visible, inclusive.
+     * Second element is the last line index (zero-based) that is visible, also inclusive.
+     */
     public int[] getLineRangeVisible()
     {
         return new int[] {firstVisibleLineIndex, firstVisibleLineIndex + currentlyVisibleLines.size() - 1};
@@ -174,5 +187,15 @@ class LineDisplay
     public int getVisibleLineCount()
     {
         return currentlyVisibleLines.size();
+    }
+
+    public void addLineDisplayListener(LineDisplayListener lineDisplayListener)
+    {
+        lineDisplayListeners.add(lineDisplayListener);
+    }
+
+    static interface LineDisplayListener
+    {
+        public void lineVisibilityChanged(int fromLineIndexIncl, int toLineIndexIncl);
     }
 }

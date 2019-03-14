@@ -23,6 +23,7 @@ package bluej.editor.flow;
 
 import bluej.Config;
 import bluej.editor.moe.ScopeColorsBorderPane;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.javafx.JavaFXUtil;
 import com.google.common.io.Files;
 import javafx.application.Application;
@@ -40,6 +41,9 @@ import java.util.stream.Collectors;
 
 public class TempFexMain extends Application
 {
+
+    private JavaSyntaxView javaSyntaxView;
+
     @Override
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void start(Stage stage) throws Exception
@@ -48,8 +52,9 @@ public class TempFexMain extends Application
         tempCommandLineProps.put("bluej.debug", "true");
         Config.initialise(new File("/Users/neil/intellij/bjgf/bluej/lib"), tempCommandLineProps, false);
         FlowEditorPane editorPane = new FlowEditorPane(Files.readLines(new File("/Users/neil/intellij/bjgf/bluej/src/bluej/pkgmgr/PkgMgrFrame.java"), StandardCharsets.UTF_8).stream().collect(Collectors.joining("\n")));
+        PrefMgr.setScopeHighlightStrength(100);
         stage.setScene(new Scene(editorPane));
-        JavaFXUtil.runAfter(Duration.seconds(1), () -> {
+        //JavaFXUtil.runAfter(Duration.seconds(1), () -> {
             ScopeColorsBorderPane scopeColors = new ScopeColorsBorderPane();
             scopeColors.scopeBackgroundColorProperty().set(Color.WHITE);
             scopeColors.scopeClassColorProperty().set(Color.LIGHTGREEN);
@@ -57,11 +62,11 @@ public class TempFexMain extends Application
             scopeColors.scopeClassOuterColorProperty().set(Color.GRAY);
             scopeColors.scopeMethodOuterColorProperty().set(Color.GRAY);
             scopeColors.scopeClassInnerColorProperty().set(Color.GRAY);
-            JavaSyntaxView javaSyntaxView = new JavaSyntaxView(editorPane, scopeColors);
-            javaSyntaxView.flushReparseQueue();
-            javaSyntaxView.recalculateAllScopes();
-            javaSyntaxView.flushReparseQueue();
-        });
+            javaSyntaxView = new JavaSyntaxView(editorPane, scopeColors);
+            //javaSyntaxView.flushReparseQueue();
+            //javaSyntaxView.recalculateAllScopes();
+            //javaSyntaxView.flushReparseQueue();
+        //});
         stage.show();
     }
 }
