@@ -271,7 +271,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         
         List<Node> prospectiveChildren = new ArrayList<>();
         prospectiveChildren.add(backgroundPane);
-        prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(document.getLines(), this::snapSizeY, getHeight(), fontSize));
+        prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(document.getLines().stream(), this::snapSizeY, getHeight(), fontSize));
         prospectiveChildren.add(caretShape);
         
         

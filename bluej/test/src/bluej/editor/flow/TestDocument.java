@@ -166,7 +166,7 @@ public class TestDocument
             // Check that no lines have \n, and re-assembling them makes full content:
             for (Document document : documents)
             {
-                List<CharSequence> lines = document.getLines().collect(Collectors.toList());
+                List<CharSequence> lines = document.getLines();
                 for (CharSequence line : lines)
                 {
                     assertFalse(line.codePoints().anyMatch(c -> c == '\n'));

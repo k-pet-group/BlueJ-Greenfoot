@@ -22,7 +22,7 @@
 
 package bluej.editor.flow;
 
-import java.util.stream.Stream;
+import java.util.List;
 
 /**
  * Document: an interface for a document.
@@ -89,9 +89,9 @@ public interface Document
     /**
      * Gets the lines in the document.  Undefined behaviour if the document
      * is modified while references are still held to the return value.
-     * @return
+     * The list does not support modification.
      */
-    Stream<CharSequence> getLines();
+    List<CharSequence> getLines();
 
     /**
      * Returns a tracked position based on the given character position within the document.

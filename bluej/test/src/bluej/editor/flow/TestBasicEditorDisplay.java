@@ -95,7 +95,7 @@ public class TestBasicEditorDisplay extends FXTest
     {
         setText(content);
 
-        List<String> lines = flowEditorPane.getDocument().getLines().map(s -> s.toString()).collect(Collectors.toList());
+        List<String> lines = flowEditorPane.getDocument().getLines().stream().map(s -> s.toString()).collect(Collectors.toList());
 
         fx_(() -> flowEditorPane.positionCaret(0));
         checkVisibleLinesAgainst(lines);

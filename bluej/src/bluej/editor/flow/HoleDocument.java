@@ -220,15 +220,26 @@ public class HoleDocument implements Document
         return trackedPosition;
     }
     
-    public Stream<CharSequence> getLines()
+    public List<CharSequence> getLines()
     {
         List<Integer> lineStarts = getLineStartPositions();
         
-        return IntStream.range(0, lineStarts.size() + 1).mapToObj(lineIndex -> {
-            int startChar = lineIndex == 0 ? 0 : lineStarts.get(lineIndex - 1);
-            int endChar = lineIndex == lineStarts.size() ? getLength() : (lineStarts.get(lineIndex) - 1);
-            return subSequence(startChar, endChar);
-        });
+        return new AbstractList<CharSequence>()
+        {
+            @Override
+            public CharSequence get(int lineIndex)
+            {
+                int startChar = lineIndex == 0 ? 0 : lineStarts.get(lineIndex - 1);
+                int endChar = lineIndex == lineStarts.size() ? getLength() : (lineStarts.get(lineIndex) - 1);
+                return subSequence(startChar, endChar);
+            }
+
+            @Override
+            public int size()
+            {
+                return lineStarts.size() + 1;
+            }
+        };
     }
 
     // Only valid while document content doesn't change!

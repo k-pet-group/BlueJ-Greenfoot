@@ -116,10 +116,9 @@ public class SlowDocument implements Document
     }
 
     @Override
-    public Stream<CharSequence> getLines()
+    public List<CharSequence> getLines()
     {
-        Stream<String> streamedLines = Arrays.stream(content.split("\n", -1));
-        return streamedLines.map(s -> s);
+        return Arrays.asList(content.split("\n", -1));
     }
     
     @Override
