@@ -23,10 +23,9 @@ package bluej.editor.flow;
 
 import bluej.editor.flow.Document.Bias;
 import bluej.editor.flow.LineDisplay.LineDisplayListener;
+import bluej.editor.flow.TextLine.StyledSegment;
 import bluej.utility.javafx.JavaFXUtil;
-import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
-import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.IndexRange;
 import javafx.scene.image.Image;
@@ -36,21 +35,19 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.text.HitInfo;
 import javafx.scene.text.TextFlow;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -76,6 +73,9 @@ public class FlowEditorPane extends Region implements DocumentListener
     private final TrackedPosition anchor;
     private final TrackedPosition caret;
     private final Path caretShape;
+    
+    // Default is to apply no styles:
+    private LineStyler lineStyler = (i, s) -> Collections.singletonList(new StyledSegment(Collections.emptyList(), s.toString()));
     
     private final List<IndexRange> errorUnderlines = new ArrayList<>();
     private Pane backgroundPane;
@@ -271,7 +271,28 @@ public class FlowEditorPane extends Region implements DocumentListener
         
         List<Node> prospectiveChildren = new ArrayList<>();
         prospectiveChildren.add(backgroundPane);
-        prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(document.getLines().stream(), this::snapSizeY, getHeight(), fontSize));
+        // Use an AbstractList rather than pre-calculate, as that means we don't bother
+        // styling lines which will not be displayed:
+        List<List<StyledSegment>> styledLines = new AbstractList<List<StyledSegment>>()
+        {
+            final List<CharSequence> documentLines = document.getLines();
+
+            @Override
+            public int size()
+            {
+                return documentLines.size();
+            }
+
+            @Override
+            public List<StyledSegment> get(int index)
+            {
+                // Because styling is called on demand, we save styling lines
+                // which are never requested for display.
+                return lineStyler.getLineForDisplay(index, documentLines.get(index));
+            }
+        };
+        
+        prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(styledLines.stream(), this::snapSizeY, getHeight(), fontSize));
         prospectiveChildren.add(caretShape);
         
         
@@ -551,5 +572,29 @@ public class FlowEditorPane extends Region implements DocumentListener
     public void addLineDisplayListener(LineDisplayListener lineDisplayListener)
     {
         lineDisplay.addLineDisplayListener(lineDisplayListener);
+    }
+    
+    @OnThread(Tag.FXPlatform)
+    public static interface LineStyler
+    {
+        /**
+         * Get the list of styled segments to display on a particular line.  Note that it is
+         * very important to never return an empty list even if the line is blank; 
+         * this will effectively hide the line from display.  Instead return a singleton list
+         * with an empty text content for the segment.
+         * 
+         * @param lineIndex The zero-based index of the line.
+         * @param lineContent The text content of the line (without trailing newline) 
+         * @return The list of styled segments containing the styled content to display.
+         */
+        public List<StyledSegment> getLineForDisplay(int lineIndex, CharSequence lineContent);
+    }
+
+    /**
+     * Set the way that lines are styled for this editor.
+     */
+    public void setLineStyler(LineStyler lineStyler)
+    {
+        this.lineStyler = lineStyler;
     }
 }

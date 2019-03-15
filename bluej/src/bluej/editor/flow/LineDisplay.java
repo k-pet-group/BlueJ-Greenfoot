@@ -21,6 +21,7 @@
  */
 package bluej.editor.flow;
 
+import bluej.editor.flow.TextLine.StyledSegment;
 import bluej.utility.javafx.FXPlatformFunction;
 import javafx.beans.binding.DoubleExpression;
 import javafx.scene.Node;
@@ -89,10 +90,10 @@ class LineDisplay
      * @param fontSize The height of the font (in points)
      * @return The ordered list of visible lines
      */
-    List<Node> recalculateVisibleLines(Stream<CharSequence> allLines, FXPlatformFunction<Double, Double> snapHeight, double height, double fontSize)
+    List<Node> recalculateVisibleLines(Stream<List<StyledSegment>> allLines, FXPlatformFunction<Double, Double> snapHeight, double height, double fontSize)
     {
         // Start at the first visible line:
-        Iterator<String> lines = allLines.skip(firstVisibleLineIndex).map(l -> l.toString()).iterator();
+        Iterator<List<StyledSegment>> lines = allLines.skip(firstVisibleLineIndex).iterator();
         double curY = firstVisibleLineOffset;
         int visLineSubIndex = 0;
         while (lines.hasNext() && curY <= height)

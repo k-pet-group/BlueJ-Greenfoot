@@ -31,6 +31,10 @@ import javafx.scene.text.TextFlow;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 /**
  * A graphical line of text on the screen.  Extends TextFlow to add the ability
@@ -78,25 +82,66 @@ class TextLine extends TextFlow
      * @param text The text to show.
      * @param size The font size to use.
      */
-    public void setText(String text, double size)
+    public void setText(List<StyledSegment> text, double size)
     {
         hideSelection();
         getChildren().clear();
         getChildren().add(selectionShape);
-        // Temporarily, for investigating syntax highlighting, we alternate colours of the words:
-        final Paint[] colors = new Paint[] { Color.RED, Color.GREEN, Color.LIGHTGRAY, Color.NAVY };
-        int nextColor = 0;
-        for (String s : text.split("((?<= )|(?= ))"))
+        for (StyledSegment styledSegment : StyledSegment.mergeAdjacentIdentical(text))
         {
-            Text t = new Text(s);
+            Text t = new Text(styledSegment.text);
             t.setFont(new Font("Roboto Mono", size));
-            if (!s.isBlank())
-            {
-                t.setFill(colors[nextColor]);
-                nextColor = (nextColor + 1) % colors.length;
-            }
+            t.getStyleClass().addAll(styledSegment.cssClasses);
             getChildren().add(t);
         }
-        
+    }
+
+    /**
+     * A piece of text content, plus a collection of CSS style classes to apply to the content.
+     */
+    public static class StyledSegment
+    {
+        private final List<String> cssClasses;
+        private final String text;
+
+        public StyledSegment(List<String> cssClasses, String text)
+        {
+            this.cssClasses = cssClasses;
+            this.text = text;
+        }
+
+        /**
+         * Gives back an iterator that returns the contents of the given list, but merging together any
+         * adjacent run of segments that have identical styles.
+         */
+        private static Iterable<StyledSegment> mergeAdjacentIdentical(List<StyledSegment> segments)
+        {
+            return () -> new Iterator<StyledSegment>()
+            {
+                int nextToExamine = 0;
+                
+                @Override
+                public boolean hasNext()
+                {
+                    return nextToExamine < segments.size();
+                }
+
+                @Override
+                public StyledSegment next()
+                {
+                    StyledSegment next = segments.get(nextToExamine);
+                    nextToExamine += 1;
+                    // Merge in all following items that have exactly the same CSS classes:
+                    while (nextToExamine < segments.size() && segments.get(nextToExamine).cssClasses.equals(next.cssClasses))
+                    {
+                        // Combine:
+                        next = new StyledSegment(next.cssClasses, next.text + segments.get(nextToExamine).text);
+                        nextToExamine += 1;
+                    }
+                    
+                    return next;
+                }
+            };
+        }
     }
 }
