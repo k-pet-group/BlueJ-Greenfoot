@@ -109,7 +109,7 @@ public class CommentNode extends ParsedNode
      * @see bluej.parser.nodes.ParsedNode#getMarkTokensFor(int, int, int, javax.swing.text.Document)
      */
     public Token getMarkTokensFor(int pos, int length, int nodePos,
-            MoeSyntaxDocument document)
+            ReparseableDocument document)
     {
         Token tok = new Token(length, type.tokenType);
         tok.next = new Token(0, TokenType.END);

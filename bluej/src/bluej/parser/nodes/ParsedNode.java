@@ -362,7 +362,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * @param document  The source document
      * @return  A linked list of Token objects
      */
-    public abstract Token getMarkTokensFor(int pos, int length, int nodePos, MoeSyntaxDocument document);
+    public abstract Token getMarkTokensFor(int pos, int length, int nodePos, ReparseableDocument document);
 
     protected ParsedNode getParentNode()
     {

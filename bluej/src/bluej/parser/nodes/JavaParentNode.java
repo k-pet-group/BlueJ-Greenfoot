@@ -381,7 +381,7 @@ public abstract class JavaParentNode extends ParentParsedNode
 
     @Override
     public Token getMarkTokensFor(int pos, int length, int nodePos,
-            MoeSyntaxDocument document)
+            ReparseableDocument document)
     {
         Token tok = new Token(0, TokenType.END); // dummy
         if (length == 0) {
@@ -425,9 +425,9 @@ public abstract class JavaParentNode extends ParentParsedNode
         return dummyTok.next;
     }
     
-    protected static Token tokenizeText(MoeSyntaxDocument document, int pos, int length)
+    protected static Token tokenizeText(ReparseableDocument document, int pos, int length)
     {
-        DocumentReader dr = new DocumentReader(document, pos, pos+length);
+        Reader dr = document.makeReader(pos, pos+length);
         TokenStream lexer = JavaParser.getLexer(dr);
         TokenStream tokenStream = new JavaTokenFilter(lexer, null);
 
