@@ -22,17 +22,15 @@
 package bluej.editor.flow;
 
 import bluej.Config;
-import bluej.editor.moe.ScopeColorsBorderPane;
 import bluej.editor.flow.gen.GenRandom;
 import bluej.editor.flow.gen.GenString;
+import bluej.editor.moe.ScopeColorsBorderPane;
 import bluej.parser.InitConfig;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Utility;
 import com.pholser.junit.quickcheck.From;
 import com.pholser.junit.quickcheck.Property;
-import com.pholser.junit.quickcheck.When;
 import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
-import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.WritableImage;
@@ -48,11 +46,11 @@ import org.junit.runner.RunWith;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import java.io.File;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Properties;
 import java.util.Random;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -74,6 +72,7 @@ public class TestBasicEditorDisplay extends FXTest
         InitConfig.init();
         Config.loadFXFonts();
         PrefMgr.setScopeHighlightStrength(100);
+        PrefMgr.setFlag(PrefMgr.HIGHLIGHTING, true);
         
         this.stage = stage;
         flowEditorPane = new FlowEditorPane("");
@@ -322,6 +321,51 @@ public class TestBasicEditorDisplay extends FXTest
             this.expectedColor = expectedColor;
             this.lhsCheck = lhsCheck;
             this.rhsCheck = rhsCheck;
+        }
+    }
+    
+    @Test
+    public void testSyntax()
+    {
+        setText("public class Bar {}");
+        checkTokens("$keyword1#public$ $keyword2#class$ Bar {}");
+    }
+    
+    
+    private void checkTokens(String expected)
+    {
+        // Each outer list is a line, each inner list is a list of expected Text items
+        List<List<Consumer<Text>>> contentCheckers = Arrays.stream(expected.split("\n")).map(line -> Arrays.stream(line.split("\\$")).filter(s -> !s.isEmpty()).<Consumer<Text>>map(seg -> {
+            if (seg.contains("#"))
+            {
+                // First part is CSS classes, last part is actual text.
+                String[] subsegs = seg.split("#");
+                return t -> {
+                    assertEquals(subsegs[subsegs.length - 1], t.getText());
+                    for (int i = 0; i < subsegs.length - 1; i++)
+                    {
+                        assertThat(t.getStyleClass(), Matchers.hasItem("token-" + subsegs[i]));
+                    }
+                };
+            }
+            else
+            {
+                return t -> assertEquals(seg, t.getText());
+            }
+        }).collect(Collectors.toList())).collect(Collectors.toList());
+        
+        List<TextLine> lines = flowEditorPane.lookupAll(".text-line").stream().map(l -> (TextLine)l).sorted(Comparator.comparing(n -> n.getLayoutY())).collect(Collectors.toList());
+
+        assertEquals(contentCheckers.size(), lines.size());
+        for (int i = 0; i < lines.size(); i++)
+        {
+            List<Consumer<Text>> segmentCheckers = contentCheckers.get(i);
+            List<Text> actualSegments = lines.get(i).getChildren().stream().filter(t -> t instanceof Text).map(t -> (Text)t).collect(Collectors.toList());
+            assertEquals(segmentCheckers.size(), actualSegments.size());
+            for (int j = 0; j < actualSegments.size(); j++)
+            {
+                segmentCheckers.get(j).accept(actualSegments.get(j));
+            }
         }
     }
 }

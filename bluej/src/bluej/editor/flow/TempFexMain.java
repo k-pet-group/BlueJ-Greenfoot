@@ -52,8 +52,11 @@ public class TempFexMain extends Application
         tempCommandLineProps.put("bluej.debug", "true");
         Config.initialise(new File("/Users/neil/intellij/bjgf/bluej/lib"), tempCommandLineProps, false);
         FlowEditorPane editorPane = new FlowEditorPane(Files.readLines(new File("/Users/neil/intellij/bjgf/bluej/src/bluej/pkgmgr/PkgMgrFrame.java"), StandardCharsets.UTF_8).stream().collect(Collectors.joining("\n")));
+        editorPane.setPrefWidth(800);
+        editorPane.setPrefHeight(600);
         PrefMgr.setScopeHighlightStrength(100);
         stage.setScene(new Scene(editorPane));
+        Config.addEditorStylesheets(stage.getScene());
         //JavaFXUtil.runAfter(Duration.seconds(1), () -> {
             ScopeColorsBorderPane scopeColors = new ScopeColorsBorderPane();
             scopeColors.scopeBackgroundColorProperty().set(Color.WHITE);

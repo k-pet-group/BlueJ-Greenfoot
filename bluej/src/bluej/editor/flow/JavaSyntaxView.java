@@ -24,11 +24,14 @@ package bluej.editor.flow;
 import bluej.Config;
 import bluej.editor.flow.JavaSyntaxView.ScopeInfo.SingleNestedScope;
 import bluej.editor.flow.LineDisplay.LineDisplayListener;
+import bluej.editor.flow.TextLine.StyledSegment;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.MoeSyntaxEvent;
 import bluej.editor.moe.MoeSyntaxEvent.NodeChangeRecord;
 import bluej.editor.moe.ReparseRecord;
 import bluej.editor.moe.ScopeColors;
+import bluej.editor.moe.Token;
+import bluej.editor.moe.Token.TokenType;
 import bluej.parser.nodes.NodeStructureListener;
 import bluej.parser.nodes.NodeTree;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
@@ -40,7 +43,6 @@ import bluej.utility.Debug;
 import bluej.utility.javafx.FXCache;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import javafx.beans.binding.BooleanExpression;
@@ -61,7 +63,6 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
 import javafx.util.Duration;
-import org.fxmisc.richtext.model.StyleSpans;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -197,6 +198,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         this.scopeColors = scopeColors;
         resetColors();
         editorPane.addLineDisplayListener(this);
+        editorPane.setLineStyler(this::getTokenStylesFor);
         JavaFXUtil.addChangeListenerPlatform(PrefMgr.getScopeHighlightStrength(), str -> {
             resetColors();
             imageCache.clear();
@@ -290,28 +292,31 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
      *
      * Returns null if there are no styles to apply (e.g. on a blank line or one with only whitespace).
      */
-    protected final StyleSpans<ImmutableSet<String>> getTokenStylesFor(int lineIndex)
+    private final List<StyledSegment> getTokenStylesFor(int lineIndex, CharSequence lineContent)
     {
-        return null;
-        /*
-        StyleSpansBuilder<ImmutableSet<String>> lineStyle = new StyleSpansBuilder<>();
-        Token tokens = document.getTokensForLine(lineIndex);
-        boolean addedAny = false;
-        for(;;) {
-            TokenType id = tokens.id;
-            if(id == TokenType.END)
-                break;
+        // Simple implementation if syntax highlighting is off:
+        if (!syntaxHighlighting.get())
+            return Collections.singletonList(new StyledSegment(Collections.emptyList(), lineContent.toString()));
 
-            lineStyle.add(syntaxHighlighting.get() ? ImmutableSet.of(id.getCSSClass()) : ImmutableSet.of(), tokens.length);
-            addedAny = true;
-
-            tokens = tokens.next;
+        ArrayList<StyledSegment> lineStyle = new ArrayList<>();
+        int curPosInLine = 0;
+        Token nextToken = rootNode.getMarkTokensFor(document.getLineStart(lineIndex), lineContent.length(), 0, this); 
+        while (nextToken.id != TokenType.END)
+        {
+            String tokenContent = lineContent.subSequence(curPosInLine, curPosInLine + nextToken.length).toString();
+            List<String> tokenStyle = Collections.singletonList(nextToken.id.getCSSClass());
+            lineStyle.add(new StyledSegment(tokenStyle, tokenContent));
+            curPosInLine += nextToken.length;
+            nextToken = nextToken.next;
         }
-        if (addedAny)
-            return lineStyle.create();
-        else
-            return null;
-            */
+        // Very important to add a blank item if the line is blank, otherwise the line will get collapsed
+        // in the display:
+        if (lineStyle.isEmpty())
+        {
+            lineStyle.add(new StyledSegment(Collections.emptyList(), ""));
+        }
+        
+        return lineStyle;
     }
 
     /**
