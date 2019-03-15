@@ -133,9 +133,14 @@ public class TestBasicEditorDisplay extends FXTest
         
     }
 
+    private void setTextLines(String... lines)
+    {
+        setText(Arrays.stream(lines).collect(Collectors.joining("\n")));
+    }
+
     private void setText(String content)
     {
-        fx_(() -> flowEditorPane.getDocument().replaceText(0, 0, content));
+        fx_(() -> flowEditorPane.getDocument().replaceText(0, flowEditorPane.getDocument().getLength(), content));
         sleep(1000);
     }
 
@@ -329,8 +334,42 @@ public class TestBasicEditorDisplay extends FXTest
     {
         setText("public class Bar {}");
         checkTokens("$keyword1#public$ $keyword2#class$ Bar {}");
+
+        setText("// public class Commented {}");
+        checkTokens("$comment-normal#// public class Commented {}");
+        
+        setTextLines(
+            "class MyClass",
+            "{",
+            "    /** A Javadoc comment",
+            "    split over two lines like this.*/",
+            "    public static int var() { return 0; }",
+            "}");
+        checkTokensLines(
+            "$keyword2#class$ MyClass",
+            "{",
+            "    $comment-javadoc#/** A Javadoc comment",
+            "$comment-javadoc#    split over two lines like this.*/$",
+            "    $keyword1#public$ $keyword1#static$ $primitive#int$ var() { $keyword1#return$ 0; }",
+            "}"
+        );
+
+        setTextLines(
+                "class A {",
+                "    /** this field */",
+                "    int x = 8;}");
+        checkTokensLines(
+                "$keyword2#class$ A {",
+                "    $comment-javadoc#/** this field */$",
+                "    $primitive#int$ x = 8;}"
+        );    
     }
-    
+
+
+    private void checkTokensLines(String... expectedLines)
+    {
+        checkTokens(Arrays.stream(expectedLines).collect(Collectors.joining("\n")));
+    }
     
     private void checkTokens(String expected)
     {
@@ -361,7 +400,7 @@ public class TestBasicEditorDisplay extends FXTest
         {
             List<Consumer<Text>> segmentCheckers = contentCheckers.get(i);
             List<Text> actualSegments = lines.get(i).getChildren().stream().filter(t -> t instanceof Text).map(t -> (Text)t).collect(Collectors.toList());
-            assertEquals(segmentCheckers.size(), actualSegments.size());
+            assertEquals(actualSegments.stream().map(Text::getText).collect(Collectors.joining()), segmentCheckers.size(), actualSegments.size());
             for (int j = 0; j < actualSegments.size(); j++)
             {
                 segmentCheckers.get(j).accept(actualSegments.get(j));

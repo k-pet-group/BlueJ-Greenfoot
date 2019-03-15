@@ -573,7 +573,15 @@ public class FlowEditorPane extends Region implements DocumentListener
     {
         lineDisplay.addLineDisplayListener(lineDisplayListener);
     }
-    
+
+    /**
+     * Restyle the lines that are actually on the screen.
+     */
+    public void restyleLines()
+    {
+        updateRender(false);
+    }
+
     @OnThread(Tag.FXPlatform)
     public static interface LineStyler
     {

@@ -2579,7 +2579,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         public void run()
         {
             long begin = System.currentTimeMillis();
-            if (PrefMgr.getScopeHighlightStrength().get() != 0 && document != null && pollReparseQueue()) {
+            if (document != null && pollReparseQueue()) {
                 // Continue processing
                 while (System.currentTimeMillis() - begin < this.procTime) {
                     if (! pollReparseQueue()) {
@@ -2589,8 +2589,9 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 JavaFXUtil.runPlatformLater(this);
             }
             else {
-                // Mark that we are no longer scheduled.
+                // Mark that we are no longer scheduled.  Reapply backgrounds and syntax highlighting:
                 applyPendingScopeBackgrounds();
+                editorPane.restyleLines();
                 reparseRunner = null;
             }
         }
