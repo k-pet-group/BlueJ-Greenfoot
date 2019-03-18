@@ -62,13 +62,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.EventHandler;
 import javafx.print.PrinterJob;
 import javafx.scene.Scene;
-import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -220,7 +214,13 @@ public final class Terminal
 
         buffer = new InputBuffer(256);
         text = new StyledTextArea<Void, StdoutStyle>(null, (t, v) -> {}, StdoutStyle.OUTPUT, this::applyStyle);
-
+        text.selectionProperty().addListener(s -> {
+            // Any selection in the output text pane should clear existing selection in the error pane
+            if (errorText != null && errorText.getSelection().getLength() != 0)
+            {
+                errorText.deselect();
+            }
+        });
         VirtualizedScrollPane<?> scrollPane = new VirtualizedScrollPane<>(text);
         text.setEditable(false);
         text.getStyleClass().add("terminal");
@@ -299,7 +299,22 @@ public final class Terminal
         window.setOnHidden(e -> showingProperty.set(false));
 
         JavaFXUtil.addChangeListenerPlatform(showingProperty, this::showHide);
-
+        
+        // Add context menu with copy
+        splitPane.setContextMenu(new ContextMenu(
+                JavaFXUtil.makeMenuItem(Config.getString("terminal.copy"), () -> 
+                {
+                    if (errorText != null && errorText.selectionProperty().getValue().getLength() != 0) 
+                    {
+                        errorText.copy();
+                    }
+                    else if (text.selectionProperty().getValue().getLength() != 0) 
+                    {
+                        text.copy();
+                    }
+                }, null)
+        ));
+        
         Config.loadAndTrackPositionAndSize(window, "bluej.terminal");
         BlueJEvent.addListener(this);
     }
@@ -748,6 +763,14 @@ public final class Terminal
             errorScrollPane = new VirtualizedScrollPane<>(errorText);
             errorText.styleProperty().bind(PrefMgr.getEditorFontCSS(true));
             errorText.setEditable(false);
+            // Any selection in the error pane should clear existing selection in the output text pane
+
+            errorText.selectionProperty().addListener(s -> {
+                if (text != null && text.getSelection().getLength() != 0)
+                {
+                    text.deselect();
+                }
+            });
             errorText.plainTextChanges().subscribe(c -> scanForStackTrace());
             EventHandler<MouseEvent> onClick = e ->
             {
