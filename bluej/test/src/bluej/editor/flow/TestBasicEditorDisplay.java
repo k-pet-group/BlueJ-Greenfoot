@@ -27,9 +27,11 @@ import bluej.editor.flow.gen.GenString;
 import bluej.editor.moe.ScopeColorsBorderPane;
 import bluej.parser.InitConfig;
 import bluej.prefmgr.PrefMgr;
+import bluej.utility.Debug;
 import bluej.utility.Utility;
 import com.pholser.junit.quickcheck.From;
 import com.pholser.junit.quickcheck.Property;
+import com.pholser.junit.quickcheck.When;
 import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -46,6 +48,7 @@ import org.junit.runner.RunWith;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -90,8 +93,9 @@ public class TestBasicEditorDisplay extends FXTest
     }
 
     @Property(trials=5)
-    public void testEditor(@From(GenString.class) String content, @From (GenRandom.class) Random r)
+    public void testEditor(@From(GenString.class) String rawContent, @From(GenRandom.class) Random r)
     {
+        String content = removeInvalid(rawContent);
         setText(content);
 
         List<String> lines = flowEditorPane.getDocument().getLines().stream().map(s -> s.toString()).collect(Collectors.toList());
@@ -115,7 +119,7 @@ public class TestBasicEditorDisplay extends FXTest
         Node caret = lookup(".flow-caret").query();
         int[] lineRangeVisible = flowEditorPane.getLineRangeVisible();
         int linesVisible = lineRangeVisible[1] - lineRangeVisible[0];
-        for (int i = 0; i < Math.min(200, lines.size()); i++)
+        for (int i = 0; i < Math.min(80, lines.size()); i++)
         {
             int iFinal = i;
             assertTrue("Line " + i + " should be visible, last range: " + lineRangeVisible[0] + " to " + lineRangeVisible[1], fx(() -> flowEditorPane.isLineVisible(iFinal)));
@@ -128,9 +132,62 @@ public class TestBasicEditorDisplay extends FXTest
             double caretY = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
             assertThat((int)caretY, between(0, 600));
         }
+        
+        
+        // We pick a bunch of random locations in the file, position the caret there,
+        // scroll to make them visible, and then record the X, Y.  Then we scroll back to those locations
+        // and click at that point, which should result in the original caret position.
+        
+        // Each array is <line index to scroll to>, <caret position in file>, <X pixels in screen>, <Y pixels in screen>
+        List<int[]> savedPositions = new ArrayList<>();
+        for (int i = 0; i < 5; i++)
+        {
+            int lastLineWhichCanBeTop = Math.max(0, lines.size() - linesVisible);
+            int topLine = r.nextInt(lastLineWhichCanBeTop + 1);
+            fx_(() -> flowEditorPane.scrollTo(topLine));
+            int lineOfInterest = topLine + r.nextInt(linesVisible);
+            int columnOfInterest = r.nextInt(lines.get(lineOfInterest).length() + 1);
+            int caretPos = fx(() -> {
+                int p = flowEditorPane.getDocument().getLineStart(lineOfInterest) + columnOfInterest;
+                flowEditorPane.positionCaret(p);
+                return p;
+            });
+            sleep(200);
+            // TODO what if the position requires a horizontal scroll?
+            double caretX = fx(() -> caret.localToScreen(caret.getBoundsInLocal()).getCenterX());
+            double caretY = fx(() -> caret.localToScreen(caret.getBoundsInLocal()).getCenterY());
+            savedPositions.add(new int[] {topLine, caretPos, (int)Math.round(caretX), (int)Math.round(caretY)});
+        }
 
+        for (int[] savedPosition : savedPositions)
+        {
+            fx_(() -> {
+                flowEditorPane.scrollTo(savedPosition[0]);
+            });
+            sleep(200);
+            clickOn(savedPosition[2], savedPosition[3]);
+            sleep(200);
+            assertEquals("Clicked on " + savedPosition[2] + ", " + savedPosition[3], savedPosition[1], (int)fx(() -> flowEditorPane.getCaretPosition()));
+        }
+        
         // TODO test clicking, caret and selection display (especially when one or both ends off-screen)
         
+    }
+
+    // We remove awkward unprintable characters that mess up the location tracking for click positions.
+    // To see this again, pass seed=1L to testEditor.
+    private String removeInvalid(String rawContent)
+    {
+        int[] valid = rawContent.codePoints().filter(n -> {
+            if (n >= 32 && n != 127 && n <= 0xFFFF)
+                return true;
+            else if (n == '\n')
+                return true;
+            else
+                return false;
+                
+        }).toArray();
+        return new String(valid, 0, valid.length);
     }
 
     private void setTextLines(String... lines)

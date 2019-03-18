@@ -133,24 +133,11 @@ public class FlowEditorPane extends Region implements DocumentListener
 
     private void positionCaretAtDestination(MouseEvent e)
     {
-        /*
-        for (int i = 0; i < lineDisplay.currentlyVisibleLines.size(); i++)
+        int[] position = lineDisplay.getCaretPositionForMouseEvent(e);
+        if (position != null)
         {
-            TextFlow currentlyVisibleLine = lineDisplay.currentlyVisibleLines.get(i);
-            // getLayoutBounds() seems to get out of date, so calculate manually:
-            BoundingBox actualBounds = new BoundingBox(currentlyVisibleLine.getLayoutX(), currentlyVisibleLine.getLayoutY(), currentlyVisibleLine.getWidth(), currentlyVisibleLine.getHeight());
-            if (actualBounds.contains(e.getX(), e.getY()))
-            {
-                // Can't use parentToLocal if layout bounds may be out of date:
-                HitInfo hitInfo = currentlyVisibleLine.hitTest(new Point2D(e.getX() - currentlyVisibleLine.getLayoutX(), e.getY() - currentlyVisibleLine.getLayoutY()));
-                if (hitInfo != null)
-                {
-                    caret.moveToLineColumn(i, hitInfo.getInsertionIndex());
-                    break;
-                }
-            }
+            positionCaret(document.getLineStart(position[0]) + position[1]);
         }
-        */
     }
 
     private void mouseDragged(MouseEvent e)
@@ -324,13 +311,21 @@ public class FlowEditorPane extends Region implements DocumentListener
         {
             TextLine caretLine = lineDisplay.getVisibleLine(caret.getLine());
             caretShape.getElements().setAll(caretLine.caretShape(caret.getColumn(), true));
-            caretShape.setLayoutX(caretLine.getLayoutX());
-            caretShape.setLayoutY(caretLine.getLayoutY());
+            if (getScene() != null)
+            {
+                JavaFXUtil.runAfterNextLayout(getScene(), () -> {
+                    caretShape.getElements().setAll(caretLine.caretShape(caret.getColumn(), true));
+                });
+            }
+            caretShape.layoutXProperty().bind(caretLine.layoutXProperty());
+            caretShape.layoutYProperty().bind(caretLine.layoutYProperty());
             caretShape.setVisible(true);
         }
         else
         {
             caretShape.getElements().clear();
+            caretShape.layoutXProperty().unbind();
+            caretShape.layoutYProperty().unbind();
             caretShape.setLayoutX(0);
             caretShape.setLayoutY(0);
             caretShape.setVisible(false);
@@ -489,18 +484,19 @@ public class FlowEditorPane extends Region implements DocumentListener
     @Override
     protected void layoutChildren()
     {
+        double xMargin = 2;
         double y = lineDisplay.getFirstVisibleLineOffset();
         for (Node child : getChildren())
         {
             if (child instanceof TextFlow)
             {
                 double height = snapSizeY(child.prefHeight(-1.0));
-                child.resizeRelocate(0, y, child.prefWidth(height), height);
+                child.resizeRelocate(xMargin, y, child.prefWidth(height), height);
                 y += height;
             }
             else if (child == backgroundPane)
             {
-                child.resizeRelocate(0, 0, getWidth(), getHeight());
+                child.resizeRelocate(xMargin, 0, getWidth() - xMargin, getHeight());
             }
         }
     }
@@ -561,6 +557,11 @@ public class FlowEditorPane extends Region implements DocumentListener
         caret.moveTo(position);
         anchor.moveTo(position);
         updateRender(true);
+    }
+    
+    public int getCaretPosition()
+    {
+        return caret.position;
     }
 
     // For testing:

@@ -21,14 +21,17 @@
  */
 package bluej.editor.flow;
 
+import bluej.Config;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.stage.Screen;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 import org.junit.Rule;
 import org.junit.rules.TestWatcher;
@@ -48,6 +51,8 @@ import java.util.concurrent.TimeoutException;
 
 public class FXTest extends ApplicationTest
 {
+    private Stage originalWindow;
+    
     @Rule
     public TestWatcher screenshotOnFail = new TestWatcher()
     {
@@ -56,17 +61,35 @@ public class FXTest extends ApplicationTest
         {
             super.failed(e, description);
             System.err.println("Screenshot of failure:");
-            fx_(() -> dumpScreenshot());
+            dumpScreenshot();
             e.printStackTrace();
             if (e.getCause() != null)
                 e.getCause().printStackTrace();
         }
     };
 
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.Any)
     protected final void dumpScreenshot()
     {
-        System.out.println(asBase64(capture(Screen.getPrimary().getBounds()).getImage()));
+        fx_(() -> {
+            try
+            {
+                // For some reason Mac doesn't support a full-screen shot, so we capture window instead:
+                Window window = targetWindow();
+                if (window == null)
+                    window = originalWindow;
+                Scene scene = window == null ? null : window.getScene();
+                if (Config.isMacOS() && scene != null && scene.getRoot() != null)
+                    System.err.println(asBase64(capture(scene.getRoot()).getImage()));
+                else
+                    System.err.println(asBase64(capture(Screen.getPrimary().getBounds()).getImage()));
+            }
+            catch (Exception e)
+            {
+                // This seems to happen on some systems when trying to capture screen
+                e.printStackTrace();
+            }
+        });
     }
 
     protected static String asBase64(Image image)
@@ -118,5 +141,12 @@ public class FXTest extends ApplicationTest
         {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void start(Stage stage) throws Exception
+    {
+        super.start(stage);
+        this.originalWindow = stage;
     }
 }

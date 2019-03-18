@@ -24,7 +24,11 @@ package bluej.editor.flow;
 import bluej.editor.flow.TextLine.StyledSegment;
 import bluej.utility.javafx.FXPlatformFunction;
 import javafx.beans.binding.DoubleExpression;
+import javafx.geometry.BoundingBox;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.text.HitInfo;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -198,5 +202,26 @@ class LineDisplay
     static interface LineDisplayListener
     {
         public void lineVisibilityChanged(int fromLineIndexIncl, int toLineIndexIncl);
+    }
+    
+    public int[] getCaretPositionForMouseEvent(MouseEvent e)
+    {
+        for (int i = 0; i < currentlyVisibleLines.size(); i++)
+        {
+            TextLine currentlyVisibleLine = currentlyVisibleLines.get(i);
+            // getLayoutBounds() seems to get out of date, so calculate manually:
+            BoundingBox actualBounds = new BoundingBox(currentlyVisibleLine.getLayoutX(), currentlyVisibleLine.getLayoutY(), currentlyVisibleLine.getWidth(), currentlyVisibleLine.getHeight());
+            if (currentlyVisibleLine.getLayoutY() <= e.getY() && e.getY() <= currentlyVisibleLine.getLayoutY() + currentlyVisibleLine.getHeight())
+            {
+                // Can't use parentToLocal if layout bounds may be out of date:
+                Point2D pointInLocal = new Point2D(e.getX() - currentlyVisibleLine.getLayoutX(), e.getY() - currentlyVisibleLine.getLayoutY());
+                HitInfo hitInfo = currentlyVisibleLine.hitTest(pointInLocal);
+                if (hitInfo != null)
+                {
+                    return new int[] {i + firstVisibleLineIndex, hitInfo.getInsertionIndex()};
+                }
+            }
+        }
+        return null;
     }
 }
