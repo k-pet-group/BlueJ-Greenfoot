@@ -517,7 +517,7 @@ public class FlowEditorPane extends Region implements DocumentListener
             if (child instanceof TextFlow)
             {
                 double height = snapSizeY(child.prefHeight(-1.0));
-                child.resizeRelocate(xMargin, y, getWidth(), height);
+                child.resizeRelocate(xMargin, y, Math.max(getWidth(), child.prefWidth(-1.0)), height);
                 y += height;
             }
             else if (child == backgroundPane)

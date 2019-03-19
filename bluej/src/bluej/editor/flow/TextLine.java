@@ -95,8 +95,8 @@ class TextLine extends TextFlow
         {
             if (rangeShape.length == 5 && rangeShape[1] instanceof LineTo && rangeShape[2] instanceof LineTo)
             {
-                rangeShape[1] = new LineTo(getWidth() - 1.0, ((LineTo)rangeShape[1]).getY());
-                rangeShape[2] = new LineTo(getWidth() - 1.0, ((LineTo)rangeShape[2]).getY());
+                ((LineTo)rangeShape[1]).setX(getWidth() - 1.0);
+                ((LineTo)rangeShape[2]).setX(getWidth() - 1.0);
             }
             else if (rangeShape.length == 0)
             {
@@ -108,6 +108,23 @@ class TextLine extends TextFlow
                     new LineTo(0, getHeight()),
                     new LineTo(0, 0)
                 };
+            }
+        }
+
+        // Snap all the positions so that they meet up nicely without vertical gaps:
+        for (PathElement pathElement : rangeShape)
+        {
+            if (pathElement instanceof LineTo)
+            {
+                LineTo lineTo = (LineTo) pathElement;
+                lineTo.setX(snapPositionX(lineTo.getX()));
+                lineTo.setY(snapPositionY(lineTo.getY()));
+            }
+            else if (pathElement instanceof MoveTo)
+            {
+                MoveTo moveTo = (MoveTo) pathElement;
+                moveTo.setX(snapPositionX(moveTo.getX()));
+                moveTo.setY(snapPositionY(moveTo.getY()));
             }
         }
 
