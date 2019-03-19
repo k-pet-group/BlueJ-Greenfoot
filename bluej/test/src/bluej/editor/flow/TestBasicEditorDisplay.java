@@ -141,7 +141,7 @@ public class TestBasicEditorDisplay extends FXTest
         // and click at that point, which should result in the original caret position.
         
         // Each array is <line index to scroll to>, <caret position in file>, <X pixels in screen>, <Y pixels in screen>
-        List<int[]> savedPositions = new ArrayList<>();
+        List<SavedPosition> savedPositions = new ArrayList<>();
         for (int i = 0; i < 5; i++)
         {
             int lastLineWhichCanBeTop = Math.max(0, lines.size() - linesVisible);
@@ -158,18 +158,18 @@ public class TestBasicEditorDisplay extends FXTest
             // TODO what if the position requires a horizontal scroll?
             double caretX = fx(() -> caret.localToScreen(caret.getBoundsInLocal()).getCenterX());
             double caretY = fx(() -> caret.localToScreen(caret.getBoundsInLocal()).getCenterY());
-            savedPositions.add(new int[] {topLine, caretPos, (int)Math.round(caretX), (int)Math.round(caretY)});
+            savedPositions.add(new SavedPosition(topLine, caretPos, (int)Math.round(caretX), (int)Math.round(caretY)));
         }
 
-        for (int[] savedPosition : savedPositions)
+        for (SavedPosition savedPosition : savedPositions)
         {
             fx_(() -> {
-                flowEditorPane.scrollTo(savedPosition[0]);
+                flowEditorPane.scrollTo(savedPosition.topLine);
             });
             sleep(200);
-            clickOn(savedPosition[2], savedPosition[3]);
+            clickOn(savedPosition.screenX, savedPosition.screenY);
             sleep(200);
-            assertEquals("Clicked on " + savedPosition[2] + ", " + savedPosition[3], savedPosition[1], (int)fx(() -> flowEditorPane.getCaretPosition()));
+            assertEquals("Clicked on " + savedPosition.screenX + ", " + savedPosition.screenY, savedPosition.caretPos, (int)fx(() -> flowEditorPane.getCaretPosition()));
         }
         
         // Turn off highlighting so that all text is black:
@@ -181,26 +181,27 @@ public class TestBasicEditorDisplay extends FXTest
         {
             // We now pick two of the caret positions and make a selection between them, then check the background:
             // Either of these might be earlier in document, we scroll to the one we label "from":
-            int[] fromSaved = savedPositions.get(r.nextInt(savedPositions.size()));
-            int[] toSaved = savedPositions.get(r.nextInt(savedPositions.size()));
+            SavedPosition fromSaved = savedPositions.get(r.nextInt(savedPositions.size()));
+            SavedPosition toSaved = savedPositions.get(r.nextInt(savedPositions.size()));
             fx_(() -> {
-                flowEditorPane.scrollTo(fromSaved[0]);
-                flowEditorPane.positionCaretWithoutScrolling(toSaved[1]);
-                flowEditorPane.positionAnchor(fromSaved[1]);
+                flowEditorPane.scrollTo(fromSaved.topLine);
+                flowEditorPane.positionCaretWithoutScrolling(toSaved.caretPos);
+                flowEditorPane.positionAnchor(fromSaved.caretPos);
             });
             int toPosX = fx(() -> caret.getElements().isEmpty() ? flowX + 1.0 : caret.localToScreen(caret.getBoundsInLocal()).getCenterX()).intValue();
             int toPosY = fx(() -> caret.getElements().isEmpty() ? flowY + 1.0 : caret.localToScreen(caret.getBoundsInLocal()).getCenterY()).intValue();
             sleep(200);
             WritableImage editorImage = fx(() -> flowEditorPane.snapshot(null, null));
-            int firstY = fromSaved[1] <= toSaved[1] ? fromSaved[3] : toPosY;
-            int lastY = Math.min((int)editorImage.getHeight() - 1, fromSaved[1] <= toSaved[1] ? toPosY : fromSaved[3]);
+            boolean fromFirst = fromSaved.caretPos <= toSaved.caretPos;
+            int firstY = fromFirst ? fromSaved.screenY : toPosY;
+            int lastY = Math.min((int)editorImage.getHeight() - 1, fromFirst ? toPosY : fromSaved.screenY);
 
             for (int y = firstY; y <= lastY; y += 10)
             {
                 boolean mightBeFirstLine = y - firstY <= 20;
                 boolean mightBeLastLine = lastY - y <= 20;
-                int startX = (mightBeFirstLine ? (fromSaved[1] <= toSaved[1] ? fromSaved[2] : toPosX) : flowX) + 10;
-                int endX = (mightBeLastLine ? (fromSaved[1] <= toSaved[1] ? toPosX : fromSaved[2]) : flowX + (int)editorImage.getWidth()) - 10;
+                int startX = (mightBeFirstLine ? (fromFirst ? fromSaved.screenX : toPosX) : flowX) + 10;
+                int endX = (mightBeLastLine ? (fromFirst ? toPosX : fromSaved.screenX) : flowX + (int)editorImage.getWidth()) - 10;
                 // If selection begins at start of the line, will be very little blue, so skip it:
                 // Also skip if the end is before the start (because it's a one line selection that wraps, and we may be chosing a region that overlaps both):
                 if (endX <= flowX + 5 || endX < startX)
@@ -531,6 +532,22 @@ public class TestBasicEditorDisplay extends FXTest
             {
                 segmentCheckers.get(j).accept(actualSegments.get(j));
             }
+        }
+    }
+
+    private static class SavedPosition
+    {
+        private final int topLine;
+        private final int caretPos;
+        private final int screenX;
+        private final int screenY;
+
+        public SavedPosition(int topLine, int caretPos, int screenX, int screenY)
+        {
+            this.topLine = topLine;
+            this.caretPos = caretPos;
+            this.screenX = screenX;
+            this.screenY = screenY;
         }
     }
 }
