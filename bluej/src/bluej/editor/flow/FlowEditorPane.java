@@ -155,12 +155,18 @@ public class FlowEditorPane extends Region implements DocumentListener
         {
             case LEFT:
                 caret.moveBy(-1);
-                anchor.position = caret.position;
+                if (!e.isShiftDown())
+                {
+                    anchor.position = caret.position;
+                }
                 updateRender(true);
                 break;
             case RIGHT:
                 caret.moveBy(1);
-                anchor.position = caret.position;
+                if (!e.isShiftDown())
+                {
+                    anchor.position = caret.position;
+                }
                 updateRender(true);
                 break;
             case UP:
@@ -168,7 +174,10 @@ public class FlowEditorPane extends Region implements DocumentListener
                 {
                     int prevLineLength = document.getLineLength(caret.getLine() - 1);
                     caret.moveToLineColumn(caret.getLine() - 1, Math.min(caret.getColumn(), prevLineLength));
-                    anchor.position = caret.position;
+                    if (!e.isShiftDown())
+                    {
+                        anchor.position = caret.position;
+                    }
                     updateRender(true);
                 }
                 else if (caret.getLine() == 0)
@@ -181,7 +190,10 @@ public class FlowEditorPane extends Region implements DocumentListener
                 {
                     int targetLineLength = document.getLineLength(caret.getLine() - pageSize);
                     caret.moveToLineColumn(caret.getLine() - pageSize, Math.min(caret.getColumn(), targetLineLength));
-                    anchor.position = caret.position;
+                    if (!e.isShiftDown())
+                    {
+                        anchor.position = caret.position;
+                    }
                     updateRender(true);
                 }
                 else
@@ -196,7 +208,10 @@ public class FlowEditorPane extends Region implements DocumentListener
                 {
                     int nextLineLength = document.getLineLength(caret.getLine() + 1);
                     caret.moveToLineColumn(caret.getLine() + 1, Math.min(caret.getColumn(), nextLineLength));
-                    anchor.position = caret.position;
+                    if (!e.isShiftDown())
+                    {
+                        anchor.position = caret.position;
+                    }
                     updateRender(true);
                 }
                 else if (caret.getLine() + 1 == lineCount)
@@ -209,13 +224,19 @@ public class FlowEditorPane extends Region implements DocumentListener
                 {
                     int targetLineLength = document.getLineLength(caret.getLine() + pageSize);
                     caret.moveToLineColumn(caret.getLine() + pageSize, Math.min(caret.getColumn(), targetLineLength));
-                    anchor.position = caret.position;
+                    if (!e.isShiftDown())
+                    {
+                        anchor.position = caret.position;
+                    }
                     updateRender(true);
                 }
                 else
                 {
                     positionCaret(document.getLength());
-                    anchor.position = caret.position;
+                    if (!e.isShiftDown())
+                    {
+                        anchor.position = caret.position;
+                    }
                     updateRender(true);
                 }
                 break;
