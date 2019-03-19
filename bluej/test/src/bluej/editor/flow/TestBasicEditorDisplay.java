@@ -38,6 +38,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Path;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
@@ -55,6 +56,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -116,7 +118,7 @@ public class TestBasicEditorDisplay extends FXTest
             flowEditorPane.requestFocus();
         });
 
-        Node caret = lookup(".flow-caret").query();
+        Path caret = lookup(".flow-caret").query();
         int[] lineRangeVisible = flowEditorPane.getLineRangeVisible();
         int linesVisible = lineRangeVisible[1] - lineRangeVisible[0];
         for (int i = 0; i < Math.min(80, lines.size()); i++)
@@ -149,7 +151,7 @@ public class TestBasicEditorDisplay extends FXTest
             int columnOfInterest = r.nextInt(lines.get(lineOfInterest).length() + 1);
             int caretPos = fx(() -> {
                 int p = flowEditorPane.getDocument().getLineStart(lineOfInterest) + columnOfInterest;
-                flowEditorPane.positionCaret(p);
+                flowEditorPane.positionCaretWithoutScrolling(p);
                 return p;
             });
             sleep(200);
@@ -170,9 +172,76 @@ public class TestBasicEditorDisplay extends FXTest
             assertEquals("Clicked on " + savedPosition[2] + ", " + savedPosition[3], savedPosition[1], (int)fx(() -> flowEditorPane.getCaretPosition()));
         }
         
+        // Turn off highlighting so that all text is black:
+        PrefMgr.setFlag(PrefMgr.HIGHLIGHTING, false);
+
+        int flowX = fx(() -> flowEditorPane.localToScreen(flowEditorPane.getBoundsInLocal()).getMinX()).intValue();
+        int flowY = fx(() -> flowEditorPane.localToScreen(flowEditorPane.getBoundsInLocal()).getMinY()).intValue();
+        for (int i = 0; i < 5; i++)
+        {
+            // We now pick two of the caret positions and make a selection between them, then check the background:
+            // Either of these might be earlier in document, we scroll to the one we label "from":
+            int[] fromSaved = savedPositions.get(r.nextInt(savedPositions.size()));
+            int[] toSaved = savedPositions.get(r.nextInt(savedPositions.size()));
+            fx_(() -> {
+                flowEditorPane.scrollTo(fromSaved[0]);
+                flowEditorPane.positionCaretWithoutScrolling(toSaved[1]);
+                flowEditorPane.positionAnchor(fromSaved[1]);
+            });
+            int toPosX = fx(() -> caret.getElements().isEmpty() ? flowX + 1.0 : caret.localToScreen(caret.getBoundsInLocal()).getCenterX()).intValue();
+            int toPosY = fx(() -> caret.getElements().isEmpty() ? flowY + 1.0 : caret.localToScreen(caret.getBoundsInLocal()).getCenterY()).intValue();
+            sleep(200);
+            WritableImage editorImage = fx(() -> flowEditorPane.snapshot(null, null));
+            int firstY = fromSaved[1] <= toSaved[1] ? fromSaved[3] : toPosY;
+            int lastY = Math.min((int)editorImage.getHeight() - 1, fromSaved[1] <= toSaved[1] ? toPosY : fromSaved[3]);
+
+            for (int y = firstY; y <= lastY; y += 10)
+            {
+                boolean mightBeFirstLine = y - firstY <= 20;
+                boolean mightBeLastLine = lastY - y <= 20;
+                int startX = (mightBeFirstLine ? (fromSaved[1] <= toSaved[1] ? fromSaved[2] : toPosX) : flowX) + 10;
+                int endX = (mightBeLastLine ? (fromSaved[1] <= toSaved[1] ? toPosX : fromSaved[2]) : flowX + (int)editorImage.getWidth()) - 10;
+                // If selection begins at start of the line, will be very little blue, so skip it:
+                // Also skip if the end is before the start (because it's a one line selection that wraps, and we may be chosing a region that overlaps both):
+                if (endX <= flowX + 5 || endX < startX)
+                    continue;
+                // Should be blue:
+                List<Stream<Color>> colorRegions = List.of(streamArea(editorImage, startX - flowX, y - flowY), streamArea(editorImage, endX - flowX, y - flowY));
+                for (Stream<Color> colorRegion : colorRegions)
+                {
+                    Stream<Color> nonBlack = colorRegion.filter(c -> c.getRed() + c.getGreen() + c.getBlue() > 0.05);
+                    // Last item is count, not alpha:
+                    Color average = nonBlack.map(c -> new double[]{c.getRed(), c.getGreen(), c.getBlue(), 1})
+                            .reduce((a, b) -> new double[]{a[0] + b[0], a[1] + b[1], a[2] + b[2], a[3] + b[3]})
+                            .map(a -> Color.color(a[0] / a[3], a[1] / a[3], a[2] / a[3])).orElseThrow();
+                    
+                    assertThat("X: " + (startX - flowX) + ", " + (endX - flowX) + " Y: " + (y - flowY), average.getBlue(), Matchers.greaterThan(average.getGreen() + 0.1));
+                    assertThat("X: " + (startX - flowX) + ", " + (endX - flowX) + " Y: " + (y - flowY), average.getBlue(), Matchers.greaterThan(average.getRed() + 0.1));
+                }
+            }
+        }
         // TODO test clicking, caret and selection display (especially when one or both ends off-screen)
         
     }
+    
+    private static Stream<Color> streamArea(WritableImage image, int x, int y)
+    {
+        List<Color> r = new ArrayList<>();
+        for (int dx = -4; dx < 4; dx++)
+        {
+            for (int dy = -4; dy < 4; dy++)
+            {
+                int tx = x + dx;
+                int ty = y + dy;
+                if (tx >= 0 && ty >= 0 && tx < image.getWidth() && ty < image.getHeight())
+                {
+                    r.add(image.getPixelReader().getColor(tx, ty));
+                }
+            }
+        }
+        return r.stream();
+    }
+    
 
     // We remove awkward unprintable characters that mess up the location tracking for click positions.
     // To see this again, pass seed=1L to testEditor.

@@ -21,8 +21,11 @@
  */
 package bluej.editor.flow;
 
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import javafx.scene.shape.LineTo;
+import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import javafx.scene.text.Font;
@@ -69,10 +72,46 @@ class TextLine extends TextFlow
      * Shows the given selection shape on this line.
      * The items should have coordinates relative to this line.
      */
-    public void showSelection(PathElement[] rangeShape)
+    public void showSelection(int start, int end, boolean extendToRight)
     {
-        selectionShape.getElements().setAll(rangeShape);
+        selectionShape.getElements().setAll(extendToRight(extendToRight, rangeShape(start, end)));
         selectionShape.setVisible(true);
+        if (getScene() != null)
+        {
+            JavaFXUtil.runAfterNextLayout(getScene(), () -> {
+                selectionShape.getElements().setAll(extendToRight(extendToRight, rangeShape(start, end)));
+            });
+        }
+    }
+
+    /**
+     * If extendToRight is true, extend the shape all the way to the right of the line,
+     * which helps make the selection look neater, and clears up confusion when the selection
+     * involves empty lines.  If it is false, leave the shape untouched.
+     */
+    private PathElement[] extendToRight(boolean extendToRight, PathElement[] rangeShape)
+    {
+        if (extendToRight)
+        {
+            if (rangeShape.length == 5 && rangeShape[1] instanceof LineTo && rangeShape[2] instanceof LineTo)
+            {
+                rangeShape[1] = new LineTo(getWidth() - 1.0, ((LineTo)rangeShape[1]).getY());
+                rangeShape[2] = new LineTo(getWidth() - 1.0, ((LineTo)rangeShape[2]).getY());
+            }
+            else if (rangeShape.length == 0)
+            {
+                // Blank line; make the selection ourselves:
+                rangeShape = new PathElement[] {
+                    new MoveTo(0, 0),
+                    new LineTo(getWidth() - 1.0, 0),
+                    new LineTo(getWidth() - 1.0, getHeight()),
+                    new LineTo(0, getHeight()),
+                    new LineTo(0, 0)
+                };
+            }
+        }
+
+        return rangeShape;
     }
 
     /**

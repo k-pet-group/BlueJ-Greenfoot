@@ -361,7 +361,7 @@ public class FlowEditorPane extends Region implements DocumentListener
             if (startPos.getLine() == endPos.getLine() && lineDisplay.isLineVisible(startPos.getLine()))
             {
                 TextLine caretLine = lineDisplay.getVisibleLine(startPos.getLine());
-                caretLine.showSelection(caretLine.rangeShape(startPos.getColumn(), endPos.getColumn()));
+                caretLine.showSelection(startPos.getColumn(), endPos.getColumn(), false);
             }
             else
             {
@@ -370,12 +370,17 @@ public class FlowEditorPane extends Region implements DocumentListener
                 for (int line = startPos.getLine(); line < endPos.getLine(); line++)
                 {
                     int startOnThisLine = line == startPos.getLine() ? startPos.getColumn() : 0;
-                    TextLine textLine = lineDisplay.getVisibleLine(line);
-                    PathElement[] elements = textLine.rangeShape(startOnThisLine, document.getLineStart(line + 1) - document.getLineStart(line));
-                    textLine.showSelection(elements);
+                    if (lineDisplay.isLineVisible(line))
+                    {
+                        TextLine textLine = lineDisplay.getVisibleLine(line);
+                        textLine.showSelection(startOnThisLine, document.getLineStart(line + 1) - document.getLineStart(line), true);
+                    }
                 }
                 // Now do last line:
-                lineDisplay.getVisibleLine(endPos.getLine()).showSelection(lineDisplay.getVisibleLine(endPos.getLine()).rangeShape(0, endPos.getColumn()));
+                if (lineDisplay.isLineVisible(endPos.getLine()))
+                {
+                    lineDisplay.getVisibleLine(endPos.getLine()).showSelection(0, endPos.getColumn(), false);
+                }
             }
         }
         
@@ -512,7 +517,7 @@ public class FlowEditorPane extends Region implements DocumentListener
             if (child instanceof TextFlow)
             {
                 double height = snapSizeY(child.prefHeight(-1.0));
-                child.resizeRelocate(xMargin, y, child.prefWidth(height), height);
+                child.resizeRelocate(xMargin, y, getWidth(), height);
                 y += height;
             }
             else if (child == backgroundPane)
@@ -573,11 +578,33 @@ public class FlowEditorPane extends Region implements DocumentListener
         return backgroundPane;
     }
 
+    /**
+     * Set the position of the caret and anchor, and scroll to ensure the caret is on screen.
+     */
     public void positionCaret(int position)
     {
         caret.moveTo(position);
         anchor.moveTo(position);
         updateRender(true);
+    }
+
+    /**
+     * Set the position of the caret and anchor, but do not scroll.
+     */
+    public void positionCaretWithoutScrolling(int position)
+    {
+        caret.moveTo(position);
+        anchor.moveTo(position);
+        updateRender(false);
+    }
+
+    /**
+     * Set the position of the anchor without changing the caret or scrolling.
+     */
+    public void positionAnchor(int position)
+    {
+        anchor.moveTo(position);
+        updateRender(false);
     }
     
     public int getCaretPosition()
