@@ -418,7 +418,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * Get code completion suggestions at a particular point. May return null.
      */
     @OnThread(Tag.FXPlatform)
-    public ExpressionTypeInfo getExpressionType(int pos, MoeSyntaxDocument document)
+    public ExpressionTypeInfo getExpressionType(int pos, ReparseableDocument document)
     {
         return getExpressionType(pos, 0, null, document);
     }

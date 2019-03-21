@@ -195,7 +195,7 @@ public class CommentNode extends ParsedNode
     }
     
     @Override
-    public ExpressionTypeInfo getExpressionType(int pos, MoeSyntaxDocument document)
+    public ExpressionTypeInfo getExpressionType(int pos, ReparseableDocument document)
     {
         return null;
     }
