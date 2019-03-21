@@ -94,8 +94,8 @@ public class TestBasicEditorDisplay extends FXTest
         stage.show();
     }
 
-    @Property(trials=5)
-    public void testEditor(@When(seed=3L) @From(GenString.class) String rawContent, @When(seed=3L) @From(GenRandom.class) Random r)
+    @Property(trials=3)
+    public void testEditor(@From(GenString.class) String rawContent, @From(GenRandom.class) Random r)
     {
         String content = removeInvalid(rawContent);
         setText(content);

@@ -93,20 +93,23 @@ class TextLine extends TextFlow
     {
         if (extendToRight)
         {
+            double width = getWidth();
             if (rangeShape.length == 5 && rangeShape[1] instanceof LineTo && rangeShape[2] instanceof LineTo)
             {
-                ((LineTo)rangeShape[1]).setX(getWidth() - 1.0);
-                ((LineTo)rangeShape[2]).setX(getWidth() - 1.0);
+                ((LineTo)rangeShape[1]).setX(width - 1.0);
+                ((LineTo)rangeShape[2]).setX(width - 1.0);
             }
             else if (rangeShape.length == 0)
             {
+                double rhs = getChildren().stream().filter(t -> t instanceof Text).mapToDouble(n -> n.getBoundsInLocal().getMaxX()).findFirst().orElse(0.0);
+                
                 // Blank line; make the selection ourselves:
                 rangeShape = new PathElement[] {
-                    new MoveTo(0, 0),
-                    new LineTo(getWidth() - 1.0, 0),
-                    new LineTo(getWidth() - 1.0, getHeight()),
-                    new LineTo(0, getHeight()),
-                    new LineTo(0, 0)
+                    new MoveTo(rhs, 0),
+                    new LineTo(width - 1.0, 0),
+                    new LineTo(width - 1.0, getHeight()),
+                    new LineTo(rhs, getHeight()),
+                    new LineTo(rhs, 0)
                 };
             }
         }
