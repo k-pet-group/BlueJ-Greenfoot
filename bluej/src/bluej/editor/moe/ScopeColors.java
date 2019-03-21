@@ -43,6 +43,7 @@ public interface ScopeColors
     }
 
     // Used for testing:
+    @OnThread(Tag.FXPlatform)
     public static ScopeColors dummy()
     {
         // Simplest thing to do is make an off-screen ScopeColorsBorderPane:
