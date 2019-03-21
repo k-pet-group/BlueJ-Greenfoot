@@ -823,46 +823,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
 
     /**
-     * Set the selection of the editor (in the source pane) to be {@code len} characters on
-     * line {@code lineNumber}, starting with column {@code columnNumber}.
-     * 
-     * @param lineNumber  the line to select characters on
-     * @param columnNumber  the column to start selection at (1st column is 1 - not 0)
-     * @param len         the number of characters to select
-     */
-    @Override
-    @OnThread(Tag.FXPlatform)
-    public void setSelection(int lineNumber, int columnNumber, int len)
-    {
-        Element line = getSourceLine(lineNumber);
-
-        sourcePane.select(line.getStartOffset() + columnNumber - 1, 
-                line.getStartOffset() + columnNumber + len - 1);
-    }
-
-    /**
-     * Select a specified area of text in the source pane.
-     * 
-     * @param lineNumber1  The new selection value
-     * @param columnNumber1  The new selection value
-     * @param lineNumber2  The new selection value
-     * @param columnNumber2  The new selection value
-     */
-    @Override
-    @OnThread(Tag.FXPlatform)
-    public void setSelection(int lineNumber1, int columnNumber1, int lineNumber2, int columnNumber2)
-    {
-        /*
-         * if (lineNumber2 < lineNumber1) return; if (lineNumber2 == lineNumber1 &&
-         * (columnNumber2 < columnNumber1)) return;
-         */
-        Element line1 = getSourceLine(lineNumber1);
-        Element line2 = getSourceLine(lineNumber2);
-
-        sourcePane.select(line1.getStartOffset() + columnNumber1 - 1, line2.getStartOffset() + columnNumber2 - 1);
-    }
-
-    /**
      * Remove the step mark (the mark that shows the current line when
      * single-stepping through code). If it is not currently displayed, do
      * nothing.
@@ -2078,7 +2038,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
         goToLineDialog.setRangeMax(numberOfLines);
         Optional<Integer> o = goToLineDialog.showAndWait();
         o.ifPresent(n -> {
-            setSelection(n , 1, 0);
+            setSelection(new SourceLocation(n , 1), new SourceLocation(n, 1));
             ensureCaretVisible();
         });
     }
@@ -3817,13 +3777,13 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 if (info.getSuperclass() == null) {
                     Selection s1 = info.getExtendsInsertSelection();
 
-                    setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
+                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
                     insertText(" extends " + className, false);
                 }
                 else {
                     Selection s1 = info.getSuperReplaceSelection();
 
-                    setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
+                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
                     insertText(className, false);
                 }
                 save();
@@ -3845,7 +3805,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 s1.combineWith(info.getSuperReplaceSelection());
                 
                 if (s1 != null) {
-                    setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
+                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
                     insertText("", false);
                 }
                 save();
@@ -3864,7 +3824,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
             if (info != null) {
                 Selection s1 = info.getImplementsInsertSelection();
-                setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
+                setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
 
                 if (info.hasInterfaceSelections()) {
                     // if we already have an implements clause then we need to put a
@@ -3898,7 +3858,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
             if (info != null) {
                 Selection s1 = info.getExtendsInsertSelection();
-                setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
+                setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
 
                 if (info.hasInterfaceSelections()) {
                     // if we already have an extends clause then we need to put a
@@ -3954,7 +3914,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
                 // delete the text from the end backwards so that our
                 if (s1 != null) {
-                    setSelection(s1.getLine(), s1.getColumn(), s1.getEndLine(), s1.getEndColumn());
+                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
                     insertText("", false);
                 }
 

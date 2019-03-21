@@ -579,22 +579,7 @@ public class FrameEditor implements Editor
 
             @Override
             @OnThread(Tag.FXPlatform)
-            public void setSelection(int firstlineNumber, int firstColumn,
-                    int secondLineNumber, int SecondColumn) {
-                throw new UnsupportedOperationException();
-
-            }
-
-            @Override
-            @OnThread(Tag.FXPlatform)
             public void setSelection(SourceLocation begin, SourceLocation end) {
-                throw new UnsupportedOperationException();
-
-            }
-
-            @Override
-            @OnThread(Tag.FXPlatform)
-            public void setSelection(int lineNumber, int column, int len) {
                 throw new UnsupportedOperationException();
 
             }

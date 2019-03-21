@@ -24,6 +24,7 @@ package bluej.editor;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.SourceLocation;
 import bluej.parser.nodes.ParsedCUNode;
+import bluej.parser.nodes.ReparseableDocument;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -62,35 +63,12 @@ public interface TextEditor extends Editor
     void insertText(String text, boolean caretBack);
 
     /**
-     * Set the selection of the editor to be a len characters on the line
-     * lineNumber, starting with column columnNumber
+     * Set the selection of the editor to go from first position to second position
      * 
-     * @param lineNumber the line to select characters on
-     * @param column the column to start selection at (1st column is 1 - not 0)
-     * @param len the number of characters to select
+     * @param start The start of the selection (where the anchor will be positioned)
+     * @param end The end of the selection (where the caret will be positioned)
      */
-    void setSelection(int lineNumber, int column, int len);
-
-    /**
-     * Request to the editor to mark the text between begin and end as selected.
-     *
-     * @param  begin                      where to start the selection
-     * @param  end                        where to end the selection
-     * @throws  IllegalArgumentException  if either of the specified TextLocations
-     * represent a position which does not exist in the text.
-     */
-    public void setSelection(SourceLocation begin, SourceLocation end);
-    
-    /**
-     * Set the selection of the editor to be a len characters on the line
-     * lineNumber, starting with column columnNumber
-     * 
-     * @param lineNumber the line to select characters on
-     * @param column the column to start selection at (1st column is 1 - not 0)
-     * @param len the number of characters to select
-     */
-    void setSelection(int firstlineNumber, int firstColumn,
-                      int secondLineNumber, int SecondColumn);
+    void setSelection(SourceLocation start, SourceLocation end);
     
     /**
      * Get the source document that this editor is currently editing. Certain
@@ -99,7 +77,7 @@ public interface TextEditor extends Editor
      * 
      * @return  the document being edited.
      */
-    MoeSyntaxDocument getSourceDocument();
+    ReparseableDocument getSourceDocument();
 
     /**
      * Returns the current caret location within the edited text.
