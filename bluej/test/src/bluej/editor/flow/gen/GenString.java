@@ -38,7 +38,7 @@ public class GenString extends Generator<String>
         // Make the empty string slightly more likely:
         if (sourceOfRandomness.nextInt(50) == 1)
             return "";
-        int[] codepoints = new int[sourceOfRandomness.nextInt(2000)];
+        int[] codepoints = new int[sourceOfRandomness.nextInt(4000)];
         for (int i = 0; i < codepoints.length; i++)
         {
             // Make ASCII more likely:

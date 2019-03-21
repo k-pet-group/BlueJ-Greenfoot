@@ -27,7 +27,6 @@ import bluej.editor.flow.gen.GenString;
 import bluej.editor.moe.ScopeColorsBorderPane;
 import bluej.parser.InitConfig;
 import bluej.prefmgr.PrefMgr;
-import bluej.utility.Debug;
 import bluej.utility.Utility;
 import com.pholser.junit.quickcheck.From;
 import com.pholser.junit.quickcheck.Property;
@@ -53,6 +52,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -95,7 +95,7 @@ public class TestBasicEditorDisplay extends FXTest
     }
 
     @Property(trials=5)
-    public void testEditor(@From(GenString.class) String rawContent, @From(GenRandom.class) Random r)
+    public void testEditor(@When(seed=3L) @From(GenString.class) String rawContent, @When(seed=3L) @From(GenRandom.class) Random r)
     {
         String content = removeInvalid(rawContent);
         setText(content);
@@ -196,28 +196,64 @@ public class TestBasicEditorDisplay extends FXTest
             int firstY = fromFirst ? fromSaved.screenY : toPosY;
             int lastY = Math.min((int)editorImage.getHeight() - 1, fromFirst ? toPosY : fromSaved.screenY);
 
-            for (int y = firstY; y <= lastY; y += 10)
+            int firstLine = fx(() -> flowEditorPane.getDocument().getLineFromPosition(fromFirst ? fromSaved.caretPos : toSaved.caretPos));
+            int lastLine = fx(() -> flowEditorPane.getDocument().getLineFromPosition(fromFirst ? toSaved.caretPos : fromSaved.caretPos));
+
+            int[] visibleLines = fx(() -> flowEditorPane.getLineRangeVisible());
+            for (int line = visibleLines[0]; line <= visibleLines[1]; line++)
             {
-                boolean mightBeFirstLine = y - firstY <= 20;
-                boolean mightBeLastLine = lastY - y <= 20;
-                int startX = (mightBeFirstLine ? (fromFirst ? fromSaved.screenX : toPosX) : flowX) + 10;
-                int endX = (mightBeLastLine ? (fromFirst ? toPosX : fromSaved.screenX) : flowX + (int)editorImage.getWidth()) - 10;
-                // If selection begins at start of the line, will be very little blue, so skip it:
-                // Also skip if the end is before the start (because it's a one line selection that wraps, and we may be chosing a region that overlaps both):
-                if (endX <= flowX + 5 || endX < startX)
+                int lineFinal = line;
+                Optional<double[]> lineBounds = fx(() -> flowEditorPane.getTopAndBottom(lineFinal));
+                // Skip lines which are not visible:
+                if (lineBounds.isEmpty())
                     continue;
-                // Should be blue:
-                List<Stream<Color>> colorRegions = List.of(streamArea(editorImage, startX - flowX, y - flowY), streamArea(editorImage, endX - flowX, y - flowY));
-                for (Stream<Color> colorRegion : colorRegions)
+                List<ColorTestArea> colorRegions = new ArrayList<>();
+                // Within image, not screen:
+                int y = (int)((lineBounds.get()[0] + lineBounds.get()[1]) / 2.0);
+                if (y <= 0 || y >= editorImage.getHeight())
+                    continue;
+                
+                
+                if (line <= firstLine)
                 {
-                    Stream<Color> nonBlack = colorRegion.filter(c -> c.getRed() + c.getGreen() + c.getBlue() > 0.05);
-                    // Last item is count, not alpha:
-                    Color average = nonBlack.map(c -> new double[]{c.getRed(), c.getGreen(), c.getBlue(), 1})
-                            .reduce((a, b) -> new double[]{a[0] + b[0], a[1] + b[1], a[2] + b[2], a[3] + b[3]})
-                            .map(a -> Color.color(a[0] / a[3], a[1] / a[3], a[2] / a[3])).orElseThrow();
-                    
-                    assertThat("X: " + (startX - flowX) + ", " + (endX - flowX) + " Y: " + (y - flowY), average.getBlue(), Matchers.greaterThan(average.getGreen() + 0.1));
-                    assertThat("X: " + (startX - flowX) + ", " + (endX - flowX) + " Y: " + (y - flowY), average.getBlue(), Matchers.greaterThan(average.getRed() + 0.1));
+                    // Look for white region before the selection (if any):
+                    int x = line == firstLine ? ((fromFirst ? fromSaved.screenX : toPosX) - flowX - 10) : 10;
+                    if (x >= 0)
+                    {
+                        colorRegions.add(new ColorTestArea(line == firstLine ? "White just before selection" : "White above selection", false, editorImage,
+                                x, y));
+                    }
+                }
+                if (line >= firstLine && line <= lastLine)
+                {
+                    // Look for start and end of a blue region:
+                    int startX = (line == firstLine ? (fromFirst ? fromSaved.screenX : toPosX) : flowX) + 10;
+                    int endX = (line == lastLine ? (fromFirst ? toPosX : fromSaved.screenX) : flowX + (int)editorImage.getWidth()) - 10;
+                    // If selection ends at the start of the line, will be very little blue, so skip it:
+                    // Similarly, skip if selection is so small we won't pick up the blue:
+                    if (endX <= flowX + 5 || startX > endX - 10)
+                    {
+                        
+                    }
+                    else
+                    {
+                        colorRegions.add(new ColorTestArea("Blue left in selection", true, editorImage, startX - flowX, y));
+                        colorRegions.add(new ColorTestArea("Blue right in selection", true, editorImage, endX - flowX, y));
+                    }
+                }
+                if (line >= lastLine)
+                {
+                    if (line > lastLine || (fromFirst ? toPosX : fromSaved.screenX) < editorImage.getWidth() - 10)
+                    {
+                        colorRegions.add(new ColorTestArea("White after selection", false, editorImage, (int) editorImage.getWidth() - 5, y));
+                    }
+                }
+
+                int selectionFrom = Math.min(fromSaved.caretPos, toSaved.caretPos);
+                String selSnippet = content.substring(selectionFrom, Math.min(selectionFrom + 10, content.length()));
+                for (ColorTestArea colorRegion : colorRegions)
+                {
+                    colorRegion.check(selSnippet);
                 }
             }
         }
@@ -225,7 +261,7 @@ public class TestBasicEditorDisplay extends FXTest
         
     }
     
-    private static Stream<Color> streamArea(WritableImage image, int x, int y)
+    private static List<Color> getColoredArea(WritableImage image, int x, int y)
     {
         List<Color> r = new ArrayList<>();
         for (int dx = -4; dx < 4; dx++)
@@ -240,7 +276,48 @@ public class TestBasicEditorDisplay extends FXTest
                 }
             }
         }
-        return r.stream();
+        return r;
+    }
+    
+    private static class ColorTestArea
+    {
+        private final String description;
+        private final boolean expectBlue;
+        private final WritableImage image;
+        private final int x;
+        private final int y;
+
+        public ColorTestArea(String description, boolean expectBlue, WritableImage image, int x, int y)
+        {
+            this.description = description;
+            this.expectBlue = expectBlue;
+            this.image = image;
+            this.x = x;
+            this.y = y;
+        }
+        
+        public void check(String selectionSnippet)
+        {
+            Stream<Color> nonBlack = getColoredArea(image, x, y).stream().filter(c -> c.getRed() + c.getGreen() + c.getBlue() > 0.05);
+            // Last item is count, not alpha.  We can't accumulate in Color as it is clamped to 0-1
+            // valid range, so we use an array:
+            Color average = nonBlack.map(c -> new double[]{c.getRed(), c.getGreen(), c.getBlue(), 1})
+                    .reduce((a, b) -> new double[]{a[0] + b[0], a[1] + b[1], a[2] + b[2], a[3] + b[3]})
+                    .map(a -> Color.color(a[0] / a[3], a[1] / a[3], a[2] / a[3])).orElseThrow(() -> new RuntimeException("No pixels available for " + x + ", " + y));
+
+            String fullDescription = description + " x : " + x + " y : " + y + "{{" + selectionSnippet + "}}";
+            if (expectBlue)
+            {
+                assertThat(fullDescription, average.getBlue(), Matchers.greaterThan(average.getGreen() + 0.1));
+                assertThat(fullDescription, average.getBlue(), Matchers.greaterThan(average.getRed() + 0.1));
+            }
+            else
+            {
+                // Otherwise, should be white:
+                assertThat(fullDescription, average.getBlue(), Matchers.closeTo(average.getGreen(), 0.1));
+                assertThat(fullDescription, average.getBlue(), Matchers.closeTo(average.getRed(), 0.1));
+            }
+        }
     }
     
 
