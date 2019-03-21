@@ -848,15 +848,18 @@ public class JavaFXUtil
 
     public static void runAfterNextLayout(Scene scene, FXPlatformRunnable runnable)
     {
-        scene.addPostLayoutPulseListener(new Runnable()
+        if (scene != null)
         {
-            @Override
-            public void run()
+            scene.addPostLayoutPulseListener(new Runnable()
             {
-                runPlatformLater(runnable);
-                scene.removePostLayoutPulseListener(this);
-            }
-        });
+                @Override
+                public void run()
+                {
+                    runPlatformLater(runnable);
+                    scene.removePostLayoutPulseListener(this);
+                }
+            });
+        }
     }
 
     /**
