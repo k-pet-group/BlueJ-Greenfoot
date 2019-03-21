@@ -2557,6 +2557,11 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         }
     }
 
+    public ParsedCUNode getRootNode()
+    {
+        return rootNode;
+    }
+
     /**
      * Process the document re-parse queue.
      * 

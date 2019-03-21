@@ -65,6 +65,7 @@ import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.editor.Editor;
 import bluej.editor.EditorManager;
 import bluej.editor.TextEditor;
+import bluej.editor.flow.FlowEditor;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.editor.stride.FrameEditor;
 import bluej.extensions.BClass;
@@ -1235,10 +1236,23 @@ public class ClassTarget extends DependentTarget
                 }
             };
             if (sourceAvailable == SourceType.Java || sourceAvailable == SourceType.NONE) {
+                editor = new FlowEditor(newWindow -> {
+                    if (newWindow)
+                    {
+                        return project.createNewFXTabbedEditor();
+                    }
+                    else
+                    {
+                        return project.getDefaultFXTabbedEditor();
+                    }
+                });
+                ((TextEditor)editor).showFile(filename, project.getProjectCharset(), isCompiled(), docFilename);
+                /* TODOFLOW
                 editor = EditorManager.getEditorManager().openClass(filename, docFilename,
                         project.getProjectCharset(),
                         getBaseName(), project::getDefaultFXTabbedEditor, this, isCompiled(), resolver,
                         project.getJavadocResolver(), openCallback);
+                        */
             }
             else if (sourceAvailable == SourceType.Stride) {
                 File frameSourceFile = getFrameSourceFile();

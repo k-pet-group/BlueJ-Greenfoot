@@ -22,6 +22,8 @@
 
 package bluej.editor.flow;
 
+import bluej.parser.SourceLocation;
+
 import java.util.List;
 
 /**
@@ -77,6 +79,16 @@ public interface Document
      * @return The column number within that position's line (first position in column is 0)
      */
     int getColumnFromPosition(int position);
+    
+    default int getPosition(SourceLocation sourceLocation)
+    {
+        return getLineStart(sourceLocation.getLine() - 1) + sourceLocation.getColumn() - 1;
+    }
+    
+    default SourceLocation makeSourceLocation(int position)
+    {
+        return new SourceLocation(getLineFromPosition(position) + 1, getColumnFromPosition(position) + 1);
+    }
 
     /**
      * Given a line index (first line is zero), get the character offset within

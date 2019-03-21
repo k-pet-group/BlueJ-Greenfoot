@@ -611,6 +611,11 @@ public class FlowEditorPane extends Region implements DocumentListener
     {
         return caret.position;
     }
+    
+    public int getAnchorPosition()
+    {
+        return anchor.position;
+    }
 
     // For testing:
     WritableImage snapshotBackground()
@@ -629,6 +634,11 @@ public class FlowEditorPane extends Region implements DocumentListener
     public void restyleLines()
     {
         updateRender(false);
+    }
+
+    public void replaceSelection(String text)
+    {
+        document.replaceText(Math.min(caret.position, anchor.position), Math.max(caret.position, anchor.position), text);
     }
 
     @OnThread(Tag.FXPlatform)
