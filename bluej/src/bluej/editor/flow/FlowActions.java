@@ -127,6 +127,8 @@ public final class FlowActions
         builtInKeymap.put(new KeyCodeCombination(KeyCode.HOME, KeyCombination.SHORTCUT_DOWN), actions.get(DefaultEditorKit.beginAction));
         builtInKeymap.put(new KeyCodeCombination(KeyCode.HOME, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionBeginAction));
         
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.BACK_SPACE), actions.get(DefaultEditorKit.deletePrevCharAction));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.DELETE), actions.get(DefaultEditorKit.deleteNextCharAction));
 
         if (Config.isMacOS())
         {
@@ -1003,7 +1005,10 @@ public final class FlowActions
             PrevCharAction::new
         );
 
-        FlowAbstractAction[] myActions = new FlowAbstractAction[] {                
+        FlowAbstractAction[] myActions = new FlowAbstractAction[] {
+                new DeletePrevCharAction(),
+                new DeleteNextCharAction(),
+                
                 /*TODOFLOW
                 //With and without selection for each:
                 new NextWordAction(false),
@@ -1837,6 +1842,42 @@ public final class FlowActions
         public void actionPerformed()
         {
             moveCaret(Math.min(getTextComponent().getDocument().getLength(), getTextComponent().getCaretPosition() + 1));
+        }
+    }
+    
+    private class DeletePrevCharAction extends FlowAbstractAction
+    {
+        public DeletePrevCharAction()
+        {
+            super(DefaultEditorKit.deletePrevCharAction, Category.EDIT);
+        }
+
+        @Override
+        public void actionPerformed()
+        {
+            if (getTextComponent().getCaretPosition() == getTextComponent().getAnchorPosition())
+            {
+                getTextComponent().moveCaret(Math.max(0, getTextComponent().getCaretPosition() - 1));
+            }
+            getTextComponent().replaceSelection("");
+        }
+    }
+
+    private class DeleteNextCharAction extends FlowAbstractAction
+    {
+        public DeleteNextCharAction()
+        {
+            super(DefaultEditorKit.deleteNextCharAction, Category.EDIT);
+        }
+
+        @Override
+        public void actionPerformed()
+        {
+            if (getTextComponent().getCaretPosition() == getTextComponent().getAnchorPosition())
+            {
+                getTextComponent().moveCaret(Math.min(getDocument().getLength(), getTextComponent().getCaretPosition() + 1));
+            }
+            getTextComponent().replaceSelection("");
         }
     }
 

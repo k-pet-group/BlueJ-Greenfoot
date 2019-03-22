@@ -66,14 +66,91 @@ public class TestBasicEditorInteraction extends FXTest
     }
     
     @Property(trials = 5)
-    public void testKeyboard(@When(seed=1L) @From(GenString.class) String rawContent, @When(seed=1L) @From(GenRandom.class) Random r)
+    public void testKeyboardMovement(@From(GenString.class) String rawContent, @From(GenRandom.class) Random r)
     {
         String content = removeInvalid(rawContent);
         setText(content);
         clickOn(flowEditorPane);
 
+        List<NamedKeyboardMover> movers = getMovers();
+
+        for (int i = 0; i < 12; i++)
+        {
+            int curPos = r.nextInt(content.length() + 1);
+            int curAnchor = r.nextInt(content.length() + 1);
+            fx_(() -> {
+                flowEditorPane.positionCaret(curPos);
+                flowEditorPane.positionAnchor(curAnchor);
+            });
+            boolean shiftDown = r.nextBoolean();
+            NamedKeyboardMover mover = movers.get(r.nextInt(movers.size()));
+            if (shiftDown)
+            {
+                press(KeyCode.SHIFT);
+            }
+            int newPos = mover.mover.move(curPos, content.length());
+            if (shiftDown)
+            {
+                release(KeyCode.SHIFT);
+            }
+            assertEquals("Pressing " + mover.name + (shiftDown ? " holding shift" : ""), newPos, fx(() -> flowEditorPane.getCaretPosition()).intValue());
+            assertEquals("Pressing " + mover.name + (shiftDown ? " holding shift" : ""), shiftDown ? curAnchor : newPos, fx(() -> flowEditorPane.getAnchorPosition()).intValue());
+        }
+    }
+
+    @Property(trials = 5)
+    public void testKeyboardDelete(@When(seed=1L) @From(GenString.class) String rawContent, @When(seed=1L) @From(GenRandom.class) Random r)
+    {
+        String content = removeInvalid(rawContent);
+        setText(content);
+        clickOn(flowEditorPane);
+
+        List<NamedKeyboardMover> movers = getMovers();
+
+        for (int i = 0; i < 12; i++)
+        {
+            int curPos = r.nextInt(content.length() + 1);
+            int curAnchor = r.nextInt(10) == 1 ? curPos : r.nextInt(content.length() + 1);
+            int initialPos = curPos;
+            int initialAnchor = curAnchor;
+            fx_(() -> {
+                flowEditorPane.positionCaret(initialPos);
+                flowEditorPane.positionAnchor(initialAnchor);
+            });
+            if (r.nextBoolean())
+            {
+                // Move selection with keyboard
+                NamedKeyboardMover mover = movers.get(r.nextInt(movers.size()));
+                press(KeyCode.SHIFT);
+                curPos = mover.mover.move(curPos, content.length());
+                release(KeyCode.SHIFT);
+            }            
+            boolean deleteForward = r.nextBoolean();
+            if (curPos == curAnchor)
+            {
+                // Will do it without selection; this is equivalent to a one char selection in that direction:
+                if (deleteForward && curAnchor < content.length())
+                    curAnchor += 1;
+                else if (!deleteForward && curAnchor > 0)
+                    curAnchor -= 1;
+            }
+            push(deleteForward ? KeyCode.DELETE : KeyCode.BACK_SPACE);
+
+            int begin = Math.min(curAnchor, curPos);
+            int end = Math.max(curAnchor, curPos);
+            String newContent = content.substring(0, begin) + content.substring(end);
+            assertEquals(newContent, fx(() -> flowEditorPane.getDocument().getFullContent()));
+            // Caret should be at beginning of old selection afterwards:
+            assertEquals(begin, fx(() -> flowEditorPane.getCaretPosition()).intValue());
+            assertEquals(begin, fx(() -> flowEditorPane.getAnchorPosition()).intValue());
+            content = newContent;
+        }
+    }
+
+    private List<NamedKeyboardMover> getMovers()
+    {
         List<NamedKeyboardMover> movers = new ArrayList<>();
-        
+
         movers.add(new NamedKeyboardMover("Ctrl-Home", (pos, len) -> {
             push(KeyCode.SHORTCUT, KeyCode.HOME);
             return 0;
@@ -108,31 +185,7 @@ public class TestBasicEditorInteraction extends FXTest
             push(KeyCode.RIGHT);
             return Math.min(len, pos + 1);
         }));
-
-
-        
-        for (int i = 0; i < 12; i++)
-        {
-            int curPos = r.nextInt(content.length());
-            int curAnchor = r.nextInt(content.length());
-            fx_(() -> {
-                flowEditorPane.positionCaret(curPos);
-                flowEditorPane.positionAnchor(curAnchor);
-            });
-            boolean shiftDown = r.nextBoolean();
-            NamedKeyboardMover mover = movers.get(r.nextInt(movers.size()));
-            if (shiftDown)
-            {
-                press(KeyCode.SHIFT);
-            }
-            int newPos = mover.mover.move(curPos, content.length());
-            if (shiftDown)
-            {
-                release(KeyCode.SHIFT);
-            }
-            assertEquals("Pressing " + mover.name + (shiftDown ? " holding shift" : ""), newPos, fx(() -> flowEditorPane.getCaretPosition()).intValue());
-            assertEquals("Pressing " + mover.name + (shiftDown ? " holding shift" : ""), shiftDown ? curAnchor : newPos, fx(() -> flowEditorPane.getAnchorPosition()).intValue());
-        }
+        return movers;
     }
 
     private void setText(String content)

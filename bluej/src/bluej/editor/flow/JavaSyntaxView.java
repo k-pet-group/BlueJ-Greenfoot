@@ -2540,7 +2540,9 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         JavaFXUtil.runAfterNextLayout(editorPane.getScene(), () -> {
             scopeBackgrounds.clear();
             // We repaint all because the vertical positions will have changed:
-            recalculateScopes(pendingScopeBackgrounds, fromLineIndexIncl, toLineIndexIncl);
+            recalculateScopes(pendingScopeBackgrounds, 
+                Math.min(fromLineIndexIncl, editorPane.getDocument().getLineCount() -1), 
+                Math.min(toLineIndexIncl, editorPane.getDocument().getLineCount() - 1));
             applyPendingScopeBackgrounds();
         });
     }
