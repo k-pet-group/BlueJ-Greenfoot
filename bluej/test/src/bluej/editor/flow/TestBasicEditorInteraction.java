@@ -65,7 +65,7 @@ public class TestBasicEditorInteraction extends FXTest
         }
     }
     
-    @Property(trials = 10)
+    @Property(trials = 5)
     public void testKeyboard(@When(seed=1L) @From(GenString.class) String rawContent, @When(seed=1L) @From(GenRandom.class) Random r)
     {
         String content = removeInvalid(rawContent);
@@ -111,7 +111,7 @@ public class TestBasicEditorInteraction extends FXTest
 
 
         
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < 12; i++)
         {
             int curPos = r.nextInt(content.length());
             int curAnchor = r.nextInt(content.length());

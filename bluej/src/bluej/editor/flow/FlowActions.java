@@ -23,15 +23,7 @@ package bluej.editor.flow;
 
 
 import bluej.Config;
-import bluej.debugger.gentype.JavaType;
-import bluej.editor.moe.MoeActions;
 import bluej.editor.moe.MoeEditor;
-import bluej.editor.moe.MoeIndent.AutoIndentInformation;
-import bluej.parser.entity.JavaEntity;
-import bluej.parser.nodes.CommentNode;
-import bluej.parser.nodes.MethodNode;
-import bluej.parser.nodes.NodeTree.NodeAndPosition;
-import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ReparseableDocument;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
@@ -42,14 +34,11 @@ import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
-import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyCombination.Modifier;
 import javafx.scene.input.KeyCombination.ModifierValue;
-import org.fxmisc.richtext.NavigationActions.SelectionPolicy;
-import org.fxmisc.richtext.model.TwoDimensional.Bias;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
@@ -59,18 +48,16 @@ import threadchecker.Tag;
 import javax.swing.*;
 import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -133,6 +120,12 @@ public final class FlowActions
         builtInKeymap.put(new KeyCodeCombination(KeyCode.END, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionEndLineAction));
         builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionBackwardAction));
         builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionForwardAction));
+
+        // Ctrl/Cmd-Home/End:
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.END, KeyCombination.SHORTCUT_DOWN), actions.get(DefaultEditorKit.endAction));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.END, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionEndAction));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.HOME, KeyCombination.SHORTCUT_DOWN), actions.get(DefaultEditorKit.beginAction));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.HOME, KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionBeginAction));
         
 
         if (Config.isMacOS())
@@ -1000,12 +993,17 @@ public final class FlowActions
         */
 
         // get all actions into arrays
+        
+        List<Function<Boolean, FlowAbstractAction>> selectionActions = List.of(
+            EndDocumentAction::new,
+            EndLineAction::new,
+            HomeDocumentAction::new,
+            HomeLineAction::new,
+            NextCharAction::new,
+            PrevCharAction::new
+        );
 
-        FlowAbstractAction[] myActions = new FlowAbstractAction[] {
-                new EndAction(false),
-                new EndAction(true),
-                
-                
+        FlowAbstractAction[] myActions = new FlowAbstractAction[] {                
                 /*TODOFLOW
                 //With and without selection for each:
                 new NextWordAction(false),
@@ -1078,6 +1076,15 @@ public final class FlowActions
         // insert all actions into a hash map (and retain insertion order)
         actions = new LinkedHashMap<>();
 
+        for (Function<Boolean, FlowAbstractAction> selectionAction : selectionActions)
+        {
+            for (boolean withSelection : new boolean[]{false, true})
+            {
+                FlowAbstractAction action = selectionAction.apply(withSelection);
+                actions.put(action.getName(), action);
+            }
+        }
+        
         for (FlowAbstractAction action : myActions)
         {
             actions.put(action.getName(), action);
@@ -1731,9 +1738,9 @@ public final class FlowActions
         }
     }
 
-    private class EndAction extends FlowActionWithOrWithoutSelection
+    private class EndLineAction extends FlowActionWithOrWithoutSelection
     {
-        public EndAction(boolean withSelection)
+        public EndLineAction(boolean withSelection)
         {
             super(withSelection ? DefaultEditorKit.selectionEndLineAction : DefaultEditorKit.endLineAction, Category.MOVE_SCROLL, withSelection);
         }
@@ -1743,7 +1750,7 @@ public final class FlowActions
         {
             Document document = getDocument();
             int curLine = document.getLineFromPosition(getTextComponent().getCaretPosition());
-            if (curLine >= document.getLineCount())
+            if (curLine >= document.getLineCount() - 1)
             {
                 moveCaret(document.getLength());
             }
@@ -1751,6 +1758,85 @@ public final class FlowActions
             {
                 moveCaret(document.getLineStart(curLine + 1) - 1);
             }
+        }
+    }
+
+    private class EndDocumentAction extends FlowActionWithOrWithoutSelection
+    {
+        public EndDocumentAction(boolean withSelection)
+        {
+            super(withSelection ? DefaultEditorKit.selectionEndAction : DefaultEditorKit.endAction, Category.MOVE_SCROLL, withSelection);
+        }
+
+        @Override
+        public void actionPerformed()
+        {
+            moveCaret(getDocument().getLength());
+        }
+    }
+
+    private class HomeLineAction extends FlowActionWithOrWithoutSelection
+    {
+        public HomeLineAction(boolean withSelection)
+        {
+            super(withSelection ? DefaultEditorKit.selectionBeginLineAction : DefaultEditorKit.beginLineAction, Category.MOVE_SCROLL, withSelection);
+        }
+
+        @Override
+        public void actionPerformed()
+        {
+            Document document = getDocument();
+            int curLine = document.getLineFromPosition(getTextComponent().getCaretPosition());
+            if (curLine == 0)
+            {
+                moveCaret(0);
+            }
+            else
+            {
+                moveCaret(document.getLineStart(curLine));
+            }
+        }
+    }
+
+    private class HomeDocumentAction extends FlowActionWithOrWithoutSelection
+    {
+        public HomeDocumentAction(boolean withSelection)
+        {
+            super(withSelection ? DefaultEditorKit.selectionBeginAction : DefaultEditorKit.beginAction, Category.MOVE_SCROLL, withSelection);
+        }
+
+        @Override
+        public void actionPerformed()
+        {
+            moveCaret(0);
+        }
+    }
+
+    private class PrevCharAction extends FlowActionWithOrWithoutSelection
+    {
+        public PrevCharAction(boolean withSelection)
+        {
+            super(withSelection ? DefaultEditorKit.selectionBackwardAction : DefaultEditorKit.backwardAction, Category.MOVE_SCROLL, withSelection);
+        }
+
+        @Override
+        public void actionPerformed()
+        {
+            moveCaret(Math.max(0, getTextComponent().getCaretPosition() - 1));
+        }
+    }
+
+    private class NextCharAction extends FlowActionWithOrWithoutSelection
+    {
+        public NextCharAction(boolean withSelection)
+        {
+            super(withSelection ? DefaultEditorKit.selectionForwardAction : DefaultEditorKit.forwardAction, Category.MOVE_SCROLL, withSelection);
+        }
+
+        @Override
+        public void actionPerformed()
+        {
+            moveCaret(Math.min(getTextComponent().getDocument().getLength(), getTextComponent().getCaretPosition() + 1));
         }
     }
 
