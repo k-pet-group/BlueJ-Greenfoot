@@ -529,6 +529,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         return new MoveTo(lineTo.getX(), lineTo.getY());
     }
     
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     private class LineContainer extends Region
     {
         @Override
