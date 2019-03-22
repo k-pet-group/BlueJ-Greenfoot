@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2013,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2013,2016,2017,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,6 +36,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -75,19 +76,47 @@ public class FieldList extends TableView<FieldInfo>
         this.setFixedCellSize(rowHeight);
         prefHeightProperty().bind(Bindings.min(400.0, fixedCellSizeProperty().multiply(Bindings.size(getItems())).add(JavaFXUtil.ofD(paddingProperty(), Insets::getTop)).add(JavaFXUtil.ofD(paddingProperty(), Insets::getBottom))));
         setMinHeight(3.5 * (double)rowHeight);
-        setMinWidth(350.0);
         JavaFXUtil.addStyleClass(this, "field-list");
 
         javafx.scene.control.TableColumn<FieldInfo, String> description = new javafx.scene.control.TableColumn<FieldInfo, String>();
-        description.setMinWidth(180.0);
         JavaFXUtil.addStyleClass(description, "inspector-field-description");
         description.setCellValueFactory(v -> new ReadOnlyStringWrapper(v.getValue().getDescription()));
         javafx.scene.control.TableColumn<FieldInfo, StringOrRef> value = new javafx.scene.control.TableColumn<>();
         JavaFXUtil.addStyleClass(value, "inspector-field-value");
         value.setCellValueFactory(v -> new ReadOnlyObjectWrapper(new StringOrRef(v.getValue().getValue())));
         value.setCellFactory(col -> new ValueCell());
-        value.setMinWidth(100.0);
         getColumns().setAll(description, value);
+
+        // Apply auto fit size to the fieldList Columns by setting the 
+        // MinWidth and MaxWidth of the description column since it is first column on the left, 
+        // and setting the MinWidth of the value column
+        JavaFXUtil.addChangeListener(widthProperty(), s -> {
+            double descriptionWidth =0;
+            for (int i=0; i < getItems().size();i++) 
+            {
+                Text textDescription = new Text(description.getCellData(i));
+                if (descriptionWidth < textDescription.getLayoutBounds().getWidth()) 
+                {
+                    descriptionWidth = textDescription.getLayoutBounds().getWidth();
+                }
+            }
+            description.setMinWidth(descriptionWidth * 1.5);
+            description.setMaxWidth(descriptionWidth * 2);
+
+            double valueWidth =0;
+            for (int i=0; i< getItems().size();i++) 
+            {
+                if (value.getText() != null)
+                {
+                    Text textValue = new Text(value.getCellData(i).string);
+                    if (valueWidth < textValue.getLayoutBounds().getWidth()) 
+                    {
+                        valueWidth = textValue.getLayoutBounds().getWidth();
+                    }
+                }
+            }
+            value.setMinWidth(valueWidth);
+        });
         
         // Turn off header, from https://community.oracle.com/thread/2321823
         JavaFXUtil.addChangeListener(widthProperty(), ignore -> {
