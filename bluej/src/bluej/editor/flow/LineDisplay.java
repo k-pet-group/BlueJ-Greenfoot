@@ -58,6 +58,7 @@ class LineDisplay
     private final ArrayList<LineDisplayListener> lineDisplayListeners = new ArrayList<>();
     
     private final DoubleExpression heightProperty;
+    private double averageLineHeight = 1.0;
 
     LineDisplay(DoubleExpression heightProperty)
     {
@@ -100,6 +101,7 @@ class LineDisplay
         Iterator<List<StyledSegment>> lines = allLines.skip(firstVisibleLineIndex).iterator();
         double curY = firstVisibleLineOffset;
         int visLineSubIndex = 0;
+        ArrayList<Double> lineHeights = new ArrayList<>();
         while (lines.hasNext() && curY <= height)
         {
             if (currentlyVisibleLines.size() - 1 < visLineSubIndex)
@@ -107,10 +109,13 @@ class LineDisplay
                 currentlyVisibleLines.add(new TextLine());
             }
             currentlyVisibleLines.get(visLineSubIndex).setText(lines.next(), fontSize);
-            curY += snapHeight.apply(currentlyVisibleLines.get(visLineSubIndex).prefHeight(-1.0));
+            double lineHeight = snapHeight.apply(currentlyVisibleLines.get(visLineSubIndex).prefHeight(-1.0));
+            curY += lineHeight;
+            lineHeights.add(lineHeight);
             visLineSubIndex += 1;
-
         }
+        this.averageLineHeight = lineHeights.stream().mapToDouble(d -> d).average().orElse(1.0);
+        
         // Remove any excess lines:
         if (visLineSubIndex < currentlyVisibleLines.size())
         {
@@ -197,6 +202,11 @@ class LineDisplay
     public void addLineDisplayListener(LineDisplayListener lineDisplayListener)
     {
         lineDisplayListeners.add(lineDisplayListener);
+    }
+
+    public double getLineHeight()
+    {
+        return averageLineHeight;
     }
 
     static interface LineDisplayListener

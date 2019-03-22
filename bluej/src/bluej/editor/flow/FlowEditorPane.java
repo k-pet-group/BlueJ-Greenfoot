@@ -25,9 +25,12 @@ import bluej.editor.flow.Document.Bias;
 import bluej.editor.flow.LineDisplay.LineDisplayListener;
 import bluej.editor.flow.TextLine.StyledSegment;
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
+import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.IndexRange;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
@@ -78,8 +81,11 @@ public class FlowEditorPane extends Region implements DocumentListener
     private LineStyler lineStyler = (i, s) -> Collections.singletonList(new StyledSegment(Collections.emptyList(), s.toString()));
     
     private final List<IndexRange> errorUnderlines = new ArrayList<>();
-    private Pane backgroundPane;
-
+    private final LineContainer lineContainer;
+    private final Pane backgroundPane;
+    private final ScrollBar verticalScroll;
+    private final ScrollBar horizontalScroll;
+    
     public FlowEditorPane(String content)
     {
         setSnapToPixel(true);
@@ -95,6 +101,18 @@ public class FlowEditorPane extends Region implements DocumentListener
         caretShape.getStyleClass().add("flow-caret");
         caretShape.setStroke(Color.RED);
         caretShape.setMouseTransparent(true);
+        verticalScroll = new ScrollBar();
+        verticalScroll.setOrientation(Orientation.VERTICAL);
+        verticalScroll.setVisible(false);
+        JavaFXUtil.addChangeListenerPlatform(verticalScroll.valueProperty(), v -> {
+            lineDisplay.scrollTo(v.intValue(), (v.doubleValue() - v.intValue()) * lineDisplay.getLineHeight());
+            updateRender(false);
+        });
+        horizontalScroll = new ScrollBar();
+        horizontalScroll.setOrientation(Orientation.HORIZONTAL);
+        horizontalScroll.setVisible(false);
+        lineContainer = new LineContainer();
+        getChildren().setAll(backgroundPane, lineContainer, verticalScroll, horizontalScroll);
         updateRender(false);
 
         Nodes.addInputMap(this, InputMap.sequence(
@@ -278,7 +296,6 @@ public class FlowEditorPane extends Region implements DocumentListener
         }
         
         List<Node> prospectiveChildren = new ArrayList<>();
-        prospectiveChildren.add(backgroundPane);
         // Use an AbstractList rather than pre-calculate, as that means we don't bother
         // styling lines which will not be displayed:
         List<List<StyledSegment>> styledLines = new AbstractList<List<StyledSegment>>()
@@ -302,14 +319,15 @@ public class FlowEditorPane extends Region implements DocumentListener
         
         prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(styledLines.stream(), this::snapSizeY, getHeight(), fontSize));
         prospectiveChildren.add(caretShape);
-        
+        verticalScroll.setVisible(lineDisplay.getVisibleLineCount() < document.getLineCount());
+        verticalScroll.setMax(document.getLineCount() - lineDisplay.getVisibleLineCount());
         
         // This will often avoid changing the children, if the window has not been resized:
         boolean needToChangeLinesAndCaret = false;
         for (int i = 0; i < prospectiveChildren.size(); i++)
         {
             // Reference equality is fine here:
-            if (i >= getChildren().size() || prospectiveChildren.get(i) != getChildren().get(i))
+            if (i >= lineContainer.getChildren().size() || prospectiveChildren.get(i) != lineContainer.getChildren().get(i))
             {
                 needToChangeLinesAndCaret = true;
                 break;
@@ -317,14 +335,14 @@ public class FlowEditorPane extends Region implements DocumentListener
         }
         if (needToChangeLinesAndCaret)
         {
-            getChildren().setAll(prospectiveChildren);
+            lineContainer.getChildren().setAll(prospectiveChildren);
         }
         else
         {
             // Clear rest after:
-            if (getChildren().size() > prospectiveChildren.size())
+            if (lineContainer.getChildren().size() > prospectiveChildren.size())
             {
-                getChildren().subList(prospectiveChildren.size(), getChildren().size()).clear();
+                lineContainer.getChildren().subList(prospectiveChildren.size(), lineContainer.getChildren().size()).clear();
             }
         }
 
@@ -506,24 +524,46 @@ public class FlowEditorPane extends Region implements DocumentListener
         LineTo lineTo = (LineTo)pathElement;
         return new MoveTo(lineTo.getX(), lineTo.getY());
     }
+    
+    private class LineContainer extends Region
+    {
+        @Override
+        protected void layoutChildren()
+        {
+            double y = lineDisplay.getFirstVisibleLineOffset();
+            for (Node child : getChildren())
+            {
+                if (child instanceof TextFlow)
+                {
+                    double height = snapSizeY(child.prefHeight(-1.0));
+                    child.resizeRelocate(0, y, Math.max(getWidth(), child.prefWidth(-1.0)), height);
+                    y += height;
+                }
+            }
+        }
+
+        @Override
+        protected ObservableList<Node> getChildren()
+        {
+            return super.getChildren();
+        }
+    }
 
     @Override
     protected void layoutChildren()
     {
         double xMargin = 2;
-        double y = lineDisplay.getFirstVisibleLineOffset();
         for (Node child : getChildren())
         {
-            if (child instanceof TextFlow)
-            {
-                double height = snapSizeY(child.prefHeight(-1.0));
-                child.resizeRelocate(xMargin, y, Math.max(getWidth(), child.prefWidth(-1.0)), height);
-                y += height;
-            }
-            else if (child == backgroundPane)
+            if (child == backgroundPane || child == lineContainer)
             {
                 child.resizeRelocate(xMargin, 0, getWidth() - xMargin, getHeight());
             }
+            else if (child == verticalScroll)
+            {
+                double width = verticalScroll.prefWidth(-1);
+                child.resizeRelocate(getWidth() - width, 0, width, getHeight());
+            }   
         }
     }
 
