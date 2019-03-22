@@ -162,7 +162,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     // -------- CONSTANTS --------
 
     // version number
-    final static int version = 400;
+    public final static int version = 400;
     final static String versionString = "3.3.0";
 
     // suffixes for resources

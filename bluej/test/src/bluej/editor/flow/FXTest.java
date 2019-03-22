@@ -149,4 +149,20 @@ public class FXTest extends ApplicationTest
         super.start(stage);
         this.originalWindow = stage;
     }
+
+    // We remove awkward unprintable characters that mess up the location tracking for click positions.
+    // To see this again, pass seed=1L to testEditor.
+    protected String removeInvalid(String rawContent)
+    {
+        int[] valid = rawContent.codePoints().filter(n -> {
+            if (n >= 32 && n != 127 && n <= 0xFFFF)
+                return true;
+            else if (n == '\n')
+                return true;
+            else
+                return false;
+                
+        }).toArray();
+        return new String(valid, 0, valid.length);
+    }
 }

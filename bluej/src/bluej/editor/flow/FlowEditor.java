@@ -17,6 +17,7 @@ import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.utility.Debug;
 import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import javafx.print.PrinterJob;
 import javafx.scene.control.Menu;
@@ -37,10 +38,29 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
     private final FetchTabbedEditor fetchTabbedEditor;
     private final FlowFXTab fxTab = new FlowFXTab(this, "TODOFLOW Title");
 
+    
+    // TODOFLOW handle the interface-only case
+    public boolean containsSourceCode()
+    {
+        return true;
+    }
+
     public static interface FetchTabbedEditor
     {
         FXTabbedEditor getFXTabbedEditor(boolean newWindow);
     }
+    
+    // TODOFLOW implement undo and redo
+    class UndoManager
+    {
+        public void compoundEdit(FXPlatformRunnable action)
+        {
+            action.run();
+        }
+    }
+    
+    // package-visible:
+    final UndoManager undoManager;
 
     // TODOFLOW remove this once all its callers are implemented.
     private final class UnimplementedException extends RuntimeException {}
@@ -48,8 +68,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
 
     public FlowEditor(FetchTabbedEditor fetchTabbedEditor)
     {
+        this.undoManager = new UndoManager();
         this.fetchTabbedEditor = fetchTabbedEditor;
         setCenter(flowEditorPane);
+        FlowActions.getActions(this);
     }
 
     public void requestEditorFocus()
@@ -473,5 +495,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
     public void setHeaderImage(Image image)
     {
         throw new UnimplementedException();
+    }
+    
+    public FlowEditorPane getSourcePane()
+    {
+        return flowEditorPane;
     }
 }

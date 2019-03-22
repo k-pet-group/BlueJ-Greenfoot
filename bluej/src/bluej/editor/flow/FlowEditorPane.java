@@ -167,6 +167,10 @@ public class FlowEditorPane extends Region implements DocumentListener
 
     private void keyPressed(KeyEvent e)
     {
+        // TODOFLOW just scrap this method and rely entirely on FlowActions once the code is moved across.
+        if (true)
+            return;
+        
         int lineCount = document.getLineCount();
         int pageSize = Math.max(1, lineDisplay.getVisibleLineCount() - 1);
         switch (e.getCode())
@@ -636,6 +640,15 @@ public class FlowEditorPane extends Region implements DocumentListener
         caret.moveTo(position);
         anchor.moveTo(position);
         updateRender(false);
+    }
+
+    /**
+     * Set the position of the caret without moving the anchor, and scroll to ensure the caret is on screen.
+     */
+    public void moveCaret(int position)
+    {
+        caret.moveTo(position);
+        updateRender(true);
     }
 
     /**
