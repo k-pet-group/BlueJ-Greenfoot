@@ -59,18 +59,21 @@ public class TempFexMain extends Application
         stage.setScene(new Scene(flowEditor));
         Config.addEditorStylesheets(stage.getScene());
         //JavaFXUtil.runAfter(Duration.seconds(1), () -> {
-            ScopeColorsBorderPane scopeColors = new ScopeColorsBorderPane();
-            scopeColors.scopeBackgroundColorProperty().set(Color.WHITE);
-            scopeColors.scopeClassColorProperty().set(Color.LIGHTGREEN);
-            scopeColors.scopeMethodColorProperty().set(Color.GOLDENROD);
-            scopeColors.scopeClassOuterColorProperty().set(Color.GRAY);
-            scopeColors.scopeMethodOuterColorProperty().set(Color.GRAY);
-            scopeColors.scopeClassInnerColorProperty().set(Color.GRAY);
-            javaSyntaxView = new JavaSyntaxView(editorPane, scopeColors);
-            //javaSyntaxView.flushReparseQueue();
-            //javaSyntaxView.recalculateAllScopes();
-            //javaSyntaxView.flushReparseQueue();
+        /*
+        ScopeColorsBorderPane scopeColors = new ScopeColorsBorderPane();
+        scopeColors.scopeBackgroundColorProperty().set(Color.WHITE);
+        scopeColors.scopeClassColorProperty().set(Color.LIGHTGREEN);
+        scopeColors.scopeMethodColorProperty().set(Color.GOLDENROD);
+        scopeColors.scopeClassOuterColorProperty().set(Color.GRAY);
+        scopeColors.scopeMethodOuterColorProperty().set(Color.GRAY);
+        scopeColors.scopeClassInnerColorProperty().set(Color.GRAY);
+        javaSyntaxView = new JavaSyntaxView(editorPane, scopeColors);
+        */
+        //javaSyntaxView.flushReparseQueue();
+        //javaSyntaxView.recalculateAllScopes();
+        //javaSyntaxView.flushReparseQueue();
         //});
         stage.show();
     }
+
 }
