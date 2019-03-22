@@ -105,7 +105,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         verticalScroll.setOrientation(Orientation.VERTICAL);
         verticalScroll.setVisible(false);
         JavaFXUtil.addChangeListenerPlatform(verticalScroll.valueProperty(), v -> {
-            lineDisplay.scrollTo(v.intValue(), (v.doubleValue() - v.intValue()) * lineDisplay.getLineHeight());
+            lineDisplay.scrollTo(v.intValue(), (v.doubleValue() - v.intValue()) * -1 * lineDisplay.getLineHeight());
             updateRender(false);
         });
         horizontalScroll = new ScrollBar();
@@ -324,7 +324,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(styledLines.stream(), this::snapSizeY, getHeight(), fontSize));
         prospectiveChildren.add(caretShape);
         verticalScroll.setVisible(lineDisplay.getVisibleLineCount() < document.getLineCount());
-        verticalScroll.setMax(document.getLineCount() - lineDisplay.getVisibleLineCount());
+        verticalScroll.setMax(document.getLineCount() - (getHeight() / lineDisplay.getLineHeight()));
         
         // This will often avoid changing the children, if the window has not been resized:
         boolean needToChangeLinesAndCaret = false;
