@@ -214,6 +214,40 @@ public class TestBasicEditorInteraction extends FXTest
             push(KeyCode.DOWN);
             return expected;
         }));
+        movers.add(new NamedKeyboardMover("Page Up", (pos, len) -> {
+            int expected = fx(() -> {
+                Document document = flowEditorPane.getDocument();
+                int[] visibleRange = flowEditorPane.getLineRangeVisible();
+                int numLines = visibleRange[1] - visibleRange[0];
+                int curLine = document.getLineFromPosition(flowEditorPane.getCaretPosition());
+                
+                int curLineStart = document.getLineStart(curLine);
+                if (curLine <= numLines)
+                    return 0;
+                int prevLineStart = document.getLineStart(curLine - numLines);
+                // Clamp if the column would be off the end of previous line:
+                return Math.min(pos - curLineStart + prevLineStart, document.getLineEnd(curLine - numLines));
+            });
+            push(KeyCode.PAGE_UP);
+            return expected;
+        }));
+        movers.add(new NamedKeyboardMover("Page Down", (pos, len) -> {
+            int expected = fx(() -> {
+                Document document = flowEditorPane.getDocument();
+                int[] visibleRange = flowEditorPane.getLineRangeVisible();
+                int numLines = visibleRange[1] - visibleRange[0];
+                int curLine = document.getLineFromPosition(flowEditorPane.getCaretPosition());
+
+                int curLineStart = document.getLineStart(curLine);
+                if (curLine + numLines >= document.getLineCount())
+                    return document.getLength();
+                int nextLineStart = document.getLineStart(curLine + numLines);
+                // Clamp if the column would be off the end of previous line:
+                return Math.min(pos - curLineStart + nextLineStart, document.getLineEnd(curLine + numLines));
+            });
+            push(KeyCode.PAGE_DOWN);
+            return expected;
+        }));
         return movers;
     }
 

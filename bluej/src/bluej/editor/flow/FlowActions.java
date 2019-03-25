@@ -114,6 +114,8 @@ public final class FlowActions
         
         builtInKeymap.put(new KeyCodeCombination(KeyCode.HOME), actions.get(DefaultEditorKit.beginLineAction));
         builtInKeymap.put(new KeyCodeCombination(KeyCode.END), actions.get(DefaultEditorKit.endLineAction));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.PAGE_UP), actions.get(DefaultEditorKit.pageUpAction));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.PAGE_DOWN), actions.get(DefaultEditorKit.pageDownAction));
         builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT), actions.get(DefaultEditorKit.backwardAction));
         builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT), actions.get(DefaultEditorKit.forwardAction));
         builtInKeymap.put(new KeyCodeCombination(KeyCode.UP), actions.get(DefaultEditorKit.upAction));
@@ -121,6 +123,8 @@ public final class FlowActions
 
         builtInKeymap.put(new KeyCodeCombination(KeyCode.HOME, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionBeginLineAction));
         builtInKeymap.put(new KeyCodeCombination(KeyCode.END, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionEndLineAction));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.PAGE_UP, KeyCombination.SHIFT_DOWN), actions.get("selection-page-up"));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.PAGE_DOWN, KeyCombination.SHIFT_DOWN), actions.get("selection-page-down"));
         builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionBackwardAction));
         builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionForwardAction));
         builtInKeymap.put(new KeyCodeCombination(KeyCode.UP, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionUpAction));
@@ -1008,8 +1012,10 @@ public final class FlowActions
             HomeLineAction::new,
             NextCharAction::new,
             NextLineAction::new,
+            NextPageAction::new,
             PrevCharAction::new,
-            PrevLineAction::new
+            PrevLineAction::new,
+            PrevPageAction::new
         );
 
         FlowAbstractAction[] myActions = new FlowAbstractAction[] {
@@ -1821,6 +1827,54 @@ public final class FlowActions
         public void actionPerformed()
         {
             moveCaret(0);
+        }
+    }
+
+    private class PrevPageAction extends FlowActionWithOrWithoutSelection
+    {
+        public PrevPageAction(boolean withSelection)
+        {
+            super(withSelection ? "selection-page-up" : DefaultEditorKit.pageUpAction, Category.MOVE_SCROLL, withSelection);
+        }
+
+        @Override
+        public void actionPerformed()
+        {
+            int[] range = getTextComponent().getLineRangeVisible();
+            int pageSize = range[1] - range[0];
+            SourceLocation pos = getTextComponent().getDocument().makeSourceLocation(getTextComponent().getCaretPosition());
+            if (pos.getLine() -1 <= pageSize)
+            {
+                moveCaret(0);
+            }
+            else
+            {
+                moveCaret(getTextComponent().getDocument().getPosition(new SourceLocation(pos.getLine() - pageSize, pos.getColumn())));
+            }
+        }
+    }
+
+    private class NextPageAction extends FlowActionWithOrWithoutSelection
+    {
+        public NextPageAction(boolean withSelection)
+        {
+            super(withSelection ? "selection-page-down" : DefaultEditorKit.pageDownAction, Category.MOVE_SCROLL, withSelection);
+        }
+
+        @Override
+        public void actionPerformed()
+        {
+            int[] range = getTextComponent().getLineRangeVisible();
+            int pageSize = range[1] - range[0];
+            SourceLocation pos = getTextComponent().getDocument().makeSourceLocation(getTextComponent().getCaretPosition());
+            if (pos.getLine() - 1 + pageSize >= getTextComponent().getDocument().getLineCount())
+            {
+                moveCaret(getTextComponent().getDocument().getLength());
+            }
+            else
+            {
+                moveCaret(getTextComponent().getDocument().getPosition(new SourceLocation(pos.getLine() + pageSize, pos.getColumn())));
+            }
         }
     }
 
