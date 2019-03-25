@@ -24,6 +24,7 @@ package bluej.editor.flow;
 
 import bluej.Config;
 import bluej.editor.moe.MoeEditor;
+import bluej.parser.SourceLocation;
 import bluej.parser.nodes.ReparseableDocument;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
@@ -115,11 +116,15 @@ public final class FlowActions
         builtInKeymap.put(new KeyCodeCombination(KeyCode.END), actions.get(DefaultEditorKit.endLineAction));
         builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT), actions.get(DefaultEditorKit.backwardAction));
         builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT), actions.get(DefaultEditorKit.forwardAction));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.UP), actions.get(DefaultEditorKit.upAction));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.DOWN), actions.get(DefaultEditorKit.downAction));
 
         builtInKeymap.put(new KeyCodeCombination(KeyCode.HOME, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionBeginLineAction));
         builtInKeymap.put(new KeyCodeCombination(KeyCode.END, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionEndLineAction));
         builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionBackwardAction));
         builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionForwardAction));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.UP, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionUpAction));
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionDownAction));
 
         // Ctrl/Cmd-Home/End:
         builtInKeymap.put(new KeyCodeCombination(KeyCode.END, KeyCombination.SHORTCUT_DOWN), actions.get(DefaultEditorKit.endAction));
@@ -1002,7 +1007,9 @@ public final class FlowActions
             HomeDocumentAction::new,
             HomeLineAction::new,
             NextCharAction::new,
-            PrevCharAction::new
+            NextLineAction::new,
+            PrevCharAction::new,
+            PrevLineAction::new
         );
 
         FlowAbstractAction[] myActions = new FlowAbstractAction[] {
@@ -1814,6 +1821,50 @@ public final class FlowActions
         public void actionPerformed()
         {
             moveCaret(0);
+        }
+    }
+
+    private class PrevLineAction extends FlowActionWithOrWithoutSelection
+    {
+        public PrevLineAction(boolean withSelection)
+        {
+            super(withSelection ? DefaultEditorKit.selectionUpAction : DefaultEditorKit.upAction, Category.MOVE_SCROLL, withSelection);
+        }
+
+        @Override
+        public void actionPerformed()
+        {
+            SourceLocation pos = getTextComponent().getDocument().makeSourceLocation(getTextComponent().getCaretPosition());
+            if (pos.getLine() == 1)
+            {
+                moveCaret(0);
+            }
+            else
+            {
+                moveCaret(getTextComponent().getDocument().getPosition(new SourceLocation(pos.getLine() - 1, pos.getColumn())));
+            }
+        }
+    }
+
+    private class NextLineAction extends FlowActionWithOrWithoutSelection
+    {
+        public NextLineAction(boolean withSelection)
+        {
+            super(withSelection ? DefaultEditorKit.selectionDownAction : DefaultEditorKit.downAction, Category.MOVE_SCROLL, withSelection);
+        }
+
+        @Override
+        public void actionPerformed()
+        {
+            SourceLocation pos = getTextComponent().getDocument().makeSourceLocation(getTextComponent().getCaretPosition());
+            if (pos.getLine() == getTextComponent().getDocument().getLineCount())
+            {
+                moveCaret(getTextComponent().getDocument().getLength());
+            }
+            else
+            {
+                moveCaret(getTextComponent().getDocument().getPosition(new SourceLocation(pos.getLine() + 1, pos.getColumn())));
+            }
         }
     }
 

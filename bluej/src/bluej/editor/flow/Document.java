@@ -82,7 +82,9 @@ public interface Document
     
     default int getPosition(SourceLocation sourceLocation)
     {
-        return getLineStart(sourceLocation.getLine() - 1) + sourceLocation.getColumn() - 1;
+        int lineStart = getLineStart(sourceLocation.getLine() - 1);
+        int lineEnd = getLineEnd(sourceLocation.getLine() - 1);
+        return Math.max(lineStart, Math.min(lineEnd, lineStart + sourceLocation.getColumn() - 1));
     }
     
     default SourceLocation makeSourceLocation(int position)

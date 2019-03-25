@@ -185,6 +185,35 @@ public class TestBasicEditorInteraction extends FXTest
             push(KeyCode.RIGHT);
             return Math.min(len, pos + 1);
         }));
+        movers.add(new NamedKeyboardMover("Up", (pos, len) -> {
+            int expected = fx(() -> {
+                Document document = flowEditorPane.getDocument();
+                int curLine = document.getLineFromPosition(flowEditorPane.getCaretPosition());
+                int curLineStart = document.getLineStart(curLine);
+                if (curLineStart == 0)
+                    return 0;
+                int prevLineStart = document.getLineStart(curLine - 1);
+                // Clamp if the column would be off the end of previous line:
+                return Math.min(pos - curLineStart + prevLineStart, curLineStart - 1);
+            });
+            push(KeyCode.UP);
+            return expected;
+        }));
+        movers.add(new NamedKeyboardMover("Down", (pos, len) -> {
+            int expected = fx(() -> {
+                Document document = flowEditorPane.getDocument();
+                int curLine = document.getLineFromPosition(flowEditorPane.getCaretPosition());
+                int curLineStart = document.getLineStart(curLine);
+                if (curLine == document.getLineCount() - 1)
+                    return document.getLength();
+                int nextLineStart = document.getLineStart(curLine + 1);
+                int nextLineEnd = document.getLineEnd(curLine + 1);
+                // Clamp if the column would be off the end of next line:
+                return Math.min(pos - curLineStart + nextLineStart, nextLineEnd);
+            });
+            push(KeyCode.DOWN);
+            return expected;
+        }));
         return movers;
     }
 
