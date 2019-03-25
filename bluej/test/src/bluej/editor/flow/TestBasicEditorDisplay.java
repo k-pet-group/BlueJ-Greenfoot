@@ -83,6 +83,7 @@ public class TestBasicEditorDisplay extends FXTest
         flowEditorPane = new FlowEditorPane("");
         flowEditorPane.setPrefWidth(800.0);
         flowEditorPane.setPrefHeight(600.0);
+        flowEditorPane.setAllowScrollBars(false);
         ScopeColorsBorderPane scopeColors = new ScopeColorsBorderPane();
         scopeColors.scopeClassOuterColorProperty().set(Color.BLACK);
         scopeColors.scopeClassInnerColorProperty().set(Color.BLACK);
@@ -468,7 +469,7 @@ public class TestBasicEditorDisplay extends FXTest
             Color c = image.getPixelReader().getColor(x, y);
             if (!c.equals(Color.BLACK))
             {
-                if (c.equals(Color.WHITE) && inScope)
+                if (c.equals(c.grayscale()) && inScope)
                 {
                     // End of scope
                     // We don't always get exactly the same colour, so have some tolerance: 
@@ -488,7 +489,7 @@ public class TestBasicEditorDisplay extends FXTest
                     inScope = false;
                     scopeIndex += 1;
                 }
-                else if (!c.equals(Color.WHITE) && !inScope)
+                else if (!c.equals(c.grayscale()) && !inScope)
                 {
                     scopeStartX = x - 1;
                     scopeColor = c;

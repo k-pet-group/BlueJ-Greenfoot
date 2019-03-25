@@ -86,6 +86,8 @@ public class FlowEditorPane extends Region implements DocumentListener
     private final ScrollBar verticalScroll;
     private final ScrollBar horizontalScroll;
     private boolean updatingScrollBarDirectly = false;
+    // Scroll bars can be turned off for testing and printing:
+    private boolean allowScrollBars;
 
     public FlowEditorPane(String content)
     {
@@ -328,7 +330,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         
         prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(styledLines.stream(), this::snapSizeY, getHeight(), fontSize));
         prospectiveChildren.add(caretShape);
-        verticalScroll.setVisible(lineDisplay.getVisibleLineCount() < document.getLineCount());
+        verticalScroll.setVisible(allowScrollBars && lineDisplay.getVisibleLineCount() < document.getLineCount());
         // Note: we don't use actual line count as that "jiggle" by one line as lines are partially
         // scrolled out of view.  i.e. if you have a window that's tall enough to show 1.8 lines,
         // the number of actual visible lines may be 2 or 3 depending on where you scroll to.
@@ -731,5 +733,11 @@ public class FlowEditorPane extends Region implements DocumentListener
     public void setLineStyler(LineStyler lineStyler)
     {
         this.lineStyler = lineStyler;
+    }
+
+    public void setAllowScrollBars(boolean allowScrollBars)
+    {
+        this.allowScrollBars = allowScrollBars;
+        updateRender(false);
     }
 }
