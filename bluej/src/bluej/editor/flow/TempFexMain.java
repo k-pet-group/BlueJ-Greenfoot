@@ -51,7 +51,7 @@ public class TempFexMain extends Application
         Properties tempCommandLineProps = new Properties();
         tempCommandLineProps.put("bluej.debug", "true");
         Config.initialise(new File("/Users/neil/intellij/bjgf/bluej/lib"), tempCommandLineProps, false);
-        FlowEditor flowEditor = new FlowEditor(null);
+        FlowEditor flowEditor = new FlowEditor(null, null);
         flowEditor.showFile("/Users/neil/intellij/bjgf/bluej/src/bluej/pkgmgr/PkgMgrFrame.java", StandardCharsets.UTF_8, true, "");
         flowEditor.setPrefWidth(800);
         flowEditor.setPrefHeight(600);

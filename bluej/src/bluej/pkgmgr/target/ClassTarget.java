@@ -1245,7 +1245,7 @@ public class ClassTarget extends DependentTarget
                     {
                         return project.getDefaultFXTabbedEditor();
                     }
-                });
+                }, this);
                 ((TextEditor)editor).showFile(filename, project.getProjectCharset(), isCompiled(), docFilename);
                 /* TODOFLOW
                 editor = EditorManager.getEditorManager().openClass(filename, docFilename,

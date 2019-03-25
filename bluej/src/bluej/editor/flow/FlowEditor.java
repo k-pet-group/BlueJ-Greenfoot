@@ -1,9 +1,15 @@
 package bluej.editor.flow;
 
+import bluej.Config;
+import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerThread;
+import bluej.editor.EditorWatcher;
 import bluej.editor.TextEditor;
+import bluej.editor.flow.FlowErrorManager.ErrorDetails;
+import bluej.editor.flow.StatusLabel.Status;
+import bluej.editor.moe.Info;
 import bluej.editor.moe.ScopeColorsBorderPane;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.FlowFXTab;
@@ -12,16 +18,21 @@ import bluej.parser.SourceLocation;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ReparseableDocument;
 import bluej.parser.symtab.ClassInfo;
+import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgr.PrintSize;
 import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.utility.Debug;
+import bluej.utility.DialogManager;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import javafx.print.PrinterJob;
 import javafx.scene.control.Menu;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCodeCombination;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,6 +40,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
 {
@@ -37,8 +49,22 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
     private final JavaSyntaxView javaSyntaxView = new JavaSyntaxView(flowEditorPane, this);
     private final FetchTabbedEditor fetchTabbedEditor;
     private final FlowFXTab fxTab = new FlowFXTab(this, "TODOFLOW Title");
-
+    private final FlowActions actions;
+    /** Watcher - provides interface to BlueJ core. May be null (eg for README.txt file). */
+    private final EditorWatcher watcher;
     
+    private boolean compilationStarted;
+    private boolean requeueForCompilation;
+    private boolean compilationQueued;
+    private boolean compilationQueuedExplicit;
+    private CompileReason requeueReason;
+    private CompileType requeueType;
+    private final Info info;
+    private final StatusLabel saveState;          // the status label
+    private FlowErrorManager errorManager = new FlowErrorManager(this, enable -> {});
+    private FXTabbedEditor fxTabbedEditor;
+
+
     // TODOFLOW handle the interface-only case
     public boolean containsSourceCode()
     {
@@ -66,12 +92,15 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
     private final class UnimplementedException extends RuntimeException {}
 
 
-    public FlowEditor(FetchTabbedEditor fetchTabbedEditor)
+    public FlowEditor(FetchTabbedEditor fetchTabbedEditor, EditorWatcher editorWatcher)
     {
         this.undoManager = new UndoManager();
         this.fetchTabbedEditor = fetchTabbedEditor;
+        this.watcher = editorWatcher;
+        info = new Info();
+        saveState = new StatusLabel(Status.SAVED, this, errorManager);
         setCenter(flowEditorPane);
-        FlowActions.getActions(this);
+        actions = FlowActions.getActions(this);
     }
 
     public void requestEditorFocus()
@@ -79,9 +108,32 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
         flowEditorPane.requestFocus();
     }
 
+    /**
+     * Notify this editor that it has gained focus, either because its tab was selected or it is the
+     * currently selected tab in a window that gained focus, or it has lost focus for the opposite
+     * reasons.
+     *
+     * @param visible   true if the editor has focus, false otherwise
+     */
     public void notifyVisibleTab(boolean visible)
     {
-        throw new UnimplementedException();
+        if (visible) {
+            if (watcher != null) {
+                watcher.recordSelected();
+            }
+            checkForChangeOnDisk();
+        }
+        else
+        {
+            // Hide any error tooltip:
+            //TODOFLOW
+            //showErrorOverlay(null, 0);
+        }
+    }
+
+    private void checkForChangeOnDisk()
+    {
+        // TODOFLOW
     }
 
     public void cancelFreshState()
@@ -91,8 +143,63 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
 
     public void setParent(FXTabbedEditor parent, boolean partOfMove)
     {
-        throw new UnimplementedException();
+        if (watcher != null)
+        {
+            if (!partOfMove && parent != null)
+            {
+                watcher.recordOpen();
+            }
+            else if (!partOfMove && parent == null)
+            {
+                watcher.recordClose();
+            }
+
+            // If we are closing, force a compilation in case there are pending changes:
+            if (parent == null && saveState.isChanged())
+            {
+                scheduleCompilation(CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
+            }
+        }
+
+        this.fxTabbedEditor = parent;
     }
+
+    /**
+     * Schedule an immediate compilation for the specified reason and of the specified type.
+     * @param reason  The reason for compilation
+     * @param ctype   The type of compilation
+     */
+    private void scheduleCompilation(CompileReason reason, CompileType ctype)
+    {
+        if (watcher != null)
+        {
+            // We can collapse multiple compiles, but we cannot collapse an explicit compilation
+            // (resulting class files kept) into a non-explicit compilation (result discarded).
+            if (! compilationQueued )
+            {
+                watcher.scheduleCompilation(true, reason, ctype);
+                compilationQueued = true;
+            }
+            else if (compilationStarted ||
+                    (ctype != CompileType.ERROR_CHECK_ONLY && ! compilationQueuedExplicit))
+            {
+                // Either: a previously queued compilation has already started
+                // Or: we have queued an error-check-only compilation, but are being asked to
+                //     schedule a full (explicit) compile which keeps the resulting classes.
+                //
+                // In either case, we need to queue a second compilation after the current one
+                // finishes. We override any currently queued ERROR_CHECK_ONLY since explicit
+                // compiles should take precedence:
+                if (! requeueForCompilation || ctype == CompileType.ERROR_CHECK_ONLY)
+                {
+                    requeueForCompilation = true;
+                    requeueReason = reason;
+                    requeueType = ctype;
+                }
+            }
+        }
+    }
+
 
     public List<Menu> getFXMenu()
     {
@@ -214,7 +321,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
     @Override
     public ReparseableDocument getSourceDocument()
     {
-        throw new UnimplementedException();
+        return javaSyntaxView;
     }
 
     @Override
@@ -301,7 +408,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
     @Override
     public void save() throws IOException
     {
-        throw new UnimplementedException();
+        // TODOFLOW don't want to save until we stop throwing exceptions everywhere...
     }
 
     @Override
@@ -325,7 +432,50 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
     @Override
     public boolean displayDiagnostic(Diagnostic diagnostic, int errorIndex, CompileType compileType)
     {
-        throw new UnimplementedException();
+        if (compileType.showEditorOnError())
+        {
+            setEditorVisible(true, false);
+        }
+
+        switchToSourceView();
+
+        if (diagnostic.getStartLine() >= 0 && diagnostic.getStartLine() < document.getLineCount())
+        {
+            // Limit diagnostic display to a single line.
+            int startPos = document.getPosition(new SourceLocation((int)diagnostic.getStartLine(), (int) diagnostic.getStartColumn()));
+            int endPos;
+            if (diagnostic.getStartLine() != diagnostic.getEndLine())
+            {
+                endPos = document.getLineEnd((int)diagnostic.getStartLine());
+            }
+            else
+                {
+                endPos = document.getPosition(new SourceLocation((int)diagnostic.getStartLine(), (int) diagnostic.getEndColumn()));
+            }
+
+            // highlight the error and the line on which it occurs
+            // If error is zero-width, make it one character wide:
+            if (endPos == startPos)
+            {
+                // By default, extend one char right, unless that would encompass a newline:
+                if (endPos < getTextLength() - 1 && !document.getContent(endPos, 1).equals("\n"))
+                {
+                    endPos += 1;
+                }
+                else if (startPos > 0 && !document.getContent(startPos - 1, 1).equals("\n"))
+                {
+                    startPos -= 1;
+                }
+            }
+            errorManager.addErrorHighlight(startPos, endPos, diagnostic.getMessage(), diagnostic.getIdentifier());
+        }
+
+        return true;
+    }
+
+    private void switchToSourceView()
+    {
+        //TODOFLOW
     }
 
     @Override
@@ -361,13 +511,51 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
     @Override
     public boolean compileStarted(int compilationSequence)
     {
-        throw new UnimplementedException();
+        compilationStarted = true;
+        errorManager.removeAllErrorHighlights();
+        return false;
     }
 
     @Override
     public void compileFinished(boolean successful, boolean classesKept)
     {
-        throw new UnimplementedException();
+        compilationStarted = false;
+        if (requeueForCompilation) {
+            requeueForCompilation = false;
+            if (classesKept)
+            {
+                // If the classes were kept, that means the compilation is valid and the source
+                // hasn't changed since. There is then no need for another recompile, even if
+                // we thought we needed one before.
+                compilationQueued = false;
+            }
+            else
+            {
+                compilationQueuedExplicit = (requeueType != CompileType.ERROR_CHECK_ONLY);
+                watcher.scheduleCompilation(true, requeueReason, requeueType);
+            }
+        }
+        else {
+            compilationQueued = false;
+        }
+
+        if (classesKept)
+        {
+            // Compilation requested via the editor interface has completed
+            if (successful)
+            {
+                info.messageImportant(Config.getString("editor.info.compiled"));
+            }
+            else
+            {
+                info.messageImportant(getCompileErrorLabel());
+            }
+        }
+    }
+
+    private String getCompileErrorLabel()
+    {
+        return Config.getString("editor.info.compileError").replace("$", actions.getKeyStrokesForAction("compile").stream().map(KeyCodeCombination::getDisplayText).collect(Collectors.joining(" " + Config.getString("or") + " ")));
     }
 
     @Override
@@ -385,7 +573,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
     @Override
     public boolean isModified()
     {
-        throw new UnimplementedException();
+        //TODOFLOW need to implement saving first
+        return false;
     }
 
     @Override
@@ -500,5 +689,43 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
     public FlowEditorPane getSourcePane()
     {
         return flowEditorPane;
+    }
+
+    public void compileOrShowNextError()
+    {
+        if (watcher != null) {
+            if (saveState.isChanged() || !errorManager.hasErrorHighlights())
+            {
+                if (! saveState.isChanged())
+                {
+                    if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT))
+                    {
+                        // Pop up in a dialog:
+                        DialogManager.showTextWithCopyButtonFX(getWindow(), Config.getString("pkgmgr.accessibility.compileDone"), "BlueJ");
+                    }
+                }
+                scheduleCompilation(CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE);
+            }
+            else
+            {
+                ErrorDetails err = errorManager.getNextErrorPos(flowEditorPane.getCaretPosition());
+                if (err != null)
+                {
+                    flowEditorPane.positionCaret(err.startPos);
+
+                    if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT))
+                    {
+                        // Pop up in a dialog:
+                        DialogManager.showTextWithCopyButtonFX(getWindow(), err.message, "BlueJ");
+                    }
+                }
+            }
+        }
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public javafx.stage.Window getWindow()
+    {
+        return fxTabbedEditor.getWindow();
     }
 }
