@@ -148,7 +148,7 @@ public class TestDocument
                 }
             }
             
-            // Check a few line start positions:
+            // Check a few line start and end positions:
             for (int j = 0; j < 10; j++)
             {
                 int pos = r.nextInt(curContent.length() + 1);
@@ -160,6 +160,9 @@ public class TestDocument
                     assertEquals("" + pos, line, document.getLineFromPosition(pos));
                     assertEquals("" + pos, column, document.getColumnFromPosition(pos));
                     assertEquals(pos, document.getLineStart(line) + column);
+                    int nextNewLine = curContent.indexOf('\n', pos);
+                    assertEquals(nextNewLine == -1 ? curContent.length() : nextNewLine, document.getLineEnd(line));
+                    assertEquals(document.getLineLength(line), document.getLineEnd(line) - document.getLineStart(line) + (nextNewLine == -1 ? 0 : 1));
                 }
             }
             

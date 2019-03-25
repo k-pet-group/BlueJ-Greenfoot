@@ -116,6 +116,14 @@ public class SlowDocument implements Document
     }
 
     @Override
+    public int getLineEnd(int lineNumber)
+    {
+        int start = getLineStart(lineNumber);
+        int nextNewLine = content.indexOf('\n', start);
+        return nextNewLine == -1 ? getLength() : nextNewLine;
+    }
+
+    @Override
     public List<CharSequence> getLines()
     {
         return Arrays.asList(content.split("\n", -1));

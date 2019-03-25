@@ -94,9 +94,21 @@ public interface Document
      * Given a line index (first line is zero), get the character offset within
      * the whole document of the start of that line.
      * @param lineNumber The line number (zero-based)
-     * @return The offset within the document of that line's start
+     * @return The offset within the document of that line's start (the first character after the newline)
      */
     int getLineStart(int lineNumber);
+
+    /**
+     * Given a line index (first line is zero), get the character offset within
+     * the whole document of the end of that line.  The end of the line is the index of the
+     * terminating character, or the document length if this is the last line.  Thus, calling
+     * getContext(getLineStart(n), getLineEnd(n)) will get you the content of the line minus
+     * the trailing newline (if any).
+     * 
+     * @param lineNumber The line number (zero-based)
+     * @return The offset within the document of that line's end (the newline which terminates the line, or the end of the document)
+     */
+    int getLineEnd(int lineNumber);
     
     /**
      * Gets the lines in the document.  Undefined behaviour if the document

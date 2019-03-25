@@ -177,7 +177,11 @@ public class HoleDocument implements Document
         }
     }
 
-    // A read-only list of the current line start positions in the document
+    /**
+     * A read-only list of the current line start positions in the document.
+     * Remember that the line start positions are for lines after the first, so the initial
+     * always-zero start of line zero is not included.
+     */
     private List<Integer> getLineStartPositions()
     {
         // No need to copy when we are read-only, just make a dummy list object: 
@@ -287,6 +291,7 @@ public class HoleDocument implements Document
     @Override
     public int getLineStart(int lineNumber)
     {
+        // Remember that the line start positions are for lines after the first:
         if (lineNumber == 0)
         {
             return 0;
@@ -294,6 +299,21 @@ public class HoleDocument implements Document
         else
         {
             return getLineStartPositions().get(lineNumber - 1);
+        }
+    }
+
+    @Override
+    public int getLineEnd(int lineNumber)
+    {
+        // Remember that the line start positions are for lines after the first,
+        // so we are fetching the start of the line after us:
+        if (lineNumber < lineStartPositions.size())
+        {
+            return getLineStartPositions().get(lineNumber) - 1;
+        }
+        else
+        {
+            return getLength();
         }
     }
 
