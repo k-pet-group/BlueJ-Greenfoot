@@ -85,7 +85,8 @@ public class FlowEditorPane extends Region implements DocumentListener
     private final Pane backgroundPane;
     private final ScrollBar verticalScroll;
     private final ScrollBar horizontalScroll;
-    
+    private boolean updatingScrollBarDirectly = false;
+
     public FlowEditorPane(String content)
     {
         setSnapToPixel(true);
@@ -105,8 +106,12 @@ public class FlowEditorPane extends Region implements DocumentListener
         verticalScroll.setOrientation(Orientation.VERTICAL);
         verticalScroll.setVisible(false);
         JavaFXUtil.addChangeListenerPlatform(verticalScroll.valueProperty(), v -> {
-            lineDisplay.scrollTo(v.intValue(), (v.doubleValue() - v.intValue()) * -1 * lineDisplay.getLineHeight());
-            updateRender(false);
+            // Prevent an infinite loop when we update scroll bar ourselves in render method:
+            if (!updatingScrollBarDirectly)
+            {
+                lineDisplay.scrollTo(v.intValue(), (v.doubleValue() - v.intValue()) * -1 * lineDisplay.getLineHeight());
+                updateRender(false);
+            }
         });
         horizontalScroll = new ScrollBar();
         horizontalScroll.setOrientation(Orientation.HORIZONTAL);
@@ -331,6 +336,9 @@ public class FlowEditorPane extends Region implements DocumentListener
         double visibleLinesEstimate = getHeight() / lineDisplay.getLineHeight();
         verticalScroll.setMax(document.getLineCount() - visibleLinesEstimate);
         verticalScroll.setVisibleAmount(visibleLinesEstimate / document.getLineCount() * verticalScroll.getMax());
+        updatingScrollBarDirectly = true;
+        verticalScroll.setValue(lineDisplay.getLineRangeVisible()[0] - (lineDisplay.getFirstVisibleLineOffset() / lineDisplay.getLineHeight()));
+        updatingScrollBarDirectly = false;
         
         // This will often avoid changing the children, if the window has not been resized:
         boolean needToChangeLinesAndCaret = false;
