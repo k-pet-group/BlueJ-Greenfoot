@@ -324,7 +324,13 @@ public class FlowEditorPane extends Region implements DocumentListener
         prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(styledLines.stream(), this::snapSizeY, getHeight(), fontSize));
         prospectiveChildren.add(caretShape);
         verticalScroll.setVisible(lineDisplay.getVisibleLineCount() < document.getLineCount());
-        verticalScroll.setMax(document.getLineCount() - (getHeight() / lineDisplay.getLineHeight()));
+        // Note: we don't use actual line count as that "jiggle" by one line as lines are partially
+        // scrolled out of view.  i.e. if you have a window that's tall enough to show 1.8 lines,
+        // the number of actual visible lines may be 2 or 3 depending on where you scroll to.
+        // A more reliable estimate that doesn't jiggle is to work out the 1.8 part like this:
+        double visibleLinesEstimate = getHeight() / lineDisplay.getLineHeight();
+        verticalScroll.setMax(document.getLineCount() - visibleLinesEstimate);
+        verticalScroll.setVisibleAmount(visibleLinesEstimate / document.getLineCount() * verticalScroll.getMax());
         
         // This will often avoid changing the children, if the window has not been resized:
         boolean needToChangeLinesAndCaret = false;
