@@ -52,7 +52,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
     private final FlowActions actions;
     /** Watcher - provides interface to BlueJ core. May be null (eg for README.txt file). */
     private final EditorWatcher watcher;
-    
+
+    private final boolean sourceIsCode = true /*TODOFLOW*/;           // true if current buffer is code
     private boolean compilationStarted;
     private boolean requeueForCompilation;
     private boolean compilationQueued;
@@ -136,9 +137,18 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
         // TODOFLOW
     }
 
+    /**
+     * Schedule compilation, if any edits have occurred since last compile.
+     */
+    @OnThread(Tag.FXPlatform)
     public void cancelFreshState()
     {
-        throw new UnimplementedException();
+        if (sourceIsCode && saveState.isChanged())
+        {
+            scheduleCompilation(CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
+        }
+
+        // Save will occur as part of compilation scheduled above.
     }
 
     public void setParent(FXTabbedEditor parent, boolean partOfMove)
@@ -203,7 +213,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
 
     public List<Menu> getFXMenu()
     {
-        throw new UnimplementedException();
+        //TODOFLOW
+        return List.of(); 
     }
 
     @Override
@@ -411,12 +422,40 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
         // TODOFLOW don't want to save until we stop throwing exceptions everywhere...
     }
 
+    /**
+     * The editor wants to close. Do this through the EditorManager so that we
+     * can be removed from the list of open editors.
+     */
     @Override
+    @OnThread(Tag.FXPlatform)
     public void close()
     {
-        throw new UnimplementedException();
+        cancelFreshState();
+
+        try
+        {
+            save();
+        }
+        catch (IOException ioe)
+        {
+            DialogManager.showErrorTextFX(getWindow(), "Error saving source code");
+        }
+
+        doClose();
     }
 
+    /**
+     * The editor has been closed. Hide the editor window now.
+     */
+    public void doClose()
+    {
+        setEditorVisible(false, false);
+        if (watcher != null)
+        {
+            watcher.closeEvent(this);
+        }
+    }
+    
     @Override
     public void refresh()
     {

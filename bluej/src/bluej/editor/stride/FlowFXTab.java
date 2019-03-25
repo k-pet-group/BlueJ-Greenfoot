@@ -75,7 +75,7 @@ public @OnThread(Tag.FXPlatform) class FlowFXTab extends FXTab
             {
                 updateMoveMenus();
                 List<Menu> moeFXMenu = FlowFXTab.this.flowEditor.getFXMenu();
-                if (moeFXMenu.get(0).getItems().get(0) != this.mainMoveMenu)
+                if (moeFXMenu.size() > 0 && moeFXMenu.get(0).getItems().get(0) != this.mainMoveMenu)
                 {
                     moeFXMenu.get(0).getItems().add(0, this.mainMoveMenu);
                     moeFXMenu.get(0).getItems().add(1, new SeparatorMenuItem());
