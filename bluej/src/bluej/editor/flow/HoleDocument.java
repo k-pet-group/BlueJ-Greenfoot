@@ -25,10 +25,9 @@ import java.lang.ref.WeakReference;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class HoleDocument implements Document
 {
@@ -42,9 +41,7 @@ public class HoleDocument implements Document
     private int holeStart; // Index of first character in the hole.
     private int holeEnd; // Index of first character in array after the hole
     
-    // Not including the first line, which always begins at zero.  So lineStartPositions.get(0)
-    // is the beginning of the second line...
-    private final ArrayList<TrackedPosition> lineStartPositions = new ArrayList<>();
+    private final ArrayList<LineInformation> lineInformation = new ArrayList<>();
 
     /**
      * We need to know all the positions so we can update them all.  But we don't want
@@ -60,16 +57,24 @@ public class HoleDocument implements Document
         content = new char[128];
         holeStart = 0;
         holeEnd = content.length;
+        lineInformation.add(new LineInformation(null));
     }
 
     @Override
     public void replaceText(int startCharIncl, int endCharExcl, String text)
     {
         // Get rid of any new line positions that were in removed region:
-        int indexToInsertNewNewlines = 0;
-        for (Iterator<TrackedPosition> iterator = lineStartPositions.iterator(); iterator.hasNext(); )
+        int indexToInsertNewNewlines = 1;
+        for (Iterator<LineInformation> iterator = lineInformation.iterator(); iterator.hasNext(); )
         {
-            TrackedPosition lineStartPosition = iterator.next();
+            LineInformation lineInformation = iterator.next();
+            if (lineInformation.lineStart == null)
+            {
+                // Unremovable first line -- skip
+                continue;
+            }
+            
+            TrackedPosition lineStartPosition = lineInformation.lineStart;
             if (lineStartPosition.position <= startCharIncl)
             {
                 indexToInsertNewNewlines++;
@@ -139,7 +144,7 @@ public class HoleDocument implements Document
         {
             if (text.charAt(i) == '\n')
             {
-                lineStartPositions.add(indexToInsertNewNewlines, trackPosition(i + 1 + startCharIncl, Bias.BACK));
+                lineInformation.add(indexToInsertNewNewlines, new LineInformation(trackPosition(i + 1 + startCharIncl, Bias.BACK)));
                 indexToInsertNewNewlines += 1;
             }
         }
@@ -168,19 +173,17 @@ public class HoleDocument implements Document
         int index = Collections.binarySearch(getLineStartPositions(), position);
         if (index >= 0)
         {
-            // Line begins there exactly.  Answer is that index + 1, for the initial empty line:
-            return index + 1;
+            // Line begins there exactly:
+            return index;
         }
         else
         {
-            return -1 - index;
+            return -2-index;
         }
     }
 
     /**
      * A read-only list of the current line start positions in the document.
-     * Remember that the line start positions are for lines after the first, so the initial
-     * always-zero start of line zero is not included.
      */
     private List<Integer> getLineStartPositions()
     {
@@ -190,13 +193,20 @@ public class HoleDocument implements Document
             @Override
             public int size()
             {
-                return lineStartPositions.size();
+                return lineInformation.size();
             }
 
             @Override
             public Integer get(int index)
             {
-                return lineStartPositions.get(index).position;
+                if (index == 0)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return lineInformation.get(index).lineStart.position;
+                }
             }
         };
     }
@@ -204,15 +214,15 @@ public class HoleDocument implements Document
     @Override
     public int getColumnFromPosition(int position)
     {
-        int lineStartIndex = getLineFromPosition(position) - 1;
-        if (lineStartIndex < 0)
+        int lineStartIndex = getLineFromPosition(position);
+        if (lineStartIndex <= 0)
         {
             // First line:
             return position;
         }
         else
         {
-            return position - lineStartPositions.get(lineStartIndex).position;
+            return position - lineInformation.get(lineStartIndex).lineStart.position;
         }
     }
 
@@ -233,15 +243,15 @@ public class HoleDocument implements Document
             @Override
             public CharSequence get(int lineIndex)
             {
-                int startChar = lineIndex == 0 ? 0 : lineStarts.get(lineIndex - 1);
-                int endChar = lineIndex == lineStarts.size() ? getLength() : (lineStarts.get(lineIndex) - 1);
+                int startChar = lineStarts.get(lineIndex);
+                int endChar = lineIndex + 1 >= lineStarts.size() ? getLength() : (lineStarts.get(lineIndex + 1) - 1);
                 return subSequence(startChar, endChar);
             }
 
             @Override
             public int size()
             {
-                return lineStarts.size() + 1;
+                return lineStarts.size();
             }
         };
     }
@@ -291,25 +301,15 @@ public class HoleDocument implements Document
     @Override
     public int getLineStart(int lineNumber)
     {
-        // Remember that the line start positions are for lines after the first:
-        if (lineNumber == 0)
-        {
-            return 0;
-        }
-        else
-        {
-            return getLineStartPositions().get(lineNumber - 1);
-        }
+        return getLineStartPositions().get(lineNumber);
     }
 
     @Override
     public int getLineEnd(int lineNumber)
     {
-        // Remember that the line start positions are for lines after the first,
-        // so we are fetching the start of the line after us:
-        if (lineNumber < lineStartPositions.size())
+        if (lineNumber + 1 < lineInformation.size())
         {
-            return getLineStartPositions().get(lineNumber) - 1;
+            return getLineStartPositions().get(lineNumber + 1) - 1;
         }
         else
         {
@@ -321,5 +321,16 @@ public class HoleDocument implements Document
     public void addListener(DocumentListener listener)
     {
         listeners.add(listener);
+    }
+    
+    private static class LineInformation
+    {
+        private final TrackedPosition lineStart;
+        private final HashMap<Object, Object> lineAttributes = new HashMap<>();
+
+        public LineInformation(TrackedPosition lineStart)
+        {
+            this.lineStart = lineStart;
+        }
     }
 }

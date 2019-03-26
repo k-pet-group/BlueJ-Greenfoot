@@ -69,7 +69,7 @@ public class TestBasicEditorInteraction extends FXTest
     }
     
     @Property(trials = 5)
-    public void testKeyboardMovement(@When(seed=1L) @From(GenString.class) String rawContent, @When(seed=1L) @From(GenRandom.class) Random r)
+    public void testKeyboardMovement(@From(GenString.class) String rawContent, @From(GenRandom.class) Random r)
     {
         String content = removeInvalid(rawContent);
         setText(content);
@@ -117,7 +117,7 @@ public class TestBasicEditorInteraction extends FXTest
     }
 
     @Property(trials = 5)
-    public void testKeyboardDelete(@When(seed=1L) @From(GenString.class) String rawContent, @When(seed=1L) @From(GenRandom.class) Random r)
+    public void testKeyboardDelete(@From(GenString.class) String rawContent, @From(GenRandom.class) Random r)
     {
         String content = removeInvalid(rawContent);
         setText(content);

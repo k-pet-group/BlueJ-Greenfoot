@@ -42,7 +42,7 @@ import static org.junit.Assert.assertFalse;
 @RunWith(JUnitQuickcheck.class)
 public class TestDocument
 {
-    @Property(shrink = false)
+    @Property(trials = 20, shrink = false)
     public void propDocumentStringReplace(@From(GenRandom.class) Random r)
     {
         class Pos
