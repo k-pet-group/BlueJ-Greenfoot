@@ -322,7 +322,19 @@ public class HoleDocument implements Document
     {
         listeners.add(listener);
     }
-    
+
+    public boolean hasLineAttribute(int lineIndex, Object attributeKey)
+    {
+        if (lineIndex >= 0 && lineIndex < lineInformation.size())
+        {
+            return lineInformation.get(lineIndex).lineAttributes.containsKey(attributeKey);
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     private static class LineInformation
     {
         private final TrackedPosition lineStart;

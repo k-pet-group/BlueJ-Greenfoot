@@ -8,6 +8,7 @@ import bluej.debugger.DebuggerThread;
 import bluej.editor.EditorWatcher;
 import bluej.editor.TextEditor;
 import bluej.editor.flow.FlowErrorManager.ErrorDetails;
+import bluej.editor.flow.JavaSyntaxView.ParagraphAttribute;
 import bluej.editor.flow.StatusLabel.Status;
 import bluej.editor.moe.Info;
 import bluej.editor.moe.ScopeColorsBorderPane;
@@ -45,7 +46,7 @@ import java.util.stream.Collectors;
 public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
 {
     private final FlowEditorPane flowEditorPane = new FlowEditorPane("");
-    private final Document document = flowEditorPane.getDocument();
+    private final HoleDocument document = flowEditorPane.getDocument();
     private final JavaSyntaxView javaSyntaxView = new JavaSyntaxView(flowEditorPane, this);
     private final FetchTabbedEditor fetchTabbedEditor;
     private final FlowFXTab fxTab = new FlowFXTab(this, "TODOFLOW Title");
@@ -64,6 +65,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
     private final StatusLabel saveState;          // the status label
     private FlowErrorManager errorManager = new FlowErrorManager(this, enable -> {});
     private FXTabbedEditor fxTabbedEditor;
+    private boolean mayHaveBreakpoints;
 
 
     // TODOFLOW handle the interface-only case
@@ -606,7 +608,21 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
     @Override
     public void reInitBreakpoints()
     {
-        throw new UnimplementedException();
+        if (mayHaveBreakpoints) {
+            mayHaveBreakpoints = false;
+            for (int i = 1; i <= numberOfLines(); i++) {
+                if (lineHasBreakpoint(i)) {
+                    if (watcher != null)
+                        watcher.breakpointToggleEvent(i, true);
+                    mayHaveBreakpoints = true;
+                }
+            }
+        }
+    }
+
+    private boolean lineHasBreakpoint(int i)
+    {
+        return document.hasLineAttribute(i, ParagraphAttribute.BREAKPOINT);
     }
 
     @Override

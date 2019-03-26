@@ -71,7 +71,7 @@ public class FlowEditorPane extends Region implements DocumentListener
 
     double fontSize = 12;
     
-    private final Document document;
+    private final HoleDocument document;
     
     private final TrackedPosition anchor;
     private final TrackedPosition caret;
@@ -610,7 +610,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         }
     }
 
-    public Document getDocument()
+    public HoleDocument getDocument()
     {
         return document;
     }
