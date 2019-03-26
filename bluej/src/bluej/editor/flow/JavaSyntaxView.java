@@ -52,9 +52,6 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.TextField;
-import javafx.scene.image.Image;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
@@ -111,7 +108,6 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     private final Document document;
     private ParsedCUNode rootNode;
     private NodeTree<ReparseRecord> reparseRecordTree;
-    private final FXCache<ScopeInfo, Image> imageCache;
     private final ScopeColors scopeColors;
     private final BooleanExpression syntaxHighlighting;
     private int imageCacheLineHeight;
@@ -192,21 +188,18 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         this.document = editorPane.getDocument();
         this.editorPane = editorPane;
         this.syntaxHighlighting = PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING);
-        this.imageCache = new FXCache<>(s -> drawImageFor(s, imageCacheLineHeight), 40);
         this.scopeColors = scopeColors;
         resetColors();
         editorPane.addLineDisplayListener(this);
         editorPane.setLineStyler(this::getTokenStylesFor);
         JavaFXUtil.addChangeListenerPlatform(PrefMgr.getScopeHighlightStrength(), str -> {
             resetColors();
-            imageCache.clear();
             recalculateAllScopes();
         });
         JavaFXUtil.addChangeListenerPlatform(syntaxHighlighting, syn -> {
             recalculateAllScopes();
         });
         JavaFXUtil.addChangeListenerPlatform(PrefMgr.getEditorFontSize(), sz -> {
-            imageCache.clear();
             nodeIndents.clear();
             cachedSpaceSizes.clear();
             recalculateAllScopes();
@@ -221,7 +214,6 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 JavaFXUtil.runAfterCurrent(() ->
                 {
                     resetColors();
-                    imageCache.clear();
                     recalculateAllScopes();
                 });
             }
@@ -339,202 +331,6 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 //(widthProperty == null || widthProperty.get() == 0) ? 200 :
                         //((int)widthProperty.get() - PARAGRAPH_MARGIN),
                 firstLineIncl, lastLineIncl);
-    }
-
-    public Image getImageFor(ScopeInfo s, int lineHeight)
-    {
-        if (lineHeight == 0)
-        {
-            return new WritableImage(1, 1);
-        }
-
-        // Many of the images we use will be duplicated, e.g. for multiple lines in the same body of a block
-        // So we keep them in a cache to save unnecessary effort drawing new line backgrounds:
-        if (lineHeight != imageCacheLineHeight)
-        {
-            imageCache.clear();
-            imageCacheLineHeight = lineHeight;
-        }
-
-        // Important to make a copy of the image.  If all lines with the same background
-        // use the same image object then they all end up setting a listener on the image
-        // in case it changes (even though we won't change it).  Then we get a memory leak
-        // where old ParagraphText items are kept in memory through the listeners
-        // even though they should be GCed.  So, take a copy:
-        return copy(imageCache.get(s));
-    }
-
-    private static Image copy(Image original)
-    {
-        return new WritableImage(original.getPixelReader(), (int)original.getWidth(), (int)original.getHeight());
-    }
-
-    @OnThread(Tag.FX)
-    private Image drawImageFor(ScopeInfo s, int lineHeight)
-    {
-        WritableImage image = new WritableImage(s.nestedScopes.stream()
-                .mapToInt(n -> n.leftRight.rhs + 1).max().orElse(1) + 1, lineHeight);
-
-        for (ScopeInfo.SingleNestedScope singleNestedScope : s.nestedScopes)
-        {
-            LeftRight leftRight = singleNestedScope.leftRight;
-            int padding = false ? 0 : CURVED_CORNER_SIZE;
-            int sideTopMargin = leftRight.starts ? padding : 0;
-            int sideBottomMargin = leftRight.ends ? padding : 0;
-            fillRect(image.getPixelWriter(), leftRight.lhs, 0 + sideTopMargin, padding,
-                    lineHeight - sideBottomMargin - sideTopMargin, leftRight.fillColor);
-            for (int y = sideTopMargin; y < lineHeight - sideBottomMargin; y++)
-            {
-                image.getPixelWriter().setColor(leftRight.lhs, y, leftRight.edgeColor);
-            }
-
-            // I realise it seems crazy to be drawing the curved corners manually here.  But
-            // the JavaFX PixelWriter class for writing directly to an image has no support for anything
-            // better than setting individual pixels.  It would be possible to create a Canvas
-            // and fill an arc and then pull a snapshot of the Canvas into an image, but getting right
-            // things like HiDPI would be difficult.  So it is the simplest solution to just
-            // draw a simple curved corner ourselves:
-
-            if (leftRight.starts)
-            {
-                for (int x = 0; x < padding; x++)
-                {
-                    for (int y = 0; y < padding; y++)
-                    {
-                        if (CORNER_TEMPLATE[y][x] != 0)
-                        {
-                            Color c = (CORNER_TEMPLATE[y][x] == 1) ?
-                                    leftRight.edgeColor : leftRight.fillColor; 
-                            image.getPixelWriter().setColor(leftRight.lhs + x, y, c);
-                        }
-                    }
-                }
-            }
-            if (leftRight.ends)
-            {
-                for (int x = 0; x < padding; x++)
-                {
-                    for (int y = 0; y < padding; y++)
-                    {
-                        if (CORNER_TEMPLATE[y][x] != 0) {
-                            Color c = (CORNER_TEMPLATE[y][x] == 1) ?
-                                    leftRight.edgeColor : leftRight.fillColor; 
-                            image.getPixelWriter().setColor(leftRight.lhs + x, lineHeight - 1 - y, c);
-                        }
-                    }
-                }
-            }
-
-            Middle middle = singleNestedScope.middle;
-
-            fillRect(image.getPixelWriter(), middle.lhs + padding, 0, middle.rhs - middle.lhs - padding,
-                    lineHeight, middle.bodyColor);
-
-            if (middle.topColor != null)
-            {
-                for (int x = middle.lhs + padding; x < middle.rhs; x++)
-                {
-                    image.getPixelWriter().setColor(x, 0, middle.topColor);
-                }
-            }
-
-            if (middle.bottomColor != null)
-            {
-                for (int x = middle.lhs + padding; x < middle.rhs; x++)
-                {
-                    image.getPixelWriter().setColor(x, lineHeight - 1, middle.bottomColor);
-                }
-            }
-
-
-            // Right edge:
-            fillRect(image.getPixelWriter(), leftRight.rhs - padding, 0 + sideTopMargin, padding,
-                    lineHeight - sideBottomMargin - sideTopMargin, leftRight.fillColor);
-            
-            for (int y = sideTopMargin; y < lineHeight - sideBottomMargin; y++)
-            {
-                image.getPixelWriter().setColor(leftRight.rhs, y, leftRight.edgeColor);
-            }
-
-            if (leftRight.starts && leftRight.rhs > padding)
-            {
-                for (int x = 0; x < padding; x++)
-                {
-                    for (int y = 0; y < padding; y++)
-                    {
-                        if (CORNER_TEMPLATE[y][x] != 0) {
-                            Color c = (CORNER_TEMPLATE[y][x] == 1) ?
-                                    leftRight.edgeColor : leftRight.fillColor; 
-                            image.getPixelWriter().setColor(leftRight.rhs - x, y, c);
-                        }
-                    }
-                }
-            }
-            if (leftRight.ends && leftRight.rhs > padding)
-            {
-                for (int x = 0; x < padding; x++)
-                {
-                    for (int y = 0; y < padding; y++)
-                    {
-                        if (CORNER_TEMPLATE[y][x] != 0) {
-                            Color c = (CORNER_TEMPLATE[y][x] == 1) ?
-                                    leftRight.edgeColor : leftRight.fillColor; 
-                            image.getPixelWriter().setColor(leftRight.rhs - x, lineHeight - 1 - y, c);
-                        }
-                    }
-                }
-            }
-        }
-
-        if (s.getAttributes().contains(ParagraphAttribute.STEP_MARK))
-        {
-            blend(image, scopeColors.stepMarkOverlayColorProperty().get());
-        }
-        else if (s.getAttributes().contains(ParagraphAttribute.BREAKPOINT))
-        {
-            blend(image, scopeColors.breakpointOverlayColorProperty().get());
-        }
-
-        return image;
-    }
-
-    @OnThread(Tag.FX)
-    private static void blend(WritableImage image, Color rgba)
-    {
-        Color c = new Color(rgba.getRed(), rgba.getGreen(), rgba.getBlue(), 1.0);
-        for (int x = 0; x < image.getWidth(); x++)
-        {
-            for (int y = 0; y < image.getHeight(); y++)
-            {
-                Color prev = image.getPixelReader().getColor(x, y);
-                image.getPixelWriter().setColor(x, y, prev.interpolate(c, rgba.getOpacity()));
-            }
-        }
-    }
-
-    @OnThread(Tag.FX)
-    private static void fillRect(PixelWriter pixelWriter, int x, int y, int w, int h, Color c)
-    {
-        // If we're trying to draw off the left-hand/top edge, just truncate the rectangles
-        if (x < 0)
-        {
-            // If x is -4, we want to take +4 off the width:
-            w -= -x;
-            x = 0;
-        }
-        if (y < 0)
-        {
-            h -= -y;
-            y = 0;
-        }
-
-        for (int i = 0; i < w; i++)
-        {
-            for (int j = 0; j < h; j++)
-            {
-                pixelWriter.setColor(x + i, y + j, c);
-            }
-        }
     }
 
     /*
@@ -1697,7 +1493,6 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         if (changes == null) {
             // Width has changed, so do it all:
             nodeIndents.clear();
-            imageCache.clear();
             recalculateAllScopes();
             return;
         }
