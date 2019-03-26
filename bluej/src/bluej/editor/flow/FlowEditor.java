@@ -28,6 +28,8 @@ import bluej.utility.DialogManager;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.print.PrinterJob;
 import javafx.scene.control.Menu;
 import javafx.scene.image.Image;
@@ -66,6 +68,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
     private FlowErrorManager errorManager = new FlowErrorManager(this, enable -> {});
     private FXTabbedEditor fxTabbedEditor;
     private boolean mayHaveBreakpoints;
+    private final BooleanProperty compiledProperty = new SimpleBooleanProperty(true);
+    private final BooleanProperty viewingHTML = new SimpleBooleanProperty(false); // changing this alters the interface accordingly
 
 
     // TODOFLOW handle the interface-only case
@@ -223,10 +227,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
     @Override
     public boolean showFile(String filename, Charset charset, boolean compiled, String docFilename)
     {
+        // TODOFLOW add the rest from MoeEditor
         try
         {
             document.replaceText(0, document.getLength(), Files.readString(new File(filename).toPath(), charset));
             javaSyntaxView.enableParser(false);
+            setCompileStatus(compiled);
             return true;
         }
         catch (IOException e)
@@ -547,7 +553,29 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
     @Override
     public void setCompiled(boolean compiled)
     {
-        throw new UnimplementedException();
+        setCompileStatus(compiled);
+        if (compiled) {
+            errorManager.removeAllErrorHighlights();
+        }
+    }
+
+    /**
+     * Toggle the editor's 'compiled' status. This affects display (left-hand margin colour)
+     * and whether breakpoints can be set.
+     */
+    private void setCompileStatus(boolean compiled)
+    {
+        //TODOFLOW uncomment this once toggle-breakpoint is implemented.
+//        actions.getActionByName("toggle-breakpoint").setEnabled(compiled && viewingCode());
+        compiledProperty.set(compiled);
+    }
+
+    /**
+     * Return a boolean representing whether in source editing view
+     */
+    private boolean viewingCode()
+    {
+        return sourceIsCode && (!viewingHTML.get());
     }
 
     @Override
