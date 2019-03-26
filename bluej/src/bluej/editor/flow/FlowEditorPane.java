@@ -75,6 +75,11 @@ public class FlowEditorPane extends Region implements DocumentListener
     
     private final TrackedPosition anchor;
     private final TrackedPosition caret;
+    // When moving up/down, we keep track of what column we are aiming for so that moving vertically through an empty
+    // line doesn't always push you over to the left.  This is automatically reset to -1 by all insertions and movements,
+    // if you want it to persist, you will need to set it again manually afterwards.
+    // Note: this is 1-based (first column is 1) to fit in more easily with SourceLocation.
+    private int targetColumnForVerticalMovement;
     private final Path caretShape;
     
     // Default is to apply no styles:
@@ -297,6 +302,7 @@ public class FlowEditorPane extends Region implements DocumentListener
     public void textReplaced(int start, int end, int repl)
     {
         updateRender(false);
+        targetColumnForVerticalMovement = -1;
     }
 
     private void updateRender(boolean ensureCaretVisible)
@@ -544,7 +550,23 @@ public class FlowEditorPane extends Region implements DocumentListener
         LineTo lineTo = (LineTo)pathElement;
         return new MoveTo(lineTo.getX(), lineTo.getY());
     }
-    
+
+    /**
+     * Used by FlowActions to keep track of target column when going up/down.  Note: first column is one, not zero.
+     */
+    public int getTargetColumnForVerticalMove()
+    {
+        return targetColumnForVerticalMovement;
+    }
+
+    /**
+     * Used by FlowActions to keep track of target column when going up/down.  Note: first column is one, not zero.
+     */
+    public void setTargetColumnForVerticalMove(int targetColumn)
+    {
+        this.targetColumnForVerticalMovement = targetColumn;
+    }
+
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     private class LineContainer extends Region
     {
@@ -646,6 +668,7 @@ public class FlowEditorPane extends Region implements DocumentListener
     {
         caret.moveTo(position);
         anchor.moveTo(position);
+        targetColumnForVerticalMovement = -1;
         updateRender(true);
     }
 
@@ -656,6 +679,7 @@ public class FlowEditorPane extends Region implements DocumentListener
     {
         caret.moveTo(position);
         anchor.moveTo(position);
+        targetColumnForVerticalMovement = -1;
         updateRender(false);
     }
 
@@ -665,6 +689,7 @@ public class FlowEditorPane extends Region implements DocumentListener
     public void moveCaret(int position)
     {
         caret.moveTo(position);
+        targetColumnForVerticalMovement = -1;
         updateRender(true);
     }
 

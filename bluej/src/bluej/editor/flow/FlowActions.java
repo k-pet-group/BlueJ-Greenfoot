@@ -1849,7 +1849,11 @@ public final class FlowActions
             }
             else
             {
-                moveCaret(getTextComponent().getDocument().getPosition(new SourceLocation(pos.getLine() - pageSize, pos.getColumn())));
+                int targetColumn = getTextComponent().getTargetColumnForVerticalMove();
+                if (targetColumn == -1)
+                    targetColumn = pos.getColumn();
+                moveCaret(getTextComponent().getDocument().getPosition(new SourceLocation(pos.getLine() - pageSize, targetColumn)));
+                getTextComponent().setTargetColumnForVerticalMove(targetColumn);
             }
         }
     }
@@ -1873,7 +1877,11 @@ public final class FlowActions
             }
             else
             {
-                moveCaret(getTextComponent().getDocument().getPosition(new SourceLocation(pos.getLine() + pageSize, pos.getColumn())));
+                int targetColumn = getTextComponent().getTargetColumnForVerticalMove();
+                if (targetColumn == -1)
+                    targetColumn = pos.getColumn();
+                moveCaret(getTextComponent().getDocument().getPosition(new SourceLocation(pos.getLine() + pageSize, targetColumn)));
+                getTextComponent().setTargetColumnForVerticalMove(targetColumn);
             }
         }
     }
@@ -1895,7 +1903,11 @@ public final class FlowActions
             }
             else
             {
-                moveCaret(getTextComponent().getDocument().getPosition(new SourceLocation(pos.getLine() - 1, pos.getColumn())));
+                int targetColumn = getTextComponent().getTargetColumnForVerticalMove();
+                if (targetColumn == -1)
+                    targetColumn = pos.getColumn();
+                moveCaret(getTextComponent().getDocument().getPosition(new SourceLocation(pos.getLine() - 1, targetColumn)));
+                getTextComponent().setTargetColumnForVerticalMove(targetColumn);
             }
         }
     }
@@ -1917,7 +1929,11 @@ public final class FlowActions
             }
             else
             {
-                moveCaret(getTextComponent().getDocument().getPosition(new SourceLocation(pos.getLine() + 1, pos.getColumn())));
+                int targetColumn = getTextComponent().getTargetColumnForVerticalMove();
+                if (targetColumn == -1)
+                    targetColumn = pos.getColumn();
+                moveCaret(getTextComponent().getDocument().getPosition(new SourceLocation(pos.getLine() + 1, targetColumn)));
+                getTextComponent().setTargetColumnForVerticalMove(targetColumn);
             }
         }
     }
