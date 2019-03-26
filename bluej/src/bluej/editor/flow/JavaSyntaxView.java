@@ -109,8 +109,8 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             {1, 2, 2, 2}
     };
     private final Document document;
-    private final ParsedCUNode rootNode;
-    private final NodeTree<ReparseRecord> reparseRecordTree;
+    private ParsedCUNode rootNode;
+    private NodeTree<ReparseRecord> reparseRecordTree;
     private final FXCache<ScopeInfo, Image> imageCache;
     private final ScopeColors scopeColors;
     private final BooleanExpression syntaxHighlighting;
@@ -191,8 +191,6 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     {
         this.document = editorPane.getDocument();
         this.editorPane = editorPane;
-        this.rootNode = new ParsedCUNode();
-        this.reparseRecordTree = new NodeTree<ReparseRecord>();
         this.syntaxHighlighting = PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING);
         this.imageCache = new FXCache<>(s -> drawImageFor(s, imageCacheLineHeight), 40);
         this.scopeColors = scopeColors;
@@ -229,32 +227,6 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             }
         });
         
-        document.addListener((start, end, repl) -> {
-            NodeStructureListener blankListener = new NodeStructureListener()
-            {
-                @Override
-                public void nodeRemoved(NodeAndPosition<ParsedNode> node)
-                {
-
-                }
-
-                @Override
-                public void nodeChangedLength(NodeAndPosition<ParsedNode> node, int oldPos, int oldSize)
-                {
-
-                }
-            };
-            if (start != end)
-            {
-                rootNode.textRemoved(this, 0, start, end - start, blankListener);
-            }
-            if (repl != 0)
-            {
-                rootNode.textInserted(this, 0, start, repl, blankListener);
-            }
-            scheduleReparseRunner();
-        });
-        enableParser(true);
         JavaFXUtil.addChangeListenerPlatform(editorPane.widthProperty(), w -> JavaFXUtil.runAfter(Duration.millis(500), () -> {
             recalculateAllScopes();
             applyPendingScopeBackgrounds();
@@ -273,12 +245,42 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     @OnThread(Tag.FXPlatform)
     public void enableParser(boolean force)
     {
-        //if (parentResolver != null || force) {
+        if (rootNode == null)
+        {
+            rootNode = new ParsedCUNode();
+            reparseRecordTree = new NodeTree<ReparseRecord>();
+            //if (parentResolver != null || force) {
             //rootNode.setParentResolver(parentResolver);
             rootNode.textInserted(this, 0, 0, document.getLength(),
                     new MoeSyntaxEvent(0, document.getLength(), true, false));
             // We can discard the MoeSyntaxEvent: the reparse will update scopes/syntax
-        //}
+            //}
+            document.addListener((start, end, repl) -> {
+                NodeStructureListener blankListener = new NodeStructureListener()
+                {
+                    @Override
+                    public void nodeRemoved(NodeAndPosition<ParsedNode> node)
+                    {
+
+                    }
+
+                    @Override
+                    public void nodeChangedLength(NodeAndPosition<ParsedNode> node, int oldPos, int oldSize)
+                    {
+
+                    }
+                };
+                if (start != end)
+                {
+                    rootNode.textRemoved(this, 0, start, end - start, blankListener);
+                }
+                if (repl != 0)
+                {
+                    rootNode.textInserted(this, 0, start, repl, blankListener);
+                }
+                scheduleReparseRunner();
+            });
+        }
     }
 
     void recalculateAllScopes()
@@ -295,7 +297,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     private final List<StyledSegment> getTokenStylesFor(int lineIndex, CharSequence lineContent)
     {
         // Simple implementation if syntax highlighting is off:
-        if (!syntaxHighlighting.get())
+        if (!syntaxHighlighting.get() || rootNode == null)
             return Collections.singletonList(new StyledSegment(Collections.emptyList(), lineContent.toString()));
 
         ArrayList<StyledSegment> lineStyle = new ArrayList<>();
@@ -2551,11 +2553,19 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     {
         if (reparseRunner == null)
         {
-            reparseRunner = new FlowReparseRunner();
-            // Wait until after layout to do a reparse (as that may involve asking for positions of 
-            // characters on screen -- which will not give a valid answer until after the layout:
-            JavaFXUtil.runAfterNextLayout(editorPane.getScene(), reparseRunner);
-            editorPane.requestLayout();
+            if (editorPane.getScene() == null)
+            {
+                JavaFXUtil.onceNotNull(editorPane.sceneProperty(), s -> scheduleReparseRunner());
+            }
+            else
+            {
+                reparseRunner = new FlowReparseRunner();
+                // Wait until after layout to do a reparse (as that may involve asking for positions of 
+                // characters on screen -- which will not give a valid answer until after the layout:
+
+                JavaFXUtil.runAfterNextLayout(editorPane.getScene(), reparseRunner);
+                editorPane.requestLayout();
+            }
         }
     }
 
