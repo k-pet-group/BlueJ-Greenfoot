@@ -34,6 +34,8 @@ import javafx.scene.text.TextFlow;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -163,10 +165,41 @@ class TextLine extends TextFlow
 
     public void showError(int startColumn, int endColumn)
     {
-        errorUnderlineShape.getElements().setAll(rangeShape(startColumn, endColumn));
+        errorUnderlineShape.getElements().setAll(makeSquiggle(rangeShape(startColumn, endColumn)));
         errorUnderlineShape.setVisible(true);
     }
-    
+
+    private List<PathElement> makeSquiggle(PathElement[] rectShape)
+    {
+        ArrayList<PathElement> squiggle = new ArrayList<>(); 
+        if (rectShape.length == 5
+            && rectShape[2] instanceof LineTo && rectShape[3] instanceof LineTo)
+        {
+            double leftHandX = ((LineTo)rectShape[3]).getX();
+            double rightHandX = ((LineTo)rectShape[2]).getX();
+            double y = ((LineTo)rectShape[2]).getY();
+            
+            // Minimum size for underline:
+            double width = Math.max(9, rightHandX - leftHandX);
+            boolean downStroke = true;
+            double x = snapPositionX(leftHandX);
+            squiggle.add(new MoveTo(x, snapPositionY(y - 2)));
+            do
+            {
+                x += 3;
+                squiggle.add(new LineTo(snapPositionX(x), snapPositionY(downStroke ? y + 1 : y - 2)));
+                downStroke = !downStroke;
+            }
+            while (x < snapPositionX(leftHandX + width));
+        }
+        else
+        {
+            // Backup case, use full path:
+            squiggle.addAll(Arrays.asList(rectShape));
+        }
+        return squiggle;
+    }
+
     public void hideErrorUnderline()
     {
         errorUnderlineShape.getElements().clear();
