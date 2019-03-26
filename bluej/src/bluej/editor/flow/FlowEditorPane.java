@@ -92,7 +92,7 @@ public class FlowEditorPane extends Region implements DocumentListener
     private final ScrollBar horizontalScroll;
     private boolean updatingScrollBarDirectly = false;
     // Scroll bars can be turned off for testing and printing:
-    private boolean allowScrollBars;
+    private boolean allowScrollBars = true;
 
     public FlowEditorPane(String content)
     {
