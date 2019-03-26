@@ -97,6 +97,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
 
     public FlowEditor(FetchTabbedEditor fetchTabbedEditor, EditorWatcher editorWatcher)
     {
+        this.flowEditorPane.setErrorQuery(errorManager);
         this.undoManager = new UndoManager();
         this.fetchTabbedEditor = fetchTabbedEditor;
         this.watcher = editorWatcher;
@@ -782,5 +783,11 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
     public javafx.stage.Window getWindow()
     {
         return fxTabbedEditor.getWindow();
+    }
+
+    // package visible
+    void updateHeaderHasErrors(boolean hasErrors)
+    {
+        fxTab.setErrorStatus(hasErrors);
     }
 }

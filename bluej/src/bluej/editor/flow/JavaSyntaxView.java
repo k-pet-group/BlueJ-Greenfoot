@@ -40,7 +40,6 @@ import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ReparseableDocument;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
-import bluej.utility.javafx.FXCache;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import com.google.common.collect.Multimap;
@@ -2403,7 +2402,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             else {
                 // Mark that we are no longer scheduled.  Reapply backgrounds and syntax highlighting:
                 applyPendingScopeBackgrounds();
-                editorPane.restyleLines();
+                editorPane.repaint();
                 reparseRunner = null;
             }
         }

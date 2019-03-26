@@ -334,6 +334,22 @@ public class HoleDocument implements Document
             return false;
         }
     }
+    
+    public void addLineAttribute(int lineIndex, Object key, Object value)
+    {
+        if (lineIndex >= 0 && lineIndex < lineInformation.size())
+        {
+            lineInformation.get(lineIndex).lineAttributes.put(key, value);
+        }
+    }
+    
+    public void removeLineAttributeThroughout(Object key)
+    {
+        for (LineInformation information : lineInformation)
+        {
+            information.lineAttributes.remove(key);
+        }
+    }
 
     private static class LineInformation
     {

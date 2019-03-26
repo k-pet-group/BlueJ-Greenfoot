@@ -48,6 +48,7 @@ class TextLine extends TextFlow
 {
     // The selection shape (may be empty and invisible when not in use)
     private final Path selectionShape = new Path();
+    private final Path errorUnderlineShape = new Path();
     
     public TextLine()
     {
@@ -56,7 +57,10 @@ class TextLine extends TextFlow
         selectionShape.setStroke(null);
         selectionShape.setFill(Color.CORNFLOWERBLUE);
         selectionShape.setManaged(false);
-        getChildren().add(selectionShape);
+        errorUnderlineShape.setStroke(Color.RED);
+        errorUnderlineShape.setFill(null);
+        errorUnderlineShape.setManaged(false);
+        getChildren().setAll(selectionShape, errorUnderlineShape);
     }
 
     /**
@@ -144,6 +148,7 @@ class TextLine extends TextFlow
     public void setText(List<StyledSegment> text, double size)
     {
         hideSelection();
+        hideErrorUnderline();
         getChildren().clear();
         getChildren().add(selectionShape);
         for (StyledSegment styledSegment : StyledSegment.mergeAdjacentIdentical(text))
@@ -153,6 +158,19 @@ class TextLine extends TextFlow
             t.getStyleClass().addAll(styledSegment.cssClasses);
             getChildren().add(t);
         }
+        getChildren().add(errorUnderlineShape);
+    }
+
+    public void showError(int startColumn, int endColumn)
+    {
+        errorUnderlineShape.getElements().setAll(rangeShape(startColumn, endColumn));
+        errorUnderlineShape.setVisible(true);
+    }
+    
+    public void hideErrorUnderline()
+    {
+        errorUnderlineShape.getElements().clear();
+        errorUnderlineShape.setVisible(false);
     }
 
     /**

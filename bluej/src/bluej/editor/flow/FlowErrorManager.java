@@ -1,11 +1,14 @@
 package bluej.editor.flow;
 
+import bluej.editor.flow.FlowEditorPane.ErrorQuery;
+import bluej.editor.flow.JavaSyntaxView.ParagraphAttribute;
 import bluej.parser.SourceLocation;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.scene.control.IndexRange;
 import org.fxmisc.richtext.model.TwoDimensional.Bias;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -14,7 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class FlowErrorManager
+public class FlowErrorManager implements ErrorQuery
 {
     private final ObservableList<ErrorDetails> errorInfos = FXCollections.observableArrayList();
     private FlowEditor editor;
@@ -39,15 +42,12 @@ public class FlowErrorManager
     {
         if (endPos < startPos)
             throw new IllegalArgumentException("Error ends before it begins: " + startPos + " to " + endPos);
-
-        /*TODOFLOW
         FlowEditorPane sourcePane = editor.getSourcePane();
-        sourcePane.setStyleSpans(startPos, sourcePane.getStyleSpans(startPos, endPos).mapStyles(s -> Utility.setAdd(s, FlowEditorPane.ERROR_CLASS)));
-        editor.getSourceDocument().setParagraphAttributesForLineNumber(editor.getSourcePane().offsetToPosition(startPos, Bias.Forward).getMajor() + 1, Collections.singletonMap(ParagraphAttribute.ERROR, true));
+        sourcePane.getDocument().addLineAttribute(editor.getSourcePane().getDocument().getLineFromPosition(startPos), ParagraphAttribute.ERROR, true);
         errorInfos.add(new FlowErrorManager.ErrorDetails(startPos, endPos, message, identifier));
         setNextErrorEnabled.accept(true);
         editor.updateHeaderHasErrors(true);
-        */
+        sourcePane.repaint();
     }
 
     /**
@@ -55,13 +55,12 @@ public class FlowErrorManager
      */
     public void removeAllErrorHighlights()
     {
-        /*TODOFLOW
-        editor.getSourceDocument().removeStyleThroughout(FlowEditorPane.ERROR_CLASS);
-        editor.getSourceDocument().setParagraphAttributes(Collections.singletonMap(ParagraphAttribute.ERROR, false));
+        FlowEditorPane sourcePane = editor.getSourcePane();
+        sourcePane.getDocument().removeLineAttributeThroughout(ParagraphAttribute.ERROR);
         errorInfos.clear();
         setNextErrorEnabled.accept(false);
         editor.updateHeaderHasErrors(false);
-        */
+        sourcePane.repaint();
     }
 
     public void listenForErrorChange(FXPlatformConsumer<List<FlowErrorManager.ErrorDetails>> listener)
@@ -135,6 +134,11 @@ public class FlowErrorManager
             int lineEnd = editor.getOffsetFromLineColumn(new SourceLocation(lineIndex + 2, 1));
             return errorInfos.stream().filter(e -> e.startPos <= lineEnd && e.endPos >= lineStart).findFirst().orElse(null);
         }
+    }
+    
+    public List<IndexRange> getErrorUnderlines()
+    {
+        return Utility.mapList(errorInfos, e -> new IndexRange(e.startPos, e.endPos));
     }
 
     public boolean hasErrorHighlights()

@@ -85,6 +85,8 @@ public class FlowEditorPane extends Region implements DocumentListener
     // Default is to apply no styles:
     private LineStyler lineStyler = (i, s) -> Collections.singletonList(new StyledSegment(Collections.emptyList(), s.toString()));
     
+    private ErrorQuery errorQuery = () -> Collections.emptyList();
+    
     private final List<IndexRange> errorUnderlines = new ArrayList<>();
     private final LineContainer lineContainer;
     private final Pane backgroundPane;
@@ -428,6 +430,14 @@ public class FlowEditorPane extends Region implements DocumentListener
             }
         }
         
+        if (errorQuery != null)
+        {
+            for (IndexRange indexRange : errorQuery.getErrorUnderlines())
+            {
+                addErrorUnderline(indexRange.getStart(), indexRange.getEnd());
+            }
+        }
+        
         /* Code for showing error underlines
         for (IndexRange errorUnderline : errorUnderlines)
         {
@@ -565,6 +575,24 @@ public class FlowEditorPane extends Region implements DocumentListener
     public void setTargetColumnForVerticalMove(int targetColumn)
     {
         this.targetColumnForVerticalMovement = targetColumn;
+    }
+
+    private void addErrorUnderline(int startPos, int endPos)
+    {
+        int lineIndex = document.getLineFromPosition(startPos);
+        int startColumn = document.getColumnFromPosition(startPos);
+        // Only show error on one line at most:
+        int endColumn = Math.min(document.getLineEnd(lineIndex), endPos - document.getLineStart(lineIndex));
+        
+        if (lineDisplay.isLineVisible(lineIndex))
+        {
+            lineDisplay.getVisibleLine(lineIndex).showError(startColumn, endColumn);
+        }
+    }
+
+    public void setErrorQuery(ErrorQuery errorQuery)
+    {
+        this.errorQuery = errorQuery;
     }
 
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
@@ -724,9 +752,9 @@ public class FlowEditorPane extends Region implements DocumentListener
     }
 
     /**
-     * Restyle the lines that are actually on the screen.
+     * Repaint the editor.
      */
-    public void restyleLines()
+    public void repaint()
     {
         updateRender(false);
     }
@@ -734,6 +762,11 @@ public class FlowEditorPane extends Region implements DocumentListener
     public void replaceSelection(String text)
     {
         document.replaceText(Math.min(caret.position, anchor.position), Math.max(caret.position, anchor.position), text);
+    }
+    
+    public static interface ErrorQuery
+    {
+        public List<IndexRange> getErrorUnderlines();
     }
 
     @OnThread(Tag.FXPlatform)
