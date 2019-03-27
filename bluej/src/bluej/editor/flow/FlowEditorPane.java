@@ -601,14 +601,15 @@ public class FlowEditorPane extends Region implements DocumentListener
         @Override
         protected void layoutChildren()
         {
-            double y = lineDisplay.getFirstVisibleLineOffset();
+            double y = snapPositionY(lineDisplay.getFirstVisibleLineOffset());
             for (Node child : getChildren())
             {
                 if (child instanceof TextFlow)
                 {
                     double height = snapSizeY(child.prefHeight(-1.0));
-                    child.resizeRelocate(0, y, Math.max(getWidth(), child.prefWidth(-1.0)), height);
-                    y += height;
+                    double nextY = snapPositionY(y + height);
+                    child.resizeRelocate(0, y, Math.max(getWidth(), child.prefWidth(-1.0)), nextY - height);
+                    y = nextY;
                 }
             }
         }
