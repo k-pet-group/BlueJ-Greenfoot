@@ -214,6 +214,7 @@ class LineDisplay
         public void lineVisibilityChanged(int fromLineIndexIncl, int toLineIndexIncl);
     }
     
+    // Pair of ints; line index and column index (both zero based)
     public int[] getCaretPositionForMouseEvent(MouseEvent e)
     {
         for (int i = 0; i < currentlyVisibleLines.size(); i++)

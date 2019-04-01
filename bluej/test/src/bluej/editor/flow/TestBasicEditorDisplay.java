@@ -22,11 +22,20 @@
 package bluej.editor.flow;
 
 import bluej.Config;
+import bluej.collect.DiagnosticWithShown;
+import bluej.collect.StrideEditReason;
+import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
+import bluej.editor.Editor;
+import bluej.editor.EditorWatcher;
 import bluej.editor.flow.gen.GenRandom;
 import bluej.editor.flow.gen.GenString;
 import bluej.editor.moe.ScopeColorsBorderPane;
+import bluej.editor.stride.FrameCatalogue.ShowReason;
 import bluej.parser.InitConfig;
 import bluej.prefmgr.PrefMgr;
+import bluej.stride.generic.Frame.View;
+import bluej.stride.generic.Frame.ViewChangeReason;
 import bluej.utility.Utility;
 import com.pholser.junit.quickcheck.From;
 import com.pholser.junit.quickcheck.Property;
@@ -50,6 +59,7 @@ import threadchecker.Tag;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -80,7 +90,165 @@ public class TestBasicEditorDisplay extends FXTest
         PrefMgr.setFlag(PrefMgr.HIGHLIGHTING, true);
         
         this.stage = stage;
-        flowEditorPane = new FlowEditorPane("");
+        FlowEditor flowEditor = new FlowEditor(w -> null, new EditorWatcher()
+        {
+            @Override
+            public void modificationEvent(Editor editor)
+            {
+                
+            }
+
+            @Override
+            public void saveEvent(Editor editor)
+            {
+
+            }
+
+            @Override
+            public void closeEvent(Editor editor)
+            {
+
+            }
+
+            @Override
+            public String breakpointToggleEvent(int lineNo, boolean set)
+            {
+                return null;
+            }
+
+            @Override
+            public void generateDoc()
+            {
+
+            }
+
+            @Override
+            public void setProperty(String key, String value)
+            {
+
+            }
+
+            @Override
+            public String getProperty(String key)
+            {
+                return null;
+            }
+
+            @Override
+            public void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type)
+            {
+
+            }
+
+            @Override
+            public void recordJavaEdit(String javaSource, boolean includeOneLineEdits)
+            {
+
+            }
+
+            @Override
+            public void recordStrideEdit(String javaSource, String strideSource, StrideEditReason reason)
+            {
+
+            }
+
+            @Override
+            public void clearAllBreakpoints()
+            {
+
+            }
+
+            @Override
+            public void recordOpen()
+            {
+
+            }
+
+            @Override
+            public void recordSelected()
+            {
+
+            }
+
+            @Override
+            public void recordClose()
+            {
+
+            }
+
+            @Override
+            public void recordShowErrorIndicators(Collection<Integer> identifiers)
+            {
+
+            }
+
+            @Override
+            public void recordShowErrorMessage(int identifier, List<String> quickFixes)
+            {
+
+            }
+
+            @Override
+            public void recordEarlyErrors(List<DiagnosticWithShown> diagnostics, int compilationIdentifier)
+            {
+
+            }
+
+            @Override
+            public void recordLateErrors(List<DiagnosticWithShown> diagnostics, int compilationIdentifier)
+            {
+
+            }
+
+            @Override
+            public void recordFix(int errorIdentifier, int fixIndex)
+            {
+
+            }
+
+            @Override
+            public void recordCodeCompletionStarted(Integer lineNumber, Integer columnNumber, String xpath, Integer elementOffset, String stem, int codeCompletionId)
+            {
+
+            }
+
+            @Override
+            public void recordCodeCompletionEnded(Integer lineNumber, Integer columnNumber, String xpath, Integer elementOffset, String stem, String replacement, int codeCompletionId)
+            {
+
+            }
+
+            @Override
+            public void recordUnknownCommandKey(String enclosingFrameXpath, int cursorIndex, char key)
+            {
+
+            }
+
+            @Override
+            public void recordShowHideFrameCatalogue(String enclosingFrameXpath, int cursorIndex, boolean show, ShowReason reason)
+            {
+
+            }
+
+            @Override
+            public void recordViewModeChange(String enclosingFrameXpath, int cursorIndex, View oldView, View newView, ViewChangeReason reason)
+            {
+
+            }
+
+            @Override
+            public void showingInterface(boolean showingInterface)
+            {
+
+            }
+
+            @Override
+            public void showPreferences(int paneIndex)
+            {
+
+            }
+        });
+        flowEditorPane = flowEditor.getSourcePane();
         flowEditorPane.setPrefWidth(800.0);
         flowEditorPane.setPrefHeight(600.0);
         flowEditorPane.setAllowScrollBars(false);
@@ -90,8 +258,8 @@ public class TestBasicEditorDisplay extends FXTest
         scopeColors.scopeClassColorProperty().set(Color.GREEN);
         scopeColors.scopeMethodColorProperty().set(Color.YELLOW);
         scopeColors.scopeMethodOuterColorProperty().set(Color.BLACK);
-        javaSyntaxView = new JavaSyntaxView(flowEditorPane, scopeColors);
-        stage.setScene(new Scene(flowEditorPane));
+        //javaSyntaxView = new JavaSyntaxView(flowEditorPane, scopeColors);
+        stage.setScene(new Scene(flowEditor));
         stage.show();
     }
 
@@ -122,6 +290,7 @@ public class TestBasicEditorDisplay extends FXTest
         Path caret = lookup(".flow-caret").query();
         int[] lineRangeVisible = flowEditorPane.getLineRangeVisible();
         int linesVisible = lineRangeVisible[1] - lineRangeVisible[0];
+        // Move the caret to line index "i" in each iteration of the loop, and check it is visible:
         for (int i = 0; i < Math.min(80, lines.size()); i++)
         {
             int iFinal = i;

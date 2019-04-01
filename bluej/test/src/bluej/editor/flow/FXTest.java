@@ -80,7 +80,10 @@ public class FXTest extends ApplicationTest
                     window = originalWindow;
                 Scene scene = window == null ? null : window.getScene();
                 if (Config.isMacOS() && scene != null && scene.getRoot() != null)
+                {
+                    System.err.println("Scene offset in screen: " + scene.getRoot().localToScreen(scene.getRoot().getBoundsInLocal()));
                     System.err.println(asBase64(capture(scene.getRoot()).getImage()));
+                }
                 else
                     System.err.println(asBase64(capture(Screen.getPrimary().getBounds()).getImage()));
             }
