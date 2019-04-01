@@ -24,6 +24,7 @@ package bluej.editor.flow;
 import bluej.editor.flow.Document.Bias;
 import bluej.editor.flow.LineDisplay.LineDisplayListener;
 import bluej.editor.flow.TextLine.StyledSegment;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
@@ -53,6 +54,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 /**
  * A FlowEditorPane is a component with (optional) horizontal and vertical scroll bars.
@@ -95,6 +97,8 @@ public class FlowEditorPane extends Region implements DocumentListener
     private boolean updatingScrollBarDirectly = false;
     // Scroll bars can be turned off for testing and printing:
     private boolean allowScrollBars = true;
+    
+    private final ArrayList<FXPlatformConsumer<Integer>> caretListeners = new ArrayList<>();
 
     public FlowEditorPane(String content)
     {
@@ -165,11 +169,17 @@ public class FlowEditorPane extends Region implements DocumentListener
 
     private void positionCaretAtDestination(MouseEvent e)
     {
+        getCaretPositionForMouseEvent(e).ifPresent(this::positionCaret);
+    }
+    
+    OptionalInt getCaretPositionForMouseEvent(MouseEvent e)
+    {
         int[] position = lineDisplay.getCaretPositionForMouseEvent(e);
         if (position != null)
         {
-            positionCaret(document.getLineStart(position[0]) + position[1]);
+            return OptionalInt.of(document.getLineStart(position[0]) + position[1]);
         }
+        return OptionalInt.empty();
     }
 
     private void mouseDragged(MouseEvent e)
@@ -196,6 +206,7 @@ public class FlowEditorPane extends Region implements DocumentListener
                     anchor.position = caret.position;
                 }
                 updateRender(true);
+                callCaretListeners();
                 break;
             case RIGHT:
                 caret.moveBy(1);
@@ -204,6 +215,7 @@ public class FlowEditorPane extends Region implements DocumentListener
                     anchor.position = caret.position;
                 }
                 updateRender(true);
+                callCaretListeners();
                 break;
             case UP:
                 if (caret.getLine() > 0)
@@ -215,10 +227,13 @@ public class FlowEditorPane extends Region implements DocumentListener
                         anchor.position = caret.position;
                     }
                     updateRender(true);
+                    callCaretListeners();
                 }
                 else if (caret.getLine() == 0)
                 {
                     positionCaret(0);
+                    updateRender(true);
+                    callCaretListeners();
                 }
                 break;
             case PAGE_UP:
@@ -231,12 +246,14 @@ public class FlowEditorPane extends Region implements DocumentListener
                         anchor.position = caret.position;
                     }
                     updateRender(true);
+                    callCaretListeners();
                 }
                 else
                 {
                     positionCaret(0);
                     anchor.position = caret.position;
                     updateRender(true);
+                    callCaretListeners();
                 }
                 break;
             case DOWN:
@@ -249,10 +266,13 @@ public class FlowEditorPane extends Region implements DocumentListener
                         anchor.position = caret.position;
                     }
                     updateRender(true);
+                    callCaretListeners();
                 }
                 else if (caret.getLine() + 1 == lineCount)
                 {
                     positionCaret(document.getLength());
+                    updateRender(true);
+                    callCaretListeners();
                 }
                 break;
             case PAGE_DOWN:
@@ -265,6 +285,7 @@ public class FlowEditorPane extends Region implements DocumentListener
                         anchor.position = caret.position;
                     }
                     updateRender(true);
+                    callCaretListeners();
                 }
                 else
                 {
@@ -274,28 +295,8 @@ public class FlowEditorPane extends Region implements DocumentListener
                         anchor.position = caret.position;
                     }
                     updateRender(true);
+                    callCaretListeners();
                 }
-                break;
-            case F1:
-                // Temporarily, add error underline:
-                if (caret.position != anchor.position)
-                {
-                    errorUnderlines.add(new IndexRange(Math.min(caret.position, anchor.position), Math.max(caret.position, anchor.position)));
-                    updateRender(true);
-                }
-                break;
-            case F2:
-                // Temporarily, remove error underlines:
-                errorUnderlines.clear();
-                updateRender(true);
-                break;
-            case F3:
-                fontSize += 2;
-                updateRender(true);
-                break;
-            case F4:
-                fontSize -= 2;
-                updateRender(true);
                 break;
         }
     }
@@ -305,6 +306,7 @@ public class FlowEditorPane extends Region implements DocumentListener
     {
         updateRender(false);
         targetColumnForVerticalMovement = -1;
+        callCaretListeners();
     }
 
     private void updateRender(boolean ensureCaretVisible)
@@ -674,6 +676,20 @@ public class FlowEditorPane extends Region implements DocumentListener
         }
         return Optional.empty();
     }
+
+    public Optional<Bounds> getCaretBoundsOnScreen(int position)
+    {
+        int lineIndex = document.getLineFromPosition(position);
+        if (lineDisplay.isLineVisible(lineIndex))
+        {
+            TextLine line = lineDisplay.getVisibleLine(lineIndex);
+            PathElement[] elements = line.caretShape(position - document.getLineStart(lineIndex), true);
+            Path path = new Path(elements);
+            Bounds bounds = line.localToScreen(path.getBoundsInLocal());
+            return Optional.of(bounds);
+        }
+        return Optional.empty();
+    }
     
     public Optional<double[]> getTopAndBottom(int lineIndex)
     {
@@ -699,6 +715,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         anchor.moveTo(position);
         targetColumnForVerticalMovement = -1;
         updateRender(true);
+        callCaretListeners();
     }
 
     /**
@@ -710,6 +727,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         anchor.moveTo(position);
         targetColumnForVerticalMovement = -1;
         updateRender(false);
+        callCaretListeners();
     }
 
     /**
@@ -720,6 +738,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         caret.moveTo(position);
         targetColumnForVerticalMovement = -1;
         updateRender(true);
+        callCaretListeners();
     }
 
     /**
@@ -798,5 +817,18 @@ public class FlowEditorPane extends Region implements DocumentListener
     {
         this.allowScrollBars = allowScrollBars;
         updateRender(false);
+    }
+    
+    private void callCaretListeners()
+    {
+        for (FXPlatformConsumer<Integer> caretListener : caretListeners)
+        {
+            caretListener.accept(caret.position);
+        }
+    }
+    
+    public void addCaretListener(FXPlatformConsumer<Integer> caretListener)
+    {
+        caretListeners.add(caretListener);
     }
 }

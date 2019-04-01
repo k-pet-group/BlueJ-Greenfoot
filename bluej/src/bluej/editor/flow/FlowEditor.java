@@ -11,6 +11,7 @@ import bluej.editor.flow.FlowErrorManager.ErrorDetails;
 import bluej.editor.flow.JavaSyntaxView.ParagraphAttribute;
 import bluej.editor.flow.StatusLabel.Status;
 import bluej.editor.moe.Info;
+import bluej.editor.moe.ParserMessageHandler;
 import bluej.editor.moe.ScopeColorsBorderPane;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.FlowFXTab;
@@ -28,12 +29,26 @@ import bluej.utility.DialogManager;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.geometry.Bounds;
 import javafx.print.PrinterJob;
+import javafx.scene.Node;
 import javafx.scene.control.Menu;
+import javafx.scene.control.PopupControl;
+import javafx.scene.control.Skin;
+import javafx.scene.control.Skinnable;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
+import javafx.stage.PopupWindow;
+import org.fxmisc.wellbehaved.event.InputMap;
+import org.fxmisc.wellbehaved.event.Nodes;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -70,6 +85,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
     private boolean mayHaveBreakpoints;
     private final BooleanProperty compiledProperty = new SimpleBooleanProperty(true);
     private final BooleanProperty viewingHTML = new SimpleBooleanProperty(false); // changing this alters the interface accordingly
+    private ErrorDisplay errorDisplay;
 
 
     // TODOFLOW handle the interface-only case
@@ -109,6 +125,66 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
         saveState = new StatusLabel(Status.SAVED, this, errorManager);
         setCenter(flowEditorPane);
         actions = FlowActions.getActions(this);
+        flowEditorPane.addCaretListener(this::caretMoved);
+        Nodes.addInputMap(this, InputMap.consume(MouseEvent.MOUSE_MOVED, this::mouseMoved));
+    }
+
+    private void mouseMoved(MouseEvent event)
+    {
+        flowEditorPane.getCaretPositionForMouseEvent(event).ifPresent(pos -> showErrorPopupForCaretPos(pos, true));
+    }
+
+    /**
+     * Notification (from the caret) that the caret position has moved.
+     */
+    private void caretMoved(int caretPos)
+    {
+        showErrorPopupForCaretPos(caretPos, false);
+        
+        /*TODOFLOW
+        if (matchBrackets) {
+            doBracketMatch();
+        }
+        actions.userAction();
+
+        // Only send caret moved event if we are open; caret moves while loading
+        // but we don't want to send an edit event because of that:
+        if (oldCaretLineNumber != getLineNumberAt(caretPos) && isOpen())
+        {
+            recordEdit(true);
+
+            cancelFreshState();
+
+            // This is a workaround to overcome a bug in RichTextFX lib,
+            // which in some cases used to cause the editor to not scroll
+            // to follow cursor.
+            // The re-layout enforcing is inside a runAfterCurrent to avoid
+            // an IllegalArgumentException caused by state inconsistency.
+            JavaFXUtil.runAfterCurrent(() -> {
+                ensureCaretVisible();
+                layout();
+            });
+        }
+        oldCaretLineNumber = getLineNumberAt(caretPos);
+        */
+    }
+
+    private void showErrorPopupForCaretPos(int caretPos, boolean mousePosition)
+    {
+        ErrorDetails err = caretPos == -1 ? null : errorManager.getErrorAtPosition(caretPos);
+        if (err != null)
+        {
+            showErrorOverlay(err, caretPos);
+        }
+        else
+        {
+            // Only hide if it was a keyboard move,
+            // or it was a mouse move but there is no error at the keyboard position
+            if (errorDisplay != null && (!mousePosition || !errorDisplay.details.containsPosition(caretPos)))
+            {
+                showErrorOverlay(null, caretPos);
+            }
+        }
     }
 
     public void requestEditorFocus()
@@ -134,10 +210,76 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
         else
         {
             // Hide any error tooltip:
-            //TODOFLOW
-            //showErrorOverlay(null, 0);
+            showErrorOverlay(null, 0);
         }
     }
+
+    /**
+     * Show the given error overlay, or hide the existing overlay
+     * @param details If non-null, show the given error details.  If null, hide existing overlay.
+     * @param displayPosition The character position at which to show.
+     */
+    private void showErrorOverlay(ErrorDetails details, int displayPosition)
+    {
+        //Debug.message("Showing error at " + displayPosition + ": " + details);
+        if (details != null)
+        {
+            if (errorDisplay == null || errorDisplay.details != details)
+            {
+                // First, hide existing display:
+                if (errorDisplay != null)
+                {
+                    ErrorDisplay old = errorDisplay;
+                    old.popup.hide();
+                }
+
+                Bounds pos = null;
+                boolean before = false;
+                try
+                {
+                    // First, try to get the character after the caret:
+                    pos = getSourcePane().getCaretBoundsOnScreen(displayPosition).orElse(null);
+
+                    // That may be null if caret was at end of line, in which case try character before:
+                    if (pos == null)
+                    {
+                        pos = getSourcePane().getCaretBoundsOnScreen(displayPosition - 1).orElse(null);
+                        before = true;
+                    }
+                }
+                catch (IllegalArgumentException e)
+                {
+                    // Can happen if display position is out of bounds (while pending updates get flushed)
+                    // Will fall through to null case below...
+                }
+
+                // If that still doesn't work, give up (may not be on screen)
+                if (pos == null)
+                    return;
+                int xpos = (int)(before ? pos.getMaxX() : pos.getMinX());
+                int ypos = (int)(pos.getMinY() + (4*pos.getHeight()/3));
+                errorDisplay = new ErrorDisplay(details);
+                ErrorDisplay newDisplay = errorDisplay;
+
+                newDisplay.createPopup();
+                newDisplay.popup.setAnchorLocation(PopupWindow.AnchorLocation.WINDOW_TOP_LEFT);
+                newDisplay.popup.setAnchorX(xpos);
+                newDisplay.popup.setAnchorY(ypos);
+                newDisplay.popup.show(getWindow());
+
+                if (watcher != null) {
+                    watcher.recordShowErrorMessage(details.identifier, Collections.emptyList());
+                }
+            }
+        }
+        else if (errorDisplay != null)
+        {
+            ErrorDisplay old = errorDisplay;
+            old.popup.hide();
+            errorDisplay = null;
+        }
+    }
+
 
     private void checkForChangeOnDisk()
     {
@@ -817,5 +959,57 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
     void updateHeaderHasErrors(boolean hasErrors)
     {
         fxTab.setErrorStatus(hasErrors);
+    }
+
+    private static class ErrorDisplay
+    {
+        @OnThread(Tag.Swing)
+        private final ErrorDetails details;
+        private PopupControl popup;
+
+        public ErrorDisplay(ErrorDetails details)
+        {
+            this.details = details;
+        }
+
+        @OnThread(Tag.FXPlatform)
+        public void createPopup()
+        {
+            this.popup = new PopupControl();
+
+            Text text = new Text(ParserMessageHandler.getMessageForCode(details.message));
+            TextFlow flow = new TextFlow(text);
+            flow.setMaxWidth(600.0);
+            JavaFXUtil.addStyleClass(text, "java-error");
+            text.styleProperty().bind(PrefMgr.getEditorFontCSS(true));
+            Pane p = new BorderPane(flow);
+            this.popup.setSkin(new Skin<Skinnable>()
+            {
+                @Override
+                @OnThread(Tag.FX)
+                public Skinnable getSkinnable()
+                {
+                    return popup;
+                }
+
+                @Override
+                @OnThread(Tag.FX)
+                public Node getNode()
+                {
+                    return p;
+                }
+
+                @Override
+                @OnThread(Tag.FX)
+                public void dispose()
+                {
+
+                }
+            });
+
+            p.getStyleClass().add("java-error-popup");
+            Config.addPopupStylesheets(p);
+            //org.scenicview.ScenicView.show(this.popup.getScene());
+        }
     }
 }
