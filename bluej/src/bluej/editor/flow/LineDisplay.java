@@ -141,6 +141,78 @@ class LineDisplay
         firstVisibleLineIndex = lineIndex;
         firstVisibleLineOffset = lineOffset;
     }
+    
+    void scrollBy(double deltaY, int documentLines)
+    {
+        // Negative deltaY tries to move down the document, i.e.
+        // tries to increase firstVisibleLineIndex
+        if (deltaY == 0)
+            return;
+        
+        double overallPos = firstVisibleLineIndex * averageLineHeight - firstVisibleLineOffset;
+        double newOverallPos = overallPos - deltaY;
+        // Important to clamp in this order, as first clamp
+        // may clamp too far, into negative:
+        newOverallPos = Math.min(newOverallPos, averageLineHeight * documentLines - heightProperty.get());
+        newOverallPos = Math.max(0, newOverallPos);
+        int newTopLine = (int)Math.floor(newOverallPos / averageLineHeight);
+        double newOffset = (newTopLine * averageLineHeight) - newOverallPos;
+        scrollTo(newTopLine, newOffset);
+        /*
+        // How many lines have we moved the top visible line by?
+        // Sign is opposite to deltaY. 
+        int movedBy = 0;
+        
+        // We get offset to zero, then scroll whole lines, then
+        // finally adjust offset again:
+        if (firstVisibleLineOffset != 0.0)
+        {
+            if (deltaY < 0)
+            {
+                // Scrolling down document, so moving lines upwards,
+                double distToNextTop = averageLineHeight + firstVisibleLineOffset;
+                if (-deltaY < distToNextTop)
+                {
+                    // Can do it by offset alone
+                    firstVisibleLineOffset += deltaY;
+                    return;
+                }
+                else
+                {
+                    deltaY += distToNextTop;
+                    firstVisibleLineOffset = 0;
+                    movedBy += 1;
+                }
+            }
+            else
+            {
+                // Scrolling up document, so moving lines downwards
+                double distToNextTop = -firstVisibleLineOffset;
+                if (deltaY < distToNextTop)
+                {
+                    // Can do it by offset alone
+                    firstVisibleLineOffset += deltaY;
+                    return;
+                }
+                else
+                {
+                    deltaY -= distToNextTop;
+                    firstVisibleLineOffset = 0;
+                }
+            }
+        }
+        // Now scroll entire lines:
+        // TODO watch for hitting document end!
+        while (Math.abs(deltaY) > averageLineHeight)
+        {
+            deltaY -= Math.signum(deltaY) * averageLineHeight;
+            movedBy -= (int)Math.signum(deltaY);
+        }
+        // Now scroll last part by offset:
+        if (deltaY != )
+            */
+        
+    }
 
     public double getFirstVisibleLineOffset()
     {

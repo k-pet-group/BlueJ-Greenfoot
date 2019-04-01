@@ -36,6 +36,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -44,6 +45,7 @@ import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import javafx.scene.text.TextFlow;
+import javafx.util.Duration;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
 import threadchecker.OnThread;
@@ -99,6 +101,7 @@ public class FlowEditorPane extends Region implements DocumentListener
     private boolean allowScrollBars = true;
     
     private final ArrayList<FXPlatformConsumer<Integer>> caretListeners = new ArrayList<>();
+    private boolean postScrollRenderQueued = false;
 
     public FlowEditorPane(String content)
     {
@@ -137,7 +140,8 @@ public class FlowEditorPane extends Region implements DocumentListener
             InputMap.consume(KeyEvent.KEY_PRESSED, this::keyPressed),
             InputMap.consume(KeyEvent.KEY_TYPED, this::keyTyped),
             InputMap.consume(MouseEvent.MOUSE_PRESSED, this::mousePressed),
-            InputMap.consume(MouseEvent.MOUSE_DRAGGED, this::mouseDragged)
+            InputMap.consume(MouseEvent.MOUSE_DRAGGED, this::mouseDragged),
+            InputMap.consume(ScrollEvent.SCROLL, this::scroll)
         ));
 
         JavaFXUtil.addChangeListenerPlatform(widthProperty(), w -> updateRender(false));
@@ -655,6 +659,19 @@ public class FlowEditorPane extends Region implements DocumentListener
     {
         lineDisplay.scrollTo(lineIndex, 0.0);
         updateRender(false);
+    }
+    
+    private void scroll(ScrollEvent scrollEvent)
+    {
+        lineDisplay.scrollBy(scrollEvent.getDeltaY(), document.getLineCount());
+        if (!postScrollRenderQueued)
+        {
+            postScrollRenderQueued = true;
+            JavaFXUtil.runAfter(Duration.millis(100), () -> {
+                postScrollRenderQueued = false;
+                updateRender(false);
+            });
+        }
     }
 
     /**
