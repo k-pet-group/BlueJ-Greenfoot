@@ -608,7 +608,7 @@ public class FlowEditorPane extends Region implements DocumentListener
                 {
                     double height = snapSizeY(child.prefHeight(-1.0));
                     double nextY = snapPositionY(y + height);
-                    child.resizeRelocate(0, y, Math.max(getWidth(), child.prefWidth(-1.0)), nextY - height);
+                    child.resizeRelocate(0, y, Math.max(getWidth(), child.prefWidth(-1.0)), nextY - y);
                     y = nextY;
                 }
             }
