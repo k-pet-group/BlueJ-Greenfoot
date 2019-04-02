@@ -271,6 +271,8 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 }
                 scheduleReparseRunner();
             });
+            
+            scheduleReparseRunner();
         }
     }
 
