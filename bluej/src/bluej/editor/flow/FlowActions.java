@@ -1843,18 +1843,18 @@ public final class FlowActions
             int[] range = getTextComponent().getLineRangeVisible();
             int pageSize = range[1] - range[0];
             SourceLocation pos = getTextComponent().getDocument().makeSourceLocation(getTextComponent().getCaretPosition());
+            int targetColumn = getTextComponent().getTargetColumnForVerticalMove();
             if (pos.getLine() -1 <= pageSize)
             {
                 moveCaret(0);
             }
             else
             {
-                int targetColumn = getTextComponent().getTargetColumnForVerticalMove();
                 if (targetColumn == -1)
                     targetColumn = pos.getColumn();
                 moveCaret(getTextComponent().getDocument().getPosition(new SourceLocation(pos.getLine() - pageSize, targetColumn)));
-                getTextComponent().setTargetColumnForVerticalMove(targetColumn);
             }
+            getTextComponent().setTargetColumnForVerticalMove(targetColumn);
         }
     }
 
@@ -1871,18 +1871,18 @@ public final class FlowActions
             int[] range = getTextComponent().getLineRangeVisible();
             int pageSize = range[1] - range[0];
             SourceLocation pos = getTextComponent().getDocument().makeSourceLocation(getTextComponent().getCaretPosition());
+            int targetColumn = getTextComponent().getTargetColumnForVerticalMove();
             if (pos.getLine() - 1 + pageSize >= getTextComponent().getDocument().getLineCount())
             {
                 moveCaret(getTextComponent().getDocument().getLength());
             }
             else
             {
-                int targetColumn = getTextComponent().getTargetColumnForVerticalMove();
                 if (targetColumn == -1)
                     targetColumn = pos.getColumn();
                 moveCaret(getTextComponent().getDocument().getPosition(new SourceLocation(pos.getLine() + pageSize, targetColumn)));
-                getTextComponent().setTargetColumnForVerticalMove(targetColumn);
             }
+            getTextComponent().setTargetColumnForVerticalMove(targetColumn);
         }
     }
 
@@ -1897,18 +1897,18 @@ public final class FlowActions
         public void actionPerformed()
         {
             SourceLocation pos = getTextComponent().getDocument().makeSourceLocation(getTextComponent().getCaretPosition());
+            int targetColumn = getTextComponent().getTargetColumnForVerticalMove();
             if (pos.getLine() == 1)
             {
                 moveCaret(0);
             }
             else
             {
-                int targetColumn = getTextComponent().getTargetColumnForVerticalMove();
                 if (targetColumn == -1)
                     targetColumn = pos.getColumn();
                 moveCaret(getTextComponent().getDocument().getPosition(new SourceLocation(pos.getLine() - 1, targetColumn)));
-                getTextComponent().setTargetColumnForVerticalMove(targetColumn);
             }
+            getTextComponent().setTargetColumnForVerticalMove(targetColumn);
         }
     }
 
@@ -1923,18 +1923,18 @@ public final class FlowActions
         public void actionPerformed()
         {
             SourceLocation pos = getTextComponent().getDocument().makeSourceLocation(getTextComponent().getCaretPosition());
+            int targetColumn = getTextComponent().getTargetColumnForVerticalMove();
             if (pos.getLine() == getTextComponent().getDocument().getLineCount())
             {
                 moveCaret(getTextComponent().getDocument().getLength());
             }
             else
             {
-                int targetColumn = getTextComponent().getTargetColumnForVerticalMove();
                 if (targetColumn == -1)
                     targetColumn = pos.getColumn();
                 moveCaret(getTextComponent().getDocument().getPosition(new SourceLocation(pos.getLine() + 1, targetColumn)));
-                getTextComponent().setTargetColumnForVerticalMove(targetColumn);
             }
+            getTextComponent().setTargetColumnForVerticalMove(targetColumn);
         }
     }
 
