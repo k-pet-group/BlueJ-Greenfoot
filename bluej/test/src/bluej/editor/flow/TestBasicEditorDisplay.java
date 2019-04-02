@@ -78,6 +78,7 @@ public class TestBasicEditorDisplay extends FXTest
     private Stage stage;
     private FlowEditorPane flowEditorPane;
     private JavaSyntaxView javaSyntaxView;
+    private FlowEditor flowEditor;
 
     @Override
     public void start(Stage stage) throws Exception
@@ -90,7 +91,7 @@ public class TestBasicEditorDisplay extends FXTest
         PrefMgr.setFlag(PrefMgr.HIGHLIGHTING, true);
         
         this.stage = stage;
-        FlowEditor flowEditor = new FlowEditor(w -> null, new EditorWatcher()
+        flowEditor = new FlowEditor(w -> null, new EditorWatcher()
         {
             @Override
             public void modificationEvent(Editor editor)
@@ -498,7 +499,11 @@ public class TestBasicEditorDisplay extends FXTest
 
     private void setText(String content)
     {
-        fx_(() -> flowEditorPane.getDocument().replaceText(0, flowEditorPane.getDocument().getLength(), content));
+        fx_(() -> {
+            flowEditorPane.getDocument().replaceText(0, flowEditorPane.getDocument().getLength(), content);
+            flowEditor.enableParser(true);
+            flowEditorPane.repaint();
+        });
         sleep(1000);
     }
 

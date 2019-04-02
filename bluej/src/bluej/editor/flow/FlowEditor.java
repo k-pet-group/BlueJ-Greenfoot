@@ -94,6 +94,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
         return true;
     }
 
+    // Used during testing
+    public void enableParser(boolean force)
+    {
+        javaSyntaxView.enableParser(force);
+    }
+
     public static interface FetchTabbedEditor
     {
         FXTabbedEditor getFXTabbedEditor(boolean newWindow);
