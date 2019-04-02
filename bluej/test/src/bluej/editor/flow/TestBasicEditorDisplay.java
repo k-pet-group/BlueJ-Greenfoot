@@ -671,6 +671,7 @@ public class TestBasicEditorDisplay extends FXTest
                 }
             }
         }
+        assertEquals("All scopes found", scopes.length, scopeIndex);
     }
     
     private Scope scope(Color expectedColor, Matcher<Integer> lhsCheck, Matcher<Integer> rhsCheck)
