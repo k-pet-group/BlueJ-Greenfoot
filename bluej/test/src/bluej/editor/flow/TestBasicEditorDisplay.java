@@ -253,13 +253,12 @@ public class TestBasicEditorDisplay extends FXTest
         flowEditorPane.setPrefWidth(800.0);
         flowEditorPane.setPrefHeight(600.0);
         flowEditorPane.setAllowScrollBars(false);
-        ScopeColorsBorderPane scopeColors = new ScopeColorsBorderPane();
+        ScopeColorsBorderPane scopeColors = flowEditor;
         scopeColors.scopeClassOuterColorProperty().set(Color.BLACK);
         scopeColors.scopeClassInnerColorProperty().set(Color.BLACK);
         scopeColors.scopeClassColorProperty().set(Color.GREEN);
         scopeColors.scopeMethodColorProperty().set(Color.YELLOW);
         scopeColors.scopeMethodOuterColorProperty().set(Color.BLACK);
-        //javaSyntaxView = new JavaSyntaxView(flowEditorPane, scopeColors);
         stage.setScene(new Scene(flowEditor));
         stage.show();
     }
@@ -502,7 +501,6 @@ public class TestBasicEditorDisplay extends FXTest
         fx_(() -> {
             flowEditorPane.getDocument().replaceText(0, flowEditorPane.getDocument().getLength(), content);
             flowEditor.enableParser(true);
-            flowEditorPane.repaint();
         });
         sleep(1000);
     }
