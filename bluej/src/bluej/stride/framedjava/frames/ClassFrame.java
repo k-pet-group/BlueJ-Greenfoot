@@ -508,7 +508,7 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         {
             startingCanvas += 1;
             startingFrame = canvases.get(startingCanvas).getBlockContents().stream()
-                    .filter(f -> f instanceof CommentFrame).findFirst().orElse(null);
+                    .filter(f -> !(f instanceof CommentFrame)).findFirst().orElse(null);
         }
 
         // See if focus owner belongs in any of these frames:
