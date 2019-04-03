@@ -622,9 +622,85 @@ public class TestBasicEditorDisplay extends FXTest
         
     }
 
+    @Test
+    public void testScope2()
+    {
+        String beforeEnterPoint = "/**\n" +
+                " * Write a description of class Main here.\n" +
+                " *\n" +
+                " * @author (your name)\n" +
+                " * @version (a version number or a date)\n" +
+                " */\n" +
+                "public class Main\n" +
+                "{\n" +
+                "    // instance variables - replace the example below with your own\n" +
+                "    private int x;\n" +
+                "\n" +
+                "    /**\n" +
+                "     * Constructor for objects of class Main\n" +
+                "     */\n" +
+                "    public Main()\n" +
+                "    {\n" +
+                "        // initialise instance variables\n" +
+                "        x = 0;\n";
+        String afterEnterPoint = "\n" +
+                "    }\n" +
+                "\n" +
+                "    /**\n" +
+                "     * An example of a method - replace this comment with your own\n" +
+                "     *\n" +
+                "     * @param  y  a sample parameter for a method\n" +
+                "     * @return    the sum of x and y\n" +
+                "     */\n" +
+                "    public int sampleMethod(int y)\n" +
+                "    {\n" +
+                "        // put your code here\n" +
+                "        return x + y;\n" +
+                "    }\n" +
+                "}";
+        
+        setText(beforeEnterPoint + afterEnterPoint);
+        fx_(() -> flowEditorPane.requestFocus());
+        fx_(() -> flowEditorPane.positionCaret(beforeEnterPoint.length()));
+        sleep(500);
+        // Find the caret Y:
+        Node caret = lookup(".flow-caret").query();
+        double y = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
+
+        // Check initial scopes:
+        checkScopes(5, scope(Color.GREEN, between(0, 2), between(780, 800)));
+        checkScopes((int) y,
+                scope(Color.GREEN, between(0, 2), between(22, 28)),
+                scope(Color.YELLOW, between(25, 30), between(50, 55))
+        );
+        push(KeyCode.ENTER);
+        push(KeyCode.HOME);
+        assertEquals(19, fx(() -> flowEditorPane.getDocument().getLineFromPosition(flowEditorPane.getCaretPosition())).intValue());
+        assertEquals(0, fx(() -> flowEditorPane.getDocument().getColumnFromPosition(flowEditorPane.getCaretPosition())).intValue());
+        write(" y");
+        sleep(500);
+        // Check scopes got pushed to delete:
+        checkScopes((int)y,
+            scope(Color.GREEN, between(0, 2), between(2, 6)));
+        push(KeyCode.BACK_SPACE);
+        sleep(500);
+        // Check scopes back to same as initial:
+        checkScopes(5, scope(Color.GREEN, between(0, 2), between(780, 800)));
+        checkScopes((int) y,
+                scope(Color.GREEN, between(0, 2), between(22, 28)),
+                scope(Color.YELLOW, between(25, 30), between(50, 55))
+        );
+    }
+    
+    
     private static Matcher<Integer> between(int low, int high)
     {
         return Matchers.both(Matchers.greaterThanOrEqualTo(low)).and(Matchers.lessThanOrEqualTo(high));
+    }
+
+    private boolean isGrey(Color c)
+    {
+        return Math.abs(c.getRed() - c.getBlue()) < 0.01 && Math.abs(c.getGreen() - c.getBlue()) < 0.01;
     }
 
     private void checkScopes(int y, Scope... scopes)
@@ -641,7 +717,7 @@ public class TestBasicEditorDisplay extends FXTest
             Color c = image.getPixelReader().getColor(x, y);
             if (!c.equals(Color.BLACK))
             {
-                if (c.equals(c.grayscale()) && inScope)
+                if (isGrey(c) && inScope)
                 {
                     // End of scope
                     // We don't always get exactly the same colour, so have some tolerance: 
@@ -661,7 +737,7 @@ public class TestBasicEditorDisplay extends FXTest
                     inScope = false;
                     scopeIndex += 1;
                 }
-                else if (!c.equals(c.grayscale()) && !inScope)
+                else if (!isGrey(c) && !inScope)
                 {
                     scopeStartX = x - 1;
                     scopeColor = c;
