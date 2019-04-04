@@ -64,7 +64,17 @@ import threadchecker.Tag;
 
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.Stack;
 
 /**
  * A Swing view implementation that does syntax colouring and adds some utility.
@@ -263,12 +273,12 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 };
                 if (start != end)
                 {
-                    rootNode.textRemoved(this, 0, start, end - start, blankListener);
+                    fireRemoveUpdate(start, end - start);
                 }
                 if (repl != 0)
                 {
-                    rootNode.textInserted(this, 0, start, repl, blankListener);
-                }
+                    fireInsertUpdate(start, repl);
+                }                
                 scheduleReparseRunner();
             });
             
@@ -1546,6 +1556,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             int lastline = document.getLineFromPosition(damageEnd - 1);
             recalculateScopes(pendingScopeBackgrounds, line, lastline);
         }
+        applyPendingScopeBackgrounds();
     }
 
     /**
@@ -2162,7 +2173,6 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         }
         catch (RuntimeException e) {
             
-            /*
             Debug.message("Exception during incremental parsing. Recent edits:");
             for (EditEvent event : recentEdits) {
                 String eventStr = event.type == EDIT_INSERT ? "insert " : "delete ";
@@ -2171,9 +2181,8 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             }
 
             Debug.message("--- Source code ---");
-            Debug.message(getText(0, getLength()));
+            Debug.message(document.getFullContent());
             Debug.message("--- Source ends ---");
-            */
 
             throw e;
         }
@@ -2369,6 +2378,130 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         return rootNode;
     }
 
+    /*
+     * If text was inserted, the reparse-record tree needs to be updated.
+     */
+    protected void fireInsertUpdate(int offset, int length)
+    {
+        duringUpdate = true;
+
+        if (reparseRecordTree != null) {
+            NodeAndPosition<ReparseRecord> napRr = reparseRecordTree.findNodeAtOrAfter(offset);
+            if (napRr != null) {
+                if (napRr.getPosition() <= offset) {
+                    napRr.getNode().resize(napRr.getSize() + length);
+                }
+                else {
+                    napRr.getNode().slide(length);
+                }
+            }
+        }
+
+        MoeSyntaxEvent mse = new MoeSyntaxEvent(offset, length, true, false);
+        if (rootNode != null) {
+            rootNode.textInserted(this, 0, offset, length, mse);
+        }
+        fireChangedUpdate(mse);
+        recordEvent(mse);
+
+        duringUpdate = false;
+    }
+
+
+    /*
+     * If part of the document was removed, the reparse-record tree needs to be updated.
+     */
+    protected void fireRemoveUpdate(int offset, int length)
+    {
+        duringUpdate = true;
+
+        NodeAndPosition<ReparseRecord> napRr = (reparseRecordTree != null) ?
+            reparseRecordTree.findNodeAtOrAfter(offset) : null;
+        int rpos = offset;
+        int rlen = length;
+        if (napRr != null && napRr.getEnd() == rpos) {
+            // Boundary condition
+            napRr = napRr.nextSibling();
+        }
+        while (napRr != null && rlen > 0) {
+            if (napRr.getPosition() < rpos) {
+                if (napRr.getEnd() >= rpos + rlen) {
+                    // remove middle
+                    napRr.getNode().resize(napRr.getSize() - rlen);
+                    break;
+                }
+                else {
+                    // remove end and continue
+                    int reduction = napRr.getEnd() - rpos;
+                    napRr.getNode().resize(napRr.getSize() - reduction);
+                    rlen -= reduction;
+                    napRr = napRr.nextSibling();
+                    continue;
+                }
+            }
+            else if (napRr.getPosition() == rpos) {
+                if (napRr.getEnd() > rpos + rlen) {
+                    // remove beginning
+                    napRr.getNode().resize(napRr.getSize() - rlen);
+                    break;
+                }
+                else {
+                    // remove whole node
+                    napRr.getNode().remove();
+                    napRr = reparseRecordTree.findNodeAtOrAfter(offset);
+                    continue;
+                }
+            }
+            else {
+                // napRr position is greater than delete position
+                if (napRr.getPosition() >= (rpos + rlen)) {
+                    napRr.slide(-rlen);
+                    break;
+                }
+                else if (napRr.getEnd() <= (rpos + rlen)) {
+                    // whole node to be removed
+                    NodeAndPosition<ReparseRecord> nextRr = napRr.nextSibling();
+                    napRr.getNode().remove();
+                    napRr = nextRr;
+                    continue;
+                }
+                else {
+                    // only a portion to be removed
+                    int ramount = (rpos + rlen) - napRr.getPosition();
+                    napRr.slideStart(ramount);
+                    napRr.slide(-rlen);
+                    break;
+                }
+            }
+        }
+
+        MoeSyntaxEvent mse = new MoeSyntaxEvent(offset, length, false, true);
+        if (rootNode != null) {
+            rootNode.textRemoved(this, 0, offset, length, mse);
+        }
+        fireChangedUpdate(mse);
+        recordEvent(mse);
+
+        duringUpdate = false;
+    }
+
+    /**
+     * Issue a change update to listeners.
+     *
+     * @param mse the event with the details of the change, or null if the the change is a resize
+     *            of the viewport (which requires re-drawing scope backgrounds to match).
+     */
+    public void fireChangedUpdate(MoeSyntaxEvent mse)
+    {
+        updateDamage(mse);
+
+        if (mse == null)
+        {
+            // Width change, so apply new backgrounds:
+            applyPendingScopeBackgrounds();
+        }
+    }
+
     /**
      * Process the document re-parse queue.
      * 
@@ -2406,6 +2539,52 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 editorPane.repaint();
                 reparseRunner = null;
             }
+        }
+    }
+
+    /*
+     * We'll keep track of recent events, to aid in hunting down bugs in the event
+     * that we get an unexpected exception.
+     */
+
+    private static int EDIT_INSERT = 0;
+    private static int EDIT_DELETE = 1;
+
+    @OnThread(Tag.Any)
+    public static class EditEvent
+    {
+        int type; //  edit type - INSERT or DELETE
+        int offset;
+        int length;
+    }
+
+    private List<EditEvent> recentEdits = new LinkedList<>();
+
+    private void recordEvent(MoeSyntaxEvent event)
+    {
+        int type;
+        if (event.isInsert())
+        {
+            type = EDIT_INSERT;
+        }
+        else if (event.isRemove())
+        {
+            type = EDIT_DELETE;
+        }
+        else
+        {
+            return;
+        }
+
+        EditEvent eevent = new EditEvent();
+        eevent.type = type;
+        eevent.offset = event.getOffset();
+        eevent.length = event.getLength();
+        recentEdits.add(eevent);
+
+        if (recentEdits.size() > 10)
+        {
+            recentEdits.remove(0);
         }
     }
 }
