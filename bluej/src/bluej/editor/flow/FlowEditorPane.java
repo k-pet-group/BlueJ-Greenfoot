@@ -21,6 +21,7 @@
  */
 package bluej.editor.flow;
 
+import bluej.Config;
 import bluej.editor.flow.Document.Bias;
 import bluej.editor.flow.LineDisplay.LineDisplayListener;
 import bluej.editor.flow.TextLine.StyledSegment;
@@ -147,19 +148,35 @@ public class FlowEditorPane extends Region implements DocumentListener
         JavaFXUtil.addChangeListenerPlatform(heightProperty(), h -> updateRender(false));
     }
     
-    private void keyTyped(KeyEvent e)
-    {
-        if (e.getCharacter().isEmpty())
-        {
-            return;
-        }
-        
+    private void keyTyped(KeyEvent event)
+    {        
         int start = Math.min(caret.position, anchor.position);
         int end = Math.max(caret.position, anchor.position);
         
-        document.replaceText(start, end, e.getCharacter().equals("\r") ? "\n" : e.getCharacter());
-        anchor.position = caret.position;
-        updateRender(true);
+        /////////////////////////////////////////////////////////
+        // This section is adapted from TextInputControlBehavior
+        /////////////////////////////////////////////////////////
+        // Sometimes we get events with no key character, in which case
+        // we need to bail.
+        String character = event.getCharacter();
+        if (character.length() == 0) return;
+
+        // Filter out control keys except control+Alt on PC or Alt on Mac
+        if (event.isControlDown() || event.isAltDown() || (Config.isMacOS() && event.isMetaDown())) {
+            if (!((event.isControlDown() || Config.isMacOS()) && event.isAltDown())) return;
+        }
+
+        // Ignore characters in the control range and the ASCII delete
+        // character as well as meta key presses
+        if (character.charAt(0) > 0x1F
+            && character.charAt(0) != 0x7F
+            && !event.isMetaDown()) { // Not sure about this one -- NCCB note this comment is from the original source
+            document.replaceText(start, end, character);
+
+            anchor.position = caret.position;
+            updateRender(true);
+        }
+        
     }
 
     private void mousePressed(MouseEvent e)

@@ -1060,8 +1060,9 @@ public final class FlowActions
                 addJavadocAction(),
                 indentAction(),
                 deIndentAction(),
+                */
                 newLineAction(),
-
+                /*
                 cutAction(),
                 copyAction(),
                 pasteAction(),
@@ -1542,25 +1543,23 @@ public final class FlowActions
         return editor == null ? null : editor.getSourcePane();
     }
 
-    /*TODOFLOW
     private FlowAbstractAction newLineAction()
     {
         return action("new-line", Category.EDIT, () -> {
 
             editor.getSourcePane().replaceSelection("\n");
-            // We seem to need to force the layout now after requesting to follow,
-            // or otherwise sometimes it doesn't scroll down to track the new caret position
-            // if we just request but don't layout:
-            editor.getSourcePane().requestFollowCaret();
-            editor.getSourcePane().layout();
 
             if (PrefMgr.getFlag(PrefMgr.AUTO_INDENT))
             {
-                doIndent(true);
+                //TODOFLOW
+                //doIndent(true);
             }
-            editor.undoManager.breakEdit();
+            //TODOFLOW
+            //editor.undoManager.breakEdit();
         });
     }
+    
+    /*
 
     // --------------------------------------------------------------------
 
