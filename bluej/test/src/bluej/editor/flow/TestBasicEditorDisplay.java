@@ -688,6 +688,8 @@ public class TestBasicEditorDisplay extends FXTest
         push(KeyCode.HOME);
         assertEquals(19, fx(() -> flowEditorPane.getDocument().getLineFromPosition(flowEditorPane.getCaretPosition())).intValue());
         assertEquals(0, fx(() -> flowEditorPane.getDocument().getColumnFromPosition(flowEditorPane.getCaretPosition())).intValue());
+        // There may be auto-indent, but the new line should be there at least:
+        assertThat(fx(() -> flowEditorPane.getDocument().getFullContent()), Matchers.startsWith(beforeEnterPoint + "\n"));
         write(" y");
         sleep(500);
         // Check scopes got pushed to delete:
