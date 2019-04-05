@@ -381,15 +381,16 @@ public class FlowEditorPane extends Region implements DocumentListener
 
         if (lineDisplay.isLineVisible(caret.getLine()))
         {
-            TextLine caretLine = lineDisplay.getVisibleLine(caret.getLine());
-            caretShape.getElements().setAll(caretLine.caretShape(caret.getColumn(), true));
+            MarginAndTextLine caretLine = lineDisplay.getVisibleLine(caret.getLine());
+            caretShape.getElements().setAll(caretLine.textLine.caretShape(caret.getColumn(), true));
             if (getScene() != null)
             {
                 JavaFXUtil.runAfterNextLayout(getScene(), () -> {
-                    caretShape.getElements().setAll(caretLine.caretShape(caret.getColumn(), true));
+                    caretShape.getElements().setAll(caretLine.textLine.caretShape(caret.getColumn(), true));
                 });
             }
             caretShape.layoutXProperty().bind(caretLine.layoutXProperty());
+            caretShape.translateXProperty().set(MarginAndTextLine.MARGIN_WIDTH);
             caretShape.layoutYProperty().bind(caretLine.layoutYProperty());
             caretShape.setVisible(true);
         }
@@ -411,7 +412,7 @@ public class FlowEditorPane extends Region implements DocumentListener
             // Simple case; one line selection:
             if (startPos.getLine() == endPos.getLine() && lineDisplay.isLineVisible(startPos.getLine()))
             {
-                TextLine caretLine = lineDisplay.getVisibleLine(startPos.getLine());
+                TextLine caretLine = lineDisplay.getVisibleLine(startPos.getLine()).textLine;
                 caretLine.showSelection(startPos.getColumn(), endPos.getColumn(), false);
             }
             else
@@ -423,14 +424,14 @@ public class FlowEditorPane extends Region implements DocumentListener
                     int startOnThisLine = line == startPos.getLine() ? startPos.getColumn() : 0;
                     if (lineDisplay.isLineVisible(line))
                     {
-                        TextLine textLine = lineDisplay.getVisibleLine(line);
+                        TextLine textLine = lineDisplay.getVisibleLine(line).textLine;
                         textLine.showSelection(startOnThisLine, document.getLineStart(line + 1) - document.getLineStart(line), true);
                     }
                 }
                 // Now do last line:
                 if (lineDisplay.isLineVisible(endPos.getLine()))
                 {
-                    lineDisplay.getVisibleLine(endPos.getLine()).showSelection(0, endPos.getColumn(), false);
+                    lineDisplay.getVisibleLine(endPos.getLine()).textLine.showSelection(0, endPos.getColumn(), false);
                 }
             }
         }
@@ -493,12 +494,6 @@ public class FlowEditorPane extends Region implements DocumentListener
         
                 
         requestLayout();
-    }
-
-    private TextLine getVisibleLine(int line)
-    {
-
-        return lineDisplay.getVisibleLine(line);
     }
 
     boolean isLineVisible(int line)
@@ -591,7 +586,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         
         if (lineDisplay.isLineVisible(lineIndex))
         {
-            lineDisplay.getVisibleLine(lineIndex).showError(startColumn, endColumn);
+            lineDisplay.getVisibleLine(lineIndex).textLine.showError(startColumn, endColumn);
         }
     }
 
@@ -614,7 +609,7 @@ public class FlowEditorPane extends Region implements DocumentListener
             double y = snapPositionY(lineDisplay.getFirstVisibleLineOffset());
             for (Node child : getChildren())
             {
-                if (child instanceof TextFlow)
+                if (child instanceof MarginAndTextLine)
                 {
                     double height = snapSizeY(child.prefHeight(-1.0));
                     double nextY = snapPositionY(y + height);
@@ -689,7 +684,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         int lineIndex = document.getLineFromPosition(leftOfCharIndex);
         if (lineDisplay.isLineVisible(lineIndex))
         {
-            TextLine line = lineDisplay.getVisibleLine(lineIndex);
+            TextLine line = lineDisplay.getVisibleLine(lineIndex).textLine;
             PathElement[] elements = line.caretShape(leftOfCharIndex - document.getLineStart(lineIndex), true);
             Path path = new Path(elements);
             Bounds bounds = path.getBoundsInLocal();
@@ -703,7 +698,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         int lineIndex = document.getLineFromPosition(position);
         if (lineDisplay.isLineVisible(lineIndex))
         {
-            TextLine line = lineDisplay.getVisibleLine(lineIndex);
+            TextLine line = lineDisplay.getVisibleLine(lineIndex).textLine;
             PathElement[] elements = line.caretShape(position - document.getLineStart(lineIndex), true);
             Path path = new Path(elements);
             Bounds bounds = line.localToScreen(path.getBoundsInLocal());
@@ -716,7 +711,7 @@ public class FlowEditorPane extends Region implements DocumentListener
     {
         if (lineDisplay.isLineVisible(lineIndex))
         {
-            TextLine line = lineDisplay.getVisibleLine(lineIndex);
+            MarginAndTextLine line = lineDisplay.getVisibleLine(lineIndex);
             Bounds bounds = line.getLayoutBounds();
             return Optional.of(new double[] {line.getLayoutY() + bounds.getMinY(), line.getLayoutY() + bounds.getMaxY()});
         }

@@ -54,7 +54,7 @@ class LineDisplay
     // The ordered list of the current visible display lines.
     // The first line in the list corresponds to line firstVisibleLineIndex
     // in the actual document.
-    private final ArrayList<TextLine> currentlyVisibleLines = new ArrayList<>();
+    private final ArrayList<MarginAndTextLine> currentlyVisibleLines = new ArrayList<>();
     
     private final ArrayList<LineDisplayListener> lineDisplayListeners = new ArrayList<>();
     
@@ -70,7 +70,7 @@ class LineDisplay
      * Gets the visible line object corresponding to the given document line.
      * Throws an exception if that line is not visible (you should check first via isLineVisible).
      */
-    TextLine getVisibleLine(int line)
+    MarginAndTextLine getVisibleLine(int line)
     {
         if (!isLineVisible(line))
         {
@@ -107,9 +107,9 @@ class LineDisplay
         {
             if (currentlyVisibleLines.size() - 1 < visLineSubIndex)
             {
-                currentlyVisibleLines.add(new TextLine());
+                currentlyVisibleLines.add(new MarginAndTextLine(new TextLine()));
             }
-            currentlyVisibleLines.get(visLineSubIndex).setText(lines.next(), fontSize);
+            currentlyVisibleLines.get(visLineSubIndex).textLine.setText(lines.next(), fontSize);
             double lineHeight = snapHeight.apply(currentlyVisibleLines.get(visLineSubIndex).prefHeight(-1.0));
             curY += lineHeight;
             lineHeights.add(lineHeight);
@@ -286,7 +286,7 @@ class LineDisplay
     {
         for (int visibleLineSubIndex = 0; visibleLineSubIndex < currentlyVisibleLines.size(); visibleLineSubIndex++)
         {
-            currentlyVisibleLines.get(visibleLineSubIndex).setScopeBackgrounds(scopeBackgrounds.get(firstVisibleLineIndex + visibleLineSubIndex));
+            currentlyVisibleLines.get(visibleLineSubIndex).textLine.setScopeBackgrounds(scopeBackgrounds.get(firstVisibleLineIndex + visibleLineSubIndex));
         }
     }
 
@@ -300,7 +300,7 @@ class LineDisplay
     {
         for (int i = 0; i < currentlyVisibleLines.size(); i++)
         {
-            TextLine currentlyVisibleLine = currentlyVisibleLines.get(i);
+            TextLine currentlyVisibleLine = currentlyVisibleLines.get(i).textLine;
             // getLayoutBounds() seems to get out of date, so calculate manually:
             BoundingBox actualBounds = new BoundingBox(currentlyVisibleLine.getLayoutX(), currentlyVisibleLine.getLayoutY(), currentlyVisibleLine.getWidth(), currentlyVisibleLine.getHeight());
             if (currentlyVisibleLine.getLayoutY() <= e.getY() && e.getY() <= currentlyVisibleLine.getLayoutY() + currentlyVisibleLine.getHeight())
