@@ -328,7 +328,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             return;
         
         recalcScopeMarkers(pendingScopes,
-                (int)editorPane.getWidth(),
+                (int)editorPane.getWidth() - MarginAndTextLine.MARGIN_WIDTH,
                 //(widthProperty == null || widthProperty.get() == 0) ? 200 :
                         //((int)widthProperty.get() - PARAGRAPH_MARGIN),
                 firstLineIncl, lastLineIncl);

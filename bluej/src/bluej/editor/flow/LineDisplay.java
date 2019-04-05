@@ -300,14 +300,14 @@ class LineDisplay
     {
         for (int i = 0; i < currentlyVisibleLines.size(); i++)
         {
-            TextLine currentlyVisibleLine = currentlyVisibleLines.get(i).textLine;
+            MarginAndTextLine currentlyVisibleLine = currentlyVisibleLines.get(i);
             // getLayoutBounds() seems to get out of date, so calculate manually:
             BoundingBox actualBounds = new BoundingBox(currentlyVisibleLine.getLayoutX(), currentlyVisibleLine.getLayoutY(), currentlyVisibleLine.getWidth(), currentlyVisibleLine.getHeight());
             if (currentlyVisibleLine.getLayoutY() <= e.getY() && e.getY() <= currentlyVisibleLine.getLayoutY() + currentlyVisibleLine.getHeight())
             {
                 // Can't use parentToLocal if layout bounds may be out of date:
-                Point2D pointInLocal = new Point2D(e.getX() - currentlyVisibleLine.getLayoutX(), e.getY() - currentlyVisibleLine.getLayoutY());
-                HitInfo hitInfo = currentlyVisibleLine.hitTest(pointInLocal);
+                Point2D pointInLocal = new Point2D(e.getX() - currentlyVisibleLine.getLayoutX() - MarginAndTextLine.MARGIN_WIDTH, e.getY() - currentlyVisibleLine.getLayoutY());
+                HitInfo hitInfo = currentlyVisibleLine.textLine.hitTest(pointInLocal);
                 if (hitInfo != null)
                 {
                     return new int[] {i + firstVisibleLineIndex, hitInfo.getInsertionIndex()};

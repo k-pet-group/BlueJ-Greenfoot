@@ -15,7 +15,9 @@ public class MarginAndTextLine extends Region
     public MarginAndTextLine(TextLine textLine)
     {
         this.textLine = textLine;
+        setMouseTransparent(true);
         getChildren().setAll(textLine);
+        getStyleClass().add("margin-and-text-line");
     }
 
     @Override

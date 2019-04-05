@@ -42,8 +42,10 @@ import com.pholser.junit.quickcheck.From;
 import com.pholser.junit.quickcheck.Property;
 import com.pholser.junit.quickcheck.When;
 import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
@@ -253,7 +255,7 @@ public class TestBasicEditorDisplay extends FXTest
             }
         });
         flowEditorPane = flowEditor.getSourcePane();
-        flowEditorPane.setPrefWidth(800.0);
+        flowEditorPane.setPrefWidth(800.0 + MarginAndTextLine.MARGIN_WIDTH);
         flowEditorPane.setPrefHeight(600.0);
         flowEditorPane.setAllowScrollBars(false);
         ScopeColorsBorderPane scopeColors = flowEditor;
@@ -367,10 +369,10 @@ public class TestBasicEditorDisplay extends FXTest
                 flowEditorPane.positionCaretWithoutScrolling(toSaved.caretPos);
                 flowEditorPane.positionAnchor(fromSaved.caretPos);
             });
-            int toPosX = fx(() -> caret.getElements().isEmpty() ? flowX + 1.0 : caret.localToScreen(caret.getBoundsInLocal()).getCenterX()).intValue();
+            int toPosX = fx(() -> caret.getElements().isEmpty() ? flowX + MarginAndTextLine.MARGIN_WIDTH + 1.0 : caret.localToScreen(caret.getBoundsInLocal()).getCenterX()).intValue();
             int toPosY = fx(() -> caret.getElements().isEmpty() ? flowY + 1.0 : caret.localToScreen(caret.getBoundsInLocal()).getCenterY()).intValue();
             sleep(200);
-            WritableImage editorImage = fx(() -> flowEditorPane.snapshot(null, null));
+            WritableImage editorImage = editorSnapshot(true);
             boolean fromFirst = fromSaved.caretPos <= toSaved.caretPos;
             int firstY = fromFirst ? fromSaved.screenY : toPosY;
             int lastY = Math.min((int)editorImage.getHeight() - 1, fromFirst ? toPosY : fromSaved.screenY);
@@ -406,11 +408,11 @@ public class TestBasicEditorDisplay extends FXTest
                 if (line >= firstLine && line <= lastLine)
                 {
                     // Look for start and end of a blue region:
-                    int startX = (line == firstLine ? (fromFirst ? fromSaved.screenX : toPosX) : flowX) + 10;
+                    int startX = (line == firstLine ? (fromFirst ? fromSaved.screenX : toPosX) : flowX + MarginAndTextLine.MARGIN_WIDTH) + 10;
                     int endX = (line == lastLine ? (fromFirst ? toPosX : fromSaved.screenX) : flowX + (int)editorImage.getWidth()) - 10;
                     // If selection ends at the start of the line, will be very little blue, so skip it:
                     // Similarly, skip if selection is so small we won't pick up the blue:
-                    if (endX <= flowX + 5 || startX > endX - 10)
+                    if (endX <= flowX + MarginAndTextLine.MARGIN_WIDTH + 5 || startX > endX - 10)
                     {
                         
                     }
@@ -523,8 +525,8 @@ public class TestBasicEditorDisplay extends FXTest
     @OnThread(Tag.Any)
     private void checkVisibleLinesAgainst(List<String> lines)
     {
-        List<TextFlow> guiLines = fx(() -> {
-            return flowEditorPane.lookupAll(".text-line").stream().sorted(Comparator.comparing(Node::getLayoutY)).map(t -> (TextFlow)t).collect(Collectors.toList());
+        List<MarginAndTextLine> guiLines = fx(() -> {
+            return flowEditorPane.lookupAll(".margin-and-text-line").stream().sorted(Comparator.comparing(Node::getLayoutY)).map(t -> (MarginAndTextLine)t).collect(Collectors.toList());
         });
 
         // Check that text lines are there in order
@@ -557,9 +559,9 @@ public class TestBasicEditorDisplay extends FXTest
     }
 
     @OnThread(Tag.FXPlatform)
-    private String getAllText(TextFlow textFlow)
+    private String getAllText(MarginAndTextLine node)
     {
-        return textFlow.getChildren().stream().filter(c -> c instanceof Text).map(c -> ((Text)c).getText()).collect(Collectors.joining());
+        return ((TextFlow)node.lookup(".text-line")).getChildren().stream().filter(c -> c instanceof Text).map(c -> ((Text)c).getText()).collect(Collectors.joining());
     }
     
     @Test
@@ -715,7 +717,7 @@ public class TestBasicEditorDisplay extends FXTest
     private void checkScopes(int y, Scope... scopes)
     {
         // Take screenshot of background:
-        WritableImage image = fx(() -> flowEditorPane.snapshot(null, null));
+        WritableImage image = editorSnapshot(false);
         // Go from LHS:
         int scopeIndex = 0;
         boolean inScope = false;
@@ -757,7 +759,21 @@ public class TestBasicEditorDisplay extends FXTest
         }
         assertEquals("All scopes found", scopes.length, scopeIndex);
     }
-    
+
+    @OnThread(Tag.Any)
+    private WritableImage editorSnapshot(boolean includeMargin)
+    {
+        return fx(() -> {
+            SnapshotParameters params = new SnapshotParameters();
+            // If we don't want the margin in the snapshot:
+            if (!includeMargin)
+            {
+                params.setViewport(new Rectangle2D(MarginAndTextLine.MARGIN_WIDTH, 0, 800, 600));
+            }
+            return flowEditorPane.snapshot(params, null);
+        });
+    }
+
     private Scope scope(Color expectedColor, Matcher<Integer> lhsCheck, Matcher<Integer> rhsCheck)
     {
         return new Scope(expectedColor, lhsCheck, rhsCheck);
