@@ -289,7 +289,7 @@ public class TestBasicEditorDisplay extends FXTest
 
         Path caret = lookup(".flow-caret").query();
         int[] lineRangeVisible = flowEditorPane.getLineRangeVisible();
-        int linesVisible = lineRangeVisible[1] - lineRangeVisible[0];
+        int linesVisible = lineRangeVisible[0] == lineRangeVisible[1] ? 1 : lineRangeVisible[1] - lineRangeVisible[0];
         // Move the caret to line index "i" in each iteration of the loop, and check it is visible:
         for (int i = 0; i < Math.min(80, lines.size()); i++)
         {
