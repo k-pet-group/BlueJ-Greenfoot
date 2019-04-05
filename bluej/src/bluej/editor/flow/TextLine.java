@@ -22,6 +22,7 @@
 package bluej.editor.flow;
 
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.LineTo;
@@ -36,6 +37,8 @@ import threadchecker.Tag;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,7 +54,8 @@ class TextLine extends TextFlow
     // The selection shape (may be empty and invisible when not in use)
     private final Path selectionShape = new Path();
     private final Path errorUnderlineShape = new Path();
-    
+    private List<Node> backgroundNodes = Collections.emptyList();
+
     public TextLine()
     {
         getStyleClass().add("text-line");
@@ -152,11 +156,13 @@ class TextLine extends TextFlow
         hideSelection();
         hideErrorUnderline();
         getChildren().clear();
+        getChildren().addAll(backgroundNodes);
         getChildren().add(selectionShape);
         for (StyledSegment styledSegment : StyledSegment.mergeAdjacentIdentical(text))
         {
             Text t = new Text(styledSegment.text);
             t.setFont(new Font("Roboto Mono", size));
+            t.getStyleClass().add("editor-text");
             t.getStyleClass().addAll(styledSegment.cssClasses);
             getChildren().add(t);
         }
@@ -204,6 +210,17 @@ class TextLine extends TextFlow
     {
         errorUnderlineShape.getElements().clear();
         errorUnderlineShape.setVisible(false);
+    }
+
+    public void setScopeBackgrounds(Collection<Node> nodes)
+    {
+        if (nodes == null)
+            nodes = Collections.emptyList();
+        
+        this.backgroundNodes = new ArrayList<>(nodes);
+        int selectionIndex = getChildren().indexOf(selectionShape);
+        getChildren().remove(0, selectionIndex);
+        getChildren().addAll(0, backgroundNodes);
     }
 
     /**

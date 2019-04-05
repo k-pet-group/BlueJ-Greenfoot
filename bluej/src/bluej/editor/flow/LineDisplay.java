@@ -23,6 +23,7 @@ package bluej.editor.flow;
 
 import bluej.editor.flow.TextLine.StyledSegment;
 import bluej.utility.javafx.FXPlatformFunction;
+import com.google.common.collect.Multimap;
 import javafx.beans.binding.DoubleExpression;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Point2D;
@@ -279,6 +280,14 @@ class LineDisplay
     public double getLineHeight()
     {
         return averageLineHeight;
+    }
+
+    public void applyScopeBackgrounds(Multimap<Integer, Node> scopeBackgrounds)
+    {
+        for (int visibleLineSubIndex = 0; visibleLineSubIndex < currentlyVisibleLines.size(); visibleLineSubIndex++)
+        {
+            currentlyVisibleLines.get(visibleLineSubIndex).setScopeBackgrounds(scopeBackgrounds.get(firstVisibleLineIndex + visibleLineSubIndex));
+        }
     }
 
     static interface LineDisplayListener

@@ -37,6 +37,7 @@ import bluej.prefmgr.PrefMgr;
 import bluej.stride.generic.Frame.View;
 import bluej.stride.generic.Frame.ViewChangeReason;
 import bluej.utility.Utility;
+import com.google.common.io.Files;
 import com.pholser.junit.quickcheck.From;
 import com.pholser.junit.quickcheck.Property;
 import com.pholser.junit.quickcheck.When;
@@ -57,6 +58,8 @@ import org.junit.runner.RunWith;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -260,6 +263,12 @@ public class TestBasicEditorDisplay extends FXTest
         scopeColors.scopeMethodColorProperty().set(Color.YELLOW);
         scopeColors.scopeMethodOuterColorProperty().set(Color.BLACK);
         stage.setScene(new Scene(flowEditor));
+        // We have to hide the text and caret to prevent them interfering with our examination
+        // of the selection and scope backgrounds after taking a screenshot:
+        File tmpStyleSheet = File.createTempFile("hide-foreground", "css");
+        tmpStyleSheet.deleteOnExit();
+        Files.write(".editor-text, .flow-caret { -fx-opacity: 0.01; }", tmpStyleSheet, StandardCharsets.UTF_8);
+        stage.getScene().getStylesheets().add(tmpStyleSheet.toURI().toURL().toString());
         stage.show();
     }
 
@@ -567,7 +576,7 @@ public class TestBasicEditorDisplay extends FXTest
         double y = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
         
         // Check initial scopes:
-        checkScopes(5, scope(Color.GREEN, between(0, 2), between(780, 800)));
+        checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
         checkScopes((int)y, 
             scope(Color.GREEN, between(0, 2), between(22, 28)),
             scope(Color.YELLOW, between(25, 30), between(50, 55))
@@ -578,7 +587,7 @@ public class TestBasicEditorDisplay extends FXTest
             sleep(150);
             assertEquals(beforeEnterPoint + "\n".repeat(i + 1) + afterEnterPoint, fx(() -> flowEditorPane.getDocument().getFullContent()));
             // Scopes should still be the same:
-            checkScopes(5, scope(Color.GREEN, between(0, 2), between(780, 800)));
+            checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
             y = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
             checkScopes((int) y,
                 scope(Color.GREEN, between(0, 2), between(22, 28)),
@@ -591,7 +600,7 @@ public class TestBasicEditorDisplay extends FXTest
         }
         y = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
         // Now, the top should have scrolled off, so should be nested scopes at top:
-        checkScopes((int) 5,
+        checkScopes((int) 6,
             scope(Color.GREEN, between(0, 2), between(22, 28)),
             scope(Color.YELLOW, between(25, 30), between(50, 55))
         );
@@ -603,7 +612,7 @@ public class TestBasicEditorDisplay extends FXTest
         // Get back to top:
         push(KeyCode.PAGE_UP);
         push(KeyCode.PAGE_UP);
-        checkScopes(5, scope(Color.GREEN, between(0, 2), between(780, 800)));
+        checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
         fx_(() -> flowEditorPane.positionCaret(beforeEnterPoint.length()));
         sleep(500);
 
@@ -611,7 +620,7 @@ public class TestBasicEditorDisplay extends FXTest
         {
             // Check scope position as we scroll down:
             if (i == 0)
-                checkScopes(5, scope(Color.GREEN, between(0, 2), between(780, 800)));
+                checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
             y = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
             checkScopes((int)y,
                     scope(Color.GREEN, between(0, 2), between(22, 28)),
@@ -668,7 +677,7 @@ public class TestBasicEditorDisplay extends FXTest
         double y = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
 
         // Check initial scopes:
-        checkScopes(5, scope(Color.GREEN, between(0, 2), between(780, 800)));
+        checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
         checkScopes((int) y,
                 scope(Color.GREEN, between(0, 2), between(22, 28)),
                 scope(Color.YELLOW, between(25, 30), between(50, 55))
@@ -685,7 +694,7 @@ public class TestBasicEditorDisplay extends FXTest
         push(KeyCode.BACK_SPACE);
         sleep(500);
         // Check scopes back to same as initial:
-        checkScopes(5, scope(Color.GREEN, between(0, 2), between(780, 800)));
+        checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
         checkScopes((int) y,
                 scope(Color.GREEN, between(0, 2), between(22, 28)),
                 scope(Color.YELLOW, between(25, 30), between(50, 55))
@@ -706,7 +715,7 @@ public class TestBasicEditorDisplay extends FXTest
     private void checkScopes(int y, Scope... scopes)
     {
         // Take screenshot of background:
-        WritableImage image = fx(() -> flowEditorPane.snapshotBackground());
+        WritableImage image = fx(() -> flowEditorPane.snapshot(null, null));
         // Go from LHS:
         int scopeIndex = 0;
         boolean inScope = false;
@@ -723,11 +732,12 @@ public class TestBasicEditorDisplay extends FXTest
                     // We don't always get exactly the same colour, so have some tolerance: 
                     try
                     {
-                        assertThat("At " + y, scopeColor.getRed(), Matchers.closeTo(scopes[scopeIndex].expectedColor.getRed(), 0.03));
-                        assertThat("At " + y, scopeColor.getGreen(), Matchers.closeTo(scopes[scopeIndex].expectedColor.getGreen(), 0.03));
-                        assertThat("At " + y, scopeColor.getBlue(), Matchers.closeTo(scopes[scopeIndex].expectedColor.getBlue(), 0.03));
-                        assertThat("At " + y, scopeStartX, scopes[scopeIndex].lhsCheck);
-                        assertThat("At " + y, x - 1, scopes[scopeIndex].rhsCheck);
+                        String coords = "At " + x + ", " + y;
+                        assertThat(coords, scopeColor.getRed(), Matchers.closeTo(scopes[scopeIndex].expectedColor.getRed(), 0.03));
+                        assertThat(coords, scopeColor.getGreen(), Matchers.closeTo(scopes[scopeIndex].expectedColor.getGreen(), 0.03));
+                        assertThat(coords, scopeColor.getBlue(), Matchers.closeTo(scopes[scopeIndex].expectedColor.getBlue(), 0.03));
+                        assertThat(coords, scopeStartX, scopes[scopeIndex].lhsCheck);
+                        assertThat(coords, x - 1, scopes[scopeIndex].rhsCheck);
                     }
                     catch (AssertionError e)
                     {

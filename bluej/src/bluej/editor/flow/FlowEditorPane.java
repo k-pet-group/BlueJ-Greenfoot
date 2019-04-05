@@ -26,6 +26,7 @@ import bluej.editor.flow.LineDisplay.LineDisplayListener;
 import bluej.editor.flow.TextLine.StyledSegment;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
+import com.google.common.collect.Multimap;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
@@ -93,7 +94,6 @@ public class FlowEditorPane extends Region implements DocumentListener
     
     private final List<IndexRange> errorUnderlines = new ArrayList<>();
     private final LineContainer lineContainer;
-    private final Pane backgroundPane;
     private final ScrollBar verticalScroll;
     private final ScrollBar horizontalScroll;
     private boolean updatingScrollBarDirectly = false;
@@ -107,7 +107,6 @@ public class FlowEditorPane extends Region implements DocumentListener
     {
         setSnapToPixel(true);
         lineDisplay = new LineDisplay(heightProperty());
-        backgroundPane = new Pane();
         document = new HoleDocument();
         document.replaceText(0, 0, content);
         document.addListener(this);
@@ -133,7 +132,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         horizontalScroll.setOrientation(Orientation.HORIZONTAL);
         horizontalScroll.setVisible(false);
         lineContainer = new LineContainer();
-        getChildren().setAll(backgroundPane, lineContainer, verticalScroll, horizontalScroll);
+        getChildren().setAll(lineContainer, verticalScroll, horizontalScroll);
         updateRender(false);
 
         Nodes.addInputMap(this, InputMap.sequence(
@@ -601,6 +600,11 @@ public class FlowEditorPane extends Region implements DocumentListener
         this.errorQuery = errorQuery;
     }
 
+    public void applyScopeBackgrounds(Multimap<Integer, Node> scopeBackgrounds)
+    {
+        lineDisplay.applyScopeBackgrounds(scopeBackgrounds);
+    }
+
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     private class LineContainer extends Region
     {
@@ -633,7 +637,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         double xMargin = 2;
         for (Node child : getChildren())
         {
-            if (child == backgroundPane || child == lineContainer)
+            if (child == lineContainer)
             {
                 child.resizeRelocate(xMargin, 0, getWidth() - xMargin, getHeight());
             }
@@ -712,15 +716,11 @@ public class FlowEditorPane extends Region implements DocumentListener
     {
         if (lineDisplay.isLineVisible(lineIndex))
         {
-            Bounds bounds = lineDisplay.getVisibleLine(lineIndex).getBoundsInParent();
-            return Optional.of(new double[] {bounds.getMinY(), bounds.getMaxY()});
+            TextLine line = lineDisplay.getVisibleLine(lineIndex);
+            Bounds bounds = line.getLayoutBounds();
+            return Optional.of(new double[] {line.getLayoutY() + bounds.getMinY(), line.getLayoutY() + bounds.getMaxY()});
         }
         return Optional.empty();
-    }
-
-    public Pane getBackgroundPane()
-    {
-        return backgroundPane;
     }
 
     /**
@@ -775,12 +775,6 @@ public class FlowEditorPane extends Region implements DocumentListener
     public int getAnchorPosition()
     {
         return anchor.position;
-    }
-
-    // For testing:
-    WritableImage snapshotBackground()
-    {
-        return backgroundPane.snapshot(null, null);
     }
 
     public void addLineDisplayListener(LineDisplayListener lineDisplayListener)

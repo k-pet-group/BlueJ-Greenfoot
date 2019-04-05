@@ -2054,7 +2054,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 Region rectangle = new Region();
                 rectangle.setManaged(false);
                 rectangle.resizeRelocate(
-                    nestedScope.leftRight.lhs, possVertBounds.get()[0], nestedScope.leftRight.rhs - nestedScope.leftRight.lhs, possVertBounds.get()[1] - possVertBounds.get()[0]
+                    nestedScope.leftRight.lhs, 0, nestedScope.leftRight.rhs - nestedScope.leftRight.lhs, possVertBounds.get()[1] - possVertBounds.get()[0]
                 );
                 CornerRadii radii = null;
                 Insets bodyInsets = null;
@@ -2101,8 +2101,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         });
         pendingScopeBackgrounds.clear();
 
-        editorPane.getBackgroundPane().getChildren().clear();
-        editorPane.getBackgroundPane().getChildren().setAll(scopeBackgrounds.values());
+        editorPane.applyScopeBackgrounds(scopeBackgrounds);
     }
 
     /**
