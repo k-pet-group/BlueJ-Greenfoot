@@ -1548,6 +1548,7 @@ public final class FlowActions
         return action("new-line", Category.EDIT, () -> {
 
             editor.getSourcePane().replaceSelection("\n");
+            editor.getSourcePane().ensureCaretShowing();
 
             if (PrefMgr.getFlag(PrefMgr.AUTO_INDENT))
             {

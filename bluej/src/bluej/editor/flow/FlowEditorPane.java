@@ -617,6 +617,11 @@ public class FlowEditorPane extends Region implements DocumentListener
         lineDisplay.applyScopeBackgrounds(scopeBackgrounds);
     }
 
+    public void ensureCaretShowing()
+    {
+        updateRender(true);
+    }
+
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     private class LineContainer extends Region
     {
