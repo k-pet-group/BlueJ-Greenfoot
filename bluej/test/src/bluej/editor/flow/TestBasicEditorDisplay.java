@@ -678,11 +678,26 @@ public class TestBasicEditorDisplay extends FXTest
         Node caret = lookup(".flow-caret").query();
         double y = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
 
+        for (int i = 0; i < 4; i++)
+        {
+            push(KeyCode.UP);
+        }
+        sleep(200);
+        double methodHeaderY = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
+        for (int i = 0; i < 4; i++)
+        {
+            push(KeyCode.DOWN);
+        }
+
         // Check initial scopes:
         checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
-        checkScopes((int) y,
+        checkScopes((int) methodHeaderY,
                 scope(Color.GREEN, between(0, 2), between(22, 28)),
-                scope(Color.YELLOW, between(25, 30), between(50, 55))
+                scope(Color.YELLOW, between(25, 30), between(780, 800))
+        );
+        checkScopes((int) y,
+            scope(Color.GREEN, between(0, 2), between(22, 28)),
+            scope(Color.YELLOW, between(25, 30), between(50, 55))
         );
         push(KeyCode.ENTER);
         push(KeyCode.HOME);
@@ -693,8 +708,16 @@ public class TestBasicEditorDisplay extends FXTest
         write(" y");
         sleep(500);
         // Check scopes got pushed to delete:
+        checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
+        checkScopes((int) methodHeaderY,
+            scope(Color.GREEN, between(0, 2), between(22, 28)),
+            scope(Color.YELLOW, between(25, 30), between(780, 800))
+        );
         checkScopes((int)y,
-            scope(Color.GREEN, between(0, 2), between(2, 6)));
+            scope(Color.GREEN, between(0, 2), between(2, 6)),
+            // The yellow will only be visible on RHS:
+            scope(Color.YELLOW, between(770, 800), between(780, 800))
+        );
         push(KeyCode.BACK_SPACE);
         sleep(500);
         // Check scopes back to same as initial:
