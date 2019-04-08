@@ -56,9 +56,9 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
     public static final int NODETYPE_COMMENT = 7;
     
     /** The NodeTree containing the child nodes of this node */
-    private NodeTree<ParsedNode> nodeTree;
+    private final NodeTree<ParsedNode> nodeTree;
     /** The parent ParsedNode which contains us */
-    private ParsedNode parentNode;
+    private final ParsedNode parentNode;
     
     private boolean hasAttachedComment;
     
@@ -69,15 +69,10 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
     protected boolean complete;
     
     private boolean isInner = false;
-    
-    public ParsedNode()
-    {
-        nodeTree = new NodeTree<ParsedNode>();
-    }
-    
+
     ParsedNode(ParsedNode parentNode)
     {
-        this();
+        nodeTree = new NodeTree<ParsedNode>();
         this.parentNode = parentNode;
     }
 

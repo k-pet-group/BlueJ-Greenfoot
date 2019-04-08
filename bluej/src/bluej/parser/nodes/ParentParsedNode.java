@@ -33,11 +33,6 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
  */
 public abstract class ParentParsedNode extends ParsedNode
 {    
-    protected ParentParsedNode()
-    {
-        super();
-    }
-    
     public ParentParsedNode(ParsedNode myParent)
     {
         super(myParent);
