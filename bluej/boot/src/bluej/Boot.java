@@ -212,6 +212,22 @@ public class Boot
      */
     public URL[] getJavaFXClassPath()
     {
+        // Ubuntu names its JARs differently, so the entire set of paths is passed in as a command-line argument:
+        String javafxJarsProp = commandLineProps.getProperty("javafxjars", null);
+        if (javafxJarsProp != null)
+        {
+            return Arrays.stream(javafxJarsProp.split(":")).map(s -> {
+                try
+                {
+                    return new File(s).toURI().toURL();
+                }
+                catch (MalformedURLException e)
+                {
+                    throw new RuntimeException(e);
+                }
+            }).toArray(URL[]::new);
+        }
+        
         String javafxPathProp = commandLineProps.getProperty("javafxpath", null);
         File javafxPath;
         if (javafxPathProp != null)
