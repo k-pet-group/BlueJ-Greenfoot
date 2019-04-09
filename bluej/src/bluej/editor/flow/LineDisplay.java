@@ -127,7 +127,7 @@ class LineDisplay
         int[] lineRangeVisible = getLineRangeVisible();
         for (LineDisplayListener lineDisplayListener : lineDisplayListeners)
         {
-            lineDisplayListener.lineVisibilityChanged(lineRangeVisible[0], lineRangeVisible[1]);
+            lineDisplayListener.renderedLines(lineRangeVisible[0], lineRangeVisible[1]);
         }
         
         return Collections.unmodifiableList(currentlyVisibleLines);
@@ -292,7 +292,7 @@ class LineDisplay
 
     static interface LineDisplayListener
     {
-        public void lineVisibilityChanged(int fromLineIndexIncl, int toLineIndexIncl);
+        public void renderedLines(int fromLineIndexIncl, int toLineIndexIncl);
     }
     
     // Pair of ints; line index and column index (both zero based)

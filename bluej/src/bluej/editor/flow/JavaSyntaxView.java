@@ -144,6 +144,8 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     // Each item in the list maps the list index (as number of spaces) to indent amount
     private final List<Double> cachedSpaceSizes = new ArrayList<>();
     private FlowReparseRunner reparseRunner;
+    private int latestRenderStartIncl = 0;
+    private int latestRenderEndIncl = Integer.MAX_VALUE;
 
     public static enum ParagraphAttribute
     {
@@ -289,7 +291,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     void recalculateAllScopes()
     {
         scopeBackgrounds.clear();
-        recalculateScopes(pendingScopeBackgrounds, 0, document.getLineCount() - 1);
+        recalculateScopes(0, document.getLineCount() - 1);
     }
 
     /**
@@ -331,14 +333,13 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
      * @param firstLineIncl  the first line in the range to update (inclusive).
      * @param lastLineIncl   the last line in the range to update (inclusive).
      */
-    private void recalculateScopes(Map<Integer, ScopeInfo> pendingScopes, int firstLineIncl, int lastLineIncl)
+    private void recalculateScopes(int firstLineIncl, int lastLineIncl)
     {
         // editorPane is null during testing -- just skip updating the scopes in that case:
         if (editorPane == null)
             return;
         
-        recalcScopeMarkers(pendingScopes,
-                (int)editorPane.getWidth() - MarginAndTextLine.MARGIN_WIDTH,
+        recalcScopeMarkers((int)editorPane.getWidth() - MarginAndTextLine.MARGIN_WIDTH,
                 //(widthProperty == null || widthProperty.get() == 0) ? 200 :
                         //((int)widthProperty.get() - PARAGRAPH_MARGIN),
                 firstLineIncl, lastLineIncl);
@@ -415,7 +416,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
      * @param firstLine      the first line in the range to process (inclusive).
      * @param lastLine       the last line in the range to process (inclusive).
      */
-    protected void recalcScopeMarkers(Map<Integer, ScopeInfo> pendingScopes, int fullWidth,
+    protected void recalcScopeMarkers(int fullWidth,
             int firstLine, int lastLine)
     {
         if (rootNode == null)
@@ -455,7 +456,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             drawScopes(fullWidth, scope, document, lines, prevScopeStack, 0);
             //if (! scope.equals(document.getDocument().getParagraphStyle(curLine)))
             {
-                pendingScopes.put(curLine, scope);
+                pendingScopeBackgrounds.put(curLine, scope);
             }
             //else
             {
@@ -1554,7 +1555,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         if (damageStart < damageEnd) {
             int line = document.getLineFromPosition(damageStart);
             int lastline = document.getLineFromPosition(damageEnd - 1);
-            recalculateScopes(pendingScopeBackgrounds, line, lastline);
+            recalculateScopes(line, lastline);
         }
         applyPendingScopeBackgrounds();
     }
@@ -2336,21 +2337,41 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     {
         int startLine = document.getLineFromPosition(offset);
         int endLine = document.getLineFromPosition(offset + length);
-        recalculateScopes(pendingScopeBackgrounds, startLine, endLine);
+        recalculateScopes(startLine, endLine);
     }
 
 
     @Override
-    public void lineVisibilityChanged(int fromLineIndexIncl, int toLineIndexIncl)
-    {
-        JavaFXUtil.runAfterNextLayout(editorPane.getScene(), () -> {
-            scopeBackgrounds.clear();
-            // We repaint all because the vertical positions will have changed:
-            recalculateScopes(pendingScopeBackgrounds, 
-                Math.min(fromLineIndexIncl, editorPane.getDocument().getLineCount() -1), 
-                Math.min(toLineIndexIncl, editorPane.getDocument().getLineCount() - 1));
-            applyPendingScopeBackgrounds();
-        });
+    public void renderedLines(int fromLineIndexIncl, int toLineIndexIncl)
+    {        
+        int newBeforeStartIncl = fromLineIndexIncl;
+        int newBeforeEndIncl = latestRenderStartIncl - 1;
+        
+        int newAfterStartIncl = latestRenderEndIncl + 1;
+        int newAfterEndIncl = toLineIndexIncl;
+        
+        if (newBeforeStartIncl <= newBeforeEndIncl || newAfterStartIncl <= newAfterEndIncl)
+        {
+            JavaFXUtil.runAfterNextLayout(editorPane.getScene(), () -> {
+                // Lines could have changed so clamp them to document size: 
+                if (newBeforeStartIncl <= newBeforeEndIncl)
+                {
+                    recalculateScopes(
+                        Math.min(newBeforeStartIncl, editorPane.getDocument().getLineCount() - 1),
+                        Math.min(newBeforeEndIncl, editorPane.getDocument().getLineCount() - 1));
+                }
+                if (newAfterStartIncl <= newAfterEndIncl)
+                {
+                    recalculateScopes(
+                        Math.min(newAfterStartIncl, editorPane.getDocument().getLineCount() - 1),
+                        Math.min(newAfterEndIncl, editorPane.getDocument().getLineCount() - 1));
+                }
+                applyPendingScopeBackgrounds();
+            });
+            editorPane.requestLayout();
+        }
+        latestRenderStartIncl = fromLineIndexIncl;
+        latestRenderEndIncl = toLineIndexIncl;
     }
 
     private void scheduleReparseRunner()
