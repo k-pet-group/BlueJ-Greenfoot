@@ -22,7 +22,6 @@
 package bluej.editor.flow;
 
 import bluej.Config;
-import bluej.editor.flow.JavaSyntaxView.ScopeInfo.SingleNestedScope;
 import bluej.editor.flow.LineDisplay.LineDisplayListener;
 import bluej.editor.flow.TextLine.StyledSegment;
 import bluej.editor.moe.MoeSyntaxDocument;
@@ -181,7 +180,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
      * happens when the reparse queue is empty (and is done by the applyPendingScopeBackgrounds()
      * method)
      */
-    private final Map<Integer, ScopeInfo> pendingScopeBackgrounds = new HashMap<>();
+    private final Map<Integer, List<SingleNestedScope>> pendingScopeBackgrounds = new HashMap<>();
     
     private final LiveScopeBackgrounds scopeBackgrounds; 
 
@@ -196,7 +195,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     
     private class LiveScopeBackgrounds implements MapChangeListener<ParsedNode, Integer>
     {
-        public void storeSource(Integer line, ScopeInfo info)
+        public void storeSource(Integer line, List<SingleNestedScope> info)
         {
             sourceInfo.put(line, info);
         }
@@ -213,7 +212,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             }
         }
         
-        private final Map<Integer, ScopeInfo> sourceInfo = new HashMap<>();
+        private final Map<Integer, List<SingleNestedScope>> sourceInfo = new HashMap<>();
         private final Multimap<Integer, ScopeRectangle> scopeBackgrounds  = Multimaps.newMultimap(new HashMap<>(), ArrayList::new);
         
         public void clear()
@@ -239,17 +238,17 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             if (change.wasAdded())
             {
                 sourceInfo.forEach((line, info) -> {
-                    if (info.nestedScopes.stream().anyMatch(single -> single.lhsFrom == change.getKey()))
+                    if (info.stream().anyMatch(single -> single.lhsFrom == change.getKey()))
                     {
                         // Redo them:
-                        pendingScopeBackgrounds.putIfAbsent(line, info.withModified(change.getKey(), change.getValueAdded()));
+                        pendingScopeBackgrounds.putIfAbsent(line, withModified(info, change.getKey(), change.getValueAdded()));
                     }
                 });
                 pendingScopeBackgrounds.forEach((line, info) -> {
-                    if (info.nestedScopes.stream().anyMatch(single -> single.lhsFrom == change.getKey()))
+                    if (info.stream().anyMatch(single -> single.lhsFrom == change.getKey()))
                     {
                         // Redo them:
-                        pendingScopeBackgrounds.put(line, info.withModified(change.getKey(), change.getValueAdded()));
+                        pendingScopeBackgrounds.put(line, withModified(info, change.getKey(), change.getValueAdded()));
                     }
                 });
             }
@@ -512,23 +511,12 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         getScopeStackAfter(rootNode, 0, lines.thisLineEl.getStartOffset(), prevScopeStack);
 
         while (curLine <= lastLine) {
-
-            // curLine is zero-based, but getParagraphAttributes is one-based:
-            ScopeInfo scope = new ScopeInfo(getParagraphAttributes(curLine + 1));
-            
             if (prevScopeStack.isEmpty()) {
                 break;
             }
 
-            drawScopes(fullWidth, scope, document, lines, prevScopeStack, 0);
-            //if (! scope.equals(document.getDocument().getParagraphStyle(curLine)))
-            {
-                pendingScopeBackgrounds.put(curLine, scope);
-            }
-            //else
-            {
-                //pendingScopes.remove(curLine);
-            }
+            List<SingleNestedScope> scope = drawScopes(fullWidth, lines, prevScopeStack, 0);
+            pendingScopeBackgrounds.put(curLine, scope);
             
             // Next line
             curLine++;
@@ -547,8 +535,8 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 
     private class DrawInfo
     {
-        final ScopeInfo scopes;
-        ThreeLines lines;
+        final ArrayList<SingleNestedScope> scopes = new ArrayList<>();
+        final ThreeLines lines;
 
         ParsedNode node;
         boolean starts;  // the node starts on the current line
@@ -556,9 +544,20 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         Color color1;    // Edge colour
         Color color2;    // Fill colour
 
-        private DrawInfo(ScopeInfo scopes)
+        // Note -- list will be held by reference and will be added to.
+        private DrawInfo(ThreeLines lines)
         {
-            this.scopes = scopes;
+            this.lines = lines;
+        }
+
+        /**
+         * Create a nested scope record based on the supplied information.
+         * @param xpos
+         * @param rbound
+         */
+        private void addNestedScope(int xpos, int rbound)
+        {
+            scopes.add(new SingleNestedScope(node, xpos, rbound, starts, ends, color2, color1));
         }
     }
 
@@ -566,20 +565,17 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
      * Draw the scope highlighting for one line of the document.
      * 
      * @param fullWidth      the width of the editor view
-     * @param g              the graphics context to render to
-     * @param document       the document
      * @param lines          the previous, current and next lines (segments and elements)
      * @param prevScopeStack the stack of nodes (from outermost to innermost) at the beginning of the current line
      */
-    private void drawScopes(int fullWidth, ScopeInfo scopes, Document document, ThreeLines lines,
+    private List<SingleNestedScope> drawScopes(int fullWidth, ThreeLines lines,
             List<NodeAndPosition<ParsedNode>> prevScopeStack, int nodeDepth)
     {
         int rightMargin = 10;
 
         ListIterator<NodeAndPosition<ParsedNode>> li = prevScopeStack.listIterator();
 
-        DrawInfo drawInfo = new DrawInfo(scopes);
-        drawInfo.lines = lines;
+        DrawInfo drawInfo = new DrawInfo(lines);
 
         // Process the current scope stack. This contains all nodes that span the beginning of this line,
         // the foremost child and its foremost child and so on.
@@ -590,7 +586,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 
             if (napPos >= lines.thisLineEl.getEndOffset()) {
                 // The node isn't even on this line, go to the next line
-                return;
+                return drawInfo.scopes;
             }
 
             if (! drawNode(drawInfo, nap)) {
@@ -617,12 +613,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 drawInfo.color1 = colors[0];
                 drawInfo.color2 = colors[1];
 
-                drawInfo.scopes.nestedScopes.add(calculatedNestedScope(drawInfo, xpos, rbound));
-            }
-            else if (xpos == -1)
-            {
-                // Mark as incomplete so we know to redraw later:
-                drawInfo.scopes.incomplete = true;
+                drawInfo.addNestedScope(xpos, rbound);
             }
 
             nodeDepth++;
@@ -644,7 +635,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 nodeDepth--;
             }
 
-            if (! li.hasPrevious()) return;
+            if (! li.hasPrevious()) return drawInfo.scopes;
             NodeAndPosition<ParsedNode> napParent = li.previous();
             li.next();
 
@@ -675,7 +666,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                         drawInfo.ends = nodeSkipsEnd(napPos, napEnd, lines.belowLineEl);
 
                         if (xpos != -1 && xpos <= fullWidth) {
-                            drawInfo.scopes.nestedScopes.add(calculatedNestedScope(drawInfo, xpos, rbound));
+                            drawInfo.addNestedScope(xpos, rbound);
                         }
                     }
                 }
@@ -684,6 +675,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 nextNap = nextNap.getNode().findNodeAtOrAfter(napPos, napPos);
             }
         }
+        return drawInfo.scopes;
     }
 
     /**
@@ -879,14 +871,6 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         }
     }
 
-    /**
-     * Create a nested scope record based on the supplied information.
-     */
-    private ScopeInfo.SingleNestedScope calculatedNestedScope(DrawInfo info, int xpos, int rbound)
-    {
-        return new ScopeInfo.SingleNestedScope(info.node, xpos, rbound, info.starts, info.ends, info.color2, info.color1);
-    }
-    
     /**
      * Find the rightmost bound of a node on a particular line.
      *
@@ -1843,98 +1827,55 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         return scopeColors.getReducedColor(c, PrefMgr.getScopeHighlightStrength()).getValue();
     }
 
-    /**
-     * This is one set of scopes for a single line in the document.  A set of scopes
-     * is a list of nested scope boxes applicable to that line.  The first scope
-     * is the outermost and last is innermost, so we render them in list order.
-     */
-    @OnThread(Tag.FX)
-    public static class ScopeInfo
+    public static List<SingleNestedScope> withModified(List<SingleNestedScope> originalScopes, ParsedNode key, int lhs)
     {
-        public ScopeInfo withModified(ParsedNode key, int lhs)
+        List<SingleNestedScope> r = new ArrayList<>();
+        for (SingleNestedScope nestedScope : originalScopes)
         {
-            ScopeInfo r = new ScopeInfo(attributes);
-            for (SingleNestedScope nestedScope : nestedScopes)
+            if (nestedScope.lhsFrom == key)
             {
-                if (nestedScope.lhsFrom == key)
-                {
-                    r.nestedScopes.add(new SingleNestedScope(
-                        nestedScope.lhsFrom, lhs, nestedScope.rhs, nestedScope.starts, nestedScope.ends, nestedScope.fillColor, nestedScope.edgeColor
-                    ));
-                }
-                else
-                    r.nestedScopes.add(nestedScope);
+                r.add(new SingleNestedScope(
+                    nestedScope.lhsFrom, lhs, nestedScope.rhs, nestedScope.starts, nestedScope.ends, nestedScope.fillColor, nestedScope.edgeColor
+                ));
             }
-            return r;
+            else
+                r.add(nestedScope);
         }
+        return r;
+    }
 
-        // For display purposes.  Step overrides breakpoint.
-        public static enum Special
+    /**
+     * A single nested scope on one line of the document.  This is drawn graphically as a box,
+     * where the top corners may be rounded if starts is true, and/or the bottom corners may be rounded
+     * if ends is true.  It has a left and right border, and remembers which node it derives its left-hand side from.
+     * 
+     * These scopes may be e.g. green for a class, then white for a class inner contents (so two separate
+     * SingleNestedScope) then yellow for a method, white again for a method contents and so on.
+     * They are generally held in a list in drawing order, so that the earlier items are backmost in the display
+     * and thus the later items in the list overdraw the earlier ones.  Hence the earlier items in the list
+     * are from the outermost scopes, and the latest items are the innermost scopes.
+     */
+    private static class SingleNestedScope
+    {
+        private final ParsedNode lhsFrom;
+        // lhs and rhs are in pixels:
+        private final int lhs;
+        private final int rhs;
+        private final boolean starts;
+        private final boolean ends;
+        private final Color fillColor;
+        private final Color edgeColor;
+
+        public SingleNestedScope(ParsedNode lhsFrom, int lhs, int rhs, boolean starts, boolean ends, Color fillColor, Color edgeColor)
         {
-            NONE, BREAKPOINT, STEP;
-        }
-
-        private final List<SingleNestedScope> nestedScopes = new ArrayList<>();
-        private final EnumSet<ParagraphAttribute> attributes;
-        // If a scope needs repainting later, we mark as incomplete:
-        private boolean incomplete = false;
-
-        public ScopeInfo(EnumSet<ParagraphAttribute> attributes)
-        {
-            this.attributes = EnumSet.copyOf(attributes);
-        }
-
-        public EnumSet<ParagraphAttribute> getAttributes()
-        {
-            return attributes;
-        }
-
-        public ScopeInfo withAttributes(EnumSet<ParagraphAttribute> attributes)
-        {
-            ScopeInfo scopeInfo = new ScopeInfo(attributes);
-            scopeInfo.nestedScopes.addAll(nestedScopes);
-            scopeInfo.incomplete = incomplete;
-            return scopeInfo;
-        }
-
-        public boolean isIncomplete()
-        {
-            return incomplete;
-        }
-
-
-        public static class SingleNestedScope
-        {
-            private final ParsedNode lhsFrom;
-            private final int lhs;
-            private final int rhs;
-            private final boolean starts;
-            private final boolean ends;
-            private final Color fillColor;
-            private final Color edgeColor;
-
-            public SingleNestedScope(ParsedNode lhsFrom, int lhs, int rhs, boolean starts, boolean ends, Color fillColor, Color edgeColor)
-            {
-                this.lhsFrom = lhsFrom;
-                lhs -= lhsFrom.isInner() ? LEFT_INNER_SCOPE_MARGIN : LEFT_OUTER_SCOPE_MARGIN;
-                this.lhs = Math.max(0, lhs);
-                this.rhs = rhs;
-                this.starts = starts;
-                this.ends = ends;
-                this.fillColor = fillColor;
-                this.edgeColor = edgeColor;
-            }
-        }
-
-        // Mainly for debugging
-        @Override
-        public String toString()
-        {
-            return "ScopeInfo{" +
-                    "nestedScopes=" + nestedScopes +
-                    ", attributes=" + attributes +
-                    ", incomplete=" + incomplete +
-                    '}';
+            this.lhsFrom = lhsFrom;
+            lhs -= lhsFrom.isInner() ? LEFT_INNER_SCOPE_MARGIN : LEFT_OUTER_SCOPE_MARGIN;
+            this.lhs = Math.max(0, lhs);
+            this.rhs = rhs;
+            this.starts = starts;
+            this.ends = ends;
+            this.fillColor = fillColor;
+            this.edgeColor = edgeColor;
         }
     }
 
@@ -1992,7 +1933,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 return;
             }
             scopeBackgrounds.storeSource(line, info);
-            for (SingleNestedScope nestedScope : info.nestedScopes)
+            for (SingleNestedScope nestedScope : info)
             {
                 // Draw outer:
                 Region rectangle = new Region();
