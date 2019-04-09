@@ -239,14 +239,14 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             if (change.wasAdded())
             {
                 sourceInfo.forEach((line, info) -> {
-                    if (info.nestedScopes.stream().anyMatch(single -> single.leftRight.lhsFrom == change.getKey()))
+                    if (info.nestedScopes.stream().anyMatch(single -> single.lhsFrom == change.getKey()))
                     {
                         // Redo them:
                         pendingScopeBackgrounds.putIfAbsent(line, info.withModified(change.getKey(), change.getValueAdded()));
                     }
                 });
                 pendingScopeBackgrounds.forEach((line, info) -> {
-                    if (info.nestedScopes.stream().anyMatch(single -> single.leftRight.lhsFrom == change.getKey()))
+                    if (info.nestedScopes.stream().anyMatch(single -> single.lhsFrom == change.getKey()))
                     {
                         // Redo them:
                         pendingScopeBackgrounds.put(line, info.withModified(change.getKey(), change.getValueAdded()));
@@ -884,8 +884,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
      */
     private ScopeInfo.SingleNestedScope calculatedNestedScope(DrawInfo info, int xpos, int rbound)
     {
-        return new ScopeInfo.SingleNestedScope(
-                new LeftRight(info.node, xpos, rbound, info.starts, info.ends, info.color2, info.color1));
+        return new ScopeInfo.SingleNestedScope(info.node, xpos, rbound, info.starts, info.ends, info.color2, info.color1);
     }
     
     /**
@@ -1857,10 +1856,10 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             ScopeInfo r = new ScopeInfo(attributes);
             for (SingleNestedScope nestedScope : nestedScopes)
             {
-                if (nestedScope.leftRight.lhsFrom == key)
+                if (nestedScope.lhsFrom == key)
                 {
                     r.nestedScopes.add(new SingleNestedScope(
-                        new LeftRight(nestedScope.leftRight.lhsFrom, lhs, nestedScope.leftRight.rhs, nestedScope.leftRight.starts, nestedScope.leftRight.ends, nestedScope.leftRight.fillColor, nestedScope.leftRight.edgeColor)
+                        nestedScope.lhsFrom, lhs, nestedScope.rhs, nestedScope.starts, nestedScope.ends, nestedScope.fillColor, nestedScope.edgeColor
                     ));
                 }
                 else
@@ -1906,63 +1905,25 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 
         public static class SingleNestedScope
         {
-            private final LeftRight leftRight;
-            // Both are immutable once passed, so we can cache the hashCode:
-            private final int hashCode;
+            private final ParsedNode lhsFrom;
+            private final int lhs;
+            private final int rhs;
+            private final boolean starts;
+            private final boolean ends;
+            private final Color fillColor;
+            private final Color edgeColor;
 
-            public SingleNestedScope(LeftRight leftRight)
+            public SingleNestedScope(ParsedNode lhsFrom, int lhs, int rhs, boolean starts, boolean ends, Color fillColor, Color edgeColor)
             {
-                this.leftRight = leftRight;
-
-                hashCode = leftRight.hashCode();
+                this.lhsFrom = lhsFrom;
+                lhs -= lhsFrom.isInner() ? LEFT_INNER_SCOPE_MARGIN : LEFT_OUTER_SCOPE_MARGIN;
+                this.lhs = Math.max(0, lhs);
+                this.rhs = rhs;
+                this.starts = starts;
+                this.ends = ends;
+                this.fillColor = fillColor;
+                this.edgeColor = edgeColor;
             }
-
-            @Override
-            public boolean equals(Object o)
-            {
-                if (this == o) return true;
-                if (o == null || getClass() != o.getClass()) return false;
-
-                SingleNestedScope that = (SingleNestedScope) o;
-                // We can use the cached hashCode as a quick shortcut:
-                if (hashCode != that.hashCode) return false;
-
-                return leftRight.equals(that.leftRight);
-            }
-
-            @Override
-            public int hashCode()
-            {
-                return hashCode;
-            }
-
-            @Override
-            public String toString()
-            {
-                return leftRight.toString();
-            }
-        }
-
-        @Override
-        public boolean equals(Object o)
-        {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            ScopeInfo scopeInfo = (ScopeInfo) o;
-
-            if (incomplete != scopeInfo.incomplete) return false;
-            if (!attributes.equals(scopeInfo.attributes)) return false;
-            return nestedScopes.equals(scopeInfo.nestedScopes);
-        }
-
-        @Override
-        public int hashCode()
-        {
-            int result = nestedScopes.hashCode();
-            result = 31 * result + attributes.hashCode();
-            result += isIncomplete() ? 1 : 0;
-            return result;
         }
 
         // Mainly for debugging
@@ -1974,63 +1935,6 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                     ", attributes=" + attributes +
                     ", incomplete=" + incomplete +
                     '}';
-        }
-    }
-
-    private static class LeftRight
-    {
-        private final ParsedNode lhsFrom;
-        private final int lhs;
-        private final int rhs;
-        private final boolean starts;
-        private final boolean ends;
-        private final Color fillColor;
-        private final Color edgeColor;
-
-        public LeftRight(ParsedNode lhsFrom, int lhs, int rhs, boolean starts, boolean ends, Color fillColor, Color edgeColor)
-        {
-            this.lhsFrom = lhsFrom;
-            lhs -= lhsFrom.isInner() ? LEFT_INNER_SCOPE_MARGIN : LEFT_OUTER_SCOPE_MARGIN;
-            this.lhs = Math.max(0, lhs);
-            this.rhs = rhs;
-            this.starts = starts;
-            this.ends = ends;
-            this.fillColor = fillColor;
-            this.edgeColor = edgeColor;
-        }
-
-        @Override
-        public boolean equals(Object o)
-        {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            LeftRight leftRight = (LeftRight) o;
-
-            if (lhs != leftRight.lhs) return false;
-            if (rhs != leftRight.rhs) return false;
-            if (starts != leftRight.starts) return false;
-            if (ends != leftRight.ends) return false;
-            if (!fillColor.equals(leftRight.fillColor)) return false;
-            return edgeColor.equals(leftRight.edgeColor);
-        }
-
-        @Override
-        public int hashCode()
-        {
-            int result = lhs;
-            result = 31 * result + rhs;
-            result = 31 * result + (starts ? 1 : 0);
-            result = 31 * result + (ends ? 1 : 0);
-            result = 31 * result + fillColor.hashCode();
-            result = 31 * result + edgeColor.hashCode();
-            return result;
-        }
-
-        @Override
-        public String toString()
-        {
-            return lhs + "->" + rhs + ":" + Integer.toHexString(fillColor.hashCode());
         }
     }
 
@@ -2094,22 +1998,22 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 Region rectangle = new Region();
                 rectangle.setManaged(false);
                 rectangle.resizeRelocate(
-                    nestedScope.leftRight.lhs, 0, nestedScope.leftRight.rhs - nestedScope.leftRight.lhs, possVertBounds.get()[1] - possVertBounds.get()[0]
+                    nestedScope.lhs, 0, nestedScope.rhs - nestedScope.lhs, possVertBounds.get()[1] - possVertBounds.get()[0]
                 );
                 CornerRadii radii = null;
                 Insets bodyInsets = null;
                 double singleRadius = 5.0;
-                if (nestedScope.leftRight.starts && nestedScope.leftRight.ends)
+                if (nestedScope.starts && nestedScope.ends)
                 {
                     radii = new CornerRadii(singleRadius, false);
                     bodyInsets = new Insets(1);
                 }
-                else if (nestedScope.leftRight.starts)
+                else if (nestedScope.starts)
                 {
                     radii = new CornerRadii(singleRadius, singleRadius, 0.0, 0.0, false);
                     bodyInsets = new Insets(1, 1, 0, 1);
                 }
-                else if (nestedScope.leftRight.ends)
+                else if (nestedScope.ends)
                 {
                     radii = new CornerRadii(0.0, 0.0, singleRadius, singleRadius, false);
                     bodyInsets = new Insets(0, 1, 1, 1);
@@ -2119,24 +2023,10 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                     bodyInsets = new Insets(0, 1, 0, 1);
                 }
                 rectangle.setBackground(new Background(
-                    new BackgroundFill(nestedScope.leftRight.edgeColor, radii, null),
-                    new BackgroundFill(nestedScope.leftRight.fillColor, radii, bodyInsets)
+                    new BackgroundFill(nestedScope.edgeColor, radii, null),
+                    new BackgroundFill(nestedScope.fillColor, radii, bodyInsets)
                 ));
-                //rectangle.setStroke(nestedScope.leftRight.edgeColor);
-                //rectangle.setFill(nestedScope.leftRight.fillColor);
-                scopeBackgrounds.put(line, rectangle, nestedScope.leftRight.lhsFrom);
-                // Draw middle:
-                /*
-                rectangle = new Region();
-                rectangle.setManaged(false);
-                rectangle.resizeRelocate(
-                        nestedScope.middle.lhs, possVertBounds.get()[0], nestedScope.middle.rhs - nestedScope.middle.lhs, possVertBounds.get()[1] - possVertBounds.get()[0]
-                );
-                rectangle.setBackground(new Background(new BackgroundFill(nestedScope.middle.bodyColor, null, null)));
-                //rectangle.setStroke(nestedScope.leftRight.edgeColor);
-                //rectangle.setFill(nestedScope.middle.bodyColor);
-                scopeBackgrounds.put(line, rectangle);
-                */
+                scopeBackgrounds.put(line, rectangle, nestedScope.lhsFrom);
             }
         });
         pendingScopeBackgrounds.clear();
