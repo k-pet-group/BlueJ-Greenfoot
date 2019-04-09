@@ -57,6 +57,7 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 
@@ -612,7 +613,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         this.errorQuery = errorQuery;
     }
 
-    public void applyScopeBackgrounds(Multimap<Integer, Node> scopeBackgrounds)
+    public void applyScopeBackgrounds(Map<Integer, List<Region>> scopeBackgrounds)
     {
         lineDisplay.applyScopeBackgrounds(scopeBackgrounds);
     }

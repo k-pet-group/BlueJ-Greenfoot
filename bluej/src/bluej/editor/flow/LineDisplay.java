@@ -29,12 +29,14 @@ import javafx.geometry.BoundingBox;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Region;
 import javafx.scene.text.HitInfo;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 /**
@@ -282,7 +284,7 @@ class LineDisplay
         return averageLineHeight;
     }
 
-    public void applyScopeBackgrounds(Multimap<Integer, Node> scopeBackgrounds)
+    public void applyScopeBackgrounds(Map<Integer, List<Region>> scopeBackgrounds)
     {
         for (int visibleLineSubIndex = 0; visibleLineSubIndex < currentlyVisibleLines.size(); visibleLineSubIndex++)
         {

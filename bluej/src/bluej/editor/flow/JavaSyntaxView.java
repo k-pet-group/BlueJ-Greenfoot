@@ -41,8 +41,6 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
-import com.google.common.collect.Multimap;
-import com.google.common.collect.Multimaps;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.ReadOnlyDoubleProperty;
@@ -121,9 +119,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     private NodeTree<ReparseRecord> reparseRecordTree;
     private final ScopeColors scopeColors;
     private final BooleanExpression syntaxHighlighting;
-    private int imageCacheLineHeight;
-    private ReadOnlyDoubleProperty widthProperty; // width of editor view
-    private FlowEditorPane editorPane;
+    private final FlowEditorPane editorPane;
 
     /* Scope painting colours */
     /* The following are initialized by resetColors() */
@@ -146,6 +142,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     // Each item in the list maps the list index (as number of spaces) to indent amount
     private final List<Double> cachedSpaceSizes = new ArrayList<>();
     private FlowReparseRunner reparseRunner;
+    // The latest lines rendered, used to keep track of what needs re-rendering when we scroll:
     private int latestRenderStartIncl = 0;
     private int latestRenderEndIncl = Integer.MAX_VALUE;
 
@@ -167,9 +164,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     }
 
     /**
-     * Cached indents for ParsedNode items.  Maps a node to an indent (in pixels)
-     * When this is zero, it means it is not yet fully valid as the editor has not
-     * yet appeared on screen.
+     * Cached indents for ParsedNode items.  Maps a node to an indent (in pixels).
      */
     private final ObservableMap<ParsedNode,Integer> nodeIndents = FXCollections.observableHashMap();
 
@@ -185,50 +180,62 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     private final LiveScopeBackgrounds scopeBackgrounds; 
 
     /**
-      * Are we in the middle of an update which comes from the RichTextFX stream of changes?
+      * Are we in the middle of an update which comes from the document stream of changes?
       * If so, we must not ask for character bounds because the offset calculations
-      * are all wrong, and a layout may be forced resulting in inconsistent state in
-      * RichTextFX (and an exception being thrown: catching the exception is not enough
-      * to avoid the incorrect state).
+      * are all wrong until a layout has occurred.
     */
     private boolean duringUpdate;
-    
+
+    /**
+     * A class keeping track of the currently displayed scope backgrounds.  It is also responsible
+     * for updating the scopes if the left-hand indent of a node changes.
+     */
     private class LiveScopeBackgrounds implements MapChangeListener<ParsedNode, Integer>
     {
+        /**
+         * The nested scope information, used to reinsert into pendingScopeBackgrounds
+         * if one of the indents changes.
+         */
+        private final Map<Integer, List<SingleNestedScope>> sourceInfo = new HashMap<>();
+        /**
+         * The actual scope backgrounds currently being displayed in the editor.  The inner lists
+         * are held in paint order (outermost = first-painted = first in list).
+         */
+        private final Map<Integer, List<Region>> scopeBackgrounds  = new HashMap<>();
+
+        /**
+         * Stores the nested scope information for a given line, which will be used to put
+         * the info back into pendingScopeBackgrounds if the indent of any of the scopes changes.
+         */
         public void storeSource(Integer line, List<SingleNestedScope> info)
         {
             sourceInfo.put(line, info);
         }
 
-        private class ScopeRectangle
-        {
-            private final Region rectangle;
-            private final ParsedNode leftIndentFrom;
-
-            public ScopeRectangle(Region rectangle, ParsedNode leftIndentFrom)
-            {
-                this.rectangle = rectangle;
-                this.leftIndentFrom = leftIndentFrom;
-            }
-        }
-        
-        private final Map<Integer, List<SingleNestedScope>> sourceInfo = new HashMap<>();
-        private final Multimap<Integer, ScopeRectangle> scopeBackgrounds  = Multimaps.newMultimap(new HashMap<>(), ArrayList::new);
-        
+        /**
+         * Clears all current scope backgrounds.
+         */
         public void clear()
         {
             scopeBackgrounds.clear();
             sourceInfo.clear();
         }
-        
-        public void put(Integer line, Region rectangle, ParsedNode leftIndentFrom)
+
+        /**
+         * Adds a scope box to the end of the current paint list (i.e. will be painted over
+         * the existing boxes).
+         */
+        public void addScopeBox(Integer line, Region rectangle)
         {
-            scopeBackgrounds.put(line, new ScopeRectangle(rectangle, leftIndentFrom));
+            scopeBackgrounds.computeIfAbsent(line, k -> new ArrayList<>()).add(rectangle);
         }
 
-        public void removeAll(int line)
+        /**
+         * Removes all scopes for the given line.
+         */
+        public void removeAllScopesForLine(int line)
         {
-            scopeBackgrounds.removeAll(line);
+            scopeBackgrounds.remove(line);
             sourceInfo.remove(line);
         }
         
@@ -237,18 +244,25 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         {
             if (change.wasAdded())
             {
+                // If the node features anywhere in our existing scopes, redisplay it with the
+                // new indent:
                 sourceInfo.forEach((line, info) -> {
                     if (info.stream().anyMatch(single -> single.lhsFrom == change.getKey()))
                     {
-                        // Redo them:
+                        // Redo them, if they are not already recalculated recently:
                         pendingScopeBackgrounds.putIfAbsent(line, withModified(info, change.getKey(), change.getValueAdded()));
                     }
                 });
-                pendingScopeBackgrounds.forEach((line, info) -> {
+                // If they have been calculated recently, modify the specific indent that has changed:
+                pendingScopeBackgrounds.replaceAll((line, info) -> {
                     if (info.stream().anyMatch(single -> single.lhsFrom == change.getKey()))
                     {
                         // Redo them:
-                        pendingScopeBackgrounds.put(line, withModified(info, change.getKey(), change.getValueAdded()));
+                        return withModified(info, change.getKey(), change.getValueAdded());
+                    }
+                    else
+                    {
+                        return info;
                     }
                 });
             }
@@ -1926,7 +1940,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     private void applyPendingScopeBackgrounds()
     {
         pendingScopeBackgrounds.forEach((line, info) -> {
-            scopeBackgrounds.removeAll(line);
+            scopeBackgrounds.removeAllScopesForLine(line);
             Optional<double[]> possVertBounds = editorPane.getTopAndBottom(line);
             if (possVertBounds.isEmpty())
             {
@@ -1967,12 +1981,12 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                     new BackgroundFill(nestedScope.edgeColor, radii, null),
                     new BackgroundFill(nestedScope.fillColor, radii, bodyInsets)
                 ));
-                scopeBackgrounds.put(line, rectangle, nestedScope.lhsFrom);
+                scopeBackgrounds.addScopeBox(line, rectangle);
             }
         });
         pendingScopeBackgrounds.clear();
 
-        editorPane.applyScopeBackgrounds(Multimaps.transformValues(scopeBackgrounds.scopeBackgrounds, s -> s.rectangle));
+        editorPane.applyScopeBackgrounds(scopeBackgrounds.scopeBackgrounds);
     }
 
     /**

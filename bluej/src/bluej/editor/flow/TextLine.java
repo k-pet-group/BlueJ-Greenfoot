@@ -212,7 +212,7 @@ class TextLine extends TextFlow
         errorUnderlineShape.setVisible(false);
     }
 
-    public void setScopeBackgrounds(Collection<Node> nodes)
+    public void setScopeBackgrounds(Collection<? extends Node> nodes)
     {
         if (nodes == null)
             nodes = Collections.emptyList();
