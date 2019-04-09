@@ -654,11 +654,11 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
             if (endPos == startPos)
             {
                 // By default, extend one char right, unless that would encompass a newline:
-                if (endPos < getTextLength() - 1 && !document.getContent(endPos, 1).equals("\n"))
+                if (endPos < getTextLength() - 1 && !document.getContent(endPos, endPos + 1).equals("\n"))
                 {
                     endPos += 1;
                 }
-                else if (startPos > 0 && !document.getContent(startPos - 1, 1).equals("\n"))
+                else if (startPos > 0 && !document.getContent(startPos - 1, startPos).equals("\n"))
                 {
                     startPos -= 1;
                 }
