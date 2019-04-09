@@ -1500,7 +1500,7 @@ public class Utility
         public synchronized void waitForProcess(long timeout)
             throws InterruptedException
         {
-            while (! complete) {
+            if (! complete) {
                 wait(timeout);
             }
         }
