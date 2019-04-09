@@ -976,7 +976,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             // No point trying to re-calculate the indent if the line isn't on screen:
             if (editorPane != null && (editorPane.isLineVisible(document.getLineFromPosition(lineEl.getStartOffset())) || isPrinting()))
             {
-                indent = getNodeIndent(nap);
+                indent = calculateNodeIndent(nap);
                 nodeIndents.put(nap.getNode(), indent);
             }
             else
@@ -1012,7 +1012,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     /**
      * Calculate the indent for a node.
      */
-    private int getNodeIndent(NodeAndPosition<ParsedNode> nap)
+    private int calculateNodeIndent(NodeAndPosition<ParsedNode> nap)
     {
         try {
             int indent = Integer.MAX_VALUE;
