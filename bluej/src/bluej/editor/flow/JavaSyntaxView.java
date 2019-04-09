@@ -47,6 +47,9 @@ import com.google.common.collect.Multimaps;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableMap;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -169,7 +172,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
      * When this is zero, it means it is not yet fully valid as the editor has not
      * yet appeared on screen.
      */
-    private final Map<ParsedNode,Integer> nodeIndents = new HashMap<ParsedNode,Integer>();
+    private final ObservableMap<ParsedNode,Integer> nodeIndents = FXCollections.observableHashMap();
 
     /**
      * We want to avoid repaint flicker by letting the user see partly-updated
@@ -180,7 +183,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
      */
     private final Map<Integer, ScopeInfo> pendingScopeBackgrounds = new HashMap<>();
     
-    private final Multimap<Integer, Node> scopeBackgrounds = Multimaps.newMultimap(new HashMap<>(), ArrayList::new); 
+    private final LiveScopeBackgrounds scopeBackgrounds; 
 
     /**
       * Are we in the middle of an update which comes from the RichTextFX stream of changes?
@@ -190,12 +193,76 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
       * to avoid the incorrect state).
     */
     private boolean duringUpdate;
+    
+    private class LiveScopeBackgrounds implements MapChangeListener<ParsedNode, Integer>
+    {
+        public void storeSource(Integer line, ScopeInfo info)
+        {
+            sourceInfo.put(line, info);
+        }
+
+        private class ScopeRectangle
+        {
+            private final Region rectangle;
+            private final ParsedNode leftIndentFrom;
+
+            public ScopeRectangle(Region rectangle, ParsedNode leftIndentFrom)
+            {
+                this.rectangle = rectangle;
+                this.leftIndentFrom = leftIndentFrom;
+            }
+        }
+        
+        private final Map<Integer, ScopeInfo> sourceInfo = new HashMap<>();
+        private final Multimap<Integer, ScopeRectangle> scopeBackgrounds  = Multimaps.newMultimap(new HashMap<>(), ArrayList::new);
+        
+        public void clear()
+        {
+            scopeBackgrounds.clear();
+            sourceInfo.clear();
+        }
+        
+        public void put(Integer line, Region rectangle, ParsedNode leftIndentFrom)
+        {
+            scopeBackgrounds.put(line, new ScopeRectangle(rectangle, leftIndentFrom));
+        }
+
+        public void removeAll(int line)
+        {
+            scopeBackgrounds.removeAll(line);
+            sourceInfo.remove(line);
+        }
+        
+        @Override
+        public void onChanged(Change<? extends ParsedNode, ? extends Integer> change)
+        {
+            if (change.wasAdded())
+            {
+                sourceInfo.forEach((line, info) -> {
+                    if (info.nestedScopes.stream().anyMatch(single -> single.leftRight.lhsFrom == change.getKey()))
+                    {
+                        // Redo them:
+                        pendingScopeBackgrounds.putIfAbsent(line, info.withModified(change.getKey(), change.getValueAdded()));
+                    }
+                });
+                pendingScopeBackgrounds.forEach((line, info) -> {
+                    if (info.nestedScopes.stream().anyMatch(single -> single.leftRight.lhsFrom == change.getKey()))
+                    {
+                        // Redo them:
+                        pendingScopeBackgrounds.put(line, info.withModified(change.getKey(), change.getValueAdded()));
+                    }
+                });
+            }
+        }
+    }
 
     /**
      * Creates a new BlueJSyntaxView.
      */
     public JavaSyntaxView(FlowEditorPane editorPane, ScopeColors scopeColors)
     {
+        this.scopeBackgrounds = new LiveScopeBackgrounds();
+        this.nodeIndents.addListener(scopeBackgrounds);
         this.document = editorPane.getDocument();
         this.editorPane = editorPane;
         this.syntaxHighlighting = PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING);
@@ -817,12 +884,8 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
      */
     private ScopeInfo.SingleNestedScope calculatedNestedScope(DrawInfo info, int xpos, int rbound)
     {
-        if (!false) {
-            xpos -= info.node.isInner() ? LEFT_INNER_SCOPE_MARGIN : LEFT_OUTER_SCOPE_MARGIN;
-        }
-
         return new ScopeInfo.SingleNestedScope(
-                new LeftRight(xpos, rbound, info.starts, info.ends, info.color2, info.color1),
+                new LeftRight(info.node, xpos, rbound, info.starts, info.ends, info.color2, info.color1),
                 getScopeMiddle(info, xpos, rbound));
     }
 
@@ -1515,6 +1578,12 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         MoeSyntaxEvent mse = changes;
         for (NodeAndPosition<ParsedNode> node : mse.getRemovedNodes()) {
             nodeRemoved(node.getNode());
+            ParsedNode parent = node.getNode().getParentNode();
+            while (parent != null)
+            {
+                nodeIndents.remove(parent);
+                parent = parent.getParentNode();
+            }
             damageStart = Math.min(damageStart, node.getPosition());
             damageEnd = Math.max(damageEnd, node.getEnd());
             NodeAndPosition<ParsedNode> nap = node;
@@ -1527,6 +1596,12 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         for (NodeChangeRecord record : mse.getChangedNodes()) {
             NodeAndPosition<ParsedNode> nap = record.nap;
             nodeIndents.remove(nap.getNode());
+            ParsedNode parent = nap.getNode().getParentNode();
+            while (parent != null)
+            {
+                nodeIndents.remove(parent);
+                parent = parent.getParentNode();
+            }
             damageStart = Math.min(damageStart, nap.getPosition());
             damageStart = Math.min(damageStart, record.originalPos);
             damageEnd = Math.max(damageEnd, nap.getEnd());
@@ -1557,7 +1632,6 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             int lastline = document.getLineFromPosition(damageEnd - 1);
             recalculateScopes(line, lastline);
         }
-        applyPendingScopeBackgrounds();
     }
 
     /**
@@ -1856,6 +1930,24 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     @OnThread(Tag.FX)
     public static class ScopeInfo
     {
+        public ScopeInfo withModified(ParsedNode key, int lhs)
+        {
+            ScopeInfo r = new ScopeInfo(attributes);
+            for (SingleNestedScope nestedScope : nestedScopes)
+            {
+                if (nestedScope.leftRight.lhsFrom == key)
+                {
+                    r.nestedScopes.add(new SingleNestedScope(
+                        new LeftRight(nestedScope.leftRight.lhsFrom, lhs, nestedScope.leftRight.rhs, nestedScope.leftRight.starts, nestedScope.leftRight.ends, nestedScope.leftRight.fillColor, nestedScope.leftRight.edgeColor),
+                        nestedScope.middle
+                    ));
+                }
+                else
+                    r.nestedScopes.add(nestedScope);
+            }
+            return r;
+        }
+
         // For display purposes.  Step overrides breakpoint.
         public static enum Special
         {
@@ -1925,6 +2017,12 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             {
                 return hashCode;
             }
+
+            @Override
+            public String toString()
+            {
+                return leftRight.toString();
+            }
         }
 
         @Override
@@ -1961,8 +2059,9 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         }
     }
 
-    private class LeftRight
+    private static class LeftRight
     {
+        private final ParsedNode lhsFrom;
         private final int lhs;
         private final int rhs;
         private final boolean starts;
@@ -1970,8 +2069,10 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         private final Color fillColor;
         private final Color edgeColor;
 
-        public LeftRight(int lhs, int rhs, boolean starts, boolean ends, Color fillColor, Color edgeColor)
+        public LeftRight(ParsedNode lhsFrom, int lhs, int rhs, boolean starts, boolean ends, Color fillColor, Color edgeColor)
         {
+            this.lhsFrom = lhsFrom;
+            lhs -= lhsFrom.isInner() ? LEFT_INNER_SCOPE_MARGIN : LEFT_OUTER_SCOPE_MARGIN;
             this.lhs = Math.max(0, lhs);
             this.rhs = rhs;
             this.starts = starts;
@@ -2006,6 +2107,12 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             result = 31 * result + fillColor.hashCode();
             result = 31 * result + edgeColor.hashCode();
             return result;
+        }
+
+        @Override
+        public String toString()
+        {
+            return lhs + "->" + rhs + ":" + Integer.toHexString(fillColor.hashCode());
         }
     }
 
@@ -2059,7 +2166,10 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             scopeBackgrounds.removeAll(line);
             Optional<double[]> possVertBounds = editorPane.getTopAndBottom(line);
             if (possVertBounds.isEmpty())
+            {
                 return;
+            }
+            scopeBackgrounds.storeSource(line, info);
             for (SingleNestedScope nestedScope : info.nestedScopes)
             {
                 // Draw outer:
@@ -2096,7 +2206,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 ));
                 //rectangle.setStroke(nestedScope.leftRight.edgeColor);
                 //rectangle.setFill(nestedScope.leftRight.fillColor);
-                scopeBackgrounds.put(line, rectangle);
+                scopeBackgrounds.put(line, rectangle, nestedScope.leftRight.lhsFrom);
                 // Draw middle:
                 /*
                 rectangle = new Region();
@@ -2113,7 +2223,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         });
         pendingScopeBackgrounds.clear();
 
-        editorPane.applyScopeBackgrounds(scopeBackgrounds);
+        editorPane.applyScopeBackgrounds(Multimaps.transformValues(scopeBackgrounds.scopeBackgrounds, s -> s.rectangle));
     }
 
     /**

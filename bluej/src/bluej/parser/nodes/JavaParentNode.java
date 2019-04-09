@@ -80,7 +80,7 @@ public abstract class JavaParentNode extends ParentParsedNode
     }
     
     @Override
-    protected JavaParentNode getParentNode()
+    public JavaParentNode getParentNode()
     {
         return parentNode;
     }

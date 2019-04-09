@@ -359,7 +359,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      */
     public abstract Token getMarkTokensFor(int pos, int length, int nodePos, ReparseableDocument document);
 
-    protected ParsedNode getParentNode()
+    public ParsedNode getParentNode()
     {
         return parentNode;
     }
