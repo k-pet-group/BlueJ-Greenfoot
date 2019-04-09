@@ -190,6 +190,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
      * A class keeping track of the currently displayed scope backgrounds.  It is also responsible
      * for updating the scopes if the left-hand indent of a node changes.
      */
+    @OnThread(Tag.FXPlatform)
     private class LiveScopeBackgrounds implements MapChangeListener<ParsedNode, Integer>
     {
         /**
@@ -240,6 +241,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         }
         
         @Override
+        @OnThread(value = Tag.FXPlatform, ignoreParent = true)
         public void onChanged(Change<? extends ParsedNode, ? extends Integer> change)
         {
             if (change.wasAdded())
