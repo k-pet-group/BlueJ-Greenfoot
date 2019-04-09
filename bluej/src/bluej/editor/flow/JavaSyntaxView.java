@@ -885,35 +885,9 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     private ScopeInfo.SingleNestedScope calculatedNestedScope(DrawInfo info, int xpos, int rbound)
     {
         return new ScopeInfo.SingleNestedScope(
-                new LeftRight(info.node, xpos, rbound, info.starts, info.ends, info.color2, info.color1),
-                getScopeMiddle(info, xpos, rbound));
+                new LeftRight(info.node, xpos, rbound, info.starts, info.ends, info.color2, info.color1));
     }
-
-    /**
-     * Draw the center part of a scope (not the left or right edge, but the bit in between)
-     * @param info  general drawing information
-     * @param xpos  the leftmost x-coordinate to draw from
-     * @param rbounds the rightmost x-coordinate to draw to
-     */
-    private Middle getScopeMiddle(DrawInfo info, int xpos, int rbounds)
-    {
-        Color color1 = info.color1;
-        Color color2 = info.color2;
-        boolean startsThisLine = info.starts;
-        boolean endsThisLine = info.ends;
-
-        Middle middle = new Middle(color2, xpos, rbounds - 1);
-        if (startsThisLine)
-        {
-            middle.drawTop(color1);
-        }
-        if (endsThisLine)
-        {
-            middle.drawBottom(color1);
-        }
-        return middle;
-    }
-
+    
     /**
      * Find the rightmost bound of a node on a particular line.
      *
@@ -1870,58 +1844,6 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         return scopeColors.getReducedColor(c, PrefMgr.getScopeHighlightStrength()).getValue();
     }
 
-    private static class Middle
-    {
-        private final Color bodyColor;
-        private final int lhs;
-        private final int rhs;
-        private Color topColor; // null if no top
-        private Color bottomColor; // null if no bottom
-
-        public Middle(Color bodyColor, int lhs, int rhs)
-        {
-            this.bodyColor = bodyColor;
-            this.lhs = Math.max(0, lhs);
-            this.rhs = rhs;
-        }
-
-        public void drawTop(Color topColor)
-        {
-            this.topColor = topColor;
-        }
-
-        public void drawBottom(Color bottomColor)
-        {
-            this.bottomColor = bottomColor;
-        }
-
-        @Override
-        public boolean equals(Object o)
-        {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            Middle middle = (Middle) o;
-
-            if (lhs != middle.lhs) return false;
-            if (rhs != middle.rhs) return false;
-            if (!bodyColor.equals(middle.bodyColor)) return false;
-            if (topColor != null ? !topColor.equals(middle.topColor) : middle.topColor != null) return false;
-            return bottomColor != null ? bottomColor.equals(middle.bottomColor) : middle.bottomColor == null;
-        }
-
-        @Override
-        public int hashCode()
-        {
-            int result = bodyColor.hashCode();
-            result = 31 * result + lhs;
-            result = 31 * result + rhs;
-            result = 31 * result + (topColor != null ? topColor.hashCode() : 0);
-            result = 31 * result + (bottomColor != null ? bottomColor.hashCode() : 0);
-            return result;
-        }
-    }
-
     /**
      * This is one set of scopes for a single line in the document.  A set of scopes
      * is a list of nested scope boxes applicable to that line.  The first scope
@@ -1938,8 +1860,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 if (nestedScope.leftRight.lhsFrom == key)
                 {
                     r.nestedScopes.add(new SingleNestedScope(
-                        new LeftRight(nestedScope.leftRight.lhsFrom, lhs, nestedScope.leftRight.rhs, nestedScope.leftRight.starts, nestedScope.leftRight.ends, nestedScope.leftRight.fillColor, nestedScope.leftRight.edgeColor),
-                        nestedScope.middle
+                        new LeftRight(nestedScope.leftRight.lhsFrom, lhs, nestedScope.leftRight.rhs, nestedScope.leftRight.starts, nestedScope.leftRight.ends, nestedScope.leftRight.fillColor, nestedScope.leftRight.edgeColor)
                     ));
                 }
                 else
@@ -1986,16 +1907,14 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         public static class SingleNestedScope
         {
             private final LeftRight leftRight;
-            private final Middle middle;
             // Both are immutable once passed, so we can cache the hashCode:
             private final int hashCode;
 
-            public SingleNestedScope(LeftRight leftRight, Middle middle)
+            public SingleNestedScope(LeftRight leftRight)
             {
                 this.leftRight = leftRight;
-                this.middle = middle;
 
-                hashCode = leftRight.hashCode() * 31 + middle.hashCode();
+                hashCode = leftRight.hashCode();
             }
 
             @Override
@@ -2008,8 +1927,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 // We can use the cached hashCode as a quick shortcut:
                 if (hashCode != that.hashCode) return false;
 
-                if (!leftRight.equals(that.leftRight)) return false;
-                return middle.equals(that.middle);
+                return leftRight.equals(that.leftRight);
             }
 
             @Override
