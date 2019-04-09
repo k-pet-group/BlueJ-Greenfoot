@@ -34,9 +34,12 @@ import javafx.scene.text.HitInfo;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -53,10 +56,9 @@ class LineDisplay
     // Always zero or negative, because if it would be positive, there would
     // be a display gap above the first visible line, which we don't allow to happen.
     private double firstVisibleLineOffset = 0; 
-    // The ordered list of the current visible display lines.
-    // The first line in the list corresponds to line firstVisibleLineIndex
-    // in the actual document.
-    private final ArrayList<MarginAndTextLine> currentlyVisibleLines = new ArrayList<>();
+    // The collection of current visible display lines.  This is always a contiguous 
+    // block of numbered lines, starting with firstVisibleLineIndex (inclusive).
+    private final Map<Integer, MarginAndTextLine> visibleLines = new HashMap<>();
     
     private final ArrayList<LineDisplayListener> lineDisplayListeners = new ArrayList<>();
     
@@ -76,10 +78,10 @@ class LineDisplay
     {
         if (!isLineVisible(line))
         {
-            throw new IndexOutOfBoundsException("Line " + line + " is not visible.  Visible range is " + firstVisibleLineIndex + " to " + (firstVisibleLineIndex + currentlyVisibleLines.size()));
+            throw new IndexOutOfBoundsException("Line " + line + " is not visible.  Visible range is " + firstVisibleLineIndex + " to " + (firstVisibleLineIndex + visibleLines.size()));
         }
 
-        return currentlyVisibleLines.get(line - firstVisibleLineIndex);
+        return visibleLines.get(line);
     }
 
     /**
@@ -87,7 +89,7 @@ class LineDisplay
      */
     boolean isLineVisible(int line)
     {
-        return line >= firstVisibleLineIndex && line < firstVisibleLineIndex + currentlyVisibleLines.size();
+        return line >= firstVisibleLineIndex && line < firstVisibleLineIndex + visibleLines.size();
     }
 
     /**
@@ -103,27 +105,22 @@ class LineDisplay
         // Start at the first visible line:
         Iterator<List<StyledSegment>> lines = allLines.skip(firstVisibleLineIndex).iterator();
         double curY = firstVisibleLineOffset;
-        int visLineSubIndex = 0;
+        int lineIndex = firstVisibleLineIndex;
         ArrayList<Double> lineHeights = new ArrayList<>();
         while (lines.hasNext() && curY <= height)
         {
-            if (currentlyVisibleLines.size() - 1 < visLineSubIndex)
-            {
-                currentlyVisibleLines.add(new MarginAndTextLine(new TextLine()));
-            }
-            currentlyVisibleLines.get(visLineSubIndex).textLine.setText(lines.next(), fontSize);
-            double lineHeight = snapHeight.apply(currentlyVisibleLines.get(visLineSubIndex).prefHeight(-1.0));
+            MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(new TextLine()));
+            line.textLine.setText(lines.next(), fontSize);
+            double lineHeight = snapHeight.apply(line.prefHeight(-1.0));
             curY += lineHeight;
             lineHeights.add(lineHeight);
-            visLineSubIndex += 1;
+            lineIndex += 1;
         }
         this.averageLineHeight = lineHeights.stream().mapToDouble(d -> d).average().orElse(1.0);
         
         // Remove any excess lines:
-        if (visLineSubIndex < currentlyVisibleLines.size())
-        {
-            currentlyVisibleLines.subList(visLineSubIndex, currentlyVisibleLines.size()).clear();
-        }
+        int lastLineIndexIncl = lineIndex - 1;
+        visibleLines.entrySet().removeIf(e -> e.getKey() < firstVisibleLineIndex || e.getKey() > lastLineIndexIncl);
         
         // Notify any rendering listeners of new line exposure:
         int[] lineRangeVisible = getLineRangeVisible();
@@ -132,7 +129,7 @@ class LineDisplay
             lineDisplayListener.renderedLines(lineRangeVisible[0], lineRangeVisible[1]);
         }
         
-        return Collections.unmodifiableList(currentlyVisibleLines);
+        return visibleLines.entrySet().stream().sorted(Comparator.comparing(e -> e.getKey())).map(e -> e.getValue()).collect(Collectors.toList());
     }
 
     /**
@@ -228,7 +225,7 @@ class LineDisplay
      */
     public int[] getLineRangeVisible()
     {
-        return new int[] {firstVisibleLineIndex, firstVisibleLineIndex + currentlyVisibleLines.size() - 1};
+        return new int[] {firstVisibleLineIndex, firstVisibleLineIndex + visibleLines.size() - 1};
     }
 
     /**
@@ -245,13 +242,10 @@ class LineDisplay
             firstVisibleLineIndex = line;
             firstVisibleLineOffset = 0;
         }
-        else if (line >= firstVisibleLineIndex + currentlyVisibleLines.size() - 1)
-        {
-            //Debug:
-            double[] ys = currentlyVisibleLines.stream().mapToDouble(l -> l.getLayoutY()).toArray();
-            
+        else if (line >= firstVisibleLineIndex + visibleLines.size() - 1)
+        {            
             // Scroll down:
-            double singleLineHeight = currentlyVisibleLines.get(0).getHeight();
+            double singleLineHeight = averageLineHeight;
             int numLinesCanDisplay = (int)Math.ceil(heightProperty.get() / singleLineHeight);
             firstVisibleLineIndex = line - numLinesCanDisplay + 1;
             if (firstVisibleLineIndex < 0)
@@ -271,7 +265,7 @@ class LineDisplay
 
     public int getVisibleLineCount()
     {
-        return currentlyVisibleLines.size();
+        return visibleLines.size();
     }
 
     public void addLineDisplayListener(LineDisplayListener lineDisplayListener)
@@ -286,10 +280,9 @@ class LineDisplay
 
     public void applyScopeBackgrounds(Map<Integer, List<Region>> scopeBackgrounds)
     {
-        for (int visibleLineSubIndex = 0; visibleLineSubIndex < currentlyVisibleLines.size(); visibleLineSubIndex++)
-        {
-            currentlyVisibleLines.get(visibleLineSubIndex).textLine.setScopeBackgrounds(scopeBackgrounds.get(firstVisibleLineIndex + visibleLineSubIndex));
-        }
+        visibleLines.forEach((lineIndex, item) -> {
+            item.textLine.setScopeBackgrounds(scopeBackgrounds.get(lineIndex));
+        });
     }
 
     static interface LineDisplayListener
@@ -300,9 +293,9 @@ class LineDisplay
     // Pair of ints; line index and column index (both zero based)
     public int[] getCaretPositionForMouseEvent(MouseEvent e)
     {
-        for (int i = 0; i < currentlyVisibleLines.size(); i++)
+        for (int i = 0; i < visibleLines.size(); i++)
         {
-            MarginAndTextLine currentlyVisibleLine = currentlyVisibleLines.get(i);
+            MarginAndTextLine currentlyVisibleLine = visibleLines.get(i + firstVisibleLineIndex);
             // getLayoutBounds() seems to get out of date, so calculate manually:
             BoundingBox actualBounds = new BoundingBox(currentlyVisibleLine.getLayoutX(), currentlyVisibleLine.getLayoutY(), currentlyVisibleLine.getWidth(), currentlyVisibleLine.getHeight());
             if (currentlyVisibleLine.getLayoutY() <= e.getY() && e.getY() <= currentlyVisibleLine.getLayoutY() + currentlyVisibleLine.getHeight())
