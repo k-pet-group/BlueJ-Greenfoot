@@ -31,6 +31,7 @@ import bluej.editor.TextEditor;
 import bluej.editor.flow.FlowEditorPane.FlowEditorPaneListener;
 import bluej.editor.flow.FlowErrorManager.ErrorDetails;
 import bluej.editor.flow.JavaSyntaxView.ParagraphAttribute;
+import bluej.editor.flow.MarginAndTextLine.MarginDisplay;
 import bluej.editor.flow.StatusLabel.Status;
 import bluej.editor.moe.Info;
 import bluej.editor.moe.ParserMessageHandler;
@@ -81,7 +82,9 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.BitSet;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, FlowEditorPaneListener
@@ -131,8 +134,16 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         if (watcher.breakpointToggleEvent(lineIndex + 1, !breakpoints.get(lineIndex)) == null)
         {
             breakpoints.flip(lineIndex);
-            flowEditorPane.setLineMarginGraphics(lineIndex, breakpoints.get(lineIndex) ? new Node[] {JavaSyntaxView.makeBreakpointIcon()} : new Node[0]);
+            flowEditorPane.setLineMarginGraphics(lineIndex, breakpoints.get(lineIndex) ? EnumSet.of(MarginDisplay.BREAKPOINT) : EnumSet.noneOf(MarginDisplay.class));
+            // We also reapply scopes:
+            flowEditorPane.applyScopeBackgrounds(javaSyntaxView.getScopeBackgrounds());
         }
+    }
+
+    @Override
+    public Set<Integer> getBreakpointLines()
+    {
+        return breakpoints.stream().mapToObj(Integer::valueOf).collect(Collectors.toSet());
     }
 
     public static interface FetchTabbedEditor
@@ -170,6 +181,19 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         setCenter(flowEditorPane);
         actions = FlowActions.getActions(this);
         flowEditorPane.addCaretListener(this::caretMoved);
+        flowEditorPane.addLineDisplayListener((fromIncl, toIncl) -> {
+            for (int i = fromIncl; i <= toIncl; i++)
+            {
+                if (breakpoints.get(i))
+                {
+                    flowEditorPane.setLineMarginGraphics(i, EnumSet.of(MarginDisplay.BREAKPOINT));
+                }
+                else
+                {
+                    flowEditorPane.setLineMarginGraphics(i, EnumSet.noneOf(MarginDisplay.class));
+                }
+            }
+        });
         Nodes.addInputMap(this, InputMap.consume(MouseEvent.MOUSE_MOVED, this::mouseMoved));
     }
 

@@ -146,6 +146,11 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     private int latestRenderStartIncl = 0;
     private int latestRenderEndIncl = Integer.MAX_VALUE;
 
+    public Map<Integer, List<Region>> getScopeBackgrounds()
+    {
+        return scopeBackgrounds.scopeBackgrounds;
+    }
+
     public static enum ParagraphAttribute
     {
         STEP_MARK("bj-step-mark"), BREAKPOINT("bj-breakpoint"), ERROR("bj-error");
@@ -1715,22 +1720,6 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         return new AnchorPane(label);
     }
     */
-
-    // Red octagon with white STOP on it.  By doing it as a shape rather than
-    // image file, we get it looking good on all HiDPI displays.
-    static Node makeBreakpointIcon()
-    {
-        Node icon = Config.makeStopIcon(false);
-        JavaFXUtil.addStyleClass(icon, "moe-breakpoint-icon");
-        return icon;
-    }
-
-    private Node makeStepMarkIcon()
-    {
-        Shape arrow = Config.makeArrowShape(false);
-        JavaFXUtil.addStyleClass(arrow, "moe-step-mark-icon");
-        return arrow;
-    }
 
     /**
      * Sets attributes throughout the document.

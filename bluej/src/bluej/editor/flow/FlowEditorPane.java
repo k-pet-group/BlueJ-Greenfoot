@@ -24,7 +24,9 @@ package bluej.editor.flow;
 import bluej.Config;
 import bluej.editor.flow.Document.Bias;
 import bluej.editor.flow.LineDisplay.LineDisplayListener;
+import bluej.editor.flow.MarginAndTextLine.MarginDisplay;
 import bluej.editor.flow.TextLine.StyledSegment;
+import bluej.editor.moe.ScopeColors;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
 import com.google.common.collect.Multimap;
@@ -39,6 +41,8 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -56,10 +60,13 @@ import threadchecker.Tag;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.Set;
 
 /**
  * A FlowEditorPane is a component with (optional) horizontal and vertical scroll bars.
@@ -71,6 +78,7 @@ import java.util.OptionalInt;
 public class FlowEditorPane extends Region implements DocumentListener
 {
     private final LineDisplay lineDisplay;
+    private final FlowEditorPaneListener listener;
 
     double fontSize = 12;
     
@@ -103,6 +111,7 @@ public class FlowEditorPane extends Region implements DocumentListener
 
     public FlowEditorPane(String content, FlowEditorPaneListener listener)
     {
+        this.listener = listener;
         setSnapToPixel(true);
         lineDisplay = new LineDisplay(heightProperty(), listener::marginClickedForLine);
         document = new HoleDocument();
@@ -611,7 +620,29 @@ public class FlowEditorPane extends Region implements DocumentListener
 
     public void applyScopeBackgrounds(Map<Integer, List<Region>> scopeBackgrounds)
     {
-        lineDisplay.applyScopeBackgrounds(scopeBackgrounds);
+        // Important to take a copy so as to not modify the original:
+        HashMap<Integer, List<Region>> withOverlays = new HashMap<>();
+        Set<Integer> breakpointLines = listener.getBreakpointLines();
+        
+        scopeBackgrounds.forEach((line, scopes) -> {
+            if (breakpointLines.contains(line))
+            {
+                ArrayList<Region> regions = new ArrayList<>(scopes);
+                Region region = new Region();
+                region.setManaged(false);
+                region.resizeRelocate(0, 0, getWidth() - MarginAndTextLine.MARGIN_WIDTH, lineDisplay.getLineHeight());
+                region.setBackground(new Background(new BackgroundFill(listener.breakpointOverlayColorProperty().get(), null, null)));
+                regions.add(region);
+                withOverlays.put(line, regions);
+            }
+            else
+            {
+                // Just copy, no need to modify:
+                withOverlays.put(line, scopes);
+            }
+        });
+        
+        lineDisplay.applyScopeBackgrounds(withOverlays);
     }
 
     public void ensureCaretShowing()
@@ -619,11 +650,11 @@ public class FlowEditorPane extends Region implements DocumentListener
         updateRender(true);
     }
 
-    public void setLineMarginGraphics(int lineIndex, Node... nodes)
+    public void setLineMarginGraphics(int lineIndex, EnumSet<MarginDisplay> marginDisplays)
     {
         if (lineDisplay.isLineVisible(lineIndex))
         {
-            lineDisplay.getVisibleLine(lineIndex).setMarginGraphics(nodes);
+            lineDisplay.getVisibleLine(lineIndex).setMarginGraphics(marginDisplays);
         }
     }
 
@@ -865,9 +896,11 @@ public class FlowEditorPane extends Region implements DocumentListener
         caretListeners.add(caretListener);
     }
 
-    public static interface FlowEditorPaneListener
+    public static interface FlowEditorPaneListener extends ScopeColors
     {
         // The left-hand margin was clicked for (zero-based) lineIndex
         public void marginClickedForLine(int lineIndex);
+
+        public Set<Integer> getBreakpointLines();
     }
 }

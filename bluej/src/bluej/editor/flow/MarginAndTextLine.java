@@ -21,13 +21,21 @@
  */
 package bluej.editor.flow;
 
+import bluej.Config;
 import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.JavaFXUtil;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
+import javafx.scene.shape.Shape;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.EnumSet;
 
 /**
  * A graphical item that contains a margin (used for line numbers and/or breakpoint symbols, step marks, etc)
@@ -38,6 +46,12 @@ public class MarginAndTextLine extends Region
 {
     public static final int MARGIN_WIDTH = 25;
     
+    public static enum MarginDisplay
+    {
+        STEP_MARK, BREAKPOINT, ERROR;
+    }
+    
+    final EnumMap<MarginDisplay, Node> cachedIcons = new EnumMap<MarginDisplay, Node>(MarginDisplay.class);
     final TextLine textLine;
 
     public MarginAndTextLine(TextLine textLine, FXPlatformRunnable onClick)
@@ -116,14 +130,46 @@ public class MarginAndTextLine extends Region
         return textLine.maxHeight(width);
     }
 
-    public void setMarginGraphics(Node... nodes)
+    public void setMarginGraphics(EnumSet<MarginDisplay> displayItems)
     {
-        // We need all clicks to fall through to us, so make sure the graphics are mouse-transparent:
-        for (Node node : nodes)
+        ArrayList<Node> content = new ArrayList<>();
+        content.add(textLine);
+
+        for (MarginDisplay display : displayItems)
         {
-            node.setMouseTransparent(true);
+            content.add(cachedIcons.computeIfAbsent(display, d -> {
+                switch (d)
+                {
+                    case STEP_MARK:
+                        return makeStepMarkIcon();
+                    case BREAKPOINT:
+                        return makeBreakpointIcon();
+                    case ERROR:
+                    default:
+                        return new Label(""); //TODO
+                }
+            }));
+            // We need all clicks to fall through to us, so make sure the graphics are mouse-transparent:
+            content.get(content.size() - 1).setMouseTransparent(true);
         }
-        getChildren().setAll(textLine);
-        getChildren().addAll(nodes);
+        
+        getChildren().setAll(content);
+    }
+
+
+    // Red octagon with white STOP on it.  By doing it as a shape rather than
+    // image file, we get it looking good on all HiDPI displays.
+    private static Node makeBreakpointIcon()
+    {
+        Node icon = Config.makeStopIcon(false);
+        JavaFXUtil.addStyleClass(icon, "moe-breakpoint-icon");
+        return icon;
+    }
+
+    private static Node makeStepMarkIcon()
+    {
+        Shape arrow = Config.makeArrowShape(false);
+        JavaFXUtil.addStyleClass(arrow, "moe-step-mark-icon");
+        return arrow;
     }
 }
