@@ -114,6 +114,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private final BooleanProperty viewingHTML = new SimpleBooleanProperty(false); // changing this alters the interface accordingly
     private ErrorDisplay errorDisplay;
     private final BitSet breakpoints = new BitSet();
+    private int currentStepLineNumber = -1;
 
 
     // TODOFLOW handle the interface-only case
@@ -632,7 +633,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public boolean isOpen()
     {
-        throw new UnimplementedException();
+        return fxTabbedEditor != null && fxTabbedEditor.isWindowVisible();
     }
 
     @Override
@@ -739,7 +740,27 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public boolean setStepMark(int lineNumber, String message, boolean isBreak, DebuggerThread thread)
     {
-        throw new UnimplementedException();
+        switchToSourceView();
+
+        if (isBreak)
+        {
+            removeStepMark();
+            currentStepLineNumber = lineNumber;
+            flowEditorPane.setLineMarginGraphics(currentStepLineNumber, breakpoints.get(currentStepLineNumber) ? EnumSet.of(MarginDisplay.BREAKPOINT) : EnumSet.noneOf(MarginDisplay.class));
+            // We also reapply scopes:
+            flowEditorPane.applyScopeBackgrounds(javaSyntaxView.getScopeBackgrounds());
+        }
+
+        // Scroll to the line:
+        flowEditorPane.positionCaret(getOffsetFromLineColumn(new SourceLocation(lineNumber, 1)));
+
+        // display the message
+
+        if (message != null) {
+            info.messageImportant(message);
+        }
+
+        return false;
     }
 
     @Override
@@ -748,10 +769,22 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         throw new UnimplementedException();
     }
 
+    /**
+     * Remove the step mark (the mark that shows the current line when
+     * single-stepping through code). If it is not currently displayed, do
+     * nothing.
+     */
     @Override
+    @OnThread(Tag.FXPlatform)
     public void removeStepMark()
     {
-        throw new UnimplementedException();
+        if (currentStepLineNumber != -1)
+        {
+            flowEditorPane.setLineMarginGraphics(currentStepLineNumber, breakpoints.get(currentStepLineNumber) ? EnumSet.of(MarginDisplay.BREAKPOINT) : EnumSet.noneOf(MarginDisplay.class));
+            currentStepLineNumber = -1;
+            // We also reapply scopes:
+            flowEditorPane.applyScopeBackgrounds(javaSyntaxView.getScopeBackgrounds());
+        }
     }
 
     @Override
