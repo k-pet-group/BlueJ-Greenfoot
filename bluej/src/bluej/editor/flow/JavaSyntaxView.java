@@ -1718,7 +1718,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 
     // Red octagon with white STOP on it.  By doing it as a shape rather than
     // image file, we get it looking good on all HiDPI displays.
-    private static Node makeBreakpointIcon()
+    static Node makeBreakpointIcon()
     {
         Node icon = Config.makeStopIcon(false);
         JavaFXUtil.addStyleClass(icon, "moe-breakpoint-icon");

@@ -22,6 +22,7 @@
 package bluej.editor.flow;
 
 import bluej.editor.flow.TextLine.StyledSegment;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformFunction;
 import com.google.common.collect.Multimap;
 import javafx.beans.binding.DoubleExpression;
@@ -50,6 +51,8 @@ import java.util.stream.Stream;
  */
 class LineDisplay
 {
+    // Handler for clicking in a line margin
+    private final FXPlatformConsumer<Integer> onLineMarginClick;
     // Zero is the first line in document
     private int firstVisibleLineIndex = 0;
     // The display offset in pixels of the first visible line.
@@ -65,9 +68,10 @@ class LineDisplay
     private final DoubleExpression heightProperty;
     private double averageLineHeight = 1.0;
 
-    LineDisplay(DoubleExpression heightProperty)
+    LineDisplay(DoubleExpression heightProperty, FXPlatformConsumer<Integer> onLineMarginClick)
     {
         this.heightProperty = heightProperty;
+        this.onLineMarginClick = onLineMarginClick;
     }
 
     /**
@@ -109,7 +113,7 @@ class LineDisplay
         ArrayList<Double> lineHeights = new ArrayList<>();
         while (lines.hasNext() && curY <= height)
         {
-            MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(new TextLine()));
+            MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(new TextLine(), () -> onLineMarginClick.accept(k)));
             line.textLine.setText(lines.next(), fontSize);
             double lineHeight = snapHeight.apply(line.prefHeight(-1.0));
             curY += lineHeight;
@@ -296,8 +300,6 @@ class LineDisplay
         for (int i = 0; i < visibleLines.size(); i++)
         {
             MarginAndTextLine currentlyVisibleLine = visibleLines.get(i + firstVisibleLineIndex);
-            // getLayoutBounds() seems to get out of date, so calculate manually:
-            BoundingBox actualBounds = new BoundingBox(currentlyVisibleLine.getLayoutX(), currentlyVisibleLine.getLayoutY(), currentlyVisibleLine.getWidth(), currentlyVisibleLine.getHeight());
             if (currentlyVisibleLine.getLayoutY() <= e.getY() && e.getY() <= currentlyVisibleLine.getLayoutY() + currentlyVisibleLine.getHeight())
             {
                 // Can't use parentToLocal if layout bounds may be out of date:

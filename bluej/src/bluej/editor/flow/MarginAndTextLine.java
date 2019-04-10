@@ -21,6 +21,10 @@
  */
 package bluej.editor.flow;
 
+import bluej.utility.javafx.FXPlatformRunnable;
+import javafx.scene.Node;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -36,19 +40,38 @@ public class MarginAndTextLine extends Region
     
     final TextLine textLine;
 
-    public MarginAndTextLine(TextLine textLine)
+    public MarginAndTextLine(TextLine textLine, FXPlatformRunnable onClick)
     {
         this.textLine = textLine;
-        setMouseTransparent(true);
         getChildren().setAll(textLine);
         getStyleClass().add("margin-and-text-line");
+        addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
+            if (e.getX() < MARGIN_WIDTH)
+            {
+                if (e.getButton() == MouseButton.PRIMARY && !e.isShiftDown())
+                {
+                    onClick.run();
+                }
+                e.consume();
+            }
+        });
     }
 
     @Override
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     protected void layoutChildren()
     {
-        textLine.resizeRelocate(MARGIN_WIDTH, 0, getWidth() - MARGIN_WIDTH, getHeight());
+        for (Node child : getChildren())
+        {
+            if (child == textLine)
+            {
+                textLine.resizeRelocate(MARGIN_WIDTH, 0, getWidth() - MARGIN_WIDTH, getHeight());
+            }
+            else
+            {
+                child.resizeRelocate(0, 0, MARGIN_WIDTH, getHeight());
+            }
+        }
     }
 
     @Override
@@ -91,5 +114,16 @@ public class MarginAndTextLine extends Region
     protected double computeMaxHeight(double width)
     {
         return textLine.maxHeight(width);
+    }
+
+    public void setMarginGraphics(Node... nodes)
+    {
+        // We need all clicks to fall through to us, so make sure the graphics are mouse-transparent:
+        for (Node node : nodes)
+        {
+            node.setMouseTransparent(true);
+        }
+        getChildren().setAll(textLine);
+        getChildren().addAll(nodes);
     }
 }

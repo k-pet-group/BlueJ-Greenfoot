@@ -70,10 +70,6 @@ import java.util.OptionalInt;
 @OnThread(value = Tag.FXPlatform, ignoreParent = true)
 public class FlowEditorPane extends Region implements DocumentListener
 {
-    private static final Image UNDERLINE_IMAGE = new Image(
-            // Temporary hack hard coding the path (since this isn't running under BlueJ proper, yet)
-            "file:///Users/neil/intellij/bjgf/bluej/lib/images/" + 
-            "error-underline.png");
     private final LineDisplay lineDisplay;
 
     double fontSize = 12;
@@ -105,10 +101,10 @@ public class FlowEditorPane extends Region implements DocumentListener
     private final ArrayList<FXPlatformConsumer<Integer>> caretListeners = new ArrayList<>();
     private boolean postScrollRenderQueued = false;
 
-    public FlowEditorPane(String content)
+    public FlowEditorPane(String content, FlowEditorPaneListener listener)
     {
         setSnapToPixel(true);
-        lineDisplay = new LineDisplay(heightProperty());
+        lineDisplay = new LineDisplay(heightProperty(), listener::marginClickedForLine);
         document = new HoleDocument();
         document.replaceText(0, 0, content);
         document.addListener(this);
@@ -623,6 +619,14 @@ public class FlowEditorPane extends Region implements DocumentListener
         updateRender(true);
     }
 
+    public void setLineMarginGraphics(int lineIndex, Node... nodes)
+    {
+        if (lineDisplay.isLineVisible(lineIndex))
+        {
+            lineDisplay.getVisibleLine(lineIndex).setMarginGraphics(nodes);
+        }
+    }
+
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     private class LineContainer extends Region
     {
@@ -859,5 +863,11 @@ public class FlowEditorPane extends Region implements DocumentListener
     public void addCaretListener(FXPlatformConsumer<Integer> caretListener)
     {
         caretListeners.add(caretListener);
+    }
+
+    public static interface FlowEditorPaneListener
+    {
+        // The left-hand margin was clicked for (zero-based) lineIndex
+        public void marginClickedForLine(int lineIndex);
     }
 }

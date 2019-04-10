@@ -28,6 +28,7 @@ import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerThread;
 import bluej.editor.EditorWatcher;
 import bluej.editor.TextEditor;
+import bluej.editor.flow.FlowEditorPane.FlowEditorPaneListener;
 import bluej.editor.flow.FlowErrorManager.ErrorDetails;
 import bluej.editor.flow.JavaSyntaxView.ParagraphAttribute;
 import bluej.editor.flow.StatusLabel.Status;
@@ -56,6 +57,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Bounds;
 import javafx.print.PrinterJob;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.PopupControl;
 import javafx.scene.control.Skin;
@@ -77,15 +79,16 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.BitSet;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
+public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, FlowEditorPaneListener
 {
-    private final FlowEditorPane flowEditorPane = new FlowEditorPane("");
-    private final HoleDocument document = flowEditorPane.getDocument();
-    private final JavaSyntaxView javaSyntaxView = new JavaSyntaxView(flowEditorPane, this);
+    private final FlowEditorPane flowEditorPane;
+    private final HoleDocument document;
+    private final JavaSyntaxView javaSyntaxView;
     private final FetchTabbedEditor fetchTabbedEditor;
     private final FlowFXTab fxTab = new FlowFXTab(this, "TODOFLOW Title");
     private final FlowActions actions;
@@ -107,6 +110,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
     private final BooleanProperty compiledProperty = new SimpleBooleanProperty(true);
     private final BooleanProperty viewingHTML = new SimpleBooleanProperty(false); // changing this alters the interface accordingly
     private ErrorDisplay errorDisplay;
+    private final BitSet breakpoints = new BitSet();
 
 
     // TODOFLOW handle the interface-only case
@@ -119,6 +123,16 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
     public void enableParser(boolean force)
     {
         javaSyntaxView.enableParser(force);
+    }
+
+    @Override
+    public void marginClickedForLine(int lineIndex)
+    {
+        if (watcher.breakpointToggleEvent(lineIndex + 1, !breakpoints.get(lineIndex)) == null)
+        {
+            breakpoints.flip(lineIndex);
+            flowEditorPane.setLineMarginGraphics(lineIndex, breakpoints.get(lineIndex) ? new Node[] {JavaSyntaxView.makeBreakpointIcon()} : new Node[0]);
+        }
     }
 
     public static interface FetchTabbedEditor
@@ -144,6 +158,9 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor
 
     public FlowEditor(FetchTabbedEditor fetchTabbedEditor, EditorWatcher editorWatcher)
     {
+        this.flowEditorPane = new FlowEditorPane("", this);
+        this.document = flowEditorPane.getDocument();
+        this.javaSyntaxView = new JavaSyntaxView(flowEditorPane, this);
         this.flowEditorPane.setErrorQuery(errorManager);
         this.undoManager = new UndoManager();
         this.fetchTabbedEditor = fetchTabbedEditor;
