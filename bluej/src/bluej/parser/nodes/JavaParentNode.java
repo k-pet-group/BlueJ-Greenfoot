@@ -30,12 +30,10 @@ import java.util.Set;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.Reflective;
-import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.MoeSyntaxDocument.Element;
 import bluej.editor.moe.Token;
 import bluej.editor.moe.Token.TokenType;
 import bluej.parser.ExpressionTypeInfo;
-import bluej.parser.DocumentReader;
 import bluej.parser.JavaParser;
 import bluej.parser.TokenStream;
 import bluej.parser.entity.EntityResolver;
@@ -86,9 +84,9 @@ public abstract class JavaParentNode extends ParentParsedNode
     }
     
     @Override
-    public void insertNode(ParsedNode child, int position, int size)
+    public void insertNode(ParsedNode child, int position, int size, NodeStructureListener nodeStructureListener)
     {
-        getNodeTree().insertNode(child, position, size);
+        super.insertNode(child, position, size, nodeStructureListener);
         int childType = child.getNodeType();
         String childName = child.getName();
         if (childName != null) {
@@ -101,9 +99,9 @@ public abstract class JavaParentNode extends ParentParsedNode
     /**
      * Insert a FieldNode representing a variable/field declaration into this node.
      */
-    public void insertVariable(FieldNode varNode, int pos, int size)
+    public void insertVariable(FieldNode varNode, int pos, int size, NodeStructureListener nodeStructureListener)
     {
-        super.insertNode(varNode, pos, size);
+        super.insertNode(varNode, pos, size, nodeStructureListener);
         
         Set<FieldNode> varList = variables.get(varNode.getName());
         if (varList == null) {
@@ -117,9 +115,9 @@ public abstract class JavaParentNode extends ParentParsedNode
     /**
      * Insert a field child (alias for insertVariable).
      */
-    public void insertField(FieldNode child, int position, int size)
+    public void insertField(FieldNode child, int position, int size, NodeStructureListener nodeStructureListener)
     {
-        insertVariable(child, position, size);
+        insertVariable(child, position, size, nodeStructureListener);
     }
     
     @Override

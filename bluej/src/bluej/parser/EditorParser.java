@@ -22,7 +22,6 @@
 package bluej.parser;
 
 import bluej.debugger.gentype.Reflective;
-import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.MoeSyntaxDocument.Element;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.IntersectionTypeEntity;
@@ -56,6 +55,7 @@ import java.util.Stack;
  */
 public class EditorParser extends JavaParser
 {
+    private final NodeStructureListener nodeStructureListener;
     protected Stack<JavaParentNode> scopeStack = new Stack<JavaParentNode>();
     private ParsedTypeNode innermostType;
     
@@ -105,15 +105,33 @@ public class EditorParser extends JavaParser
     protected EditorParser(Reader r, EntityResolver resolver)
     {
         super(r);
+        nodeStructureListener = new NodeStructureListener()
+        {
+            @Override
+            public void nodeAdded(NodeAndPosition<ParsedNode> node)
+            {
+            }
+
+            @Override
+            public void nodeRemoved(NodeAndPosition<ParsedNode> node)
+            {
+            }
+
+            @Override
+            public void nodeChangedLength(NodeAndPosition<ParsedNode> node, int oldPos, int oldSize)
+            {
+            }
+        };
         pcuNode = new ParsedCUNode();
         pcuNode.setParentResolver(resolver);
     }
     
-    public EditorParser(ReparseableDocument document, Reader r, int line, int col, int pos, Stack<JavaParentNode> scopeStack)
+    public EditorParser(ReparseableDocument document, Reader r, int line, int col, int pos, Stack<JavaParentNode> scopeStack, NodeStructureListener nodeStructureListener)
     {
         super(r, line, col, pos);
         this.document = document;
         this.scopeStack = scopeStack;
+        this.nodeStructureListener = nodeStructureListener;
         pcuNode = (ParsedCUNode) scopeStack.get(0);
     }
     
@@ -219,7 +237,7 @@ public class EditorParser extends JavaParser
             if (startpos >= position && startpos < (position + size)) {
                 int endpos = lineColToPosition(token.getEndLine(), token.getEndColumn());
                 CommentNode cn = new CommentNode(node, token);
-                node.insertNode(cn, startpos - position, endpos - startpos);
+                node.insertNode(cn, startpos - position, endpos - startpos, nodeStructureListener);
                 i.remove();
             }
         }
@@ -243,7 +261,7 @@ public class EditorParser extends JavaParser
             i.remove();
             int topOffset = getTopNodeOffset();
             CommentNode cn = new CommentNode(scopeStack.peek(), token);
-            scopeStack.peek().insertNode(cn, startpos - topOffset, endpos - startpos);
+            scopeStack.peek().insertNode(cn, startpos - topOffset, endpos - startpos, nodeStructureListener);
         }
     }
     
@@ -430,7 +448,7 @@ public class EditorParser extends JavaParser
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(token.getLine(), token.getColumn());
         // Note, we don't want to soak up comments yet, so we don't call beginNode(...) here.
-        scopeStack.peek().insertNode(placeHolder, insPos - curOffset, 0);
+        scopeStack.peek().insertNode(placeHolder, insPos - curOffset, 0, nodeStructureListener);
         scopeStack.push(placeHolder);
     }
     
@@ -463,7 +481,7 @@ public class EditorParser extends JavaParser
         }
         int insPos = lineColToPosition(firstToken.getLine(), firstToken.getColumn());
         beginNode(insPos);
-        scopeStack.peek().insertNode(innermostType, insPos - curOffset, 0);
+        scopeStack.peek().insertNode(innermostType, insPos - curOffset, 0, nodeStructureListener);
         scopeStack.push(innermostType);
         initializeTypeExtras();
     }
@@ -554,7 +572,7 @@ public class EditorParser extends JavaParser
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(token.getEndLine(), token.getEndColumn());
         beginNode(insPos);
-        top.insertInner(bodyNode, insPos - curOffset, 0);
+        top.insertInner(bodyNode, insPos - curOffset, 0, nodeStructureListener);
         scopeStack.push(bodyNode);
     }
     
@@ -565,7 +583,7 @@ public class EditorParser extends JavaParser
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(token.getLine(), token.getColumn());
         beginNode(insPos);
-        scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
+        scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0, nodeStructureListener);
         scopeStack.push(loopNode);
     }
     
@@ -580,7 +598,7 @@ public class EditorParser extends JavaParser
             int curOffset = getTopNodeOffset();
             int insPos = lineColToPosition(token.getLine(), token.getColumn());
             beginNode(insPos);
-            scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
+            scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0, nodeStructureListener);
             scopeStack.push(loopNode);
         }
     }
@@ -600,7 +618,7 @@ public class EditorParser extends JavaParser
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(token.getLine(), token.getColumn());
         beginNode(insPos);
-        scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
+        scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0, nodeStructureListener);
         scopeStack.push(loopNode);
     }
     
@@ -615,7 +633,7 @@ public class EditorParser extends JavaParser
             int curOffset = getTopNodeOffset();
             int insPos = lineColToPosition(token.getLine(), token.getColumn());
             beginNode(insPos);
-            scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
+            scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0, nodeStructureListener);
             scopeStack.push(loopNode);
         }
     }
@@ -635,7 +653,7 @@ public class EditorParser extends JavaParser
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(token.getLine(), token.getColumn());
         beginNode(insPos);
-        scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
+        scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0, nodeStructureListener);
         scopeStack.push(loopNode);
     }
     
@@ -650,7 +668,7 @@ public class EditorParser extends JavaParser
             int curOffset = getTopNodeOffset();
             int insPos = lineColToPosition(token.getLine(), token.getColumn());
             beginNode(insPos);
-            scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
+            scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0, nodeStructureListener);
             scopeStack.push(loopNode);
         }
     }
@@ -670,7 +688,7 @@ public class EditorParser extends JavaParser
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(token.getLine(), token.getColumn());
         beginNode(insPos);
-        scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
+        scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0, nodeStructureListener);
         scopeStack.push(loopNode);
     }
     
@@ -685,7 +703,7 @@ public class EditorParser extends JavaParser
             int curOffset = getTopNodeOffset();
             int insPos = lineColToPosition(token.getLine(), token.getColumn());
             beginNode(insPos);
-            scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
+            scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0, nodeStructureListener);
             scopeStack.push(loopNode);
         }
     }
@@ -722,7 +740,7 @@ public class EditorParser extends JavaParser
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(token.getEndLine(), token.getEndColumn());
         beginNode(insPos);
-        scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0);
+        scopeStack.peek().insertNode(loopNode, insPos - curOffset, 0, nodeStructureListener);
         scopeStack.push(loopNode);
     }
     
@@ -745,7 +763,7 @@ public class EditorParser extends JavaParser
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(token.getLine(), token.getColumn());
         beginNode(insPos);
-        scopeStack.peek().insertNode(tryNode, insPos - curOffset, 0);
+        scopeStack.peek().insertNode(tryNode, insPos - curOffset, 0, nodeStructureListener);
         scopeStack.push(tryNode);
     }
     
@@ -757,7 +775,7 @@ public class EditorParser extends JavaParser
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(token.getEndLine(), token.getEndColumn());
         beginNode(insPos);
-        scopeStack.peek().insertNode(tryBlockNode, insPos - curOffset, 0);
+        scopeStack.peek().insertNode(tryBlockNode, insPos - curOffset, 0, nodeStructureListener);
         scopeStack.push(tryBlockNode);
     }
     
@@ -786,7 +804,7 @@ public class EditorParser extends JavaParser
             blockNode.setInner(false);
             int insPos = lineColToPosition(token.getLine(), token.getColumn());
             beginNode(insPos);
-            scopeStack.peek().insertNode(blockNode, insPos - curOffset, 0);
+            scopeStack.peek().insertNode(blockNode, insPos - curOffset, 0, nodeStructureListener);
             scopeStack.push(blockNode);
             curOffset = insPos;
         }
@@ -794,7 +812,7 @@ public class EditorParser extends JavaParser
         blockInner.setInner(true);
         int insPos = lineColToPosition(token.getEndLine(), token.getEndColumn());
         beginNode(insPos);
-        scopeStack.peek().insertNode(blockInner, insPos - curOffset, 0);
+        scopeStack.peek().insertNode(blockInner, insPos - curOffset, 0, nodeStructureListener);
         scopeStack.push(blockInner);
     }
    
@@ -817,7 +835,7 @@ public class EditorParser extends JavaParser
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(token.getLine(), token.getColumn());
         beginNode(insPos);
-        scopeStack.peek().insertNode(tryNode, insPos - curOffset, 0);
+        scopeStack.peek().insertNode(tryNode, insPos - curOffset, 0, nodeStructureListener);
         scopeStack.push(tryNode);
     }
     
@@ -830,7 +848,7 @@ public class EditorParser extends JavaParser
         blockNode.setInner(false);
         int insPos = lineColToPosition(first.getLine(), first.getColumn());
         beginNode(insPos);
-        scopeStack.peek().insertNode(blockNode, insPos - curOffset, 0);
+        scopeStack.peek().insertNode(blockNode, insPos - curOffset, 0, nodeStructureListener);
         scopeStack.push(blockNode);
         curOffset = insPos;
 
@@ -838,7 +856,7 @@ public class EditorParser extends JavaParser
         blockInner.setInner(true);
         insPos = lineColToPosition(lcurly.getEndLine(), lcurly.getEndColumn());
         beginNode(insPos);
-        scopeStack.peek().insertNode(blockInner, insPos - curOffset, 0);
+        scopeStack.peek().insertNode(blockInner, insPos - curOffset, 0, nodeStructureListener);
         scopeStack.push(blockInner);
     }
     
@@ -901,7 +919,7 @@ public class EditorParser extends JavaParser
         
         PkgStmtNode psn = new PkgStmtNode(pcuNode);
         beginNode(startpos);
-        pcuNode.insertNode(psn, startpos, endpos - startpos);
+        pcuNode.insertNode(psn, startpos, endpos - startpos, nodeStructureListener);
         completedNode(psn, startpos, endpos - startpos);
     }
     
@@ -917,7 +935,7 @@ public class EditorParser extends JavaParser
         ParentParsedNode cn = new ImportNode(pcuNode);
         cn.setComplete(true);
         beginNode(startpos);
-        pcuNode.insertNode(cn, startpos, endpos - startpos);
+        pcuNode.insertNode(cn, startpos, endpos - startpos, nodeStructureListener);
         completedNode(cn, startpos, endpos - startpos);
     }
     
@@ -944,7 +962,7 @@ public class EditorParser extends JavaParser
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(start.getLine(), start.getColumn());
         beginNode(insPos);
-        scopeStack.peek().insertNode(pnode, insPos - curOffset, 0);
+        scopeStack.peek().insertNode(pnode, insPos - curOffset, 0, nodeStructureListener);
         scopeStack.push(pnode);
     }
     
@@ -971,7 +989,7 @@ public class EditorParser extends JavaParser
         typeParams = null;
         
         beginNode(insPos);
-        scopeStack.peek().insertNode(pnode, insPos - curOffset, 0);
+        scopeStack.peek().insertNode(pnode, insPos - curOffset, 0, nodeStructureListener);
         scopeStack.push(pnode);
     }
     
@@ -1012,7 +1030,7 @@ public class EditorParser extends JavaParser
         int curOffset = getTopNodeOffset();
         int insPos = lineColToPosition(token.getEndLine(), token.getEndColumn());
         beginNode(insPos);
-        scopeStack.peek().insertNode(pnode, insPos - curOffset, 0);
+        scopeStack.peek().insertNode(pnode, insPos - curOffset, 0, nodeStructureListener);
         scopeStack.push(pnode);
     }
     
@@ -1113,7 +1131,7 @@ public class EditorParser extends JavaParser
         beginNode(insPos);
         
         JavaParentNode top = scopeStack.peek();
-        top.insertField(lastField, insPos - curOffset, 0);
+        top.insertField(lastField, insPos - curOffset, 0, nodeStructureListener);
         scopeStack.push(lastField);
     }
     
@@ -1135,10 +1153,10 @@ public class EditorParser extends JavaParser
         
         if (lastField.getFieldType() != null) {
             JavaParentNode top = scopeStack.peek();
-            top.insertField(field, insPos - curOffset, 0);
+            top.insertField(field, insPos - curOffset, 0, nodeStructureListener);
         }
         else {
-            scopeStack.peek().insertNode(field, insPos - curOffset, 0);
+            scopeStack.peek().insertNode(field, insPos - curOffset, 0, nodeStructureListener);
         }
         
         scopeStack.push(field);
@@ -1214,7 +1232,7 @@ public class EditorParser extends JavaParser
         LocatableToken begin = token;
         int insPos = lineColToPosition(begin.getLine(), begin.getColumn());
         beginNode(insPos);
-        scopeStack.peek().insertNode(pnode, insPos - curOffset, 0);
+        scopeStack.peek().insertNode(pnode, insPos - curOffset, 0, nodeStructureListener);
         scopeStack.push(pnode);
         
         JavaEntity supert;
@@ -1234,7 +1252,7 @@ public class EditorParser extends JavaParser
         curOffset = getTopNodeOffset();
         insPos = lineColToPosition(token.getEndLine(), token.getEndColumn());
         beginNode(insPos);
-        pnode.insertInner(bodyNode, insPos - curOffset, 0);
+        pnode.insertInner(bodyNode, insPos - curOffset, 0, nodeStructureListener);
         scopeStack.push(bodyNode);
     }
     
@@ -1254,7 +1272,7 @@ public class EditorParser extends JavaParser
         LocatableToken begin = token;
         int insPos = lineColToPosition(begin.getLine(), begin.getColumn());
         beginNode(insPos);
-        scopeStack.peek().insertNode(nnode, insPos - curOffset, 0);
+        scopeStack.peek().insertNode(nnode, insPos - curOffset, 0, nodeStructureListener);
         scopeStack.push(nnode);
     }
     

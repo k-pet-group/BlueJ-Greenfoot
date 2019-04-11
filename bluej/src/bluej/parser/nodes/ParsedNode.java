@@ -22,7 +22,6 @@
 package bluej.parser.nodes;
 
 import bluej.debugger.gentype.GenTypeClass;
-import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.Token;
 import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.entity.JavaEntity;
@@ -150,9 +149,10 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
     /**
      * Insert a new child node (without affecting position of other children).
      */
-    public void insertNode(ParsedNode child, int position, int size)
+    public void insertNode(ParsedNode child, int position, int size, NodeStructureListener nodeStructureListener)
     {
         getNodeTree().insertNode(child, position, size);
+        nodeStructureListener.nodeAdded(new NodeAndPosition<>(child, position, size));
     }
     
     public void childChangedName(ParsedNode child, String oldName)

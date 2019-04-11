@@ -346,20 +346,6 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             // We can discard the MoeSyntaxEvent: the reparse will update scopes/syntax
             //}
             document.addListener((start, end, repl) -> {
-                NodeStructureListener blankListener = new NodeStructureListener()
-                {
-                    @Override
-                    public void nodeRemoved(NodeAndPosition<ParsedNode> node)
-                    {
-
-                    }
-
-                    @Override
-                    public void nodeChangedLength(NodeAndPosition<ParsedNode> node, int oldPos, int oldSize)
-                    {
-
-                    }
-                };
                 if (start != end)
                 {
                     fireRemoveUpdate(start, end - start);
@@ -1554,8 +1540,21 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         int damageEnd = 0;
 
         MoeSyntaxEvent mse = changes;
+        for (NodeAndPosition<ParsedNode> nap : mse.getAddedNodes())
+        {
+            ParsedNode parent = nap.getNode().getParentNode();
+            while (parent != null)
+            {
+                nodeIndents.remove(parent);
+                parent = parent.getParentNode();
+            }
+
+            int [] r = clearNap(nap, document, damageStart, damageEnd);
+            damageStart = r[0];
+            damageEnd = r[1];
+        }
+        
         for (NodeAndPosition<ParsedNode> node : mse.getRemovedNodes()) {
-            nodeRemoved(node.getNode());
             ParsedNode parent = node.getNode().getParentNode();
             while (parent != null)
             {
@@ -2048,7 +2047,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             Debug.message("--- Source code ---");
             Debug.message(document.getFullContent());
             Debug.message("--- Source ends ---");
-
+            Debug.reportError(e);
             throw e;
         }
     }

@@ -23,7 +23,6 @@ package bluej.parser.nodes;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.Reflective;
-import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.JavaParser;
 import bluej.parser.entity.JavaEntity;
@@ -204,9 +203,9 @@ public class ParsedTypeNode extends IncrementalParsingNode
      * Insert the inner node for the type definition.
      * The inner node will hold the field definitions etc.
      */
-    public void insertInner(TypeInnerNode child, int position, int size)
+    public void insertInner(TypeInnerNode child, int position, int size, NodeStructureListener nodeStructureListener)
     {
-        super.insertNode(child, position, size);
+        super.insertNode(child, position, size, nodeStructureListener);
         inner = child;
         stateMarkers[1] = position + size;
     }

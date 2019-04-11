@@ -44,6 +44,7 @@ public class MoeSyntaxEvent implements NodeStructureListener
 {
     private final int offset;
     private final int length;
+    private final List<NodeAndPosition<ParsedNode>> addedNodes = new ArrayList<>();
     private final List<NodeAndPosition<ParsedNode>> removedNodes = new ArrayList<>();
     private final Map<ParsedNode, NodeChangeRecord> changedNodes = new HashMap<>();
     private final boolean insert;
@@ -56,7 +57,12 @@ public class MoeSyntaxEvent implements NodeStructureListener
         this.insert = isInsert;
         this.remove = isRemove;
     }
-    
+
+    public List<NodeAndPosition<ParsedNode>> getAddedNodes()
+    {
+        return addedNodes;
+    }
+
     /**
      * Get a list of nodes removed as part of this event.
      */
@@ -75,6 +81,13 @@ public class MoeSyntaxEvent implements NodeStructureListener
 
     
     // -------------- NodeStructureListener interface ------------------
+
+
+    @Override
+    public void nodeAdded(NodeAndPosition<ParsedNode> node)
+    {
+        addedNodes.add(node);
+    }
 
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void nodeRemoved(NodeAndPosition<ParsedNode> node)
