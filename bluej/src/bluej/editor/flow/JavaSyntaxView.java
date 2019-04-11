@@ -2140,8 +2140,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     @Override
     public Reader makeReader(int startPos, int endPos)
     {
-        // Simple but slow:
-        return new StringReader(document.getFullContent().substring(startPos, endPos));
+        return document.makeReader(startPos, endPos);
     }
 
     @Override

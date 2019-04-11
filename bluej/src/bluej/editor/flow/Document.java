@@ -24,6 +24,7 @@ package bluej.editor.flow;
 
 import bluej.parser.SourceLocation;
 
+import java.io.Reader;
 import java.util.List;
 
 /**
@@ -165,4 +166,13 @@ public interface Document
         else
             return getLineStart(lineIndex + 1) - getLineStart(lineIndex);
     }
+
+    /**
+     * Get a Reader for the given sub-portion of the document.
+     * 
+     * @param startPos The start character position in the document (inclusive)
+     * @param endPos The end character position in the document (exclusive)
+     * @return A reader that will read that portion of the document.
+     */
+    Reader makeReader(int startPos, int endPos);
 }

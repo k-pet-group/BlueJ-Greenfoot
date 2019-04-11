@@ -26,18 +26,20 @@ import bluej.editor.flow.gen.GenRandom;
 import bluej.editor.flow.gen.GenString;
 import com.pholser.junit.quickcheck.From;
 import com.pholser.junit.quickcheck.Property;
+import com.pholser.junit.quickcheck.When;
 import com.pholser.junit.quickcheck.random.SourceOfRandomness;
 import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 
 @RunWith(JUnitQuickcheck.class)
 public class TestDocument
@@ -175,6 +177,65 @@ public class TestDocument
                     assertFalse(line.codePoints().anyMatch(c -> c == '\n'));
                 }
                 assertEquals(curContent, lines.stream().collect(Collectors.joining("\n")));
+            }
+            
+            // Check that document reader on a random sub-part does the right thing:
+            int startRead = curContent.length() <= 1 ? 0 : r.nextInt(curContent.length() - 1);
+            int endRead = curContent.length() == 0 ? 0 : r.nextInt(curContent.length() - startRead) + startRead;
+            String expectedRead = curContent.substring(startRead, endRead);
+            for (Document document : documents)
+            {
+                // Check getContent while we're at it:
+                assertEquals(expectedRead, document.getContent(startRead, endRead));
+                
+                Reader reader = document.makeReader(startRead, endRead);
+                try
+                {
+                    StringBuilder actual = new StringBuilder();
+                    // Either use bulk version or single char version or a combination.
+                    // We divide the read into sub-chunks and randomly decide for each chunk.
+                    // This tests that the reader position is maintained correctly.
+                    int numChunks = 1 + r.nextInt(5);
+                    int[] chunkEnds = new int[numChunks];
+                    chunkEnds[numChunks - 1] = endRead;
+                    for (int j = 0; j < chunkEnds.length - 1; j++)
+                    {
+                        chunkEnds[j] = (endRead == startRead ? 0 : r.nextInt(endRead - startRead)) + startRead;
+                    }
+                    Arrays.sort(chunkEnds);
+                    int curStart = startRead;
+
+                    for (int j = 0; j < numChunks; j++)
+                    {
+                        if (r.nextBoolean())
+                        {
+                            // 50% chance: single char version
+                            StringBuilder b = new StringBuilder();
+                            for (; curStart < chunkEnds[j]; curStart++)
+                            {
+                                int c = reader.read();
+                                assertNotEquals(-1, c);
+                                actual.append((char) c);
+                            }
+                        }
+                        else
+                        {
+                            // 50% chance: bulk read:
+                            char[] large = new char[chunkEnds[j] - curStart + 20];
+                            reader.read(large, 10, chunkEnds[j] - curStart);
+                            actual.append(large, 10, chunkEnds[j] - curStart);
+                            curStart = chunkEnds[j];
+                        }
+                    }
+                    // Check our own logic:
+                    assertEquals(endRead, curStart);
+                    // Check output of reader:
+                    assertEquals(document.getClass().toString(), expectedRead, actual.toString());
+                }
+                catch (IOException e)
+                {
+                    fail("IOException: " + e.getLocalizedMessage());
+                }
             }
         }
     }

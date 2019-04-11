@@ -21,6 +21,8 @@
  */
 package bluej.editor.flow;
 
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -147,5 +149,11 @@ public class SlowDocument implements Document
     public String getContent(int startCharIncl, int endCharExcl)
     {
         return content.substring(startCharIncl, endCharExcl);
+    }
+    
+    @Override
+    public Reader makeReader(int startPos, int endPos)
+    {
+        return new StringReader(getContent(startPos, endPos));
     }
 }

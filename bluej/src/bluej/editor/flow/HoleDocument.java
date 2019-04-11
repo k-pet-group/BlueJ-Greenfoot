@@ -21,6 +21,7 @@
  */
 package bluej.editor.flow;
 
+import java.io.Reader;
 import java.lang.ref.WeakReference;
 import java.util.AbstractList;
 import java.util.ArrayList;
@@ -351,6 +352,12 @@ public class HoleDocument implements Document
         }
     }
 
+    @Override
+    public Reader makeReader(int startPos, int endPos)
+    {
+        return new HoleReader(startPos, endPos);
+    }
+
     private static class LineInformation
     {
         private final TrackedPosition lineStart;
@@ -359,6 +366,114 @@ public class HoleDocument implements Document
         public LineInformation(TrackedPosition lineStart)
         {
             this.lineStart = lineStart;
+        }
+    }
+    
+    // Adapted from StringReader
+    private class HoleReader extends Reader
+    {
+        private int next;
+        private int mark = 0;
+        private final int end; 
+        
+        private HoleReader(int start, int end)
+        {
+            this.next = start;
+            this.end = end;
+        }
+
+        public int read()
+        {
+            if (next >= end)
+            {
+                return -1;
+            }
+            else
+            {
+                if (next < holeStart)
+                {
+                    return content[next++];
+                }
+                else
+                {
+                    return content[next++ + (holeEnd - holeStart)];
+                }
+            }
+        }
+        
+        public int read(char cbuf[], int off, int len)
+        {
+            if ((off < 0) || (off > cbuf.length) || (len < 0) ||
+                    ((off + len) > cbuf.length) || ((off + len) < 0))
+            {
+                throw new IndexOutOfBoundsException();
+            }
+            else if (len == 0)
+            {
+                return 0;
+            }
+            else if (next >= end)
+            {
+                return -1;
+            }
+            
+            int total = Math.min(end - next, len);
+            int toCopy = total;
+            if (next < holeStart)
+            {
+                // Copy before the hole:
+                System.arraycopy(content, next, cbuf, off, Math.min(toCopy, holeStart - next));
+                off += holeStart - next;
+                toCopy -= (holeStart - next);
+            }
+            if (toCopy > 0)
+            {
+                // Copy after hole:
+                System.arraycopy(content, next + (holeEnd - holeStart) + Math.max(0, holeStart - next), cbuf, off, toCopy);
+            }
+            next += total;
+            return total;
+        }
+
+        public long skip(long ns)
+        {
+            if (next >= end)
+            {
+                return 0;
+            }
+            // Bound skip by beginning and end of the source
+            long n = Math.min(end - next, ns);
+            n = Math.max(-next, n);
+            next += n;
+            return n;
+        }
+        
+        public boolean ready()
+        {
+            return true;
+        }
+        
+        public boolean markSupported()
+        {
+            return true;
+        }
+        
+        public void mark(int readAheadLimit)
+        {
+            if (readAheadLimit < 0)
+            {
+                throw new IllegalArgumentException("Read-ahead limit < 0");
+            }
+            mark = next;
+        }
+        
+        public void reset()
+        {
+            next = mark;
+        }
+        
+        public void close()
+        {
         }
     }
 }
