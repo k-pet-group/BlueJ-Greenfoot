@@ -21,6 +21,9 @@
  */
 package bluej.editor.flow;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.io.Reader;
 import java.lang.ref.WeakReference;
 import java.util.AbstractList;
@@ -370,6 +373,7 @@ public class HoleDocument implements Document
     }
     
     // Adapted from StringReader
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     private class HoleReader extends Reader
     {
         private int next;
