@@ -727,6 +727,118 @@ public class TestBasicEditorDisplay extends FXTest
                 scope(Color.YELLOW, between(25, 30), between(50, 55))
         );
     }
+
+    @Test
+    public void testScope3()
+    {
+        String beforeEnterPoint =
+                "public class Main\n" +
+                "{\n" +
+                "    /**\n" +
+                "     * Compile the currently selected class targets.\n" +
+                "     */\n" +
+                "    public void compileSelected()\n" +
+                "    {\n" +
+                "        Package thePkg = getPackage();\n" +
+                "        List<Target> targets = thePkg.getSelectedTargets();\n" +
+                "        if (targets.size() > 0) {\n" +
+                "            for (Target target : targets) {\n" +
+                "                if (target instanceof ClassTarget) {\n" +
+                "                    ClassTarget t = (ClassTarget) target;\n" +
+                "                    if (t.hasSourceCode())\n" +
+                "                        thePkg.compile(t, CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE);\n" +
+                "                    ";
+        String afterEnterPoint="\n" +
+                "                }\n" +
+                "            }\n" +
+                "        }\n" +
+                "        else {\n" +
+                "            DialogManager.showErrorFX(getFXWindow(), \"no-class-selected-compile\");\n" +
+                "        }\n" +
+                "    }\n" +
+                "}\n";
+
+        setText(beforeEnterPoint + afterEnterPoint);
+        fx_(() -> flowEditorPane.requestFocus());
+        fx_(() -> flowEditorPane.positionCaret(beforeEnterPoint.length()));
+        sleep(500);
+        // Find the caret Y:
+        Node caret = lookup(".flow-caret").query();
+        double y = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
+
+        final int linesUpToHeader = 10;
+        for (int i = 0; i < linesUpToHeader; i++)
+        {
+            push(KeyCode.UP);
+        }
+        sleep(200);
+        double methodHeaderY = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
+        for (int i = 0; i < linesUpToHeader; i++)
+        {
+            push(KeyCode.DOWN);
+        }
+        final int linesUpToMethodInner = 7;
+        for (int i = 0; i < linesUpToMethodInner; i++)
+        {
+            push(KeyCode.UP);
+        }
+        sleep(200);
+        double methodInnerY = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
+        for (int i = 0; i < linesUpToMethodInner; i++)
+        {
+            push(KeyCode.DOWN);
+        }
+
+        // Check initial scopes:
+        checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
+        checkScopes((int) methodHeaderY,
+                scope(Color.GREEN, between(0, 2), between(22, 28)),
+                scope(Color.YELLOW, between(25, 30), between(780, 800))
+        );
+        checkScopes((int) methodInnerY,
+                scope(Color.GREEN, between(0, 2), between(22, 28)),
+                scope(Color.YELLOW, between(25, 30), between(50, 55))
+        );
+        checkScopes((int) y,
+                scope(Color.GREEN, between(0, 2), between(22, 28)),
+                scope(Color.YELLOW, between(25, 30), between(50, 55))
+        );
+        push(KeyCode.ENTER);
+        push(KeyCode.HOME);
+        assertEquals(beforeEnterPoint.lines().count(), fx(() -> flowEditorPane.getDocument().getLineFromPosition(flowEditorPane.getCaretPosition())).intValue());
+        assertEquals(0, fx(() -> flowEditorPane.getDocument().getColumnFromPosition(flowEditorPane.getCaretPosition())).intValue());
+        // There may be auto-indent, but the new line should be there at least:
+        assertThat(fx(() -> flowEditorPane.getDocument().getFullContent()), Matchers.startsWith(beforeEnterPoint + "\n"));
+        write(" y");
+        sleep(500);
+        // Check scopes got pushed left:
+        checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
+        checkScopes((int) methodHeaderY,
+                scope(Color.GREEN, between(0, 2), between(22, 28)),
+                scope(Color.YELLOW, between(25, 30), between(780, 800))
+        );
+        checkScopes((int) methodInnerY,
+                scope(Color.GREEN, between(0, 2), between(22, 28)),
+                scope(Color.YELLOW, between(25, 30), between(50, 55))
+        );
+        checkScopes((int)y,
+                scope(Color.GREEN, between(0, 2), between(2, 6)),
+                // The yellow will only be visible on RHS:
+                scope(Color.YELLOW, between(770, 800), between(780, 800))
+        );
+        push(KeyCode.BACK_SPACE);
+        sleep(500);
+        // Check scopes back to same as initial:
+        checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
+        checkScopes((int) methodInnerY,
+                scope(Color.GREEN, between(0, 2), between(22, 28)),
+                scope(Color.YELLOW, between(25, 30), between(50, 55))
+        );
+        checkScopes((int) y,
+                scope(Color.GREEN, between(0, 2), between(22, 28)),
+                scope(Color.YELLOW, between(25, 30), between(50, 55))
+        );
+    }
     
     
     private static Matcher<Integer> between(int low, int high)
