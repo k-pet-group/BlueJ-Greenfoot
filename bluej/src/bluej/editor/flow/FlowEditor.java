@@ -512,7 +512,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public String getText(SourceLocation begin, SourceLocation end)
     {
-        return document.getContent(document.getPosition(begin), document.getPosition(end));
+        return document.getContent(document.getPosition(begin), document.getPosition(end)).toString();
     }
 
     @Override

@@ -321,9 +321,9 @@ public class HoleDocument implements Document
     }
 
     @Override
-    public String getContent(int startCharIncl, int endCharExcl)
+    public CharSequence getContent(int startCharIncl, int endCharExcl)
     {
-        return subSequence(startCharIncl, endCharExcl).toString();
+        return subSequence(startCharIncl, endCharExcl);
     }
 
     @Override

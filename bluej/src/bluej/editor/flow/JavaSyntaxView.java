@@ -509,7 +509,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     private class Element
     {
         private final int lineIndex;
-        private String cachedContent;
+        private CharSequence cachedContent;
 
         private Element(int lineIndex)
         {
@@ -526,7 +526,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             return lineIndex == document.getLineCount() - 1 ? document.getLength() : document.getLineStart(lineIndex + 1);
         }
         
-        public String getText()
+        public CharSequence getText()
         {
             if (cachedContent == null)
             {
@@ -759,8 +759,8 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         
         int column = document.getColumnFromPosition(startOffset);
         int line = document.getLineFromPosition(startOffset);
-        String lineText = new Element(line).getText();
-        boolean allSpaces = (column == 0) || lineText.substring(0, column).codePoints().allMatch(n -> n == ' ');
+        CharSequence lineText = new Element(line).getText();
+        boolean allSpaces = (column == 0) || lineText.subSequence(0, column).codePoints().allMatch(n -> n == ' ');
 
         if (!editorPane.isLineVisible(line) && (!allSpaces || cachedSpaceSizes.size() <= 4))
         {
@@ -1525,7 +1525,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
      */
     private int findNonWhitespace(Element element, int startPos)
     {
-        String text = element.getText();
+        CharSequence text = element.getText();
         for (int i = startPos; i < text.length(); i++)
         {
             char c = text.charAt(i);
@@ -1570,7 +1570,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
      */
     private int findNonWhitespaceBwards(Element element, int startPos, int endPos)
     {
-        String text = element.getText();
+        CharSequence text = element.getText();
         for (int i = startPos; i > endPos; i--)
         {
             char c = text.charAt(i);
