@@ -1062,7 +1062,7 @@ public final class FlowActions
                 deIndentAction(),
                 */
                 newLineAction(),
-                /*
+                /*TODOFLOW
                 cutAction(),
                 copyAction(),
                 pasteAction(),
@@ -1079,8 +1079,9 @@ public final class FlowActions
                 compileOrNextErrorAction,
                 goToLineAction(),
                 toggleInterfaceAction(),
+                */
                 toggleBreakPointAction(),
-
+                /*TODOFLOW
                 keyBindingsAction(),
                 preferencesAction(),
                 */
@@ -2216,12 +2217,12 @@ public final class FlowActions
             getEditor().toggleInterface();
         });
     }
-
+*/
     private FlowAbstractAction toggleBreakPointAction()
     {
-        return action("toggle-breakpoint", Category.MISC, () -> getEditor().toggleBreakpoint());
+        return action("toggle-breakpoint", Category.MISC, () -> editor.toggleBreakpoint());
     }
-
+/*
     private FlowAbstractAction keyBindingsAction()
     {
         return action("key-bindings", Category.MISC, () -> editor.showPreferences(1)); // 1 is the index of the key bindings pane in the pref dialog
