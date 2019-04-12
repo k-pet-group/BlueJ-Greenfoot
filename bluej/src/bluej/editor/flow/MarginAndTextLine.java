@@ -48,7 +48,8 @@ public class MarginAndTextLine extends Region
     
     public static enum MarginDisplay
     {
-        STEP_MARK, BREAKPOINT, ERROR;
+        // Important that step mark is after breakpoint, so that it appears in front:
+        BREAKPOINT, STEP_MARK, ERROR;
     }
     
     final EnumMap<MarginDisplay, Node> cachedIcons = new EnumMap<MarginDisplay, Node>(MarginDisplay.class);
@@ -83,7 +84,10 @@ public class MarginAndTextLine extends Region
             }
             else
             {
-                child.resizeRelocate(0, 0, MARGIN_WIDTH, getHeight());
+                double height = child.prefHeight(-1);
+                double width = child.prefWidth(-1);
+                // Leave two pixels space at edge of margin:
+                child.resizeRelocate(MARGIN_WIDTH - width - 2, (getHeight() - height) / 2.0, width, height);
             }
         }
     }

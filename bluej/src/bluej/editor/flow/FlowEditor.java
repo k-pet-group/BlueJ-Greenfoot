@@ -58,7 +58,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.geometry.Bounds;
 import javafx.print.PrinterJob;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.PopupControl;
 import javafx.scene.control.Skin;
@@ -114,7 +113,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private final BooleanProperty viewingHTML = new SimpleBooleanProperty(false); // changing this alters the interface accordingly
     private ErrorDisplay errorDisplay;
     private final BitSet breakpoints = new BitSet();
-    private int currentStepLineNumber = -1;
+    private int currentStepLineIndex = -1;
 
 
     // TODOFLOW handle the interface-only case
@@ -135,7 +134,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         if (watcher.breakpointToggleEvent(lineIndex + 1, !breakpoints.get(lineIndex)) == null)
         {
             breakpoints.flip(lineIndex);
-            flowEditorPane.setLineMarginGraphics(lineIndex, breakpoints.get(lineIndex) ? EnumSet.of(MarginDisplay.BREAKPOINT) : EnumSet.noneOf(MarginDisplay.class));
+            flowEditorPane.setLineMarginGraphics(lineIndex, calculateMarginDisplay(lineIndex));
             // We also reapply scopes:
             flowEditorPane.applyScopeBackgrounds(javaSyntaxView.getScopeBackgrounds());
         }
@@ -145,6 +144,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public Set<Integer> getBreakpointLines()
     {
         return breakpoints.stream().mapToObj(Integer::valueOf).collect(Collectors.toSet());
+    }
+
+    @Override
+    public int getStepLine()
+    {
+        return currentStepLineIndex;
     }
 
     public static interface FetchTabbedEditor
@@ -185,14 +190,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         flowEditorPane.addLineDisplayListener((fromIncl, toIncl) -> {
             for (int i = fromIncl; i <= toIncl; i++)
             {
-                if (breakpoints.get(i))
-                {
-                    flowEditorPane.setLineMarginGraphics(i, EnumSet.of(MarginDisplay.BREAKPOINT));
-                }
-                else
-                {
-                    flowEditorPane.setLineMarginGraphics(i, EnumSet.noneOf(MarginDisplay.class));
-                }
+                flowEditorPane.setLineMarginGraphics(i, calculateMarginDisplay(i));
             }
         });
         Nodes.addInputMap(this, InputMap.consume(MouseEvent.MOUSE_MOVED, this::mouseMoved));
@@ -745,8 +743,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         if (isBreak)
         {
             removeStepMark();
-            currentStepLineNumber = lineNumber;
-            flowEditorPane.setLineMarginGraphics(currentStepLineNumber, breakpoints.get(currentStepLineNumber) ? EnumSet.of(MarginDisplay.BREAKPOINT) : EnumSet.noneOf(MarginDisplay.class));
+            currentStepLineIndex = lineNumber - 1;
+            flowEditorPane.setLineMarginGraphics(currentStepLineIndex, calculateMarginDisplay(currentStepLineIndex));
             // We also reapply scopes:
             flowEditorPane.applyScopeBackgrounds(javaSyntaxView.getScopeBackgrounds());
         }
@@ -761,6 +759,16 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
 
         return false;
+    }
+
+    private EnumSet<MarginDisplay> calculateMarginDisplay(int lineIndex)
+    {
+        EnumSet r = EnumSet.noneOf(MarginDisplay.class);
+        if (breakpoints.get(lineIndex))
+            r.add(MarginDisplay.BREAKPOINT);
+        if (lineIndex == currentStepLineIndex)
+            r.add(MarginDisplay.STEP_MARK);
+        return r;
     }
 
     @Override
@@ -778,10 +786,11 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @OnThread(Tag.FXPlatform)
     public void removeStepMark()
     {
-        if (currentStepLineNumber != -1)
+        if (currentStepLineIndex != -1)
         {
-            flowEditorPane.setLineMarginGraphics(currentStepLineNumber, breakpoints.get(currentStepLineNumber) ? EnumSet.of(MarginDisplay.BREAKPOINT) : EnumSet.noneOf(MarginDisplay.class));
-            currentStepLineNumber = -1;
+            int oldStepLine = currentStepLineIndex;
+            currentStepLineIndex = -1;
+            flowEditorPane.setLineMarginGraphics(oldStepLine, calculateMarginDisplay(oldStepLine));
             // We also reapply scopes:
             flowEditorPane.applyScopeBackgrounds(javaSyntaxView.getScopeBackgrounds());
         }

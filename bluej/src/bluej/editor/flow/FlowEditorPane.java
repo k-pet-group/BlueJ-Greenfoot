@@ -623,15 +623,16 @@ public class FlowEditorPane extends Region implements DocumentListener
         // Important to take a copy so as to not modify the original:
         HashMap<Integer, List<Region>> withOverlays = new HashMap<>();
         Set<Integer> breakpointLines = listener.getBreakpointLines();
+        int stepLine = listener.getStepLine();
         
         scopeBackgrounds.forEach((line, scopes) -> {
-            if (breakpointLines.contains(line))
+            if (breakpointLines.contains(line) || line == stepLine)
             {
                 ArrayList<Region> regions = new ArrayList<>(scopes);
                 Region region = new Region();
                 region.setManaged(false);
                 region.resizeRelocate(0, 0, getWidth() - MarginAndTextLine.MARGIN_WIDTH, lineDisplay.getLineHeight());
-                region.setBackground(new Background(new BackgroundFill(listener.breakpointOverlayColorProperty().get(), null, null)));
+                region.setBackground(new Background(new BackgroundFill((line == stepLine ? listener.stepMarkOverlayColorProperty() : listener.breakpointOverlayColorProperty()).get(), null, null)));
                 regions.add(region);
                 withOverlays.put(line, regions);
             }
@@ -902,5 +903,8 @@ public class FlowEditorPane extends Region implements DocumentListener
         public void marginClickedForLine(int lineIndex);
 
         public Set<Integer> getBreakpointLines();
+
+        // Returns -1 if no step line
+        int getStepLine();
     }
 }
