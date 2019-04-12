@@ -678,16 +678,7 @@ public class TestBasicEditorDisplay extends FXTest
         Node caret = lookup(".flow-caret").query();
         double y = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
 
-        for (int i = 0; i < 4; i++)
-        {
-            push(KeyCode.UP);
-        }
-        sleep(200);
-        double methodHeaderY = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
-        for (int i = 0; i < 4; i++)
-        {
-            push(KeyCode.DOWN);
-        }
+        double methodHeaderY = getYPosForRelLine(caret, -4);
 
         // Check initial scopes:
         checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
@@ -766,28 +757,10 @@ public class TestBasicEditorDisplay extends FXTest
         Node caret = lookup(".flow-caret").query();
         double y = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
 
-        final int linesUpToHeader = 10;
-        for (int i = 0; i < linesUpToHeader; i++)
-        {
-            push(KeyCode.UP);
-        }
-        sleep(200);
-        double methodHeaderY = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
-        for (int i = 0; i < linesUpToHeader; i++)
-        {
-            push(KeyCode.DOWN);
-        }
-        final int linesUpToMethodInner = 7;
-        for (int i = 0; i < linesUpToMethodInner; i++)
-        {
-            push(KeyCode.UP);
-        }
-        sleep(200);
-        double methodInnerY = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
-        for (int i = 0; i < linesUpToMethodInner; i++)
-        {
-            push(KeyCode.DOWN);
-        }
+        final int linesUpToHeader = -10;
+        double methodHeaderY = getYPosForRelLine(caret, linesUpToHeader);
+        final int linesUpToMethodInner = -7;
+        double methodInnerY = getYPosForRelLine(caret, linesUpToMethodInner);
 
         // Check initial scopes:
         checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
@@ -839,8 +812,102 @@ public class TestBasicEditorDisplay extends FXTest
                 scope(Color.YELLOW, between(25, 30), between(50, 55))
         );
     }
-    
-    
+
+    @Test
+    public void testScope4()
+    {
+        // Check that adding newlines inside a method does not ruin the scopes later on:
+        
+        String beforeEnterPoint =
+                "/**\n" +
+                " * Write a description of class Basic here.\n" +
+                " *\n" +
+                " * @author (your name)\n" +
+                " * @version (a version number or a date)\n" +
+                " */\n" +
+                "public class Basic\n" +
+                "{\n" +
+                "    // instance variables - replace the example below with your own\n" +
+                "    private int x;\n" +
+                "\n" +
+                "    /**\n" +
+                "     * Constructor for objects of class Basic\n" +
+                "     */\n" +
+                "    public Basic()\n" +
+                "    {\n" +
+                "        // initialise instance variables\n" +
+                "        x = 0;";
+        String afterEnterPoint="\n" +
+            "    }\n" +
+            "    \n" +
+            "    public static void m()\n" +
+            "    {\n" +
+            "        int x = 1;\n" +
+            "        x = 2;\n" +
+            "        x = 3;\n" +
+            "        System.out.println(\"a\");\n" +
+            "        System.out.println(\"b\");\n" +
+            "        System.out.println(\"c\");\n" +
+            "    }\n" +
+            "}\n";
+
+        setText(beforeEnterPoint + afterEnterPoint);
+        fx_(() -> flowEditorPane.requestFocus());
+        fx_(() -> flowEditorPane.positionCaret(beforeEnterPoint.length()));
+        sleep(500);
+        // Find the caret Y:
+        Node caret = lookup(".flow-caret").query();
+        double mainY = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
+        double gapY = getYPosForRelLine(caret, 2);
+        double methodAfterY = getYPosForRelLine(caret, 5);
+
+        for (int i = 0; i < 3; i++)
+        {
+            // Check scopes:
+            checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
+            checkScopes((int) mainY,
+                scope(Color.GREEN, between(0, 2), between(22, 28)),
+                scope(Color.YELLOW, between(25, 30), between(50, 55))
+            );
+            checkScopes((int) gapY,
+                scope(Color.GREEN, between(0, 2), between(22, 28)),
+                scope(Color.GREEN, between(780, 800), between(780, 800))
+            );
+            checkScopes((int) methodAfterY,
+                scope(Color.GREEN, between(0, 2), between(22, 28)),
+                scope(Color.YELLOW, between(25, 30), between(50, 55))
+            );
+            // Add and remove lines:
+            push(KeyCode.ENTER);
+            push(KeyCode.ENTER);
+            sleep(500);
+            push(KeyCode.SHIFT, KeyCode.UP);
+            push(KeyCode.SHIFT, KeyCode.END);
+            push(KeyCode.DELETE);
+            push(KeyCode.SHIFT, KeyCode.UP);
+            push(KeyCode.SHIFT, KeyCode.END);
+            push(KeyCode.DELETE);
+            sleep(500);
+        }
+    }
+
+    // Gets y position for a line above/below this one
+    private double getYPosForRelLine(Node caret, int lineDistance)
+    {
+        for (int i = 0; i < Math.abs(lineDistance); i++)
+        {
+            push(lineDistance < 0 ? KeyCode.UP : KeyCode.DOWN);
+        }
+        sleep(200);
+        double y = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
+        for (int i = 0; i < Math.abs(lineDistance); i++)
+        {
+            push(lineDistance < 0 ? KeyCode.DOWN : KeyCode.UP);
+        }
+        return y;
+    }
+
+
     private static Matcher<Integer> between(int low, int high)
     {
         return Matchers.both(Matchers.greaterThanOrEqualTo(low)).and(Matchers.lessThanOrEqualTo(high));
