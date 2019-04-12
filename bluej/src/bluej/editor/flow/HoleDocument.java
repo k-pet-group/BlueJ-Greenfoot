@@ -293,6 +293,30 @@ public class HoleDocument implements Document
                 String afterHole = endChar > holeStart ? new String(content, Math.max(startChar + holeEnd - holeStart, holeEnd), endChar + holeEnd - holeStart - Math.max(startChar + holeEnd - holeStart, holeEnd)) : "";
                 return beforeHole + afterHole;
             }
+
+            @Override
+            public int hashCode()
+            {
+                return toString().hashCode();
+            }
+
+            @Override
+            public boolean equals(Object obj)
+            {
+                if (obj instanceof CharSequence)
+                {
+                    CharSequence cs = (CharSequence) obj;
+                    if (length() != cs.length())
+                        return false;
+                    for (int i = 0; i < length(); i++)
+                    {
+                        if (charAt(i) != cs.charAt(i))
+                            return false;
+                    }
+                    return true;
+                }
+                return false;
+            }
         };
     }
 

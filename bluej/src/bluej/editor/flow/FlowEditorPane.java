@@ -364,7 +364,7 @@ public class FlowEditorPane extends Region implements DocumentListener
             }
         };
         
-        prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(styledLines.stream(), this::snapSizeY, getHeight(), fontSize));
+        prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(styledLines, this::snapSizeY, getHeight(), fontSize));
         prospectiveChildren.add(caretShape);
         verticalScroll.setVisible(allowScrollBars && lineDisplay.getVisibleLineCount() < document.getLineCount());
         // Note: we don't use actual line count as that "jiggle" by one line as lines are partially

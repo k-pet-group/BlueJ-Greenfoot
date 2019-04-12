@@ -22,6 +22,7 @@
 package bluej.editor.flow;
 
 import bluej.utility.javafx.JavaFXUtil;
+import com.google.common.collect.Lists;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -41,6 +42,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
@@ -55,6 +57,7 @@ class TextLine extends TextFlow
     private final Path selectionShape = new Path();
     private final Path errorUnderlineShape = new Path();
     private List<Node> backgroundNodes = Collections.emptyList();
+    private List<StyledSegment> latestContent = Collections.emptyList();
 
     public TextLine()
     {
@@ -153,12 +156,18 @@ class TextLine extends TextFlow
      */
     public void setText(List<StyledSegment> text, double size)
     {
+        text = Lists.newArrayList(StyledSegment.mergeAdjacentIdentical(text));
+        if (latestContent.equals(text))
+        {
+            return;
+        }
+        
         hideSelection();
         hideErrorUnderline();
         getChildren().clear();
         getChildren().addAll(backgroundNodes);
         getChildren().add(selectionShape);
-        for (StyledSegment styledSegment : StyledSegment.mergeAdjacentIdentical(text))
+        for (StyledSegment styledSegment : text)
         {
             Text t = new Text(styledSegment.text);
             t.setFont(new Font("Roboto Mono", size));
@@ -167,6 +176,7 @@ class TextLine extends TextFlow
             getChildren().add(t);
         }
         getChildren().add(errorUnderlineShape);
+        latestContent = new ArrayList<>(text);
     }
 
     public void showError(int startColumn, int endColumn)
@@ -269,6 +279,27 @@ class TextLine extends TextFlow
                     return next;
                 }
             };
+        }
+
+        public String getText()
+        {
+            return text;
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            StyledSegment that = (StyledSegment) o;
+            return cssClasses.equals(that.cssClasses) &&
+                text.equals(that.text);
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(cssClasses, text);
         }
     }
 }

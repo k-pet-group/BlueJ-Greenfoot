@@ -104,10 +104,10 @@ class LineDisplay
      * @param fontSize The height of the font (in points)
      * @return The ordered list of visible lines
      */
-    List<Node> recalculateVisibleLines(Stream<List<StyledSegment>> allLines, FXPlatformFunction<Double, Double> snapHeight, double height, double fontSize)
+    List<Node> recalculateVisibleLines(List<List<StyledSegment>> allLines, FXPlatformFunction<Double, Double> snapHeight, double height, double fontSize)
     {
         // Start at the first visible line:
-        Iterator<List<StyledSegment>> lines = allLines.skip(firstVisibleLineIndex).iterator();
+        Iterator<List<StyledSegment>> lines = allLines.subList(firstVisibleLineIndex, allLines.size()).iterator();
         double curY = firstVisibleLineOffset;
         int lineIndex = firstVisibleLineIndex;
         ArrayList<Double> lineHeights = new ArrayList<>();

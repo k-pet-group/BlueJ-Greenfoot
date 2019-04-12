@@ -182,6 +182,8 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
      */
     private final Map<Integer, List<SingleNestedScope>> pendingScopeBackgrounds = new HashMap<>();
     
+    private final Map<Integer, List<StyledSegment>> styledLines = new HashMap<>();
+    
     private final LiveScopeBackgrounds scopeBackgrounds; 
 
     /**
@@ -378,6 +380,11 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         if (!syntaxHighlighting.get() || rootNode == null)
             return Collections.singletonList(new StyledSegment(Collections.emptyList(), lineContent.toString()));
 
+        // If there is a cached style and the content matches, use that:
+        List<StyledSegment> cached = styledLines.get(lineIndex);
+        if (cached != null && lineContent.equals(asCharSequence(cached)))
+            return cached;
+        
         ArrayList<StyledSegment> lineStyle = new ArrayList<>();
         int curPosInLine = 0;
         Token nextToken = rootNode.getMarkTokensFor(document.getLineStart(lineIndex), lineContent.length(), 0, this); 
@@ -395,8 +402,59 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         {
             lineStyle.add(new StyledSegment(Collections.emptyList(), ""));
         }
-        
+        styledLines.put(lineIndex, lineStyle);
         return lineStyle;
+    }
+
+    private CharSequence asCharSequence(List<StyledSegment> styledSegments)
+    {
+        int length = styledSegments.stream().mapToInt(s -> s.getText().length()).sum();
+        return new CharSequence()
+        {
+            // Speed up sequential access with a cache:
+            
+            // Which segment was the last character in?
+            int lastSegmentIndex = 0;
+            // What is the start of that segment relative to the start of the whole content?
+            int lastSegmentStart = 0;
+            
+            @Override
+            public int length()
+            {
+                return length;
+            }
+
+            @Override
+            public char charAt(int index)
+            {
+                if (index < lastSegmentStart)
+                {
+                    // Start again
+                    lastSegmentIndex = 0;
+                    lastSegmentStart = 0;
+                }
+                do
+                {
+                    // Is it in this segment?:
+                    String lastSegmentText = styledSegments.get(lastSegmentIndex).getText();
+                    if (index - lastSegmentStart < lastSegmentText.length())
+                    {
+                        return lastSegmentText.charAt(index - lastSegmentStart);
+                    }
+                    // Otherwise, next segment:
+                    lastSegmentStart += lastSegmentText.length();
+                    lastSegmentIndex += 1;
+                }
+                while (lastSegmentIndex < styledSegments.size());
+                throw new StringIndexOutOfBoundsException(index);
+            }
+
+            @Override
+            public CharSequence subSequence(int start, int end)
+            {
+                throw new UnsupportedOperationException();
+            }
+        };
     }
 
     /**
@@ -2200,6 +2258,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         int startLine = document.getLineFromPosition(offset);
         int endLine = document.getLineFromPosition(offset + length);
         recalculateScopes(startLine, endLine);
+        restyleLines(startLine, endLine);
     }
 
 
@@ -2280,6 +2339,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             }
         }
 
+        restyleLines(document.getLineFromPosition(offset), document.getLineFromPosition(offset + length));
         MoeSyntaxEvent mse = new MoeSyntaxEvent(offset, length, true, false);
         if (rootNode != null) {
             rootNode.textInserted(this, 0, offset, length, mse);
@@ -2358,6 +2418,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             }
         }
 
+        restyleLines(document.getLineFromPosition(offset), document.getLineFromPosition(offset + length));
         MoeSyntaxEvent mse = new MoeSyntaxEvent(offset, length, false, true);
         if (rootNode != null) {
             rootNode.textRemoved(this, 0, offset, length, mse);
@@ -2382,6 +2443,17 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         {
             // Width change, so apply new backgrounds:
             applyPendingScopeBackgrounds();
+        }
+    }
+
+    /**
+     * Mark all lines between start and end (inclusive) as needing to be re-styled.
+     */
+    public void restyleLines(int start, int end)
+    {
+        for (int i = start; i <= end; i++)
+        {
+            styledLines.remove(i);
         }
     }
 
