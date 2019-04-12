@@ -2095,6 +2095,7 @@ public final class Config
         }
         JavaFXUtil.addStyleClass(octagon, "octagon");
         Label stop = new Label("STOP");
+        stop.setMouseTransparent(true);
         StackPane stackPane = new StackPane(octagon, stop);
         JavaFXUtil.setPseudoclass("bj-large", large, stackPane);
         JavaFXUtil.addStyleClass(stackPane, "stop-icon");

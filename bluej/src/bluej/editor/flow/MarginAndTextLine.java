@@ -26,6 +26,7 @@ import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
@@ -45,11 +46,14 @@ import java.util.EnumSet;
 public class MarginAndTextLine extends Region
 {
     public static final int MARGIN_WIDTH = 25;
-    
+    private boolean hoveringMargin = false;
+    // Does not include the hover icon, which is added dynamically:
+    private final EnumSet<MarginDisplay> displayItems = EnumSet.noneOf(MarginDisplay.class);
+
     public static enum MarginDisplay
     {
         // Important that step mark is after breakpoint, so that it appears in front:
-        BREAKPOINT, STEP_MARK, ERROR;
+        BREAKPOINT_HOVER, BREAKPOINT, STEP_MARK, ERROR;
     }
     
     final EnumMap<MarginDisplay, Node> cachedIcons = new EnumMap<MarginDisplay, Node>(MarginDisplay.class);
@@ -69,6 +73,14 @@ public class MarginAndTextLine extends Region
                 }
                 e.consume();
             }
+        });
+        addEventHandler(MouseEvent.MOUSE_MOVED, e -> {
+            hoveringMargin = e.getX() < MARGIN_WIDTH;
+            setMarginGraphics(EnumSet.copyOf(displayItems));
+        });
+        addEventHandler(MouseEvent.MOUSE_EXITED, e -> {
+            hoveringMargin = false;
+            setMarginGraphics(EnumSet.copyOf(displayItems));
         });
     }
 
@@ -136,10 +148,15 @@ public class MarginAndTextLine extends Region
 
     public void setMarginGraphics(EnumSet<MarginDisplay> displayItems)
     {
+        this.displayItems.clear();
+        this.displayItems.addAll(displayItems);
+        EnumSet<MarginDisplay> toAdd = EnumSet.copyOf(displayItems);
+        if (hoveringMargin && !toAdd.contains(MarginDisplay.BREAKPOINT))
+            toAdd.add(MarginDisplay.BREAKPOINT_HOVER);
         ArrayList<Node> content = new ArrayList<>();
         content.add(textLine);
 
-        for (MarginDisplay display : displayItems)
+        for (MarginDisplay display : toAdd)
         {
             content.add(cachedIcons.computeIfAbsent(display, d -> {
                 switch (d)
@@ -148,15 +165,17 @@ public class MarginAndTextLine extends Region
                         return makeStepMarkIcon();
                     case BREAKPOINT:
                         return makeBreakpointIcon();
+                    case BREAKPOINT_HOVER:
+                        Node hover = makeBreakpointIcon();
+                        hover.setOpacity(0.3);
+                        Tooltip.install(hover, new Tooltip(Config.getString("editor.set.breakpoint.hint")));
+                        return hover;
                     case ERROR:
                     default:
                         return new Label(""); //TODO
                 }
             }));
-            // We need all clicks to fall through to us, so make sure the graphics are mouse-transparent:
-            content.get(content.size() - 1).setMouseTransparent(true);
         }
-        
         getChildren().setAll(content);
     }
 
