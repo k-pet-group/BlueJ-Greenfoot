@@ -322,6 +322,12 @@ public class HoleDocument implements Document
     }
 
     @Override
+    public int getLineCount()
+    {
+        return lineInformation.size();
+    }
+
+    @Override
     public void addListener(DocumentListener listener)
     {
         listeners.add(listener);

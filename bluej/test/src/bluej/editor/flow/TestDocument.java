@@ -177,6 +177,7 @@ public class TestDocument
                     assertFalse(line.codePoints().anyMatch(c -> c == '\n'));
                 }
                 assertEquals(curContent, lines.stream().collect(Collectors.joining("\n")));
+                assertEquals(lines.size(), document.getLineCount());
             }
             
             // Check that document reader on a random sub-part does the right thing:
