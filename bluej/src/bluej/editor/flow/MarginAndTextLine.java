@@ -26,10 +26,12 @@ import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -45,7 +47,11 @@ import java.util.EnumSet;
 @OnThread(Tag.FXPlatform)
 public class MarginAndTextLine extends Region
 {
-    public static final int MARGIN_WIDTH = 25;
+    public static final int TEXT_LEFT_EDGE = 27;
+    public static final double LINE_X = 24.5;
+    public static final double MARGIN_RIGHT = 23;
+    private final Line dividerLine;
+    private final int lineNumberToDisplay;
     private boolean hoveringMargin = false;
     // Does not include the hover icon, which is added dynamically:
     private final EnumSet<MarginDisplay> displayItems = EnumSet.noneOf(MarginDisplay.class);
@@ -53,19 +59,22 @@ public class MarginAndTextLine extends Region
     public static enum MarginDisplay
     {
         // Important that step mark is after breakpoint, so that it appears in front:
-        BREAKPOINT_HOVER, BREAKPOINT, STEP_MARK, ERROR;
+        LINE_NUMBER, BREAKPOINT_HOVER, BREAKPOINT, STEP_MARK, ERROR;
     }
     
     final EnumMap<MarginDisplay, Node> cachedIcons = new EnumMap<MarginDisplay, Node>(MarginDisplay.class);
     final TextLine textLine;
 
-    public MarginAndTextLine(TextLine textLine, FXPlatformRunnable onClick)
+    public MarginAndTextLine(int lineNumberToDisplay, TextLine textLine, FXPlatformRunnable onClick)
     {
+        this.dividerLine = new Line(LINE_X, 0.5, LINE_X, 1);
+        dividerLine.getStyleClass().add("flow-margin-line");
+        this.lineNumberToDisplay = lineNumberToDisplay;
         this.textLine = textLine;
         getChildren().setAll(textLine);
         getStyleClass().add("margin-and-text-line");
         addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
-            if (e.getX() < MARGIN_WIDTH)
+            if (e.getX() < LINE_X)
             {
                 if (e.getButton() == MouseButton.PRIMARY && !e.isShiftDown())
                 {
@@ -75,7 +84,7 @@ public class MarginAndTextLine extends Region
             }
         });
         addEventHandler(MouseEvent.MOUSE_MOVED, e -> {
-            hoveringMargin = e.getX() < MARGIN_WIDTH;
+            hoveringMargin = e.getX() < LINE_X;
             setMarginGraphics(EnumSet.copyOf(displayItems));
         });
         addEventHandler(MouseEvent.MOUSE_EXITED, e -> {
@@ -92,14 +101,17 @@ public class MarginAndTextLine extends Region
         {
             if (child == textLine)
             {
-                textLine.resizeRelocate(MARGIN_WIDTH, 0, getWidth() - MARGIN_WIDTH, getHeight());
+                textLine.resizeRelocate(TEXT_LEFT_EDGE, 0, getWidth() - TEXT_LEFT_EDGE, getHeight());
+            }
+            else if (child == dividerLine)
+            {
+                dividerLine.setEndY(getHeight() - 0.5);
             }
             else
             {
                 double height = child.prefHeight(-1);
                 double width = child.prefWidth(-1);
-                // Leave two pixels space at edge of margin:
-                child.resizeRelocate(MARGIN_WIDTH - width - 2, (getHeight() - height) / 2.0, width, height);
+                child.resizeRelocate(MARGIN_RIGHT - width, (getHeight() - height) / 2.0, width, height);
             }
         }
     }
@@ -108,7 +120,7 @@ public class MarginAndTextLine extends Region
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     protected double computePrefWidth(double height)
     {
-        return textLine.prefWidth(height) + MARGIN_WIDTH;
+        return textLine.prefWidth(height) + TEXT_LEFT_EDGE;
     }
 
     @Override
@@ -122,7 +134,7 @@ public class MarginAndTextLine extends Region
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     protected double computeMinWidth(double height)
     {
-        return textLine.minWidth(height) + MARGIN_WIDTH;
+        return textLine.minWidth(height) + TEXT_LEFT_EDGE;
     }
 
     @Override
@@ -136,7 +148,7 @@ public class MarginAndTextLine extends Region
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     protected double computeMaxWidth(double height)
     {
-        return textLine.maxWidth(height) + MARGIN_WIDTH;
+        return textLine.maxWidth(height) + TEXT_LEFT_EDGE;
     }
 
     @Override
@@ -155,12 +167,19 @@ public class MarginAndTextLine extends Region
             toAdd.add(MarginDisplay.BREAKPOINT_HOVER);
         ArrayList<Node> content = new ArrayList<>();
         content.add(textLine);
+        content.add(dividerLine);
 
         for (MarginDisplay display : toAdd)
         {
             content.add(cachedIcons.computeIfAbsent(display, d -> {
                 switch (d)
                 {
+                    case LINE_NUMBER:
+                        Label label = new Label(Integer.toString(lineNumberToDisplay));
+                        label.setEllipsisString("\u2026");
+                        label.setTextOverrun(OverrunStyle.LEADING_ELLIPSIS);
+                        JavaFXUtil.addStyleClass(label, "flow-line-label");
+                        return label;
                     case STEP_MARK:
                         return makeStepMarkIcon();
                     case BREAKPOINT:

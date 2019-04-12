@@ -113,7 +113,7 @@ class LineDisplay
         ArrayList<Double> lineHeights = new ArrayList<>();
         while (lines.hasNext() && curY <= height)
         {
-            MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(new TextLine(), () -> onLineMarginClick.accept(k)));
+            MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(), () -> onLineMarginClick.accept(k)));
             line.textLine.setText(lines.next(), fontSize);
             double lineHeight = snapHeight.apply(line.prefHeight(-1.0));
             curY += lineHeight;
@@ -303,7 +303,7 @@ class LineDisplay
             if (currentlyVisibleLine.getLayoutY() <= e.getY() && e.getY() <= currentlyVisibleLine.getLayoutY() + currentlyVisibleLine.getHeight())
             {
                 // Can't use parentToLocal if layout bounds may be out of date:
-                Point2D pointInLocal = new Point2D(e.getX() - currentlyVisibleLine.getLayoutX() - MarginAndTextLine.MARGIN_WIDTH, e.getY() - currentlyVisibleLine.getLayoutY());
+                Point2D pointInLocal = new Point2D(e.getX() - currentlyVisibleLine.getLayoutX() - MarginAndTextLine.TEXT_LEFT_EDGE, e.getY() - currentlyVisibleLine.getLayoutY());
                 HitInfo hitInfo = currentlyVisibleLine.textLine.hitTest(pointInLocal);
                 if (hitInfo != null)
                 {

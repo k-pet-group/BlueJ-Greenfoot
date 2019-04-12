@@ -763,7 +763,9 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
     private EnumSet<MarginDisplay> calculateMarginDisplay(int lineIndex)
     {
-        EnumSet r = EnumSet.noneOf(MarginDisplay.class);
+        EnumSet<MarginDisplay> r = EnumSet.noneOf(MarginDisplay.class);
+        if (PrefMgr.getFlag(PrefMgr.LINENUMBERS))
+            r.add(MarginDisplay.LINE_NUMBER);
         if (breakpoints.get(lineIndex))
             r.add(MarginDisplay.BREAKPOINT);
         if (lineIndex == currentStepLineIndex)

@@ -255,7 +255,7 @@ public class TestBasicEditorDisplay extends FXTest
             }
         });
         flowEditorPane = flowEditor.getSourcePane();
-        flowEditorPane.setPrefWidth(800.0 + MarginAndTextLine.MARGIN_WIDTH);
+        flowEditorPane.setPrefWidth(800.0 + MarginAndTextLine.TEXT_LEFT_EDGE);
         flowEditorPane.setPrefHeight(600.0);
         flowEditorPane.setAllowScrollBars(false);
         ScopeColorsBorderPane scopeColors = flowEditor;
@@ -369,7 +369,7 @@ public class TestBasicEditorDisplay extends FXTest
                 flowEditorPane.positionCaretWithoutScrolling(toSaved.caretPos);
                 flowEditorPane.positionAnchor(fromSaved.caretPos);
             });
-            int toPosX = fx(() -> caret.getElements().isEmpty() ? flowX + MarginAndTextLine.MARGIN_WIDTH + 1.0 : caret.localToScreen(caret.getBoundsInLocal()).getCenterX()).intValue();
+            int toPosX = fx(() -> caret.getElements().isEmpty() ? flowX + MarginAndTextLine.TEXT_LEFT_EDGE + 1.0 : caret.localToScreen(caret.getBoundsInLocal()).getCenterX()).intValue();
             int toPosY = fx(() -> caret.getElements().isEmpty() ? flowY + 1.0 : caret.localToScreen(caret.getBoundsInLocal()).getCenterY()).intValue();
             sleep(200);
             WritableImage editorImage = editorSnapshot(true);
@@ -408,11 +408,11 @@ public class TestBasicEditorDisplay extends FXTest
                 if (line >= firstLine && line <= lastLine)
                 {
                     // Look for start and end of a blue region:
-                    int startX = (line == firstLine ? (fromFirst ? fromSaved.screenX : toPosX) : flowX + MarginAndTextLine.MARGIN_WIDTH) + 10;
+                    int startX = (line == firstLine ? (fromFirst ? fromSaved.screenX : toPosX) : flowX + MarginAndTextLine.TEXT_LEFT_EDGE) + 10;
                     int endX = (line == lastLine ? (fromFirst ? toPosX : fromSaved.screenX) : flowX + (int)editorImage.getWidth()) - 10;
                     // If selection ends at the start of the line, will be very little blue, so skip it:
                     // Similarly, skip if selection is so small we won't pick up the blue:
-                    if (endX <= flowX + MarginAndTextLine.MARGIN_WIDTH + 5 || startX > endX - 10)
+                    if (endX <= flowX + MarginAndTextLine.TEXT_LEFT_EDGE + 5 || startX > endX - 10)
                     {
                         
                     }
@@ -905,7 +905,7 @@ public class TestBasicEditorDisplay extends FXTest
             // If we don't want the margin in the snapshot:
             if (!includeMargin)
             {
-                params.setViewport(new Rectangle2D(MarginAndTextLine.MARGIN_WIDTH, 0, 800, 600));
+                params.setViewport(new Rectangle2D(MarginAndTextLine.TEXT_LEFT_EDGE, 0, 800, 600));
             }
             return flowEditorPane.snapshot(params, null);
         });

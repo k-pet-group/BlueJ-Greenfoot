@@ -1817,6 +1817,7 @@ public final class Config
                 "editor-slot-choice",
                 "editor-suggestions",
                 "editor-tabs",
+                "flow",
                 "moe",
                 "shared"};
         

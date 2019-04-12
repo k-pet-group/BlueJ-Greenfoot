@@ -413,7 +413,7 @@ public class FlowEditorPane extends Region implements DocumentListener
                 });
             }
             caretShape.layoutXProperty().bind(caretLine.layoutXProperty());
-            caretShape.translateXProperty().set(MarginAndTextLine.MARGIN_WIDTH);
+            caretShape.translateXProperty().set(MarginAndTextLine.TEXT_LEFT_EDGE);
             caretShape.layoutYProperty().bind(caretLine.layoutYProperty());
             caretShape.setVisible(true);
         }
@@ -631,7 +631,7 @@ public class FlowEditorPane extends Region implements DocumentListener
                 ArrayList<Region> regions = new ArrayList<>(scopes);
                 Region region = new Region();
                 region.setManaged(false);
-                region.resizeRelocate(0, 0, getWidth() - MarginAndTextLine.MARGIN_WIDTH, lineDisplay.getLineHeight());
+                region.resizeRelocate(0, 0, getWidth() - MarginAndTextLine.TEXT_LEFT_EDGE, lineDisplay.getLineHeight());
                 region.setBackground(new Background(new BackgroundFill((line == stepLine ? listener.stepMarkOverlayColorProperty() : listener.breakpointOverlayColorProperty()).get(), null, null)));
                 regions.add(region);
                 withOverlays.put(line, regions);
