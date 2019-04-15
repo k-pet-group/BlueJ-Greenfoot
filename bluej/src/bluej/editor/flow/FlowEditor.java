@@ -29,6 +29,7 @@ import bluej.debugger.DebuggerThread;
 import bluej.editor.EditorWatcher;
 import bluej.editor.TextEditor;
 import bluej.editor.flow.FlowEditorPane.FlowEditorPaneListener;
+import bluej.editor.flow.FlowEditorPane.SelectionListener;
 import bluej.editor.flow.FlowErrorManager.ErrorDetails;
 import bluej.editor.flow.JavaSyntaxView.ParagraphAttribute;
 import bluej.editor.flow.MarginAndTextLine.MarginDisplay;
@@ -86,7 +87,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, FlowEditorPaneListener
+public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, FlowEditorPaneListener, SelectionListener
 {
     private final FlowEditorPane flowEditorPane;
     private final HoleDocument document;
@@ -196,7 +197,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         saveState = new StatusLabel(Status.SAVED, this, errorManager);
         setCenter(flowEditorPane);
         actions = FlowActions.getActions(this);
-        flowEditorPane.addCaretListener(this::caretMoved);
+        flowEditorPane.addSelectionListener(this);
         flowEditorPane.addLineDisplayListener((fromIncl, toIncl) -> {
             for (int i = fromIncl; i <= toIncl; i++)
             {
@@ -214,7 +215,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     /**
      * Notification (from the caret) that the caret position has moved.
      */
-    private void caretMoved(int caretPos)
+    public void selectionChanged(int caretPos, int anchorPos)
     {
         showErrorPopupForCaretPos(caretPos, false);
         
