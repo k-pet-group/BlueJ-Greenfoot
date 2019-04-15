@@ -187,7 +187,7 @@ public class TestDocument
             for (Document document : documents)
             {
                 // Check getContent while we're at it:
-                assertEquals(expectedRead, document.getContent(startRead, endRead));
+                assertEquals(expectedRead, document.getContent(startRead, endRead).toString());
                 
                 Reader reader = document.makeReader(startRead, endRead);
                 try
