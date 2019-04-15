@@ -328,7 +328,7 @@ public class FlowEditorPane extends Region implements DocumentListener
     }
 
     @Override
-    public void textReplaced(int start, int end, int repl)
+    public void textReplaced(int start, int end, int repl, int linesRemoved, int linesAdded)
     {
         updateRender(false);
         targetColumnForVerticalMovement = -1;

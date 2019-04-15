@@ -68,6 +68,7 @@ public class HoleDocument implements Document
     public void replaceText(int startCharIncl, int endCharExcl, String text)
     {
         // Get rid of any new line positions that were in removed region:
+        int linesRemoved = 0;
         int indexToInsertNewNewlines = 1;
         for (Iterator<LineInformation> iterator = lineInformation.iterator(); iterator.hasNext(); )
         {
@@ -85,6 +86,7 @@ public class HoleDocument implements Document
             }
             else if (lineStartPosition.position > startCharIncl && lineStartPosition.position <= endCharExcl)
             {
+                linesRemoved += 1;
                 iterator.remove();
             }
             
@@ -143,6 +145,7 @@ public class HoleDocument implements Document
             }
         }
         
+        int linesAdded = 0;
         // Now add new positions for the added newlines:
         for (int i = 0; i < text.length(); i++)
         {
@@ -150,12 +153,13 @@ public class HoleDocument implements Document
             {
                 lineInformation.add(indexToInsertNewNewlines, new LineInformation(trackPosition(i + 1 + startCharIncl, Bias.BACK)));
                 indexToInsertNewNewlines += 1;
+                linesAdded += 1;
             }
         }
 
         for (DocumentListener listener : listeners)
         {
-            listener.textReplaced(startCharIncl, endCharExcl, text.length());
+            listener.textReplaced(startCharIncl, endCharExcl, text.length(), linesRemoved, linesAdded);
         }
     }
 

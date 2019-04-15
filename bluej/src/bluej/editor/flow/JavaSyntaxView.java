@@ -276,6 +276,50 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 });
             }
         }
+
+        public void linesRemoved(int firstRemovedLineIndex, int removedCount)
+        {
+            HashMap<Integer, List<Region>> newScope = new HashMap<>();
+            HashMap<Integer, List<SingleNestedScope>> newSource = new HashMap<>();
+            scopeBackgrounds.forEach((l, rs) -> {
+                if (l < firstRemovedLineIndex)
+                    newScope.put(l, rs);
+                else if (l >= firstRemovedLineIndex + removedCount)
+                    newScope.put(l - removedCount, rs);
+            });
+            sourceInfo.forEach((l, rs) -> {
+                if (l < firstRemovedLineIndex)
+                    newSource.put(l, rs);
+                else if (l >= firstRemovedLineIndex + removedCount)
+                    newSource.put(l - removedCount, rs);
+            });
+            scopeBackgrounds.clear();
+            scopeBackgrounds.putAll(newScope);
+            sourceInfo.clear();
+            sourceInfo.putAll(newSource);
+        }
+
+        public void linesAdded(int lineIndex, int addedCount)
+        {
+            HashMap<Integer, List<Region>> newScope = new HashMap<>();
+            HashMap<Integer, List<SingleNestedScope>> newSource = new HashMap<>();
+            scopeBackgrounds.forEach((l, rs) -> {
+                if (l < lineIndex)
+                    newScope.put(l, rs);
+                else
+                    newScope.put(l + addedCount, rs);
+            });
+            sourceInfo.forEach((l, rs) -> {
+                if (l < lineIndex)
+                    newSource.put(l, rs);
+                else
+                    newSource.put(l + addedCount, rs);
+            });
+            scopeBackgrounds.clear();
+            scopeBackgrounds.putAll(newScope);
+            sourceInfo.clear();
+            sourceInfo.putAll(newSource);
+        }
     }
 
     /**
@@ -347,13 +391,15 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                     new MoeSyntaxEvent(0, document.getLength(), true, false));
             // We can discard the MoeSyntaxEvent: the reparse will update scopes/syntax
             //}
-            document.addListener((start, end, repl) -> {
+            document.addListener((start, end, repl, linesRemoved, linesAdded) -> {
                 if (start != end)
                 {
+                    scopeBackgrounds.linesRemoved(document.getLineFromPosition(start), linesRemoved);
                     fireRemoveUpdate(start, end - start);
                 }
                 if (repl != 0)
                 {
+                    scopeBackgrounds.linesAdded(document.getLineFromPosition(start), linesAdded);
                     fireInsertUpdate(start, repl);
                 }                
                 scheduleReparseRunner();
