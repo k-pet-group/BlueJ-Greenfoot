@@ -383,7 +383,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 }
                 else
                 {
-                    lastModified = modified; // don't ask again for this change
+                    setLastModified(modified); // don't ask again for this change
                 }
             }
             else
@@ -432,7 +432,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 }
                 catch (IOException ioe) {}
                 File file = new File(filename);
-                lastModified = file.lastModified();
+                setLastModified(file.lastModified());
 
                 listenToChanges(sourceDocument);
                 //NAVIFX
@@ -622,7 +622,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 writer = new OutputStreamWriter(ostream, characterSet);
                 sourcePane.write(writer);
                 writer.close(); writer = null;
-                lastModified = new File(filename).lastModified();
+                setLastModified(new File(filename).lastModified());
                 File crashFile = new File(crashFilename);
                 crashFile.delete();
 
@@ -1889,6 +1889,12 @@ public final class MoeEditor extends ScopeColorsBorderPane
         watcher.showPreferences(paneIndex);
     }
 
+    @Override
+    public void setLastModified(long lastModified)
+    {
+        this.lastModified = lastModified;
+    }
+
 
     /**
      * An interface for dealing with search results.
@@ -2501,7 +2507,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             }
             catch (IOException ioe) {}
             File file = new File(filename);
-            lastModified = file.lastModified();
+            setLastModified(file.lastModified());
 
             sourceDocument.enableParser(false);
             //NAVIFX

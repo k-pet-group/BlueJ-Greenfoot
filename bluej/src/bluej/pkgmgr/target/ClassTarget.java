@@ -910,6 +910,13 @@ public class ClassTarget extends DependentTarget
         if (src.exists() && (src.lastModified() > now + 1000))
         {
             src.setLastModified(now);
+            if (editor != null)
+            {
+                // Important to use the File's lastModified here, rather than the now variable.
+                // Some file systems (e.g. Mac) round to nearest second, so the set/get combo may
+                // return a different result.  We want the one from the file system:
+                editor.setLastModified(src.lastModified());
+            }
         }
     }
 

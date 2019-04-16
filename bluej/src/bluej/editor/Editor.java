@@ -318,4 +318,10 @@ public interface Editor
      * @param image The image to use (any size).
      */
     void setHeaderImage(Image image);
+
+    /**
+     * Sets the editor's last modified time for the file.
+     * @param millisSinceEpoch
+     */
+    void setLastModified(long millisSinceEpoch);
 }
