@@ -28,6 +28,7 @@ import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerThread;
 import bluej.editor.EditorWatcher;
 import bluej.editor.TextEditor;
+import bluej.editor.flow.FlowActions.FlowAbstractAction;
 import bluej.editor.flow.FlowEditorPane.FlowEditorPaneListener;
 import bluej.editor.flow.FlowEditorPane.SelectionListener;
 import bluej.editor.flow.FlowErrorManager.ErrorDetails;
@@ -60,7 +61,9 @@ import javafx.geometry.Bounds;
 import javafx.print.PrinterJob;
 import javafx.scene.Node;
 import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.PopupControl;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.Skin;
 import javafx.scene.control.Skinnable;
 import javafx.scene.image.Image;
@@ -89,6 +92,9 @@ import java.util.stream.Collectors;
 
 public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, FlowEditorPaneListener, SelectionListener
 {
+    // suffixes for resources
+    final static String LabelSuffix = "Label";
+
     private final FlowEditorPane flowEditorPane;
     private final HoleDocument document;
     private final JavaSyntaxView javaSyntaxView;
@@ -99,6 +105,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private final EditorWatcher watcher;
 
     private final boolean sourceIsCode = true /*TODOFLOW*/;           // true if current buffer is code
+    private final List<Menu> fxMenus;
     private boolean compilationStarted;
     private boolean requeueForCompilation;
     private boolean compilationQueued;
@@ -205,12 +212,73 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             }
         });
         Nodes.addInputMap(this, InputMap.consume(MouseEvent.MOUSE_MOVED, this::mouseMoved));
+        // create menubar and menus
+
+        fxMenus = createMenus();
+        // Must update keymap after making menu to remove shortcuts which are now handled by menu:
+        actions.updateKeymap();
+        //fxMenus.setAll(menus);
     }
 
     private void mouseMoved(MouseEvent event)
     {
         flowEditorPane.getCaretPositionForMouseEvent(event).ifPresent(pos -> showErrorPopupForCaretPos(pos, true));
     }
+
+    /**
+     * Create the editor's menu bar.
+     */
+    private List<Menu> createMenus()
+    {
+        return List.of(
+                createMenu("class", "save - print - close"),
+                createMenu("edit", "undo redo - cut-to-clipboard copy-to-clipboard paste-from-clipboard - indent-block deindent-block comment-block uncomment-block autoindent - insert-method add-javadoc"),
+                createMenu("tools", "find find-next find-next-backward replace go-to-line - compile toggle-breakpoint - toggle-interface-view"),
+                createMenu("option", "increase-font decrease-font reset-font - key-bindings preferences")
+        );
+    }
+
+    /**
+     * Create a single menu for the editor's menu bar. The key for the menu (as
+     * defined in moe.properties) is supplied.
+     */
+    private Menu createMenu(String titleKey, String itemList)
+    {
+        MenuItem item;
+        String label;
+
+        // get menu title
+        Menu menu = new Menu(Config.getString("editor." + titleKey + LabelSuffix));
+
+        // cut menu definition into separate items
+        String[] itemKeys = itemList.split(" ");
+
+        // create menu item for each item
+        for (String itemKey : itemKeys) {
+            if (itemKey.equals("-")) {
+                menu.getItems().add(new SeparatorMenuItem());
+            } else {
+                FlowAbstractAction action = actions.getActionByName(itemKey);
+                if (action == null) {
+                    Debug.message("Moe: cannot find action " + itemKey);
+                }
+                // Forbid Preferences from being added to the Options menu when using
+                // Mac screen menubar, as it is already exist in the Application menu.
+                else if ( !( Config.isMacOS() &&
+                        titleKey.toLowerCase().equals("option") &&
+                        itemKey.toLowerCase().equals("preferences") )
+                )
+                {
+                    item = action.makeMenuItem();
+                    menu.getItems().add(item);
+                    label = Config.getString("editor." + itemKey + LabelSuffix);
+                    item.setText(label);
+                }
+            }
+        }
+        return menu;
+    }
+
 
     /**
      * Notification (from the caret) that the caret position has moved.
@@ -440,8 +508,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
     public List<Menu> getFXMenu()
     {
-        //TODOFLOW
-        return List.of(); 
+        return fxMenus; 
     }
 
     @Override
