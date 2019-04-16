@@ -197,6 +197,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     //private StringProperty titleProperty;
     //private final AtomicBoolean panelOpen = new AtomicBoolean();
     public MoeUndoManager undoManager;
+    private boolean showingChangedOnDiskDialog = false;
 
     /** Watcher - provides interface to BlueJ core. May be null (eg for README.txt file). */
     private final EditorWatcher watcher;
@@ -372,10 +373,14 @@ public final class MoeEditor extends ScopeColorsBorderPane
         }
         File file = new File(filename);
         long modified = file.lastModified();
-        if(modified != lastModified)
+        // Prevent infinite loop which can occur when we re-enter
+        // this method while regaining focus from the modal dialog.
+        // 
+        if (modified != lastModified && !showingChangedOnDiskDialog)
         {
             if (saveState.isChanged())
             {
+                showingChangedOnDiskDialog = true;
                 int answer = DialogManager.askQuestionFX(getWindow(), "changed-on-disk");
                 if (answer == 0)
                 {
@@ -385,6 +390,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 {
                     setLastModified(modified); // don't ask again for this change
                 }
+                showingChangedOnDiskDialog = false;
             }
             else
             {
