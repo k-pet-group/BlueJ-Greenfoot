@@ -375,9 +375,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
         long modified = file.lastModified();
         // Prevent infinite loop which can occur when we re-enter
         // this method while regaining focus from the modal dialog.
-        // 
-        if (modified != lastModified && !showingChangedOnDiskDialog)
+        if (modified > lastModified + 1000 && !showingChangedOnDiskDialog)
         {
+            Debug.message("File " + filename + " changed on disk; our record is " + lastModified + " but file was " + modified);
             if (saveState.isChanged())
             {
                 showingChangedOnDiskDialog = true;
