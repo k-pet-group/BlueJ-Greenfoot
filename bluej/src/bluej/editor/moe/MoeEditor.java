@@ -1896,6 +1896,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void setLastModified(long lastModified)
     {
         this.lastModified = lastModified;

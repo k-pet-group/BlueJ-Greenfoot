@@ -455,6 +455,7 @@ public class FrameEditor implements Editor
         return new TextEditor() {
 
             @Override
+            @OnThread(Tag.FXPlatform)
             public void setLastModified(long millisSinceEpoch)
             {
                 FrameEditor.this.setLastModified(millisSinceEpoch);
@@ -1321,6 +1322,7 @@ public class FrameEditor implements Editor
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void setLastModified(long millisSinceEpoch)
     {
         // We don't keep track of disk modification time, so nothing to do.
