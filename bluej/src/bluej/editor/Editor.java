@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2013,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2013,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -318,4 +318,10 @@ public interface Editor
      * @param image The image to use (any size).
      */
     void setHeaderImage(Image image);
+
+    /**
+     * Sets the editor's last modified time for the file.
+     * @param millisSinceEpoch
+     */
+    void setLastModified(long millisSinceEpoch);
 }

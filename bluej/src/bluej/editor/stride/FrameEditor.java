@@ -456,6 +456,13 @@ public class FrameEditor implements Editor
 
             @Override
             @OnThread(Tag.FXPlatform)
+            public void setLastModified(long millisSinceEpoch)
+            {
+                FrameEditor.this.setLastModified(millisSinceEpoch);
+            }
+
+            @Override
+            @OnThread(Tag.FXPlatform)
             public void writeMessage(String msg) { FrameEditor.this.writeMessage(msg); }
 
             @Override
@@ -1312,6 +1319,13 @@ public class FrameEditor implements Editor
         {
             panel.setHeaderImage(image);
         }
+    }
+
+    @Override
+    @OnThread(Tag.FXPlatform)
+    public void setLastModified(long millisSinceEpoch)
+    {
+        // We don't keep track of disk modification time, so nothing to do.
     }
 
     @OnThread(Tag.FX)

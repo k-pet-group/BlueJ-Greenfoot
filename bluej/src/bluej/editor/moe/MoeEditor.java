@@ -197,6 +197,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     //private StringProperty titleProperty;
     //private final AtomicBoolean panelOpen = new AtomicBoolean();
     public MoeUndoManager undoManager;
+    private boolean showingChangedOnDiskDialog = false;
 
     /** Watcher - provides interface to BlueJ core. May be null (eg for README.txt file). */
     private final EditorWatcher watcher;
@@ -372,10 +373,14 @@ public final class MoeEditor extends ScopeColorsBorderPane
         }
         File file = new File(filename);
         long modified = file.lastModified();
-        if(modified != lastModified)
+        // Prevent infinite loop which can occur when we re-enter
+        // this method while regaining focus from the modal dialog.
+        if (modified > lastModified + 1000 && !showingChangedOnDiskDialog)
         {
+            Debug.message("File " + filename + " changed on disk; our record is " + lastModified + " but file was " + modified);
             if (saveState.isChanged())
             {
+                showingChangedOnDiskDialog = true;
                 int answer = DialogManager.askQuestionFX(getWindow(), "changed-on-disk");
                 if (answer == 0)
                 {
@@ -383,8 +388,9 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 }
                 else
                 {
-                    lastModified = modified; // don't ask again for this change
+                    setLastModified(modified); // don't ask again for this change
                 }
+                showingChangedOnDiskDialog = false;
             }
             else
             {
@@ -432,7 +438,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 }
                 catch (IOException ioe) {}
                 File file = new File(filename);
-                lastModified = file.lastModified();
+                setLastModified(file.lastModified());
 
                 listenToChanges(sourceDocument);
                 //NAVIFX
@@ -622,7 +628,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 writer = new OutputStreamWriter(ostream, characterSet);
                 sourcePane.write(writer);
                 writer.close(); writer = null;
-                lastModified = new File(filename).lastModified();
+                setLastModified(new File(filename).lastModified());
                 File crashFile = new File(crashFilename);
                 crashFile.delete();
 
@@ -1889,6 +1895,13 @@ public final class MoeEditor extends ScopeColorsBorderPane
         watcher.showPreferences(paneIndex);
     }
 
+    @Override
+    @OnThread(Tag.FXPlatform)
+    public void setLastModified(long lastModified)
+    {
+        this.lastModified = lastModified;
+    }
+
 
     /**
      * An interface for dealing with search results.
@@ -2501,7 +2514,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
             }
             catch (IOException ioe) {}
             File file = new File(filename);
-            lastModified = file.lastModified();
+            setLastModified(file.lastModified());
 
             sourceDocument.enableParser(false);
             //NAVIFX
