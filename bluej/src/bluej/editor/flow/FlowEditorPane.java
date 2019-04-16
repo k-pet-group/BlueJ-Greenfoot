@@ -43,7 +43,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
@@ -104,7 +103,7 @@ public class FlowEditorPane extends Region implements DocumentListener
     {
         this.listener = listener;
         setSnapToPixel(true);
-        lineDisplay = new LineDisplay(heightProperty(), listener::marginClickedForLine);
+        lineDisplay = new LineDisplay(heightProperty(), listener);
         document = new HoleDocument();
         document.replaceText(0, 0, content);
         document.addListener(this);
@@ -914,8 +913,9 @@ public class FlowEditorPane extends Region implements DocumentListener
     
     public static interface FlowEditorPaneListener extends ScopeColors
     {
-        // The left-hand margin was clicked for (zero-based) lineIndex
-        public void marginClickedForLine(int lineIndex);
+        // The left-hand margin was clicked for (zero-based) lineIndex.
+        // Returns true if breakpoint was successfully toggled for that line, false if there was a problem.
+        public boolean marginClickedForLine(int lineIndex);
 
         public Set<Integer> getBreakpointLines();
 

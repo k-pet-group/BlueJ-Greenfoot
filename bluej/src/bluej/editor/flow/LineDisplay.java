@@ -21,6 +21,7 @@
  */
 package bluej.editor.flow;
 
+import bluej.editor.flow.FlowEditorPane.FlowEditorPaneListener;
 import bluej.editor.flow.TextLine.StyledSegment;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformFunction;
@@ -52,7 +53,7 @@ import java.util.stream.Stream;
 class LineDisplay
 {
     // Handler for clicking in a line margin
-    private final FXPlatformConsumer<Integer> onLineMarginClick;
+    private final FlowEditorPaneListener flowEditorPaneListener;
     // Zero is the first line in document
     private int firstVisibleLineIndex = 0;
     // The display offset in pixels of the first visible line.
@@ -68,10 +69,10 @@ class LineDisplay
     private final DoubleExpression heightProperty;
     private double averageLineHeight = 1.0;
 
-    LineDisplay(DoubleExpression heightProperty, FXPlatformConsumer<Integer> onLineMarginClick)
+    LineDisplay(DoubleExpression heightProperty, FlowEditorPaneListener flowEditorPaneListener)
     {
         this.heightProperty = heightProperty;
-        this.onLineMarginClick = onLineMarginClick;
+        this.flowEditorPaneListener = flowEditorPaneListener;
     }
 
     /**
@@ -113,7 +114,7 @@ class LineDisplay
         ArrayList<Double> lineHeights = new ArrayList<>();
         while (lines.hasNext() && curY <= height)
         {
-            MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(), () -> onLineMarginClick.accept(k)));
+            MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(), () -> flowEditorPaneListener.marginClickedForLine(k)));
             line.textLine.setText(lines.next(), fontSize);
             double lineHeight = snapHeight.apply(line.prefHeight(-1.0));
             curY += lineHeight;

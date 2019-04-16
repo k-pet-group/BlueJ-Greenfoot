@@ -137,12 +137,13 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     }
 
     @Override
-    public void marginClickedForLine(int lineIndex)
+    public boolean marginClickedForLine(int lineIndex)
     {
-        toggleBreakpointForLine(lineIndex);
+        return toggleBreakpointForLine(lineIndex);
     }
 
-    private void toggleBreakpointForLine(int lineIndex)
+    // Returns true if successfully flipped, false if not.
+    private boolean toggleBreakpointForLine(int lineIndex)
     {
         if (watcher.breakpointToggleEvent(lineIndex + 1, !breakpoints.get(lineIndex)) == null)
         {
@@ -150,7 +151,9 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             flowEditorPane.setLineMarginGraphics(lineIndex, calculateMarginDisplay(lineIndex));
             // We also reapply scopes:
             flowEditorPane.applyScopeBackgrounds(javaSyntaxView.getScopeBackgrounds());
+            return true;
         }
+        return false;
     }
     
     public void toggleBreakpoint()

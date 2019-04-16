@@ -23,6 +23,7 @@ package bluej.editor.flow;
 
 import bluej.Config;
 import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -33,6 +34,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
+import javafx.util.Duration;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -55,6 +57,7 @@ public class MarginAndTextLine extends Region
     private boolean hoveringMargin = false;
     // Does not include the hover icon, which is added dynamically:
     private final EnumSet<MarginDisplay> displayItems = EnumSet.noneOf(MarginDisplay.class);
+    private final Tooltip breakpointHoverTooltip;
 
     public static enum MarginDisplay
     {
@@ -62,10 +65,10 @@ public class MarginAndTextLine extends Region
         LINE_NUMBER, BREAKPOINT_HOVER, BREAKPOINT, STEP_MARK, ERROR;
     }
     
-    final EnumMap<MarginDisplay, Node> cachedIcons = new EnumMap<MarginDisplay, Node>(MarginDisplay.class);
+    private final EnumMap<MarginDisplay, Node> cachedIcons = new EnumMap<MarginDisplay, Node>(MarginDisplay.class);
     final TextLine textLine;
 
-    public MarginAndTextLine(int lineNumberToDisplay, TextLine textLine, FXPlatformRunnable onClick)
+    public MarginAndTextLine(int lineNumberToDisplay, TextLine textLine, FXPlatformSupplier<Boolean> onClick)
     {
         this.dividerLine = new Line(LINE_X, 0.5, LINE_X, 1);
         dividerLine.getStyleClass().add("flow-margin-line");
@@ -73,12 +76,25 @@ public class MarginAndTextLine extends Region
         this.textLine = textLine;
         getChildren().setAll(textLine);
         getStyleClass().add("margin-and-text-line");
+        String breakpointHoverUsualText = Config.getString("editor.set.breakpoint.hint");
+        String breakpointHoverFailText = Config.getString("editor.set.breakpoint.fail");
+        breakpointHoverTooltip = new Tooltip(breakpointHoverUsualText);
+        breakpointHoverTooltip.setShowDelay(Duration.seconds(1));
         addEventFilter(MouseEvent.MOUSE_PRESSED, e -> {
             if (e.getX() < LINE_X)
             {
                 if (e.getButton() == MouseButton.PRIMARY && !e.isShiftDown())
                 {
-                    onClick.run();
+                    if (!onClick.get())
+                    {
+                        breakpointHoverTooltip.setText(breakpointHoverFailText);
+                        breakpointHoverTooltip.setShowDelay(Duration.ZERO);
+                    }
+                    else
+                    {
+                        breakpointHoverTooltip.setText(breakpointHoverUsualText);
+                        breakpointHoverTooltip.setShowDelay(Duration.seconds(1));
+                    }
                 }
                 e.consume();
             }
@@ -89,6 +105,8 @@ public class MarginAndTextLine extends Region
         });
         addEventHandler(MouseEvent.MOUSE_EXITED, e -> {
             hoveringMargin = false;
+            breakpointHoverTooltip.setText(breakpointHoverUsualText);
+            breakpointHoverTooltip.setShowDelay(Duration.seconds(1));
             setMarginGraphics(EnumSet.copyOf(displayItems));
         });
     }
@@ -164,7 +182,10 @@ public class MarginAndTextLine extends Region
         this.displayItems.addAll(displayItems);
         EnumSet<MarginDisplay> toAdd = EnumSet.copyOf(displayItems);
         if (hoveringMargin && !toAdd.contains(MarginDisplay.BREAKPOINT))
+        {
             toAdd.add(MarginDisplay.BREAKPOINT_HOVER);
+            toAdd.remove(MarginDisplay.LINE_NUMBER);
+        }
         ArrayList<Node> content = new ArrayList<>();
         content.add(textLine);
         content.add(dividerLine);
@@ -185,10 +206,10 @@ public class MarginAndTextLine extends Region
                     case BREAKPOINT:
                         return makeBreakpointIcon();
                     case BREAKPOINT_HOVER:
-                        Node hover = makeBreakpointIcon();
-                        hover.setOpacity(0.3);
-                        Tooltip.install(hover, new Tooltip(Config.getString("editor.set.breakpoint.hint")));
-                        return hover;
+                        Node icon = makeBreakpointIcon();
+                        icon.setOpacity(0.3);
+                        Tooltip.install(icon, breakpointHoverTooltip);
+                        return icon;
                     case ERROR:
                     default:
                         return new Label(""); //TODO
