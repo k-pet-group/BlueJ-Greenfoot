@@ -1,5 +1,5 @@
-FILEVERSION 4,2,0,0
-PRODUCTVERSION 4,2,0,0
+FILEVERSION 4,2,1,0
+PRODUCTVERSION 4,2,1,0
 BEGIN
 	BLOCK "StringFileInfo"
 	BEGIN
@@ -7,11 +7,11 @@ BEGIN
 		BEGIN
 			VALUE "CompanyName", "BlueJ group"
 			VALUE "FileDescription", "BlueJ Launcher"
-			VALUE "FileVersion", "4.2.0"
+			VALUE "FileVersion", "4.2.1"
 			VALUE "InternalName", "bluej"
 			VALUE "OriginalFilename", "bluej.exe"
 			VALUE "ProductName", "BlueJ"
-			VALUE "ProductVersion", "4.2.0"
+			VALUE "ProductVersion", "4.2.1"
 		END
 	END
 END
