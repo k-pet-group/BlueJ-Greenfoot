@@ -24,22 +24,25 @@ fi
 	
 CP="/usr/share/bluej/bluej.jar"
 JFXRTOPT=""
+JFXRTOPT2=""
 
 # If JavaFX library is not within the JDK, look for OpenJFX:
 if [ ! -e "$JAVAPATH/lib/javafx.graphics.jar" ]; then
     if [ -e "/usr/share/java/javafx-graphics-11.jar" ]; then
         JAVAFXPATH=/usr/share/java
-        CP="$CP:$JAVAFXPATH/javafx-base-11.jar"
-        CP="$CP:$JAVAFXPATH/javafx-controls-11.jar"
-        CP="$CP:$JAVAFXPATH/javafx-fxml-11.jar"
-        CP="$CP:$JAVAFXPATH/javafx-graphics-11.jar"
-        CP="$CP:$JAVAFXPATH/javafx-media-11.jar"
-        CP="$CP:$JAVAFXPATH/javafx-properties-11.jar"
-        CP="$CP:$JAVAFXPATH/javafx-swing-11.jar"
-        CP="$CP:$JAVAFXPATH/javafx-web-11.jar"
+        JAVAFXJARS="$JAVAFXPATH/javafx-base-11.jar"
+        JAVAFXJARS="$JAVAFXJARS:$JAVAFXPATH/javafx-controls-11.jar"
+        JAVAFXJARS="$JAVAFXJARS:$JAVAFXPATH/javafx-fxml-11.jar"
+        JAVAFXJARS="$JAVAFXJARS:$JAVAFXPATH/javafx-graphics-11.jar"
+        JAVAFXJARS="$JAVAFXJARS:$JAVAFXPATH/javafx-media-11.jar"
+        JAVAFXJARS="$JAVAFXJARS:$JAVAFXPATH/javafx-properties-11.jar"
+        JAVAFXJARS="$JAVAFXJARS:$JAVAFXPATH/javafx-swing-11.jar"
+        JAVAFXJARS="$JAVAFXJARS:$JAVAFXPATH/javafx-web-11.jar"
+        CP="$CP:$JAVAFXJARS"
         JFXRTOPT="-javafxpath=$JAVAFXPATH"
+        JFXRTOPT2="-javafxjars=$JAVAFXJARS"
     fi
 fi
 
 "$JAVAPATH/bin/java" -Djavafx.embed.singleThread=true -Dawt.useSystemAAFontSettings=on -Xmx512M \
-    -cp "$CP" bluej.Boot ${JFXRTOPT:+"$JFXRTOPT"} "$@"
+    -cp "$CP" bluej.Boot ${JFXRTOPT:+"$JFXRTOPT"} ${JFXRTOPT2:+"$JFXRTOPT2"} "$@"

@@ -65,6 +65,17 @@
         <pathelement location="${openjfx_path}/lib/javafx.properties.jar"/>
         <pathelement location="${openjfx_path}/lib/javafx.swing.jar"/>
         <pathelement location="${openjfx_path}/lib/javafx.web.jar"/>
+        <!-- Ubuntu version, needed for building on Ubuntu if using apt-installed JavaFX: -->
+        <pathelement location="${openjfx_path}/javafx-base.jar"/>
+        <pathelement location="${openjfx_path}/javafx-controls.jar"/>
+        <!-- Needed because of NSMenuFX -->
+        <pathelement location="${openjfx_path}/javafx-fxml.jar"/>
+        <pathelement location="${openjfx_path}/javafx-graphics.jar"/>
+        <!-- Needed for sound support, which is BlueJ because of Stride support for sound preview -->
+        <pathelement location="${openjfx_path}/javafx-media.jar"/>
+        <pathelement location="${openjfx_path}/javafx-properties.jar"/>
+        <pathelement location="${openjfx_path}/javafx-swing.jar"/>
+        <pathelement location="${openjfx_path}/javafx-web.jar"/>
     </path>
     
     <!-- Set up classpath (does not include jar files built by us) -->
