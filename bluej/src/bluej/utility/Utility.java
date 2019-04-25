@@ -546,9 +546,6 @@ public class Utility
      */
     public static void appToFront()
     {
-        // This can be called on the user VM as well as the main VM. On Debian with OpenJDK we
-        // might not have JavaFX available, so should not use JavaFX classes here.
-        
         if (Config.isMacOS()) {
             SwingUtilities.invokeLater(() -> Desktop.getDesktop().requestForeground(false));
             return;
@@ -576,7 +573,12 @@ public class Utility
                     // input if the script is executed while a popup window is showing.
                     // In an attempt to avoid that we'll wait for the script to execute
                     // now:
-                    new ProcessWaiter(p).waitForProcess(500);
+                    if (Platform.isFxApplicationThread())
+                        // Don't wait on FX as the script can fire a GUI event which will be handled
+                        // on the FX thread, so would deadlock if we block the GUI thread:
+                        new ProcessWaiter(p);
+                    else
+                        new ProcessWaiter(p).waitForProcess(500);
                 }
             }
             catch (IOException e) {
