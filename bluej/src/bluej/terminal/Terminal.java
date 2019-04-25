@@ -304,19 +304,27 @@ public final class Terminal
         splitPane.setContextMenu(new ContextMenu(
                 JavaFXUtil.makeMenuItem(Config.getString("terminal.copy"), () -> 
                 {
-                    if (errorText != null && errorText.selectionProperty().getValue().getLength() != 0) 
-                    {
-                        errorText.copy();
-                    }
-                    else if (text.selectionProperty().getValue().getLength() != 0) 
-                    {
-                        text.copy();
-                    }
+                    doCopy();
                 }, null)
         ));
         
         Config.loadAndTrackPositionAndSize(window, "bluej.terminal");
         BlueJEvent.addListener(this);
+    }
+
+    /**
+     * Copy whichever of the stdout/stderr panes actually has a selection.
+     */
+    private void doCopy()
+    {
+        if (errorText != null && errorText.selectionProperty().getValue().getLength() != 0) 
+        {
+            errorText.copy();
+        }
+        else if (text.selectionProperty().getValue().getLength() != 0) 
+        {
+            text.copy();
+        }
     }
 
     private void sendInput(boolean eof)
@@ -827,7 +835,7 @@ public final class Terminal
         clearItem.setAccelerator(new KeyCodeCombination(KeyCode.K, KeyCombination.SHORTCUT_DOWN));
 
         MenuItem copyItem = new MenuItem(Config.getString("terminal.copy"));
-        copyItem.setOnAction(e -> text.copy());
+        copyItem.setOnAction(e -> doCopy());
         copyItem.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN));
 
         MenuItem saveItem = new MenuItem(Config.getString("terminal.save"));
