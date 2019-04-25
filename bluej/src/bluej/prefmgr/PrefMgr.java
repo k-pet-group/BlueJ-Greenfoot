@@ -322,7 +322,7 @@ public class PrefMgr
                     "-fx-font-size: ", editorFontSize, "pt;");
             editorFontCSS = Bindings.concat(
                     "-fx-font-size: ", editorFontSize, "pt;",
-                    "-fx-font-family: \"", editorStandardFont, "\",", editorFallbackFont, ";"
+                    "-fx-font-family: \"", editorStandardFont, "\";"
             );
         }
         return includeFamily ? editorFontCSS : editorFontSizeOnlyCSS;
