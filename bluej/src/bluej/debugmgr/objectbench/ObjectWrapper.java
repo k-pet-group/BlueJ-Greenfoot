@@ -360,7 +360,27 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         Class<?> cl = pkg.loadClass(className);
         if (cl == null && obj.isArray() && className.endsWith("[]"))
         {
-            cl = Array.newInstance(pkg.loadClass(className.substring(0, className.length() - 2)), 0).getClass();
+            String memberType = className.substring(0, className.length() - 2);
+            switch (memberType)
+            {
+                case "boolean":
+                    return boolean[].class;
+                case "byte":
+                    return byte[].class;
+                case "short":
+                    return short[].class;
+                case "int":
+                    return int[].class;
+                case "long":
+                    return long[].class;
+                case "float":
+                    return float[].class;
+                case "double":
+                    return double[].class;
+                case "char":
+                    return char[].class;
+            }
+            cl = Array.newInstance(pkg.loadClass(memberType), 0).getClass();
         }
         // If the class is inaccessible, use the invocation type.
         if (cl != null) {
