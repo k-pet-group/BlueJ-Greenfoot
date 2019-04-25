@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018,2019 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import bluej.utility.Debug;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
@@ -479,7 +480,7 @@ public class SuggestionList
         listAndMoreAndTransPane.setPickOnBounds(false);
         listBox.setMaxHeight(300.0);
         // This is a heuristic: double the font size for each item, but it seems to work well:
-        listBox.setPrefHeight(choices.isEmpty() ? 100.0 : 2 * PrefMgr.strideFontSizeProperty().get() * choices.size());
+        listBox.setPrefHeight(choices.isEmpty() ? 100.0 : 2 * listParent.getFontSize() * choices.size());
         listAndDocBorderPane.setCenter(listAndMoreAndTransPane);
         BorderPane.setMargin(listAndMoreAndTransPane, new Insets(0, 1, 0, 0));
         listAndDocBorderPane.setRight(docPane);
@@ -1146,6 +1147,11 @@ public class SuggestionList
         @OnThread(Tag.FX)
         public StringExpression getFontCSS();
 
+        /**
+         * Gets font size as a double, used for size calculation
+         */
+        public double getFontSize();
+        
         /**
          * Add any necessary listeners to a code completion window
          */

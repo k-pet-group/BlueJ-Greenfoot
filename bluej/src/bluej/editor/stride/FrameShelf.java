@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 2016,2017,2018,2019  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -485,6 +485,12 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
     public StringExpression getFontCSS()
     {
         return new ReadOnlyStringWrapper("-fx-font-size:10pt;");
+    }
+
+    @Override
+    public double getFontSize()
+    {
+        return 10;
     }
 
     public Node getNode()

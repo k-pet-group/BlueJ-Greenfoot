@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2013,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2012,2013,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -546,9 +546,6 @@ public class Utility
      */
     public static void appToFront()
     {
-        // This can be called on the user VM as well as the main VM. On Debian with OpenJDK we
-        // might not have JavaFX available, so should not use JavaFX classes here.
-        
         if (Config.isMacOS()) {
             SwingUtilities.invokeLater(() -> Desktop.getDesktop().requestForeground(false));
             return;
@@ -576,7 +573,12 @@ public class Utility
                     // input if the script is executed while a popup window is showing.
                     // In an attempt to avoid that we'll wait for the script to execute
                     // now:
-                    new ProcessWaiter(p).waitForProcess(500);
+                    if (Platform.isFxApplicationThread())
+                        // Don't wait on FX as the script can fire a GUI event which will be handled
+                        // on the FX thread, so would deadlock if we block the GUI thread:
+                        new ProcessWaiter(p);
+                    else
+                        new ProcessWaiter(p).waitForProcess(500);
                 }
             }
             catch (IOException e) {
@@ -1500,7 +1502,7 @@ public class Utility
         public synchronized void waitForProcess(long timeout)
             throws InterruptedException
         {
-            while (! complete) {
+            if (! complete) {
                 wait(timeout);
             }
         }

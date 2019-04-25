@@ -3320,6 +3320,12 @@ public final class MoeEditor extends ScopeColorsBorderPane
                 }
 
                 @Override
+                public double getFontSize()
+                {
+                    return PrefMgr.getEditorFontSize().get();
+                }
+
+                @Override
                 public void setupSuggestionWindow(Stage window)
                 {
                     sourcePane.setFakeCaret(true);
