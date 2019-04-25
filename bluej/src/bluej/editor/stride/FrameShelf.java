@@ -487,6 +487,12 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
         return new ReadOnlyStringWrapper("-fx-font-size:10pt;");
     }
 
+    @Override
+    public double getFontSize()
+    {
+        return 10;
+    }
+
     public Node getNode()
     {
         return shelfPane;

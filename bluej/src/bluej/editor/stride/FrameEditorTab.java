@@ -2076,6 +2076,12 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         return strideFontCSS;
     }
 
+    @Override
+    public double getFontSize()
+    {
+        return PrefMgr.strideFontSizeProperty().get();
+    }
+
     private void calculateBirdseyeRectangle()
     {
         Node n = birdseyeManager.getNodeForRectangle();
