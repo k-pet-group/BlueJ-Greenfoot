@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2019  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,9 +22,12 @@
 package bluej.debugger.jdi;
 
 import java.io.*;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import bluej.debugger.DebuggerTestResult;
 import bluej.debugger.SourceLocation;
+import bluej.utility.Utility;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -126,21 +129,22 @@ public class JdiTestResult extends DebuggerTestResult
      */
     public static String getFilteredTrace(String stack)
     {
-        StringWriter sw= new StringWriter();
-        PrintWriter pw= new PrintWriter(sw);
-        StringReader sr= new StringReader(stack);
-        BufferedReader br= new BufferedReader(sr);
+        String[] lines = Utility.splitLines(stack);
 
-        String line;
-        try {
-            while ((line= br.readLine()) != null) {
-                if (!filterLine(line))
-                    pw.println(line);
+        int lastLine = lines.length - 1;       
+        while (lastLine >= 0)
+        {
+            if (filterLine(lines[lastLine]))
+            {
+                lastLine -= 1;
             }
-        } catch (Exception IOException) {
-            return stack; // return the stack unfiltered
+            else
+            {
+                break;
+            }
         }
-        return sw.toString();
+        
+        return Arrays.stream(lines, 0, lastLine + 1).collect(Collectors.joining("\n"));
     }
 
     static boolean filterLine(String line)
@@ -156,6 +160,7 @@ public class JdiTestResult extends DebuggerTestResult
                 "org.junit.runner",
                 "org.junit.internal",
                 "sun.reflect.",
+                "jdk.internal.reflect.",
                 "bluej.",
                 "java.lang.reflect.Method.invoke("
         };

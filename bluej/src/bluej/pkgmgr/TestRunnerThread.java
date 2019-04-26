@@ -124,13 +124,13 @@ public class TestRunnerThread extends Thread
             // State 1 has given us the tests we need to run. Now run them:
             if (allMethods.size() == 1)
             {
-                TestResultsWithRunTime lastResult = project.getDebugger().runTestMethod(project, ct.getQualifiedName(), methodName);
+                TestResultsWithRunTime lastResult = project.getDebugger().runTestMethod(ct.getQualifiedName(), methodName);
                 // Add the test result to the test display frame:
                 Platform.runLater(() -> showNextResult(lastResult.getResults().get(0)));
             }
             else
             {
-                TestResultsWithRunTime lastResults = project.getDebugger().runTestMethod(project, ct.getQualifiedName(), null);
+                TestResultsWithRunTime lastResults = project.getDebugger().runTestMethod(ct.getQualifiedName(), null);
                 // Add all test results to the test display frame:
                 for(DebuggerTestResult result : lastResults.getResults())
                 {
