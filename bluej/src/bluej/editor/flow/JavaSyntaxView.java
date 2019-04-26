@@ -338,15 +338,10 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         editorPane.setLineStyler(this::getTokenStylesFor);
         JavaFXUtil.addChangeListenerPlatform(PrefMgr.getScopeHighlightStrength(), str -> {
             resetColors();
-            recalculateAllScopes();
+            recalculateAndApplyAllScopes();
         });
         JavaFXUtil.addChangeListenerPlatform(syntaxHighlighting, syn -> {
-            recalculateAllScopes();
-        });
-        JavaFXUtil.addChangeListenerPlatform(PrefMgr.getEditorFontSize(), sz -> {
-            nodeIndents.clear();
-            cachedSpaceSizes.clear();
-            recalculateAllScopes();
+            recalculateAndApplyAllScopes();
         });
         // We use class color as a proxy for listening to all colors:
         JavaFXUtil.addChangeListenerPlatform(scopeColors.scopeClassColorProperty(), str -> {
@@ -409,10 +404,16 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         }
     }
 
-    void recalculateAllScopes()
+    private void recalculateAllScopes()
     {
         scopeBackgrounds.clear();
         recalculateScopes(0, document.getLineCount() - 1);
+    }
+
+    public void recalculateAndApplyAllScopes()
+    {
+        recalculateAllScopes();
+        applyPendingScopeBackgrounds();
     }
 
     /**
