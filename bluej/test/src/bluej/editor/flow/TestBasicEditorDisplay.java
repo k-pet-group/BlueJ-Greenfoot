@@ -48,6 +48,7 @@ import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Path;
 import javafx.scene.text.Text;
@@ -94,6 +95,7 @@ public class TestBasicEditorDisplay extends FXTest
         Config.loadFXFonts();
         PrefMgr.setScopeHighlightStrength(100);
         PrefMgr.setFlag(PrefMgr.HIGHLIGHTING, true);
+        PrefMgr.setEditorFontSize(12);
         
         this.stage = stage;
         flowEditor = new FlowEditor(w -> null, new EditorWatcher()
@@ -256,6 +258,7 @@ public class TestBasicEditorDisplay extends FXTest
         });
         flowEditorPane = flowEditor.getSourcePane();
         flowEditorPane.setPrefWidth(800.0 + MarginAndTextLine.TEXT_LEFT_EDGE);
+        flowEditorPane.setMaxWidth(Region.USE_PREF_SIZE);
         flowEditorPane.setPrefHeight(600.0);
         flowEditorPane.setAllowScrollBars(false);
         ScopeColorsBorderPane scopeColors = flowEditor;
@@ -973,6 +976,10 @@ public class TestBasicEditorDisplay extends FXTest
             if (!includeMargin)
             {
                 params.setViewport(new Rectangle2D(MarginAndTextLine.TEXT_LEFT_EDGE, 0, 800, 600));
+            }
+            else
+            {
+                params.setViewport(new Rectangle2D(0, 0, 800 + MarginAndTextLine.TEXT_LEFT_EDGE, 600));
             }
             return flowEditorPane.snapshot(params, null);
         });
