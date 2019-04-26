@@ -1103,7 +1103,13 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     {
         throw new UnimplementedException();
     }
-    
+
+    @Override
+    public void setLastModified(long millisSinceEpoch)
+    {
+        // TODOFLOW
+    }
+
     public FlowEditorPane getSourcePane()
     {
         return flowEditorPane;
