@@ -27,17 +27,14 @@ import bluej.editor.flow.LineDisplay.LineDisplayListener;
 import bluej.editor.flow.MarginAndTextLine.MarginDisplay;
 import bluej.editor.flow.TextLine.StyledSegment;
 import bluej.editor.moe.ScopeColors;
-import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.javafx.JavaFXUtil;
-import com.google.common.collect.Multimap;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.IndexRange;
 import javafx.scene.control.ScrollBar;
-import javafx.scene.image.Image;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -49,7 +46,6 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
-import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
@@ -70,8 +66,6 @@ public class FlowEditorPane extends Region implements DocumentListener
     private final LineDisplay lineDisplay;
     private final FlowEditorPaneListener listener;
 
-    double fontSize = 12;
-    
     private final HoleDocument document;
     
     private final TrackedPosition anchor;
@@ -348,7 +342,7 @@ public class FlowEditorPane extends Region implements DocumentListener
             }
         };
         
-        prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(styledLines, this::snapSizeY, getHeight(), fontSize));
+        prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(styledLines, this::snapSizeY, getHeight(), PrefMgr.getEditorFontSize().get()));
         prospectiveChildren.add(caretShape);
         verticalScroll.setVisible(allowScrollBars && lineDisplay.getVisibleLineCount() < document.getLineCount());
         // Note: we don't use actual line count as that "jiggle" by one line as lines are partially
@@ -656,6 +650,16 @@ public class FlowEditorPane extends Region implements DocumentListener
         {
             lineDisplay.getVisibleLine(lineIndex).setMarginGraphics(marginDisplays);
         }
+    }
+
+    /**
+     * Called when the font size has changed; redisplay accordingly.
+     * @param newFontSize The new font size (in points).
+     */
+    public void fontSizeChanged(double newFontSize)
+    {
+        lineDisplay.fontSizeChanged(newFontSize);
+        updateRender(false);
     }
 
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)

@@ -290,6 +290,18 @@ class LineDisplay
         });
     }
 
+    /**
+     * The font size has changed; change the size of the text on all visible lines.
+     * @param newFontSize The new font size (in points)
+     */
+    public void fontSizeChanged(double newFontSize)
+    {
+        for (MarginAndTextLine line : visibleLines.values())
+        {
+            line.setFontSize(newFontSize);
+        }
+    }
+
     static interface LineDisplayListener
     {
         public void renderedLines(int fromLineIndexIncl, int toLineIndexIncl);

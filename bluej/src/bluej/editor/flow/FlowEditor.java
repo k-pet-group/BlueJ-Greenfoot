@@ -221,6 +221,11 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         // Must update keymap after making menu to remove shortcuts which are now handled by menu:
         actions.updateKeymap();
         //fxMenus.setAll(menus);
+
+        JavaFXUtil.addChangeListenerPlatform(PrefMgr.getEditorFontSize(), s -> {
+            javaSyntaxView.fontSizeChanged();
+            flowEditorPane.fontSizeChanged(s.doubleValue());
+        });
     }
 
     private void mouseMoved(MouseEvent event)

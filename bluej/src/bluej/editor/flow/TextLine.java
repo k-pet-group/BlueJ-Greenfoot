@@ -234,6 +234,19 @@ class TextLine extends TextFlow
     }
 
     /**
+     * Changes the font size of the text on the line, without altering the content.
+     * 
+     * @param newFontSize The new font size (in points)
+     */
+    public void setFontSize(double newFontSize)
+    {
+        List<StyledSegment> content = this.latestContent;
+        // Avoid check for identical content:
+        latestContent = Collections.emptyList();
+        setText(content, newFontSize);
+    }
+
+    /**
      * A piece of text content, plus a collection of CSS style classes to apply to the content.
      */
     public static class StyledSegment

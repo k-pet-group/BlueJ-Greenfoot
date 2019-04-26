@@ -176,6 +176,15 @@ public class MarginAndTextLine extends Region
         return textLine.maxHeight(width);
     }
 
+    /**
+     * Set the font size of the enclosed line
+     * @param newFontSize The font size (in points)
+     */
+    public void setFontSize(double newFontSize)
+    {
+        textLine.setFontSize(newFontSize);
+    }
+
     public void setMarginGraphics(EnumSet<MarginDisplay> displayItems)
     {
         this.displayItems.clear();

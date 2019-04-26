@@ -2477,6 +2477,23 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     }
 
     /**
+     * Font size has changed; clear all cached information,
+     * and schedule a recalculation after the next layout
+     * (because we need the new text positions after a successful
+     * layout).
+     */
+    public void fontSizeChanged()
+    {
+        cachedSpaceSizes.clear();
+        nodeIndents.clear();
+        scopeBackgrounds.clear();
+        JavaFXUtil.runAfterNextLayout(editorPane.getScene(), () -> {
+            recalculateAndApplyAllScopes();
+        });
+    }
+
+
+    /**
      * Issue a change update to listeners.
      *
      * @param mse the event with the details of the change, or null if the the change is a resize
