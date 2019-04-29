@@ -1591,8 +1591,8 @@ public final class Config
      */
     private static void putLocation(String itemPrefix, int x, int y)
     {
-        putPropInteger(itemPrefix + ".x", x);
-        putPropInteger(itemPrefix + ".y", y);
+        putPropInteger(itemPrefix + ".x", Math.max(0, x));
+        putPropInteger(itemPrefix + ".y", Math.max(0, y));
     }
 
     /**
@@ -1629,10 +1629,10 @@ public final class Config
      * Store a size in the config files. The config properties
      * are formed by adding ".width" and ".height" to the itemPrefix.
      */
-    private static void putSize(String itemPrefix, int x, int y)
+    private static void putSize(String itemPrefix, int width, int height)
     {
-        putPropInteger(itemPrefix + ".width", x);
-        putPropInteger(itemPrefix + ".height", y);
+        putPropInteger(itemPrefix + ".width", Math.max(width, 100));
+        putPropInteger(itemPrefix + ".height", Math.max(height, 100));
     }
 
     /**
