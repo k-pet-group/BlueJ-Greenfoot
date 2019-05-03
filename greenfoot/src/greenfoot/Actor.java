@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2016,2018  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2013,2014,2015,2016,2018,2019  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -262,7 +262,7 @@ public abstract class Actor
         failIfNotInWorld();
         // We use <=,>= not == because actors can be outside the world bounds, and 
         // the method should still return true in this case
-        return (x <= 0 || y <= 0 || x >= getWorld().getWidth() - 1 || y >= getWorld().getHeight() - 1);
+        return (x <= 0 || y <= 0 || x >= world.getWidth() - 1 || y >= world.getHeight() - 1);
     }
 
     /**
@@ -556,7 +556,7 @@ public abstract class Actor
      */
     private void calcBounds()
     {
-        World w = getWorld();
+        World w = world;
         if(w == null) {
             return;
         }
@@ -644,12 +644,11 @@ public abstract class Actor
      */
     int toPixel(int x)
     {
-        World aWorld = getWorld();
-        if(aWorld == null) {
+        if(world == null) {
             // Should never happen
             throw new IllegalStateException(NO_WORLD);
         }
-        return x * aWorld.getCellSize() +  aWorld.getCellSize()/2;
+        return x * world.getCellSize() +  world.getCellSize()/2;
     }
 
     
