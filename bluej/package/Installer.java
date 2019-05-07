@@ -373,9 +373,6 @@ public class Installer extends JFrame
      */
     public boolean isJDKPath(String path)
     {
-        if(osname.startsWith("Mac"))
-            return true;   // check disabled for MacOS system
-
         String jdkFilePath = path + jdkFile;
         if(new File(jdkFilePath).exists())
             return true;
