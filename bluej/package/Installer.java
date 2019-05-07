@@ -661,7 +661,7 @@ public class Installer extends JFrame
         out.write("#!/bin/sh\n");
         out.write("APPBASE=\"" + installationDir + "\"\n");
         out.write("JAVAPATH=\"" + javaPath + "\"\n");
-        out.write("JAVAFX_LIB=\"" + javaFxPath + "/lib\"\n");
+        out.write("JAVAFXPATH=\"" + javaFxPath + "\"\n");
         String commands;
         String javaName = "$JAVAPATH/bin/java";
         if(isMacOS) {
@@ -678,7 +678,7 @@ public class Installer extends JFrame
         }
         out.write("\"" + javaName + "\" " + getProperty("javaOpts.unix") + " " +
                   getProperty("mainClass") + " " +
-                  getProperty("arguments") + " \"$@\"\n");
+                  getProperty("arguments.unix") + " \"$@\"\n");
         out.close();
 
         try {
@@ -701,7 +701,7 @@ public class Installer extends JFrame
         FileWriter out = new FileWriter(outputFile.toString());
         out.write("@echo off\r\n");
         out.write("set APPBASE=\"" + installationDir + "\"\r\n");
-        out.write("set JAVAFX_LIB=\"" + javaFxPath + "\\lib\"\r\n");
+        out.write("set JAVAFXPATH=\"" + javaFxPath + "\"\r\n");
         String commands = getProperty("commands.win").toString();
         if(commands != null) {
             commands = replace(commands, '~', "%APPBASE%");
@@ -714,7 +714,7 @@ public class Installer extends JFrame
         out.write("\"" + javaPath + "\\bin\\java\" " +
                   getProperty("javaOpts.win") + " " +
                   getProperty("mainClass") + " " +
-                  getProperty("arguments") +
+                  getProperty("arguments.win") +
                   " %1 %2 %3 %4 %5 %6 %7 %8 %9\r\n");
         out.close();
     }
