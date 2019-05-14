@@ -35,6 +35,7 @@ import bluej.editor.flow.FlowErrorManager.ErrorDetails;
 import bluej.editor.flow.JavaSyntaxView.ParagraphAttribute;
 import bluej.editor.flow.MarginAndTextLine.MarginDisplay;
 import bluej.editor.flow.StatusLabel.Status;
+import bluej.editor.moe.GoToLineDialog;
 import bluej.editor.moe.Info;
 import bluej.editor.moe.ParserMessageHandler;
 import bluej.editor.moe.ScopeColorsBorderPane;
@@ -87,6 +88,7 @@ import java.util.BitSet;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -1157,6 +1159,31 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     {
         return fxTabbedEditor.getWindow();
     }
+
+    /**
+     * Shows the preferences pane, and makes the given pane index (i.e. given tab index
+     * in the preferences) the active showing tab.  0 is general, 1 is key bindings, and so on.
+     * If in doubt, pass 0.
+     */
+    public void showPreferences(int paneIndex)
+    {
+        watcher.showPreferences(paneIndex);
+    }
+
+    /**
+     * Transfers caret to user specified line number location.
+     */
+    public void goToLine()
+    {
+        final int numberOfLines = numberOfLines();
+        GoToLineDialog goToLineDialog = new GoToLineDialog(fxTabbedEditor.getWindow());
+        goToLineDialog.setRangeMax(numberOfLines);
+        Optional<Integer> o = goToLineDialog.showAndWait();
+        o.ifPresent(n -> {
+            setSelection(new SourceLocation(n , 1), new SourceLocation(n, 1));
+        });
+    }
+
 
     // package visible
     void updateHeaderHasErrors(boolean hasErrors)

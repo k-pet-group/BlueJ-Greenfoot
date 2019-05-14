@@ -1077,14 +1077,14 @@ public final class FlowActions
                 findPrevAction(),
                 replaceAction(),
                 compileOrNextErrorAction,
+                */
                 goToLineAction(),
+                /*
                 toggleInterfaceAction(),
                 */
                 toggleBreakPointAction(),
-                /*TODOFLOW
                 keyBindingsAction(),
                 preferencesAction(),
-                */
 
                 increaseFontAction(),
                 decreaseFontAction(),
@@ -2222,7 +2222,7 @@ public final class FlowActions
     {
         return action("toggle-breakpoint", Category.MISC, () -> editor.toggleBreakpoint());
     }
-/*
+    
     private FlowAbstractAction keyBindingsAction()
     {
         return action("key-bindings", Category.MISC, () -> editor.showPreferences(1)); // 1 is the index of the key bindings pane in the pref dialog
@@ -2232,12 +2232,11 @@ public final class FlowActions
     {
         return action("preferences", Category.MISC, () -> editor.showPreferences(0)); // 0 is the index of the editor pane in the pref dialog
     }
-
+    
     private FlowAbstractAction goToLineAction()
     {
-        return action("go-to-line", Category.MISC, () -> getEditor().goToLine());
+        return action("go-to-line", Category.MISC, () -> editor.goToLine());
     }
-    */
 
     /**
      * Class CommentLineAction - add a comment symbol to the given line.
