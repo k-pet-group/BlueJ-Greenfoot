@@ -268,8 +268,8 @@ public final class FlowActions
      */
     private int getCurrentColumn()
     {
-        int pos = Math.min(editor.getSourcePane().getCaretPosition(), editor.getSourcePane().getAnchorPosition());
-        return editor.getSourcePane().getDocument().getColumnFromPosition(pos);
+        int pos = Math.min(getClearedEditor().getSourcePane().getCaretPosition(), getClearedEditor().getSourcePane().getAnchorPosition());
+        return getClearedEditor().getSourcePane().getDocument().getColumnFromPosition(pos);
     }
 
     /**
@@ -277,8 +277,8 @@ public final class FlowActions
      */
     private int getCurrentLineIndex()
     {
-        ReparseableDocument document = editor.getSourceDocument();
-        return document.getDefaultRootElement().getElementIndex(editor.getSourcePane().getCaretPosition());
+        ReparseableDocument document = getClearedEditor().getSourceDocument();
+        return document.getDefaultRootElement().getElementIndex(getClearedEditor().getSourcePane().getCaretPosition());
     }
 
     /**
@@ -384,7 +384,7 @@ public final class FlowActions
     private void insertSpacedTab()
     {
         int numSpaces = tabSize - (getCurrentColumn() % tabSize);
-        editor.getSourcePane().replaceSelection(spaces.substring(0, numSpaces));
+        getClearedEditor().getSourcePane().replaceSelection(spaces.substring(0, numSpaces));
     }
 
     /**
@@ -401,9 +401,9 @@ public final class FlowActions
             if(remove == 0) {
                 remove = tabSize;
             }
-            int pos = editor.getSourcePane().getCaretPosition();
-            editor.getSourcePane().getDocument().replaceText(pos-remove, pos, "");
-            editor.getSourcePane().positionCaret(pos-remove);
+            int pos = getClearedEditor().getSourcePane().getCaretPosition();
+            getClearedEditor().getSourcePane().getDocument().replaceText(pos-remove, pos, "");
+            getClearedEditor().getSourcePane().positionCaret(pos-remove);
         }
     }
 
@@ -1079,9 +1079,7 @@ public final class FlowActions
                 compileOrNextErrorAction,
                 */
                 goToLineAction(),
-                /*
                 toggleInterfaceAction(),
-                */
                 toggleBreakPointAction(),
                 keyBindingsAction(),
                 preferencesAction(),
@@ -1139,6 +1137,12 @@ public final class FlowActions
         {
             action.getValue().setAvailable(true);
         }
+    }
+
+    private FlowEditor getClearedEditor()
+    {
+        editor.clearMessage();
+        return editor;
     }
 
     public static enum Category
@@ -1541,15 +1545,15 @@ public final class FlowActions
 
     private FlowEditorPane getTextComponent()
     {
-        return editor == null ? null : editor.getSourcePane();
+        return getClearedEditor() == null ? null : getClearedEditor().getSourcePane();
     }
 
     private FlowAbstractAction newLineAction()
     {
         return action("new-line", Category.EDIT, () -> {
 
-            editor.getSourcePane().replaceSelection("\n");
-            editor.getSourcePane().ensureCaretShowing();
+            getClearedEditor().getSourcePane().replaceSelection("\n");
+            getClearedEditor().getSourcePane().ensureCaretShowing();
 
             if (PrefMgr.getFlag(PrefMgr.AUTO_INDENT))
             {
@@ -2210,32 +2214,32 @@ public final class FlowActions
     {
         return action("compile", Category.MISC, () -> getEditor().compileOrShowNextError());
     }
-
+    */
     private FlowAbstractAction toggleInterfaceAction()
     {
         return action("toggle-interface-view", Category.MISC, () -> {
-            getEditor().toggleInterface();
+            getClearedEditor().toggleInterface();
         });
     }
-*/
+    
     private FlowAbstractAction toggleBreakPointAction()
     {
-        return action("toggle-breakpoint", Category.MISC, () -> editor.toggleBreakpoint());
+        return action("toggle-breakpoint", Category.MISC, () -> getClearedEditor().toggleBreakpoint());
     }
     
     private FlowAbstractAction keyBindingsAction()
     {
-        return action("key-bindings", Category.MISC, () -> editor.showPreferences(1)); // 1 is the index of the key bindings pane in the pref dialog
+        return action("key-bindings", Category.MISC, () -> getClearedEditor().showPreferences(1)); // 1 is the index of the key bindings pane in the pref dialog
     }
 
     private FlowAbstractAction preferencesAction()
     {
-        return action("preferences", Category.MISC, () -> editor.showPreferences(0)); // 0 is the index of the editor pane in the pref dialog
+        return action("preferences", Category.MISC, () -> getClearedEditor().showPreferences(0)); // 0 is the index of the editor pane in the pref dialog
     }
     
     private FlowAbstractAction goToLineAction()
     {
-        return action("go-to-line", Category.MISC, () -> editor.goToLine());
+        return action("go-to-line", Category.MISC, () -> getClearedEditor().goToLine());
     }
 
     /**

@@ -1524,6 +1524,18 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         throw new UnimplementedException();
     }
 
+    /**
+     * Implementation of "toggle-interface-view" user function. The menu has
+     * already been changed - now see what it is and do it.
+     */
+    public void toggleInterface()
+    {
+        if (viewingHTML.get())
+            switchToSourceView();
+        else
+            switchToInterfaceView();
+    }
+    
     @Override
     public void setLastModified(long millisSinceEpoch)
     {
