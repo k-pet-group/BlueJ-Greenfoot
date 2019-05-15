@@ -98,7 +98,7 @@ public class TestBasicEditorDisplay extends FXTest
         PrefMgr.setEditorFontSize(12);
         
         this.stage = stage;
-        flowEditor = new FlowEditor(w -> null, new EditorWatcher()
+        flowEditor = new FlowEditor(w -> null, "", new EditorWatcher()
         {
             @Override
             public void modificationEvent(Editor editor)

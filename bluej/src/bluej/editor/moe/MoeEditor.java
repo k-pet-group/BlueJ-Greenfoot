@@ -173,7 +173,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
     // other
     final static String COMPILED = "compiled";
     // file suffixes
-    private final static String CRASHFILE_SUFFIX = "#";
+    public final static String CRASHFILE_SUFFIX = "#";
 
     // -------- CLASS VARIABLES --------
     private static boolean matchBrackets = false;

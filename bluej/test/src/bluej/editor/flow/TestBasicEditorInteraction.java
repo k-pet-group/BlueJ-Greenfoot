@@ -41,7 +41,7 @@ public class TestBasicEditorInteraction extends FXTest
         PrefMgr.setFlag(PrefMgr.HIGHLIGHTING, true);
 
         this.stage = stage;
-        FlowEditor flowEditor = new FlowEditor(null, null);
+        FlowEditor flowEditor = new FlowEditor(null, "", null);
         flowEditorPane = flowEditor.getSourcePane();
         flowEditorPane.setPrefWidth(800.0);
         flowEditorPane.setPrefHeight(600.0);

@@ -21,6 +21,8 @@
  */
 package bluej.editor.flow;
 
+import bluej.BlueJEvent;
+import bluej.BlueJEventListener;
 import bluej.Config;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
@@ -37,15 +39,21 @@ import bluej.editor.flow.MarginAndTextLine.MarginDisplay;
 import bluej.editor.flow.StatusLabel.Status;
 import bluej.editor.moe.GoToLineDialog;
 import bluej.editor.moe.Info;
+import bluej.editor.moe.MoeEditor;
 import bluej.editor.moe.ParserMessageHandler;
 import bluej.editor.moe.ScopeColorsBorderPane;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.FlowFXTab;
 import bluej.editor.stride.FrameEditor;
 import bluej.parser.SourceLocation;
+import bluej.parser.entity.JavaEntity;
+import bluej.parser.nodes.MethodNode;
+import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
+import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ReparseableDocument;
 import bluej.parser.symtab.ClassInfo;
+import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgr.PrintSize;
 import bluej.stride.framedjava.elements.CallElement;
@@ -58,9 +66,11 @@ import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
 import javafx.print.PrinterJob;
 import javafx.scene.Node;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.PopupControl;
@@ -72,27 +82,36 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.scene.web.WebView;
 import javafx.stage.PopupWindow;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.events.EventTarget;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
-public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, FlowEditorPaneListener, SelectionListener
+public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, FlowEditorPaneListener, SelectionListener, BlueJEventListener
 {
     // suffixes for resources
     final static String LabelSuffix = "Label";
@@ -105,7 +124,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private final FlowActions actions;
     /** Watcher - provides interface to BlueJ core. May be null (eg for README.txt file). */
     private final EditorWatcher watcher;
-
+    
     private final boolean sourceIsCode = true /*TODOFLOW*/;           // true if current buffer is code
     private final List<Menu> fxMenus;
     private boolean compilationStarted;
@@ -124,6 +143,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private ErrorDisplay errorDisplay;
     private final BitSet breakpoints = new BitSet();
     private int currentStepLineIndex = -1;
+    private ComboBox<String> interfaceToggle;
+    private final WebView htmlPane;
+    private String filename;                // name of file or null
+    private String docFilename;             // path to javadoc html file
+    private Charset characterSet;           // character set of the file
+    private String windowTitle;
 
 
     // TODOFLOW handle the interface-only case
@@ -196,8 +221,9 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private final class UnimplementedException extends RuntimeException {}
 
 
-    public FlowEditor(FetchTabbedEditor fetchTabbedEditor, EditorWatcher editorWatcher)
+    public FlowEditor(FetchTabbedEditor fetchTabbedEditor, String title, EditorWatcher editorWatcher)
     {
+        this.windowTitle = title;
         this.flowEditorPane = new FlowEditorPane("", this);
         this.document = flowEditorPane.getDocument();
         this.javaSyntaxView = new JavaSyntaxView(flowEditorPane, this);
@@ -207,7 +233,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         this.watcher = editorWatcher;
         info = new Info();
         saveState = new StatusLabel(Status.SAVED, this, errorManager);
-        setCenter(flowEditorPane);
+        htmlPane = new WebView();
+        htmlPane.visibleProperty().bind(viewingHTML);
+        setCenter(new StackPane(flowEditorPane, htmlPane));
+        interfaceToggle = createInterfaceSelector();
+        interfaceToggle.setDisable(!sourceIsCode);
+        setTop(new BorderPane(null, null, interfaceToggle, null, null));
         actions = FlowActions.getActions(this);
         flowEditorPane.addSelectionListener(this);
         flowEditorPane.addLineDisplayListener((fromIncl, toIncl) -> {
@@ -228,6 +259,27 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             javaSyntaxView.fontSizeChanged();
             flowEditorPane.fontSizeChanged(s.doubleValue());
         });
+    }
+
+    /**
+     * Create a combo box for the toolbar
+     */
+    private ComboBox<String> createInterfaceSelector()
+    {
+        final String interfaceString = Config.getString("editor.interfaceLabel");
+        final String implementationString = Config.getString("editor.implementationLabel");
+        String[] choiceStrings = {implementationString, interfaceString};
+        ComboBox<String> interfaceToggle = new ComboBox<String>(FXCollections.observableArrayList(choiceStrings));
+
+        interfaceToggle.setFocusTraversable(false);
+        JavaFXUtil.addChangeListenerPlatform(interfaceToggle.valueProperty(), v -> {
+            if (v.equals(interfaceString))
+                switchToInterfaceView();
+            else
+                switchToSourceView();
+        });
+
+        return interfaceToggle;
     }
 
     private void mouseMoved(MouseEvent event)
@@ -524,20 +576,136 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public boolean showFile(String filename, Charset charset, boolean compiled, String docFilename)
     {
-        // TODOFLOW add the rest from MoeEditor
-        try
-        {
-            document.replaceText(0, document.getLength(), Files.readString(new File(filename).toPath(), charset));
-            javaSyntaxView.enableParser(false);
-            setCompileStatus(compiled);
-            return true;
+        this.filename = filename;
+        this.docFilename = docFilename;
+        this.characterSet = charset;
+
+        boolean loaded = false;
+
+        File file = new File(filename);
+        if (filename != null) {
+            setupJavadocMangler();
+            try {
+                // check for crash file
+                String crashFilename = filename + MoeEditor.CRASHFILE_SUFFIX;
+                String backupFilename = crashFilename + "backup";
+                File crashFile = new File(crashFilename);
+                if (crashFile.exists()) {
+                    File backupFile = new File(backupFilename);
+                    backupFile.delete();
+                    crashFile.renameTo(backupFile);
+                    DialogManager.showMessageFX(fxTabbedEditor.getWindow(), "editor-crashed");
+                }
+
+                document.replaceText(0, document.getLength(), Files.readString(file.toPath(), charset));
+                setLastModified(file.lastModified());
+
+
+                javaSyntaxView.enableParser(false);
+                loaded = true;
+            }
+            catch (IOException ex) {
+                // TODO display user-visible error
+                Debug.reportError("Couldn't open file", ex);
+            }
         }
-        catch (IOException e)
-        {
-            Debug.reportError(e);
+        else {
+            if (docFilename != null) {
+                if (new File(docFilename).exists()) {
+                    showInterface(true);
+                    loaded = true;
+                    interfaceToggle.setDisable(true);
+                }
+            }
+        }
+
+        if (!loaded) {
+            // should exist, but didn't
             return false;
         }
+
+        setCompileStatus(compiled);
+
+        return true;
     }
+
+    /**
+     * Sets up the processor for loaded Javdoc.  Currently this inserts a link
+     * next to a method name to allow you to jump back to the BlueJ source, if
+     * there is source code available.
+     */
+    private void setupJavadocMangler()
+    {
+        JavaFXUtil.addChangeListenerPlatform(htmlPane.getEngine().documentProperty(), doc -> {
+            if (doc != null)
+            {
+                /* Javadoc looks like this:
+                <a id="sampleMethod(java.lang.String)">
+                <!--   -->
+                </a>
+                <ul>
+                <li>
+                <h4>sampleMethod</h4>
+                 */
+
+                // First find the anchor.  Ignore anchors with ids that do not end in a closing bracket (they are not methods):
+                NodeList anchors = doc.getElementsByTagName("a");
+                for (int i = 0; i < anchors.getLength(); i++)
+                {
+                    org.w3c.dom.Node anchorItem = anchors.item(i);
+                    org.w3c.dom.Node anchorName = anchorItem.getAttributes().getNamedItem("id");
+                    if (anchorName != null && anchorName.getNodeValue() != null && anchorName.getNodeValue().endsWith(")"))
+                    {
+                        // Then find the ul child, then the li child of that, then the h4 child of that:
+                        org.w3c.dom.Node ulNode = findHTMLNode(anchorItem, org.w3c.dom.Node::getNextSibling, n -> "ul".equals(n.getLocalName()));
+                        if (ulNode == null)
+                            continue;
+                        org.w3c.dom.Node liNode = findHTMLNode(ulNode.getFirstChild(), org.w3c.dom.Node::getNextSibling, n -> "li".equals(n.getLocalName()));
+                        if (liNode == null)
+                            continue;
+                        org.w3c.dom.Node headerNode = findHTMLNode(liNode.getFirstChild(), org.w3c.dom.Node::getNextSibling, n -> "h4".equals(n.getLocalName()));
+                        if (headerNode != null)
+                        {
+                            // Make a link, and set a listener for it:
+                            org.w3c.dom.Element newLink = doc.createElement("a");
+                            newLink.setAttribute("style", "padding-left: 2em;cursor:pointer;");
+                            newLink.insertBefore(doc.createTextNode("[Show source in BlueJ]"), null);
+                            headerNode.insertBefore(newLink, null);
+
+                            ((EventTarget) newLink).addEventListener("click", e ->
+                            {
+                                String[] tokens = anchorName.getNodeValue().split("[(,)]");
+                                List<String> paramTypes = new ArrayList<>();
+                                for (int t = 1; t < tokens.length; t++)
+                                {
+                                    paramTypes.add(tokens[t]);
+                                }
+                                focusMethod(tokens[0].equals("<init>") ? windowTitle : tokens[0], paramTypes);
+                            }, false);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Traverses the document using the given traversal operation (next parameter),
+     * until the stopWhen test returns true, beginning at the start node.  The start
+     * node is not tested.  Once the traversal returns null, this method returns null.
+     */
+    private static org.w3c.dom.Node findHTMLNode(org.w3c.dom.Node start, UnaryOperator<org.w3c.dom.Node> next, Predicate<org.w3c.dom.Node> stopWhen)
+    {
+        org.w3c.dom.Node n = start;
+        while (n != null)
+        {
+            n = next.apply(n);
+            if (n != null && stopWhen.test(n))
+                return n;
+        }
+        return null;
+    }
+
 
     @Override
     public void clear()
@@ -820,8 +988,175 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
     private void switchToSourceView()
     {
-        //TODOFLOW
+        if (!viewingHTML.get()) {
+            return;
+        }
+        resetMenuToolbar(true);
+        viewingHTML.set(false);
+        interfaceToggle.getSelectionModel().selectFirst();
+        watcher.showingInterface(false);
+        clearMessage();
+        flowEditorPane.requestFocus();
     }
+
+    /**
+     * Switch on the javadoc interface view (it it isn't showing already). If
+     * necessary, generate it first.
+     */
+    private void switchToInterfaceView()
+    {
+        if (viewingHTML.get()) {
+            return;
+        }
+        resetMenuToolbar(false);
+        //NAVIFX
+        //dividerPanel.beginTemporaryHide();
+        try {
+            save();
+            info.message(Config.getString("editor.info.loadingDoc"));
+            boolean generateDoc = ! docUpToDate();
+
+            if (generateDoc)
+            {
+                // interface needs to be re-generated
+                info.message(Config.getString("editor.info.generatingDoc"));
+                BlueJEvent.addListener(this);
+                if (watcher != null) {
+                    watcher.generateDoc();
+                }
+            }
+            else
+            {
+                // Only bother to refresh if we're not about to generate
+                // (if we do generate, we will refresh once completed)
+                refreshHtmlDisplay();
+            }
+
+            interfaceToggle.getSelectionModel().selectLast();
+            viewingHTML.set(true);
+            watcher.showingInterface(true);
+        }
+        catch (IOException ioe) {
+            // Could display a dialog here. However, the error message
+            // (from save() call) will already be displayed in the editor
+            // status bar.
+        }
+    }
+
+    /**
+     * A BlueJEvent was raised. Check whether it is one that we're interested in.
+     */
+    @Override
+    public void blueJEvent(int eventId, Object arg, Project prj)
+    {
+        switch(eventId) {
+            case BlueJEvent.DOCU_GENERATED :
+                BlueJEvent.removeListener(this);
+                refreshHtmlDisplay();
+                break;
+            case BlueJEvent.DOCU_ABORTED :
+                BlueJEvent.removeListener(this);
+                info.message (Config.getString("editor.info.docAborted"));
+                break;
+        }
+    }
+
+    /**
+     * Check whether javadoc file is up to date.
+     *
+     * @return True is the currently existing documentation is up-to-date.
+     */
+    private boolean docUpToDate()
+    {
+        if (filename == null) {
+            return true;
+        }
+        try {
+            File src = new File(filename);
+            File doc = new File(docFilename);
+
+            if (!doc.exists() || (src.exists() && (src.lastModified() > doc.lastModified()))) {
+                return false;
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Refresh the HTML display.
+     */
+    private void refreshHtmlDisplay()
+    {
+        try {
+            File urlFile = new File(docFilename);
+
+            // Check if docs file exists before attempting to load it.  There is a JDK behaviour where
+            // if you load a non-existent file in a webview, all future attempts to reload the page will
+            // fail even once the file exists.  So the file must be present before we attempt to load.
+            //
+            // There is an seeming timing hazard here where we could be called just at the moment the file
+            // is created but before it is finished.  In fact, we are called in one of two cases:
+            //  - One is where the interface is being switched to.  This method is called only if the
+            //    docs won't be regenerated, so no race hazard there.
+            //  - The other case is when the doc generation has definitely finished, so again we won't be in a
+            //    race with the generation:
+            if (!urlFile.exists())
+            {
+                return;
+            }
+
+            URL myURL = urlFile.toURI().toURL();
+
+            // We must use reload here if applicable, as that forces reloading the stylesheet.css asset
+            // (which may have changed if we initially loaded docs from a version older than 4.1.0,
+            // but have now regenerated them).  We compare URLs, not String versions, because you may
+            // get difference between e.g. file:/Users... and file:///Users... which URL comparison
+            // properly takes care of:
+            String location = htmlPane.getEngine().getLocation();
+            if (Objects.equals(location == null ? null : new URL(location), myURL))
+            {
+                htmlPane.getEngine().reload();
+            }
+            else
+            {
+                htmlPane.getEngine().load(myURL.toString());
+            }
+
+            info.message(Config.getString("editor.info.docLoaded"));
+        }
+        catch (IOException exc) {
+            info.message (Config.getString("editor.info.docDisappeared"), docFilename);
+            Debug.reportError("loading class interface failed: " + exc);
+        }
+    }
+
+
+
+    /**
+     * Clear the message in the info area.
+     */
+    public void clearMessage()
+    {
+        info.clear();
+    }
+
+    /**
+     * This method resets the value of the menu and toolbar according to the view
+     *
+     * @param sourceView true if called from source view setup; false from documentation view setup
+     */
+    private void resetMenuToolbar(boolean sourceView)
+    {
+        if (sourceView)
+            actions.makeAllAvailable();
+        else
+            actions.makeAllUnavailableExcept("close", "toggle-interface-view");
+    }
+
 
     @Override
     public boolean setStepMark(int lineNumber, String message, boolean isBreak, DebuggerThread thread)
@@ -886,10 +1221,37 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
     }
 
+    /**
+     * Change class name.
+     *
+     * @param title  new window title
+     * @param filename  new file name
+     */
     @Override
-    public void changeName(String title, String filename, String javaFilename, String docFileName)
+    public void changeName(String title, String filename, String javaFilename, String docFilename)
     {
-        throw new UnimplementedException();
+        this.filename = filename;
+        this.docFilename = docFilename;
+        windowTitle = title;
+        setWindowTitle();
+    }
+
+    /**
+     * Set the window title to show the defined title, or else the file name.
+     */
+    private void setWindowTitle()
+    {
+        String title = windowTitle;
+
+        if (title == null) {
+            if (filename == null) {
+                title = "<no name>";
+            }
+            else {
+                title = filename;
+            }
+        }
+        fxTab.setWindowTitle(title);
     }
 
     @Override
@@ -1023,8 +1385,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public void showInterface(boolean interfaceStatus)
     {
-        if (interfaceStatus)
-            throw new UnimplementedException();
+        interfaceToggle.getSelectionModel().select(interfaceStatus ? 1 : 0);
     }
 
     @Override
@@ -1064,9 +1425,61 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public void focusMethod(String methodName, List<String> paramTypes)
     {
-        throw new UnimplementedException();
+        focusMethod(methodName, paramTypes, new NodeAndPosition<ParsedNode>(getParsedNode(), 0, 0), 0);
+    }
+
+    private boolean focusMethod(String methodName, List<String> paramTypes, NodeAndPosition<ParsedNode> tree, int offset)
+    {
+        // This is a fairly naive traversal, which may find methods in inner classes rather
+        // than one in the outer class; but then we don't actually pass which class we are interested in,
+        // so it may be right to pick the one in the inner class anyway:
+        if (tree.getNode().getNodeType() == ParsedNode.NODETYPE_METHODDEF && methodName.equals(tree.getNode().getName())
+            && paramsMatch(tree.getNode(), paramTypes))
+        {
+            switchToSourceView();
+            flowEditorPane.positionCaret(offset);
+            return true;
+        }
+        else
+        {
+            for (NodeAndPosition<ParsedNode> child : (Iterable<NodeAndPosition<ParsedNode>>)(() -> tree.getNode().getChildren(0)))
+            {
+                if (focusMethod(methodName, paramTypes, child, offset + child.getPosition()))
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks if the parameter types match the parameters of the given node,
+     * if it is a method node.  (If not a method node, false is returned)
+     * @param node The node which should be a MethodNode.
+     * @param paramTypes Parameter types.  null matches anything.
+     * @return
+     */
+    private boolean paramsMatch(ParsedNode node, List<String> paramTypes)
+    {
+        if (paramTypes == null)
+            return true;
+        if (node instanceof MethodNode)
+        {
+            MethodNode methodNode = (MethodNode)node;
+            if (methodNode.getParamTypes().size() != paramTypes.size())
+                return false;
+            for (int i = 0; i < paramTypes.size(); i++)
+            {
+                JavaEntity paramType = methodNode.getParamTypes().get(i);
+                if (!paramType.getName().equals(paramTypes.get(i)))
+                    return false;
+            }
+            // If we get here, all paramTypes must have matched:
+            return true;
+        }
+        return false;
     }
 
     @Override
