@@ -2239,21 +2239,21 @@ public final class MoeEditor extends ScopeColorsBorderPane
             if (doc != null)
             {
                 /* Javadoc looks like this:
-                <a name="sampleMethod--">
+                <a id="sampleMethod(java.lang.String)">
                 <!--   -->
                 </a>
-                <ul class="blockList">
-                <li class="blockList">
+                <ul>
+                <li>
                 <h4>sampleMethod</h4>
                  */
 
-                // First find the anchor.  Ignore anchors with names that have dots (they are not methods):
+                // First find the anchor.  Ignore anchors with ids that do not end in a closing bracket (they are not methods):
                 NodeList anchors = doc.getElementsByTagName("a");
                 for (int i = 0; i < anchors.getLength(); i++)
                 {
                     org.w3c.dom.Node anchorItem = anchors.item(i);
-                    org.w3c.dom.Node anchorName = anchorItem.getAttributes().getNamedItem("name");
-                    if (anchorName != null && anchorName.getNodeValue() != null && !anchorName.getNodeValue().contains("."))
+                    org.w3c.dom.Node anchorName = anchorItem.getAttributes().getNamedItem("id");
+                    if (anchorName != null && anchorName.getNodeValue() != null && anchorName.getNodeValue().endsWith(")"))
                     {
                         // Then find the ul child, then the li child of that, then the h4 child of that:
                         org.w3c.dom.Node ulNode = findHTMLNode(anchorItem, org.w3c.dom.Node::getNextSibling, n -> "ul".equals(n.getLocalName()));
@@ -2273,13 +2273,13 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
                             ((EventTarget) newLink).addEventListener("click", e ->
                             {
-                                String[] tokens = anchorName.getNodeValue().split("-");
+                                String[] tokens = anchorName.getNodeValue().split("[(,)]");
                                 List<String> paramTypes = new ArrayList<>();
                                 for (int t = 1; t < tokens.length; t++)
                                 {
                                     paramTypes.add(tokens[t]);
                                 }
-                                focusMethod(tokens[0], paramTypes);
+                                focusMethod(tokens[0].equals("<init>") ? windowTitle : tokens[0], paramTypes);
                             }, false);
                         }
                     }
