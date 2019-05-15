@@ -999,9 +999,7 @@ public final class FlowActions
      */
     private void createActionTable()
     {
-        /*TODOFLOW
         compileOrNextErrorAction = compileOrNextErrorAction();
-        */
 
         // get all actions into arrays
         
@@ -1076,8 +1074,8 @@ public final class FlowActions
                 findNextAction(),
                 findPrevAction(),
                 replaceAction(),
-                compileOrNextErrorAction,
                 */
+                compileOrNextErrorAction,
                 goToLineAction(),
                 toggleInterfaceAction(),
                 toggleBreakPointAction(),
@@ -2209,12 +2207,12 @@ public final class FlowActions
             }
         });
     }
-
+    */
     private FlowAbstractAction compileOrNextErrorAction()
     {
-        return action("compile", Category.MISC, () -> getEditor().compileOrShowNextError());
+        return action("compile", Category.MISC, () -> getClearedEditor().compileOrShowNextError());
     }
-    */
+    
     private FlowAbstractAction toggleInterfaceAction()
     {
         return action("toggle-interface-view", Category.MISC, () -> {
