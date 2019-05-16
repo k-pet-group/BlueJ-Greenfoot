@@ -22,6 +22,7 @@
 package bluej.utility.javafx;
 
 import bluej.Config;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -55,6 +56,8 @@ public abstract class FXAbstractAction
     private boolean hasMenuItem = false;
     private final BooleanProperty unavailable = new SimpleBooleanProperty(false);
     private final BooleanProperty disabled = new SimpleBooleanProperty(false);
+    // Kept as field to avoid bind GC issues:
+    private final BooleanBinding disabledOrUnavailable = disabled.or(unavailable);
     protected final ObjectProperty<KeyCombination> accelerator;
     private final Node buttonGraphic;
 
@@ -84,10 +87,16 @@ public abstract class FXAbstractAction
 
     public abstract void actionPerformed(boolean viaContextMenu);
 
-    public void bindEnabled(BooleanExpression enabled)
+    public void bindDisabled(BooleanExpression disabled)
     {
-        if (enabled != null)
-            disabled.bind(enabled.not());
+        if (disabled != null)
+        {
+            this.disabled.bind(disabled);
+        }
+        else
+        {
+            this.disabled.unbind();
+        }
     }
 
     public void setEnabled(boolean enabled)
@@ -127,7 +136,7 @@ public abstract class FXAbstractAction
     public Button makeButton()
     {
         Button button = new Button(name);
-        button.disableProperty().bind(disabled.or(unavailable));
+        button.disableProperty().bind(disabledOrUnavailable);
         button.setOnAction(e -> actionPerformed(false));
         if (buttonGraphic != null)
             button.setGraphic(buttonGraphic);
@@ -177,7 +186,7 @@ public abstract class FXAbstractAction
 
     private void setMenuActionAndDisable(MenuItem menuItem, boolean contextMenu)
     {
-        menuItem.disableProperty().bind(disabled.or(unavailable));
+        menuItem.disableProperty().bind(disabledOrUnavailable);
         menuItem.setOnAction(e -> actionPerformed(true));
     }
 

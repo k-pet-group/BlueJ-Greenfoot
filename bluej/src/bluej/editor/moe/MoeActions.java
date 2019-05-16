@@ -1271,7 +1271,7 @@ public final class MoeActions
             MoeEditor editor = getEditor();
             editor.undoManager.undo();
         });
-        action.bindEnabled(editor == null ? null : editor.undoManager.canUndo());
+        action.bindDisabled(editor == null ? null : editor.undoManager.canUndo().not());
         return action;
     }
 
@@ -1281,7 +1281,7 @@ public final class MoeActions
             MoeEditor editor = getEditor();
             editor.undoManager.redo();
         });
-        action.bindEnabled(editor == null ? null : editor.undoManager.canRedo());
+        action.bindDisabled(editor == null ? null : editor.undoManager.canRedo().not());
         return action;
     }
 
