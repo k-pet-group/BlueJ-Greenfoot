@@ -851,11 +851,21 @@ public class FlowEditorPane extends Region implements DocumentListener
 
     public void replaceSelection(String text)
     {
-        int start = Math.min(caret.position, anchor.position);
-        int end = Math.max(caret.position, anchor.position);
+        int start = getSelectionStart();
+        int end = getSelectionEnd();
         document.replaceText(start, end, text);
         // This makes sure the anchor is reset, too:
         positionCaret(start + text.length());
+    }
+
+    public int getSelectionEnd()
+    {
+        return Math.max(caret.position, anchor.position);
+    }
+
+    public int getSelectionStart()
+    {
+        return Math.min(caret.position, anchor.position);
     }
     
     public static interface ErrorQuery

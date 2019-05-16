@@ -888,7 +888,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public void insertText(String text, boolean caretBack)
     {
-        int startPos = Math.min(flowEditorPane.getCaretPosition(), flowEditorPane.getAnchorPosition());
+        int startPos = flowEditorPane.getSelectionStart();
         flowEditorPane.replaceSelection(text);
         if (caretBack)
         {
@@ -918,13 +918,13 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public SourceLocation getSelectionBegin()
     {
-        return document.makeSourceLocation(Math.min(flowEditorPane.getCaretPosition(), flowEditorPane.getAnchorPosition()));
+        return document.makeSourceLocation(flowEditorPane.getSelectionStart());
     }
 
     @Override
     public SourceLocation getSelectionEnd()
     {
-        return document.makeSourceLocation(Math.max(flowEditorPane.getCaretPosition(), flowEditorPane.getAnchorPosition()));
+        return document.makeSourceLocation(flowEditorPane.getSelectionEnd());
     }
 
     @Override

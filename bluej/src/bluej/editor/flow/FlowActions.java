@@ -268,7 +268,7 @@ public final class FlowActions
      */
     private int getCurrentColumn()
     {
-        int pos = Math.min(getClearedEditor().getSourcePane().getCaretPosition(), getClearedEditor().getSourcePane().getAnchorPosition());
+        int pos = getClearedEditor().getSourcePane().getSelectionStart();
         return getClearedEditor().getSourcePane().getDocument().getColumnFromPosition(pos);
     }
 
