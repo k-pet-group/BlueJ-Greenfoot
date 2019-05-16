@@ -29,13 +29,17 @@ import com.pholser.junit.quickcheck.Property;
 import com.pholser.junit.quickcheck.When;
 import com.pholser.junit.quickcheck.random.SourceOfRandomness;
 import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -44,31 +48,35 @@ import static org.junit.Assert.*;
 @RunWith(JUnitQuickcheck.class)
 public class TestDocument
 {
-    @Property(trials = 20, shrink = false)
-    public void propDocumentStringReplace(@From(GenRandom.class) Random r)
+    private static class Pos
     {
-        class Pos
+        // One entry per document, all tracking the same position:
+        final List<TrackedPosition> onePosPerDoc;
+        final Bias bias;
+        int lastPosition;
+
+        public Pos(Document[] documents, int initialPos, Bias bias)
         {
-            // One entry per document, all tracking the same position:
-            final List<TrackedPosition> onePosPerDoc;
-            final Bias bias;
-            int lastPosition;
-            
-            public Pos(Document[] documents, int initialPos, Bias bias)
-            {
-                this.bias = bias;
-                onePosPerDoc = Arrays.stream(documents).map(d -> d.trackPosition(initialPos, bias)).collect(Collectors.toList());
-                this.lastPosition = initialPos;
-            }
+            this.bias = bias;
+            onePosPerDoc = Arrays.stream(documents).map(d -> d.trackPosition(initialPos, bias)).collect(Collectors.toList());
+            this.lastPosition = initialPos;
         }
-        
+    }
+    
+    @Property(trials = 20, shrink = false)
+    public void propDocumentStringReplace(@When(seed=3063187395939477895L) @From(GenRandom.class) Random r)
+    {
         // Documents with identical content to test alongside each other:
         Document[] documents = new Document[] { new SlowDocument(), new HoleDocument() };
+        // Keep an undo stack for each:
+        DocumentUndoStack[] undoStacks = new DocumentUndoStack[] { new DocumentUndoStack(documents[0]), new DocumentUndoStack(documents[1])}; 
         String curContent = "";
         GenString stringMaker = new GenString();
         
         // One entry per tracked position;
         List<Pos> trackedPositions = new ArrayList<>();
+        
+        List<String> prevContent = new ArrayList<>();
         
         // Perform 100 replacements:
         int lastInsert = 0;
@@ -105,6 +113,8 @@ public class TestDocument
                 end = start + r.nextInt(length - start);
             }
             String newContent = stringMaker.generate(new SourceOfRandomness(r), null);
+            
+            prevContent.add(curContent);
 
             // Calculate desired content and check the document matches:
             curContent = curContent.substring(0, start) + newContent + curContent.substring(end);
@@ -238,6 +248,64 @@ public class TestDocument
                     fail("IOException: " + e.getLocalizedMessage());
                 }
             }
+            
+            // Try some undo/redo:
+            assertEquals(undoStacks[0].canUndoCount(), undoStacks[1].canUndoCount());
+            assertEquals(undoStacks[0].canRedoCount(), undoStacks[1].canRedoCount());
+            MatcherAssert.assertThat(undoStacks[0].canUndoCount(), Matchers.lessThanOrEqualTo(prevContent.size()));
+            // No redo since we're on latest:
+            assertEquals(undoStacks[0].canRedoCount(), 0);
+            IdentityHashMap<Pos, Integer> savedPos = savePositions(trackedPositions);
+            if (undoStacks[0].canUndoCount() > 0)
+            {
+                int undoTotal = r.nextInt(undoStacks[0].canUndoCount());
+                for (int undoCount = 1; undoCount <= undoTotal; undoCount++)
+                {
+                    for (int doc = 0; doc < undoStacks.length; doc++)
+                    {
+                        DocumentUndoStack undoStack = undoStacks[doc];
+                        undoStack.undo();
+                        assertEquals(prevContent.get(prevContent.size() - undoCount), documents[doc].getFullContent());
+                        assertEquals(undoCount, undoStack.canRedoCount());
+                    }
+                }
+                
+                // Note: counts down as that makes some logic easier
+                for (int redoCount = undoTotal - 1; redoCount >= 0; redoCount--)
+                {
+                    for (int doc = 0; doc < undoStacks.length; doc++)
+                    {
+                        DocumentUndoStack undoStack = undoStacks[doc];
+                        undoStack.redo();
+                        assertEquals(redoCount == 0 ? curContent : prevContent.get(prevContent.size() - redoCount), documents[doc].getFullContent());
+                        assertEquals(redoCount, undoStack.canRedoCount());
+                        MatcherAssert.assertThat(undoStack.canUndoCount(), Matchers.greaterThanOrEqualTo(undoTotal - redoCount));
+                    }
+                }
+
+                // There is a slight problem -- the undo/redo cycle might not fully restore the positions to the right spot
+                // e.g. if the position was part of a deleted range, undoing and redoing that insertion would not restore the position
+                // to the right spot.  So we must manually fix them up afterwards:
+                for (Entry<Pos, Integer> entry : savedPos.entrySet())
+                {
+                    for (TrackedPosition position : entry.getKey().onePosPerDoc)
+                    {
+                        position.position = entry.getValue();
+                    }
+                }
+            }
         }
+    }
+
+    private IdentityHashMap<Pos, Integer> savePositions(List<Pos> trackedPositions)
+    {
+        IdentityHashMap<Pos, Integer> positions = new IdentityHashMap<>();
+
+        for (Pos pos : trackedPositions)
+        {
+            positions.put(pos, pos.onePosPerDoc.get(0).position);
+        }
+        
+        return positions;
     }
 }

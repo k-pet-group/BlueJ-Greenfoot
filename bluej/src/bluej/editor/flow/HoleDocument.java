@@ -110,6 +110,9 @@ public class HoleDocument implements Document
         }
 
         // Now hole is at the right position.
+        
+        // Store content being replaced:
+        String replaced = new String(content, holeEnd, endCharExcl - startCharIncl);
 
         // Remove existing content by deleting at end of hole
         holeEnd += (endCharExcl - startCharIncl);
@@ -159,7 +162,7 @@ public class HoleDocument implements Document
 
         for (DocumentListener listener : listeners)
         {
-            listener.textReplaced(startCharIncl, endCharExcl, text.length(), linesRemoved, linesAdded);
+            listener.textReplaced(startCharIncl, replaced, text, linesRemoved, linesAdded);
         }
     }
 

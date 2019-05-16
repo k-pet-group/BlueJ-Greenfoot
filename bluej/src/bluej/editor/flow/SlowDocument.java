@@ -44,6 +44,7 @@ public class SlowDocument implements Document
     public void replaceText(int startCharIncl, int endCharExcl, String text)
     {
         int linesRemoved = getLineFromPosition(endCharExcl) - getLineFromPosition(startCharIncl);
+        String prev = content.substring(startCharIncl, endCharExcl);
         content = content.substring(0, startCharIncl) + text + content.substring(endCharExcl);
         
         // Update tracked positions:
@@ -55,7 +56,7 @@ public class SlowDocument implements Document
         int linesAdded = getLineFromPosition(startCharIncl + text.length()) - getLineFromPosition(startCharIncl);
         for (DocumentListener listener : listeners)
         {
-            listener.textReplaced(startCharIncl, endCharExcl, text.length(), linesRemoved, linesAdded);
+            listener.textReplaced(startCharIncl, prev, text, linesRemoved, linesAdded);
         }
     }
 

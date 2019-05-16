@@ -386,16 +386,16 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                     new MoeSyntaxEvent(0, document.getLength(), true, false));
             // We can discard the MoeSyntaxEvent: the reparse will update scopes/syntax
             //}
-            document.addListener((start, end, repl, linesRemoved, linesAdded) -> {
-                if (start != end)
+            document.addListener((start, oldText, newText, linesRemoved, linesAdded) -> {
+                if (oldText.length() != 0)
                 {
                     scopeBackgrounds.linesRemoved(document.getLineFromPosition(start), linesRemoved);
-                    fireRemoveUpdate(start, end - start);
+                    fireRemoveUpdate(start, oldText.length());
                 }
-                if (repl != 0)
+                if (newText.length() != 0)
                 {
                     scopeBackgrounds.linesAdded(document.getLineFromPosition(start), linesAdded);
-                    fireInsertUpdate(start, repl);
+                    fireInsertUpdate(start, newText.length());
                 }                
                 scheduleReparseRunner();
             });
