@@ -65,12 +65,16 @@ import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.BooleanExpression;
+import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
+import javafx.geometry.Orientation;
 import javafx.print.PrinterJob;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBase;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -83,7 +87,9 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.TilePane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.scene.web.WebView;
@@ -107,6 +113,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
@@ -116,6 +123,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 {
     // suffixes for resources
     final static String LabelSuffix = "Label";
+    final static String ActionSuffix = "Action";
 
     private final FlowEditorPane flowEditorPane;
     private final HoleDocument document;
@@ -150,6 +158,11 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private String docFilename;             // path to javadoc html file
     private Charset characterSet;           // character set of the file
     private String windowTitle;
+    private final Properties resources = Config.moeUserProps;
+    /**
+     * list of actions that are disabled in the readme text file
+     */
+    private static ArrayList<String> readMeActions;
 
 
     // TODOFLOW handle the interface-only case
@@ -282,15 +295,16 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         this.undoManager = new UndoManager(document);
         this.fetchTabbedEditor = fetchTabbedEditor;
         this.watcher = editorWatcher;
-        info = new Info();
-        saveState = new StatusLabel(Status.SAVED, this, errorManager);
-        htmlPane = new WebView();
+        this.info = new Info();
+        this.saveState = new StatusLabel(Status.SAVED, this, errorManager);
+        this.actions = FlowActions.getActions(this);
+        this.htmlPane = new WebView();
         htmlPane.visibleProperty().bind(viewingHTML);
         setCenter(new StackPane(flowEditorPane, htmlPane));
-        interfaceToggle = createInterfaceSelector();
+        this.interfaceToggle = createInterfaceSelector();
         interfaceToggle.setDisable(!sourceIsCode);
-        setTop(new BorderPane(null, null, interfaceToggle, null, null));
-        actions = FlowActions.getActions(this);
+        Region toolbar = createToolbar(interfaceToggle.heightProperty());
+        setTop(new BorderPane(null, null, interfaceToggle, null, toolbar));
         flowEditorPane.addSelectionListener(this);
         flowEditorPane.addLineDisplayListener((fromIncl, toIncl) -> {
             for (int i = fromIncl; i <= toIncl; i++)
@@ -311,6 +325,113 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             flowEditorPane.fontSizeChanged(s.doubleValue());
         });
     }
+
+    /**
+     * Gets the resource attribute of the MoeEditor object
+     */
+    private String getResource(String name)
+    {
+        return Config.getPropString(name, null, resources);
+    }
+
+    /**
+     * Create the toolbar.
+     *
+     * @return The toolbar component, ready made.
+     */
+    private Region createToolbar(DoubleExpression buttonHeight)
+    {
+        TilePane tilePane = new TilePane(Orientation.HORIZONTAL,
+            createToolbarButton("compile", buttonHeight),
+            createToolbarButton("undo", buttonHeight),
+            createToolbarButton("cut", buttonHeight),
+            createToolbarButton("copy", buttonHeight),
+            createToolbarButton("paste", buttonHeight),
+            createToolbarButton("find", buttonHeight),
+            createToolbarButton("close", buttonHeight)
+        );
+        tilePane.setPrefColumns(tilePane.getChildren().size());
+        return JavaFXUtil.withStyleClass(tilePane, "moe-top-bar-buttons");
+    }
+
+    /**
+     * Create a button on the toolbar.
+     *  @param key  The internal key identifying the action and label
+     *  @param buttonHeight The height of the buttons
+     *
+     */
+    private ButtonBase createToolbarButton(String key, DoubleExpression buttonHeight)
+    {
+        final String label = Config.getString("editor." + key + LabelSuffix);
+        ButtonBase button;
+
+        String actionName = getResource(key + ActionSuffix);
+        if (actionName == null) {
+            actionName = key;
+        }
+        FlowAbstractAction action = actions.getActionByName(actionName);
+
+        if (action != null) {
+            button = action.makeButton();
+            button.setText(label);
+        }
+        else {
+            button = new Button("Unknown");
+        }
+
+        if (action == null) {
+            button.setDisable(true);
+            Debug.message("Moe: action not found for button " + label);
+        }
+
+        if (isNonReadmeAction(actionName) && !sourceIsCode){
+            action.setEnabled(false);
+        }
+
+        // never get keyboard focus:
+        button.setFocusTraversable(false);
+
+        // Let it resize to width of other buttons:
+        button.setMaxWidth(Double.MAX_VALUE);
+
+        button.prefHeightProperty().bind(buttonHeight);
+        button.setMaxHeight(Double.MAX_VALUE);
+
+        button.getStyleClass().add("toolbar-" + key + "-button");
+
+        return button;
+    }
+
+    /**
+     * Check whether an action is not valid for the project "readme" (i.e. if it is only
+     * valid for source files).
+     *
+     * @param actionName String representing the action name
+     * @return true if it is an action that should be disabled while editing the readme file,
+     *         or false otherwise
+     */
+    private static boolean isNonReadmeAction(String actionName)
+    {
+        List<String> flaggedActions = getNonReadmeActions();
+        return flaggedActions.contains(actionName);
+    }
+
+    /**
+     * Get a list of actions not applicable in the readme.txt file
+     */
+    private static ArrayList<String> getNonReadmeActions ()
+    {
+        if (readMeActions == null) {
+            readMeActions = new ArrayList<>();
+            readMeActions.add("compile");
+            readMeActions.add("autoindent");
+            readMeActions.add("insert-method");
+            readMeActions.add("add-javadoc");
+            readMeActions.add("toggle-interface-view");
+        }
+        return readMeActions;
+    }
+
 
     /**
      * Create a combo box for the toolbar
