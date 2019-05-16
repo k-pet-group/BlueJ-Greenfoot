@@ -64,6 +64,7 @@ import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
@@ -205,13 +206,63 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         FXTabbedEditor getFXTabbedEditor(boolean newWindow);
     }
     
-    // TODOFLOW implement undo and redo
     class UndoManager
     {
+        private final DocumentUndoStack undoStack;
+        private final BooleanProperty cannotRedo = new SimpleBooleanProperty(true);
+        private final BooleanProperty cannotUndo = new SimpleBooleanProperty(true);
+
+        public UndoManager(Document document)
+        {
+            undoStack = new DocumentUndoStack(document);
+            undoStack.setStateListener(this::updateState);
+        }
+
+        private void updateState()
+        {
+            cannotUndo.setValue(undoStack.canUndoCount() == 0);
+            cannotRedo.setValue(undoStack.canRedoCount() == 0);
+        }
+
+        public BooleanExpression cannotUndo()
+        {
+            return cannotUndo;
+        }
+        
+        public BooleanExpression cannotRedo()
+        {
+            return cannotRedo;
+        }
+        
+        public void undo()
+        {
+            int pos = undoStack.undo();
+            if (pos >= 0)
+            {
+                flowEditorPane.positionCaret(pos);
+            }
+        }
+        
+        public void redo()
+        {
+            int pos = undoStack.redo();
+            if (pos >= 0)
+            {
+                flowEditorPane.positionCaret(pos);
+            }
+        }
+
+        public void forgetHistory()
+        {
+            undoStack.clear();
+        }
+        
+        /*
         public void compoundEdit(FXPlatformRunnable action)
         {
             action.run();
         }
+         */
     }
     
     // package-visible:
@@ -228,7 +279,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         this.document = flowEditorPane.getDocument();
         this.javaSyntaxView = new JavaSyntaxView(flowEditorPane, this);
         this.flowEditorPane.setErrorQuery(errorManager);
-        this.undoManager = new UndoManager();
+        this.undoManager = new UndoManager(document);
         this.fetchTabbedEditor = fetchTabbedEditor;
         this.watcher = editorWatcher;
         info = new Info();
@@ -599,7 +650,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
                 document.replaceText(0, document.getLength(), Files.readString(file.toPath(), charset));
                 setLastModified(file.lastModified());
-
+                undoManager.forgetHistory();
 
                 javaSyntaxView.enableParser(false);
                 loaded = true;

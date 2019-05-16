@@ -21,6 +21,8 @@
  */
 package bluej.editor.flow;
 
+import bluej.utility.javafx.FXPlatformRunnable;
+
 import java.util.ArrayList;
 
 /**
@@ -51,6 +53,7 @@ public class DocumentUndoStack implements DocumentListener
     private int changeIndex = 0;
     // Are we the ones doing the change as part of undo/redo?  Don't add it our remembered changes a second time.
     private boolean changeByUs = false;
+    private FXPlatformRunnable stateListener = null;
     
     public DocumentUndoStack(Document document)
     {
@@ -69,7 +72,11 @@ public class DocumentUndoStack implements DocumentListener
                 rememberedChanges.subList(changeIndex, rememberedChanges.size()).clear();
             }
             rememberedChanges.add(new Change(origStartIncl, original, replacement));
-            changeIndex += 1;            
+            changeIndex += 1;
+            if (stateListener != null)
+            {
+                stateListener.run();
+            }
         }
     }
 
@@ -91,8 +98,10 @@ public class DocumentUndoStack implements DocumentListener
 
     /**
      * If possible, undo the most recent change.
+     * 
+     * @return the position at the end of the segment that was just changed (or -1 if nothing changed).
      */
-    public void undo()
+    public int undo()
     {
         if (changeIndex > 0)
         {
@@ -101,13 +110,21 @@ public class DocumentUndoStack implements DocumentListener
             Change change = rememberedChanges.get(changeIndex);
             document.replaceText(change.targetStartIncl, change.targetStartIncl + change.replacement.length(), change.replaced);
             changeByUs = false;
+            if (stateListener != null)
+            {
+                stateListener.run();
+            }
+            return change.targetStartIncl + change.replaced.length();
         }
+        return -1;
     }
 
     /**
      * If possible, redo the most recent undo.
+     * 
+     * @return the position at the end of the segment that was just changed (or -1 if nothing changed).
      */
-    public void redo()
+    public int redo()
     {
         if (changeIndex < rememberedChanges.size())
         {
@@ -116,6 +133,33 @@ public class DocumentUndoStack implements DocumentListener
             changeIndex += 1;
             document.replaceText(change.targetStartIncl, change.targetStartIncl + change.replaced.length(), change.replacement);
             changeByUs = false;
+            if (stateListener != null)
+            {
+                stateListener.run();
+            }
+            return change.targetStartIncl + change.replacement.length();
+        }
+        return -1;
+    }
+    
+    /**
+     * Sets a listener to be called whenever the undo/redo potential of this undo stack changes.
+     */
+    public void setStateListener(FXPlatformRunnable stateListener)
+    {
+        this.stateListener = stateListener;
+    }
+
+    /**
+     * Clears the undo/redo history.
+     */
+    public void clear()
+    {
+        rememberedChanges.clear();
+        changeIndex = 0;
+        if (stateListener != null)
+        {
+            stateListener.run();
         }
     }
 }

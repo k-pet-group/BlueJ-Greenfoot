@@ -1047,9 +1047,9 @@ public final class FlowActions
                 printAction(),
                 */
                 closeAction(),
-                /*
                 undoAction(),
                 redoAction(),
+                /*
                 commentBlockAction(),
                 uncommentBlockAction(),
                 autoIndentAction(),
@@ -1306,30 +1306,31 @@ public final class FlowActions
     {
         return action("close", Category.CLASS, () -> getClearedEditor().close());
     }
-    /*
+    
     // --------------------------------------------------------------------
 
     private FlowAbstractAction undoAction()
     {
         FlowAbstractAction action = action("undo", Category.MISC, () ->
         {
-            FlowEditor editor = getEditor();
+            FlowEditor editor = getClearedEditor();
             editor.undoManager.undo();
         });
-        action.bindEnabled(editor == null ? null : editor.undoManager.canUndo());
+        action.bindDisabled(editor == null ? null : editor.undoManager.cannotUndo());
         return action;
     }
 
     private FlowAbstractAction redoAction()
     {
         FlowAbstractAction action =  action("redo", Category.MISC, () -> {
-            FlowEditor editor = getEditor();
+            FlowEditor editor = getClearedEditor();
             editor.undoManager.redo();
         });
-        action.bindEnabled(editor == null ? null : editor.undoManager.canRedo());
+        action.bindDisabled(editor == null ? null : editor.undoManager.cannotRedo());
         return action;
     }
 
+    /*
     private FlowAbstractAction commentBlockAction()
     {
         return action("comment-block", Category.EDIT, () -> {
