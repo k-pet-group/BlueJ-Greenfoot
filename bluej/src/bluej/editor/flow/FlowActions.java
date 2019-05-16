@@ -1045,8 +1045,9 @@ public final class FlowActions
                 
                 saveAction(),
                 printAction(),
+                */
                 closeAction(),
-
+                /*
                 undoAction(),
                 redoAction(),
                 commentBlockAction(),
@@ -1300,12 +1301,12 @@ public final class FlowActions
     }
 
     // --------------------------------------------------------------------
-
+    */
     private FlowAbstractAction closeAction()
     {
-        return action("close", Category.CLASS, () -> getEditor().close());
+        return action("close", Category.CLASS, () -> getClearedEditor().close());
     }
-
+    /*
     // --------------------------------------------------------------------
 
     private FlowAbstractAction undoAction()
