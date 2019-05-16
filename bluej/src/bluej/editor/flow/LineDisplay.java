@@ -107,6 +107,13 @@ class LineDisplay
      */
     List<Node> recalculateVisibleLines(List<List<StyledSegment>> allLines, FXPlatformFunction<Double, Double> snapHeight, double height, double fontSize)
     {
+        if (firstVisibleLineIndex >= allLines.size())
+        {
+            // Content must have been deleted, so for safety, reset to showing the last line:
+            firstVisibleLineIndex = allLines.size() - 1;
+            firstVisibleLineOffset = 0;
+        }
+        
         // Start at the first visible line:
         Iterator<List<StyledSegment>> lines = allLines.subList(firstVisibleLineIndex, allLines.size()).iterator();
         double curY = firstVisibleLineOffset;
