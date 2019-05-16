@@ -662,6 +662,15 @@ public class FlowEditorPane extends Region implements DocumentListener
         updateRender(false);
     }
 
+    /**
+     * Selects the given range, with anchor at the beginning and caret at the end.
+     */
+    public void select(int start, int end)
+    {
+        positionAnchor(start);
+        moveCaret(end);
+    }
+
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     private class LineContainer extends Region
     {
@@ -785,7 +794,6 @@ public class FlowEditorPane extends Region implements DocumentListener
      */
     public void positionCaret(int position)
     {
-        int oldPos = caret.position;
         caret.moveTo(position);
         anchor.moveTo(position);
         targetColumnForVerticalMovement = -1;

@@ -899,8 +899,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public void setSelection(SourceLocation begin, SourceLocation end)
     {
-        flowEditorPane.positionCaret(document.getPosition(end));
-        flowEditorPane.positionAnchor(document.getPosition(begin));
+        flowEditorPane.select(document.getPosition(begin), document.getPosition(end));
     }
 
     @Override
