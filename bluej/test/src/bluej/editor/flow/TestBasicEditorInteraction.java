@@ -198,7 +198,7 @@ public class TestBasicEditorInteraction extends FXTest
     }
 
     @Property(trials = 5)
-    public void testCutCopyPaste(@When(seed=1L) @From(GenString.class) String rawContent, @When(seed=1L) @From(GenRandom.class) Random r)
+    public void testCutCopyPaste(@From(GenString.class) String rawContent, @From(GenRandom.class) Random r)
     {
         String content = removeInvalid(rawContent);
         setText(content);
@@ -207,9 +207,10 @@ public class TestBasicEditorInteraction extends FXTest
         for (int i = 0; i < 5; i++)
         {
             int curPos = r.nextInt(content.length() + 1);
+            int initialPos = curPos;
             int curAnchor = r.nextInt(10) == 1 ? curPos : r.nextInt(content.length() + 1);
             fx_(() -> {
-                flowEditorPane.positionCaret(curPos);
+                flowEditorPane.positionCaret(initialPos);
                 flowEditorPane.positionAnchor(curAnchor);
             });
             int curLineStart = content.lastIndexOf('\n', curPos - 1) + 1;
@@ -268,12 +269,29 @@ public class TestBasicEditorInteraction extends FXTest
                     break;
                 case 4:
                     // Cut whole caret line (ignoring anchor)
-                    // TODO check that repeated invocations add to clipboard
-                    clearClipboard();
-                    push(KeyCode.F4);
-                    assertEquals(line, fx(() -> Clipboard.getSystemClipboard().getString()));
-                    content = beforeLine + afterLine;
-                    assertEquals(content, fx(() -> flowEditorPane.getDocument().getFullContent()));
+                    int cutCount = 1 + r.nextInt(3);
+                    // Also check that repeated invocations add to clipboard
+                    setClipboard("OldContent");
+                    String prevClipboard = "";
+                    for (int c = 0; c < cutCount; c++)
+                    {
+                        push(KeyCode.F4);
+                        assertEquals(prevClipboard + line, fx(() -> Clipboard.getSystemClipboard().getString()));
+                        prevClipboard += line;
+                        content = beforeLine + afterLine;
+                        assertEquals(content, fx(() -> flowEditorPane.getDocument().getFullContent()));
+
+                        curPos = curLineStart;
+                        curLineStart = content.lastIndexOf('\n', curPos - 1) + 1;
+                        curLineEnd = content.indexOf('\n', curPos);
+                        if (curLineEnd == -1)
+                            curLineEnd = content.length();
+                        else
+                            curLineEnd += 1; // Go past the newline
+                        beforeLine = content.substring(0, curLineStart);
+                        afterLine = content.substring(curLineEnd);
+                        line = content.substring(curLineStart, curLineEnd);
+                    }
                     break;
                 case 5:
                     // Cut to end of caret line (ignoring anchor)
@@ -285,11 +303,26 @@ public class TestBasicEditorInteraction extends FXTest
                     break;
                 case 6:
                     // Copy whole caret line (ignoring anchor)
-                    // TODO check that repeated invocations add to clipboard
-                    clearClipboard();
-                    push(KeyCode.F2);
-                    assertEquals(line, fx(() -> Clipboard.getSystemClipboard().getString()));
-                    assertEquals(content, fx(() -> flowEditorPane.getDocument().getFullContent()));
+                    int copyCount = 1 + r.nextInt(3);
+                    // Also check that repeated invocations add to clipboard
+                    setClipboard("OldContent");
+                    prevClipboard = "";
+                    for (int c = 0; c < copyCount; c++)
+                    {
+                        push(KeyCode.F2);
+                        assertEquals(prevClipboard + line, fx(() -> Clipboard.getSystemClipboard().getString()));
+                        prevClipboard += line;
+                        assertEquals(content, fx(() -> flowEditorPane.getDocument().getFullContent()));
+
+                        curPos = curLineEnd;
+                        curLineStart = content.lastIndexOf('\n', curPos - 1) + 1;
+                        curLineEnd = content.indexOf('\n', curPos);
+                        if (curLineEnd == -1)
+                            curLineEnd = content.length();
+                        else
+                            curLineEnd += 1; // Go past the newline
+                        line = content.substring(curLineStart, curLineEnd);
+                    }
                     break;
             }
         }
