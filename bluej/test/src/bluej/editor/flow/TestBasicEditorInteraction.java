@@ -33,13 +33,21 @@ import com.pholser.junit.quickcheck.Property;
 import com.pholser.junit.quickcheck.When;
 import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
 import javafx.scene.Scene;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.junit.Assert;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -66,7 +74,7 @@ public class TestBasicEditorInteraction extends FXTest
         flowEditorPane = flowEditor.getSourcePane();
         flowEditorPane.setPrefWidth(800.0);
         flowEditorPane.setPrefHeight(600.0);
-        stage.setScene(new Scene(flowEditor));
+        stage.setScene(new Scene(new BorderPane(flowEditor, new MenuBar(flowEditor.getFXMenu().toArray(Menu[]::new)), null, null, null)));
         stage.show();
     }
     
@@ -183,6 +191,68 @@ public class TestBasicEditorInteraction extends FXTest
             assertEquals(begin, fx(() -> flowEditorPane.getCaretPosition()).intValue());
             assertEquals(begin, fx(() -> flowEditorPane.getAnchorPosition()).intValue());
             content = newContent;
+        }
+    }
+
+    @Property(trials = 5)
+    public void testCutCopyPaste(@From(GenString.class) String rawContent, @From(GenRandom.class) Random r)
+    {
+        String content = removeInvalid(rawContent);
+        setText(content);
+        clickOn(flowEditorPane);
+
+        for (int i = 0; i < 5; i++)
+        {
+            int curPos = r.nextInt(content.length() + 1);
+            int curAnchor = r.nextInt(10) == 1 ? curPos : r.nextInt(content.length() + 1);
+            fx_(() -> {
+                flowEditorPane.positionCaret(curPos);
+                flowEditorPane.positionAnchor(curAnchor);
+            });
+            
+            String selected = content.substring(Math.min(curPos, curAnchor), Math.max(curPos, curAnchor));
+            String beforeSelected = content.substring(0, Math.min(curPos, curAnchor));
+            String afterSelected = content.substring(Math.max(curPos, curAnchor));
+            String withoutSelected = beforeSelected + afterSelected;
+            
+            // Pick one of cut, copy, paste, delete:
+            int action = r.nextInt(4);
+            switch (action)
+            {
+                case 0:
+                    // Cut:
+                    fx_(() -> Clipboard.getSystemClipboard().setContent(Collections.emptyMap()));
+                    push(KeyCode.SHORTCUT, KeyCode.X);
+                    String cut = fx(() -> Clipboard.getSystemClipboard().getString());
+                    assertEquals(selected, cut);
+                    assertEquals(withoutSelected, fx(() -> flowEditorPane.getDocument().getFullContent()));
+                    content = withoutSelected;
+                    break;
+                case 1:
+                    // Copy:
+                    fx_(() -> Clipboard.getSystemClipboard().setContent(Collections.emptyMap()));
+                    push(KeyCode.SHORTCUT, KeyCode.C);
+                    String copied = fx(() -> Clipboard.getSystemClipboard().getString());
+                    assertEquals(selected, copied);
+                    assertEquals(content, fx(() -> flowEditorPane.getDocument().getFullContent()));
+                    break;
+                case 2:
+                    String pasteContent = "Pa\u2248ste" + r.nextInt();
+                    fx_(() -> Clipboard.getSystemClipboard().setContent(Map.of(DataFormat.PLAIN_TEXT, pasteContent)));
+                    push(KeyCode.SHORTCUT, KeyCode.V);
+                    content = beforeSelected + pasteContent + afterSelected;
+                    assertEquals(content, fx(() -> flowEditorPane.getDocument().getFullContent()));
+                    break;
+                default:
+                    // Delete, if there is a selection:
+                    if (curAnchor != curPos)
+                    {
+                        push(r.nextBoolean() ? KeyCode.DELETE : KeyCode.BACK_SPACE);
+                        assertEquals(withoutSelected, fx(() -> flowEditorPane.getDocument().getFullContent()));
+                        content = withoutSelected;
+                    }
+                    break;
+            }
         }
     }
 

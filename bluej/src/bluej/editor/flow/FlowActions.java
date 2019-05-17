@@ -35,6 +35,8 @@ import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -1061,10 +1063,10 @@ public final class FlowActions
                 deIndentAction(),
                 */
                 newLineAction(),
-                /*TODOFLOW
                 cutAction(),
                 copyAction(),
                 pasteAction(),
+                /*TODOFLOW
                 copyLineAction(),
                 cutLineAction(),
                 cutEndOfLineAction(),
@@ -1564,8 +1566,6 @@ public final class FlowActions
             //editor.undoManager.breakEdit();
         });
     }
-    
-    /*
 
     // --------------------------------------------------------------------
 
@@ -1575,7 +1575,8 @@ public final class FlowActions
             // Menu shortcut can trigger when e.g. find pane is focused, don't act if not focused:
             if (editor.getSourcePane().isFocused())
             {
-                editor.getSourcePane().cut();
+                Clipboard.getSystemClipboard().setContent(Map.of(DataFormat.PLAIN_TEXT, editor.getSourcePane().getSelectedText()));
+                editor.getSourcePane().replaceSelection("");
             }
         });
     }
@@ -1586,7 +1587,7 @@ public final class FlowActions
             // Menu shortcut can trigger when e.g. find pane is focused, don't act if not focused:
             if (editor.getSourcePane().isFocused())
             {
-                editor.getSourcePane().copy();
+                Clipboard.getSystemClipboard().setContent(Map.of(DataFormat.PLAIN_TEXT, editor.getSourcePane().getSelectedText()));
             }
         });
     }
@@ -1597,12 +1598,16 @@ public final class FlowActions
             // Menu shortcut can trigger when e.g. find pane is focused, don't act if not focused:
             if (editor.getSourcePane().isFocused())
             {
-                editor.getSourcePane().paste();
-                editor.getSourcePane().requestFollowCaret();
+                String toPaste = Clipboard.getSystemClipboard().getString();
+                if (toPaste != null)
+                {
+                    editor.getSourcePane().replaceSelection(toPaste);
+                }
             }
         });
     }
 
+    /*
     private FlowAbstractAction copyLineAction()
     {
         return action("copy-line", Category.EDIT, () -> {

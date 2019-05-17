@@ -876,6 +876,11 @@ public class FlowEditorPane extends Region implements DocumentListener
         return Math.min(caret.position, anchor.position);
     }
     
+    public String getSelectedText()
+    {
+        return document.getContent(getSelectionStart(), getSelectionEnd()).toString();
+    }
+    
     public static interface ErrorQuery
     {
         public List<IndexRange> getErrorUnderlines();
