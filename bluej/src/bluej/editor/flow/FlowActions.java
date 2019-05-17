@@ -240,7 +240,7 @@ public final class FlowActions
             while (Character.isJavaIdentifierPart(curChar)) {
                 if (forwards) pos++; else pos--;
                 if (pos == maxLen) return pos;
-                if (pos == 0) return 0;
+                if (pos < 0) return 0;
                 curChar = c.getDocument().getContent(pos, pos + 1).charAt(0);
             }
             // If we are going back, we'll have gone one character too far
@@ -1006,15 +1006,18 @@ public final class FlowActions
         List<Function<Boolean, FlowAbstractAction>> selectionActions = List.of(
             EndDocumentAction::new,
             EndLineAction::new,
+            EndWordAction::new,
             HomeDocumentAction::new,
             HomeLineAction::new,
+            BeginWordAction::new,
             NextCharAction::new,
             NextLineAction::new,
             NextPageAction::new,
             NextWordAction::new,
             PrevCharAction::new,
             PrevLineAction::new,
-            PrevPageAction::new
+            PrevPageAction::new,
+            PrevWordAction::new
         );
 
         FlowAbstractAction[] myActions = new FlowAbstractAction[] {
@@ -1022,17 +1025,6 @@ public final class FlowActions
                 new DeleteNextCharAction(),
                 
                 /*TODOFLOW
-                //With and without selection for each:
-                new NextWordAction(false),
-                new NextWordAction(true),
-                new PrevWordAction(false),
-                new PrevWordAction(true),
-
-                //With and without selection for each:
-                new EndWordAction(false),
-                new EndWordAction(true),
-                new BeginWordAction(false),
-                new BeginWordAction(true),
                 
                 deleteWordAction(),
 
@@ -2052,8 +2044,6 @@ public final class FlowActions
         }
     }
 
-    // ===================== ACTION IMPLEMENTATION ======================
-    /*TODOFLOW
     class PrevWordAction extends FlowActionWithOrWithoutSelection
     {
         public PrevWordAction(boolean withSelection)
@@ -2067,16 +2057,16 @@ public final class FlowActions
             FlowEditorPane c = getTextComponent();
             int origPos = c.getCaretPosition();
             if (origPos == 0) return;
-            if (Character.isWhitespace(c.getText(origPos - 1, origPos).charAt(0))) {
+            if (Character.isWhitespace(c.getDocument().getContent(origPos - 1, origPos).charAt(0))) {
                 // Whitespace region precedes, find the beginning of it:
                 int startOfWS = findWordLimit(c, origPos - 1, false);
                 int startOfPrevWord = findWordLimit(c, startOfWS - 1, false);
-                moveCaret(c, startOfPrevWord);
+                moveCaret(startOfPrevWord);
             }
             else {
                 // We're in the middle of a word already, find the start:
                 int startOfWord = findWordLimit(c, origPos - 1, false);
-                moveCaret(c, startOfWord);
+                moveCaret(startOfWord);
             }
         }
     }
@@ -2094,7 +2084,7 @@ public final class FlowActions
             FlowEditorPane c = getTextComponent();
             int origPos = c.getCaretPosition();
             int end = findWordLimit(c, origPos, true);
-            moveCaret(c, end);
+            moveCaret(end);
         }
     }
 
@@ -2111,11 +2101,11 @@ public final class FlowActions
             FlowEditorPane c = getTextComponent();
             int origPos = c.getCaretPosition();
             int start = findWordLimit(c, origPos, false);
-            moveCaret(c, start);
+            moveCaret(start);
         }
     }
 
-
+    /*TODOFLOW
     // --------------------------------------------------------------------
     private FlowAbstractAction deleteWordAction()
     {

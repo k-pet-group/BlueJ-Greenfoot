@@ -383,6 +383,27 @@ public class TestBasicEditorInteraction extends FXTest
                 expectedAnchor = wordBoundary[1];
             assertEquals("Anchor word-right after " + prevPos + " shift: " + holdShift, expectedAnchor, fx(() -> flowEditorPane.getAnchorPosition()).intValue());
         }
+
+        // Go backwards this time:
+        Collections.reverse(wordBoundaries);
+        fx_(() -> flowEditorPane.positionCaret(wordBoundaries.get(0)[1]));
+        expectedAnchor = wordBoundaries.get(0)[1];
+        for (int[] wordBoundary : wordBoundaries)
+        {
+            int prevPos = fx(() -> flowEditorPane.getCaretPosition());
+            boolean holdShift = r.nextInt(3) != 1;
+            if (holdShift)
+                press(KeyCode.SHIFT);
+            push(Config.isMacOS() ? KeyCode.ALT : KeyCode.CONTROL, KeyCode.LEFT);
+            assertEquals("Word-Left after " + prevPos, wordBoundary[0], fx(() -> flowEditorPane.getCaretPosition()).intValue());
+            if (holdShift)
+                release(KeyCode.SHIFT);
+            else
+                expectedAnchor = wordBoundary[0];
+            assertEquals("Anchor word-left after " + prevPos + " shift: " + holdShift, expectedAnchor, fx(() -> flowEditorPane.getAnchorPosition()).intValue());
+        }
+        
+        // TODO test delete word, double click word to select
     }
 
     private void setClipboard(String pasteContent)
