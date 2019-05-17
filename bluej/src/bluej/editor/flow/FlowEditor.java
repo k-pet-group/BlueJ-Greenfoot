@@ -520,12 +520,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public void selectionChanged(int caretPos, int anchorPos)
     {
         showErrorPopupForCaretPos(caretPos, false);
-        
+
+        actions.userAction();
         /*TODOFLOW
         if (matchBrackets) {
             doBracketMatch();
         }
-        actions.userAction();
 
         // Only send caret moved event if we are open; caret moves while loading
         // but we don't want to send an edit event because of that:

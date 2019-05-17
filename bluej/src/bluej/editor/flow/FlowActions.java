@@ -745,7 +745,6 @@ public final class FlowActions
     /**
      * Add the current selection of the text component to the clipboard.
      */
-    /*TODOFLOW
     public static void addSelectionToClipboard(FlowEditor ed)
     {
         javafx.scene.input.Clipboard clipboard = javafx.scene.input.Clipboard.getSystemClipboard();
@@ -757,7 +756,6 @@ public final class FlowActions
         // add current selection and store back in clipboard
         clipboard.setContent(Collections.singletonMap(DataFormat.PLAIN_TEXT, clipContent + ed.getSourcePane().getSelectedText()));
     }
-    */
 
     // --------------------------------------------------------------------
 
@@ -1034,12 +1032,6 @@ public final class FlowActions
                 new EndWordAction(true),
                 new BeginWordAction(false),
                 new BeginWordAction(true),
-
-                //With and without selection for each:
-                new EndLineAction(false),
-                new EndLineAction(true),
-                new BeginLineAction(false),
-                new BeginLineAction(true),
                 
                 deleteWordAction(),
 
@@ -1066,10 +1058,10 @@ public final class FlowActions
                 cutAction(),
                 copyAction(),
                 pasteAction(),
-                /*TODOFLOW
                 copyLineAction(),
                 cutLineAction(),
                 cutEndOfLineAction(),
+                /*TODOFLOW
                 cutWordAction(),
                 cutEndOfWordAction(),
 
@@ -1575,7 +1567,7 @@ public final class FlowActions
             // Menu shortcut can trigger when e.g. find pane is focused, don't act if not focused:
             if (editor.getSourcePane().isFocused())
             {
-                Clipboard.getSystemClipboard().setContent(Map.of(DataFormat.PLAIN_TEXT, editor.getSourcePane().getSelectedText()));
+                copySelectionToClipboard();
                 editor.getSourcePane().replaceSelection("");
             }
         });
@@ -1587,9 +1579,14 @@ public final class FlowActions
             // Menu shortcut can trigger when e.g. find pane is focused, don't act if not focused:
             if (editor.getSourcePane().isFocused())
             {
-                Clipboard.getSystemClipboard().setContent(Map.of(DataFormat.PLAIN_TEXT, editor.getSourcePane().getSelectedText()));
+                copySelectionToClipboard();
             }
         });
+    }
+
+    private void copySelectionToClipboard()
+    {
+        Clipboard.getSystemClipboard().setContent(Map.of(DataFormat.PLAIN_TEXT, editor.getSourcePane().getSelectedText()));
     }
 
     private FlowAbstractAction pasteAction()
@@ -1607,24 +1604,32 @@ public final class FlowActions
         });
     }
 
-    /*
     private FlowAbstractAction copyLineAction()
     {
         return action("copy-line", Category.EDIT, () -> {
             boolean addToClipboard = lastActionWasCut;
-            editor.getSourcePane().lineStart(SelectionPolicy.CLEAR);
-            editor.getSourcePane().lineEnd(SelectionPolicy.EXTEND);
-            editor.getSourcePane().nextChar(SelectionPolicy.EXTEND);
-            if (addToClipboard) {
+            selectWholeLine();
+            if (addToClipboard)
+            {
                 addSelectionToClipboard(editor);
             }
-            else {
-                editor.getSourcePane().copy();
+            else
+            {
+                copySelectionToClipboard();
             }
             // This will keep us on next line, but with no selection:
-            editor.getSourcePane().positionCaret(editor.getSourcePane().getSelection().getEnd());
+            //editor.getSourcePane().positionCaret(editor.getSourcePane().getSelection().getEnd());
             lastActionWasCut = true;
         });
+    }
+
+    private void selectWholeLine()
+    {
+        int curLine = getDocument().getLineFromPosition(getTextComponent().getCaretPosition());
+        getTextComponent().positionAnchor(getDocument().getLineStart(curLine));
+        getTextComponent().moveCaret(getDocument().getLineEnd(curLine));
+        if (getTextComponent().getCaretPosition() < getTextComponent().getDocument().getLength())
+            getTextComponent().moveCaret(getTextComponent().getCaretPosition() + 1);
     }
 
     // === Help: ===
@@ -1634,20 +1639,19 @@ public final class FlowActions
     {
         return action("cut-line", Category.EDIT, () -> {
             boolean addToClipboard = lastActionWasCut;
-            editor.getSourcePane().lineStart(SelectionPolicy.CLEAR);
-            editor.getSourcePane().lineEnd(SelectionPolicy.EXTEND);
-            editor.getSourcePane().nextChar(SelectionPolicy.EXTEND);
-            if (addToClipboard) {
+            selectWholeLine();
+            if (addToClipboard)
+            {
                 addSelectionToClipboard(editor);
-                editor.getSourcePane().replaceSelection("");
             }
-            else {
-                editor.getSourcePane().cut();
+            else
+            {
+                copySelectionToClipboard();
             }
+            editor.getSourcePane().replaceSelection("");
             lastActionWasCut = true;
         });
     }
-    */
 
     // --------------------------------------------------------------------
 
@@ -1676,25 +1680,28 @@ public final class FlowActions
 
     // --------------------------------------------------------------------
 
-    /*TODOFLOW
     private FlowAbstractAction cutEndOfLineAction()
     {
         return action("cut-end-of-line", Category.EDIT, () -> {
             boolean addToClipboard = lastActionWasCut;
-            FlowEditorPane textComponent = getTextComponent();
-            textComponent.paragraphEnd(SelectionPolicy.ADJUST);
-
-            if (addToClipboard) {
+            getTextComponent().positionAnchor(getTextComponent().getCaretPosition());
+            getTextComponent().moveCaret(getTextComponent().getDocument().getLineEnd(getTextComponent().getDocument().getLineFromPosition(getTextComponent().getCaretPosition())));
+            // Include the line ending if possible:
+            if (getTextComponent().getCaretPosition() < getTextComponent().getDocument().getLength())
+                getTextComponent().moveCaret(getTextComponent().getCaretPosition() + 1);
+            if (addToClipboard)
+            {
                 addSelectionToClipboard(editor);
-                textComponent.replaceSelection("");
             }
-            else {
-                textComponent.cut();
+            else
+            {
+                copySelectionToClipboard();
             }
+            getTextComponent().replaceSelection("");
             lastActionWasCut = true;
         });
     }
-
+    /*TODOFLOW
     // ========================= SUPPORT ROUTINES ==========================
 
     private FlowAbstractAction cutWordAction()

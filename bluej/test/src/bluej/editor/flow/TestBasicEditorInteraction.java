@@ -41,6 +41,8 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
 
@@ -58,6 +60,7 @@ public class TestBasicEditorInteraction extends FXTest
 {
     private Stage stage;
     private FlowEditorPane flowEditorPane;
+    private FlowEditor flowEditor;
 
     @Override
     public void start(Stage stage) throws Exception
@@ -70,7 +73,7 @@ public class TestBasicEditorInteraction extends FXTest
         PrefMgr.setFlag(PrefMgr.HIGHLIGHTING, true);
 
         this.stage = stage;
-        FlowEditor flowEditor = new FlowEditor(null, "", null);
+        flowEditor = new FlowEditor(null, "", null);
         flowEditorPane = flowEditor.getSourcePane();
         flowEditorPane.setPrefWidth(800.0);
         flowEditorPane.setPrefHeight(600.0);
@@ -195,7 +198,7 @@ public class TestBasicEditorInteraction extends FXTest
     }
 
     @Property(trials = 5)
-    public void testCutCopyPaste(@From(GenString.class) String rawContent, @From(GenRandom.class) Random r)
+    public void testCutCopyPaste(@When(seed=1L) @From(GenString.class) String rawContent, @When(seed=1L) @From(GenRandom.class) Random r)
     {
         String content = removeInvalid(rawContent);
         setText(content);
@@ -209,19 +212,30 @@ public class TestBasicEditorInteraction extends FXTest
                 flowEditorPane.positionCaret(curPos);
                 flowEditorPane.positionAnchor(curAnchor);
             });
+            int curLineStart = content.lastIndexOf('\n', curPos - 1) + 1;
+            int curLineEnd = content.indexOf('\n', curPos);
+            if (curLineEnd == -1)
+                curLineEnd = content.length();
+            else
+                curLineEnd += 1; // Go past the newline
             
             String selected = content.substring(Math.min(curPos, curAnchor), Math.max(curPos, curAnchor));
             String beforeSelected = content.substring(0, Math.min(curPos, curAnchor));
             String afterSelected = content.substring(Math.max(curPos, curAnchor));
             String withoutSelected = beforeSelected + afterSelected;
+            String beforeLine = content.substring(0, curLineStart);
+            String afterLine = content.substring(curLineEnd);
+            String line = content.substring(curLineStart, curLineEnd);
+            // Line should have no \n (if last line) or only last char should be \n:
+            MatcherAssert.assertThat(line.indexOf('\n'), Matchers.either(Matchers.equalTo(line.length() - 1)).or(Matchers.equalTo(-1)));
             
-            // Pick one of cut, copy, paste, delete:
-            int action = r.nextInt(4);
+            // Pick one of cut, copy, paste, delete, cut-line, cut-end-of-line, copy-line:
+            int action = r.nextInt(7);
             switch (action)
             {
                 case 0:
                     // Cut:
-                    fx_(() -> Clipboard.getSystemClipboard().setContent(Collections.emptyMap()));
+                    clearClipboard();
                     push(KeyCode.SHORTCUT, KeyCode.X);
                     String cut = fx(() -> Clipboard.getSystemClipboard().getString());
                     assertEquals(selected, cut);
@@ -230,7 +244,7 @@ public class TestBasicEditorInteraction extends FXTest
                     break;
                 case 1:
                     // Copy:
-                    fx_(() -> Clipboard.getSystemClipboard().setContent(Collections.emptyMap()));
+                    clearClipboard();
                     push(KeyCode.SHORTCUT, KeyCode.C);
                     String copied = fx(() -> Clipboard.getSystemClipboard().getString());
                     assertEquals(selected, copied);
@@ -238,12 +252,12 @@ public class TestBasicEditorInteraction extends FXTest
                     break;
                 case 2:
                     String pasteContent = "Pa\u2248ste" + r.nextInt();
-                    fx_(() -> Clipboard.getSystemClipboard().setContent(Map.of(DataFormat.PLAIN_TEXT, pasteContent)));
+                    setClipboard(pasteContent);
                     push(KeyCode.SHORTCUT, KeyCode.V);
                     content = beforeSelected + pasteContent + afterSelected;
                     assertEquals(content, fx(() -> flowEditorPane.getDocument().getFullContent()));
                     break;
-                default:
+                case 3:
                     // Delete, if there is a selection:
                     if (curAnchor != curPos)
                     {
@@ -252,8 +266,43 @@ public class TestBasicEditorInteraction extends FXTest
                         content = withoutSelected;
                     }
                     break;
+                case 4:
+                    // Cut whole caret line (ignoring anchor)
+                    // TODO check that repeated invocations add to clipboard
+                    clearClipboard();
+                    push(KeyCode.F4);
+                    assertEquals(line, fx(() -> Clipboard.getSystemClipboard().getString()));
+                    content = beforeLine + afterLine;
+                    assertEquals(content, fx(() -> flowEditorPane.getDocument().getFullContent()));
+                    break;
+                case 5:
+                    // Cut to end of caret line (ignoring anchor)
+                    clearClipboard();
+                    fx_(() -> FlowActions.getActions(flowEditor).getActionByName("cut-end-of-line").actionPerformed());
+                    assertEquals(content.substring(curPos, curLineEnd), fx(() -> Clipboard.getSystemClipboard().getString()));
+                    content = beforeLine + content.substring(curLineStart, curPos) + afterLine;
+                    assertEquals(content, fx(() -> flowEditorPane.getDocument().getFullContent()));
+                    break;
+                case 6:
+                    // Copy whole caret line (ignoring anchor)
+                    // TODO check that repeated invocations add to clipboard
+                    clearClipboard();
+                    push(KeyCode.F2);
+                    assertEquals(line, fx(() -> Clipboard.getSystemClipboard().getString()));
+                    assertEquals(content, fx(() -> flowEditorPane.getDocument().getFullContent()));
+                    break;
             }
         }
+    }
+
+    private void setClipboard(String pasteContent)
+    {
+        fx_(() -> Clipboard.getSystemClipboard().setContent(Map.of(DataFormat.PLAIN_TEXT, pasteContent)));
+    }
+
+    private void clearClipboard()
+    {
+        fx_(() -> Clipboard.getSystemClipboard().setContent(Map.of()));
     }
 
     private List<NamedKeyboardMover> getMovers()
