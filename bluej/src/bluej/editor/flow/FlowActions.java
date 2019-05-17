@@ -1011,6 +1011,7 @@ public final class FlowActions
             NextCharAction::new,
             NextLineAction::new,
             NextPageAction::new,
+            NextWordAction::new,
             PrevCharAction::new,
             PrevLineAction::new,
             PrevPageAction::new
@@ -2025,7 +2026,7 @@ public final class FlowActions
     }
 
     // -------------------------------------------------------------------
-    /*TODOFLOW
+    
     class NextWordAction extends FlowActionWithOrWithoutSelection
     {
         public NextWordAction(boolean withSelection)
@@ -2039,20 +2040,20 @@ public final class FlowActions
             FlowEditorPane c = getTextComponent();
             int origPos = c.getCaretPosition();
             int end = findWordLimit(c, origPos, true);
-            if (Character.isWhitespace(c.getText(end, end + 1).charAt(0))) {
+            if (end < c.getDocument().getLength() && Character.isWhitespace(c.getDocument().getContent(end, end + 1).charAt(0))) {
                 // Whitespace region follows, find the end of it:
                 int endOfWS = findWordLimit(c, end, true);
-                moveCaret(c, endOfWS);
+                moveCaret(endOfWS);
             }
             else {
                 // A different "word" follows immediately, stay where we are:
-                moveCaret(c, end);
+                moveCaret(end);
             }
         }
     }
 
     // ===================== ACTION IMPLEMENTATION ======================
-
+    /*TODOFLOW
     class PrevWordAction extends FlowActionWithOrWithoutSelection
     {
         public PrevWordAction(boolean withSelection)
@@ -2114,51 +2115,6 @@ public final class FlowActions
         }
     }
 
-    private class BeginLineAction extends FlowActionWithOrWithoutSelection
-    {
-        public BeginLineAction(boolean withSelection)
-        {
-            super(withSelection ? DefaultEditorKit.selectionBeginLineAction : DefaultEditorKit.beginLineAction, Category.MOVE_SCROLL, withSelection);
-        }
-
-        @Override
-        public void actionPerformed()
-        {
-            FlowEditorPane ed = getTextComponent();
-            if (ed.getCaretColumn() > 1)
-            {
-                ed.lineStart(withSelection ? SelectionPolicy.EXTEND : SelectionPolicy.CLEAR);
-            }
-            else
-            {
-                // Already at start, try going next word
-                int line = ed.getCurrentParagraph();
-                int oldPos = ed.getCaretPosition();
-                ed.wordBreaksForwards(1, withSelection ? SelectionPolicy.EXTEND : SelectionPolicy.CLEAR);
-                if (ed.getCurrentParagraph() != line)
-                {
-                    // That took us to next line; our line must have been all whitespace,
-                    // so move back:
-                    ed.positionCaret(oldPos);
-                }
-
-            }
-        }
-    }
-
-    private class EndLineAction extends FlowActionWithOrWithoutSelection
-    {
-        public EndLineAction(boolean withSelection)
-        {
-            super(withSelection ? DefaultEditorKit.selectionEndLineAction : DefaultEditorKit.endLineAction, Category.MOVE_SCROLL, withSelection);
-        }
-
-        @Override
-        public void actionPerformed()
-        {
-            getTextComponent().lineEnd(withSelection ? SelectionPolicy.EXTEND : SelectionPolicy.CLEAR);
-        }
-    }
 
     // --------------------------------------------------------------------
     private FlowAbstractAction deleteWordAction()

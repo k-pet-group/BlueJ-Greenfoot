@@ -85,6 +85,7 @@ public class TestBasicEditorInteraction extends FXTest
     {
         // Moves to new pos and returns expected position.  For convenience, current position and length are given
         // Also, the mutable target column (used for up/down movements) is passed, which may be read from and/or written to.
+        // The new pos is inherently determined, e.g. a keyboard mover for end-of-line will always move to the current end of line
         int move(int curPos, int curLen, AtomicInteger targetColumn);
     }
     
@@ -325,6 +326,62 @@ public class TestBasicEditorInteraction extends FXTest
                     }
                     break;
             }
+        }
+    }
+    
+    @Property(trials = 3)
+    public void testWordActions(@When(seed=1L) @From(GenRandom.class) Random r)
+    {
+        List<String> words = List.of("java", "fooBar", "Kölling", "a", "63", "1_000", "a_B");
+        List<String> nonWords = List.of(" ", "\n", "{", ".", "+", "    ");
+        
+        // Make a random String with no two words directly adjacent:
+        boolean lastWasWord = false;
+        String content = "";
+        // Each element is a pair of start, end
+        List<int[]> wordBoundaries = new ArrayList<>();
+        for (int i = 0; i < 20; i++)
+        {
+            if (!lastWasWord && r.nextBoolean())
+            {
+                String nextWord = words.get(r.nextInt(words.size()));
+                wordBoundaries.add(new int[] {content.length(), content.length() + nextWord.length()});
+                content += nextWord;
+                lastWasWord = true;
+            }
+            else
+            {
+                String nonWord = nonWords.get(r.nextInt(nonWords.size()));
+                if (nonWord.trim().isEmpty() && wordBoundaries.size() > 0)
+                {
+                    wordBoundaries.get(wordBoundaries.size() - 1)[1] += nonWord.length();
+                }
+                else if (!nonWord.trim().isEmpty())
+                {
+                    wordBoundaries.add(new int[] {content.length(), content.length() + nonWord.length()});
+                }
+                content += nonWord;
+                lastWasWord = false;
+            }
+        }
+        
+        setText(content);
+        clickOn(flowEditorPane);
+        fx_(() -> flowEditorPane.positionCaret(wordBoundaries.get(0)[0]));
+        int expectedAnchor = wordBoundaries.get(0)[0];
+        for (int[] wordBoundary : wordBoundaries)
+        {
+            int prevPos = fx(() -> flowEditorPane.getCaretPosition());
+            boolean holdShift = r.nextInt(3) != 1;
+            if (holdShift)
+                press(KeyCode.SHIFT);
+            push(Config.isMacOS() ? KeyCode.ALT : KeyCode.CONTROL, KeyCode.RIGHT);
+            assertEquals("Word-Right after " + prevPos, wordBoundary[1], fx(() -> flowEditorPane.getCaretPosition()).intValue());
+            if (holdShift)
+                release(KeyCode.SHIFT);
+            else
+                expectedAnchor = wordBoundary[1];
+            assertEquals("Anchor word-right after " + prevPos + " shift: " + holdShift, expectedAnchor, fx(() -> flowEditorPane.getAnchorPosition()).intValue());
         }
     }
 
