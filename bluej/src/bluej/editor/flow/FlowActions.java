@@ -1057,12 +1057,11 @@ public final class FlowActions
                 /*TODOFLOW
                 cutWordAction(),
                 cutEndOfWordAction(),
-
+                */
                 findAction(),
                 findNextAction(),
                 findPrevAction(),
                 replaceAction(),
-                */
                 compileOrNextErrorAction,
                 goToLineAction(),
                 toggleInterfaceAction(),
@@ -2130,27 +2129,26 @@ public final class FlowActions
             c.moveCaretPosition(newEnd);
         });
     }
-
+    */
     private FlowAbstractAction findAction()
     {
         return action("find", Category.MISC, () -> {
             //getEditor(e).find();
-            FlowEditor editor=getEditor();
-            editor.initFindPanel();
+            getClearedEditor().initFindPanel();
         });
     }
 
     private FlowAbstractAction findNextAction()
     {
         return action("find-next", Category.MISC, () -> {
-            getEditor().findNext(false);
+            getClearedEditor().findNext(false);
         });
     }
 
     private FlowAbstractAction findPrevAction()
     {
         return action("find-next-backward", Category.MISC, () -> {
-            getEditor().findNext(true);
+            getClearedEditor().findNext(true);
         });
     }
 
@@ -2158,8 +2156,7 @@ public final class FlowActions
     {
         return action("replace", Category.MISC, () ->
         {
-            FlowEditor editor = getEditor();
-            editor.setFindPanelVisible();
+            FlowEditor editor = getClearedEditor();
             editor.showReplacePanel();
             if (editor.getSourcePane().getSelectedText() != null)
             {
@@ -2167,7 +2164,7 @@ public final class FlowActions
             }
         });
     }
-    */
+    
     private FlowAbstractAction compileOrNextErrorAction()
     {
         return action("compile", Category.MISC, () -> getClearedEditor().compileOrShowNextError());

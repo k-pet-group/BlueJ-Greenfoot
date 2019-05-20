@@ -60,6 +60,7 @@ import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
+import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
@@ -67,10 +68,13 @@ import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.print.PrinterJob;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -94,6 +98,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.scene.web.WebView;
 import javafx.stage.PopupWindow;
+import javafx.util.Duration;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
 import org.w3c.dom.NodeList;
@@ -109,6 +114,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
@@ -159,10 +165,19 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private Charset characterSet;           // character set of the file
     private String windowTitle;
     private final Properties resources = Config.moeUserProps;
+    // Each element is size 2: beginning (incl) and end (excl)
+    private final ArrayList<int[]> findResults = new ArrayList<>();
     /**
      * list of actions that are disabled in the readme text file
      */
     private static ArrayList<String> readMeActions;
+
+    // find functionality
+    private final FindPanel finder;
+    // The most recent active FindNavigator.  Returns null if there has been no search,
+    // or if the document has been modified since the last search.
+    private final ObjectProperty<FindNavigator> currentSearchResult = new SimpleObjectProperty<>(null);
+    private String lastSearchString = "";
 
 
     // TODOFLOW handle the interface-only case
@@ -311,6 +326,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             {
                 flowEditorPane.setLineMarginGraphics(i, calculateMarginDisplay(i));
             }
+            flowEditorPane.markFindResults(findResults);
         });
         Nodes.addInputMap(this, InputMap.consume(MouseEvent.MOUSE_MOVED, this::mouseMoved));
         // create menubar and menus
@@ -319,6 +335,26 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         // Must update keymap after making menu to remove shortcuts which are now handled by menu:
         actions.updateKeymap();
         //fxMenus.setAll(menus);
+
+        BorderPane bottomArea = new BorderPane();
+        JavaFXUtil.addStyleClass(bottomArea, "moe-bottom-bar");
+
+        // create panel for info/status
+
+        //area for new find functionality
+        finder=new FindPanel(this);
+        finder.setVisible(false);
+        BorderPane commentsPanel = new BorderPane();
+        commentsPanel.setCenter(info);
+        commentsPanel.setRight(saveState);
+        BorderPane.setAlignment(info, Pos.TOP_LEFT);
+        BorderPane.setAlignment(saveState, Pos.CENTER_RIGHT);
+        JavaFXUtil.addStyleClass(commentsPanel, "moe-bottom-status-row");
+        commentsPanel.styleProperty().bind(PrefMgr.getEditorFontCSS(false));
+
+        bottomArea.setBottom(commentsPanel);
+        bottomArea.setTop(finder);
+        setBottom(bottomArea);
 
         JavaFXUtil.addChangeListenerPlatform(PrefMgr.getEditorFontSize(), s -> {
             javaSyntaxView.fontSizeChanged();
@@ -1779,13 +1815,186 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             setSelection(new SourceLocation(n , 1), new SourceLocation(n, 1));
         });
     }
-
-
+    
     // package visible
     void updateHeaderHasErrors(boolean hasErrors)
     {
         fxTab.setErrorStatus(hasErrors);
     }
+
+    /**
+     * Do a find forwards or backwards, and highlight all cases.
+     *
+     * The case after the cursor (if backwards is false) or before it (if
+     * backwards is true) is given a special highlight.
+     *
+     * Returns null if nothing was found.  If something was found, gives
+     * you back a class you can use to cycle between search results.  It
+     * becomes invalid next time doFind is called, or if the document is modified.
+     */
+    FindNavigator doFind(String searchFor, boolean ignoreCase)
+    {
+        removeSearchHighlights();
+        // Deselect existing selection in case it's no longer a valid search result.
+        // Move back to beginning of selection:
+        flowEditorPane.positionCaret(flowEditorPane.getSelectionStart());
+        lastSearchString = searchFor;
+        String content = document.getFullContent();
+
+        int curPosition = 0;
+        boolean finished = false;
+
+        List<Integer> foundStarts = new ArrayList<>();
+
+        while (!finished)
+        {
+            int foundPos = FindNavigator.findSubstring(content, searchFor, ignoreCase, false, curPosition);
+            if (foundPos != -1)
+            {
+                foundStarts.add(foundPos);
+                curPosition = foundPos + searchFor.length();
+            }
+            else
+            {
+                finished = true;
+            }
+        }
+        currentSearchResult.set(foundStarts.isEmpty() ? null : new FindNavigator()
+        {
+            @Override
+            public void highlightAll()
+            {
+                findResults.clear();
+                findResults.addAll(Utility.mapList(foundStarts, foundPos -> new int[] {foundPos, foundPos + searchFor.length()}));
+                flowEditorPane.markFindResults(findResults);
+            }
+
+            @Override
+            public FindNavigator replaceCurrent(String replacement)
+            {
+                if (!flowEditorPane.getSelectedText().equals(searchFor))
+                {
+                    selectNext(true);
+                }
+                int pos = flowEditorPane.getSelectionStart();
+                document.replaceText(pos, searchFor.length(), replacement);
+                flowEditorPane.positionCaret(pos + searchFor.length());
+                return doFind(searchFor, ignoreCase);
+            }
+
+            public void replaceAll(String replacement)
+            {
+                // Sort all the found positions in descending order, so we can replace them
+                // in order without affecting the later positions in the list (earlier in file):
+                foundStarts.stream().sorted(Comparator.reverseOrder()).forEach(pos ->
+                    document.replaceText(pos, searchFor.length(), replacement)
+                );
+            }
+
+            @Override
+            public void selectNext(boolean canBeAtCurrentPos)
+            {
+                if (validProperty().get())
+                {
+                    int selStart = flowEditorPane.getSelectionStart();
+                    int position = foundStarts.stream()
+                        .filter(pos -> pos > selStart || (canBeAtCurrentPos && pos == selStart))
+                        .findFirst()
+                        .orElse(foundStarts.get(0));
+                    select(position);
+                }
+            }
+
+            private void select(int position)
+            {
+                flowEditorPane.select(position, position + searchFor.length());
+            }
+
+            @Override
+            public void selectPrev()
+            {
+                if (validProperty().get())
+                {
+                    int selStart = flowEditorPane.getSelectionStart();
+                    int position = Utility.streamReversed(foundStarts)
+                        .filter(pos -> pos < selStart)
+                        .findFirst()
+                        .orElse(foundStarts.get(foundStarts.size() - 1));
+                    select(position);
+                }
+            }
+
+            @Override
+            public BooleanExpression validProperty()
+            {
+                return currentSearchResult.isEqualTo(this);
+            }
+        });
+        return currentSearchResult.get();
+    }
+
+    /**
+     * Removes the selected highlights (in both the source/doc pane) 
+     * Note: the other highlights such as the brackets etc remain
+     */
+    public void removeSearchHighlights()
+    {
+        flowEditorPane.markFindResults(List.of());
+    }
+
+    /**
+     * Sets the find panel to be visible and if there is a selection/or previous search 
+     * it starts a automatic find of what was selected in the text/or previous search. If 
+     * it is the source pane then the replace button is enabled; if it is the interface pane 
+     * then the replace button and replace panel are set to disabled and invisible
+     */
+    public void initFindPanel()
+    {
+        finder.displayFindPanel(flowEditorPane.getSelectedText());
+    }
+
+    /**
+     * Implementation of "find-next" user function.
+     */
+    public void findNext(boolean backwards)
+    {
+        if (currentSearchResult.get() == null || !currentSearchResult.get().validProperty().get())
+        {
+            String search = flowEditorPane.getSelectedText();
+            if (search.isEmpty())
+                search = lastSearchString;
+            doFind(search, true);
+        }
+        if (currentSearchResult.get() != null)
+        {
+            if (backwards)
+                currentSearchResult.get().selectPrev();
+            else
+                currentSearchResult.get().selectNext(false);
+        }
+    }
+
+    /**
+     * Opens or close the replace panel (and if opening it, set the focus into
+     * the find field).
+     */
+    protected void showReplacePanel()
+    {
+        if (!finder.isVisible()) {
+            finder.setVisible(true);
+        }
+        finder.requestFindfieldFocus();
+        finder.setReplaceEnabled(true);
+    }
+
+    /**
+     * Populates the find field and requests focus
+     */
+    public void setFindTextfield(String text)
+    {
+        finder.populateFindTextfield(text);
+    }
+
 
     private static class ErrorDisplay
     {

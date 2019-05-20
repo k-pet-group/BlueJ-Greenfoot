@@ -29,6 +29,7 @@ import bluej.compiler.CompileType;
 import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerThread;
 import bluej.editor.EditorWatcher;
+import bluej.editor.flow.FindNavigator;
 import bluej.editor.moe.BlueJSyntaxView.ParagraphAttribute;
 import bluej.editor.moe.MoeActions.MoeAbstractAction;
 import bluej.pkgmgr.Project;
@@ -292,44 +293,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
         this.fxTabbedEditor = getDefaultEditor.get();
         this.fxTab = new MoeFXTab(this, fxWindowTitle);
-    }
-
-    /**
-     * Find the position of a substring in a given string, 
-     * can specify direction and whether the search should ignoring case
-     * Return the position of the substring or -1.
-     *
-     * @param  text        the full string to be searched
-     * @param  sub         the substring that we're looking for
-     * @param  ignoreCase  if true, case is ignored
-     * @param  backwards   Description of the Parameter
-     * @param  foundPos   Offset for the string search
-     * @return             Description of the Return Value
-     * @returns            the index of the substring, or -1 if not found
-     */
-    private static int findSubstring(String text, String sub, boolean ignoreCase, boolean backwards, int foundPos)
-    {
-        int strlen = text.length();
-        int sublen = sub.length();
-
-        if (sublen == 0) {
-            return -1;
-        }
-
-        boolean found = false;
-        int pos = foundPos;
-        boolean itsOver = (backwards ? (pos < 0) : (pos + sublen > strlen));
-        while (!found && !itsOver) {
-            found = text.regionMatches(ignoreCase, pos, sub, 0, sublen);                
-            if (found) {
-                return pos;
-            }
-            if (!found) {
-                pos = (backwards ? pos - 1 : pos + 1);
-                itsOver = (backwards ? (pos < 0) : (pos + sublen > strlen));
-            }
-        }      
-        return -1;
     }
 
     /**
@@ -1864,53 +1827,6 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
 
     /**
-     * An interface for dealing with search results.
-     */
-    public static interface FindNavigator
-    {
-        /**
-         * Highlights all search results
-         */
-        public void highlightAll();
-
-        /**
-         * Selects the next search result, wrapping if necessary
-         *
-         * @param canBeAtCurrentPos If true, "next" result can include one beginning
-         *                          at the start of the current selection (e.g. when
-         *                          typing in search field).  If false, next result
-         *                          must be beyond start of selection (e.g. when pressing
-         *                          find next button).
-         */
-        public void selectNext(boolean canBeAtCurrentPos);
-
-        /**
-         * Selects the previous search result, wrapping backwards if necessary.
-         */
-        public void selectPrev();
-
-        /**
-         * Is this search result still valid?  Search results get invalidated
-         * by modifying the document, or performing a new search.
-         */
-        public BooleanExpression validProperty();
-
-        /**
-         * Replaces the current selected search result with the given replacement
-         * string, and returns the updated search.  THis search object will no longer
-         * be valid, and you should switch to using the returned result.
-         */
-        public FindNavigator replaceCurrent(String replacement);
-
-        /**
-         * Replaces all search results with the given replacement string.
-         * This search result will no longer be valid, but there's no point
-         * searching again, as all instances will have been replaced.
-         */
-        public void replaceAll(String replacement);
-    }
-
-    /**
      * Do a find forwards or backwards, and highlight all cases.
      *
      * The case after the cursor (if backwards is false) or before it (if
@@ -1936,7 +1852,7 @@ public final class MoeEditor extends ScopeColorsBorderPane
 
         while (!finished)
         {
-            int foundPos = findSubstring(content, searchFor, ignoreCase, false, curPosition);
+            int foundPos = FindNavigator.findSubstring(content, searchFor, ignoreCase, false, curPosition);
             if (foundPos != -1)
             {
                 foundStarts.add(foundPos);

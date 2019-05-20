@@ -53,6 +53,7 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * A FlowEditorPane is a component with (optional) horizontal and vertical scroll bars.
@@ -603,6 +604,27 @@ public class FlowEditorPane extends Region implements DocumentListener
         if (lineDisplay.isLineVisible(lineIndex))
         {
             lineDisplay.getVisibleLine(lineIndex).textLine.showError(startColumn, endColumn);
+        }
+    }
+    
+    // Each item is of size 2, start pos incl and end pos excl, where position is within the whole document
+    void markFindResults(List<int[]> results)
+    {
+        // Maps line number to [start column incl, end column excl]
+        Map<Integer, List<int[]>> resultsByLine = new HashMap<>();
+
+        for (int[] result : results)
+        {
+            int lineIndex = document.getLineFromPosition(result[0]);
+            int startColumn = document.getColumnFromPosition(result[0]);
+            // Only show result on one line at most:
+            int endColumn = Math.min(document.getLineEnd(lineIndex), result[1] - document.getLineStart(lineIndex));
+            resultsByLine.computeIfAbsent(lineIndex, n -> new ArrayList<>()).add(new int[]{startColumn, endColumn});
+        }
+        int[] visibleLines = lineDisplay.getLineRangeVisible();
+        for (int line = visibleLines[0]; line <= visibleLines[1]; line++)
+        {
+            lineDisplay.getVisibleLine(line).textLine.showFindResults(resultsByLine.getOrDefault(line, List.of()));
         }
     }
 

@@ -19,10 +19,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 This file is subject to the Classpath exception as provided in the  
 LICENSE.txt file that accompanied this code.
  */
-package bluej.editor.moe;
+package bluej.editor.flow;
 
 import bluej.Config;
-import bluej.editor.flow.FindNavigator;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
@@ -38,7 +37,11 @@ import javafx.scene.effect.BlurType;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
@@ -63,7 +66,7 @@ import static javafx.scene.input.KeyCombination.SHIFT_DOWN;
 public class FindPanel extends GridPane
 {
     private final TextField replaceField;
-    private final MoeEditor editor;
+    private final FlowEditor editor;
     private final CheckBox matchCaseCheckBox;
     private final Button previousButton;
     private final Button nextButton;
@@ -75,9 +78,9 @@ public class FindPanel extends GridPane
     /**
      * Constructor that creates and displays the different elements of the Find Panel
      */
-    public FindPanel(MoeEditor ed)
+    public FindPanel(FlowEditor ed)
     {
-        editor = ed;
+        this.editor = ed;
         JavaFXUtil.addStyleClass(this, "moe-find-panel");
 
         // Various MoeEditor calls make us invisible; take us out of the layout when that happens
@@ -371,7 +374,7 @@ public class FindPanel extends GridPane
     {
         editor.removeSearchHighlights();
         this.setVisible(false);
-        editor.getCurrentTextPane().requestFocus();
+        editor.getSourcePane().requestFocus();
     }
 
     /**

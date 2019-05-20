@@ -55,7 +55,9 @@ class TextLine extends TextFlow
 {
     // The selection shape (may be empty and invisible when not in use)
     private final Path selectionShape = new Path();
+    private final Path findResultShape = new Path();
     private final Path errorUnderlineShape = new Path();
+    
     private List<Node> backgroundNodes = Collections.emptyList();
     private List<StyledSegment> latestContent = Collections.emptyList();
 
@@ -66,10 +68,13 @@ class TextLine extends TextFlow
         selectionShape.setStroke(null);
         selectionShape.setFill(Color.CORNFLOWERBLUE);
         selectionShape.setManaged(false);
+        findResultShape.setStroke(null);
+        findResultShape.setFill(Color.GOLDENROD);
+        findResultShape.setManaged(false);
         errorUnderlineShape.setStroke(Color.RED);
         errorUnderlineShape.setFill(null);
         errorUnderlineShape.setManaged(false);
-        getChildren().setAll(selectionShape, errorUnderlineShape);
+        getChildren().setAll(findResultShape, selectionShape, errorUnderlineShape);
     }
 
     /**
@@ -166,6 +171,7 @@ class TextLine extends TextFlow
         hideErrorUnderline();
         getChildren().clear();
         getChildren().addAll(backgroundNodes);
+        getChildren().add(findResultShape);
         getChildren().add(selectionShape);
         for (StyledSegment styledSegment : text)
         {
@@ -183,6 +189,15 @@ class TextLine extends TextFlow
     {
         errorUnderlineShape.getElements().setAll(makeSquiggle(rangeShape(startColumn, endColumn)));
         errorUnderlineShape.setVisible(true);
+    }
+
+    // Each item is size 2, start pos incl and end pos excl.  No other find results will be shown on the line,
+    // so call this method with the complete set you want to show on this line.
+    // To turn off, call with an empty list
+    public void showFindResults(List<int[]> positions)
+    {
+        findResultShape.getElements().setAll(positions.stream().flatMap(p -> Arrays.stream(rangeShape(p[0], p[1]))).toArray(PathElement[]::new));
+        findResultShape.setVisible(!findResultShape.getElements().isEmpty());
     }
 
     private List<PathElement> makeSquiggle(PathElement[] rectShape)
@@ -228,7 +243,7 @@ class TextLine extends TextFlow
             nodes = Collections.emptyList();
         
         this.backgroundNodes = new ArrayList<>(nodes);
-        int selectionIndex = getChildren().indexOf(selectionShape);
+        int selectionIndex = getChildren().indexOf(findResultShape);
         getChildren().remove(0, selectionIndex);
         getChildren().addAll(0, backgroundNodes);
     }
