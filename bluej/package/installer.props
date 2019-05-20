@@ -27,9 +27,9 @@ install.exeName=bluej
 # Required java specification version
 install.requiredJavaVersion=1.8
 
-install.javafx.classpath.unix = JAVAFX_CP="$JAVAFX_LIB/javafx.base.jar:$JAVAFX_LIB/javafx.controls.jar:$JAVAFX_LIB/javafx.fxml.jar:$JAVAFX_LIB/javafx.graphics.jar:$JAVAFX_LIB/javafx.media.jar:$JAVAFX_LIB/javafx.properties.jar:$JAVAFX_LIB/javafx.swing.jar:$JAVAFX_LIB/javafx.web.jar"
+install.javafx.classpath.unix = JAVAFX_CP="$JAVAFXPATH/lib/javafx.base.jar:$JAVAFXPATH/lib/javafx.controls.jar:$JAVAFXPATH/lib/javafx.fxml.jar:$JAVAFXPATH/lib/javafx.graphics.jar:$JAVAFXPATH/lib/javafx.media.jar:$JAVAFXPATH/lib/javafx.properties.jar:$JAVAFXPATH/lib/javafx.swing.jar:$JAVAFXPATH/lib/javafx.web.jar"
 
-install.javafx.classpath.win = set JAVAFX_CP="%JAVAFX_LIB%\\javafx.base.jar;%JAVAFX_LIB%\\javafx.controls.jar;%JAVAFX_LIB%\\javafx.fxml.jar;%JAVAFX_LIB%\\javafx.graphics.jar;%JAVAFX_LIB%\\javafx.media.jar;%JAVAFX_LIB%\\javafx.properties.jar;%JAVAFX_LIB%\\javafx.swing.jar;%JAVAFX_LIB%\\javafx.web.jar"
+install.javafx.classpath.win = set JAVAFX_CP="%JAVAFXPATH%\\lib\\javafx.base.jar;%JAVAFXPATH%\\lib\\javafx.controls.jar;%JAVAFXPATH%\\lib\\javafx.fxml.jar;%JAVAFXPATH%\\lib\\javafx.graphics.jar;%JAVAFXPATH%\\lib\\javafx.media.jar;%JAVAFXPATH%\\lib\\javafx.properties.jar;%JAVAFXPATH%\\lib\\javafx.swing.jar;%JAVAFXPATH%\\lib\\javafx.web.jar"
 
 # additional commands to be added to MacOS script before execution
 install.commands.mac = CP="$APPBASE/lib/bluej.jar:/System/Library/Java"
@@ -47,14 +47,15 @@ install.commands.win = set CP=~\\lib\\bluej.jar
 # unix is clever about the quotes and removes them)
 install.javaOpts.unix=-Djavafx.embed.singleThread=true -Dawt.useSystemAAFontSettings=on -cp "$CP:$JAVAFX_CP"
 
+install.arguments.unix=-javafxpath="$JAVAFXPATH"
+
 # java command-line options for windows
 install.javaOpts.win=-Djavafx.embed.singleThread=true -cp %CP%;%JAVAFX_CP%
 
+install.arguments.win=-javafxpath="%JAVAFXPATH%"
+
 # Class that contains the main to execute
 install.mainClass=bluej.Boot
-
-# Arguments to pass to the main method
-install.arguments=
 
 # The big text colors
 install.color.text=0 0 0
