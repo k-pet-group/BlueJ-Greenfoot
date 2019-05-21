@@ -1069,10 +1069,8 @@ public final class FlowActions
                 copyLineAction(),
                 cutLineAction(),
                 cutEndOfLineAction(),
-                /*TODOFLOW
                 cutWordAction(),
                 cutEndOfWordAction(),
-                */
                 findAction(),
                 findNextAction(),
                 findPrevAction(),
@@ -1708,8 +1706,6 @@ public final class FlowActions
             lastActionWasCut = true;
         });
     }
-    /*TODOFLOW
-    // ========================= SUPPORT ROUTINES ==========================
 
     private FlowAbstractAction cutWordAction()
     {
@@ -1728,6 +1724,7 @@ public final class FlowActions
         });
     }
 
+    /*TODOFLOW
     private FlowAbstractAction contentAssistAction()
     {
         return action("code-completion", Category.MISC, () -> {
@@ -1737,8 +1734,7 @@ public final class FlowActions
             }
         });
     }
-
-    // --------------------------------------------------------------------
+    */
 
     private FlowAbstractAction cutEndOfWordAction()
     {
@@ -1755,7 +1751,6 @@ public final class FlowActions
             lastActionWasCut = true;
         });
     }
-    */
 
     // --------------------------------------------------------------------
 
