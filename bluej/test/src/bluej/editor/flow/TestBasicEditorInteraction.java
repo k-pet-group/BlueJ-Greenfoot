@@ -445,14 +445,18 @@ public class TestBasicEditorInteraction extends FXTest
         String unindented = BLOCK_TEST.replace("  ", "");
         setText(unindented);
         clickOn(flowEditorPane);
-        fx_(() -> {
-            flowEditor.enableParser(true);
-            flowEditor.getSourceDocument().flushReparseQueue();
-            FlowActions.getActions(flowEditor).getActionByName("autoindent").actionPerformed();
-        });
-        sleep(1000);
-        assertEquals(BLOCK_TEST, fx(() -> flowEditorPane.getDocument().getFullContent()));
-        // Check that undo/redo works:
+        // Do it twice to check if it produces same result on correctly indented code:
+        for (int i = 0; i < 2; i++)
+        {
+            fx_(() -> {
+                flowEditor.enableParser(true);
+                flowEditor.getSourceDocument().flushReparseQueue();
+                FlowActions.getActions(flowEditor).getActionByName("autoindent").actionPerformed();
+            });
+            sleep(1000);
+            assertEquals(BLOCK_TEST, fx(() -> flowEditorPane.getDocument().getFullContent()));
+        }
+        // Check that undo/redo works (and that the second run above left no undo trace):
         push(KeyCode.SHORTCUT, KeyCode.Z);
         assertEquals(unindented, fx(() -> flowEditorPane.getDocument().getFullContent()));
         push(KeyCode.SHORTCUT, KeyCode.Y);

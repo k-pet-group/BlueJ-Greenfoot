@@ -1403,7 +1403,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public void writeMessage(String msg)
     {
-        throw new UnimplementedException();
+        info.message(msg);
     }
 
     /**
