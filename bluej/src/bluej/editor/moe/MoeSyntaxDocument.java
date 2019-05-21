@@ -407,6 +407,7 @@ public class MoeSyntaxDocument implements ReparseableDocument
     /**
      * Access the parsed node structure of this document.
      */
+    @Override
     public ParsedCUNode getParser()
     {
         flushReparseQueue();
@@ -675,6 +676,7 @@ public class MoeSyntaxDocument implements ReparseableDocument
     /**
      * Process all of the re-parse queue.
      */
+    @Override
     public void flushReparseQueue()
     {
         while (pollReparseQueue(getLength())) ;

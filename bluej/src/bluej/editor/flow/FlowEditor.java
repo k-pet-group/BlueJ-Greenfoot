@@ -98,7 +98,6 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.scene.web.WebView;
 import javafx.stage.PopupWindow;
-import javafx.util.Duration;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
 import org.w3c.dom.NodeList;
@@ -285,12 +284,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             undoStack.clear();
         }
         
-        /*
         public void compoundEdit(FXPlatformRunnable action)
         {
+            // TODOFLOW actually make this a compound edit
+            // (will need to make each undo entry a list of edits)s
             action.run();
         }
-         */
     }
     
     // package-visible:
@@ -1007,7 +1006,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public ParsedCUNode getParsedNode()
     {
-        return javaSyntaxView.getRootNode();
+        return javaSyntaxView.getParser();
     }
 
     @Override

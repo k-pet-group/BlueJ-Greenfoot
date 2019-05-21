@@ -2025,6 +2025,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     /**
      * Process all of the re-parse queue.
      */
+    @Override
     public void flushReparseQueue()
     {
         while (pollReparseQueue(document.getLength())) ;
@@ -2362,7 +2363,8 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         }
     }
 
-    public ParsedCUNode getRootNode()
+    @Override
+    public ParsedCUNode getParser()
     {
         return rootNode;
     }

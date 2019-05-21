@@ -23,6 +23,7 @@ package bluej.editor.flow;
 
 
 import bluej.Config;
+import bluej.editor.flow.FlowIndent.AutoIndentInformation;
 import bluej.editor.moe.MoeEditor;
 import bluej.parser.SourceLocation;
 import bluej.parser.nodes.ReparseableDocument;
@@ -1051,10 +1052,12 @@ public final class FlowActions
                 closeAction(),
                 undoAction(),
                 redoAction(),
-                /*
+                /*TODOFLOW
                 commentBlockAction(),
                 uncommentBlockAction(),
+                */
                 autoIndentAction(),
+                /*TODOFLOW
                 indentBlockAction(),
                 deindentBlockAction(),
                 insertMethodAction(),
@@ -1362,23 +1365,22 @@ public final class FlowActions
     {
         return action("deindent-block", Category.EDIT, () -> doBlockDeIndent(getEditor()));
     }
-
-    // --------------------------------------------------------------------
-
+    */
+    
     private FlowAbstractAction autoIndentAction()
     {
         return action("autoindent", Category.EDIT, () -> {
-            FlowEditor editor = getEditor();
+            FlowEditor editor = getClearedEditor();
             ReparseableDocument doc = editor.getSourceDocument();
-            if (doc.getParsedNode() == null) {
+            if (editor.getParsedNode() == null) {
                 // The Readme, or some other file which isn't parsed
                 return;
             }
 
             int prevCaretPos = editor.getSourcePane().getCaretPosition();
             editor.undoManager.compoundEdit(() -> {
-                AutoIndentInformation info = FlowIndent.calculateIndentsAndApply(doc, prevCaretPos);
-                editor.positionCaretForward(info.getNewCaretPosition() - prevCaretPos);
+                AutoIndentInformation info = FlowIndent.calculateIndentsAndApply(doc, editor.getSourcePane().getDocument(), prevCaretPos);
+                editor.getSourcePane().positionCaret(info.getNewCaretPosition());
                 if (info.isPerfect()) {
                     editor.writeMessage(Config.getString("editor.info.perfectIndent"));
                 }
@@ -1387,7 +1389,7 @@ public final class FlowActions
     }
 
     // --------------------------------------------------------------------
-
+    /*TODOFLOW
     private FlowAbstractAction insertMethodAction()
     {
         return action("insert-method", Category.EDIT, () -> {

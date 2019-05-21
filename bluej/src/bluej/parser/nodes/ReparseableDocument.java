@@ -42,6 +42,13 @@ public interface ReparseableDocument
     public Reader makeReader(int startPos, int endPos);
 
     /**
+     * Access the parsed node structure of this document.
+     */
+    public ParsedCUNode getParser();
+    
+    public void flushReparseQueue();
+    
+    /**
      * Mark a portion of the document as having been parsed. This removes any
      * scheduled re-parses as appropriate and repaints the appropriate area.
      */

@@ -44,6 +44,7 @@ import javafx.stage.Stage;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
@@ -402,6 +403,55 @@ public class TestBasicEditorInteraction extends FXTest
                 expectedAnchor = wordBoundary[0];
             assertEquals("Anchor word-left after " + prevPos + " shift: " + holdShift, expectedAnchor, fx(() -> flowEditorPane.getAnchorPosition()).intValue());
         }
+    }
+    
+    private static final String BLOCK_TEST = 
+        "public class Foo\n" +
+                "{\n" +
+                "    // Field comment\n" +
+                "    private int field = 0;\n" +
+                "\n" +
+                "    public Foo()\n" +
+                "    {\n" +
+                "        if (true)\n" +
+                "        {\n" +
+                "            field = 1;\n" +
+                "        }\n" +
+                "        else\n" +
+                "        {\n" +
+                "            field = 0;\n" +
+                "        }\n" +
+                "    }\n" +
+                "\n" +
+                "    public void method()\n" +
+                "    {\n" +
+                "        while (true)\n" +
+                "        {\n" +
+                "            if (true)\n" +
+                "                if (false)\n" +
+                "                    break;\n" +
+                "                else\n" +
+                "                {\n" +
+                "                    while (false)\n" +
+                "                        field = 1;\n" +
+                "                }\n" +
+                "        }\n" +
+                "    }\n" +
+                "}";
+    
+    @Test
+    public void testAutoIndent()
+    {
+        String unindented = BLOCK_TEST.replace("  ", "");
+        setText(unindented);
+        clickOn(flowEditorPane);
+        fx_(() -> {
+            flowEditor.enableParser(true);
+            flowEditor.getSourceDocument().flushReparseQueue();
+            FlowActions.getActions(flowEditor).getActionByName("autoindent").actionPerformed();
+        });
+        sleep(1000);
+        assertEquals(BLOCK_TEST, fx(() -> flowEditorPane.getDocument().getFullContent()));
     }
 
     private void setClipboard(String pasteContent)
