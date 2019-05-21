@@ -24,6 +24,8 @@ package bluej.editor.flow;
 import bluej.utility.javafx.FXPlatformRunnable;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * An implementation of undo and redo for the Document interface.
@@ -48,11 +50,17 @@ public class DocumentUndoStack implements DocumentListener
     }
 
     private final Document document;
-    private final ArrayList<Change> rememberedChanges = new ArrayList<>();
+    // The sublists are in order of application.  Each outer list member is a change that a single
+    // undo/redo will perform, each inner list member is a set of overlapping or disjoint changes that
+    // form a compount edit.  Various changes like auto-indent make many small changes that will all
+    // be undone/redone as part of a group.
+    private final ArrayList<ArrayList<Change>> rememberedChanges = new ArrayList<>();
     // The index of the next change that we would redo.
     private int changeIndex = 0;
     // Are we the ones doing the change as part of undo/redo?  Don't add it our remembered changes a second time.
     private boolean changeByUs = false;
+    // Are we currently in the middle of a compound edit?
+    private boolean inCompoundEdit = false;
     private FXPlatformRunnable stateListener = null;
     
     public DocumentUndoStack(Document document)
@@ -71,9 +79,13 @@ public class DocumentUndoStack implements DocumentListener
                 // We have to chop off the later changes as we're making new ones from here:
                 rememberedChanges.subList(changeIndex, rememberedChanges.size()).clear();
             }
-            rememberedChanges.add(new Change(origStartIncl, original, replacement));
-            changeIndex += 1;
-            if (stateListener != null)
+            if (!inCompoundEdit)
+            {
+                rememberedChanges.add(new ArrayList<>());
+                changeIndex += 1;
+            }
+            rememberedChanges.get(changeIndex - 1).add(new Change(origStartIncl, original, replacement));
+            if (!inCompoundEdit && stateListener != null)
             {
                 stateListener.run();
             }
@@ -107,14 +119,21 @@ public class DocumentUndoStack implements DocumentListener
         {
             changeByUs = true;
             changeIndex -= 1;
-            Change change = rememberedChanges.get(changeIndex);
-            document.replaceText(change.targetStartIncl, change.targetStartIncl + change.replacement.length(), change.replaced);
+            List<Change> changesToUndo = rememberedChanges.get(changeIndex);
+            int latestPos = -1;
+            // Undo in reverse order:
+            for (int i = changesToUndo.size() - 1; i >= 0; i--)
+            {
+                Change change = changesToUndo.get(i);
+                document.replaceText(change.targetStartIncl, change.targetStartIncl + change.replacement.length(), change.replaced);
+                latestPos = change.targetStartIncl + change.replaced.length();
+            }
             changeByUs = false;
             if (stateListener != null)
             {
                 stateListener.run();
             }
-            return change.targetStartIncl + change.replaced.length();
+            return latestPos;
         }
         return -1;
     }
@@ -129,15 +148,20 @@ public class DocumentUndoStack implements DocumentListener
         if (changeIndex < rememberedChanges.size())
         {
             changeByUs = true;
-            Change change = rememberedChanges.get(changeIndex);
+            List<Change> changes = rememberedChanges.get(changeIndex);
             changeIndex += 1;
-            document.replaceText(change.targetStartIncl, change.targetStartIncl + change.replaced.length(), change.replacement);
+            int latestPos = -1;
+            for (Change change : changes)
+            {
+                document.replaceText(change.targetStartIncl, change.targetStartIncl + change.replaced.length(), change.replacement);
+                latestPos = change.targetStartIncl + change.replacement.length();
+            }
             changeByUs = false;
             if (stateListener != null)
             {
                 stateListener.run();
             }
-            return change.targetStartIncl + change.replacement.length();
+            return latestPos;
         }
         return -1;
     }
@@ -158,6 +182,34 @@ public class DocumentUndoStack implements DocumentListener
         rememberedChanges.clear();
         changeIndex = 0;
         if (stateListener != null)
+        {
+            stateListener.run();
+        }
+    }
+
+
+    
+    public void compoundEdit(FXPlatformRunnable editAction)
+    {
+        if (changeIndex != rememberedChanges.size())
+        {
+            // We have to chop off the later changes as we're making new ones from here:
+            rememberedChanges.subList(changeIndex, rememberedChanges.size()).clear();
+        }
+        
+        inCompoundEdit = true;
+        ArrayList<Change> compoundChanges = new ArrayList<>();
+        rememberedChanges.add(compoundChanges);
+        changeIndex += 1;
+        editAction.run();
+        inCompoundEdit = false;
+        if (compoundChanges.isEmpty())
+        {
+            // Nothing happened!  Forget about it
+            rememberedChanges.remove(rememberedChanges.size() - 1);
+            changeIndex -= 1;
+        }
+        else if (stateListener != null)
         {
             stateListener.run();
         }

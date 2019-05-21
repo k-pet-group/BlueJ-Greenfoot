@@ -286,9 +286,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         
         public void compoundEdit(FXPlatformRunnable action)
         {
-            // TODOFLOW actually make this a compound edit
-            // (will need to make each undo entry a list of edits)s
-            action.run();
+            undoStack.compoundEdit(action);
         }
     }
     

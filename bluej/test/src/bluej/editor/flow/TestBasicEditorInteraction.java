@@ -452,6 +452,11 @@ public class TestBasicEditorInteraction extends FXTest
         });
         sleep(1000);
         assertEquals(BLOCK_TEST, fx(() -> flowEditorPane.getDocument().getFullContent()));
+        // Check that undo/redo works:
+        push(KeyCode.SHORTCUT, KeyCode.Z);
+        assertEquals(unindented, fx(() -> flowEditorPane.getDocument().getFullContent()));
+        push(KeyCode.SHORTCUT, KeyCode.Y);
+        assertEquals(BLOCK_TEST, fx(() -> flowEditorPane.getDocument().getFullContent()));
     }
 
     private void setClipboard(String pasteContent)
