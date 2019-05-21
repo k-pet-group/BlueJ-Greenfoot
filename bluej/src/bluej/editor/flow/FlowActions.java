@@ -42,6 +42,8 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyCombination.Modifier;
 import javafx.scene.input.KeyCombination.ModifierValue;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
@@ -172,6 +174,22 @@ public final class FlowActions
 
         // install our own keymap, with the existing one as parent:
         updateKeymap();
+        
+        Nodes.addInputMap(getTextComponent(), InputMap.sequence(
+            InputMap.consume(MouseEvent.MOUSE_CLICKED, e -> {
+                if (e.getButton() == MouseButton.PRIMARY)
+                {
+                    if (e.getClickCount() == 2)
+                    {
+                        selectWordAction().actionPerformed();
+                    }
+                    else if (e.getClickCount() == 3)
+                    {
+                        selectWholeLine();
+                    }
+                }
+            })
+        ));
     }
 
     // package-visible
@@ -1024,12 +1042,9 @@ public final class FlowActions
                 new DeletePrevCharAction(),
                 new DeleteNextCharAction(),
                 
-                /*TODOFLOW
-                
                 deleteWordAction(),
-
-                selectWordAction()
-                
+                selectWordAction(),
+                /*
                 saveAction(),
                 printAction(),
                 */
@@ -2104,8 +2119,6 @@ public final class FlowActions
         }
     }
 
-    /*TODOFLOW
-    // --------------------------------------------------------------------
     private FlowAbstractAction deleteWordAction()
     {
         return action("delete-previous-word", Category.EDIT, () -> {
@@ -2113,8 +2126,8 @@ public final class FlowActions
             FlowAbstractAction prevWordAct = actions.get(DefaultEditorKit.previousWordAction);
             int end = c.getCaretPosition();
             prevWordAct.actionPerformed();
-            int begin = c.getCaretPosition();
-            c.replaceText(begin, end, "");
+            c.positionAnchor(end);
+            c.replaceSelection("");
         });
     }
 
@@ -2125,11 +2138,11 @@ public final class FlowActions
             int origPos = c.getCaretPosition();
             int newStart = findWordLimit(c, origPos, false);
             int newEnd = findWordLimit(c, origPos, true);
-            c.positionCaret(newStart);
-            c.moveCaretPosition(newEnd);
+            c.positionAnchor(newStart);
+            c.moveCaret(newEnd);
         });
     }
-    */
+
     private FlowAbstractAction findAction()
     {
         return action("find", Category.MISC, () -> {

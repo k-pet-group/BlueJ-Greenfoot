@@ -330,7 +330,7 @@ public class TestBasicEditorInteraction extends FXTest
     }
     
     @Property(trials = 3)
-    public void testWordActions(@When(seed=1L) @From(GenRandom.class) Random r)
+    public void testWordActions(@From(GenRandom.class) Random r)
     {
         List<String> words = List.of("java", "fooBar", "Kölling", "a", "63", "1_000", "a_B");
         List<String> nonWords = List.of(" ", "\n", "{", ".", "+", "    ");
@@ -402,8 +402,6 @@ public class TestBasicEditorInteraction extends FXTest
                 expectedAnchor = wordBoundary[0];
             assertEquals("Anchor word-left after " + prevPos + " shift: " + holdShift, expectedAnchor, fx(() -> flowEditorPane.getAnchorPosition()).intValue());
         }
-        
-        // TODO test delete word, double click word to select
     }
 
     private void setClipboard(String pasteContent)
