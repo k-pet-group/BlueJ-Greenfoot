@@ -25,6 +25,7 @@ package bluej.editor.flow;
 import bluej.Config;
 import bluej.editor.flow.FlowIndent.AutoIndentInformation;
 import bluej.editor.moe.MoeEditor;
+import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.SourceLocation;
 import bluej.parser.nodes.ReparseableDocument;
 import bluej.prefmgr.PrefMgr;
@@ -485,7 +486,6 @@ public final class FlowActions
     /**
      * Perform an action on all selected lines in the source document.
      */
-    /*TODOFLOW
     private static void blockAction(FlowEditor editor, LineAction lineAction)
     {
         int selectionStart = editor.getSourcePane().getAnchorPosition();
@@ -499,21 +499,16 @@ public final class FlowActions
             selectionEnd = selectionEnd - 1; // skip last position
 
         ReparseableDocument doc = editor.getSourceDocument();
-        Element text = doc.getDefaultRootElement();
+        MoeSyntaxDocument.Element text = doc.getDefaultRootElement();
 
+        // -1 to adjust to zero-based index:
         int firstLineIndex = editor.getLineColumnFromOffset(selectionStart).getLine() - 1;
-        int lastLineIndex = editor.getLineColumnFromOffset(selectionEnd).getLine();
-        for (int i = firstLineIndex; i < lastLineIndex; i++) {
-            Element line = text.getElement(i);
-            lineAction.apply(line, doc);
-        }
-        if (selectionStart == selectionEnd)
-        {
-            Element line = text.getElement(selectionStart);
-            editor.getSourcePane().deselect();
+        int lastLineIndex = editor.getLineColumnFromOffset(selectionEnd).getLine() - 1;
+        for (int i = firstLineIndex; i <= lastLineIndex; i++) {
+            MoeSyntaxDocument.Element line = text.getElement(i);
+            lineAction.apply(line, editor.getSourcePane().getDocument());
         }
     }
-    */
 
     /*TODOFLOW
     private static String getNodeContents(ReparseableDocument doc, NodeAndPosition<ParsedNode> nap)
@@ -952,12 +947,10 @@ public final class FlowActions
      * Indent a block of lines (defined by the current selection) by one
      * additional level.
      */
-    /*TODOFLOW
     private void doBlockIndent(FlowEditor editor)
     {
         editor.undoManager.compoundEdit(() -> blockAction(editor, new IndentLineAction()));
     }
-    */
 
     // --------------------------------------------------------------------
 
@@ -965,12 +958,10 @@ public final class FlowActions
      * De-indent a block of lines (defined by the current selection) by one
      * level.
      */
-    /*TODOFLOW
     private void doBlockDeIndent(FlowEditor editor)
     {
         editor.undoManager.compoundEdit(() -> blockAction(editor, new DeindentLineAction()));
     }
-    */
 
     // --------------------------------------------------------------------
 
@@ -1057,9 +1048,10 @@ public final class FlowActions
                 uncommentBlockAction(),
                 */
                 autoIndentAction(),
-                /*TODOFLOW
+                
                 indentBlockAction(),
                 deindentBlockAction(),
+                /*TODOFLOW
                 insertMethodAction(),
                 addJavadocAction(),
                 indentAction(),
@@ -1247,14 +1239,13 @@ public final class FlowActions
      * manipulate a single line of text and are used by the blockAction method.
      * The blockAction applies a LineAction to each line in a block of text.
      */
-    // TODOFLOW
-    //interface LineAction
-    //{
+    interface LineAction
+    {
         /**
          * Apply some action to a line in the document.
          */
-        //public void apply(Element line, ReparseableDocument doc);
-    //}
+        public void apply(MoeSyntaxDocument.Element line, Document doc);
+    }
 
     // --------------------------------------------------------------------
 
@@ -1350,22 +1341,17 @@ public final class FlowActions
             editor.undoManager.compoundEdit(() -> blockAction(editor, new UncommentLineAction()));
         });
     }
-
-    // === Tools: ===
-    // --------------------------------------------------------------------
+    */
 
     private FlowAbstractAction indentBlockAction()
     {
-        return action("indent-block", Category.EDIT, () -> doBlockIndent(getEditor()));
+        return action("indent-block", Category.EDIT, () -> doBlockIndent(getClearedEditor()));
     }
-
-    // --------------------------------------------------------------------
 
     private FlowAbstractAction deindentBlockAction()
     {
-        return action("deindent-block", Category.EDIT, () -> doBlockDeIndent(getEditor()));
+        return action("deindent-block", Category.EDIT, () -> doBlockDeIndent(getClearedEditor()));
     }
-    */
     
     private FlowAbstractAction autoIndentAction()
     {
@@ -2262,37 +2248,35 @@ public final class FlowActions
     /**
      * Class IndentLineAction - add one level of indentation to the given line.
      */
-    /*TODOFLOW
     class IndentLineAction implements LineAction
     {
         @Override
-        public void apply(Element line, ReparseableDocument doc)
+        public void apply(MoeSyntaxDocument.Element line, Document doc)
         {
             int lineStart = line.getStartOffset();
-            doc.insertString(lineStart, spaces.substring(0, tabSize));
+            doc.replaceText(lineStart, lineStart, spaces.substring(0, tabSize));
         }
-    }*/
+    }
 
     /**
      * Class DeindentLineAction - remove one indentation level from the given
      * line.
      */
-    /*TODOFLOW
     class DeindentLineAction implements LineAction
     {
         @Override
-        public void apply(Element line, ReparseableDocument doc)
+        public void apply(MoeSyntaxDocument.Element line, Document doc)
         {
             int lineStart = line.getStartOffset();
             int lineEnd = line.getEndOffset();
             try {
-                String lineText = doc.getText(lineStart, lineEnd - lineStart);
+                String lineText = doc.getContent(lineStart, lineEnd).toString();
                 String spacedTab = spaces.substring(0, tabSize);
                 if (lineText.startsWith(spacedTab)) {
-                    doc.remove(lineStart, tabSize); // remove spaced tab
+                    doc.replaceText(lineStart, lineStart + tabSize, ""); // remove spaced tab
                 }
                 else if (lineText.charAt(0) == TAB_CHAR) {
-                    doc.remove(lineStart, 1); // remove hard tab
+                    doc.replaceText(lineStart, lineStart + 1, ""); // remove hard tab
                 }
                 else {
                     int cnt = 0;
@@ -2300,11 +2284,10 @@ public final class FlowActions
                         // remove spaces
                         cnt++;
                     }
-                    doc.remove(lineStart, cnt);
+                    doc.replaceText(lineStart, lineStart + cnt, "");
                 }
             }
             catch (Exception exc) {}
         }
     }
-    */
 }

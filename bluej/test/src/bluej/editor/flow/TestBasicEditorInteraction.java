@@ -28,6 +28,7 @@ import bluej.editor.moe.ScopeColorsBorderPane;
 import bluej.parser.InitConfig;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
+import bluej.utility.Utility;
 import com.pholser.junit.quickcheck.From;
 import com.pholser.junit.quickcheck.Property;
 import com.pholser.junit.quickcheck.When;
@@ -48,11 +49,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 
@@ -461,6 +464,69 @@ public class TestBasicEditorInteraction extends FXTest
         assertEquals(unindented, fx(() -> flowEditorPane.getDocument().getFullContent()));
         push(KeyCode.SHORTCUT, KeyCode.Y);
         assertEquals(BLOCK_TEST, fx(() -> flowEditorPane.getDocument().getFullContent()));
+    }
+    
+    @Property(trials = 2)
+    public void testIndentAddRemove(@From(GenRandom.class) Random r)
+    {
+        setText(BLOCK_TEST);
+        clickOn(flowEditorPane);
+        List<String> docLines = Arrays.asList(Utility.splitLines(BLOCK_TEST));
+
+        for (int i = 0; i < 5; i++)
+        {
+            // Make a selection of a random bunch of lines and indent and deindent them (in a random order), then check the results:
+            int lineA = r.nextInt(docLines.size());
+            int lineB = r.nextInt(docLines.size());
+            int startLine = Math.min(lineA, lineB);
+            int endLine = Math.max(lineA, lineB);
+
+            // Make the selection:
+            fx_(() -> {
+                flowEditorPane.positionCaret(flowEditorPane.getDocument().getLineStart(startLine) + r.nextInt(docLines.get(startLine).length() + 1));
+                flowEditorPane.moveCaret(flowEditorPane.getDocument().getLineStart(endLine) + 1 + (docLines.get(endLine).length() == 0 ? 0 : r.nextInt(docLines.get(endLine).length())));
+            });
+            // Double-check initial content:
+            assertEquals(docLines.stream().collect(Collectors.joining("\n")), fx(() -> flowEditorPane.getDocument().getFullContent()));
+
+
+            boolean indent = r.nextBoolean();
+            fx_(() -> FlowActions.getActions(flowEditor).getActionByName(indent ? "indent-block" : "deindent-block").actionPerformed());
+            for (int line = startLine; line <= endLine; line++)
+            {
+                docLines.set(line, addRemoveIndent(docLines.get(line), indent));
+            }
+            assertEquals((indent ? "Indented" : "Deindented") + " lines " + startLine + " to " + endLine + " inclusive", docLines.stream().collect(Collectors.joining("\n")), fx(() -> flowEditorPane.getDocument().getFullContent()));
+        }
+        
+        // Autoindent to restore:
+        fx_(() -> {
+            flowEditor.enableParser(true);
+            flowEditor.getSourceDocument().flushReparseQueue();
+            FlowActions.getActions(flowEditor).getActionByName("autoindent").actionPerformed();
+        });
+        sleep(1000);
+        assertEquals(BLOCK_TEST, fx(() -> flowEditorPane.getDocument().getFullContent()));
+    }
+
+    private String addRemoveIndent(String line, boolean addIndent)
+    {
+        if (addIndent)
+        {
+            return "    " + line;
+        }
+        else
+        {
+            int newStart = 0;
+            for (int i = 0; i < 4; i++)
+            {
+                if (i < line.length() && line.charAt(i) == ' ')
+                    newStart += 1;
+                else
+                    break;
+            }
+            return line.substring(newStart);
+        }
     }
 
     private void setClipboard(String pasteContent)
