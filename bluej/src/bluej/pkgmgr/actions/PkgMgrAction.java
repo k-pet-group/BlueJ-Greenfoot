@@ -25,7 +25,6 @@ import bluej.Config;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.javafx.FXAbstractAction;
 import javafx.scene.control.Button;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -99,7 +98,7 @@ public abstract class PkgMgrAction extends FXAbstractAction
 	}
         
     @Override
-	public final void actionPerformed()
+	public final void actionPerformed(boolean viaContextMenu)
     {
         actionPerformed(pmf);
     }

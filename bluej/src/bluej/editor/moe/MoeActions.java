@@ -35,6 +35,8 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXAbstractAction;
+import bluej.utility.javafx.FXPlatformConsumer;
+import bluej.utility.javafx.FXPlatformFunction;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
@@ -57,7 +59,6 @@ import threadchecker.Tag;
 import javax.swing.KeyStroke;
 import javax.swing.text.DefaultEditorKit;
 import java.awt.Event;
-import java.awt.event.InputEvent;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -181,7 +182,7 @@ public final class MoeActions
                     return InputMap.ignore(EventPattern.keyPressed(e.getKey()));
                 else
                 {
-                    return InputMap.consume(EventPattern.keyPressed(e.getKey()), ev -> e.getValue().actionPerformed());
+                    return InputMap.consume(EventPattern.keyPressed(e.getKey()), ev -> e.getValue().actionPerformed(false));
                 }
             }).toArray(InputMap[]::new));
             Nodes.addInputMap(getTextComponent(), curKeymap);
@@ -1166,9 +1167,30 @@ public final class MoeActions
         return new MoeAbstractAction(name, category)
         {
             @Override
-            public @OnThread(value = Tag.FXPlatform) void actionPerformed()
+            public @OnThread(value = Tag.FXPlatform) void actionPerformed(boolean viaContextMenu)
             {
                 action.run();
+            }
+        };
+    }
+
+    /**
+     * Creates an action that can act differently if it
+     * is called via a context menu.
+     * 
+     * @param name The action name
+     * @param category The category for the preferences
+     * @param action Called with true if called via a context menu, false otherwise.
+     * @return
+     */
+    private MoeAbstractAction contextSensitiveAction(String name, Category category, FXPlatformConsumer<Boolean> action)
+    {
+        return new MoeAbstractAction(name, category)
+        {
+            @Override
+            public @OnThread(value = Tag.FXPlatform) void actionPerformed(boolean viaContextMenu)
+            {
+                action.accept(viaContextMenu);
             }
         };
     }
@@ -1497,33 +1519,45 @@ public final class MoeActions
 
     private MoeAbstractAction cutAction()
     {
-        return action("cut-to-clipboard", Category.EDIT, () -> {
+        return contextSensitiveAction("cut-to-clipboard", Category.EDIT, viaContextMenu -> {
             // Menu shortcut can trigger when e.g. find pane is focused, don't act if not focused:
-            if (editor.getSourcePane().isFocused())
+            if (viaContextMenu || editor.getSourcePane().isFocused())
             {
                 editor.getSourcePane().cut();
+                if (viaContextMenu)
+                {
+                    editor.getSourcePane().requestFocus();
+                }
             }
         });
     }
 
     private MoeAbstractAction copyAction()
     {
-        return action("copy-to-clipboard", Category.EDIT, () -> {
+        return contextSensitiveAction("copy-to-clipboard", Category.EDIT, viaContextMenu -> {
             // Menu shortcut can trigger when e.g. find pane is focused, don't act if not focused:
-            if (editor.getSourcePane().isFocused())
+            if (viaContextMenu || editor.getSourcePane().isFocused())
             {
                 editor.getSourcePane().copy();
+                if (viaContextMenu)
+                {
+                    editor.getSourcePane().requestFocus();
+                }
             }
         });
     }
 
     private MoeAbstractAction pasteAction()
     {
-        return action("paste-from-clipboard", Category.EDIT, () -> {
+        return contextSensitiveAction("paste-from-clipboard", Category.EDIT, viaContextMenu -> {
             // Menu shortcut can trigger when e.g. find pane is focused, don't act if not focused:
-            if (editor.getSourcePane().isFocused())
+            if (viaContextMenu || editor.getSourcePane().isFocused())
             {
                 editor.getSourcePane().paste();
+                if (viaContextMenu)
+                {
+                    editor.getSourcePane().requestFocus();
+                }
                 editor.getSourcePane().requestFollowCaret();
             }
         });
@@ -1620,14 +1654,14 @@ public final class MoeActions
     {
         return action("cut-word", Category.EDIT, () -> {
             boolean addToClipboard = lastActionWasCut;
-            getActionByName("caret-previous-word").actionPerformed();
-            getActionByName("selection-next-word").actionPerformed();
+            getActionByName("caret-previous-word").actionPerformed(false);
+            getActionByName("selection-next-word").actionPerformed(false);
             if (addToClipboard) {
                 addSelectionToClipboard(editor);
-                getActionByName("delete-previous").actionPerformed();
+                getActionByName("delete-previous").actionPerformed(false);
             }
             else {
-                getActionByName("cut-to-clipboard").actionPerformed();
+                getActionByName("cut-to-clipboard").actionPerformed(false);
             }
             lastActionWasCut = true;
         });
@@ -1649,13 +1683,13 @@ public final class MoeActions
     {
         return action("cut-end-of-word", Category.EDIT, () -> {
             boolean addToClipboard = lastActionWasCut;
-            getActionByName("selection-next-word").actionPerformed();
+            getActionByName("selection-next-word").actionPerformed(false);
             if (addToClipboard) {
                 addSelectionToClipboard(editor);
-                getActionByName("delete-previous").actionPerformed();
+                getActionByName("delete-previous").actionPerformed(false);
             }
             else {
-                getActionByName("cut-to-clipboard").actionPerformed();
+                getActionByName("cut-to-clipboard").actionPerformed(false);
             }
             lastActionWasCut = true;
         });
@@ -1694,7 +1728,7 @@ public final class MoeActions
         }
 
         @Override
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             MoeEditorPane c = getTextComponent();
             int origPos = c.getCaretDot();
@@ -1721,7 +1755,7 @@ public final class MoeActions
         }
 
         @Override
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             MoeEditorPane c = getTextComponent();
             int origPos = c.getCaretDot();
@@ -1748,7 +1782,7 @@ public final class MoeActions
         }
 
         @Override
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             MoeEditorPane c = getTextComponent();
             int origPos = c.getCaretDot();
@@ -1765,7 +1799,7 @@ public final class MoeActions
         }
 
         @Override
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             MoeEditorPane c = getTextComponent();
             int origPos = c.getCaretDot();
@@ -1782,7 +1816,7 @@ public final class MoeActions
         }
 
         @Override
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             MoeEditorPane ed = getTextComponent();
             if (ed.getCaretColumn() > 1)
@@ -1814,7 +1848,7 @@ public final class MoeActions
         }
 
         @Override
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             getTextComponent().lineEnd(withSelection ? SelectionPolicy.EXTEND : SelectionPolicy.CLEAR);
         }
@@ -1827,7 +1861,7 @@ public final class MoeActions
             MoeEditorPane c = getTextComponent();
             MoeAbstractAction prevWordAct = actions.get(DefaultEditorKit.previousWordAction);
             int end = c.getCaretDot();
-            prevWordAct.actionPerformed();
+            prevWordAct.actionPerformed(false);
             int begin = c.getCaretDot();
             c.replaceText(begin, end, "");
         });

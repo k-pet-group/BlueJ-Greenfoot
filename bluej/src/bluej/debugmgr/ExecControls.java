@@ -36,7 +36,6 @@ import bluej.pkgmgr.Project.DebuggerThreadDetails;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.JavaNames;
 import bluej.utility.javafx.FXAbstractAction;
-import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -603,7 +602,7 @@ public class ExecControls
             super(haltButtonText, Config.makeStopIcon(true));
         }
         
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             DebuggerThreadDetails details = getSelectedThreadDetails();
             if (details == null)
@@ -625,7 +624,7 @@ public class ExecControls
             super(stepButtonText, makeStepIcon());
         }
         
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             DebuggerThreadDetails details = getSelectedThreadDetails();
             if (details == null)
@@ -685,7 +684,7 @@ public class ExecControls
             super(stepIntoButtonText, makeStepIntoIcon());
         }
         
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             DebuggerThreadDetails details = getSelectedThreadDetails();
             if (details == null)
@@ -719,7 +718,7 @@ public class ExecControls
             super(continueButtonText, makeContinueIcon());
         }
         
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             DebuggerThreadDetails details = getSelectedThreadDetails();
             if (details == null)
@@ -743,7 +742,7 @@ public class ExecControls
             super(terminateButtonText, makeTerminateIcon());
         }
         
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             try {
                 clearThreadDetails();
