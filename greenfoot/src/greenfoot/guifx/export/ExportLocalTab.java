@@ -106,7 +106,11 @@ public abstract class ExportLocalTab extends ExportTab
         exportLocationPane.setAlignment(Pos.BASELINE_LEFT);
         exportLocationPane.getStyleClass().add("location-pane");
 
-        setContent(new VBox(new Label(Config.getString("export." + type + ".help")), exportLocationPane));
+        Label helpLabel = new Label(Config.getString("export." + type + ".help"));
+        helpLabel.setWrapText(true);
+        VBox vBox = new VBox(helpLabel, exportLocationPane);
+        vBox.setPrefWidth(400.0);
+        setContent(vBox);
     }
 
     /**
