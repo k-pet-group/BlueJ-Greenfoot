@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2018  Poul Henriksen and Michael Kolling
+ Copyright (C) 2018,2019  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -106,7 +106,11 @@ public abstract class ExportLocalTab extends ExportTab
         exportLocationPane.setAlignment(Pos.BASELINE_LEFT);
         exportLocationPane.getStyleClass().add("location-pane");
 
-        setContent(new VBox(new Label(Config.getString("export." + type + ".help")), exportLocationPane));
+        Label helpLabel = new Label(Config.getString("export." + type + ".help"));
+        helpLabel.setWrapText(true);
+        VBox vBox = new VBox(helpLabel, exportLocationPane);
+        vBox.setPrefWidth(400.0);
+        setContent(vBox);
     }
 
     /**
