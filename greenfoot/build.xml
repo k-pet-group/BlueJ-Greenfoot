@@ -493,6 +493,10 @@ LICENSE.txt file that accompanied this code.${line.separator}
         <ant dir="${bluej_home}/package" antfile="greenfoot-build.xml" target="debian-dist" />
         <move file="${bluej_home}/package/greenfoot-${greenfoot.version}${greenfoot.rcsuffix}.deb" tofile="${package}/Greenfoot-linux-${greenfoot.version.nodots}${greenfoot.rcsuffix}.deb" />
     </target>
+    <target name="debian-bundled-dist" depends="check-fakeroot">
+        <ant dir="${bluej_home}/package" antfile="greenfoot-build.xml" target="debian-bundled-dist" />
+        <move file="${bluej_home}/package/greenfoot-bundled-${greenfoot.version}${greenfoot.rcsuffix}.deb" tofile="${package}/Greenfoot-linux-bundled-${greenfoot.version.nodots}${greenfoot.rcsuffix}.deb" />
+    </target>
 
     <target name="windows-standalone" depends="update-images, dist">
         <ant dir="${bluej_home}/package" antfile="greenfoot-build.xml" target="windows-standalone" />
@@ -513,7 +517,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
     <!-- The simple targets for doing a complete build: -->
     <target name="mac" description="Clean, update version number and build Mac installer" depends="clean,update-version-number,mac-dist"/>
     <target name="windows" description="Clean, update version number and build Windows installers" depends="clean,update-version-number,windows-msi-bundled-dist,windows-standalone"/>
-    <target name="debian" description="Clean, update version number and build Debian/Ubuntu installer (run with fakeroot ant)" depends="clean,update-version-number,dist,debian-dist"/>
+    <target name="debian" description="Clean, update version number and build Debian/Ubuntu installer (run with fakeroot ant)" depends="clean,update-version-number,dist,debian-dist,debian-bundled-dist"/>
 
     <target name="urls-rc" description="Check and print RC links">
         <ant dir="${bluej_home}/package" antfile="greenfoot-build.xml"  target="urls-rc"/>

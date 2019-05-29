@@ -1,10 +1,9 @@
-Package: greenfoot
+Package: greenfoot-bundled
 Priority: extra
 Section: Programming
-Installed-Size: 25700
+Installed-Size: 420000
 Maintainer: Greenfoot Team <support@greenfoot.org>
 Architecture: all
 Version: VERSION
-Depends: openjdk-11-jdk (>= 11), libopenjfx-java (>= 11)
 Description: A simple but powerful Java IDE.
   Go to <greenfoot.org> for more details.

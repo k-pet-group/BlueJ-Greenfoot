@@ -1,0 +1,21 @@
+#!/bin/sh
+
+unset JAVAPATH
+JAVAPATH="/usr/share/greenfoot/jdk"
+JAVAFXPATH="/usr/share/greenfoot/javafx"
+CP="/usr/share/greenfoot/bluej.jar"
+CP="$CP:$JAVAFXPATH/lib/javafx.base.jar"
+CP="$CP:$JAVAFXPATH/lib/javafx.controls.jar"
+CP="$CP:$JAVAFXPATH/lib/javafx.fxml.jar"
+CP="$CP:$JAVAFXPATH/lib/javafx.graphics.jar"
+CP="$CP:$JAVAFXPATH/lib/javafx.media.jar"
+CP="$CP:$JAVAFXPATH/lib/javafx.properties.jar"
+CP="$CP:$JAVAFXPATH/lib/javafx.swing.jar"
+CP="$CP:$JAVAFXPATH/lib/javafx.web.jar"
+
+"$JAVAPATH/bin/java" -Djavafx.embed.singleThread=true -Dawt.useSystemAAFontSettings=on -Xmx512M \
+    -cp "$CP" bluej.Boot \
+    -greenfoot=true -bluej.compiler.showunchecked=false \
+    -greenfoot.scenarios=/usr/share/doc/Greenfoot/scenarios \
+    -greenfoot.url.javadoc=file:///usr/share/doc/Greenfoot/API/ \
+    "$@"
