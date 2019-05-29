@@ -5,6 +5,6 @@ Installed-Size: 25700
 Maintainer: Greenfoot Team <support@greenfoot.org>
 Architecture: all
 Version: VERSION
-Depends: openjdk-8-jdk | oracle-java8-jdk | oracle-java8-installer, libopenjfx-java | oracle-java8-jdk | oracle-java8-installer
+Depends: openjdk-11-jdk (>= 11), libopenjfx-java (>= 11)
 Description: A simple but powerful Java IDE.
   Go to <greenfoot.org> for more details.
