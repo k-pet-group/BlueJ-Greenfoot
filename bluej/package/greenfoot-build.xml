@@ -590,7 +590,142 @@
         
         <delete dir="gfdeb" />
     </target>
-    
+
+    <target name="debian-bundled-dist">
+        <mkdir dir="gfdeb" />
+        <copy todir="gfdeb">
+            <fileset dir="gfdebianfiles" includes="DEBIAN/**" />
+        </copy>
+        <copy todir="gfdeb" overwrite="true">
+            <fileset dir="gfdebianfiles-bundled" includes="DEBIAN/**" />
+        </copy>
+
+        <mkdir dir="gfdeb/usr" />
+        <mkdir dir="gfdeb/usr/bin" />
+        <copy todir="gfdeb/usr/bin" file="gfdebianfiles-bundled/greenfoot" />
+        <chmod perm="ugo+x" file="gfdeb/usr/bin/greenfoot" verbose="true" />
+
+        <!-- lib files -->
+        <mkdir dir="gfdeb/usr/share/greenfoot" />
+        <mkdir dir="gfdeb-lib-tmp" />
+        <copy todir="gfdeb-lib-tmp">
+            <fileset dir="${bluej_home}">
+                <patternset refid="bluej.libdirs" />
+                <patternset refid="bluej.libfiles" />
+            </fileset>
+        </copy>
+        <mkdir dir="gfdeb-lib-tmp/lib/javafx"/>
+        <copy todir="gfdeb-lib-tmp/lib/javafx">
+            <fileset dir="${openjfx_path}"/>
+        </copy>
+        <move todir="gfdeb/usr/share/greenfoot">
+            <fileset dir="gfdeb-lib-tmp/lib">
+                <patternset includes="**" />
+            </fileset>
+        </move>
+        <delete dir="gfdeb-lib-tmp" />
+
+        <mkdir dir="gfdeb/usr/share/greenfoot/jdk" />
+        <!-- Need to preserve permissions, which requires cp instead of copy task: -->
+        <exec executable="cp">
+            <arg value="-r"/>
+            <arg value="${deb_bundled_jdk_path}/."/>
+            <arg value="gfdeb/usr/share/greenfoot/jdk"/>
+        </exec>
+        
+
+        <!-- examples and documentation -->
+        <mkdir dir="gf-examples-tmp" />
+        <copy todir="gf-examples-tmp">
+            <fileset dir="${bluej_home}/package">
+                <patternset refid="greenfoot.scenarios" />
+            </fileset>
+            <fileset dir="${bluej_home}/package">
+                <patternset refid="greenfoot.license.files" />
+            </fileset>
+        </copy>
+
+        <mkdir dir="gfdeb/usr/share/doc/Greenfoot" />
+        <move todir="gfdeb/usr/share/doc/Greenfoot">
+            <fileset dir="gf-examples-tmp">
+                <patternset includes="**" />
+            </fileset>
+        </move>
+        <delete dir="gf-examples-tmp" />
+
+        <mkdir dir="gf-apidoc-tmp" />
+        <copy todir="gf-apidoc-tmp">
+            <fileset dir="${bluej_home}">
+                <patternset refid="gfapidoc.files" />
+            </fileset>
+        </copy>
+        <mkdir dir="gfdeb/usr/share/doc/Greenfoot/API" />
+        <move todir="gfdeb/usr/share/doc/Greenfoot/API">
+            <fileset dir="gf-apidoc-tmp/doc/API">
+                <patternset includes="**" />
+            </fileset>
+        </move>
+
+        <delete dir="gf-apidoc-tmp" />
+
+
+        <copy todir="gfdeb/usr/share/doc/Greenfoot" file="${greenfoot_home}/doc/LICENSE.txt" />
+        <copy todir="gfdeb/usr/share/doc/Greenfoot" file="${greenfoot_home}/doc/THIRDPARTYLICENSE.txt" />
+        <copy tofile="gfdeb/usr/share/doc/Greenfoot/README.txt" file="${greenfoot_home}/doc/Greenfoot-README.txt" />
+
+        <!-- desktop app extras -->
+        <copy todir="gfdeb/usr/share">
+            <fileset dir="gfdebianfiles">
+                <patternset includes="applications/**,icons/**,pixmaps/**" />
+            </fileset>
+        </copy>
+
+        <!-- update version number -->
+        <replaceregexp byline="true">
+            <regexp pattern="VERSION" />
+            <substitution expression="${greenfoot.version}" />
+            <fileset dir="gfdeb/DEBIAN" includes="control" />
+        </replaceregexp>
+
+        <!-- you must do this as root, sigh -->
+        <!-- (but we can also do it using fakeroot -->
+        <chown owner="root">
+            <fileset dir="gfdeb">
+                <patternset includes="**" />
+            </fileset>
+            <dirset dir="gfdeb">
+                <patternset includes="**" />
+            </dirset>
+        </chown>
+        <chgrp group="root">
+            <fileset dir="gfdeb">
+                <patternset includes="**" />
+            </fileset>
+            <dirset dir="gfdeb">
+                <patternset includes="**" />
+            </dirset>
+        </chgrp>
+        <chmod perm="g-w">
+            <fileset dir="gfdeb">
+                <patternset includes="**" />
+            </fileset>
+            <dirset dir="gfdeb">
+                <patternset includes="**" />
+            </dirset>
+        </chmod>
+
+        <chmod perm="755" file="gfdeb/DEBIAN/postinst" />
+        <chmod perm="755" file="gfdeb/DEBIAN/postrm" />
+        <exec executable="dpkg-deb" searchpath="true">
+            <arg value="-b" />
+            <arg file="gfdeb" />
+            <arg value="greenfoot-bundled-${greenfoot.version}${greenfoot.rcsuffix}.deb" />
+        </exec>
+
+        <delete dir="gfdeb" />
+    </target>
+
+
     <target name="clean">
         <delete file="greenfoot-dist.jar" />
         <delete file="greenfoot-dist-new.jar" />

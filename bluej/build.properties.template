@@ -44,6 +44,7 @@ mac_bundled_jdk_path=/Library/Java/JavaVirtualMachines/jdk11.jdk
 # "/Contents/Home" removed from tail.
 
 win_bundled_jdk_path=${build_java_home}
+deb_bundled_jdk_path=${build_java_home}
 
 # Note that for win_bundled_jdk_path a 32-bit JDK was previously favoured, to
 # allow BlueJ to run on 32-bit machines. JDK 11 is now 64-bit only.

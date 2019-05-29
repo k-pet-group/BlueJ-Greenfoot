@@ -1,0 +1,9 @@
+Package: greenfoot-bundled
+Priority: extra
+Section: Programming
+Installed-Size: 420000
+Maintainer: Greenfoot Team <support@greenfoot.org>
+Architecture: all
+Version: VERSION
+Description: A simple but powerful Java IDE.
+  Go to <greenfoot.org> for more details.
