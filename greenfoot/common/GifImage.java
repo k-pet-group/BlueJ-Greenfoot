@@ -508,20 +508,16 @@ public class GifImage
          */
         public int read(String name) {
             status = STATUS_OK;
-            try {
-                URL url = this.getClass().getClassLoader().getResource(name);
-                if (url == null) {
-                    name = "images/" + name;
-                    url = this.getClass().getClassLoader().getResource(name);
-                    if (url == null) {
-                        throw new RuntimeException("The gif file \"" + name + "\" doesn't exist.");
-                    }
+            InputStream resource = this.getClass().getResourceAsStream(name);
+            if (resource == null) {
+                name = "images/" + name;
+                resource = this.getClass().getResourceAsStream(name);
+                if (resource == null) {
+                    throw new RuntimeException("The gif file \"" + name + "\" doesn't exist.");
                 }
-                in = new BufferedInputStream(url.openStream());
-                status = read(in);
-            } catch (IOException e) {
-                status = STATUS_OPEN_ERROR;
             }
+            in = new BufferedInputStream(resource);
+            status = read(in);
 
             return status;
         }
