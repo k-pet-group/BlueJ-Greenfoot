@@ -110,6 +110,7 @@ export.app.help=Create an executable jar file that can be run on its own.
 export.app.location=Save to:
 export.app.browse=Browse
 export.app.choose=Save executable jar file
+export.app.more=More information on running on other machines
 export.project.help=Create a standalone project gfar file.  This allows the whole project to be given to other people as a single file that Greenfoot can open directly.
 export.project.location=Save to:
 export.project.browse=Browse
