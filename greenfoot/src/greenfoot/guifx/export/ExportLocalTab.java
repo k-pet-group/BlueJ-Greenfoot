@@ -51,7 +51,7 @@ public abstract class ExportLocalTab extends ExportTab
     private final String extension;
 
     private final Window parent;
-    private TextField targetDirField;
+    protected TextField targetDirField;
 
     /**
      * Creates a new instance of an Export Local Tab.
