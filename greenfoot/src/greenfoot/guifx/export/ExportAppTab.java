@@ -85,9 +85,9 @@ public class ExportAppTab extends ExportLocalTab
     {
         super.buildContentPane(targetFile);
 
-    
+        String sep = Config.isWinOS() ? ";" : ":";
         String javaAndClasspathBefore = Config.getJDKExecutablePath(null, "java") + " -cp \"" +
-            Utility.urlsToFiles(Boot.getInstance().getJavaFXClassPath()).stream().map(f -> f.getAbsolutePath()).collect(Collectors.joining(Config.isWinOS() ? ";" : ":")) + ";";
+            Utility.urlsToFiles(Boot.getInstance().getJavaFXClassPath()).stream().map(f -> f.getAbsolutePath()).collect(Collectors.joining(sep)) + sep;
         String javaAndClasspathAfter = "\" --module-path \"" + Boot.getInstance().getJavaFXLibDir() + "\" --add-modules=ALL-MODULE-PATH greenfoot.export.GreenfootScenarioApplication";
 
         Hyperlink moreInfo = new Hyperlink(Config.getString("export.app.more"));
