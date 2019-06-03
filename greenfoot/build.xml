@@ -906,7 +906,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
         
         <mkdir dir="${bluej_home}/util/classes"/>
         <compile srcdir="${bluej_home}/util/src" destdir="${bluej_home}/util/classes"/>
-        <java classname="DrawVersionOnSplash" classpath="${bluej_home}/util/classes">
+        <java classname="DrawVersionOnSplash" classpath="${bluej_home}/util/classes" fork="yes" jvm="${run_java_home}/${java_command_dir_name}/java">
             <arg value="resources/images/greenfoot-splash.png"/> <!-- original -->
             <arg value="Version ${greenfoot.version}"/> <!-- text -->
             <arg value="${bluej_home}/lib/fonts/SourceSansPro-Bold.ttf"/> <!-- font -->
@@ -915,7 +915,7 @@ LICENSE.txt file that accompanied this code.${line.separator}
             <arg value="145"/> <!-- Y position -->
             <arg value="${bluej_home}/boot/resources/bluej/gen-greenfoot-splash.png"/> <!-- destination -->
         </java>
-        <java classname="DrawVersionOnSplash" classpath="${bluej_home}/util/classes">
+        <java classname="DrawVersionOnSplash" classpath="${bluej_home}/util/classes" fork="yes" jvm="${run_java_home}/${java_command_dir_name}/java">
             <arg value="resources/images/greenfoot-splash@2x.png"/> <!-- original -->
             <arg value="Version ${greenfoot.version}"/> <!-- text -->
             <arg value="${bluej_home}/lib/fonts/SourceSansPro-Bold.ttf"/> <!-- font -->
