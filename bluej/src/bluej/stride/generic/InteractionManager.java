@@ -101,7 +101,7 @@ public interface InteractionManager extends SuggestionListParent
      *
      * This list will not feature any class that is already imported in the program.
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.Worker)
     Map<SuggestionList.SuggestionShown, Collection<AssistContentThreadSafe>> getImportSuggestions();
 
     /**
