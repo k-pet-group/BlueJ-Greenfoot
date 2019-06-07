@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2019 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -56,6 +56,7 @@ public class UndeclaredVariableLvalueError extends DirectSlotError
      * @param assignFrame The assignment frame with the error.
      * @param possibleCorrections The possible other variable names (unfiltered: all variable names which are in scope)
      */
+    @OnThread(Tag.FXPlatform)
     public UndeclaredVariableLvalueError(StringSlotFragment slotFragment, AssignFrame assignFrame, Set<String> possibleCorrections)
     {
         super(slotFragment, DiagnosticOrigin.STRIDE_LATE);

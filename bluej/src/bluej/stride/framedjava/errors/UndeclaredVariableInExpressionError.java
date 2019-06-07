@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2019 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -50,6 +50,7 @@ public class UndeclaredVariableInExpressionError extends DirectSlotError
      * @param slot The slot with the error (which will contain slotFragment).
      * @param possibleCorrections The possible other variable names (unfiltered: all variable names which are in scope)
      */
+    @OnThread(Tag.FXPlatform)
     public UndeclaredVariableInExpressionError(StringSlotFragment slotFragment, String varName, int startPosInSlot, int endPosInSlot, ExpressionSlot slot, Set<String> possibleCorrections)
     {
         super(slotFragment, DiagnosticOrigin.STRIDE_LATE);
