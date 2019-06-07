@@ -250,7 +250,7 @@ public class ProjectManager
                 // "Would you like to try to automatically update your code?";
                 message += "\n";
                 removeAWTImports = DialogManager.askQuestionFX(null, "greenfoot-importfix-question",
-                        message) == 1;
+                        message) == 0;
             }
             else
             {
