@@ -426,11 +426,6 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
             boolean dr = f.disabledRoot.get();
             f.disabledRoot.set(true);
             JavaFXUtil.setPseudoclass("bj-hide-caret", true, f.getNode());
-            if (Config.isRetinaDisplay())
-            {
-                // Take Retina resolution screenshot:
-                //p.setTransform(Transform.scale(2, 2));
-            }
             f.getNode().snapshot(p, image);
             f.disabledRoot.set(dr);
             JavaFXUtil.setPseudoclass("bj-hide-caret", false, f.getNode());

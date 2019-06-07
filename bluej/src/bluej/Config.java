@@ -1939,28 +1939,6 @@ public final class Config
         return normalBorder;
     }
 
-    public static boolean isRetinaDisplay()
-    {
-     if (isMacOS()) {
-           // From http://bulenkov.com/2013/06/23/retina-support-in-oracle-jdk-1-7/
-           GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
-           final GraphicsDevice device = env.getDefaultScreenDevice();
-
-           try {
-               Field field = device.getClass().getDeclaredField("scale");
-               if (field != null) {
-                   field.setAccessible(true);
-                   Object scale = field.get(device);
-
-                   if (scale instanceof Integer && ((Integer)scale) == 2) {
-                       return true;
-                   }
-               }
-           } catch (Exception ignore) {}
-       }
-       return false;
-    }
-
     public static void loadFXFonts()
     {
         if (!fontOptions.isEmpty())
