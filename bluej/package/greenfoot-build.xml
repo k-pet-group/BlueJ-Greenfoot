@@ -744,7 +744,7 @@
         <echo message="Linux:"/>
         <test_url system="greenfoot" filename="rc/Greenfoot-linux-${greenfoot.version.nodots}${greenfoot.rcsuffix}.deb"/>
         <echo message="Linux Bundled:"/>
-        <test_url system="greenfoot" filename="rc/Greenfoot-linux-bundled-${greenfoot.version.nodots}${greenfoot.rcsuffix}.deb"/>
+        <test_url system="greenfoot" filename="rc/Greenfoot-linux-unbundled-${greenfoot.version.nodots}${greenfoot.rcsuffix}.deb"/>
         <echo message="Generic:"/>
         <test_url system="greenfoot" filename="rc/Greenfoot-generic-${greenfoot.version.nodots}${greenfoot.rcsuffix}.jar"/>
     </target>
@@ -759,7 +759,7 @@
         <echo message="Linux:"/>
         <test_url system="greenfoot" filename="Greenfoot-linux-${greenfoot.version.nodots}.deb"/>
         <echo message="Linux Bundled:"/>
-        <test_url system="greenfoot" filename="Greenfoot-linux-bundled-${greenfoot.version.nodots}.deb"/>
+        <test_url system="greenfoot" filename="Greenfoot-linux-unbundled-${greenfoot.version.nodots}.deb"/>
         <echo message="Generic:"/>
         <test_url system="greenfoot" filename="Greenfoot-generic-${greenfoot.version.nodots}.jar"/>
     </target>
