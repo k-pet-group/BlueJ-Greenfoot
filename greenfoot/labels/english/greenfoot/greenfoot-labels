@@ -290,6 +290,7 @@ menu.controls=Controls
 menu.debugger=Show Debugger
 
 menu.soundRecorder=Show Sound Recorder
+menu.tools.recompileAll=Recompile Scenario
 
 menu.help=Help
 menu.help.about=About Greenfoot...
