@@ -139,6 +139,7 @@ import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.BiFunction;
@@ -305,12 +306,12 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     }
 
     // Exception-safe wrapper for Future.get
-    @OnThread(Tag.Any)
+    @OnThread(Tag.Worker)
     private static <T> List<T> getFutureList(Future<List<T>> f)
     {
         try
         {
-            return f.get();
+            return f.get(10, TimeUnit.SECONDS);
         }
         catch (Exception e) {
             Debug.reportError("Problem looking up types", e);
@@ -2229,7 +2230,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         getTopLevelFrame().insertAtEnd(method.createFrame(this));
     }
 
-    @OnThread(Tag.Any)
+    @OnThread(Tag.Worker)
     private Stream<AssistContentThreadSafe> getAllImportedTypes()
     {
         importedTypesLock.readLock().lock();
@@ -2238,7 +2239,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         return Stream.concat(Stream.of(javaLangImports), importedTypesCopy.stream()).map(FrameEditorTab::getFutureList).flatMap(List::stream);
     }
     
-    @OnThread(Tag.Any)
+    @OnThread(Tag.Worker)
     private List<AssistContentThreadSafe> getImportedTypes(Class<?> superType, boolean includeSelf, Set<Kind> kinds)
     {
         if (superType == null)
@@ -2253,7 +2254,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     }
 
     @Override
-    @OnThread(Tag.Any)
+    @OnThread(Tag.Worker)
     public Map<SuggestionList.SuggestionShown, Collection<AssistContentThreadSafe>> getImportSuggestions()
     {
         HashMap<String, Pair<SuggestionList.SuggestionShown, AssistContentThreadSafe>> imports = new HashMap<>();

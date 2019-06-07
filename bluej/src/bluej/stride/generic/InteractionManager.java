@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -101,7 +101,7 @@ public interface InteractionManager extends SuggestionListParent
      *
      * This list will not feature any class that is already imported in the program.
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.Worker)
     Map<SuggestionList.SuggestionShown, Collection<AssistContentThreadSafe>> getImportSuggestions();
 
     /**

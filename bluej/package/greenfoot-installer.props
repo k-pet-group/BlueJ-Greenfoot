@@ -23,31 +23,37 @@ install.exeName=greenfoot
 # Required java specification version
 install.requiredJavaVersion=1.8
 
+install.javafx.classpath.unix = JAVAFX_CP="$JAVAFXPATH/lib/javafx.base.jar:$JAVAFXPATH/lib/javafx.controls.jar:$JAVAFXPATH/lib/javafx.fxml.jar:$JAVAFXPATH/lib/javafx.graphics.jar:$JAVAFXPATH/lib/javafx.media.jar:$JAVAFXPATH/lib/javafx.properties.jar:$JAVAFXPATH/lib/javafx.swing.jar:$JAVAFXPATH/lib/javafx.web.jar"
+
+install.javafx.classpath.win = set JAVAFX_CP="%JAVAFXPATH%\\lib\\javafx.base.jar;%JAVAFXPATH%\\lib\\javafx.controls.jar;%JAVAFXPATH%\\lib\\javafx.fxml.jar;%JAVAFXPATH%\\lib\\javafx.graphics.jar;%JAVAFXPATH%\\lib\\javafx.media.jar;%JAVAFXPATH%\\lib\\javafx.properties.jar;%JAVAFXPATH%\\lib\\javafx.swing.jar;%JAVAFXPATH%\\lib\\javafx.web.jar"
+
 # additional commands to be added to MacOS script before execution
-install.commands.mac = CP="$APPBASE/lib/bluej.jar:$JAVAPATH/lib/tools.jar:/System/Library/Java"
+install.commands.mac = CP="$APPBASE/lib/bluej.jar:/System/Library/Java"
 
 # additional commands to be added to Unix script before execution
-install.commands.unix = CP="$APPBASE/lib/bluej.jar:$JAVAPATH/lib/tools.jar"
+install.commands.unix = CP="$APPBASE/lib/bluej.jar"
 
 # additional commands to be added to Windows batch file before execution
 # (windows should not have quotes surrounding CP string -
 # the quotes around APPBASE are enough)
-install.commands.win = set CP=~\\lib\\bluej.jar;!\\lib\\tools.jar
+install.commands.win = set CP=~\\lib\\bluej.jar;
 
 # java command-line options for unix (including MacOS)
 # (UNIX must have quotes around the $CP on the actual
 # invocation, not on the declaration of the shell variables -
 # unix is clever about the quotes and removes them)
-install.javaOpts.unix=-cp "$CP"
+install.javaOpts.unix=-Djavafx.embed.singleThread=true -Dawt.useSystemAAFontSettings=on -cp "$CP:$JAVAFX_CP"
+
+install.arguments.unix=-greenfoot=true -bluej.compiler.showunchecked=false -javafxpath="$JAVAFXPATH"
 
 # java command-line options for windows
-install.javaOpts.win=-cp %CP%
+install.javaOpts.win=-Djavafx.embed.singleThread=true -cp %CP%;%JAVAFX_CP%
+
+install.arguments.win=-greenfoot=true -bluej.compiler.showunchecked=false -javafxpath="%JAVAFXPATH%"
 
 # Class that contains the main to execute
 install.mainClass=bluej.Boot
 
-# Arguments to the main class
-install.arguments=-greenfoot=true -bluej.compiler.showunchecked=false
 
 # Top color, normal background 
 install.color.background=255,255,255
@@ -63,10 +69,10 @@ install.tagline=Greenfoot Installer
 install.installDirName=greenfoot
 
 # Error message to show when incorrect JDK version is used.
-install.jdkError1=This version of Greenfoot requires JDK 1.8 or newer.\nYou are running on JDK 
+install.jdkError1=This version of Greenfoot requires JDK 11 or newer.\nYou are running on JDK 
 # The actual java version will be inserted here.
 install.jdkError2=. Please upgrade\nJDK before installing Greenfoot.
-install.jdkMsg=JDK 1.8 (or newer) required.
+install.jdkMsg=JDK 11 (or newer) required.
                         
 # Name of the application                       
 install.appName=Greenfoot

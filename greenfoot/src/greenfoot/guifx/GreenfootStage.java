@@ -1104,6 +1104,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
                         DialogManager.showErrorFX(this, "cannot-save-world");
                     }
                 }, null),
+                JavaFXUtil.makeMenuItem(Config.getString("menu.tools.recompileAll"), () -> project.getUnnamedPackage().rebuild(), null),
                 JavaFXUtil.makeMenuItem("menu.tools.generateDoc",new KeyCodeCombination(KeyCode.G, KeyCombination.SHORTCUT_DOWN),
                         this::generateDocumentation, hasNoProject),
                 JavaFXUtil.makeCheckMenuItem(Config.getString("menu.soundRecorder"),

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -426,11 +426,6 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
             boolean dr = f.disabledRoot.get();
             f.disabledRoot.set(true);
             JavaFXUtil.setPseudoclass("bj-hide-caret", true, f.getNode());
-            if (Config.isRetinaDisplay())
-            {
-                // Take Retina resolution screenshot:
-                //p.setTransform(Transform.scale(2, 2));
-            }
             f.getNode().snapshot(p, image);
             f.disabledRoot.set(dr);
             JavaFXUtil.setPseudoclass("bj-hide-caret", false, f.getNode());

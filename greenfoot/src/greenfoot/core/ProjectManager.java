@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2015,2017,2018  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2015,2017,2018,2019  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -250,7 +250,7 @@ public class ProjectManager
                 // "Would you like to try to automatically update your code?";
                 message += "\n";
                 removeAWTImports = DialogManager.askQuestionFX(null, "greenfoot-importfix-question",
-                        message) == 1;
+                        message) == 0;
             }
             else
             {

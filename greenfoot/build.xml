@@ -56,7 +56,7 @@
     <property name="greenfoot.version.nosuffix" value="${greenfoot.version.major}.${greenfoot.version.minor}.${greenfoot.version.micro}"/>
 
     <!-- Suffix added after version number in output files -->
-    <property name="greenfoot.rcsuffix" value="-rc1"/>
+    <property name="greenfoot.rcsuffix" value="-rc2"/>
 
     <!-- Location of the bluej lib dir -->
     <property name="bluej.lib.greenfoot"  location="${bluej_home}/lib/greenfoot"/>
@@ -491,11 +491,11 @@ LICENSE.txt file that accompanied this code.${line.separator}
     </target>
     <target name="debian-dist" depends="check-fakeroot">
         <ant dir="${bluej_home}/package" antfile="greenfoot-build.xml" target="debian-dist" />
-        <move file="${bluej_home}/package/greenfoot-${greenfoot.version}${greenfoot.rcsuffix}.deb" tofile="${package}/Greenfoot-linux-${greenfoot.version.nodots}${greenfoot.rcsuffix}.deb" />
+        <move file="${bluej_home}/package/greenfoot-${greenfoot.version}${greenfoot.rcsuffix}.deb" tofile="${package}/Greenfoot-linux-unbundled-${greenfoot.version.nodots}${greenfoot.rcsuffix}.deb" />
     </target>
     <target name="debian-bundled-dist" depends="check-fakeroot">
         <ant dir="${bluej_home}/package" antfile="greenfoot-build.xml" target="debian-bundled-dist" />
-        <move file="${bluej_home}/package/greenfoot-bundled-${greenfoot.version}${greenfoot.rcsuffix}.deb" tofile="${package}/Greenfoot-linux-bundled-${greenfoot.version.nodots}${greenfoot.rcsuffix}.deb" />
+        <move file="${bluej_home}/package/greenfoot-bundled-${greenfoot.version}${greenfoot.rcsuffix}.deb" tofile="${package}/Greenfoot-linux-${greenfoot.version.nodots}${greenfoot.rcsuffix}.deb" />
     </target>
 
     <target name="windows-standalone" depends="update-images, dist">

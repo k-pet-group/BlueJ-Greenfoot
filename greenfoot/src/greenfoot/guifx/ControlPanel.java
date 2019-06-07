@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2018  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2018,2019  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -205,7 +205,7 @@ public class ControlPanel extends GridPane
         actDisabled.setValue(newState != State.PAUSED || atBreakpoint);
         runDisabled.setValue(newState != State.PAUSED || atBreakpoint);
         pauseDisabled.setValue(newState != State.RUNNING || atBreakpoint);
-        resetDisabled.setValue(newState == State.NO_PROJECT || newState == State.NO_WORLD);
+        resetDisabled.setValue(newState == State.NO_PROJECT);
         speedSlider.setDisable(newState == State.NO_PROJECT);
         speedLabel.setDisable(newState == State.NO_PROJECT);
 
