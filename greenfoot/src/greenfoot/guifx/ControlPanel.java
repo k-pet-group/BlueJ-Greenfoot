@@ -205,7 +205,7 @@ public class ControlPanel extends GridPane
         actDisabled.setValue(newState != State.PAUSED || atBreakpoint);
         runDisabled.setValue(newState != State.PAUSED || atBreakpoint);
         pauseDisabled.setValue(newState != State.RUNNING || atBreakpoint);
-        resetDisabled.setValue(newState == State.NO_PROJECT || newState == State.NO_WORLD);
+        resetDisabled.setValue(newState == State.NO_PROJECT);
         speedSlider.setDisable(newState == State.NO_PROJECT);
         speedLabel.setDisable(newState == State.NO_PROJECT);
 
