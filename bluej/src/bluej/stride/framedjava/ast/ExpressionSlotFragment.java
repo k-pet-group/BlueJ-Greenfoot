@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2019 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -247,7 +247,7 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
             
             //Debug.message("Assign LHS: " + assignmentLHSParent + " Java: \"" + getJavaCode() + "\"");
 
-            Stream<DirectSlotError> undeclaredVarErrors = plains.stream().map(identToken ->
+            List<DirectSlotError> undeclaredVarErrors = plains.stream().map(identToken ->
             {
                 if (!vars.containsKey(identToken.getText()))
                 {
@@ -259,7 +259,7 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
                         identToken.getColumn() - 1 + identToken.getLength(), slot, vars.keySet());
                 }
                 return null;
-            }).filter(x -> x != null);
+            }).filter(x -> x != null).collect(Collectors.toList());
 
             editor.withTypes(availableTypes -> {
 
@@ -290,7 +290,7 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
                     };
                 }).filter(x -> x != null);
 
-                f.complete(Stream.concat(undeclaredVarErrors, unknownTypeErrors).peek(e -> e.recordPath(rootPathMap.locationFor(this))).collect(Collectors.toList()));
+                f.complete(Stream.concat(undeclaredVarErrors.stream(), unknownTypeErrors).peek(e -> e.recordPath(rootPathMap.locationFor(this))).collect(Collectors.toList()));
             });
             // TODO errors for compounds
         }));
