@@ -30,6 +30,7 @@
         <include name="lib/guava-17.0.jar" />
         <include name="lib/richtextfx-fat-0.9.0.jar"/>
         <include name="lib/javassist-3.18.0.jar" />
+        <include name="lib/classgraph-4.2.6.jar"/>
         <include name="lib/xom-1.2.9.jar" />
         <include name="lib/bluej.defs" />
         <include name="lib/greenfoot.defs" />
