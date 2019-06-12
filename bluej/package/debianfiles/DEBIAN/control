@@ -5,6 +5,6 @@ Installed-Size: 21648
 Maintainer: BlueJ Team <bluej-support@bluej.org>
 Architecture: all
 Version: VERSION
-Depends: openjdk-11-jdk (>= 11), libopenjfx-java (>= 11)
+Depends: openjdk-11-jdk (>= 11), openjfx (>= 11)
 Description: A simple but powerful Java IDE.
   Go to <bluej.org> for more details.
