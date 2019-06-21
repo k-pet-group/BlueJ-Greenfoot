@@ -32,6 +32,7 @@ import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXAbstractAction;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
@@ -183,7 +184,7 @@ public final class FlowActions
                 {
                     if (e.getClickCount() == 2)
                     {
-                        selectWordAction().actionPerformed();
+                        selectWordAction().actionPerformed(false);
                     }
                     else if (e.getClickCount() == 3)
                     {
@@ -224,7 +225,7 @@ public final class FlowActions
                     return InputMap.ignore(EventPattern.keyPressed(e.getKey()));
                 else
                 {
-                    return InputMap.consume(EventPattern.keyPressed(e.getKey()), ev -> e.getValue().actionPerformed());
+                    return InputMap.consume(EventPattern.keyPressed(e.getKey()), ev -> e.getValue().actionPerformed(false));
                 }
             }).toArray(InputMap[]::new));
             Nodes.addInputMap(getTextComponent(), curKeymap);
@@ -1225,9 +1226,30 @@ public final class FlowActions
         return new FlowAbstractAction(name, category)
         {
             @Override
-            public @OnThread(value = Tag.FXPlatform) void actionPerformed()
+            public @OnThread(value = Tag.FXPlatform) void actionPerformed(boolean viaContextMenu)
             {
                 action.run();
+            }
+        };
+    }
+
+    /**
+     * Creates an action that can act differently if it
+     * is called via a context menu.
+     *
+     * @param name The action name
+     * @param category The category for the preferences
+     * @param action Called with true if called via a context menu, false otherwise.
+     * @return
+     */
+    private FlowAbstractAction contextSensitiveAction(String name, Category category, FXPlatformConsumer<Boolean> action)
+    {
+        return new FlowAbstractAction(name, category)
+        {
+            @Override
+            public @OnThread(value = Tag.FXPlatform) void actionPerformed(boolean viaContextMenu)
+            {
+                action.accept(viaContextMenu);
             }
         };
     }
@@ -1556,23 +1578,31 @@ public final class FlowActions
 
     private FlowAbstractAction cutAction()
     {
-        return action("cut-to-clipboard", Category.EDIT, () -> {
+        return contextSensitiveAction("cut-to-clipboard", Category.EDIT, viaContextMenu -> {
             // Menu shortcut can trigger when e.g. find pane is focused, don't act if not focused:
-            if (editor.getSourcePane().isFocused())
+            if (viaContextMenu || editor.getSourcePane().isFocused())
             {
                 copySelectionToClipboard();
                 editor.getSourcePane().replaceSelection("");
+                if (viaContextMenu)
+                {
+                    editor.getSourcePane().requestFocus();
+                }
             }
         });
     }
 
     private FlowAbstractAction copyAction()
     {
-        return action("copy-to-clipboard", Category.EDIT, () -> {
+        return contextSensitiveAction("copy-to-clipboard", Category.EDIT, viaContextMenu -> {
             // Menu shortcut can trigger when e.g. find pane is focused, don't act if not focused:
-            if (editor.getSourcePane().isFocused())
+            if (viaContextMenu || editor.getSourcePane().isFocused())
             {
                 copySelectionToClipboard();
+                if (viaContextMenu)
+                {
+                    editor.getSourcePane().requestFocus();
+                }
             }
         });
     }
@@ -1584,15 +1614,20 @@ public final class FlowActions
 
     private FlowAbstractAction pasteAction()
     {
-        return action("paste-from-clipboard", Category.EDIT, () -> {
+        return contextSensitiveAction("paste-from-clipboard", Category.EDIT, viaContextMenu -> {
             // Menu shortcut can trigger when e.g. find pane is focused, don't act if not focused:
-            if (editor.getSourcePane().isFocused())
+            if (viaContextMenu || editor.getSourcePane().isFocused())
             {
                 String toPaste = Clipboard.getSystemClipboard().getString();
                 if (toPaste != null)
                 {
                     editor.getSourcePane().replaceSelection(toPaste);
                 }
+                if (viaContextMenu)
+                {
+                    editor.getSourcePane().requestFocus();
+                }
+                editor.getSourcePane().ensureCaretShowing();
             }
         });
     }
@@ -1699,14 +1734,14 @@ public final class FlowActions
     {
         return action("cut-word", Category.EDIT, () -> {
             boolean addToClipboard = lastActionWasCut;
-            getActionByName("caret-previous-word").actionPerformed();
-            getActionByName("selection-next-word").actionPerformed();
+            getActionByName("caret-previous-word").actionPerformed(false);
+            getActionByName("selection-next-word").actionPerformed(false);
             if (addToClipboard) {
                 addSelectionToClipboard(editor);
-                getActionByName("delete-previous").actionPerformed();
+                getActionByName("delete-previous").actionPerformed(false);
             }
             else {
-                getActionByName("cut-to-clipboard").actionPerformed();
+                getActionByName("cut-to-clipboard").actionPerformed(false);
             }
             lastActionWasCut = true;
         });
@@ -1728,13 +1763,13 @@ public final class FlowActions
     {
         return action("cut-end-of-word", Category.EDIT, () -> {
             boolean addToClipboard = lastActionWasCut;
-            getActionByName("selection-next-word").actionPerformed();
+            getActionByName("selection-next-word").actionPerformed(false);
             if (addToClipboard) {
                 addSelectionToClipboard(editor);
-                getActionByName("delete-previous").actionPerformed();
+                getActionByName("delete-previous").actionPerformed(false);
             }
             else {
-                getActionByName("cut-to-clipboard").actionPerformed();
+                getActionByName("cut-to-clipboard").actionPerformed(false);
             }
             lastActionWasCut = true;
         });
@@ -1771,7 +1806,7 @@ public final class FlowActions
         }
 
         @Override
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             Document document = getDocument();
             int curLine = document.getLineFromPosition(getTextComponent().getCaretPosition());
@@ -1794,7 +1829,7 @@ public final class FlowActions
         }
 
         @Override
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             moveCaret(getDocument().getLength());
         }
@@ -1808,7 +1843,7 @@ public final class FlowActions
         }
 
         @Override
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             Document document = getDocument();
             int curLine = document.getLineFromPosition(getTextComponent().getCaretPosition());
@@ -1831,7 +1866,7 @@ public final class FlowActions
         }
 
         @Override
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             moveCaret(0);
         }
@@ -1845,7 +1880,7 @@ public final class FlowActions
         }
 
         @Override
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             int[] range = getTextComponent().getLineRangeVisible();
             int pageSize = range[1] - range[0];
@@ -1873,7 +1908,7 @@ public final class FlowActions
         }
 
         @Override
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             int[] range = getTextComponent().getLineRangeVisible();
             int pageSize = range[1] - range[0];
@@ -1901,7 +1936,7 @@ public final class FlowActions
         }
 
         @Override
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             SourceLocation pos = getTextComponent().getDocument().makeSourceLocation(getTextComponent().getCaretPosition());
             int targetColumn = getTextComponent().getTargetColumnForVerticalMove();
@@ -1927,7 +1962,7 @@ public final class FlowActions
         }
 
         @Override
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             SourceLocation pos = getTextComponent().getDocument().makeSourceLocation(getTextComponent().getCaretPosition());
             int targetColumn = getTextComponent().getTargetColumnForVerticalMove();
@@ -1953,7 +1988,7 @@ public final class FlowActions
         }
 
         @Override
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             moveCaret(Math.max(0, getTextComponent().getCaretPosition() - 1));
         }
@@ -1967,7 +2002,7 @@ public final class FlowActions
         }
 
         @Override
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             moveCaret(Math.min(getTextComponent().getDocument().getLength(), getTextComponent().getCaretPosition() + 1));
         }
@@ -1981,7 +2016,7 @@ public final class FlowActions
         }
 
         @Override
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             if (getTextComponent().getCaretPosition() == getTextComponent().getAnchorPosition())
             {
@@ -1999,7 +2034,7 @@ public final class FlowActions
         }
 
         @Override
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             if (getTextComponent().getCaretPosition() == getTextComponent().getAnchorPosition())
             {
@@ -2024,7 +2059,7 @@ public final class FlowActions
         }
 
         @Override
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             FlowEditorPane c = getTextComponent();
             int origPos = c.getCaretPosition();
@@ -2049,7 +2084,7 @@ public final class FlowActions
         }
 
         @Override
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             FlowEditorPane c = getTextComponent();
             int origPos = c.getCaretPosition();
@@ -2076,7 +2111,7 @@ public final class FlowActions
         }
 
         @Override
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             FlowEditorPane c = getTextComponent();
             int origPos = c.getCaretPosition();
@@ -2093,7 +2128,7 @@ public final class FlowActions
         }
 
         @Override
-        public void actionPerformed()
+        public void actionPerformed(boolean viaContextMenu)
         {
             FlowEditorPane c = getTextComponent();
             int origPos = c.getCaretPosition();
@@ -2108,7 +2143,7 @@ public final class FlowActions
             FlowEditorPane c = getTextComponent();
             FlowAbstractAction prevWordAct = actions.get(DefaultEditorKit.previousWordAction);
             int end = c.getCaretPosition();
-            prevWordAct.actionPerformed();
+            prevWordAct.actionPerformed(false);
             c.positionAnchor(end);
             c.replaceSelection("");
         });

@@ -301,7 +301,7 @@ public class TestBasicEditorInteraction extends FXTest
                 case 5:
                     // Cut to end of caret line (ignoring anchor)
                     clearClipboard();
-                    fx_(() -> FlowActions.getActions(flowEditor).getActionByName("cut-end-of-line").actionPerformed());
+                    fx_(() -> FlowActions.getActions(flowEditor).getActionByName("cut-end-of-line").actionPerformed(false));
                     assertEquals(content.substring(curPos, curLineEnd), fx(() -> Clipboard.getSystemClipboard().getString()));
                     content = beforeLine + content.substring(curLineStart, curPos) + afterLine;
                     assertEquals(content, fx(() -> flowEditorPane.getDocument().getFullContent()));
@@ -454,7 +454,7 @@ public class TestBasicEditorInteraction extends FXTest
             fx_(() -> {
                 flowEditor.enableParser(true);
                 flowEditor.getSourceDocument().flushReparseQueue();
-                FlowActions.getActions(flowEditor).getActionByName("autoindent").actionPerformed();
+                FlowActions.getActions(flowEditor).getActionByName("autoindent").actionPerformed(false);
             });
             sleep(1000);
             assertEquals(BLOCK_TEST, fx(() -> flowEditorPane.getDocument().getFullContent()));
@@ -491,7 +491,7 @@ public class TestBasicEditorInteraction extends FXTest
 
 
             boolean indent = r.nextBoolean();
-            fx_(() -> FlowActions.getActions(flowEditor).getActionByName(indent ? "indent-block" : "deindent-block").actionPerformed());
+            fx_(() -> FlowActions.getActions(flowEditor).getActionByName(indent ? "indent-block" : "deindent-block").actionPerformed(false));
             for (int line = startLine; line <= endLine; line++)
             {
                 docLines.set(line, addRemoveIndent(docLines.get(line), indent));
@@ -503,7 +503,7 @@ public class TestBasicEditorInteraction extends FXTest
         fx_(() -> {
             flowEditor.enableParser(true);
             flowEditor.getSourceDocument().flushReparseQueue();
-            FlowActions.getActions(flowEditor).getActionByName("autoindent").actionPerformed();
+            FlowActions.getActions(flowEditor).getActionByName("autoindent").actionPerformed(false);
         });
         sleep(1000);
         assertEquals(BLOCK_TEST, fx(() -> flowEditorPane.getDocument().getFullContent()));
