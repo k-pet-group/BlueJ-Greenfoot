@@ -432,8 +432,7 @@ public class MoeSyntaxDocument implements ReparseableDocument
     public void enableParser(boolean force)
     {
         if (parentResolver != null || force) {
-            parsedNode = new ParsedCUNode();
-            parsedNode.setParentResolver(parentResolver);
+            parsedNode = new ParsedCUNode(parentResolver);
             reparseRecordTree = new NodeTree<ReparseRecord>();
             parsedNode.textInserted(this, 0, 0, getLength(),
                     new MoeSyntaxEvent(0, getLength(), true, false));

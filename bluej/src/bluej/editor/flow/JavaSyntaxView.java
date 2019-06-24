@@ -31,6 +31,7 @@ import bluej.editor.moe.ReparseRecord;
 import bluej.editor.moe.ScopeColors;
 import bluej.editor.moe.Token;
 import bluej.editor.moe.Token.TokenType;
+import bluej.parser.entity.EntityResolver;
 import bluej.parser.nodes.NodeStructureListener;
 import bluej.parser.nodes.NodeTree;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
@@ -115,6 +116,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             {1, 2, 2, 2}
     };
     private final Document document;
+    private final EntityResolver parentResolver;
     private ParsedCUNode rootNode;
     private NodeTree<ReparseRecord> reparseRecordTree;
     private final ScopeColors scopeColors;
@@ -325,8 +327,9 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     /**
      * Creates a new BlueJSyntaxView.
      */
-    public JavaSyntaxView(FlowEditorPane editorPane, ScopeColors scopeColors)
+    public JavaSyntaxView(FlowEditorPane editorPane, ScopeColors scopeColors, EntityResolver parentResolver)
     {
+        this.parentResolver = parentResolver;
         this.scopeBackgrounds = new LiveScopeBackgrounds();
         this.nodeIndents.addListener(scopeBackgrounds);
         this.document = editorPane.getDocument();
@@ -378,7 +381,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     {
         if (rootNode == null)
         {
-            rootNode = new ParsedCUNode();
+            rootNode = new ParsedCUNode(parentResolver);
             reparseRecordTree = new NodeTree<ReparseRecord>();
             //if (parentResolver != null || force) {
             //rootNode.setParentResolver(parentResolver);

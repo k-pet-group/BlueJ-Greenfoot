@@ -46,6 +46,7 @@ import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.FlowFXTab;
 import bluej.editor.stride.FrameEditor;
 import bluej.parser.SourceLocation;
+import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.nodes.MethodNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
@@ -53,6 +54,7 @@ import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ReparseableDocument;
 import bluej.parser.symtab.ClassInfo;
+import bluej.pkgmgr.JavadocResolver;
 import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgr.PrintSize;
@@ -178,6 +180,9 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private final ObjectProperty<FindNavigator> currentSearchResult = new SimpleObjectProperty<>(null);
     private String lastSearchString = "";
 
+    /** Used to obtain javadoc for arbitrary methods */
+    private final JavadocResolver javadocResolver;
+
 
     // TODOFLOW handle the interface-only case
     public boolean containsSourceCode()
@@ -297,12 +302,13 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private final class UnimplementedException extends RuntimeException {}
 
 
-    public FlowEditor(FetchTabbedEditor fetchTabbedEditor, String title, EditorWatcher editorWatcher)
+    public FlowEditor(FetchTabbedEditor fetchTabbedEditor, String title, EditorWatcher editorWatcher, EntityResolver parentResolver, JavadocResolver javadocResolver)
     {
+        this.javadocResolver = javadocResolver;
         this.windowTitle = title;
         this.flowEditorPane = new FlowEditorPane("", this);
         this.document = flowEditorPane.getDocument();
-        this.javaSyntaxView = new JavaSyntaxView(flowEditorPane, this);
+        this.javaSyntaxView = new JavaSyntaxView(flowEditorPane, this, parentResolver);
         this.flowEditorPane.setErrorQuery(errorManager);
         this.undoManager = new UndoManager(document);
         this.fetchTabbedEditor = fetchTabbedEditor;

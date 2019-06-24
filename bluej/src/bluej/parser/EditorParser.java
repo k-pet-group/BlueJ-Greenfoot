@@ -122,8 +122,7 @@ public class EditorParser extends JavaParser
             {
             }
         };
-        pcuNode = new ParsedCUNode();
-        pcuNode.setParentResolver(resolver);
+        pcuNode = new ParsedCUNode(resolver);
     }
     
     public EditorParser(ReparseableDocument document, Reader r, int line, int col, int pos, Stack<JavaParentNode> scopeStack, NodeStructureListener nodeStructureListener)

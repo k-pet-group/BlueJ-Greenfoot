@@ -41,24 +41,17 @@ import java.util.List;
  */
 public class ParsedCUNode extends IncrementalParsingNode
 {
-    private EntityResolver parentResolver;
-    private ImportsCollection imports = new ImportsCollection();
+    private final EntityResolver parentResolver;
+    private final ImportsCollection imports = new ImportsCollection();
 
     private int size = 0;
     
     /**
      * Construct a parsed node for as yet unknown source.
      */
-    public ParsedCUNode()
+    public ParsedCUNode(EntityResolver parentResolver)
     {
         super(null);
-    }
-
-    /**
-     * Set the entity resolver used to resolve symbols.
-     */
-    public void setParentResolver(EntityResolver parentResolver)
-    {
         this.parentResolver = parentResolver;
     }
 
