@@ -99,7 +99,6 @@ public final class FlowActions
     private final FlowEditor editor;
     // frequently needed actions
     public FlowAbstractAction compileOrNextErrorAction;
-    public FlowAbstractAction contentAssistAction;
     private HashMap<String, FlowAbstractAction> actions; // All of the actions in a hash-map by their name
     // The built-in fixed key combinations we add:
     private final ObservableMap<KeyCodeCombination, FlowAbstractAction> builtInKeymap = FXCollections.observableHashMap();
@@ -1080,9 +1079,9 @@ public final class FlowActions
 
                 increaseFontAction(),
                 decreaseFontAction(),
-                resetFontAction()/*TODOFLOW,
+                resetFontAction(),
 
-                contentAssistAction()*/
+                contentAssistAction()
         };
 
         // insert all actions into a hash map (and retain insertion order)
@@ -1747,17 +1746,15 @@ public final class FlowActions
         });
     }
 
-    /*TODOFLOW
     private FlowAbstractAction contentAssistAction()
     {
         return action("code-completion", Category.MISC, () -> {
-            FlowEditor editor = getEditor();
+            FlowEditor editor = getClearedEditor();
             if (Config.getPropBoolean("bluej.editor.codecompletion", true)){
                 editor.createContentAssist();
             }
         });
     }
-    */
 
     private FlowAbstractAction cutEndOfWordAction()
     {

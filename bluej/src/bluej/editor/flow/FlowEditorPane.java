@@ -28,6 +28,7 @@ import bluej.editor.flow.MarginAndTextLine.MarginDisplay;
 import bluej.editor.flow.TextLine.StyledSegment;
 import bluej.editor.moe.ScopeColors;
 import bluej.prefmgr.PrefMgr;
+import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
@@ -691,6 +692,11 @@ public class FlowEditorPane extends Region implements DocumentListener
     {
         positionAnchor(start);
         moveCaret(end);
+    }
+
+    public void setFakeCaret(boolean fakeOn)
+    {
+        //TODOFLOW actually turn caret off when unfocused, but then obey this setting
     }
 
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
