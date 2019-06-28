@@ -32,8 +32,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import bluej.utility.javafx.ResizableRectangle;
 import bluej.views.ViewFilter.StaticOrInstance;
-import javafx.animation.Animation;
 import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
@@ -801,38 +801,6 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         highlight.setVisible(highlightOn);
     }
 
-    /**
-     * A Rectangle subclass that can be resized to any size during layout.
-     */
-    @OnThread(Tag.FX)
-    private static class ResizableRectangle extends Rectangle
-    {
-        @Override
-        public boolean isResizable()
-        {
-            return true;
-        }
-
-        @Override
-        public void resize(double width, double height)
-        {
-            setWidth(width);
-            setHeight(height);
-        }
-
-        @Override
-        public double maxWidth(double height)
-        {
-            return Double.MAX_VALUE;
-        }
-
-        @Override
-        public double maxHeight(double width)
-        {
-            return Double.MAX_VALUE;
-        }
-    }
-    
     /*
     @Override
     public AccessibleContext getAccessibleContext()
