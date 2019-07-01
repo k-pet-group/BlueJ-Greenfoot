@@ -23,11 +23,8 @@ package bluej.editor.flow;
 
 import bluej.editor.flow.FlowEditorPane.FlowEditorPaneListener;
 import bluej.editor.flow.TextLine.StyledSegment;
-import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformFunction;
-import com.google.common.collect.Multimap;
 import javafx.beans.binding.DoubleExpression;
-import javafx.geometry.BoundingBox;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
@@ -35,14 +32,12 @@ import javafx.scene.layout.Region;
 import javafx.scene.text.HitInfo;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * A class to handle the display of the set of visible lines in an editor window.
@@ -67,11 +62,13 @@ class LineDisplay
     private final ArrayList<LineDisplayListener> lineDisplayListeners = new ArrayList<>();
     
     private final DoubleExpression heightProperty;
-    private double averageLineHeight = 1.0;
+    private final DoubleExpression horizScrollProperty;
+    private double averageLineHeight = 1.0;    
 
-    LineDisplay(DoubleExpression heightProperty, FlowEditorPaneListener flowEditorPaneListener)
+    LineDisplay(DoubleExpression heightProperty, DoubleExpression horizScrollProperty, FlowEditorPaneListener flowEditorPaneListener)
     {
         this.heightProperty = heightProperty;
+        this.horizScrollProperty = horizScrollProperty;
         this.flowEditorPaneListener = flowEditorPaneListener;
     }
 
@@ -105,7 +102,7 @@ class LineDisplay
      * @param fontSize The height of the font (in points)
      * @return The ordered list of visible lines
      */
-    List<Node> recalculateVisibleLines(List<List<StyledSegment>> allLines, FXPlatformFunction<Double, Double> snapHeight, double height, double fontSize)
+    List<Node> recalculateVisibleLines(List<List<StyledSegment>> allLines, FXPlatformFunction<Double, Double> snapHeight, double xTranslate, double height, double fontSize)
     {
         if (firstVisibleLineIndex >= allLines.size())
         {
@@ -122,7 +119,7 @@ class LineDisplay
         while (lines.hasNext() && curY <= height)
         {
             MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(), () -> flowEditorPaneListener.marginClickedForLine(k)));
-            line.textLine.setText(lines.next(), fontSize);
+            line.textLine.setText(lines.next(), xTranslate, fontSize);
             double lineHeight = snapHeight.apply(line.prefHeight(-1.0));
             curY += lineHeight;
             lineHeights.add(lineHeight);
@@ -323,7 +320,7 @@ class LineDisplay
             if (currentlyVisibleLine.getLayoutY() <= e.getY() && e.getY() <= currentlyVisibleLine.getLayoutY() + currentlyVisibleLine.getHeight())
             {
                 // Can't use parentToLocal if layout bounds may be out of date:
-                Point2D pointInLocal = new Point2D(e.getX() - currentlyVisibleLine.getLayoutX() - MarginAndTextLine.TEXT_LEFT_EDGE, e.getY() - currentlyVisibleLine.getLayoutY());
+                Point2D pointInLocal = new Point2D(e.getX() - currentlyVisibleLine.getLayoutX() - MarginAndTextLine.TEXT_LEFT_EDGE + horizScrollProperty.get(), e.getY() - currentlyVisibleLine.getLayoutY());
                 HitInfo hitInfo = currentlyVisibleLine.textLine.hitTest(pointInLocal);
                 if (hitInfo != null)
                 {
@@ -332,5 +329,17 @@ class LineDisplay
             }
         }
         return null;
+    }
+
+    /**
+     * Calculates the anticipated width of the given line of text
+     * at the given font size.
+     * @return The line width, in pixels
+     */
+    public double calculateLineWidth(String line, double fontSize)
+    {
+        TextLine textLine = new TextLine();
+        textLine.setText(List.of(new StyledSegment(List.of(), line)), 0, fontSize);
+        return textLine.prefWidth(-1);
     }
 }

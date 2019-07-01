@@ -398,6 +398,26 @@ public class HoleDocument implements Document
         return new HoleReader(startPos, endPos);
     }
 
+    /**
+     * Gets the content of the longest line in the document, as measured by number of chars.
+     */
+    public String getLongestLine()
+    {
+        List<Integer> lineStarts = getLineStartPositions();
+        int longestIndex = 0;
+        int longestLength = 0;
+        for (int line = 0; line + 1 < lineStarts.size(); line++)
+        {
+            int length = lineStarts.get(line + 1) - lineStarts.get(line);
+            if (length > longestLength)
+            {
+                longestLength = length;
+                longestIndex = line;
+            }
+        }
+        return getLines().get(longestIndex).toString();
+    }
+
     private static class LineInformation
     {
         private final TrackedPosition lineStart;

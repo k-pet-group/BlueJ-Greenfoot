@@ -55,7 +55,6 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.util.*;
-import java.util.Map.Entry;
 
 /**
  * A FlowEditorPane is a component with (optional) horizontal and vertical scroll bars.
@@ -100,7 +99,6 @@ public class FlowEditorPane extends Region implements DocumentListener
     {
         this.listener = listener;
         setSnapToPixel(true);
-        lineDisplay = new LineDisplay(heightProperty(), listener);
         document = new HoleDocument();
         document.replaceText(0, 0, content);
         document.addListener(this);
@@ -111,9 +109,24 @@ public class FlowEditorPane extends Region implements DocumentListener
         caretShape.getStyleClass().add("flow-caret");
         caretShape.setStroke(Color.RED);
         caretShape.setMouseTransparent(true);
+        caretShape.setManaged(false);
+        
         verticalScroll = new ScrollBar();
         verticalScroll.setOrientation(Orientation.VERTICAL);
         verticalScroll.setVisible(false);
+        
+        horizontalScroll = new ScrollBar();
+        horizontalScroll.setOrientation(Orientation.HORIZONTAL);
+        horizontalScroll.setVisible(false);
+        lineDisplay = new LineDisplay(heightProperty(), horizontalScroll.valueProperty(), listener);
+
+        JavaFXUtil.addChangeListenerPlatform(horizontalScroll.valueProperty(), v -> {
+            // Prevent an infinite loop when we update scroll bar ourselves in render method:
+            if (!updatingScrollBarDirectly)
+            {
+                updateRender(false);
+            }
+        });
         JavaFXUtil.addChangeListenerPlatform(verticalScroll.valueProperty(), v -> {
             // Prevent an infinite loop when we update scroll bar ourselves in render method:
             if (!updatingScrollBarDirectly)
@@ -122,9 +135,6 @@ public class FlowEditorPane extends Region implements DocumentListener
                 updateRender(false);
             }
         });
-        horizontalScroll = new ScrollBar();
-        horizontalScroll.setOrientation(Orientation.HORIZONTAL);
-        horizontalScroll.setVisible(false);
         lineContainer = new LineContainer();
         Rectangle clip = new Rectangle();
         clip.widthProperty().bind(lineContainer.widthProperty());
@@ -349,7 +359,7 @@ public class FlowEditorPane extends Region implements DocumentListener
             }
         };
         
-        prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(styledLines, this::snapSizeY, getHeight(), PrefMgr.getEditorFontSize().get()));
+        prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(styledLines, this::snapSizeY, - horizontalScroll.getValue(), getHeight(), PrefMgr.getEditorFontSize().get()));
         prospectiveChildren.add(caretShape);
         verticalScroll.setVisible(allowScrollBars && lineDisplay.getVisibleLineCount() < document.getLineCount());
         // Note: we don't use actual line count as that "jiggle" by one line as lines are partially
@@ -362,6 +372,11 @@ public class FlowEditorPane extends Region implements DocumentListener
         updatingScrollBarDirectly = true;
         verticalScroll.setValue(lineDisplay.getLineRangeVisible()[0] - (lineDisplay.getFirstVisibleLineOffset() / lineDisplay.getLineHeight()));
         updatingScrollBarDirectly = false;
+        
+        double width = lineDisplay.calculateLineWidth(document.getLongestLine(), PrefMgr.getEditorFontSize().get());
+        horizontalScroll.setMax(width + 200.0 - getWidth());
+        horizontalScroll.setVisibleAmount(getWidth() / (horizontalScroll.getMax() + getWidth()) * horizontalScroll.getMax());
+        horizontalScroll.setVisible(horizontalScroll.getVisibleAmount() < horizontalScroll.getMax());
         
         // This will often avoid changing the children, if the window has not been resized:
         boolean needToChangeLinesAndCaret = false;
@@ -398,7 +413,14 @@ public class FlowEditorPane extends Region implements DocumentListener
                 });
             }
             caretShape.layoutXProperty().bind(caretLine.layoutXProperty());
-            caretShape.translateXProperty().set(MarginAndTextLine.TEXT_LEFT_EDGE);
+            if (ensureCaretVisible)
+            {
+                Bounds caretBounds = caretShape.getBoundsInLocal();
+                double maxScroll = Math.max(0, caretBounds.getCenterX() - 8);
+                double minScroll = Math.max(0, caretBounds.getCenterX() - (getWidth() - MarginAndTextLine.TEXT_LEFT_EDGE - verticalScroll.prefWidth(-1) - 6));
+                horizontalScroll.setValue(Math.min(maxScroll, Math.max(minScroll, horizontalScroll.getValue())));
+            }
+            caretShape.translateXProperty().set(MarginAndTextLine.TEXT_LEFT_EDGE - horizontalScroll.getValue());
             caretShape.layoutYProperty().bind(caretLine.layoutYProperty());
             caretShape.setVisible(true);
         }
@@ -744,7 +766,12 @@ public class FlowEditorPane extends Region implements DocumentListener
             {
                 double width = verticalScroll.prefWidth(-1);
                 child.resizeRelocate(getWidth() - width, 0, width, getHeight());
-            }   
+            }
+            else if (child == horizontalScroll)
+            {
+                double height = horizontalScroll.prefHeight(-1);
+                child.resizeRelocate(0, getHeight() - height, getWidth(), height);
+            }
         }
     }
 
@@ -766,6 +793,9 @@ public class FlowEditorPane extends Region implements DocumentListener
     
     private void scroll(ScrollEvent scrollEvent)
     {
+        updatingScrollBarDirectly = true;
+        horizontalScroll.setValue(Math.max(horizontalScroll.getMin(), Math.min(horizontalScroll.getMax(), horizontalScroll.getValue() - scrollEvent.getDeltaX())));
+        updatingScrollBarDirectly = false;
         lineDisplay.scrollBy(scrollEvent.getDeltaY(), document.getLineCount());
         if (!postScrollRenderQueued)
         {

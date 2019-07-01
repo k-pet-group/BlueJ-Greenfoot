@@ -22,14 +22,15 @@
 package bluej.editor.flow;
 
 import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.ResizableRectangle;
 import com.google.common.collect.Lists;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -43,7 +44,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 
 /**
@@ -60,6 +60,7 @@ class TextLine extends TextFlow
     
     private List<Node> backgroundNodes = Collections.emptyList();
     private List<StyledSegment> latestContent = Collections.emptyList();
+    private final Rectangle clip;
 
     public TextLine()
     {
@@ -75,6 +76,10 @@ class TextLine extends TextFlow
         errorUnderlineShape.setFill(null);
         errorUnderlineShape.setManaged(false);
         getChildren().setAll(findResultShape, selectionShape, errorUnderlineShape);
+        clip = new ResizableRectangle();
+        clip.widthProperty().bind(widthProperty());
+        clip.heightProperty().bind(heightProperty());
+        setClip(clip);
     }
 
     /**
@@ -159,8 +164,10 @@ class TextLine extends TextFlow
      * @param text The text to show.
      * @param size The font size to use.
      */
-    public void setText(List<StyledSegment> text, double size)
+    public void setText(List<StyledSegment> text, double xTranslate, double size)
     {
+        setTranslateX(xTranslate);
+        clip.setX(-xTranslate);
         text = Lists.newArrayList(StyledSegment.mergeAdjacentIdentical(text));
         if (latestContent.equals(text))
         {
@@ -258,7 +265,7 @@ class TextLine extends TextFlow
         List<StyledSegment> content = this.latestContent;
         // Avoid check for identical content:
         latestContent = Collections.emptyList();
-        setText(content, newFontSize);
+        setText(content, getTranslateX(), newFontSize);
     }
 
     /**
