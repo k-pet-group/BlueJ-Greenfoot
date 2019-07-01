@@ -47,6 +47,7 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
+import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
@@ -125,6 +126,10 @@ public class FlowEditorPane extends Region implements DocumentListener
         horizontalScroll.setOrientation(Orientation.HORIZONTAL);
         horizontalScroll.setVisible(false);
         lineContainer = new LineContainer();
+        Rectangle clip = new Rectangle();
+        clip.widthProperty().bind(lineContainer.widthProperty());
+        clip.heightProperty().bind(lineContainer.heightProperty());
+        lineContainer.setClip(clip);
         getChildren().setAll(lineContainer, verticalScroll, horizontalScroll);
         updateRender(false);
 
