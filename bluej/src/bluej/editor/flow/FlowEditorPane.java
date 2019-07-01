@@ -144,7 +144,6 @@ public class FlowEditorPane extends Region implements DocumentListener
         updateRender(false);
 
         Nodes.addInputMap(this, InputMap.sequence(
-            InputMap.consume(KeyEvent.KEY_PRESSED, this::keyPressed),
             InputMap.consume(KeyEvent.KEY_TYPED, this::keyTyped),
             InputMap.consume(MouseEvent.MOUSE_PRESSED, this::mousePressed),
             InputMap.consume(MouseEvent.MOUSE_DRAGGED, this::mouseDragged),
@@ -208,118 +207,6 @@ public class FlowEditorPane extends Region implements DocumentListener
         positionCaretAtDestination(e);
         // Don't update the anchor, though
         updateRender(true);
-    }
-
-    private void keyPressed(KeyEvent e)
-    {
-        // TODOFLOW just scrap this method and rely entirely on FlowActions once the code is moved across.
-        if (true)
-            return;
-        
-        int lineCount = document.getLineCount();
-        int pageSize = Math.max(1, lineDisplay.getVisibleLineCount() - 1);
-        switch (e.getCode())
-        {
-            case LEFT:
-                caret.moveBy(-1);
-                if (!e.isShiftDown())
-                {
-                    anchor.position = caret.position;
-                }
-                updateRender(true);
-                callSelectionListeners();
-                break;
-            case RIGHT:
-                caret.moveBy(1);
-                if (!e.isShiftDown())
-                {
-                    anchor.position = caret.position;
-                }
-                updateRender(true);
-                callSelectionListeners();
-                break;
-            case UP:
-                if (caret.getLine() > 0)
-                {
-                    int prevLineLength = document.getLineLength(caret.getLine() - 1);
-                    caret.moveToLineColumn(caret.getLine() - 1, Math.min(caret.getColumn(), prevLineLength));
-                    if (!e.isShiftDown())
-                    {
-                        anchor.position = caret.position;
-                    }
-                    updateRender(true);
-                    callSelectionListeners();
-                }
-                else if (caret.getLine() == 0)
-                {
-                    positionCaret(0);
-                    updateRender(true);
-                    callSelectionListeners();
-                }
-                break;
-            case PAGE_UP:
-                if (caret.getLine() - pageSize > 0)
-                {
-                    int targetLineLength = document.getLineLength(caret.getLine() - pageSize);
-                    caret.moveToLineColumn(caret.getLine() - pageSize, Math.min(caret.getColumn(), targetLineLength));
-                    if (!e.isShiftDown())
-                    {
-                        anchor.position = caret.position;
-                    }
-                    updateRender(true);
-                    callSelectionListeners();
-                }
-                else
-                {
-                    positionCaret(0);
-                    anchor.position = caret.position;
-                    updateRender(true);
-                    callSelectionListeners();
-                }
-                break;
-            case DOWN:
-                if (caret.getLine() + 1 < lineCount)
-                {
-                    int nextLineLength = document.getLineLength(caret.getLine() + 1);
-                    caret.moveToLineColumn(caret.getLine() + 1, Math.min(caret.getColumn(), nextLineLength));
-                    if (!e.isShiftDown())
-                    {
-                        anchor.position = caret.position;
-                    }
-                    updateRender(true);
-                    callSelectionListeners();
-                }
-                else if (caret.getLine() + 1 == lineCount)
-                {
-                    positionCaret(document.getLength());
-                    updateRender(true);
-                    callSelectionListeners();
-                }
-                break;
-            case PAGE_DOWN:
-                if (caret.getLine() + pageSize < lineCount)
-                {
-                    int targetLineLength = document.getLineLength(caret.getLine() + pageSize);
-                    caret.moveToLineColumn(caret.getLine() + pageSize, Math.min(caret.getColumn(), targetLineLength));
-                    if (!e.isShiftDown())
-                    {
-                        anchor.position = caret.position;
-                    }
-                    updateRender(true);
-                    callSelectionListeners();
-                }
-                else
-                {
-                    positionCaret(document.getLength());
-                    if (!e.isShiftDown())
-                    {
-                        anchor.position = caret.position;
-                    }
-                    updateRender(true);
-                    callSelectionListeners();
-                }
-                break;
-        }
     }
 
     @Override

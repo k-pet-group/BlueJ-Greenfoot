@@ -1291,17 +1291,7 @@ public final class FlowActions
     }
 
 
-    /* retained side effect: clears message in editor! */
     /*TODOFLOW
-    private final FlowEditor getEditor()
-    {
-        editor.clearMessage();
-        return editor;
-    }
-
-
-    // --------------------------------------------------------------------
-
     private FlowAbstractAction saveAction()
     {
         return action("save", Category.CLASS, () -> getEditor().userSave());
