@@ -182,14 +182,14 @@ public class FlowEditorPane extends Region implements DocumentListener
     private void mousePressed(MouseEvent e)
     {
         requestFocus();
-        positionCaretAtDestination(e);
+        positionCaretAtDestination(e, true);
         anchor.position = caret.position;
         updateRender(true);
     }
 
-    private void positionCaretAtDestination(MouseEvent e)
+    private void positionCaretAtDestination(MouseEvent e, boolean setAnchor)
     {
-        getCaretPositionForMouseEvent(e).ifPresent(this::positionCaret);
+        getCaretPositionForMouseEvent(e).ifPresent(setAnchor ? this::positionCaret : this::moveCaret);
     }
     
     OptionalInt getCaretPositionForMouseEvent(MouseEvent e)
@@ -204,7 +204,7 @@ public class FlowEditorPane extends Region implements DocumentListener
 
     private void mouseDragged(MouseEvent e)
     {
-        positionCaretAtDestination(e);
+        positionCaretAtDestination(e, false);
         // Don't update the anchor, though
         updateRender(true);
     }
