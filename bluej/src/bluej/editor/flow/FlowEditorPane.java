@@ -25,10 +25,10 @@ import bluej.Config;
 import bluej.editor.flow.Document.Bias;
 import bluej.editor.flow.LineDisplay.LineDisplayListener;
 import bluej.editor.flow.MarginAndTextLine.MarginDisplay;
+import bluej.editor.flow.TextLine.HighlightType;
 import bluej.editor.flow.TextLine.StyledSegment;
 import bluej.editor.moe.ScopeColors;
 import bluej.prefmgr.PrefMgr;
-import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
@@ -238,11 +238,11 @@ public class FlowEditorPane extends Region implements DocumentListener
             }
 
             @Override
-            public List<StyledSegment> get(int index)
+            public List<StyledSegment> get(int lineIndex)
             {
                 // Because styling is called on demand, we save styling lines
                 // which are never requested for display.
-                return lineStyler.getLineForDisplay(index, documentLines.get(index));
+                return lineStyler.getLineForDisplay(lineIndex, documentLines.get(lineIndex));
             }
         };
         
@@ -523,7 +523,7 @@ public class FlowEditorPane extends Region implements DocumentListener
     }
     
     // Each item is of size 2, start pos incl and end pos excl, where position is within the whole document
-    void markFindResults(List<int[]> results)
+    void showHighlights(HighlightType highlightType, List<int[]> results)
     {
         // Maps line number to [start column incl, end column excl]
         Map<Integer, List<int[]>> resultsByLine = new HashMap<>();
@@ -539,7 +539,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         int[] visibleLines = lineDisplay.getLineRangeVisible();
         for (int line = visibleLines[0]; line <= visibleLines[1]; line++)
         {
-            lineDisplay.getVisibleLine(line).textLine.showFindResults(resultsByLine.getOrDefault(line, List.of()));
+            lineDisplay.getVisibleLine(line).textLine.showHighlight(highlightType, resultsByLine.getOrDefault(line, List.of()));
         }
     }
 

@@ -30,6 +30,8 @@ package bluej.editor.moe;
  * remains intact in all source distributions of this package.
  */
 
+import bluej.editor.flow.Document;
+
 import javax.swing.text.*;
 
 /**
@@ -95,6 +97,100 @@ public class TextUtilities
             i = 0;
         }
         String textt = doc.getText(texttOffset, len);
+
+        while (len > 0) {
+            char x = textt.charAt(i);
+            if(x == c) {
+                count++;
+            }
+
+            // If text[i] == cprime, we have found a
+            // opening bracket, so we return i if
+            // --count == 0
+            else if(x == cprime)
+            {
+                if (--count == 0) {
+                    return i + texttOffset;
+                }
+            }
+
+            len--;
+            i += step;
+
+            if (x == '\"' || x == '\'') {
+                char quoteChar = x;
+                // A quoted string, need to find the matching quote before matching
+                // further brackets...
+                while (len > 0) {
+                    x = textt.charAt(i);
+                    if (x == quoteChar) {
+                        // Found the matching quote, as long as it is not \-quoted.
+                        if (i == 0 || textt.charAt(i - 1) != '\\') {
+                            len--;
+                            i += step;
+                            break;
+                        }
+                    }
+                    len--;
+                    i += step;
+                }
+            }
+        }
+
+        // Nothing found
+        return -1;
+    }
+
+    /**
+     * Returns the offset of the bracket matching the one at the
+     * specified offset of the document, or -1 if the bracket is
+     * unmatched (or if the character is not a bracket).
+     * @param doc The document
+     * @param offset The offset
+     * @exception BadLocationException If an out-of-bounds access
+     * was attempted on the document text
+     */
+    public static int findMatchingBracket(Document doc, int offset)
+    {
+        if(doc.getLength() == 0) {
+            return -1;
+        }
+
+        char c = doc.getContent(offset, offset + 1).charAt(0);
+        char cprime; // c` - corresponding character
+        boolean direction; // true = back, false = forward
+
+        switch(c)
+        {
+            case '(': cprime = ')'; direction = false; break;
+            case ')': cprime = '('; direction = true; break;
+            case '[': cprime = ']'; direction = false; break;
+            case ']': cprime = '['; direction = true; break;
+            case '{': cprime = '}'; direction = false; break;
+            case '}': cprime = '{'; direction = true; break;
+            default: return -1;
+        }
+
+        int count = 1;
+        int step;
+        int texttOffset;
+        int len;
+        int i;
+        if (direction) {
+            // search backwards
+            step = -1;
+            texttOffset = 0;
+            len = offset;
+            i = len - 1;
+        }
+        else {
+            // search forwards
+            step = 1;
+            texttOffset = offset + 1;
+            len = doc.getLength() - texttOffset;
+            i = 0;
+        }
+        CharSequence textt = doc.getContent(texttOffset, texttOffset + len);
 
         while (len > 0) {
             char x = textt.charAt(i);

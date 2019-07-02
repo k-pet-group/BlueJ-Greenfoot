@@ -53,9 +53,15 @@ import java.util.Objects;
 @OnThread(Tag.FXPlatform)
 class TextLine extends TextFlow
 {
+    static enum HighlightType
+    {
+        FIND_RESULT, BRACKET_MATCH;
+    }
+    
     // The selection shape (may be empty and invisible when not in use)
     private final Path selectionShape = new Path();
     private final Path findResultShape = new Path();
+    private final Path bracketMatchShape = new Path();
     private final Path errorUnderlineShape = new Path();
     
     private List<Node> backgroundNodes = Collections.emptyList();
@@ -72,10 +78,13 @@ class TextLine extends TextFlow
         findResultShape.setStroke(null);
         findResultShape.setFill(Color.GOLDENROD);
         findResultShape.setManaged(false);
+        bracketMatchShape.setStroke(null);
+        bracketMatchShape.setFill(Color.grayRgb(200));
+        bracketMatchShape.setManaged(false);
         errorUnderlineShape.setStroke(Color.RED);
         errorUnderlineShape.setFill(null);
         errorUnderlineShape.setManaged(false);
-        getChildren().setAll(findResultShape, selectionShape, errorUnderlineShape);
+        getChildren().setAll(bracketMatchShape, findResultShape, selectionShape, errorUnderlineShape);
         clip = new ResizableRectangle();
         clip.widthProperty().bind(widthProperty());
         clip.heightProperty().bind(heightProperty());
@@ -178,8 +187,7 @@ class TextLine extends TextFlow
         hideErrorUnderline();
         getChildren().clear();
         getChildren().addAll(backgroundNodes);
-        getChildren().add(findResultShape);
-        getChildren().add(selectionShape);
+        getChildren().addAll(bracketMatchShape, findResultShape, selectionShape);
         for (StyledSegment styledSegment : text)
         {
             Text t = new Text(styledSegment.text);
@@ -198,13 +206,14 @@ class TextLine extends TextFlow
         errorUnderlineShape.setVisible(true);
     }
 
-    // Each item is size 2, start pos incl and end pos excl.  No other find results will be shown on the line,
+    // Each item is size 2, start pos incl and end pos excl.  No other highlights of this kind will be shown on the line,
     // so call this method with the complete set you want to show on this line.
-    // To turn off, call with an empty list
-    public void showFindResults(List<int[]> positions)
+    // To turn off, call with an empty list.
+    public void showHighlight(HighlightType highlightType, List<int[]> positions)
     {
-        findResultShape.getElements().setAll(positions.stream().flatMap(p -> Arrays.stream(rangeShape(p[0], p[1]))).toArray(PathElement[]::new));
-        findResultShape.setVisible(!findResultShape.getElements().isEmpty());
+        Path shape = highlightType == HighlightType.FIND_RESULT ? this.findResultShape : this.bracketMatchShape;
+        shape.getElements().setAll(positions.stream().flatMap(p -> Arrays.stream(rangeShape(p[0], p[1]))).toArray(PathElement[]::new));
+        shape.setVisible(!shape.getElements().isEmpty());
     }
 
     private List<PathElement> makeSquiggle(PathElement[] rectShape)
@@ -250,7 +259,7 @@ class TextLine extends TextFlow
             nodes = Collections.emptyList();
         
         this.backgroundNodes = new ArrayList<>(nodes);
-        int selectionIndex = getChildren().indexOf(findResultShape);
+        int selectionIndex = getChildren().indexOf(bracketMatchShape);
         getChildren().remove(0, selectionIndex);
         getChildren().addAll(0, backgroundNodes);
     }
