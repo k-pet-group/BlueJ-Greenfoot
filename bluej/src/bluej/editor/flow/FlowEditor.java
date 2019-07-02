@@ -669,6 +669,67 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         return matches;
     }
 
+    /**
+     * delegates bracket matching to the source pane's caret
+     */
+    private void doBracketMatch()
+    {
+        int originalPos = getSourcePane().getCaretPosition();
+        bracketMatches.clear();
+        for (Integer position : getBracketMatchPositions())
+        {
+            bracketMatches.add(new int[] {position, position + 1});
+        }
+        flowEditorPane.showHighlights(HighlightType.BRACKET_MATCH, bracketMatches);
+
+        /*TODOFLOW work out if we need something like this:
+        // This is a kludge.  Changing the style causes the node to be swapped out, which causes issues with mouse dragging
+        // because the node is swapped as the drag begins.  So we wrap this in a run later
+        // so that the drag can begin before the node is swapped.  It's ugly, but it seems
+        // to work:
+        JavaFXUtil.runPlatformLater(() ->
+        {
+            // remove existing bracket if needed
+            removeBracketHighlight();
+            // Only highlight if we found a match, and the cursor hasn't moved since
+            // we started the run later:
+            if (matchBracket != -1 && originalPos > 0 && originalPos == getSourcePane().getCaretPosition())
+            {
+                
+                sourceDocument.addStyle(originalPos - 1, originalPos, MoeSyntaxDocument.MOE_BRACKET_HIGHLIGHT);
+                sourceDocument.addStyle(matchBracket, matchBracket + 1, MoeSyntaxDocument.MOE_BRACKET_HIGHLIGHT);
+            }
+        });
+        */
+    }
+
+    private void removeBracketHighlight()
+    {
+        bracketMatches.clear();
+        flowEditorPane.showHighlights(HighlightType.BRACKET_MATCH, bracketMatches);
+    }
+
+    /**
+     * Returns the positions of the brackets adjacent to the caret position, and their matching bracket positions. Returns empty list if not found or not valid/appropriate
+     *
+     * @return the int representing bracket positions to highlight
+     */
+    private List<Integer> getBracketMatchPositions()
+    {
+        int actualCaretPos = flowEditorPane.getCaretPosition();
+        ArrayList<Integer> matches = new ArrayList<>();
+        for (int caretPos = Math.max(0, actualCaretPos - 1); caretPos <= Math.min(actualCaretPos, getTextLength() - 1); caretPos++)
+        {
+            int pos = TextUtilities.findMatchingBracket(document, caretPos);
+            if (pos != -1)
+            {
+                matches.add(caretPos);
+                matches.add(pos);
+            }
+        }
+        return matches;
+    }
+
     private void showErrorPopupForCaretPos(int caretPos, boolean mousePosition)
     {
         ErrorDetails err = caretPos == -1 ? null : errorManager.getErrorAtPosition(caretPos);
@@ -1229,6 +1290,25 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             // Make sure caret is visible after open:
             getSourcePane().ensureCaretShowing();
             requestLayout();
+        }
+    }
+
+    /**
+     * Checks that current status of syntax highlighting option is consistent
+     * with desired option eg off/on. Called when refreshing or making visible
+     * to pick up any Preference Manager changes to this functionality
+     */
+    private void checkBracketStatus()
+    {
+        matchBrackets = PrefMgr.getFlag(PrefMgr.MATCH_BRACKETS);
+        // tidies up leftover highlight if matching is switched off
+        // while highlighting a valid bracket or refreshes bracket in open
+        // editor
+        if (matchBrackets) {
+            doBracketMatch();
+        }
+        else {
+            removeBracketHighlight();
         }
     }
 
