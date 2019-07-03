@@ -1061,10 +1061,8 @@ public final class FlowActions
                 deindentBlockAction(),
                 insertMethodAction(),
                 addJavadocAction(),
-                /* TODOFLOW
                 indentAction(),
                 deIndentAction(),
-                */
                 newLineAction(),
                 cutAction(),
                 copyAction(),
@@ -1485,60 +1483,18 @@ public final class FlowActions
 
     // --------------------------------------------------------------------
 
-    /*TODOFLOW
+    
     private FlowAbstractAction indentAction()
     {
-        return action("indent", Category.EDIT, () -> {
-            FlowEditor ed = getEditor();
-
-            if(haveSelection(ed)) {
-                doBlockIndent(ed);
-            }
-            else {
-                // if necessary, convert all TABs in the current editor to spaces
-                int converted = 0;
-                if (ed.checkExpandTabs()) {
-                    // do TABs need expanding?
-                    converted = convertTabsToSpaces(ed);
-                }
-
-                if (PrefMgr.getFlag(PrefMgr.AUTO_INDENT)) {
-                    doIndent(false);
-                }
-                else {
-                    insertSpacedTab();
-                }
-
-                if (converted > 0) {
-                    ed.writeMessage(Config.getString("editor.info.tabsExpanded"));
-                }
-            }
-        });
+        return action("indent", Category.EDIT, () -> doBlockIndent(getClearedEditor()));
     }
 
     // --------------------------------------------------------------------
 
     private FlowAbstractAction deIndentAction()
     {
-        return action("de-indent", Category.EDIT, () -> {
-            FlowEditor ed = getEditor();
-
-            if(haveSelection(ed)) {
-                doBlockDeIndent(ed);
-            }
-            else {
-                // if necessary, convert all TABs in the current editor to spaces
-                if (ed.checkExpandTabs()) { // do TABs need expanding?
-                    int converted = convertTabsToSpaces(ed);
-
-                    if (converted > 0)
-                        ed.writeMessage(Config.getString("editor.info.tabsExpanded"));
-                }
-                doDeIndent(ed.getCurrentTextPane());
-            }
-        });
+        return action("de-indent", Category.EDIT, () -> doBlockDeIndent(getClearedEditor()));
     }
-    */
 
     // === Options: ===
     // --------------------------------------------------------------------
