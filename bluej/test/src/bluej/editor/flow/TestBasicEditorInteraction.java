@@ -492,6 +492,37 @@ public class TestBasicEditorInteraction extends FXTest
         
         assertEquals(expected, fx(() -> flowEditorPane.getDocument().getFullContent()));
     }
+
+    @Test
+    public void testAddMethod()
+    {
+        setText(BLOCK_TEST);
+        clickOn(flowEditorPane);
+        int indexOfGap = BLOCK_TEST.indexOf("\n    public int method");
+
+        fx_(() -> {
+            flowEditor.enableParser(true);
+            flowEditor.getSourceDocument().flushReparseQueue();
+            flowEditor.getSourcePane().positionCaret(indexOfGap);
+            FlowActions.getActions(flowEditor).getActionByName("insert-method").actionPerformed(false);
+        });
+        sleep(1000);
+        String expected = BLOCK_TEST.substring(0, indexOfGap) +
+            "    /**\n" +
+            "     * An example of a method - replace this comment with your own\n" +
+            "     *\n" +
+            "     * @param  y  a sample parameter for a method\n" +
+            "     * @return    the sum of x and y\n" +
+            "     */\n" +
+            "    public int sampleMethod(int y)\n" +
+            "    {\n" +
+            "        // put your code here\n" +
+            "        return y;\n" +
+            "    }\n"  +
+            BLOCK_TEST.substring(indexOfGap);
+
+        assertEquals(expected, fx(() -> flowEditorPane.getDocument().getFullContent()));
+    }
     
     @Property(trials = 2)
     public void testIndentAddRemove(@From(GenRandom.class) Random r)

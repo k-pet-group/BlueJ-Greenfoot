@@ -62,11 +62,15 @@ import threadchecker.Tag;
 import javax.swing.*;
 import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.*;
@@ -451,7 +455,6 @@ public final class FlowActions
      * @param templateName
      *            The name of the template (without path or suffix)
      */
-    /*TODOFLOW
     private void insertTemplate(String templateName)
     {
         try {
@@ -459,7 +462,7 @@ public final class FlowActions
             File template = Config.getTemplateFile(templateName);
 
             InputStream fileStream = new FileInputStream(template);
-            BufferedReader in = new BufferedReader(new InputStreamReader(fileStream, "UTF-8"));
+            BufferedReader in = new BufferedReader(new InputStreamReader(fileStream, StandardCharsets.UTF_8));
 
             int addedTextLength = 0;
             String line = in.readLine();
@@ -477,8 +480,8 @@ public final class FlowActions
             // template, but that resulted in errors when selecting the entire
             // contents of the class before inserting the template.
             int caretPos = editor.getSourcePane().getCaretPosition();
-            AutoIndentInformation info = FlowIndent.calculateIndentsAndApply(editor.getSourceDocument(),caretPos - addedTextLength,caretPos+2,caretPos);
-            editor.positionCaretForward(info.getNewCaretPosition() - editor.getSourcePane().getCaretPosition());
+            AutoIndentInformation info = FlowIndent.calculateIndentsAndApply(editor.getSourceDocument(),editor.getSourcePane().getDocument(),caretPos);
+            editor.getSourcePane().positionCaret(info.getNewCaretPosition());
 
             in.close();
         }
@@ -487,7 +490,6 @@ public final class FlowActions
             Debug.reportError("Exception: " + exc);
         }
     }
-    */
 
     /**
      * Perform an action on all selected lines in the source document.
@@ -1057,9 +1059,7 @@ public final class FlowActions
                 
                 indentBlockAction(),
                 deindentBlockAction(),
-                /*TODOFLOW
                 insertMethodAction(),
-                */
                 addJavadocAction(),
                 /* TODOFLOW
                 indentAction(),
@@ -1393,12 +1393,10 @@ public final class FlowActions
         });
     }
 
-    // --------------------------------------------------------------------
-    /*TODOFLOW
     private FlowAbstractAction insertMethodAction()
     {
         return action("insert-method", Category.EDIT, () -> {
-            FlowEditor editor = getEditor();
+            FlowEditor editor = getClearedEditor();
             //this method should not be actioned if the editor is not displaying source code
             if (!editor.containsSourceCode())
             {
@@ -1407,7 +1405,6 @@ public final class FlowActions
             editor.undoManager.compoundEdit(() -> insertTemplate("method"));
         });
     }
-    */
 
     private FlowAbstractAction addJavadocAction()
     {
