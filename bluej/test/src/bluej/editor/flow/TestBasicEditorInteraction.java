@@ -426,7 +426,7 @@ public class TestBasicEditorInteraction extends FXTest
                 "        }\n" +
                 "    }\n" +
                 "\n" +
-                "    public void method()\n" +
+                "    public int method(int x, int y)\n" +
                 "    {\n" +
                 "        while (true)\n" +
                 "        {\n" +
@@ -464,6 +464,33 @@ public class TestBasicEditorInteraction extends FXTest
         assertEquals(unindented, fx(() -> flowEditorPane.getDocument().getFullContent()));
         push(KeyCode.SHORTCUT, KeyCode.Y);
         assertEquals(BLOCK_TEST, fx(() -> flowEditorPane.getDocument().getFullContent()));
+    }
+
+    @Test
+    public void testAddComment()
+    {
+        setText(BLOCK_TEST);
+        clickOn(flowEditorPane);
+        int indexOfMethod = BLOCK_TEST.indexOf("public int method");
+        
+        fx_(() -> {
+            flowEditor.enableParser(true);
+            flowEditor.getSourceDocument().flushReparseQueue();
+            flowEditor.getSourcePane().positionCaret(indexOfMethod);
+            FlowActions.getActions(flowEditor).getActionByName("add-javadoc").actionPerformed(false);
+        });
+        sleep(1000);
+        String expected = BLOCK_TEST.substring(0, indexOfMethod - 4) +
+            "    /**\n" +
+            "     * Method method\n" +
+            "     *\n" +
+            "     * @param x A parameter\n" +
+            "     * @param y A parameter\n" +
+            "     * @return The return value\n" +
+            "     */\n" + 
+            BLOCK_TEST.substring(indexOfMethod - 4);
+        
+        assertEquals(expected, fx(() -> flowEditorPane.getDocument().getFullContent()));
     }
     
     @Property(trials = 2)

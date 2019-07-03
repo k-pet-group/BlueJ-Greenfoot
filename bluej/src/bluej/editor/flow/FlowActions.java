@@ -23,10 +23,16 @@ package bluej.editor.flow;
 
 
 import bluej.Config;
+import bluej.debugger.gentype.JavaType;
 import bluej.editor.flow.FlowIndent.AutoIndentInformation;
 import bluej.editor.moe.MoeEditor;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.SourceLocation;
+import bluej.parser.entity.JavaEntity;
+import bluej.parser.nodes.CommentNode;
+import bluej.parser.nodes.MethodNode;
+import bluej.parser.nodes.NodeTree.NodeAndPosition;
+import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ReparseableDocument;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
@@ -1053,7 +1059,9 @@ public final class FlowActions
                 deindentBlockAction(),
                 /*TODOFLOW
                 insertMethodAction(),
+                */
                 addJavadocAction(),
+                /* TODOFLOW
                 indentAction(),
                 deIndentAction(),
                 */
@@ -1401,18 +1409,15 @@ public final class FlowActions
     }
     */
 
-    // --------------------------------------------------------------------
-
-    /*TODOFLOW
     private FlowAbstractAction addJavadocAction()
     {
         return action("add-javadoc", Category.EDIT, () -> {
-            FlowEditor editor = getEditor();
+            FlowEditor editor = getClearedEditor();
             //this method should not be actioned if the editor is not displaying source code
             if (!editor.containsSourceCode()) {
                 return;
             }
-            int caretPos = editor.getCurrentTextPane().getCaretPosition();
+            int caretPos = editor.getSourcePane().getCaretPosition();
             NodeAndPosition<ParsedNode> node = editor.getParsedNode().findNodeAt(caretPos, 0);
             while (node != null && node.getNode().getNodeType() != ParsedNode.NODETYPE_METHODDEF) {
                 node = node.getNode().findNodeAt(caretPos, node.getPosition());
@@ -1466,20 +1471,20 @@ public final class FlowActions
                             newComment.append(Config.getString("editor.addjavadoc.returnValue")).append("\n");
                         }
                     }
-*/
-//                    newComment.append(indent).append(" */\n").append(indent);
-/*
+
+                    newComment.append(indent).append(" */\n").append(indent);
+
                     NodeAndPosition<ParsedNode> nodeFinal = node;
                     editor.undoManager.compoundEdit(() -> {
-                        editor.getCurrentTextPane().positionCaret(nodeFinal.getPosition());
-                        editor.getCurrentTextPane().replaceSelection(newComment.toString());
-                        editor.getCurrentTextPane().positionCaret((caretPos + newComment.length()));
+                        editor.getSourcePane().positionCaret(nodeFinal.getPosition());
+                        editor.getSourcePane().replaceSelection(newComment.toString());
+                        editor.getSourcePane().positionCaret((caretPos + newComment.length()));
                     });
                 }
             }
         });
     }
-*/
+
 
     // --------------------------------------------------------------------
 
