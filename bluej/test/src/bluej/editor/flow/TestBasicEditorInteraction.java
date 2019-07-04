@@ -55,6 +55,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -523,7 +524,68 @@ public class TestBasicEditorInteraction extends FXTest
 
         assertEquals(expected, fx(() -> flowEditorPane.getDocument().getFullContent()));
     }
-    
+
+    @Property(trials = 2)
+    public void testCommentUncomment(@From(GenRandom.class) Random r)
+    {
+        setText(BLOCK_TEST);
+        clickOn(flowEditorPane);
+        List<String> docLines = Arrays.asList(Utility.splitLines(BLOCK_TEST));
+
+        for (int i = 0; i < 5; i++)
+        {
+            // Make a selection of a random bunch of lines and comment and uncomment them (in a random order), then check the results:
+            int lineA = r.nextInt(docLines.size());
+            int lineB = r.nextInt(docLines.size());
+            int startLine = Math.min(lineA, lineB);
+            int endLine = Math.max(lineA, lineB);
+
+            // Make the selection:
+            fx_(() -> {
+                flowEditorPane.positionCaret(flowEditorPane.getDocument().getLineStart(startLine) + r.nextInt(docLines.get(startLine).length() + 1));
+                flowEditorPane.moveCaret(flowEditorPane.getDocument().getLineStart(endLine) + 1 + (docLines.get(endLine).length() == 0 ? 0 : r.nextInt(docLines.get(endLine).length())));
+            });
+            // Double-check initial content:
+            assertEquals(docLines.stream().collect(Collectors.joining("\n")), fx(() -> flowEditorPane.getDocument().getFullContent()));
+
+
+            boolean comment = r.nextBoolean();
+            fx_(() -> FlowActions.getActions(flowEditor).getActionByName(comment ? "comment-block" : "uncomment-block").actionPerformed(false));
+            for (int line = startLine; line <= endLine; line++)
+            {
+                docLines.set(line, addRemoveComment(docLines.get(line), comment));
+            }
+            assertEquals((comment ? "Commented" : "Uncomment") + " lines " + startLine + " to " + endLine + " inclusive", docLines.stream().collect(Collectors.joining("\n")), fx(() -> flowEditorPane.getDocument().getFullContent()));
+        }
+    }
+
+    private String addRemoveComment(String line, boolean addComment)
+    {
+        int firstNonWhitespace = findFirstNonWhitespaceAfter(line, 0);
+        if (addComment && firstNonWhitespace < line.length() && !line.trim().startsWith("//", firstNonWhitespace))
+        {
+            return line.substring(0, firstNonWhitespace) + "// " + line.substring(firstNonWhitespace);
+        }
+        else if (!addComment && line.startsWith("//", firstNonWhitespace))
+        {
+            return line.substring(0, firstNonWhitespace) + line.substring(findFirstNonWhitespaceAfter(line, firstNonWhitespace + 2));
+        }
+        else
+        {
+            return line;
+        }
+    }
+
+    private static int findFirstNonWhitespaceAfter(String line, int start)
+    {
+        int firstNonWhitespace = start;
+        while (firstNonWhitespace < line.length() && Character.isWhitespace(line.charAt(firstNonWhitespace)))
+        {
+            firstNonWhitespace += 1;
+        }
+        return firstNonWhitespace;
+    }
+
     @Property(trials = 2)
     public void testIndentAddRemove(@From(GenRandom.class) Random r)
     {

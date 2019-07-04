@@ -1051,10 +1051,8 @@ public final class FlowActions
                 closeAction(),
                 undoAction(),
                 redoAction(),
-                /*TODOFLOW
                 commentBlockAction(),
                 uncommentBlockAction(),
-                */
                 autoIndentAction(),
                 
                 indentBlockAction(),
@@ -1340,11 +1338,10 @@ public final class FlowActions
         return action;
     }
 
-    /*
     private FlowAbstractAction commentBlockAction()
     {
         return action("comment-block", Category.EDIT, () -> {
-            FlowEditor editor = getEditor();
+            FlowEditor editor = getClearedEditor();
             editor.undoManager.compoundEdit(() -> blockAction(editor, new CommentLineAction()));
         });
     }
@@ -1354,11 +1351,10 @@ public final class FlowActions
     private FlowAbstractAction uncommentBlockAction()
     {
         return action("uncomment-block", Category.EDIT, () -> {
-            FlowEditor editor = getEditor();
+            FlowEditor editor = getClearedEditor();
             editor.undoManager.compoundEdit(() -> blockAction(editor, new UncommentLineAction()));
         });
     }
-    */
 
     private FlowAbstractAction indentBlockAction()
     {
@@ -2176,37 +2172,34 @@ public final class FlowActions
     /**
      * Class CommentLineAction - add a comment symbol to the given line.
      */
-    /*TODOFLOW
     class CommentLineAction implements LineAction
     {
         @Override
-        public void apply(Element line, ReparseableDocument doc)
+        public void apply(MoeSyntaxDocument.Element line, Document doc)
         {
             int lineStart = line.getStartOffset();
             int lineEnd = line.getEndOffset();
-                String lineText = doc.getText(lineStart, lineEnd - lineStart);
+                String lineText = doc.getContent(lineStart, lineEnd).toString();
                 if (lineText.trim().length() > 0) {
                     int textStart = FlowIndent.findFirstNonIndentChar(lineText, true);
-                    doc.insertString(lineStart+textStart, "// ");
+                    doc.replaceText(lineStart+textStart, lineStart + textStart, "// ");
                 }
         }
     }
-    */
 
     /**
      * Class UncommentLineAction - remove the comment symbol (if any) from the
      * given line.
      */
-    /*TODOFLOW
     class UncommentLineAction implements LineAction
     {
         @Override
-        public void apply(Element line, ReparseableDocument doc)
+        public void apply(MoeSyntaxDocument.Element line, Document doc)
         {
             int lineStart = line.getStartOffset();
             int lineEnd = line.getEndOffset();
             try {
-                String lineText = doc.getText(lineStart, lineEnd - lineStart);
+                String lineText = doc.getContent(lineStart, lineEnd).toString();
                 if (lineText.trim().startsWith("//")) {
                     int cnt = 0;
                     while (lineText.charAt(cnt) != '/') {
@@ -2214,16 +2207,16 @@ public final class FlowActions
                         cnt++;
                     }
                     if (lineText.charAt(cnt + 2) == ' ') {
-                        doc.remove(lineStart+cnt, 3);
+                        doc.replaceText(lineStart+cnt, lineStart+cnt+3, "");
                     }
                     else {
-                        doc.remove(lineStart+cnt, 2);
+                        doc.replaceText(lineStart+cnt, lineStart+cnt+2, "");
                     }
                 }
             }
             catch (Exception exc) {}
         }
-    }*/
+    }
 
     /**
      * Class IndentLineAction - add one level of indentation to the given line.
