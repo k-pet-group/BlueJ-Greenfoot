@@ -317,8 +317,7 @@ public final class FlowActions
      * Check whether the indentation s opens a new multi-line comment
      * @param lineStart The position in the document of the (newly-added) line start
      */
-    /*TODOFLOW
-    private static boolean isNewCommentStart(String s, ReparseableDocument doc, int lineStart)
+    private static boolean isNewCommentStart(String s, ReparseableDocument doc, Document doc2, int lineStart)
     {
         s = s.trim();
         if (s.endsWith("/**") || s.endsWith("/*"))
@@ -340,7 +339,7 @@ public final class FlowActions
                 return true;
             }
 
-            String comment = getNodeContents(doc, curNode);
+            String comment = getNodeContents(doc2, curNode);
 
             // If the comment has a comment begin inside it (after the first two characters)
             // it is likely a new comment that has over-run and matched an ending further
@@ -352,7 +351,6 @@ public final class FlowActions
         }
         return false;
     }
-    */
 
     /**
      * Insert text to complete a new, started block comment and place the cursor
@@ -360,16 +358,15 @@ public final class FlowActions
      *
      * The indentString passed in always ends with "/*".
      */
-    //TODOFLOW
-    //private static void completeNewCommentBlock(FlowEditorPane textPane, String indentString)
-    //{
-        //String nextIndent = indentString.substring(0, indentString.length() - 2);
-        //textPane.replaceSelection(nextIndent + " * ");
-        //int pos = textPane.getCaretPosition();
-        //textPane.replaceSelection("\n");
-        //textPane.replaceSelection(nextIndent + " */");
-        //textPane.positionCaret(pos);
-    //}
+    private static void completeNewCommentBlock(FlowEditorPane textPane, String indentString)
+    {
+        String nextIndent = indentString.substring(0, indentString.length() - 2);
+        textPane.replaceSelection(nextIndent + " * ");
+        int pos = textPane.getCaretPosition();
+        textPane.replaceSelection("\n");
+        textPane.replaceSelection(nextIndent + " */");
+        textPane.positionCaret(pos);
+    }
 
     /**
      * Check whether the given line ends with an opening brace.
@@ -518,12 +515,10 @@ public final class FlowActions
         }
     }
 
-    /*TODOFLOW
-    private static String getNodeContents(ReparseableDocument doc, NodeAndPosition<ParsedNode> nap)
+    private static String getNodeContents(Document doc, NodeAndPosition<ParsedNode> nap)
     {
-        return doc.getText(nap.getPosition(), nap.getSize());
+        return doc.getContent(nap.getPosition(), nap.getPosition() + nap.getSize()).toString();
     }
-    */
 
     // --------------------------------------------------------------------
 
@@ -785,25 +780,18 @@ public final class FlowActions
      * Do some semi-intelligent indentation. That is: indent the current line to
      * the same depth, using the same characters (TABs or spaces) as the line
      * immediately above.
-     *
-     * @param isNewLine   true if the action was to insert a line or closing brace;
-     *                     false if the action was to tab/indent
      */
-    /*TODOFLOW
-    private void doIndent(boolean isNewLine)
+    private void doIndent()
     {
         FlowEditorPane textPane = editor.getSourcePane();
         int lineIndex = getCurrentLineIndex();
         if (lineIndex == 0) { // first line
-            if(!isNewLine) {
-                insertSpacedTab();
-            }
             return;
         }
 
         ReparseableDocument doc = editor.getSourceDocument();
 
-        Element line = getLine(lineIndex);
+        MoeSyntaxDocument.Element line = doc.getDefaultRootElement().getElement(lineIndex);
         int lineStart = line.getStartOffset();
         int pos = textPane.getCaretPosition();
 
@@ -812,7 +800,7 @@ public final class FlowActions
 
         // if there is any text before the cursor, just insert a tab
 
-        String prefix = doc.getText(lineStart, pos - lineStart);
+        String prefix = textPane.getDocument().getContent(lineStart, pos).toString();
         if (prefix.trim().length() > 0) {
             insertSpacedTab();
             return;
@@ -824,10 +812,10 @@ public final class FlowActions
         int lineOffset = 1;
         String prevLineText = "";
         while ((lineIndex - lineOffset >= 0) && !foundLine) {
-            Element prevline = getLine(lineIndex - lineOffset);
+            MoeSyntaxDocument.Element prevline = doc.getDefaultRootElement().getElement(lineIndex - lineOffset);
             int prevLineStart = prevline.getStartOffset();
             int prevLineEnd = prevline.getEndOffset();
-            prevLineText = doc.getText(prevLineStart, prevLineEnd - prevLineStart);
+            prevLineText = textPane.getDocument().getContent(prevLineStart, prevLineEnd).toString();
             if(!FlowIndent.isWhiteSpaceOnly(prevLineText)) {
                 foundLine = true;
             }
@@ -836,8 +824,6 @@ public final class FlowActions
             }
         }
         if(!foundLine) {
-            if(!isNewLine)
-                insertSpacedTab();
             return;
         }
 
@@ -845,10 +831,8 @@ public final class FlowActions
             isOpenBrace = true;
         }
         else {
-        */
-            //isCommentEnd = prevLineText.trim().endsWith("*/");
-            //isCommentEndOnly = prevLineText.trim().equals("*/");
-    /*
+            isCommentEnd = prevLineText.trim().endsWith("*/");
+            isCommentEndOnly = prevLineText.trim().equals("*/");
         }
 
         int indentPos = FlowIndent.findFirstNonIndentChar(prevLineText, isCommentEnd);
@@ -863,13 +847,10 @@ public final class FlowActions
 
         int caretColumn = getCurrentColumn();
         if (caretColumn >= indentPos) {
-            if (!isNewLine) {
-                insertSpacedTab();
-            }
             return;
         }
 
-        if (isNewLine && isNewCommentStart(indent, doc, lineStart)) {
+        if (isNewCommentStart(indent, doc, textPane.getDocument(), lineStart)) {
             completeNewCommentBlock(textPane, indent);
             return;
         }
@@ -877,79 +858,19 @@ public final class FlowActions
         // find and replace indentation of current line
 
         int lineEnd = line.getEndOffset();
-        String lineText = doc.getText(lineStart, lineEnd - lineStart);
+        String lineText = textPane.getDocument().getContent(lineStart, lineEnd).toString();
         indentPos = FlowIndent.findFirstNonIndentChar(lineText, true);
         char firstChar = lineText.isEmpty() ? '\u0000' : lineText.charAt(indentPos);
-        doc.remove(lineStart, indentPos);
+        textPane.getDocument().replaceText(lineStart, lineStart + indentPos, "");
         String newIndent = nextIndent(indent, isOpenBrace, isCommentEndOnly);
         if (firstChar == '*') {
             newIndent = newIndent.replace('*', ' ');
         }
-        textPane.replaceText(lineStart, lineStart, newIndent);
+        textPane.getDocument().replaceText(lineStart, lineStart, newIndent);
         if(firstChar == '}') {
             removeTab();
         }
     }
-    */
-
-    // --------------------------------------------------------------------
-
-    /**
-     * Do some semi-intelligent de-indentation. That is: indent the current line
-     * one indentation level less that the line above, or less than it currently
-     * is.
-     */
-    /*TODOFLOW
-    private void doDeIndent(FlowEditorPane textPane)
-    {
-        // set cursor to first non-blank character (or eol if none)
-        // if indentation is more than line above: indent as line above
-        // if indentation is same or less than line above: indent one level back
-
-        int lineIndex = getCurrentLineIndex();
-        ReparseableDocument doc = editor.getSourceDocument();
-
-        Element line = getLine(lineIndex);
-        int lineStart = line.getStartOffset();
-        int lineEnd = line.getEndOffset();
-        String lineText = doc.getText(lineStart, lineEnd - lineStart);
-
-        int currentIndentPos = FlowIndent.findFirstNonIndentChar(lineText, true);
-        char firstChar = lineText.charAt(currentIndentPos);
-
-        textPane.positionCaret(lineStart + currentIndentPos);
-
-        if (lineIndex == 0) { // first line
-            removeTab();
-            return;
-        }
-
-        // get indentation details from previous line
-
-        Element prevline = getLine(lineIndex - 1);
-        int prevLineStart = prevline.getStartOffset();
-        int prevLineEnd = prevline.getEndOffset();
-        String prevLineText = doc.getText(prevLineStart, prevLineEnd - prevLineStart);
-
-        int targetIndentPos = FlowIndent.findFirstNonIndentChar(prevLineText, true);
-
-        if (currentIndentPos > targetIndentPos) {
-            // indent same as line above
-            String indent = prevLineText.substring(0, targetIndentPos);
-            doc.remove(lineStart, currentIndentPos);
-            doc.insertString(lineStart, indent);
-            if(firstChar == '}')
-                removeTab();
-        }
-        else {
-            // we are at same level as line above or less - go one indentation
-            // level back
-            removeTab();
-        }
-    }
-    */
-
-    // --------------------------------------------------------------------
 
     /**
      * Indent a block of lines (defined by the current selection) by one
@@ -1509,8 +1430,7 @@ public final class FlowActions
 
             if (PrefMgr.getFlag(PrefMgr.AUTO_INDENT))
             {
-                //TODOFLOW
-                //doIndent(true);
+                doIndent();
             }
             //TODOFLOW
             //editor.undoManager.breakEdit();
