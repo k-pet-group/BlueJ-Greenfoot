@@ -41,6 +41,7 @@ import bluej.editor.flow.TextLine.HighlightType;
 import bluej.editor.moe.GoToLineDialog;
 import bluej.editor.moe.Info;
 import bluej.editor.moe.MoeEditor;
+import bluej.editor.moe.MoeIndent;
 import bluej.editor.moe.ParserMessageHandler;
 import bluej.editor.moe.ScopeColorsBorderPane;
 import bluej.editor.moe.TextUtilities;
@@ -50,6 +51,8 @@ import bluej.editor.stride.FrameEditor;
 import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.ParamInfo;
 import bluej.parser.ExpressionTypeInfo;
+import bluej.parser.ImportsCollection;
+import bluej.parser.ImportsCollection.LocatableImport;
 import bluej.parser.ParseUtils;
 import bluej.parser.SourceLocation;
 import bluej.parser.entity.EntityResolver;
@@ -61,11 +64,13 @@ import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ReparseableDocument;
 import bluej.parser.symtab.ClassInfo;
+import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.JavadocResolver;
 import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgr.PrintSize;
 import bluej.stride.framedjava.elements.CallElement;
+import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.slots.ExpressionCompletionCalculator;
 import bluej.stride.generic.AssistContentThreadSafe;
@@ -196,6 +201,11 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private boolean matchBrackets;
     // Each element is size 2: beginning (incl) and end (excl)
     private final ArrayList<int[]> bracketMatches = new ArrayList<>();
+    /**
+     * Property map, allows BlueJ extensions to associate property values with
+     * this editor instance; otherwise unused.
+     */
+    private final HashMap<String,Object> propertyMap = new HashMap<>();
 
 
     // TODOFLOW handle the interface-only case
@@ -1674,16 +1684,33 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         interfaceToggle.getSelectionModel().select(interfaceStatus ? 1 : 0);
     }
 
+    /**
+     * Returns a property of the current editor.
+     *
+     * @param  propertyKey  The propertyKey of the property to retrieve.
+     * @return              the property value or null if it is not found
+     */
     @Override
     public Object getProperty(String propertyKey)
     {
-        throw new UnimplementedException();
+        return propertyMap.get(propertyKey);
     }
 
+    /**
+     * Set a property for the current editor. Any existing property with
+     * this key will be overwritten.
+     *
+     * @param  propertyKey  The property key of the new property
+     * @param  value        The new property value
+     */
     @Override
     public void setProperty(String propertyKey, Object value)
     {
-        throw new UnimplementedException();
+        if ( propertyKey == null ) {
+            return;
+        }
+
+        propertyMap.put(propertyKey,value);
     }
 
     @Override
@@ -1701,13 +1728,134 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public void insertAppendMethod(NormalMethodElement method, FXPlatformConsumer<Boolean> after)
     {
-        throw new UnimplementedException();
+        NodeAndPosition<ParsedNode> classNode = findClassNode();
+        if (classNode != null) {
+            NodeAndPosition<ParsedNode> existingMethodNode = findMethodNode(method.getName(), classNode);
+
+            if (existingMethodNode != null) {
+                //Append to existing method:
+                String text = "";
+                for (CodeElement codeElement : method.getContents()) {
+                    text += codeElement.toJavaSource().toTemporaryJavaCodeString();
+                }
+                appendTextToNode(existingMethodNode, text);
+                after.accept(false);
+                return;
+            }
+
+            //Make a new method:
+            appendTextToNode(classNode, method.toJavaSource().toTemporaryJavaCodeString());
+            after.accept(true);
+        }
+        after.accept(false);
     }
 
     @Override
-    public void insertMethodCallInConstructor(String className, CallElement methodCall, FXPlatformConsumer<Boolean> after)
+    public void insertMethodCallInConstructor(String className, CallElement callElement, FXPlatformConsumer<Boolean> after)
     {
-        throw new UnimplementedException();
+        NodeAndPosition<ParsedNode> classNode = findClassNode();
+        if (classNode != null) {
+            NodeAndPosition<ParsedNode> constructor = findMethodNode(className, classNode);
+            if (constructor == null) {
+                addDefaultConstructor(className, callElement);
+            }
+            else {
+                String methodName = callElement.toJavaSource().toTemporaryJavaCodeString();
+                methodName = methodName.substring(0, methodName.indexOf('('));
+                if (!hasMethodCall(methodName, constructor, true)) {
+                    //Add at the end of the constructor:
+                    appendTextToNode(constructor, callElement.toJavaSource().toTemporaryJavaCodeString());
+                    after.accept(true);
+                    return;
+                }
+            }
+        }
+        after.accept(false);
+    }
+
+    private void addDefaultConstructor(String className, CallElement callElement)
+    {
+        NodeAndPosition<ParsedNode> classNode = findClassNode();
+        if (classNode != null) {
+            //Make a new method:
+            appendTextToNode(classNode, "public " + className + "()\n{\n" + callElement.toJavaSource().toTemporaryJavaCodeString() + "}\n");
+        }
+    }
+
+    /**
+     * Appends text to a node that ends in a curly bracket
+     */
+    private void appendTextToNode(NodeAndPosition<ParsedNode> node, String text)
+    {
+        //The node may have whitespace at the end, so we look for the last closing brace and
+        //insert before that:
+        for (int pos = node.getEnd() - 1; pos >= 0; pos--) {
+            if ("}".equals(getText(getLineColumnFromOffset(pos), getLineColumnFromOffset(pos+1)))) {
+                int posFinal = pos;
+                undoManager.compoundEdit(() -> {
+                    int originalLength = node.getSize();
+                    // First insert the text:
+                    setText(getLineColumnFromOffset(posFinal), getLineColumnFromOffset(posFinal), text);
+                    // Then auto-indent the method to make sure our indents were correct:
+                    int oldPos = getSourcePane().getCaretPosition();
+                    FlowIndent.calculateIndentsAndApply(getSourceDocument(), document, node.getPosition(),
+                        node.getPosition() + originalLength + text.length(), oldPos);
+                });
+                setCaretLocation(getLineColumnFromOffset(pos));
+                return;
+            }
+        }
+        Debug.message("Could not find end of node to append to: \"" + getText(getLineColumnFromOffset(
+            node.getPosition()), getLineColumnFromOffset(node.getEnd())) + "\"");
+    }
+
+    private NodeAndPosition<ParsedNode> findClassNode()
+    {
+        NodeAndPosition<ParsedNode> root = new NodeAndPosition<>(getParsedNode(), 0,
+            getParsedNode().getSize());
+        for (NodeAndPosition<ParsedNode> nap : iterable(root)) {
+            if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_TYPEDEF)
+                return nap;
+        }
+        return null;
+    }
+
+    private NodeAndPosition<ParsedNode> findMethodNode(String methodName, NodeAndPosition<ParsedNode> start)
+    {
+        for (NodeAndPosition<ParsedNode> nap : iterable(start)) {
+            if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_NONE) {
+                NodeAndPosition<ParsedNode> r = findMethodNode(methodName, nap);
+                if (r != null)
+                    return r;
+            }
+            if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_METHODDEF && nap.getNode().getName().equals(methodName)) {
+                return nap;
+            }
+        }
+
+        return null;
+    }
+
+    private boolean hasMethodCall(String methodName, NodeAndPosition<ParsedNode> methodNode, boolean root)
+    {
+        for (NodeAndPosition<ParsedNode> nap : iterable(methodNode)) {
+            // Method nodes have comments as children, and the body:
+            if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_NONE && root) {
+                return hasMethodCall(methodName, nap, false);
+            }
+
+            if (nap.getNode().getNodeType() == ParsedNode.NODETYPE_EXPRESSION && document.getContent(
+                nap.getPosition(), nap.getPosition() + nap.getSize()).toString().startsWith(methodName)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private Iterable<NodeAndPosition<ParsedNode>> iterable(final NodeAndPosition<ParsedNode> parent)
+    {
+        return () -> parent.getNode().getChildren(parent.getPosition());
     }
 
     @Override
@@ -1769,39 +1917,215 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     }
 
     @Override
-    public void setExtendsClass(String className, ClassInfo classInfo)
+    public void setExtendsClass(String className, ClassInfo info)
     {
-        throw new UnimplementedException();
+        try {
+            save();
+
+            if (info != null) {
+                if (info.getSuperclass() == null) {
+                    Selection s1 = info.getExtendsInsertSelection();
+
+                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
+                    insertText(" extends " + className, false);
+                }
+                else {
+                    Selection s1 = info.getSuperReplaceSelection();
+
+                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
+                    insertText(className, false);
+                }
+                save();
+            }
+        }
+        catch (IOException ioe) {
+            DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage());
+        }
     }
 
     @Override
-    public void removeExtendsClass(ClassInfo classInfo)
+    public void removeExtendsClass(ClassInfo info)
     {
-        throw new UnimplementedException();
+        try {
+            save();
+
+            if (info != null) {
+                Selection s1 = info.getExtendsReplaceSelection();
+                s1.combineWith(info.getSuperReplaceSelection());
+
+                if (s1 != null) {
+                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
+                    insertText("", false);
+                }
+                save();
+            }
+        }
+        catch (IOException ioe) {
+            DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage());
+        }
     }
 
     @Override
-    public void addImplements(String interfaceName, ClassInfo classInfo)
+    public void addImplements(String interfaceName, ClassInfo info)
     {
-        throw new UnimplementedException();
+        try {
+            save();
+
+            if (info != null) {
+                Selection s1 = info.getImplementsInsertSelection();
+                setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
+
+                if (info.hasInterfaceSelections()) {
+                    // if we already have an implements clause then we need to put a
+                    // comma and the interface name but not before checking that we
+                    // don't already have it
+
+                    List<String> exists = getInterfaceTexts(info.getInterfaceSelections());
+
+                    // XXX make this equality check against full package name
+                    if (!exists.contains(interfaceName))
+                        insertText(", " + interfaceName, false);
+                }
+                else {
+                    // otherwise we need to put the actual "implements" word
+                    // and the interface name
+                    insertText(" implements " + interfaceName, false);
+                }
+                save();
+            }
+        }
+        catch (IOException ioe) {
+            DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage());
+        }
+    }
+
+    /**
+     * Using a list of selections, retrieve a list of text strings from the editor which
+     * correspond to those selections.
+     * TODO this is usually used to get the implemented interfaces, but it is a clumsy way
+     *      to do that.
+     */
+    private List<String> getInterfaceTexts(List<Selection> selections)
+    {
+        List<String> r = new ArrayList<String>(selections.size());
+        for (Selection sel : selections)
+        {
+            String text = getText(new bluej.parser.SourceLocation(sel.getLine(), sel.getColumn()),
+                new bluej.parser.SourceLocation(sel.getEndLine(), sel.getEndColumn()));
+
+            // check for type arguments: don't include them in the text
+            int taIndex = text.indexOf('<');
+            if (taIndex != -1)
+                text = text.substring(0, taIndex);
+            text = text.trim();
+
+            r.add(text);
+        }
+        return r;
     }
 
     @Override
-    public void addExtendsInterface(String interfaceName, ClassInfo classInfo)
+    public void addExtendsInterface(String interfaceName, ClassInfo info)
     {
-        throw new UnimplementedException();
+        try {
+            save();
+
+            if (info != null) {
+                Selection s1 = info.getExtendsInsertSelection();
+                setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
+
+                if (info.hasInterfaceSelections()) {
+                    // if we already have an extends clause then we need to put a
+                    // comma and the interface name but not before checking that we
+                    // don't
+                    // already have it
+
+                    List<String> exists = getInterfaceTexts(info.getInterfaceSelections());
+
+                    // XXX make this equality check against full package name
+                    if (!exists.contains(interfaceName))
+                        insertText(", " + interfaceName, false);
+                }
+                else {
+                    // otherwise we need to put the actual "extends" word
+                    // and the interface name
+                    insertText(" extends " + interfaceName, false);
+                }
+                save();
+            }
+        }
+        catch (IOException ioe) {
+            DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage());
+        }
     }
 
     @Override
-    public void removeExtendsOrImplementsInterface(String interfaceName, ClassInfo classInfo)
+    public void removeExtendsOrImplementsInterface(String interfaceName, ClassInfo info)
     {
-        throw new UnimplementedException();
+        try {
+            save();
+
+            if (info != null) {
+                Selection s1 = null;
+
+                List<Selection> vsels;
+                List<String> vtexts;
+
+                vsels = info.getInterfaceSelections();
+                vtexts = getInterfaceTexts(vsels);
+                int where = vtexts.indexOf(interfaceName);
+
+                // we have a special case if we deleted the first bit of an
+                // "implements" clause, yet there are still clauses left.. we have
+                // to delete the following "," instead of the preceding one.
+                if (where == 1 && vsels.size() > 2)
+                    where = 2;
+
+                if (where > 0) { // should always be true
+                    s1 = vsels.get(where - 1);
+                    s1.combineWith(vsels.get(where));
+                }
+
+                // delete the text from the end backwards so that our
+                if (s1 != null) {
+                    setSelection(new SourceLocation(s1.getLine(), s1.getColumn()), new SourceLocation(s1.getEndLine(), s1.getEndColumn()));
+                    insertText("", false);
+                }
+
+                save();
+            }
+        }
+        catch (IOException ioe) {
+            DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage());
+        }
     }
 
     @Override
     public void removeImports(List<String> importTargets)
     {
-        throw new UnimplementedException();
+        List<ImportsCollection.LocatableImport> toRemove = new ArrayList<>();
+        for (String importTarget : importTargets)
+        {
+            ImportsCollection.LocatableImport details = getParsedNode().getImports().getImportInfo(importTarget);
+
+            if (details != null)
+            {
+                toRemove.add(details);
+            }
+        }
+
+        // Sort in reverse order of position, so that we can go down the list
+        // and remove in turn without a removal affecting a later removal.
+        // Hence we sort by negative start value:
+        Collections.sort(toRemove, Comparator.<LocatableImport>comparingInt(t -> -t.getStart()));
+
+        for (ImportsCollection.LocatableImport locatableImport : toRemove)
+        {
+            if (locatableImport.getStart() != -1)
+            {
+                document.replaceText(locatableImport.getStart(), locatableImport.getStart() + locatableImport.getLength(), "");
+            }
+        }
     }
 
     @Override

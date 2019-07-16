@@ -83,7 +83,7 @@ public class FlowIndent
      * Perform an auto-layout - calculate the correct indent for each source line between the given
      * start and end positions, and apply it. Return information about the applied indentation.
      */
-    private static AutoIndentInformation calculateIndentsAndApply(ReparseableDocument parser, Document doc, int startPos, int endPos, int prevCaretPos)
+    public static AutoIndentInformation calculateIndentsAndApply(ReparseableDocument parser, Document doc, int startPos, int endPos, int prevCaretPos)
     {
         int caretPos = prevCaretPos;
         Element rootElement = parser.getDefaultRootElement();
