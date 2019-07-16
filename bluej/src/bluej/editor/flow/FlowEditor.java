@@ -1235,7 +1235,16 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public void displayMessage(String message, int lineNumber, int column)
     {
-        throw new UnimplementedException();
+        switchToSourceView();
+
+        // highlight the line (parameter is one-based so convert to zero-based):
+        int lineStart = document.getLineStart(lineNumber - 1);
+        int lineEnd = document.getLineEnd(lineNumber - 1);
+        getSourcePane().positionCaret(lineStart);
+        getSourcePane().moveCaret(lineEnd - 1);
+
+        // display the message
+        info.messageImportant(message);
     }
 
     @Override
@@ -1630,7 +1639,22 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public void removeBreakpoints()
     {
-        throw new UnimplementedException();
+        // This may be a callback in response to a modification event.
+        // If we try to remove breakpoints during the modification notification,
+        // AbstractDocument throws an exception.
+        JavaFXUtil.runAfterCurrent(() -> clearAllBreakpoints());
+    }
+
+    /**
+     * Clear all known breakpoints.
+     */
+    private void clearAllBreakpoints()
+    {
+        if (mayHaveBreakpoints)
+        {
+            document.removeLineAttributeThroughout(ParagraphAttribute.BREAKPOINT);
+            mayHaveBreakpoints = false;
+        }
     }
 
     @Override
