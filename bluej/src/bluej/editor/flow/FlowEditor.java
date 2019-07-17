@@ -1690,16 +1690,30 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         throw new UnimplementedException();
     }
 
-    @Override
-    public void setReadOnly(boolean readOnly)
-    {
-        throw new UnimplementedException();
-    }
-
+    /**
+     * Returns if this editor is read-only. Accessor for the setReadOnly
+     * property.
+     *
+     * @return a boolean indicating whether the editor is read-only.
+     */
     @Override
     public boolean isReadOnly()
     {
-        throw new UnimplementedException();
+        return !getSourcePane().isEditable();
+    }
+
+    /**
+     * Set this editor to read-only.
+     *
+     * @param readOnly  The new readOnly value
+     */
+    @Override
+    public void setReadOnly(boolean readOnly)
+    {
+        if (readOnly) {
+            saveState.setState(StatusLabel.Status.READONLY);
+        }
+        getSourcePane().setEditable(!readOnly);
     }
 
     @Override

@@ -94,6 +94,7 @@ public class FlowEditorPane extends Region implements DocumentListener
     
     private final ArrayList<SelectionListener> selectionListeners = new ArrayList<>();
     private boolean postScrollRenderQueued = false;
+    private boolean editable = true;
 
     public FlowEditorPane(String content, FlowEditorPaneListener listener)
     {
@@ -156,6 +157,9 @@ public class FlowEditorPane extends Region implements DocumentListener
     
     private void keyTyped(KeyEvent event)
     {
+        if (!editable)
+            return;
+        
         /////////////////////////////////////////////////////////
         // This section is adapted from TextInputControlBehavior
         /////////////////////////////////////////////////////////
@@ -611,6 +615,16 @@ public class FlowEditorPane extends Region implements DocumentListener
     public void setFakeCaret(boolean fakeOn)
     {
         //TODOFLOW actually turn caret off when unfocused, but then obey this setting
+    }
+
+    public boolean isEditable()
+    {
+        return editable;
+    }
+
+    public void setEditable(boolean editable)
+    {
+        this.editable = editable;
     }
 
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)

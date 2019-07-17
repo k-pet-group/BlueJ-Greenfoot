@@ -1424,7 +1424,8 @@ public final class FlowActions
     private FlowAbstractAction newLineAction()
     {
         return action("new-line", Category.EDIT, () -> {
-
+            if (editor.isReadOnly())
+                return;
             getClearedEditor().getSourcePane().replaceSelection("\n");
             getClearedEditor().getSourcePane().ensureCaretShowing();
 
@@ -1442,6 +1443,9 @@ public final class FlowActions
     private FlowAbstractAction cutAction()
     {
         return contextSensitiveAction("cut-to-clipboard", Category.EDIT, viaContextMenu -> {
+            if (editor.isReadOnly())
+                return;
+            
             // Menu shortcut can trigger when e.g. find pane is focused, don't act if not focused:
             if (viaContextMenu || editor.getSourcePane().isFocused())
             {
@@ -1478,6 +1482,9 @@ public final class FlowActions
     private FlowAbstractAction pasteAction()
     {
         return contextSensitiveAction("paste-from-clipboard", Category.EDIT, viaContextMenu -> {
+            if (editor.isReadOnly())
+                return;
+            
             // Menu shortcut can trigger when e.g. find pane is focused, don't act if not focused:
             if (viaContextMenu || editor.getSourcePane().isFocused())
             {
