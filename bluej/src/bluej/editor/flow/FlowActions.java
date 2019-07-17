@@ -965,8 +965,8 @@ public final class FlowActions
                 
                 deleteWordAction(),
                 selectWordAction(),
-                /*
                 saveAction(),
+                /*
                 printAction(),
                 */
                 closeAction(),
@@ -1214,14 +1214,12 @@ public final class FlowActions
             return category;
         }
     }
-
-
-    /*TODOFLOW
+    
     private FlowAbstractAction saveAction()
     {
-        return action("save", Category.CLASS, () -> getEditor().userSave());
+        return action("save", Category.CLASS, () -> getClearedEditor().userSave());
     }
-
+    /*
     // --------------------------------------------------------------------
 
     private FlowAbstractAction printAction()

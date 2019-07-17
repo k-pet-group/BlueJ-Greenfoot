@@ -22,6 +22,8 @@
 package bluej.editor.flow;
 
 import bluej.Config;
+import bluej.compiler.CompileReason;
+import bluej.compiler.CompileType;
 import bluej.editor.flow.Document.Bias;
 import bluej.editor.flow.LineDisplay.LineDisplayListener;
 import bluej.editor.flow.MarginAndTextLine.MarginDisplay;
@@ -54,6 +56,9 @@ import org.fxmisc.wellbehaved.event.Nodes;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.*;
 
 /**
@@ -219,6 +224,9 @@ public class FlowEditorPane extends Region implements DocumentListener
         updateRender(false);
         targetColumnForVerticalMovement = -1;
         callSelectionListeners();
+        //TODOFLOW call recordEdit if multiline edit
+        
+        
     }
 
     private void updateRender(boolean ensureCaretVisible)
@@ -625,6 +633,14 @@ public class FlowEditorPane extends Region implements DocumentListener
     public void setEditable(boolean editable)
     {
         this.editable = editable;
+    }
+
+    public void write(Writer writer) throws IOException
+    {
+        BufferedWriter bufferedWriter = new BufferedWriter(writer);
+        bufferedWriter.write(document.getFullContent());
+        // Must flush or else changes don't get written:
+        bufferedWriter.flush();
     }
 
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)

@@ -82,6 +82,7 @@ import bluej.stride.slots.SuggestionList.SuggestionListParent;
 import bluej.stride.slots.SuggestionList.SuggestionShown;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
+import bluej.utility.FileUtility;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
@@ -132,8 +133,13 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import javax.swing.text.DefaultEditorKit;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -142,7 +148,7 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
-public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, FlowEditorPaneListener, SelectionListener, BlueJEventListener
+public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, FlowEditorPaneListener, SelectionListener, BlueJEventListener, DocumentListener
 {
     // suffixes for resources
     final static String LabelSuffix = "Label";
@@ -206,6 +212,11 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      * this editor instance; otherwise unused.
      */
     private final HashMap<String,Object> propertyMap = new HashMap<>();
+    // Blackbox data recording:
+    private int oldCaretLineNumber = -1;
+    private long lastModified;
+    private boolean respondingToChange = false;
+    private boolean ignoreChanges = false;
 
 
     // TODOFLOW handle the interface-only case
@@ -332,6 +343,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         this.windowTitle = title;
         this.flowEditorPane = new FlowEditorPane("", this);
         this.document = flowEditorPane.getDocument();
+        this.document.addListener(this);
         this.javaSyntaxView = new JavaSyntaxView(flowEditorPane, this, parentResolver);
         this.flowEditorPane.setErrorQuery(errorManager);
         this.undoManager = new UndoManager(document);
@@ -591,10 +603,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         {
             doBracketMatch();
         }
-        /*TODOFLOW
+        
         // Only send caret moved event if we are open; caret moves while loading
         // but we don't want to send an edit event because of that:
-        if (oldCaretLineNumber != getLineNumberAt(caretPos) && isOpen())
+        if (oldCaretLineNumber != document.getLineFromPosition(caretPos) && isOpen())
         {
             recordEdit(true);
 
@@ -606,12 +618,11 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             // The re-layout enforcing is inside a runAfterCurrent to avoid
             // an IllegalArgumentException caused by state inconsistency.
             JavaFXUtil.runAfterCurrent(() -> {
-                ensureCaretVisible();
+                getSourcePane().ensureCaretShowing();
                 layout();
             });
         }
-        oldCaretLineNumber = getLineNumberAt(caretPos);
-        */
+        oldCaretLineNumber = document.getLineFromPosition(caretPos);
     }
 
     /**
@@ -1189,7 +1200,87 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public void save() throws IOException
     {
-        // TODOFLOW don't want to save until we stop throwing exceptions everywhere...
+        IOException failureException = null;
+        if (saveState.isChanged()) {
+            // Record any edits with the data collection system:
+            recordEdit(true);
+
+            // Play it safe and avoid overwriting code that has been changed outside BlueJ (or at least,
+            // outside *this* instance of BlueJ):
+            checkForChangeOnDisk();
+            if (! saveState.isChanged())
+            {
+                return;
+            }
+
+            Writer writer = null;
+            try {
+                // The crash file is used during writing and will remain in
+                // case of a crash during the write operation.
+                String crashFilename = filename + MoeEditor.CRASHFILE_SUFFIX;
+
+                // make a backup to the crash file
+                FileUtility.copyFile(filename, crashFilename);
+
+                OutputStream ostream = new BufferedOutputStream(new FileOutputStream(filename));
+                writer = new OutputStreamWriter(ostream, characterSet);
+                getSourcePane().write(writer);
+                writer.close(); writer = null;
+                setLastModified(new File(filename).lastModified());
+                File crashFile = new File(crashFilename);
+                crashFile.delete();
+
+                // Do this last, as it may trigger further actions in the watcher:
+                setSaved();
+            }
+            catch (IOException ex) {
+                failureException = ex;
+                info.message (Config.getString("editor.info.errorSaving") + " - " + ex.getLocalizedMessage());
+            }
+            finally {
+                try {
+                    if(writer != null)
+                        writer.close();
+                }
+                catch (IOException ex) {
+                    failureException = ex;
+                }
+            }
+        }
+
+        // If an error occurred, set a message in the editor status bar, and
+        // re-throw the exception.
+        if (failureException != null) {
+            info.message (Config.getString("editor.info.errorSaving")
+                    + " - " + failureException.getLocalizedMessage());
+            throw failureException;
+        }
+    }
+
+    /**
+     * Set the saved/changed status of this buffer to SAVED.
+     */
+    private void setSaved()
+    {
+        // Don't need to say saved twice:
+        //info.message(Config.getString("editor.info.saved"));
+        saveState.setState(StatusLabel.Status.SAVED);
+        if (watcher != null) {
+            watcher.saveEvent(this);
+        }
+    }
+
+    /**
+     * Notify the editor watcher of an edit (or save).
+     * @param includeOneLineEdits - will be true if it is considered unlikely that further edits will
+     *                     be localised to previous edit locations (line), or if the file has been saved.
+     */
+    private void recordEdit(boolean includeOneLineEdits)
+    {
+        if (watcher != null)
+        {
+            watcher.recordJavaEdit(document.getFullContent(), includeOneLineEdits);
+        }
     }
 
     /**
@@ -1678,11 +1769,104 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         return document.hasLineAttribute(i, ParagraphAttribute.BREAKPOINT);
     }
 
+    /**
+     * User requests "save"
+     */
+    public void userSave()
+    {
+        if (saveState.isSaved())
+            info.message(Config.getString("editor.info.noChanges"));
+        else {
+            try {
+                save();
+            }
+            catch (IOException ioe) {}
+            // Note we can safely ignore the exception here: a message has
+            // already been displayed in the editor status bar
+        }
+    }
+
+    /**
+     * A change has been made to the source code content.
+     */
+    public void textReplaced(int origStartIncl, String replaced, String replacement, int linesRemoved, int linesAdded)
+    {
+        // Prevent re-entry to this method.  In theory this shouldn't happen as we
+        // shouldn't modify the document in this function.  But it seems like sometimes
+        // the styled changes we make cause RichTextFX to generate a plain text change event:
+        if (respondingToChange)
+        {
+            return;
+        }
+        respondingToChange = true;
+
+        if (!saveState.isChanged()) {
+            saveState.setState(StatusLabel.Status.CHANGED);
+            setChanged();
+        }
+
+        if (linesRemoved > 0 || linesAdded > 0) // For a multi-line change, always compile:
+        {
+            saveState.setState(StatusLabel.Status.CHANGED);
+            setChanged();
+
+            // Note that this compilation will cause a save:
+            if (sourceIsCode && watcher != null) {
+                scheduleCompilation(CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
+            }
+        }
+
+        clearMessage();
+        // Calling the methods to remove the error/search stylings from within this 
+        // document-changed callback causes an extra change notification 
+        // to be regenerated by RichTextFX, which is unwanted.
+        // So we must run those later:
+        JavaFXUtil.runAfterCurrent(() -> {
+            removeSearchHighlights();
+            currentSearchResult.setValue(null);
+            errorManager.removeAllErrorHighlights();
+            errorManager.documentContentChanged();
+            showErrorOverlay(null, 0);
+        });
+        actions.userAction();
+
+        // This may handle re-indentation; as this mutates the
+        // document, it must be done outside the notification.
+        if ("}".equals(replacement) && PrefMgr.getFlag(PrefMgr.AUTO_INDENT))
+        {
+            /*TODOFLOW
+            JavaFXUtil.runAfterCurrent(() -> {
+                // It's possible, e.g. due to de-indenting, that by the time we
+                // get here, the offset won't be valid any more, in which case don't
+                // worry about it:
+                if (offset + insertionLength <= getSourcePane().getLength() && sourcePane.getText(offset, offset + insertionLength).equals("}"))
+                {
+                    actions.closingBrace(offset);
+                }
+            });
+            */
+        }
+
+        recordEdit(false);
+
+        respondingToChange = false;
+    }
+
+    private void setChanged()
+    {
+        if (ignoreChanges) {
+            return;
+        }
+        setCompileStatus(false);
+        if (watcher != null) {
+            watcher.modificationEvent(this);
+        }
+    }
+    
     @Override
     public boolean isModified()
     {
-        //TODOFLOW need to implement saving first
-        return false;
+        return saveState.isChanged();
     }
 
     @Override
@@ -2188,7 +2372,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public void setLastModified(long millisSinceEpoch)
     {
-        // TODOFLOW
+        this.lastModified = millisSinceEpoch;
     }
 
     public FlowEditorPane getSourcePane()
