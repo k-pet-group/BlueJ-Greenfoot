@@ -338,11 +338,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     // package-visible:
     final UndoManager undoManager;
 
-    public FlowEditor(FetchTabbedEditor fetchTabbedEditor, String title, EditorWatcher editorWatcher, EntityResolver parentResolver, JavadocResolver javadocResolver)
+    public FlowEditor(FetchTabbedEditor fetchTabbedEditor, String title, EditorWatcher editorWatcher, EntityResolver parentResolver, JavadocResolver javadocResolver, FXPlatformRunnable openCallback)
     {
         this.fxTab = new FlowFXTab(this, title);
         this.javadocResolver = javadocResolver;
         this.windowTitle = title;
+        this.callbackOnOpen = openCallback;
         this.flowEditorPane = new FlowEditorPane("", this);
         this.document = flowEditorPane.getDocument();
         this.document.addListener(this);

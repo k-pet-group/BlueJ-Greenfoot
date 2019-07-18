@@ -1245,14 +1245,8 @@ public class ClassTarget extends DependentTarget
                     {
                         return project.getDefaultFXTabbedEditor();
                     }
-                }, getBaseName(), this, project.getEntityResolver(), project.getJavadocResolver());
+                }, getBaseName(), this, resolver, project.getJavadocResolver(), openCallback);
                 ((TextEditor)editor).showFile(filename, project.getProjectCharset(), isCompiled(), docFilename);
-                /* TODOFLOW
-                editor = EditorManager.getEditorManager().openClass(filename, docFilename,
-                        project.getProjectCharset(),
-                        getBaseName(), project::getDefaultFXTabbedEditor, this, isCompiled(), resolver,
-                        project.getJavadocResolver(), openCallback);
-                        */
             }
             else if (sourceAvailable == SourceType.Stride) {
                 File frameSourceFile = getFrameSourceFile();
