@@ -168,7 +168,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     /** Watcher - provides interface to BlueJ core. May be null (eg for README.txt file). */
     private final EditorWatcher watcher;
     
-    private final boolean sourceIsCode = true /*TODOFLOW*/;           // true if current buffer is code
+    private final boolean sourceIsCode = true;           // true if current buffer is code
     private final List<Menu> fxMenus;
     private boolean compilationStarted;
     private boolean requeueForCompilation;
@@ -223,12 +223,11 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private boolean respondingToChange = false;
     private boolean ignoreChanges = false;
     private boolean showingChangedOnDiskDialog = false;
+    private FXPlatformRunnable callbackOnOpen;
 
-
-    // TODOFLOW handle the interface-only case
     public boolean containsSourceCode()
     {
-        return true;
+        return sourceIsCode;
     }
 
     // Used during testing
@@ -338,10 +337,6 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     
     // package-visible:
     final UndoManager undoManager;
-
-    // TODOFLOW remove this once all its callers are implemented.
-    private final class UnimplementedException extends RuntimeException {}
-
 
     public FlowEditor(FetchTabbedEditor fetchTabbedEditor, String title, EditorWatcher editorWatcher, EntityResolver parentResolver, JavadocResolver javadocResolver)
     {
@@ -1206,69 +1201,32 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public void setEditorVisible(boolean vis, boolean openInNewWindow)
     {
-        // TODOFLOW put pack the commented parts of this method.
-        
-        if (vis)
-        {
-            checkBracketStatus();
-
-            /*
-            if (sourceIsCode && !compiledProperty.get() && sourceDocument.notYetShown)
-            {
-                // Schedule a compilation so we can find and display any errors:
-                scheduleCompilation(CompileReason.LOADED, CompileType.ERROR_CHECK_ONLY);
-            }
-            */
-
-            // Make sure caret is visible after open:
-            //sourcePane.requestFollowCaret();
-            //sourcePane.layout();
-        }
-        FXTabbedEditor fxTabbedEditor = fetchTabbedEditor.getFXTabbedEditor(false);
-        /*
-        if (fxTabbedEditor == null)
-        {
-            if (openInNewWindow)
-            {
-                fxTabbedEditor = defaultFXTabbedEditor.get().getProject().createNewFXTabbedEditor();
-            }
-            else
-            {
-                fxTabbedEditor = defaultFXTabbedEditor.get();
-            }
-        }
-        else
-        {
-            // Checks if the editor of the selected target is already opened in a tab inside another window,
-            // then do not open it in a new window unless the tab is closed.
-            if (openInNewWindow && !fxTabbedEditor.containsTab(fxTab) )
-            {
-                fxTabbedEditor = defaultFXTabbedEditor.get().getProject().createNewFXTabbedEditor();
-            }
-        }
-        */
+        FXTabbedEditor fxTabbedEditor = fetchTabbedEditor.getFXTabbedEditor(openInNewWindow);
 
         if (vis)
         {
             fxTabbedEditor.addTab(fxTab, vis, true);
         }
         fxTabbedEditor.setWindowVisible(vis, fxTab);
+        
         if (vis)
         {
             fxTabbedEditor.bringToFront(fxTab);
-            /*
             if (callbackOnOpen != null)
             {
                 callbackOnOpen.run();
             }
-            */
+            checkBracketStatus();
 
-            // Allow recalculating the scopes:
-            //sourceDocument.notYetShown = false;
+            if (sourceIsCode && !compiledProperty.get())
+            {
+                // Schedule a compilation so we can find and display any errors:
+                scheduleCompilation(CompileReason.LOADED, CompileType.ERROR_CHECK_ONLY);
+            }
 
             // Make sure caret is visible after open:
-            //sourcePane.requestFollowCaret();
-            //sourcePane.layout();
+            getSourcePane().ensureCaretShowing();
+            requestLayout();
         }
     }
 
@@ -1934,17 +1892,15 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         // document, it must be done outside the notification.
         if ("}".equals(replacement) && PrefMgr.getFlag(PrefMgr.AUTO_INDENT))
         {
-            /*TODOFLOW
             JavaFXUtil.runAfterCurrent(() -> {
                 // It's possible, e.g. due to de-indenting, that by the time we
                 // get here, the offset won't be valid any more, in which case don't
                 // worry about it:
-                if (offset + insertionLength <= getSourcePane().getLength() && sourcePane.getText(offset, offset + insertionLength).equals("}"))
+                if (origStartIncl + replacement.length() <= document.getLength() && replacement.equals("}"))
                 {
-                    actions.closingBrace(offset);
+                    actions.closingBrace(origStartIncl);
                 }
             });
-            */
         }
 
         recordEdit(false);
@@ -1972,7 +1928,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public FXRunnable printTo(PrinterJob printerJob, PrintSize printSize, boolean printLineNumbers, boolean printBackground)
     {
-        throw new UnimplementedException();
+        //TODOFLOW PRINT
+        return () -> {};
     }
 
     /**

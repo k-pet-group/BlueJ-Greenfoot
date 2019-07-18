@@ -740,22 +740,18 @@ public final class FlowActions
     /**
      * We just typed a closing brace character - indent appropriately.
      */
-    /*TODOFLOW
     public void closingBrace(int offset)
     {
-        int lineIndex = getCurrentLineIndex();
-        Element line = getLine(lineIndex);
-        int lineStart = line.getStartOffset();
-        String prefix = editor.getSourcePane().getText(lineStart, offset);
+        int lineStart = getDocument().getLineStart(getDocument().getLineFromPosition(offset));
+        String prefix = getDocument().getContent(lineStart, offset).toString();
 
         if(prefix.trim().length() == 0) {  // only if there is no other text before '}'
             // Indent the line
             editor.getSourcePane().positionCaret(lineStart);
-            doIndent(true);
+            doIndent();
             editor.getSourcePane().positionCaret(editor.getSourcePane().getCaretPosition() + 1);
         }
     }
-    */
 
     // --------------------------------------------------------------------
 
