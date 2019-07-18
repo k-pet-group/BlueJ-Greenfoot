@@ -88,6 +88,7 @@ import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
+import com.google.common.io.CharStreams;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.StringExpression;
@@ -135,10 +136,14 @@ import threadchecker.Tag;
 import javax.swing.text.DefaultEditorKit;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.Writer;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -217,6 +222,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private long lastModified;
     private boolean respondingToChange = false;
     private boolean ignoreChanges = false;
+    private boolean showingChangedOnDiskDialog = false;
 
 
     // TODOFLOW handle the interface-only case
@@ -776,12 +782,44 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             errorDisplay = null;
         }
     }
-
-
+    
+    /**
+     * Check whether the source file has changed on disk. If it has, reload.
+     */
     private void checkForChangeOnDisk()
     {
-        // TODOFLOW
+        if (filename == null)
+        {
+            return;
+        }
+        File file = new File(filename);
+        long modified = file.lastModified();
+        // Prevent infinite loop which can occur when we re-enter
+        // this method while regaining focus from the modal dialog.
+        if (modified > lastModified + 1000 && !showingChangedOnDiskDialog)
+        {
+            Debug.message("File " + filename + " changed on disk; our record is " + lastModified + " but file was " + modified);
+            if (saveState.isChanged())
+            {
+                showingChangedOnDiskDialog = true;
+                int answer = DialogManager.askQuestionFX(getWindow(), "changed-on-disk");
+                if (answer == 0)
+                {
+                    doReload();
+                }
+                else
+                {
+                    setLastModified(modified); // don't ask again for this change
+                }
+                showingChangedOnDiskDialog = false;
+            }
+            else
+            {
+                doReload();
+            }
+        }
     }
+
 
     /**
      * Schedule compilation, if any edits have occurred since last compile.
@@ -1100,7 +1138,69 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public void reloadFile()
     {
-        throw new UnimplementedException();
+        doReload();
+    }
+
+    private void read(Reader reader) throws IOException
+    {
+        document.replaceText(0, document.getLength(), CharStreams.toString(reader));
+        // Position caret at start, not the end:
+        getSourcePane().positionCaret(0);
+        
+        undoManager.forgetHistory();
+    }
+
+    /**
+     * Revert the buffer contents to the last saved version. Do not ask any
+     * question - just do it. Must have a file name.
+     */
+    public void doReload()
+    {
+        removeSearchHighlights();
+        Reader reader = null;
+
+        try {
+            FileInputStream inputStream = new FileInputStream(filename);
+            reader = new InputStreamReader(inputStream, characterSet);
+            read(reader);
+            try {
+                reader.close();
+                inputStream.close();
+            }
+            catch (IOException ioe) {}
+            File file = new File(filename);
+            setLastModified(file.lastModified());
+
+            enableParser(false);
+            
+            // We want to inform the watcher that the editor content has changed,
+            // and then inform it that we are in "saved" state (synced with file).
+            // But first set state to saved to avoid unnecessary writes to disk.
+            saveState.setState(StatusLabel.Status.SAVED);
+            setChanged(); // contents may have changed - notify watcher
+            setSaved();  // notify watcher that we are saved
+
+            scheduleCompilation(CompileReason.LOADED, CompileType.ERROR_CHECK_ONLY);
+        }
+        catch (FileNotFoundException ex) {
+            info.message (Config.getString("editor.info.fileDisappeared"));
+        }
+        catch (IOException ex) {
+            info.message (Config.getString("editor.info.fileReadError"));
+            setChanged();
+        }
+        finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            }
+            catch (IOException ioe) {}
+
+            if (finder != null && finder.isVisible()) {
+                findNext(false);
+            }
+        }
     }
 
     @Override
