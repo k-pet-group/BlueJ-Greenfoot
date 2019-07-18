@@ -163,7 +163,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private final HoleDocument document;
     private final JavaSyntaxView javaSyntaxView;
     private final FetchTabbedEditor fetchTabbedEditor;
-    private final FlowFXTab fxTab = new FlowFXTab(this, "TODOFLOW Title");
+    private final FlowFXTab fxTab;
     private final FlowActions actions;
     /** Watcher - provides interface to BlueJ core. May be null (eg for README.txt file). */
     private final EditorWatcher watcher;
@@ -340,6 +340,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
     public FlowEditor(FetchTabbedEditor fetchTabbedEditor, String title, EditorWatcher editorWatcher, EntityResolver parentResolver, JavadocResolver javadocResolver)
     {
+        this.fxTab = new FlowFXTab(this, title);
         this.javadocResolver = javadocResolver;
         this.windowTitle = title;
         this.flowEditorPane = new FlowEditorPane("", this);
