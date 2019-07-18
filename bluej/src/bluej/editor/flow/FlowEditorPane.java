@@ -22,8 +22,6 @@
 package bluej.editor.flow;
 
 import bluej.Config;
-import bluej.compiler.CompileReason;
-import bluej.compiler.CompileType;
 import bluej.editor.flow.Document.Bias;
 import bluej.editor.flow.LineDisplay.LineDisplayListener;
 import bluej.editor.flow.MarginAndTextLine.MarginDisplay;
@@ -224,9 +222,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         updateRender(false);
         targetColumnForVerticalMovement = -1;
         callSelectionListeners();
-        //TODOFLOW call recordEdit if multiline edit
-        
-        
+        // FlowEditor is in charge of recording edits
     }
 
     private void updateRender(boolean ensureCaretVisible)
