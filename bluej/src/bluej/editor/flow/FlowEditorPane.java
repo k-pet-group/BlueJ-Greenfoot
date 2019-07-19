@@ -98,6 +98,7 @@ public class FlowEditorPane extends Region implements DocumentListener
     private final ArrayList<SelectionListener> selectionListeners = new ArrayList<>();
     private boolean postScrollRenderQueued = false;
     private boolean editable = true;
+    private boolean forceCaretShow = false;
 
     public FlowEditorPane(String content, FlowEditorPaneListener listener)
     {
@@ -156,6 +157,7 @@ public class FlowEditorPane extends Region implements DocumentListener
 
         JavaFXUtil.addChangeListenerPlatform(widthProperty(), w -> updateRender(false));
         JavaFXUtil.addChangeListenerPlatform(heightProperty(), h -> updateRender(false));
+        JavaFXUtil.addChangeListenerPlatform(focusedProperty(), f -> updateCaretVisibility());
     }
     
     private void keyTyped(KeyEvent event)
@@ -328,6 +330,7 @@ public class FlowEditorPane extends Region implements DocumentListener
             caretShape.setLayoutY(0);
             caretShape.setVisible(false);
         }
+        updateCaretVisibility();
 
         HashSet<Integer> linesWithSelectionSet = new HashSet<>();
         
@@ -434,6 +437,13 @@ public class FlowEditorPane extends Region implements DocumentListener
         
                 
         requestLayout();
+    }
+
+    private void updateCaretVisibility()
+    {
+        boolean focused = isFocused();
+        boolean lineVisible = lineDisplay.isLineVisible(caret.getLine());
+        caretShape.setVisible(lineVisible && (focused || forceCaretShow));
     }
 
     boolean isLineVisible(int line)
@@ -618,7 +628,8 @@ public class FlowEditorPane extends Region implements DocumentListener
 
     public void setFakeCaret(boolean fakeOn)
     {
-        //TODOFLOW actually turn caret off when unfocused, but then obey this setting
+        forceCaretShow = fakeOn;
+        updateCaretVisibility();
     }
 
     public boolean isEditable()
