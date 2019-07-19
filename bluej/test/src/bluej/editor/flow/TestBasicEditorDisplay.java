@@ -372,6 +372,7 @@ public class TestBasicEditorDisplay extends FXTest
                 flowEditorPane.positionCaretWithoutScrolling(toSaved.caretPos);
                 flowEditorPane.positionAnchor(fromSaved.caretPos);
             });
+            sleep(200);
             int toPosX = fx(() -> caret.getElements().isEmpty() ? flowX + MarginAndTextLine.TEXT_LEFT_EDGE + 1.0 : caret.localToScreen(caret.getBoundsInLocal()).getCenterX()).intValue();
             int toPosY = fx(() -> caret.getElements().isEmpty() ? flowY + 1.0 : caret.localToScreen(caret.getBoundsInLocal()).getCenterY()).intValue();
             sleep(200);
