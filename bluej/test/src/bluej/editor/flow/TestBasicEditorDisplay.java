@@ -590,7 +590,7 @@ public class TestBasicEditorDisplay extends FXTest
         {
             push(KeyCode.ENTER);
             sleep(150);
-            assertEquals(beforeEnterPoint + "\n".repeat(i + 1) + afterEnterPoint, fx(() -> flowEditorPane.getDocument().getFullContent()));
+            assertEquals(beforeEnterPoint + "\n        ".repeat(i + 1) + afterEnterPoint, fx(() -> flowEditorPane.getDocument().getFullContent()));
             // Scopes should still be the same:
             checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
             y = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
@@ -964,7 +964,7 @@ public class TestBasicEditorDisplay extends FXTest
                 }
             }
         }
-        assertEquals("All scopes found", scopes.length, scopeIndex);
+        assertEquals("All scopes found at " + y, scopes.length, scopeIndex);
     }
 
     @OnThread(Tag.Any)

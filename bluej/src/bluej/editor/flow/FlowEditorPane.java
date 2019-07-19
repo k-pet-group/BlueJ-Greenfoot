@@ -273,7 +273,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         double width = lineDisplay.calculateLineWidth(document.getLongestLine(), PrefMgr.getEditorFontSize().get());
         horizontalScroll.setMax(width + 200.0 - getWidth());
         horizontalScroll.setVisibleAmount(getWidth() / (horizontalScroll.getMax() + getWidth()) * horizontalScroll.getMax());
-        horizontalScroll.setVisible(horizontalScroll.getVisibleAmount() < horizontalScroll.getMax());
+        horizontalScroll.setVisible(allowScrollBars && horizontalScroll.getVisibleAmount() < horizontalScroll.getMax());
         
         // This will often avoid changing the children, if the window has not been resized:
         boolean needToChangeLinesAndCaret = false;
