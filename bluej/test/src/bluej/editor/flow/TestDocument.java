@@ -64,7 +64,7 @@ public class TestDocument
     }
     
     @Property(trials = 20, shrink = false)
-    public void propDocumentStringReplace(@When(seed=3063187395939477895L) @From(GenRandom.class) Random r)
+    public void propDocumentStringReplace(@From(GenRandom.class) Random r)
     {
         // Documents with identical content to test alongside each other:
         Document[] documents = new Document[] { new SlowDocument(), new HoleDocument() };
