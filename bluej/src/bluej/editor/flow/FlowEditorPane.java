@@ -689,7 +689,7 @@ public class FlowEditorPane extends Region implements DocumentListener
             else if (child == verticalScroll)
             {
                 double width = verticalScroll.prefWidth(-1);
-                child.resizeRelocate(getWidth() - width, 0, width, getHeight());
+                child.resizeRelocate(getWidth() - width, 0, width, getHeight() - (horizontalScroll.isVisible() ? horizontalScroll.prefHeight(-1) : 0));
             }
             else if (child == horizontalScroll)
             {
