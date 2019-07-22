@@ -530,6 +530,7 @@ public class TestBasicEditorInteraction extends FXTest
     {
         setText(BLOCK_TEST);
         clickOn(flowEditorPane);
+        String history = "";
         List<String> docLines = Arrays.asList(Utility.splitLines(BLOCK_TEST));
 
         for (int i = 0; i < 5; i++)
@@ -539,6 +540,8 @@ public class TestBasicEditorInteraction extends FXTest
             int lineB = r.nextInt(docLines.size());
             int startLine = Math.min(lineA, lineB);
             int endLine = Math.max(lineA, lineB);
+            boolean comment = r.nextBoolean();
+            history += (comment ? "Commented" : "Uncomment") + " lines " + startLine + " to " + endLine + " inclusive\n";
 
             // Make the selection:
             fx_(() -> {
@@ -549,20 +552,20 @@ public class TestBasicEditorInteraction extends FXTest
             assertEquals(docLines.stream().collect(Collectors.joining("\n")), fx(() -> flowEditorPane.getDocument().getFullContent()));
 
 
-            boolean comment = r.nextBoolean();
+            
             fx_(() -> FlowActions.getActions(flowEditor).getActionByName(comment ? "comment-block" : "uncomment-block").actionPerformed(false));
             for (int line = startLine; line <= endLine; line++)
             {
                 docLines.set(line, addRemoveComment(docLines.get(line), comment));
             }
-            assertEquals((comment ? "Commented" : "Uncomment") + " lines " + startLine + " to " + endLine + " inclusive", docLines.stream().collect(Collectors.joining("\n")), fx(() -> flowEditorPane.getDocument().getFullContent()));
+            assertEquals(history, docLines.stream().collect(Collectors.joining("\n")), fx(() -> flowEditorPane.getDocument().getFullContent()));
         }
     }
 
     private String addRemoveComment(String line, boolean addComment)
     {
         int firstNonWhitespace = findFirstNonWhitespaceAfter(line, 0);
-        if (addComment && firstNonWhitespace < line.length() && !line.trim().startsWith("//", firstNonWhitespace))
+        if (addComment && firstNonWhitespace < line.length())
         {
             return line.substring(0, firstNonWhitespace) + "// " + line.substring(firstNonWhitespace);
         }
