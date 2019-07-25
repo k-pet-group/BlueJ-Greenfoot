@@ -921,7 +921,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                     DialogManager.showMessageFX(fxTabbedEditor.getWindow(), "editor-crashed");
                 }
 
-                document.replaceText(0, document.getLength(), Files.readString(file.toPath(), charset));
+                document.replaceText(0, document.getLength(), Files.readString(file.toPath(), charset).replace("\r", ""));
                 setLastModified(file.lastModified());
                 undoManager.forgetHistory();
 
@@ -1140,7 +1140,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
     private void read(Reader reader) throws IOException
     {
-        document.replaceText(0, document.getLength(), CharStreams.toString(reader));
+        document.replaceText(0, document.getLength(), CharStreams.toString(reader).replace("\r", ""));
         // Position caret at start, not the end:
         getSourcePane().positionCaret(0);
         
