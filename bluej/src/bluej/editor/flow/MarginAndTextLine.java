@@ -225,7 +225,12 @@ public class MarginAndTextLine extends Region
                 }
             }));
         }
-        getChildren().setAll(content);
+        // Don't set content if it's the same; this would cause listeners to fire
+        // and an unnecessary layout pass to occur
+        if (!content.equals(getChildren()))
+        {
+            getChildren().setAll(content);
+        }
     }
 
 
