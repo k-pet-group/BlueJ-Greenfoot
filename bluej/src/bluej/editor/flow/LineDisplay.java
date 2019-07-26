@@ -265,8 +265,8 @@ class LineDisplay
             }
             else
             {
-                double leftOver = (numLinesCanDisplay * singleLineHeight) % heightProperty.get();
-                firstVisibleLineOffset = -leftOver;
+                double leftOver = heightProperty.get() - (numLinesCanDisplay * singleLineHeight);
+                firstVisibleLineOffset = -singleLineHeight + leftOver;
             }
         }
         // Otherwise, it is visible -- nothing to do.
