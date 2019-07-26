@@ -256,7 +256,7 @@ public class FlowEditorPane extends Region implements DocumentListener
             }
         };
         
-        prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(styledLines, this::snapSizeY, - horizontalScroll.getValue(), getHeight(), PrefMgr.getEditorFontSize().get()));
+        prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(styledLines, this::snapSizeY, - horizontalScroll.getValue(), lineContainer.getHeight(), PrefMgr.getEditorFontSize().get()));
         prospectiveChildren.add(caretShape);
         verticalScroll.setVisible(allowScrollBars && lineDisplay.getVisibleLineCount() < document.getLineCount());
         // Note: we don't use actual line count as that "jiggle" by one line as lines are partially
@@ -680,23 +680,11 @@ public class FlowEditorPane extends Region implements DocumentListener
     protected void layoutChildren()
     {
         double xMargin = 2;
-        for (Node child : getChildren())
-        {
-            if (child == lineContainer)
-            {
-                child.resizeRelocate(xMargin, 0, getWidth() - xMargin, getHeight());
-            }
-            else if (child == verticalScroll)
-            {
-                double width = verticalScroll.prefWidth(-1);
-                child.resizeRelocate(getWidth() - width, 0, width, getHeight() - (horizontalScroll.isVisible() ? horizontalScroll.prefHeight(-1) : 0));
-            }
-            else if (child == horizontalScroll)
-            {
-                double height = horizontalScroll.prefHeight(-1);
-                child.resizeRelocate(0, getHeight() - height, getWidth(), height);
-            }
-        }
+        double horizScrollHeight = horizontalScroll.isVisible() ? horizontalScroll.prefHeight(-1) : 0;
+        horizontalScroll.resizeRelocate(0, getHeight() - horizScrollHeight, getWidth(), horizScrollHeight);
+        double vertScrollWidth = verticalScroll.isVisible() ? verticalScroll.prefWidth(-1) : 0;
+        verticalScroll.resizeRelocate(getWidth() - vertScrollWidth, 0, vertScrollWidth, getHeight() - horizScrollHeight);
+        lineContainer.resizeRelocate(xMargin, 0, getWidth() - xMargin - vertScrollWidth, getHeight() - horizScrollHeight);
     }
 
     public HoleDocument getDocument()
