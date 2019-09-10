@@ -298,6 +298,7 @@ public final class Config
 
                     if (langString.substring(secondColon + 1).equals(iso3lang)) {
                         language = langString.substring(0, colonIndex);
+                        Config.putPropString("bluej.language", language);
                         break;
                     }
                 }
