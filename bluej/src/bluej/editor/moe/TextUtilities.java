@@ -23,7 +23,7 @@ package bluej.editor.moe;
 
 /*
  * TextUtilities.java - Utility functions used by the text area classes
- * Copyright (C) 1999 Slava Pestov
+ * Copyright (C) 1999, 2019 Slava Pestov
  *
  * You may use and modify this package for any purpose. Redistribution is
  * permitted, in both source and binary form, provided that this notice
@@ -69,6 +69,12 @@ public class TextUtilities
         default: return -1;
         }
 
+        // Before checking the document for matching
+        // we first check the character is not in a comment.
+        if (isTextInComment(doc.getText(0, doc.getLength()), offset)) {
+            return -1;
+        }
+
         int count = 1;
         int step;
         int texttOffset;
@@ -92,17 +98,22 @@ public class TextUtilities
 
         while (len > 0) {
             char x = textt.charAt(i);
-            if(x == c) {
+
+            // Discard characters in a comment when counting for nested characters.
+            if(x == c && !isTextInComment(doc.getText(0, doc.getLength()), i + texttOffset)) {
                 count++;
             }
 
             // If text[i] == cprime, we have found a
             // opening bracket, so we return i if
-            // --count == 0
+            // --count == 0 and cprime isn't located in a comment
             else if(x == cprime)
             {
-                if (--count == 0) {
-                    return i + texttOffset;
+                // If cprime is found to be in a comment, continue to search.
+                if(!isTextInComment(doc.getText(0, doc.getLength()), i + texttOffset)) {
+                    if (--count == 0) {
+                        return i + texttOffset;
+                    }
                 }
             }
 
@@ -131,6 +142,29 @@ public class TextUtilities
 
         // Nothing found
         return -1;
+    }
+
+    /**
+     * Evaluates if a character is contained in a comment section.
+     * @param text The text to check in
+     * @param offset The position of the character in text
+     */
+    private static boolean isTextInComment(String text, int offset)
+    {
+        // Check the "//" style of comment first
+        int indexOfLineBeginning = text.lastIndexOf("\n", offset);
+        if (indexOfLineBeginning > -1 && text.substring(indexOfLineBeginning).trim().startsWith("//"))
+        {
+            return true;
+        }
+        else
+        {
+            // Check the type of commment "/* */":
+            // look for an opening comment that follow a potential closing comment
+            int indexOfLastOpenMultLinesComment = text.lastIndexOf("/*", offset);
+            int indexOfLastClosingMultLinesComment = text.lastIndexOf("*/", offset);
+            return (indexOfLastOpenMultLinesComment > indexOfLastClosingMultLinesComment);
+        }
     }
 
     /**
