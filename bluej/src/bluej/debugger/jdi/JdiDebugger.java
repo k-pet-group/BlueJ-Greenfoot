@@ -665,7 +665,7 @@ public class JdiDebugger extends Debugger
         } 
         catch (VMDisconnectedException vmde)
         {
-            results.add(new JdiTestResultError(className, null, "VM restarted", "",
+            results.add(new JdiTestResultError(className, "", "VM restarted", "",
                     null, 0));
             testResultsWithRunTime.setResults(results);
             testResultsWithRunTime.setTotalRunTime(0);
