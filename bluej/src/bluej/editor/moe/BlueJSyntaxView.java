@@ -1768,6 +1768,7 @@ public class BlueJSyntaxView
             ContextMenu menu = new ContextMenu(checkMenuItem);
             JavaFXUtil.addStyleClass(menu, "line-numbers-context-menu");
             menu.show(label, e.getScreenX(), e.getScreenY());
+            e.consume();
         });
         int lineNumberFinal = lineNumber;
         label.setOnMouseClicked(e -> {
