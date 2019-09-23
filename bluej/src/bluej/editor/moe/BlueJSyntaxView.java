@@ -1766,7 +1766,9 @@ public class BlueJSyntaxView
                 PrefMgr.setFlag(PrefMgr.LINENUMBERS, checkMenuItem.isSelected());
             });
             ContextMenu menu = new ContextMenu(checkMenuItem);
+            JavaFXUtil.addStyleClass(menu, "line-numbers-context-menu");
             menu.show(label, e.getScreenX(), e.getScreenY());
+            e.consume();
         });
         int lineNumberFinal = lineNumber;
         label.setOnMouseClicked(e -> {
