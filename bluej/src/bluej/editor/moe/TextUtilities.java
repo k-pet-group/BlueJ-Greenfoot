@@ -192,11 +192,12 @@ public class TextUtilities
         }
         CharSequence textt = doc.getContent(texttOffset, texttOffset + len);
 
+        String fullContent = doc.getFullContent();
         while (len > 0) {
             char x = textt.charAt(i);
 
             // Discard characters in a comment when counting for nested characters.
-            if(x == c && !isTextInComment(doc.getText(0, doc.getLength()), i + texttOffset)) {
+            if(x == c && !isTextInComment(fullContent, i + texttOffset)) {
                 count++;
             }
 
@@ -206,7 +207,7 @@ public class TextUtilities
             else if(x == cprime)
             {
                 // If cprime is found to be in a comment, continue to search.
-                if(!isTextInComment(doc.getText(0, doc.getLength()), i + texttOffset)) {
+                if(!isTextInComment(fullContent, i + texttOffset)) {
                     if (--count == 0) {
                         return i + texttOffset;
                     }
