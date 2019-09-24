@@ -58,4 +58,9 @@ public class CompileInputFile implements Serializable
     {
         return sourceFileToRecord;
     }
+
+    public boolean isValid()
+    {
+        return (actualJavaFileForCompiler !=null && sourceFileToRecord != null);
+    }
 }

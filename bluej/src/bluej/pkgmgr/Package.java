@@ -1273,6 +1273,16 @@ public final class Package
 
         ClassTarget t = addClass(className);
 
+        // Check for the Vertex in the editor,
+        // and create a new editor without focus if it was not available before
+        if (null == getEditor())
+        {
+            PkgMgrFrame pmf = PkgMgrFrame.findFrame(this);
+            if (pmf == null)
+            {
+                pmf = PkgMgrFrame.createFrame(this, null);
+            }
+        }
         getEditor().findSpaceForVertex(t);
         t.analyseSource();
         
