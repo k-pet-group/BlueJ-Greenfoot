@@ -149,6 +149,8 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
 
     private static int numberOfOpenProjects = 0;
     private static List<GreenfootStage> stages = new ArrayList<>();
+    // Flag indicating Greenfoot is being exited by the user
+    private boolean isQuittingRequest = false;
 
     private Project project;
     private BooleanProperty hasNoProject = new SimpleBooleanProperty(true);
@@ -390,6 +392,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         setMinHeight(400);
 
         setOnCloseRequest((e) -> {
+            isQuittingRequest = true;
             doClose(false);
         });
         
@@ -567,7 +570,14 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         }
         else if (stateProperty.get() == State.NO_PROJECT)
         {
-            message = Config.getString("centrePanel.message.openScenario");
+            if (isQuittingRequest)
+            {
+                message = Config.getString("centrePanel.message.quitGreenfoot");
+            }
+            else
+            {
+                message = Config.getString("centrePanel.message.openScenario");
+            }
         }
         else if (currentWorld != null && !currentWorld.isCompiled())
         {
@@ -1085,7 +1095,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             scenarioMenu.getItems().add(new SeparatorMenuItem());
             scenarioMenu.getItems().add(JavaFXUtil.makeMenuItem("greenfoot.quit",
                     new KeyCodeCombination(KeyCode.Q, KeyCombination.SHORTCUT_DOWN),
-                    () -> Main.wantToQuit(), null)
+                    () -> {isQuittingRequest = true; Main.wantToQuit();}, null)
                 );
         }
 
