@@ -60,22 +60,12 @@ import java.security.PrivilegedAction;
 public class SwingKeyEventHandlerFixed implements EventHandler<KeyEvent>
 {
     private final SwingNode swingNode;
-    private Field lwFrameField;
 
     @OnThread(Tag.Any)
     public SwingKeyEventHandlerFixed(SwingNode swingNode)
     {
         this.swingNode = swingNode;
-        try
-        {
-            lwFrameField = SwingNode.class.getDeclaredField("lwFrame");
-            lwFrameField.setAccessible(true);
-        }
-        catch (NoSuchFieldException e)
-        {
-            e.printStackTrace();
-        }
-    }
+            }
 
     @Override
     public void handle(javafx.scene.input.KeyEvent event)
