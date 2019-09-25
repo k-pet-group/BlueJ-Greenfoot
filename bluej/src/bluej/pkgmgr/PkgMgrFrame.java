@@ -622,6 +622,7 @@ public class PkgMgrFrame
      * an existing frame if this package is already being edited by a frame. If
      * an empty frame exists, that frame will be used to show the package.
      * @param aPkg The package to show in the frame
+     * @param parentWindow The parent package
      * @return The new frame
      */
     @OnThread(Tag.FXPlatform)
@@ -962,6 +963,7 @@ public class PkgMgrFrame
     /**
      * Displays the package in the frame for editing
      * @param aPkg The package to edit
+     * @param parentWindow The parent package
      */
     @OnThread(Tag.FXPlatform)
     public void openPackage(Package aPkg, PkgMgrFrame parentWindow)
@@ -1091,7 +1093,7 @@ public class PkgMgrFrame
             
             enableFunctions(true); // changes menu items
             setVisible(true);
-            
+
             Package pkgFinal = aPkg;
             // runAfterCurrent so that FX finishes initialising the menu,
             // then hop to Swing thread to actually change things:

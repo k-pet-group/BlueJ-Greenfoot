@@ -1006,9 +1006,15 @@ public class ClassTarget extends DependentTarget
      * @return the name of the Java file this target corresponds to. In the case of a Stride target this is
      *          the file generated during compilation.
      */
-    public File getJavaSourceFile()
-    {
-        return new File(getPackage().getPath(), getBaseName() + "." + SourceType.Java.toString().toLowerCase());
+    public File getJavaSourceFile() {
+        if (null == getPackage())
+        {
+            return null;
+        }
+        else
+        {
+            return new File(getPackage().getPath(), getBaseName() + "." + SourceType.Java.toString().toLowerCase());
+        }
     }
     
     /**
@@ -1016,7 +1022,14 @@ public class ClassTarget extends DependentTarget
      */
     public File getFrameSourceFile()
     {
-        return new File(getPackage().getPath(), getBaseName() + "." + SourceType.Stride.toString().toLowerCase());
+        if (null == getPackage())
+        {
+            return null;
+        }
+        else
+        {
+            return new File(getPackage().getPath(), getBaseName() + "." + SourceType.Stride.toString().toLowerCase());
+        }
     }
     
     @SuppressWarnings("incomplete-switch")

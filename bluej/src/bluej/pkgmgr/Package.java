@@ -1273,6 +1273,16 @@ public final class Package
 
         ClassTarget t = addClass(className);
 
+        // Check for the Vertex in the editor,
+        // and create a new editor without focus if it was not available before
+        if (null == getEditor())
+        {
+            PkgMgrFrame pmf = PkgMgrFrame.findFrame(this);
+            if (pmf == null)
+            {
+                pmf = PkgMgrFrame.createFrame(this, null);
+            }
+        }
         getEditor().findSpaceForVertex(t);
         t.analyseSource();
         
@@ -1669,8 +1679,7 @@ public final class Package
         }
 
         List<CompileInputFile> srcFiles = Utility.mapList(targetList, ClassTarget::getCompileInputFile);
-               
-        if (srcFiles.size() > 0)
+        if (srcFiles.size() > 0 && srcFiles.stream().allMatch(CompileInputFile::isValid))
         {
             JobQueue.getJobQueue().addJob(srcFiles.toArray(new CompileInputFile[0]), observer, project.getClassLoader(), project.getProjectDir(),
                 ! PrefMgr.getFlag(PrefMgr.SHOW_UNCHECKED), project.getProjectCharset(), reason, type);

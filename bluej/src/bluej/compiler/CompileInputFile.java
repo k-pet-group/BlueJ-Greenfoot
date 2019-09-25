@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2016  Michael Kolling and John Rosenberg
+ Copyright (C) 2016,2019  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -57,5 +57,10 @@ public class CompileInputFile implements Serializable
     public File getUserSourceFile()
     {
         return sourceFileToRecord;
+    }
+
+    public boolean isValid()
+    {
+        return (actualJavaFileForCompiler !=null && sourceFileToRecord != null);
     }
 }

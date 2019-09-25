@@ -348,6 +348,7 @@ centrePanel.message.afterRestarting1=Greenfoot has been restarted because the Wo
 centrePanel.message.afterRestarting2=Check the constructor of the World subclass.
 centrePanel.message.missingWorldConstructor1=The world could not be constructed. The world subclass may not
 centrePanel.message.missingWorldConstructor2=have a public constructor without parameters, or may not be public.
+centrePanel.message.quitGreenfoot=Greenfoot is closing the project.
 
 centrePanel.message.hung=Execution is taking a long time.  You may need to terminate execution using the spinning button, below right.
 
