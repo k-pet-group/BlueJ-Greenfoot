@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2016,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 2016,2018,2019 Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -60,22 +60,12 @@ import java.security.PrivilegedAction;
 public class SwingKeyEventHandlerFixed implements EventHandler<KeyEvent>
 {
     private final SwingNode swingNode;
-    private Field lwFrameField;
 
     @OnThread(Tag.Any)
     public SwingKeyEventHandlerFixed(SwingNode swingNode)
     {
         this.swingNode = swingNode;
-        try
-        {
-            lwFrameField = SwingNode.class.getDeclaredField("lwFrame");
-            lwFrameField.setAccessible(true);
-        }
-        catch (NoSuchFieldException e)
-        {
-            e.printStackTrace();
-        }
-    }
+            }
 
     @Override
     public void handle(javafx.scene.input.KeyEvent event)
@@ -92,7 +82,7 @@ public class SwingKeyEventHandlerFixed implements EventHandler<KeyEvent>
 
     public void handleSub(javafx.scene.input.KeyEvent event) throws IllegalAccessException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException
     {
-        Component frame = (Component) lwFrameField.get(swingNode);
+        Component frame = swingNode.getContent();
         if (frame == null) {
             return;
         }
@@ -110,7 +100,7 @@ public class SwingKeyEventHandlerFixed implements EventHandler<KeyEvent>
             event.consume();
         }
 
-        Method fxKeyEventTypeToKeyID = Class.forName("javafx.embed.swing.SwingEvents").getDeclaredMethod("fxKeyEventTypeToKeyID", javafx.scene.input.KeyEvent.class);
+        Method fxKeyEventTypeToKeyID = Class.forName("com.sun.javafx.embed.swing.SwingEvents").getDeclaredMethod("fxKeyEventTypeToKeyID", javafx.scene.input.KeyEvent.class);
         fxKeyEventTypeToKeyID.setAccessible(true);
 
         int swingID = (Integer)fxKeyEventTypeToKeyID.invoke(null, event);
@@ -118,7 +108,7 @@ public class SwingKeyEventHandlerFixed implements EventHandler<KeyEvent>
             return;
         }
 
-        Method fxKeyModsToKeyMods = Class.forName("javafx.embed.swing.SwingEvents").getDeclaredMethod("fxKeyModsToKeyMods", javafx.scene.input.KeyEvent.class);
+        Method fxKeyModsToKeyMods = Class.forName("com.sun.javafx.embed.swing.SwingEvents").getDeclaredMethod("fxKeyModsToKeyMods", javafx.scene.input.KeyEvent.class);
         fxKeyModsToKeyMods.setAccessible(true);
 
 
