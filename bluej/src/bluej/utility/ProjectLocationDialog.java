@@ -169,13 +169,7 @@ class ProjectLocationDialog
             }
             else if (dialogHasBeenEdited || force)
             {
-                // Name cannot be empty (we check separately for this, because
-                // empty name would just check parent directory, but that's not a valid choice)
-                if (nameField.getText().isEmpty())
-                {
-                    showError(Config.getString("newProject.error.nameEmpty"), true);
-                }
-                else
+                if (!nameField.getText().isEmpty())
                 {
                     // Check if the compound path is valid:
                     File compound = Paths.get(compoundPath.getText()).toFile();
@@ -195,7 +189,7 @@ class ProjectLocationDialog
             else
             {
                 hideError();
-                enable = true;
+                enable = !nameField.getText().isEmpty();
             }
         }
         catch (InvalidPathException e)
