@@ -31,7 +31,10 @@ import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Region;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import javafx.util.Duration;
@@ -62,7 +65,7 @@ public class MarginAndTextLine extends Region
     public static enum MarginDisplay
     {
         // Important that step mark is after breakpoint, so that it appears in front:
-        LINE_NUMBER, BREAKPOINT_HOVER, BREAKPOINT, STEP_MARK, ERROR;
+        UNCOMPILED, ERROR, LINE_NUMBER, BREAKPOINT_HOVER, BREAKPOINT, STEP_MARK;
     }
     
     private final EnumMap<MarginDisplay, Node> cachedIcons = new EnumMap<MarginDisplay, Node>(MarginDisplay.class);
@@ -220,8 +223,15 @@ public class MarginAndTextLine extends Region
                         Tooltip.install(icon, breakpointHoverTooltip);
                         return icon;
                     case ERROR:
-                    default:
-                        return new Label(""); //TODO
+                        Label labelErr = new Label("E");
+                        labelErr.setBackground(new Background(new BackgroundFill(Color.RED, null, null)));
+                        return labelErr;
+                    case UNCOMPILED:
+                        Label labelUn = new Label("U");
+                        labelUn.setBackground(new Background(new BackgroundFill(Color.GRAY, null, null)));
+                        return labelUn;
+                    default: // Shouldn't happen:
+                        return new Label("");
                 }
             }));
         }

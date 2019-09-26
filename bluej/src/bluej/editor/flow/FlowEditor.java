@@ -1730,6 +1730,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             r.add(MarginDisplay.BREAKPOINT);
         if (lineIndex == currentStepLineIndex)
             r.add(MarginDisplay.STEP_MARK);
+        if (errorManager.getErrorOnLine(lineIndex) != null)
+            r.add(MarginDisplay.ERROR);
+        if (!compiledProperty.get())
+            r.add(MarginDisplay.UNCOMPILED);
         return r;
     }
 
