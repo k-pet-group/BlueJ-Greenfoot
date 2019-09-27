@@ -206,23 +206,19 @@ public class VMCommsSimulation
      *
      * @param paintWhen  If IF_DUE, painting may be skipped if it's close to a recent paint.
      *                   FORCE always paints, NO_PAINT indicates that an actual image update
-     *                   is not required but other information in the frame should be sent. 
-     * @return Answer from Greenfoot.ask() if available, null otherwise
+     *                   is not required but other information in the frame should be sent.
      */
     @OnThread(Tag.Simulation)
-    public String paintRemote(PaintWhen paintWhen)
+    public void paintRemote(PaintWhen paintWhen)
     {
         long now = System.nanoTime();
         if (paintWhen == PaintWhen.IF_DUE && now - lastPaintNanos <= 8_333_333L)
         {
             paintScheduled = (world != null);
-            return null; // No need to draw frame if less than 1/120th of sec between them,
+            return; // No need to draw frame if less than 1/120th of sec between them,
                          // but we must schedule a paint for the next sequence we send.
         }
 
-        // One element array to allow a reference to be set by readCommands:
-        String[] answer = new String[] {null};
-        
         boolean sendImage = world != null && (paintWhen != PaintWhen.NO_PAINT || paintScheduled);
         if (sendImage)
         {
@@ -256,8 +252,6 @@ public class VMCommsSimulation
                 updateImage = true;
             }
         }
-        
-        return answer[0];
     }
 
     @OnThread(Tag.Simulation)
