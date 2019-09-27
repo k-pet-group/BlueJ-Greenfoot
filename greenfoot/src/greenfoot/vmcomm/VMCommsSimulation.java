@@ -141,7 +141,6 @@ public class VMCommsSimulation
     private int lastAckCommand = -1;
     private int lastPaintSeq = -1; // last paint sequence
     private int lastPaintSize; // number of ints last transmitted as image
-    private boolean paintScheduled = false; // a paint is scheduled
     
     // How many times have we stopped with an error?  We continuously send the count to the
     // server VM, so that the server VM can observe changes in the count (only ever increases).
@@ -222,12 +221,11 @@ public class VMCommsSimulation
         long now = System.nanoTime();
         if (paintWhen == PaintWhen.IF_DUE && now - lastPaintNanos <= 8_333_333L)
         {
-            paintScheduled = (world != null);
             return; // No need to draw frame if less than 1/120th of sec between them,
                          // but we must schedule a paint for the next sequence we send.
         }
 
-        boolean sendImage = world != null && (paintWhen != PaintWhen.NO_PAINT || paintScheduled);
+        boolean sendImage = world != null && paintWhen != PaintWhen.NO_PAINT;
         if (sendImage)
         {
             lastPaintNanos = now;
@@ -371,7 +369,7 @@ public class VMCommsSimulation
                     sharedMemory.put(raw[i]);
                 }
                 lastPaintSize = raw.length;
-                paintScheduled = false;
+                
                 synchronized (this)
                 {
                     transferringImage = false;
