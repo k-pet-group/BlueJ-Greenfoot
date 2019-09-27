@@ -55,21 +55,29 @@ public class VMCommsSimulation
         
     // These variables are shared with the remote communications thread and need synchronised access:
     /** Whether the image has been updated */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private boolean updateImage;
     /** The world image (as most recently painted; double-buffered) */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private BufferedImage[] worldImages = new BufferedImage[2];
     /** Index in worldImages of the most recently drawn world */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private int drawnWorld;
     /** Whether the last drawn image is currently being transferred */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private boolean transferringImage;
     /** The prompt for Greenfoot.ask() */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private String pAskPrompt;
     /** The ask request identifier */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private int pAskId;
     /** The answer received from an ask */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private String askAnswer;
 
     /** The status of entering delay loop */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private boolean delayLoopEntered;
 
     private final ShadowProjectProperties projectProperties;
@@ -406,16 +414,16 @@ public class VMCommsSimulation
                     sharedMemory.put(codepoints.length);
                     sharedMemory.put(codepoints);
                 }
-            }
 
-            // Write the status of the delay loop
-            if (delayLoopEntered == true)
-            {
-                sharedMemory.put(1);
-            }
-            else
-            {
-                sharedMemory.put(0);
+                // Write the status of the delay loop
+                if (delayLoopEntered == true)
+                {
+                    sharedMemory.put(1);
+                }
+                else
+                {
+                    sharedMemory.put(0);
+                }
             }
 
             putLock.release();
@@ -618,7 +626,7 @@ public class VMCommsSimulation
      * The delay loop is entered; need to let the server VM know.
      */
     @OnThread(Tag.Simulation)
-    public void notifyDelayLoopEntered()
+    public synchronized void notifyDelayLoopEntered()
     {
         delayLoopEntered = true;
     }
@@ -627,7 +635,7 @@ public class VMCommsSimulation
      * The delay loop is completed; need to let the server VM know.
      */
     @OnThread(Tag.Simulation)
-    public void notifyDelayLoopCompleted()
+    public synchronized void notifyDelayLoopCompleted()
     {
         delayLoopEntered = false;
     }
