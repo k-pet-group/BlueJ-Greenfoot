@@ -906,7 +906,8 @@ public class Simulation extends Thread
 
         try
         {
-            worldHandler.repaint();
+            // If we will be asleep for more than 1/100th of a second, force repaint, otherwise rely on usual if-due mechanism.
+            worldHandler.paint(numCycles * delay > 100_000_000L);
             for (int i = 0; i < numCycles; i++)
             {
                 HDTimer.sleep(delay);
