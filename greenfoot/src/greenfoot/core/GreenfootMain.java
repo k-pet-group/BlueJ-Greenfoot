@@ -149,7 +149,7 @@ public class GreenfootMain extends Thread
                             else if (e == SyncEvent.END_ACT_ROUND
                                     || e == SyncEvent.QUEUED_TASK_END)
                             {
-                                vmComms.userCodeStopped();
+                                vmComms.userCodeStopped(e == SyncEvent.QUEUED_TASK_END);
                             }
                             else if (e == SyncEvent.DELAY_LOOP_ENTERED)
                             {

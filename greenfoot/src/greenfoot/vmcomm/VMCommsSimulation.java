@@ -205,7 +205,7 @@ public class VMCommsSimulation
         }
     }
 
-    public static enum PaintWhen { FORCE, IF_DUE, NO_PAINT}
+    public static enum PaintWhen { FORCE, IF_DUE }
 
     /**
      * Paints the current world into the shared memory buffer so that the server VM can
@@ -225,8 +225,7 @@ public class VMCommsSimulation
                          // but we must schedule a paint for the next sequence we send.
         }
 
-        boolean sendImage = world != null && paintWhen != PaintWhen.NO_PAINT;
-        if (sendImage)
+        if (world != null)
         {
             lastPaintNanos = now;
             int imageWidth = WorldVisitor.getWidthInPixels(world);
@@ -617,7 +616,7 @@ public class VMCommsSimulation
     public void notifyStoppedWithError()
     {
         stoppedWithErrorCount += 1;
-        paintRemote(PaintWhen.NO_PAINT);
+        paintRemote(PaintWhen.FORCE);
     }
 
     /**
@@ -644,15 +643,6 @@ public class VMCommsSimulation
     @OnThread(Tag.Simulation)
     public void userCodeStarting()
     {
-        // If the other side already think we're running, not much cause to update them, so
-        // only bother if we've already been going for over a second:
-        long now = System.currentTimeMillis();
-        boolean recentlyRunning = now - startOfCurExecution < 1000L;
-        startOfCurExecution = now;
-        if (!recentlyRunning)
-        {
-            paintRemote(PaintWhen.NO_PAINT);
-        }
     }
 
     /**
@@ -660,9 +650,11 @@ public class VMCommsSimulation
      * Each userCodeStopped() event should follow one call to userCodeStarting().
      */
     @OnThread(Tag.Simulation)
-    public void userCodeStopped()
+    public void userCodeStopped(boolean suggestRepaint)
     {
-        startOfCurExecution = 0L;
-        paintRemote(PaintWhen.NO_PAINT);
+        if (suggestRepaint)
+        {
+            paintRemote(PaintWhen.FORCE);
+        }
     }
 }
