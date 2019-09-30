@@ -2007,9 +2007,12 @@ public class PkgMgrFrame
         };
 
         String[] previousTeamMembers = {
+                "Amjad Altadmri",
                 "Damiano Bolla",
+                "Hamza Hamza",
                 "Fabio Hedayioglu",
                 "Poul Henriksen",
+                "Davin McCall",
                 "Clive Miller",
                 "Andrew Patterson",
                 "Bruce Quig",

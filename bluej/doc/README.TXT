@@ -32,7 +32,7 @@ bluej.properties file.
 The BlueJ Team
 --------------
 BlueJ is being developed by:
-University of Kent: Michael Kölling, Ian Utting, Davin McCall, Neil Brown, Amjad Altadmri
+University of Kent: Michael Kölling, Neil Brown, Pierre Weill-Tessier
 
 The BlueJ License
 -----------------
