@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016,2018  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2009,2010,2011,2012,2013,2014,2015,2016,2018,2019  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -55,21 +55,29 @@ public class VMCommsSimulation
         
     // These variables are shared with the remote communications thread and need synchronised access:
     /** Whether the image has been updated */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private boolean updateImage;
     /** The world image (as most recently painted; double-buffered) */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private BufferedImage[] worldImages = new BufferedImage[2];
     /** Index in worldImages of the most recently drawn world */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private int drawnWorld;
     /** Whether the last drawn image is currently being transferred */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private boolean transferringImage;
     /** The prompt for Greenfoot.ask() */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private String pAskPrompt;
     /** The ask request identifier */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private int pAskId;
     /** The answer received from an ask */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private String askAnswer;
 
     /** The status of entering delay loop */
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private boolean delayLoopEntered;
 
     private final ShadowProjectProperties projectProperties;
@@ -133,7 +141,6 @@ public class VMCommsSimulation
     private int lastAckCommand = -1;
     private int lastPaintSeq = -1; // last paint sequence
     private int lastPaintSize; // number of ints last transmitted as image
-    private boolean paintScheduled = false; // a paint is scheduled
     
     // How many times have we stopped with an error?  We continuously send the count to the
     // server VM, so that the server VM can observe changes in the count (only ever increases).
@@ -206,24 +213,19 @@ public class VMCommsSimulation
      *
      * @param paintWhen  If IF_DUE, painting may be skipped if it's close to a recent paint.
      *                   FORCE always paints, NO_PAINT indicates that an actual image update
-     *                   is not required but other information in the frame should be sent. 
-     * @return Answer from Greenfoot.ask() if available, null otherwise
+     *                   is not required but other information in the frame should be sent.
      */
     @OnThread(Tag.Simulation)
-    public String paintRemote(PaintWhen paintWhen)
+    public void paintRemote(PaintWhen paintWhen)
     {
         long now = System.nanoTime();
         if (paintWhen == PaintWhen.IF_DUE && now - lastPaintNanos <= 8_333_333L)
         {
-            paintScheduled = (world != null);
-            return null; // No need to draw frame if less than 1/120th of sec between them,
+            return; // No need to draw frame if less than 1/120th of sec between them,
                          // but we must schedule a paint for the next sequence we send.
         }
 
-        // One element array to allow a reference to be set by readCommands:
-        String[] answer = new String[] {null};
-        
-        boolean sendImage = world != null && (paintWhen != PaintWhen.NO_PAINT || paintScheduled);
+        boolean sendImage = world != null && paintWhen != PaintWhen.NO_PAINT;
         if (sendImage)
         {
             lastPaintNanos = now;
@@ -256,8 +258,6 @@ public class VMCommsSimulation
                 updateImage = true;
             }
         }
-        
-        return answer[0];
     }
 
     @OnThread(Tag.Simulation)
@@ -369,7 +369,7 @@ public class VMCommsSimulation
                     sharedMemory.put(raw[i]);
                 }
                 lastPaintSize = raw.length;
-                paintScheduled = false;
+                
                 synchronized (this)
                 {
                     transferringImage = false;
@@ -412,16 +412,16 @@ public class VMCommsSimulation
                     sharedMemory.put(codepoints.length);
                     sharedMemory.put(codepoints);
                 }
-            }
 
-            // Write the status of the delay loop
-            if (delayLoopEntered == true)
-            {
-                sharedMemory.put(1);
-            }
-            else
-            {
-                sharedMemory.put(0);
+                // Write the status of the delay loop
+                if (delayLoopEntered == true)
+                {
+                    sharedMemory.put(1);
+                }
+                else
+                {
+                    sharedMemory.put(0);
+                }
             }
 
             putLock.release();
@@ -624,7 +624,7 @@ public class VMCommsSimulation
      * The delay loop is entered; need to let the server VM know.
      */
     @OnThread(Tag.Simulation)
-    public void notifyDelayLoopEntered()
+    public synchronized void notifyDelayLoopEntered()
     {
         delayLoopEntered = true;
     }
@@ -633,7 +633,7 @@ public class VMCommsSimulation
      * The delay loop is completed; need to let the server VM know.
      */
     @OnThread(Tag.Simulation)
-    public void notifyDelayLoopCompleted()
+    public synchronized void notifyDelayLoopCompleted()
     {
         delayLoopEntered = false;
     }
