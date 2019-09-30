@@ -7,25 +7,16 @@ PART I - BEFORE BUILDING
  0. Before building, check the copyright years (for display in the copyright dialog), in the
     showCopyright() method in PkgMgrFrame.
 
- 1. Set the right BlueJ version number in bluej/build.xml.
-    Add a GUID to package/winsetup/version-guid file (Get one at guidgen.com).
+ 1. Set the right BlueJ version number and RC number in bluej/build.xml.
+    Add a GUID to package/winsetup/version-guids file (Get one at guidgen.com).
     Run: ant update-version-number
         - This updates the version number in the Boot class and the README.TXT file.
 
- 2. Tag the current source tree in version control.
+ 2. Commit and push -- if you want to isolate from other changes, tag first and make sure to push the tag.
 
 
 PART II - BUILDING BLUEJ RELEASE CANDIDATE
 ------------------------------------------
-
-NOTE:
-    For the following "ant" commands, a release candidate suffix can be specified via
-    -Dbluej.rcsuffix on the command line. For example:
-    
-       ant debian -Dbluej.rcsuffix=-rc3
-    
-    The above will append "-rc3" to the base filenames generated in the package directory,
-    generating "BlueJ-linux-4.1.3-rc3.deb" for example.
 
  3. For Debian, run "fakeroot ant debian".
     (You will need fakeroot installed: sudo apt-get install fakeroot)
@@ -42,8 +33,7 @@ NOTE:
 
  6. Test. When okay, upload to server.
 
- 7. Run "ant urls-rc" to check the RCs are in place and get a print-out of the URLs.  Include this
-    in RC announcement email.
+ 7. Run "ant urls-rc" to check the RCs are in place and get a print-out of the URLs.  Include this in RC announcement email.
  
 
 PART III - RELEASING BLUEJ

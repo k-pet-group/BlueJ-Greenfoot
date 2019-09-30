@@ -2039,7 +2039,7 @@ public class PkgMgrFrame
     public void showCopyright()
     {
         DialogManager.showTextFX(getFXWindow(), String.join("\n",
-                "BlueJ \u00a9 2000-2018 Michael K\u00F6lling, John Rosenberg.", "",
+                "BlueJ \u00a9 2000-2019 Michael K\u00F6lling, John Rosenberg.", "",
                 Config.getString("menu.help.copyright.line1"),
                 Config.getString("menu.help.copyright.line2"),
                 Config.getString("menu.help.copyright.line3"),
