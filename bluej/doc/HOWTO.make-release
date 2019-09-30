@@ -18,6 +18,9 @@ PART I - BEFORE BUILDING
 PART II - BUILDING BLUEJ RELEASE CANDIDATE
 ------------------------------------------
 
+Note: to avoid interference between the IDE and the ant build, and also to avoid interference with older BlueJ builds (e.g. if there are built files that we've since removed, but aren't cleaned properly), it's recommended to checkout a new copy of the repository for each version (it can be re-used for multiple release candidates of the same version, though).  So use git clone to checkout the right repository and branch, put a new copy of build.properties with the paths in it (paying special care to make sure the bundled path variables point to the version of Java that we actually want to bundle with this release), then execute the ant tasks listed below.
+
+
  3. For Debian, run "fakeroot ant debian".
     (You will need fakeroot installed: sudo apt-get install fakeroot)
     
