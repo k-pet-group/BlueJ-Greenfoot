@@ -37,7 +37,6 @@ public class TeamActionGroup
 {
     private final String commitLabel;
     private final boolean initialTeamMode;
-    private final boolean initialIsDVCS;
     private StatusAction statusAction;
     private UpdateDialogAction updateAction;
     private TeamSettingsAction teamSettingsAction;
@@ -45,7 +44,7 @@ public class TeamActionGroup
     private ShareAction shareAction;
     private ShowLogAction showLogAction;
     
-    /**
+        /**
      * Construct a new team action group, with various actions disabled
      * or enabled depending whether we are in team mode or non-team mode.
      * 
@@ -53,24 +52,10 @@ public class TeamActionGroup
      */
     public TeamActionGroup(boolean teamMode)
     {
-        this(teamMode, false);
-    }
-    /**
-     * Construct a new team action group, with various actions disabled
-     * or enabled depending whether we are in team mode or non-team mode.
-     * 
-     * @param teamMode should teamMode be enabled
-     * @param isDVCS is this a distributed version control? (e.g. git).
-     */
-    public TeamActionGroup(boolean teamMode, boolean isDVCS)
-    {
         String label = "team.commit";
-        if (isDVCS){
-            label = "team.commitPush";
-        }
+        label = "team.commitPush";
         this.commitLabel = label;
         this.initialTeamMode = teamMode;
-        this.initialIsDVCS = isDVCS;
     }
     
     private void createAll()
@@ -83,7 +68,7 @@ public class TeamActionGroup
             commitCommentAction = new CommitCommentAction(commitLabel);
             shareAction = new ShareAction();
             showLogAction = new ShowLogAction();
-            setTeamMode(initialTeamMode, initialIsDVCS);
+            setTeamMode(initialTeamMode);
         }
     }
     
@@ -123,7 +108,7 @@ public class TeamActionGroup
         return showLogAction;
     }
     
-    public void setTeamMode(boolean enabled, boolean isDCVS)
+    public void setTeamMode(boolean enabled)
     {
         createAll();
         statusAction.setEnabled(enabled);
@@ -132,9 +117,7 @@ public class TeamActionGroup
         showLogAction.setEnabled(enabled);
         
         String label = "team.commit";
-        if (isDCVS){
-            label = "team.commitPush";
-        }
+        label = "team.commitPush";
         commitCommentAction.setName(Config.getString(label), true);
         commitCommentAction.setEnabled(enabled);
         // import is allowed if we are not already shared

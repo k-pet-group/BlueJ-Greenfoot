@@ -22,9 +22,9 @@
 package bluej.groupwork.actions;
 
 import bluej.Config;
-import bluej.groupwork.ui.CommitAndPushInterface;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
+import bluej.groupwork.ui.CommitAndPushFrame;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
@@ -48,7 +48,7 @@ public class CommitCommentAction extends TeamAction
     public void actionPerformed(PkgMgrFrame frame)
     {
         Project project = frame.getProject();
-        CommitAndPushInterface dialog = project.getCommitCommentsDialog();
+        CommitAndPushFrame dialog = project.getCommitCommentsDialog();
 
         Window dialogWin = dialog.asWindow();
         if (dialog.isShowing())
@@ -62,7 +62,7 @@ public class CommitCommentAction extends TeamAction
         {
             dialog.reset();
             dialog.setLocationRelativeTo(frame.getFXWindow());
-            dialog.setVisible(true);
+            dialog.setVisible();
         }
     }
 }

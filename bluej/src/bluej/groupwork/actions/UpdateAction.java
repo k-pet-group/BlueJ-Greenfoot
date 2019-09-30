@@ -291,18 +291,7 @@ public class UpdateAction extends TeamAction
             }
         }
 
-        /* (non-Javadoc)
-         * @see bluej.groupwork.UpdateListener#dirRemoved(java.io.File)
-         */
-        @OnThread(Tag.FXPlatform)
-        public void dirRemoved(final File f)
-        {
-            String path = makeRelativePath(project.getProjectDir(), f);
-            String pkgName = path.replace(File.separatorChar, '.');
-            removedPackages.add(pkgName);
-        }
-
-        /* (non-Javadoc)
+         /* (non-Javadoc)
          * @see bluej.groupwork.UpdateListener#handleConflicts(bluej.groupwork.UpdateServerResponse)
          */
         @OnThread(Tag.FXPlatform)

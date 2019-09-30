@@ -83,11 +83,6 @@ public class GitRepository implements Repository
         this.yourName = yourName;
         this.yourEmail = yourEmail;
     }
-    
-    public void setReposUrl(String url) 
-    {
-        this.reposUrl = url;
-    }
 
     public String getReposUrl() 
     {
@@ -182,7 +177,6 @@ public class GitRepository implements Repository
         try (Git repo = Git.open(getProjectPath())) {
             Status s = repo.status().call();
 
-            File gitPath = new File(getProjectPath().getParent());
             Set<String> filesStr = s.getMissing();
             filesStr.stream().forEach((fileName) -> {
                 files.add(new File(fileName));
@@ -232,59 +226,4 @@ public class GitRepository implements Repository
     {
         return this.projectPath;
     }
-    
-    
-    /** Utility methods **/
-    
-    /**
-     * given a objectID, returns the RevTree it belongs to.
-     *
-     * @param repo the repository
-     * @param objID the objectId
-     * @return the tree if found.
-     * @throws IncorrectObjectTypeException
-     * @throws IOException
-     */
-    public RevTree getTree(org.eclipse.jgit.lib.Repository repo, ObjectId objID) throws IncorrectObjectTypeException, IOException
-    {
-        RevTree tree;
-        try (RevWalk walk = new RevWalk(repo)) {
-            RevCommit commit = walk.parseCommit(objID);
-
-            // a commit points to a tree
-            tree = walk.parseTree(commit.getTree().getId());
-
-        }
-        return tree;
-    }
-    
-    
-    /**
-     * finds out if local or remote is ahead.
-     *
-     * @param repo git repository
-     * @param local master
-     * @param remote origin/master
-     * @return true if local is ahead of origin/master. False otherwise.
-     * @throws IOException
-     */
-    public boolean isLocalAhead(Git repo, Ref local, Ref remote) throws IOException
-    {
-        RevWalk walk = new RevWalk(repo.getRepository());
-        try {
-            RevCommit localCommit = walk.parseCommit(local.getObjectId());
-            RevCommit remoteCommit = walk.parseCommit(remote.getObjectId());
-            walk.setRevFilter(RevFilter.MERGE_BASE);
-            walk.markStart(localCommit);
-            walk.markStart(remoteCommit);
-            RevCommit mergeBase = walk.next();
-            walk.reset();
-            walk.setRevFilter(RevFilter.ALL);
-            return RevWalkUtils.count(walk, localCommit, mergeBase) >= RevWalkUtils.count(walk, remoteCommit, mergeBase);
-
-        } finally {
-            walk.dispose();
-        }
-    }
-
 }

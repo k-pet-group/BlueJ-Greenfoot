@@ -53,8 +53,7 @@ public class ValidateConnectionAction extends TeamAction
     @Override
     protected void actionPerformed(Project project)
     {
-        TeamworkProvider provider = teamSettingsPanel.getSelectedProvider();
         TeamSettings settings = teamSettingsPanel.getSettings();
-        new CheckConnectionDialog(owner.get(), provider, settings).showAndCheck();
+        new CheckConnectionDialog(owner.get(), settings).showAndCheck();
     }
 }

@@ -84,7 +84,7 @@ import threadchecker.Tag;
  * @author Amjad Altadmri
  */
 @OnThread(Tag.FXPlatform)
-public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements CommitAndPushInterface
+public class CommitAndPushFrame extends FXCustomizedDialog<Void>
 {
     private final Project project;
     private Repository repository;
@@ -209,44 +209,38 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         });
     }
 
-    @Override
     @OnThread(Tag.FXPlatform)
-    public void setVisible(boolean show)
+    public void setVisible()
     {
-        if (show) {
-            // we want to set comments and commit action to disabled
-            // until we know there is something to commit
-            commitText.setText("");//
-            includeLayout.setSelected(false);
-            includeLayout.setDisable(true);//
-            changedLayoutFiles.clear();
-            commitListModel.clear();
-            pushAction.setEnabled(false);
-            pushListModel.clear();
+        // we want to set comments and commit action to disabled
+        // until we know there is something to commit
+        commitText.setText("");//
+        includeLayout.setSelected(false);
+        includeLayout.setDisable(true);//
+        changedLayoutFiles.clear();
+        commitListModel.clear();
+        pushAction.setEnabled(false);
+        pushListModel.clear();
 
-            repository = project.getTeamSettingsController().trytoEstablishRepository(false);
+        repository = project.getTeamSettingsController().trytoEstablishRepository(false);
 
-            if (repository != null) {
-                try {
-                    project.saveAllEditors();
-                    project.saveAll();
-                } catch (IOException ioe) {
-                    String msg = DialogManager.getMessage("team-error-saving-project");
-                    if (msg != null) {
-                        msg = Utility.mergeStrings(msg, ioe.getLocalizedMessage());
-                        String msgFinal = msg;
-                        DialogManager.showErrorTextFX(this.asWindow(), msgFinal);
-                    }
-                }
-                startProgress();
-                commitAndPushWorker = new CommitAndPushWorker();
-                commitAndPushWorker.start();
-                if (!isShowing()) {
-                    show();
+        if (repository != null) {
+            try {
+                project.saveAllEditors();
+                project.saveAll();
+            } catch (IOException ioe) {
+                String msg = DialogManager.getMessage("team-error-saving-project");
+                if (msg != null) {
+                    msg = Utility.mergeStrings(msg, ioe.getLocalizedMessage());
+                    String msgFinal = msg;
+                    DialogManager.showErrorTextFX(this.asWindow(), msgFinal);
                 }
             }
-            else {
-                hide();
+            startProgress();
+            commitAndPushWorker = new CommitAndPushWorker();
+            commitAndPushWorker.start();
+            if (!isShowing()) {
+                show();
             }
         }
         else {
@@ -259,7 +253,6 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         commitText.setText(newComment);
     }
 
-    @Override
     public void reset()
     {
         commitListModel.clear();
@@ -274,7 +267,6 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         commitListModel.removeAll(changedLayoutFiles);
     }
 
-    @Override
     public String getComment()
     {
         return commitText.getText();
@@ -285,7 +277,6 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
      *
      * @return
      */
-    @Override
     public Set<File> getChangedLayoutFiles()
     {
         return changedLayoutFiles.stream().map(info -> info.getFile()).collect(Collectors.toSet());
@@ -296,13 +287,11 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
      *
      * @return the set of the layout files which have changed.
      */
-    @Override
     public Set<TeamStatusInfo> getChangedLayoutInfo()
     {
         return changedLayoutFiles;
     }
 
-    @Override
     public boolean includeLayout()
     {
         return includeLayout != null && includeLayout.isSelected();
@@ -324,7 +313,6 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
     /**
      * Start the activity indicator.
      */
-    @Override
     @OnThread(Tag.FXPlatform)
     public void startProgress()
     {
@@ -334,14 +322,12 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
     /**
      * Stop the activity indicator. Call from any thread.
      */
-    @Override
     @OnThread(Tag.Any)
     public void stopProgress()
     {
         JavaFXUtil.runNowOrLater(() -> progressBar.setRunning(false));
     }
 
-    @Override
     @OnThread(Tag.FXPlatform)
     public Project getProject()
     {
@@ -383,15 +369,9 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
         {
             super();
             response = new ArrayList<>();
-            FileFilter filter = project.getTeamSettingsController().getFileFilter(true, false);
+            FileFilter filter = project.getTeamSettingsController().getFileFilter(false);
             command = repository.getStatus(this, filter, false);
         }
-
-        public boolean isPushAvailable()
-        {
-            return this.isPushAvailable;
-        }
-
         /*
          * @see bluej.groupwork.StatusListener#gotStatus(bluej.groupwork.TeamStatusInfo)
          */
@@ -508,16 +488,7 @@ public class CommitAndPushFrame extends FXCustomizedDialog<Void> implements Comm
          * @param filesToCommit The set to store the files to commit in
          * @param filesToAdd The set to store the files to be added in
          * @param filesToRemove The set to store the files to be removed in
-         * @param mergeConflicts The set to store files with merge conflicts in.
-         * @param deleteConflicts The set to store files with conflicts in, which need to be
-         *                        resolved by first deleting the local file
-         * @param otherConflicts The set to store files with "locally deleted" conflicts (locally
-         *                       deleted, remotely modified).
-         * @param needsMerge The set of files which are updated locally as well as in the
-         *                   repository (required merging).
-         * @param conflicts The set to store unresolved conflicts in
-         *
-         * @param remote false if this is a non-distributed repository.
+         * @param modifiedLayoutFiles The set to store the team status information for the files
          */
         private void getCommitFileSets(List<TeamStatusInfo> info, Set<File> filesToCommit,
                 Set<File> filesToAdd, Set<File> filesToRemove,

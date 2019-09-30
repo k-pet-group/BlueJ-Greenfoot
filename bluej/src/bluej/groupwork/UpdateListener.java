@@ -44,13 +44,7 @@ public interface UpdateListener
      * A file was removed locally.
      */
     public void fileRemoved(File f);
-    
-    /**
-     * A directory (and all files within) was removed.
-     * The files within might not be individually reported.
-     */
-    public void dirRemoved(File f);
-    
+
     /**
      * Conflicts must be handled.
      */

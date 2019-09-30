@@ -95,8 +95,6 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
     private boolean includeLayout = true;
     private boolean pullWithNoChanges = false;
 
-    private final boolean isDVCS;
-
     /**
      * Constructor for UpdateFilesFrame.
      */
@@ -105,7 +103,6 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
         super(null, "team.update.title", "team-update-files");
         this.project = project;
         updateAction.useButton(project, updateButton);
-        isDVCS = project.getTeamSettingsController().isDVCS();
         buildUI();
     }
 
@@ -139,11 +136,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
         updateListModel = FXCollections.observableArrayList();
         Label updateFilesLabel = new Label(Config.getString("team.update.files"));
         ListView<UpdateStatus> updateFiles = new ListView<>(updateListModel);
-        if (isDVCS) {
-            updateFiles.setCellFactory(param -> new FileRendererCell(project, true));
-        } else {
-            updateFiles.setCellFactory(param -> new FileRendererCell(project));
-        }
+        updateFiles.setCellFactory(param -> new FileRendererCell(project));
         updateFiles.setEditable(false);
 
         ScrollPane updateFileScrollPane = new ScrollPane(updateFiles);
@@ -322,7 +315,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
         {
             super();
             response = new ArrayList<>();
-            FileFilter filter = project.getTeamSettingsController().getFileFilter(true, !isDVCS);
+            FileFilter filter = project.getTeamSettingsController().getFileFilter(false);
             command = repository.getStatus(this, filter, true);
         }
 
@@ -368,30 +361,10 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
                 }
                 else {
                     Set<File> filesToUpdate = new HashSet<>();
-                    Set<File> conflicts = new HashSet<>();
                     Set<File> modifiedLayoutFiles = new HashSet<>();
 
                     List<TeamStatusInfo> info = response;
-                    getUpdateFileSet(info, filesToUpdate, conflicts, modifiedLayoutFiles);
-
-                    if (conflicts.size() != 0) {
-                        String filesList = "";
-                        Iterator<File> i = conflicts.iterator();
-                        for (int j = 0; j < 10 && i.hasNext(); j++) {
-                            File conflictFile = i.next();
-                            filesList += "    " + conflictFile.getName() + "\n";
-                        }
-
-                        // If there are more than 10 conflicts, we won't list them
-                        // all in the dialog
-                        if (i.hasNext()) {
-                            filesList += "    (and more - check status)";
-                        }
-
-                        String filesListFinal = filesList;
-                        UpdateFilesFrame.this.dialogThenHide(() -> DialogManager.showMessageWithTextFX(UpdateFilesFrame.this.asWindow(), "team-unresolved-conflicts", filesListFinal));
-                        return;
-                    }
+                    getUpdateFileSet(info, filesToUpdate, modifiedLayoutFiles);
 
                     // Build the actual set of files to update. If there are new or removed
                     // directories, don't include files within.
@@ -421,7 +394,7 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
                     }
                     else
                     {
-                        if (isDVCS && pullWithNoChanges && updateListModel.isEmpty())
+                        if (pullWithNoChanges && updateListModel.isEmpty())
                         {
                             updateListModel.add(needUpdate);
                         }
@@ -438,19 +411,11 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
          * @param info  The list of files with status (List of TeamStatusInfo)
          * @param filesToUpdate  The set to store the files to update in
          * @param modifiedLayoutFiles  The set to store the files to be force updated in
-         * @param conflicts      The set to store unresolved conflicts in
          *                       (any files in this set prevent update from occurring)
          */
-        private void getUpdateFileSet(List<TeamStatusInfo> info, Set<File> filesToUpdate, Set<File> conflicts, Set<File> modifiedLayoutFiles)
+        private void getUpdateFileSet(List<TeamStatusInfo> info, Set<File> filesToUpdate, Set<File> modifiedLayoutFiles)
         {
-            if (isDVCS)
-            {
-                getUpdateFileSetDist(info, filesToUpdate, conflicts, modifiedLayoutFiles);
-            }
-            else
-            {
-                getUpdateFileSetNondist(info, filesToUpdate, conflicts, modifiedLayoutFiles);
-            }
+            getUpdateFileSetDist(info, filesToUpdate, modifiedLayoutFiles);
 
             if (! changedLayoutFiles.isEmpty()) {
                 includeLayoutCheckbox.setDisable(false);
@@ -459,62 +424,9 @@ public class UpdateFilesFrame extends FXCustomizedDialog<Void>
         }
         
         /**
-         * Go through file statuses and determine which files will be updated (non-distributed version control).
-         */
-        private void getUpdateFileSetNondist(List<TeamStatusInfo> info, Set<File> filesToUpdate,
-                Set<File> conflicts, Set<File> modifiedLayoutFiles)
-        {
-            UpdateFilter filter = new UpdateFilter();
-            TeamViewFilter viewFilter = new TeamViewFilter();
-            for (TeamStatusInfo statusInfo : info) {
-                Status status = statusInfo.getStatus(true);
-                if (filter.accept(statusInfo)) {
-                    if (!BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())) {
-                        updateListModel.add(new UpdateStatus(statusInfo));
-                        filesToUpdate.add(statusInfo.getFile());
-                    }
-                    else {
-                        if (!viewFilter.accept(statusInfo)) {
-                            // If the file should not be viewed, just ignore it.
-                        }
-                        else if (filter.updateAlways(statusInfo)) {
-                            // The package file is new or removed. There is no
-                            // option not to include it in the update.
-                            updateListModel.add(new UpdateStatus(statusInfo));
-                            forcedLayoutFiles.add(statusInfo.getFile());
-                        }
-                        else {
-                            // add file to list of files that may be added to commit
-                            modifiedLayoutFiles.add(statusInfo.getFile());
-                            // keep track of StatusInfo objects representing changed diagrams
-                            changedLayoutFiles.add(statusInfo);
-                        }
-                    }
-                }
-                else {
-                    boolean conflict;
-                    conflict = status == Status.UNRESOLVED;
-                    conflict |= status == Status.CONFLICT_ADD;
-                    conflict |= status == Status.CONFLICT_LMRD;
-                    if (conflict) {
-                        if (!BlueJPackageFile.isPackageFileName(statusInfo.getFile().getName())) {
-                            conflicts.add(statusInfo.getFile());
-                        }
-                        else {
-                            // bluej package file will be force-updated
-                            modifiedLayoutFiles.add(statusInfo.getFile());
-                            changedLayoutFiles.add(statusInfo);
-                        }
-                    }
-                }
-            }
-        }
-
-        /**
-         * Go through file statuses and determine which files will be updated (distributed version control).
-         */
-        private void getUpdateFileSetDist(List<TeamStatusInfo> info, Set<File> filesToUpdate,
-                Set<File> conflicts, Set<File> modifiedLayoutFiles)
+        * Go through file statuses and determine which files will be updated (distributed version control).
+        */
+        private void getUpdateFileSetDist(List<TeamStatusInfo> info, Set<File> filesToUpdate, Set<File> modifiedLayoutFiles)
         {
             UpdateFilter filter = new UpdateFilter();
             TeamViewFilter viewFilter = new TeamViewFilter();

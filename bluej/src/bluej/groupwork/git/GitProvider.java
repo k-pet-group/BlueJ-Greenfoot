@@ -206,7 +206,7 @@ public class GitProvider implements TeamworkProvider
     {
         String protocol = settings.getProtocol();
         //check if the protocol is a valid one.
-        if (protocol == null || !Arrays.asList(settings.getProvider().getProtocols()).contains(protocol)){
+        if (protocol == null || !Arrays.asList(getProtocols()).contains(protocol)){
             //the protocol is not valid. 
             throw new UnsupportedSettingException(Config.getString("team.error.unknownProtocol"));
         }
@@ -359,11 +359,5 @@ public class GitProvider implements TeamworkProvider
             Debug.reportError("Git: Could not get user email from repository", ex);
         }
         return result;
-    }
-
-    @Override
-    public boolean isDVCS()
-    {
-        return true;
     }
 }

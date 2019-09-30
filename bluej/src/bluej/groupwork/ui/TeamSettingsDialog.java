@@ -64,7 +64,7 @@ public class TeamSettingsDialog extends FXCustomizedDialog<TeamSettings>
         setHeaderText(null);
 
         prepareButtonPane();
-        teamSettingsPanel = new TeamSettingsPanel(teamSettingsController, this, getDialogPane().getStyleClass());
+        teamSettingsPanel = new TeamSettingsPanel(teamSettingsController, this);
         getDialogPane().setContent(teamSettingsPanel);
         DialogManager.centreDialog(this);
         

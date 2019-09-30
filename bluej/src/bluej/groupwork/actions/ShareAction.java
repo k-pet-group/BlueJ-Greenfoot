@@ -112,30 +112,24 @@ public class ShareAction extends TeamAction
                 {
                     // Run and Wait
                     CompletableFuture<Set<File>> filesFuture = new CompletableFuture<>();
-                    CompletableFuture<Boolean> isDVCSFuture = new CompletableFuture<>();
 
                     Platform.runLater( () -> {
                         project.setTeamSettingsController(tsc);
                         Set<File> projFiles = tsc.getProjectFiles(true);
                         // Make copy, to ensure thread safety:
                         filesFuture.complete(new HashSet<>(projFiles));
-                        isDVCSFuture.complete(tsc.isDVCS());
                     });
 
                     try {
                         Set<File> files = filesFuture.get();
-                        Boolean isDVCS = isDVCSFuture.get();
 
                         Set<File> newFiles = new LinkedHashSet<>(files);
                         Set<File> binFiles = TeamUtils.extractBinaryFilesFromSet(newFiles);
                         command = repository.commitAll(newFiles, binFiles, Collections.emptySet(),
                                 files, Config.getString("team.share.initialMessage"));
                         result = command.getResult();
-                        //In DVCS, we need an aditional command: pushChanges.
-                        if (isDVCS){
-                            command = repository.pushChanges();
-                            result = command.getResult();
-                        }
+                        command = repository.pushChanges();
+                        result = command.getResult();
                     }
                     catch (InterruptedException | ExecutionException e)
                     {

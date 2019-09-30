@@ -223,16 +223,6 @@ public class TeamStatusInfo
         return file;
     }
     
-    public String getLocalVersion()
-    {
-        return localVersion;
-    }
-    
-    public String getRepositoryVersion()
-    {
-        return remoteVersion;
-    }
-    
     public Status getStatus()
     {
         return status;

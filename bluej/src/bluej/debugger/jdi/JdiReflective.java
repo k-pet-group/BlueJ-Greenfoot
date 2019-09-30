@@ -79,7 +79,7 @@ import threadchecker.Tag;
 /**
  * A Reflective for Jdi classes.
  * 
- * @see Reflective.
+ * @see Reflective
  * 
  * @author Davin McCall
  */
@@ -489,9 +489,11 @@ public class JdiReflective extends Reflective
      * 
      * @param name
      *            The name of the class to find
-     * @param lclass
+     * @param cl
      *            The loading class. The class loader of this class is used to
      *            locate the desired class.
+     * @param vm
+     *            Virtual Machine
      * @return A ClassType object representing the found class (or null)
      */
     private static ReferenceType findClass(String name, ClassLoaderReference cl, VirtualMachine vm)
@@ -854,8 +856,6 @@ public class JdiReflective extends Reflective
      * 
      * @param f
      *            The field
-     * @param parent
-     *            The object in which the field is located
      * @return The type of the field value
      */
     public static JavaType fromField(Field f)

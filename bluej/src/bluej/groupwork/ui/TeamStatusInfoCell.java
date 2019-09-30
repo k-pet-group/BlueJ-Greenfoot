@@ -52,13 +52,8 @@ public class TeamStatusInfoCell extends ListCell<TeamStatusInfo>
         if (empty || info == null) {
             setText(null);
         } else {
-
             String topText;
-            if (project.getTeamSettingsController().isDVCS()){
-                topText = ResourceDescriptor.getDCVSResource(project, info, true, false);
-            } else {
-                topText = ResourceDescriptor.getResource(project, info, true);
-            }
+            topText = ResourceDescriptor.getDCVSResource(project, info, true, false);
             setText(topText);
         }
         setGraphic(null);

@@ -22,6 +22,7 @@
 package bluej.pkgmgr;
 
 import bluej.*;
+import bluej.groupwork.NoSVNSupportDialog;
 import bluej.pkgmgr.AboutDialogTemplate;
 import bluej.classmgr.BPClassLoader;
 import bluej.collect.DataCollector;
@@ -139,6 +140,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.shape.Shape;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import threadchecker.OnThread;
@@ -1113,7 +1115,7 @@ public class PkgMgrFrame
             
             //update TeamSettings menu items.
             commitMenuItem.textProperty().unbind();
-            if (aPkg.getProject().getTeamSettingsController() != null && aPkg.getProject().getTeamSettingsController().isDVCS()) {
+            if (aPkg.getProject().getTeamSettingsController() != null) {
                 commitMenuItem.setText(Config.getString("team.menu.commitPush"));
             } else {
                 commitMenuItem.setText(Config.getString("team.menu.commit"));
@@ -1450,7 +1452,7 @@ public class PkgMgrFrame
             else {
                 PkgMgrFrame pmf = createFrame( unNamedPkg, this);
                 pmf.setVisible(true);
-            }    
+            }
             return true;
         }
         return false;
@@ -1674,6 +1676,12 @@ public class PkgMgrFrame
             }
 
             pmf.setVisible(true);
+
+            if(openProj.isSharedSVNProject()){
+                NoSVNSupportDialog dialog = new NoSVNSupportDialog(pmf.getFXWindow());
+                dialog.initModality(Modality.APPLICATION_MODAL);
+                dialog.showAndWait();
+            }
 
             if (Config.isGreenfoot())
             {

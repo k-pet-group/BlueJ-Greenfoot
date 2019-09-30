@@ -27,7 +27,6 @@ import java.io.IOException;
 import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.transport.FetchResult;
 
 /**
  * Git command to fetch project changes from the upstream repository.

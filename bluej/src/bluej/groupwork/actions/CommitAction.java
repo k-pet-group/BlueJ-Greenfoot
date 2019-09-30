@@ -32,8 +32,7 @@ import bluej.groupwork.TeamStatusInfo;
 import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
-import bluej.groupwork.ui.CommitAndPushInterface;
-import bluej.pkgmgr.PkgMgrFrame;
+import bluej.groupwork.ui.CommitAndPushFrame;
 import bluej.pkgmgr.Project;
 import bluej.utility.FXWorker;
 
@@ -61,13 +60,13 @@ public class CommitAction extends TeamAction
     private Set<File> newFiles; // which files are new files
     private Set<File> deletedFiles; // which files are to be removed
     private Set<File> files; // files to commit (includes both of above)
-    private CommitAndPushInterface commitCommentsFrame;
+    private CommitAndPushFrame commitCommentsFrame;
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private StatusHandle statusHandle;
     
     private CommitWorker worker;
     
-    public CommitAction(CommitAndPushInterface frame)
+    public CommitAction(CommitAndPushFrame frame)
     {
         super(Config.getString("team.commitButton"), false);
         commitCommentsFrame = frame;
@@ -116,18 +115,9 @@ public class CommitAction extends TeamAction
     protected void actionPerformed(Project project)
     {
         commitCommentsFrame.startProgress();
-        if (project.getTeamSettingsController().isDVCS())
-        {
-            // if DVCS, display message on commit/push window.
-            commitCommentsFrame.displayMessage(Config.getString("team.commit.statusMessage"));
-        }
-        else
-        {
-            // if svn, display the message on the main BlueJ window.
-            PkgMgrFrame.displayMessage(project, Config.getString("team.commit.statusMessage"));
-        }
-        
-        worker = new CommitWorker(project);
+        commitCommentsFrame.displayMessage(Config.getString("team.commit.statusMessage"));
+
+        worker = new CommitWorker();
         worker.start();
     }
     
@@ -154,7 +144,7 @@ public class CommitAction extends TeamAction
         private boolean aborted;
 
         @OnThread(Tag.FXPlatform)
-        public CommitWorker(Project project)
+        public CommitWorker()
         {
             String comment = commitCommentsFrame.getComment();
             Set<TeamStatusInfo> forceFiles = new HashSet<>();
@@ -193,21 +183,14 @@ public class CommitAction extends TeamAction
                 commitCommentsFrame.stopProgress();
                 if (! result.isError() && ! result.wasAborted()) {
                     DataCollector.teamCommitProject(project, statusHandle.getRepository(), files);
-
-                    if (project.getTeamSettingsController().isDVCS()) {
-                        //if DVCS, display message on commit/push window.
-                        commitCommentsFrame.displayMessage(Config.getString("team.commit.statusDone"));
-                    } else {
-                        //if svn, display the message on the main BlueJ window.
-                        PkgMgrFrame.displayMessage(project, Config.getString("team.commit.statusDone"));
-                    }
+                    commitCommentsFrame.displayMessage(Config.getString("team.commit.statusDone"));
                 }
             }
             
             TeamUtils.handleServerResponseFX(result, commitCommentsFrame.asWindow());
             
             if (! aborted) {
-                commitCommentsFrame.setVisible(project.getTeamSettingsController().isDVCS());
+                commitCommentsFrame.setVisible();
             }
         }
     }

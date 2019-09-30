@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 2017  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,48 +21,38 @@
  */
 package bluej.groupwork.ui;
 
-import java.util.List;
-import javafx.collections.ObservableList;
-
 import bluej.Config;
 import bluej.groupwork.TeamStatusInfo;
 import bluej.pkgmgr.Project;
-import threadchecker.OnThread;
-import threadchecker.Tag;
+import javafx.collections.ObservableList;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Given a list of StatusEntry(s) returns a table model which allows them to
  * be edited in a JTable.
- * 
- * 
- * @author Bruce Quig
+ *
  * @author Amjad Altadmri
  */
-@OnThread(Tag.FXPlatform)
-public abstract class StatusTableModel
+public class StatusTableModel
 {
-    protected final String resourceLabel = Config.getString("team.status.resource");
-    protected final String remoteStatusLabel = Config.getString("team.status.remote");
-    protected final String versionLabel = Config.getString("team.status.version");
+    private final String resourceLabel = Config.getString("team.status.resource");
+    private final String remoteStatusLabel = Config.getString("team.status.remote");
 
-    protected Project project;
-    protected String statusLabel;
-    protected List<String> labelsList;
-    protected ObservableList<TeamStatusInfo> resources;
-
+    private String statusLabel;
+    private List<String> labelsList;
+    private ObservableList<TeamStatusInfo> resources;
     /**
      *
      */
-    public StatusTableModel(Project project, int initialRows)
+    public StatusTableModel()
     {
-        this.project = project;
-//        resources = FXCollections.observableArrayList();
-//        for(int i = 0; i < initialRows; i++) {
-//            resources.add(new TeamStatusInfo());
-//        }
+        statusLabel = Config.getString("team.status.local");
+        labelsList = Arrays.asList(resourceLabel, statusLabel, remoteStatusLabel);
     }
-
-    /**
+    
+     /**
      * Return the name of a particular column
      *
      * @param col   the column we are naming
@@ -77,7 +67,7 @@ public abstract class StatusTableModel
             throw new IllegalArgumentException("bad column number in StatusTableModel::getColumnName()");
         }
     }
-    
+
     public void setStatusData(ObservableList<TeamStatusInfo> statusResources)
     {
         resources = statusResources;

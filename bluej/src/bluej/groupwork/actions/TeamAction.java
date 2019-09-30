@@ -74,11 +74,6 @@ public abstract class TeamAction
         disabled.set(!enabled);
     }
 
-    public boolean isDisabled()
-    {
-        return disabled.get();
-    }
-
     public BooleanProperty disabledProperty()
     {
         return disabled;

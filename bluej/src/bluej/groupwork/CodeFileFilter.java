@@ -41,7 +41,6 @@ import bluej.utility.Debug;
  */
 public class CodeFileFilter implements FileFilter, FilenameFilter
 {
-    private boolean includePkgFiles;
     private boolean includeDirectories;
     private List<Pattern> patterns = null;
     private FileFilter parentFilter = null;
@@ -51,13 +50,11 @@ public class CodeFileFilter implements FileFilter, FilenameFilter
      * Construct a filter, which has a flag to whether include Package Files.
      *
      * @param ignore          List of file patterns to ignore.
-     * @param includePkgFiles If true, pkg files are accepted.
      * @param projectDir      The directory of the project.
      * @param parent          The filter which will be applied on the parent directory
      */
-    public CodeFileFilter(List<String> ignore, boolean includePkgFiles, File projectDir, FileFilter parent)
+    public CodeFileFilter(List<String> ignore, File projectDir, FileFilter parent)
     {
-        this.includePkgFiles = includePkgFiles;
         this.projectDir = projectDir;
         patterns = makePatterns(ignore);
         parentFilter = parent;
@@ -67,14 +64,13 @@ public class CodeFileFilter implements FileFilter, FilenameFilter
      * Construct a filter, which has two flags to whether to include Directories and Package Files.
      *
      * @param ignore              List of file patterns to ignore.
-     * @param includePkgFiles     If true, pkg files are accepted.
      * @param includeDirectories  If true, pkg files are accepted.
      * @param projectDir          The directory of the project.
      * @param parent              The filter which will be applied on the parent directory
      */
-    public CodeFileFilter(List<String> ignore, boolean includePkgFiles, boolean includeDirectories, File projectDir, FileFilter parent)
+    public CodeFileFilter(List<String> ignore, boolean includeDirectories, File projectDir, FileFilter parent)
     {
-        this(ignore, includePkgFiles, projectDir, parent);
+        this(ignore, projectDir, parent);
         this.includeDirectories = includeDirectories;
     }
 
@@ -142,7 +138,7 @@ public class CodeFileFilter implements FileFilter, FilenameFilter
          * added and committed. If we don't, BlueJ can't know which folders
          * are packages
          */ 
-        if (!includePkgFiles && BlueJPackageFile.isPackageFileName(name)) {
+        if (BlueJPackageFile.isPackageFileName(name)) {
             return false;
         }
         // the old bluej.pkg backup file

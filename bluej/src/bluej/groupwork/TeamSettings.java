@@ -32,31 +32,22 @@ import threadchecker.Tag;
 @OnThread(Tag.Any)
 public class TeamSettings
 {
-    private TeamworkProvider provider;
     private String protocol;
     private String server;
     private String prefix;
-    private String group;
     private String username;
     private String password;
     private String yourName;
     private String yourEmail;
     
-    public TeamSettings(TeamworkProvider provider, String protocol, String server,
-            String prefix, String group, String username, String password)
+    public TeamSettings(String protocol, String server,
+            String prefix, String username, String password)
     {
-        this.provider = provider;
         this.protocol = protocol;
         this.server = server;
         this.prefix = prefix;
-        this.group = group;
         this.username = username;
         this.password = password;
-    }
-    
-    public TeamworkProvider getProvider()
-    {
-        return provider;
     }
     
     public String getProtocol()
@@ -72,11 +63,6 @@ public class TeamSettings
     public String getPrefix()
     {
         return prefix;
-    }
-    
-    public String getGroup()
-    {
-        return group;
     }
     
     public String getUserName()
@@ -126,7 +112,6 @@ public class TeamSettings
      * @param protocol the string containting the protocol
      * @param server the server address
      * @param prefix the repository path in the server
-     * @param userName the user name used for login
      * @return the connection string in URI format.
      */
     public static String getURI(String protocol, String server, String prefix){

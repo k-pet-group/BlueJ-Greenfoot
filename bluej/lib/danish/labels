@@ -523,7 +523,6 @@ team.settings.personal=Personlig
 team.settings.location=Placering
 team.settings.user=Bruger
 team.settings.password=Password
-team.settings.group=Gruppe
 team.settings.server=Server
 team.settings.prefix=Repository Sti
 team.settings.ext=ext (bruger SSH)

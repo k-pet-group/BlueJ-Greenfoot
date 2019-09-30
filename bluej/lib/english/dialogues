@@ -568,18 +568,6 @@ Use JavaFX thread
 Use separate thread
 null
 
-SVNWorkingCopyNot16
-This project has Subversion meta-data in a format which BlueJ
-might not fully support. (This could be the case if the project
-was checked out using BlueJ version 3.1.6, which created meta-data
-in an unsupported format).
-:
-You can resolve this by checking out the project again into a new
-folder.
-:
-If you continue to work with this project, some Teamwork functions
-(status, commit etc) may not function properly. 
-
 cannot-open-browser
 The web browser could not be opened.
 

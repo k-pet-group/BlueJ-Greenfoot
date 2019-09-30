@@ -35,23 +35,15 @@ import threadchecker.Tag;
 public class FileRendererCell extends ListCell<UpdateStatus>
 {
     private Project project;
-    private boolean remote;
 
+    /**
+     * Creates a fileRenderer for remote status.
+     * @param proj project
+     */
     public FileRendererCell(Project proj)
     {
         super();
         project = proj;
-    }
-
-    /**
-     * Creates a fileRenderer for remote or local status.
-     * @param proj project
-     * @param remote the status we are taking into account.
-     */
-    public FileRendererCell(Project proj, boolean remote)
-    {
-        this(proj);
-        this.remote = remote;
     }
 
     @Override
@@ -61,13 +53,7 @@ public class FileRendererCell extends ListCell<UpdateStatus>
         if (empty || status == null) {
             setText(null);
         } else {
-
-            String topText;
-            if (project.getTeamSettingsController().isDVCS()){
-                topText = ResourceDescriptor.getDCVSResource(project, status, true, remote);
-            } else {
-                topText = ResourceDescriptor.getResource(project, status, true);
-            }
+            String topText = ResourceDescriptor.getDCVSResource(project, status, true, true);
             setText(topText);
         }
         setGraphic(null);

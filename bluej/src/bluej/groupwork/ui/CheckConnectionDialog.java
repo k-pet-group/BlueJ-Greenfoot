@@ -21,6 +21,7 @@
  */
 package bluej.groupwork.ui;
 
+import bluej.groupwork.git.GitProvider;
 import javafx.application.Platform;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ProgressBar;
@@ -55,11 +56,11 @@ public class CheckConnectionDialog extends FXCustomizedDialog<Void>
     private TeamSettings settings;
     private TeamworkProvider provider;
 
-    public CheckConnectionDialog(Window owner, TeamworkProvider provider, TeamSettings settings)
+    public CheckConnectionDialog(Window owner, TeamSettings settings)
     {
         super(owner, "team.settings.checkConnection", "team-test-connection");
-        this.provider = provider;
         this.settings = settings;
+        this.provider = new GitProvider() ;
         buildUI();
     }
 

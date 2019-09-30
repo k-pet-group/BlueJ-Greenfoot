@@ -56,8 +56,6 @@ import bluej.groupwork.Repository;
 import bluej.groupwork.TeamSettingsController;
 import bluej.groupwork.actions.TeamActionGroup;
 import bluej.groupwork.ui.CommitAndPushFrame;
-import bluej.groupwork.ui.CommitAndPushInterface;
-import bluej.groupwork.ui.CommitCommentsFrame;
 import bluej.groupwork.ui.StatusFrame;
 import bluej.groupwork.ui.TeamSettingsDialog;
 import bluej.groupwork.ui.UpdateFilesFrame;
@@ -177,13 +175,16 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     private List<URL> libraryUrls;
     // the TeamSettingsController for this project
     private TeamSettingsController teamSettingsController = null;
-    private CommitAndPushInterface commitCommentsFrame = null;
+    private CommitAndPushFrame commitCommentsFrame = null;
     private UpdateFilesFrame updateFilesFrame = null;
     private StatusFrame statusFrame = null;
     /** If true, this project is connected with a source repository */
     /** If empty, not checked yet */
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private Optional<Boolean> isSharedProject = Optional.empty();
+
+    // Indicator of SVN shared project, which is no longer supported from BlueJ 5
+    private boolean isSharedSVNProject = false;
 
     // team actions
     private TeamActionGroup teamActions;
@@ -229,7 +230,6 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     private ImportScanner importScanner;
 
     /** check if the project is a dvcs project**/
-    private boolean isDVCS=false;
     private final FrameShelfStorage shelfStorage;
     private final BooleanProperty terminalShowing = new SimpleBooleanProperty(false);
     private final BooleanProperty debuggerShowing = new SimpleBooleanProperty(false);
@@ -314,16 +314,18 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         // Check whether this is a shared project
         File ccfFile = new File(projectDir.getAbsoluteFile(), "team.defs");
         isSharedProject = Optional.of(ccfFile.isFile());
-        isDVCS=false;
         if (isSharedProject.get()){
             TeamSettingsController tsc = new TeamSettingsController(this);
             isSharedProject = Optional.of(TeamSettingsController.isValidVCSfound(projectDir));
-            if (isSharedProject.get()){
-                isDVCS = tsc.isDVCS();
+
+            //SVN is no longer supported in BlueJ 5: if a SVN project is found, the user is notified.
+            if (!isSharedProject.get() && tsc.getPropString("bluej.teamsettings.vcs").equalsIgnoreCase("subversion"))
+            {
+               isSharedSVNProject=true;
             }
         }
 
-        teamActions = new TeamActionGroup(isSharedProject.get(), isDVCS);
+        teamActions = new TeamActionGroup(isSharedProject.get());
 
         JavaFXUtil.addChangeListenerPlatform(terminalShowing, showTerm -> {
             if (showTerm && !hasTerminal())
@@ -516,12 +518,6 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         if (proj == null) {
             try {
                 proj = new Project(projectDir);
-
-                //if is shared project, check for svn working copy version.
-                if (proj.isTeamProject() && !proj.getTeamSettingsController().isDVCS() && proj.getTeamSettingsController().getWorkingCopyVersion() != 1.6) {
-                    DialogManager.showMessageFX(null, "SVNWorkingCopyNot16");
-                }
-
                 projects.put(projectDir, proj);
             }
             catch (IOException ioe) {
@@ -984,7 +980,6 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
 
     /**
      * Remove an inspector from the list of inspectors for this project
-     * @param obj the inspector. 
      */
     @OnThread(Tag.FXPlatform)
     public void removeInspector(DebuggerClass cls)
@@ -1028,10 +1023,6 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     /**
      * Return a ClassInspector for a class. The inspector is visible.
      *
-     * @param name
-     *            The name of this object or "null" if it is not on the object bench
-     * @param getEnabled
-     *            if false, the "get" button is permanently disabled
      * @param clss
      *            The class displayed by this viewer
      * @param pkg
@@ -2125,7 +2116,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
                                       boolean includeDirs)
     {
         TeamSettingsController teamSettingsController = getTeamSettingsController();
-        File[] files = dir.listFiles(teamSettingsController == null ? null : teamSettingsController.getFileFilter(includePkgFiles, true));
+        File[] files = dir.listFiles(teamSettingsController == null ? null : teamSettingsController.getFileFilter(true));
         if (files == null) {
             return;
         }
@@ -2153,16 +2144,11 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     /**
      * Get the commit dialog for this project
      */
-    public CommitAndPushInterface getCommitCommentsDialog()
+    public CommitAndPushFrame getCommitCommentsDialog()
     {
         // lazy instantiation of commit comments frame
         if (commitCommentsFrame == null) {
-            if (this.teamSettingsController.isDVCS()) {
-                //a dcvs repository uses a different window.
-                commitCommentsFrame = new CommitAndPushFrame(this);
-            } else {
-                commitCommentsFrame = new CommitCommentsFrame(this);
-            }
+            commitCommentsFrame = new CommitAndPushFrame(this);
         }
         return commitCommentsFrame;
     }
@@ -2191,9 +2177,8 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         //check if it is a dcvs.
         if (shared){
             TeamSettingsController tsc = new TeamSettingsController(this);
-            isDVCS = tsc.isDVCS();
         }
-        teamActions.setTeamMode(shared, isDVCS);
+        teamActions.setTeamMode(shared);
 
         PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(this);
         if (frames != null) {
@@ -2279,6 +2264,11 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
             tsc.prepareCreateDir(dir);
         }
     }
+
+    public boolean isSharedSVNProject()
+    {
+        return isSharedSVNProject;
+    };
 
     /**
      * Gets the FXTabbedEditor which should be used for adding new tabs
