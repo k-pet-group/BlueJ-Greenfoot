@@ -162,13 +162,6 @@ in the Stride editor. It is distributed under the terms of the SIL Open Font Lic
 as found in the "SIL-OFL-1.1.txt" file.
 
 
-Trilead SSH library (BSD-like license)
---------------------------------------
-"trilead-ssh2-build-217-jenkins-11.jar" comprises the Trilead library, used by BlueJ
-to provide SSH support for version control. It is distributed under a BSD-like license
-as found in the "trilead.txt" file.
-
-
 XOM XML Object Modeller library (Lesser GNU Public License v2.1)
 ----------------------------------------------------------------
 "xom-1.2.9.jar" comprises the XOM library (http://www.cafeconleche.org/XOM/), used
@@ -221,5 +214,4 @@ richtextfx-fat-0.9.0.jar                 BSD License
 slf4j-api-1.7.2.jar                      MIT License
 slf4j-jdk14-1.7.2.jar                    MIT License
 sqljet-1.1.10.jar                        TMate Open Source License
-trilead-ssh2-build-217-jenkins-11.jar    BSD-like license
 xom-1.2.9.jar                            Lesser GPL v2.1

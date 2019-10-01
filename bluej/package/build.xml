@@ -29,7 +29,6 @@
         <include name="lib/sshconnection.jar" />
         <include name="lib/org-netbeans-lib-cvsclient.jar" />
         <include name="lib/jsch.jar" />
-        <include name="lib/trilead-ssh2-build-217-jenkins-11.jar" />
         <include name="lib/httpclient-4.1.1.jar" />
         <include name="lib/httpcore-4.1.jar" />
         <include name="lib/httpmime-4.1.1.jar" />

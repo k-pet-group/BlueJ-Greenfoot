@@ -91,7 +91,6 @@
         <exclude name="EDL-v1.0.txt" />
         <exclude name="jsch-BSD.txt" />
         <exclude name="slf4j-MIT.txt" />
-        <exclude name="trilead.txt" />
     </patternset>
 
     <target name="pre-dist">

@@ -18,7 +18,8 @@
 
  This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
- */package bluej.groupwork;
+ */
+package bluej.groupwork;
 
 import bluej.Config;
 import bluej.groupwork.git.GitProvider;
@@ -42,7 +43,8 @@ import threadchecker.Tag;
  * @author Pierre Weill-Tessier
  */
 @OnThread(Tag.FXPlatform)
-public class NoSVNSupportDialog extends FXCustomizedDialog {
+public class NoSVNSupportDialog extends FXCustomizedDialog
+{
     public NoSVNSupportDialog(Window owner)
     {
         super(owner, "team.load.SVNnotSupported.title", "team-load-SVNnotsupported");

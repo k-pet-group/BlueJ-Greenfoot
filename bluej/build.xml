@@ -82,7 +82,6 @@
     <path id="bluej.class.path">
         <pathelement location="${bluej_home}/lib/junit-4.11.jar"/>
         <pathelement location="${bluej_home}/lib/hamcrest-core-1.3.jar"/>
-        <pathelement location="${bluej_home}/lib/trilead-ssh2-build-217-jenkins-11.jar"/>
         <pathelement location="${bluej_home}/lib/httpclient-4.1.1.jar"/>
         <pathelement location="${bluej_home}/lib/httpcore-4.1.jar"/>
         <pathelement location="${bluej_home}/lib/httpmime-4.1.1.jar"/>
@@ -538,7 +537,6 @@
                 <exclude name="org.eclipse.jgit-4.9.0.jar"/>
                 <exclude name="slf4j-api-1.7.2.jar"/>
                 <exclude name="slf4j-jdk14-1.7.2.jar"/>
-                <exclude name="trilead-ssh2-build-217-jenkins-11.jar"/>
 
                 <!-- Greenfoot libraries: -->
                 <exclude name="jl1.0.1.jar"/>

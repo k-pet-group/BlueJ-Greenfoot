@@ -124,7 +124,6 @@ public class Boot
         "richtextfx-fat-0.9.0.jar",
         "slf4j-api-1.7.2.jar",
         "slf4j-jdk14-1.7.2.jar",
-        "trilead-ssh2-build-217-jenkins-11.jar",
         "xom-1.2.9.jar" };
     // The variable form of the above
     private static String [] runtimeJars = bluejJars;

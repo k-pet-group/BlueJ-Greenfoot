@@ -133,14 +133,7 @@ public class CodeFileFilter implements FileFilter, FilenameFilter
         if (name.equals("CVSROOT") || dir.getName().equalsIgnoreCase("CVSROOT")) {
             return false;
         }
-
-        /* when a package is first created. pkg files should be
-         * added and committed. If we don't, BlueJ can't know which folders
-         * are packages
-         */ 
-        if (BlueJPackageFile.isPackageFileName(name)) {
-            return false;
-        }
+        
         // the old bluej.pkg backup file
         if (name.equals("bluej.pkh")) {
             return false;

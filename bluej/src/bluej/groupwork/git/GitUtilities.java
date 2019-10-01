@@ -146,7 +146,6 @@ public class GitUtilities
     {
         try (RevWalk walk = new RevWalk(repository)) {
             RevCommit tipCommit = walk.lookupCommit(repository.resolve(tip));
-            org.eclipse.jgit.lib.ObjectId obID = repository.resolve(base);
             RevCommit baseCommit = walk.lookupCommit(repository.resolve(base));
             
             walk.setRevFilter(RevFilter.MERGE_BASE);
