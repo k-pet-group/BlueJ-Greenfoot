@@ -792,7 +792,7 @@ team.checkconn.bad=Could not connect to server.
 
 team.load.SVNnotSupported.title=SVN not supported
 
-team.load.SVNnotSupported.details=This version of BlueJ does no longer support SVN.\n\nPlease choose one of these options:\n\t- Make this project standalone\n\t  (this will remove all information related to SVN),\nor\n\t- Open this project without team work functionality\n\t  (SVN information will be retained, you can open it as a shared project with prior versions of BlueJ).
+team.load.SVNnotSupported.details=This version of BlueJ does no longer support SVN.\n\nPlease choose one of these options:\n\t- Make this project standalone\n\t  (this will remove all information related to SVN),\nor\n\t- Open this project without team work functionality\n\t  (SVN information will be retained, and you can still open it as a shared project with BlueJ 4 and earlier).
 
 team.load.SVNnotSupported.details.RemoveSVNOption=Make this project standalone
 team.load.SVNnotSupported.details.KeepSVNOption=Open this project without team work functionality

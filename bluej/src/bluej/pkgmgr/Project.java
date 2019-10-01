@@ -105,9 +105,6 @@ import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.*;
 
-import static bluej.utility.FileUtility.deleteDir;
-
-
 /**
  * A BlueJ Project.
  *
@@ -2273,16 +2270,12 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     };
 
     public void removeSVNInfos(){
-        // remove the team.defs file that hosts the SVN properties of the project
+        // Remove the team.defs file that hosts the SVN properties of the project,
+        // the ".svn" folder and content are kept on the disk if the users needed to use them again.
         File teamdefsFile = new File(getProjectDir(), "team.defs");
-        if (teamdefsFile != null && teamdefsFile.exists()){
+        if (teamdefsFile != null && teamdefsFile.exists())
+        {
             teamdefsFile.delete();
-        }
-
-        // remove the SVN files
-        File vcsFolder = new File(projectDir,".svn");
-        if (vcsFolder != null && vcsFolder.exists()){
-            deleteDir(vcsFolder);
         }
     }
 

@@ -23,7 +23,6 @@ package bluej.pkgmgr;
 
 import bluej.*;
 import bluej.groupwork.NoSVNSupportDialog;
-import bluej.pkgmgr.AboutDialogTemplate;
 import bluej.classmgr.BPClassLoader;
 import bluej.collect.DataCollector;
 import bluej.compiler.CompileReason;
@@ -155,7 +154,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 /**
  * The main user interface frame which allows editing of packages
@@ -1683,11 +1681,12 @@ public class PkgMgrFrame
                 Optional<ButtonType> result = dialog.showAndWait();
                 if (result.get() == dialog.getDialogPane().getButtonTypes().get(0))
                 {
-                    // The user chose to remove SVN information and make the project standalone
+                    // The user chose to remove SVN information and make the project standalone.
                     openProj.removeSVNInfos();
                 }
-                else {
-                    // The user chose to keep the SVN information, we disable team work functionalities
+                else
+                {
+                    // The user chose to keep the SVN information, we disable team work functionality.
                     teamMenu.setDisable(true);
                     teamShareButton.visibleProperty().unbind();
                     teamShareButton.disableProperty().unbind();
