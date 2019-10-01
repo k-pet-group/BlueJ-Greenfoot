@@ -449,11 +449,11 @@
 }
 
 .team-load-SVNnotsupported {
-    -fx-min-width:  40em;
-    -fx-pref-width: 40em;
+    -fx-min-width:  51em;
+    -fx-pref-width: 51em;
 
-    -fx-min-height:  10em;
-    -fx-pref-height: 10em;
+    -fx-min-height:  18em;
+    -fx-pref-height: 18em;
 }
 
 .team-load-SVNnotsupported .pane{

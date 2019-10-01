@@ -1680,7 +1680,18 @@ public class PkgMgrFrame
             if(openProj.isSharedSVNProject()){
                 NoSVNSupportDialog dialog = new NoSVNSupportDialog(pmf.getFXWindow());
                 dialog.initModality(Modality.APPLICATION_MODAL);
-                dialog.showAndWait();
+                Optional<ButtonType> result = dialog.showAndWait();
+                if (result.get() == dialog.getDialogPane().getButtonTypes().get(0))
+                {
+                    // The user chose to remove SVN information and make the project standalone
+                    openProj.removeSVNInfos();
+                } else {
+                    // The user chose to keep the SVN information, we disable team work functionalities
+                    teamMenu.setDisable(true);
+                    teamShareButton.visibleProperty().unbind();
+                    teamShareButton.disableProperty().unbind();
+                    teamShareButton.setDisable(true);
+                }
             }
 
             if (Config.isGreenfoot())

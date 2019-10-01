@@ -105,6 +105,8 @@ import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.*;
 
+import static bluej.utility.FileUtility.deleteDir;
+
 
 /**
  * A BlueJ Project.
@@ -2269,6 +2271,20 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     {
         return isSharedSVNProject;
     };
+
+    public void removeSVNInfos(){
+        // remove the team.defs file that hosts the SVN properties of the project
+        File teamdefsFile = new File(getProjectDir(), "team.defs");
+        if (teamdefsFile != null && teamdefsFile.exists()){
+            teamdefsFile.delete();
+        }
+
+        // remove the SVN files
+        File vcsFolder = new File(projectDir,".svn");
+        if (vcsFolder != null && vcsFolder.exists()){
+            deleteDir(vcsFolder);
+        }
+    }
 
     /**
      * Gets the FXTabbedEditor which should be used for adding new tabs

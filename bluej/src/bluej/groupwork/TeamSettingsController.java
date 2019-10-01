@@ -321,7 +321,7 @@ public class TeamSettingsController
             settings.setYourEmail(yourEmail);
         }
     }
-    
+
     public TeamSettings initProviderSettings(String user, String password) {
         
         String keyBase = "bluej.teamsettings."
