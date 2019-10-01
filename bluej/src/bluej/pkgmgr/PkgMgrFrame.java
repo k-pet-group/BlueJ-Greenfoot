@@ -1685,7 +1685,8 @@ public class PkgMgrFrame
                 {
                     // The user chose to remove SVN information and make the project standalone
                     openProj.removeSVNInfos();
-                } else {
+                }
+                else {
                     // The user chose to keep the SVN information, we disable team work functionalities
                     teamMenu.setDisable(true);
                     teamShareButton.visibleProperty().unbind();
