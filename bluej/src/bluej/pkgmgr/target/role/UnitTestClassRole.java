@@ -163,17 +163,18 @@ public class UnitTestClassRole extends ClassRole
     
     /**
      * Generate a popup menu for this TestClassRole.
+     * @param menu the menu
+     * @param ct the BlueJ class object target
      * @param cl the class object that is represented by this target
-     * @param editorFrame the frame in which this targets package is displayed
-     * @return the generated JPopupMenu
+     * @param state the current state of BlueJ
+     * @return false
      */
     @Override
     @OnThread(Tag.FXPlatform)
     public boolean createRoleMenu(ObservableList<MenuItem> menu, ClassTarget ct, Class<?> cl, State state)
     {
         boolean enableTestAll = false;
-
-        if (state == State.COMPILED && cl != null && ! ct.isAbstract()) {
+        if (!ct.getPackage().getProject().inTestMode() && state == State.COMPILED && cl != null && ! ct.isAbstract()) {
             Method[] allMethods = cl.getMethods();
 
             for (int i=0; i < allMethods.length; i++) {

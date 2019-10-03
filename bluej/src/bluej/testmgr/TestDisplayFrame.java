@@ -323,7 +323,8 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
     public void startMultipleTests(Project proj, int num)
     {
         this.project = proj;
-        doingMultiple = true;    
+        proj.setTestMode(true);
+        doingMultiple = true;
         
         reset();
         testTotal.set(num);
@@ -333,6 +334,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
     public void endMultipleTests()
     {
         doingMultiple = false;
+        project.setTestMode(false);
     }  
 
     /**
