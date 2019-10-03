@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2010,2011,2012,2013,2014,2016  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2005-2010,2011,2012,2013,2014,2016,2019  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -906,7 +906,8 @@ public class Simulation extends Thread
 
         try
         {
-            worldHandler.repaint();
+            // If we will be asleep for more than 1/100th of a second, force repaint, otherwise rely on usual if-due mechanism.
+            worldHandler.paint(numCycles * delay > 100_000_000L);
             for (int i = 0; i < numCycles; i++)
             {
                 HDTimer.sleep(delay);
