@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2017,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -84,27 +84,6 @@ public class ResourceDescriptor
         }
 
         return status;
-    }
-
-    /**
-     *  Builds and returns a team resource description for a file's update status.
-     *
-     * @param project       The project that includes the file.
-     * @param updateStatus  Update status information for the file.
-     * @param annotate      Should annotation be added to the description.
-     * @return              A description for the file's team status.
-     */
-    public static String getResource(Project project, UpdateStatus updateStatus, boolean annotate)
-    {
-        if (updateStatus.infoStatus != null)
-        {
-            return getResource(project, updateStatus.infoStatus, annotate);
-        }
-        else
-        {
-            // This is the case for eg "No files to update" message
-            return updateStatus.stringStatus;
-        }
     }
 
     /**

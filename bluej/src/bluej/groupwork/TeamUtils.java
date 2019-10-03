@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014,2016,2018  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2014,2016,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -80,39 +80,5 @@ public class TeamUtils
             }
         }
         return binFiles;
-    }
-
-    /**
-     * Backup a set of files, returning a map from the original file name to
-     * the backup name. The backup files are created in the system's temp
-     * folder/directory.
-     */
-    public static Map<File,File> backupFiles(Set<File> files) throws IOException
-    {
-        Map<File,File> rmap = new HashMap<File,File>();
-        for (Iterator<File> i = files.iterator(); i.hasNext(); ) {
-            File tempFile = File.createTempFile("bluejvcs", null);
-            File srcFile = i.next();
-            FileUtility.copyFile(srcFile, tempFile);
-            rmap.put(srcFile, tempFile);
-        }
-        return rmap;
-    }
-    
-    /**
-     * Copy a set of files, then delete the source files. This is used to
-     * restore a backup created by the backupFiles() method. The source
-     * files (i.e. the backup files) are deleted afterwards.
-     */
-    public static void restoreBackups(Map<File,File> rmap) throws IOException
-    {
-        Iterator<Map.Entry<File,File>> i = rmap.entrySet().iterator();
-        while (i.hasNext()) {
-            Map.Entry<File,File> entry = i.next();
-            File orig = entry.getKey();
-            File backup = entry.getValue();
-            FileUtility.copyFile(backup, orig);
-            backup.delete();
-        }
     }
 }

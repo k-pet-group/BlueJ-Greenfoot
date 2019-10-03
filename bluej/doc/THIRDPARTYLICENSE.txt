@@ -40,14 +40,6 @@ CollabNet (http://www.Collab.Net/).
 
 The following is a list of the libraries used in BlueJ, and their licenses:
 
-
-Antlr runtime library (3-clause BSD license) 
---------------------------------------------
-"antlr-runtime-3.4.jar", which is part of the Antlr package (http://www.antlr.org/),
-is also distributed as part of the SVNKit library, which BlueJ uses. It is distributed
-under the BSD license as found in "antlr-BSD.txt".
-
-
 Apache Commons libraries (Apache License version 2.0)
 -----------------------------------------------------
 Various components of the Apache Commons libraries (https://commons.apache.org/) are
@@ -87,13 +79,6 @@ The library is distributed under the Apache License version 2.0, as found in the
 "Apache-License-2.0.txt" file.
 
 
-EdDSA-Java (CC0 1.0 Universal)
-------------------------------
-"eddsa-0.2.0.jar" is a Java implementation of the EdDSA algorithm, used by the trilead
-library for doing SSH connections for SVNkit.  It is distributed under the CC0 1.0 Universal
-licence, as found in the "CC0-1.0-Universal.txt" file.
-
-
 Guava - Google Core library (Apache License version 2.0)
 --------------------------------------------------------
 "guava-17.0.jar" is from the Google Core libraries for Java
@@ -109,13 +94,6 @@ Hamcrest (3-clause BSD license)
 is used by BlueJ.
 It is available under the "3 clause BSD" license as found in the
 "hamcrest-BSD.txt" file.
-
-
-jBCrypt library (ISC License)
------------------------------
-jBCrypt (in "jbcrypt-1.0.0.jar") is a Java implementation of the BCrypt algorithm, which is
-referenced by the trilead library for doing SSH connections with SVNkit.  It is licensed under
-the ISC licence, as found in the "jbcrypt-ISC.txt" file.
 
 
 JGit library (Eclipse Distribution License version 1.0)
@@ -170,14 +148,6 @@ editor. It is distributed under the terms of the Apache License version 2.0, as 
 "Apache-License-2.0.txt" file.
 
 
-Sequence Library (3-clause BSD license)
----------------------------------------
-"sequence-library-1.0.3.jar" is part of a sequence library, available in source form
-from the subversion repository at http://svn.svnkit.com/repos/3rdparty (under the path
-de.regnis.q.sequence). This version is distributed under the terms of the BSD license
-as found in the "sequence-library-BSD.txt" file.
-
-
 SLF4J Simple Logging Facade for Java (MIT license)
 --------------------------------------------------
 "slf4j-api-1.7.2.jar" and "slf4j-jdk14-1.7.2.jar" provides logging capabilities
@@ -190,35 +160,6 @@ Source Sans Pro fonts (SIL Open Font License version 1.1)
 "SourceSansPro-{Bold,BoldItalic,Italic,Regular}.ttf", the Source Sans Pro font, is used
 in the Stride editor. It is distributed under the terms of the SIL Open Font License
 as found in the "SIL-OFL-1.1.txt" file.
-
-
-SVNKit (TMate Open Source License)
-----------------------------------
-"svnkit.jar" is part of the SVNKit library (http://svnkit.com/) used by BlueJ for
-Subversion support. It is distributed under the terms of the TMate Open Source license,
-as found in the "svnkit.txt" file.
-
-
-SVNKit JavaHL bindings (Suvbersion 1.6 license)
--------------------------------------------
-"svnkit-javahl.jar", which provides Subversion "JavaHL"-compatible bindings for the
-SVNKit library, is used by BlueJ. It is distributed under the terms of the Subversion
-license, as found in the "svnkit-javahl.txt" file.
-
-
-SQLJet library (TMate Open Source License)
-------------------------------------------
-"sqljet-1.1.10", the SQLJet library (http://sqljet.com/), is distributed as part of
-the SVNKit library. The terms of distribution can be found in the "sqljet.txt" file
-and allow for distribution under the TMate Open Source License so long as SQLJet
-is distributed as part of SVNKit. 
-
-
-Trilead SSH library (BSD-like license)
---------------------------------------
-"trilead-ssh2-build-217-jenkins-11.jar" comprises the Trilead library, used by BlueJ
-to provide SSH support for version control. It is distributed under a BSD-like license
-as found in the "trilead.txt" file.
 
 
 XOM XML Object Modeller library (Lesser GNU Public License v2.1)
@@ -257,27 +198,20 @@ SOFTWARE.
 
 4. SUMMARY OF THIRD-PARTY JAR FILES AND LICENSES
 
-antlr-runtime-3.4.jar                    BSD License
 commons-logging-api-1.1.2.jar            Apache License v2.0
 classgraph-4.2.6.jar                     MIT License
 diffutils-1.2.1.jar                      Apache License v2.0
-eddsa-0.2.0.jar                          CC0 1.0 Universal license
 guava-17.0.jar                           Apache License v2.0
 hamcrest-core-1.3.jar                    BSD License
 httpclient-4.1.1.jar                     Apache License v2.0
 httpcore-4.1.jar                         Apache License v2.0
 httpmime-4.1.1.jar                       Apache License v2.0
-jbcrypt-1.0.0.jar                        ISC License
 jsch-0.1.53.jar                          BSD License
 junit-4.11.jar                           Common Public License v1.0
 nsmenufx-2.1.4.jar                       BSD license
 org.eclipse.jgit-4.9.0.jar               Eclipse Distribution License (EDL) v1.0
 richtextfx-fat-0.9.0.jar                 BSD License
-sequence-library-1.0.3.jar               BSD License
 slf4j-api-1.7.2.jar                      MIT License
 slf4j-jdk14-1.7.2.jar                    MIT License
 sqljet-1.1.10.jar                        TMate Open Source License
-svnkit-javahl.jar                        Subversion License
-svnkit.jar                               TMate Open Source License
-trilead-ssh2-build-217-jenkins-11.jar    BSD-like license
 xom-1.2.9.jar                            Lesser GPL v2.1

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2017  Michael Kolling and John Rosenberg
+ Copyright (C) 2017,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -52,13 +52,8 @@ public class TeamStatusInfoCell extends ListCell<TeamStatusInfo>
         if (empty || info == null) {
             setText(null);
         } else {
-
             String topText;
-            if (project.getTeamSettingsController().isDVCS()){
-                topText = ResourceDescriptor.getDCVSResource(project, info, true, false);
-            } else {
-                topText = ResourceDescriptor.getResource(project, info, true);
-            }
+            topText = ResourceDescriptor.getDCVSResource(project, info, true, false);
             setText(topText);
         }
         setGraphic(null);

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,7 +27,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -56,31 +55,18 @@ public class TeamSettingsController
 {
     // Don't need synchronized because it's never modified again:
     @OnThread(value = Tag.Any)
-    private static final ArrayList<TeamworkProvider> teamProviders;
+    private static final TeamworkProvider teamProvider;
     static {
-        teamProviders = new ArrayList<>(2);
+        TeamworkProvider tempTeamworProvider = null;
         try {
-            teamProviders.add(loadProvider("bluej.groupwork.svn.SubversionProvider"));
-        }
-        catch (Throwable e) {
-            Debug.message("Failed to initialize Subversion: " + e.getClass().getName()
-                    + ": "+ e.getLocalizedMessage());
-        }
-        try {
-            teamProviders.add(loadProvider("bluej.groupwork.git.GitProvider"));
+            tempTeamworProvider = loadProvider("bluej.groupwork.git.GitProvider");
         } catch (Throwable e) {
             Debug.message("Failed to initialize Git: " + e.getClass().getName()
                     + ": " + e.getLocalizedMessage());
         }
-    }
-
-    /**
-     * An enum with all current use server types.
-     */
-    public enum ServerType
-    {
-        Subversion,
-        Git
+        finally{
+            teamProvider = tempTeamworProvider;
+        }
     }
 
     private static TeamworkProvider loadProvider(String name) throws Throwable
@@ -141,24 +127,11 @@ public class TeamSettingsController
     }
     
     /**
-     * Get a list of the teamwork providers (Subversion, Git).
+     * Get the teamwork providers (Git).
      */
-    public List<TeamworkProvider> getTeamworkProviders()
+    public TeamworkProvider getTeamworkProvider()
     {
-        return teamProviders;
-    }
-
-    /**
-     * Get the teamwork provider by name (Subversion, Git).
-     *
-     * @param type The server type that we need to get its provider
-     * @return The teamwork provider for the type passed
-     */
-    public TeamworkProvider getTeamworkProvider(ServerType type)
-    {
-        return teamProviders.stream()
-                .filter(teamworkProvider -> teamworkProvider.getProviderName().equals(type.name()))
-                .findAny().get();
+        return teamProvider;
     }
 
     /**
@@ -175,7 +148,7 @@ public class TeamSettingsController
             TeamSettings settings = teamSettingsDialog.getSettings();
             if (repository == null) {
                 try {
-                    repository = settings.getProvider().getRepository(projectDir, settings);
+                    repository = teamProvider.getRepository(projectDir, settings);
                 }
                 catch (UnsupportedSettingException e)
                 {
@@ -189,7 +162,7 @@ public class TeamSettingsController
         else if (!authRequired && password == null) {
             // We'll return a "temporary" repository.
             try {
-                return settings.getProvider().getRepository(projectDir, settings);
+                return teamProvider.getRepository(projectDir, settings);
             }
             catch (UnsupportedSettingException e) {
                 DialogManager.showErrorTextFX(teamSettingsDialog.asWindow(), e.getLocalizedMessage());
@@ -200,7 +173,7 @@ public class TeamSettingsController
             // the repository
             if (repository == null) {
                 try {
-                    repository = settings.getProvider().getRepository(projectDir, settings);
+                    repository = teamProvider.getRepository(projectDir, settings);
                 }
                 catch (UnsupportedSettingException e) {
                     DialogManager.showErrorTextFX(teamSettingsDialog.asWindow(), e.getLocalizedMessage());
@@ -259,18 +232,15 @@ public class TeamSettingsController
     /**
      * Get a filename filter suitable for filtering out files which we don't want
      * to be under version control.
-     *
-     * @param includeLayout      A flag to indicate if layout files should be included or filtered out.
-     * @param includeDirectories A flag to indicate if directories should be included or filtered out.
      */
-    public FileFilter getFileFilter(boolean includeLayout, boolean includeDirectories)
+    public FileFilter getFileFilter(boolean includeDirectories)
     {
         initRepository(false);
         FileFilter repositoryFilter = null;
         if (repository != null) {
             repositoryFilter = repository.getMetadataFilter();
         }
-        return new CodeFileFilter(getIgnoreFiles(), includeLayout, includeDirectories, projectDir, repositoryFilter);
+        return new CodeFileFilter(getIgnoreFiles(), includeDirectories, projectDir, repositoryFilter);
     }
     
     /**
@@ -313,11 +283,8 @@ public class TeamSettingsController
         }
 
         if (providerName != null) {
-            for (int index = 0; index < teamProviders.size(); index++) {
-                TeamworkProvider prov = (TeamworkProvider) teamProviders.get(index);
-                if (prov.getProviderName().equalsIgnoreCase(providerName)) {
-                    return true;
-                }
+            if (teamProvider.getProviderName().equalsIgnoreCase(providerName)) {
+                return true;
             }
         }
         return false;
@@ -339,42 +306,33 @@ public class TeamSettingsController
         if (yourEmail == null){
             yourEmail = "";
         }
-        
-        String group = getPropString("bluej.teamsettings.groupname");
-        if(group == null) {
-            group = "";
-        }
 
         TeamworkProvider provider = null;
         String providerName = getPropString("bluej.teamsettings.vcs");
         if (providerName != null) {
-            for (int index = 0; index < teamProviders.size(); index++) {
-                TeamworkProvider prov = (TeamworkProvider) teamProviders.get(index);
-                if (prov.getProviderName().equalsIgnoreCase(providerName)) {
-                    provider = prov;
-                }
+            if (teamProvider.getProviderName().equalsIgnoreCase(providerName)) {
+                provider = teamProvider;
             }
         }
         
         if (provider != null) {
-            settings = initProviderSettings(user, group, password, provider);
+            settings = initProviderSettings(user, password);
             settings.setYourName(yourName);
             settings.setYourEmail(yourEmail);
         }
     }
-    
-    public TeamSettings initProviderSettings(String user, String group, String password,
-            TeamworkProvider provider) {
+
+    public TeamSettings initProviderSettings(String user, String password) {
         
         String keyBase = "bluej.teamsettings."
-            + provider.getProviderName().toLowerCase() + "."; 
+            + teamProvider.getProviderName().toLowerCase() + ".";
         
         String prefix = getPropString(keyBase + "repositoryPrefix");
         String server = getPropString(keyBase + "server");
         
         String protocol = getPropString(keyBase + "protocol");
 
-        return new TeamSettings(provider, protocol, server, prefix, group, user, password);
+        return new TeamSettings(protocol, server, prefix, user, password);
     }
     
     /**
@@ -509,24 +467,17 @@ public class TeamSettingsController
         String yourNameKey = "bluej.teamsettings.yourName";
         String yourNameValue = "";
         
-        if (teamSettingsDialog.getSettings().getProvider().needsName()){
-            //save field "your name"
-            yourNameValue = settings.getYourName();
-            setPropString(yourNameKey, yourNameValue);
-        }
+        yourNameValue = settings.getYourName();
+        setPropString(yourNameKey, yourNameValue);
+
         String yourEmailKey = "bluej.teamsettings.yourEmail";
         String yourEmailValue = "";
-        if (teamSettingsDialog.getSettings().getProvider().needsEmail()){
-            //save field "your email"
-            yourEmailValue = settings.getYourEmail();
-            setPropString(yourEmailKey, yourEmailValue);
-        }
-        
+        yourEmailValue = settings.getYourEmail();
+        setPropString(yourEmailKey, yourEmailValue);
 
         String providerKey = "bluej.teamsettings.vcs";
         
-        String providerName = newSettings.getProvider()
-                .getProviderName().toLowerCase();
+        String providerName = teamProvider.getProviderName().toLowerCase();
         setPropString(providerKey, providerName);
         
         String keyBase = "bluej.teamsettings."
@@ -543,10 +494,6 @@ public class TeamSettingsController
         String protocolKey = keyBase + "protocol";
         String protocolValue = settings.getProtocol();
         setPropString(protocolKey, protocolValue);
-
-        String groupKey = "bluej.teamsettings.groupname";
-        String groupValue = settings.getGroup();
-        setPropString(groupKey,  groupValue);
 
         String useAsDefaultKey = "bluej.teamsettings.useAsDefault";
         Config.putPropString(useAsDefaultKey,
@@ -565,18 +512,8 @@ public class TeamSettingsController
         if (useAsDefault) {
             Config.putPropString(providerKey, providerName);
             Config.putPropString(userKey, userValue);
-            if (teamSettingsDialog.getSettings().getProvider().needsName()){
                 Config.putPropString(yourNameKey, yourNameValue);
-            }
-            if (teamSettingsDialog.getSettings().getProvider().needsEmail()){
                 Config.putPropString(yourEmailKey, yourEmailValue);
-            } else {
-                //save server information if svn, not git.
-                Config.putPropString(serverKey, serverValue);
-                Config.putPropString(prefixKey, prefixValue);
-                Config.putPropString(groupKey, groupValue);
-                Config.putPropString(protocolKey, protocolValue);
-            }
         }
     }
 
@@ -635,31 +572,5 @@ public class TeamSettingsController
     public Project getProject()
     {
         return project;
-    }
-
-    /**
-     * Method to get working copy version.
-     *
-     * @return version number. -1 if not applicable or not subversion.
-     */
-    public double getWorkingCopyVersion()
-    {
-        return settings.getProvider().getWorkingCopyVersion(projectDir);
-    }
-
-    public boolean isDVCS()
-    {
-        // We should possibly show the dialog here to get the settings,
-        // but right now (preparing for BlueJ 4.0.0-preview2 release,
-        // and with a lot of isDVCS calls on the repository which could be null),
-        // I'd rather return false and thus get a button label wrong than
-        // to have a NullPointerException thrown if the settings are wrong.
-        if (settings != null)
-        {
-            TeamworkProvider provider = settings.getProvider();
-            if (provider != null)
-                return provider.isDVCS();
-        }
-        return false;
     }
 }

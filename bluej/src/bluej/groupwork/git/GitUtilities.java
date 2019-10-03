@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016,2018  Michael Kolling and John Rosenberg 
+ Copyright (C) 2016,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -169,24 +169,12 @@ public class GitUtilities
         }
         return result;
     }
-    
-    
-    /**
-     * return a diff from a list based on the file name.
-     * @param entry
-     * @param list
-     * @return 
-     */
-    public static DiffEntry getDiffFromList(DiffEntry entry, List<DiffEntry> list)
-    {
-        File entryFile = new File(getFileNameFromDiff(entry));
-        return getDiffFromList(entryFile, list);
-    }
+
 
     /**
      * return a diff from a list based on the file name.
      *
-     * @param entry
+     * @param entryFile
      * @param list
      * @return
      */
@@ -220,43 +208,7 @@ public class GitUtilities
         
         return behindCount == 0 && aheadCount > 0;
     }
-    
-    /**
-     * get the number of commits the repository is ahead the remote.
-     * @param repo
-     * @return
-     * @throws IOException 
-     */
-    public static int getAheadCount(Git repo) throws IOException, GitTreeException
-    {
-        BranchTrackingStatus bts = BranchTrackingStatus.of(repo.getRepository(), repo.getRepository().getBranch());
-        if (bts == null){
-            throw new GitTreeException(Config.getString("team.error.noHeadBranch"));
-        }
-        int aheadCount = bts.getAheadCount();
-        return aheadCount;
-    }
-    
-    /**
-     * checks if the repository is behind and if aheadCount = 0.
-     *
-     * @param repo
-     * @return
-     * @throws IOException
-     */
-    public static boolean isBehindOnly(Git repo) throws IOException
-    {
-        BranchTrackingStatus bts = BranchTrackingStatus.of(repo.getRepository(), repo.getRepository().getBranch());
-        if (bts == null){
-            return false;
-            //There is no remote tracking brunch. This happens in new repositories
-        }
-        int aheadCount = bts.getAheadCount();
-        int behindCount = bts.getBehindCount();
 
-        return aheadCount == 0 && behindCount > 0;
-    }
-    
     /**
      * get the number of commits the repository is behind the remote.
      * @param repo

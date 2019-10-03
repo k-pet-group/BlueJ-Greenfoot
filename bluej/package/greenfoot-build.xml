@@ -88,13 +88,9 @@
     <patternset id = "greenfoot.bluej.license.files">
         <include name="*" />
         <!-- exclude licenses only applicable to files not distributed with Greenfoot --> 
-        <exclude name="antlr-BSD.txt" />
         <exclude name="EDL-v1.0.txt" />
         <exclude name="jsch-BSD.txt" />
         <exclude name="slf4j-MIT.txt" />
-        <exclude name="sqljet.txt" />
-        <exclude name="svnkit*.txt" />
-        <exclude name="trilead.txt" />
     </patternset>
 
     <target name="pre-dist">

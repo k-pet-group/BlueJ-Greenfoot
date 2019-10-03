@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2016,2017,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,7 +28,6 @@ import bluej.groupwork.TeamUtils;
 import bluej.groupwork.TeamworkCommand;
 import bluej.groupwork.TeamworkCommandResult;
 import bluej.groupwork.ui.CommitAndPushFrame;
-import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.utility.FXWorker;
 
@@ -58,18 +57,6 @@ public class PushAction extends TeamAction
         super(Config.getString("team.push"), false);
         commitCommentsFrame = frame;
         this.filesToPush = new HashSet<>();
-    }
-
-    /**
-     * Cancel the push, if it is running.
-     */
-    public void cancel()
-    {
-        setEnabled(true);
-        if (worker != null) {
-            worker.abort();
-            worker = null;
-        }
     }
 
     /**
@@ -117,7 +104,7 @@ public class PushAction extends TeamAction
                 //ask for the password.
                 if ( ! project.getTeamSettingsDialog().showAndWait().isPresent() ) {
                     //user cancelled.
-                    commitCommentsFrame.setVisible(true);
+                    commitCommentsFrame.setVisible();
                     hasPassword = false;
                     return;
                 }
@@ -168,13 +155,8 @@ public class PushAction extends TeamAction
 
             if (!aborted) {
                 setEnabled(true);
-                if (project.getTeamSettingsController().isDVCS()){
-                    //do not close window, just update its contents.
-                    commitCommentsFrame.setVisible(true);
-                } else {
-                    //close window.
-                    commitCommentsFrame.setVisible(false);
-                }
+                //do not close window, just update its contents.
+                commitCommentsFrame.setVisible();
             }
         }
     }

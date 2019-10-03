@@ -425,10 +425,6 @@
     -fx-spacing: 0.8em;
 }
 
-.team-settings .panel .serverType-box {
-     -fx-spacing: 0.8em;
-}
-
 .team-settings .grid {
     -fx-min-width:  40em;
     -fx-pref-width: 40em;
@@ -440,7 +436,7 @@
 }
 
 .team-test-connection {
-    -fx-min-width:  10em;
+    -fx-min-width:  50em;
     -fx-pref-width: 25em;
 
     -fx-min-height:  16em;
@@ -448,6 +444,19 @@
 }
 
 .team-test-connection .pane{
+    -fx-padding: 0.833em; /* 10px */
+    -fx-spacing: 0.833em;
+}
+
+.team-load-SVNnotsupported {
+    -fx-min-width:  51em;
+    -fx-pref-width: 51em;
+
+    -fx-min-height:  18em;
+    -fx-pref-height: 18em;
+}
+
+.team-load-SVNnotsupported .pane{
     -fx-padding: 0.833em; /* 10px */
     -fx-spacing: 0.833em;
 }

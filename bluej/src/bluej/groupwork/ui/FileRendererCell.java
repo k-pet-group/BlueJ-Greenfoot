@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2017  Michael Kolling and John Rosenberg
+ Copyright (C) 2017,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -35,23 +35,15 @@ import threadchecker.Tag;
 public class FileRendererCell extends ListCell<UpdateStatus>
 {
     private Project project;
-    private boolean remote;
 
+    /**
+     * Creates a fileRenderer for remote status.
+     * @param proj project
+     */
     public FileRendererCell(Project proj)
     {
         super();
         project = proj;
-    }
-
-    /**
-     * Creates a fileRenderer for remote or local status.
-     * @param proj project
-     * @param remote the status we are taking into account.
-     */
-    public FileRendererCell(Project proj, boolean remote)
-    {
-        this(proj);
-        this.remote = remote;
     }
 
     @Override
@@ -61,13 +53,7 @@ public class FileRendererCell extends ListCell<UpdateStatus>
         if (empty || status == null) {
             setText(null);
         } else {
-
-            String topText;
-            if (project.getTeamSettingsController().isDVCS()){
-                topText = ResourceDescriptor.getDCVSResource(project, status, true, remote);
-            } else {
-                topText = ResourceDescriptor.getResource(project, status, true);
-            }
+            String topText = ResourceDescriptor.getDCVSResource(project, status, true, true);
             setText(topText);
         }
         setGraphic(null);

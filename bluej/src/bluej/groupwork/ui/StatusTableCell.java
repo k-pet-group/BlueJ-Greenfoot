@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2016,2017,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -42,16 +42,12 @@ import threadchecker.Tag;
 @OnThread(value = Tag.FXPlatform, ignoreParent = true)
 public class StatusTableCell extends TableCell<TeamStatusInfo, Object>
 {
-    private final boolean isDVCS;
     private final int column;
-    protected ObservableList<TeamStatusInfo> resources;
-
     /**
      *
      */
-    public StatusTableCell(boolean isDVCS, int column)
+    public StatusTableCell(int column)
     {
-        this.isDVCS = isDVCS;
         this.column = column;
         setText("");
         setGraphic(null);
@@ -86,15 +82,9 @@ public class StatusTableCell extends TableCell<TeamStatusInfo, Object>
     {
         switch (column) {
             case 1:
-                if (isDVCS) {
-                    return status.getDCVSStatusString(false);
-                }
-                else {
-                    Debug.reportError("DVCS can't be false here for column = 1");
-                    break;
-                }
+                return status.getDCVSStatusString(false);
             case 2:
-                return isDVCS ? status.getDCVSStatusString(true) : status.getStatusString();
+                return status.getDCVSStatusString(true);
             default:
                 break;
         }

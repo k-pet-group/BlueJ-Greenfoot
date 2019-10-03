@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -46,18 +46,6 @@ public class TeamworkCommandError extends TeamworkCommandResult
     // Map of known error messages. Populated below.
     private static final Map<String, String> messageIdMap = new TreeMap<String, String>();
 
-    
-    // SVN error messages
-    static {
-        messageIdMap.put("svn: Cannot connect to", "team-cant-connect");
-        messageIdMap.put("svn: No repository found in", "team-cant-find-repository");
-        messageIdMap.put("svn: File not found:", "team-cant-find-path");
-        messageIdMap.put("svn: URL ", "team-cant-find-path");
-        messageIdMap.put("svn: Authentication required for", "team-authentication-problem");
-        messageIdMap.put("svn: File already exists:", "team-project-exists");
-        
-    }
-    
     static {
         messageIdMap.put(": Auth fail", "team-authentication-problem");
         messageIdMap.put(": not authorized", "team-authorisation-problem");

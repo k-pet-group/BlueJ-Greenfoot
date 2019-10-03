@@ -22,7 +22,7 @@
 package bluej.pkgmgr;
 
 import bluej.*;
-import bluej.pkgmgr.AboutDialogTemplate;
+import bluej.groupwork.NoSVNSupportDialog;
 import bluej.classmgr.BPClassLoader;
 import bluej.collect.DataCollector;
 import bluej.compiler.CompileReason;
@@ -139,6 +139,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.shape.Shape;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import threadchecker.OnThread;
@@ -153,7 +154,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 /**
  * The main user interface frame which allows editing of packages
@@ -1113,7 +1113,7 @@ public class PkgMgrFrame
             
             //update TeamSettings menu items.
             commitMenuItem.textProperty().unbind();
-            if (aPkg.getProject().getTeamSettingsController() != null && aPkg.getProject().getTeamSettingsController().isDVCS()) {
+            if (aPkg.getProject().getTeamSettingsController() != null) {
                 commitMenuItem.setText(Config.getString("team.menu.commitPush"));
             } else {
                 commitMenuItem.setText(Config.getString("team.menu.commit"));
@@ -1450,7 +1450,7 @@ public class PkgMgrFrame
             else {
                 PkgMgrFrame pmf = createFrame( unNamedPkg, this);
                 pmf.setVisible(true);
-            }    
+            }
             return true;
         }
         return false;
@@ -1674,6 +1674,25 @@ public class PkgMgrFrame
             }
 
             pmf.setVisible(true);
+
+            if(openProj.isSharedSVNProject()){
+                NoSVNSupportDialog dialog = new NoSVNSupportDialog(pmf.getFXWindow());
+                dialog.initModality(Modality.APPLICATION_MODAL);
+                Optional<ButtonType> result = dialog.showAndWait();
+                if (result.get() == dialog.getDialogPane().getButtonTypes().get(0))
+                {
+                    // The user chose to remove SVN information and make the project standalone.
+                    openProj.removeSVNInfos();
+                }
+                else
+                {
+                    // The user chose to keep the SVN information, we disable team work functionality.
+                    teamMenu.setDisable(true);
+                    teamShareButton.visibleProperty().unbind();
+                    teamShareButton.disableProperty().unbind();
+                    teamShareButton.setDisable(true);
+                }
+            }
 
             if (Config.isGreenfoot())
             {

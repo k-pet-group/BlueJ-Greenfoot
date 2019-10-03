@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2016,2017,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,44 +32,6 @@ import bluej.groupwork.TeamStatusInfo.Status;
 public class UpdateFilter
 {
     /**
-     * Filter to identify which files in a repository will be altered at 
-     * the next update.
-     */
-    public boolean accept(TeamStatusInfo statusInfo)
-    {
-        boolean isDir = statusInfo.getFile().isDirectory();
-        Status stat = statusInfo.getStatus();
-        Status remoteStat = statusInfo.getRemoteStatus();
-        
-        if (stat == Status.NEEDS_CHECKOUT || remoteStat == Status.NEEDS_CHECKOUT) {
-            return true;
-        }
-        if (stat == Status.NEEDS_MERGE || remoteStat == Status.NEEDS_MERGE) {
-            return ! isDir;
-        }
-        if (stat == Status.NEEDS_UPDATE || remoteStat == Status.NEEDS_UPDATE) {
-            return ! isDir;
-        }
-        if (stat == Status.REMOVED || remoteStat == Status.REMOVED) {
-            return true;
-        }
-        if (stat == Status.CONFLICT_LDRM || remoteStat == Status.CONFLICT_LDRM) {
-            // Locally deleted, remotely modified. Update pulls the repository version
-            return true;
-        }
-        if (stat == Status.CONFLICT_LMRD || remoteStat == Status.CONFLICT_LMRD) {
-            // Update will succeed if forced (for bluej.pkg files)
-            return true;
-        }
-        
-        if (remoteStat == Status.NEEDS_UPDATE) { //REMOTE_STATUS_MODIFIED
-            return true;
-        }
-    
-        return false;
-    }
-    
-    /**
      * For the given remote status, check whether an update will affect the file.
      */
     public boolean acceptDist(Status remoteStatus)
@@ -87,23 +49,5 @@ public class UpdateFilter
             default:
                 return false;
         }
-    }
-    
-    /**
-     * For layout files, checks whether the file should be updated unconditionally.
-     */
-    public boolean updateAlways(TeamStatusInfo statusInfo)
-    {
-        Status remoteStatus = statusInfo.getRemoteStatus();
-        if (statusInfo.getStatus() == Status.NEEDS_CHECKOUT || remoteStatus == Status.NEEDS_CHECKOUT) {
-            return true;
-        }
-        if (statusInfo.getStatus() == Status.REMOVED || remoteStatus == Status.REMOVED) {
-            return true;
-        }
-        if (statusInfo.getStatus() == Status.CONFLICT_LMRD || remoteStatus == Status.CONFLICT_LMRD) {
-            return true;
-        }
-        return false;
     }
 }

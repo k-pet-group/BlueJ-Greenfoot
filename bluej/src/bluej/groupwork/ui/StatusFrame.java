@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 1999-2009,2012,2014,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2012,2014,2016,2017,2018,2019  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -75,9 +75,6 @@ public class StatusFrame extends FXCustomizedDialog<Void>
     private ActivityIndicator progressBar;
     private StatusWorker worker;
 
-    private static final int MAX_ENTRIES = 20;
-    private final boolean isDVCS;
-
     private TableView<TeamStatusInfo> statusTable;
 
     /**
@@ -88,7 +85,6 @@ public class StatusFrame extends FXCustomizedDialog<Void>
     {
         super(null, "team.status", "team-status");
         this.project = project;
-        isDVCS = project.getTeamSettingsController().isDVCS();
         getDialogPane().setContent(makeMainPane());
         prepareButtonPane();
     }
@@ -106,10 +102,7 @@ public class StatusFrame extends FXCustomizedDialog<Void>
     {
         // try and set up a reasonable default amount of entries that avoids resizing
         // and scrolling once we get info back from repository
-        statusModel = isDVCS ?
-                new StatusTableModelDVCS(project, estimateInitialEntries()) :
-                new StatusTableModelNonDVCS(project, estimateInitialEntries());
-
+        statusModel = new StatusTableModel();
         statusTable = new TableView<>(statusModel.getResources());
 
         TableColumn<TeamStatusInfo, String> firstColumn = new TableColumn<>(statusModel.getColumnName(0));
@@ -122,13 +115,13 @@ public class StatusFrame extends FXCustomizedDialog<Void>
         JavaFXUtil.addStyleClass(secondColumn, "team-status-secondColumn");
         secondColumn.prefWidthProperty().bind(statusTable.widthProperty().multiply(0.249));
         secondColumn.setCellValueFactory(v -> new ReadOnlyObjectWrapper<>(getValueAt(v.getValue(), 1)));
-        secondColumn.setCellFactory(col -> new StatusTableCell(isDVCS, 1));
+        secondColumn.setCellFactory(col -> new StatusTableCell(1));
 
         TableColumn<TeamStatusInfo, Object> thirdColumn = new TableColumn<>(statusModel.getColumnName(2));
         JavaFXUtil.addStyleClass(thirdColumn, "team-status-thirdColumn");
         thirdColumn.prefWidthProperty().bind(statusTable.widthProperty().multiply(0.249));
         thirdColumn.setCellValueFactory(v -> new ReadOnlyObjectWrapper<>(getValueAt(v.getValue(), 2)));
-        thirdColumn.setCellFactory(col -> new StatusTableCell(isDVCS, 2));
+        thirdColumn.setCellFactory(col -> new StatusTableCell(2));
 
         statusTable.getColumns().setAll(firstColumn, secondColumn, thirdColumn);
 
@@ -175,24 +168,6 @@ public class StatusFrame extends FXCustomizedDialog<Void>
     }
 
     /**
-     * try and estimate the number of entries in status table to avoid resizing
-     * once repository has responded.
-     */
-    private int estimateInitialEntries()
-    {
-        // Use number of targets + README.TXT
-        int initialEntries = project.getFilesInProject(true, false).size() + 1;
-        // may need to include diagram layout
-        //if(project.includeLayout())
-        //    initialEntries++;
-        // Limit to a reasonable maximum
-        if(initialEntries > MAX_ENTRIES) {
-            initialEntries = MAX_ENTRIES;
-        }
-        return initialEntries;
-    }
-
-    /**
      * Refresh the status window.
      */
     public void update()
@@ -220,9 +195,9 @@ public class StatusFrame extends FXCustomizedDialog<Void>
     {
         switch (col) {
             case 1:
-                return isDVCS ? info.getStatus() : info.getLocalVersion();
+                return info.getStatus();
             case 2:
-                return info.getStatus(!isDVCS);
+                return info.getStatus(false);
             default:
                 break;
         }
@@ -240,7 +215,7 @@ public class StatusFrame extends FXCustomizedDialog<Void>
         TeamworkCommand command;
         TeamworkCommandResult result;
         boolean aborted;
-        FileFilter filter = project.getTeamSettingsController().getFileFilter(true, true);
+        FileFilter filter = project.getTeamSettingsController().getFileFilter(true);
 
         public StatusWorker()
         {

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2015,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -206,7 +206,7 @@ public class GitProvider implements TeamworkProvider
     {
         String protocol = settings.getProtocol();
         //check if the protocol is a valid one.
-        if (protocol == null || !Arrays.asList(settings.getProvider().getProtocols()).contains(protocol)){
+        if (protocol == null || !Arrays.asList(getProtocols()).contains(protocol)){
             //the protocol is not valid. 
             throw new UnsupportedSettingException(Config.getString("team.error.unknownProtocol"));
         }
@@ -359,11 +359,5 @@ public class GitProvider implements TeamworkProvider
             Debug.reportError("Git: Could not get user email from repository", ex);
         }
         return result;
-    }
-
-    @Override
-    public boolean isDVCS()
-    {
-        return true;
     }
 }
