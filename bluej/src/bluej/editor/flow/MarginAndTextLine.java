@@ -54,6 +54,7 @@ public class MarginAndTextLine extends Region
 {
     public static final int TEXT_LEFT_EDGE = 27;
     public static final double LINE_X = 24.5;
+    public static final double MARGIN_BACKGROUND_WIDTH = 24;
     public static final double MARGIN_RIGHT = 23;
     private final Line dividerLine;
     private final int lineNumberToDisplay;
@@ -61,11 +62,24 @@ public class MarginAndTextLine extends Region
     // Does not include the hover icon, which is added dynamically:
     private final EnumSet<MarginDisplay> displayItems = EnumSet.noneOf(MarginDisplay.class);
     private final Tooltip breakpointHoverTooltip;
+    private final Region backgroundNode;
 
     public static enum MarginDisplay
     {
         // Important that step mark is after breakpoint, so that it appears in front:
-        UNCOMPILED, ERROR, LINE_NUMBER, BREAKPOINT_HOVER, BREAKPOINT, STEP_MARK;
+        UNCOMPILED("bj-margin-uncompiled"), ERROR("bj-margin-error"), LINE_NUMBER, BREAKPOINT_HOVER, BREAKPOINT, STEP_MARK;
+
+        public final String pseudoClass; // May be null
+
+        MarginDisplay(String pseudoClass)
+        {
+            this.pseudoClass = pseudoClass;
+        }
+        
+        MarginDisplay()
+        {
+            this(null);
+        }
     }
     
     private final EnumMap<MarginDisplay, Node> cachedIcons = new EnumMap<MarginDisplay, Node>(MarginDisplay.class);
@@ -76,8 +90,10 @@ public class MarginAndTextLine extends Region
         this.dividerLine = new Line(LINE_X, 0.5, LINE_X, 1);
         dividerLine.getStyleClass().add("flow-margin-line");
         this.lineNumberToDisplay = lineNumberToDisplay;
+        this.backgroundNode = new Region();
+        backgroundNode.getStyleClass().add("flow-margin-background");
         this.textLine = textLine;
-        getChildren().setAll(textLine);
+        getChildren().setAll(backgroundNode, textLine, dividerLine);
         getStyleClass().add("margin-and-text-line");
         String breakpointHoverUsualText = Config.getString("editor.set.breakpoint.hint");
         String breakpointHoverFailText = Config.getString("editor.set.breakpoint.fail");
@@ -127,6 +143,10 @@ public class MarginAndTextLine extends Region
             else if (child == dividerLine)
             {
                 dividerLine.setEndY(getHeight() - 0.5);
+            }
+            else if (child == backgroundNode)
+            {
+                backgroundNode.resizeRelocate(0, 0, MARGIN_BACKGROUND_WIDTH, getHeight());
             }
             else
             {
@@ -199,12 +219,13 @@ public class MarginAndTextLine extends Region
             toAdd.remove(MarginDisplay.LINE_NUMBER);
         }
         ArrayList<Node> content = new ArrayList<>();
+        content.add(backgroundNode);
         content.add(textLine);
         content.add(dividerLine);
 
         for (MarginDisplay display : toAdd)
         {
-            content.add(cachedIcons.computeIfAbsent(display, d -> {
+            Node item = cachedIcons.computeIfAbsent(display, d -> {
                 switch (d)
                 {
                     case LINE_NUMBER:
@@ -223,23 +244,31 @@ public class MarginAndTextLine extends Region
                         Tooltip.install(icon, breakpointHoverTooltip);
                         return icon;
                     case ERROR:
-                        Label labelErr = new Label("E");
-                        labelErr.setBackground(new Background(new BackgroundFill(Color.RED, null, null)));
-                        return labelErr;
+                        return null; // Only sets pseudo-class
                     case UNCOMPILED:
-                        Label labelUn = new Label("U");
-                        labelUn.setBackground(new Background(new BackgroundFill(Color.GRAY, null, null)));
-                        return labelUn;
+                        return null; // Only sets pseudo-class
                     default: // Shouldn't happen:
-                        return new Label("");
+                        return null;
                 }
-            }));
+            });
+            if (item != null)
+            {
+                content.add(item);
+            }
         }
         // Don't set content if it's the same; this would cause listeners to fire
         // and an unnecessary layout pass to occur
         if (!content.equals(getChildren()))
         {
             getChildren().setAll(content);
+        }
+
+        for (MarginDisplay marginDisplay : MarginDisplay.values())
+        {
+            if (marginDisplay.pseudoClass != null)
+            {
+                JavaFXUtil.setPseudoclass(marginDisplay.pseudoClass, displayItems.contains(marginDisplay), this);
+            }
         }
     }
 
