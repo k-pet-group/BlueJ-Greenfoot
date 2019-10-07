@@ -106,23 +106,32 @@ class TextLine extends TextFlow
      */
     public void showSelection(int start, int end, boolean extendToRight)
     {
-        selectionShape.getElements().setAll(extendToRight(extendToRight, rangeShape(start, end)));
+        selectionShape.getElements().setAll(extendShape(extendToRight, rangeShape(start, end)));
         selectionShape.setVisible(true);
         if (getScene() != null)
         {
             JavaFXUtil.runAfterNextLayout(getScene(), () -> {
-                selectionShape.getElements().setAll(extendToRight(extendToRight, rangeShape(start, end)));
+                selectionShape.getElements().setAll(extendShape(extendToRight, rangeShape(start, end)));
             });
         }
     }
 
     /**
-     * If extendToRight is true, extend the shape all the way to the right of the line,
+     * Extends the shape to fit the vertical height of the line.
+     * Also, if extendToRight is true, extend the shape all the way to the right of the line,
      * which helps make the selection look neater, and clears up confusion when the selection
      * involves empty lines.  If it is false, leave the shape untouched.
      */
-    private PathElement[] extendToRight(boolean extendToRight, PathElement[] rangeShape)
+    private PathElement[] extendShape(boolean extendToRight, PathElement[] rangeShape)
     {
+        // Extend down and left lines to reach bottom of full line height:
+        double height = getHeight();
+        if (rangeShape.length == 5 && rangeShape[2] instanceof LineTo && rangeShape[3] instanceof LineTo)
+        {
+            ((LineTo)rangeShape[2]).setY(height);
+            ((LineTo)rangeShape[3]).setY(height);
+        }
+        
         if (extendToRight)
         {
             double width = getWidth();
