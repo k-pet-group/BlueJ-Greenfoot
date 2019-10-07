@@ -72,14 +72,11 @@ class TextLine extends TextFlow
     {
         getStyleClass().add("text-line");
         setMouseTransparent(true);
-        selectionShape.setStroke(null);
-        selectionShape.setFill(Color.CORNFLOWERBLUE);
+        selectionShape.getStyleClass().add("flow-selection");
         selectionShape.setManaged(false);
-        findResultShape.setStroke(null);
-        findResultShape.setFill(Color.GOLDENROD);
+        findResultShape.getStyleClass().add("flow-find-result");
         findResultShape.setManaged(false);
-        bracketMatchShape.setStroke(null);
-        bracketMatchShape.setFill(Color.grayRgb(200));
+        bracketMatchShape.getStyleClass().add("flow-bracket-match");
         bracketMatchShape.setManaged(false);
         errorUnderlineShape.setStroke(Color.RED);
         errorUnderlineShape.setFill(null);

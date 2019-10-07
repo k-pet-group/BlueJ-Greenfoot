@@ -37,3 +37,15 @@
 .margin-and-text-line:bj-margin-error .flow-line-label {
     -fx-text-fill: white;
 }
+.text-line .flow-selection {
+    -fx-fill: hsb(211, 50%, 90%);
+    -fx-stroke: null;
+}
+.text-line .flow-find-result {
+    -fx-fill: hsb(211, 20%, 99%);
+    -fx-stroke: null;
+}
+.text-line .flow-bracket-match {
+    -fx-fill: hsb(0, 0%, 70%);
+    -fx-stroke: null;
+}
