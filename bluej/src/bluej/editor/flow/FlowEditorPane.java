@@ -679,12 +679,11 @@ public class FlowEditorPane extends Region implements DocumentListener
     @Override
     protected void layoutChildren()
     {
-        double xMargin = 2;
         double horizScrollHeight = horizontalScroll.isVisible() ? horizontalScroll.prefHeight(-1) : 0;
         horizontalScroll.resizeRelocate(0, getHeight() - horizScrollHeight, getWidth(), horizScrollHeight);
         double vertScrollWidth = verticalScroll.isVisible() ? verticalScroll.prefWidth(-1) : 0;
         verticalScroll.resizeRelocate(getWidth() - vertScrollWidth, 0, vertScrollWidth, getHeight() - horizScrollHeight);
-        lineContainer.resizeRelocate(xMargin, 0, getWidth() - xMargin - vertScrollWidth, getHeight() - horizScrollHeight);
+        lineContainer.resizeRelocate(0, 0, getWidth() - vertScrollWidth, getHeight() - horizScrollHeight);
     }
 
     public HoleDocument getDocument()
