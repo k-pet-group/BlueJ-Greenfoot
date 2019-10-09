@@ -21,6 +21,7 @@
  */
 package bluej.editor.flow;
 
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.ResizableRectangle;
 import com.google.common.collect.Lists;
@@ -177,14 +178,14 @@ class TextLine extends TextFlow
      * selection shape for the line.
      * 
      * @param text The text to show.
-     * @param size The font size to use.
+     * @param fontChanged Has the font size changed since last call?
      */
-    public void setText(List<StyledSegment> text, double xTranslate, double size)
+    public void setText(List<StyledSegment> text, double xTranslate, boolean fontChanged)
     {
         setTranslateX(xTranslate);
         clip.setX(-xTranslate);
         text = Lists.newArrayList(StyledSegment.mergeAdjacentIdentical(text));
-        if (latestContent.equals(text))
+        if (!fontChanged && latestContent.equals(text))
         {
             return;
         }
@@ -197,7 +198,7 @@ class TextLine extends TextFlow
         for (StyledSegment styledSegment : text)
         {
             Text t = new Text(styledSegment.text);
-            t.setFont(new Font("Roboto Mono", size));
+            t.setStyle(PrefMgr.getEditorFontCSS(true).getValue());
             t.getStyleClass().add("editor-text");
             t.getStyleClass().addAll(styledSegment.cssClasses);
             getChildren().add(t);
@@ -272,15 +273,13 @@ class TextLine extends TextFlow
 
     /**
      * Changes the font size of the text on the line, without altering the content.
-     * 
-     * @param newFontSize The new font size (in points)
      */
-    public void setFontSize(double newFontSize)
+    public void fontSizeChanged()
     {
         List<StyledSegment> content = this.latestContent;
         // Avoid check for identical content:
         latestContent = Collections.emptyList();
-        setText(content, getTranslateX(), newFontSize);
+        setText(content, getTranslateX(), true);
     }
 
     /**

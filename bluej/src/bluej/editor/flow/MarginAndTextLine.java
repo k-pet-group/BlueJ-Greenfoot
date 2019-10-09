@@ -200,12 +200,11 @@ public class MarginAndTextLine extends Region
     }
 
     /**
-     * Set the font size of the enclosed line
-     * @param newFontSize The font size (in points)
+     * Updates the line after a font change
      */
-    public void setFontSize(double newFontSize)
+    public void fontSizeChanged()
     {
-        textLine.setFontSize(newFontSize);
+        textLine.fontSizeChanged();
     }
 
     public void setMarginGraphics(EnumSet<MarginDisplay> displayItems)

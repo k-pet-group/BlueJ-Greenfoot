@@ -256,7 +256,7 @@ public class FlowEditorPane extends Region implements DocumentListener
             }
         };
         
-        prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(styledLines, this::snapSizeY, - horizontalScroll.getValue(), lineContainer.getHeight(), PrefMgr.getEditorFontSize().get()));
+        prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(styledLines, this::snapSizeY, - horizontalScroll.getValue(), lineContainer.getHeight()));
         prospectiveChildren.add(caretShape);
         verticalScroll.setVisible(allowScrollBars && lineDisplay.getVisibleLineCount() < document.getLineCount());
         // Note: we don't use actual line count as that "jiggle" by one line as lines are partially
@@ -270,7 +270,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         verticalScroll.setValue(lineDisplay.getLineRangeVisible()[0] - (lineDisplay.getFirstVisibleLineOffset() / lineDisplay.getLineHeight()));
         updatingScrollBarDirectly = false;
         
-        double width = lineDisplay.calculateLineWidth(document.getLongestLine(), PrefMgr.getEditorFontSize().get());
+        double width = lineDisplay.calculateLineWidth(document.getLongestLine());
         horizontalScroll.setMax(width + 200.0 - getWidth());
         horizontalScroll.setVisibleAmount(getWidth() / (horizontalScroll.getMax() + getWidth()) * horizontalScroll.getMax());
         horizontalScroll.setVisible(allowScrollBars && horizontalScroll.getVisibleAmount() < horizontalScroll.getMax());
@@ -609,11 +609,10 @@ public class FlowEditorPane extends Region implements DocumentListener
 
     /**
      * Called when the font size has changed; redisplay accordingly.
-     * @param newFontSize The new font size (in points).
      */
-    public void fontSizeChanged(double newFontSize)
+    public void fontSizeChanged()
     {
-        lineDisplay.fontSizeChanged(newFontSize);
+        lineDisplay.fontSizeChanged();
         updateRender(false);
     }
 

@@ -99,10 +99,9 @@ class LineDisplay
      * an editor pane.
      * @param allLines The ordered stream of all lines in the document.
      * @param height The height of the graphical pane to render into, in pixels
-     * @param fontSize The height of the font (in points)
      * @return The ordered list of visible lines
      */
-    List<Node> recalculateVisibleLines(List<List<StyledSegment>> allLines, FXPlatformFunction<Double, Double> snapHeight, double xTranslate, double height, double fontSize)
+    List<Node> recalculateVisibleLines(List<List<StyledSegment>> allLines, FXPlatformFunction<Double, Double> snapHeight, double xTranslate, double height)
     {
         if (firstVisibleLineIndex >= allLines.size())
         {
@@ -119,7 +118,7 @@ class LineDisplay
         while (lines.hasNext() && curY <= height)
         {
             MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(), () -> flowEditorPaneListener.marginClickedForLine(k)));
-            line.textLine.setText(lines.next(), xTranslate, fontSize);
+            line.textLine.setText(lines.next(), xTranslate, false);
             double lineHeight = snapHeight.apply(line.prefHeight(-1.0));
             curY += lineHeight;
             lineHeights.add(lineHeight);
@@ -296,13 +295,12 @@ class LineDisplay
 
     /**
      * The font size has changed; change the size of the text on all visible lines.
-     * @param newFontSize The new font size (in points)
      */
-    public void fontSizeChanged(double newFontSize)
+    public void fontSizeChanged()
     {
         for (MarginAndTextLine line : visibleLines.values())
         {
-            line.setFontSize(newFontSize);
+            line.fontSizeChanged();
         }
     }
 
@@ -332,14 +330,13 @@ class LineDisplay
     }
 
     /**
-     * Calculates the anticipated width of the given line of text
-     * at the given font size.
+     * Calculates the anticipated width of the given line of text.
      * @return The line width, in pixels
      */
-    public double calculateLineWidth(String line, double fontSize)
+    public double calculateLineWidth(String line)
     {
         TextLine textLine = new TextLine();
-        textLine.setText(List.of(new StyledSegment(List.of(), line)), 0, fontSize);
+        textLine.setText(List.of(new StyledSegment(List.of(), line)), 0, true);
         return textLine.prefWidth(-1);
     }
 }
