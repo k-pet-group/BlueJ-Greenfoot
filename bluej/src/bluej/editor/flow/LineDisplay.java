@@ -63,7 +63,7 @@ class LineDisplay
     
     private final DoubleExpression heightProperty;
     private final DoubleExpression horizScrollProperty;
-    private double averageLineHeight = 1.0;    
+    private double lineHeightEstimate = 1.0;    
 
     LineDisplay(DoubleExpression heightProperty, DoubleExpression horizScrollProperty, FlowEditorPaneListener flowEditorPaneListener)
     {
@@ -124,7 +124,8 @@ class LineDisplay
             lineHeights.add(lineHeight);
             lineIndex += 1;
         }
-        this.averageLineHeight = lineHeights.stream().mapToDouble(d -> d).average().orElse(1.0);
+        // Line heights can vary slightly so max is more reliable than average:
+        this.lineHeightEstimate = lineHeights.stream().mapToDouble(d -> d).max().orElse(1.0);
         
         // Remove any excess lines:
         int lastLineIndexIncl = lineIndex - 1;
@@ -157,14 +158,14 @@ class LineDisplay
         if (deltaY == 0)
             return;
         
-        double overallPos = firstVisibleLineIndex * averageLineHeight - firstVisibleLineOffset;
+        double overallPos = firstVisibleLineIndex * lineHeightEstimate - firstVisibleLineOffset;
         double newOverallPos = overallPos - deltaY;
         // Important to clamp in this order, as first clamp
         // may clamp too far, into negative:
-        newOverallPos = Math.min(newOverallPos, averageLineHeight * documentLines - heightProperty.get());
+        newOverallPos = Math.min(newOverallPos, lineHeightEstimate * documentLines - heightProperty.get());
         newOverallPos = Math.max(0, newOverallPos);
-        int newTopLine = (int)Math.floor(newOverallPos / averageLineHeight);
-        double newOffset = (newTopLine * averageLineHeight) - newOverallPos;
+        int newTopLine = (int)Math.floor(newOverallPos / lineHeightEstimate);
+        double newOffset = (newTopLine * lineHeightEstimate) - newOverallPos;
         scrollTo(newTopLine, newOffset);
         /*
         // How many lines have we moved the top visible line by?
@@ -253,7 +254,7 @@ class LineDisplay
         else if (line >= firstVisibleLineIndex + visibleLines.size() - 1)
         {            
             // Scroll down:
-            double singleLineHeight = averageLineHeight;
+            double singleLineHeight = lineHeightEstimate;
             int numLinesCanDisplay = (int)Math.ceil(heightProperty.get() / singleLineHeight);
             firstVisibleLineIndex = line - numLinesCanDisplay + 1;
             if (firstVisibleLineIndex < 0)
@@ -283,7 +284,7 @@ class LineDisplay
 
     public double getLineHeight()
     {
-        return averageLineHeight;
+        return lineHeightEstimate;
     }
 
     public void applyScopeBackgrounds(Map<Integer, List<Region>> scopeBackgrounds)
