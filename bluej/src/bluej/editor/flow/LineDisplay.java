@@ -304,6 +304,14 @@ class LineDisplay
         }
     }
 
+    public void hideAllErrorUnderlines()
+    {
+        for (MarginAndTextLine marginAndTextLine : visibleLines.values())
+        {
+            marginAndTextLine.textLine.hideErrorUnderline();
+        }
+    }
+
     static interface LineDisplayListener
     {
         public void renderedLines(int fromLineIndexIncl, int toLineIndexIncl);

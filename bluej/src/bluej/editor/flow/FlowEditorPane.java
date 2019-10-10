@@ -649,6 +649,11 @@ public class FlowEditorPane extends Region implements DocumentListener
         bufferedWriter.flush();
     }
 
+    public void hideAllErrorUnderlines()
+    {
+        lineDisplay.hideAllErrorUnderlines();
+    }
+
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     private class LineContainer extends Region
     {

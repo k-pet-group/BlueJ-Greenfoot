@@ -78,6 +78,7 @@ public class FlowErrorManager implements ErrorQuery
     {
         FlowEditorPane sourcePane = editor.getSourcePane();
         sourcePane.getDocument().removeLineAttributeThroughout(ParagraphAttribute.ERROR);
+        sourcePane.hideAllErrorUnderlines();
         errorInfos.clear();
         setNextErrorEnabled.accept(false);
         editor.updateHeaderHasErrors(false);
