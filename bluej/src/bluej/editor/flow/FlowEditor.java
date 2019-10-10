@@ -923,6 +923,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
                 document.replaceText(0, document.getLength(), Files.readString(file.toPath(), charset).replace("\r", ""));
                 setLastModified(file.lastModified());
+                // Position caret at start, not the end:
+                getSourcePane().positionCaret(0);
                 undoManager.forgetHistory();
 
                 javaSyntaxView.enableParser(false);
