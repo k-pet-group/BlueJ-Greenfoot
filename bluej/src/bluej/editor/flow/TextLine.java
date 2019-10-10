@@ -231,7 +231,7 @@ class TextLine extends TextFlow
         {
             double leftHandX = ((LineTo)rectShape[3]).getX();
             double rightHandX = ((LineTo)rectShape[2]).getX();
-            double y = ((LineTo)rectShape[2]).getY();
+            double y = ((LineTo)rectShape[2]).getY() - 1;
             
             // Minimum size for underline:
             double width = Math.max(9, rightHandX - leftHandX);
