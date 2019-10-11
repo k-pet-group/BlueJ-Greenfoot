@@ -520,7 +520,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         if (editorPane == null)
             return;
         
-        recalcScopeMarkers((int)editorPane.getWidth() - MarginAndTextLine.TEXT_LEFT_EDGE,
+        recalcScopeMarkers((int)editorPane.getTextDisplayWidth(),
                 //(widthProperty == null || widthProperty.get() == 0) ? 200 :
                         //((int)widthProperty.get() - PARAGRAPH_MARGIN),
                 firstLineIncl, lastLineIncl);
@@ -686,7 +686,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     private List<SingleNestedScope> drawScopes(int fullWidth, ThreeLines lines,
             List<NodeAndPosition<ParsedNode>> prevScopeStack, int nodeDepth)
     {
-        int rightMargin = 10;
+        int rightMargin = 2;
 
         ListIterator<NodeAndPosition<ParsedNode>> li = prevScopeStack.listIterator();
 

@@ -654,6 +654,11 @@ public class FlowEditorPane extends Region implements DocumentListener
         lineDisplay.hideAllErrorUnderlines();
     }
 
+    public double getTextDisplayWidth()
+    {
+        return lineContainer.getWidth() - MarginAndTextLine.TEXT_LEFT_EDGE;
+    }
+
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     private class LineContainer extends Region
     {
