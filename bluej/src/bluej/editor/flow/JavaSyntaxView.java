@@ -100,8 +100,8 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     /** (NaviView) Paint method inner scope? if false, whole method will be highlighted as a single block */
     private static final boolean PAINT_METHOD_INNER = false;
 
-    private static final int LEFT_INNER_SCOPE_MARGIN = 5;
-    private static final int LEFT_OUTER_SCOPE_MARGIN = 2;
+    private static final int LEFT_INNER_SCOPE_MARGIN = 0;
+    private static final int LEFT_OUTER_SCOPE_MARGIN = 0;
     private static final int RIGHT_SCOPE_MARGIN = 4;
     private static final int CURVED_CORNER_SIZE = 4;
     private static final int PARAGRAPH_MARGIN = 0; //24;
@@ -1002,7 +1002,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             Element lineEl)
     {
         int napEnd = nap.getEnd();
-        int rbound = fullWidth - nodeDepth * (false ? 0 : RIGHT_SCOPE_MARGIN);
+        int rbound = fullWidth - (int)((nodeDepth + 1) / 2) * RIGHT_SCOPE_MARGIN;
         if (lineEl == null || napEnd >= lineEl.getEndOffset()) {
             return rbound;
         }
