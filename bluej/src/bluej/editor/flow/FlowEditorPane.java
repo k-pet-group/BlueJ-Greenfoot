@@ -739,9 +739,15 @@ public class FlowEditorPane extends Region implements DocumentListener
         if (lineDisplay.isLineVisible(lineIndex))
         {
             TextLine line = lineDisplay.getVisibleLine(lineIndex).textLine;
-            PathElement[] elements = line.caretShape(leftOfCharIndex - document.getLineStart(lineIndex), true);
+            int posInLine = leftOfCharIndex - document.getLineStart(lineIndex);
+            PathElement[] elements = line.caretShape(posInLine, true);
             Path path = new Path(elements);
             Bounds bounds = path.getBoundsInLocal();
+            // If the bounds are at left edge but char is not, might not have laid out yet:
+            if (posInLine > 0 && bounds.getMaxX() < 2.0)
+            {
+                return Optional.empty();
+            }
             return Optional.of((bounds.getMinX() + bounds.getMaxX()) / 2.0);
         }
         return Optional.empty();
