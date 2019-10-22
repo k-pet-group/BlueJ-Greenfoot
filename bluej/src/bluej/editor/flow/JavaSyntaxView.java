@@ -2237,22 +2237,19 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         
         if (newBeforeStartIncl <= newBeforeEndIncl || newAfterStartIncl <= newAfterEndIncl)
         {
-            JavaFXUtil.runAfterNextLayout(editorPane.getScene(), () -> {
-                // Lines could have changed so clamp them to document size: 
-                if (newBeforeStartIncl <= newBeforeEndIncl)
-                {
-                    recalculateScopes(
-                        Math.min(newBeforeStartIncl, editorPane.getDocument().getLineCount() - 1),
-                        Math.min(newBeforeEndIncl, editorPane.getDocument().getLineCount() - 1));
-                }
-                if (newAfterStartIncl <= newAfterEndIncl)
-                {
-                    recalculateScopes(
-                        Math.min(newAfterStartIncl, editorPane.getDocument().getLineCount() - 1),
-                        Math.min(newAfterEndIncl, editorPane.getDocument().getLineCount() - 1));
-                }
-                applyPendingScopeBackgrounds();
-            });
+            if (newBeforeStartIncl <= newBeforeEndIncl)
+            {
+                recalculateScopes(
+                    Math.min(newBeforeStartIncl, editorPane.getDocument().getLineCount() - 1),
+                    Math.min(newBeforeEndIncl, editorPane.getDocument().getLineCount() - 1));
+            }
+            if (newAfterStartIncl <= newAfterEndIncl)
+            {
+                recalculateScopes(
+                    Math.min(newAfterStartIncl, editorPane.getDocument().getLineCount() - 1),
+                    Math.min(newAfterEndIncl, editorPane.getDocument().getLineCount() - 1));
+            }
+            applyPendingScopeBackgrounds();
             editorPane.requestLayout();
         }
         latestRenderStartIncl = fromLineIndexIncl;
