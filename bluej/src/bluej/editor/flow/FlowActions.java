@@ -174,6 +174,15 @@ public final class FlowActions
             builtInKeymap.put(new KeyCodeCombination(KeyCode.LEFT, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionPreviousWordAction));
             builtInKeymap.put(new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN), actions.get(DefaultEditorKit.selectionNextWordAction));
         }
+        
+        builtInKeymap.put(new KeyCodeCombination(KeyCode.A, KeyCombination.SHORTCUT_DOWN), new FlowAbstractAction("select-all", Category.EDIT)
+        {
+            @Override
+            public void actionPerformed(boolean viaContextMenu)
+            {
+                editor.getSourcePane().select(0, editor.getTextLength());
+            }
+        });
 
         // RichTextFX has some default bindings for actions which we have on menu accelerators
         // (Plus, we want to allow users to override them.)
