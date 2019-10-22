@@ -898,6 +898,9 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                     return OptionalInt.empty();
                 }
                 double indent = leftEdge.get();
+                // Should be at least two pixels per space; if we see less than that, probably not laid out yet:
+                if (indent < cachedSpaceSizes.size() * 2)
+                    return OptionalInt.empty();
                 cachedSpaceSizes.add(indent);
             }
             return OptionalInt.of(cachedSpaceSizes.get(numberOfSpaces).intValue());
@@ -1112,7 +1115,8 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             if (editorPane != null && (editorPane.isLineVisible(document.getLineFromPosition(lineEl.getStartOffset())) || isPrinting()))
             {
                 indent = calculateNodeIndent(nap);
-                nodeIndents.put(nap.getNode(), indent);
+                if (indent > 0)
+                    nodeIndents.put(nap.getNode(), indent);
             }
             else
             {
