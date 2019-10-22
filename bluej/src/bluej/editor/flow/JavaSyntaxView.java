@@ -1953,9 +1953,9 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         pendingScopeBackgrounds.forEach((line, info) -> {
             scopeBackgrounds.removeAllScopesForLine(line);
             Optional<double[]> possVertBounds = editorPane.getTopAndBottom(line);
-            if (possVertBounds.isEmpty())
+            if (possVertBounds.isEmpty() || possVertBounds.get()[1] < 3)
             {
-                return;
+                possVertBounds = Optional.of(new double[] {0, editorPane.getLineHeight()});
             }
             scopeBackgrounds.storeSource(line, info);
             for (SingleNestedScope nestedScope : info)

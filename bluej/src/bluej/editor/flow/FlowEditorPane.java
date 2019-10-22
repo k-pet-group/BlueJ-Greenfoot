@@ -460,6 +460,11 @@ public class FlowEditorPane extends Region implements DocumentListener
     {
         return lineDisplay.getLineRangeVisible();
     }
+    
+    double getLineHeight()
+    {
+        return lineDisplay.getLineHeight();
+    }
 
     // Bounds relative to FlowEditorPane
     /*
