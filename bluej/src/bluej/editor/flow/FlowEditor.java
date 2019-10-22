@@ -361,7 +361,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         this.interfaceToggle = createInterfaceSelector();
         interfaceToggle.setDisable(!sourceIsCode);
         Region toolbar = createToolbar(interfaceToggle.heightProperty());
-        setTop(JavaFXUtil.withStyleClass(new BorderPane(null, null, interfaceToggle, null, toolbar), "flow-top-bar"));
+        setTop(JavaFXUtil.withStyleClass(new BorderPane(toolbar, null, interfaceToggle, null, null), "flow-top-bar"));
         flowEditorPane.addSelectionListener(this);
         flowEditorPane.addLineDisplayListener((fromIncl, toIncl) -> {
             for (int i = fromIncl; i <= toIncl; i++)
