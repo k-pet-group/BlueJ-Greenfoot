@@ -225,7 +225,8 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
     private ClassTarget currentWorld;
 
     // World image
-    private WritableImage worldImg;
+    private final WritableImage[] worldImg = new WritableImage[2];
+    private int nextWorldImgToWrite = 0;
 
     // The scenario information that usually shipped with it when uploading
     // to the gallery. We should maintain a reference to it and make sure
@@ -1597,12 +1598,12 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             return;
         }
         
-        if (worldImg == null || worldImg.getWidth() != width || worldImg.getHeight() != height)
+        if (worldImg[nextWorldImgToWrite] == null || worldImg[nextWorldImgToWrite].getWidth() != width || worldImg[nextWorldImgToWrite].getHeight() != height)
         {
-            worldImg = new WritableImage(width == 0 ? 1 : width, height == 0 ? 1 : height);
+            worldImg[nextWorldImgToWrite] = new WritableImage(width == 0 ? 1 : width, height == 0 ? 1 : height);
 
-            if (worldViewScroll.getWidth() < worldImg.getWidth() ||
-                    worldViewScroll.getHeight() < worldImg.getHeight())
+            if (worldViewScroll.getWidth() < worldImg[nextWorldImgToWrite].getWidth() ||
+                    worldViewScroll.getHeight() < worldImg[nextWorldImgToWrite].getHeight())
             {
                 // We don't call sizeToScene() directly while holding the file lock because it can
                 // cause us to re-enter the animation timer (see commit comment).  So we set this
@@ -1612,9 +1613,10 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         }
         try
         {
-            worldImg.getPixelWriter().setPixels(0, 0, width, height, PixelFormat.getIntArgbInstance(),
+            worldImg[nextWorldImgToWrite].getPixelWriter().setPixels(0, 0, width, height, PixelFormat.getIntArgbInstance(),
                     buffer, width);
-            worldDisplay.setImage(worldImg);
+            worldDisplay.setImage(worldImg[nextWorldImgToWrite]);
+            nextWorldImgToWrite = (nextWorldImgToWrite + 1) % worldImg.length;
             worldInstantiationError = false;
             worldVisible.set(true);
         }
