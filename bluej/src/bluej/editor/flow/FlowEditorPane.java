@@ -29,6 +29,7 @@ import bluej.editor.flow.TextLine.HighlightType;
 import bluej.editor.flow.TextLine.StyledSegment;
 import bluej.editor.moe.ScopeColors;
 import bluej.prefmgr.PrefMgr;
+import bluej.utility.Debug;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
@@ -271,9 +272,9 @@ public class FlowEditorPane extends Region implements DocumentListener
         updatingScrollBarDirectly = false;
         
         double width = lineDisplay.calculateLineWidth(document.getLongestLine());
-        horizontalScroll.setMax(width + 200.0 - getWidth());
+        horizontalScroll.setMax(width + 100.0 - getWidth());
         horizontalScroll.setVisibleAmount(getWidth() / (horizontalScroll.getMax() + getWidth()) * horizontalScroll.getMax());
-        horizontalScroll.setVisible(allowScrollBars && horizontalScroll.getVisibleAmount() < horizontalScroll.getMax());
+        horizontalScroll.setVisible(allowScrollBars && width + 100 >= getWidth());
         
         // This will often avoid changing the children, if the window has not been resized:
         boolean needToChangeLinesAndCaret = false;

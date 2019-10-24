@@ -27,6 +27,7 @@ import bluej.utility.javafx.FXPlatformFunction;
 import javafx.beans.binding.DoubleExpression;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.text.HitInfo;
@@ -345,7 +346,11 @@ class LineDisplay
     public double calculateLineWidth(String line)
     {
         TextLine textLine = new TextLine();
+        // Must be in a scene for CSS (for font family/size) to get applied correctly:
+        Scene s = new Scene(textLine);
         textLine.setText(List.of(new StyledSegment(List.of(), line)), 0, true);
+        textLine.applyCss();
+        textLine.layout();
         return textLine.prefWidth(-1);
     }
 }
