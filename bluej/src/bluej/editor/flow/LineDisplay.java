@@ -111,22 +111,19 @@ class LineDisplay
             firstVisibleLineOffset = 0;
         }
         
+        double lineHeight = snapHeight.apply(calculateLineHeight());
+        
         // Start at the first visible line:
-        Iterator<List<StyledSegment>> lines = allLines.subList(firstVisibleLineIndex, allLines.size()).iterator();
-        double curY = firstVisibleLineOffset;
+        Iterator<List<StyledSegment>> lines = allLines.subList(firstVisibleLineIndex, Math.min((int)Math.ceil(height / lineHeight) + firstVisibleLineIndex + 1, allLines.size())).iterator();
         int lineIndex = firstVisibleLineIndex;
-        ArrayList<Double> lineHeights = new ArrayList<>();
-        while (lines.hasNext() && curY <= height)
+        while (lines.hasNext())
         {
             MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(), () -> flowEditorPaneListener.marginClickedForLine(k)));
             line.textLine.setText(lines.next(), xTranslate, false);
-            double lineHeight = snapHeight.apply(line.prefHeight(-1.0));
-            curY += lineHeight;
-            lineHeights.add(lineHeight);
             lineIndex += 1;
         }
         // Line heights can vary slightly so max is more reliable than average:
-        this.lineHeightEstimate = lineHeights.stream().mapToDouble(d -> d).max().orElse(1.0);
+        this.lineHeightEstimate = lineHeight;
         
         // Remove any excess lines:
         int lastLineIndexIncl = lineIndex - 1;
@@ -352,5 +349,19 @@ class LineDisplay
         textLine.applyCss();
         textLine.layout();
         return textLine.prefWidth(-1);
+    }
+
+    /**
+     * Calculates the anticipated height of a line of text.
+     */
+    public double calculateLineHeight()
+    {
+        TextLine textLine = new TextLine();
+        // Must be in a scene for CSS (for font family/size) to get applied correctly:
+        Scene s = new Scene(textLine);
+        textLine.setText(List.of(new StyledSegment(List.of(), "Xy")), 0, true);
+        textLine.applyCss();
+        textLine.layout();
+        return textLine.prefHeight(-1);
     }
 }

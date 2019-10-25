@@ -148,6 +148,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         lineContainer.setClip(clip);
         getChildren().setAll(lineContainer, verticalScroll, horizontalScroll);
         updateRender(false);
+        JavaFXUtil.addChangeListenerPlatform(lineContainer.heightProperty(), h -> JavaFXUtil.runAfterCurrent(() -> updateRender(false)));
 
         Nodes.addInputMap(this, InputMap.sequence(
             InputMap.consume(KeyEvent.KEY_TYPED, this::keyTyped),
