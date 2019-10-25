@@ -44,6 +44,9 @@ import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Lives on the Simulation VM (aka debug VM), and handles communications with the server
@@ -52,20 +55,12 @@ import java.nio.channels.FileLock;
 public class VMCommsSimulation
 {
     private final WorldRenderer worldRenderer;    
-        
+
+    /** Available old world images for painting onto: */
+    private final BlockingQueue<BufferedImage> worldImagesForPainting = new ArrayBlockingQueue<BufferedImage>(3);
+    /** The current image waiting to send (may be null if none): */
+    private final AtomicReference<BufferedImage> worldImageForSending = new AtomicReference<>(null);
     // These variables are shared with the remote communications thread and need synchronised access:
-    /** Whether the image has been updated */
-    @OnThread(value = Tag.Any, requireSynchronized = true)
-    private boolean updateImage;
-    /** The world image (as most recently painted; double-buffered) */
-    @OnThread(value = Tag.Any, requireSynchronized = true)
-    private BufferedImage[] worldImages = new BufferedImage[2];
-    /** Index in worldImages of the most recently drawn world */
-    @OnThread(value = Tag.Any, requireSynchronized = true)
-    private int drawnWorld;
-    /** Whether the last drawn image is currently being transferred */
-    @OnThread(value = Tag.Any, requireSynchronized = true)
-    private boolean transferringImage;
     /** The prompt for Greenfoot.ask() */
     @OnThread(value = Tag.Any, requireSynchronized = true)
     private String pAskPrompt;
@@ -230,31 +225,23 @@ public class VMCommsSimulation
             lastPaintNanos = now;
             int imageWidth = WorldVisitor.getWidthInPixels(world);
             int imageHeight = WorldVisitor.getHeightInPixels(world);
-            BufferedImage worldImage;
+            BufferedImage worldImage = worldImagesForPainting.poll();
             
-            synchronized (this)
+            // If there are no available old images or it's the wrong size, make our own:
+            if (worldImage == null || worldImage.getHeight() != imageHeight
+                    || worldImage.getWidth() != imageWidth)
             {
-                int toDrawWorld = 1 - drawnWorld; // invert 0/1
-                worldImage = worldImages[toDrawWorld];
-                if (worldImage == null || worldImage.getHeight() != imageHeight
-                        || worldImage.getWidth() != imageWidth)
-                {
-                    worldImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_ARGB);
-                    worldImages[toDrawWorld] = worldImage;
-                }
+                worldImage = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_ARGB);
             }
             
             worldRenderer.renderWorld(world, worldImage);
             
-            synchronized (this)
+            BufferedImage oldImage = worldImageForSending.getAndSet(worldImage);
+            // If there was an old image waiting which we've overwritten, put it back in our queue of old images:
+            if (oldImage != null)
             {
-                // If a world image is currently being transferred, we mustn't overwrite it.
-                // Therefore, alter drawnWorld only if that's not the case:
-                if (! transferringImage)
-                {
-                    drawnWorld = 1 - drawnWorld;
-                }
-                updateImage = true;
+                worldImagesForPainting.offer(oldImage);
+                // If it doesn't fit because the queue is full, just let it get GCed.
             }
         }
     }
@@ -306,7 +293,7 @@ public class VMCommsSimulation
             synchronized (this)
             {
                 // Don't send double-buffered image if world has since disappeared:
-                doUpdateImage = updateImage && world != null;
+                doUpdateImage = world != null;
                 curWorld = this.world;
                 curWorldCounter = this.worldCounter;
             }
@@ -325,19 +312,7 @@ public class VMCommsSimulation
                 }
             }
             
-            BufferedImage img;
-            synchronized (this)
-            {
-                img = doUpdateImage ? worldImages[drawnWorld] : null;
-                transferringImage = (img != null);
-                if (img != null)
-                {
-                    // We want to clear the updateImage flag nice and early, so that any new image
-                    // generated in the meantime can correctly set it back to true:
-                    updateImage = false;
-                }
-            }
-            
+            BufferedImage img = doUpdateImage ? worldImageForSending.getAndSet(null) : null;
             int [] raw = (img == null) ? null : ((DataBufferInt) img.getData().getDataBuffer()).getData();
 
             int imageWidth = 0;
@@ -369,17 +344,9 @@ public class VMCommsSimulation
                 }
                 lastPaintSize = raw.length;
                 
-                synchronized (this)
-                {
-                    transferringImage = false;
-                    // If another world image has been painted in the meantime, make sure that
-                    // drawnWorld indexes the correct image in the array (updateImage will have
-                    // been set true in paintRemote()):
-                    if (updateImage)
-                    {
-                        drawnWorld = 1 - drawnWorld;
-                    }
-                }
+                // Now that we've rendered from it, put it back into the old images for re-use:
+                worldImagesForPainting.offer(img);
+                // If it doesn't fit, just let it get GCed.
             }
             sharedMemory.put(lastAckCommand);
             sharedMemory.put(stoppedWithErrorCount);
