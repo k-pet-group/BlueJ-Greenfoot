@@ -272,7 +272,7 @@ public class TestBasicEditorDisplay extends FXTest
         // of the selection and scope backgrounds after taking a screenshot:
         File tmpStyleSheet = File.createTempFile("hide-foreground", "css");
         tmpStyleSheet.deleteOnExit();
-        Files.write(".editor-text, .flow-caret { -fx-opacity: 0.01; }", tmpStyleSheet, StandardCharsets.UTF_8);
+        Files.write(".editor-text, .flow-caret { -fx-opacity: 0.01; } .text-line .flow-selection {-fx-fill: blue;-fx-stroke: null;}", tmpStyleSheet, StandardCharsets.UTF_8);
         stage.getScene().getStylesheets().add(tmpStyleSheet.toURI().toURL().toString());
         stage.show();
     }
@@ -316,7 +316,8 @@ public class TestBasicEditorDisplay extends FXTest
             // Check there's always the same number of lines visible, give or take a couple:
             assertThat(lineRangeVisible[1] - lineRangeVisible[0], between(linesVisible - 1, linesVisible + 1));
             double caretY = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
-            assertThat((int)caretY, between(0, 600));
+            if (caretY < editorSnapshot(false).getHeight())
+                assertThat((int)caretY, between(0, 600));
         }
         
         
@@ -576,6 +577,11 @@ public class TestBasicEditorDisplay extends FXTest
         setText(beforeEnterPoint + afterEnterPoint);
         fx_(() -> flowEditorPane.requestFocus());
         fx_(() -> flowEditorPane.positionCaret(beforeEnterPoint.length()));
+        // Force refresh:
+        fx_(() -> {
+            PrefMgr.setEditorFontSize(10);
+            PrefMgr.setEditorFontSize(12);
+        });
         sleep(500);
         // Find the caret Y:
         Node caret = lookup(".flow-caret").query();
@@ -584,8 +590,8 @@ public class TestBasicEditorDisplay extends FXTest
         // Check initial scopes:
         checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
         checkScopes((int)y, 
-            scope(Color.GREEN, between(0, 2), between(22, 28)),
-            scope(Color.YELLOW, between(25, 30), between(50, 55))
+            scope(Color.GREEN, between(0, 2), between(36, 40)),
+            scope(Color.YELLOW, between(36, 40), between(75, 80))
         );
         for (int i = 0; i < 10; i++)
         {
@@ -596,8 +602,8 @@ public class TestBasicEditorDisplay extends FXTest
             checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
             y = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
             checkScopes((int) y,
-                scope(Color.GREEN, between(0, 2), between(22, 28)),
-                scope(Color.YELLOW, between(25, 30), between(50, 55))
+                scope(Color.GREEN, between(0, 2), between(36, 40)),
+                scope(Color.YELLOW, between(36, 40), between(75, 80))
             );
         }
         for (int i = 0; i < 30; i++)
@@ -607,12 +613,12 @@ public class TestBasicEditorDisplay extends FXTest
         y = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
         // Now, the top should have scrolled off, so should be nested scopes at top:
         checkScopes((int) 6,
-            scope(Color.GREEN, between(0, 2), between(22, 28)),
-            scope(Color.YELLOW, between(25, 30), between(50, 55))
+            scope(Color.GREEN, between(0, 2), between(36, 40)),
+            scope(Color.YELLOW, between(36, 40), between(75, 80))
         );
         checkScopes((int) y,
-            scope(Color.GREEN, between(0, 2), between(22, 28)),
-            scope(Color.YELLOW, between(25, 30), between(50, 55))
+            scope(Color.GREEN, between(0, 2), between(36, 40)),
+            scope(Color.YELLOW, between(36, 40), between(75, 80))
         );
         
         // Get back to top:
@@ -628,11 +634,15 @@ public class TestBasicEditorDisplay extends FXTest
             if (i == 0)
                 checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
             y = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
-            checkScopes((int)y,
-                    scope(Color.GREEN, between(0, 2), between(22, 28)),
-                    scope(Color.YELLOW, between(25, 30), between(50, 55))
-            );
+            if (y < editorSnapshot(false).getHeight())
+            {
+                checkScopes((int) y,
+                        scope(Color.GREEN, between(0, 2), between(36, 40)),
+                        scope(Color.YELLOW, between(36, 40), between(75, 80))
+                );
+            }
             push(KeyCode.DOWN);
+            sleep(100);
         }
         
     }
@@ -677,6 +687,11 @@ public class TestBasicEditorDisplay extends FXTest
         setText(beforeEnterPoint + afterEnterPoint);
         fx_(() -> flowEditorPane.requestFocus());
         fx_(() -> flowEditorPane.positionCaret(beforeEnterPoint.length()));
+        // Force refresh:
+        fx_(() -> {
+            PrefMgr.setEditorFontSize(10);
+            PrefMgr.setEditorFontSize(12);
+        });
         sleep(500);
         // Find the caret Y:
         Node caret = lookup(".flow-caret").query();
@@ -687,12 +702,12 @@ public class TestBasicEditorDisplay extends FXTest
         // Check initial scopes:
         checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
         checkScopes((int) methodHeaderY,
-                scope(Color.GREEN, between(0, 2), between(22, 28)),
-                scope(Color.YELLOW, between(25, 30), between(780, 800))
+                scope(Color.GREEN, between(0, 2), between(35, 40)),
+                scope(Color.YELLOW, between(35, 40), between(780, 800))
         );
         checkScopes((int) y,
-            scope(Color.GREEN, between(0, 2), between(22, 28)),
-            scope(Color.YELLOW, between(25, 30), between(50, 55))
+            scope(Color.GREEN, between(0, 2), between(35, 40)),
+            scope(Color.YELLOW, between(35, 40), between(75, 80))
         );
         push(KeyCode.ENTER);
         push(KeyCode.HOME);
@@ -705,11 +720,11 @@ public class TestBasicEditorDisplay extends FXTest
         // Check scopes got pushed to delete:
         checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
         checkScopes((int) methodHeaderY,
-            scope(Color.GREEN, between(0, 2), between(22, 28)),
-            scope(Color.YELLOW, between(25, 30), between(780, 800))
+            scope(Color.GREEN, between(0, 2), between(35, 40)),
+            scope(Color.YELLOW, between(35, 40), between(780, 800))
         );
         checkScopes((int)y,
-            scope(Color.GREEN, between(0, 2), between(2, 6)),
+            scope(Color.GREEN, between(0, 2), between(5, 10)),
             // The yellow will only be visible on RHS:
             scope(Color.YELLOW, between(770, 800), between(780, 800))
         );
@@ -718,8 +733,8 @@ public class TestBasicEditorDisplay extends FXTest
         // Check scopes back to same as initial:
         checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
         checkScopes((int) y,
-                scope(Color.GREEN, between(0, 2), between(22, 28)),
-                scope(Color.YELLOW, between(25, 30), between(50, 55))
+                scope(Color.GREEN, between(0, 2), between(35, 40)),
+                scope(Color.YELLOW, between(35, 40), between(75, 80))
         );
     }
 
@@ -756,6 +771,10 @@ public class TestBasicEditorDisplay extends FXTest
         setText(beforeEnterPoint + afterEnterPoint);
         fx_(() -> flowEditorPane.requestFocus());
         fx_(() -> flowEditorPane.positionCaret(beforeEnterPoint.length()));
+        fx_(() -> {
+            PrefMgr.setEditorFontSize(10);
+            PrefMgr.setEditorFontSize(12);
+        });
         sleep(500);
         // Find the caret Y:
         Node caret = lookup(".flow-caret").query();
@@ -769,16 +788,16 @@ public class TestBasicEditorDisplay extends FXTest
         // Check initial scopes:
         checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
         checkScopes((int) methodHeaderY,
-                scope(Color.GREEN, between(0, 2), between(22, 28)),
-                scope(Color.YELLOW, between(25, 30), between(780, 800))
+                scope(Color.GREEN, between(0, 2), between(35, 40)),
+                scope(Color.YELLOW, between(35, 40), between(780, 800))
         );
         checkScopes((int) methodInnerY,
-                scope(Color.GREEN, between(0, 2), between(22, 28)),
-                scope(Color.YELLOW, between(25, 30), between(50, 55))
+                scope(Color.GREEN, between(0, 2), between(35, 40)),
+                scope(Color.YELLOW, between(35, 40), between(75, 80))
         );
         checkScopes((int) y,
-                scope(Color.GREEN, between(0, 2), between(22, 28)),
-                scope(Color.YELLOW, between(25, 30), between(50, 55))
+                scope(Color.GREEN, between(0, 2), between(35, 40)),
+                scope(Color.YELLOW, between(35, 40), between(75, 80))
         );
         push(KeyCode.ENTER);
         push(KeyCode.HOME);
@@ -787,19 +806,24 @@ public class TestBasicEditorDisplay extends FXTest
         // There may be auto-indent, but the new line should be there at least:
         assertThat(fx(() -> flowEditorPane.getDocument().getFullContent()), Matchers.startsWith(beforeEnterPoint + "\n"));
         write(" y");
+        // Force refresh:
+        fx_(() -> {
+            PrefMgr.setEditorFontSize(10);
+            PrefMgr.setEditorFontSize(12);
+        });
         sleep(500);
         // Check scopes got pushed left:
         checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
         checkScopes((int) methodHeaderY,
-                scope(Color.GREEN, between(0, 2), between(22, 28)),
-                scope(Color.YELLOW, between(25, 30), between(780, 800))
+                scope(Color.GREEN, between(0, 2), between(35, 40)),
+                scope(Color.YELLOW, between(35, 40), between(780, 800))
         );
         checkScopes((int) methodInnerY,
-                scope(Color.GREEN, between(0, 2), between(22, 28)),
-                scope(Color.YELLOW, between(25, 30), between(50, 55))
+                scope(Color.GREEN, between(0, 2), between(35, 40)),
+                scope(Color.YELLOW, between(35, 40), between(75, 80))
         );
         checkScopes((int)y,
-                scope(Color.GREEN, between(0, 2), between(2, 6)),
+                scope(Color.GREEN, between(0, 2), between(5, 10)),
                 // The yellow will only be visible on RHS:
                 scope(Color.YELLOW, between(770, 800), between(780, 800))
         );
@@ -808,12 +832,12 @@ public class TestBasicEditorDisplay extends FXTest
         // Check scopes back to same as initial:
         checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
         checkScopes((int) methodInnerY,
-                scope(Color.GREEN, between(0, 2), between(22, 28)),
-                scope(Color.YELLOW, between(25, 30), between(50, 55))
+                scope(Color.GREEN, between(0, 2), between(35, 40)),
+                scope(Color.YELLOW, between(35, 40), between(75, 80))
         );
         checkScopes((int) y,
-                scope(Color.GREEN, between(0, 2), between(22, 28)),
-                scope(Color.YELLOW, between(25, 30), between(50, 55))
+                scope(Color.GREEN, between(0, 2), between(35, 40)),
+                scope(Color.YELLOW, between(35, 40), between(75, 80))
         );
     }
 
@@ -858,6 +882,11 @@ public class TestBasicEditorDisplay extends FXTest
         setText(beforeEnterPoint + afterEnterPoint);
         fx_(() -> flowEditorPane.requestFocus());
         fx_(() -> flowEditorPane.positionCaret(beforeEnterPoint.length()));
+        // Force refresh:
+        fx_(() -> {
+            PrefMgr.setEditorFontSize(10);
+            PrefMgr.setEditorFontSize(12);
+        });
         sleep(500);
         // Find the caret Y:
         Node caret = lookup(".flow-caret").query();
@@ -870,16 +899,16 @@ public class TestBasicEditorDisplay extends FXTest
             // Check scopes:
             checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
             checkScopes((int) mainY,
-                scope(Color.GREEN, between(0, 2), between(22, 28)),
-                scope(Color.YELLOW, between(25, 30), between(50, 55))
+                scope(Color.GREEN, between(0, 2), between(35, 40)),
+                scope(Color.YELLOW, between(35, 40), between(75, 80))
             );
             checkScopes((int) gapY,
-                scope(Color.GREEN, between(0, 2), between(22, 28)),
+                scope(Color.GREEN, between(0, 2), between(35, 40)),
                 scope(Color.GREEN, between(780, 800), between(780, 800))
             );
             checkScopes((int) methodAfterY,
-                scope(Color.GREEN, between(0, 2), between(22, 28)),
-                scope(Color.YELLOW, between(25, 30), between(50, 55))
+                scope(Color.GREEN, between(0, 2), between(35, 40)),
+                scope(Color.YELLOW, between(35, 40), between(75, 80))
             );
             // Add and remove lines:
             push(KeyCode.ENTER);
@@ -926,6 +955,7 @@ public class TestBasicEditorDisplay extends FXTest
     {
         // Take screenshot of background:
         WritableImage image = editorSnapshot(false);
+        assertThat((Integer)y, Matchers.lessThan((int)image.getHeight()));
         // Go from LHS:
         int scopeIndex = 0;
         boolean inScope = false;
@@ -934,35 +964,32 @@ public class TestBasicEditorDisplay extends FXTest
         for (int x = 0; x < image.getWidth() && scopeIndex < scopes.length; x += 1)
         {
             Color c = image.getPixelReader().getColor(x, y);
-            if (!c.equals(Color.BLACK))
+            if (isGrey(c) && inScope)
             {
-                if (isGrey(c) && inScope)
+                // End of scope
+                // We don't always get exactly the same colour, so have some tolerance: 
+                try
                 {
-                    // End of scope
-                    // We don't always get exactly the same colour, so have some tolerance: 
-                    try
-                    {
-                        String coords = "At " + x + ", " + y;
-                        assertThat(coords, scopeColor.getRed(), Matchers.closeTo(scopes[scopeIndex].expectedColor.getRed(), 0.03));
-                        assertThat(coords, scopeColor.getGreen(), Matchers.closeTo(scopes[scopeIndex].expectedColor.getGreen(), 0.03));
-                        assertThat(coords, scopeColor.getBlue(), Matchers.closeTo(scopes[scopeIndex].expectedColor.getBlue(), 0.03));
-                        assertThat(coords, scopeStartX, scopes[scopeIndex].lhsCheck);
-                        assertThat(coords, x - 1, scopes[scopeIndex].rhsCheck);
-                    }
-                    catch (AssertionError e)
-                    {
-                        System.out.println("Failing editor image:\n" + asBase64(image));
-                        throw e;
-                    }
-                    inScope = false;
-                    scopeIndex += 1;
+                    String coords = "At " + x + ", " + y;
+                    assertThat(coords, scopeColor.getRed(), Matchers.closeTo(scopes[scopeIndex].expectedColor.getRed(), 0.03));
+                    assertThat(coords, scopeColor.getGreen(), Matchers.closeTo(scopes[scopeIndex].expectedColor.getGreen(), 0.03));
+                    assertThat(coords, scopeColor.getBlue(), Matchers.closeTo(scopes[scopeIndex].expectedColor.getBlue(), 0.03));
+                    assertThat(coords, scopeStartX, scopes[scopeIndex].lhsCheck);
+                    assertThat(coords, x - 1, scopes[scopeIndex].rhsCheck);
                 }
-                else if (!isGrey(c) && !inScope)
+                catch (AssertionError e)
                 {
-                    scopeStartX = x - 1;
-                    scopeColor = c;
-                    inScope = true;
+                    System.out.println("Failing editor image:\n" + asBase64(image));
+                    throw e;
                 }
+                inScope = false;
+                scopeIndex += 1;
+            }
+            else if (!isGrey(c) && !inScope)
+            {
+                scopeStartX = x - 1;
+                scopeColor = c;
+                inScope = true;
             }
         }
         assertEquals("All scopes found at " + y, scopes.length, scopeIndex);
