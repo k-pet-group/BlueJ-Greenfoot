@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2018  Michael Kolling and John Rosenberg 
+ Copyright (C) 2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,14 @@
  */
 package bluej.pkgmgr;
 
+import bluej.Config;
+import bluej.debugger.Debugger;
+import bluej.extensions2.SourceType;
+import bluej.utility.BlueJFileReader;
+import bluej.utility.DialogManager;
+import bluej.utility.FileUtility;
+import javafx.stage.Stage;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -30,14 +38,6 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.nio.file.Path;
 import java.util.Dictionary;
 import java.util.Hashtable;
-
-import bluej.Config;
-import bluej.debugger.Debugger;
-import bluej.extensions.SourceType;
-import bluej.utility.BlueJFileReader;
-import bluej.utility.DialogManager;
-import bluej.utility.FileUtility;
-import javafx.stage.Stage;
 
 /**
  * Utilities for working with projects.

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2013,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2012,2013,2016,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,12 +21,9 @@
  */
 package bluej.extmgr;
 
-import javax.swing.JMenuItem;
-import javax.swing.SwingUtilities;
-import java.util.ArrayList;
-import java.util.List;
-
-import bluej.utility.javafx.FXBiConsumer;
+import bluej.pkgmgr.Project;
+import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.FXPlatformSupplier;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
@@ -34,16 +31,11 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
-import javafx.stage.WindowEvent;
-
-import bluej.pkgmgr.Project;
-import bluej.utility.javafx.FXPlatformRunnable;
-import bluej.utility.javafx.FXPlatformSupplier;
-import bluej.utility.javafx.FXRunnable;
-import bluej.utility.javafx.FXSupplier;
-import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -54,7 +46,7 @@ import threadchecker.Tag;
  * @author Damiano Bolla, University of Kent at Canterbury, 2003,2004,2005
  */
 @OnThread(Tag.FXPlatform)
-public final class FXMenuManager
+public final class ExtensionsMenuManager
 {
     private final ExtensionsManager extMgr;
     private final SeparatorMenuItem menuSeparator;
@@ -79,7 +71,7 @@ public final class FXMenuManager
      * @param  aPopupMenu  The menu that extensions are attaching to.
      * @param menuGenerator
      */
-    public FXMenuManager(ContextMenu aPopupMenu, ExtensionsManager extMgr, ExtensionMenu menuGenerator)
+    public ExtensionsMenuManager(ContextMenu aPopupMenu, ExtensionsManager extMgr, ExtensionMenu menuGenerator)
     {
         this.extMgr = extMgr;
         this.menuGenerator = menuGenerator;
@@ -88,7 +80,7 @@ public final class FXMenuManager
         popupMenu.setOnShowing(this::menuWillBecomeVisible);
         this.menu = null;
     }
-    public FXMenuManager(Menu aMenu, ExtensionsManager extMgr, ExtensionMenu menuGenerator)
+    public ExtensionsMenuManager(Menu aMenu, ExtensionsManager extMgr, ExtensionMenu menuGenerator)
     {
         this.extMgr = extMgr;
         this.menuGenerator = menuGenerator;
@@ -104,20 +96,12 @@ public final class FXMenuManager
      *
      * @param  onThisProject  a specific project to look for, or null for all projects.
      */
-    @OnThread(Tag.SwingIsFX)
+    @OnThread(Tag.FXPlatform)
     public synchronized void addExtensionMenu(Project onThisProject)
     {
         // Get all menus that can be possibly be generated now.
-        List<JMenuItem> menuItems = extMgr.getMenuItems(menuGenerator, onThisProject);
+        List<MenuItem> menuItems = extMgr.getMenuItems(menuGenerator, onThisProject);
 
-        FXBiConsumer<JMenuItem, MenuItem> extraConvert = (swingItem, fxItem) -> {
-            fxItem.getProperties().put("bluej.extmgr.ExtensionWrapper", swingItem.getClientProperty("bluej.extmgr.ExtensionWrapper"));
-            fxItem.getProperties().put("bluej.extmgr.JMenuItem", swingItem);
-        };
-        final FXPlatformRunnable addItems = popupMenu != null ?
-            JavaFXUtil.swingMenuItemsToContextMenu(popupMenu, menuItems, this, extraConvert) :
-            supplierToRunnable(JavaFXUtil.swingMenuToFX(menuItems, this, () -> this.menu, extraConvert));
-        
         Platform.runLater(() -> {
             // Take copy to iterate because we're doing removal:
             final ObservableList<MenuItem> items = getItems();
@@ -126,22 +110,28 @@ public final class FXMenuManager
                 // Only remove if it was an extension item:
                 ExtensionWrapper aWrapper = (ExtensionWrapper) aComponent.getProperties().get(
                         "bluej.extmgr.ExtensionWrapper");
-                
+
                 if (aWrapper == null) {
                     continue;
                 }
-    
+
                 items.remove(aComponent);
             }
-    
+
             items.remove(menuSeparator);
-    
+
             // If the provided menu is empty we are done here.
             if (!menuItems.isEmpty())
             {
                 items.add(menuSeparator);
-                addItems.run();
-            }
+                if (popupMenu!=null)
+                {
+                    popupMenu.getItems().addAll(menuItems);
+                }
+                else
+                {
+                    menu.getItems().addAll(menuItems);
+                }            }
         });
         
     }
@@ -181,19 +171,16 @@ public final class FXMenuManager
                 continue;
             }
 
-            JMenuItem swingItem = (JMenuItem)aComponent.getProperties().get("bluej.extmgr.JMenuItem");
-
-            SwingUtilities.invokeLater(() -> {
+            Platform.runLater(() -> {
                 if (!aWrapper.isValid())
                 {
-                    Platform.runLater(() -> {
-                        items.remove(aComponent);});
+                    items.remove(aComponent);
                 }
                 else
                 {
                     synchronized (this)
                     {
-                        aWrapper.safePostMenuItem(menuGenerator, swingItem);
+                        aWrapper.safePostMenuItem(menuGenerator, aComponent);
                     }
                 }
             });

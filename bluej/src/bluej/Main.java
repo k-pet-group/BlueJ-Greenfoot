@@ -22,10 +22,9 @@
 package bluej;
 
 import bluej.collect.DataCollector;
-import bluej.extensions.event.ApplicationEvent;
+import bluej.extensions2.event.ApplicationEvent;
 import bluej.extmgr.ExtensionWrapper;
 import bluej.extmgr.ExtensionsManager;
-import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
@@ -45,7 +44,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -69,7 +67,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.time.LocalDate;
-import java.util.EventListener;
 import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;

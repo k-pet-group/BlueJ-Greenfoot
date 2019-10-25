@@ -21,10 +21,10 @@
  */
 package bluej.terminal;
 
-import java.awt.Toolkit;
-
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.awt.*;
 
 /**
  * A type-ahead input buffer for the BlueJ terminal. Implemented with

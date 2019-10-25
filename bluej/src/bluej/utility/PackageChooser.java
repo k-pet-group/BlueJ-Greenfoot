@@ -41,7 +41,7 @@ import javax.swing.plaf.basic.BasicFileChooserUI;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
-import bluej.extensions.SourceType;
+import bluej.extensions2.SourceType;
 import bluej.pkgmgr.Package;
 import bluej.utility.filefilter.DirectoryFilter;
 import bluej.utility.filefilter.JavaSourceFilter;

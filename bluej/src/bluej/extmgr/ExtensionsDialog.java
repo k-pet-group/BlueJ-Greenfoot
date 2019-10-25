@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2016,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,30 +21,23 @@
  */
 package bluej.extmgr;
 
-import javax.swing.*;
-
-import bluej.*;
+import bluej.Config;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
-import threadchecker.OnThread;
-import threadchecker.Tag;
-
-import java.net.URL;
-import java.util.List;
 import javafx.application.Platform;
-import javafx.scene.Node;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Hyperlink;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TitledPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Modality;
 import javafx.stage.Window;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
+import javax.swing.*;
+import java.net.URL;
+import java.util.List;
 
 /**
  * The Extensions Manager help panel allows the user to view current extensions.

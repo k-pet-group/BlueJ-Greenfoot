@@ -21,27 +21,29 @@
  */
 package bluej.extmgr;
 
-import java.awt.Graphics2D;
-import java.io.File;
-import java.util.*;
-import java.util.List;
-
-import bluej.*;
+import bluej.BlueJEvent;
+import bluej.BlueJEventListener;
+import bluej.Config;
 import bluej.debugmgr.ExecutionEvent;
-import bluej.extensions.BClassTarget;
-import bluej.extensions.event.*;
-import bluej.extensions.painter.ExtensionClassTargetPainter;
-import bluej.pkgmgr.*;
+import bluej.extensions2.event.ExtensionEvent;
+import bluej.extensions2.event.InvocationEvent;
+import bluej.extensions2.event.PackageEvent;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.Layer;
+import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.Project;
 import bluej.utility.Debug;
 import bluej.utility.javafx.FXPlatformSupplier;
-
-import javax.swing.*;
 import javafx.application.Platform;
+import javafx.scene.control.MenuItem;
 import javafx.stage.Window;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Manages extensions and provides the main interface to them. A
@@ -92,7 +94,7 @@ public class ExtensionsManager
     private void loadExtensions()
     {
         // Most of the time the systemDirectory will be this.
-        File systemDir = new File(Config.getBlueJLibDir(), "extensions");
+        File systemDir = new File(Config.getBlueJLibDir(), "extensions2");
 
         String dirPath = Config.getPropString("bluej.extensions.systempath", null);
         // But we allow one to override the default location of system
@@ -340,9 +342,9 @@ public class ExtensionsManager
     /**
      * Returns a List of menus currently provided by extensions.
      */
-    LinkedList<JMenuItem> getMenuItems(ExtensionMenu attachedObject, Project onThisProject)
+    LinkedList<MenuItem> getMenuItems(ExtensionMenu attachedObject, Project onThisProject)
     {
-        LinkedList<JMenuItem> menuItems = new LinkedList<JMenuItem>();
+        LinkedList<MenuItem> menuItems = new LinkedList<MenuItem>();
 
         synchronized(extensions) {                
             for (ExtensionWrapper aWrapper : extensions) {
@@ -354,12 +356,12 @@ public class ExtensionsManager
                     continue;
                 }
     
-                JMenuItem anItem = aWrapper.safeGetMenuItem(attachedObject);
+                MenuItem anItem = aWrapper.safeGetMenuItem(attachedObject);
                 if (anItem == null) {
                     continue;
                 }
     
-                anItem.putClientProperty("bluej.extmgr.ExtensionWrapper", aWrapper);
+                anItem.getProperties().put("bluej.extmgr.ExtensionWrapper", aWrapper);
     
                 menuItems.add(anItem);
             }
@@ -400,35 +402,6 @@ public class ExtensionsManager
             ExecutionEvent exevent = (ExecutionEvent) arg;
             delegateEvent(new InvocationEvent(exevent));
             return;
-        }
-    }
-    
-    /**
-     * Calls the extension to draw its representation of a class target.
-     * 
-     * @param layer
-     *            The layer of the drawing which causes the different methods of
-     *            the {@link ExtensionClassTargetPainter} instance to be called.
-     * @param bClassTarget
-     *            The class target that will be painted.
-     * @param graphics
-     *            The {@link Graphics2D} instance to draw on.
-     * @param width
-     *            The width of the area to paint.
-     * @param height
-     *            The height of the area to paint.
-     */
-    public void drawExtensionClassTarget(Layer layer, BClassTarget bClassTarget,
-            Graphics2D graphics, int width, int height)
-    {
-        synchronized (extensions) {
-            for (ExtensionWrapper extension : extensions) {
-                if (!extension.isValid()) {
-                    continue;
-                }
-
-                extension.safeDrawExtensionClassTarget(layer, bClassTarget, graphics, width, height);
-            }
         }
     }
     

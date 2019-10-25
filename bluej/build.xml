@@ -50,7 +50,7 @@
     <property name="boot.jar" value="${bluej_home}/lib/bluej.jar"/>
     <property name="core.jar" value="${bluej_home}/lib/bluejcore.jar"/>
     <property name="editor.jar" value="${bluej_home}/lib/bluejeditor.jar"/>
-    <property name="extension.jar" value="${bluej_home}/lib/bluejext.jar"/>
+    <property name="extension2.jar" value="${bluej_home}/lib/bluejext2.jar"/>
     <property name="lang-stride.jar" value="${bluej_home}/lib/lang-stride.jar"/>
     <property name="greenfoot-native.jar" value="${bluej_home}/lib/greenfoot-native.jar"/>
 
@@ -248,10 +248,10 @@
 
     <target name="jar-extension" depends="jar-boot, compile-core">
         <!-- delete the old jar first. To make sure it gets recreated -->
-        <delete quiet="true" file="${extension.jar}"/>
-        <jar compress="yes" jarfile="${extension.jar}">
+        <delete quiet="true" file="${extension2.jar}"/>
+        <jar compress="yes" jarfile="${extension2.jar}">
             <fileset dir="${core.build}">
-                <include name="bluej/extensions/**" />
+                <include name="bluej/extensions2/**" />
             </fileset>
         </jar>
     </target>
@@ -330,7 +330,7 @@
                 <path refid="bluej.class.path"/>
                 <pathelement location="${boot.build}"/>
                 <pathelement location="${core.build}"/>
-                <pathelement location="${extension.jar}"/>
+                <pathelement location="${extension2.jar}"/>
                 <pathelement location="${editor.jar}"/>
                 <pathelement location="${lang-stride.jar}"/>
                 <pathelement location="${test.build}"/>
@@ -489,7 +489,7 @@
         <delete quiet="true" dir="${core.build}" />
         <delete quiet="true" file="${core.jar}" />
         <delete quiet="true" file="${editor.jar}" />
-        <delete quiet="true" file="${extension.jar}" />
+        <delete quiet="true" file="${extension2.jar}" />
         <delete quiet="true" file="${lang-stride.jar}" />
     </target>
 

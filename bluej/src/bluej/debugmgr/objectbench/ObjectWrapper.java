@@ -64,10 +64,10 @@ import bluej.debugmgr.Invoker;
 import bluej.debugmgr.NamedValue;
 import bluej.debugmgr.ResultWatcher;
 import bluej.debugmgr.inspector.ObjectBackground;
-import bluej.extensions.BObject;
-import bluej.extensions.ExtensionBridge;
+import bluej.extensions2.BObject;
+import bluej.extensions2.ExtensionBridge;
 import bluej.extmgr.ExtensionsManager;
-import bluej.extmgr.FXMenuManager;
+import bluej.extmgr.ExtensionsMenuManager;
 import bluej.extmgr.ObjectExtensionMenu;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -428,7 +428,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         JavaFXUtil.addStyleClass(item, MENU_STYLE_INBUILT);
         item.setOnAction(e -> removeObject());
 
-        FXMenuManager menuManager = new FXMenuManager(menu, extMgr, new ObjectExtensionMenu(this));
+        ExtensionsMenuManager menuManager = new ExtensionsMenuManager(menu, extMgr, new ObjectExtensionMenu(this));
         menuManager.addExtensionMenu(pkg.getProject());
     }
     

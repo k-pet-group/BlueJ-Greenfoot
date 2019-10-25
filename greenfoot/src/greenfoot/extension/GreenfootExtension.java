@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2010,2011,2013,2016,2018  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2010,2011,2013,2016,2018,2019  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,8 +23,8 @@ package greenfoot.extension;
 
 import bluej.Boot;
 import bluej.collect.DataSubmissionFailedDialog;
-import bluej.extensions.event.CompileEvent;
-import bluej.extensions.event.CompileListener;
+import bluej.extensions2.event.CompileEvent;
+import bluej.extensions2.event.CompileListener;
 import greenfoot.guifx.GreenfootGuiHandler;
 
 import java.net.MalformedURLException;
@@ -32,10 +32,10 @@ import java.net.URL;
 
 import bluej.Config;
 import bluej.Main;
-import bluej.extensions.BlueJ;
-import bluej.extensions.Extension;
-import bluej.extensions.event.ApplicationEvent;
-import bluej.extensions.event.ApplicationListener;
+import bluej.extensions2.BlueJ;
+import bluej.extensions2.Extension;
+import bluej.extensions2.event.ApplicationEvent;
+import bluej.extensions2.event.ApplicationListener;
 import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;

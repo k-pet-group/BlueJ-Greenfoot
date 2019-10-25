@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 2012,2013,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,9 +21,8 @@
  */
 package bluej.extmgr;
 
-import javax.swing.JMenuItem;
-
-import bluej.extensions.MenuGenerator;
+import bluej.extensions2.MenuGenerator;
+import javafx.scene.control.MenuItem;
 
 /**
  * This interface provides methods for retrieving custom menu entries of an
@@ -39,10 +38,10 @@ public interface ExtensionMenu
      * 
      * @param menuGenerator
      *            The {@link MenuGenerator} which creates the menu.
-     * @return The {@link JMenuItem} the extension provides or <code>null</code>
+     * @return The {@link MenuItem} the extension provides or <code>null</code>
      *         if it does not provide a menu entry.
      */
-    JMenuItem getMenuItem(MenuGenerator menuGenerator);
+    MenuItem getMenuItem(MenuGenerator menuGenerator);
 
     /**
      * Post a notification about a menu going to be displayed.
@@ -50,7 +49,7 @@ public interface ExtensionMenu
      * @param menuGenerator
      *            The {@link MenuGenerator} which creates the menu.
      * @param onThisItem
-     *            The {@link JMenuItem} which is about to show.
+     *            The {@link MenuItem} which is about to show.
      */
-    void postMenuItem(MenuGenerator menuGenerator, JMenuItem onThisItem);
+    void postMenuItem(MenuGenerator menuGenerator, MenuItem onThisItem);
 }

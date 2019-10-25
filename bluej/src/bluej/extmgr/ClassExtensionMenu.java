@@ -21,12 +21,11 @@
  */
 package bluej.extmgr;
 
-import javax.swing.JMenuItem;
-
-import bluej.extensions.BClass;
-import bluej.extensions.ExtensionBridge;
-import bluej.extensions.MenuGenerator;
+import bluej.extensions2.BClass;
+import bluej.extensions2.ExtensionBridge;
+import bluej.extensions2.MenuGenerator;
 import bluej.pkgmgr.target.ClassTarget;
+import javafx.scene.control.MenuItem;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -53,14 +52,14 @@ public class ClassExtensionMenu implements ExtensionMenu
     }
 
     @Override
-    public JMenuItem getMenuItem(MenuGenerator menuGenerator)
+    public MenuItem getMenuItem(MenuGenerator menuGenerator)
     {
         BClass bClass = ExtensionBridge.newBClass(classTarget);
         return menuGenerator.getClassMenuItem(bClass);
     }
 
     @Override
-    public void postMenuItem(MenuGenerator menuGenerator, JMenuItem onThisItem)
+    public void postMenuItem(MenuGenerator menuGenerator, MenuItem onThisItem)
     {
         BClass bClass = ExtensionBridge.newBClass(classTarget);
         menuGenerator.notifyPostClassMenu(bClass, onThisItem);

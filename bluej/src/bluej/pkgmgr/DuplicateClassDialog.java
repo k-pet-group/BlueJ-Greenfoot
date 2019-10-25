@@ -22,7 +22,7 @@
 package bluej.pkgmgr;
 
 import bluej.Config;
-import bluej.extensions.SourceType;
+import bluej.extensions2.SourceType;
 import bluej.utility.JavaNames;
 import bluej.utility.javafx.dialog.InputDialog;
 import javafx.stage.Window;

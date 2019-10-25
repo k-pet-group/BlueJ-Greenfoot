@@ -21,42 +21,33 @@
  */
 package bluej.prefmgr;
 
-import javax.swing.SwingUtilities;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-
 import bluej.BlueJTheme;
-import bluej.pkgmgr.Project;
-import bluej.utility.Utility;
-import bluej.utility.javafx.SwingNodeFixed;
-import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.embed.swing.SwingNode;
-import javafx.scene.Node;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TitledPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
-
 import bluej.Config;
 import bluej.classmgr.ClassMgrPrefPanel;
 import bluej.editor.moe.EditorPrefPanel;
 import bluej.editor.moe.KeyBindingsPanel;
 import bluej.extmgr.ExtensionPrefManager;
 import bluej.extmgr.ExtensionsManager;
+import bluej.pkgmgr.Project;
+import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.Node;
+import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 /**
  * A JDialog subclass to allow the user to interactively edit
@@ -153,8 +144,6 @@ public class PrefMgrDialog
     
     /**
      * Setup the UI for the dialog and event handlers for the dialog's buttons.
-     *
-     * @param title the title of the dialog
      */
     private PrefMgrDialog()
     {
@@ -182,19 +171,13 @@ public class PrefMgrDialog
         KeyBindingsPanel kbPanel = new KeyBindingsPanel(() -> window == null || window.getDialogPane().getScene() == null ? null : window.getDialogPane().getScene().getWindow());
         add(1, kbPanel, Config.getString("prefmgr.edit.keybindingstitle"), kbPanel);
 
-        SwingUtilities.invokeLater(() -> {
-            if (!Config.isGreenfoot())
-            {
-                SwingNode extSwing = new SwingNodeFixed();
-                ExtensionPrefManager mgr = ExtensionsManager.getInstance().getPrefManager();
-                extSwing.setContent(mgr.getPanel());
-                Platform.runLater(() -> {
-                    // Extensions is sixth:
-                    add(5, extSwing, Config.getString("extmgr.extensions"), mgr);
-                });
-            }
-            Platform.runLater(() -> prefPanesCreated.set(true));
-        });
+        if (!Config.isGreenfoot())
+        {
+            // Extensions is sixth:
+            ExtensionPrefManager mgr = ExtensionsManager.getInstance().getPrefManager();
+            add(5, mgr.getExtensionContent(), Config.getString("extmgr.extensions"), mgr);
+        }
+        Platform.runLater(() -> prefPanesCreated.set(true));
     }
     
     /**

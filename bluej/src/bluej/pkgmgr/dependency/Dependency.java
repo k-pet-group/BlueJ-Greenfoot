@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2015,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2013,2015,2016,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,25 +21,22 @@
  */
 package bluej.pkgmgr.dependency;
 
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.util.Properties;
-
-import javax.swing.*;
-
 import bluej.Config;
-import bluej.extensions.BDependency;
-import bluej.extensions.BDependency.Type;
-import bluej.extensions.ExtensionBridge;
-import bluej.extensions.event.DependencyEvent;
+import bluej.extensions2.BDependency;
+import bluej.extensions2.BDependency.Type;
+import bluej.extensions2.ExtensionBridge;
+import bluej.extensions2.event.DependencyEvent;
 import bluej.extmgr.ExtensionsManager;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PackageEditor;
-import bluej.pkgmgr.target.*;
+import bluej.pkgmgr.target.DependentTarget;
+import bluej.pkgmgr.target.Target;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import javax.swing.*;
+import java.util.Properties;
 
 /**
  * A dependency between two targets in a package.

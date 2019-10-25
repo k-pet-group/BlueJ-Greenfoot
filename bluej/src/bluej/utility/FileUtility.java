@@ -21,31 +21,23 @@
  */
 package bluej.utility;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import bluej.Config;
+import bluej.extensions2.SourceType;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
+import bluej.prefmgr.PrefMgr;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
-
 import threadchecker.OnThread;
 import threadchecker.Tag;
-import bluej.Config;
-import bluej.extensions.SourceType;
-import bluej.prefmgr.PrefMgr;
+
+import java.io.*;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A file utility for various file related actions.
