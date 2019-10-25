@@ -100,6 +100,8 @@ public class FlowEditorPane extends Region implements DocumentListener
     private boolean postScrollRenderQueued = false;
     private boolean editable = true;
     private boolean forceCaretShow = false;
+    // The pending amount to scroll by (mouse/touch scroll events are batched up)
+    private double pendingScrollY;
 
     public FlowEditorPane(String content, FlowEditorPaneListener listener)
     {
@@ -721,12 +723,14 @@ public class FlowEditorPane extends Region implements DocumentListener
         updatingScrollBarDirectly = true;
         horizontalScroll.setValue(Math.max(horizontalScroll.getMin(), Math.min(horizontalScroll.getMax(), horizontalScroll.getValue() - scrollEvent.getDeltaX())));
         updatingScrollBarDirectly = false;
-        lineDisplay.scrollBy(scrollEvent.getDeltaY(), document.getLineCount());
+        pendingScrollY += scrollEvent.getDeltaY();
         if (!postScrollRenderQueued)
         {
             postScrollRenderQueued = true;
-            JavaFXUtil.runAfter(Duration.millis(100), () -> {
+            JavaFXUtil.runAfter(Duration.millis(50), () -> {
                 postScrollRenderQueued = false;
+                lineDisplay.scrollBy(pendingScrollY, document.getLineCount());
+                pendingScrollY = 0;
                 updateRender(false);
             });
         }
