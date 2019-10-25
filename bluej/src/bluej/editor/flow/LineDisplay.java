@@ -288,7 +288,7 @@ class LineDisplay
         return lineHeightEstimate;
     }
 
-    public void applyScopeBackgrounds(Map<Integer, List<Region>> scopeBackgrounds)
+    public void applyScopeBackgrounds(Map<Integer, List<BackgroundItem>> scopeBackgrounds)
     {
         visibleLines.forEach((lineIndex, item) -> {
             item.textLine.setScopeBackgrounds(scopeBackgrounds.get(lineIndex));

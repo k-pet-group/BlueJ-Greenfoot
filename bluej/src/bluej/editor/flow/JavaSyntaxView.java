@@ -148,7 +148,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     private int latestRenderStartIncl = 0;
     private int latestRenderEndIncl = Integer.MAX_VALUE;
 
-    public Map<Integer, List<Region>> getScopeBackgrounds()
+    public Map<Integer, List<BackgroundItem>> getScopeBackgrounds()
     {
         return scopeBackgrounds.scopeBackgrounds;
     }
@@ -211,7 +211,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
          * The actual scope backgrounds currently being displayed in the editor.  The inner lists
          * are held in paint order (outermost = first-painted = first in list).
          */
-        private final Map<Integer, List<Region>> scopeBackgrounds  = new HashMap<>();
+        private final Map<Integer, List<BackgroundItem>> scopeBackgrounds  = new HashMap<>();
 
         /**
          * Stores the nested scope information for a given line, which will be used to put
@@ -235,7 +235,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
          * Adds a scope box to the end of the current paint list (i.e. will be painted over
          * the existing boxes).
          */
-        public void addScopeBox(Integer line, Region rectangle)
+        public void addScopeBox(Integer line, BackgroundItem rectangle)
         {
             scopeBackgrounds.computeIfAbsent(line, k -> new ArrayList<>()).add(rectangle);
         }
@@ -281,7 +281,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 
         public void linesRemoved(int firstRemovedLineIndex, int removedCount)
         {
-            HashMap<Integer, List<Region>> newScope = new HashMap<>();
+            HashMap<Integer, List<BackgroundItem>> newScope = new HashMap<>();
             HashMap<Integer, List<SingleNestedScope>> newSource = new HashMap<>();
             scopeBackgrounds.forEach((l, rs) -> {
                 if (l < firstRemovedLineIndex)
@@ -303,7 +303,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 
         public void linesAdded(int lineIndex, int addedCount)
         {
-            HashMap<Integer, List<Region>> newScope = new HashMap<>();
+            HashMap<Integer, List<BackgroundItem>> newScope = new HashMap<>();
             HashMap<Integer, List<SingleNestedScope>> newSource = new HashMap<>();
             scopeBackgrounds.forEach((l, rs) -> {
                 if (l < lineIndex)
@@ -1956,20 +1956,10 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     {
         pendingScopeBackgrounds.forEach((line, info) -> {
             scopeBackgrounds.removeAllScopesForLine(line);
-            Optional<double[]> possVertBounds = editorPane.getTopAndBottom(line);
-            if (possVertBounds.isEmpty() || possVertBounds.get()[1] < 3)
-            {
-                possVertBounds = Optional.of(new double[] {0, editorPane.getLineHeight()});
-            }
             scopeBackgrounds.storeSource(line, info);
             for (SingleNestedScope nestedScope : info)
             {
                 // Draw outer:
-                Region rectangle = new Region();
-                rectangle.setManaged(false);
-                rectangle.resizeRelocate(
-                    nestedScope.lhs, 0, nestedScope.rhs - nestedScope.lhs, possVertBounds.get()[1] - possVertBounds.get()[0]
-                );
                 CornerRadii radii = null;
                 Insets bodyInsets = null;
                 double singleRadius = 5.0;
@@ -1992,10 +1982,10 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 {
                     bodyInsets = new Insets(0, 1, 0, 1);
                 }
-                rectangle.setBackground(new Background(
+                BackgroundItem rectangle = new BackgroundItem(nestedScope.lhs, nestedScope.rhs - nestedScope.lhs,
                     new BackgroundFill(nestedScope.edgeColor, radii, null),
                     new BackgroundFill(nestedScope.fillColor, radii, bodyInsets)
-                ));
+                );
                 scopeBackgrounds.addScopeBox(line, rectangle);
             }
         });

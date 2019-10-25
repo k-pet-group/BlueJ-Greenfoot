@@ -65,7 +65,7 @@ class TextLine extends TextFlow
     private final Path bracketMatchShape = new Path();
     private final Path errorUnderlineShape = new Path();
     
-    private List<Node> backgroundNodes = Collections.emptyList();
+    private List<BackgroundItem> backgroundNodes = Collections.emptyList();
     private List<StyledSegment> latestContent = Collections.emptyList();
     private final Rectangle clip;
 
@@ -87,6 +87,16 @@ class TextLine extends TextFlow
         clip.widthProperty().bind(widthProperty());
         clip.heightProperty().bind(heightProperty());
         setClip(clip);
+        JavaFXUtil.addChangeListenerPlatform(heightProperty(), g -> updateBackgroundHeight());
+    }
+
+    private void updateBackgroundHeight()
+    {
+        double height = getHeight();
+        for (BackgroundItem backgroundNode : backgroundNodes)
+        {
+            backgroundNode.sizeToHeight(height);
+        }
     }
 
     /**
@@ -260,12 +270,13 @@ class TextLine extends TextFlow
         errorUnderlineShape.setVisible(false);
     }
 
-    public void setScopeBackgrounds(Collection<? extends Node> nodes)
+    public void setScopeBackgrounds(Collection<BackgroundItem> nodes)
     {
         if (nodes == null)
             nodes = Collections.emptyList();
         
         this.backgroundNodes = new ArrayList<>(nodes);
+        updateBackgroundHeight();
         int selectionIndex = getChildren().indexOf(bracketMatchShape);
         getChildren().remove(0, selectionIndex);
         getChildren().addAll(0, backgroundNodes);

@@ -572,21 +572,19 @@ public class FlowEditorPane extends Region implements DocumentListener
         this.errorQuery = errorQuery;
     }
 
-    public void applyScopeBackgrounds(Map<Integer, List<Region>> scopeBackgrounds)
+    public void applyScopeBackgrounds(Map<Integer, List<BackgroundItem>> scopeBackgrounds)
     {
         // Important to take a copy so as to not modify the original:
-        HashMap<Integer, List<Region>> withOverlays = new HashMap<>();
+        HashMap<Integer, List<BackgroundItem>> withOverlays = new HashMap<>();
         Set<Integer> breakpointLines = listener.getBreakpointLines();
         int stepLine = listener.getStepLine();
         
         scopeBackgrounds.forEach((line, scopes) -> {
             if (breakpointLines.contains(line) || line == stepLine)
             {
-                ArrayList<Region> regions = new ArrayList<>(scopes);
-                Region region = new Region();
-                region.setManaged(false);
-                region.resizeRelocate(0, 0, getWidth() - MarginAndTextLine.TEXT_LEFT_EDGE, lineDisplay.getLineHeight());
-                region.setBackground(new Background(new BackgroundFill((line == stepLine ? listener.stepMarkOverlayColorProperty() : listener.breakpointOverlayColorProperty()).get(), null, null)));
+                ArrayList<BackgroundItem> regions = new ArrayList<>(scopes);
+                BackgroundItem region = new BackgroundItem(0, getWidth() - MarginAndTextLine.TEXT_LEFT_EDGE, 
+                    new BackgroundFill((line == stepLine ? listener.stepMarkOverlayColorProperty() : listener.breakpointOverlayColorProperty()).get(), null, null));
                 regions.add(region);
                 withOverlays.put(line, regions);
             }
