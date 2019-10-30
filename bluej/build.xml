@@ -45,7 +45,7 @@
     <property name="test.build" value="test/classes"/>
     <property name="test.report" value="test/report"/>
 
-    <property name="extensions.lib"  location="${bluej_home}/lib/extensions"/>
+    <property name="extensions.lib"  location="${bluej_home}/lib/extensions2"/>
 
     <property name="boot.jar" value="${bluej_home}/lib/bluej.jar"/>
     <property name="core.jar" value="${bluej_home}/lib/bluejcore.jar"/>
@@ -212,7 +212,7 @@
         <delete quiet="true" file="${core.jar}"/>
         <jar compress="yes" jarfile="${core.jar}">
             <fileset dir="${core.build}">
-                <exclude name="bluej/extensions/**" />
+                <exclude name="bluej/extensions2/**" />
                 <exclude name="bluej/editor/**" />
                 <exclude name="org/**" />
                 <exclude name="lang/**" />
@@ -359,10 +359,10 @@
             bottom="&lt;a href=http://www.bluej.org/&gt;BlueJ homepage&lt;/a&gt;">
 
             <fileset dir="src" defaultexcludes="yes">
-                <include name="bluej/extensions/*.java" />
-                <exclude name="bluej/extensions/ExtensionBridge.java"/>
-                <include name="bluej/extensions/editor/*.java"/>
-                <exclude name="bluej/extensions/editor/EditorBridge.java"/>
+                <include name="bluej/extensions2/*.java" />
+                <exclude name="bluej/extensions2/ExtensionBridge.java"/>
+                <include name="bluej/extensions2/editor/*.java"/>
+                <exclude name="bluej/extensions2/editor/EditorBridge.java"/>
             </fileset>
             <classpath>
                 <path refid="bluej.class.path"/>
@@ -475,7 +475,7 @@
         <delete quiet="false" file="${greenfoot-native.jar}" />
         <delete dir="package/scenarios" />
         <delete>
-            <fileset file="lib/extensions/greenfoot.jar"/>
+            <fileset file="lib/extensions2/greenfoot.jar"/>
         </delete>
         
         <delete includeEmptyDirs="true">
