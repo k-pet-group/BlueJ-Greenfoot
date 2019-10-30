@@ -2041,18 +2041,12 @@ public class ClassTarget extends DependentTarget
         roleFinal = role;
         SourceType sourceAvailableFinal = sourceAvailable;
         boolean docExists = getDocumentationFile().exists();
-        Platform.runLater(() ->
+        ExtensionsManager extMgr = ExtensionsManager.getInstance();
+        withMenu(clFinal, roleFinal, sourceAvailableFinal, docExists, menu ->
         {
-            ExtensionsManager extMgr = ExtensionsManager.getInstance();
-            Platform.runLater(() ->
-            {
-                withMenu(clFinal, roleFinal, sourceAvailableFinal, docExists, menu ->
-                {
-                    showingMenu(menu);
-                    menu.show(pane, x, y);
-                }, extMgr);
-            });
-        });
+            showingMenu(menu);
+            menu.show(pane, x, y);
+        }, extMgr);
     }
 
     /**
@@ -2407,12 +2401,10 @@ public class ClassTarget extends DependentTarget
         if (vis != this.visible) {
             this.visible = vis;
             pane.setVisible(vis);
-            
-            Platform.runLater(() -> {
-                // Inform all listeners about the visibility change
-                ClassTargetEvent event = new ClassTargetEvent(this, getPackage(), vis);
-                ExtensionsManager.getInstance().delegateEvent(event);
-            });
+
+            // Inform all listeners about the visibility change
+            ClassTargetEvent event = new ClassTargetEvent(this, getPackage(), vis);
+            ExtensionsManager.getInstance().delegateEvent(event);
         }
     }
 

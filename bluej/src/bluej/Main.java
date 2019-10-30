@@ -366,12 +366,9 @@ public class Main
     @OnThread(Tag.FXPlatform)
     public static void doQuit() {
         guiHandler.doExitCleanup();
-
-        Platform.runLater(() -> {
-            ExtensionsManager extMgr = ExtensionsManager.getInstance();
-            extMgr.unloadExtensions();
-            bluej.Main.exit();
-        });
+        ExtensionsManager extMgr = ExtensionsManager.getInstance();
+        extMgr.unloadExtensions();
+        bluej.Main.exit();
     }
 
     /**

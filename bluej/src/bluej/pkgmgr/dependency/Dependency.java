@@ -37,6 +37,8 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A dependency between two targets in a package.
@@ -109,7 +111,18 @@ public abstract class Dependency
     public BDependency getBDependency()
     {
         if (singleBDependency == null) {
-            singleBDependency = ExtensionBridge.newBDependency(this, getType());
+            CompletableFuture<BDependency> singleBDependencyFuture = new CompletableFuture<>();
+            Platform.runLater(() -> {
+                singleBDependencyFuture.complete( ExtensionBridge.newBDependency(this, getType()));
+            });
+            try
+            {
+                singleBDependency = singleBDependencyFuture.get();
+            }
+            catch (InterruptedException | ExecutionException e)
+            {
+                throw new RuntimeException(e);
+            }
         }
 
         return singleBDependency;
@@ -183,12 +196,10 @@ public abstract class Dependency
         if (vis != this.visible) {
             this.visible = vis;
             pkg.repaint();
-            
-            Platform.runLater(() -> {
-                // Inform all listeners about the visibility change
-                DependencyEvent event = new DependencyEvent(this, getFrom().getPackage(), vis);
-                ExtensionsManager.getInstance().delegateEvent(event);
-            });
+
+            // Inform all listeners about the visibility change
+            DependencyEvent event = new DependencyEvent(this, getFrom().getPackage(), vis);
+            ExtensionsManager.getInstance().delegateEvent(event);
         }
     }
 

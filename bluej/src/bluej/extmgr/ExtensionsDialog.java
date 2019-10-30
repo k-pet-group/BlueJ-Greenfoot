@@ -92,9 +92,7 @@ public class ExtensionsDialog
             String extensionFileName = wrapper.getExtensionFileName();
             URL url = wrapper.safeGetURL();
             // But create the TitledPane on the FX thread:
-            Platform.runLater(() -> 
-                extensionsVBox.getChildren().add(makeDisplay(extensionName, extensionStatus, extensionVersion, extensionDescription, isProject, extensionFileName, url))
-            );
+            extensionsVBox.getChildren().add(makeDisplay(extensionName, extensionStatus, extensionVersion, extensionDescription, isProject, extensionFileName, url));
         });
     }
     
