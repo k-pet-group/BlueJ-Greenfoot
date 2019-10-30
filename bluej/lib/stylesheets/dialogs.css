@@ -387,10 +387,6 @@
     -fx-label-padding: 0 0 1em 0;
 }
 
-.prefs.extensions.userPane {
-    -fx-border-width: 1px;
-}
-
 .not-a-project {
     -fx-spacing: 0.5em;
     -fx-min-width: 500.0;

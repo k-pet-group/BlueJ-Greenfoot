@@ -105,7 +105,7 @@ public abstract class Dependency
         return (DependentTarget) to;
     }
 
-    @OnThread(Tag.SwingIsFX)
+    @OnThread(Tag.Any)
     public BDependency getBDependency()
     {
         if (singleBDependency == null) {

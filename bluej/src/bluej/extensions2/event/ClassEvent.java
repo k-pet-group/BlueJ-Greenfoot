@@ -51,7 +51,7 @@ import threadchecker.Tag;
  * 
  * @author Davin McCall
  */
-@OnThread(Tag.Any)
+@OnThread(Tag.FXPlatform)
 public class ClassEvent implements ExtensionEvent
 {
     public static final int STATE_CHANGED = 0;
