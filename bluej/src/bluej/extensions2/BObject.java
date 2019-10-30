@@ -105,8 +105,7 @@ public class BObject
         ObjectBench aBench = aFrame.getObjectBench();
         // Take copy because we're about to blank it:
         ObjectWrapper prevWrapper = objectWrapper;
-        Platform.runLater(() -> {aBench.removeObject(prevWrapper, aPackage.getId());});
-
+        aBench.removeObject(prevWrapper, aPackage.getId());
         objectWrapper = null;
     }
 

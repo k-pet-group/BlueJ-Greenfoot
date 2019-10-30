@@ -66,7 +66,6 @@ public class PrefMgrDialog
      * Creating the preference panes requires thread-hopping.  This property
      * is set to true (on the FXPlatform thread) once they are ready.
      */
-    @OnThread(Tag.FXPlatform)
     private BooleanProperty prefPanesCreated = new SimpleBooleanProperty(false);
     
     /** Indicates whether the dialog has been prepared for display. */
@@ -177,7 +176,7 @@ public class PrefMgrDialog
             ExtensionPrefManager mgr = ExtensionsManager.getInstance().getPrefManager();
             add(5, mgr.getExtensionContent(), Config.getString("extmgr.extensions"), mgr);
         }
-        Platform.runLater(() -> prefPanesCreated.set(true));
+        prefPanesCreated.set(true);
     }
     
     /**

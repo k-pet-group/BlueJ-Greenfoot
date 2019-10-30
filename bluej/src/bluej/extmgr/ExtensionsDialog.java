@@ -61,29 +61,26 @@ public class ExtensionsDialog
      * Setup the UI for the dialog and event handlers for the dialog's buttons.
      * This new version is guarantee to have a valid extension manager.
      */
-    @OnThread(Tag.Swing)
     ExtensionsDialog(List<ExtensionWrapper> extensionsList, FXPlatformSupplier<Window> parent)
     {
-        Platform.runLater(() -> {
-            mainFrame = new Dialog();
-            mainFrame.initOwner(parent.get());
-            mainFrame.setTitle(Config.getString("extmgr.title"));
-            mainFrame.initModality(Modality.WINDOW_MODAL);
-            mainFrame.setResizable(true);
+        mainFrame = new Dialog();
+        mainFrame.initOwner(parent.get());
+        mainFrame.setTitle(Config.getString("extmgr.title"));
+        mainFrame.initModality(Modality.WINDOW_MODAL);
+        mainFrame.setResizable(true);
 
-            extensionsVBox = new VBox();
-            extensionsVBox.setFillWidth(true);
-            extensionsVBox.setMinWidth(200.0);
-            JavaFXUtil.addStyleClass(extensionsVBox, "extension-list");
-            ScrollPane extensionsPane = new ScrollPane(extensionsVBox);
-            extensionsPane.setPrefHeight(300.0);
-            extensionsPane.setPrefWidth(500.0);
-            extensionsPane.setFitToWidth(true);
+        extensionsVBox = new VBox();
+        extensionsVBox.setFillWidth(true);
+        extensionsVBox.setMinWidth(200.0);
+        JavaFXUtil.addStyleClass(extensionsVBox, "extension-list");
+        ScrollPane extensionsPane = new ScrollPane(extensionsVBox);
+        extensionsPane.setPrefHeight(300.0);
+        extensionsPane.setPrefWidth(500.0);
+        extensionsPane.setFitToWidth(true);
 
-            Config.addDialogStylesheets(mainFrame.getDialogPane());
-            mainFrame.getDialogPane().setContent(extensionsPane);
-            mainFrame.getDialogPane().getButtonTypes().setAll(ButtonType.CLOSE);
-        });
+        Config.addDialogStylesheets(mainFrame.getDialogPane());
+        mainFrame.getDialogPane().setContent(extensionsPane);
+        mainFrame.getDialogPane().getButtonTypes().setAll(ButtonType.CLOSE);
         
         extensionsList.forEach(wrapper -> {
             // We must get details on the Swing thread...
@@ -106,7 +103,6 @@ public class ExtensionsDialog
         mainFrame.showAndWait();
     }
 
-    @OnThread(Tag.FXPlatform)
     private TitledPane makeDisplay(String extensionName, String extensionStatus, String extensionVersion, String extensionDescription, boolean isProject, String extensionFileName, URL url)
     {
         String typeShort = isProject ? projectString : systemString;

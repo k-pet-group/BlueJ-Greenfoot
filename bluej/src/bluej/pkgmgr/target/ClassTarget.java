@@ -2041,7 +2041,7 @@ public class ClassTarget extends DependentTarget
         roleFinal = role;
         SourceType sourceAvailableFinal = sourceAvailable;
         boolean docExists = getDocumentationFile().exists();
-        SwingUtilities.invokeLater(() ->
+        Platform.runLater(() ->
         {
             ExtensionsManager extMgr = ExtensionsManager.getInstance();
             Platform.runLater(() ->
@@ -2117,7 +2117,7 @@ public class ClassTarget extends DependentTarget
         ExtensionsMenuManager menuManager = new ExtensionsMenuManager(menu, extMgr, new ClassExtensionMenu(this));
         menuManager.addExtensionMenu(getPackage().getProject());
 
-        Platform.runLater(() -> {withMenu.accept(menu);});
+        withMenu.accept(menu);
     }
 
     private void putFXLaunchResult(PackageEditor ed, Window fxWindow, CompletableFuture<FXPlatformSupplier<DebuggerResult>> result)
@@ -2408,7 +2408,7 @@ public class ClassTarget extends DependentTarget
             this.visible = vis;
             pane.setVisible(vis);
             
-            SwingUtilities.invokeLater(() -> {
+            Platform.runLater(() -> {
                 // Inform all listeners about the visibility change
                 ClassTargetEvent event = new ClassTargetEvent(this, getPackage(), vis);
                 ExtensionsManager.getInstance().delegateEvent(event);

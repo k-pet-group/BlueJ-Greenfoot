@@ -3127,10 +3127,10 @@ public class PkgMgrFrame
         }
 
         menubar.setUseSystemMenuBar(true);
-        Platform.runLater(() -> JavaFXUtil.onceNotNull(paneProperty, pane ->
+        JavaFXUtil.onceNotNull(paneProperty, pane ->
         {
             pane.setTop(menubar);
-        }));
+        });
     }
 
     /**

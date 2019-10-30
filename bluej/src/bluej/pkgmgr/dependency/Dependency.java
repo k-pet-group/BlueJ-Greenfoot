@@ -30,12 +30,12 @@ import bluej.extmgr.ExtensionsManager;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.DependentTarget;
 import bluej.pkgmgr.target.Target;
+import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javax.swing.*;
 import java.util.Properties;
 
 /**
@@ -58,7 +58,7 @@ public abstract class Dependency
     protected boolean selected = false;
     //    protected static final float strokeWithDefault = 1.0f;
     //    protected static final float strokeWithSelected = 2.0f;
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.Any)
     private BDependency singleBDependency; // every Dependency has none or one BDependency
     static final int SELECT_DIST = 4;
 
@@ -119,7 +119,7 @@ public abstract class Dependency
      * Returns the type of this dependency. This information is used by
      * extensions to distinguish between the different types of dependencies.
      * Subclasses must implement this method and return an appropriate constant
-     * of {@link bluej.extensions.BDependency.Type}.
+     * of {@link bluej.extensions2.BDependency.Type}.
      * 
      * @return The type of this dependency;
      */
@@ -184,7 +184,7 @@ public abstract class Dependency
             this.visible = vis;
             pkg.repaint();
             
-            SwingUtilities.invokeLater(() -> {
+            Platform.runLater(() -> {
                 // Inform all listeners about the visibility change
                 DependencyEvent event = new DependencyEvent(this, getFrom().getPackage(), vis);
                 ExtensionsManager.getInstance().delegateEvent(event);

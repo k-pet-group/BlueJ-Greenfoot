@@ -111,9 +111,8 @@ public class BClassTarget
     {
         ClassTarget classTarget = getClassTarget();
 
-        if (classTarget != null) {
-            Platform.runLater(() -> {classTarget.recalcDependentPositions();});
-        }
+        if (classTarget != null)
+            classTarget.recalcDependentPositions();
     }
 
     /**
@@ -132,7 +131,7 @@ public class BClassTarget
 
         if (classTarget != null) {
             PackageEditor editor = classTarget.getPackage().getEditor();
-            Platform.runLater(() -> {editor.repaint();});
+            editor.repaint();
         }
     }
 
@@ -227,9 +226,8 @@ public class BClassTarget
     {
         ClassTarget classTarget = getClassTarget();
 
-        if (classTarget != null) {
-            Platform.runLater(() -> {classTarget.setVisible(visible);});
-        }
+        if (classTarget != null)
+            classTarget.setVisible(visible);
     }
 
     /**

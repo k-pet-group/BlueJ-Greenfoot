@@ -102,38 +102,36 @@ public final class ExtensionsMenuManager
         // Get all menus that can be possibly be generated now.
         List<MenuItem> menuItems = extMgr.getMenuItems(menuGenerator, onThisProject);
 
-        Platform.runLater(() -> {
-            // Take copy to iterate because we're doing removal:
-            final ObservableList<MenuItem> items = getItems();
-            ArrayList<MenuItem> oldPopupItems = new ArrayList<>(items);
-            for (MenuItem aComponent : oldPopupItems) {
-                // Only remove if it was an extension item:
-                ExtensionWrapper aWrapper = (ExtensionWrapper) aComponent.getProperties().get(
-                        "bluej.extmgr.ExtensionWrapper");
+        // Take copy to iterate because we're doing removal:
+        final ObservableList<MenuItem> items = getItems();
+        ArrayList<MenuItem> oldPopupItems = new ArrayList<>(items);
+        for (MenuItem aComponent : oldPopupItems) {
+            // Only remove if it was an extension item:
+            ExtensionWrapper aWrapper = (ExtensionWrapper) aComponent.getProperties().get(
+                    "bluej.extmgr.ExtensionWrapper");
 
-                if (aWrapper == null) {
-                    continue;
-                }
-
-                items.remove(aComponent);
+            if (aWrapper == null) {
+                continue;
             }
 
-            items.remove(menuSeparator);
+            items.remove(aComponent);
+        }
 
-            // If the provided menu is empty we are done here.
-            if (!menuItems.isEmpty())
+        items.remove(menuSeparator);
+
+        // If the provided menu is empty we are done here.
+        if (!menuItems.isEmpty())
+        {
+            items.add(menuSeparator);
+            if (popupMenu!=null)
             {
-                items.add(menuSeparator);
-                if (popupMenu!=null)
-                {
-                    popupMenu.getItems().addAll(menuItems);
-                }
-                else
-                {
-                    menu.getItems().addAll(menuItems);
-                }            }
-        });
-        
+                popupMenu.getItems().addAll(menuItems);
+            }
+            else
+            {
+                menu.getItems().addAll(menuItems);
+            }
+        }
     }
 
     @OnThread(Tag.Any)
@@ -171,19 +169,17 @@ public final class ExtensionsMenuManager
                 continue;
             }
 
-            Platform.runLater(() -> {
-                if (!aWrapper.isValid())
+            if (!aWrapper.isValid())
+            {
+                items.remove(aComponent);
+            }
+            else
+            {
+                synchronized (this)
                 {
-                    items.remove(aComponent);
+                    aWrapper.safePostMenuItem(menuGenerator, aComponent);
                 }
-                else
-                {
-                    synchronized (this)
-                    {
-                        aWrapper.safePostMenuItem(menuGenerator, aComponent);
-                    }
-                }
-            });
+            }
             itemsCount++;
         }
 

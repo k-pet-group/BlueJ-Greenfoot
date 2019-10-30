@@ -145,15 +145,13 @@ public class Main
         }
         
         // process command line arguments, start BlueJ!
-        SwingUtilities.invokeLater(() -> {
+        Platform.runLater(() -> {
             List<ExtensionWrapper> loadedExtensions = ExtensionsManager.getInstance().getLoadedExtensions(null);
-            Platform.runLater(() -> {
-                DataCollector.bluejOpened(getOperatingSystem(), getJavaVersion(), getBlueJVersion(), getInterfaceLanguage(), loadedExtensions);
-                Stage stage = processArgs(args);
-                futureMainWindow.complete(stage);
-            });
+            DataCollector.bluejOpened(getOperatingSystem(), getJavaVersion(), getBlueJVersion(), getInterfaceLanguage(), loadedExtensions);
+            Stage stage = processArgs(args);
+            futureMainWindow.complete(stage);
         });
-        
+
         // Send usage data back to bluej.org
         new Thread() {
             @Override
@@ -366,14 +364,13 @@ public class Main
      * extensions.
      */
     @OnThread(Tag.FXPlatform)
-    public static void doQuit()
-    {
+    public static void doQuit() {
         guiHandler.doExitCleanup();
 
-        SwingUtilities.invokeLater(() -> {
+        Platform.runLater(() -> {
             ExtensionsManager extMgr = ExtensionsManager.getInstance();
             extMgr.unloadExtensions();
-            Platform.runLater(() -> bluej.Main.exit());
+            bluej.Main.exit();
         });
     }
 

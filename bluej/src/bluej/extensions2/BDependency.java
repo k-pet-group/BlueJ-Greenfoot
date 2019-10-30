@@ -242,14 +242,12 @@ public class BDependency
         Dependency dependency = originId.getDependency(targetId, type);
 
         if (dependency != null) {
-            Platform.runLater(() -> {
-                dependency.setVisible(visible);                
-        
-                if (recalc) {
-                    dependency.getFrom().recalcOutUses();
-                    dependency.getTo().recalcInUses();
-                }
-            });
+            dependency.setVisible(visible);
+
+            if (recalc) {
+                dependency.getFrom().recalcOutUses();
+                dependency.getTo().recalcInUses();
+            }
         }
     }
     
