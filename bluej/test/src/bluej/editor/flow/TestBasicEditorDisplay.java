@@ -332,7 +332,8 @@ public class TestBasicEditorDisplay extends FXTest
             int lastLineWhichCanBeTop = Math.max(0, lines.size() - linesVisible);
             int topLine = r.nextInt(lastLineWhichCanBeTop + 1);
             fx_(() -> flowEditorPane.scrollTo(topLine));
-            int lineOfInterest = topLine + r.nextInt(linesVisible);
+            // Don't try to click on very last visible line as it may be only partially visible:
+            int lineOfInterest = topLine + r.nextInt(linesVisible - 1);
             int columnOfInterest = r.nextInt(lines.get(lineOfInterest).length() + 1);
             int caretPos = fx(() -> {
                 int p = flowEditorPane.getDocument().getLineStart(lineOfInterest) + columnOfInterest;
