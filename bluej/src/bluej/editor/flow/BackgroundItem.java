@@ -3,11 +3,14 @@ package bluej.editor.flow;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Region;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A background item on a TextLine, usually a scope background, but can also be
  * a marker for the current step line or a breakpoint line.
  */
+@OnThread(Tag.FXPlatform)
 class BackgroundItem extends Region
 {
     private final double x;
