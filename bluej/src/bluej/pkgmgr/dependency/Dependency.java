@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2015,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2013,2015,2016,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,25 +21,24 @@
  */
 package bluej.pkgmgr.dependency;
 
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.util.Properties;
-
-import javax.swing.*;
-
 import bluej.Config;
-import bluej.extensions.BDependency;
-import bluej.extensions.BDependency.Type;
-import bluej.extensions.ExtensionBridge;
-import bluej.extensions.event.DependencyEvent;
+import bluej.extensions2.BDependency;
+import bluej.extensions2.BDependency.Type;
+import bluej.extensions2.ExtensionBridge;
+import bluej.extensions2.event.DependencyEvent;
 import bluej.extmgr.ExtensionsManager;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PackageEditor;
-import bluej.pkgmgr.target.*;
+import bluej.pkgmgr.target.DependentTarget;
+import bluej.pkgmgr.target.Target;
+import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A dependency between two targets in a package.
@@ -61,7 +60,7 @@ public abstract class Dependency
     protected boolean selected = false;
     //    protected static final float strokeWithDefault = 1.0f;
     //    protected static final float strokeWithSelected = 2.0f;
-    @OnThread(Tag.Swing)
+    @OnThread(Tag.Any)
     private BDependency singleBDependency; // every Dependency has none or one BDependency
     static final int SELECT_DIST = 4;
 
@@ -108,11 +107,22 @@ public abstract class Dependency
         return (DependentTarget) to;
     }
 
-    @OnThread(Tag.SwingIsFX)
+    @OnThread(Tag.Any)
     public BDependency getBDependency()
     {
         if (singleBDependency == null) {
-            singleBDependency = ExtensionBridge.newBDependency(this, getType());
+            CompletableFuture<BDependency> singleBDependencyFuture = new CompletableFuture<>();
+            Platform.runLater(() -> {
+                singleBDependencyFuture.complete( ExtensionBridge.newBDependency(this, getType()));
+            });
+            try
+            {
+                singleBDependency = singleBDependencyFuture.get();
+            }
+            catch (InterruptedException | ExecutionException e)
+            {
+                throw new RuntimeException(e);
+            }
         }
 
         return singleBDependency;
@@ -122,7 +132,7 @@ public abstract class Dependency
      * Returns the type of this dependency. This information is used by
      * extensions to distinguish between the different types of dependencies.
      * Subclasses must implement this method and return an appropriate constant
-     * of {@link bluej.extensions.BDependency.Type}.
+     * of {@link bluej.extensions2.BDependency.Type}.
      * 
      * @return The type of this dependency;
      */
@@ -186,12 +196,10 @@ public abstract class Dependency
         if (vis != this.visible) {
             this.visible = vis;
             pkg.repaint();
-            
-            SwingUtilities.invokeLater(() -> {
-                // Inform all listeners about the visibility change
-                DependencyEvent event = new DependencyEvent(this, getFrom().getPackage(), vis);
-                ExtensionsManager.getInstance().delegateEvent(event);
-            });
+
+            // Inform all listeners about the visibility change
+            DependencyEvent event = new DependencyEvent(this, getFrom().getPackage(), vis);
+            ExtensionsManager.getInstance().delegateEvent(event);
         }
     }
 

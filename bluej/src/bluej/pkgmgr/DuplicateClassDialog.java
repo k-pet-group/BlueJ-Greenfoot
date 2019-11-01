@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2017  Michael Kolling and John Rosenberg
+ Copyright (C) 2017,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,7 +22,7 @@
 package bluej.pkgmgr;
 
 import bluej.Config;
-import bluej.extensions.SourceType;
+import bluej.extensions2.SourceType;
 import bluej.utility.JavaNames;
 import bluej.utility.javafx.dialog.InputDialog;
 import javafx.stage.Window;

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 2012,2013,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -20,13 +20,11 @@
  LICENSE.txt file that accompanied this code.
  */
 package bluej.extmgr;
-
-import javax.swing.JMenuItem;
-
-import bluej.extensions.BPackage;
-import bluej.extensions.ExtensionBridge;
-import bluej.extensions.MenuGenerator;
+import bluej.extensions2.BPackage;
+import bluej.extensions2.ExtensionBridge;
+import bluej.extensions2.MenuGenerator;
 import bluej.pkgmgr.Package;
+import javafx.scene.control.MenuItem;
 
 /**
  * Implementation of the {@link ExtensionMenu} interface for the Tools
@@ -49,19 +47,15 @@ public class ToolsExtensionMenu implements ExtensionMenu
         this.bluejPackage = bluejPackage;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
-    public JMenuItem getMenuItem(MenuGenerator menuGenerator)
+    public MenuItem getMenuItem(MenuGenerator menuGenerator)
     {
         if (bluejPackage == null) {
-            JMenuItem menuItem = menuGenerator.getToolsMenuItem(null);
+            MenuItem menuItem = menuGenerator.getToolsMenuItem(null);
 
             if (menuItem != null) {
                 return menuItem;
             }
-
-            // Try to use the old deprecated method.
-            return menuGenerator.getMenuItem();
         }
 
         BPackage bPackage = ExtensionBridge.newBPackage(bluejPackage);
@@ -69,7 +63,7 @@ public class ToolsExtensionMenu implements ExtensionMenu
     }
 
     @Override
-    public void postMenuItem(MenuGenerator menuGenerator, JMenuItem onThisItem)
+    public void postMenuItem(MenuGenerator menuGenerator, MenuItem onThisItem)
     {
         if (bluejPackage == null) {
             // Only BPackages can be null when a menu is invoked

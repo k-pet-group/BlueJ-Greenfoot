@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012,2013  Michael Kolling and John Rosenberg 
+ Copyright (C) 2012,2013,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,12 +21,11 @@
  */
 package bluej.extmgr;
 
-import javax.swing.JMenuItem;
-
-import bluej.extensions.BPackage;
-import bluej.extensions.ExtensionBridge;
-import bluej.extensions.MenuGenerator;
+import bluej.extensions2.BPackage;
+import bluej.extensions2.ExtensionBridge;
+import bluej.extensions2.MenuGenerator;
 import bluej.pkgmgr.Package;
+import javafx.scene.control.MenuItem;
 
 /**
  * Implementation of the {@link ExtensionMenu} interface for the Package
@@ -50,14 +49,14 @@ public class PackageExtensionMenu implements ExtensionMenu
     }
 
     @Override
-    public JMenuItem getMenuItem(MenuGenerator menuGenerator)
+    public MenuItem getMenuItem(MenuGenerator menuGenerator)
     {
         BPackage bPackage = ExtensionBridge.newBPackage(bluejPackage);
         return menuGenerator.getPackageMenuItem(bPackage);
     }
 
     @Override
-    public void postMenuItem(MenuGenerator menuGenerator, JMenuItem onThisItem)
+    public void postMenuItem(MenuGenerator menuGenerator, MenuItem onThisItem)
     {
         BPackage bPackage = ExtensionBridge.newBPackage(bluejPackage);
         menuGenerator.notifyPostPackageMenu(bPackage, onThisItem);

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2016,2017,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -163,17 +163,18 @@ public class UnitTestClassRole extends ClassRole
     
     /**
      * Generate a popup menu for this TestClassRole.
+     * @param menu the menu
+     * @param ct the BlueJ class object target
      * @param cl the class object that is represented by this target
-     * @param editorFrame the frame in which this targets package is displayed
-     * @return the generated JPopupMenu
+     * @param state the current state of BlueJ
+     * @return false
      */
     @Override
     @OnThread(Tag.FXPlatform)
     public boolean createRoleMenu(ObservableList<MenuItem> menu, ClassTarget ct, Class<?> cl, State state)
     {
         boolean enableTestAll = false;
-
-        if (state == State.COMPILED && cl != null && ! ct.isAbstract()) {
+        if (!ct.getPackage().getProject().inTestMode() && state == State.COMPILED && cl != null && ! ct.isAbstract()) {
             Method[] allMethods = cl.getMethods();
 
             for (int i=0; i < allMethods.length; i++) {

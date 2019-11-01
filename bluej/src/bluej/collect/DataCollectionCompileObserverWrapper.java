@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012,2014,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 2012,2014,2016,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,19 +21,14 @@
  */
 package bluej.collect;
 
+import bluej.compiler.*;
+import bluej.pkgmgr.Project;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import bluej.compiler.CompileInputFile;
-import bluej.compiler.CompileReason;
-import bluej.compiler.CompileType;
-import bluej.compiler.Diagnostic;
-import bluej.compiler.FXCompileObserver;
-import bluej.extensions.SourceType;
-import bluej.pkgmgr.Project;
 
 /**
  * A wrapper for a {@link FXCompileObserver} that also logs the

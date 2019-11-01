@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2017,2018,2019  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2017,2018,2019,2019  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -44,7 +44,7 @@ import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.debugmgr.objectbench.ResultWatcherBase;
 import bluej.editor.Editor;
-import bluej.extensions.SourceType;
+import bluej.extensions2.SourceType;
 import bluej.pkgmgr.AboutDialogTemplate;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageUI;

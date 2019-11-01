@@ -22,31 +22,6 @@
 package bluej.pkgmgr.target;
 
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.TypeVariable;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import javax.swing.SwingUtilities;
-
 import bluej.Config;
 import bluej.collect.DataCollector;
 import bluej.collect.DiagnosticWithShown;
@@ -55,11 +30,7 @@ import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.compiler.Diagnostic;
-import bluej.debugger.Debugger;
-import bluej.debugger.DebuggerClass;
-import bluej.debugger.DebuggerObject;
-import bluej.debugger.DebuggerResult;
-import bluej.debugger.RunOnThread;
+import bluej.debugger.*;
 import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.editor.Editor;
@@ -67,16 +38,12 @@ import bluej.editor.EditorManager;
 import bluej.editor.TextEditor;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.editor.stride.FrameEditor;
-import bluej.extensions.BClass;
-import bluej.extensions.BClassTarget;
-import bluej.extensions.BDependency;
-import bluej.extensions.ExtensionBridge;
-import bluej.extensions.SourceType;
-import bluej.extensions.event.ClassEvent;
-import bluej.extensions.event.ClassTargetEvent;
+import bluej.extensions2.*;
+import bluej.extensions2.event.ClassEvent;
+import bluej.extensions2.event.ClassTargetEvent;
 import bluej.extmgr.ClassExtensionMenu;
 import bluej.extmgr.ExtensionsManager;
-import bluej.extmgr.FXMenuManager;
+import bluej.extmgr.ExtensionsMenuManager;
 import bluej.parser.ParseFailure;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.PackageResolver;
@@ -85,24 +52,13 @@ import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedTypeNode;
 import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
-import bluej.pkgmgr.DuplicateClassDialog;
-import bluej.pkgmgr.JavadocResolver;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PackageEditor;
-import bluej.pkgmgr.PkgMgrFrame;
-import bluej.pkgmgr.Project;
-import bluej.pkgmgr.ProjectUtils;
-import bluej.pkgmgr.SourceInfo;
+import bluej.pkgmgr.*;
 import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.ExtendsDependency;
 import bluej.pkgmgr.dependency.ImplementsDependency;
 import bluej.pkgmgr.dependency.UsesDependency;
-import bluej.pkgmgr.target.role.AbstractClassRole;
-import bluej.pkgmgr.target.role.ClassRole;
-import bluej.pkgmgr.target.role.EnumClassRole;
-import bluej.pkgmgr.target.role.InterfaceClassRole;
-import bluej.pkgmgr.target.role.StdClassRole;
-import bluej.pkgmgr.target.role.UnitTestClassRole;
+import bluej.pkgmgr.target.role.*;
 import bluej.stride.framedjava.ast.Loader;
 import bluej.stride.framedjava.ast.Parser;
 import bluej.stride.framedjava.convert.ConversionWarning;
@@ -110,19 +66,8 @@ import bluej.stride.framedjava.convert.ConvertResultDialog;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.TopLevelCodeElement;
 import bluej.stride.generic.Frame;
-import bluej.utility.Debug;
-import bluej.utility.DialogManager;
-import bluej.utility.FileEditor;
-import bluej.utility.FileUtility;
-import bluej.utility.JavaNames;
-import bluej.utility.JavaReflective;
-import bluej.utility.JavaUtils;
-import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformConsumer;
-import bluej.utility.javafx.FXPlatformRunnable;
-import bluej.utility.javafx.FXPlatformSupplier;
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.ResizableCanvas;
+import bluej.utility.*;
+import bluej.utility.javafx.*;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
 import javafx.application.Application;
@@ -144,6 +89,23 @@ import javafx.scene.paint.ImagePattern;
 import javafx.stage.Window;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import javax.swing.*;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.TypeVariable;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.lang.ClassNotFoundException;
 
 /**
  * A class target in a package, i.e. a target that is a class file built from
@@ -2079,18 +2041,12 @@ public class ClassTarget extends DependentTarget
         roleFinal = role;
         SourceType sourceAvailableFinal = sourceAvailable;
         boolean docExists = getDocumentationFile().exists();
-        SwingUtilities.invokeLater(() ->
+        ExtensionsManager extMgr = ExtensionsManager.getInstance();
+        withMenu(clFinal, roleFinal, sourceAvailableFinal, docExists, menu ->
         {
-            ExtensionsManager extMgr = ExtensionsManager.getInstance();
-            Platform.runLater(() ->
-            {
-                withMenu(clFinal, roleFinal, sourceAvailableFinal, docExists, menu ->
-                {
-                    showingMenu(menu);
-                    menu.show(pane, x, y);
-                }, extMgr);
-            });
-        });
+            showingMenu(menu);
+            menu.show(pane, x, y);
+        }, extMgr);
     }
 
     /**
@@ -2152,12 +2108,10 @@ public class ClassTarget extends DependentTarget
         // call on role object to add any options needed at bottom
         roleRef.createRoleMenuEnd(menu.getItems(), this, getState());
 
-        FXMenuManager menuManager = new FXMenuManager(menu, extMgr, new ClassExtensionMenu(this));
-        SwingUtilities.invokeLater(() -> {
-            menuManager.addExtensionMenu(getPackage().getProject());
+        ExtensionsMenuManager menuManager = new ExtensionsMenuManager(menu, extMgr, new ClassExtensionMenu(this));
+        menuManager.addExtensionMenu(getPackage().getProject());
 
-            Platform.runLater(() -> {withMenu.accept(menu);});
-        });
+        withMenu.accept(menu);
     }
 
     private void putFXLaunchResult(PackageEditor ed, Window fxWindow, CompletableFuture<FXPlatformSupplier<DebuggerResult>> result)
@@ -2447,12 +2401,10 @@ public class ClassTarget extends DependentTarget
         if (vis != this.visible) {
             this.visible = vis;
             pane.setVisible(vis);
-            
-            SwingUtilities.invokeLater(() -> {
-                // Inform all listeners about the visibility change
-                ClassTargetEvent event = new ClassTargetEvent(this, getPackage(), vis);
-                ExtensionsManager.getInstance().delegateEvent(event);
-            });
+
+            // Inform all listeners about the visibility change
+            ClassTargetEvent event = new ClassTargetEvent(this, getPackage(), vis);
+            ExtensionsManager.getInstance().delegateEvent(event);
         }
     }
 

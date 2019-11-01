@@ -47,7 +47,7 @@ import javafx.stage.Modality;
 import javafx.stage.Window;
 
 import bluej.Config;
-import bluej.extensions.SourceType;
+import bluej.extensions2.SourceType;
 import bluej.utility.DialogManager;
 import bluej.utility.JavaNames;
 import bluej.utility.javafx.HorizontalRadio;

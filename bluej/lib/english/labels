@@ -125,6 +125,9 @@ prefmgr.edit.keybindingstitle=Key Bindings
 prefmgr.edit.highlightLighter=Lighter
 prefmgr.edit.highlightDarker=Darker
 
+# Extensions Preferences panel
+prefmgr.extensions.noContent=No extension content to display.
+
 # Interface preferences panel
 prefmgr.interface.title=Interface
 prefmgr.interface.language.title=Language selection

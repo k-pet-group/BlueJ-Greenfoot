@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2013,2016,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 2013,2016,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,21 +21,12 @@
  */
 package bluej.collect;
 
-import javax.swing.*;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import javafx.application.Platform;
-
 import bluej.Boot;
 import bluej.Config;
-import bluej.extensions.event.ApplicationEvent;
+import bluej.extensions2.event.ApplicationEvent;
 import bluej.extmgr.ExtensionsManager;
 import bluej.pkgmgr.Project;
+import javafx.application.Platform;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -49,6 +40,14 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import javax.swing.*;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This class that handles submitting compilation data to the remote server.
@@ -136,19 +135,16 @@ class DataSubmitter
                 // If we just gave up on this event:
                 if (givenUp.get())
                 {
-                    SwingUtilities.invokeLater(() -> {
+                    Platform.runLater(() ->
+                    {
                         ExtensionsManager.getInstance().delegateEvent(new ApplicationEvent(ApplicationEvent.DATA_SUBMISSION_FAILED_EVENT));
-                        Platform.runLater(() ->
-                        {
-                            if (Boot.isTrialRecording())
-                            {
-                                // If we just gave up, and we are specifically in a trial, show a dialog
-                                // to the user warning them of this:
-                                if (!Config.isGreenfoot()) // Greenfoot shows the dialog on the Greenfoot VM, only show if we are BlueJ:
-                                    new DataSubmissionFailedDialog().show();
-                                Project.getProjects().forEach(project -> project.setAllEditorStatus(" - NOT RECORDING"));
-                            }
-                        });
+                        if (Boot.isTrialRecording()) {
+                            // If we just gave up, and we are specifically in a trial, show a dialog
+                            // to the user warning them of this:
+                            if (!Config.isGreenfoot()) // Greenfoot shows the dialog on the Greenfoot VM, only show if we are BlueJ:
+                                new DataSubmissionFailedDialog().show();
+                            Project.getProjects().forEach(project -> project.setAllEditorStatus(" - NOT RECORDING"));
+                        }
                     });
                 }
             }

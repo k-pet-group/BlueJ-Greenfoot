@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010,2013,2014  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2010,2013,2014,2019  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,7 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import bluej.extensions.SourceType;
+import bluej.extensions2.SourceType;
 import bluej.utility.Debug;
 
 public abstract class ScriptableScratchMorph extends Morph

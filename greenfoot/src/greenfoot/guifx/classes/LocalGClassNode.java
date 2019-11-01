@@ -24,7 +24,7 @@ package greenfoot.guifx.classes;
 import bluej.Config;
 import bluej.debugger.gentype.Reflective;
 import bluej.editor.Editor;
-import bluej.extensions.SourceType;
+import bluej.extensions2.SourceType;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.DependentTarget.State;

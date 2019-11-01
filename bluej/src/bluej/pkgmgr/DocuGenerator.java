@@ -23,7 +23,7 @@ package bluej.pkgmgr;
 
 import bluej.BlueJEvent;
 import bluej.Config;
-import bluej.extensions.SourceType;
+import bluej.extensions2.SourceType;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
