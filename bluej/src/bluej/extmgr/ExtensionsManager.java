@@ -153,28 +153,34 @@ public class ExtensionsManager
             if (!thisFile.getName().endsWith(".jar"))
                 continue;
 
-            // Ok, lets try to get a wrapper up and running
-            ExtensionWrapper aWrapper = new ExtensionWrapper(getPrefManager(), thisFile);
+            // Greenfoot does not need extensions to be loaded except greenfoot.jar
+            if (!Config.isGreenfoot() || (Config.isGreenfoot() && thisFile.getName().equals("greenfoot.jar")))
+            {
+                // Ok, lets try to get a wrapper up and running
+                ExtensionWrapper aWrapper = new ExtensionWrapper(getPrefManager(), thisFile);
 
-            // Loading this wrapper failed miserably, too bad...
-            if (!aWrapper.isJarValid()) {
-                continue;
-            }
+                // Loading this wrapper failed miserably, too bad...
+                if (!aWrapper.isJarValid()) {
+                    continue;
+                }
 
-            // Let me see if I already have this extension loaded
-            if (isWrapperAlreadyLoaded(aWrapper)) {
-                continue;
-            }
+                // Let me see if I already have this extension loaded
+                if (isWrapperAlreadyLoaded(aWrapper)) {
+                    continue;
+                }
 
-            // Now that all is nice and clean I can safely try to instantiate
-            // the extension
-            aWrapper.newExtension(project);
+                // Now that all is nice and clean I can safely try to instantiate
+                // the extension
+                aWrapper.newExtension(project);
 
-            if (aWrapper.isValid()) {
-                synchronized (extensions) {
-                    extensions.add(aWrapper);
+                if (aWrapper.isValid()) {
+                    synchronized (extensions) {
+                        extensions.add(aWrapper);
+                    }
                 }
             }
+            else
+                continue;
         }
         
         // The last extension may have added a preference panel, but due to the way that is
