@@ -580,7 +580,7 @@ public final class FlowActions
         try {
             File file = Config.getUserConfigFile(KEYS_FILE_FX);
             ArrayList<String> lines = new ArrayList<>();
-            lines.add("version " + MoeEditor.version);
+            lines.add("version " + FlowEditor.VERSION);
             lines.add("# ALT CTRL META SHIFT SHORT KEYCODE ACTION");
             for (Entry<KeyCodeCombination, FlowAbstractAction> binding : keymap.entrySet()) {
                 KeyCodeCombination k = binding.getKey();

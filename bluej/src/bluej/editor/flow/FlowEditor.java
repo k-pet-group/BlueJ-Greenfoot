@@ -155,6 +155,10 @@ import java.util.stream.Collectors;
 
 public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, FlowEditorPaneListener, SelectionListener, BlueJEventListener, DocumentListener
 {
+    // version number
+    public final static int VERSION = 400;
+    // file suffixes
+    public final static String CRASHFILE_SUFFIX = "#";
     // suffixes for resources
     final static String LabelSuffix = "Label";
     final static String ActionSuffix = "Action";
@@ -911,7 +915,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             setupJavadocMangler();
             try {
                 // check for crash file
-                String crashFilename = filename + MoeEditor.CRASHFILE_SUFFIX;
+                String crashFilename = filename + FlowEditor.CRASHFILE_SUFFIX;
                 String backupFilename = crashFilename + "backup";
                 File crashFile = new File(crashFilename);
                 if (crashFile.exists()) {
@@ -1279,7 +1283,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             try {
                 // The crash file is used during writing and will remain in
                 // case of a crash during the write operation.
-                String crashFilename = filename + MoeEditor.CRASHFILE_SUFFIX;
+                String crashFilename = filename + FlowEditor.CRASHFILE_SUFFIX;
 
                 // make a backup to the crash file
                 FileUtility.copyFile(filename, crashFilename);
