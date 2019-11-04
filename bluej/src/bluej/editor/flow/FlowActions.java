@@ -971,9 +971,7 @@ public final class FlowActions
                 deleteWordAction(),
                 selectWordAction(),
                 saveAction(),
-                /*
                 printAction(),
-                */
                 closeAction(),
                 undoAction(),
                 redoAction(),
@@ -1224,16 +1222,15 @@ public final class FlowActions
     {
         return action("save", Category.CLASS, () -> getClearedEditor().userSave());
     }
-    /*
     // --------------------------------------------------------------------
 
     private FlowAbstractAction printAction()
     {
-        return action("print", Category.CLASS, () -> getEditor().print());
+        return action("print", Category.CLASS, () -> getClearedEditor().print());
     }
 
     // --------------------------------------------------------------------
-    */
+    
     private FlowAbstractAction closeAction()
     {
         return action("close", Category.CLASS, () -> getClearedEditor().close());

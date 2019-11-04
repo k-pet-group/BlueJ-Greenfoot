@@ -102,7 +102,7 @@ class LineDisplay
      * @param height The height of the graphical pane to render into, in pixels
      * @return The ordered list of visible lines
      */
-    List<Node> recalculateVisibleLines(List<List<StyledSegment>> allLines, FXPlatformFunction<Double, Double> snapHeight, double xTranslate, double height)
+    List<MarginAndTextLine> recalculateVisibleLines(List<List<StyledSegment>> allLines, FXPlatformFunction<Double, Double> snapHeight, double xTranslate, double height)
     {
         if (firstVisibleLineIndex >= allLines.size())
         {

@@ -32,19 +32,17 @@ import bluej.editor.EditorWatcher;
 import bluej.editor.TextEditor;
 import bluej.editor.flow.FlowActions.FlowAbstractAction;
 import bluej.editor.flow.FlowEditorPane.FlowEditorPaneListener;
+import bluej.editor.flow.FlowEditorPane.LineContainer;
 import bluej.editor.flow.FlowEditorPane.SelectionListener;
+import bluej.editor.flow.FlowEditorPane.StyledLines;
 import bluej.editor.flow.FlowErrorManager.ErrorDetails;
 import bluej.editor.flow.JavaSyntaxView.ParagraphAttribute;
 import bluej.editor.flow.MarginAndTextLine.MarginDisplay;
 import bluej.editor.flow.StatusLabel.Status;
 import bluej.editor.flow.TextLine.HighlightType;
-import bluej.editor.moe.GoToLineDialog;
-import bluej.editor.moe.Info;
-import bluej.editor.moe.MoeEditor;
-import bluej.editor.moe.MoeIndent;
-import bluej.editor.moe.ParserMessageHandler;
-import bluej.editor.moe.ScopeColorsBorderPane;
-import bluej.editor.moe.TextUtilities;
+import bluej.editor.flow.TextLine.StyledSegment;
+import bluej.editor.moe.*;
+import bluej.editor.moe.PrintDialog.PrintChoices;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.FlowFXTab;
 import bluej.editor.stride.FrameEditor;
@@ -84,48 +82,52 @@ import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.DoubleExpression;
+import javafx.beans.binding.ObjectExpression;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.geometry.BoundingBox;
 import javafx.geometry.Bounds;
+import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.print.PrinterJob;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBase;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.PopupControl;
-import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.Skin;
-import javafx.scene.control.Skinnable;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.scene.web.WebView;
 import javafx.stage.PopupWindow;
 import javafx.stage.Stage;
+import org.fxmisc.flowless.VirtualFlow;
+import org.fxmisc.richtext.GenericStyledArea;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
 import org.w3c.dom.NodeList;
@@ -148,6 +150,7 @@ import java.io.Writer;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
@@ -281,7 +284,28 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     {
         FXTabbedEditor getFXTabbedEditor(boolean newWindow);
     }
-    
+
+    private static class OffScreenFlowEditorPaneListener extends ScopeColorsBorderPane implements FlowEditorPaneListener
+    {
+        @Override
+        public boolean marginClickedForLine(int lineIndex)
+        {
+            return false;
+        }
+
+        @Override
+        public Set<Integer> getBreakpointLines()
+        {
+            return ImmutableSet.of();
+        }
+
+        @Override
+        public int getStepLine()
+        {
+            return -1;
+        }
+    }
+
     class UndoManager
     {
         private final DocumentUndoStack undoStack;
@@ -1937,13 +1961,6 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         return saveState.isChanged();
     }
 
-    @Override
-    public FXRunnable printTo(PrinterJob printerJob, PrintSize printSize, boolean printLineNumbers, boolean printBackground)
-    {
-        //TODOFLOW PRINT
-        return () -> {};
-    }
-
     /**
      * Returns if this editor is read-only. Accessor for the setReadOnly
      * property.
@@ -2886,6 +2903,223 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
     }
 
+    /**
+     * Prints source code from Editor
+     *
+     * @param printerJob  A PrinterJob to print to.
+     */
+    @Override
+    @OnThread(Tag.FXPlatform)
+    public FXRunnable printTo(PrinterJob printerJob, PrintSize printSize, boolean printLineNumbers, boolean printBackground)
+    {
+        SimpleDoubleProperty height = new SimpleDoubleProperty();
+        Document doc = new HoleDocument();
+        doc.replaceText(0, 0, document.getFullContent());
+        OffScreenFlowEditorPaneListener flowEditorPaneListener = new OffScreenFlowEditorPaneListener();
+        LineDisplay lineDisplay = new LineDisplay(height, new ReadOnlyDoubleWrapper(0), flowEditorPaneListener);
+        // TODO apply syntax highlighting
+        LineContainer lineContainer = new LineContainer(lineDisplay);
+        StyledLines allLines = new StyledLines(doc, (i, s) -> Collections.singletonList(new StyledSegment(Collections.emptyList(), s.toString())));
+        lineContainer.getChildren().setAll(lineDisplay.recalculateVisibleLines(allLines, Math::ceil, 0, height.get()));
+        
+        // Note: very important we make this call before copyFrom, as copyFrom is what triggers
+        // the run-later that marking as printing suppresses:
+        //doc.markAsForPrinting();
+        //doc.copyFrom(sourceDocument);
+        //MoeEditorPane editorPane = doc.makeEditorPane(null, null);
+        Label pageNumberLabel = new Label("");
+        String timestamp = new SimpleDateFormat("yyyy-MMM-dd HH:mm").format(new Date());
+        BorderPane header = new BorderPane(new Label(timestamp), null, pageNumberLabel, null, new Label(windowTitle));
+        // If we let labels be default font, it can cause weird font corruption when printing.
+        // But setting labels to same font as editor seems to avoid the issue:
+        for (Node node : header.getChildren())
+        {
+            node.setStyle(PrefMgr.getEditorFontFamilyCSS());
+        }
+        header.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
+        header.setPadding(new Insets(5));
+        
+        BorderPane rootPane = new BorderPane(lineContainer, header, null, flowEditorPaneListener, null);
+        // The scopeColorsPane needs to be in the scene to access the CSS colors.
+        // But we don't actually want it visible:
+        flowEditorPaneListener.setManaged(false);
+        flowEditorPaneListener.setVisible(false);
+        rootPane.setBackground(null);
+        // JavaFX seems to always print at 72 DPI, regardless of printer DPI:
+        // This means that that the point width (1/72 of an inch) is actually the pixel width, too:
+        double pixelWidth = printerJob.getJobSettings().getPageLayout().getPrintableWidth();
+        double pixelHeight = printerJob.getJobSettings().getPageLayout().getPrintableHeight();
+        Scene scene = new Scene(rootPane, pixelWidth, pixelHeight, Color.GRAY);
+        Config.addEditorStylesheets(scene);
+
+        //editorPane.setPrinting(true, printSize, printLineNumbers);
+        //editorPane.setWrapText(true);
+        lineContainer.applyCss();
+        rootPane.requestLayout();
+        rootPane.layout();
+        rootPane.applyCss();
+        /*
+        if (!printBackground)
+        {
+            // Remove styles:
+            for (int i = 0; i < doc.getDocument().getParagraphs().size(); i++)
+            {
+                doc.getDocument().setParagraphStyle(i, null);
+            }
+
+        }
+        else
+        {
+            // We have to reparse and recalculate scopes
+
+            // We must mark document as shown or else parsing terminates early:
+            doc.notYetShown = false;
+            doc.enableParser(true);
+            doc.getParser();
+            doc.recalculateAllScopes();
+        }
+        */
+        FXConsumer<Integer> updatePageNumber = n -> {
+            pageNumberLabel.setText("Page " + n);
+            rootPane.requestLayout();
+            rootPane.layout();
+            rootPane.applyCss();
+        };
+        // Run printing in another thread:
+        return () -> printPages(printerJob, rootPane, updatePageNumber, lineContainer, lineDisplay, allLines, printLineNumbers);
+    }
+
+    /**
+     * Prints the editor, using multiple pages if necessary
+     *
+     * @param printerJob The overall printer job
+     * @param printNode The node to print, each page.  This may just be the
+     *                  editor pane, or it may be a wrapper around the editor
+     *                  pane that also shows a header and/or footer.
+     * @param updatePageNumber A callback to update the header/footer each time
+     *                         the page number changes.  Cannot be null.
+     * @param editorPane The editor pane to print
+     * @param virtualFlow The virtual flow inside the editor pane.
+     * @param <T> Parameter type of the VirtualFlow.  Will be inferred.
+     * @param <C> Parameter type of the VirtualFlow.  Will be inferred.
+     */
+    @OnThread(Tag.FX)
+    public static void printPages(PrinterJob printerJob,
+                                                                                Node printNode, FXConsumer<Integer> updatePageNumber,
+                                                                                LineContainer lineContainer, LineDisplay lineDisplay, List<List<StyledSegment>> allLines, boolean printLineNumbers)
+    {
+        // We must manually scroll down the editor, one page's worth at a time.  We keep track of the top line visible:
+        int topLine = 0;
+        boolean lastPage = false;
+        int editorLines = allLines.size();
+        int pageNumber = 1;
+        int lastTopLine = topLine;
+        while (topLine < editorLines && !lastPage)
+        {
+            // Scroll to make topLine actually at the top:
+            lineDisplay.scrollTo(topLine, 0);
+            List<MarginAndTextLine> lines = lineDisplay.recalculateVisibleLines(allLines, Math::ceil, 0, lineContainer.getHeight());
+            for (MarginAndTextLine line : lines)
+            {
+                line.setMarginGraphics(printLineNumbers ? EnumSet.of(MarginDisplay.LINE_NUMBER) : EnumSet.noneOf(MarginDisplay.class));
+            }
+            lineContainer.getChildren().setAll(lines);
+            lineContainer.layout();
+            lineContainer.applyCss();
+
+            // Take a copy to avoid any update problems:
+            List<Node> visibleCells = new ArrayList<>(lineContainer.getChildren());
+
+            // Previously, we had a problem where a run-later task could race us and alter
+            // the scrolling which caused us to try to print an empty page.  That shouldn't happen
+            // any more, but we still guard against this just in case; better to handle it gracefully
+            // than risk running into an exception or infinite loop:
+            if (visibleCells.isEmpty())
+            {
+                // If visible cells empty, just give up gracefully rather than encounter an exception:
+                return;
+            }
+
+            Node lastCell = visibleCells.get(visibleCells.size() - 1);
+            // Last page if we can see the last editor line:
+            lastPage = lineDisplay.getLineRangeVisible()[1] >= editorLines - 1 && lastCell.getLayoutY() < lineContainer.getHeight();
+
+            if (!lastPage)
+            {
+                // If it's not the last page, we crop so that we don't see a partial line at the end of the page
+                // We crop to leave out the last visible cell.  Even if it is fully visible, we remove it
+                // (too hard to determine if it's fully visible):
+                double limitY = lastCell.getLayoutY();
+                //Debug.message("Limit Y: " + limitY + " vs " + lineContainer.getHeight());
+                lineContainer.setClip(new javafx.scene.shape.Rectangle(lineContainer.getWidth(), limitY));
+                topLine += visibleCells.size() - 1;
+            }
+            else
+            {
+                // No need to clip on last page, but we use translateY to move the content we want
+                // up to the top.  (The editor pane won't show empty space beyond the bottom, so we cannot
+                // scroll as far as we would like.  Instead, we have the bottom of the content at the bottom
+                // of the window, and use translateY to do a fake scroll to move it up to the top of the page.)
+                lineContainer.setClip(new javafx.scene.shape.Rectangle(lineContainer.getWidth(), lineContainer.getHeight()));
+                //lineContainer.setTranslateY(-las);
+            }
+            updatePageNumber.accept(pageNumber);
+            // NCCB: I have investigated the printing bug seen in 4.1.2rc2 for
+            // a long time, but my best guess is that the bug is not in our code.
+            // The way it now manifests, with the page cut off at an arbitrary
+            // point halfway through a line, just doesn't seem like it can be
+            // the fault of our code or RichTextFX (having seen it occur with the
+            // clip above disabled).  Putting a Thread.sleep here seems to avoid
+            // the problem, which I think suggests it may be a race hazard in the
+            // JDK which uses threading for JavaFX printing.  Not nice, but it
+            // does seem to fix the issue:
+            try
+            {
+                Thread.sleep(1000);
+            }
+            catch (InterruptedException e)
+            {
+            }
+            printerJob.printPage(printNode);
+            pageNumber += 1;
+            // Failsafe:
+            if (topLine <= lastTopLine)
+                break;
+            
+            lastTopLine = topLine;
+        }
+    }
+
+    /**
+     * Generalised version of print function. This is what is typically called
+     * when print is initiated from within the source code editor menu. This
+     * sets up and runs the print process as a separate lower priority thread.
+     */
+    public void print()
+    {
+        Optional<PrintChoices> choices = new PrintDialog(getWindow(), null).showAndWait();
+        if (!choices.isPresent())
+            return;
+        PrinterJob job = JavaFXUtil.createPrinterJob();
+        if (job == null)
+        {
+            DialogManager.showErrorFX(getWindow(),"print-no-printers");
+        }
+        else if (job.showPrintDialog(getWindow()))
+        {
+            FXRunnable printAction = printTo(job, choices.get().printSize, choices.get().printLineNumbers, choices.get().printHighlighting);
+            new Thread("PRINT")
+            {
+                @Override
+                @OnThread(value = Tag.FX, ignoreParent = true)
+                public void run()
+                {
+                    printAction.run();
+                    job.endJob();
+                }
+            }.start();
+        }
+    }
 
     private static class ErrorDisplay
     {

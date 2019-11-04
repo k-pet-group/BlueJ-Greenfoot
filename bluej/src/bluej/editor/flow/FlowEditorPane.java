@@ -143,7 +143,7 @@ public class FlowEditorPane extends Region implements DocumentListener
                 updateRender(false);
             }
         });
-        lineContainer = new LineContainer();
+        lineContainer = new LineContainer(lineDisplay);
         Rectangle clip = new Rectangle();
         clip.widthProperty().bind(lineContainer.widthProperty());
         clip.heightProperty().bind(lineContainer.heightProperty());
@@ -241,24 +241,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         List<Node> prospectiveChildren = new ArrayList<>();
         // Use an AbstractList rather than pre-calculate, as that means we don't bother
         // styling lines which will not be displayed:
-        List<List<StyledSegment>> styledLines = new AbstractList<List<StyledSegment>>()
-        {
-            final List<CharSequence> documentLines = document.getLines();
-
-            @Override
-            public int size()
-            {
-                return documentLines.size();
-            }
-
-            @Override
-            public List<StyledSegment> get(int lineIndex)
-            {
-                // Because styling is called on demand, we save styling lines
-                // which are never requested for display.
-                return lineStyler.getLineForDisplay(lineIndex, documentLines.get(lineIndex));
-            }
-        };
+        List<List<StyledSegment>> styledLines = new StyledLines(document, lineStyler);
         
         prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(styledLines, this::snapSizeY, - horizontalScroll.getValue(), lineContainer.getHeight()));
         prospectiveChildren.add(caretShape);
@@ -667,17 +650,24 @@ public class FlowEditorPane extends Region implements DocumentListener
     }
 
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
-    private class LineContainer extends Region
+    public static class LineContainer extends Region
     {
+        public LineContainer(LineDisplay lineDisplay)
+        {
+            this.lineDisplay = lineDisplay;
+        }
+
+        private final LineDisplay lineDisplay;
+        
         @Override
         protected void layoutChildren()
         {
             double y = snapPositionY(lineDisplay.getFirstVisibleLineOffset());
+            double height = snapSizeY(lineDisplay.calculateLineHeight());
             for (Node child : getChildren())
             {
                 if (child instanceof MarginAndTextLine)
                 {
-                    double height = snapSizeY(child.prefHeight(-1.0));
                     double nextY = snapPositionY(y + height);
                     child.resizeRelocate(0, y, Math.max(getWidth(), child.prefWidth(-1.0)), nextY - y);
                     y = nextY;
@@ -946,5 +936,33 @@ public class FlowEditorPane extends Region implements DocumentListener
 
         // Returns -1 if no step line
         int getStepLine();
+    }
+
+    // Use an AbstractList rather than pre-calculate, as that means we don't bother
+    // styling lines which will not be displayed:
+    static class StyledLines extends AbstractList<List<StyledSegment>>
+    {
+        private final LineStyler lineStyler;
+        private final List<CharSequence> documentLines;
+        
+        public StyledLines(Document document, LineStyler lineStyler)
+        {
+            this.documentLines = document.getLines();
+            this.lineStyler = lineStyler;
+        }
+
+        @Override
+        public int size()
+        {
+            return documentLines.size();
+        }
+
+        @Override
+        public List<StyledSegment> get(int lineIndex)
+        {
+            // Because styling is called on demand, we save styling lines
+            // which are never requested for display.
+            return lineStyler.getLineForDisplay(lineIndex, documentLines.get(lineIndex));
+        }
     }
 }
