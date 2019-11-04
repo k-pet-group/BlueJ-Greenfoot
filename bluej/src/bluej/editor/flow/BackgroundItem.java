@@ -31,7 +31,7 @@ import threadchecker.Tag;
  * A background item on a TextLine, usually a scope background, but can also be
  * a marker for the current step line or a breakpoint line.
  */
-@OnThread(Tag.FXPlatform)
+@OnThread(Tag.FX)
 class BackgroundItem extends Region
 {
     private final double x;

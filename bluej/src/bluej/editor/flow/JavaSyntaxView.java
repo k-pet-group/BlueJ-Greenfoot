@@ -2217,6 +2217,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void renderedLines(int fromLineIndexIncl, int toLineIndexIncl)
     {        
         int newBeforeStartIncl = fromLineIndexIncl;

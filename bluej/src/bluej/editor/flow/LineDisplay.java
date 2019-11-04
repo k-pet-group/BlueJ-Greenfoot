@@ -23,6 +23,7 @@ package bluej.editor.flow;
 
 import bluej.editor.flow.FlowEditorPane.FlowEditorPaneListener;
 import bluej.editor.flow.TextLine.StyledSegment;
+import bluej.utility.javafx.FXFunction;
 import bluej.utility.javafx.FXPlatformFunction;
 import javafx.beans.binding.DoubleExpression;
 import javafx.geometry.Point2D;
@@ -31,6 +32,8 @@ import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.text.HitInfo;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -46,6 +49,7 @@ import java.util.stream.Collectors;
  * in the document: the viewport shows lines N to N+W, where W is the number of
  * lines that can be fit vertically in the window.
  */
+@OnThread(Tag.FX)
 class LineDisplay
 {
     // Handler for clicking in a line margin
@@ -102,7 +106,8 @@ class LineDisplay
      * @param height The height of the graphical pane to render into, in pixels
      * @return The ordered list of visible lines
      */
-    List<MarginAndTextLine> recalculateVisibleLines(List<List<StyledSegment>> allLines, FXPlatformFunction<Double, Double> snapHeight, double xTranslate, double width, double height, boolean lineWrapping)
+    @OnThread(Tag.FX)
+    List<MarginAndTextLine> recalculateVisibleLines(List<List<StyledSegment>> allLines, FXFunction<Double, Double> snapHeight, double xTranslate, double width, double height, boolean lineWrapping)
     {
         if (firstVisibleLineIndex >= allLines.size())
         {
@@ -163,6 +168,7 @@ class LineDisplay
      * Scrolls so that the given line index (zero-based) is shown at the top,
      * with the given pixel offset (zero or negative).
      */
+    @OnThread(Tag.FX)
     void scrollTo(int lineIndex, double lineOffset)
     {
         firstVisibleLineIndex = lineIndex;
@@ -250,6 +256,7 @@ class LineDisplay
      * First element is the first line index (zero-based) that is visible, inclusive.
      * Second element is the last line index (zero-based) that is visible, also inclusive.
      */
+    @OnThread(Tag.FX)
     public int[] getLineRangeVisible()
     {
         return new int[] {firstVisibleLineIndex, firstVisibleLineIndex + visibleLines.size() - 1};
@@ -333,6 +340,7 @@ class LineDisplay
 
     static interface LineDisplayListener
     {
+        @OnThread(Tag.FX)
         public void renderedLines(int fromLineIndexIncl, int toLineIndexIncl);
     }
     

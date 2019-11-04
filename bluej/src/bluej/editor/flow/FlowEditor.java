@@ -37,6 +37,7 @@ import bluej.editor.flow.FlowEditorPane.SelectionListener;
 import bluej.editor.flow.FlowEditorPane.StyledLines;
 import bluej.editor.flow.FlowErrorManager.ErrorDetails;
 import bluej.editor.flow.JavaSyntaxView.ParagraphAttribute;
+import bluej.editor.flow.LineDisplay.LineDisplayListener;
 import bluej.editor.flow.MarginAndTextLine.MarginDisplay;
 import bluej.editor.flow.StatusLabel.Status;
 import bluej.editor.flow.TextLine.HighlightType;
@@ -391,13 +392,19 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         Region toolbar = createToolbar(interfaceToggle.heightProperty());
         setTop(JavaFXUtil.withStyleClass(new BorderPane(toolbar, null, interfaceToggle, null, null), "flow-top-bar"));
         flowEditorPane.addSelectionListener(this);
-        flowEditorPane.addLineDisplayListener((fromIncl, toIncl) -> {
-            for (int i = fromIncl; i <= toIncl; i++)
+        flowEditorPane.addLineDisplayListener(new LineDisplayListener()
+        {
+            @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+            @Override
+            public void renderedLines(int fromIncl, int toIncl)
             {
-                flowEditorPane.setLineMarginGraphics(i, calculateMarginDisplay(i));
+                for (int i = fromIncl; i <= toIncl; i++)
+                {
+                    flowEditorPane.setLineMarginGraphics(i, FlowEditor.this.calculateMarginDisplay(i));
+                }
+                flowEditorPane.showHighlights(HighlightType.FIND_RESULT, findResults);
+                flowEditorPane.showHighlights(HighlightType.BRACKET_MATCH, bracketMatches);
             }
-            flowEditorPane.showHighlights(HighlightType.FIND_RESULT, findResults);
-            flowEditorPane.showHighlights(HighlightType.BRACKET_MATCH, bracketMatches);
         });
         Nodes.addInputMap(this, InputMap.consume(MouseEvent.MOUSE_MOVED, this::mouseMoved));
         // create menubar and menus

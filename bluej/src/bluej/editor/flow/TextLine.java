@@ -51,7 +51,7 @@ import java.util.Objects;
  * A graphical line of text on the screen.  Extends TextFlow to add the ability
  * to display a selection shape on the line.
  */
-@OnThread(Tag.FXPlatform)
+@OnThread(Tag.FX)
 class TextLine extends TextFlow
 {
     static enum HighlightType
@@ -296,6 +296,7 @@ class TextLine extends TextFlow
     /**
      * A piece of text content, plus a collection of CSS style classes to apply to the content.
      */
+    @OnThread(Tag.FX)
     public static class StyledSegment
     {
         private final List<String> cssClasses;

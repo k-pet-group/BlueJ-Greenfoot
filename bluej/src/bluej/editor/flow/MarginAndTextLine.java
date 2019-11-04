@@ -49,7 +49,7 @@ import java.util.EnumSet;
  * A graphical item that contains a margin (used for line numbers and/or breakpoint symbols, step marks, etc)
  * and a text line.
  */
-@OnThread(Tag.FXPlatform)
+@OnThread(Tag.FX)
 public class MarginAndTextLine extends Region
 {
     public static final int TEXT_LEFT_EDGE = 27;
@@ -64,6 +64,7 @@ public class MarginAndTextLine extends Region
     private final Tooltip breakpointHoverTooltip;
     private final Region backgroundNode;
 
+    @OnThread(Tag.Any)
     public static enum MarginDisplay
     {
         // Important that step mark is after breakpoint, so that it appears in front:
@@ -207,6 +208,7 @@ public class MarginAndTextLine extends Region
         textLine.fontSizeChanged();
     }
 
+    @OnThread(Tag.FX)
     public void setMarginGraphics(EnumSet<MarginDisplay> displayItems)
     {
         this.displayItems.clear();

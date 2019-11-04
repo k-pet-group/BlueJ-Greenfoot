@@ -695,6 +695,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         }
 
         @Override
+        @OnThread(Tag.FX)
         protected ObservableList<Node> getChildren()
         {
             return super.getChildren();
@@ -959,6 +960,7 @@ public class FlowEditorPane extends Region implements DocumentListener
 
     // Use an AbstractList rather than pre-calculate, as that means we don't bother
     // styling lines which will not be displayed:
+    @OnThread(value = Tag.FXPlatform ,ignoreParent = true)
     static class StyledLines extends AbstractList<List<StyledSegment>>
     {
         private final LineStyler lineStyler;

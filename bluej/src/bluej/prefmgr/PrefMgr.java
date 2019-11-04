@@ -99,6 +99,7 @@ public class PrefMgr
     // initialised by a call to setEditorFontSize()
     @OnThread(Tag.FX)
     private static final IntegerProperty editorFontSize = new SimpleIntegerProperty(DEFAULT_JAVA_FONT_SIZE);
+    @OnThread(Tag.FX)
     private static final StringProperty editorStandardFont = new SimpleStringProperty("Roboto Mono");
     private static final StringProperty editorFallbackFont = new SimpleStringProperty("monospace");
     @OnThread(Tag.FX)
@@ -313,7 +314,7 @@ public class PrefMgr
         return editorFontSize;
     }
 
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.FX)
     public static StringExpression getEditorFontCSS(boolean includeFamily)
     {
         if (editorFontCSS == null)
