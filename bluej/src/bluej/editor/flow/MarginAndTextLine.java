@@ -168,7 +168,7 @@ public class MarginAndTextLine extends Region
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     protected double computePrefHeight(double width)
     {
-        return textLine.prefHeight(width);
+        return textLine.prefHeight(width - TEXT_LEFT_EDGE);
     }
 
     @Override
@@ -182,7 +182,7 @@ public class MarginAndTextLine extends Region
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     protected double computeMinHeight(double width)
     {
-        return textLine.minHeight(width);
+        return textLine.minHeight(width - TEXT_LEFT_EDGE);
     }
 
     @Override
@@ -196,7 +196,7 @@ public class MarginAndTextLine extends Region
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     protected double computeMaxHeight(double width)
     {
-        return textLine.maxHeight(width);
+        return textLine.maxHeight(width - TEXT_LEFT_EDGE);
     }
 
     /**

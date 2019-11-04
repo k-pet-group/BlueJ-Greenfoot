@@ -102,7 +102,7 @@ class LineDisplay
      * @param height The height of the graphical pane to render into, in pixels
      * @return The ordered list of visible lines
      */
-    List<MarginAndTextLine> recalculateVisibleLines(List<List<StyledSegment>> allLines, FXPlatformFunction<Double, Double> snapHeight, double xTranslate, double height)
+    List<MarginAndTextLine> recalculateVisibleLines(List<List<StyledSegment>> allLines, FXPlatformFunction<Double, Double> snapHeight, double xTranslate, double width, double height, boolean lineWrapping)
     {
         if (firstVisibleLineIndex >= allLines.size())
         {
@@ -111,22 +111,42 @@ class LineDisplay
             firstVisibleLineOffset = 0;
         }
         
-        double lineHeight = snapHeight.apply(calculateLineHeight());
-        
-        // Start at the first visible line:
-        Iterator<List<StyledSegment>> lines = allLines.subList(firstVisibleLineIndex, Math.min((int)Math.ceil(height / lineHeight) + firstVisibleLineIndex + 1, allLines.size())).iterator();
-        int lineIndex = firstVisibleLineIndex;
-        while (lines.hasNext())
+        final int lastLineIndexIncl;
+        if (!lineWrapping)
         {
-            MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(), () -> flowEditorPaneListener.marginClickedForLine(k)));
-            line.textLine.setText(lines.next(), xTranslate, false);
-            lineIndex += 1;
+            double lineHeight = snapHeight.apply(calculateLineHeight());
+            //Debug.message("Line height: " + lineHeight);
+
+            // Start at the first visible line:
+            Iterator<List<StyledSegment>> lines = allLines.subList(firstVisibleLineIndex, Math.min((int) Math.ceil(height / lineHeight) + firstVisibleLineIndex + 1, allLines.size())).iterator();
+            int lineIndex = firstVisibleLineIndex;
+            while (lines.hasNext())
+            {
+                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(), () -> flowEditorPaneListener.marginClickedForLine(k)));
+                line.textLine.setText(lines.next(), xTranslate, false);
+                lineIndex += 1;
+            }
+            //Debug.message("Lines: " + firstVisibleLineIndex + " to " + lineIndex + " giving " + (lineIndex - firstVisibleLineIndex));
+            // Line heights can vary slightly so max is more reliable than average:
+            this.lineHeightEstimate = lineHeight;
+            lastLineIndexIncl = lineIndex - 1;
         }
-        // Line heights can vary slightly so max is more reliable than average:
-        this.lineHeightEstimate = lineHeight;
+        else
+        {
+            // Line wrapping also means we're printing.  We must calculate each line's height individually:
+            double totalHeightSoFar = 0;
+            int lineIndex;
+            for (lineIndex = firstVisibleLineIndex; lineIndex < allLines.size() && totalHeightSoFar < height; lineIndex += 1)
+            {
+                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(), () -> flowEditorPaneListener.marginClickedForLine(k)));
+                line.textLine.setText(allLines.get(lineIndex), xTranslate, true);
+                double lineHeight = calculateLineHeight(allLines.get(lineIndex), width);
+                totalHeightSoFar += snapHeight.apply(lineHeight);
+            }
+            lastLineIndexIncl = lineIndex - 1;
+        }
         
         // Remove any excess lines:
-        int lastLineIndexIncl = lineIndex - 1;
         visibleLines.entrySet().removeIf(e -> e.getKey() < firstVisibleLineIndex || e.getKey() > lastLineIndexIncl);
         
         // Notify any rendering listeners of new line exposure:
@@ -352,16 +372,24 @@ class LineDisplay
     }
 
     /**
-     * Calculates the anticipated height of a line of text.
+     * Calculates the anticipated height of a single line of text.
      */
     public double calculateLineHeight()
+    {
+        return calculateLineHeight(List.of(new StyledSegment(List.of(), "Xy")), -1);
+    }
+
+    /**
+     * Calculates the anticipated height of a given line of text, wrapping at maxWidth.
+     */
+    public double calculateLineHeight(List<StyledSegment> content, double maxWidth)
     {
         TextLine textLine = new TextLine();
         // Must be in a scene for CSS (for font family/size) to get applied correctly:
         Scene s = new Scene(textLine);
-        textLine.setText(List.of(new StyledSegment(List.of(), "Xy")), 0, true);
+        textLine.setText(content, 0, true);
         textLine.applyCss();
         textLine.layout();
-        return textLine.prefHeight(-1);
+        return textLine.prefHeight(maxWidth);
     }
 }

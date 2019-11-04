@@ -143,7 +143,7 @@ public class FlowEditorPane extends Region implements DocumentListener
                 updateRender(false);
             }
         });
-        lineContainer = new LineContainer(lineDisplay);
+        lineContainer = new LineContainer(lineDisplay, false);
         Rectangle clip = new Rectangle();
         clip.widthProperty().bind(lineContainer.widthProperty());
         clip.heightProperty().bind(lineContainer.heightProperty());
@@ -243,7 +243,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         // styling lines which will not be displayed:
         List<List<StyledSegment>> styledLines = new StyledLines(document, lineStyler);
         
-        prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(styledLines, this::snapSizeY, - horizontalScroll.getValue(), lineContainer.getHeight()));
+        prospectiveChildren.addAll(lineDisplay.recalculateVisibleLines(styledLines, this::snapSizeY, - horizontalScroll.getValue(), lineContainer.getWidth(), lineContainer.getHeight(), false));
         prospectiveChildren.add(caretShape);
         verticalScroll.setVisible(allowScrollBars && lineDisplay.getVisibleLineCount() < document.getLineCount());
         // Note: we don't use actual line count as that "jiggle" by one line as lines are partially
@@ -652,25 +652,44 @@ public class FlowEditorPane extends Region implements DocumentListener
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public static class LineContainer extends Region
     {
-        public LineContainer(LineDisplay lineDisplay)
+        private final LineDisplay lineDisplay;
+        private final boolean lineWrapping;
+
+        public LineContainer(LineDisplay lineDisplay, boolean lineWrapping)
         {
             this.lineDisplay = lineDisplay;
+            this.lineWrapping = lineWrapping;
         }
-
-        private final LineDisplay lineDisplay;
         
         @Override
         protected void layoutChildren()
         {
             double y = snapPositionY(lineDisplay.getFirstVisibleLineOffset());
-            double height = snapSizeY(lineDisplay.calculateLineHeight());
-            for (Node child : getChildren())
+            if (!lineWrapping)
             {
-                if (child instanceof MarginAndTextLine)
+                double height = snapSizeY(lineDisplay.calculateLineHeight());
+                for (Node child : getChildren())
                 {
-                    double nextY = snapPositionY(y + height);
-                    child.resizeRelocate(0, y, Math.max(getWidth(), child.prefWidth(-1.0)), nextY - y);
-                    y = nextY;
+                    if (child instanceof MarginAndTextLine)
+                    {
+                        double nextY = snapPositionY(y + height);
+                        child.resizeRelocate(0, y, Math.max(getWidth(), child.prefWidth(-1.0)), nextY - y);
+                        y = nextY;
+                    }
+                }
+            }
+            else
+            {
+                for (Node child : getChildren())
+                {
+                    if (child instanceof MarginAndTextLine)
+                    {
+                        MarginAndTextLine line = (MarginAndTextLine) child;
+                        double height = snapSizeY(child.prefHeight(getWidth()));
+                        double nextY = snapPositionY(y + height);
+                        child.resizeRelocate(0, y, getWidth(), nextY - y);
+                        y = nextY;
+                    }
                 }
             }
         }

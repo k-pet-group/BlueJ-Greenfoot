@@ -2918,9 +2918,9 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         OffScreenFlowEditorPaneListener flowEditorPaneListener = new OffScreenFlowEditorPaneListener();
         LineDisplay lineDisplay = new LineDisplay(height, new ReadOnlyDoubleWrapper(0), flowEditorPaneListener);
         // TODO apply syntax highlighting
-        LineContainer lineContainer = new LineContainer(lineDisplay);
+        LineContainer lineContainer = new LineContainer(lineDisplay, true);
         StyledLines allLines = new StyledLines(doc, (i, s) -> Collections.singletonList(new StyledSegment(Collections.emptyList(), s.toString())));
-        lineContainer.getChildren().setAll(lineDisplay.recalculateVisibleLines(allLines, Math::ceil, 0, height.get()));
+        lineContainer.getChildren().setAll(lineDisplay.recalculateVisibleLines(allLines, Math::ceil, 0, printerJob.getJobSettings().getPageLayout().getPrintableWidth(), height.get(), true));
         
         // Note: very important we make this call before copyFrom, as copyFrom is what triggers
         // the run-later that marking as printing suppresses:
@@ -3018,12 +3018,19 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         {
             // Scroll to make topLine actually at the top:
             lineDisplay.scrollTo(topLine, 0);
-            List<MarginAndTextLine> lines = lineDisplay.recalculateVisibleLines(allLines, Math::ceil, 0, lineContainer.getHeight());
+            List<MarginAndTextLine> lines = lineDisplay.recalculateVisibleLines(allLines, Math::ceil, 0, printerJob.getJobSettings().getPageLayout().getPrintableWidth(), lineContainer.getHeight(), true);
             for (MarginAndTextLine line : lines)
             {
                 line.setMarginGraphics(printLineNumbers ? EnumSet.of(MarginDisplay.LINE_NUMBER) : EnumSet.noneOf(MarginDisplay.class));
             }
             lineContainer.getChildren().setAll(lines);
+            lineContainer.layout();
+            lineContainer.applyCss();
+
+            // We need a double layout because the first one will have applied all the styles,
+            // which means the second can now wrap long lines at the right points:
+            updatePageNumber.accept(pageNumber);
+            lineContainer.requestLayout();
             lineContainer.layout();
             lineContainer.applyCss();
 
@@ -3063,7 +3070,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 lineContainer.setClip(new javafx.scene.shape.Rectangle(lineContainer.getWidth(), lineContainer.getHeight()));
                 //lineContainer.setTranslateY(-las);
             }
-            updatePageNumber.accept(pageNumber);
+            
             // NCCB: I have investigated the printing bug seen in 4.1.2rc2 for
             // a long time, but my best guess is that the bug is not in our code.
             // The way it now manifests, with the page cut off at an arbitrary
