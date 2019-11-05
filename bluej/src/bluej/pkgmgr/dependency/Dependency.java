@@ -22,10 +22,7 @@
 package bluej.pkgmgr.dependency;
 
 import bluej.Config;
-import bluej.extensions2.BDependency;
-import bluej.extensions2.BDependency.Type;
 import bluej.extensions2.ExtensionBridge;
-import bluej.extensions2.event.DependencyEvent;
 import bluej.extmgr.ExtensionsManager;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.DependentTarget;
@@ -53,16 +50,33 @@ public abstract class Dependency
     public final Target from;
     @OnThread(Tag.Any)
     public final Target to;
-    @OnThread(Tag.Any)
-    private boolean visible = true;
     Package pkg;
     private static final String removeStr = Config.getString("pkgmgr.classmenu.remove");
     protected boolean selected = false;
     //    protected static final float strokeWithDefault = 1.0f;
     //    protected static final float strokeWithSelected = 2.0f;
-    @OnThread(Tag.Any)
-    private BDependency singleBDependency; // every Dependency has none or one BDependency
     static final int SELECT_DIST = 4;
+
+    /**
+     * This enumeration contains constants which describe the nature of a
+     * dependency.
+     *
+     * @author Simon Gerlach
+     */
+    public enum Type
+    {
+        /**
+         * The type of the dependency could not be determined. This usually
+         * happens if the represented dependency does not exists anymore.
+         */
+        UNKNOWN,
+        /** Represents a uses-dependency */
+        USES,
+        /** Represents an extends-dependency */
+        EXTENDS,
+        /** Represents an implements-dependency */
+        IMPLEMENTS;
+    }
 
     @OnThread(Tag.Any)
     public Dependency(Package pkg, DependentTarget from, DependentTarget to)
@@ -107,33 +121,13 @@ public abstract class Dependency
         return (DependentTarget) to;
     }
 
-    @OnThread(Tag.Any)
-    public BDependency getBDependency()
-    {
-        if (singleBDependency == null) {
-            CompletableFuture<BDependency> singleBDependencyFuture = new CompletableFuture<>();
-            Platform.runLater(() -> {
-                singleBDependencyFuture.complete( ExtensionBridge.newBDependency(this, getType()));
-            });
-            try
-            {
-                singleBDependency = singleBDependencyFuture.get();
-            }
-            catch (InterruptedException | ExecutionException e)
-            {
-                throw new RuntimeException(e);
-            }
-        }
-
-        return singleBDependency;
-    }
 
     /**
-     * Returns the type of this dependency. This information is used by
-     * extensions to distinguish between the different types of dependencies.
+     * Returns the type of this dependency. This information is used
+     * to distinguish between the different types of dependencies.
      * Subclasses must implement this method and return an appropriate constant
-     * of {@link bluej.extensions2.BDependency.Type}.
-     * 
+     * of {@link bluej.pkgmgr.dependency.Dependency.Type}.
+     *
      * @return The type of this dependency;
      */
     @OnThread(Tag.Any)
@@ -183,24 +177,6 @@ public abstract class Dependency
     public String toString()
     {
         return getFrom().getIdentifierName() + " --> " + getTo().getIdentifierName();
-    }
-
-    @OnThread(Tag.Any)
-    public boolean isVisible()
-    {
-        return visible;
-    }
-    
-    public void setVisible(boolean vis)
-    {
-        if (vis != this.visible) {
-            this.visible = vis;
-            pkg.repaint();
-
-            // Inform all listeners about the visibility change
-            DependencyEvent event = new DependencyEvent(this, getFrom().getPackage(), vis);
-            ExtensionsManager.getInstance().delegateEvent(event);
-        }
     }
 
     public void setSelected(boolean selected)

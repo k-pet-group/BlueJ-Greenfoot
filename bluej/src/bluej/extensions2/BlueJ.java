@@ -99,9 +99,6 @@ public final class BlueJ
     private ArrayList<CompileListener> compileListeners;
     private ArrayList<InvocationListener> invocationListeners;
     private ArrayList<ClassListener> classListeners;
-    private List<DependencyListener> dependencyListeners;
-    private List<ClassTargetListener> classTargetListeners;
-
 
     /**
      * Constructor for a BlueJ proxy object.
@@ -121,8 +118,6 @@ public final class BlueJ
         compileListeners = new ArrayList<CompileListener>();
         invocationListeners = new ArrayList<InvocationListener>();
         classListeners = new ArrayList<ClassListener>();
-        dependencyListeners = new ArrayList<DependencyListener>();
-        classTargetListeners = new ArrayList<ClassTargetListener>();
 
         // Don't use lazy initialisation here, to avoid multiple reloads
         localLabels = myWrapper.getLabelProperties();
@@ -632,62 +627,6 @@ public final class BlueJ
             }
         }
     }
-    
-    /**
-     * Register a listener for dependency events.
-     * 
-     * @param listener
-     *            The listener to register.
-     */
-    public void addDependencyListener(DependencyListener listener)
-    {
-        if (listener != null) {
-            synchronized (dependencyListeners) {
-                dependencyListeners.add(listener);
-            }
-        }
-    }
-
-    /**
-     * Removes the specified dependency listener so it no longer receives
-     * dependency events.
-     */
-    public void removeDependencyListener(DependencyListener listener)
-    {
-        if (listener != null) {
-            synchronized (dependencyListeners) {
-                dependencyListeners.remove(listener);
-            }
-        }
-    }
-    
-    /**
-     * Register a listener for class target events.
-     * 
-     * @param listener
-     *            The listener to register.
-     */
-    public void addClassTargetListener(ClassTargetListener listener)
-    {
-        if (listener != null) {
-            synchronized (classTargetListeners) {
-                classTargetListeners.add(listener);
-            }
-        }
-    }
-
-    /**
-     * Removes the specified class target listener so it no longer receives
-     * class target events.
-     */
-    public void removeClassTargetListener(ClassTargetListener listener)
-    {
-        if (listener != null) {
-            synchronized (classTargetListeners) {
-                classTargetListeners.remove(listener);
-            }
-        }
-    }
 
     /**
      * Dispatch this event to the listeners for the ALL events.
@@ -823,59 +762,10 @@ public final class BlueJ
         
         for (int i = 0; i < listeners.length; i++) {
             if (event.getEventId() == ClassEvent.REMOVED) {
-                if (listeners[i] instanceof ClassListener2) {
-                    ((ClassListener2) listeners[i]).classRemoved(event);
-                }
+                listeners[i].classRemoved(event);
             } else {
                 listeners[i].classStateChanged(event);
             }
-        }
-    }
-
-    /**
-     * Dispatch this event to the listeners for the Dependency events.
-     * 
-     * @param event
-     *            The event to dispatch
-     */
-    private void delegateDependencyEvent(DependencyEvent event)
-    {
-        List<DependencyListener> listeners = new ArrayList<DependencyListener>();
-        synchronized (dependencyListeners) {
-            listeners.addAll(dependencyListeners);
-        }
-        
-        for (DependencyListener dependencyListener : listeners) {
-            switch (event.getEventType()) {
-                case DEPENDENCY_ADDED:
-                    dependencyListener.dependencyAdded(event);
-                    break;
-                case DEPENDENCY_REMOVED:
-                    dependencyListener.dependencyRemoved(event);
-                    break;
-                case DEPENDENCY_HIDDEN:
-                case DEPENDENCY_SHOWN:
-                    dependencyListener.dependencyVisibilityChanged(event);
-                    break;
-            }
-        }
-    }
-    
-    /**
-     * Dispatch this event to the listeners for the class target events.
-     * 
-     * @param event
-     *            The event to dispatch
-     */
-    private void delegateClassTargetEvent(ClassTargetEvent event)
-    {
-        List<ClassTargetListener> listeners = new ArrayList<ClassTargetListener>();
-        synchronized (classTargetListeners) {
-            listeners.addAll(classTargetListeners);
-        }
-        
-        for (ClassTargetListener classTargetListener : listeners) {
-            classTargetListener.classTargetVisibilityChanged(event);
         }
     }
 
@@ -897,11 +787,6 @@ public final class BlueJ
             delegateInvocationEvent((InvocationEvent) event);
         else if (event instanceof ClassEvent)
             delegateClassEvent((ClassEvent) event);
-        else if (event instanceof DependencyEvent) {
-            delegateDependencyEvent((DependencyEvent) event);
-        } else if (event instanceof ClassTargetEvent) {
-            delegateClassTargetEvent((ClassTargetEvent) event);
-        }
     }
 
 

@@ -39,4 +39,13 @@ public interface ClassListener
      * compiled, or the class was renamed.
      */
     public void classStateChanged(ClassEvent event);
+
+    /**
+     * A class has been removed. The removed class can be acquired from the
+     * passed in {@link ClassEvent} object.
+     *
+     * @param event
+     *            A <code>ClassEvent</code> object which describes the event.
+     */
+    void classRemoved(ClassEvent event);
 }

@@ -331,17 +331,14 @@ public abstract class DependentTarget extends EditableTarget
     @OnThread(Tag.FXPlatform)
     public void recalcOutUses()
     {
-        // Determine the visible outgoing uses dependencies
-        List<UsesDependency> visibleOutUses = getVisibleUsesDependencies(usesDependencies());
-
         // Order the arrows by quadrant and then appropriate coordinate
-        Collections.sort(visibleOutUses, new LayoutComparer(this, false));
+        Collections.sort(outUses, new LayoutComparer(this, false));
 
         // Count the number of arrows into each quadrant
         int cy = getY() + (int)getHeight() / 2;
         int n_top = 0, n_bottom = 0;
-        for(int i = visibleOutUses.size() - 1; i >= 0; i--) {
-            Target to = ((Dependency) visibleOutUses.get(i)).getTo();
+        for(int i = outUses.size() - 1; i >= 0; i--) {
+            Target to = ((Dependency) outUses.get(i)).getTo();
             int to_cy = to.getY() + (int)to.getHeight() / 2;
             if(to_cy < cy)
                 ++n_top;
@@ -353,7 +350,7 @@ public abstract class DependentTarget extends EditableTarget
         int top_left = getX() + ((int)getWidth() - (n_top - 1) * ARR_HORIZ_DIST) / 2;
         int bottom_left = getX() + ((int)getWidth() - (n_bottom - 1) * ARR_HORIZ_DIST) / 2;
         for(int i = 0; i < n_top + n_bottom; i++) {
-            UsesDependency d = (UsesDependency) visibleOutUses.get(i);
+            UsesDependency d = (UsesDependency) outUses.get(i);
             int to_cy = d.getTo().getY() + (int)d.getTo().getHeight() / 2;
             if(to_cy < cy) {
                 d.setSourceCoords(top_left, getY() - 2.5, true);
@@ -372,18 +369,15 @@ public abstract class DependentTarget extends EditableTarget
     @OnThread(Tag.FXPlatform)
     public synchronized void recalcInUses()
     {
-        // Determine the visible incoming uses dependencies
-        List<UsesDependency> visibleInUses = getVisibleUsesDependencies(inUses);
-
         // Order the arrows by quadrant and then appropriate coordinate
-        Collections.sort(visibleInUses, new LayoutComparer(this, true));
+        Collections.sort(inUses, new LayoutComparer(this, true));
 
         // Count the number of arrows into each quadrant
         int cx = getX() + (int)getWidth() / 2;
         int n_left = 0, n_right = 0;
-        for(int i = visibleInUses.size() - 1; i >= 0; i--)
+        for(int i = inUses.size() - 1; i >= 0; i--)
         {
-            Target from = ((Dependency) visibleInUses.get(i)).getFrom();
+            Target from = ((Dependency) inUses.get(i)).getFrom();
             int from_cx = from.getX() + (int)from.getWidth() / 2;
             if(from_cx < cx)
                 ++n_left;
@@ -396,7 +390,7 @@ public abstract class DependentTarget extends EditableTarget
         int right_top = getY() + ((int)getHeight() - (n_right - 1) * ARR_VERT_DIST) / 2;
         for(int i = 0; i < n_left + n_right; i++)
         {
-            UsesDependency d = (UsesDependency) visibleInUses.get(i);
+            UsesDependency d = (UsesDependency) inUses.get(i);
             int from_cx = d.getFrom().getX() + (int)d.getFrom().getWidth() / 2;
             if(from_cx < cx)
             {
@@ -409,29 +403,6 @@ public abstract class DependentTarget extends EditableTarget
                 right_top += ARR_VERT_DIST;
             }
         }
-    }
-
-    /**
-     * Returns from the specified {@link List} all uses dependencies which are
-     * currently visible.
-     * 
-     * @param usesDependencies
-     *            A {@link List} of uses dependencies.
-     * @return A {@link List} containing all visible uses dependencies from the
-     *         input list.
-     */
-    @OnThread(Tag.FXPlatform)
-    private static List<UsesDependency> getVisibleUsesDependencies(List<UsesDependency> usesDependencies)
-    {
-        List<UsesDependency> result = new ArrayList<UsesDependency>();
-
-        for (UsesDependency incomingUsesDependency : usesDependencies) {
-            if (incomingUsesDependency.isVisible()) {
-                result.add(incomingUsesDependency);
-            }
-        }
-
-        return result;
     }
 
     @OnThread(Tag.FXPlatform)
@@ -465,7 +436,6 @@ public abstract class DependentTarget extends EditableTarget
     /**
      * The user may have moved or resized the target. If so, recalculate the
      * dependency arrows associated with this target.
-     * @param editor
      */
     @OnThread(Tag.FXPlatform)
     public synchronized void recalcDependentPositions() 

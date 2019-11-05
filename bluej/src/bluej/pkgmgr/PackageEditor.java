@@ -26,7 +26,6 @@ import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.debugger.DebuggerObject;
 import bluej.debugger.gentype.GenTypeClass;
-import bluej.extensions2.BDependency;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.ExtensionsMenuManager;
 import bluej.extmgr.PackageExtensionMenu;
@@ -532,7 +531,7 @@ public final class PackageEditor extends StackPane
         private final Dependency.Line line;
         private final boolean selected;
         private final boolean creating;
-        private BDependency.Type type;
+        private Dependency.Type type;
 
         public ExtendsDepInfo(Dependency d)
         {
@@ -633,7 +632,7 @@ public final class PackageEditor extends StackPane
                     toY - (ARROW_SIZE * Math.sin(angle - ARROW_ANGLE))};
             g.setLineDashes();
             g.strokePolygon(xPoints, yPoints, 3);
-            if (d.type==BDependency.Type.IMPLEMENTS)
+            if (d.type==Dependency.Type.IMPLEMENTS)
             {
                 g.setLineDashes(DASHES);
             }
@@ -782,7 +781,7 @@ public final class PackageEditor extends StackPane
      *         there is no such dependency.
      */
     @OnThread(Tag.SwingIsFX)
-    public synchronized Dependency getDependency(DependentTarget origin, DependentTarget target, BDependency.Type type)
+    public synchronized Dependency getDependency(DependentTarget origin, DependentTarget target, Dependency.Type type)
     {
         List<? extends Dependency> dependencies;
 
