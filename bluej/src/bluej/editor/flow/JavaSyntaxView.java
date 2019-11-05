@@ -21,7 +21,7 @@
  */
 package bluej.editor.flow;
 
-import bluej.Config;
+import bluej.editor.flow.FlowEditorPane.LineStyler;
 import bluej.editor.flow.LineDisplay.LineDisplayListener;
 import bluej.editor.flow.TextLine.StyledSegment;
 import bluej.editor.moe.MoeSyntaxDocument;
@@ -32,7 +32,6 @@ import bluej.editor.moe.ScopeColors;
 import bluej.editor.moe.Token;
 import bluej.editor.moe.Token.TokenType;
 import bluej.parser.entity.EntityResolver;
-import bluej.parser.nodes.NodeStructureListener;
 import bluej.parser.nodes.NodeTree;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
@@ -45,29 +44,24 @@ import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.ObjectExpression;
 import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Shape;
 import javafx.util.Duration;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.io.Reader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -121,7 +115,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     private NodeTree<ReparseRecord> reparseRecordTree;
     private final ScopeColors scopeColors;
     private final BooleanExpression syntaxHighlighting;
-    private final FlowEditorPane editorPane;
+    private final Display display;
 
     /* Scope painting colours */
     /* The following are initialized by resetColors() */
@@ -146,11 +140,16 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     private FlowReparseRunner reparseRunner;
     // The latest lines rendered, used to keep track of what needs re-rendering when we scroll:
     private int latestRenderStartIncl = 0;
-    private int latestRenderEndIncl = Integer.MAX_VALUE;
+    private int latestRenderEndIncl = Integer.MAX_VALUE - 1_000_000;
 
     public Map<Integer, List<BackgroundItem>> getScopeBackgrounds()
     {
         return scopeBackgrounds.scopeBackgrounds;
+    }
+
+    public EntityResolver getEntityResolver()
+    {
+        return parentResolver;
     }
 
     public static enum ParagraphAttribute
@@ -327,18 +326,18 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     /**
      * Creates a new BlueJSyntaxView.
      */
-    public JavaSyntaxView(FlowEditorPane editorPane, ScopeColors scopeColors, EntityResolver parentResolver)
+    public JavaSyntaxView(Document document, Display display, ScopeColors scopeColors, EntityResolver parentResolver)
     {
         this.parentResolver = parentResolver;
         this.scopeBackgrounds = new LiveScopeBackgrounds();
         this.nodeIndents.addListener(scopeBackgrounds);
-        this.document = editorPane.getDocument();
-        this.editorPane = editorPane;
+        this.document = document;
+        this.display = display;
         this.syntaxHighlighting = PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING);
         this.scopeColors = scopeColors;
         resetColors();
-        editorPane.addLineDisplayListener(this);
-        editorPane.setLineStyler(this::getTokenStylesFor);
+        this.display.addLineDisplayListener(this);
+        this.display.setLineStyler(this::getTokenStylesFor);
         JavaFXUtil.addChangeListenerPlatform(PrefMgr.getScopeHighlightStrength(), str -> {
             resetColors();
             recalculateAndApplyAllScopes();
@@ -361,11 +360,11 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             }
         });
         
-        JavaFXUtil.addChangeListenerPlatform(editorPane.widthProperty(), w -> JavaFXUtil.runAfter(Duration.millis(500), () -> {
+        JavaFXUtil.addChangeListenerPlatform(this.display.widthProperty(), w -> JavaFXUtil.runAfter(Duration.millis(500), () -> {
             recalculateAllScopes();
             applyPendingScopeBackgrounds();
         }));
-        JavaFXUtil.addChangeListenerPlatform(editorPane.heightProperty(), h -> JavaFXUtil.runAfter(Duration.millis(500), () -> {
+        JavaFXUtil.addChangeListenerPlatform(this.display.heightProperty(), h -> JavaFXUtil.runAfter(Duration.millis(500), () -> {
             recalculateAllScopes();
             applyPendingScopeBackgrounds();
         }));
@@ -517,10 +516,10 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     private void recalculateScopes(int firstLineIncl, int lastLineIncl)
     {
         // editorPane is null during testing -- just skip updating the scopes in that case:
-        if (editorPane == null)
+        if (display == null)
             return;
         
-        recalcScopeMarkers((int)editorPane.getTextDisplayWidth(),
+        recalcScopeMarkers((int) display.getTextDisplayWidth(),
                 //(widthProperty == null || widthProperty.get() == 0) ? 200 :
                         //((int)widthProperty.get() - PARAGRAPH_MARGIN),
                 firstLineIncl, lastLineIncl);
@@ -802,7 +801,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
      */
     private OptionalInt getLeftEdge(int startOffset)
     {
-        if (editorPane == null)
+        if (display == null)
         {
             return OptionalInt.empty();
         }
@@ -812,7 +811,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         CharSequence lineText = new Element(line).getText();
         boolean allSpaces = (column == 0) || lineText.subSequence(0, column).codePoints().allMatch(n -> n == ' ');
 
-        if (!editorPane.isLineVisible(line) && (!allSpaces || cachedSpaceSizes.size() <= 4))
+        if (!display.isLineVisible(line) && (!allSpaces || cachedSpaceSizes.size() <= 4))
         {
             // If we are printing, we'll never be able to get the on-screen position
             // for our off-screen editor.  So we must make our best guess at positions
@@ -820,7 +819,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             if (isPrinting())
             {
                 TextField field = new TextField();
-                field.styleProperty().bind(editorPane.styleProperty());
+                //field.styleProperty().bind(display.styleProperty());
                 // Have to put TextField into a Scene for CSS to take effect:
                 @SuppressWarnings("unused")
                 Scene s = new Scene(new BorderPane(field));
@@ -880,7 +879,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 Optional<Double> leftEdge = Optional.empty();
                 if (!duringUpdate)
                 {
-                    leftEdge = editorPane.getLeftEdgeX(startOffset - numberOfSpaces + cachedSpaceSizes.size());
+                    leftEdge = display.getLeftEdgeX(startOffset - numberOfSpaces + cachedSpaceSizes.size());
                 }
                 // If the character isn't on screen, we're not going to be able to calculate indent,
                 // and we know we haven't got a cached indent, so give up:
@@ -912,7 +911,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 Optional<Double> leftEdge = Optional.empty();
                 if (!duringUpdate)
                 {
-                    leftEdge = editorPane.getLeftEdgeX(startOffset);
+                    leftEdge = display.getLeftEdgeX(startOffset);
                 }
 
                 if (leftEdge.isPresent())
@@ -1112,7 +1111,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         // hope that the editor is now visible:
         if (indent == null) {
             // No point trying to re-calculate the indent if the line isn't on screen:
-            if (editorPane != null && (editorPane.isLineVisible(document.getLineFromPosition(lineEl.getStartOffset())) || isPrinting()))
+            if (display != null && (display.isLineVisible(document.getLineFromPosition(lineEl.getStartOffset())) || isPrinting()))
             {
                 indent = calculateNodeIndent(nap);
                 if (indent > 0)
@@ -1145,7 +1144,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 
     private boolean isPrinting()
     {
-        return false;
+        return display.isPrinting();
     }
 
     /**
@@ -1991,7 +1990,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         });
         pendingScopeBackgrounds.clear();
 
-        editorPane.applyScopeBackgrounds(scopeBackgrounds.scopeBackgrounds);
+        display.applyScopeBackgrounds(scopeBackgrounds.scopeBackgrounds);
     }
 
     /**
@@ -2231,17 +2230,17 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             if (newBeforeStartIncl <= newBeforeEndIncl)
             {
                 recalculateScopes(
-                    Math.min(newBeforeStartIncl, editorPane.getDocument().getLineCount() - 1),
-                    Math.min(newBeforeEndIncl, editorPane.getDocument().getLineCount() - 1));
+                    Math.min(newBeforeStartIncl, document.getLineCount() - 1),
+                    Math.min(newBeforeEndIncl, document.getLineCount() - 1));
             }
             if (newAfterStartIncl <= newAfterEndIncl)
             {
                 recalculateScopes(
-                    Math.min(newAfterStartIncl, editorPane.getDocument().getLineCount() - 1),
-                    Math.min(newAfterEndIncl, editorPane.getDocument().getLineCount() - 1));
+                    Math.min(newAfterStartIncl, document.getLineCount() - 1),
+                    Math.min(newAfterEndIncl, document.getLineCount() - 1));
             }
             applyPendingScopeBackgrounds();
-            editorPane.requestLayout();
+            display.requestLayout();
         }
         latestRenderStartIncl = fromLineIndexIncl;
         latestRenderEndIncl = toLineIndexIncl;
@@ -2249,11 +2248,11 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 
     private void scheduleReparseRunner()
     {
-        if (reparseRunner == null)
+        if (reparseRunner == null && !isPrinting())
         {
-            if (editorPane.getScene() == null)
+            if (display.sceneProperty().get() == null)
             {
-                JavaFXUtil.onceNotNull(editorPane.sceneProperty(), s -> scheduleReparseRunner());
+                JavaFXUtil.onceNotNull(display.sceneProperty(), s -> scheduleReparseRunner());
             }
             else
             {
@@ -2261,9 +2260,13 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 // Wait until after layout to do a reparse (as that may involve asking for positions of 
                 // characters on screen -- which will not give a valid answer until after the layout:
 
-                JavaFXUtil.runAfterNextLayout(editorPane.getScene(), reparseRunner);
-                editorPane.requestLayout();
+                JavaFXUtil.runAfterNextLayout(display.sceneProperty().get(), reparseRunner);
+                display.requestLayout();
             }
+        }
+        else if (isPrinting())
+        {
+            flushReparseQueue();
         }
     }
 
@@ -2393,7 +2396,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         cachedSpaceSizes.clear();
         nodeIndents.clear();
         scopeBackgrounds.clear();
-        JavaFXUtil.runAfterNextLayout(editorPane.getScene(), () -> {
+        JavaFXUtil.runAfterNextLayout(display.sceneProperty().get(), () -> {
             recalculateAndApplyAllScopes();
         });
     }
@@ -2461,7 +2464,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             else {
                 // Mark that we are no longer scheduled.  Reapply backgrounds and syntax highlighting:
                 applyPendingScopeBackgrounds();
-                editorPane.repaint();
+                display.repaint();
                 reparseRunner = null;
             }
         }
@@ -2511,5 +2514,35 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         {
             recentEdits.remove(0);
         }
+    }
+    
+    public static interface Display
+    {
+        public ReadOnlyObjectProperty<Scene> sceneProperty();
+        
+        public ReadOnlyDoubleProperty widthProperty();
+
+        public ReadOnlyDoubleProperty heightProperty();
+        
+        public void requestLayout();
+
+        public default boolean isPrinting()
+        {
+            return false;
+        }
+
+        public boolean isLineVisible(int lineIndex);
+
+        public Optional<Double> getLeftEdgeX(int charIndex);
+
+        public void addLineDisplayListener(LineDisplayListener lineDisplayListener);
+
+        public void setLineStyler(LineStyler lineStyler);
+
+        public double getTextDisplayWidth();
+
+        public void applyScopeBackgrounds(Map<Integer, List<BackgroundItem>> scopeBackgrounds);
+
+        public void repaint();
     }
 }

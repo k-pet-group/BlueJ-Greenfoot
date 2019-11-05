@@ -21,18 +21,16 @@
  */
 package bluej.editor.flow;
 
-import bluej.prefmgr.PrefMgr;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.ResizableRectangle;
 import com.google.common.collect.Lists;
-import javafx.scene.Node;
+import javafx.beans.binding.StringExpression;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import threadchecker.OnThread;
@@ -190,7 +188,7 @@ class TextLine extends TextFlow
      * @param text The text to show.
      * @param fontChanged Has the font size changed since last call?
      */
-    public void setText(List<StyledSegment> text, double xTranslate, boolean fontChanged)
+    public void setText(List<StyledSegment> text, double xTranslate, boolean fontChanged, StringExpression fontCSS)
     {
         setTranslateX(xTranslate);
         clip.setX(-xTranslate);
@@ -208,7 +206,7 @@ class TextLine extends TextFlow
         for (StyledSegment styledSegment : text)
         {
             Text t = new Text(styledSegment.text);
-            t.setStyle(PrefMgr.getEditorFontCSS(true).getValue());
+            t.setStyle(fontCSS.getValue());
             t.getStyleClass().add("editor-text");
             t.getStyleClass().addAll(styledSegment.cssClasses);
             getChildren().add(t);
@@ -284,13 +282,14 @@ class TextLine extends TextFlow
 
     /**
      * Changes the font size of the text on the line, without altering the content.
+     * @param fontCSS
      */
-    public void fontSizeChanged()
+    public void fontSizeChanged(StringExpression fontCSS)
     {
         List<StyledSegment> content = this.latestContent;
         // Avoid check for identical content:
         latestContent = Collections.emptyList();
-        setText(content, getTranslateX(), true);
+        setText(content, getTranslateX(), true, fontCSS);
     }
 
     /**

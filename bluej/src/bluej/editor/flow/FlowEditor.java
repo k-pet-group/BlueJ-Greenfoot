@@ -33,9 +33,11 @@ import bluej.editor.TextEditor;
 import bluej.editor.flow.FlowActions.FlowAbstractAction;
 import bluej.editor.flow.FlowEditorPane.FlowEditorPaneListener;
 import bluej.editor.flow.FlowEditorPane.LineContainer;
+import bluej.editor.flow.FlowEditorPane.LineStyler;
 import bluej.editor.flow.FlowEditorPane.SelectionListener;
 import bluej.editor.flow.FlowEditorPane.StyledLines;
 import bluej.editor.flow.FlowErrorManager.ErrorDetails;
+import bluej.editor.flow.JavaSyntaxView.Display;
 import bluej.editor.flow.JavaSyntaxView.ParagraphAttribute;
 import bluej.editor.flow.LineDisplay.LineDisplayListener;
 import bluej.editor.flow.MarginAndTextLine.MarginDisplay;
@@ -96,7 +98,10 @@ import javafx.beans.binding.ObjectExpression;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -376,7 +381,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         this.flowEditorPane = new FlowEditorPane("", this);
         this.document = flowEditorPane.getDocument();
         this.document.addListener(this);
-        this.javaSyntaxView = new JavaSyntaxView(flowEditorPane, this, parentResolver);
+        this.javaSyntaxView = new JavaSyntaxView(document, flowEditorPane, this, parentResolver);
         this.flowEditorPane.setErrorQuery(errorManager);
         this.undoManager = new UndoManager(document);
         this.fetchTabbedEditor = fetchTabbedEditor;
@@ -2923,10 +2928,104 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         Document doc = new HoleDocument();
         doc.replaceText(0, 0, document.getFullContent());
         OffScreenFlowEditorPaneListener flowEditorPaneListener = new OffScreenFlowEditorPaneListener();
-        LineDisplay lineDisplay = new LineDisplay(height, new ReadOnlyDoubleWrapper(0), flowEditorPaneListener);
+        final String fontCSS;
+        // These sizes are picked by hand.  They are small because the Roboto Mono font
+        // is very large for its point size
+        String fontSize = "7pt";
+        switch (printSize)
+        {
+            case SMALL:
+                fontSize = "5pt";
+                break;
+            case STANDARD:
+                fontSize = "7pt";
+                break;
+            case LARGE:
+                fontSize = "9pt";
+                break;
+        }
+        fontCSS = "-fx-font-size: " + fontSize + ";" + PrefMgr.getEditorFontFamilyCSS();
+        LineDisplay lineDisplay = new LineDisplay(height, new ReadOnlyDoubleWrapper(0), new ReadOnlyStringWrapper(fontCSS), flowEditorPaneListener);
         // TODO apply syntax highlighting
         LineContainer lineContainer = new LineContainer(lineDisplay, true);
-        StyledLines allLines = new StyledLines(doc, (i, s) -> Collections.singletonList(new StyledSegment(Collections.emptyList(), s.toString())));
+        LineStyler[] lineStylerWrapper = new LineStyler[] {(i, s) -> Collections.singletonList(new StyledSegment(Collections.emptyList(), s.toString()))};
+        JavaSyntaxView javaSyntaxView = new JavaSyntaxView(doc, new Display()
+        {
+            @Override
+            public ReadOnlyObjectProperty<Scene> sceneProperty()
+            {
+                return lineContainer.sceneProperty();
+            }
+
+            @Override
+            public ReadOnlyDoubleProperty widthProperty()
+            {
+                return lineContainer.widthProperty();
+            }
+
+            @Override
+            public ReadOnlyDoubleProperty heightProperty()
+            {
+                return lineContainer.heightProperty();
+            }
+
+            @Override
+            public boolean isPrinting()
+            {
+                return true;
+            }
+
+            @Override
+            public void requestLayout()
+            {
+                lineContainer.requestLayout();
+                lineContainer.layout();
+            }
+
+            @Override
+            public boolean isLineVisible(int lineIndex)
+            {
+                return lineDisplay.isLineVisible(lineIndex);
+            }
+
+            @Override
+            public Optional<Double> getLeftEdgeX(int charIndex)
+            {
+                return FlowEditorPane.getLeftEdgeX(charIndex, doc, lineDisplay);
+            }
+
+            @Override
+            public void addLineDisplayListener(LineDisplayListener lineDisplayListener)
+            {
+                lineDisplay.addLineDisplayListener(lineDisplayListener);
+            }
+
+            @Override
+            public void setLineStyler(LineStyler lineStyler)
+            {
+                lineStylerWrapper[0] = lineStyler;
+            }
+
+            @Override
+            public double getTextDisplayWidth()
+            {
+                return lineContainer.getWidth() - MarginAndTextLine.TEXT_LEFT_EDGE;
+            }
+
+            @Override
+            public void applyScopeBackgrounds(Map<Integer, List<BackgroundItem>> scopeBackgrounds)
+            {
+                //TODO
+            }
+
+            @Override
+            public void repaint()
+            {
+                //TODO 
+            }
+        }, flowEditorPaneListener, this.javaSyntaxView.getEntityResolver());
+        javaSyntaxView.enableParser(true);
+        StyledLines allLines = new StyledLines(doc, lineStylerWrapper[0]);
         lineContainer.getChildren().setAll(lineDisplay.recalculateVisibleLines(allLines, Math::ceil, 0, printerJob.getJobSettings().getPageLayout().getPrintableWidth(), height.get(), true));
         
         // Note: very important we make this call before copyFrom, as copyFrom is what triggers

@@ -67,7 +67,7 @@ import java.util.*;
  * as a virtualised container.  Scrolling re-renders the currently visible line set.
  */
 @OnThread(value = Tag.FXPlatform, ignoreParent = true)
-public class FlowEditorPane extends Region implements DocumentListener
+public class FlowEditorPane extends Region implements DocumentListener, JavaSyntaxView.Display
 {
     private final LineDisplay lineDisplay;
     private final FlowEditorPaneListener listener;
@@ -126,7 +126,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         horizontalScroll = new ScrollBar();
         horizontalScroll.setOrientation(Orientation.HORIZONTAL);
         horizontalScroll.setVisible(false);
-        lineDisplay = new LineDisplay(heightProperty(), horizontalScroll.valueProperty(), listener);
+        lineDisplay = new LineDisplay(heightProperty(), horizontalScroll.valueProperty(), PrefMgr.getEditorFontCSS(true), listener);
 
         JavaFXUtil.addChangeListenerPlatform(horizontalScroll.valueProperty(), v -> {
             // Prevent an infinite loop when we update scroll bar ourselves in render method:
@@ -433,7 +433,7 @@ public class FlowEditorPane extends Region implements DocumentListener
         caretShape.setVisible(lineVisible && (focused || forceCaretShow));
     }
 
-    boolean isLineVisible(int line)
+    public boolean isLineVisible(int line)
     {
         return lineDisplay.isLineVisible(line);
     }
@@ -753,6 +753,11 @@ public class FlowEditorPane extends Region implements DocumentListener
      * @return
      */
     public Optional<Double> getLeftEdgeX(int leftOfCharIndex)
+    {
+        return getLeftEdgeX(leftOfCharIndex, document, lineDisplay);
+    }
+
+    static Optional<Double> getLeftEdgeX(int leftOfCharIndex, Document document, LineDisplay lineDisplay)
     {
         int lineIndex = document.getLineFromPosition(leftOfCharIndex);
         if (lineDisplay.isLineVisible(lineIndex))

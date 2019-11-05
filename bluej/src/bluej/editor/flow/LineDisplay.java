@@ -24,13 +24,11 @@ package bluej.editor.flow;
 import bluej.editor.flow.FlowEditorPane.FlowEditorPaneListener;
 import bluej.editor.flow.TextLine.StyledSegment;
 import bluej.utility.javafx.FXFunction;
-import bluej.utility.javafx.FXPlatformFunction;
 import javafx.beans.binding.DoubleExpression;
+import javafx.beans.binding.StringExpression;
 import javafx.geometry.Point2D;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Region;
 import javafx.scene.text.HitInfo;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -66,12 +64,14 @@ class LineDisplay
     
     private final ArrayList<LineDisplayListener> lineDisplayListeners = new ArrayList<>();
     
+    private final StringExpression fontCSS;
     private final DoubleExpression heightProperty;
     private final DoubleExpression horizScrollProperty;
     private double lineHeightEstimate = 1.0;    
 
-    LineDisplay(DoubleExpression heightProperty, DoubleExpression horizScrollProperty, FlowEditorPaneListener flowEditorPaneListener)
+    LineDisplay(DoubleExpression heightProperty, DoubleExpression horizScrollProperty, StringExpression fontCSS, FlowEditorPaneListener flowEditorPaneListener)
     {
+        this.fontCSS = fontCSS;
         this.heightProperty = heightProperty;
         this.horizScrollProperty = horizScrollProperty;
         this.flowEditorPaneListener = flowEditorPaneListener;
@@ -128,7 +128,7 @@ class LineDisplay
             while (lines.hasNext())
             {
                 MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(), () -> flowEditorPaneListener.marginClickedForLine(k)));
-                line.textLine.setText(lines.next(), xTranslate, false);
+                line.textLine.setText(lines.next(), xTranslate, false, fontCSS);
                 lineIndex += 1;
             }
             //Debug.message("Lines: " + firstVisibleLineIndex + " to " + lineIndex + " giving " + (lineIndex - firstVisibleLineIndex));
@@ -144,7 +144,7 @@ class LineDisplay
             for (lineIndex = firstVisibleLineIndex; lineIndex < allLines.size() && totalHeightSoFar < height; lineIndex += 1)
             {
                 MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(), () -> flowEditorPaneListener.marginClickedForLine(k)));
-                line.textLine.setText(allLines.get(lineIndex), xTranslate, true);
+                line.textLine.setText(allLines.get(lineIndex), xTranslate, true, fontCSS);
                 double lineHeight = calculateLineHeight(allLines.get(lineIndex), width);
                 totalHeightSoFar += snapHeight.apply(lineHeight);
             }
@@ -158,7 +158,10 @@ class LineDisplay
         int[] lineRangeVisible = getLineRangeVisible();
         for (LineDisplayListener lineDisplayListener : lineDisplayListeners)
         {
-            lineDisplayListener.renderedLines(lineRangeVisible[0], lineRangeVisible[1]);
+            if (lineRangeVisible[1] >= lineRangeVisible[0])
+            {
+                lineDisplayListener.renderedLines(lineRangeVisible[0], lineRangeVisible[1]);
+            }
         }
         
         return visibleLines.entrySet().stream().sorted(Comparator.comparing(e -> e.getKey())).map(e -> e.getValue()).collect(Collectors.toList());
@@ -326,7 +329,7 @@ class LineDisplay
     {
         for (MarginAndTextLine line : visibleLines.values())
         {
-            line.fontSizeChanged();
+            line.fontSizeChanged(fontCSS);
         }
     }
 
@@ -373,7 +376,7 @@ class LineDisplay
         TextLine textLine = new TextLine();
         // Must be in a scene for CSS (for font family/size) to get applied correctly:
         Scene s = new Scene(textLine);
-        textLine.setText(List.of(new StyledSegment(List.of(), line)), 0, true);
+        textLine.setText(List.of(new StyledSegment(List.of(), line)), 0, true, fontCSS);
         textLine.applyCss();
         textLine.layout();
         return textLine.prefWidth(-1);
@@ -395,7 +398,7 @@ class LineDisplay
         TextLine textLine = new TextLine();
         // Must be in a scene for CSS (for font family/size) to get applied correctly:
         Scene s = new Scene(textLine);
-        textLine.setText(content, 0, true);
+        textLine.setText(content, 0, true, fontCSS);
         textLine.applyCss();
         textLine.layout();
         return textLine.prefHeight(maxWidth);

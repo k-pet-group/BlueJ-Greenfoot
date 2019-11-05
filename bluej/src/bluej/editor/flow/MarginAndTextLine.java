@@ -22,19 +22,16 @@
 package bluej.editor.flow;
 
 import bluej.Config;
-import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.beans.binding.StringExpression;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Region;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import javafx.util.Duration;
@@ -202,10 +199,11 @@ public class MarginAndTextLine extends Region
 
     /**
      * Updates the line after a font change
+     * @param fontCSS
      */
-    public void fontSizeChanged()
+    public void fontSizeChanged(StringExpression fontCSS)
     {
-        textLine.fontSizeChanged();
+        textLine.fontSizeChanged(fontCSS);
     }
 
     @OnThread(Tag.FX)
