@@ -654,64 +654,6 @@ public class BClass
         return aTarget.getJavaSourceFile();
     }
 
-
-    /**
-     * Signal to BlueJ that an extension is about to begin changing the source file of this class.
-     * The file containing the source for this class can be found using getJavaFile();
-     * If the file is currently being edited it will be saved and the editor will be set read-only.
-     *
-     * @throws  ProjectNotOpenException   if the project to which this class belongs has been closed by the user.
-     * @throws  PackageNotFoundException  if the package to which this class belongs has been deleted by the user.
-     * @deprecated As of BlueJ 2.0, replaced by {@link Editor#setReadOnly(boolean readOnly)}
-     */
-    @Deprecated
-    public void beginChangeSource()
-             throws ProjectNotOpenException, PackageNotFoundException
-    {
-        ClassTarget aTarget = classId.getClassTarget();
-        if (aTarget == null) {
-            return;
-        }
-        bluej.editor.Editor anEditor = aTarget.getEditor();
-        if (anEditor == null) {
-            return;
-        }
-
-        try {
-            anEditor.save();
-        }
-        catch (IOException ioe) {}
-        anEditor.setReadOnly(true);
-    }
-
-
-    /**
-     * Signal to BlueJ that an extension has finished changing the source file of this class.
-     * If the file is currently being edited, this will cause it to be re-loaded and the editor to be set read/write.
-     *
-     * @throws  ProjectNotOpenException   if the project to which this class belongs has been closed by the user.
-     * @throws  PackageNotFoundException  if the package to which this class belongs has been deleted by the user.
-     * @deprecated As of BlueJ 2.0, replaced by {@link Editor#setReadOnly(boolean readOnly)}
-     */
-    @Deprecated
-    public void endChangeSource()
-             throws ProjectNotOpenException, PackageNotFoundException
-    {
-        ClassTarget aTarget = classId.getClassTarget();
-        if (aTarget == null) {
-            return;
-        }
-        bluej.editor.Editor anEditor = aTarget.getEditor();
-        if (anEditor == null) {
-            return;
-        }
-
-        anEditor.reloadFile();
-        anEditor.setReadOnly(false);
-    }
-
-
-
     /**
      * Returns a string representation of the Object
      *
