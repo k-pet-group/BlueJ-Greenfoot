@@ -256,7 +256,7 @@ public abstract class DependentTarget extends EditableTarget
     @OnThread(Tag.Any)
     public synchronized List<UsesDependency> usesDependencies()
     {
-        return Collections.unmodifiableList(new ArrayList<>(outUses));
+        return new ArrayList<>(outUses);
     }
     
     /**
@@ -331,16 +331,15 @@ public abstract class DependentTarget extends EditableTarget
     @OnThread(Tag.FXPlatform)
     public void recalcOutUses()
     {
-        List<UsesDependency> outUses = usesDependencies();
-
+    	List<UsesDependency> outUsesCopy =  usesDependencies();
         // Order the arrows by quadrant and then appropriate coordinate
-        Collections.sort(outUses, new LayoutComparer(this, false));
+        Collections.sort(outUsesCopy, new LayoutComparer(this, false));
 
         // Count the number of arrows into each quadrant
         int cy = getY() + (int)getHeight() / 2;
         int n_top = 0, n_bottom = 0;
-        for(int i = outUses.size() - 1; i >= 0; i--) {
-            Target to = ((Dependency) outUses.get(i)).getTo();
+        for(int i = outUsesCopy.size() - 1; i >= 0; i--) {
+            Target to = ((Dependency) outUsesCopy.get(i)).getTo();
             int to_cy = to.getY() + (int)to.getHeight() / 2;
             if(to_cy < cy)
                 ++n_top;
@@ -352,7 +351,7 @@ public abstract class DependentTarget extends EditableTarget
         int top_left = getX() + ((int)getWidth() - (n_top - 1) * ARR_HORIZ_DIST) / 2;
         int bottom_left = getX() + ((int)getWidth() - (n_bottom - 1) * ARR_HORIZ_DIST) / 2;
         for(int i = 0; i < n_top + n_bottom; i++) {
-            UsesDependency d = (UsesDependency) outUses.get(i);
+            UsesDependency d = (UsesDependency) outUsesCopy.get(i);
             int to_cy = d.getTo().getY() + (int)d.getTo().getHeight() / 2;
             if(to_cy < cy) {
                 d.setSourceCoords(top_left, getY() - 2.5, true);
