@@ -44,7 +44,6 @@ import bluej.extensions2.SourceType;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.ExtensionsMenuManager;
 import bluej.extmgr.ToolsExtensionMenu;
-import bluej.extmgr.ViewExtensionMenu;
 import bluej.groupwork.NoSVNSupportDialog;
 import bluej.groupwork.actions.*;
 import bluej.groupwork.ui.ActivityIndicator;
@@ -151,8 +150,6 @@ public class PkgMgrFrame
     private Menu recentProjectsMenu;
     @OnThread(Tag.FXPlatform)
     private final SimpleObjectProperty<ExtensionsMenuManager> toolsMenuManager;
-    @OnThread(Tag.FXPlatform)
-    private final SimpleObjectProperty<ExtensionsMenuManager> viewMenuManager;
     private Menu teamMenu;
     private MenuItem shareProjectMenuItem;
     private MenuItem teamSettingsMenuItem;
@@ -287,7 +284,6 @@ public class PkgMgrFrame
         showUsesProperty = new SimpleBooleanProperty(true);
         showInheritsProperty = new SimpleBooleanProperty(true);
         toolsMenuManager = new SimpleObjectProperty<>(null);
-        viewMenuManager = new SimpleObjectProperty<>(null);
 
         this.editor = null;
         if(!Config.isGreenfoot()) {
@@ -1055,8 +1051,6 @@ public class PkgMgrFrame
             setVisible(true);
 
             Package pkgFinal = aPkg;
-            viewMenuManager.get().setMenuGenerator(new ViewExtensionMenu(pkgFinal));
-            viewMenuManager.get().addExtensionMenu(pkgFinal.getProject());
             toolsMenuManager.get().setMenuGenerator(new ToolsExtensionMenu(pkgFinal));
             toolsMenuManager.get().addExtensionMenu(pkgFinal.getProject());            // runAfterCurrent so that FX finishes initialising the menu,
 
@@ -1125,7 +1119,6 @@ public class PkgMgrFrame
 
         if(! Config.isGreenfoot()) {
             this.toolsMenuManager.get().setMenuGenerator(new ToolsExtensionMenu(thePkg));
-            this.viewMenuManager.get().setMenuGenerator(new ViewExtensionMenu(thePkg));
 
             ObjectBench bench = getObjectBench();
             String uniqueId = getProject().getUniqueId();
@@ -1765,7 +1758,6 @@ public class PkgMgrFrame
                     codePad.clearHistoryView();
                 }
                 toolsMenuManager.get().addExtensionMenu(null);
-                viewMenuManager.get().addExtensionMenu(null);
             }
             else { // all frames gone, lets quit
                 bluej.Main.doQuit();
@@ -3081,7 +3073,6 @@ public class PkgMgrFrame
         }
         {
             Menu extensionsMenu = new Menu(Config.getString("menu.view"));
-            viewMenuManager.set(new ExtensionsMenuManager(extensionsMenu, extMgr, null));
             CheckMenuItem item = JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showUses"), showUsesProperty, null);
             extensionsMenu.getItems().add(item);
             menuItemsToDisable.add(item);
@@ -3098,11 +3089,6 @@ public class PkgMgrFrame
             if (teamAndTestFoldout != null)
                 extensionsMenu.getItems().add( JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTeamTest"), teamAndTestFoldout.expandedProperty(), Config.hasAcceleratorKey("menu.view.showTeamTest") ? Config.getAcceleratorKeyFX("menu.view.showTeamTest") : null));
             extensionsMenu.getItems().add(JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTestDisplay"), showingTestResults, null));
-
-            // (Otherwise, it will be created during project open.)
-            if (frameCount() <= 1) {
-                viewMenuManager.get().addExtensionMenu(null);
-            }
 
             menubar.getMenus().add(extensionsMenu);
         }

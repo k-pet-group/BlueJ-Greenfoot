@@ -53,20 +53,6 @@ public class MenuGenerator
     }
 
     /**
-     * Returns the MenuItem to be added to the BlueJ View menu. Extensions
-     * should not retain references to the menu items created.
-     *
-     * @param bPackage
-     *            The BlueJ package with which this menu item will be
-     *            associated.
-     * @return The MenuItem to be added to the BlueJ View menu.
-     */
-    public MenuItem getViewMenuItem(BPackage bPackage)
-    {
-        return null;
-    }
-
-    /**
      * Returns the MenuItem to be added to the BlueJ Package menu. Extensions
      * should not retain references to the menu items created.
      *
@@ -111,23 +97,6 @@ public class MenuGenerator
      * extension in a previous call to getToolsMenuItem)
      */
     public void notifyPostToolsMenu(BPackage bp, MenuItem mi)
-    {
-        return;
-    }
-
-    /**
-     * Called by BlueJ when a view menu added by an extension is about to be
-     * displayed. An extension can use this notification to decide whether to
-     * enable/disable menu items and so on.
-     *
-     * @param bPackage
-     *            The BlueJ package for which the menu is to be displayed.
-     * @param menuItem
-     *            The menu item which will be displayed (as provided by the
-     *            extension in a previous call to
-     *            {@link #getViewMenuItem(BPackage)}).
-     */
-    public void notifyPostViewMenu(BPackage bPackage, MenuItem menuItem)
     {
         return;
     }
