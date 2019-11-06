@@ -331,6 +331,8 @@ public abstract class DependentTarget extends EditableTarget
     @OnThread(Tag.FXPlatform)
     public void recalcOutUses()
     {
+        List<UsesDependency> outUses = usesDependencies();
+
         // Order the arrows by quadrant and then appropriate coordinate
         Collections.sort(outUses, new LayoutComparer(this, false));
 
