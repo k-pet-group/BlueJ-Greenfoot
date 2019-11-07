@@ -22,7 +22,7 @@
 package bluej.parser;
 
 import bluej.debugger.gentype.Reflective;
-import bluej.editor.moe.MoeSyntaxDocument.Element;
+import bluej.parser.nodes.ReparseableDocument.Element;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.IntersectionTypeEntity;
 import bluej.parser.entity.JavaEntity;

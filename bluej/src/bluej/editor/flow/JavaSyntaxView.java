@@ -2066,13 +2066,13 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         }
     }
 
-    public MoeSyntaxDocument.Element getDefaultRootElement()
+    public ReparseableDocument.Element getDefaultRootElement()
     {
         // This is a different kind of element, which is only there to return a wrapper for the paragraphs:
-        return new MoeSyntaxDocument.Element()
+        return new ReparseableDocument.Element()
         {
             @Override
-            public MoeSyntaxDocument.Element getElement(int index)
+            public ReparseableDocument.Element getElement(int index)
             {
                 int[] lineStarts = new int[document.getLineCount()];
                 for (int i = 0; i < lineStarts.length; i++)
@@ -2087,10 +2087,10 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 int paraLength;
                 paraLength = lastPara ? (document.getLength() - lineStarts[index]) : lineStarts[index + 1] - lineStarts[index];
                 int pos = lineStarts[index];
-                return new MoeSyntaxDocument.Element()
+                return new ReparseableDocument.Element()
                 {
                     @Override
-                    public MoeSyntaxDocument.Element getElement(int index)
+                    public ReparseableDocument.Element getElement(int index)
                     {
                         return null;
                     }

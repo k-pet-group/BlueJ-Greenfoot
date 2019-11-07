@@ -30,7 +30,7 @@ import java.util.Set;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.Reflective;
-import bluej.editor.moe.MoeSyntaxDocument.Element;
+import bluej.parser.nodes.ReparseableDocument.Element;
 import bluej.editor.moe.Token;
 import bluej.editor.moe.Token.TokenType;
 import bluej.parser.ExpressionTypeInfo;

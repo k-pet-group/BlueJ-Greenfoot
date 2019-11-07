@@ -35,7 +35,7 @@ import bluej.editor.moe.MoeActions.MoeAbstractAction;
 import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr.PrintSize;
 import bluej.editor.moe.MoeErrorManager.ErrorDetails;
-import bluej.editor.moe.MoeSyntaxDocument.Element;
+import bluej.parser.nodes.ReparseableDocument.Element;
 import bluej.editor.moe.PrintDialog.PrintChoices;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.FrameEditor;

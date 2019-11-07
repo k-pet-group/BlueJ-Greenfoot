@@ -22,7 +22,7 @@
 package bluej.editor.moe;
 
 import bluej.Config;
-import bluej.editor.moe.MoeSyntaxDocument.Element;
+import bluej.parser.nodes.ReparseableDocument.Element;
 import bluej.editor.moe.MoeSyntaxEvent.NodeChangeRecord;
 import bluej.editor.moe.Token.TokenType;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;

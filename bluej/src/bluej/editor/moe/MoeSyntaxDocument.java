@@ -1056,16 +1056,6 @@ public class MoeSyntaxDocument implements ReparseableDocument
             return EnumSet.noneOf(ParagraphAttribute.class);
     }
 
-    @OnThread(Tag.FXPlatform)
-    public static interface Element
-    {
-        public Element getElement(int index);
-        public int getStartOffset();
-        public int getEndOffset();
-        public int getElementIndex(int offset);
-        public int getElementCount();
-    }
-
     public Element getDefaultRootElement()
     {
         // This is a different kind of element, which is only there to return a wrapper for the paragraphs:

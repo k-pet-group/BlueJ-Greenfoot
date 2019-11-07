@@ -23,9 +23,7 @@ package bluej.editor.flow;
 
 import bluej.Config;
 import bluej.editor.flow.Document.Bias;
-import bluej.editor.moe.MoeSyntaxDocument;
-import bluej.editor.moe.MoeSyntaxDocument.Element;
-import bluej.editor.moe.MoeSyntaxDocument.Position;
+import bluej.parser.nodes.ReparseableDocument.Element;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ReparseableDocument;

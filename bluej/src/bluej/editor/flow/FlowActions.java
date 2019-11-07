@@ -25,7 +25,6 @@ package bluej.editor.flow;
 import bluej.Config;
 import bluej.debugger.gentype.JavaType;
 import bluej.editor.flow.FlowIndent.AutoIndentInformation;
-import bluej.editor.moe.MoeEditor;
 import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.SourceLocation;
 import bluej.parser.entity.JavaEntity;
@@ -513,13 +512,13 @@ public final class FlowActions
             selectionEnd = selectionEnd - 1; // skip last position
 
         ReparseableDocument doc = editor.getSourceDocument();
-        MoeSyntaxDocument.Element text = doc.getDefaultRootElement();
+        ReparseableDocument.Element text = doc.getDefaultRootElement();
 
         // -1 to adjust to zero-based index:
         int firstLineIndex = editor.getLineColumnFromOffset(selectionStart).getLine() - 1;
         int lastLineIndex = editor.getLineColumnFromOffset(selectionEnd).getLine() - 1;
         for (int i = firstLineIndex; i <= lastLineIndex; i++) {
-            MoeSyntaxDocument.Element line = text.getElement(i);
+            ReparseableDocument.Element line = text.getElement(i);
             lineAction.apply(line, editor.getSourcePane().getDocument());
         }
     }
@@ -796,7 +795,7 @@ public final class FlowActions
 
         ReparseableDocument doc = editor.getSourceDocument();
 
-        MoeSyntaxDocument.Element line = doc.getDefaultRootElement().getElement(lineIndex);
+        ReparseableDocument.Element line = doc.getDefaultRootElement().getElement(lineIndex);
         int lineStart = line.getStartOffset();
         int pos = textPane.getCaretPosition();
 
@@ -817,7 +816,7 @@ public final class FlowActions
         int lineOffset = 1;
         String prevLineText = "";
         while ((lineIndex - lineOffset >= 0) && !foundLine) {
-            MoeSyntaxDocument.Element prevline = doc.getDefaultRootElement().getElement(lineIndex - lineOffset);
+            ReparseableDocument.Element prevline = doc.getDefaultRootElement().getElement(lineIndex - lineOffset);
             int prevLineStart = prevline.getStartOffset();
             int prevLineEnd = prevline.getEndOffset();
             prevLineText = textPane.getDocument().getContent(prevLineStart, prevLineEnd).toString();
@@ -1193,7 +1192,7 @@ public final class FlowActions
         /**
          * Apply some action to a line in the document.
          */
-        public void apply(MoeSyntaxDocument.Element line, Document doc);
+        public void apply(ReparseableDocument.Element line, Document doc);
     }
 
     // --------------------------------------------------------------------
@@ -2102,7 +2101,7 @@ public final class FlowActions
     class CommentLineAction implements LineAction
     {
         @Override
-        public void apply(MoeSyntaxDocument.Element line, Document doc)
+        public void apply(ReparseableDocument.Element line, Document doc)
         {
             int lineStart = line.getStartOffset();
             int lineEnd = line.getEndOffset();
@@ -2121,7 +2120,7 @@ public final class FlowActions
     class UncommentLineAction implements LineAction
     {
         @Override
-        public void apply(MoeSyntaxDocument.Element line, Document doc)
+        public void apply(ReparseableDocument.Element line, Document doc)
         {
             int lineStart = line.getStartOffset();
             int lineEnd = line.getEndOffset();
@@ -2151,7 +2150,7 @@ public final class FlowActions
     class IndentLineAction implements LineAction
     {
         @Override
-        public void apply(MoeSyntaxDocument.Element line, Document doc)
+        public void apply(ReparseableDocument.Element line, Document doc)
         {
             int lineStart = line.getStartOffset();
             doc.replaceText(lineStart, lineStart, spaces.substring(0, tabSize));
@@ -2165,7 +2164,7 @@ public final class FlowActions
     class DeindentLineAction implements LineAction
     {
         @Override
-        public void apply(MoeSyntaxDocument.Element line, Document doc)
+        public void apply(ReparseableDocument.Element line, Document doc)
         {
             int lineStart = line.getStartOffset();
             int lineEnd = line.getEndOffset();

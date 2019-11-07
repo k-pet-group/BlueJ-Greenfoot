@@ -22,6 +22,8 @@
 package bluej.parser.nodes;
 
 import bluej.editor.moe.MoeSyntaxDocument;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.io.Reader;
 
@@ -35,7 +37,7 @@ public interface ReparseableDocument
      */
     public void scheduleReparse(int pos, int size);
 
-    public MoeSyntaxDocument.Element getDefaultRootElement();
+    public Element getDefaultRootElement();
     
     public int getLength();
     
@@ -53,4 +55,14 @@ public interface ReparseableDocument
      * scheduled re-parses as appropriate and repaints the appropriate area.
      */
     public void markSectionParsed(int pos, int size);
+
+    @OnThread(Tag.FXPlatform)
+    public static interface Element
+    {
+        public Element getElement(int index);
+        public int getStartOffset();
+        public int getEndOffset();
+        public int getElementIndex(int offset);
+        public int getElementCount();
+    }
 }
