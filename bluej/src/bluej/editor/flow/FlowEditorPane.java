@@ -288,25 +288,12 @@ public class FlowEditorPane extends Region implements DocumentListener, JavaSynt
 
         if (lineDisplay.isLineVisible(caret.getLine()))
         {
-            MarginAndTextLine caretLine = lineDisplay.getVisibleLine(caret.getLine());
-            caretShape.getElements().setAll(caretLine.textLine.caretShape(caret.getColumn(), true));
             if (getScene() != null)
             {
                 JavaFXUtil.runAfterNextLayout(getScene(), () -> {
-                    caretShape.getElements().setAll(caretLine.textLine.caretShape(caret.getColumn(), true));
+                    updateCaretGraphics(ensureCaretVisible, lineDisplay.getVisibleLine(caret.getLine()));
                 });
             }
-            caretShape.layoutXProperty().bind(caretLine.layoutXProperty());
-            if (ensureCaretVisible)
-            {
-                Bounds caretBounds = caretShape.getBoundsInLocal();
-                double maxScroll = Math.max(0, caretBounds.getCenterX() - 8);
-                double minScroll = Math.max(0, caretBounds.getCenterX() - (getWidth() - MarginAndTextLine.TEXT_LEFT_EDGE - verticalScroll.prefWidth(-1) - 6));
-                horizontalScroll.setValue(Math.min(maxScroll, Math.max(minScroll, horizontalScroll.getValue())));
-            }
-            caretShape.translateXProperty().set(MarginAndTextLine.TEXT_LEFT_EDGE - horizontalScroll.getValue());
-            caretShape.layoutYProperty().bind(caretLine.layoutYProperty());
-            caretShape.setVisible(true);
         }
         else
         {
@@ -424,6 +411,22 @@ public class FlowEditorPane extends Region implements DocumentListener, JavaSynt
         
                 
         requestLayout();
+    }
+
+    private void updateCaretGraphics(boolean ensureCaretVisible, MarginAndTextLine caretLine)
+    {
+        caretShape.getElements().setAll(caretLine.textLine.caretShape(caret.getColumn(), true));
+        caretShape.layoutXProperty().bind(caretLine.layoutXProperty());
+        if (ensureCaretVisible)
+        {
+            Bounds caretBounds = caretShape.getBoundsInLocal();
+            double maxScroll = Math.max(0, caretBounds.getCenterX() - 8);
+            double minScroll = Math.max(0, caretBounds.getCenterX() - (getWidth() - MarginAndTextLine.TEXT_LEFT_EDGE - verticalScroll.prefWidth(-1) - 6));
+            horizontalScroll.setValue(Math.min(maxScroll, Math.max(minScroll, horizontalScroll.getValue())));
+        }
+        caretShape.translateXProperty().set(MarginAndTextLine.TEXT_LEFT_EDGE - horizontalScroll.getValue());
+        caretShape.layoutYProperty().bind(caretLine.layoutYProperty());
+        caretShape.setVisible(true);
     }
 
     private void updateCaretVisibility()
