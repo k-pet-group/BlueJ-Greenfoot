@@ -286,23 +286,23 @@ public class FlowEditorPane extends Region implements DocumentListener, JavaSynt
             }
         }
 
-        if (lineDisplay.isLineVisible(caret.getLine()))
+        if (getScene() != null)
         {
-            if (getScene() != null)
-            {
-                JavaFXUtil.runAfterNextLayout(getScene(), () -> {
+            JavaFXUtil.runAfterNextLayout(getScene(), () -> {
+                if (lineDisplay.isLineVisible(caret.getLine()))
+                {
                     updateCaretGraphics(ensureCaretVisible, lineDisplay.getVisibleLine(caret.getLine()));
-                });
-            }
-        }
-        else
-        {
-            caretShape.getElements().clear();
-            caretShape.layoutXProperty().unbind();
-            caretShape.layoutYProperty().unbind();
-            caretShape.setLayoutX(0);
-            caretShape.setLayoutY(0);
-            caretShape.setVisible(false);
+                }
+                else
+                {
+                    caretShape.getElements().clear();
+                    caretShape.layoutXProperty().unbind();
+                    caretShape.layoutYProperty().unbind();
+                    caretShape.setLayoutX(0);
+                    caretShape.setLayoutY(0);
+                    caretShape.setVisible(false);
+                }
+            });
         }
         updateCaretVisibility();
 
