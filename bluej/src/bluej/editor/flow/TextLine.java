@@ -91,6 +91,7 @@ class TextLine extends TextFlow
     }
 
     @Override
+    @OnThread(value = Tag.FX, ignoreParent = true)
     protected void layoutChildren()
     {
         super.layoutChildren();
