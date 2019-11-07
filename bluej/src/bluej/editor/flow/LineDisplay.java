@@ -127,7 +127,7 @@ class LineDisplay
             int lineIndex = firstVisibleLineIndex;
             while (lines.hasNext())
             {
-                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(), () -> flowEditorPaneListener.marginClickedForLine(k)));
+                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), () -> flowEditorPaneListener.marginClickedForLine(k)));
                 line.textLine.setText(lines.next(), xTranslate, false, fontCSS);
                 lineIndex += 1;
             }
@@ -143,7 +143,7 @@ class LineDisplay
             int lineIndex;
             for (lineIndex = firstVisibleLineIndex; lineIndex < allLines.size() && totalHeightSoFar < height; lineIndex += 1)
             {
-                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(), () -> flowEditorPaneListener.marginClickedForLine(k)));
+                MarginAndTextLine line = visibleLines.computeIfAbsent(lineIndex, k -> new MarginAndTextLine(k + 1, new TextLine(lineWrapping), () -> flowEditorPaneListener.marginClickedForLine(k)));
                 line.textLine.setText(allLines.get(lineIndex), xTranslate, true, fontCSS);
                 double lineHeight = calculateLineHeight(allLines.get(lineIndex), width);
                 totalHeightSoFar += snapHeight.apply(lineHeight);
@@ -373,7 +373,7 @@ class LineDisplay
      */
     public double calculateLineWidth(String line)
     {
-        TextLine textLine = new TextLine();
+        TextLine textLine = new TextLine(false);
         // Must be in a scene for CSS (for font family/size) to get applied correctly:
         Scene s = new Scene(textLine);
         textLine.setText(List.of(new StyledSegment(List.of(), line)), 0, true, fontCSS);
@@ -395,7 +395,7 @@ class LineDisplay
      */
     public double calculateLineHeight(List<StyledSegment> content, double maxWidth)
     {
-        TextLine textLine = new TextLine();
+        TextLine textLine = new TextLine(false);
         // Must be in a scene for CSS (for font family/size) to get applied correctly:
         Scene s = new Scene(textLine);
         textLine.setText(content, 0, true, fontCSS);

@@ -34,8 +34,8 @@ import threadchecker.Tag;
 @OnThread(Tag.FX)
 class BackgroundItem extends Region
 {
-    private final double x;
-    private final double width;
+    final double x;
+    final double width;
 
     /**
      * Create a background item with the given X position and width, and the given background fills.  This constructor sets the item to be unmanaged.
@@ -46,13 +46,5 @@ class BackgroundItem extends Region
         this.width = width;
         setManaged(false);
         setBackground(new Background(backgroundFills));
-    }
-
-    /**
-     * Size the line to have Y position of zero, and the given height.  Must be called whenever the height changes, and before the background is shown for the first time.
-     */
-    void sizeToHeight(double height)
-    {
-        resizeRelocate(x, 0, width, height);
     }
 }

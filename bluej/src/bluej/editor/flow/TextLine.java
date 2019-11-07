@@ -25,6 +25,7 @@ import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.ResizableRectangle;
 import com.google.common.collect.Lists;
 import javafx.beans.binding.StringExpression;
+import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
@@ -56,7 +57,8 @@ class TextLine extends TextFlow
     {
         FIND_RESULT, BRACKET_MATCH;
     }
-    
+
+    private final boolean printing;
     // The selection shape (may be empty and invisible when not in use)
     private final Path selectionShape = new Path();
     private final Path findResultShape = new Path();
@@ -67,8 +69,9 @@ class TextLine extends TextFlow
     private List<StyledSegment> latestContent = Collections.emptyList();
     private final Rectangle clip;
 
-    public TextLine()
+    public TextLine(boolean printing)
     {
+        this.printing = printing;
         getStyleClass().add("text-line");
         setMouseTransparent(true);
         selectionShape.getStyleClass().add("flow-selection");
@@ -85,15 +88,22 @@ class TextLine extends TextFlow
         clip.widthProperty().bind(widthProperty());
         clip.heightProperty().bind(heightProperty());
         setClip(clip);
-        JavaFXUtil.addChangeListenerPlatform(heightProperty(), g -> updateBackgroundHeight());
     }
 
-    private void updateBackgroundHeight()
+    @Override
+    protected void layoutChildren()
     {
-        double height = getHeight();
-        for (BackgroundItem backgroundNode : backgroundNodes)
+        super.layoutChildren();
+        // Also do unmanaged BackgroundItem:
+        for (Node child : getChildren())
         {
-            backgroundNode.sizeToHeight(height);
+            if (child instanceof BackgroundItem)
+            {
+                BackgroundItem backgroundItem = (BackgroundItem)child;
+                // For reasons unknown, JavaFX doesn't align consecutive lines' backgrounds properly when printing
+                // so we need to add an extra pixel at the top and bottom to avoid white gaps between lines:
+                backgroundItem.resizeRelocate(backgroundItem.x, printing ? -1 : 0, backgroundItem.width, getHeight() + (printing ? 2 : 0));
+            }
         }
     }
 
@@ -274,10 +284,10 @@ class TextLine extends TextFlow
             nodes = Collections.emptyList();
         
         this.backgroundNodes = new ArrayList<>(nodes);
-        updateBackgroundHeight();
         int selectionIndex = getChildren().indexOf(bracketMatchShape);
         getChildren().remove(0, selectionIndex);
         getChildren().addAll(0, backgroundNodes);
+        requestLayout();
     }
 
     /**
