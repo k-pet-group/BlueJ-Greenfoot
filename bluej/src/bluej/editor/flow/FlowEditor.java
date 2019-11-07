@@ -3015,13 +3015,16 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             @Override
             public void applyScopeBackgrounds(Map<Integer, List<BackgroundItem>> scopeBackgrounds)
             {
-                //TODO
+                if (printBackground)
+                {
+                    lineDisplay.applyScopeBackgrounds(scopeBackgrounds);
+                }
             }
 
             @Override
             public void repaint()
             {
-                //TODO 
+                // Nothing to do?
             }
         }, flowEditorPaneListener, this.javaSyntaxView.getEntityResolver());
         javaSyntaxView.enableParser(true);
