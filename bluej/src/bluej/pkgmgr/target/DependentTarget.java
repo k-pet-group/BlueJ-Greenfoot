@@ -256,7 +256,7 @@ public abstract class DependentTarget extends EditableTarget
     @OnThread(Tag.Any)
     public synchronized List<UsesDependency> usesDependencies()
     {
-        return new ArrayList<>(outUses);
+        return Collections.unmodifiableList(new ArrayList<>(outUses));
     }
     
     /**
@@ -331,7 +331,7 @@ public abstract class DependentTarget extends EditableTarget
     @OnThread(Tag.FXPlatform)
     public void recalcOutUses()
     {
-    	List<UsesDependency> outUsesCopy =  usesDependencies();
+    	List<UsesDependency> outUsesCopy =  new ArrayList<>(usesDependencies());
         // Order the arrows by quadrant and then appropriate coordinate
         Collections.sort(outUsesCopy, new LayoutComparer(this, false));
 

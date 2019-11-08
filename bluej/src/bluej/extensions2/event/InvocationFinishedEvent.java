@@ -304,8 +304,6 @@ public class InvocationFinishedEvent implements ExtensionEvent
         }
 
         // WARNING: I do not have the newly created name here....
-
-        // WARNING: I do not have the newly created name here....
         PkgMgrFrame aFrame = PkgMgrFrame.findFrame(bluej_pkg);
         return ExtensionBridge.getVal(aFrame, "", objRef.getValue(thisField));
     }
