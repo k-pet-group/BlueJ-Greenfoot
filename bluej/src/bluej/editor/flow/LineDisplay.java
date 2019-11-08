@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
  * lines that can be fit vertically in the window.
  */
 @OnThread(Tag.FX)
-class LineDisplay
+public class LineDisplay
 {
     // Handler for clicking in a line margin
     private final FlowEditorPaneListener flowEditorPaneListener;
@@ -69,7 +69,7 @@ class LineDisplay
     private final DoubleExpression horizScrollProperty;
     private double lineHeightEstimate = 1.0;    
 
-    LineDisplay(DoubleExpression heightProperty, DoubleExpression horizScrollProperty, StringExpression fontCSS, FlowEditorPaneListener flowEditorPaneListener)
+    public LineDisplay(DoubleExpression heightProperty, DoubleExpression horizScrollProperty, StringExpression fontCSS, FlowEditorPaneListener flowEditorPaneListener)
     {
         this.fontCSS = fontCSS;
         this.heightProperty = heightProperty;

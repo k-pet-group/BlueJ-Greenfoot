@@ -51,7 +51,7 @@ import java.util.Objects;
  * to display a selection shape on the line.
  */
 @OnThread(Tag.FX)
-class TextLine extends TextFlow
+public class TextLine extends TextFlow
 {
     static enum HighlightType
     {
