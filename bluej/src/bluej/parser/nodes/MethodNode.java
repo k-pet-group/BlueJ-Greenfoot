@@ -24,7 +24,6 @@ package bluej.parser.nodes;
 import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
-import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;

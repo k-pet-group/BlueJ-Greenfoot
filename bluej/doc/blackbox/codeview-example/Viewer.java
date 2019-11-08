@@ -14,10 +14,6 @@ import java.util.Properties;
 import javax.swing.JOptionPane;
 
 import bluej.Config;
-import bluej.editor.moe.MoeEditor;
-import bluej.editor.moe.MoeEditorParameters;
-import bluej.editor.moe.MoeSyntaxDocument;
-
 
 
 public class Viewer

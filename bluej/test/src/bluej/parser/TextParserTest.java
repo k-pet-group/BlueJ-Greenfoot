@@ -25,10 +25,8 @@ import java.util.List;
 
 import bluej.JavaFXThreadingRule;
 import bluej.editor.moe.ScopeColors;
-import junit.framework.TestCase;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugmgr.codepad.DeclaredVar;
-import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
@@ -75,7 +73,7 @@ public class TextParserTest
     private ParsedCUNode cuForSource(String sourceCode, String pkg)
     {
         EntityResolver resolver = new PackageResolver(this.resolver, pkg);
-        MoeSyntaxDocument document = new MoeSyntaxDocument(resolver, ScopeColors.dummy());
+        TestableDocument document = new TestableDocument(resolver);
         document.enableParser(true);
         document.insertString(0, sourceCode);
         return document.getParser();

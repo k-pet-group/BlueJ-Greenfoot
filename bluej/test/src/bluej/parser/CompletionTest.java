@@ -38,7 +38,6 @@ import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
-import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
@@ -83,12 +82,12 @@ public class CompletionTest
     }
     
     /**
-     * Get a MoeSyntaxDocument (with parser enabled) for the given source code.
+     * Get a TestableDocument (with parser enabled) for the given source code.
      */
-    private MoeSyntaxDocument documentForSource(String sourceCode, String pkg)
+    private TestableDocument documentForSource(String sourceCode, String pkg)
     {
         EntityResolver presolver = new PackageResolver(resolver, pkg);
-        MoeSyntaxDocument document = new MoeSyntaxDocument(presolver, ScopeColors.dummy());
+        TestableDocument document = new TestableDocument(presolver);
         document.enableParser(true);
         document.insertString(0, sourceCode);
         return document;
@@ -153,7 +152,7 @@ public class CompletionTest
         "  }\n" +
         "}\n";
 
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
         
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -233,7 +232,7 @@ public class CompletionTest
         "}\n" +
         "}\n";
         
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
         
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -257,7 +256,7 @@ public class CompletionTest
         "}\n" +
         "}\n";
         
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
         
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -281,7 +280,7 @@ public class CompletionTest
                 "}\n" +
                 "}\n";
 
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
 
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -305,7 +304,7 @@ public class CompletionTest
                 "}\n" +
                 "}\n";
 
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
 
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -331,7 +330,7 @@ public class CompletionTest
         "}\n" +
         "}\n";
         
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
         
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -356,7 +355,7 @@ public class CompletionTest
         "}\n" +
         "}\n";
         
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
         
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -381,7 +380,7 @@ public class CompletionTest
         "}\n" +
         "}\n";
         
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
         
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -405,7 +404,7 @@ public class CompletionTest
         "}\n" +
         "}\n";
         
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
         
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -429,7 +428,7 @@ public class CompletionTest
         "}\n" +
         "}\n";
 
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
         
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -457,7 +456,7 @@ public class CompletionTest
         "}\n" +
         "}\n";
         
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
         
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -489,7 +488,7 @@ public class CompletionTest
         "}\n" +
         "}\n";
         
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
         
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -517,7 +516,7 @@ public class CompletionTest
             "  };\n" +
             "}\n";
         
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
         
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -547,7 +546,7 @@ public class CompletionTest
             "  };\n" +
             "}\n";
         
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
         
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -572,7 +571,7 @@ public class CompletionTest
             "abcd()\n" +
             "}}";
         
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
         
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -598,7 +597,7 @@ public class CompletionTest
             "}\n" +                          // 51 - 53
             "}\n";                           // 53 - 55
     
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
 
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -618,7 +617,7 @@ public class CompletionTest
             "}\n" +
             "}\n";
     
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
 
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -639,7 +638,7 @@ public class CompletionTest
         "}\n" +
         "}\n";
 
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
 
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -660,7 +659,7 @@ public class CompletionTest
         "}\n" +
         "}\n";
 
-        MoeSyntaxDocument doc = documentForSource(aClassSrc, "");
+        TestableDocument doc = documentForSource(aClassSrc, "");
         ParsedCUNode aNode = doc.getParser();
         resolver.addCompilationUnit("", aNode);
         
@@ -687,7 +686,7 @@ public class CompletionTest
         "}\n" +
         "}\n";
 
-        MoeSyntaxDocument doc = documentForSource(aClassSrc, "");
+        TestableDocument doc = documentForSource(aClassSrc, "");
         ParsedCUNode aNode = doc.getParser();
         resolver.addCompilationUnit("", aNode);
         
@@ -714,7 +713,7 @@ public class CompletionTest
         "}\n" +
         "}\n";
 
-        MoeSyntaxDocument doc = documentForSource(aClassSrc, "");
+        TestableDocument doc = documentForSource(aClassSrc, "");
         ParsedCUNode aNode = doc.getParser();
         resolver.addCompilationUnit("", aNode);
         
@@ -737,7 +736,7 @@ public class CompletionTest
         "}\n" +
         "}\n";
 
-        MoeSyntaxDocument doc = documentForSource(aClassSrc, "");
+        TestableDocument doc = documentForSource(aClassSrc, "");
         ParsedCUNode aNode = doc.getParser();
         resolver.addCompilationUnit("", aNode);
         
@@ -760,7 +759,7 @@ public class CompletionTest
             "}\n" +
             "}\n";
     
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
 
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -784,7 +783,7 @@ public class CompletionTest
             "}\n" +
             "}\n";
     
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
 
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -808,7 +807,7 @@ public class CompletionTest
             "}\n" +
             "}\n";
     
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
 
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -832,7 +831,7 @@ public class CompletionTest
             "}\n" +
             "}\n";
     
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
 
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -860,7 +859,7 @@ public class CompletionTest
             "  }\n" +
             "}\n";
     
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
 
         ParsedCUNode canvasNode = cuForSource(canvasSrc, "");
@@ -888,7 +887,7 @@ public class CompletionTest
             "  }\n" +
             "}\n";
     
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
 
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
@@ -912,7 +911,7 @@ public class CompletionTest
             "  }\n" +
             "}\n";
         
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
@@ -934,7 +933,7 @@ public class CompletionTest
             "  }\n" +
             "}\n";
         
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
@@ -981,7 +980,7 @@ public class CompletionTest
             "  }\n" +
             "}\n";
         
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
@@ -1002,7 +1001,7 @@ public class CompletionTest
             "  }\n" +
             "}\n";
         
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
@@ -1020,7 +1019,7 @@ public class CompletionTest
             "  }\n" +                   
             "}\n";
         
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
@@ -1061,7 +1060,7 @@ public class CompletionTest
             "  }\n" +                   
             "}\n";
 
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
@@ -1085,7 +1084,7 @@ public class CompletionTest
             "  }\n" +                   
             "}\n";
 
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
@@ -1105,7 +1104,7 @@ public class CompletionTest
             "  }\n" +                   
             "}\n";
 
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
@@ -1137,10 +1136,10 @@ public class CompletionTest
                 "}\n";
 
         
-        MoeSyntaxDocument aDoc = documentForSource(aSrc, "");
+        TestableDocument aDoc = documentForSource(aSrc, "");
         ParsedCUNode aNode = aDoc.getParser();
         ExpressionTypeInfo suggests = aNode.getExpressionType(85, aDoc);
-        assertEquals(".", aDoc.getText(84, 1));  // check position calculation
+        assertEquals(".", aDoc.getFullText().substring(84, 85));  // check position calculation
         assertNull(suggests);
         
         // Fix import:
@@ -1161,7 +1160,7 @@ public class CompletionTest
                 "  }\n" +                   
                 "}\n";
 
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
@@ -1187,7 +1186,7 @@ public class CompletionTest
                 "  };\n" +
                 "}\n";
 
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
@@ -1209,20 +1208,12 @@ public class CompletionTest
         String aClassSrc =
                 "static int count = 0;\n";
 
-        PlainDocument doc = new PlainDocument();
+        TestableDocument doc = new TestableDocument();
         doc.insertString(0, aClassSrc);
         ParsedCUNode aNode = cuForSource(aClassSrc, "");
         resolver.addCompilationUnit("", aNode);
             
         // In BlueJ 3.1.6 this throws a NullPointerException:
         aNode.getExpressionType(13, doc);
-    }
-
-    class PlainDocument extends MoeSyntaxDocument
-    {
-        public PlainDocument()
-        {
-            super(ScopeColors.dummy());
-        }
     }
 }

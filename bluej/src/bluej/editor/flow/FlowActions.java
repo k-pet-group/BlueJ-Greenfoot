@@ -25,7 +25,6 @@ package bluej.editor.flow;
 import bluej.Config;
 import bluej.debugger.gentype.JavaType;
 import bluej.editor.flow.FlowIndent.AutoIndentInformation;
-import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.SourceLocation;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.nodes.CommentNode;
@@ -1198,7 +1197,7 @@ public final class FlowActions
     // --------------------------------------------------------------------
 
     @OnThread(Tag.FXPlatform)
-    abstract class FlowAbstractAction extends FXAbstractAction
+    public abstract class FlowAbstractAction extends FXAbstractAction
     {
         private final Category category;
 

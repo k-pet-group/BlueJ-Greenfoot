@@ -288,7 +288,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         FXTabbedEditor getFXTabbedEditor(boolean newWindow);
     }
 
-    private static class OffScreenFlowEditorPaneListener extends ScopeColorsBorderPane implements FlowEditorPaneListener
+    public static class OffScreenFlowEditorPaneListener extends ScopeColorsBorderPane implements FlowEditorPaneListener
     {
         @Override
         public boolean marginClickedForLine(int lineIndex)
@@ -897,7 +897,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      * @param reason  The reason for compilation
      * @param ctype   The type of compilation
      */
-    private void scheduleCompilation(CompileReason reason, CompileType ctype)
+    public void scheduleCompilation(CompileReason reason, CompileType ctype)
     {
         if (watcher != null)
         {

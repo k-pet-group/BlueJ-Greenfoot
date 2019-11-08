@@ -21,7 +21,6 @@
  */
 package bluej.editor.flow;
 
-import bluej.editor.moe.MoeEditor;
 import javafx.beans.binding.BooleanExpression;
 
 /**

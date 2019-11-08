@@ -911,7 +911,7 @@ public final class Config
     /**
      * Find and return the moe help definitions
      */
-    public static Properties getMoeHelp()
+    public static Properties getFlowHelp()
     {
         return loadDefs(language + File.separator + "moe.help", System.getProperties());
     }

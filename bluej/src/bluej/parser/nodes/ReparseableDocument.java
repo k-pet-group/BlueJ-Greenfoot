@@ -21,7 +21,6 @@
  */
 package bluej.parser.nodes;
 
-import bluej.editor.moe.MoeSyntaxDocument;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

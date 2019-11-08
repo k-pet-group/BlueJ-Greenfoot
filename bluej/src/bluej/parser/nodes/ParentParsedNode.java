@@ -23,7 +23,6 @@ package bluej.parser.nodes;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
-import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 /**

@@ -22,7 +22,6 @@
 package bluej.editor.stride;
 
 import bluej.editor.flow.FlowEditor;
-import bluej.editor.moe.MoeEditor;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;

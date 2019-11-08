@@ -22,7 +22,6 @@
 package bluej.editor.moe;
 
 import bluej.Config;
-import bluej.editor.EditorManager;
 import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgrDialog;
@@ -128,7 +127,6 @@ public class EditorPrefPanel extends VBox implements PrefPanelListener
         }
         catch (NumberFormatException nfe) { }
         PrefMgr.setScopeHighlightStrength(strength);
-        EditorManager.getEditorManager().refreshAll();
     }
 
 }

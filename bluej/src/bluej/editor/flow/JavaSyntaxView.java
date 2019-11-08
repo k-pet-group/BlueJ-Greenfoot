@@ -108,7 +108,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             {1, 2, 2, 2},
             {1, 2, 2, 2}
     };
-    private final Document document;
+    protected final Document document;
     private final EntityResolver parentResolver;
     private ParsedCUNode rootNode;
     private NodeTree<ReparseRecord> reparseRecordTree;
@@ -561,7 +561,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 
     // The document should not change content during the lifetime of this object
     @OnThread(Tag.FXPlatform)
-    private class Element
+    public class Element
     {
         private final int lineIndex;
         private CharSequence cachedContent;
@@ -2276,7 +2276,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 display.requestLayout();
             }
         }
-        else if (isPrinting())
+        else if (isPrinting() || display == null)
         {
             flushReparseQueue();
         }

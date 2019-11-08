@@ -42,7 +42,6 @@ import javafx.beans.value.ObservableIntegerValue;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.Config;
-import bluej.editor.EditorManager;
 
 /**
  * A class to manage the user editable preferences
@@ -278,7 +277,6 @@ public class PrefMgr
     {
         if (size > 0) {
             initEditorFontSize(size);
-            EditorManager.getEditorManager().refreshAll();
         }
     }
     

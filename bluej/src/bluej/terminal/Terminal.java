@@ -32,11 +32,11 @@ import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerTerminal;
 import bluej.debugmgr.ExecutionEvent;
 import bluej.editor.flow.FlowEditor;
+import bluej.editor.flow.FlowEditor.OffScreenFlowEditorPaneListener;
 import bluej.editor.flow.FlowEditorPane.FlowEditorPaneListener;
 import bluej.editor.flow.FlowEditorPane.LineContainer;
 import bluej.editor.flow.LineDisplay;
 import bluej.editor.flow.TextLine;
-import bluej.editor.moe.MoeEditor;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
@@ -480,98 +480,7 @@ public final class Terminal
             double pixelHeight = job.getJobSettings().getPageLayout().getPrintableHeight();
             root.resize(pixelWidth, pixelHeight);
             
-            LineDisplay lineDisplay = new LineDisplay(root.heightProperty(), new ReadOnlyDoubleWrapper(0), new ReadOnlyStringWrapper(""), new FlowEditorPaneListener()
-            {
-                @Override
-                public boolean marginClickedForLine(int lineIndex)
-                {
-                    return false;
-                }
-
-                @Override
-                public Set<Integer> getBreakpointLines()
-                {
-                    return null;
-                }
-
-                @Override
-                public int getStepLine()
-                {
-                    return 0;
-                }
-
-                @Override
-                public ObjectExpression<Color> scopeClassColorProperty()
-                {
-                    return null;
-                }
-
-                @Override
-                public ObjectExpression<Color> scopeClassInnerColorProperty()
-                {
-                    return null;
-                }
-
-                @Override
-                public ObjectExpression<Color> scopeClassOuterColorProperty()
-                {
-                    return null;
-                }
-
-                @Override
-                public ObjectExpression<Color> scopeMethodColorProperty()
-                {
-                    return null;
-                }
-
-                @Override
-                public ObjectExpression<Color> scopeMethodOuterColorProperty()
-                {
-                    return null;
-                }
-
-                @Override
-                public ObjectExpression<Color> scopeSelectionColorProperty()
-                {
-                    return null;
-                }
-
-                @Override
-                public ObjectExpression<Color> scopeSelectionOuterColorProperty()
-                {
-                    return null;
-                }
-
-                @Override
-                public ObjectExpression<Color> scopeIterationColorProperty()
-                {
-                    return null;
-                }
-
-                @Override
-                public ObjectExpression<Color> scopeIterationOuterColorProperty()
-                {
-                    return null;
-                }
-
-                @Override
-                public ObjectExpression<Color> scopeBackgroundColorProperty()
-                {
-                    return null;
-                }
-
-                @Override
-                public ObjectExpression<Color> breakpointOverlayColorProperty()
-                {
-                    return null;
-                }
-
-                @Override
-                public ObjectExpression<Color> stepMarkOverlayColorProperty()
-                {
-                    return null;
-                }
-            });
+            LineDisplay lineDisplay = new LineDisplay(root.heightProperty(), new ReadOnlyDoubleWrapper(0), new ReadOnlyStringWrapper(""), new OffScreenFlowEditorPaneListener());
             LineContainer lineContainer = new LineContainer(lineDisplay, true);
             root.setCenter(lineContainer);
 

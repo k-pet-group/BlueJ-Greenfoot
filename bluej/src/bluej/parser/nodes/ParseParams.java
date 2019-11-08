@@ -23,7 +23,6 @@ package bluej.parser.nodes;
 
 import java.util.LinkedList;
 
-import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.EditorParser;
 import bluej.parser.lexer.JavaTokenFilter;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;

@@ -73,9 +73,9 @@ public abstract class TabMenuManager
                         , null
                 ));
 
-            if (tab instanceof MoeFXTab)
+            if (tab instanceof FlowFXTab)
                 tab.getContextMenu().getItems().add(JavaFXUtil.makeMenuItem(Config.getString("frame.classmenu.compile"),
-                        () ->  ((MoeFXTab)tab).getMoeEditor().getWatcher().scheduleCompilation(true, CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE)
+                        () ->  ((FlowFXTab)tab).getFlowEditor().scheduleCompilation(CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE)
                         , null
                 ));
         });

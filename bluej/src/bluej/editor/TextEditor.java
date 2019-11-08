@@ -21,7 +21,6 @@
  */
 package bluej.editor;
 
-import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.SourceLocation;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ReparseableDocument;

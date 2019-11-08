@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Properties;
 
 import bluej.JavaFXThreadingRule;
-import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.ScopeColors;
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
@@ -446,7 +445,7 @@ public class BasicParseTest
     
     private ParsedCUNode cuForSource(String sourceCode, EntityResolver resolver)
     {
-        MoeSyntaxDocument document = new MoeSyntaxDocument(resolver, ScopeColors.dummy());
+        TestableDocument document = new TestableDocument(resolver);
         document.enableParser(true);
         document.insertString(0, sourceCode);
         return document.getParser();

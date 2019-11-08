@@ -22,8 +22,9 @@
 package bluej.editor.moe;
 
 import bluej.Config;
-import bluej.editor.moe.MoeActions.Category;
-import bluej.editor.moe.MoeActions.MoeAbstractAction;
+import bluej.editor.flow.FlowActions;
+import bluej.editor.flow.FlowActions.Category;
+import bluej.editor.flow.FlowActions.FlowAbstractAction;
 import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefPanelListener;
 import bluej.utility.DialogManager;
@@ -92,7 +93,7 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
     private final ListView<KeyCodeCombination> keyList;
     private final Text helpLabel;
 
-    private MoeActions actions;     // The Moe action manager
+    private FlowActions actions;     // The Flow action manager
 
     private Properties help;
     private List<ActionInfo> functions;     // all user functions
@@ -103,7 +104,7 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
         private final String name;
         private final Category category;
 
-        public ActionInfo(MoeAbstractAction action)
+        public ActionInfo(FlowAbstractAction action)
         {
             name = action.getName();
             category = action.getCategory();
@@ -124,7 +125,7 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
     public KeyBindingsPanel(FXPlatformSupplier<Window> parent)
     {
         this.parent = parent;
-        actions = MoeActions.getActions(null);
+        actions = FlowActions.getActions(null);
         functions = Utility.mapList(actions.getAllActions(), ActionInfo::new);
 
         ColumnConstraints c = new ColumnConstraints();
@@ -299,7 +300,7 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
             String action = functionList.getSelectionModel().getSelectedItem();
             if (action != null)
             {
-                MoeActions.addKeyCombinationForActionToAllEditors(newKey.get(), action);
+                FlowActions.addKeyCombinationForActionToAllEditors(newKey.get(), action);
                 updateKeyList(action);
             }
         }
@@ -345,7 +346,7 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
 
     private void openHelpFile()
     {
-        help = Config.getMoeHelp();
+        help = Config.getFlowHelp();
     }
 
     private String getHelpText(String function)

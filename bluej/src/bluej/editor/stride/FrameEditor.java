@@ -36,7 +36,7 @@ import bluej.debugger.gentype.GenTypeClass;
 import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
 import bluej.editor.TextEditor;
-import bluej.editor.moe.MoeSyntaxDocument;
+import bluej.parser.nodes.ReparseableDocument;
 import bluej.prefmgr.PrefMgr.PrintSize;
 import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.CompletionKind;
@@ -618,7 +618,7 @@ public class FrameEditor implements Editor
 
             @Override
             @OnThread(Tag.FXPlatform)
-            public MoeSyntaxDocument getSourceDocument() {
+            public ReparseableDocument getSourceDocument() {
                 throw new UnsupportedOperationException();
             }
 
