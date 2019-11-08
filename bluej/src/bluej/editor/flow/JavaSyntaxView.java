@@ -324,7 +324,11 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     }
 
     /**
-     * Creates a new BlueJSyntaxView.
+     * Creates a new JavaSyntaxView
+     * @param document The document with the Java content
+     * @param display The display for calculating scope background positions (can be null if not using scopes, e.g. from Stride)
+     * @param scopeColors The item for fetching the scope background colours
+     * @param parentResolver The resolver to pass to the parser
      */
     public JavaSyntaxView(Document document, Display display, ScopeColors scopeColors, EntityResolver parentResolver)
     {
@@ -336,8 +340,19 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         this.syntaxHighlighting = PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING);
         this.scopeColors = scopeColors;
         resetColors();
-        this.display.addLineDisplayListener(this);
-        this.display.setLineStyler(this::getTokenStylesFor);
+        if (this.display != null)
+        {
+            this.display.addLineDisplayListener(this);
+            this.display.setLineStyler(this::getTokenStylesFor);
+            JavaFXUtil.addChangeListenerPlatform(this.display.widthProperty(), w -> JavaFXUtil.runAfter(Duration.millis(500), () -> {
+                recalculateAllScopes();
+                applyPendingScopeBackgrounds();
+            }));
+            JavaFXUtil.addChangeListenerPlatform(this.display.heightProperty(), h -> JavaFXUtil.runAfter(Duration.millis(500), () -> {
+                recalculateAllScopes();
+                applyPendingScopeBackgrounds();
+            }));
+        }
         JavaFXUtil.addChangeListenerPlatform(PrefMgr.getScopeHighlightStrength(), str -> {
             resetColors();
             recalculateAndApplyAllScopes();
@@ -359,15 +374,6 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 });
             }
         });
-        
-        JavaFXUtil.addChangeListenerPlatform(this.display.widthProperty(), w -> JavaFXUtil.runAfter(Duration.millis(500), () -> {
-            recalculateAllScopes();
-            applyPendingScopeBackgrounds();
-        }));
-        JavaFXUtil.addChangeListenerPlatform(this.display.heightProperty(), h -> JavaFXUtil.runAfter(Duration.millis(500), () -> {
-            recalculateAllScopes();
-            applyPendingScopeBackgrounds();
-        }));
     }
 
     /**
@@ -515,7 +521,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
      */
     private void recalculateScopes(int firstLineIncl, int lastLineIncl)
     {
-        // editorPane is null during testing -- just skip updating the scopes in that case:
+        // display is null during testing or when used from Stride -- just skip updating the scopes in that case:
         if (display == null)
             return;
         
@@ -1144,7 +1150,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 
     private boolean isPrinting()
     {
-        return display.isPrinting();
+        return display != null && display.isPrinting();
     }
 
     /**
@@ -1990,7 +1996,10 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         });
         pendingScopeBackgrounds.clear();
 
-        display.applyScopeBackgrounds(scopeBackgrounds.scopeBackgrounds);
+        if (display != null)
+        {
+            display.applyScopeBackgrounds(scopeBackgrounds.scopeBackgrounds);
+        }
     }
 
     /**
@@ -2240,7 +2249,10 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                     Math.min(newAfterEndIncl, document.getLineCount() - 1));
             }
             applyPendingScopeBackgrounds();
-            display.requestLayout();
+            if (display != null)
+            {
+                display.requestLayout();
+            }
         }
         latestRenderStartIncl = fromLineIndexIncl;
         latestRenderEndIncl = toLineIndexIncl;
@@ -2248,7 +2260,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 
     private void scheduleReparseRunner()
     {
-        if (reparseRunner == null && !isPrinting())
+        if (reparseRunner == null && !isPrinting() && display != null)
         {
             if (display.sceneProperty().get() == null)
             {
@@ -2396,9 +2408,12 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         cachedSpaceSizes.clear();
         nodeIndents.clear();
         scopeBackgrounds.clear();
-        JavaFXUtil.runAfterNextLayout(display.sceneProperty().get(), () -> {
-            recalculateAndApplyAllScopes();
-        });
+        if (display != null)
+        {
+            JavaFXUtil.runAfterNextLayout(display.sceneProperty().get(), () -> {
+                recalculateAndApplyAllScopes();
+            });
+        }
     }
 
 
@@ -2514,6 +2529,11 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         {
             recentEdits.remove(0);
         }
+    }
+
+    public String getFullText()
+    {
+        return document.getFullContent();
     }
     
     public static interface Display
