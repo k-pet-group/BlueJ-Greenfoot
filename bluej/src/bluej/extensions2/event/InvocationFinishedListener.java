@@ -24,13 +24,12 @@ package bluej.extensions2.event;
 /**
  * This interface allows you to listen for when an invocation has finished.
  *
- * @version $Id: InvocationListener.java 6215 2009-03-30 13:28:25Z polle $
  */
-public interface InvocationListener
+public interface InvocationFinishedListener
 {
     /**
      * This method will be called when an invocation has finished.
      * If a long operation must be performed you should start a Thread.
      */
-    public void invocationFinished(InvocationEvent event);
+    public void invocationFinished(InvocationFinishedEvent event);
 }

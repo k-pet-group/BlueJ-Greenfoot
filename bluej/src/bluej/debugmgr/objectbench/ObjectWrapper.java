@@ -33,7 +33,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import bluej.views.ViewFilter.StaticOrInstance;
-import javafx.animation.Animation;
 import javafx.animation.ParallelTransition;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
@@ -682,7 +681,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
     protected void inspectObject()
     {
         InvokerRecord ir = new ObjectInspectInvokerRecord(getName());
-        pkg.getProject().getInspectorInstance(obj, getName(), pkg, ir, pmf.getFXWindow(), this);  // shows the inspector
+        pkg.getProject().getInspectorInstance(obj, getName(), pkg, ir, pmf.getWindow(), this);  // shows the inspector
     }
     
     protected void removeObject()

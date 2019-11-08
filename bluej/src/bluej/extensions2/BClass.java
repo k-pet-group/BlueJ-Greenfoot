@@ -24,7 +24,7 @@ package bluej.extensions2;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.compiler.JobQueue;
-import bluej.extensions2.editor.Editor;
+import bluej.extensions2.editor.JavaEditor;
 import bluej.extensions2.editor.EditorBridge;
 import bluej.parser.symtab.ClassInfo;
 import bluej.pkgmgr.Package;
@@ -201,14 +201,15 @@ public class BClass
      * @throws  ProjectNotOpenException   if the project to which this class belongs has been closed by the user.
      * @throws  PackageNotFoundException  if the package to which this class belongs has been deleted by the user.
      */
-    public Editor getEditor() throws ProjectNotOpenException, PackageNotFoundException
+    public JavaEditor getJavaEditor() throws ProjectNotOpenException, PackageNotFoundException
     {
         ClassTarget aTarget = classId.getClassTarget();
-        if (aTarget == null) {
+        if (aTarget == null || aTarget.getSourceType() != SourceType.Java)
+        {
             return null;
         }
         
-        return EditorBridge.newEditor(aTarget);
+        return EditorBridge.newJavaEditor(aTarget);
     }
     
     /**

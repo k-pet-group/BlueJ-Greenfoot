@@ -88,7 +88,7 @@ public class HistoryFrame extends FXCustomizedDialog<Void>
      */
     public HistoryFrame(PkgMgrFrame pmf)
     {
-        super(pmf.getFXWindow(), "team.history.title", "team-history");
+        super(pmf.getWindow(), "team.history.title", "team-history");
         project = pmf.getProject();
         prepareData();
         prepareButtonPane();

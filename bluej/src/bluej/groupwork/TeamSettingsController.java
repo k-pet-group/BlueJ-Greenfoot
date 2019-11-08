@@ -365,7 +365,7 @@ public class TeamSettingsController
     public TeamSettingsDialog getTeamSettingsDialog()
     {
         if (teamSettingsDialog == null) {
-            teamSettingsDialog = new TeamSettingsDialog(PkgMgrFrame.getMostRecent().getFXWindow(), this);
+            teamSettingsDialog = new TeamSettingsDialog(PkgMgrFrame.getMostRecent().getWindow(), this);
             disableRepositorySettings();
         }
 

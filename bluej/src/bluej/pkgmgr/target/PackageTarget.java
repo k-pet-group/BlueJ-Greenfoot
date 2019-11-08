@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2013,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2013,2016,2017,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -263,12 +263,12 @@ public class PackageTarget extends Target
 
         if (f != null)
         {
-            DialogManager.showErrorFX(pmf.getFXWindow(), "remove-package-open");
+            DialogManager.showErrorFX(pmf.getWindow(), "remove-package-open");
         }
         else
         {
             // Check they realise that this will delete ALL the files.
-            int response = DialogManager.askQuestionFX(pmf.getFXWindow(), "really-remove-package");
+            int response = DialogManager.askQuestionFX(pmf.getWindow(), "really-remove-package");
 
             // if they agree
             if (response == 0)

@@ -21,6 +21,7 @@
  */
 package bluej.extensions2.editor;
 
+import bluej.extensions2.SourceType;
 import bluej.pkgmgr.target.ClassTarget;
 
 /**
@@ -31,7 +32,6 @@ import bluej.pkgmgr.target.ClassTarget;
  *
  * This class should be excluded when the Javadoc API documentation is generated.
  *
- * @version $Id: EditorBridge.java 10754 2013-07-05 18:13:03Z nccb $
  * @author Damiano Bolla, University of Kent at Canterbury, 2004
  */ 
 public class EditorBridge
@@ -42,15 +42,18 @@ public class EditorBridge
      * @param  aTarget  Bluej Class Target to retrieve the editor from
      * @return          Proxy editor object or null if it cannot be created
      */
-    public static Editor newEditor(ClassTarget aTarget)
+    public static JavaEditor newJavaEditor(ClassTarget aTarget)
     {
+        if (aTarget == null || aTarget.getSourceType() != SourceType.Java)
+            return null;
+
         bluej.editor.Editor bjEditor = aTarget.getEditor();
         if (bjEditor == null)
             return null;
-        return new Editor(bjEditor.assumeText());
+        return new JavaEditor(bjEditor.assumeText());
     }
     
-    public static bluej.editor.Editor getEditor(Editor editor)
+    public static bluej.editor.Editor getJavaEditor(JavaEditor editor)
     {
         return editor.getEditor();
     }

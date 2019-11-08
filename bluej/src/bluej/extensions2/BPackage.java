@@ -32,6 +32,7 @@ import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.PackageTarget;
 import bluej.pkgmgr.target.Target;
+import javafx.stage.Stage;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -153,13 +154,12 @@ public class BPackage
     }
 
     /**
-     * Returns the package frame.
+     * Returns the package window.
      * This can be used (e.g.) as the "parent" frame for positioning modal dialogues.
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
-    @Deprecated
-    public Frame getFrame()
+    public Stage getWindow()
     throws ProjectNotOpenException, PackageNotFoundException
     {
         return packageId.getPackageFrame().getWindow();

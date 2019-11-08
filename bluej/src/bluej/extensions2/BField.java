@@ -63,22 +63,6 @@ public class BField
         bluej_view = i_bluej_view;
     }
 
-
-    /**
-     * Check to see if the field name matches the given one.
-     * 
-     * <p>This method is deprecated. Use "getName().equals(fieldName)" instead.
-     *
-     * @param  fieldName  the field name to compare with
-     * @return            true if it does, false otherwise
-     */
-    @Deprecated
-    public boolean matches(String fieldName)
-    {
-        return getName().equals(fieldName);
-    }
-
-
     /**
      * Return the name of the field.
      * Similar to reflection API.

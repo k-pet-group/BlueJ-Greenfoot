@@ -327,7 +327,7 @@ public final class PackageEditor extends StackPane
     @OnThread(Tag.FXPlatform)
     public Window getFXWindow()
     {
-        return pmf.getFXWindow();
+        return pmf.getWindow();
     }
 
     /**
@@ -1012,7 +1012,7 @@ public final class PackageEditor extends StackPane
                 ClassTarget subClassFinal = this.extendsSubClass;
                 if (!subClassFinal.hasSourceCode())
                 {
-                    DialogManager.showErrorFX(pmf.getFXWindow(),
+                    DialogManager.showErrorFX(pmf.getWindow(),
                             "no-extends-arrow-from-no-source-class");
                     clearState();
                     return false;
@@ -1050,7 +1050,7 @@ public final class PackageEditor extends StackPane
     @Override
     public Stage getStage()
     {
-        return pmf.getFXWindow();
+        return pmf.getWindow();
     }
     
     @Override

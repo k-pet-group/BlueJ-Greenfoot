@@ -458,7 +458,7 @@ public class ClassTarget extends DependentTarget
                     editor.reInitBreakpoints();
                 }
             }
-            ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getPackage(), getBClass(), newState == State.COMPILED, newState == State.HAS_ERROR);
+            ClassEvent event = new ClassEvent(getPackage(), getBClass(), newState == State.COMPILED, newState == State.HAS_ERROR);
             ExtensionsManager.getInstance().delegateEvent(event);
 
             super.setState(newState);
@@ -1852,7 +1852,7 @@ public class ClassTarget extends DependentTarget
             }
 
             // Inform all listeners about the name change
-            ClassEvent event = new ClassEvent(ClassEvent.CHANGED_NAME, getPackage(), getBClass(), oldName);
+            ClassEvent event = new ClassEvent(getPackage(), getBClass(), oldName);
             ExtensionsManager.getInstance().delegateEvent(event);
 
             return true;
@@ -2484,6 +2484,10 @@ public class ClassTarget extends DependentTarget
         prepareForRemoval();
         Package pkg = getPackage();
         pkg.removeTarget(this);
+
+        // Inform all listeners about the class removed
+        ClassEvent event = new ClassEvent(getPackage(), getBClass());
+        ExtensionsManager.getInstance().delegateEvent(event);
         
         // We must remove after the above, because it might involve saving, 
         // and thus recording edits to the file
@@ -2540,7 +2544,7 @@ public class ClassTarget extends DependentTarget
         SourceType sourceType = getSourceType();
         PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
 
-        DuplicateClassDialog dialog = new DuplicateClassDialog(pmf.getFXWindow(), "CopyOf" + originalClassName, sourceType);
+        DuplicateClassDialog dialog = new DuplicateClassDialog(pmf.getWindow(), "CopyOf" + originalClassName, sourceType);
         Optional<String> duplicateClassName = dialog.showAndWait();
         duplicateClassName.ifPresent(name -> pmf.duplicateClass(originalClassName, name, getSourceFile(), sourceType));
     }

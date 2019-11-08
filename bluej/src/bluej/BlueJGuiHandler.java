@@ -74,10 +74,10 @@ public class BlueJGuiHandler implements GuiHandler
         if (! projectOpen)
         {
             PkgMgrFrame frame = PkgMgrFrame.createFrame();
-            frame.getFXWindow().setX(FIRST_X_LOCATION);
-            frame.getFXWindow().setY(FIRST_Y_LOCATION);
+            frame.getWindow().setX(FIRST_X_LOCATION);
+            frame.getWindow().setY(FIRST_Y_LOCATION);
             frame.setVisible(true);
-            return frame.getFXWindow();
+            return frame.getWindow();
         }
         else
         {
@@ -102,7 +102,7 @@ public class BlueJGuiHandler implements GuiHandler
                 }
             }
             
-            return PkgMgrFrame.getMostRecent().getFXWindow();
+            return PkgMgrFrame.getMostRecent().getWindow();
         }
     }
     

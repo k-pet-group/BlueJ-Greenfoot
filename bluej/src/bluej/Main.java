@@ -211,7 +211,7 @@ public class Main
         Stage window = guiHandler.initialOpenComplete(oneOpened);
         
         Boot.getInstance().disposeSplashWindow();
-        ExtensionsManager.getInstance().delegateEvent(new ApplicationEvent(ApplicationEvent.APP_READY_EVENT));
+        ExtensionsManager.getInstance().delegateEvent(new ApplicationEvent(ApplicationEvent.EventType.APP_READY_EVENT));
         
         return window;
     }

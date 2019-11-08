@@ -90,7 +90,7 @@ public class ShareAction extends TeamAction
             String msg = DialogManager.getMessage("team-error-saving-project");
             if (msg != null) {
                 String finalMsg = Utility.mergeStrings(msg, ioe.getLocalizedMessage());
-                DialogManager.showErrorTextFX(pmf.getFXWindow(), finalMsg);
+                DialogManager.showErrorTextFX(pmf.getWindow(), finalMsg);
                 return;
             }
         }
@@ -138,7 +138,7 @@ public class ShareAction extends TeamAction
                 }
 
                 Platform.runLater(() -> {
-                    TeamUtils.handleServerResponseFX(result, pmf.getFXWindow());
+                    TeamUtils.handleServerResponseFX(result, pmf.getWindow());
                     pmf.stopProgress();
                     if (!result.isError())
                     {

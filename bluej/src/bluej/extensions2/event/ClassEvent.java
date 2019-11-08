@@ -54,11 +54,14 @@ import threadchecker.Tag;
 @OnThread(Tag.FXPlatform)
 public class ClassEvent implements ExtensionEvent
 {
-    public static final int STATE_CHANGED = 0;
-    public static final int CHANGED_NAME = 1;
-    public static final int REMOVED = 2;
-    
-    private int eventId;
+    public static enum EventType
+    {
+        STATE_CHANGED,
+        CHANGED_NAME,
+        REMOVED
+    }
+
+    private EventType eventType;
     private Package bluejPackage;
     private BClass bClass;
     private boolean isCompiled;
@@ -67,24 +70,12 @@ public class ClassEvent implements ExtensionEvent
 
     /**
      * Construct a new ClassEvent object for a STATE_CHANGED event.
-     * @param eventId    The event identifier (STATE_CHANGED)
-     * @param isCompiled  Whether the class is compiled or not
-     */
-    public ClassEvent(int eventId, Package bluejPackage, BClass bClass, boolean isCompiled)
-    {
-        this(eventId, bluejPackage, bClass, isCompiled, isCompiled);
-    }
-
-
-    /**
-     * Construct a new ClassEvent object for a STATE_CHANGED event.
-     * @param eventId    The event identifier (STATE_CHANGED)
      * @param isCompiled  Whether the class is compiled or not
      * @param hasError True if the last compilation gave an error, and the class not has been edited since. 
      */
-    public ClassEvent(int eventId, Package bluejPackage, BClass bClass, boolean isCompiled, boolean hasError)
+    public ClassEvent(Package bluejPackage, BClass bClass, boolean isCompiled, boolean hasError)
     {
-        this.eventId = eventId;
+        this.eventType = EventType.STATE_CHANGED;
         this.bluejPackage = bluejPackage;
         this.isCompiled = isCompiled;
         this.bClass = bClass;
@@ -93,23 +84,33 @@ public class ClassEvent implements ExtensionEvent
     
     /**
      * Construct a new ClassEvent object for a CHANGED_NAME event.
-     * @param eventId  The event identifier (CHANGED_NAME)
      * @param bClass   The class which was renamed (refers to the new name)
      */
-    public ClassEvent(int eventId, Package bluejPackage, BClass bClass, String oldName)
+    public ClassEvent(Package bluejPackage, BClass bClass, String oldName)
     {
-        this.eventId = eventId;
+        this.eventType = EventType.CHANGED_NAME;
         this.bluejPackage = bluejPackage;
         this.bClass = bClass;
         this.oldName = oldName;
     }
+
+    /**
+     * Construct a new ClassEvent object for a REMOVED event.
+     * @param bClass   The class which was removed
+     */
+    public ClassEvent(Package bluejPackage, BClass bClass)
+    {
+        this.eventType = EventType.REMOVED;
+        this.bluejPackage = bluejPackage;
+        this.bClass = bClass;
+    }
     
     /**
-     * Get the event Id (one of STATE_CHANGED, CHANGED_NAME).
+     * Get the event type.
      */
-    public int getEventId()
+    public EventType getEventType()
     {
-        return eventId;
+        return eventType;
     }
     
     /**

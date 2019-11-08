@@ -37,35 +37,38 @@ import java.io.File;
 @OnThread(Tag.Any)
 public class CompileEvent implements ExtensionEvent
 {
-    /**
-     * Event generated when compilation begins.
-     */
-    public static final int COMPILE_START_EVENT = 1;
+    public static enum EventType
+    {
+        /**
+         * Event generated when compilation begins.
+         */
+        COMPILE_START_EVENT,
 
-    /**
-     * Event generated when a compilation warning occurs.
-     * A warning event is one that will not invalidate the compilation.
-     */
-    public static final int COMPILE_WARNING_EVENT = 2;
+        /**
+         * Event generated when a compilation warning occurs.
+         * A warning event is one that will not invalidate the compilation.
+         */
+        COMPILE_WARNING_EVENT,
 
-    /**
-     * Event generated when a compilation error occurs.
-     * An error event is one that will invalidate the compilation
-     */
-    public static final int COMPILE_ERROR_EVENT = 3;
+        /**
+         * Event generated when a compilation error occurs.
+         * An error event is one that will invalidate the compilation
+         */
+        COMPILE_ERROR_EVENT,
 
-    /**
-     * Event generated when a compilation finishes successfully.
-     */
-    public static final int COMPILE_DONE_EVENT = 4;
+        /**
+         * Event generated when a compilation finishes successfully.
+         */
+        COMPILE_DONE_EVENT,
 
-    /**
-     * Event generated when a compilation finishes unsuccessfully.
-     */
-    public static final int COMPILE_FAILED_EVENT = 5;
+        /**
+         * Event generated when a compilation finishes unsuccessfully.
+         */
+        COMPILE_FAILED_EVENT
+    }
 
     private final boolean isUserGeneratedCompilation;
-    private int    eventId;
+    private EventType    eventType;
     private File[] fileNames;   // An array of names this event belong to
     private int    errorLineNumber;
     private int    errorColumn;
@@ -76,9 +79,9 @@ public class CompileEvent implements ExtensionEvent
     /**
      * Constructor for a CompileEvent.
      */
-    public CompileEvent(int anEventId, File[] aFileNames)
+    public CompileEvent(EventType anEventType, File[] aFileNames)
     {
-        eventId   = anEventId;
+        eventType = anEventType;
         fileNames = aFileNames;
         // Legacy constructor, from when we always used to keep classes:
         this.isUserGeneratedCompilation = true;
@@ -87,19 +90,19 @@ public class CompileEvent implements ExtensionEvent
     /**
      * Constructor for a CompileEvent.
      */
-    public CompileEvent(int anEventId, boolean isUserGeneratedCompilation, File[] aFileNames)
+    public CompileEvent(EventType anEventType, boolean isUserGeneratedCompilation, File[] aFileNames)
     {
-        eventId   = anEventId;
+        eventType = anEventType;
         this.isUserGeneratedCompilation = isUserGeneratedCompilation;
         fileNames = aFileNames;
     }
 
     /**
-     * Returns the eventId, one of the values defined.
+     * Returns the eventType
      */
-    public int getEvent()
+    public EventType getEvent()
     {
-        return eventId;
+        return eventType;
     }
 
     /**
@@ -194,11 +197,24 @@ public class CompileEvent implements ExtensionEvent
 
         aRisul.append("CompileEvent:");
 
-        if ( eventId == COMPILE_START_EVENT ) aRisul.append(" COMPILE_START_EVENT");
-        if ( eventId == COMPILE_WARNING_EVENT ) aRisul.append(" COMPILE_WARNING_EVENT");
-        if ( eventId == COMPILE_ERROR_EVENT ) aRisul.append(" COMPILE_ERROR_EVENT");
-        if ( eventId == COMPILE_DONE_EVENT ) aRisul.append(" COMPILE_DONE_EVENT");
-        if ( eventId == COMPILE_FAILED_EVENT ) aRisul.append(" COMPILE_FAILED_EVENT");
+        switch (eventType)
+        {
+            case COMPILE_START_EVENT:
+                aRisul.append(" COMPILE_START_EVENT");
+                break;
+            case COMPILE_WARNING_EVENT:
+                aRisul.append(" COMPILE_WARNING_EVENT");
+                break;
+            case COMPILE_ERROR_EVENT:
+                aRisul.append(" COMPILE_ERROR_EVENT");
+                break;
+            case COMPILE_DONE_EVENT:
+                aRisul.append(" COMPILE_DONE_EVENT");
+                break;
+            case COMPILE_FAILED_EVENT:
+                aRisul.append(" COMPILE_FAILED_EVENT");
+                break;
+        }
 
         aRisul.append(" getFiles().length=");
         aRisul.append(fileNames.length);
@@ -208,7 +224,7 @@ public class CompileEvent implements ExtensionEvent
             aRisul.append(fileNames[i]);
         }
 
-        if ( eventId == COMPILE_WARNING_EVENT || eventId == COMPILE_ERROR_EVENT )
+        if ( eventType == EventType.COMPILE_WARNING_EVENT || eventType == EventType.COMPILE_ERROR_EVENT )
         {
             aRisul.append(" errorLineNumber=" + errorLineNumber);
             aRisul.append(" errorMessage=" + errorMessage);

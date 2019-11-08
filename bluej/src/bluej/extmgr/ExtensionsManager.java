@@ -26,7 +26,7 @@ import bluej.BlueJEventListener;
 import bluej.Config;
 import bluej.debugmgr.ExecutionEvent;
 import bluej.extensions2.event.ExtensionEvent;
-import bluej.extensions2.event.InvocationEvent;
+import bluej.extensions2.event.InvocationFinishedEvent;
 import bluej.extensions2.event.PackageEvent;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
@@ -256,7 +256,7 @@ public class ExtensionsManager
      */
     public void packageOpened(Package pkg)
     {
-        delegateEvent(new PackageEvent(PackageEvent.PACKAGE_OPENED, pkg));
+        delegateEvent(new PackageEvent(PackageEvent.EventType.PACKAGE_OPENED, pkg));
     }
 
     /**
@@ -266,7 +266,7 @@ public class ExtensionsManager
     public void packageClosing(Package pkg)
     {
         // Before removing the extension, signal that this package is closing
-        delegateEvent(new PackageEvent(PackageEvent.PACKAGE_CLOSING, pkg));
+        delegateEvent(new PackageEvent(PackageEvent.EventType.PACKAGE_CLOSING, pkg));
 
         // Let's assume we are NOT going to delete the extension...
         boolean invalidateExtension = false;
@@ -406,7 +406,7 @@ public class ExtensionsManager
     {
         if (eventId == BlueJEvent.EXECUTION_RESULT) {
             ExecutionEvent exevent = (ExecutionEvent) arg;
-            delegateEvent(new InvocationEvent(exevent));
+            delegateEvent(new InvocationFinishedEvent(exevent));
             return;
         }
     }

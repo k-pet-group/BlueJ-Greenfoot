@@ -34,6 +34,7 @@ import bluej.extensions2.BPackage;
 import bluej.extensions2.ExtensionBridge;
 import bluej.extensions2.SourceType;
 import bluej.extensions2.event.CompileEvent;
+import bluej.extensions2.event.CompileEvent.EventType;
 import bluej.extmgr.ExtensionsManager;
 import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.CompletionKind;
@@ -2511,7 +2512,7 @@ public final class Package
             }
         }
 
-        private void sendEventToExtensions(String filename, int [] errorPosition, String message, int eventType, CompileType type)
+        private void sendEventToExtensions(String filename, int [] errorPosition, String message, EventType eventType, CompileType type)
         {
             File [] sources;
             if (filename != null) {
@@ -2535,7 +2536,7 @@ public final class Package
         public void startCompile(CompileInputFile[] sources, CompileReason reason, CompileType type, int compilationSequence)
         {
             // Send a compilation starting event to extensions.
-            CompileEvent aCompileEvent = new CompileEvent(CompileEvent.COMPILE_START_EVENT, type.keepClasses(), Utility.mapList(Arrays.asList(sources), CompileInputFile::getJavaCompileInputFile).toArray(new File[0]));
+            CompileEvent aCompileEvent = new CompileEvent(CompileEvent.EventType.COMPILE_START_EVENT, type.keepClasses(), Utility.mapList(Arrays.asList(sources), CompileInputFile::getJavaCompileInputFile).toArray(new File[0]));
             ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
 
             // Set BlueJ status bar message
@@ -2583,13 +2584,13 @@ public final class Package
         private void errorMessage(String filename, int [] errorPosition, String message, CompileType type)
         {
             // Send a compilation Error event to extensions.
-            sendEventToExtensions(filename, errorPosition, message, CompileEvent.COMPILE_ERROR_EVENT, type);
+            sendEventToExtensions(filename, errorPosition, message, CompileEvent.EventType.COMPILE_ERROR_EVENT, type);
         }
 
         private void warningMessage(String filename, int [] errorPosition, String message, CompileType type)
         {
             // Send a compilation Error event to extensions.
-            sendEventToExtensions(filename, errorPosition, message, CompileEvent.COMPILE_WARNING_EVENT, type);
+            sendEventToExtensions(filename, errorPosition, message, CompileEvent.EventType.COMPILE_WARNING_EVENT, type);
         }
 
         /**
@@ -2681,8 +2682,8 @@ public final class Package
             fireChangedEvent();
             
             // Send a compilation done event to extensions.
-            int eventId = successful ? CompileEvent.COMPILE_DONE_EVENT : CompileEvent.COMPILE_FAILED_EVENT;
-            CompileEvent aCompileEvent = new CompileEvent(eventId, type.keepClasses(), Utility.mapList(Arrays.asList(sources), CompileInputFile::getJavaCompileInputFile).toArray(new File[0]));
+            EventType eventType = successful ? CompileEvent.EventType.COMPILE_DONE_EVENT : CompileEvent.EventType.COMPILE_FAILED_EVENT;
+            CompileEvent aCompileEvent = new CompileEvent(eventType, type.keepClasses(), Utility.mapList(Arrays.asList(sources), CompileInputFile::getJavaCompileInputFile).toArray(new File[0]));
             ExtensionsManager.getInstance().delegateEvent(aCompileEvent);
 
             for (FXCompileObserver chainedObserver : chainedObservers)

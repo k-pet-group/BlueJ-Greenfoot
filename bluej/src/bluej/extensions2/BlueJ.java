@@ -24,6 +24,7 @@ package bluej.extensions2;
 import bluej.Config;
 import bluej.collect.DataCollector;
 import bluej.extensions2.event.*;
+import bluej.extensions2.event.CompileEvent.EventType;
 import bluej.extmgr.ExtensionMenu;
 import bluej.extmgr.ExtensionPrefManager;
 import bluej.extmgr.ExtensionWrapper;
@@ -78,13 +79,6 @@ import java.util.*;
  */
 public final class BlueJ
 {
-    public static final int SE_PROJECT = 0;
-    /**
-     * This is left here for compatibility with old extensions, but
-     * will never be used.
-     */
-    public static final int ME_PROJECT = 1;
-    
     private final ExtensionWrapper myWrapper;
     private final ExtensionPrefManager prefManager;
 
@@ -97,7 +91,7 @@ public final class BlueJ
     private ArrayList<ApplicationListener> applicationListeners;
     private ArrayList<PackageListener> packageListeners;
     private ArrayList<CompileListener> compileListeners;
-    private ArrayList<InvocationListener> invocationListeners;
+    private ArrayList<InvocationFinishedListener> invocationFinishedListeners;
     private ArrayList<ClassListener> classListeners;
 
     /**
@@ -116,7 +110,7 @@ public final class BlueJ
         applicationListeners = new ArrayList<ApplicationListener>();
         packageListeners = new ArrayList<PackageListener>();
         compileListeners = new ArrayList<CompileListener>();
-        invocationListeners = new ArrayList<InvocationListener>();
+        invocationFinishedListeners = new ArrayList<InvocationFinishedListener>();
         classListeners = new ArrayList<ClassListener>();
 
         // Don't use lazy initialisation here, to avoid multiple reloads
@@ -167,10 +161,9 @@ public final class BlueJ
      * Creates a new BlueJ project.
      *
      * @param  directory    where you want the project be placed, it must be writable.
-     * @param  projectType  the type of project, currently only SE_PROJECT is available.
      * @return              the newly created BProject if successful, null otherwise.
      */
-    public BProject newProject(File directory, int projectType )
+    public BProject newProject(File directory)
     {
         if (!myWrapper.isValid())
             throw new ExtensionUnloadedException();
@@ -182,22 +175,15 @@ public final class BlueJ
         if (!Project.createNewProject(pathString))
             return null;
 
-        return openProject(directory);
+        // In order to create all necessary files, we "open" then project here
+        // this is not opening the project in BlueJ's interface and
+        Project openProj = Project.openProject(directory.getAbsolutePath());
+        if (openProj == null)
+            return null;
+
+        return openProj.getBProject();
     }
-
-
-    /**
-     * Creates a new BlueJ project.
-     *
-     * @param  directory  where you want the project be placed, it must be writable.
-     * @return            the newly created BProject if successful, null otherwise.
-     */
-    public BProject newProject(File directory)
-    {
-        return newProject( directory, SE_PROJECT );
-    }
-
-
+    
     /**
      * Returns all currently open projects.
      * Returns an empty array if no projects are open.
@@ -254,17 +240,17 @@ public final class BlueJ
     /**
      * Returns the current JavaFX Stage being displayed.
      * Can be used (e.g.) as a "parent" frame for positioning modal dialogs.
-     * If there is a package currently open, it's probably better to use its <code>getFrame()</code>
+     * If there is a package currently open, it's probably better to use its <code>getWindow()</code>
      * method to provide better placement.
      *
      * @return    The current JavaFX Stage object
      */
-    public Stage getCurrentFXWindow()
+    public Stage getCurrentWindow()
     {
         if (!myWrapper.isValid())
             throw new ExtensionUnloadedException();
 
-        return PkgMgrFrame.getMostRecent().getFXWindow();
+        return PkgMgrFrame.getMostRecent().getWindow();
     }
 
 
@@ -505,7 +491,7 @@ public final class BlueJ
 
             // Relay a previous given up message:
             if (DataCollector.hasGivenUp())
-                listener.dataSubmissionFailed(new ApplicationEvent(ApplicationEvent.DATA_SUBMISSION_FAILED_EVENT));
+                listener.dataSubmissionFailed(new ApplicationEvent(ApplicationEvent.EventType.DATA_SUBMISSION_FAILED_EVENT));
         }
     }
 
@@ -578,11 +564,11 @@ public final class BlueJ
     /**
      * Registers a listener for invocation events.
      */
-    public void addInvocationListener(InvocationListener listener)
+    public void addInvocationFinishedListener(InvocationFinishedListener listener)
     {
         if (listener != null) {
-            synchronized (invocationListeners) {
-                invocationListeners.add(listener);
+            synchronized (invocationFinishedListeners) {
+                invocationFinishedListeners.add(listener);
             }
         }
     }
@@ -591,11 +577,11 @@ public final class BlueJ
     /**
      * Removes the specified listener so no that it no longer receives events.
      */
-    public void removeInvocationListener(InvocationListener listener)
+    public void removeInvocationFinishedListener(InvocationFinishedListener listener)
     {
         if (listener != null) {
-            synchronized (invocationListeners) {
-                invocationListeners.remove(listener);
+            synchronized (invocationFinishedListeners) {
+                invocationFinishedListeners.remove(listener);
             }
         }
     }
@@ -663,9 +649,9 @@ public final class BlueJ
         
         for (int i = 0; i < listeners.length; i++) {
             ApplicationListener eventListener = listeners[i];
-            if (event.getEvent() == ApplicationEvent.APP_READY_EVENT)
+            if (event.getEvent() == ApplicationEvent.EventType.APP_READY_EVENT)
                 eventListener.blueJReady(event);
-            else if (event.getEvent() == ApplicationEvent.DATA_SUBMISSION_FAILED_EVENT)
+            else if (event.getEvent() == ApplicationEvent.EventType.DATA_SUBMISSION_FAILED_EVENT)
                 eventListener.dataSubmissionFailed(event);
         }
     }
@@ -684,14 +670,19 @@ public final class BlueJ
             listeners = packageListeners.toArray(new PackageListener[packageListeners.size()]);
         }
         
-        int thisEvent = event.getEvent();
+        PackageEvent.EventType thisEvent = event.getEvent();
 
         for (int i = 0; i < listeners.length; i++) {
             PackageListener eventListener = listeners[i];
-            if (thisEvent == PackageEvent.PACKAGE_OPENED)
-                eventListener.packageOpened(event);
-            if (thisEvent == PackageEvent.PACKAGE_CLOSING)
-                eventListener.packageClosing(event);
+            switch (thisEvent)
+            {
+                case PACKAGE_OPENED:
+                    eventListener.packageOpened(event);
+                    break;
+                case PACKAGE_CLOSING:
+                    eventListener.packageClosing(event);
+                    break;
+            }
         }
     }
 
@@ -709,35 +700,42 @@ public final class BlueJ
             listeners = (CompileListener[]) compileListeners.toArray(new CompileListener[compileListeners.size()]);
         }
         
-        int thisEvent = event.getEvent();
+        EventType thisEvent = event.getEvent();
 
         for (int i = 0; i < listeners.length; i++) {
             CompileListener eventListener = listeners[i];
-            if (thisEvent == CompileEvent.COMPILE_START_EVENT)
-                eventListener.compileStarted(event);
-            if (thisEvent == CompileEvent.COMPILE_ERROR_EVENT)
-                eventListener.compileError(event);
-            if (thisEvent == CompileEvent.COMPILE_WARNING_EVENT)
-                eventListener.compileWarning(event);
-            if (thisEvent == CompileEvent.COMPILE_FAILED_EVENT)
-                eventListener.compileFailed(event);
-            if (thisEvent == CompileEvent.COMPILE_DONE_EVENT)
-                eventListener.compileSucceeded(event);
+            switch(thisEvent){
+                case COMPILE_START_EVENT:
+                    eventListener.compileStarted(event);
+                    break;
+                case COMPILE_ERROR_EVENT:
+                    eventListener.compileError(event);
+                    break;
+                case COMPILE_WARNING_EVENT:
+                    eventListener.compileWarning(event);
+                    break;
+                case COMPILE_FAILED_EVENT:
+                    eventListener.compileFailed(event);
+                    break;
+                case COMPILE_DONE_EVENT:
+                    eventListener.compileSucceeded(event);
+                    break;
+            }
         }
     }
 
 
     /**
-     * Dispatch this event to the listeners for the Invocation events.
+     * Dispatch this event to the listeners for the InvocationFinished events.
      *
      * @param  event  The event to dispatch
      */
-    private void delegateInvocationEvent(InvocationEvent event)
+    private void delegateInvocationEvent(InvocationFinishedEvent event)
     {
-        InvocationListener[] listeners;
+        InvocationFinishedListener[] listeners;
         
-        synchronized (invocationListeners) {
-            listeners = (InvocationListener[]) invocationListeners.toArray(new InvocationListener[invocationListeners.size()]);
+        synchronized (invocationFinishedListeners) {
+            listeners = (InvocationFinishedListener[]) invocationFinishedListeners.toArray(new InvocationFinishedListener[invocationFinishedListeners.size()]);
         }
         
         for (int i = 0; i < listeners.length; i++) {
@@ -759,12 +757,20 @@ public final class BlueJ
         synchronized (classListeners) {
             listeners = (ClassListener[]) classListeners.toArray(new ClassListener[classListeners.size()]);
         }
-        
-        for (int i = 0; i < listeners.length; i++) {
-            if (event.getEventId() == ClassEvent.REMOVED) {
-                listeners[i].classRemoved(event);
-            } else {
-                listeners[i].classStateChanged(event);
+
+        for (int i = 0; i < listeners.length; i++)
+        {
+            switch (event.getEventType())
+            {
+                case STATE_CHANGED:
+                    listeners[i].classStateChanged(event);
+                    break;
+                case CHANGED_NAME:
+                    listeners[i].classNameChanged(event);
+                    break;
+                case REMOVED:
+                    listeners[i].classRemoved(event);
+                    break;
             }
         }
     }
@@ -783,13 +789,11 @@ public final class BlueJ
             delegatePackageEvent((PackageEvent) event);
         else if (event instanceof CompileEvent)
             delegateCompileEvent((CompileEvent) event);
-        else if (event instanceof InvocationEvent)
-            delegateInvocationEvent((InvocationEvent) event);
+        else if (event instanceof InvocationFinishedEvent)
+            delegateInvocationEvent((InvocationFinishedEvent) event);
         else if (event instanceof ClassEvent)
             delegateClassEvent((ClassEvent) event);
     }
-
-
 
     /**
      * Calls the extension to get the right menu item.

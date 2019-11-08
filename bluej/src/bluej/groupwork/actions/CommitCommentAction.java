@@ -61,7 +61,7 @@ public class CommitCommentAction extends TeamAction
         else
         {
             dialog.reset();
-            dialog.setLocationRelativeTo(frame.getFXWindow());
+            dialog.setLocationRelativeTo(frame.getWindow());
             dialog.setVisible();
         }
     }
