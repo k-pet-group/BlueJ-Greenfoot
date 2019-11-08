@@ -61,7 +61,7 @@
     <!-- Location of the bluej lib dir -->
     <property name="bluej.lib.greenfoot"  location="${bluej_home}/lib/greenfoot"/>
     <!-- Location of the where the greenfoot.jar should be placed-->
-    <property name="bluej.extensions.lib"  location="${bluej_home}/lib/extensions"/>
+    <property name="bluej.extensions.lib"  location="${bluej_home}/lib/extensions2"/>
     
     <!-- Name and location of the jlayer jar -->  
     <property name="jlayer.jar.name" value="jl1.0.1.jar"/>  

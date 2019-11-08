@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2014,2016,2017,2018  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2013,2014,2016,2017,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,26 +21,26 @@
  */
 package bluej.pkgmgr;
 
-import java.awt.Rectangle;
-import java.awt.geom.Area;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.swing.SwingUtilities;
-
 import bluej.Config;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
-import bluej.extmgr.FXMenuManager;
+import bluej.debugger.DebuggerObject;
+import bluej.debugger.gentype.GenTypeClass;
+import bluej.extmgr.ExtensionsManager;
+import bluej.extmgr.ExtensionsMenuManager;
+import bluej.extmgr.PackageExtensionMenu;
+import bluej.graph.SelectionController;
+import bluej.pkgmgr.dependency.Dependency;
+import bluej.pkgmgr.dependency.UsesDependency;
 import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.DependentTarget;
+import bluej.pkgmgr.target.Target;
+import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.DialogManager;
 import bluej.utility.Utility;
-import javafx.application.Platform;
+import bluej.utility.javafx.JavaFXUtil;
+import bluej.utility.javafx.ResizableCanvas;
+import bluej.views.CallableView;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.geometry.Point2D;
@@ -59,23 +59,13 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-
-import bluej.debugger.DebuggerObject;
-import bluej.debugger.gentype.GenTypeClass;
-import bluej.extensions.BDependency;
-import bluej.extmgr.ExtensionsManager;
-import bluej.extmgr.PackageExtensionMenu;
-import bluej.graph.SelectionController;
-import bluej.pkgmgr.dependency.Dependency;
-import bluej.pkgmgr.dependency.UsesDependency;
-import bluej.pkgmgr.target.DependentTarget;
-import bluej.pkgmgr.target.Target;
-import bluej.testmgr.record.InvokerRecord;
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.ResizableCanvas;
-import bluej.views.CallableView;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.awt.*;
+import java.awt.geom.Area;
+import java.util.List;
+import java.util.*;
 
 /**
  * The main class diagram in the BlueJ package manager frame, supporting
@@ -311,23 +301,13 @@ public final class PackageEditor extends StackPane
 
         menu.getItems().addAll(newClass, newPackage, newCSS, addClassFromFile);
 
-        // Eugh; we need the extensions manager from the swing thread,
-        // then need to create on FX then add extension on Swing
-        // then show on FX.
-        SwingUtilities.invokeLater(() -> {
-            ExtensionsManager extMgr = ExtensionsManager.getInstance();
-            PackageExtensionMenu menuGenerator = new PackageExtensionMenu(pkg);
-            Platform.runLater(() -> {
-                FXMenuManager menuManager = new FXMenuManager(menu, extMgr, menuGenerator);
-                SwingUtilities.invokeLater(() -> {
-                    menuManager.addExtensionMenu(pkg.getProject());
-                    Platform.runLater(() -> {
-                        showingMenu(menu);
-                        menu.show(this, screenX, screenY);
-                    });
-                });
-            });
-        });
+        // Add the extension items
+        ExtensionsManager extMgr = ExtensionsManager.getInstance();
+        PackageExtensionMenu menuGenerator = new PackageExtensionMenu(pkg);
+        ExtensionsMenuManager menuManager = new ExtensionsMenuManager(menu, extMgr, menuGenerator);
+        menuManager.addExtensionMenu(pkg.getProject());
+        showingMenu(menu);
+        menu.show(this, screenX, screenY);
 
         return true;
     }
@@ -347,7 +327,7 @@ public final class PackageEditor extends StackPane
     @OnThread(Tag.FXPlatform)
     public Window getFXWindow()
     {
-        return pmf.getFXWindow();
+        return pmf.getWindow();
     }
 
     /**
@@ -551,7 +531,7 @@ public final class PackageEditor extends StackPane
         private final Dependency.Line line;
         private final boolean selected;
         private final boolean creating;
-        private BDependency.Type type;
+        private Dependency.Type type;
 
         public ExtendsDepInfo(Dependency d)
         {
@@ -652,7 +632,7 @@ public final class PackageEditor extends StackPane
                     toY - (ARROW_SIZE * Math.sin(angle - ARROW_ANGLE))};
             g.setLineDashes();
             g.strokePolygon(xPoints, yPoints, 3);
-            if (d.type==BDependency.Type.IMPLEMENTS)
+            if (d.type==Dependency.Type.IMPLEMENTS)
             {
                 g.setLineDashes(DASHES);
             }
@@ -801,7 +781,7 @@ public final class PackageEditor extends StackPane
      *         there is no such dependency.
      */
     @OnThread(Tag.SwingIsFX)
-    public synchronized Dependency getDependency(DependentTarget origin, DependentTarget target, BDependency.Type type)
+    public synchronized Dependency getDependency(DependentTarget origin, DependentTarget target, Dependency.Type type)
     {
         List<? extends Dependency> dependencies;
 
@@ -1032,7 +1012,7 @@ public final class PackageEditor extends StackPane
                 ClassTarget subClassFinal = this.extendsSubClass;
                 if (!subClassFinal.hasSourceCode())
                 {
-                    DialogManager.showErrorFX(pmf.getFXWindow(),
+                    DialogManager.showErrorFX(pmf.getWindow(),
                             "no-extends-arrow-from-no-source-class");
                     clearState();
                     return false;
@@ -1070,7 +1050,7 @@ public final class PackageEditor extends StackPane
     @Override
     public Stage getStage()
     {
-        return pmf.getFXWindow();
+        return pmf.getWindow();
     }
     
     @Override

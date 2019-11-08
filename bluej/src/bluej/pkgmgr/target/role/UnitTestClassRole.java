@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2016,2017,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -37,7 +37,6 @@ import bluej.pkgmgr.Project;
 import bluej.pkgmgr.TestRunnerThread;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.DependentTarget.State;
-import bluej.pkgmgr.target.Target;
 import bluej.terminal.Terminal;
 import bluej.testmgr.TestDisplayFrame;
 import bluej.testmgr.record.ExistingFixtureInvokerRecord;
@@ -163,17 +162,18 @@ public class UnitTestClassRole extends ClassRole
     
     /**
      * Generate a popup menu for this TestClassRole.
+     * @param menu the menu
+     * @param ct the BlueJ class object target
      * @param cl the class object that is represented by this target
-     * @param editorFrame the frame in which this targets package is displayed
-     * @return the generated JPopupMenu
+     * @param state the current state of BlueJ
+     * @return false
      */
     @Override
     @OnThread(Tag.FXPlatform)
     public boolean createRoleMenu(ObservableList<MenuItem> menu, ClassTarget ct, Class<?> cl, State state)
     {
         boolean enableTestAll = false;
-
-        if (state == State.COMPILED && cl != null && ! ct.isAbstract()) {
+        if (!ct.getPackage().getProject().inTestMode() && state == State.COMPILED && cl != null && ! ct.isAbstract()) {
             Method[] allMethods = cl.getMethods();
 
             for (int i=0; i < allMethods.length; i++) {
@@ -389,7 +389,7 @@ public class UnitTestClassRole extends ClassRole
 
             if (existingSpan != null)
             {
-                if (DialogManager.askQuestionFX(pmf.getFXWindow(), "unittest-method-present") == 1)
+                if (DialogManager.askQuestionFX(pmf.getWindow(), "unittest-method-present") == 1)
                 {
                     // Don't do anything
                 }
@@ -404,7 +404,7 @@ public class UnitTestClassRole extends ClassRole
             }
         }
         catch (IOException ioe) {
-            DialogManager.showErrorWithTextFX(pmf.getFXWindow(), "unittest-io-error", ioe.getLocalizedMessage());
+            DialogManager.showErrorWithTextFX(pmf.getWindow(), "unittest-io-error", ioe.getLocalizedMessage());
             Debug.reportError("Error reading unit test source", ioe);
             finishTestCase(pmf, ct, newTestName);
         }

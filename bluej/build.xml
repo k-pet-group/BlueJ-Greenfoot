@@ -45,12 +45,12 @@
     <property name="test.build" value="test/classes"/>
     <property name="test.report" value="test/report"/>
 
-    <property name="extensions.lib"  location="${bluej_home}/lib/extensions"/>
+    <property name="extensions.lib"  location="${bluej_home}/lib/extensions2"/>
 
     <property name="boot.jar" value="${bluej_home}/lib/bluej.jar"/>
     <property name="core.jar" value="${bluej_home}/lib/bluejcore.jar"/>
     <property name="editor.jar" value="${bluej_home}/lib/bluejeditor.jar"/>
-    <property name="extension.jar" value="${bluej_home}/lib/bluejext.jar"/>
+    <property name="extension2.jar" value="${bluej_home}/lib/bluejext2.jar"/>
     <property name="lang-stride.jar" value="${bluej_home}/lib/lang-stride.jar"/>
     <property name="greenfoot-native.jar" value="${bluej_home}/lib/greenfoot-native.jar"/>
 
@@ -227,7 +227,7 @@
         <delete quiet="true" file="${core.jar}"/>
         <jar compress="yes" jarfile="${core.jar}">
             <fileset dir="${core.build}">
-                <exclude name="bluej/extensions/**" />
+                <exclude name="bluej/extensions2/**" />
                 <exclude name="bluej/editor/**" />
                 <exclude name="org/**" />
                 <exclude name="lang/**" />
@@ -263,10 +263,10 @@
 
     <target name="jar-extension" depends="jar-boot, compile-core">
         <!-- delete the old jar first. To make sure it gets recreated -->
-        <delete quiet="true" file="${extension.jar}"/>
-        <jar compress="yes" jarfile="${extension.jar}">
+        <delete quiet="true" file="${extension2.jar}"/>
+        <jar compress="yes" jarfile="${extension2.jar}">
             <fileset dir="${core.build}">
-                <include name="bluej/extensions/**" />
+                <include name="bluej/extensions2/**" />
             </fileset>
         </jar>
     </target>
@@ -347,7 +347,7 @@
                 
                 <pathelement location="${boot.build}"/>
                 <pathelement location="${core.build}"/>
-                <pathelement location="${extension.jar}"/>
+                <pathelement location="${extension2.jar}"/>
                 <pathelement location="${editor.jar}"/>
                 <pathelement location="${lang-stride.jar}"/>
                 <pathelement location="${test.build}"/>
@@ -386,10 +386,10 @@
             bottom="&lt;a href=http://www.bluej.org/&gt;BlueJ homepage&lt;/a&gt;">
 
             <fileset dir="src" defaultexcludes="yes">
-                <include name="bluej/extensions/*.java" />
-                <exclude name="bluej/extensions/ExtensionBridge.java"/>
-                <include name="bluej/extensions/editor/*.java"/>
-                <exclude name="bluej/extensions/editor/EditorBridge.java"/>
+                <include name="bluej/extensions2/*.java" />
+                <exclude name="bluej/extensions2/ExtensionBridge.java"/>
+                <include name="bluej/extensions2/editor/*.java"/>
+                <exclude name="bluej/extensions2/editor/EditorBridge.java"/>
             </fileset>
             <classpath>
                 <path refid="bluej.class.path"/>
@@ -502,7 +502,7 @@
         <delete quiet="false" file="${greenfoot-native.jar}" />
         <delete dir="package/scenarios" />
         <delete>
-            <fileset file="lib/extensions/greenfoot.jar"/>
+            <fileset file="lib/extensions2/greenfoot.jar"/>
         </delete>
         
         <delete includeEmptyDirs="true">
@@ -516,7 +516,7 @@
         <delete quiet="true" dir="${core.build}" />
         <delete quiet="true" file="${core.jar}" />
         <delete quiet="true" file="${editor.jar}" />
-        <delete quiet="true" file="${extension.jar}" />
+        <delete quiet="true" file="${extension2.jar}" />
         <delete quiet="true" file="${lang-stride.jar}" />
     </target>
 

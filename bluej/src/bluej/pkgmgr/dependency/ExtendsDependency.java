@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2015,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2015,2016,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,9 +21,8 @@
  */
 package bluej.pkgmgr.dependency;
 
-import bluej.extensions.BDependency.Type;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.target.*;
+import bluej.pkgmgr.target.DependentTarget;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

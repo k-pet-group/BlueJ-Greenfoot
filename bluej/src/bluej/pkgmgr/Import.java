@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2014,2016,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,7 +21,7 @@
  */
 package bluej.pkgmgr;
 
-import bluej.extensions.SourceType;
+import bluej.extensions2.SourceType;
 import bluej.parser.InfoParser;
 import bluej.parser.symtab.ClassInfo;
 import bluej.utility.Debug;

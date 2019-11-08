@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012,2013,2014,2015,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 2012,2013,2014,2015,2016,2017,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,33 +21,12 @@
  */
 package bluej.collect;
 
-import java.io.File;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-
 import bluej.Boot;
-import bluej.compiler.CompileInputFile;
-import bluej.compiler.CompileReason;
-import bluej.editor.stride.FrameCatalogue;
-import bluej.extensions.SourceType;
-import bluej.pkgmgr.target.ClassTarget.SourceFileInfo;
-import bluej.stride.generic.Frame;
-import org.apache.http.entity.mime.MultipartEntity;
-
-import threadchecker.OnThread;
-import threadchecker.Tag;
 import bluej.Config;
 import bluej.collect.CollectUtility.ProjectDetails;
 import bluej.collect.DataCollector.NamedTyped;
+import bluej.compiler.CompileInputFile;
+import bluej.compiler.CompileReason;
 import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerTestResult;
 import bluej.debugger.ExceptionDescription;
@@ -55,15 +34,27 @@ import bluej.debugger.SourceLocation;
 import bluej.debugmgr.inspector.ClassInspector;
 import bluej.debugmgr.inspector.Inspector;
 import bluej.debugmgr.inspector.ObjectInspector;
+import bluej.editor.stride.FrameCatalogue;
+import bluej.extensions2.SourceType;
 import bluej.extmgr.ExtensionWrapper;
 import bluej.groupwork.Repository;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.ClassTarget.SourceFileInfo;
+import bluej.stride.generic.Frame;
 import bluej.utility.Utility;
 import difflib.Delta;
 import difflib.DiffUtils;
 import difflib.Patch;
+import org.apache.http.entity.mime.MultipartEntity;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
+import java.io.File;
+import java.text.DateFormat;
+import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * DataCollector for sending off data.

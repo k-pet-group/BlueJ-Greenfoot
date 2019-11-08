@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,10 +21,10 @@
  */
 package bluej.terminal;
 
-import java.awt.Toolkit;
-
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.awt.*;
 
 /**
  * A type-ahead input buffer for the BlueJ terminal. Implemented with

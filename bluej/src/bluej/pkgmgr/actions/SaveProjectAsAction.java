@@ -55,7 +55,7 @@ final public class SaveProjectAsAction extends PkgMgrAction
     public void saveAs(PkgMgrFrame frame, Project project)
     {
         // get a file name to save under
-        File newName = FileUtility.getSaveProjectFX(project, frame.getFXWindow(), Config.getString("pkgmgr.saveAs.title"));
+        File newName = FileUtility.getSaveProjectFX(project, frame.getWindow(), Config.getString("pkgmgr.saveAs.title"));
 
         if (newName == null)
         {
@@ -68,11 +68,11 @@ final public class SaveProjectAsAction extends PkgMgrAction
         }
         catch (IOException ioe)
         {
-            DialogManager.showErrorFX(frame.getFXWindow(), "cannot-save-project");
+            DialogManager.showErrorFX(frame.getWindow(), "cannot-save-project");
             return;
         }
         
-        if (! ProjectUtils.saveProjectCopy(project, newName, frame.getFXWindow()))
+        if (! ProjectUtils.saveProjectCopy(project, newName, frame.getWindow()))
         {
             return;
         }

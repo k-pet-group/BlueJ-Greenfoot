@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2014,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2014,2016,2017,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -323,7 +323,8 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
     public void startMultipleTests(Project proj, int num)
     {
         this.project = proj;
-        doingMultiple = true;    
+        proj.setTestMode(true);
+        doingMultiple = true;
         
         reset();
         testTotal.set(num);
@@ -333,6 +334,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
     public void endMultipleTests()
     {
         doingMultiple = false;
+        project.setTestMode(false);
     }  
 
     /**

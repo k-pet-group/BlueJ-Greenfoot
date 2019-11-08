@@ -321,6 +321,11 @@
     -fx-padding: 2em 4em 2em 4em;
     -fx-fill-width: true;
 }
+
+.prefmgr-ext-innerpanel {
+   -fx-spacing: 1em;
+}
+
 .prefmgr-experiment-participant {
     -fx-hgap: 1em;
     -fx-vgap: 0.5em;

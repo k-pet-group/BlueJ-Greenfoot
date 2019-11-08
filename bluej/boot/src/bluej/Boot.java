@@ -91,7 +91,7 @@ public class Boot
     // Jars that should be included with exported scenarios
     public static final String[] GREENFOOT_EXPORT_JARS = {JLAYER_MP3_JAR, "lang-stride.jar"};
     private static final String[] greenfootUserJars = {"extensions" + File.separatorChar + "greenfoot.jar", 
-        "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
+        "bluejcore.jar", "bluejeditor.jar", "bluejext2.jar",
         "junit-4.12.jar", "hamcrest-core-1.3.jar", "hamcrest-library-1.3.jar", "bluej.jar",
         "classgraph-4.2.6.jar",
         "diffutils-1.2.1.jar", "commons-logging-api-1.1.2.jar",
@@ -107,7 +107,7 @@ public class Boot
     private static Boot instance;
     // The jar files we expect in the BlueJ lib directory
     // The first lot are the ones to run BlueJ itself
-    private static final String[] bluejJars = { "bluejcore.jar", "bluejeditor.jar", "bluejext.jar",
+    private static final String[] bluejJars = { "bluejcore.jar", "bluejeditor.jar", "bluejext2.jar",
         "classgraph-4.2.6.jar",
         "commons-logging-api-1.1.2.jar",
         "diffutils-1.2.1.jar",

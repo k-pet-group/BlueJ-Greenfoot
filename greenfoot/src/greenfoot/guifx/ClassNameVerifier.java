@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2005-2009,2016  Poul Henriksen and Michael Kolling
+ Copyright (C) 2005-2009,2016,2019  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,7 +22,7 @@
 package greenfoot.guifx;
 
 import bluej.Config;
-import bluej.extensions.SourceType;
+import bluej.extensions2.SourceType;
 import bluej.pkgmgr.Package;
 import bluej.utility.JavaNames;
 
@@ -54,12 +54,8 @@ public class ClassNameVerifier
     private final ReadOnlyObjectProperty<SourceType> sourceTypeProperty;
 
     /**
-     * Create new class name verifier. This will add the appropate listeners to
+     * Create new class name verifier. This will add the appropriate listeners to
      * the textField.
-     * <p>
-     * If using a Cancel button it might be useful to set
-     * {@link JComponent.#setVerifyInputWhenFocusTarget(boolean)} to false on
-     * the cancel button.
      * 
      * @param pkg Package containing the user classes for which to check against.
      */

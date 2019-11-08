@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2015,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,10 +21,10 @@
  */
 package bluej.utility.filefilter;
 
-import java.io.FileFilter;
-import java.io.File;
+import bluej.extensions2.SourceType;
 
-import bluej.extensions.SourceType;
+import java.io.File;
+import java.io.FileFilter;
 
  /**
   * A FileFilter that only accepts Frame source files.

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2015,2016,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2014,2015,2016,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -43,13 +43,11 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import bluej.pkgmgr.target.ClassTarget;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 
 import bluej.Config;
-import bluej.extensions.SourceType;
+import bluej.extensions2.SourceType;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
@@ -94,7 +92,7 @@ final class ExportManager
             .flatMap(p -> p.getClassTargets().stream())
             .anyMatch(ct -> ct.getSourceType() == SourceType.Stride);
 
-        Window parent = frame.getFXWindow();
+        Window parent = frame.getWindow();
         if (dialog == null)
             dialog = new ExportDialog(parent, projectInfo);
         else
@@ -182,7 +180,7 @@ final class ExportManager
             frame.setStatus(Config.getString("pkgmgr.exported.jar"));
         }
         catch(IOException exc) {
-            DialogManager.showErrorFX(frame.getFXWindow(), "error-writing-jar");
+            DialogManager.showErrorFX(frame.getWindow(), "error-writing-jar");
             Debug.reportError("problem writing jar file: " + exc);
         } finally {
             try {

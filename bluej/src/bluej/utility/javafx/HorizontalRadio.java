@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 2016,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,9 +21,6 @@
  */
 package bluej.utility.javafx;
 
-import java.util.ArrayList;
-import java.util.IdentityHashMap;
-import java.util.List;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Pos;
@@ -34,7 +31,9 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
 
-import bluej.extensions.SourceType;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.List;
 
 /**
  * A set of controls which look like toggleable push buttons, of which

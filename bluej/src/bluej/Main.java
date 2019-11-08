@@ -22,10 +22,9 @@
 package bluej;
 
 import bluej.collect.DataCollector;
-import bluej.extensions.event.ApplicationEvent;
+import bluej.extensions2.event.ApplicationEvent;
 import bluej.extmgr.ExtensionWrapper;
 import bluej.extmgr.ExtensionsManager;
-import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
@@ -45,7 +44,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -69,7 +67,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.time.LocalDate;
-import java.util.EventListener;
 import java.util.List;
 import java.util.Properties;
 import java.util.Scanner;
@@ -148,15 +145,13 @@ public class Main
         }
         
         // process command line arguments, start BlueJ!
-        SwingUtilities.invokeLater(() -> {
+        Platform.runLater(() -> {
             List<ExtensionWrapper> loadedExtensions = ExtensionsManager.getInstance().getLoadedExtensions(null);
-            Platform.runLater(() -> {
-                DataCollector.bluejOpened(getOperatingSystem(), getJavaVersion(), getBlueJVersion(), getInterfaceLanguage(), loadedExtensions);
-                Stage stage = processArgs(args);
-                futureMainWindow.complete(stage);
-            });
+            DataCollector.bluejOpened(getOperatingSystem(), getJavaVersion(), getBlueJVersion(), getInterfaceLanguage(), loadedExtensions);
+            Stage stage = processArgs(args);
+            futureMainWindow.complete(stage);
         });
-        
+
         // Send usage data back to bluej.org
         new Thread() {
             @Override
@@ -216,7 +211,7 @@ public class Main
         Stage window = guiHandler.initialOpenComplete(oneOpened);
         
         Boot.getInstance().disposeSplashWindow();
-        ExtensionsManager.getInstance().delegateEvent(new ApplicationEvent(ApplicationEvent.APP_READY_EVENT));
+        ExtensionsManager.getInstance().delegateEvent(new ApplicationEvent(ApplicationEvent.EventType.APP_READY_EVENT));
         
         return window;
     }
@@ -369,15 +364,11 @@ public class Main
      * extensions.
      */
     @OnThread(Tag.FXPlatform)
-    public static void doQuit()
-    {
+    public static void doQuit() {
         guiHandler.doExitCleanup();
-
-        SwingUtilities.invokeLater(() -> {
-            ExtensionsManager extMgr = ExtensionsManager.getInstance();
-            extMgr.unloadExtensions();
-            Platform.runLater(() -> bluej.Main.exit());
-        });
+        ExtensionsManager extMgr = ExtensionsManager.getInstance();
+        extMgr.unloadExtensions();
+        bluej.Main.exit();
     }
 
     /**

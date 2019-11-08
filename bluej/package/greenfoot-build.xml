@@ -15,7 +15,7 @@
         <include name="lib/bluej.jar" />
         <include name="lib/bluejcore.jar" />
         <include name="lib/bluejeditor.jar" />
-        <include name="lib/bluejext.jar" />
+        <include name="lib/bluejext2.jar" />
         <include name="lib/lang-stride.jar" />
         <include name="lib/junit-4.12.jar" />
         <include name="lib/hamcrest-core-1.3.jar" />

@@ -21,55 +21,25 @@
  */
 package bluej.utility.javafx;
 
-import java.awt.*;
-import java.awt.event.MouseListener;
-import java.awt.image.RenderedImage;
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
+import bluej.Config;
+import bluej.editor.stride.CodeOverlayPane.WidthLimit;
+import bluej.editor.stride.FXTabbedEditor;
+import bluej.editor.stride.WindowOverlayPane;
+import bluej.stride.generic.InteractionManager;
+import bluej.utility.Debug;
+import bluej.utility.Utility;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanExpression;
-import javafx.beans.binding.DoubleBinding;
-import javafx.beans.binding.ObjectBinding;
-import javafx.beans.binding.StringExpression;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.Property;
-import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.property.ReadOnlyDoubleWrapper;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.binding.*;
+import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
-import javafx.collections.ObservableSet;
-import javafx.collections.SetChangeListener;
-import javafx.css.CssMetaData;
-import javafx.css.PseudoClass;
-import javafx.css.SimpleStyleableDoubleProperty;
-import javafx.css.SimpleStyleableObjectProperty;
-import javafx.css.StyleConverter;
-import javafx.css.Styleable;
-import javafx.css.StyleableObjectProperty;
-import javafx.css.StyleableProperty;
+import javafx.collections.*;
+import javafx.css.*;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
@@ -82,29 +52,18 @@ import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.CheckMenuItem;
-import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
-import javafx.scene.control.Labeled;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputControl;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
-import javafx.scene.input.InputEvent;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
+import javafx.scene.input.*;
 import javafx.scene.input.KeyCombination.Modifier;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -114,28 +73,23 @@ import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import javafx.stage.WindowEvent;
 import javafx.util.Duration;
-
-import bluej.Config;
-import bluej.editor.stride.CodeOverlayPane.WidthLimit;
-import bluej.editor.stride.FXTabbedEditor;
-import bluej.editor.stride.WindowOverlayPane;
-import bluej.stride.generic.InteractionManager;
-import bluej.utility.Debug;
-import bluej.utility.Utility;
-
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import javax.imageio.ImageIO;
-import javax.swing.Action;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseListener;
+import java.awt.image.RenderedImage;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.List;
+import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * JavaFXUtil is a collection of static utility methods for JavaFX-related code
@@ -604,7 +558,7 @@ public class JavaFXUtil
         }
     }
 
-    /**
+     /**
      * Shows a dialog to the user (with OK/Cancel buttons) asking them to confirm an action
      * 
      * @param titleLabel The string to look up in the labels file for the title of the dialog
@@ -1767,84 +1721,7 @@ public class JavaFXUtil
             return () -> fxMenu;
         }
     }
-    public static class FXPlusSwingMenu implements SwingOrFXMenu
-    {
-        private final FXPlatformSupplier<Menu> createFXMenu;
-        private final List<JMenuItem> swingItems = new ArrayList<>();
-        @OnThread(value = Tag.Any, requireSynchronized = true)
-        private final List<FXPlatformSupplier<MenuItem>> fxItems = new ArrayList<>();
-        @OnThread(value = Tag.Any, requireSynchronized = true)
-        private final List<Integer> fxItemIndexes = new ArrayList<>();
-        @OnThread(Tag.Swing)
-        private int nextIndex = 0;
-        @OnThread(value = Tag.Any, requireSynchronized = true)
-        private FXPlatformRunnable atEnd;
 
-        @OnThread(Tag.Any)
-        public FXPlusSwingMenu(FXPlatformSupplier<Menu> createMenu)
-        {
-            this.createFXMenu = createMenu;
-        }
-
-        @Override
-        @OnThread(Tag.Swing)
-        public FXPlatformSupplier<Menu> getFXMenu(Object eventSource)
-        {
-            // So swingMenuToFX is built to add a single list of Swing items
-            // to an FX menu in one go, but we want to interleave.  Rather than
-            // gut swingMenuToFX to allow interleaving, we just add all the
-            // swing items in one go, then interleave the FX items afterwards:
-            FXPlatformSupplier<Menu> swingAdd = swingMenuToFX(swingItems, eventSource, createFXMenu, (a, b) -> {});
-            return () -> {
-                Menu fxMenu = swingAdd.get();
-                for (int i = 0; i < fxItems.size(); i++)
-                {
-                    MenuItem item = fxItems.get(i).get();
-                    fxMenu.getItems().add(fxItemIndexes.get(i), item);
-                }
-                if (atEnd != null)
-                {
-                    atEnd.run();
-                }
-                return fxMenu;
-            };
-        }
-
-        @OnThread(Tag.Any)
-        public synchronized void addFX(FXPlatformSupplier<MenuItem> fxItem)
-        {
-            fxItems.add(fxItem);
-            fxItemIndexes.add(nextIndex++);
-        }
-
-        @OnThread(Tag.Swing)
-        public void addSwing(List<JMenuItem> swingItems)
-        {
-            this.swingItems.addAll(swingItems);
-            nextIndex += swingItems.size();
-        }
-
-        @OnThread(Tag.Any)
-        public synchronized void runAtEnd(FXPlatformRunnable runnable)
-        {
-            atEnd = runnable;
-        }
-    }
-
-    @OnThread(Tag.Swing)
-    public static FXPlatformSupplier<MenuBar> swingMenuBarToFX(List<SwingOrFXMenu> mixedMenus, Object eventSource)
-    {
-        List<FXPlatformSupplier<Menu>> menus = mixedMenus.stream().map(m -> m.getFXMenu(eventSource)).collect(Collectors.toList());
-        
-        return () -> {
-            MenuBar menuBar = new MenuBar();
-            for (FXPlatformSupplier<Menu> menuFXSupplier : menus)
-            {
-                menuBar.getMenus().add(menuFXSupplier.get());
-            }
-            return menuBar;
-        };
-    }
     @OnThread(Tag.Swing)
     private static FXPlatformSupplier<Menu> swingMenuToFX(JMenu swingMenu, Object source, FXBiConsumer<JMenuItem, MenuItem> extraConvert)
     {
@@ -1900,44 +1777,6 @@ public class JavaFXUtil
         };
     }
     
-    @OnThread(Tag.Swing)
-    public static FXPlatformRunnable swingMenuItemsToContextMenu(ContextMenu destination, List<JMenuItem> swingItems, Object source, FXBiConsumer<JMenuItem, MenuItem> extraConvert)
-    {
-        List<FXPlatformSupplier<? extends MenuItem>> items = new ArrayList<>();
-        List<FXPlatformRunnable> onShow = new ArrayList<>();
-        for (JMenuItem item : swingItems)
-        {
-            if (item == null)
-                // Separator:
-                items.add(createMenuSeparator());
-            else if (item instanceof JMenu)
-                items.add(swingMenuToFX((JMenu)item, source, extraConvert));
-            else
-            {
-                FXPlatformSupplier<MenuItemAndShow> menuItemAndShowFXSupplier = swingMenuItemToFX(item, source);
-                FXPlatformSupplier<MenuItem> menuItemFXSupplier = () -> {
-                    MenuItemAndShow itemAndShow = menuItemAndShowFXSupplier.get();
-                    if (itemAndShow.onShow != null)
-                        onShow.add(itemAndShow.onShow);
-                    extraConvert.accept(item, itemAndShow.menuItem);
-                    return itemAndShow.menuItem;
-                };
-                items.add(menuItemFXSupplier);
-            }
-        }
-        return () -> {
-            for (FXPlatformSupplier<? extends MenuItem> menuItemFXSupplier : items)
-            {
-                destination.getItems().add(menuItemFXSupplier.get());
-            }
-            // Note: it is the supplier
-            // which adds all the updates to the onShow list:
-            destination.addEventHandler(WindowEvent.WINDOW_SHOWING, e -> {
-                onShow.forEach(FXPlatformRunnable::run);
-            });
-        };
-    }
-
     @OnThread(Tag.Any)
     private static FXPlatformSupplier<? extends MenuItem> createMenuSeparator()
     {

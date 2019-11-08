@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2012,2013,2015,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2012,2013,2015,2016,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,25 +21,21 @@
  */
 package bluej.pkgmgr.dependency;
 
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.util.Properties;
-
-import javax.swing.*;
-
 import bluej.Config;
-import bluej.extensions.BDependency;
-import bluej.extensions.BDependency.Type;
-import bluej.extensions.ExtensionBridge;
-import bluej.extensions.event.DependencyEvent;
+import bluej.extensions2.ExtensionBridge;
 import bluej.extmgr.ExtensionsManager;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PackageEditor;
-import bluej.pkgmgr.target.*;
+import bluej.pkgmgr.target.DependentTarget;
+import bluej.pkgmgr.target.Target;
+import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A dependency between two targets in a package.
@@ -54,16 +50,33 @@ public abstract class Dependency
     public final Target from;
     @OnThread(Tag.Any)
     public final Target to;
-    @OnThread(Tag.Any)
-    private boolean visible = true;
     Package pkg;
     private static final String removeStr = Config.getString("pkgmgr.classmenu.remove");
     protected boolean selected = false;
     //    protected static final float strokeWithDefault = 1.0f;
     //    protected static final float strokeWithSelected = 2.0f;
-    @OnThread(Tag.Swing)
-    private BDependency singleBDependency; // every Dependency has none or one BDependency
     static final int SELECT_DIST = 4;
+
+    /**
+     * This enumeration contains constants which describe the nature of a
+     * dependency.
+     *
+     * @author Simon Gerlach
+     */
+    public enum Type
+    {
+        /**
+         * The type of the dependency could not be determined. This usually
+         * happens if the represented dependency does not exists anymore.
+         */
+        UNKNOWN,
+        /** Represents a uses-dependency */
+        USES,
+        /** Represents an extends-dependency */
+        EXTENDS,
+        /** Represents an implements-dependency */
+        IMPLEMENTS;
+    }
 
     @OnThread(Tag.Any)
     public Dependency(Package pkg, DependentTarget from, DependentTarget to)
@@ -108,22 +121,13 @@ public abstract class Dependency
         return (DependentTarget) to;
     }
 
-    @OnThread(Tag.SwingIsFX)
-    public BDependency getBDependency()
-    {
-        if (singleBDependency == null) {
-            singleBDependency = ExtensionBridge.newBDependency(this, getType());
-        }
-
-        return singleBDependency;
-    }
 
     /**
-     * Returns the type of this dependency. This information is used by
-     * extensions to distinguish between the different types of dependencies.
+     * Returns the type of this dependency. This information is used
+     * to distinguish between the different types of dependencies.
      * Subclasses must implement this method and return an appropriate constant
-     * of {@link bluej.extensions.BDependency.Type}.
-     * 
+     * of {@link bluej.pkgmgr.dependency.Dependency.Type}.
+     *
      * @return The type of this dependency;
      */
     @OnThread(Tag.Any)
@@ -173,26 +177,6 @@ public abstract class Dependency
     public String toString()
     {
         return getFrom().getIdentifierName() + " --> " + getTo().getIdentifierName();
-    }
-
-    @OnThread(Tag.Any)
-    public boolean isVisible()
-    {
-        return visible;
-    }
-    
-    public void setVisible(boolean vis)
-    {
-        if (vis != this.visible) {
-            this.visible = vis;
-            pkg.repaint();
-            
-            SwingUtilities.invokeLater(() -> {
-                // Inform all listeners about the visibility change
-                DependencyEvent event = new DependencyEvent(this, getFrom().getPackage(), vis);
-                ExtensionsManager.getInstance().delegateEvent(event);
-            });
-        }
     }
 
     public void setSelected(boolean selected)

@@ -22,7 +22,6 @@
 package bluej.pkgmgr;
 
 import bluej.*;
-import bluej.groupwork.NoSVNSupportDialog;
 import bluej.classmgr.BPClassLoader;
 import bluej.collect.DataCollector;
 import bluej.compiler.CompileReason;
@@ -41,18 +40,12 @@ import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.editor.moe.PrintDialog;
 import bluej.editor.moe.PrintDialog.PrintChoices;
-import bluej.extensions.SourceType;
+import bluej.extensions2.SourceType;
 import bluej.extmgr.ExtensionsManager;
-import bluej.extmgr.FXMenuManager;
+import bluej.extmgr.ExtensionsMenuManager;
 import bluej.extmgr.ToolsExtensionMenu;
-import bluej.extmgr.ViewExtensionMenu;
-import bluej.groupwork.actions.CheckoutAction;
-import bluej.groupwork.actions.CommitCommentAction;
-import bluej.groupwork.actions.ShareAction;
-import bluej.groupwork.actions.StatusAction;
-import bluej.groupwork.actions.TeamAction;
-import bluej.groupwork.actions.TeamActionGroup;
-import bluej.groupwork.actions.UpdateDialogAction;
+import bluej.groupwork.NoSVNSupportDialog;
+import bluej.groupwork.actions.*;
 import bluej.groupwork.ui.ActivityIndicator;
 import bluej.pkgmgr.actions.*;
 import bluej.pkgmgr.print.PackagePrintManager;
@@ -66,75 +59,40 @@ import bluej.prefmgr.PrefMgrDialog;
 import bluej.terminal.Terminal;
 import bluej.testmgr.TestDisplayFrame;
 import bluej.testmgr.record.InvokerRecord;
-import bluej.utility.BlueJFileReader;
-import bluej.utility.Debug;
-import bluej.utility.DialogManager;
-import bluej.utility.FileUtility;
-import bluej.utility.JavaNames;
-import bluej.utility.Utility;
-import bluej.utility.javafx.FXConsumer;
-import bluej.utility.javafx.FXPlatformRunnable;
-import bluej.utility.javafx.FXPlatformSupplier;
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.JavaFXUtil.FXOnlyMenu;
-import bluej.utility.javafx.TriangleArrow;
-import bluej.utility.javafx.UnfocusableScrollPane;
-import bluej.utility.javafx.UntitledCollapsiblePane;
+import bluej.utility.*;
+import bluej.utility.javafx.*;
 import bluej.utility.javafx.UntitledCollapsiblePane.ArrowLocation;
 import bluej.views.CallableView;
 import bluej.views.ConstructorView;
 import bluej.views.MethodView;
-import javafx.animation.Animation;
-import javafx.animation.FillTransition;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
+import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanExpression;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.Property;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.embed.swing.SwingNode;
 import javafx.event.EventHandler;
-import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.geometry.Point2D;
-import javafx.geometry.Pos;
+import javafx.geometry.*;
 import javafx.print.PrinterJob;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.TransferMode;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.input.*;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.SVGPath;
@@ -146,11 +104,10 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -191,9 +148,7 @@ public class PkgMgrFrame
     @OnThread(Tag.FX)
     private Menu recentProjectsMenu;
     @OnThread(Tag.FXPlatform)
-    private final SimpleObjectProperty<FXMenuManager> toolsMenuManager;
-    @OnThread(Tag.FXPlatform)
-    private final SimpleObjectProperty<FXMenuManager> viewMenuManager;
+    private final SimpleObjectProperty<ExtensionsMenuManager> toolsMenuManager;
     private Menu teamMenu;
     private MenuItem shareProjectMenuItem;
     private MenuItem teamSettingsMenuItem;
@@ -328,7 +283,7 @@ public class PkgMgrFrame
         showUsesProperty = new SimpleBooleanProperty(true);
         showInheritsProperty = new SimpleBooleanProperty(true);
         toolsMenuManager = new SimpleObjectProperty<>(null);
-        viewMenuManager = new SimpleObjectProperty<>(null);
+
         this.editor = null;
         if(!Config.isGreenfoot()) {
             teamActions = new TeamActionGroup(false);
@@ -669,7 +624,7 @@ public class PkgMgrFrame
         BlueJEvent.removeListener(frame);
 
         PrefMgr.setFlag(PrefMgr.SHOW_TEXT_EVAL, frame.showingTextEval.get());
-        javafx.stage.Window window = frame.getFXWindow();
+        javafx.stage.Window window = frame.getWindow();
         if (window != null)
             window.hide();
     }
@@ -872,7 +827,7 @@ public class PkgMgrFrame
         PkgMgrFrame pmf = findFrame(sourcePkg);
 
         if (pmf != null)
-            DialogManager.showErrorFX(pmf.getFXWindow(), msgId);
+            DialogManager.showErrorFX(pmf.getWindow(), msgId);
     }
 
     /**
@@ -886,7 +841,7 @@ public class PkgMgrFrame
 
         if (pmf != null)
         {
-            DialogManager.showMessageFX(pmf.getFXWindow(), msgId);
+            DialogManager.showMessageFX(pmf.getWindow(), msgId);
         }
     }
 
@@ -902,7 +857,7 @@ public class PkgMgrFrame
         PkgMgrFrame pmf = findFrame(sourcePkg);
 
         if (pmf != null)
-            DialogManager.showMessageWithTextFX(pmf.getFXWindow(), msgId, text);
+            DialogManager.showMessageWithTextFX(pmf.getWindow(), msgId, text);
     }
 
     /**
@@ -1095,19 +1050,9 @@ public class PkgMgrFrame
             setVisible(true);
 
             Package pkgFinal = aPkg;
-            // runAfterCurrent so that FX finishes initialising the menu,
-            // then hop to Swing thread to actually change things:
-            JavaFXUtil.onceNotNull(this.viewMenuManager, vm -> JavaFXUtil.runPlatformLater(() -> SwingUtilities.invokeLater(() ->
-            {
-                vm.setMenuGenerator(new ViewExtensionMenu(pkgFinal));
-                vm.addExtensionMenu(pkgFinal.getProject());
-            })));
-            JavaFXUtil.onceNotNull(this.toolsMenuManager, vm -> JavaFXUtil.runPlatformLater(() -> SwingUtilities.invokeLater(() ->
-            {
-                vm.setMenuGenerator(new ToolsExtensionMenu(pkgFinal));
-                vm.addExtensionMenu(pkgFinal.getProject());
-            })));
-        
+            toolsMenuManager.get().setMenuGenerator(new ToolsExtensionMenu(pkgFinal));
+            toolsMenuManager.get().addExtensionMenu(pkgFinal.getProject());            // runAfterCurrent so that FX finishes initialising the menu,
+
             teamActions = aPkg.getProject().getTeamActions();
             resetTeamActions();
             
@@ -1173,8 +1118,7 @@ public class PkgMgrFrame
 
         if(! Config.isGreenfoot()) {
             this.toolsMenuManager.get().setMenuGenerator(new ToolsExtensionMenu(thePkg));
-            this.viewMenuManager.get().setMenuGenerator(new ViewExtensionMenu(thePkg));
-            
+
             ObjectBench bench = getObjectBench();
             String uniqueId = getProject().getUniqueId();
             bench.removeAllObjects(uniqueId);
@@ -1457,18 +1401,6 @@ public class PkgMgrFrame
     }
 
     /**
-     * This is primarily needed for the extensions, who want a reference to a AWT frame.
-     * Thankfully, JavaFX does use a AWT frame to back the JavaFX window, we
-     * just need to do some jiggery-pokery to get the reference.
-     * @return
-     */
-    public Frame getWindow()
-    {
-        Window windowAncestor = SwingUtilities.getWindowAncestor(dummySwingNode.getContent());
-        return (Frame) windowAncestor;
-    }
-
-    /**
      * Import a project from a directory into the current package. 
      * @param dir               The directory to import
      * @param showFailureDialog True to show a dialog with files which failed
@@ -1482,7 +1414,7 @@ public class PkgMgrFrame
 
         // if we have any files which failed the copy, we show them now
         if (fails != null && showFailureDialog) {
-            ImportFailedDialog importFailedDlg = new ImportFailedDialog(getFXWindow(), Arrays.asList(fails));
+            ImportFailedDialog importFailedDlg = new ImportFailedDialog(getWindow(), Arrays.asList(fails));
             importFailedDlg.showAndWait();
         }
 
@@ -1516,7 +1448,7 @@ public class PkgMgrFrame
         Package thePkg = getPackage();
         // check whether name is already used
         if (thePkg.getTarget(name) != null) {
-            DialogManager.showErrorFX(getFXWindow(), "duplicate-name");
+            DialogManager.showErrorFX(getWindow(), "duplicate-name");
             return false;
         }
 
@@ -1526,7 +1458,7 @@ public class PkgMgrFrame
         if (c != null){
             if (! Package.checkClassMatchesFile(c, new File(getPackage().getPath(), name + ".class"))) {
                 conflict[0]=Package.getResourcePath(c);
-                boolean shouldContinue  = DialogManager.askQuestionFX(getFXWindow(), "class-library-conflict", conflict) != 0;
+                boolean shouldContinue  = DialogManager.askQuestionFX(getWindow(), "class-library-conflict", conflict) != 0;
 
                 if (!shouldContinue)
                     return false;
@@ -1604,7 +1536,7 @@ public class PkgMgrFrame
     {
         String title = Config.getString( "pkgmgr.newPkg.title" );
 
-        File newnameFile = FileUtility.getSaveProjectFX(getProject(), getFXWindow(), title);
+        File newnameFile = FileUtility.getSaveProjectFX(getProject(), getWindow(), title);
         if (newnameFile == null)
             return;
         if (! newProject(newnameFile.getAbsolutePath()))
@@ -1619,7 +1551,7 @@ public class PkgMgrFrame
      */
     public void doOpen()
     {
-        File choice = FileUtility.getOpenProjectFX(getFXWindow());
+        File choice = FileUtility.getOpenProjectFX(getWindow());
         if (choice != null)
         {
             PkgMgrFrame.doOpen(choice, this);
@@ -1628,7 +1560,7 @@ public class PkgMgrFrame
 
     public void doOpenNonBlueJ()
     {
-        File choice = FileUtility.getOpenDirFX(getFXWindow(), Config.getString("pkgmgr.openNonBlueJPkg.title"), true);
+        File choice = FileUtility.getOpenDirFX(getWindow(), Config.getString("pkgmgr.openNonBlueJPkg.title"), true);
         if (choice != null)
         {
             PkgMgrFrame.doOpenNonBlueJ(choice, this);
@@ -1637,7 +1569,7 @@ public class PkgMgrFrame
 
     public void doOpenArchive()
     {
-        File archiveFile = FileUtility.getOpenArchiveFX(getFXWindow(), null, true);
+        File archiveFile = FileUtility.getOpenArchiveFX(getWindow(), null, true);
         PkgMgrFrame.doOpen(archiveFile, this);
     }
 
@@ -1651,7 +1583,7 @@ public class PkgMgrFrame
         Project openProj = Project.openProject(projectPath);
         if (openProj == null)
         {
-            DialogManager.showErrorFX(getFXWindow(), "could-not-open-project");
+            DialogManager.showErrorFX(getWindow(), "could-not-open-project");
             return false;
         }
         else
@@ -1676,7 +1608,7 @@ public class PkgMgrFrame
             pmf.setVisible(true);
 
             if(openProj.isSharedSVNProject()){
-                NoSVNSupportDialog dialog = new NoSVNSupportDialog(pmf.getFXWindow());
+                NoSVNSupportDialog dialog = new NoSVNSupportDialog(pmf.getWindow());
                 dialog.initModality(Modality.APPLICATION_MODAL);
                 Optional<ButtonType> result = dialog.showAndWait();
                 if (result.get() == dialog.getDialogPane().getButtonTypes().get(0))
@@ -1723,19 +1655,19 @@ public class PkgMgrFrame
         // First confirm the chosen file exists
         if (! absDirName.exists()) {
             // file doesn't exist
-            DialogManager.showErrorFX(pmf.getFXWindow(), "file-does-not-exist");
+            DialogManager.showErrorFX(pmf.getWindow(), "file-does-not-exist");
             return;
         }
         
         if (absDirName.isDirectory()) {
             // Check to make sure it's not already a project
             if (Project.isProject(absDirName.getPath())) {
-                DialogManager.showErrorFX(pmf.getFXWindow(), "open-non-bluej-already-bluej");
+                DialogManager.showErrorFX(pmf.getWindow(), "open-non-bluej-already-bluej");
                 return;
             }
 
             // Try and convert it to a project
-            if (! Import.convertNonBlueJ(pmf::getFXWindow, absDirName))
+            if (! Import.convertNonBlueJ(pmf::getWindow, absDirName))
                 return;
             
             // then construct it as a project
@@ -1751,7 +1683,7 @@ public class PkgMgrFrame
     private boolean openArchive(File archive)
     {
         // Determine the output path.
-        File oPath = Utility.maybeExtractArchive(archive, this::getFXWindow);
+        File oPath = Utility.maybeExtractArchive(archive, this::getWindow);
         
         if (oPath == null)
             return false;
@@ -1772,7 +1704,7 @@ public class PkgMgrFrame
         }
         else {
             // Convert to a BlueJ project
-            if (Import.convertNonBlueJ(this::getFXWindow, oPath)) {
+            if (Import.convertNonBlueJ(this::getWindow, oPath)) {
                 return openProject(oPath.getPath());
             }
             else {
@@ -1812,13 +1744,7 @@ public class PkgMgrFrame
                 if (codePad != null) {
                     codePad.clearHistoryView();
                 }
-
-                FXMenuManager vm = viewMenuManager.get();
-                FXMenuManager tm = toolsMenuManager.get();
-                SwingUtilities.invokeLater(() -> {
-                    tm.addExtensionMenu(null);
-                    vm.addExtensionMenu(null);
-                });
+                toolsMenuManager.get().addExtensionMenu(null);
             }
             else { // all frames gone, lets quit
                 bluej.Main.doQuit();
@@ -1892,7 +1818,7 @@ public class PkgMgrFrame
     public void doImport()
     {
         // prompt for the directory to import from
-        File importDir = FileUtility.getOpenDirFX(getFXWindow(), Config.getString("pkgmgr.importPkg.title"), false);
+        File importDir = FileUtility.getOpenDirFX(getWindow(), Config.getString("pkgmgr.importPkg.title"), false);
 
         if (importDir == null)
             return;
@@ -1915,7 +1841,7 @@ public class PkgMgrFrame
     public void doAddFromFile()
     {
         // multi selection file dialog that shows .java and .class files
-        List<File> classes = FileUtility.getMultipleFilesFX(getFXWindow(), Config.getString("pkgmgr.addClass.title"), FileUtility.getJavaStrideSourceFilterFX());
+        List<File> classes = FileUtility.getMultipleFilesFX(getWindow(), Config.getString("pkgmgr.addClass.title"), FileUtility.getJavaStrideSourceFilterFX());
 
         if (classes == null || classes.isEmpty())
             return;
@@ -1951,7 +1877,7 @@ public class PkgMgrFrame
             int result = getPackage().importFile(cls);
             if (errorNames.containsKey(result))
             {
-                DialogManager.showErrorWithTextFX(getFXWindow(), errorNames.get(result), cls.getName());
+                DialogManager.showErrorWithTextFX(getWindow(), errorNames.get(result), cls.getName());
             }
         }
     }
@@ -1972,17 +1898,17 @@ public class PkgMgrFrame
      */
     public void doPrint()
     {
-        Optional<PrintChoices> choices = new PrintDialog(getFXWindow(), getPackage()).showAndWait();
+        Optional<PrintChoices> choices = new PrintDialog(getWindow(), getPackage()).showAndWait();
         if (!choices.isPresent())
             return;
 
         javafx.print.PrinterJob job = JavaFXUtil.createPrinterJob();
         if (job == null)
         {
-            DialogManager.showErrorFX(getFXWindow(),"print-no-printers");
+            DialogManager.showErrorFX(getWindow(),"print-no-printers");
             return;
         }
-        if (!job.showPrintDialog(getFXWindow()))
+        if (!job.showPrintDialog(getWindow()))
             return;
 
 
@@ -2042,7 +1968,7 @@ public class PkgMgrFrame
         Image image = new Image(Boot.class.getResource("gen-bluej-splash.png").toString());
         if (aboutDialog == null)
         {
-            aboutDialog = new AboutDialogTemplate(getFXWindow().getOwner(), Boot.BLUEJ_VERSION,
+            aboutDialog = new AboutDialogTemplate(getWindow().getOwner(), Boot.BLUEJ_VERSION,
                     "http://www.bluej.org/", image, translatorNames, previousTeamMembers);
             aboutDialog.showAndWait();
         }
@@ -2057,7 +1983,7 @@ public class PkgMgrFrame
      */
     public void showCopyright()
     {
-        DialogManager.showTextFX(getFXWindow(), String.join("\n",
+        DialogManager.showTextFX(getWindow(), String.join("\n",
                 "BlueJ \u00a9 2000-2018 Michael K\u00F6lling, John Rosenberg.", "",
                 Config.getString("menu.help.copyright.line1"),
                 Config.getString("menu.help.copyright.line2"),
@@ -2152,7 +2078,7 @@ public class PkgMgrFrame
                     Package pkg = getPackage();
 
                     project.getResultInspectorInstance(result, name, pkg, ir,
-                        expressionInformation, PkgMgrFrame.this.getFXWindow());
+                        expressionInformation, PkgMgrFrame.this.getWindow());
                 }
 
                 @Override
@@ -2262,7 +2188,7 @@ public class PkgMgrFrame
     public void doCreateNewClass(double x, double y)
     {
         SourceType sourceType = this.pkg.get().getDefaultSourceType();
-        NewClassDialog dlg = new NewClassDialog(getFXWindow(), sourceType);
+        NewClassDialog dlg = new NewClassDialog(getWindow(), sourceType);
         Optional<NewClassDialog.NewClassInfo> result = dlg.showAndWait();
 
         result.ifPresent(info ->
@@ -2335,7 +2261,7 @@ public class PkgMgrFrame
         if (basePkg != null) {
             if (basePkg.getTarget(base) != null) {
                 if (showErrDialog)
-                    DialogManager.showErrorFX(getFXWindow(), "duplicate-name");
+                    DialogManager.showErrorFX(getWindow(), "duplicate-name");
                 return false;
             }
         }
@@ -2378,7 +2304,7 @@ public class PkgMgrFrame
     {
         if (getProject().getTarget(fileName) != null)
         {
-            DialogManager.showErrorFX(getFXWindow(), "duplicate-name");
+            DialogManager.showErrorFX(getWindow(), "duplicate-name");
             return;
         }
         File cssFile = new File(getPackage().getPath(), fileName);
@@ -2411,7 +2337,7 @@ public class PkgMgrFrame
         if (editor.targetHasFocus())
         {
             if (!(doRemoveTargets(pkgFinal) || editor.doRemoveDependency())) {
-                DialogManager.showErrorFX(getFXWindow(), "no-class-selected");
+                DialogManager.showErrorFX(getWindow(), "no-class-selected");
             }
         }
         else if (objbench.objectHasFocus()) { // focus in object bench
@@ -2581,7 +2507,7 @@ public class PkgMgrFrame
     @OnThread(Tag.FXPlatform)
     public boolean askRemoveClass()
     {
-        int response = DialogManager.askQuestionFX(getFXWindow(), "really-remove-class");
+        int response = DialogManager.askQuestionFX(getWindow(), "really-remove-class");
         return response == 0;
     }
 
@@ -2602,7 +2528,7 @@ public class PkgMgrFrame
             }
         }
         else {
-            DialogManager.showErrorFX(getFXWindow(), "no-class-selected-compile");
+            DialogManager.showErrorFX(getWindow(), "no-class-selected-compile");
         }
     }
 
@@ -2616,7 +2542,7 @@ public class PkgMgrFrame
         BPClassLoader classLoader = getProject().getClassLoader();
         if (libraryCallDialog == null)
         {
-            libraryCallDialog = new LibraryCallDialog(getFXWindow(), pkgRef, classLoader);
+            libraryCallDialog = new LibraryCallDialog(getWindow(), pkgRef, classLoader);
         }
         libraryCallDialog.setResult(null);
         libraryCallDialog.requestfocus();
@@ -2633,7 +2559,7 @@ public class PkgMgrFrame
     {
         String message = getPackage().generateDocumentation();
         if (message.length() != 0) {
-            DialogManager.showTextFX(getFXWindow(), message);
+            DialogManager.showTextFX(getWindow(), message);
         }
     }
 
@@ -2648,7 +2574,7 @@ public class PkgMgrFrame
      */
     public boolean checkDebuggerState()
     {
-        return ProjectUtils.checkDebuggerState(getProject(), getFXWindow());
+        return ProjectUtils.checkDebuggerState(getProject(), getWindow());
     }
 
     /**
@@ -2746,7 +2672,7 @@ public class PkgMgrFrame
                 setStatus(Config.getString("pkgmgr.docuAborted"));
                 break;
             case BlueJEvent.CREATE_VM_FAILED :
-                DialogManager.showErrorFX(getFXWindow(), "error-create-vm");
+                DialogManager.showErrorFX(getWindow(), "error-create-vm");
                 break;
         }
     }
@@ -3012,13 +2938,11 @@ public class PkgMgrFrame
     /**
      * setupMenus - Create the menu bar
      */
-    private void setupMenus()
-    {
-        List<JavaFXUtil.SwingOrFXMenu> menubar = new ArrayList<>();
-        
+    private void setupMenus() {
+        MenuBar menubar = new MenuBar();
         {
             Menu menu = new Menu(Config.getString("menu.package"));
-            menubar.add(new FXOnlyMenu(menu));
+            menubar.getMenus().add(menu);
             menu.getItems().add(new NewProjectAction(this).makeMenuItem());
             menu.getItems().add(new OpenProjectAction(this).makeMenuItem());
             recentProjectsMenu = new Menu(Config.getString("menu.package.openRecent"));
@@ -3049,7 +2973,7 @@ public class PkgMgrFrame
 
         {
             Menu menu = new Menu(Config.getString("menu.edit"));
-            menubar.add(new FXOnlyMenu(menu));
+            menubar.getMenus().add(menu);
             menu.getItems().add(newClassAction.makeMenuItem());
             menu.getItems().add(newPackageAction.makeMenuItem());
             menu.getItems().add(newCSSAction.makeMenuItem());
@@ -3061,26 +2985,17 @@ public class PkgMgrFrame
         }
 
         ExtensionsManager extMgr = ExtensionsManager.getInstance();
-
-        //menu = new JMenu(Config.getString("menu.tools"));
-        //menu.setMnemonic(Config.getMnemonicKey("menu.tools"));
-        //menubar.add(new JavaFXUtil.SwingMenu(menu));
         {
-            JavaFXUtil.FXPlusSwingMenu mixedMenu = new JavaFXUtil.FXPlusSwingMenu(() -> {
-                Menu fxMenu = new Menu(Config.getString("menu.tools"));
-                // Create the menu manager that looks after extension tools menus
-                toolsMenuManager.set(new FXMenuManager(fxMenu, extMgr, null));
-                return fxMenu;
-            });
+            Menu toolsMenu = new Menu(Config.getString("menu.tools"));
+            toolsMenuManager.set(new ExtensionsMenuManager(toolsMenu, extMgr, null));
 
-            mixedMenu.addFX(compileAction::makeMenuItem);
-            mixedMenu.addFX(compileSelectedAction::makeMenuItem);
-            mixedMenu.addFX(rebuildAction::makeMenuItem);
-            mixedMenu.addFX(restartVMAction::makeMenuItem);
-            mixedMenu.addFX(SeparatorMenuItem::new);
-
-            mixedMenu.addFX(useLibraryAction::makeMenuItem);
-            mixedMenu.addFX(generateDocsAction::makeMenuItem);
+            toolsMenu.getItems().add(compileAction.makeMenuItem());
+            toolsMenu.getItems().add(compileSelectedAction.makeMenuItem());
+            toolsMenu.getItems().add(rebuildAction.makeMenuItem());
+            toolsMenu.getItems().add(restartVMAction.makeMenuItem());
+            toolsMenu.getItems().add(new SeparatorMenuItem());
+            toolsMenu.getItems().add(useLibraryAction.makeMenuItem());
+            toolsMenu.getItems().add(generateDocsAction.makeMenuItem());
 
             Menu testingMenu = new Menu(Config.getString("menu.tools.testing"));
             {
@@ -3088,7 +3003,7 @@ public class PkgMgrFrame
                 testingMenu.getItems().add(endTestRecordAction.makeMenuItem());
                 testingMenu.getItems().add(cancelTestRecordAction.makeMenuItem());
             }
-            mixedMenu.addFX(() -> testingMenu);
+            toolsMenu.getItems().add(testingMenu);
 
             // team menu setup
             teamMenu = new Menu(Config.getString("menu.tools.teamwork"));
@@ -3127,67 +3042,42 @@ public class PkgMgrFrame
 
                 );
             }
-            mixedMenu.addFX(() -> teamMenu);
+            toolsMenu.getItems().add(teamMenu);
 
             if (!Config.isMacOS()) // no "Preferences" here for Mac
             {
-                mixedMenu.addFX(SeparatorMenuItem::new);
-                mixedMenu.addFX(() -> new PreferencesAction(this).makeMenuItem());
+                toolsMenu.getItems().add(new SeparatorMenuItem());
+                toolsMenu.getItems().add(new PreferencesAction(this).makeMenuItem());
             }
 
             // If this is the first frame create the extension tools menu now.
             // (Otherwise, it will be created during project open.)
-            if (frameCount() <= 1)
-            {
-                mixedMenu.runAtEnd(() -> {
-                    FXMenuManager tm = toolsMenuManager.get();
-                    SwingUtilities.invokeLater(() -> {tm.addExtensionMenu(null);});
-                });
+            if (frameCount() <= 1) {
+                toolsMenuManager.get().addExtensionMenu(null);
             }
 
-            menubar.add(mixedMenu);
+            menubar.getMenus().add(toolsMenu);
         }
-
-        //menu = new JMenu(Config.getString("menu.view"));
-        //menu.setMnemonic(Config.getMnemonicKey("menu.view"));
         {
-            JavaFXUtil.FXPlusSwingMenu mixedMenu = new JavaFXUtil.FXPlusSwingMenu(() -> {
-                Menu fxMenu = new Menu(Config.getString("menu.view"));
-                // Create the menu manager that looks after extension view menus
-                viewMenuManager.set(new FXMenuManager(fxMenu, extMgr, null));
-                return fxMenu;
-            });
-            mixedMenu.addFX(() -> {
-                CheckMenuItem item = JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showUses"), showUsesProperty, null);
-                menuItemsToDisable.add(item);
-                return item;
-            });
-            mixedMenu.addFX(() -> {
-                CheckMenuItem item = JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showInherits"), showInheritsProperty, null);
-                menuItemsToDisable.add(item);
-                return item;
-            });
-            mixedMenu.addFX(SeparatorMenuItem::new);
-            mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showExecControls"), showingDebugger, Config.hasAcceleratorKey("menu.view.showExecControls") ? Config.getAcceleratorKeyFX("menu.view.showExecControls") : null));
-            mixedMenu.addFX(() -> {
-                CheckMenuItem terminalItem = JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTerminal"), showingTerminal, new KeyCodeCombination(KeyCode.T, KeyCombination.SHORTCUT_DOWN));
-                terminalItem.disableProperty().bind(pkg.isNull());
-                return terminalItem;
-            });
-            mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTextEval"), showingTextEval, Config.hasAcceleratorKey("menu.view.showTextEval") ? Config.getAcceleratorKeyFX("menu.view.showTextEval") : null));
-            mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTeamTest"), teamAndTestFoldout.expandedProperty(), Config.hasAcceleratorKey("menu.view.showTeamTest") ? Config.getAcceleratorKeyFX("menu.view.showTeamTest") : null));
-            mixedMenu.addFX(() -> JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTestDisplay"), showingTestResults, null));
+            Menu extensionsMenu = new Menu(Config.getString("menu.view"));
+            CheckMenuItem item = JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showUses"), showUsesProperty, null);
+            extensionsMenu.getItems().add(item);
+            menuItemsToDisable.add(item);
+            item = JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showInherits"), showInheritsProperty, null);
+            extensionsMenu.getItems().add(item);
+            menuItemsToDisable.add(item);
+            extensionsMenu.getItems().add(new SeparatorMenuItem());
+            extensionsMenu.getItems().add(JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showExecControls"), showingDebugger, Config.hasAcceleratorKey("menu.view.showExecControls") ? Config.getAcceleratorKeyFX("menu.view.showExecControls") : null));
 
-            // (Otherwise, it will be created during project open.)
-            if (frameCount() <= 1)
-            {
-                mixedMenu.runAtEnd(() -> {
-                    FXMenuManager vm = viewMenuManager.get();
-                    SwingUtilities.invokeLater(() -> {vm.addExtensionMenu(null);});
-                });
-            }
+            CheckMenuItem terminalItem = JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTerminal"), showingTerminal, new KeyCodeCombination(KeyCode.T, KeyCombination.SHORTCUT_DOWN));
+            terminalItem.disableProperty().bind(pkg.isNull());
+            extensionsMenu.getItems().add(terminalItem);
+            extensionsMenu.getItems().add(JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTextEval"), showingTextEval, Config.hasAcceleratorKey("menu.view.showTextEval") ? Config.getAcceleratorKeyFX("menu.view.showTextEval") : null));
+            if (teamAndTestFoldout != null)
+                extensionsMenu.getItems().add( JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTeamTest"), teamAndTestFoldout.expandedProperty(), Config.hasAcceleratorKey("menu.view.showTeamTest") ? Config.getAcceleratorKeyFX("menu.view.showTeamTest") : null));
+            extensionsMenu.getItems().add(JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTestDisplay"), showingTestResults, null));
 
-            menubar.add(mixedMenu);
+            menubar.getMenus().add(extensionsMenu);
         }
 
         {
@@ -3206,23 +3096,13 @@ public class PkgMgrFrame
             menu.getItems().add(new InteractiveTutorialAction(this).makeMenuItem());
             menu.getItems().add(new StandardAPIHelpAction(this).makeMenuItem());
             addUserHelpItems(menu);
-            menubar.add(new FXOnlyMenu(menu));
+            menubar.getMenus().add(menu);
         }
 
-        // Must go to Swing thread to get any Swing menu items' details
-        SwingUtilities.invokeLater(() ->
+        menubar.setUseSystemMenuBar(true);
+        JavaFXUtil.onceNotNull(paneProperty, pane ->
         {
-            FXPlatformSupplier<MenuBar> fxMenuBarSupplier = JavaFXUtil.swingMenuBarToFX(menubar, PkgMgrFrame.this);
-
-            Platform.runLater(() -> JavaFXUtil.onceNotNull(paneProperty, pane ->
-            {
-                JavaFXUtil.runNowOrLater(() ->
-                {
-                    MenuBar fxMenuBar = fxMenuBarSupplier.get();
-                    fxMenuBar.setUseSystemMenuBar(true);
-                    pane.setTop(fxMenuBar);
-                });
-            }));
+            pane.setTop(menubar);
         });
     }
 
@@ -3431,14 +3311,14 @@ public class PkgMgrFrame
     }
 
     @OnThread(Tag.FX)
-    public Stage getFXWindow()
+    public Stage getWindow()
     {
         return stageProperty.getValue();
     }
 
     void bringToFront()
     {
-        Utility.bringToFrontFX(getFXWindow());
+        Utility.bringToFrontFX(getWindow());
     }
 
     @OnThread(Tag.FXPlatform)

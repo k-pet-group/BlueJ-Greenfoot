@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2017,2018  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2017,2018,2019  Poul Henriksen and Michael Kolling
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,26 +23,22 @@ package greenfoot.guifx.classes;
 
 import bluej.Config;
 import bluej.debugger.gentype.Reflective;
-import bluej.extensions.ClassNotFoundException;
-import bluej.extensions.PackageNotFoundException;
-import bluej.extensions.ProjectNotOpenException;
+import bluej.extensions2.ClassNotFoundException;
+import bluej.extensions2.PackageNotFoundException;
+import bluej.extensions2.ProjectNotOpenException;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
-import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformRunnable;
-import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.View;
 import bluej.views.ViewFilter;
 import bluej.views.ViewFilter.StaticOrInstance;
 import greenfoot.guifx.GreenfootStage;
-import javafx.beans.binding.ObjectExpression;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -256,7 +252,7 @@ public class GClassDiagram extends BorderPane
             else
             {
                 try {
-                    Class<?> javaClass = classTarget.getBClassTarget().getBClass().getJavaClass();
+                    Class<?> javaClass = classTarget.getBClass().getJavaClass();
                     if (javaClass != null)
                     {
                         Class<?> superClass = javaClass.getSuperclass();
@@ -266,7 +262,7 @@ public class GClassDiagram extends BorderPane
                         }
                     }
                 }
-                catch (ProjectNotOpenException | ClassNotFoundException | PackageNotFoundException e) {
+                catch (ProjectNotOpenException | ClassNotFoundException e) {
                     e.printStackTrace();
                 }
             }
