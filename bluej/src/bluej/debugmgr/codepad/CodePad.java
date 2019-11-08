@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2016,2017,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -64,7 +64,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -281,7 +280,7 @@ public class CodePad extends VBox
                         // single-click transfer will be cancelled in favour of the double-click
                         // inspect.
                         cancelAddToBench = JavaFXUtil.runAfter(Duration.millis(500), () -> JavaFXUtil.runAfterCurrent(() -> {
-                            Stage fxWindow = frame.getFXWindow();
+                            Stage fxWindow = frame.getWindow();
                             Point2D from = graphic.localToScene(new Point2D(0.0, 0.0));
                             frame.getPackage().getEditor().raisePutOnBenchEvent(fxWindow, objInfo.obj, objInfo.obj.getGenType(), objInfo.ir, true, Optional.of(from));
                             cancelAddToBench = null;
@@ -299,7 +298,7 @@ public class CodePad extends VBox
                         Project project = frame.getProject();
                         if (project != null)
                         {
-                            project.getInspectorInstance(objInfo.obj, "", frame.getPackage(), objInfo.ir, frame.getFXWindow(), graphic).bringToFront();
+                            project.getInspectorInstance(objInfo.obj, "", frame.getPackage(), objInfo.ir, frame.getWindow(), graphic).bringToFront();
                         }
                         e.consume();
                     }

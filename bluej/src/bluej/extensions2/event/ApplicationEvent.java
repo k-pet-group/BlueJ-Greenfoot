@@ -23,8 +23,7 @@ package bluej.extensions2.event;
 
 /**
  * This class encapsulates BlueJ application events.
- * 
- * @version $Id: ApplicationEvent.java 15356 2016-01-25 18:23:50Z nccb $
+ *
  */
 
  /*
@@ -33,33 +32,37 @@ package bluej.extensions2.event;
 
 public class ApplicationEvent implements ExtensionEvent
   {
-  /**
-   * Event generated when the BlueJ application is initialised and ready.
-   */
-  public static final int APP_READY_EVENT=1;
-  /**
-   * Event generated when connection to the data collection servers (e.g. Blackbox)
-   * is broken, or the event generates an error code when sent.  This means that
-   * recording will be suspended for the rest of the session.
-   */
-  public static final int DATA_SUBMISSION_FAILED_EVENT=2;
+  public static enum EventType
+  {
+    /**
+     * Event generated when the BlueJ application is initialised and ready.
+     */
+    APP_READY_EVENT,
 
-  private int eventId;
+    /**
+     * Event generated when connection to the data collection servers (e.g. Blackbox)
+     * is broken, or the event generates an error code when sent.  This means that
+     * recording will be suspended for the rest of the session.
+     */
+    DATA_SUBMISSION_FAILED_EVENT
+  }
+
+  private EventType eventType;
 
   /**
    * Constructs an ApplicationEvent
    */
-  public ApplicationEvent(int anEventId)
+  public ApplicationEvent(EventType anEventType)
     {
-    eventId = anEventId;
+    eventType = anEventType;
     }
 
   /**
-   * Returns the event type, one of the values defined.
+   * Returns the event type
    */
-  public int getEvent ()
+  public EventType getEvent ()
     {
-    return eventId;
+    return eventType;
     }
 
 
@@ -67,10 +70,19 @@ public class ApplicationEvent implements ExtensionEvent
    * Returns a meaningful description of this event.
    */
   public String toString()
+  {
+    String msg = null;
+    switch (eventType)
     {
-    if ( eventId == APP_READY_EVENT ) return "AppEvent: APP_READY_EVENT";
-    if ( eventId == DATA_SUBMISSION_FAILED_EVENT ) return "AppEvent: DATA_SUBMISSION_FAILED_EVENT";
-
-    return "AppEvent: UNKNOWN eventId="+eventId;
+      case APP_READY_EVENT:
+        msg = "AppEvent: APP_READY_EVENT";
+        break;
+      case DATA_SUBMISSION_FAILED_EVENT:
+        msg = "AppEvent: DATA_SUBMISSION_FAILED_EVENT";
+        break;
+      default:
+        msg = "AppEvent: UNKNOWN eventType=" + eventType.toString();
     }
+    return msg;
+  }
   }

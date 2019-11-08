@@ -44,7 +44,6 @@ import bluej.extensions2.SourceType;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.ExtensionsMenuManager;
 import bluej.extmgr.ToolsExtensionMenu;
-import bluej.extmgr.ViewExtensionMenu;
 import bluej.groupwork.NoSVNSupportDialog;
 import bluej.groupwork.actions.*;
 import bluej.groupwork.ui.ActivityIndicator;
@@ -105,7 +104,6 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -151,8 +149,6 @@ public class PkgMgrFrame
     private Menu recentProjectsMenu;
     @OnThread(Tag.FXPlatform)
     private final SimpleObjectProperty<ExtensionsMenuManager> toolsMenuManager;
-    @OnThread(Tag.FXPlatform)
-    private final SimpleObjectProperty<ExtensionsMenuManager> viewMenuManager;
     private Menu teamMenu;
     private MenuItem shareProjectMenuItem;
     private MenuItem teamSettingsMenuItem;
@@ -287,7 +283,6 @@ public class PkgMgrFrame
         showUsesProperty = new SimpleBooleanProperty(true);
         showInheritsProperty = new SimpleBooleanProperty(true);
         toolsMenuManager = new SimpleObjectProperty<>(null);
-        viewMenuManager = new SimpleObjectProperty<>(null);
 
         this.editor = null;
         if(!Config.isGreenfoot()) {
@@ -629,7 +624,7 @@ public class PkgMgrFrame
         BlueJEvent.removeListener(frame);
 
         PrefMgr.setFlag(PrefMgr.SHOW_TEXT_EVAL, frame.showingTextEval.get());
-        javafx.stage.Window window = frame.getFXWindow();
+        javafx.stage.Window window = frame.getWindow();
         if (window != null)
             window.hide();
     }
@@ -832,7 +827,7 @@ public class PkgMgrFrame
         PkgMgrFrame pmf = findFrame(sourcePkg);
 
         if (pmf != null)
-            DialogManager.showErrorFX(pmf.getFXWindow(), msgId);
+            DialogManager.showErrorFX(pmf.getWindow(), msgId);
     }
 
     /**
@@ -846,7 +841,7 @@ public class PkgMgrFrame
 
         if (pmf != null)
         {
-            DialogManager.showMessageFX(pmf.getFXWindow(), msgId);
+            DialogManager.showMessageFX(pmf.getWindow(), msgId);
         }
     }
 
@@ -862,7 +857,7 @@ public class PkgMgrFrame
         PkgMgrFrame pmf = findFrame(sourcePkg);
 
         if (pmf != null)
-            DialogManager.showMessageWithTextFX(pmf.getFXWindow(), msgId, text);
+            DialogManager.showMessageWithTextFX(pmf.getWindow(), msgId, text);
     }
 
     /**
@@ -1055,8 +1050,6 @@ public class PkgMgrFrame
             setVisible(true);
 
             Package pkgFinal = aPkg;
-            viewMenuManager.get().setMenuGenerator(new ViewExtensionMenu(pkgFinal));
-            viewMenuManager.get().addExtensionMenu(pkgFinal.getProject());
             toolsMenuManager.get().setMenuGenerator(new ToolsExtensionMenu(pkgFinal));
             toolsMenuManager.get().addExtensionMenu(pkgFinal.getProject());            // runAfterCurrent so that FX finishes initialising the menu,
 
@@ -1125,7 +1118,6 @@ public class PkgMgrFrame
 
         if(! Config.isGreenfoot()) {
             this.toolsMenuManager.get().setMenuGenerator(new ToolsExtensionMenu(thePkg));
-            this.viewMenuManager.get().setMenuGenerator(new ViewExtensionMenu(thePkg));
 
             ObjectBench bench = getObjectBench();
             String uniqueId = getProject().getUniqueId();
@@ -1409,18 +1401,6 @@ public class PkgMgrFrame
     }
 
     /**
-     * This is primarily needed for the extensions, who want a reference to a AWT frame.
-     * Thankfully, JavaFX does use a AWT frame to back the JavaFX window, we
-     * just need to do some jiggery-pokery to get the reference.
-     * @return
-     */
-    public Frame getWindow()
-    {
-        Window windowAncestor = SwingUtilities.getWindowAncestor(dummySwingNode.getContent());
-        return (Frame) windowAncestor;
-    }
-
-    /**
      * Import a project from a directory into the current package. 
      * @param dir               The directory to import
      * @param showFailureDialog True to show a dialog with files which failed
@@ -1434,7 +1414,7 @@ public class PkgMgrFrame
 
         // if we have any files which failed the copy, we show them now
         if (fails != null && showFailureDialog) {
-            ImportFailedDialog importFailedDlg = new ImportFailedDialog(getFXWindow(), Arrays.asList(fails));
+            ImportFailedDialog importFailedDlg = new ImportFailedDialog(getWindow(), Arrays.asList(fails));
             importFailedDlg.showAndWait();
         }
 
@@ -1468,7 +1448,7 @@ public class PkgMgrFrame
         Package thePkg = getPackage();
         // check whether name is already used
         if (thePkg.getTarget(name) != null) {
-            DialogManager.showErrorFX(getFXWindow(), "duplicate-name");
+            DialogManager.showErrorFX(getWindow(), "duplicate-name");
             return false;
         }
 
@@ -1478,7 +1458,7 @@ public class PkgMgrFrame
         if (c != null){
             if (! Package.checkClassMatchesFile(c, new File(getPackage().getPath(), name + ".class"))) {
                 conflict[0]=Package.getResourcePath(c);
-                boolean shouldContinue  = DialogManager.askQuestionFX(getFXWindow(), "class-library-conflict", conflict) != 0;
+                boolean shouldContinue  = DialogManager.askQuestionFX(getWindow(), "class-library-conflict", conflict) != 0;
 
                 if (!shouldContinue)
                     return false;
@@ -1556,7 +1536,7 @@ public class PkgMgrFrame
     {
         String title = Config.getString( "pkgmgr.newPkg.title" );
 
-        File newnameFile = FileUtility.getSaveProjectFX(getProject(), getFXWindow(), title);
+        File newnameFile = FileUtility.getSaveProjectFX(getProject(), getWindow(), title);
         if (newnameFile == null)
             return;
         if (! newProject(newnameFile.getAbsolutePath()))
@@ -1571,7 +1551,7 @@ public class PkgMgrFrame
      */
     public void doOpen()
     {
-        File choice = FileUtility.getOpenProjectFX(getFXWindow());
+        File choice = FileUtility.getOpenProjectFX(getWindow());
         if (choice != null)
         {
             PkgMgrFrame.doOpen(choice, this);
@@ -1580,7 +1560,7 @@ public class PkgMgrFrame
 
     public void doOpenNonBlueJ()
     {
-        File choice = FileUtility.getOpenDirFX(getFXWindow(), Config.getString("pkgmgr.openNonBlueJPkg.title"), true);
+        File choice = FileUtility.getOpenDirFX(getWindow(), Config.getString("pkgmgr.openNonBlueJPkg.title"), true);
         if (choice != null)
         {
             PkgMgrFrame.doOpenNonBlueJ(choice, this);
@@ -1589,7 +1569,7 @@ public class PkgMgrFrame
 
     public void doOpenArchive()
     {
-        File archiveFile = FileUtility.getOpenArchiveFX(getFXWindow(), null, true);
+        File archiveFile = FileUtility.getOpenArchiveFX(getWindow(), null, true);
         PkgMgrFrame.doOpen(archiveFile, this);
     }
 
@@ -1603,7 +1583,7 @@ public class PkgMgrFrame
         Project openProj = Project.openProject(projectPath);
         if (openProj == null)
         {
-            DialogManager.showErrorFX(getFXWindow(), "could-not-open-project");
+            DialogManager.showErrorFX(getWindow(), "could-not-open-project");
             return false;
         }
         else
@@ -1628,7 +1608,7 @@ public class PkgMgrFrame
             pmf.setVisible(true);
 
             if(openProj.isSharedSVNProject()){
-                NoSVNSupportDialog dialog = new NoSVNSupportDialog(pmf.getFXWindow());
+                NoSVNSupportDialog dialog = new NoSVNSupportDialog(pmf.getWindow());
                 dialog.initModality(Modality.APPLICATION_MODAL);
                 Optional<ButtonType> result = dialog.showAndWait();
                 if (result.get() == dialog.getDialogPane().getButtonTypes().get(0))
@@ -1675,19 +1655,19 @@ public class PkgMgrFrame
         // First confirm the chosen file exists
         if (! absDirName.exists()) {
             // file doesn't exist
-            DialogManager.showErrorFX(pmf.getFXWindow(), "file-does-not-exist");
+            DialogManager.showErrorFX(pmf.getWindow(), "file-does-not-exist");
             return;
         }
         
         if (absDirName.isDirectory()) {
             // Check to make sure it's not already a project
             if (Project.isProject(absDirName.getPath())) {
-                DialogManager.showErrorFX(pmf.getFXWindow(), "open-non-bluej-already-bluej");
+                DialogManager.showErrorFX(pmf.getWindow(), "open-non-bluej-already-bluej");
                 return;
             }
 
             // Try and convert it to a project
-            if (! Import.convertNonBlueJ(pmf::getFXWindow, absDirName))
+            if (! Import.convertNonBlueJ(pmf::getWindow, absDirName))
                 return;
             
             // then construct it as a project
@@ -1703,7 +1683,7 @@ public class PkgMgrFrame
     private boolean openArchive(File archive)
     {
         // Determine the output path.
-        File oPath = Utility.maybeExtractArchive(archive, this::getFXWindow);
+        File oPath = Utility.maybeExtractArchive(archive, this::getWindow);
         
         if (oPath == null)
             return false;
@@ -1724,7 +1704,7 @@ public class PkgMgrFrame
         }
         else {
             // Convert to a BlueJ project
-            if (Import.convertNonBlueJ(this::getFXWindow, oPath)) {
+            if (Import.convertNonBlueJ(this::getWindow, oPath)) {
                 return openProject(oPath.getPath());
             }
             else {
@@ -1765,7 +1745,6 @@ public class PkgMgrFrame
                     codePad.clearHistoryView();
                 }
                 toolsMenuManager.get().addExtensionMenu(null);
-                viewMenuManager.get().addExtensionMenu(null);
             }
             else { // all frames gone, lets quit
                 bluej.Main.doQuit();
@@ -1839,7 +1818,7 @@ public class PkgMgrFrame
     public void doImport()
     {
         // prompt for the directory to import from
-        File importDir = FileUtility.getOpenDirFX(getFXWindow(), Config.getString("pkgmgr.importPkg.title"), false);
+        File importDir = FileUtility.getOpenDirFX(getWindow(), Config.getString("pkgmgr.importPkg.title"), false);
 
         if (importDir == null)
             return;
@@ -1862,7 +1841,7 @@ public class PkgMgrFrame
     public void doAddFromFile()
     {
         // multi selection file dialog that shows .java and .class files
-        List<File> classes = FileUtility.getMultipleFilesFX(getFXWindow(), Config.getString("pkgmgr.addClass.title"), FileUtility.getJavaStrideSourceFilterFX());
+        List<File> classes = FileUtility.getMultipleFilesFX(getWindow(), Config.getString("pkgmgr.addClass.title"), FileUtility.getJavaStrideSourceFilterFX());
 
         if (classes == null || classes.isEmpty())
             return;
@@ -1898,7 +1877,7 @@ public class PkgMgrFrame
             int result = getPackage().importFile(cls);
             if (errorNames.containsKey(result))
             {
-                DialogManager.showErrorWithTextFX(getFXWindow(), errorNames.get(result), cls.getName());
+                DialogManager.showErrorWithTextFX(getWindow(), errorNames.get(result), cls.getName());
             }
         }
     }
@@ -1919,17 +1898,17 @@ public class PkgMgrFrame
      */
     public void doPrint()
     {
-        Optional<PrintChoices> choices = new PrintDialog(getFXWindow(), getPackage()).showAndWait();
+        Optional<PrintChoices> choices = new PrintDialog(getWindow(), getPackage()).showAndWait();
         if (!choices.isPresent())
             return;
 
         javafx.print.PrinterJob job = JavaFXUtil.createPrinterJob();
         if (job == null)
         {
-            DialogManager.showErrorFX(getFXWindow(),"print-no-printers");
+            DialogManager.showErrorFX(getWindow(),"print-no-printers");
             return;
         }
-        if (!job.showPrintDialog(getFXWindow()))
+        if (!job.showPrintDialog(getWindow()))
             return;
 
 
@@ -1989,7 +1968,7 @@ public class PkgMgrFrame
         Image image = new Image(Boot.class.getResource("gen-bluej-splash.png").toString());
         if (aboutDialog == null)
         {
-            aboutDialog = new AboutDialogTemplate(getFXWindow().getOwner(), Boot.BLUEJ_VERSION,
+            aboutDialog = new AboutDialogTemplate(getWindow().getOwner(), Boot.BLUEJ_VERSION,
                     "http://www.bluej.org/", image, translatorNames, previousTeamMembers);
             aboutDialog.showAndWait();
         }
@@ -2004,7 +1983,7 @@ public class PkgMgrFrame
      */
     public void showCopyright()
     {
-        DialogManager.showTextFX(getFXWindow(), String.join("\n",
+        DialogManager.showTextFX(getWindow(), String.join("\n",
                 "BlueJ \u00a9 2000-2018 Michael K\u00F6lling, John Rosenberg.", "",
                 Config.getString("menu.help.copyright.line1"),
                 Config.getString("menu.help.copyright.line2"),
@@ -2099,7 +2078,7 @@ public class PkgMgrFrame
                     Package pkg = getPackage();
 
                     project.getResultInspectorInstance(result, name, pkg, ir,
-                        expressionInformation, PkgMgrFrame.this.getFXWindow());
+                        expressionInformation, PkgMgrFrame.this.getWindow());
                 }
 
                 @Override
@@ -2209,7 +2188,7 @@ public class PkgMgrFrame
     public void doCreateNewClass(double x, double y)
     {
         SourceType sourceType = this.pkg.get().getDefaultSourceType();
-        NewClassDialog dlg = new NewClassDialog(getFXWindow(), sourceType);
+        NewClassDialog dlg = new NewClassDialog(getWindow(), sourceType);
         Optional<NewClassDialog.NewClassInfo> result = dlg.showAndWait();
 
         result.ifPresent(info ->
@@ -2282,7 +2261,7 @@ public class PkgMgrFrame
         if (basePkg != null) {
             if (basePkg.getTarget(base) != null) {
                 if (showErrDialog)
-                    DialogManager.showErrorFX(getFXWindow(), "duplicate-name");
+                    DialogManager.showErrorFX(getWindow(), "duplicate-name");
                 return false;
             }
         }
@@ -2325,7 +2304,7 @@ public class PkgMgrFrame
     {
         if (getProject().getTarget(fileName) != null)
         {
-            DialogManager.showErrorFX(getFXWindow(), "duplicate-name");
+            DialogManager.showErrorFX(getWindow(), "duplicate-name");
             return;
         }
         File cssFile = new File(getPackage().getPath(), fileName);
@@ -2358,7 +2337,7 @@ public class PkgMgrFrame
         if (editor.targetHasFocus())
         {
             if (!(doRemoveTargets(pkgFinal) || editor.doRemoveDependency())) {
-                DialogManager.showErrorFX(getFXWindow(), "no-class-selected");
+                DialogManager.showErrorFX(getWindow(), "no-class-selected");
             }
         }
         else if (objbench.objectHasFocus()) { // focus in object bench
@@ -2528,7 +2507,7 @@ public class PkgMgrFrame
     @OnThread(Tag.FXPlatform)
     public boolean askRemoveClass()
     {
-        int response = DialogManager.askQuestionFX(getFXWindow(), "really-remove-class");
+        int response = DialogManager.askQuestionFX(getWindow(), "really-remove-class");
         return response == 0;
     }
 
@@ -2549,7 +2528,7 @@ public class PkgMgrFrame
             }
         }
         else {
-            DialogManager.showErrorFX(getFXWindow(), "no-class-selected-compile");
+            DialogManager.showErrorFX(getWindow(), "no-class-selected-compile");
         }
     }
 
@@ -2563,7 +2542,7 @@ public class PkgMgrFrame
         BPClassLoader classLoader = getProject().getClassLoader();
         if (libraryCallDialog == null)
         {
-            libraryCallDialog = new LibraryCallDialog(getFXWindow(), pkgRef, classLoader);
+            libraryCallDialog = new LibraryCallDialog(getWindow(), pkgRef, classLoader);
         }
         libraryCallDialog.setResult(null);
         libraryCallDialog.requestfocus();
@@ -2580,7 +2559,7 @@ public class PkgMgrFrame
     {
         String message = getPackage().generateDocumentation();
         if (message.length() != 0) {
-            DialogManager.showTextFX(getFXWindow(), message);
+            DialogManager.showTextFX(getWindow(), message);
         }
     }
 
@@ -2595,7 +2574,7 @@ public class PkgMgrFrame
      */
     public boolean checkDebuggerState()
     {
-        return ProjectUtils.checkDebuggerState(getProject(), getFXWindow());
+        return ProjectUtils.checkDebuggerState(getProject(), getWindow());
     }
 
     /**
@@ -2693,7 +2672,7 @@ public class PkgMgrFrame
                 setStatus(Config.getString("pkgmgr.docuAborted"));
                 break;
             case BlueJEvent.CREATE_VM_FAILED :
-                DialogManager.showErrorFX(getFXWindow(), "error-create-vm");
+                DialogManager.showErrorFX(getWindow(), "error-create-vm");
                 break;
         }
     }
@@ -3081,7 +3060,6 @@ public class PkgMgrFrame
         }
         {
             Menu extensionsMenu = new Menu(Config.getString("menu.view"));
-            viewMenuManager.set(new ExtensionsMenuManager(extensionsMenu, extMgr, null));
             CheckMenuItem item = JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showUses"), showUsesProperty, null);
             extensionsMenu.getItems().add(item);
             menuItemsToDisable.add(item);
@@ -3098,11 +3076,6 @@ public class PkgMgrFrame
             if (teamAndTestFoldout != null)
                 extensionsMenu.getItems().add( JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTeamTest"), teamAndTestFoldout.expandedProperty(), Config.hasAcceleratorKey("menu.view.showTeamTest") ? Config.getAcceleratorKeyFX("menu.view.showTeamTest") : null));
             extensionsMenu.getItems().add(JavaFXUtil.makeCheckMenuItem(Config.getString("menu.view.showTestDisplay"), showingTestResults, null));
-
-            // (Otherwise, it will be created during project open.)
-            if (frameCount() <= 1) {
-                viewMenuManager.get().addExtensionMenu(null);
-            }
 
             menubar.getMenus().add(extensionsMenu);
         }
@@ -3338,14 +3311,14 @@ public class PkgMgrFrame
     }
 
     @OnThread(Tag.FX)
-    public Stage getFXWindow()
+    public Stage getWindow()
     {
         return stageProperty.getValue();
     }
 
     void bringToFront()
     {
-        Utility.bringToFrontFX(getFXWindow());
+        Utility.bringToFrontFX(getWindow());
     }
 
     @OnThread(Tag.FXPlatform)

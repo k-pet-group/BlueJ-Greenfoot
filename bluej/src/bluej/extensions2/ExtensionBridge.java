@@ -22,7 +22,6 @@
 package bluej.extensions2;
 
 import bluej.debugmgr.objectbench.ObjectWrapper;
-import bluej.extensions2.BDependency.Type;
 import bluej.extensions2.event.ExtensionEvent;
 import bluej.extmgr.ExtensionMenu;
 import bluej.extmgr.ExtensionPrefManager;
@@ -86,45 +85,9 @@ public final class ExtensionBridge
                 classTarget.getQualifiedName()));
     }
 
-    public static BClassTarget newBClassTarget(ClassTarget classTarget) {
-        Package bluejPackage = classTarget.getPackage();
-        Project bluejProject = bluejPackage.getProject();
-
-        return new BClassTarget(new Identifier(bluejProject, bluejPackage,
-                classTarget.getQualifiedName()));
-    }
-
-    public static BDependency newBDependency(Dependency dependency, Type type)
-    {
-        DependentTarget from = dependency.getFrom();
-        DependentTarget to = dependency.getTo();
-        Package bluejPackage = from.getPackage();
-        Project bluejProject = bluejPackage.getProject();
-        String qualifiedNameFrom = bluejPackage.getQualifiedName(from.getIdentifierName());
-        String qualifiedNameTo = bluejPackage.getQualifiedName(to.getIdentifierName());
-
-        return new BDependency(new Identifier(bluejProject, bluejPackage, qualifiedNameFrom),
-                new Identifier(bluejProject, bluejPackage, qualifiedNameTo), type);
-    }
-
     public static void ChangeBClassName(BClass bClass, String newName)
     {
         bClass.nameChanged(newName);
-    }
-
-    public static void changeBClassTargetName(BClassTarget bClassTarget, String newName)
-    {
-        bClassTarget.nameChanged(newName);
-    }
-
-    public static void changeBDependencyOriginName(BDependency bDependency, String newOriginName)
-    {
-        bDependency.originNameChanged(newOriginName);
-    }
-
-    public static void changeBDependencyTargetName(BDependency bDependency, String newTargetName)
-    {
-        bDependency.targetNameChanged(newTargetName);
     }
 
     public static MenuItem getMenuItem(BlueJ aBluej, ExtensionMenu attachedObject)

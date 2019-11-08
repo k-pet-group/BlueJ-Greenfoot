@@ -33,7 +33,6 @@ package bluej.extensions2.editor;
  * When applied to a particular edited text, a TextLocation may be <em>invalid</em>. 
  * That is, at the time of use, it points to an area outside the text being edited.
  * 
- * @version $Id: TextLocation.java 6215 2009-03-30 13:28:25Z polle $
  */
 
 /*

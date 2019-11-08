@@ -40,7 +40,6 @@ import bluej.editor.stride.FrameCatalogue;
 import bluej.editor.stride.FrameEditor;
 import bluej.extensions2.*;
 import bluej.extensions2.event.ClassEvent;
-import bluej.extensions2.event.ClassTargetEvent;
 import bluej.extmgr.ClassExtensionMenu;
 import bluej.extmgr.ExtensionsManager;
 import bluej.extmgr.ExtensionsMenuManager;
@@ -90,7 +89,6 @@ import javafx.stage.Window;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javax.swing.*;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -326,10 +324,7 @@ public class ClassTarget extends DependentTarget
 
     @OnThread(Tag.SwingIsFX)
     private BClass singleBClass;  // Every Target has none or one BClass
-    @OnThread(Tag.SwingIsFX)
-    private BClassTarget singleBClassTarget; // Every Target has none or one BClassTarget
-    // Set from Swing thread but read on FX for display:
-    
+
     /**
      * Return the extensions BProject associated with this Project.
      * There should be only one BProject object associated with each Project.
@@ -344,24 +339,6 @@ public class ClassTarget extends DependentTarget
           
         return singleBClass;
     }
-
-    /**
-     * Returns the {@link BClassTarget} associated with this {@link ClassTarget}.
-     * There should be only one {@link BClassTarget} object associated with
-     * each {@link ClassTarget}.
-     * 
-     * @return The {@link BClassTarget} associated with this {@link ClassTarget}.
-     */
-    @OnThread(Tag.SwingIsFX)
-    public final BClassTarget getBClassTarget()
-    {
-        if (singleBClassTarget == null) {
-            singleBClassTarget = ExtensionBridge.newBClassTarget(this);
-        }
-
-        return singleBClassTarget;
-    }
-
 
     /**
      * Return the target's name, including the package name. eg.
@@ -481,7 +458,7 @@ public class ClassTarget extends DependentTarget
                     editor.reInitBreakpoints();
                 }
             }
-            ClassEvent event = new ClassEvent(ClassEvent.STATE_CHANGED, getPackage(), getBClass(), newState == State.COMPILED, newState == State.HAS_ERROR);
+            ClassEvent event = new ClassEvent(getPackage(), getBClass(), newState == State.COMPILED, newState == State.HAS_ERROR);
             ExtensionsManager.getInstance().delegateEvent(event);
 
             super.setState(newState);
@@ -1702,10 +1679,6 @@ public class ClassTarget extends DependentTarget
             if (used != null)
             {
                 UsesDependency dependency = new UsesDependency(getPackage(), this, used);
-                if (used.getAssociation() == this || this.getAssociation() == used)
-                {
-                    dependency.setVisible(false);
-                }
                 getPackage().addDependency(dependency);
             }
         }
@@ -1869,21 +1842,6 @@ public class ClassTarget extends DependentTarget
             // Update the BClass object
             BClass bClass = getBClass();
             ExtensionBridge.ChangeBClassName(bClass, getQualifiedName());
-            
-            // Update the BClassTarget object
-            BClassTarget bClassTarget = getBClassTarget();
-            ExtensionBridge.changeBClassTargetName(bClassTarget, getQualifiedName());
-            
-            // Update all BDependency objects related to this target
-            for (Dependency outgoingDependency : dependencies()) {
-                BDependency bDependency = outgoingDependency.getBDependency();
-                ExtensionBridge.changeBDependencyOriginName(bDependency, getQualifiedName());
-            }
-            
-            for (Dependency incomingDependency : dependents()) {
-                BDependency bDependency = incomingDependency.getBDependency();
-                ExtensionBridge.changeBDependencyTargetName(bDependency, getQualifiedName());
-            }
 
             DataCollector.renamedClass(getPackage(), oldFrameSourceFile, newFrameSourceFile, oldJavaSourceFile, newJavaSourceFile);
 
@@ -1894,7 +1852,7 @@ public class ClassTarget extends DependentTarget
             }
 
             // Inform all listeners about the name change
-            ClassEvent event = new ClassEvent(ClassEvent.CHANGED_NAME, getPackage(), getBClass(), oldName);
+            ClassEvent event = new ClassEvent(getPackage(), getBClass(), oldName);
             ExtensionsManager.getInstance().delegateEvent(event);
 
             return true;
@@ -2250,7 +2208,6 @@ public class ClassTarget extends DependentTarget
          * Create an action to inspect a class (i.e. static members, not inspecting an instance)
          * 
          * @param enable Should the action be enabled?
-         * @param parentOverride If non-null, use this as parent.  If null, use PkgMgrFrame window.
          * @param animateFromCentreOverride If non-null, animate from centre of this node.  If null, use ClassTarget's GUI node
          */
         public InspectAction(boolean enable, Node animateFromCentreOverride)
@@ -2401,10 +2358,6 @@ public class ClassTarget extends DependentTarget
         if (vis != this.visible) {
             this.visible = vis;
             pane.setVisible(vis);
-
-            // Inform all listeners about the visibility change
-            ClassTargetEvent event = new ClassTargetEvent(this, getPackage(), vis);
-            ExtensionsManager.getInstance().delegateEvent(event);
         }
     }
 
@@ -2531,6 +2484,10 @@ public class ClassTarget extends DependentTarget
         prepareForRemoval();
         Package pkg = getPackage();
         pkg.removeTarget(this);
+
+        // Inform all listeners about the class removed
+        ClassEvent event = new ClassEvent(getPackage(), getBClass());
+        ExtensionsManager.getInstance().delegateEvent(event);
         
         // We must remove after the above, because it might involve saving, 
         // and thus recording edits to the file
@@ -2587,7 +2544,7 @@ public class ClassTarget extends DependentTarget
         SourceType sourceType = getSourceType();
         PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
 
-        DuplicateClassDialog dialog = new DuplicateClassDialog(pmf.getFXWindow(), "CopyOf" + originalClassName, sourceType);
+        DuplicateClassDialog dialog = new DuplicateClassDialog(pmf.getWindow(), "CopyOf" + originalClassName, sourceType);
         Optional<String> duplicateClassName = dialog.showAndWait();
         duplicateClassName.ifPresent(name -> pmf.duplicateClass(originalClassName, name, getSourceFile(), sourceType));
     }
@@ -2629,7 +2586,6 @@ public class ClassTarget extends DependentTarget
      * Set whether this ClassTarget can be moved by the user (dragged around).
      * This is set false for unit tests which are associated with another class.
      * 
-     * @see bluej.graph.Moveable#setIsMoveable(boolean)
      */
     public void setIsMoveable(boolean isMoveable)
     {

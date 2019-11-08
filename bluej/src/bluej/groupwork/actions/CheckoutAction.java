@@ -86,7 +86,7 @@ public class CheckoutAction extends TeamAction
                 new CheckoutWorker(newFrame, repository, projectDir, tsc).start();
             };
 
-            File projectDir = FileUtility.getSaveProjectFX(oldFrame.getProject(),oldFrame.getFXWindow(),
+            File projectDir = FileUtility.getSaveProjectFX(oldFrame.getProject(),oldFrame.getWindow(),
                     Config.getString("team.checkout.DVCS.filechooser.title"));
             if (projectDir == null)
                 return;//no project dir. nothing to do.
@@ -159,7 +159,7 @@ public class CheckoutAction extends TeamAction
             if (! failed) {
                 if (! Project.isProject(projDir.toString())) {
                     // Try and convert it to a project
-                    if (! Import.convertNonBlueJ(newFrame::getFXWindow, projDir)) {
+                    if (! Import.convertNonBlueJ(newFrame::getWindow, projDir)) {
                         cleanup();
                         return;
                     }
@@ -172,7 +172,7 @@ public class CheckoutAction extends TeamAction
                 newFrame.openPackage(initialPackage, newFrame);
             }
             else {
-                TeamUtils.handleServerResponseFX(response, newFrame.getFXWindow());
+                TeamUtils.handleServerResponseFX(response, newFrame.getWindow());
                 cleanup();
             }
         }

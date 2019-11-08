@@ -23,6 +23,7 @@ package bluej.extensions2.event;
 
 import bluej.extensions2.BPackage;
 import bluej.pkgmgr.Package;
+import javafx.event.Event;
 
 /**
  * This class encapsulates events on BlueJ packages.
@@ -32,34 +33,37 @@ import bluej.pkgmgr.Package;
  */
 public class PackageEvent implements ExtensionEvent
 {
-    /**
-     * This event occurs when a package has just been opened.
-     */
-    public static final int PACKAGE_OPENED = 1;
+    public static enum EventType
+    {
+        /**
+         * This event occurs when a package has just been opened.
+         */
+        PACKAGE_OPENED,
 
-    /**
-     * This event occurs when a package is just about to be closed.
-     */ 
-    public static final int PACKAGE_CLOSING = 2;
+        /**
+         * This event occurs when a package is just about to be closed.
+         */
+        PACKAGE_CLOSING
+    }
 
-    private int eventId;
+    private EventType eventType;
     private Package thisPackage;
 
     /**
      * Constructor for the PackageEvent.
      */
-    public PackageEvent (int eventId, Package pkg)
+    public PackageEvent (EventType eventType, Package pkg)
     {
-        this.eventId = eventId;
+        this.eventType = eventType;
         thisPackage = pkg;
     }
 
     /**
-     * Returns the eventId of this event.
+     * Returns the eventType of this event.
      */
-    public int getEvent ()
+    public EventType getEvent ()
     {
-        return eventId;
+        return eventType;
     }
 
     /**
@@ -80,8 +84,15 @@ public class PackageEvent implements ExtensionEvent
 
         aRisul.append("PackageEvent:");
 
-        if ( eventId == PACKAGE_OPENED ) aRisul.append(" PACKAGE_OPENED");
-        if ( eventId == PACKAGE_CLOSING ) aRisul.append(" PACKAGE_CLOSING");
+        switch (eventType)
+        {
+            case PACKAGE_OPENED:
+                aRisul.append(" PACKAGE_OPENED");
+                break;
+            case PACKAGE_CLOSING:
+                aRisul.append(" PACKAGE_CLOSING");
+                break;
+        }
 
         aRisul.append(" packageName="+thisPackage.getQualifiedName());
 

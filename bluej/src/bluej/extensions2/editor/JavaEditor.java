@@ -27,25 +27,24 @@ import java.io.IOException;
 
 /**
  * Proxy object that allows interaction with the BlueJ Editor for a
- * particular class.
- * Except as marked, methods of this class must be called from a swing compatible thread.
+ * particular Java class.
  *
  * @author Damiano Bolla, University of Kent at Canterbury, 2004
  */
 
-public class Editor
+public class JavaEditor
 {
     private bluej.editor.TextEditor bjEditor;
 
 
     /**
      * Constructor must not be public.
-     * You get an Editor object by calling BClass.getEditor(), which
+     * You get an Editor object by calling BClass.getJavaEditor(), which
      * will create a (non-visible) editor if one does not already exist.
      *
      * @param  bjEditor  Description of the Parameter
      */
-    Editor(bluej.editor.TextEditor bjEditor)
+    JavaEditor(bluej.editor.TextEditor bjEditor)
     {
         this.bjEditor = bjEditor;
     }

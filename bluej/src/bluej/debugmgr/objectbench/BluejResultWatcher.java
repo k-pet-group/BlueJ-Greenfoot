@@ -44,14 +44,13 @@ public abstract class BluejResultWatcher extends ResultWatcherBase
     /**
      * Constructor for BluejResultWatcher, for a constructor or static method call.
      * 
-     * @param className      the name of the class whose member is called
      * @param pkg    the package in which the invocation occurs
      * @param pmf    the PkgMgrFrame for the package
      * @param method  the method/constructor being invoked
      */
     public BluejResultWatcher(Package pkg, PkgMgrFrame pmf, CallableView method)
     {
-        super(pkg, pmf.getFXWindow(), method);
+        super(pkg, pmf.getWindow(), method);
         this.pmf = pmf;
     }
     
@@ -66,7 +65,7 @@ public abstract class BluejResultWatcher extends ResultWatcherBase
      */
     public BluejResultWatcher(DebuggerObject obj, String objInstanceName, Package pkg, PkgMgrFrame pmf, MethodView method)
     {
-        super(obj, objInstanceName, pkg, pmf.getFXWindow(), method);
+        super(obj, objInstanceName, pkg, pmf.getWindow(), method);
         this.pmf = pmf;
     }
     

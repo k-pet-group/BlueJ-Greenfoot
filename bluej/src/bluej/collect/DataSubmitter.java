@@ -137,7 +137,7 @@ class DataSubmitter
                 {
                     Platform.runLater(() ->
                     {
-                        ExtensionsManager.getInstance().delegateEvent(new ApplicationEvent(ApplicationEvent.DATA_SUBMISSION_FAILED_EVENT));
+                        ExtensionsManager.getInstance().delegateEvent(new ApplicationEvent(ApplicationEvent.EventType.DATA_SUBMISSION_FAILED_EVENT));
                         if (Boot.isTrialRecording()) {
                             // If we just gave up, and we are specifically in a trial, show a dialog
                             // to the user warning them of this:

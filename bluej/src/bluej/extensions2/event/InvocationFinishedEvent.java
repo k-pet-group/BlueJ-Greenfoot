@@ -29,11 +29,17 @@ import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.extensions2.BPackage;
 import bluej.extensions2.ExtensionBridge;
 import bluej.pkgmgr.PkgMgrFrame;
+import bluej.pkgmgr.actions.RunTestsAction;
 import com.sun.jdi.Field;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
+import com.sun.jdi.Value;
+import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -47,35 +53,34 @@ import threadchecker.Tag;
  * @author Damiano Bolla, University of Kent at Canterbury, 2003,2004
  */
 @OnThread(Tag.Any)
-public class InvocationEvent implements ExtensionEvent
+public class InvocationFinishedEvent implements ExtensionEvent
 {
-    /**
-     *  This event is returned in case of unknown mapping
-     */
-    public final static int UNKNOWN_EXIT = 0;
-    /**
-     * The execution finished normally.
-     */
-    public final static int NORMAL_EXIT = 1;
-    /**
-     * The execution finished through a call to <code>System.exit()</code>. This is
-     * deprecated; it cannot actually occur.
-     */
-    @Deprecated
-    public final static int FORCED_EXIT = 2;
-    /**
-     * The execution finished due to an exception
-     */
-    public final static int EXCEPTION_EXIT = 3;
-    /**
-     * The execution finished because the user forcefully terminated it
-     */
-    public final static int TERMINATED_EXIT = 4;
+    public static enum EventType
+    {
+        /**
+         * This event is returned in case of unknown mapping
+         */
+        UNKNOWN_EXIT,
+        /**
+         * The execution finished normally.
+         */
+        NORMAL_EXIT,
+
+        /**
+         * The execution finished due to an exception
+         */
+        EXCEPTION_EXIT,
+        /**
+         * The execution finished because the user forcefully terminated it
+         */
+        TERMINATED_EXIT
+    }
+
 
     private String className, objectName, methodName;
     private JavaType[] signature;
     private String[] parameters;
-    private int invocationStatus;
+    private EventType terminationType;
     private bluej.pkgmgr.Package bluej_pkg;
     private DebuggerObject resultObj;
 
@@ -85,19 +90,21 @@ public class InvocationEvent implements ExtensionEvent
      *
      * @param  exevent  Description of the Parameter
      */
-    public InvocationEvent(ExecutionEvent exevent)
+    public InvocationFinishedEvent(ExecutionEvent exevent)
     {
-        invocationStatus = UNKNOWN_EXIT;
+        terminationType = EventType.UNKNOWN_EXIT;
         String resultType = exevent.getResult();
-
-        if (resultType == ExecutionEvent.NORMAL_EXIT) {
-            invocationStatus = NORMAL_EXIT;
-        }
-        if (resultType == ExecutionEvent.EXCEPTION_EXIT) {
-            invocationStatus = EXCEPTION_EXIT;
-        }
-        if (resultType == ExecutionEvent.TERMINATED_EXIT) {
-            invocationStatus = TERMINATED_EXIT;
+        switch (resultType)
+        {
+            case ExecutionEvent.NORMAL_EXIT:
+                terminationType = EventType.NORMAL_EXIT;
+                break;
+            case ExecutionEvent.EXCEPTION_EXIT:
+                terminationType = EventType.EXCEPTION_EXIT;
+                break;
+            case ExecutionEvent.TERMINATED_EXIT:
+                terminationType = EventType.TERMINATED_EXIT;
+                break;
         }
 
         bluej_pkg = exevent.getPackage();
@@ -111,13 +118,13 @@ public class InvocationEvent implements ExtensionEvent
 
 
     /**
-     * Returns the invocation status. One of the values listed above.
+     * Returns the termination type.
      *
-     * @return    The invocationStatus value
+     * @return    The terminationType value
      */
-    public int getInvocationStatus()
+    public EventType getEventType()
     {
-        return invocationStatus;
+        return terminationType;
     }
 
 
@@ -260,7 +267,7 @@ public class InvocationEvent implements ExtensionEvent
      */
 
     // TODO: There ought to be a way of retrieving the declared return type of the invoked method.
-    @OnThread(Tag.SwingIsFX)
+    @OnThread(Tag.FXPlatform)
     public Object getResult()
     {
         if (resultObj == null) {
@@ -284,7 +291,7 @@ public class InvocationEvent implements ExtensionEvent
      *
      * @return    The methodResult value
      */
-    @OnThread(Tag.SwingIsFX)
+    @OnThread(Tag.FXPlatform)
     private Object getMethodResult()
     {
         ObjectReference objRef = resultObj.getObjectReference();
@@ -307,25 +314,12 @@ public class InvocationEvent implements ExtensionEvent
      *
      * @return    Description of the Return Value
      */
-    @OnThread(value = Tag.Swing, ignoreParent = true)
     public String toString()
     {
         StringBuffer aRisul = new StringBuffer(500);
 
-        aRisul.append("ResultEvent:");
-
-        if (invocationStatus == NORMAL_EXIT) {
-            aRisul.append(" NORMAL_EXIT");
-        }
-        if (invocationStatus == FORCED_EXIT) {
-            aRisul.append(" FORCED_EXIT");
-        }
-        if (invocationStatus == EXCEPTION_EXIT) {
-            aRisul.append(" EXCEPTION_EXIT");
-        }
-        if (invocationStatus == TERMINATED_EXIT) {
-            aRisul.append(" TERMINATED_EXIT");
-        }
+        aRisul.append("ResultEvent: ");
+        aRisul.append(terminationType.toString());
 
         if (className != null) {
             aRisul.append(" BClass=" + className);
@@ -337,9 +331,8 @@ public class InvocationEvent implements ExtensionEvent
             aRisul.append(" methodName=" + methodName);
         }
 
-        Object aResult = getResult();
         if (resultObj != null) {
-            aRisul.append(" resultObj=" + aResult);
+            Platform.runLater(() ->  aRisul.append(" resultObj=" + getResult()));
         }
 
         return aRisul.toString();

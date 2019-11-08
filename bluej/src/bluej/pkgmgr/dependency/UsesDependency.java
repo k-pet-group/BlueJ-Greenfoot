@@ -21,7 +21,6 @@
  */
 package bluej.pkgmgr.dependency;
 
-import bluej.extensions2.BDependency.Type;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.DependentTarget;
 import bluej.utility.Utility;

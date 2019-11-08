@@ -24,7 +24,7 @@ package bluej.extensions2;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.compiler.JobQueue;
-import bluej.extensions2.editor.Editor;
+import bluej.extensions2.editor.JavaEditor;
 import bluej.extensions2.editor.EditorBridge;
 import bluej.parser.symtab.ClassInfo;
 import bluej.pkgmgr.Package;
@@ -201,14 +201,15 @@ public class BClass
      * @throws  ProjectNotOpenException   if the project to which this class belongs has been closed by the user.
      * @throws  PackageNotFoundException  if the package to which this class belongs has been deleted by the user.
      */
-    public Editor getEditor() throws ProjectNotOpenException, PackageNotFoundException
+    public JavaEditor getJavaEditor() throws ProjectNotOpenException, PackageNotFoundException
     {
         ClassTarget aTarget = classId.getClassTarget();
-        if (aTarget == null) {
+        if (aTarget == null || aTarget.getSourceType() != SourceType.Java)
+        {
             return null;
         }
         
-        return EditorBridge.newEditor(aTarget);
+        return EditorBridge.newJavaEditor(aTarget);
     }
     
     /**
@@ -607,26 +608,6 @@ public class BClass
         return null;
     }
 
-
-    /**
-     * Returns the class target of this class. May return <code>null</code> if
-     * the class target is no longer valid.
-     * 
-     * @return The class target of this class or <code>null</code> if there is
-     *         no such class target.
-     * @throws ProjectNotOpenException
-     *             if the project to which this class belongs has been closed by
-     *             the user.
-     * @throws PackageNotFoundException
-     *             if the package to which this class belongs has been deleted
-     *             by the user.
-     */
-    public BClassTarget getClassTarget() throws ProjectNotOpenException, PackageNotFoundException
-    {
-        ClassTarget classTarget = classId.getClassTarget();
-        return (classTarget != null) ? classTarget.getBClassTarget() : null;
-    }
-
     /**
      * Returns this class's .class file (or null, if the class no longer exists in the project).
      *
@@ -673,64 +654,6 @@ public class BClass
 
         return aTarget.getJavaSourceFile();
     }
-
-
-    /**
-     * Signal to BlueJ that an extension is about to begin changing the source file of this class.
-     * The file containing the source for this class can be found using getJavaFile();
-     * If the file is currently being edited it will be saved and the editor will be set read-only.
-     *
-     * @throws  ProjectNotOpenException   if the project to which this class belongs has been closed by the user.
-     * @throws  PackageNotFoundException  if the package to which this class belongs has been deleted by the user.
-     * @deprecated As of BlueJ 2.0, replaced by {@link Editor#setReadOnly(boolean readOnly)}
-     */
-    @Deprecated
-    public void beginChangeSource()
-             throws ProjectNotOpenException, PackageNotFoundException
-    {
-        ClassTarget aTarget = classId.getClassTarget();
-        if (aTarget == null) {
-            return;
-        }
-        bluej.editor.Editor anEditor = aTarget.getEditor();
-        if (anEditor == null) {
-            return;
-        }
-
-        try {
-            anEditor.save();
-        }
-        catch (IOException ioe) {}
-        anEditor.setReadOnly(true);
-    }
-
-
-    /**
-     * Signal to BlueJ that an extension has finished changing the source file of this class.
-     * If the file is currently being edited, this will cause it to be re-loaded and the editor to be set read/write.
-     *
-     * @throws  ProjectNotOpenException   if the project to which this class belongs has been closed by the user.
-     * @throws  PackageNotFoundException  if the package to which this class belongs has been deleted by the user.
-     * @deprecated As of BlueJ 2.0, replaced by {@link Editor#setReadOnly(boolean readOnly)}
-     */
-    @Deprecated
-    public void endChangeSource()
-             throws ProjectNotOpenException, PackageNotFoundException
-    {
-        ClassTarget aTarget = classId.getClassTarget();
-        if (aTarget == null) {
-            return;
-        }
-        bluej.editor.Editor anEditor = aTarget.getEditor();
-        if (anEditor == null) {
-            return;
-        }
-
-        anEditor.reloadFile();
-        anEditor.setReadOnly(false);
-    }
-
-
 
     /**
      * Returns a string representation of the Object

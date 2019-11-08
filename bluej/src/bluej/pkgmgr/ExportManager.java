@@ -43,8 +43,6 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import bluej.pkgmgr.target.ClassTarget;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 
@@ -94,7 +92,7 @@ final class ExportManager
             .flatMap(p -> p.getClassTargets().stream())
             .anyMatch(ct -> ct.getSourceType() == SourceType.Stride);
 
-        Window parent = frame.getFXWindow();
+        Window parent = frame.getWindow();
         if (dialog == null)
             dialog = new ExportDialog(parent, projectInfo);
         else
@@ -182,7 +180,7 @@ final class ExportManager
             frame.setStatus(Config.getString("pkgmgr.exported.jar"));
         }
         catch(IOException exc) {
-            DialogManager.showErrorFX(frame.getFXWindow(), "error-writing-jar");
+            DialogManager.showErrorFX(frame.getWindow(), "error-writing-jar");
             Debug.reportError("problem writing jar file: " + exc);
         } finally {
             try {

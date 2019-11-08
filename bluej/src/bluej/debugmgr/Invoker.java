@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014,2015,2016,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2015,2016,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -217,7 +217,7 @@ public class Invoker
      */
     public Invoker(PkgMgrFrame pmf, CallableView member, ResultWatcher watcher)
     {
-        this(pmf.getFXWindow(), pmf.getPackage(), member, watcher, pmf.getPackage().getCallHistory(), pmf.getObjectBench(),
+        this(pmf.getWindow(), pmf.getPackage(), member, watcher, pmf.getPackage().getCallHistory(), pmf.getObjectBench(),
                 pmf.getObjectBench(), pmf.getProject().getDebugger(), null);
 
         codepad = false;
@@ -275,7 +275,7 @@ public class Invoker
         this.member = member;
         this.instanceName = instanceName;
         this.typeMap = typeMap;
-        this.parent = pmf.getFXWindow();
+        this.parent = pmf.getWindow();
         this.pkg = pmf.getPackage();
         final Package pkg = pmf.getPackage();
         this.pkgPath = pkg.getPath();

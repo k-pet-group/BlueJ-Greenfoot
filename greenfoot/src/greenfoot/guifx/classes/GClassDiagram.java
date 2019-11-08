@@ -252,7 +252,7 @@ public class GClassDiagram extends BorderPane
             else
             {
                 try {
-                    Class<?> javaClass = classTarget.getBClassTarget().getBClass().getJavaClass();
+                    Class<?> javaClass = classTarget.getBClass().getJavaClass();
                     if (javaClass != null)
                     {
                         Class<?> superClass = javaClass.getSuperclass();
@@ -262,7 +262,7 @@ public class GClassDiagram extends BorderPane
                         }
                     }
                 }
-                catch (ProjectNotOpenException | ClassNotFoundException | PackageNotFoundException e) {
+                catch (ProjectNotOpenException | ClassNotFoundException e) {
                     e.printStackTrace();
                 }
             }

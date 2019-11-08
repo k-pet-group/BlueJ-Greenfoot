@@ -26,14 +26,13 @@ import bluej.compiler.CompileType;
 import bluej.compiler.JobQueue;
 import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.objectbench.ObjectWrapper;
-import bluej.extensions2.BDependency.Type;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.Project;
-import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.PackageTarget;
 import bluej.pkgmgr.target.Target;
+import javafx.stage.Stage;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -155,13 +154,12 @@ public class BPackage
     }
 
     /**
-     * Returns the package frame.
+     * Returns the package window.
      * This can be used (e.g.) as the "parent" frame for positioning modal dialogues.
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
-    @Deprecated
-    public Frame getFrame()
+    public Stage getWindow()
     throws ProjectNotOpenException, PackageNotFoundException
     {
         return packageId.getPackageFrame().getWindow();
@@ -376,36 +374,6 @@ public class BPackage
         Package aPkg = packageId.getBluejPackage();
 
         return aPkg.getPath();
-    }
-
-    /**
-     * Returns the dependency with the given <code>origin</code>,
-     * <code>target</code> and <code>type</code>.
-     *
-     * @param from
-     *            The origin of the dependency.
-     * @param to
-     *            The target of the dependency.
-     * @param type
-     *            The type of the dependency (there may be more than one
-     *            dependencies with the same origin and target but different
-     *            types).
-     * @return The dependency with the given <code>origin</code> and
-     *         <code>target</code> or <code>null</code> if there is no such
-     *         dependency.
-     * @throws ProjectNotOpenException
-     *             if the project this package is part of has been closed by the
-     *             user.
-     * @throws PackageNotFoundException
-     *             if the package has been deleted by the user.
-     */
-    public BDependency getDependency(BClassTarget from, BClassTarget to, Type type)
-            throws ProjectNotOpenException, PackageNotFoundException
-    {
-        Package bluejPackage = packageId.getBluejPackage();
-        Dependency dependency = bluejPackage.getEditor().getDependency(from.getClassTarget(), to.getClassTarget(), type);
-
-        return (dependency != null) ? dependency.getBDependency() : null;
     }
 
     /**

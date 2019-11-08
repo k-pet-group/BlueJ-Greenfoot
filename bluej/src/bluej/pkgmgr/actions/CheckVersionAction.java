@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2016,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -20,8 +20,6 @@
  LICENSE.txt file that accompanied this code.
  */
 package bluej.pkgmgr.actions;
-
-import javafx.application.Platform;
 
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.VersionCheckDialog;
@@ -45,6 +43,6 @@ final public class CheckVersionAction extends PkgMgrAction
     public void actionPerformed(PkgMgrFrame pmf)
     {
         pmf.menuCall();
-        new VersionCheckDialog(pmf.getFXWindow()).showAndWait();
+        new VersionCheckDialog(pmf.getWindow()).showAndWait();
     }
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2012,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,25 +22,14 @@
 package bluej.extensions2.event;
 
 /**
- * <p>
- * This interface is an extension of the {@link ClassListener} interface and
- * provides one additional method which allows you to get notified if a class
- * has been removed.
- * </p>
- * <p>
- * The interfaces are split for the reason of backward compatibility.
- * </p>
- * 
- * @author Simon Gerlach
+ * This interface allows you to listen for when an invocation has finished.
+ *
  */
-public interface ClassListener2 extends ClassListener
+public interface InvocationFinishedListener
 {
     /**
-     * A class has been removed. The removed class can be acquired from the
-     * passed in {@link ClassEvent} object.
-     * 
-     * @param event
-     *            A <code>ClassEvent</code> object which describes the event.
+     * This method will be called when an invocation has finished.
+     * If a long operation must be performed you should start a Thread.
      */
-    void classRemoved(ClassEvent event);
+    public void invocationFinished(InvocationFinishedEvent event);
 }
