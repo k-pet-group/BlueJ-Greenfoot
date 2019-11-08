@@ -38,7 +38,6 @@ import bluej.parser.entity.ParsedReflective;
 import bluej.parser.nodes.JavaParentNode;
 import bluej.parser.nodes.ParsedNode;
 import bluej.parser.nodes.ParsedTypeNode;
-import bluej.parser.nodes.ReparseableDocument;
 import bluej.stride.framedjava.ast.FrameFragment;
 import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.framedjava.ast.JavaFragment.PosInSourceDoc;
@@ -58,6 +57,7 @@ import bluej.stride.generic.AssistContentThreadSafe;
 import bluej.stride.generic.Frame.ShowReason;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
 import nu.xom.Attribute;
 import nu.xom.Element;
 import threadchecker.OnThread;
@@ -638,7 +638,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
             if (document == null)
             {
                 HoleDocument doc = new HoleDocument();
-                this.document = new JavaSyntaxView(doc, null, new ScopeColorsBorderPane(), projectResolver);
+                this.document = new JavaSyntaxView(doc, null, new ScopeColorsBorderPane(), projectResolver, new ReadOnlyBooleanWrapper(false));
                 doc.replaceText(0, 0, src);
                 this.document.enableParser(true);
             }

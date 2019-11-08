@@ -24,7 +24,6 @@ package bluej.editor.flow;
 import bluej.editor.flow.FlowEditorPane.LineStyler;
 import bluej.editor.flow.LineDisplay.LineDisplayListener;
 import bluej.editor.flow.TextLine.StyledSegment;
-import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.editor.moe.MoeSyntaxEvent;
 import bluej.editor.moe.MoeSyntaxEvent.NodeChangeRecord;
 import bluej.editor.moe.ReparseRecord;
@@ -329,15 +328,16 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
      * @param display The display for calculating scope background positions (can be null if not using scopes, e.g. from Stride)
      * @param scopeColors The item for fetching the scope background colours
      * @param parentResolver The resolver to pass to the parser
+     * @param syntaxHighlighting
      */
-    public JavaSyntaxView(Document document, Display display, ScopeColors scopeColors, EntityResolver parentResolver)
+    public JavaSyntaxView(Document document, Display display, ScopeColors scopeColors, EntityResolver parentResolver, BooleanExpression syntaxHighlighting)
     {
         this.parentResolver = parentResolver;
         this.scopeBackgrounds = new LiveScopeBackgrounds();
         this.nodeIndents.addListener(scopeBackgrounds);
         this.document = document;
         this.display = display;
-        this.syntaxHighlighting = PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING);
+        this.syntaxHighlighting = syntaxHighlighting;
         this.scopeColors = scopeColors;
         resetColors();
         if (this.display != null)
@@ -357,7 +357,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             resetColors();
             recalculateAndApplyAllScopes();
         });
-        JavaFXUtil.addChangeListenerPlatform(syntaxHighlighting, syn -> {
+        JavaFXUtil.addChangeListenerPlatform(this.syntaxHighlighting, syn -> {
             recalculateAndApplyAllScopes();
         });
         // We use class color as a proxy for listening to all colors:

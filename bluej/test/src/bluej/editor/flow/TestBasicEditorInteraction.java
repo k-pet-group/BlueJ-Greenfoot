@@ -24,15 +24,13 @@ package bluej.editor.flow;
 import bluej.Config;
 import bluej.editor.flow.gen.GenRandom;
 import bluej.editor.flow.gen.GenString;
-import bluej.editor.moe.ScopeColorsBorderPane;
 import bluej.parser.InitConfig;
 import bluej.prefmgr.PrefMgr;
-import bluej.utility.Debug;
 import bluej.utility.Utility;
 import com.pholser.junit.quickcheck.From;
 import com.pholser.junit.quickcheck.Property;
-import com.pholser.junit.quickcheck.When;
 import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -40,11 +38,9 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -55,7 +51,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
@@ -78,7 +73,7 @@ public class TestBasicEditorInteraction extends FXTest
         PrefMgr.setFlag(PrefMgr.HIGHLIGHTING, true);
 
         this.stage = stage;
-        flowEditor = new FlowEditor(null, "", null, null, null, null);
+        flowEditor = new FlowEditor(null, "", null, null, null, () -> {}, new ReadOnlyBooleanWrapper(true));
         flowEditorPane = flowEditor.getSourcePane();
         flowEditorPane.setPrefWidth(800.0);
         flowEditorPane.setPrefHeight(600.0);

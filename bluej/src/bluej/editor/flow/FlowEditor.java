@@ -94,7 +94,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.CharStreams;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.DoubleExpression;
-import javafx.beans.binding.ObjectExpression;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -132,8 +131,6 @@ import javafx.scene.text.TextFlow;
 import javafx.scene.web.WebView;
 import javafx.stage.PopupWindow;
 import javafx.stage.Stage;
-import org.fxmisc.flowless.VirtualFlow;
-import org.fxmisc.richtext.GenericStyledArea;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
 import org.w3c.dom.NodeList;
@@ -372,7 +369,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     // package-visible:
     final UndoManager undoManager;
 
-    public FlowEditor(FetchTabbedEditor fetchTabbedEditor, String title, EditorWatcher editorWatcher, EntityResolver parentResolver, JavadocResolver javadocResolver, FXPlatformRunnable openCallback)
+    public FlowEditor(FetchTabbedEditor fetchTabbedEditor, String title, EditorWatcher editorWatcher, EntityResolver parentResolver, JavadocResolver javadocResolver, FXPlatformRunnable openCallback, @OnThread(Tag.FXPlatform) BooleanExpression syntaxHighlighting)
     {
         this.fxTab = new FlowFXTab(this, title);
         this.javadocResolver = javadocResolver;
@@ -381,7 +378,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         this.flowEditorPane = new FlowEditorPane("", this);
         this.document = flowEditorPane.getDocument();
         this.document.addListener(this);
-        this.javaSyntaxView = new JavaSyntaxView(document, flowEditorPane, this, parentResolver);
+        this.javaSyntaxView = new JavaSyntaxView(document, flowEditorPane, this, parentResolver, syntaxHighlighting);
         this.flowEditorPane.setErrorQuery(errorManager);
         this.undoManager = new UndoManager(document);
         this.fetchTabbedEditor = fetchTabbedEditor;
@@ -1303,7 +1300,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public void save() throws IOException
     {
         IOException failureException = null;
-        if (saveState.isChanged()) {
+        if (saveState.isChanged() && filename != null) {
             // Record any edits with the data collection system:
             recordEdit(true);
 
@@ -3026,7 +3023,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             {
                 // Nothing to do?
             }
-        }, flowEditorPaneListener, this.javaSyntaxView.getEntityResolver());
+        }, flowEditorPaneListener, this.javaSyntaxView.getEntityResolver(), PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING));
         javaSyntaxView.enableParser(true);
         StyledLines allLines = new StyledLines(doc, lineStylerWrapper[0]);
         lineContainer.getChildren().setAll(lineDisplay.recalculateVisibleLines(allLines, Math::ceil, 0, printerJob.getJobSettings().getPageLayout().getPrintableWidth(), height.get(), true));

@@ -45,6 +45,7 @@ import bluej.stride.generic.Frame.ShowReason;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;
 import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
 import nu.xom.Element;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -405,7 +406,7 @@ public class InterfaceElement extends DocumentContainerCodeElement implements To
             if (document == null)
             {
                 HoleDocument doc = new HoleDocument();
-                this.document = new JavaSyntaxView(doc, null, new ScopeColorsBorderPane(), projectResolver);
+                this.document = new JavaSyntaxView(doc, null, new ScopeColorsBorderPane(), projectResolver, new ReadOnlyBooleanWrapper(false));
                 doc.replaceText(0, 0, src);
                 this.document.enableParser(true);
             }

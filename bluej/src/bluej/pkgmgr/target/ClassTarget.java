@@ -63,7 +63,6 @@ import bluej.debugger.RunOnThread;
 import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.editor.Editor;
-import bluej.editor.EditorManager;
 import bluej.editor.TextEditor;
 import bluej.editor.flow.FlowEditor;
 import bluej.editor.stride.FrameCatalogue;
@@ -104,6 +103,7 @@ import bluej.pkgmgr.target.role.EnumClassRole;
 import bluej.pkgmgr.target.role.InterfaceClassRole;
 import bluej.pkgmgr.target.role.StdClassRole;
 import bluej.pkgmgr.target.role.UnitTestClassRole;
+import bluej.prefmgr.PrefMgr;
 import bluej.stride.framedjava.ast.Loader;
 import bluej.stride.framedjava.ast.Parser;
 import bluej.stride.framedjava.convert.ConversionWarning;
@@ -1245,7 +1245,7 @@ public class ClassTarget extends DependentTarget
                     {
                         return project.getDefaultFXTabbedEditor();
                     }
-                }, getBaseName(), this, resolver, project.getJavadocResolver(), openCallback);
+                }, getBaseName(), this, resolver, project.getJavadocResolver(), openCallback, PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING));
                 ((TextEditor)editor).showFile(filename, project.getProjectCharset(), isCompiled(), docFilename);
             }
             else if (sourceAvailable == SourceType.Stride) {
