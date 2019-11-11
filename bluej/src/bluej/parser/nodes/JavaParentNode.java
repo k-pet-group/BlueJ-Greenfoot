@@ -30,12 +30,10 @@ import java.util.Set;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.Reflective;
-import bluej.editor.moe.MoeSyntaxDocument;
-import bluej.editor.moe.MoeSyntaxDocument.Element;
-import bluej.editor.moe.Token;
-import bluej.editor.moe.Token.TokenType;
+import bluej.parser.nodes.ReparseableDocument.Element;
+import bluej.parser.Token;
+import bluej.parser.Token.TokenType;
 import bluej.parser.ExpressionTypeInfo;
-import bluej.parser.DocumentReader;
 import bluej.parser.JavaParser;
 import bluej.parser.TokenStream;
 import bluej.parser.entity.EntityResolver;
@@ -80,15 +78,15 @@ public abstract class JavaParentNode extends ParentParsedNode
     }
     
     @Override
-    protected JavaParentNode getParentNode()
+    public JavaParentNode getParentNode()
     {
         return parentNode;
     }
     
     @Override
-    public void insertNode(ParsedNode child, int position, int size)
+    public void insertNode(ParsedNode child, int position, int size, NodeStructureListener nodeStructureListener)
     {
-        getNodeTree().insertNode(child, position, size);
+        super.insertNode(child, position, size, nodeStructureListener);
         int childType = child.getNodeType();
         String childName = child.getName();
         if (childName != null) {
@@ -101,9 +99,9 @@ public abstract class JavaParentNode extends ParentParsedNode
     /**
      * Insert a FieldNode representing a variable/field declaration into this node.
      */
-    public void insertVariable(FieldNode varNode, int pos, int size)
+    public void insertVariable(FieldNode varNode, int pos, int size, NodeStructureListener nodeStructureListener)
     {
-        super.insertNode(varNode, pos, size);
+        super.insertNode(varNode, pos, size, nodeStructureListener);
         
         Set<FieldNode> varList = variables.get(varNode.getName());
         if (varList == null) {
@@ -117,9 +115,9 @@ public abstract class JavaParentNode extends ParentParsedNode
     /**
      * Insert a field child (alias for insertVariable).
      */
-    public void insertField(FieldNode child, int position, int size)
+    public void insertField(FieldNode child, int position, int size, NodeStructureListener nodeStructureListener)
     {
-        insertVariable(child, position, size);
+        insertVariable(child, position, size, nodeStructureListener);
     }
     
     @Override
@@ -306,7 +304,7 @@ public abstract class JavaParentNode extends ParentParsedNode
     
     @Override
     @OnThread(Tag.FXPlatform)
-    protected ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, MoeSyntaxDocument document)
+    protected ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, ReparseableDocument document)
     {
         // Clear the caches now to remove any entries which have become invalid due
         // to editing.
@@ -330,7 +328,7 @@ public abstract class JavaParentNode extends ParentParsedNode
         Element lineEl = map.getElement(line - 1);
         startpos = Math.max(startpos, lineEl.getStartOffset());
         int col = startpos - map.getElement(line - 1).getStartOffset() + 1;
-        Reader r = new DocumentReader(document, startpos, pos);
+        Reader r = document.makeReader(startpos, pos);
         
         JavaLexer lexer = new JavaLexer(r, line, col, startpos);
         JavaTokenFilter filter = new JavaTokenFilter(lexer);
@@ -381,7 +379,7 @@ public abstract class JavaParentNode extends ParentParsedNode
 
     @Override
     public Token getMarkTokensFor(int pos, int length, int nodePos,
-            MoeSyntaxDocument document)
+            ReparseableDocument document)
     {
         Token tok = new Token(0, TokenType.END); // dummy
         if (length == 0) {
@@ -425,9 +423,9 @@ public abstract class JavaParentNode extends ParentParsedNode
         return dummyTok.next;
     }
     
-    protected static Token tokenizeText(MoeSyntaxDocument document, int pos, int length)
+    protected static Token tokenizeText(ReparseableDocument document, int pos, int length)
     {
-        DocumentReader dr = new DocumentReader(document, pos, pos+length);
+        Reader dr = document.makeReader(pos, pos+length);
         TokenStream lexer = JavaParser.getLexer(dr);
         TokenStream tokenStream = new JavaTokenFilter(lexer, null);
 

@@ -25,11 +25,9 @@ import java.io.Reader;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeSolid;
-import bluej.editor.moe.MoeSyntaxDocument;
-import bluej.editor.moe.MoeSyntaxDocument.Element;
+import bluej.parser.nodes.ReparseableDocument.Element;
 import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.CompletionParser;
-import bluej.parser.DocumentReader;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
@@ -61,7 +59,7 @@ public class ExpressionNode extends JavaParentNode
     }
     
     @Override
-    protected ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, MoeSyntaxDocument document)
+    protected ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, ReparseableDocument document)
     {
         valueEntityCache.clear();
         pocEntityCache.clear();
@@ -75,9 +73,9 @@ public class ExpressionNode extends JavaParentNode
 
     @OnThread(Tag.FXPlatform)
     public static ExpressionTypeInfo suggestAsExpression(int pos, int nodePos, EntityResolver resolver,
-            JavaEntity defaultType, MoeSyntaxDocument document)
+            JavaEntity defaultType, ReparseableDocument document)
     {
-        Reader r = new DocumentReader(document, nodePos, pos);
+        Reader r = document.makeReader(nodePos, pos);
         Element map = document.getDefaultRootElement();
         int line = map.getElementIndex(nodePos) + 1;
         int col = nodePos - map.getElement(line - 1).getStartOffset() + 1;

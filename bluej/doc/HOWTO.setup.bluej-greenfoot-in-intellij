@@ -1,10 +1,12 @@
-Setting up BlueJ and Greenfoot in IntelliJ 2018.*:
+Setting up BlueJ and Greenfoot in IntelliJ 2019.2:
 
-Go to File->New->Project from Version Control->Git
+Prerequisite: You will need IntelliJ installed, and also the Git command line client (separate download, from the Git website)
+
+First step: make sure you have a login for Gitlab, go to https://gitlab.bluej.org/bluej/bjgf/ and click the Fork button, then click on your own user in the list which follows, it should give you a new repository https://gitlab.bluej.org/gitlab-username/bjgf
+
+Go to Check out from Version Control->Git (in the first-run window), or, from the menu: File->New->Project from Version Control->Git
 URL: https://gitlab.bluej.org/gitlab-username/bjgf.git
-Check out to wherever.  In the past, IntelliJ prompted for creating new modules
-  after check out, but it doesn't seem to now.  Either way, you'll want to do the
-  module set up manually as follows.
+Check out to wherever you want locally.  If it asks to create a project from existing sources, say yes, and select "Create project from existing sources".  Leave the project name as bjgf and accept the directory it suggests.  Project format can be left as .idea (directory based).  It may then ask if you want to overwrite the existing project directory.  Say Yes to this.  If it pops up asking to mark source roots, click Unmark All so that none are selected, then click Finish. 
 
 NOTE: WHEREVER YOU SEE "bjgf" BELOW, CHANGE THAT TO BE THE FULL PATH YOU CHECKED OUT TO.
   For example, for me, instead of bjgf in each case, I have C:\users\neil\intellij\bjgf
@@ -14,16 +16,16 @@ IntelliJ will pop up dialogs often during setup asking if you want to add variou
   can always remove them again before committing.
 
 Go to File -> Project Structure...  and select the top Project item on the left.
-  Select your Project SDK (aka JDK) to be latest JDK 11 (or whatever we are targeting).
+  Select your Project SDK (aka JDK) to be latest JDK 11 (or whatever we are targeting).  If you do not see JDK 11, you will need to install OpenJDK 11 outside IntelliJ and then use the New... button to select JDK and tell it the location of OpenJDK 11 (or whatever version we are targeting by now)
 
   Set the language level to Java 11.
 
   Set the project-wide compiler output directory "File -> Project Structure -> Project" to
   be bjgf/output.  We won't actually use this anyway, as we will override it for each module.
   
-In the same Project Structure window, go to the Global Libraries section.
-  Add a library named javafx-11, containing all the jars in OpenJFX
-  (download OpenJFX from http://openjfx.io if you haven't done so already)
+In the same Project Structure window, go to the Global Libraries section (Global Libraries, not just "Libraries").
+  Add a library named javafx-11, using the path of the lib directory inside JavaFX
+  (download OpenJFX 11 from http://openjfx.io if you haven't done so already.  Download JavaFX OS-name SDK, not just the jmods)
 
 In the same Project Structure window, go to the Libraries section.
   Add a library named "bluej-lib" containing all the JARs in the bjgf/bluej/lib directory.
@@ -31,7 +33,7 @@ In the same Project Structure window, go to the Libraries section.
   you must multi-select all the JARs inside the lib directory.
   If it asks if you want to add it to any modules, just cancel that dialog.
 
-  Add a library named "greenfoot-lib" containing all the JARs in the bjgf/greenfoot/lib directory.
+  Add another library named "greenfoot-lib" containing all the JARs in the bjgf/greenfoot/lib directory.
   Again, you must multi-select the JARs.
 
 In the same Project Structure window, go to the Modules section.
@@ -39,8 +41,8 @@ In the same Project Structure window, go to the Modules section.
   It seems benign so I left it there.).
   Create the following modules by clicking the "+" at the top of the module list
   and then selecting "New Module".  In each case, select Java from left-hand list
-  of the window that pops up.  If not already selected, select latest JDK 1.8
-  as Project SDK in the top right, then click Next and fill in details as below.
+  of the window that pops up.  If not already selected, select JDK 11
+  as Module SDK in the top right, then click Next and fill in details as below.
 
 
 Modules (in order):
@@ -48,18 +50,18 @@ Modules (in order):
     "threadchecker" module.  Content root and module file location: bjgf/bluej/threadchecker.
        It should automatically tag src (which is really bjgf/bluej/threadchecker/src) as a source directory.
        Also select "pluginsrc" and mark that as a source directory.
-       Under Paths, select "Use module compile path" and enter bjgf/bluej/threadchecker/classes for both paths.
+       Under Paths tab, select "Use module compile output path" and enter bjgf/bluej/threadchecker/classes for both paths.
 
     "bluej-boot" module.  Content root and module file location: bjgf/bluej/boot.
        It should automatically tag src (which is really bjgf/bluej/boot/src) as a source directory.
-       Under Dependencies, click the "+" and select Module Dependency... and select "threadchecker".
+       Under Dependencies, click the "+" (top right of window) and select Module Dependency... and select "threadchecker".
          Click "+" again and select Library "javafx-11".
-       Under Paths, select "Use module compile path" and enter bjgf/bluej/boot/classes for both paths.
+       Under Paths tab, select "Use module compile output path" and enter bjgf/bluej/boot/classes for both paths.
 
     "bluej" module.  Content root and module file location: bjgf/bluej.
        It should automatically tag src (which is really bjgf/bluej/src) as a source directory.
        Also select test/src, and mark that as a tests directory.
-       Under Paths, select "Use module compile path" and enter bjgf/bluej/classes for both paths.
+       Under Paths, select "Use module compile output path" and enter bjgf/bluej/classes for both paths.
        Under Dependencies, click the "+" and select Module Dependency... and select "threadchecker".
        Similarly, click the "+" and select Module Dependency... and select "bluej-boot".
        Click the "+" and select Library and select "bluej-lib" and "javafx-11".
@@ -70,9 +72,9 @@ Then to set up Greenfoot, add this additional module:
     "greenfoot" module.  Content root and module file location: bjgf/greenfoot.
        It should automatically tag src (which is really bjgf/greenfoot/src) as a source directory.
        Also select test/src, and mark that as a tests directory.
-       Under Paths, select "Use module compile path" and enter bjgf/greenfoot/classes for both paths.
+       Under Paths, select "Use module compile output path" and enter bjgf/greenfoot/classes for both paths.
        Under Dependencies, click "+" and select "Module Dependency..." and select
-       "threadchecker", ""bluej-boot", "bluej" and "greenfoot-native".
+       "threadchecker", "bluej-boot", "bluej".
        Click the "+" again and select Library and select "bluej-lib" and "greenfoot-lib" and "javafx-11".
 
 After adding this modules, try compiling again (Build menu -> Build Project).  It should be successful.
@@ -81,7 +83,7 @@ In Project tab on left-hand side (show by hovering over very bottom-left icon in
   find bluej/build.xml.  Right-click on it and select "Add as Ant build file" (near bottom).
   Do the same for greenfoot/build.xml.
 
-Copy bluej/build.properties.template to bluej/build.properties and edit
+Copy bluej/build.properties.template to bluej/build.properties.  Do not add it to Git. Edit
   to set build_java_home to be the path of your JDK.  On Windows,
   use forward slashes in paths to avoid issues.
 
@@ -104,7 +106,7 @@ Run this configuration, and it should work.  Then go back to Edit Configurations
   Copy Configuration icon (third from top left of window) and call the copy Greenfoot.  Only change
   needed is to set the arguments to:
     -useclassesdir=true -bluej.debug=true -javafxpath=/path/to/javafx -greenfoot=true -greenfootclassesdir=bjgf/greenfoot/classes
-  (Remember to replace bjgf with full path).
+  (Remember to replace bjgf with full path!).
 
 Before you can run the Greenfoot configuration for the first time, you need to run the ant target
   "ready-to-run-greenfoot" from the *BlueJ* ant file, and then also the

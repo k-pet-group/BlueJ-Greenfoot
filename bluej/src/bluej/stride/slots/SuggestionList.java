@@ -701,7 +701,7 @@ public class SuggestionList
 
         //editor.getCodeOverlayPane().addOverlay(pane, reference, actualXOffset, yOffset);
         double windowX = refWindow.getX() + reference.getScene().getX() + xPos + textBoundsWithinReference.getMinX() - typeWidth.get() - 1.0f; //1 pixel for border
-        double windowY = refWindow.getY() + reference.getScene().getY() + reference.localToScene(reference.getBoundsInLocal()).getMinY() + textBoundsWithinReference.getMinY();
+        double windowY = refWindow.getY() + reference.getScene().getY() + reference.localToScene(reference.getLayoutBounds()).getMinY() + textBoundsWithinReference.getMinY();
         if (screenMaxY < window.getHeight() + windowY)
         {
             // Bottom of suggestions window will be off screen; we must place window above reference, not below

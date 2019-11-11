@@ -1,0 +1,51 @@
+.flow-top-bar {
+    -fx-padding: 0.75em 1em 0.75em 1em;
+    -fx-background-color: hsb(0, 0%, 50%), rgb(225, 225, 225);
+    -fx-background-insets: 0 0 0 0, 0 0 1 0;
+}
+.flow-top-bar-buttons {
+    /*This is the minimum gap; more may be added in code using the
+      tile pane margins to separate different groups of buttons */
+    -fx-hgap: 0.5em;
+}
+.flow-top-bar-buttons > .button {
+    -fx-label-padding: 0 0.3em 0 0.3em;
+}
+.margin-and-text-line {
+    -fx-background-color: white;
+}
+.flow-margin-line {
+    -fx-stroke: grey;
+}
+.flow-margin-background {
+    -fx-background-color: white;
+}
+.margin-and-text-line:bj-margin-uncompiled .flow-margin-background {
+    -fx-background-color: hsb(0, 0%, 75%);
+}
+.margin-and-text-line:bj-margin-error .flow-margin-background {
+    -fx-background-color: hsb(0, 70%, 50%);
+}
+
+.flow-line-label {
+    -fx-font-size: 10px;
+    -fx-alignment: center-right;
+    -fx-graphic-text-gap: 0;
+    -fx-label-padding: 0 2 0 0;
+    -fx-text-fill: black;
+}
+.margin-and-text-line:bj-margin-error .flow-line-label {
+    -fx-text-fill: white;
+}
+.text-line .flow-selection {
+    -fx-fill: hsb(211, 50%, 90%);
+    -fx-stroke: null;
+}
+.text-line .flow-find-result {
+    -fx-fill: hsb(211, 20%, 99%);
+    -fx-stroke: null;
+}
+.text-line .flow-bracket-match {
+    -fx-fill: hsb(0, 0%, 70%);
+    -fx-stroke: null;
+}

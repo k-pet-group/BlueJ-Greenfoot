@@ -34,8 +34,8 @@ import bluej.debugger.*;
 import bluej.debugger.gentype.Reflective;
 import bluej.debugmgr.objectbench.InvokeListener;
 import bluej.editor.Editor;
-import bluej.editor.EditorManager;
 import bluej.editor.TextEditor;
+import bluej.editor.flow.FlowEditor;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.editor.stride.FrameEditor;
 import bluej.extensions2.*;
@@ -57,7 +57,13 @@ import bluej.pkgmgr.dependency.Dependency;
 import bluej.pkgmgr.dependency.ExtendsDependency;
 import bluej.pkgmgr.dependency.ImplementsDependency;
 import bluej.pkgmgr.dependency.UsesDependency;
-import bluej.pkgmgr.target.role.*;
+import bluej.pkgmgr.target.role.AbstractClassRole;
+import bluej.pkgmgr.target.role.ClassRole;
+import bluej.pkgmgr.target.role.EnumClassRole;
+import bluej.pkgmgr.target.role.InterfaceClassRole;
+import bluej.pkgmgr.target.role.StdClassRole;
+import bluej.pkgmgr.target.role.UnitTestClassRole;
+import bluej.prefmgr.PrefMgr;
 import bluej.stride.framedjava.ast.Loader;
 import bluej.stride.framedjava.ast.Parser;
 import bluej.stride.framedjava.convert.ConversionWarning;
@@ -1174,10 +1180,17 @@ public class ClassTarget extends DependentTarget
                 }
             };
             if (sourceAvailable == SourceType.Java || sourceAvailable == SourceType.NONE) {
-                editor = EditorManager.getEditorManager().openClass(filename, docFilename,
-                        project.getProjectCharset(),
-                        getBaseName(), project::getDefaultFXTabbedEditor, this, isCompiled(), resolver,
-                        project.getJavadocResolver(), openCallback);
+                editor = new FlowEditor(newWindow -> {
+                    if (newWindow)
+                    {
+                        return project.createNewFXTabbedEditor();
+                    }
+                    else
+                    {
+                        return project.getDefaultFXTabbedEditor();
+                    }
+                }, getBaseName(), this, resolver, project.getJavadocResolver(), openCallback, PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING));
+                ((TextEditor)editor).showFile(filename, project.getProjectCharset(), isCompiled(), docFilename);
             }
             else if (sourceAvailable == SourceType.Stride) {
                 File frameSourceFile = getFrameSourceFile();

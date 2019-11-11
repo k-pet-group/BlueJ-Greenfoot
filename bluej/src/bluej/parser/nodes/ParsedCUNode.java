@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2019  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,7 +22,6 @@
 package bluej.parser.nodes;
 
 import bluej.debugger.gentype.Reflective;
-import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.ImportsCollection;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
@@ -41,35 +40,17 @@ import java.util.List;
  */
 public class ParsedCUNode extends IncrementalParsingNode
 {
-    private EntityResolver parentResolver;
-    private ImportsCollection imports = new ImportsCollection();
+    private final EntityResolver parentResolver;
+    private final ImportsCollection imports = new ImportsCollection();
 
     private int size = 0;
     
     /**
      * Construct a parsed node for as yet unknown source.
      */
-    public ParsedCUNode()
+    public ParsedCUNode(EntityResolver parentResolver)
     {
         super(null);
-    }
-    
-    /**
-     * Construct a parsed node for the given document. The node will
-     * assume its size is 0; the text from the document (if any) should
-     * be explicitly inserted.
-     */
-    public ParsedCUNode(MoeSyntaxDocument document)
-    {
-        super(null);
-        size = 0;
-    }
-    
-    /**
-     * Set the entity resolver used to resolve symbols.
-     */
-    public void setParentResolver(EntityResolver parentResolver)
-    {
         this.parentResolver = parentResolver;
     }
 

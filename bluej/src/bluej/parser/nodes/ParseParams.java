@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2019  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,7 +23,6 @@ package bluej.parser.nodes;
 
 import java.util.LinkedList;
 
-import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.EditorParser;
 import bluej.parser.lexer.JavaTokenFilter;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
@@ -43,7 +42,7 @@ public class ParseParams
     public NodeStructureListener listener;
     public EditorParser parser;
     public JavaTokenFilter tokenStream;
-    public MoeSyntaxDocument document;
+    public ReparseableDocument document;
     public int nodePos;
     public LinkedList<NodeAndPosition<ParsedNode>> childQueue;
     

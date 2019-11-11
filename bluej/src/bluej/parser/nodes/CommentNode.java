@@ -23,12 +23,10 @@ package bluej.parser.nodes;
 
 import java.io.Reader;
 
-import bluej.editor.moe.MoeSyntaxDocument;
-import bluej.editor.moe.MoeSyntaxDocument.Element;
-import bluej.editor.moe.Token;
-import bluej.editor.moe.Token.TokenType;
+import bluej.parser.nodes.ReparseableDocument.Element;
+import bluej.parser.Token;
+import bluej.parser.Token.TokenType;
 import bluej.parser.ExpressionTypeInfo;
-import bluej.parser.DocumentReader;
 import bluej.parser.lexer.JavaLexer;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
@@ -109,7 +107,7 @@ public class CommentNode extends ParsedNode
      * @see bluej.parser.nodes.ParsedNode#getMarkTokensFor(int, int, int, javax.swing.text.Document)
      */
     public Token getMarkTokensFor(int pos, int length, int nodePos,
-            MoeSyntaxDocument document)
+            ReparseableDocument document)
     {
         Token tok = new Token(length, type.tokenType);
         tok.next = new Token(0, TokenType.END);
@@ -123,7 +121,7 @@ public class CommentNode extends ParsedNode
     }
     
     @Override
-    public int textInserted(MoeSyntaxDocument document, int nodePos, int insPos, int length,
+    public int textInserted(ReparseableDocument document, int nodePos, int insPos, int length,
             NodeStructureListener listener)
     {
         // grow ourself:
@@ -134,7 +132,7 @@ public class CommentNode extends ParsedNode
     }
 
     @Override
-    public int textRemoved(MoeSyntaxDocument document, int nodePos, int delPos, int length,
+    public int textRemoved(ReparseableDocument document, int nodePos, int delPos, int length,
             NodeStructureListener listener)
     {
         // shrink ourself:
@@ -145,13 +143,13 @@ public class CommentNode extends ParsedNode
     }
 
     @Override
-    protected int reparseNode(MoeSyntaxDocument document, int nodePos, int offset, int maxParse,
+    protected int reparseNode(ReparseableDocument document, int nodePos, int offset, int maxParse,
             NodeStructureListener listener)
     {
         // Make a reader and parser
         int pline = document.getDefaultRootElement().getElementIndex(nodePos) + 1;
         int pcol = nodePos - document.getDefaultRootElement().getElement(pline - 1).getStartOffset() + 1;
-        Reader r = new DocumentReader(document, nodePos, nodePos + getSize());
+        Reader r = document.makeReader(nodePos, nodePos + getSize());
         JavaLexer lexer = new JavaLexer(r, pline, pcol, nodePos);
 
         LocatableToken commentToken = lexer.nextToken();
@@ -177,7 +175,7 @@ public class CommentNode extends ParsedNode
         int newEnd = lineColToPos(document, commentToken.getEndLine(),
                 commentToken.getEndColumn());
         int newSize = newEnd - nodePos;
-        ((MoeSyntaxDocument)document).markSectionParsed(nodePos, newSize);
+        document.markSectionParsed(nodePos, newSize);
         if (getSize() != newSize) {
             setSize(newSize);
             return NODE_SHRUNK;
@@ -187,7 +185,7 @@ public class CommentNode extends ParsedNode
     }
     
     
-    private static int lineColToPos(MoeSyntaxDocument document, int line, int col)
+    private static int lineColToPos(ReparseableDocument document, int line, int col)
     {
         Element map = document.getDefaultRootElement();
         Element lineEl = map.getElement(line - 1);
@@ -195,7 +193,7 @@ public class CommentNode extends ParsedNode
     }
     
     @Override
-    public ExpressionTypeInfo getExpressionType(int pos, MoeSyntaxDocument document)
+    public ExpressionTypeInfo getExpressionType(int pos, ReparseableDocument document)
     {
         return null;
     }

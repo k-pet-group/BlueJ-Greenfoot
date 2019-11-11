@@ -22,8 +22,7 @@
 package bluej.parser.nodes;
 
 import bluej.debugger.gentype.GenTypeClass;
-import bluej.editor.moe.MoeSyntaxDocument;
-import bluej.editor.moe.Token;
+import bluej.parser.Token;
 import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
@@ -56,9 +55,9 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
     public static final int NODETYPE_COMMENT = 7;
     
     /** The NodeTree containing the child nodes of this node */
-    private NodeTree<ParsedNode> nodeTree;
+    private final NodeTree<ParsedNode> nodeTree;
     /** The parent ParsedNode which contains us */
-    private ParsedNode parentNode;
+    private final ParsedNode parentNode;
     
     private boolean hasAttachedComment;
     
@@ -69,15 +68,10 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
     protected boolean complete;
     
     private boolean isInner = false;
-    
-    public ParsedNode()
-    {
-        nodeTree = new NodeTree<ParsedNode>();
-    }
-    
+
     ParsedNode(ParsedNode parentNode)
     {
-        this();
+        nodeTree = new NodeTree<ParsedNode>();
         this.parentNode = parentNode;
     }
 
@@ -155,9 +149,10 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
     /**
      * Insert a new child node (without affecting position of other children).
      */
-    public void insertNode(ParsedNode child, int position, int size)
+    public void insertNode(ParsedNode child, int position, int size, NodeStructureListener nodeStructureListener)
     {
         getNodeTree().insertNode(child, position, size);
+        nodeStructureListener.nodeAdded(new NodeAndPosition<>(child, position, size));
     }
     
     public void childChangedName(ParsedNode child, String oldName)
@@ -283,8 +278,8 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * @param length     The length of the insert
      * @param listener   The listener for node structural changes
      */
-    public abstract int textInserted(MoeSyntaxDocument document, int nodePos, int insPos,
-            int length, NodeStructureListener listener);
+    public abstract int textInserted(ReparseableDocument document, int nodePos, int insPos,
+                                     int length, NodeStructureListener listener);
 
     /**
      * The specified portion of text within the node has been removed.<p>
@@ -298,11 +293,11 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * 
      * @param document   The document
      * @param nodePos    The position of "this" node (relative to the document).
-     * @param insPos     The position of the removal (relative to the document).
+     * @param delPos     The position of the removal (relative to the document).
      * @param length     The length of the removal
      * @param listener   The listener for node structural changes
      */
-    public abstract int textRemoved(MoeSyntaxDocument document, int nodePos, int delPos,
+    public abstract int textRemoved(ReparseableDocument document, int nodePos, int delPos,
             int length, NodeStructureListener listener);
 
     /**
@@ -315,7 +310,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * 
      * This method should always mark which range it parsed in the document.
      */
-    protected int reparseNode(MoeSyntaxDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
+    protected int reparseNode(ReparseableDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
     {
         return ALL_OK;
     }
@@ -330,7 +325,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * @param maxParse  The (advisory) maximum amount of document to re-parse in one hit
      * @param listener  The structure listener to be notified of structural changes
      */
-    public void reparse(MoeSyntaxDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
+    public void reparse(ReparseableDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
     {
         int size = getSize();
         int r = reparseNode(document, nodePos, offset, maxParse, listener);
@@ -362,9 +357,9 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * @param document  The source document
      * @return  A linked list of Token objects
      */
-    public abstract Token getMarkTokensFor(int pos, int length, int nodePos, MoeSyntaxDocument document);
+    public abstract Token getMarkTokensFor(int pos, int length, int nodePos, ReparseableDocument document);
 
-    protected ParsedNode getParentNode()
+    public ParsedNode getParentNode()
     {
         return parentNode;
     }
@@ -394,7 +389,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * in size, if it occurs.
      */
     @OnThread(Tag.FXPlatform)
-    protected boolean growChild(MoeSyntaxDocument document, NodeAndPosition<ParsedNode> child,
+    protected boolean growChild(ReparseableDocument document, NodeAndPosition<ParsedNode> child,
             NodeStructureListener listener)
     {
         return false;
@@ -409,7 +404,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * @param nodePos    The absolute position of this node
      * @param child      The child node which has changed size
      */
-    public void childResized(MoeSyntaxDocument document, int nodePos, NodeAndPosition<ParsedNode> child)
+    public void childResized(ReparseableDocument document, int nodePos, NodeAndPosition<ParsedNode> child)
     {
         
     }
@@ -418,7 +413,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * Get code completion suggestions at a particular point. May return null.
      */
     @OnThread(Tag.FXPlatform)
-    public ExpressionTypeInfo getExpressionType(int pos, MoeSyntaxDocument document)
+    public ExpressionTypeInfo getExpressionType(int pos, ReparseableDocument document)
     {
         return getExpressionType(pos, 0, null, document);
     }
@@ -432,7 +427,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      * @param document  The source document
      */
     @OnThread(Tag.FXPlatform)
-    protected ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, MoeSyntaxDocument document)
+    protected ExpressionTypeInfo getExpressionType(int pos, int nodePos, JavaEntity defaultType, ReparseableDocument document)
     {
         NodeAndPosition<ParsedNode> child = getNodeTree().findNode(pos, nodePos);
         if (child != null) {

@@ -24,8 +24,6 @@ package bluej.parser;
 import java.util.List;
 
 import bluej.JavaFXThreadingRule;
-import bluej.editor.moe.ScopeColors;
-import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
@@ -68,10 +66,10 @@ public class IncrementalParseTest
     /**
      * Generate a compilation unit node based on some source code.
      */
-    private MoeSyntaxDocument docForSource(String sourceCode, String pkg)
+    private TestableDocument docForSource(String sourceCode, String pkg)
     {
         EntityResolver resolver = new PackageResolver(this.resolver, pkg);
-        MoeSyntaxDocument document = new MoeSyntaxDocument(resolver, ScopeColors.dummy());
+        TestableDocument document = new TestableDocument(resolver);
         document.enableParser(true);
         document.insertString(0, sourceCode);
         return document;
@@ -85,7 +83,7 @@ public class IncrementalParseTest
             "  }\n" +                   // 28 - 32 
             "}\n";                      // 32 - 34
         
-        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        TestableDocument aDoc = docForSource(aSrc, "");
         ParsedCUNode aNode = aDoc.getParser();
         NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
         
@@ -94,9 +92,7 @@ public class IncrementalParseTest
         assertEquals(33, nap.getSize());
         
         aDoc.remove(8, 1);  // remove the opening '{' of the class
-        aDoc.flushReparseQueue();
         aDoc.insertString(8, "{");  // re-insert it
-        aDoc.flushReparseQueue();
         
         // Now check that the structure is the same
         nap = aNode.findNodeAt(0, 0);
@@ -113,7 +109,7 @@ public class IncrementalParseTest
             "  }\n" +                   // 28 - 32 
             "}\n";                      // 32 - 34
         
-        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        TestableDocument aDoc = docForSource(aSrc, "");
         ParsedCUNode aNode = aDoc.getParser();
         NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
         
@@ -122,11 +118,8 @@ public class IncrementalParseTest
         assertEquals(33, nap.getSize());
         
         aDoc.insertString(8, "impl");
-        aDoc.flushReparseQueue();
         aDoc.insertString(12, "ements ");
-        aDoc.flushReparseQueue();
         aDoc.insertString(19, "Runnable ");
-        aDoc.flushReparseQueue();
         
         // Check that the structure is correct
         nap = aNode.findNodeAt(0, 0);
@@ -141,7 +134,7 @@ public class IncrementalParseTest
         String aSrc = "class A {\n" +   // 0 - 10
             "}\n";                      // 10 - 12
         
-        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        TestableDocument aDoc = docForSource(aSrc, "");
         ParsedCUNode aNode = aDoc.getParser();
         NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
         
@@ -150,9 +143,7 @@ public class IncrementalParseTest
         assertEquals(11, nap.getSize());
         
         aDoc.insertString(10, "\n");
-        aDoc.flushReparseQueue();
         aDoc.remove(10, 1);
-        aDoc.flushReparseQueue();
         
         // Check that the structure is correct
         nap = aNode.findNodeAt(0, 0);
@@ -172,7 +163,7 @@ public class IncrementalParseTest
             "  }\n" +                         // 62 - 66
             "}\n";                            // 66 - 68
 
-        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        TestableDocument aDoc = docForSource(aSrc, "");
         ParsedCUNode aNode = aDoc.getParser();
         NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
 
@@ -182,7 +173,6 @@ public class IncrementalParseTest
 
         // Insert "else" clause, length 13
         aDoc.insertString(59, "    else { }\n");
-        aDoc.flushReparseQueue();
 
         // Check that the structure is correct
         nap = aNode.findNodeAt(0, 0);
@@ -222,7 +212,7 @@ public class IncrementalParseTest
         String aSrc = "class A {\n" +   // 0 - 10
             "}\n";                      // 10 - 12
         
-        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        TestableDocument aDoc = docForSource(aSrc, "");
         ParsedCUNode aNode = aDoc.getParser();
         NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
         
@@ -233,7 +223,6 @@ public class IncrementalParseTest
         
         // Now insert a new '}' which should terminate the class:
         aDoc.insertString(10, "}\n");
-        aDoc.flushReparseQueue();
         
         nap = aNode.findNodeAt(0, 0);
         assertNotNull(nap);
@@ -242,7 +231,6 @@ public class IncrementalParseTest
         
         // Now remove the first '}'
         aDoc.remove(10, 1);
-        aDoc.flushReparseQueue();
         
         // Check that the structure is correct
         nap = aNode.findNodeAt(0, 0);
@@ -259,7 +247,7 @@ public class IncrementalParseTest
             "\n" +                      // 10 - 11
             "}\n";                      // 11 - 13
         
-        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        TestableDocument aDoc = docForSource(aSrc, "");
         ParsedCUNode aNode = aDoc.getParser();
         NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
 
@@ -276,7 +264,6 @@ public class IncrementalParseTest
      
         // Now insert a new '}' and then remove it again
         aDoc.insertString(10, "}");
-        aDoc.flushReparseQueue();
         aDoc.remove(10, 1);
         
         aNode = aDoc.getParser();
@@ -303,7 +290,7 @@ public class IncrementalParseTest
             "  }\n" +                         // 25 - 29
             "}\n";                            // 29 - 31
 
-        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        TestableDocument aDoc = docForSource(aSrc, "");
         ParsedCUNode aNode = aDoc.getParser();
 
         // A Outer
@@ -389,7 +376,7 @@ public class IncrementalParseTest
             "  }\n" +                         // 62 - 66
             "}\n";                            // 66 - 68
 
-        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        TestableDocument aDoc = docForSource(aSrc, "");
         ParsedCUNode aNode = aDoc.getParser();
         NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
 
@@ -399,11 +386,9 @@ public class IncrementalParseTest
 
         // First remove "if (true) {"
         aDoc.remove(41, 11);
-        aDoc.flushReparseQueue();
         
         // Now remove the "}" from the old if statement
         aDoc.remove(57 - 11, 1);
-        aDoc.flushReparseQueue();
         
         aNode = aDoc.getParser();
         nap = aNode.findNodeAt(0, 0);
@@ -421,7 +406,7 @@ public class IncrementalParseTest
             "  }\n" +                         // 40 - 44
             "}\n";                            // 44 - 46
 
-        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        TestableDocument aDoc = docForSource(aSrc, "");
         ParsedCUNode aNode = aDoc.getParser();
         NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
 
@@ -460,7 +445,6 @@ public class IncrementalParseTest
         
         // Remove "if() {" etc, re-insert, re-check
         aDoc.remove(39, 10);
-        aDoc.flushReparseQueue();
         aDoc.insertString(39, "if(true) {");
         
         aNode = aDoc.getParser();
@@ -498,7 +482,7 @@ public class IncrementalParseTest
             "class A {\n" +         // 17 - 27
             "}\n";                  // 27 - 29
 
-        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        TestableDocument aDoc = docForSource(aSrc, "");
         ParsedCUNode aNode = aDoc.getParser();
         NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
 
@@ -542,7 +526,7 @@ public class IncrementalParseTest
             "  }\n" +                        // 147 - 151
             "}\n";                           // 151 - 153
 
-        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        TestableDocument aDoc = docForSource(aSrc, "");
         ParsedCUNode aNode = aDoc.getParser();
         NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
 
@@ -581,6 +565,7 @@ public class IncrementalParseTest
         assertEquals(149, nap.getEnd());
 
         int removeSize = 107 - 42;
+        aDoc.parsingSuspended = true;
         aDoc.remove(42, removeSize); // remove selection:
         // from just before "x" in "private int x;" to the end of
         // the comment.
@@ -617,7 +602,7 @@ public class IncrementalParseTest
             "    public int x() { }\n" +      // 10 - 33 
             "}\n";                            // 33 - 35
         
-        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        TestableDocument aDoc = docForSource(aSrc, "");
         ParsedCUNode aNode = aDoc.getParser();
         NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
 
@@ -704,7 +689,7 @@ public class IncrementalParseTest
             "    void xyz(int n) { }\n" +      // 15 - 39 
             "}\n";                            // 39 - 41
         
-        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        TestableDocument aDoc = docForSource(aSrc, "");
         ParsedCUNode aNode = aDoc.getParser();
         NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
 
@@ -747,7 +732,7 @@ public class IncrementalParseTest
             "  }\n" +                         // 40 - 44
             "}\n";                            // 44 - 46
 
-        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        TestableDocument aDoc = docForSource(aSrc, "");
         ParsedCUNode aNode = aDoc.getParser();
         NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
 
@@ -801,7 +786,7 @@ public class IncrementalParseTest
     @Test
     public void testRegression317() throws Exception
     {
-        MoeSyntaxDocument aDoc = docForSource("", "");
+        TestableDocument aDoc = docForSource("", "");
         
         aDoc.insertString(0, "class ");
         aDoc.getParser(); // empty reparse queue
@@ -861,7 +846,7 @@ public class IncrementalParseTest
     @Test
     public void testImportStmt() throws Exception
     {
-        MoeSyntaxDocument aDoc = docForSource("import somepkg.*; ;", "");
+        TestableDocument aDoc = docForSource("import somepkg.*; ;", "");
         
         // The import node should be size 16
         ParsedCUNode aNode = aDoc.getParser();
@@ -882,7 +867,7 @@ public class IncrementalParseTest
     @Test
     public void testImportStmt2() throws Exception
     {
-        MoeSyntaxDocument aDoc = docForSource("import somepkg.* abc/* a comment */;", "");
+        TestableDocument aDoc = docForSource("import somepkg.* abc/* a comment */;", "");
 
         ParsedCUNode aNode = aDoc.getParser();
         
@@ -905,7 +890,7 @@ public class IncrementalParseTest
             "  }\n" +                         // 40 - 44
             "}\n";                            // 44 - 46
 
-        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        TestableDocument aDoc = docForSource(aSrc, "");
         ParsedCUNode aNode = aDoc.getParser();
         NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
 
@@ -940,7 +925,7 @@ public class IncrementalParseTest
             "  }\n" +
             "}\n";
 
-        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        TestableDocument aDoc = docForSource(aSrc, "");
         ParsedCUNode aNode = aDoc.getParser();
         NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);
 
@@ -969,7 +954,7 @@ public class IncrementalParseTest
             "  }\n" +                         // 57 - 61 
             "}\n";                            // 61 - 63 
 
-        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        TestableDocument aDoc = docForSource(aSrc, "");
         ParsedCUNode aNode = aDoc.getParser();
         
         aDoc.remove(51, 1); // remove the '\' before 'A()'
@@ -1022,7 +1007,7 @@ public class IncrementalParseTest
             "//     public static void main(String[] args) {\n" +   // 47 -
             "}\n";
 
-        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        TestableDocument aDoc = docForSource(aSrc, "");
         aDoc.getParser();
         
         aDoc.remove(47, 1); // remove '/' at start of comment
@@ -1042,7 +1027,7 @@ public class IncrementalParseTest
                 "    }\n" +                        //   6  
                 "}\n";                             //   2
 
-        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        TestableDocument aDoc = docForSource(aSrc, "");
         ParsedCUNode aNode = aDoc.getParser();
         
         NodeAndPosition<ParsedNode> nap = aNode.findNodeAt(0, 0);  // class
@@ -1106,7 +1091,7 @@ public class IncrementalParseTest
                 "  };\n" +                                // 97 - 102
                 "}\n";                                    // 102 - 104
         
-        MoeSyntaxDocument aDoc = docForSource(aSrc, "");
+        TestableDocument aDoc = docForSource(aSrc, "");
         ParsedCUNode aNode = aDoc.getParser();
         
         NodeAndPosition<ParsedNode> classNap = aNode.findNodeAt(0, 0);  // class

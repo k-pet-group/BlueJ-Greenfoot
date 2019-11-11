@@ -79,6 +79,13 @@ The library is distributed under the Apache License version 2.0, as found in the
 "Apache-License-2.0.txt" file.
 
 
+Generics Resolver library (MIT License)
+--------------------------------
+"generics-resolver-2.0.1.jar", the Java generics runtime resolver, helps with generic
+types in type metadata.  It is released by Vyacheslav Rusakov under
+the MIT License, and is available at https://github.com/xvik/generics-resolver
+
+
 Guava - Google Core library (Apache License version 2.0)
 --------------------------------------------------------
 "guava-17.0.jar" is from the Google Core libraries for Java
@@ -89,12 +96,17 @@ It is distributed under the Apache License version 2.0, as found in the
 
 Hamcrest (3-clause BSD license)
 -------------------------------
-"hamcrest-core-1.3.jar" is part of the Hamcrest libary
+"hamcrest-core-1.3.jar" and "hamcrest-library-1.3.jar" are part of the Hamcrest libary
 (http://hamcrest.org/JavaHamcrest/) and is a dependency of JUnit, which
 is used by BlueJ.
 It is available under the "3 clause BSD" license as found in the
 "hamcrest-BSD.txt" file.
 
+JavaRuntype library (Apache License version 2.0)
+-----------------------------------------
+"javaruntype-1.3.jar", the JavaRuntype library is a library providing metadata for
+the Java type system.  It is a dependency of JUnit-Quickcheck.  The library is distributed under
+the Apache License version 2.0, as found in the "Apache-License-2.0.txt" file.
 
 JGit library (Eclipse Distribution License version 1.0)
 -------------------------------------------------------
@@ -112,10 +124,15 @@ as found in the "jsch-BSD.txt" file.
 
 JUnit (Common Public License v1.0)
 ----------------------------------
-"junit-4.11.jar" is part of the JUnit unit testing library (http://junit.org/) which is
+"junit-4.12.jar" is part of the JUnit unit testing library (http://junit.org/) which is
 used by BlueJ. It is distributed under the terms of the Common Public License
 version 1.0, as found in the "CPL-v1.0.txt" file.
 
+JUnit QuickCheck (MIT License)
+------------------------------
+"junit-quickcheck-core-0.8.2.jar", the JUnit QuickCheck library, provides QuickCheck-style
+property based testing for Java, by building on top of Java.  It is distributed
+under the MIT License and is available from https://github.com/pholser/junit-quickcheck
 
 NSMenuFX library (3-clause BSD license)
 ---------------------------------------
@@ -123,6 +140,12 @@ NSMenuFX library (3-clause BSD license)
 is a library to customize the OS X menu bar when it is on FX to be able to customize
 the auto-generated application menu. This version is distributed under the terms of
 the BSD license as found in the "nsmenufx-BSD.txt" file.
+
+OGNL library (Apache License version 2.0)
+-----------------------------------------
+"ognl-3.1.12.jar", the OGNL library is a library supporting a small DSL for object
+queries.  It is a dependency of JUnit-Quickcheck.  The library is distributed under
+the Apache License version 2.0, as found in the "Apache-License-2.0.txt" file.
 
 
 RichTextFX (GPLv2 with classpath exception, and 2-clause BSD licenses)
@@ -160,6 +183,12 @@ Source Sans Pro fonts (SIL Open Font License version 1.1)
 "SourceSansPro-{Bold,BoldItalic,Italic,Regular}.ttf", the Source Sans Pro font, is used
 in the Stride editor. It is distributed under the terms of the SIL Open Font License
 as found in the "SIL-OFL-1.1.txt" file.
+
+
+TestFX library (EUPL)
+---------------------
+TestFX (testlib/testfx-{core,junit}-4.0.15-alpha.jar) is distributed under
+the EU Public Licence.  The licence can be found in the "testfx-EUPL.txt" file.
 
 
 XOM XML Object Modeller library (Lesser GNU Public License v2.1)
@@ -201,14 +230,18 @@ SOFTWARE.
 commons-logging-api-1.1.2.jar            Apache License v2.0
 classgraph-4.2.6.jar                     MIT License
 diffutils-1.2.1.jar                      Apache License v2.0
+generics-resolver-2.0.1.jar              MIT License
 guava-17.0.jar                           Apache License v2.0
 hamcrest-core-1.3.jar                    BSD License
 httpclient-4.1.1.jar                     Apache License v2.0
 httpcore-4.1.jar                         Apache License v2.0
 httpmime-4.1.1.jar                       Apache License v2.0
+javaruntype-1.3.jar                      Apache License v2.0
 jsch-0.1.53.jar                          BSD License
-junit-4.11.jar                           Common Public License v1.0
+junit-4.12.jar                           Common Public License v1.0
+junit-quickcheck-core-0.8.2.jar          MIT License
 nsmenufx-2.1.4.jar                       BSD license
+ognl-3.1.12.jar                          Apache License v2.0
 org.eclipse.jgit-4.9.0.jar               Eclipse Distribution License (EDL) v1.0
 richtextfx-fat-0.9.0.jar                 BSD License
 slf4j-api-1.7.2.jar                      MIT License

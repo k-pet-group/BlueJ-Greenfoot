@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program.
- Copyright (C) 2015,2016 Michael Kolling and John Rosenberg
+ Copyright (C) 2015,2016,2019 Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -73,9 +73,9 @@ public abstract class TabMenuManager
                         , null
                 ));
 
-            if (tab instanceof MoeFXTab)
+            if (tab instanceof FlowFXTab)
                 tab.getContextMenu().getItems().add(JavaFXUtil.makeMenuItem(Config.getString("frame.classmenu.compile"),
-                        () ->  ((MoeFXTab)tab).getMoeEditor().getWatcher().scheduleCompilation(true, CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE)
+                        () ->  ((FlowFXTab)tab).getFlowEditor().scheduleCompilation(CompileReason.USER, CompileType.EXPLICIT_USER_COMPILE)
                         , null
                 ));
         });

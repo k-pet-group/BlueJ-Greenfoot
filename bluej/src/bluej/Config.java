@@ -634,6 +634,11 @@ public final class Config
      */
     private static Rectangle calculateScreenBounds()
     {
+        // Don't throw an exception if we're testing in headless mode:
+        if (GraphicsEnvironment.isHeadless())
+        {
+            return new Rectangle(0, 0, 1280, 1024);
+        }
         Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
         return new Rectangle(d);
     }
@@ -906,7 +911,7 @@ public final class Config
     /**
      * Find and return the moe help definitions
      */
-    public static Properties getMoeHelp()
+    public static Properties getFlowHelp()
     {
         return loadDefs(language + File.separator + "moe.help", System.getProperties());
     }
@@ -1812,6 +1817,7 @@ public final class Config
                 "editor-slot-choice",
                 "editor-suggestions",
                 "editor-tabs",
+                "flow",
                 "moe",
                 "shared"};
         
@@ -2090,6 +2096,7 @@ public final class Config
         }
         JavaFXUtil.addStyleClass(octagon, "octagon");
         Label stop = new Label("STOP");
+        stop.setMouseTransparent(true);
         StackPane stackPane = new StackPane(octagon, stop);
         JavaFXUtil.setPseudoclass("bj-large", large, stackPane);
         JavaFXUtil.addStyleClass(stackPane, "stop-icon");

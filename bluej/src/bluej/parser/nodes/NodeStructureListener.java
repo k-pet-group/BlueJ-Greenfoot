@@ -30,6 +30,8 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
  */
 public interface NodeStructureListener
 {
+    public void nodeAdded(NodeAndPosition<ParsedNode> node);
+    
     public void nodeRemoved(NodeAndPosition<ParsedNode> node);
     
     public void nodeChangedLength(NodeAndPosition<ParsedNode> node, int oldPos, int oldSize);

@@ -532,8 +532,8 @@ public class UnitTestClassRole extends ClassRole
 
             if (existingSpan != null) {
                 // replace this method (don't replace the method header!)
-                ed.setSelection(existingSpan.getStartLine(), existingSpan.getStartColumn(),
-                                  existingSpan.getEndLine(), existingSpan.getEndColumn());
+                ed.setSelection(new SourceLocation(existingSpan.getStartLine(), existingSpan.getStartColumn()),
+                                  new SourceLocation(existingSpan.getEndLine(), existingSpan.getEndColumn()));
                 ed.insertText("{\n" + pmf.getObjectBench().getTestMethod(ts + ts) + ts + "}", false);
             }
             else {
@@ -541,7 +541,7 @@ public class UnitTestClassRole extends ClassRole
                 SourceLocation methodInsert = uta.getNewMethodInsertLocation();
 
                 if (methodInsert != null) {
-                    ed.setSelection(methodInsert.getLine(), methodInsert.getColumn(), 1);
+                    ed.setSelection(new SourceLocation(methodInsert.getLine(), methodInsert.getColumn()), new SourceLocation(methodInsert.getLine(), methodInsert.getColumn() + 1));
                     if (isJunit4) {
                         ed.insertText("\n" + ts + "@Test\n" + ts + "public void " + name + "()\n" + ts + "{\n"
                                 + pmf.getObjectBench().getTestMethod(ts + ts) + ts + "}\n}\n", false);
@@ -649,8 +649,8 @@ public class UnitTestClassRole extends ClassRole
                 while(it.hasPrevious()) {
                     SourceSpan variableSpan = (SourceSpan) it.previous();
                     
-                    ed.setSelection(variableSpan.getStartLine(), variableSpan.getStartColumn(),
-                                     variableSpan.getEndLine(), variableSpan.getEndColumn());
+                    ed.setSelection(new SourceLocation(variableSpan.getStartLine(), variableSpan.getStartColumn()),
+                                     new SourceLocation(variableSpan.getEndLine(), variableSpan.getEndColumn()));
                     ed.insertText("", false);
                 }
                 
@@ -683,12 +683,13 @@ public class UnitTestClassRole extends ClassRole
             
             // rewrite the setUp() method of the unit test (if it exists)
             if (setupSpan != null) {
-                ed.setSelection(setupSpan.getStartLine(), setupSpan.getStartColumn(),
-                                 setupSpan.getEndLine(), setupSpan.getEndColumn());
+                ed.setSelection(new SourceLocation(setupSpan.getStartLine(), setupSpan.getStartColumn()),
+                                 new SourceLocation(setupSpan.getEndLine(), setupSpan.getEndColumn()));
             } else {
                 // otherwise, we will be inserting a brand new setUp() method
-                ed.setSelection(fixtureInsertLocation.getLine(),
-                                fixtureInsertLocation.getColumn(), 1);
+                ed.setSelection(
+                    new SourceLocation(fixtureInsertLocation.getLine(), fixtureInsertLocation.getColumn()), 
+                    new SourceLocation(fixtureInsertLocation.getLine(), fixtureInsertLocation.getColumn() + 1));
                 if (isJunit4) {
                     ed.insertText("{\n" + ts + "@Before\n" + ts + "public void setUp()\n" + ts, false);
                 }
@@ -702,8 +703,9 @@ public class UnitTestClassRole extends ClassRole
                                 + ts + "}", false);
 
             // insert our new fixture declarations
-            ed.setSelection(fixtureInsertLocation.getLine(),
-                             fixtureInsertLocation.getColumn(), 1);
+            ed.setSelection(
+                new SourceLocation(fixtureInsertLocation.getLine(), fixtureInsertLocation.getColumn()),
+                new SourceLocation(fixtureInsertLocation.getLine(), fixtureInsertLocation.getColumn() + 1));
                 
             ed.insertText("{\n" + pmf.getObjectBench().getFixtureDeclaration(ts), false);
             ed.save();

@@ -24,7 +24,6 @@ package bluej.parser.nodes;
 import bluej.debugger.gentype.GenTypeDeclTpar;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
-import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.entity.PackageOrClass;
@@ -255,7 +254,7 @@ public class MethodNode extends JavaParentNode
     
     @Override
     protected ExpressionTypeInfo getExpressionType(int pos, int nodePos,
-            JavaEntity defaultType, MoeSyntaxDocument document)
+            JavaEntity defaultType, ReparseableDocument document)
     {
         if (Modifier.isStatic(modifiers)) {
             JavaType dtype = defaultType.getType();

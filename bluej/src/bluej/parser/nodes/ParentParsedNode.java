@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2019  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,7 +23,6 @@ package bluej.parser.nodes;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
-import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 
 /**
@@ -33,19 +32,14 @@ import bluej.parser.nodes.NodeTree.NodeAndPosition;
  */
 public abstract class ParentParsedNode extends ParsedNode
 {    
-    protected ParentParsedNode()
-    {
-        super();
-    }
-    
     public ParentParsedNode(ParsedNode myParent)
     {
         super(myParent);
     }
             
     @Override
-    public int textInserted(MoeSyntaxDocument document, int nodePos, int insPos,
-            int length, NodeStructureListener listener)
+    public int textInserted(ReparseableDocument document, int nodePos, int insPos,
+                            int length, NodeStructureListener listener)
     {
         // grow ourself:
         int newSize = getSize() + length;
@@ -88,15 +82,15 @@ public abstract class ParentParsedNode extends ParsedNode
      * Handle the case of text being inserted directly into this node (not a child).
      */
     @OnThread(Tag.FXPlatform)
-    protected int handleInsertion(MoeSyntaxDocument document, int nodePos, int insPos, int length,
+    protected int handleInsertion(ReparseableDocument document, int nodePos, int insPos, int length,
             NodeStructureListener listener)
     {
-        ((MoeSyntaxDocument) document).scheduleReparse(insPos, length);
+        document.scheduleReparse(insPos, length);
         return ALL_OK;
     }
     
     @Override
-    public int textRemoved(MoeSyntaxDocument document, int nodePos, int delPos,
+    public int textRemoved(ReparseableDocument document, int nodePos, int delPos,
             int length, NodeStructureListener listener)
     {
         // shrink ourself:
@@ -190,14 +184,14 @@ public abstract class ParentParsedNode extends ParsedNode
      * child node).
      */
     @OnThread(Tag.FXPlatform)
-    protected int handleDeletion(MoeSyntaxDocument document, int nodePos, int dpos,
+    protected int handleDeletion(ReparseableDocument document, int nodePos, int dpos,
             NodeStructureListener listener)
     {
         if (nodePos + getSize() == dpos && marksOwnEnd()) {
             complete = false;
         }
         
-        ((MoeSyntaxDocument)document).scheduleReparse(dpos, 0);
+        document.scheduleReparse(dpos, 0);
         return ALL_OK;
     }
     
@@ -206,14 +200,14 @@ public abstract class ParentParsedNode extends ParsedNode
      */
     @Override
     @OnThread(Tag.FXPlatform)
-    protected int reparseNode(MoeSyntaxDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
+    protected int reparseNode(ReparseableDocument document, int nodePos, int offset, int maxParse, NodeStructureListener listener)
     {
         return REMOVE_NODE;
     }
     
     @Override
     @OnThread(Tag.FXPlatform)
-    protected boolean growChild(MoeSyntaxDocument document, NodeAndPosition<ParsedNode> child,
+    protected boolean growChild(ReparseableDocument document, NodeAndPosition<ParsedNode> child,
             NodeStructureListener listener)
     {
         // Without any further knowledge, we're just going to have to do a full reparse.

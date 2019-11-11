@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2012,2013,2014,2015,2016 Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2012,2013,2014,2015,2016,2019 Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,11 +24,8 @@ package bluej.parser;
 import java.util.List;
 
 import bluej.JavaFXThreadingRule;
-import bluej.editor.moe.ScopeColors;
-import junit.framework.TestCase;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugmgr.codepad.DeclaredVar;
-import bluej.editor.moe.MoeSyntaxDocument;
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
@@ -75,7 +72,7 @@ public class TextParserTest
     private ParsedCUNode cuForSource(String sourceCode, String pkg)
     {
         EntityResolver resolver = new PackageResolver(this.resolver, pkg);
-        MoeSyntaxDocument document = new MoeSyntaxDocument(resolver, ScopeColors.dummy());
+        TestableDocument document = new TestableDocument(resolver);
         document.enableParser(true);
         document.insertString(0, sourceCode);
         return document.getParser();

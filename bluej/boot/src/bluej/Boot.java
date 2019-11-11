@@ -57,9 +57,9 @@ public class Boot
     // The version numbers for BlueJ are changed in the BlueJ build.xml
     // and then the update-version target should be executed.
     public static final int BLUEJ_VERSION_MAJOR = 4;
-    public static final int BLUEJ_VERSION_MINOR = 2;
-    public static final int BLUEJ_VERSION_RELEASE = 1;
-    public static final String BLUEJ_VERSION_SUFFIX = "";
+    public static final int BLUEJ_VERSION_MINOR = 5;
+    public static final int BLUEJ_VERSION_RELEASE = 0;
+    public static final String BLUEJ_VERSION_SUFFIX = "internal";
 
     // public static final int BLUEJ_VERSION_NUMBER = BLUEJ_VERSION_MAJOR * 1000 +
     //                                                BLUEJ_VERSION_MINOR * 100 +
@@ -81,7 +81,7 @@ public class Boot
     // The second group are available to user code (and to bluej)
     // bluejcore.jar is necessary as it contains the support runtime
     // (bluej.runtime.* classes).
-    private static final String[] bluejUserJars = { "bluejcore.jar", "junit-4.11.jar", "hamcrest-core-1.3.jar", "lang-stride.jar" };
+    private static final String[] bluejUserJars = { "bluejcore.jar", "junit-4.12.jar", "hamcrest-core-1.3.jar", "hamcrest-library-1.3.jar", "lang-stride.jar" };
     // The number of jar files in the user jars which are built from the
     // BlueJ classes directory
     private static final int bluejUserBuildJars = 1;
@@ -92,7 +92,7 @@ public class Boot
     public static final String[] GREENFOOT_EXPORT_JARS = {JLAYER_MP3_JAR, "lang-stride.jar"};
     private static final String[] greenfootUserJars = {"extensions" + File.separatorChar + "greenfoot.jar", 
         "bluejcore.jar", "bluejeditor.jar", "bluejext2.jar",
-        "junit-4.11.jar", "hamcrest-core-1.3.jar", "bluej.jar",
+        "junit-4.12.jar", "hamcrest-core-1.3.jar", "hamcrest-library-1.3.jar", "bluej.jar",
         "classgraph-4.2.6.jar",
         "diffutils-1.2.1.jar", "commons-logging-api-1.1.2.jar",
         JLAYER_MP3_JAR, "opencsv-2.3.jar", "xom-1.2.9.jar",
@@ -113,11 +113,12 @@ public class Boot
         "diffutils-1.2.1.jar",
         "guava-17.0.jar",
         "hamcrest-core-1.3.jar",
+        "hamcrest-library-1.3.jar",
         "httpclient-4.1.1.jar",
         "httpcore-4.1.jar",
         "httpmime-4.1.1.jar",
         "jsch-0.1.53.jar",
-        "junit-4.11.jar",
+        "junit-4.12.jar",
         "lang-stride.jar",
         "nsmenufx-2.1.4.jar",
         "org.eclipse.jgit-4.9.0.jar",

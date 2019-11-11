@@ -22,38 +22,16 @@
 package bluej.stride.framedjava.elements;
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import bluej.debugger.gentype.ConstructorReflective;
-import bluej.editor.moe.ScopeColors;
-import bluej.parser.AssistContent.CompletionKind;
-import bluej.parser.AssistContent.ParamInfo;
-import bluej.parser.entity.PackageResolver;
-import bluej.stride.framedjava.ast.Parser;
-import bluej.stride.framedjava.ast.SlotFragment;
-import bluej.stride.framedjava.errors.CodeError;
-import bluej.stride.framedjava.errors.SyntaxCodeError;
-import bluej.stride.generic.AssistContentThreadSafe;
-import bluej.stride.generic.InteractionManager;
-import nu.xom.Attribute;
-import nu.xom.Element;
-import threadchecker.OnThread;
-import threadchecker.Tag;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
-import bluej.editor.moe.MoeSyntaxDocument;
+import bluej.editor.flow.HoleDocument;
+import bluej.editor.flow.JavaSyntaxView;
+import bluej.editor.flow.ScopeColorsBorderPane;
+import bluej.parser.AssistContent.CompletionKind;
+import bluej.parser.AssistContent.ParamInfo;
 import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.ParsedReflective;
@@ -66,13 +44,36 @@ import bluej.stride.framedjava.ast.JavaFragment.PosInSourceDoc;
 import bluej.stride.framedjava.ast.JavaSource;
 import bluej.stride.framedjava.ast.JavadocUnit;
 import bluej.stride.framedjava.ast.NameDefSlotFragment;
+import bluej.stride.framedjava.ast.Parser;
+import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
+import bluej.stride.framedjava.errors.CodeError;
 import bluej.stride.framedjava.errors.ErrorShower;
+import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.stride.framedjava.frames.ClassFrame;
 import bluej.stride.framedjava.frames.ConstructorFrame;
 import bluej.stride.framedjava.slots.ExpressionSlot;
+import bluej.stride.generic.AssistContentThreadSafe;
 import bluej.stride.generic.Frame.ShowReason;
+import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;
+import javafx.beans.property.ReadOnlyBooleanWrapper;
+import nu.xom.Attribute;
+import nu.xom.Element;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A code element corresponding to a top-level class.
@@ -394,16 +395,16 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
     public ExpressionTypeInfo getCodeSuggestions(PosInSourceDoc pos, ExpressionSlot<?> completing)
     {
         // Must get document before getting position:
-        MoeSyntaxDocument doc = getSourceDocument(completing);
+        JavaSyntaxView doc = getSourceDocument(completing);
         Optional<Integer> resolvedPos = resolvePos(doc, pos);
-        return resolvedPos.map(rpos -> doc.getParser().getExpressionType(rpos, getSourceDocument(completing)))
+        return resolvedPos.map(rpos -> doc.getParser().getExpressionType(rpos, doc))
                           .orElse(null);
     }
     
     @OnThread(Tag.FXPlatform)
-    private Optional<Integer> resolvePos(MoeSyntaxDocument doc, PosInSourceDoc pos)
+    private Optional<Integer> resolvePos(JavaSyntaxView doc, PosInSourceDoc pos)
     {
-        DocAndPositions docAndPositions = documentCache.get(doc.getText(0, doc.getLength()));
+        DocAndPositions docAndPositions = documentCache.get(doc.getFullText());
         Optional<Integer> resolvedPos = Optional.ofNullable(docAndPositions.fragmentPositions.get(pos.getFragment()));
         return resolvedPos.map(p -> p + pos.offset);
     }
@@ -434,9 +435,12 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
     }
 
     @OnThread(Tag.FXPlatform)
-    private MoeSyntaxDocument getSourceDocument(ExpressionSlot completing)
+    private JavaSyntaxView getSourceDocument(ExpressionSlot completing)
     {
-        return getDAP(completing).getDocument(projectResolver);
+        JavaSyntaxView doc = getDAP(completing).getDocument(projectResolver);
+        // There is no scheduled parsing for off-screen documents so we must manually finish any reparsing:
+        doc.flushReparseQueue();
+        return doc;
     }
     
     @OnThread(Tag.FXPlatform)
@@ -486,7 +490,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
     @OnThread(Tag.FXPlatform)
     public Reflective qualifyType(String name, PosInSourceDoc pos)
     {
-        final MoeSyntaxDocument doc = getSourceDocument(null);
+        final JavaSyntaxView doc = getSourceDocument(null);
         final Optional<Integer> rpos = resolvePos(doc, pos);
         if (!rpos.isPresent())
             return null;
@@ -505,7 +509,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
     private Reflective getClassNode()
     {
         // Must get document before getting position:
-        MoeSyntaxDocument doc = getSourceDocument(null);
+        JavaSyntaxView doc = getSourceDocument(null);
         ParsedNode node = doc.getParser().findNodeAtOrAfter(resolvePos(doc, classKeyword.getPosInSourceDoc()).get(), 0).getNode();
         if (node instanceof ParsedTypeNode)
         {
@@ -619,7 +623,7 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         public final JavaSource java;
         public final IdentityHashMap<JavaFragment, Integer> fragmentPositions;
         private String src;
-        private MoeSyntaxDocument document;
+        private JavaSyntaxView document;
 
         public DocAndPositions(String src, JavaSource java, IdentityHashMap<JavaFragment, Integer> fragmentPositions)
         {
@@ -629,13 +633,14 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         }
         
         @OnThread(Tag.FXPlatform)
-        public MoeSyntaxDocument getDocument(EntityResolver projectResolver)
+        public JavaSyntaxView getDocument(EntityResolver projectResolver)
         {
             if (document == null)
             {
-                document = new MoeSyntaxDocument(projectResolver);
-                document.insertString(0, src);
-                document.enableParser(true);
+                HoleDocument doc = new HoleDocument();
+                this.document = new JavaSyntaxView(doc, null, new ScopeColorsBorderPane(), projectResolver, new ReadOnlyBooleanWrapper(false));
+                doc.replaceText(0, 0, src);
+                this.document.enableParser(true);
             }
             return document;
         }
