@@ -1,6 +1,5 @@
-package bluej.editor.moe;
+package bluej.editor.flow;
 
-import bluej.utility.javafx.FXPlatformRunnable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectExpression;
 import javafx.beans.value.ObservableIntegerValue;

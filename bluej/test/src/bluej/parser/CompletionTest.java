@@ -31,7 +31,6 @@ import java.util.concurrent.Executor;
 
 
 import bluej.JavaFXThreadingRule;
-import bluej.editor.moe.ScopeColors;
 import bluej.debugger.gentype.FieldReflective;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeSolid;

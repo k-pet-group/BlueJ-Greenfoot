@@ -1,13 +1,10 @@
 package bluej.parser;
 
-import bluej.editor.flow.Document;
 import bluej.editor.flow.HoleDocument;
 import bluej.editor.flow.JavaSyntaxView;
-import bluej.editor.moe.ScopeColors;
-import bluej.editor.moe.ScopeColorsBorderPane;
+import bluej.editor.flow.ScopeColors;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.nodes.ReparseableDocument;
-import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 
 public class TestableDocument extends JavaSyntaxView implements ReparseableDocument

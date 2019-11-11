@@ -22,7 +22,7 @@
 package bluej.parser.nodes;
 
 import bluej.debugger.gentype.GenTypeClass;
-import bluej.editor.moe.Token;
+import bluej.parser.Token;
 import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.entity.JavaEntity;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;

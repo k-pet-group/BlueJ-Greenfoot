@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 
 import bluej.JavaFXThreadingRule;
-import bluej.editor.moe.ScopeColors;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.parser.entity.ClassLoaderResolver;

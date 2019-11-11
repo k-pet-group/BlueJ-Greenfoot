@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Properties;
 
 import bluej.JavaFXThreadingRule;
-import bluej.editor.moe.ScopeColors;
 import bluej.parser.entity.ClassLoaderResolver;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.PackageResolver;

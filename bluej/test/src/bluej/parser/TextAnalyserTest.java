@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import bluej.JavaFXThreadingRule;
-import bluej.editor.moe.ScopeColors;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.GenTypeParameter;
 import bluej.debugger.gentype.GenTypeWildcard;

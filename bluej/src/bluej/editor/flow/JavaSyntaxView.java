@@ -24,13 +24,11 @@ package bluej.editor.flow;
 import bluej.editor.flow.FlowEditorPane.LineStyler;
 import bluej.editor.flow.LineDisplay.LineDisplayListener;
 import bluej.editor.flow.TextLine.StyledSegment;
-import bluej.editor.moe.MoeSyntaxEvent;
-import bluej.editor.moe.MoeSyntaxEvent.NodeChangeRecord;
-import bluej.editor.moe.ReparseRecord;
-import bluej.editor.moe.ScopeColors;
-import bluej.editor.moe.Token;
-import bluej.editor.moe.Token.TokenType;
+import bluej.editor.flow.JavaSyntaxView.SyntaxEvent.NodeChangeRecord;
+import bluej.parser.Token;
+import bluej.parser.Token.TokenType;
 import bluej.parser.entity.EntityResolver;
+import bluej.parser.nodes.NodeStructureListener;
 import bluej.parser.nodes.NodeTree;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
@@ -59,16 +57,7 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * A Swing view implementation that does syntax colouring and adds some utility.
@@ -391,7 +380,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             //if (parentResolver != null || force) {
             //rootNode.setParentResolver(parentResolver);
             rootNode.textInserted(this, 0, 0, document.getLength(),
-                    new MoeSyntaxEvent(0, document.getLength(), true, false));
+                    new SyntaxEvent(0, document.getLength(), true, false));
             // We can discard the MoeSyntaxEvent: the reparse will update scopes/syntax
             //}
             document.addListener((start, oldText, newText, linesRemoved, linesAdded) -> {
@@ -1644,7 +1633,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
      * Need to override this method to handle node updates. If a node indentation changes,
      * the whole node needs to be repainted.
      */
-    protected void updateDamage(MoeSyntaxEvent changes)
+    protected void updateDamage(SyntaxEvent changes)
     {
         if (changes == null) {
             // Width has changed, so do it all:
@@ -1656,7 +1645,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         int damageStart = document.getLength();
         int damageEnd = 0;
 
-        MoeSyntaxEvent mse = changes;
+        SyntaxEvent mse = changes;
         for (NodeAndPosition<ParsedNode> nap : mse.getAddedNodes())
         {
             ParsedNode parent = nap.getNode().getParentNode();
@@ -2046,7 +2035,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                     }
 
                     //Debug.message("Reparsing: " + ppos + " " + pos);
-                    MoeSyntaxEvent mse = new MoeSyntaxEvent(-1, -1, false, false);
+                    SyntaxEvent mse = new SyntaxEvent(-1, -1, false, false);
                     pn.reparse(this, ppos, pos, maxParse, mse);
                     // Dump tree (for debugging):
                     //Debug.message("Dumping tree:");
@@ -2308,7 +2297,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         }
 
         restyleLines(document.getLineFromPosition(offset), document.getLineFromPosition(offset + length));
-        MoeSyntaxEvent mse = new MoeSyntaxEvent(offset, length, true, false);
+        SyntaxEvent mse = new SyntaxEvent(offset, length, true, false);
         if (rootNode != null) {
             rootNode.textInserted(this, 0, offset, length, mse);
         }
@@ -2387,7 +2376,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         }
 
         restyleLines(document.getLineFromPosition(offset), document.getLineFromPosition(offset + length));
-        MoeSyntaxEvent mse = new MoeSyntaxEvent(offset, length, false, true);
+        SyntaxEvent mse = new SyntaxEvent(offset, length, false, true);
         if (rootNode != null) {
             rootNode.textRemoved(this, 0, offset, length, mse);
         }
@@ -2423,7 +2412,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
      * @param mse the event with the details of the change, or null if the the change is a resize
      *            of the viewport (which requires re-drawing scope backgrounds to match).
      */
-    public void fireChangedUpdate(MoeSyntaxEvent mse)
+    public void fireChangedUpdate(SyntaxEvent mse)
     {
         updateDamage(mse);
 
@@ -2503,7 +2492,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 
     private List<EditEvent> recentEdits = new LinkedList<>();
 
-    private void recordEvent(MoeSyntaxEvent event)
+    private void recordEvent(SyntaxEvent event)
     {
         int type;
         if (event.isInsert())
@@ -2564,5 +2553,127 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         public void applyScopeBackgrounds(Map<Integer, List<BackgroundItem>> scopeBackgrounds);
 
         public void repaint();
+    }
+
+    /**
+     * A representation of document events in a MoeSyntaxDocuments. As well as textual
+     * changes, this can include information about node structure changes.
+     * 
+     * @author Davin McCall
+     */
+    @OnThread(Tag.Any)
+    public static class SyntaxEvent implements NodeStructureListener
+    {
+        private final int offset;
+        private final int length;
+        private final List<NodeAndPosition<ParsedNode>> addedNodes = new ArrayList<>();
+        private final List<NodeAndPosition<ParsedNode>> removedNodes = new ArrayList<>();
+        private final Map<ParsedNode, NodeChangeRecord> changedNodes = new HashMap<>();
+        private final boolean insert;
+        private final boolean remove;
+    
+        public SyntaxEvent(int offset, int length, boolean isInsert, boolean isRemove)
+        {
+            this.offset = offset;
+            this.length = length;
+            this.insert = isInsert;
+            this.remove = isRemove;
+        }
+    
+        public List<NodeAndPosition<ParsedNode>> getAddedNodes()
+        {
+            return addedNodes;
+        }
+    
+        /**
+         * Get a list of nodes removed as part of this event.
+         */
+        public List<NodeAndPosition<ParsedNode>> getRemovedNodes()
+        {
+            return removedNodes;
+        }
+        
+        /**
+         * Get a collection of nodes which changed position as part of this event.
+         */
+        public Collection<NodeChangeRecord> getChangedNodes()
+        {
+            return changedNodes.values();
+        }
+    
+        
+        // -------------- NodeStructureListener interface ------------------
+    
+    
+        @Override
+        public void nodeAdded(NodeAndPosition<ParsedNode> node)
+        {
+            addedNodes.add(node);
+        }
+    
+        @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+        public void nodeRemoved(NodeAndPosition<ParsedNode> node)
+        {
+            removedNodes.add(node);
+            changedNodes.remove(node.getNode());
+        }
+    
+        @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+        public void nodeChangedLength(NodeAndPosition<ParsedNode> nap, int oldPos,
+                int oldSize)
+        {
+            // We try to optimize a little by storing the original position of any
+            // changed node. If the node is then changed back to the original position,
+            // we can forget about the change.
+            NodeChangeRecord r = changedNodes.get(nap.getNode());
+            if (r == null) {
+                if (nap.getPosition() != oldPos || nap.getSize() != oldSize) {
+                    r = new NodeChangeRecord();
+                    r.nap = nap;
+                    r.originalPos = oldPos;
+                    r.originalSize = oldSize;
+                    changedNodes.put(nap.getNode(), r);
+                }
+            }
+            else {
+                if (nap.getPosition() == r.originalPos && nap.getSize() == r.originalSize) {
+                    changedNodes.remove(nap.getNode());
+                }
+                else {
+                    r.nap = nap;
+                }
+            }
+        }
+    
+        public int getOffset()
+        {
+            return offset;
+        }
+    
+        public int getLength()
+        {
+            return length;
+        }
+    
+        public boolean isInsert()
+        {
+            return insert;
+        }
+    
+        public boolean isRemove()
+        {
+            return remove;
+        }
+    
+        /**
+         * Node change record. Purely used for passing data around, hence public fields.
+         */
+        @OnThread(Tag.Any)
+        public class NodeChangeRecord
+        {
+            public int originalPos;
+            public int originalSize;
+            public NodeAndPosition<ParsedNode> nap;
+        }
     }
 }

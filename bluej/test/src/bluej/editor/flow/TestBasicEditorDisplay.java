@@ -30,7 +30,6 @@ import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
 import bluej.editor.flow.gen.GenRandom;
 import bluej.editor.flow.gen.GenString;
-import bluej.editor.moe.ScopeColorsBorderPane;
 import bluej.editor.stride.FrameCatalogue.ShowReason;
 import bluej.parser.InitConfig;
 import bluej.prefmgr.PrefMgr;

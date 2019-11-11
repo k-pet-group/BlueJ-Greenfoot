@@ -1,7 +1,5 @@
-package bluej.editor.moe;
+package bluej.editor.flow;
 
-import bluej.prefmgr.PrefMgr;
-import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.css.CssMetaData;
 import javafx.css.SimpleStyleableObjectProperty;

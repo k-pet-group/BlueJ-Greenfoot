@@ -21,18 +21,14 @@
  */
 package bluej.pkgmgr.print;
 
-import bluej.Config;
-import bluej.editor.Editor;
-import bluej.editor.moe.PrintDialog.PrintChoices;
+import bluej.editor.flow.PrintDialog.PrintChoices;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.ReadmeTarget;
 import bluej.utility.Debug;
-import bluej.utility.DialogManager;
 import bluej.utility.javafx.FXRunnable;
 import javafx.print.PrinterJob;
-import javafx.stage.Window;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

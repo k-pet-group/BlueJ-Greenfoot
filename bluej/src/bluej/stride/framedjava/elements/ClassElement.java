@@ -29,7 +29,7 @@ import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
 import bluej.editor.flow.HoleDocument;
 import bluej.editor.flow.JavaSyntaxView;
-import bluej.editor.moe.ScopeColorsBorderPane;
+import bluej.editor.flow.ScopeColorsBorderPane;
 import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.AssistContent.ParamInfo;
 import bluej.parser.ExpressionTypeInfo;

@@ -24,8 +24,8 @@ package bluej.parser.nodes;
 import java.io.Reader;
 
 import bluej.parser.nodes.ReparseableDocument.Element;
-import bluej.editor.moe.Token;
-import bluej.editor.moe.Token.TokenType;
+import bluej.parser.Token;
+import bluej.parser.Token.TokenType;
 import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.lexer.JavaLexer;
 import bluej.parser.lexer.JavaTokenTypes;

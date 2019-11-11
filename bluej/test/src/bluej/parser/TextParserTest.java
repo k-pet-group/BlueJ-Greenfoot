@@ -24,7 +24,6 @@ package bluej.parser;
 import java.util.List;
 
 import bluej.JavaFXThreadingRule;
-import bluej.editor.moe.ScopeColors;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugmgr.codepad.DeclaredVar;
 import bluej.parser.entity.ClassLoaderResolver;

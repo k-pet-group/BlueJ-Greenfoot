@@ -24,7 +24,7 @@ package bluej.stride.framedjava.elements;
 import bluej.debugger.gentype.ConstructorReflective;
 import bluej.editor.flow.HoleDocument;
 import bluej.editor.flow.JavaSyntaxView;
-import bluej.editor.moe.ScopeColorsBorderPane;
+import bluej.editor.flow.ScopeColorsBorderPane;
 import bluej.parser.ExpressionTypeInfo;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.nodes.ReparseableDocument;

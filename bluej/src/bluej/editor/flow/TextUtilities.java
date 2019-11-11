@@ -19,7 +19,7 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.editor.moe;
+package bluej.editor.flow;
 
 /*
  * TextUtilities.java - Utility functions used by the text area classes

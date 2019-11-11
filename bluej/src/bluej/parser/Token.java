@@ -19,7 +19,7 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.editor.moe;
+package bluej.parser;
 
 import com.google.common.collect.ImmutableSet;
 import threadchecker.OnThread;
