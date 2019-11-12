@@ -33,6 +33,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.IndexRange;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.input.KeyEvent;
@@ -99,6 +100,8 @@ public class FlowEditorPane extends Region implements DocumentListener, JavaSynt
     private boolean forceCaretShow = false;
     // The pending amount to scroll by (mouse/touch scroll events are batched up)
     private double pendingScrollY;
+    // Have we currently scheduled an update of the caret graphics?  If so, no need to schedule another.
+    private boolean caretUpdateScheduled;
 
     public FlowEditorPane(String content, FlowEditorPaneListener listener)
     {
@@ -285,21 +288,7 @@ public class FlowEditorPane extends Region implements DocumentListener, JavaSynt
 
         if (getScene() != null)
         {
-            JavaFXUtil.runAfterNextLayout(getScene(), () -> {
-                if (lineDisplay.isLineVisible(caret.getLine()))
-                {
-                    updateCaretGraphics(ensureCaretVisible, lineDisplay.getVisibleLine(caret.getLine()));
-                }
-                else
-                {
-                    caretShape.getElements().clear();
-                    caretShape.layoutXProperty().unbind();
-                    caretShape.layoutYProperty().unbind();
-                    caretShape.setLayoutX(0);
-                    caretShape.setLayoutY(0);
-                    caretShape.setVisible(false);
-                }
-            });
+            scheduleCaretUpdate(ensureCaretVisible);
         }
         updateCaretVisibility();
 
@@ -410,20 +399,54 @@ public class FlowEditorPane extends Region implements DocumentListener, JavaSynt
         requestLayout();
     }
 
-    private void updateCaretGraphics(boolean ensureCaretVisible, MarginAndTextLine caretLine)
+    /**
+     * Schedules an update of the caret graphics after the next scene layout.
+     * @param ensureCaretVisible True if we want to scroll to make sure the caret is on-screen.
+     */
+    private void scheduleCaretUpdate(boolean ensureCaretVisible)
     {
-        caretShape.getElements().setAll(caretLine.textLine.caretShape(caret.getColumn(), true));
-        caretShape.layoutXProperty().bind(caretLine.layoutXProperty());
-        if (ensureCaretVisible)
+        Scene scene = getScene();
+        if (scene == null || caretUpdateScheduled)
         {
-            Bounds caretBounds = caretShape.getBoundsInLocal();
-            double maxScroll = Math.max(0, caretBounds.getCenterX() - 8);
-            double minScroll = Math.max(0, caretBounds.getCenterX() - (getWidth() - MarginAndTextLine.TEXT_LEFT_EDGE - verticalScroll.prefWidth(-1) - 6));
-            horizontalScroll.setValue(Math.min(maxScroll, Math.max(minScroll, horizontalScroll.getValue())));
+            return;
         }
-        caretShape.translateXProperty().set(MarginAndTextLine.TEXT_LEFT_EDGE - horizontalScroll.getValue());
-        caretShape.layoutYProperty().bind(caretLine.layoutYProperty());
-        caretShape.setVisible(true);
+        
+        JavaFXUtil.runAfterNextLayout(scene, () -> {
+            caretUpdateScheduled = false;
+            if (lineDisplay.isLineVisible(caret.getLine()))
+            {
+                MarginAndTextLine line = lineDisplay.getVisibleLine(caret.getLine());
+                if (line.textLine.isNeedsLayout())
+                {
+                    // Still need to do more layout; try again after next layout:
+                    scheduleCaretUpdate(ensureCaretVisible);
+                    return;
+                }
+                
+                caretShape.getElements().setAll(line.textLine.caretShape(caret.getColumn(), true));
+                caretShape.layoutXProperty().bind(line.layoutXProperty());
+                if (ensureCaretVisible)
+                {
+                    Bounds caretBounds = caretShape.getBoundsInLocal();
+                    double maxScroll = Math.max(0, caretBounds.getCenterX() - 8);
+                    double minScroll = Math.max(0, caretBounds.getCenterX() - (getWidth() - MarginAndTextLine.TEXT_LEFT_EDGE - verticalScroll.prefWidth(-1) - 6));
+                    horizontalScroll.setValue(Math.min(maxScroll, Math.max(minScroll, horizontalScroll.getValue())));
+                }
+                caretShape.translateXProperty().set(MarginAndTextLine.TEXT_LEFT_EDGE - horizontalScroll.getValue());
+                caretShape.layoutYProperty().bind(line.layoutYProperty());
+                caretShape.setVisible(true);
+            }
+            else
+            {
+                caretShape.getElements().clear();
+                caretShape.layoutXProperty().unbind();
+                caretShape.layoutYProperty().unbind();
+                caretShape.setLayoutX(0);
+                caretShape.setLayoutY(0);
+                caretShape.setVisible(false);
+            }
+        });
+        caretUpdateScheduled = true;
     }
 
     private void updateCaretVisibility()
