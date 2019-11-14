@@ -44,5 +44,5 @@ if [ ! -e "$JAVAPATH/lib/javafx.graphics.jar" ]; then
     fi
 fi
 
-"$JAVAPATH/bin/java" -Djavafx.embed.singleThread=true -Dawt.useSystemAAFontSettings=on -Xmx512M \
+"$JAVAPATH/bin/java" -Dawt.useSystemAAFontSettings=on -Xmx512M \
     -cp "$CP" bluej.Boot ${JFXRTOPT:+"$JFXRTOPT"} ${JFXRTOPT2:+"$JFXRTOPT2"} "$@"

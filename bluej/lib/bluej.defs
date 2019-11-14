@@ -478,7 +478,7 @@ bluej.vm.args=-ea
 ## Java defaults need to be modified.  
 #####################################################################
 
-bluej.windows.vm.args=-Djavafx.embed.singleThread=true
+bluej.windows.vm.args=
 
 
 #####################################################################
