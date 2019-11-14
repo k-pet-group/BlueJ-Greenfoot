@@ -401,7 +401,6 @@ public class ExtensionsManager
      *            
      * @see BlueJEvent
      */
-    @OnThread(Tag.SwingIsFX)
     public void blueJEvent(int eventId, Object arg, Project prj)
     {
         if (eventId == BlueJEvent.EXECUTION_RESULT) {

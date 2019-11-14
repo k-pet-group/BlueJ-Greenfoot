@@ -122,7 +122,6 @@ public class BField
      * @throws ProjectNotOpenException   if the project to which this field belongs has been closed by the user.
      * @throws PackageNotFoundException  if the package to which this field belongs has been deleted by the user.
      */
-    @OnThread(Tag.SwingIsFX)
     private Object getStaticField() throws ProjectNotOpenException, PackageNotFoundException
     {
         Package bluejPkg = parentId.getBluejPackage();

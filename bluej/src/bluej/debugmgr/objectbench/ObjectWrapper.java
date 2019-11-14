@@ -312,7 +312,6 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
      * There should be only one BObject object associated with each Package.
      * @return the BPackage associated with this Package.
      */
-    @OnThread(Tag.SwingIsFX)
     public synchronized final BObject getBObject ()
     {
         if ( singleBObject == null )

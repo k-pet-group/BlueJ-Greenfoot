@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2019  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -38,7 +38,7 @@ import threadchecker.Tag;
  * @author  Andrew Patterson
  * @version $Id: FileEditor.java 6215 2009-03-30 13:28:25Z polle $
  */
-@OnThread(Tag.SwingIsFX) // We should just remove this whole class
+@OnThread(Tag.FXPlatform) // We should just remove this whole class
 public class FileEditor extends PlainDocument
 {
     private File fileToEdit;
