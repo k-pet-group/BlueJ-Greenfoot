@@ -28,36 +28,50 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 /**
- * This class encapsulates events which occur on BlueJ classes.<p>
+ * This class encapsulates events which occur on BlueJ classes.<br/><br/>
  * 
- * The following events can occur:<p>
+ * The following events can occur:<br/>
  * 
- * STATE_CHANGED: The compile state changed (either from uncompiled to compiled,
- *                or from compiled to uncompiled)<p>
- * CHANGED_NAME:  The class has changed name.<p>
- * REMOVED:       The class has been removed.
+ * STATE_CHANGED    -   the compile state changed (either from uncompiled to compiled,
+ *                or from compiled to uncompiled)<br/>
+ * CHANGED_NAME -   the class has changed name.<br/>
+ * REMOVED  -   the class has been removed.<br/><br/>
  * 
- * In the case of STATE_CHANGED there are three cases:<p>
- * 
- * isClassCompiled() returns true: The class has been compiled successfully.  Editing
- * the class will switch to one of the next two states.<p>
- * isClassCompiled() returns false and hasError() returns true: The class
+ * In the case of STATE_CHANGED there are three possible sitations:<br/>
+ * <ul>
+ * <li> isClassCompiled() returns true: the class has been compiled successfully.  Editing
+ * the class will switch to one of the next two states.</li>
+ * <li> isClassCompiled() returns false and hasError() returns true: the class
  * has been compiled and was found to have an error.  If the user edits the class,
  * it will either switch directly to the first state (if they fix it and the compile occurs quickly)
- * or the next state (if we are awaiting the compile). 
- * isClassCompiled() returns false, and hasError() returns false: The class
+ * or the next state (if we are awaiting the compile).</li>
+ * <li> isClassCompiled() returns false, and hasError() returns false: the class
  * has been edited and is awaiting the next compile.  When the next compile occurs,
- * the state will be changed to one of the above two states.<p> 
- * 
+ * the state will be changed to one of the above two states.</li>
+ * </ul>
  * @author Davin McCall
  */
 @OnThread(Tag.FXPlatform)
 public class ClassEvent implements ExtensionEvent
 {
+    /**
+     * Types of class events.
+     */
     public static enum EventType
     {
+        /**
+         * Event generated when the compile state of a class changed (either from uncompiled to compiled, or from compiled to uncompiled).
+         */
         STATE_CHANGED,
+
+        /**
+         * Event generated when a class has changed name.
+         */
         CHANGED_NAME,
+
+        /**
+         * Event generated when a class has been removed.
+         */
         REMOVED
     }
 
@@ -69,9 +83,11 @@ public class ClassEvent implements ExtensionEvent
     private String oldName;
 
     /**
-     * Construct a new ClassEvent object for a STATE_CHANGED event.
-     * @param isCompiled  Whether the class is compiled or not
-     * @param hasError True if the last compilation gave an error, and the class not has been edited since. 
+     * Constructs a new ClassEvent object for a {@link ClassEvent.EventType#STATE_CHANGED} event.
+     * @param bluejPackage a {@link Package} object that contains the compiled class.
+     * @param bClass a {@link BClass} object wrapping the compiled class.
+     * @param isCompiled  boolean indicating whether the class is compiled (<code>true</code>) or not.
+     * @param hasError boolean indicating whether the last compilation gave an error and the class not has been edited since (<code>true</code>).
      */
     public ClassEvent(Package bluejPackage, BClass bClass, boolean isCompiled, boolean hasError)
     {
@@ -83,8 +99,9 @@ public class ClassEvent implements ExtensionEvent
     }
     
     /**
-     * Construct a new ClassEvent object for a CHANGED_NAME event.
-     * @param bClass   The class which was renamed (refers to the new name)
+     * Constructs a new ClassEvent object for a {@link ClassEvent.EventType#CHANGED_NAME} event.
+     * @param bluejPackage a {@link Package} object that contains the renamed class.
+     * @param bClass   a {@link BClass} object wrapping the class which was renamed (refers to the new name).
      */
     public ClassEvent(Package bluejPackage, BClass bClass, String oldName)
     {
@@ -95,8 +112,9 @@ public class ClassEvent implements ExtensionEvent
     }
 
     /**
-     * Construct a new ClassEvent object for a REMOVED event.
-     * @param bClass   The class which was removed
+     * Constructs a new ClassEvent object for a {@link ClassEvent.EventType#REMOVED} event.
+     * @param bluejPackage a {@link Package} object that contained the removed class.
+     * @param bClass   a {@link BClass} object wrapping the class which was removed.
      */
     public ClassEvent(Package bluejPackage, BClass bClass)
     {
@@ -106,7 +124,9 @@ public class ClassEvent implements ExtensionEvent
     }
     
     /**
-     * Get the event type.
+     * Gets the event type.
+     *
+     * @return The {@link EventType} value associated with this ClassEvent.
      */
     public EventType getEventType()
     {
@@ -114,8 +134,10 @@ public class ClassEvent implements ExtensionEvent
     }
     
     /**
-     * Check whether the class for which the event occurred is compiled.
-     * Valid for STATE_CHANGED event.
+     * Checks whether the class for which the event occurred is compiled.
+     * Valid for {@link EventType#STATE_CHANGED} event.
+     *
+     * @return <code>True</code> if the class is compiled, <code>false</code> otherwise.
      */
     public boolean isClassCompiled()
     {
@@ -123,8 +145,10 @@ public class ClassEvent implements ExtensionEvent
     }
     
     /**
-     * Check whether the class for which the event occurred is compiled.
-     * Valid for STATE_CHANGED event if isClassCompiled() returns false.
+     * Checks whether the class for which the event occurred has compilation errors.
+     * Valid for {@link EventType#STATE_CHANGED} event if isClassCompiled() returns false.
+     *
+     * @return <code>True</code> if the class has compilation errors, <code>false</code> otherwise.
      */
     public boolean hasError()
     {
@@ -134,7 +158,7 @@ public class ClassEvent implements ExtensionEvent
     /**
      * Returns the package to which the class that caused this event belongs.
      * 
-     * @return The package to which the class that caused this event belongs.
+     * @return A {@link BPackage} object wrapping the package to which the class that caused this event belongs.
      */
     public BPackage getPackage()
     {
@@ -142,8 +166,9 @@ public class ClassEvent implements ExtensionEvent
     }
 
     /**
-     * Get the BClass object identifying the class on which the event
-     * occurred.
+     * Gets the class on which the event occurred.
+     *
+     * @return A {@link BClass} object wrapping the class on which this event occurred.
      */
     public BClass getBClass()
     {
@@ -151,7 +176,7 @@ public class ClassEvent implements ExtensionEvent
     }
     
     /**
-     * Get the new class name. Valid for CHANGED_NAME event.
+     * Gets the old class name. Valid for {@link EventType#CHANGED_NAME} event.
      */
     public String getOldName()
     {

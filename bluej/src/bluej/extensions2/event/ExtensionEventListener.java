@@ -22,20 +22,20 @@
 package bluej.extensions2.event;
 
 /**
- * This interface allows you to listen for all BlueJ events by using a single listener.
+ * This interface allows an extension to listen for all BlueJ events by using a single listener.
  * Normally, extensions will use the specialised event types and listeners, but 
  * in some cases (e.g.) logging or testing extensions this overarching event type 
  * will be more appropriate.
- *
- * @version $Id: ExtensionEventListener.java 6215 2009-03-30 13:28:25Z polle $
  */
 public interface ExtensionEventListener
 {
     /**
      * This method will be called when an event occurs.
-     * Note that this method is called from a Swing-like dispatcher and therefore you must
+     * Note that this method is called from the JavaFX (GUI) thread and therefore the extension must
      * return as quickly as possible. 
-     * If a long operation must be performed you should start a Thread.
+     * If a long operation must be performed the extension should start a Thread.
+     *
+     * @param event An {@link ExtensionEvent} object, typically one of the {@link ExtensionEvent}'s subclasses.
      */
     public void eventOccurred(ExtensionEvent event);
 }

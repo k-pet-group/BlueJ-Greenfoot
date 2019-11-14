@@ -35,7 +35,7 @@ import java.util.HashMap;
 
 /**
  * A wrapper for an object on the BlueJ object bench.
- * This wraps an object so you can add and remove it from the bench.
+ * This wraps an object the extension can add and remove from the bench.
  *
  * @see        BConstructor
  * @see        BMethod
@@ -53,9 +53,7 @@ public class BObject
 
 
     /**
-     * Constructor for BObject.
-     *
-     * @param  aWrapper  Description of the Parameter
+     * @param  aWrapper an {@link ObjectWrapper} object wrapping the underlying object.
      */
     BObject(ObjectWrapper aWrapper)
     {
@@ -65,7 +63,7 @@ public class BObject
         Project bluejProj = bluejPkg.getProject();
 
         // It really seems that the translation between Java naming and Class is needed.
-        // Also tryng to get the Class instead of just the name is a mess...
+        // Also trying to get the Class instead of just the name is a mess...
         String className = transJavaToClass(objectWrapper.getClassName());
 
         wrapperId = new Identifier(bluejProj, bluejPkg, className);
@@ -75,7 +73,7 @@ public class BObject
     /**
      * Returns the package this object belongs to.
      *
-     * @return                            The package value
+     * @return                           A {@link BPackage} object wrapping the package this object belongs to.
      * @throws ProjectNotOpenException   if the project to which this object belongs has been closed by the user.
      * @throws PackageNotFoundException  if the package to which this object belongs has been deleted by the user.
      */
@@ -112,11 +110,11 @@ public class BObject
 
     /**
      * Adds this object on the object bench.
-     * If you pass null as instanceName the object will have a predefined name.
+     * If <code>null</code> is passed as <code>instanceName</code> the object will have a predefined name.
      * If the object is not a valid one nothing will happen.
      *
      *
-     * @param  instanceName               The name you want this object to have on the bench.
+     * @param  instanceName              The name to be given to this object on the bench.
      * @throws ProjectNotOpenException   if the project to which this object belongs has been closed by the user.
      * @throws PackageNotFoundException  if the package to which this object belongs has been deleted by the user.
      */
@@ -150,9 +148,9 @@ public class BObject
 
 
     /**
-     * Return the name of this object on the object bench.
+     * Returns the name of this object on the object bench.
      *
-     * @return    The instance name if the object can be put into bench, null othervise
+     * @return    The instance name if the object can be put into bench, <code>null</code> othervise
      */
     public String getInstanceName()
     {
@@ -165,11 +163,11 @@ public class BObject
 
 
     /**
-     * Return the class of this object.
+     * Returns the class of this object.
      * Similar to Reflection API. Note the naming inconsistency, which
      * avoids a clash with <code>java.lang.Object.getClass()</code>
      *
-     * @return                           The bClass value
+     * @return                          a {@link BClass} object wrapping the class of this BObject.
      * @throws ProjectNotOpenException  if the project to which this object belongs has been closed by the user.
      * @throws ClassNotFoundException   if the class has been deleted by the user.
      * @throws PackageNotFoundException if the Package has been deleted by the user.
@@ -195,7 +193,7 @@ public class BObject
      * Returns the underlying BlueJ package.
      * Should remain visible only to package members.
      *
-     * @return                            The packageFrame value
+     * @return                           The {@link PkgMgrFrame} object representing the underlying package of this BObject.
      * @throws ProjectNotOpenException   if the project to which this object belongs has been closed by the user.
      * @throws PackageNotFoundException  if the package to which this object belongs has been deleted by the user.
      */
@@ -205,11 +203,10 @@ public class BObject
         return wrapperId.getPackageFrame();
     }
 
-
     /**
      * Returns the object wrapper to be used by the invoke on methods
      *
-     * @return    The objectWrapper value
+     * @return    The {@link ObjectWrapper} object of this BObject.
      */
     ObjectWrapper getObjectWrapper()
     {
@@ -220,7 +217,7 @@ public class BObject
     /**
      * Used by BField to get hold of the real Object
      *
-     * @return    The objectReference value
+     * @return    The {@link ObjectReference} object of the real object represented by this BObject.
      */
     ObjectReference getObjectReference()
     {
@@ -238,8 +235,6 @@ public class BObject
 
     /**
      * Returns a string representation of the Object
-     *
-     * @return    Description of the Return Value
      */
     public String toString()
     {

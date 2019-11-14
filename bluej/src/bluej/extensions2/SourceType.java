@@ -35,6 +35,11 @@ public enum SourceType
 {
     NONE, Java, Stride;
 
+    /**
+     * Returns a <code>SourceType</code> based on a literal value.
+     * @param s the literal value of the <code>SourceType</code> to match (case insensitive).
+     * @return The matching <code>SourceType</code> value, {@link #NONE} if the literal value is <code>null</code> or cannot be matched.
+     */
     public static SourceType getEnum(String s)
     {
         if (s == null || s.equals("null")) {
@@ -49,7 +54,13 @@ public enum SourceType
         }
         throw new IllegalArgumentException("No Enum specified for this string");
     }
-    
+
+    /**
+     * Returns the file extension value associated with this <code>SourceType</code>.
+     *
+     * @return The extension literal value of known <code>SourceType</code> used by BlueJ without the <code>.</code> prefix,
+     * empty value is returned for unknown <code>SourceType</code>.
+     */
     public String getExtension()
     {
         switch (this)

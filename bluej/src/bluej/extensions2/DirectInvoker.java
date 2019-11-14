@@ -48,10 +48,7 @@ class DirectInvoker
 
 
     /**
-     * For use by the bluej.extensions
-     *
-     * @param  i_pkgFrame  Description of the Parameter
-     * @param  i_callable  Description of the Parameter
+     * @param  i_pkgFrame  A {@link PkgMgrFrame} object to be associated with this DirectInvoker.
      */
     DirectInvoker(PkgMgrFrame i_pkgFrame)
     {
@@ -60,7 +57,7 @@ class DirectInvoker
 
 
     /**
-     * Call this if you want to call a constructor
+     * Extensions should call this method to invoke a constructor.
      *
      * <p>The arguments passed in the args array may have any type,
      * but the type will determine exactly what is passed to the
@@ -81,9 +78,9 @@ class DirectInvoker
      * generate an InvocationErrorException instead. In such cases no
      * expression arguments will be evaluated.
      *
-     * @param  callable         The constructor to call
-     * @param  args             Arguments to the constructor
-     * @return                                  The newly created object
+     * @param  callable         a {@link ConstructorView} object referring to the constructor to invoke.
+     * @param  args             an array of {@link Object} objets containing the arguments to the constructor.
+     * @return                  A {@link DebuggerObject} containing referring to the object created by the invocation of the constructor.
      * @throws InvocationArgumentException   if the argument list is not consistent with the signature
      * @throws InvocationErrorException      if there is a system error
      */
@@ -146,6 +143,7 @@ class DirectInvoker
      * expression arguments will be evaluated.
      *
      * @param  onThisObjectInstance             the method is called on this object
+     * @param callable                          The method
      * @param  args                             The arguments for the method
      * @return                                  The result object; for a constructor call this is the
      *                                          constructed object; for any other invocation this will be
@@ -438,7 +436,8 @@ class DirectInvoker
 
         /**
          * Treat run-time error the same as compile-time error.
-         * @param  msg  The exception message
+         * @param exception  The exception message
+         * @param ir The invocation record
          */
         public synchronized void putException(ExceptionDescription exception, InvokerRecord ir)
         {
@@ -480,7 +479,7 @@ class DirectInvoker
         }
         
         /**
-         * Returns the result type:<br>
+         * Returns the result type
          * ExecutionEvent.NORMAL_EXIT if execution completed normally;<br>
          * ExecutionEvent.EXCEPTION_EXIT if an exception occurred in user code;<br>
          * ExecutionEvent.TERMINATED_EXIT if the user VM exited for any reason;<br>

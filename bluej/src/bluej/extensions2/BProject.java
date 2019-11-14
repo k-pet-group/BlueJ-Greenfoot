@@ -44,7 +44,7 @@ public class BProject
     private Identifier projectId;
 
     /**
-     * Constructor for a BProject.
+     * @param  i_projectId an {@link Identifier} object referencing the underlying project to be wrapped by this BProject.
      */
     BProject (Identifier i_projectId)
     {
@@ -65,6 +65,7 @@ public class BProject
 
     /**
      * Returns the directory in which this project is stored.
+     * @return A {@link File} object representing the directory where this project is stored.
      * @throws ProjectNotOpenException if the project has been closed by the user.
      */
     public File getDir() throws ProjectNotOpenException
@@ -109,10 +110,10 @@ public class BProject
     }
 
     /**
-     * Create and return a new package with the given fully qualified name.
+     * Creates and returns a new package with the given fully qualified name.
      * The necessary directories and files will be created.
      *
-     * @return the requested package, or null if it wasn't found
+     * @return A {@link BPackage} object wrapping the created package.
      * @throws ProjectNotOpenException if the project has been closed by the user.
      * @throws PackageAlreadyExistsException if the named package already exists in the project.
      */
@@ -157,10 +158,10 @@ public class BProject
     }
 
     /**
-     * Get a package belonging to this project.
+     * Gets a package belonging to this project.
      *
-     * @param name the fully-qualified name of the package
-     * @return the requested package, or null if it wasn't found
+     * @param name the fully-qualified name of the package.
+     * @return A {@link BPackage} object wrapping the requested package, <code>null</code> if it wasn't found.
     *
      * @throws ProjectNotOpenException if the project has been closed by the user.
      */
@@ -176,7 +177,9 @@ public class BProject
 
     /**
      * Returns all packages belonging to this project.
-     * @return The array of this project's packages, if none exist an empty array is returned.
+     * If none exist an empty array is returned.
+     *
+     * @return An array of {@link BPackage} objects wrapping this project's packages.
      * @throws ProjectNotOpenException if the project has been closed by the user.
      */
     public BPackage[] getPackages() throws ProjectNotOpenException
@@ -197,9 +200,9 @@ public class BProject
     /**
      * Returns a URLClassLoader that should be used to load project classes.
      * Every time a project is compiled, even when the compilation is started from the GUI,
-     * a new URLClassLoader is created and if the Extension currently have a copy of the old one it should discard it
+     * a new URLClassLoader is created and if the extension currently have a copy of the old one it should discard it
      * and use getClassLoader() to acquire the new one.
-     * @return A class loader that should be used to load project classes.
+     * @return A {@link ClassLoader} object that should be used to load project classes.
      * @throws ProjectNotOpenException if the project has been closed by the user.
      */
     public URLClassLoader getClassLoader() throws ProjectNotOpenException
@@ -236,11 +239,9 @@ public class BProject
     }
 
     /**
-     * Open a tab (in the window with the FX-based editors, which at the moment includes
-     * the Stride editors but not the Java editors) with a web browser showing the given URL.
-     * If any open web browser tab is already showing that URL (either because it's been opened
-     * by this method before and not navigated away from, or because the user already navigated
-     * to that page), it is shown and focused instead of opening another browser with the same page.
+     * Opens a tab editor with a web browser showing the given URL.
+     * If any open web browser tab is already showing that URL,
+     * it is shown and focused instead of opening another browser with the same page.
      *
      * @param url The URL to open in the web browser
      * @throws ProjectNotOpenException if the project has been closed by the user

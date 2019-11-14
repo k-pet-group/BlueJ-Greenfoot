@@ -24,8 +24,6 @@ package bluej.extensions2;
 /**
  * This exception will be thrown when the parameters passed to an invocation
  * do not match the list of arguments of the invocation.
- * 
- * @version $Id: InvocationArgumentException.java 6215 2009-03-30 13:28:25Z polle $
  */
 
 /*

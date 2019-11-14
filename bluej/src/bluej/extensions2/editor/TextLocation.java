@@ -22,15 +22,15 @@
 package bluej.extensions2.editor;
 
 /**
- * A TextLocation object groups two pieces of information: a line number and a column number.
+ * A <code>TextLocation</code> object groups two pieces of information: a line number and a column number.
  * They represent a position in the editor's text.
  * A text location represents the gap to the left of the position identified, so
  * that (0, 0) is the start of the file, (0, 1) is between the first and
  * second characters in the file, and so on. There is a TextLocation position to
  * the right of the last character on a line. The column value of this
- * position can be determined using Editor.getLineLength(int line).
+ * position can be determined using {@link JavaEditor#getLineLength(int line)}.
  *
- * When applied to a particular edited text, a TextLocation may be <em>invalid</em>. 
+ * When applied to a particular edited text, a <code>TextLocation</code> may be <em>invalid</em>.
  * That is, at the time of use, it points to an area outside the text being edited.
  * 
  */
@@ -43,10 +43,10 @@ public class TextLocation
     private int line,column;
     
     /**
-     * Create a TextLocation representing the text position at the specified line and column
+     * Creates a TextLocation representing the text position at the specified line and column.
      *
-     * @param  line    a line number starting from 0
-     * @param  column  a column number starting from 0
+     * @param  line    a line number starting from 0.
+     * @param  column  a column number starting from 0.
      */
     public TextLocation(int line, int column)
     {
@@ -58,7 +58,7 @@ public class TextLocation
     /**
      * Sets the line number of this text position, leaving the column unchanged.
      *
-     * @param  line  the line number starting from zero
+     * @param  line  the line number starting from 0.
      */
     public void setLine(int line)
     {
@@ -67,9 +67,7 @@ public class TextLocation
 
 
     /**
-     * Returns the line of this text position
-     *
-     * @return    the line number of this text position
+     * Returns the line of this text position.
      */
     public int getLine()
     {
@@ -80,7 +78,7 @@ public class TextLocation
     /**
      * Sets the column of this text position, leaving the line number unchanged.
      *
-     * @param  column  the column number starting from zero
+     * @param  column  the column number starting from 0.
      */
     public void setColumn(int column)
     {
@@ -89,9 +87,7 @@ public class TextLocation
 
 
     /**
-     * Returns the column of this text location
-     *
-     * @return    the column number of this text location
+     * Returns the column of this text location.
      */
     public int getColumn()
     {
@@ -100,10 +96,10 @@ public class TextLocation
 
 
     /**
-     * Set both the line number and column of this text location
+     * Sets both the line number and column of this text location.
      *
-     * @param  line    a line number starting from zero
-     * @param  column  a column number starting from zero
+     * @param  line    a line number starting from 0.
+     * @param  column  a column number starting from 0.
      */
     public void setPosition(int line, int column)
     {
@@ -112,9 +108,10 @@ public class TextLocation
     }
     
     /**
-     * Returns a string representation of this text location.
+     * Returns a literal representation of this text location.
      *
-     * @return a string that represents this object status
+     * @return A <code>String</code> object containing the literal value formatted as <code>"line=i column=j"</code>
+     * where <code>i</code> and <code>j</code> are respectively the line number value and the column number value of this text location.
      */
     public String toString ()
     {

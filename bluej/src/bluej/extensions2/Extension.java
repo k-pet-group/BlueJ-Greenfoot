@@ -36,7 +36,7 @@ public abstract class Extension
 {
     /* Version number variables -
      * 
-     * Do not make them final otherwise the compiler can compile it into the extension.
+     * Do not make them final otherwise the compiler cannot compile it into the extension.
      * Do not make them static, to prevent an extension from messing with the value
      * available to other extensions.
      */
@@ -54,10 +54,12 @@ public abstract class Extension
     public int VERSION_MINOR = 0;
 
     /**
-     * Determine whether this extension is compatible with a particular version
+     * Determines whether this extension is compatible with a particular version
      * of the extensions API. This method is called before the startup() method.
      * An extension can use VERSION_MAJOR and VERSION_MINOR as an aid to determine
      * whether it is compatible with the current BlueJ release.
+     *
+     * @return A boolean value indicating if the extension is compatible with the extension API (<code>true</code>).
      */
     public abstract boolean isCompatible();
 
@@ -66,7 +68,7 @@ public abstract class Extension
      * This is not called on a separate thread. Extensions should return as quick as 
      * possible from this method after creating their own thread if necessary.
      *
-     * @param  bluej  The starting point for interactions with BlueJ
+     * @param  bluej  a {@link BlueJ} object which serves as the starting point for interactions with BlueJ.
      */
     public abstract void startup(BlueJ bluej);
 
@@ -77,16 +79,16 @@ public abstract class Extension
      * be reloaded after having been terminated.
      *
      * <p>Any attempt by an extension to call methods on its
-     * <code>BlueJ</code> object after this method has been called will
-     * result in an (unchecked) <code>ExtensionUnloadedException</code>
-     * being thrown by the <code>BlueJ</code> object.
+     * {@link BlueJ} object after this method has been called will
+     * result in an (unchecked) {@link ExtensionUnloadedException}
+     * being thrown by the {@link BlueJ} object.
      */
     public void terminate()
     {
     }
 
     /**
-     * Should return a name for this extension. This will be displayed in the Help->Installed Extensions
+     * Should return a name for this extension. This will be displayed in the Help -&gt; Installed Extensions
      * dialog.
      * 
      * <p>Please limit the name to between 5 and 10 characters, and bear in mind the possibility of name
@@ -97,14 +99,14 @@ public abstract class Extension
     /**
      * Should return the version of the extension.
      * Please limit the string to between 5 and 10 characters.
-     * This will be displayed in the Help->Installed Extensions dialog
+     * This will be displayed in the Help -&gt; Installed Extensions dialog
      */
     public abstract String getVersion();
 
     /**
      * Should return a description of the extension's function.
      * It should be a brief statement of the extension's purpose.
-     * This will be displayed in the Help->Installed Extensions dialog
+     * This will be displayed in the Help -&gt; Installed Extensions dialog
      */
     public String getDescription()
     {
@@ -113,11 +115,12 @@ public abstract class Extension
 
     /**
      * Should return a URL where more information about the extension is available.
-     * This will be displayed in the Help->Installed Extensions dialog.
-     * If no information is available then null may be returned.
-     * 
+     * This will be displayed in the Help -&gt; Installed Extensions dialog.
+     *
      * <p>Ideally the information provided at the URL includes a complete manual, possible
      * upgrades and configuration details.
+     *
+     * @return A {@link URL} object referring to the URL of the extension, <code>null</code> if no information is available.
      */
     public URL getURL()
     {

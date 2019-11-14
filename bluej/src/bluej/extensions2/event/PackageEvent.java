@@ -33,15 +33,18 @@ import javafx.event.Event;
  */
 public class PackageEvent implements ExtensionEvent
 {
+    /**
+     * Types of package events.
+     */
     public static enum EventType
     {
         /**
-         * This event occurs when a package has just been opened.
+         * Event generated when a package has just been opened.
          */
         PACKAGE_OPENED,
 
         /**
-         * This event occurs when a package is just about to be closed.
+         * Event generated when a package is just about to be closed.
          */
         PACKAGE_CLOSING
     }
@@ -50,7 +53,8 @@ public class PackageEvent implements ExtensionEvent
     private Package thisPackage;
 
     /**
-     * Constructor for the PackageEvent.
+     * @param eventType one of the {@link EventType} values for this PackageEvent.
+     * @param pkg a {@link Package} object that raised this PackageEvent.
      */
     public PackageEvent (EventType eventType, Package pkg)
     {
@@ -59,15 +63,19 @@ public class PackageEvent implements ExtensionEvent
     }
 
     /**
-     * Returns the eventType of this event.
+     * Gets the event type.
+     *
+     * @return The {@link EventType} value associated with this PackageEvent.
      */
-    public EventType getEvent ()
+    public EventType getEventType ()
     {
         return eventType;
     }
 
     /**
-     * Returns the package associated with this event.
+     * Gets the package on which the event occurred.
+     *
+     * @return A {@link BPackage} object wrapping the package on which this event occurred.
      */
     public BPackage getPackage ()
     {

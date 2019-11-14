@@ -26,7 +26,6 @@ package bluej.extensions2;
  * The most likely reason for a compilation to abort is that BlueJ is currently
  * executing some class code.
  *
- * @version $Id: CompilationNotStartedException.java 6215 2009-03-30 13:28:25Z polle $
  */
 
 /*
@@ -37,5 +36,4 @@ public class CompilationNotStartedException extends ExtensionException
   CompilationNotStartedException (String reason) {
       super (reason);
   }
-
 }

@@ -35,16 +35,16 @@ import com.sun.jdi.Value;
 public class BArray 
 {
   /**
-   * Given a BlueJ array object, returns the item at the given index.
+   * Given an array BObject, returns the item at the given index.
    * In the case that the array contains elements of primitive type (<code>int</code> etc.), 
    * the return value is of the appropriate Java wrapper type (<code>Integer</code> etc.).
    * In the case that the array is composed of BlueJ objects (including nested arrays) then 
    * an appropriate BObject will be returned. 
    * 
-   * @param thisArray This must be an array object of which you want the given item.
-   * @param itemIndex The index in the array where you want to peek.
+   * @param thisArray a array BObject to retrieve the specified item of.
+   * @param itemIndex the index of the BArray's item to retrieve.
    * 
-   * @return an Object that encapsulate the specific item or null if not an array.
+   * @return An Object that encapsulate the specific item or null if <code>thisArray</code> is not an array.
    * @throws ProjectNotOpenException if the project to which this array belongs has been closed by the user.
    * @throws PackageNotFoundException if the package to which this array belongs has been deleted by the user.
    */

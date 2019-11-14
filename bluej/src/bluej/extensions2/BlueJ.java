@@ -96,10 +96,10 @@ public final class BlueJ
 
     /**
      * Constructor for a BlueJ proxy object.
-     * See the ExtensionBridge class.
+     * See {@link ExtensionBridge}
      *
-     * @param  aWrapper      Description of the Parameter
-     * @param  aPrefManager  Description of the Parameter
+     * @param  aWrapper      the {@link ExtensionWrapper} object associated with this extension.
+     * @param  aPrefManager  the ExtensionPrefManager object used by BlueJ to add an extensions's UI in BlueJ's preferences tab.
      */
     BlueJ(ExtensionWrapper aWrapper, ExtensionPrefManager aPrefManager)
     {
@@ -118,11 +118,10 @@ public final class BlueJ
     }
 
     /**
-     * Opens a project.
+     * Opens a BlueJ project.
      *
-     * @param  directory  Where the project is stored.
-     * @return            the BProject that describes the newly opened project,
-     *                    or null if it cannot be opened.
+     * @param  directory  location where the project is stored.
+     * @return            A {@link BProject} that wraps the newly opened project, or <code>null</code> if it cannot be opened.
      */
     public final BProject openProject(File directory)
     {
@@ -160,8 +159,8 @@ public final class BlueJ
     /**
      * Creates a new BlueJ project.
      *
-     * @param  directory    where you want the project be placed, it must be writable.
-     * @return              the newly created BProject if successful, null otherwise.
+     * @param  directory    location where the project will be stored, it must be writable.
+     * @return              A {@link BProject} object wrapping the newly created project if successful, <code>null</code> otherwise.
      */
     public BProject newProject(File directory)
     {
@@ -176,7 +175,7 @@ public final class BlueJ
             return null;
 
         // In order to create all necessary files, we "open" then project here
-        // this is not opening the project in BlueJ's interface and
+        // this is not opening the project in BlueJ's interface
         Project openProj = Project.openProject(directory.getAbsolutePath());
         if (openProj == null)
             return null;
@@ -186,9 +185,8 @@ public final class BlueJ
     
     /**
      * Returns all currently open projects.
-     * Returns an empty array if no projects are open.
      *
-     * @return    The openProjects value
+     * @return  An array of {@link BProject} objects representing opened projects, empty array if no project are opened.
      */
     public BProject[] getOpenProjects()
     {
@@ -209,12 +207,11 @@ public final class BlueJ
 
 
     /**
-     * Returns the currently selected package.
+     * Returns the current package.
      * The current package is the one that is currently selected by the
      * user interface.
-     * It can return null if there is no currently open package.
      *
-     * @return    The currentPackage value
+     * @return A {@link BPackage} object wrapping the current package, <code>null</code> if there is no currently open package.
      */
     public BPackage getCurrentPackage()
     {
@@ -240,10 +237,10 @@ public final class BlueJ
     /**
      * Returns the current JavaFX Stage being displayed.
      * Can be used (e.g.) as a "parent" frame for positioning modal dialogs.
-     * If there is a package currently open, it's probably better to use its <code>getWindow()</code>
+     * If there is a package currently open, it's probably better to use its {@link BPackage#getWindow()}
      * method to provide better placement.
      *
-     * @return    The current JavaFX Stage object
+     * @return  A {@link Stage} object representing the current JavaFX Stage object
      */
     public Stage getCurrentWindow()
     {
@@ -255,11 +252,9 @@ public final class BlueJ
 
 
     /**
-     * Install a new menu generator for this extension.
-     * If you want to delete a previously installed menu, then set it to null
+     * Installs a new menu generator for this extension.
      *
-     *
-     * @param  menuGen        The new menuGenerator value
+     * @param  menuGen a new {@link MenuGenerator}, <code>null</code> to delete a previously installed menu.
      */
     public void setMenuGenerator(MenuGenerator menuGen)
     {
@@ -272,8 +267,6 @@ public final class BlueJ
 
     /**
      * Returns the currently registered menu generator
-     *
-     * @return    The menuGenerator value
      */
     public MenuGenerator getMenuGenerator()
     {
@@ -282,10 +275,10 @@ public final class BlueJ
 
 
     /**
-     * Install a new preference panel for this extension.
-     * If you want to delete a previously installed preference panel, then set it to null
+     * Installs a new preference panel for this extension.
      *
-     * @param  prefGen  a class instance that implements the PreferenceGenerator interface.
+     * @param  prefGen  a class instance that implements the {@link PreferenceGenerator} interface,
+     *                  <code>null</code> to delete a previously installed preference panel.
      */
     public void setPreferenceGenerator(PreferenceGenerator prefGen)
     {
@@ -299,8 +292,6 @@ public final class BlueJ
 
     /**
      * Returns the currently registered preference generator.
-     *
-     * @return    The preferenceGenerator value
      */
     public PreferenceGenerator getPreferenceGenerator()
     {
@@ -309,10 +300,8 @@ public final class BlueJ
 
      /**
      * Returns the path of the <code>&lt;BLUEJ_HOME&gt;/lib</code> system directory.
-     * This can be used to locate systemwide configuration files.
-     * Having the directory you can then locate a file within it.
-     *
-     * @return    The systemLibDir value
+     * This can be used to locate system-wide configuration files.
+     * A file can then be located within this directory.
      */
     public File getSystemLibDir()
     {
@@ -326,9 +315,7 @@ public final class BlueJ
     /**
      * Returns the path of the user configuration directory.
      * This can be used to locate user dependent information.
-     * Having the directory you can then locate a file within it.
-     *
-     * @return    The userConfigDir value
+     * A file can then be located within this directory.
      */
     public File getUserConfigDir()
     {
@@ -339,11 +326,9 @@ public final class BlueJ
     }
     
     /**
-     * Returns the data-collection user ID, for use with extensions that
-     * aim to augment the BlueJ data collection project.
-     * 
-     * Since extension version 2.10
-     * 
+     * Returns the data-collection user ID.
+     * Used by extensions that aim to augment the BlueJ data collection project.
+     *
      * @return the user ID, as read from the properties file.
      */
     public String getDataCollectionUniqueID()
@@ -353,12 +338,11 @@ public final class BlueJ
 
 
     /**
-     * Returns a property from BlueJ's properties,
-     * or the given default value if the property is not currently set.
+     * Returns a property from BlueJ's properties.
      *
-     * @param  property  The name of the required global property
-     * @param  def       The default value to use if the property cannot be found.
-     * @return           the value of the property.
+     * @param  property  the name of the required global property
+     * @param  def       the default value to use if the property cannot be found.
+     * @return           The requested property's value, or the default value if the property is not currently set.
      */
     public String getBlueJPropertyString(String property, String def)
     {
@@ -370,13 +354,12 @@ public final class BlueJ
 
 
     /**
-     * Return a property associated with this extension from the standard BlueJ property repository.
-     * You must use the setExtensionPropertyString to write any property that you want stored.
-     * You can then come back and retrieve it using this function.
+     * Returns a property associated with this extension from the standard BlueJ property repository.
+     * Extensions must use {@link #setExtensionPropertyString(String, String)} to write any property that should be stored.
      *
-     * @param  property  The name of the required global property.
-     * @param  def       The default value to use if the property cannot be found.
-     * @return           the value of that property.
+     * @param  property  the name of the required global property.
+     * @param  def       the default value to use if the property cannot be found.
+     * @return           The value of that property, or the default value if the property is not currently set.
      */
     public String getExtensionPropertyString(String property, String def)
     {
@@ -393,7 +376,7 @@ public final class BlueJ
      * The property name does not need to be fully qualified since a prefix will be prepended to it.
      *
      *
-     * @param  property  The name of the required global property
+     * @param  property  the name of the required global property
      * @param  value     the required value of that property (or null to remove the property)
      */
     public void setExtensionPropertyString(String property, String value)
@@ -428,8 +411,8 @@ public final class BlueJ
      * </pre>
      * The files named <code>label</code> would contain the actual label key/value pairs.
      *
-     * @param  key  Description of the Parameter
-     * @return      The label value
+     * @param  key  the name of the required label
+     * @return      The label value.
      */
     public String getLabel(String key)
     {
@@ -455,6 +438,8 @@ public final class BlueJ
 
     /**
      * Registers a listener for all the events generated by BlueJ.
+     *
+     * @param listener an {@link ExtensionEventListener} object to register.
      */
     public void addExtensionEventListener(ExtensionEventListener listener)
     {
@@ -468,6 +453,8 @@ public final class BlueJ
 
     /**
      * Removes the specified listener so that it no longer receives events.
+     *
+     * @param listener an {@link ExtensionEventListener} object to unregister.
      */
     public void removeExtensionEventListener(ExtensionEventListener listener)
     {
@@ -481,6 +468,8 @@ public final class BlueJ
 
     /**
      * Registers a listener for application events.
+     *
+     * @param listener an {@link ApplicationListener} object to register.
      */
     public void addApplicationListener(ApplicationListener listener)
     {
@@ -497,7 +486,9 @@ public final class BlueJ
 
 
     /**
-     * Removes the specified listener so that it no longer receives events.
+     * Removes the listener specified listener so that it no longer receives application events.
+     *
+     * @param listener an {@link ApplicationListener} object to unregister.
      */
     public void removeApplicationListener(ApplicationListener listener)
     {
@@ -511,6 +502,8 @@ public final class BlueJ
 
     /**
      * Registers a listener for package events.
+     *
+     * @param listener an {@link PackageListener} object to register.
      */
     public void addPackageListener(PackageListener listener)
     {
@@ -523,7 +516,9 @@ public final class BlueJ
 
 
     /**
-     * Removes the specified listener so that it no longer receives events.
+     * Removes the specified listener so that it no longer receives package events.
+     *
+     * @param listener an {@link PackageListener} object to unregister.
      */
     public void removePackageListener(PackageListener listener)
     {
@@ -537,6 +532,8 @@ public final class BlueJ
 
     /**
      * Registers a listener for compile events.
+     *
+     * @param listener an {@link CompileListener} object to register.
      */
     public void addCompileListener(CompileListener listener)
     {
@@ -549,7 +546,9 @@ public final class BlueJ
 
 
     /**
-     * Removes the specified listener so that it no longer receives events.
+     * Removes the specified listener so that it no longer receives compile events.
+     *
+     * @param listener an {@link CompileListener} object to unregister.
      */
     public void removeCompileListener(CompileListener listener)
     {
@@ -562,7 +561,9 @@ public final class BlueJ
 
 
     /**
-     * Registers a listener for invocation events.
+     * Registers a listener for invocation finished events.
+     *
+     * @param listener an {@link InvocationFinishedListener} object to register.
      */
     public void addInvocationFinishedListener(InvocationFinishedListener listener)
     {
@@ -575,7 +576,9 @@ public final class BlueJ
 
 
     /**
-     * Removes the specified listener so no that it no longer receives events.
+     * Removes the specified listener so no that it no longer receives invocation finished events.
+     *
+     * @param listener an {@link InvocationFinishedListener} object to unregister.
      */
     public void removeInvocationFinishedListener(InvocationFinishedListener listener)
     {
@@ -588,9 +591,9 @@ public final class BlueJ
 
 
     /**
-     * Register a listener for class events.
-     * 
-     * @param listener
+     * Registers a listener for class events.
+     *
+     * @param listener an {@link ClassListener} object to register.
      */
     public void addClassListener(ClassListener listener)
     {
@@ -604,6 +607,8 @@ public final class BlueJ
     /**
      * Removes the specified class listener so no that it no longer receives
      * class events.
+     *
+     * @param listener an {@link ClassListener} object to unregister.
      */
     public void removeClassListener(ClassListener listener)
     {
@@ -615,16 +620,17 @@ public final class BlueJ
     }
 
     /**
-     * Dispatch this event to the listeners for the ALL events.
+     * Dispatches this event to the listeners for the ALL events.
      *
-     * @param  event  Description of the Parameter
+     * @param event an {@link ExtensionEvent} object to dispatch.
+
      */
     private void delegateExtensionEvent(ExtensionEvent event)
     {
         ExtensionEventListener[] listeners;
         
         synchronized (eventListeners) {
-            listeners = (ExtensionEventListener[]) eventListeners.toArray(new ExtensionEventListener[eventListeners.size()]);
+            listeners = eventListeners.toArray(new ExtensionEventListener[eventListeners.size()]);
         }
         
         for (int i = 0; i < listeners.length; i++) {
@@ -635,9 +641,9 @@ public final class BlueJ
 
 
     /**
-     * Dispatch this event to the listeners for the Application events.
+     * Dispatches this event to the listeners for the Application events.
      *
-     * @param  event  Description of the Parameter
+     * @param event an {@link ApplicationEvent} object to dispatch.
      */
     private void delegateApplicationEvent(ApplicationEvent event)
     {
@@ -649,18 +655,18 @@ public final class BlueJ
         
         for (int i = 0; i < listeners.length; i++) {
             ApplicationListener eventListener = listeners[i];
-            if (event.getEvent() == ApplicationEvent.EventType.APP_READY_EVENT)
+            if (event.getEventType() == ApplicationEvent.EventType.APP_READY_EVENT)
                 eventListener.blueJReady(event);
-            else if (event.getEvent() == ApplicationEvent.EventType.DATA_SUBMISSION_FAILED_EVENT)
+            else if (event.getEventType() == ApplicationEvent.EventType.DATA_SUBMISSION_FAILED_EVENT)
                 eventListener.dataSubmissionFailed(event);
         }
     }
 
 
     /**
-     * Dispatch this event to the listeners for the Package events.
+     * Dispatches this event to the listeners for the Package events.
      *
-     * @param  event  Description of the Parameter
+     * @param event an {@link PackageEvent} object to dispatch.
      */
     private void delegatePackageEvent(PackageEvent event)
     {
@@ -670,7 +676,7 @@ public final class BlueJ
             listeners = packageListeners.toArray(new PackageListener[packageListeners.size()]);
         }
         
-        PackageEvent.EventType thisEvent = event.getEvent();
+        PackageEvent.EventType thisEvent = event.getEventType();
 
         for (int i = 0; i < listeners.length; i++) {
             PackageListener eventListener = listeners[i];
@@ -688,9 +694,9 @@ public final class BlueJ
 
 
     /**
-     * Dispatch this event to the listeners for the Compile events.
+     * Dispatches this event to the listeners for the Compile events.
      *
-     * @param  event  Description of the Parameter
+     * @param event an {@link CompileEvent} object to dispatch.
      */
     private void delegateCompileEvent(CompileEvent event)
     {
@@ -700,7 +706,7 @@ public final class BlueJ
             listeners = (CompileListener[]) compileListeners.toArray(new CompileListener[compileListeners.size()]);
         }
         
-        EventType thisEvent = event.getEvent();
+        EventType thisEvent = event.getEventType();
 
         for (int i = 0; i < listeners.length; i++) {
             CompileListener eventListener = listeners[i];
@@ -726,9 +732,9 @@ public final class BlueJ
 
 
     /**
-     * Dispatch this event to the listeners for the InvocationFinished events.
+     * Dispatches this event to the listeners for the InvocationFinished events.
      *
-     * @param  event  The event to dispatch
+     * @param event an {@link InvocationFinishedEvent} object to dispatch.
      */
     private void delegateInvocationEvent(InvocationFinishedEvent event)
     {
@@ -744,9 +750,9 @@ public final class BlueJ
     }
 
     /**
-     * Dispatch a class event to the appropriate listeners.
-     * 
-     * @param event  The event to dispatch
+     * Dispatches a class event to the appropriate listeners.
+     *
+     * @param event an {@link ClassEvent} object to dispatch.
      */
     private void delegateClassEvent(ClassEvent event)
     {
@@ -779,6 +785,8 @@ public final class BlueJ
      * Informs any registered listeners that an event has occurred.
      * This will call the various dispatcher as needed.
      * Errors will be trapped by the caller.
+     *
+     * @param event an {@link ExtensionEvent} object to dispatch.
      */
     void delegateEvent(ExtensionEvent event)
     {
@@ -799,11 +807,12 @@ public final class BlueJ
      * Calls the extension to get the right menu item.
      * This is already wrapped for errors in the caller.
      * It is right for it to create a new wrapped object each time.
-     * We do not want extensions to share objects.
+     * Extensions do not to share objects.
      * It is here since it can access all constructors directly.
      *
-     * @param  attachedObject  Description of the Parameter
-     * @return                 The menuItem value
+     * @param  attachedObject  an {@link ExtensionMenu} object that will contain the generated {@link MenuItem}.
+     * @return                 The generated {@link MenuItem}, <code>null</code> if the extension has not installed any {@link MenuGenerator},
+     *                          or if the argument <code>attachedObject</code> is <code>null</code>.
      */
     MenuItem getMenuItem(ExtensionMenu attachedObject)
     {
@@ -816,7 +825,10 @@ public final class BlueJ
 
 
     /**
-     * Post a notification of a menu going to be displayed
+     * Posts a notification of a menu going to be displayed
+     *
+     * @param  attachedObject  an {@link ExtensionMenu} object that contains extension generated {@link MenuItem} object.
+     * @param  onThisItem  an {@link MenuItem} object that triggered a call to this method.
      */
     void postMenuItem(ExtensionMenu attachedObject, MenuItem onThisItem)
     {
