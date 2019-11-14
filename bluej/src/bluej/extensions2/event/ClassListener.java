@@ -22,35 +22,35 @@
 package bluej.extensions2.event;
 
 /**
- * This interface allows you to listen for class events.
+ * This interface allows an extension to listen for class events.
  * 
- * <p>Currently the only event is the "state changed" event which can
- * be used to detect when a class becomes uncompiled (i.e. the source is
- * changed) or compiled. 
+ * <p>Events type are one of the {@link bluej.extensions2.event.ClassEvent.EventType} values.
  * 
  * @author Davin McCall
- * @version $Id: ClassListener.java 6215 2009-03-30 13:28:25Z polle $
  */
 public interface ClassListener
 {
     /**
-     * The class state changed. This means that the class source was
+     * This method will be called when a class state changed. This means that the class source was
      * changed so that the class is now uncompiled, or the class was
      * compiled, or the class was renamed.
+     *
+     * @param event a {@link ClassEvent} object of type {@link bluej.extensions2.event.ClassEvent.EventType#STATE_CHANGED}.
      */
     public void classStateChanged(ClassEvent event);
 
     /**
-     * The class has been renamed
+     * This method will be called when a class has been renamed.
+     *
+     * @param event a {@link ClassEvent} object of type {@link bluej.extensions2.event.ClassEvent.EventType#CHANGED_NAME}.
      */
     public void classNameChanged(ClassEvent event);
 
     /**
-     * A class has been removed. The removed class can be acquired from the
+     * This method will be called when a class has been removed. The removed class can be acquired from the
      * passed in {@link ClassEvent} object.
      *
-     * @param event
-     *            A <code>ClassEvent</code> object which describes the event.
+     * @param event a {@link ClassEvent} object of type {@link bluej.extensions2.event.ClassEvent.EventType#REMOVED}.
      */
     void classRemoved(ClassEvent event);
 }

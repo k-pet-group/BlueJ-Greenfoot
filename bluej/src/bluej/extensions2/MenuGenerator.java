@@ -37,7 +37,15 @@ import javafx.scene.control.MenuItem;
  * that the "notify" methods below will only be called for the item which has
  * actually been added, and not any subsidiary items.
  * <p>
- *
+ * Note that the MenuGenerator's get*MenuItem() methods:
+ * <ol>
+ *     <li>may be called more than once during a BlueJ session, they should return a new set of MenuItems for each invocation.
+ *     This is a restriction required by the JavaFX implementation, which does not allow sharing of MenuItems between menus.
+ *     Of course, ActionEvents can be shared between all of the appropriate MenuItems.</li>
+ * <li>may not be called between the registration of a new MenuGenerator and the display of a menu.
+ * That is to say old menu items may still be active for previously registered menus, despite the registration of a new MenuGenerator.</li>
+ * <li>will be called at least once for every menu which is displayed.</li>
+ *</ol>
  * @author Damiano Bolla, University of Kent at Canterbury. January 2003
  */
 public class MenuGenerator
@@ -45,9 +53,10 @@ public class MenuGenerator
     /**
      * Returns the MenuItem to be added to the BlueJ Tools menu.
      * Extensions should not retain references to the menu items created.
-     * @param bp the BlueJ package with which this menu item will be associated.
+     * @param bPackage a {@link BPackage} object wrapping the BlueJ package with which this menu item will be associated.
+     * @return This method should return a {@link MenuItem} object to be added to the Tools menu for this extensions, <code>null</code> is returned by default.
      */
-    public MenuItem getToolsMenuItem(BPackage bp)
+    public MenuItem getToolsMenuItem(BPackage bPackage)
     {
         return null;
     }
@@ -56,10 +65,8 @@ public class MenuGenerator
      * Returns the MenuItem to be added to the BlueJ Package menu. Extensions
      * should not retain references to the menu items created.
      *
-     * @param bPackage
-     *            The BlueJ package with which this menu item will be
-     *            associated.
-     * @return The MenuItem to be added to the BlueJ Package menu.
+     * @param bPackage a {@link BPackage} object wrapping the BlueJ package with which this menu item will be associated.
+     * @return This method should return a {@link MenuItem} object to be added to the Ppackage menu for this extensions, <code>null</code> is returned by default.
      */
     public MenuItem getPackageMenuItem(BPackage bPackage)
     {
@@ -67,11 +74,12 @@ public class MenuGenerator
     }
 
     /**
-     * Returns the JMenuItem to be added to the BlueJ Class menu
+     * Returns the MenuItem to be added to the BlueJ Class menu
      * Extensions should not retain references to the menu items created.
-     * @param bc the BlueJ class with which this menu item will be associated.
+     * @param bClass a {@link BClass} object wrapping the BlueJ class with which this menu item will be associated.
+     * @return This method should return a {@link MenuItem} object to be added to the Class menu for this extensions, <code>null</code> is returned by default.
      */
-    public MenuItem getClassMenuItem(BClass bc)
+    public MenuItem getClassMenuItem(BClass bClass)
     {
         return null;
     }
@@ -79,9 +87,10 @@ public class MenuGenerator
     /**
      * Returns the MenuItem to be added to the BlueJ Object menu.
      * Extensions should not retain references to the menu items created.
-     * @param bo the BlueJ object with which this menu item will be associated.
+     * @param bObject a {@link BObject} object wrapping the BlueJ Object with which this menu item will be associated.
+     * @return This method should return a {@link MenuItem} object to be added to the Object menu for this extensions, <code>null</code> is returned by default.
      */
-    public MenuItem getObjectMenuItem(BObject bo)
+    public MenuItem getObjectMenuItem(BObject bObject)
     {
         return null;
     }
@@ -89,14 +98,12 @@ public class MenuGenerator
     /**
      * Called by BlueJ when a tools menu added by an extension is about to
      * be displayed. An extension can use this notification to decide whether
-     * to enable/disable menu items and so on. <em>Note:</em> Due to a bug in
-     * Apple's current Java implementation, this method will not be called when
-     * is running on a Mac. It will start working as soon as there's a fix.
-     * @param bp the BlueJ package for which the menu is to be displayed
-     * @param mi the menu item which will be displayed (as provided by the
-     * extension in a previous call to getToolsMenuItem)
+     * to enable/disable menu items and so on.
+     * @param bPackage a {@link BPackage} object wrapping the BlueJ package for which this menu is to be displayed.
+     * @param menuItem a {@link MenuItem} object about to be be displayed (as provided by the
+     * extension in a previous call to {@link #getToolsMenuItem(BPackage)}).
      */
-    public void notifyPostToolsMenu(BPackage bp, MenuItem mi)
+    public void notifyPostToolsMenu(BPackage bPackage, MenuItem menuItem)
     {
         return;
     }
@@ -106,12 +113,9 @@ public class MenuGenerator
      * displayed. An extension can use this notification to decide whether to
      * enable/disable menu items and so on.
      *
-     * @param bPackage
-     *            The BlueJ package for which the menu is to be displayed.
-     * @param menuItem
-     *            The menu item which will be displayed (as provided by the
-     *            extension in a previous call to
-     *            {@link #getPackageMenuItem(BPackage)}).
+     * @param bPackage a {@link BPackage} object wrapping the BlueJ package for which this menu is to be displayed.
+     * @param menuItem a {@link MenuItem} object about to be be displayed (as provided by the
+     * extension in a previous call to {@link #getPackageMenuItem(BPackage)}).
      */
     public void notifyPostPackageMenu(BPackage bPackage, MenuItem menuItem)
     {
@@ -122,11 +126,11 @@ public class MenuGenerator
      * Called by BlueJ when a class menu added by an extension is about to
      * be displayed. An extension can use this notification to decide whether
      * to enable/disable menu items and so on.
-     * @param bc the BlueJ class for which the menu is to be displayed
-     * @param mi the menu item which will be displayed (as provided by the
-     * extension in a previous call to getToolsMenuItem)
+     * @param bClass a {@link BClass} object wrapping the BlueJ class for which this menu is to be displayed.
+     * @param menuItem a {@link MenuItem} object about to be be displayed (as provided by the
+     * extension in a previous call to {@link #getClassMenuItem(BClass)}).
      */
-    public void notifyPostClassMenu(BClass bc, MenuItem mi)
+    public void notifyPostClassMenu(BClass bClass, MenuItem menuItem)
     {
         return;
     }
@@ -135,11 +139,11 @@ public class MenuGenerator
      * Called by BlueJ when an object menu added by an extension is about to
      * be displayed. An extension can use this notification to decide whether
      * to enable/disable menu items and so on.
-     * @param bo the BlueJ object for which the menu is to be displayed
-     * @param mi the menu item which will be displayed (as provided by the
-     * extension in a previous call to getToolsMenuItem)
+     * @param bObject a {@link BObject} object wrapping the BlueJ object for which this menu is to be displayed.
+     * @param menuItem a {@link MenuItem} object about to be be displayed (as provided by the
+     * extension in a previous call to {@link #getObjectMenuItem(BObject)}).
      */
-    public void notifyPostObjectMenu(BObject bo, MenuItem mi)
+    public void notifyPostObjectMenu(BObject bObject, MenuItem menuItem)
     {
         return;
     }

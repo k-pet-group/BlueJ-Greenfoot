@@ -26,7 +26,6 @@ package bluej.extensions2;
  * The most likely reason is that the user has deleted the class
  * using the GUI.
  * 
- * @version $Id: ClassNotFoundException.java 6215 2009-03-30 13:28:25Z polle $
  */
 
 /*

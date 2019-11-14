@@ -46,7 +46,7 @@ import java.util.concurrent.ExecutionException;
  * This class encapsulates events generated when the construction or invocation
  * of a BlueJ object finishes.
  * An invocation may finish in a normal way or it may be interrupted.
- * From this event you can extract the actual result of the invocation, and access the BlueJ
+ * From this event, an extension can extract the actual result of the invocation, and access the BlueJ
  * classes and objects involved.
  *
  * @author Clive Miller, University of Kent at Canterbury, 2002
@@ -55,23 +55,27 @@ import java.util.concurrent.ExecutionException;
 @OnThread(Tag.Any)
 public class InvocationFinishedEvent implements ExtensionEvent
 {
+    /**
+     * Types of invocation finished events.
+     */
     public static enum EventType
     {
         /**
-         * This event is returned in case of unknown mapping
+         * Event generated when an invocation finished with unknown event mapping.
          */
         UNKNOWN_EXIT,
         /**
-         * The execution finished normally.
+         * Event generated when an invocation finished normally.
          */
         NORMAL_EXIT,
 
         /**
-         * The execution finished due to an exception
+         * Event generated when an invocation terminated due to an exception.
          */
         EXCEPTION_EXIT,
+
         /**
-         * The execution finished because the user forcefully terminated it
+         * Event generated when an invocation terminated forcefully by the user.
          */
         TERMINATED_EXIT
     }
@@ -86,9 +90,7 @@ public class InvocationFinishedEvent implements ExtensionEvent
 
 
     /**
-     * Constructor for the event.
-     *
-     * @param  exevent  Description of the Parameter
+     * @param  exevent  an {@link ExecutionEvent} object associated with the invocation.
      */
     public InvocationFinishedEvent(ExecutionEvent exevent)
     {
@@ -120,7 +122,7 @@ public class InvocationFinishedEvent implements ExtensionEvent
     /**
      * Returns the termination type.
      *
-     * @return    The terminationType value
+     * @return The {@link EventType} value associated with this InvocationFinishedEvent.
      */
     public EventType getEventType()
     {
@@ -132,7 +134,7 @@ public class InvocationFinishedEvent implements ExtensionEvent
      * Returns the package in which this invocation took place.
      * Further information about the context of the event can be retrieved via the package object.
      *
-     * @return    The package value
+     * @return The {@link BPackage} object wrapping the package in which this invocation took place.
      */
     public BPackage getPackage()
     {
@@ -142,10 +144,8 @@ public class InvocationFinishedEvent implements ExtensionEvent
 
     /**
      * Returns the class name on which this invocation took place.
-     * If you need further information about this class you can obtain a
-     * BClass from <code>BPackage.getBClass()</code> using this name as a reference.
-     *
-     * @return    The className value
+     * Further information about this class can be obtained with 
+     * {@link BPackage#getBClass(String name)} using this name as a reference.
      */
     public String getClassName()
     {
@@ -155,14 +155,11 @@ public class InvocationFinishedEvent implements ExtensionEvent
 
     /**
      * Returns the instance name of the invoked object on the object bench.
-     * If you need further information about this object you can obtain a BObject using
-     * <code>BPackage.getObject()</code> using this name as a reference.
-     *
+     * Further information about this object can be obtained with {@link BPackage#getObject(String)} using this name as a reference.
+
      * For a static method invocation, this method will return <code>null</code>.
      * For a constructor call it will return the new instance name of the object on the object bench.
      * For a method call it will return the name of the object on which the operation was invoked.
-     *
-     * @return    The objectName value
      */
     public String getObjectName()
     {
@@ -173,8 +170,6 @@ public class InvocationFinishedEvent implements ExtensionEvent
     /**
      * Returns the method name being called.
      * Returns <code>null</code> if this is an invocation of a constructor.
-     *
-     * @return    The methodName value
      */
     public String getMethodName()
     {
@@ -190,7 +185,7 @@ public class InvocationFinishedEvent implements ExtensionEvent
      * parameterised types, only the base type (e.g. List, not 
      * List<String>) is returned.
      *
-     * @return    An array of Classes corresponding to the static types of the method's parameters.
+     * @return  An array of {@link Class} objects corresponding to the static types of the method's parameters.
      */
     @OnThread(Tag.FXPlatform)
     public Class<?>[] getSignature()
@@ -244,11 +239,11 @@ public class InvocationFinishedEvent implements ExtensionEvent
 
 
     /**
-     * Returns the values of the parameters to the invocation as strings.
+     * Returns the values of the parameters to the invocation as String objects.
      * If a parameter really was a String, this will be returned either as the
      * name of the string instance, or as a literal string enclosed in double quotes.
      *
-     * @return    The values of the parameters
+     * @return    An array of {@link String} objects containing the values of the parameters.
      */
     public String[] getParameters()
     {
@@ -261,9 +256,9 @@ public class InvocationFinishedEvent implements ExtensionEvent
 
     /**
      * Returns the newly created object (if any).
-     * If the object is one that can be put on the object bench it will be an instance of BObject.
+     * If the object is one that can be put on the object bench it will be an instance of {@link bluej.extensions2.BObject}.
      *
-     * @return    an Object of various types or <code>null</code> if the result type is <code>void</code>.
+     * @return    an Object object of various types, <code>null</code> if the result type is <code>void</code>.
      */
 
     // TODO: There ought to be a way of retrieving the declared return type of the invoked method.
@@ -311,8 +306,6 @@ public class InvocationFinishedEvent implements ExtensionEvent
 
     /**
      * Returns a meaningful description of this Event.
-     *
-     * @return    Description of the Return Value
      */
     public String toString()
     {

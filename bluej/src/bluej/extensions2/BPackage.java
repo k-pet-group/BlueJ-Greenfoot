@@ -55,7 +55,7 @@ public class BPackage
     private Identifier packageId;
 
     /**
-     * Constructor for a BPackage.
+     * @param  aPackageId an {@link Identifier} object referencing the underlying package to be wrapped by this BPackage.
      */
     @OnThread(Tag.Any)
     BPackage (Identifier aPackageId)
@@ -81,6 +81,8 @@ public class BPackage
 
     /**
      * Returns the package's project.
+     *
+     * @return A {@link BProject} object wrapping the package's project.
      * @throws ProjectNotOpenException if the project has been closed by the user.
      */
     public BProject getProject() throws ProjectNotOpenException
@@ -120,8 +122,10 @@ public class BPackage
     }
 
     /**
-     * Creates a new Class with the given name.
+     * Creates a new Java class with the given name.
      * The class name must not be a fully qualified name, and the .java file must already exist.
+     * @param className the fully qualified name of the class to create.
+     * @return A {@link BClass} object wrapping the created class.
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
      * @throws MissingJavaFileException if the .java file for the new class does not exist.
@@ -133,8 +137,11 @@ public class BPackage
     }
 
     /**
-     * Creates a new Class with the given name.
-     * The class name must not be a fully qualified name, and the .java file must already exist.
+     * Creates a new class with the given name for the given type.
+     * The class name must not be a fully qualified name, and the .java or .stride file must already exist.
+     * @param className the fully qualified name of the class to create.
+     * @param sourceType the {@link SourceType} objecet describing the type of the class, either {@link SourceType#Java} or {@link SourceType#Stride}.
+     * @return A {@link BClass} object wrapping the created class.
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
      * @throws MissingJavaFileException if the .java file for the new class does not exist.
@@ -156,6 +163,7 @@ public class BPackage
     /**
      * Returns the package window.
      * This can be used (e.g.) as the "parent" frame for positioning modal dialogues.
+     * @return A {@link Stage} object representing the window of the package wrapped by this BPackage.
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
@@ -167,11 +175,11 @@ public class BPackage
 
     /**
      * Returns the class with the given name in this package.
-     * Returns null if the class name does not exist. Note the naming
-     * inconsistency, which avoids a clash with
+     * Note the naming inconsistency, which avoids a clash with
      * <code>java.lang.Object.getClass()</code>
      *
      * @param name the simple name of the required class.
+     * @return A {@link BClass} object wrapping the class targeted with <code>name</code>, <code>null</code> if the class name does not exist.
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
@@ -197,6 +205,7 @@ public class BPackage
     /**
      * Returns an array containing all the classes in this package.
      * If there are no classes an empty array will be returned.
+     * @return An array of {@link BClass} objects wrapping the classes contained in this package.
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
@@ -219,8 +228,8 @@ public class BPackage
 
     /**
      * Returns a wrapper for the object with the given name on BlueJ's object bench.
-     * @param instanceName the name of the object as shown on the object bench
-     * @return the object, or null if no such object exists.
+     * @param instanceName the name of the object as shown on the object bench.
+     * @return A {@link BObject} object wrapping the object targered by <code>instanceName</code>, <code>null</code> if no such object exists.
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
@@ -248,6 +257,7 @@ public class BPackage
     /**
      * Returns an array of all the Objects on the object bench.
      * The array will be empty if no objects are on the bench.
+     * @return An array of {@link BObject} objects wrapping the objects contained in the object bench.
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
@@ -270,7 +280,7 @@ public class BPackage
 
 
     /**
-     * Compile all modified files of this package.
+     * Compiles all <b>modified</b> files of this package.
      * A single CompileEvent with all modified files listed will be generated.
      * @param  waitCompileEnd <code>true</code> waits for the compilation to be finished.
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
@@ -294,7 +304,7 @@ public class BPackage
 
 
     /**
-     * Compile all files of this package.
+     * Compiles all files of this package.
      * A single CompileEvent with all compiled files listed will be generated.
      * @param  waitCompileEnd <code>true</code> waits for the compilation to be finished.
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
@@ -319,6 +329,7 @@ public class BPackage
     /**
      * Returns the currently selected classes in this Package.
      * If no class is selected an empty array is returned.
+     * @return An array of {@link BClass} objects wrapping the classes selected in this package.
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
@@ -341,8 +352,9 @@ public class BPackage
     }
 
     /**
-     * Returns the currently selected objects in the Object Bench.
+     * Returns the currently selected objects in the object bench.
      * If no object is selected an empty array is returned.
+     * @return An array of {@link BObject} objects wrapping the objects selected in the object bench.
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
@@ -365,6 +377,7 @@ public class BPackage
 
     /**
      * Returns the directory where this package is stored.
+     * @return A {@link File} object representing the directory where this package is stored.
      * @throws ProjectNotOpenException if the project this package is part of has been closed by the user.
      * @throws PackageNotFoundException if the package has been deleted by the user.
      */
@@ -396,12 +409,12 @@ public class BPackage
     /**
      * Schedules a compilation of the package.
      *
-     * @param immediate If true, compile now.  Otherwise, wait for the default time
+     * @param immediate if <code>true</code>, compile now.  Otherwise, wait for the default time
      *                  (currently 1 second) then perform a compilation.  Any other
      *                  compilation requests from extensions or internally (e.g. due to code
      *                  editing) will reset the timer to 1 second again, so the compilation
-     *                  will always occur 1 second after the call to the most recent scheduleCompilation
-     *                  call.  e.g. if you call this every 900ms, compilation will never occur.
+     *                  will always occur 1 second after the call to the most recent <code>scheduleCompilation</code>
+     *                  call.  e.g. if this method is called every 900ms, compilation will never occur.
      * @throws ProjectNotOpenException if the project has been closed by the user
      * @throws PackageNotFoundException if the package has been deleted
      */

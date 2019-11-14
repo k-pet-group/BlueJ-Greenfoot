@@ -31,7 +31,6 @@ import bluej.views.ConstructorView;
  * A wrapper for a constructor of a BlueJ class.
  * Behaviour is similar to reflection API.
  *
- *
  * @author Damiano Bolla, University of Kent at Canterbury, 2003,2004
  */
 public class BConstructor
@@ -49,11 +48,10 @@ public class BConstructor
 
 
     /**
-     * Constructor.
-     * It is duty of the caller to make shure that the parent is valid.
+     * Constructor. It is the duty of the caller to make sure that the parent is valid.
      *
-     * @param  aParentId  Description of the Parameter
-     * @param  i_view     Description of the Parameter
+     * @param  aParentId  the {@link Identifier} of the parent class.
+     * @param  i_view     the {@link ConstructorView} of this constructor.
      */
     BConstructor(Identifier aParentId, ConstructorView i_view)
     {
@@ -65,7 +63,7 @@ public class BConstructor
     /**
      * Tests if this constructor matches the given signature.
      *
-     * @param  parameter  Description of the Parameter
+     * @param  parameter  signature of the constructor to compare.
      * @return            true if it does, false otherwise.
      */
     public boolean matches(Class<?>[] parameter)
@@ -106,12 +104,12 @@ public class BConstructor
 
 
     /**
-     * Returns the parameters of this constructor.
+     * Returns the parameters' types of this constructor.
      * Similar to reflection API.
      *
-     * @return    The parameterTypes value
+     * @return    An array of {@link Class} objects representing the parameters' types of the constructor.
      */
-    public Class<?>[] getParameterTypes()
+    public Class<?>[] getParametersTypes()
     {
         return bluej_view.getParameters();
     }
@@ -120,7 +118,7 @@ public class BConstructor
     /**
      * Creates a new instance of the object described by this constructor.
      * Similar to reflection API. Note that this method should not be called
-     * from the AWT/Swing event-dispatching thread.
+     * from the JavaFX (GUI) thread.
      *
      * <p>The arguments passed in the initargs array may have any type,
      * but the type will determine exactly what is passed to the
@@ -141,8 +139,8 @@ public class BConstructor
      * generate an InvocationErrorException instead. In such cases no
      * expression arguments will be evaluated.
      *
-     * @param  initargs                      Description of the Parameter
-     * @return                               Description of the Return Value
+     * @param  initargs                     An array of {@link Object} objects representing the arguments of this constructor.
+     * @return                              A {@link BObject} object instancied with this constructor.
      * @throws ProjectNotOpenException      if the project to which this constructor belongs has been closed by the user.
      * @throws PackageNotFoundException     if the package to which this constructor belongs has been deleted by the user.
      * @throws InvocationArgumentException  if the <code>initargs</code> don't match the constructor's arguments.
@@ -173,6 +171,9 @@ public class BConstructor
      * Returns the modifier of this constructor. The
      * {@link java.lang.reflect.Modifier} class can be used to decode the
      * modifiers.
+     *
+     * @return An int value representing the modifiers which can be decoded with <code>java.lang.reflect.Modifier</code>.
+     *
      */
     public int getModifiers()
     {
@@ -180,9 +181,7 @@ public class BConstructor
     }
 
     /**
-     *  Description of the Method
-     *
-     * @return    Description of the Return Value
+     *  Returns a string representation of the Object.
      */
     public String toString()
     {

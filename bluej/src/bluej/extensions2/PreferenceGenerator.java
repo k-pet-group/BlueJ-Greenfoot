@@ -27,23 +27,21 @@ import javafx.scene.layout.Pane;
  * Extensions which wish to add preference items to BlueJ's Tools/Preferences/Extensions 
  * panel should register an instance of PreferenceGenerator with the BlueJ proxy object.
  *
- * The PreferenceGenerator allows the creation of a Panel to contain
+ * The PreferenceGenerator allows the creation of a {@link Pane} to contain
  * preference data, and the loading and saving of that data.
- *
- * @version $Id: PreferenceGenerator.java 6215 2009-03-30 13:28:25Z polle $
  */
 
 /*
- * AUthor Damiano Bolla, University of Kent at Canterbuty, January 2003
+ * Author Damiano Bolla, University of Kent at Canterbury, January 2003
  */
  
 public interface PreferenceGenerator
 {
     /**
-     * Bluej will call this method to get the panel where preferences for this
+     * BlueJ will call this method to get the {@link Pane} where preferences for this
      * extension are. Preferences can be laid out as desired.
      *
-     * @return    The JPanel to contain preference data.
+     * @return    A {@link Pane} object the extension can add preference data into.
      */
     public Pane getWindow();
 
@@ -51,7 +49,7 @@ public interface PreferenceGenerator
     /**
      * When this method is called the Extension should load its current values into
      * its preference panel.
-     * This is called from a swing thread, so be quick.
+     * This is called from the JavaFX (GUI) thread, so be quick.
      */
     public void loadValues();
 
@@ -59,7 +57,7 @@ public interface PreferenceGenerator
     /**
      * When this method is called the Extension should save values from the preference panel into 
      * its internal state. Value checking can be performed at this point.
-     * This is called from a swing thread, so be quick.
+     * This is called from the JavaFX (GUI) thread, so be quick.
      */
     public void saveValues();
 }

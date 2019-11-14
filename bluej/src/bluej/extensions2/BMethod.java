@@ -52,7 +52,8 @@ public class BMethod
     private MethodView bluej_view;
 
     /**
-     * Constructor.
+     * @param  aParentId the {@link Identifier} of the parent class.
+     * @param  i_bluej_view the {@link MethodView} of this method.
      */
     BMethod (Identifier aParentId, MethodView i_bluej_view )
     {
@@ -62,8 +63,10 @@ public class BMethod
 
     /**
      * Tests if this method matches against the given signature.
-     * Returns true if there is a match, false otherwise.
      * Pass a zero length parameter array if the method takes no arguments.
+     *
+     * @param methodName the name of the method to compare this method with.
+     * @param parameter an array of {@link Class} objects representing the signature to compare this method with.
      */
     public boolean matches ( String methodName, Class<?>[] parameter )
     {
@@ -98,8 +101,8 @@ public class BMethod
     }
 
      /**
-     * Returns the class that declares this method.
-     * Similar to Reflection API
+     * Returns the class's name that declares this method.
+     * Similar to Reflection API.
      */
     public String getDeclaringClass()
     {
@@ -108,7 +111,9 @@ public class BMethod
 
     /**
      * Returns the types of the parameters of this method.
-     * Similar to Reflection API
+     * Similar to Reflection API.
+     *
+     * @return An array of {@link Class} objects representing the return type of this method.
      */
     public Class<?>[] getParameterTypes()
     {
@@ -117,7 +122,7 @@ public class BMethod
 
     /**
      * Returns the name of this method.
-     * Similar to Reflection API
+     * Similar to Reflection API.
      */
     public String getName()
     {
@@ -125,8 +130,10 @@ public class BMethod
     }
 
     /**
-     * Returns the return type of this method
-     * Similar to Reflection API
+     * Returns the return type of this method.
+     * Similar to Reflection API.
+     *
+     * @return A {@link Class} object representing the return type of this method.
      */
     public Class<?> getReturnType()
     {
@@ -135,8 +142,12 @@ public class BMethod
     }
 
     /**
-     * Returns the modifiers for this method.
-     * The <code>java.lang.reflect.Modifier</code> class can be used to decode the modifiers.
+     * Returns the modifier of this method. The
+     * {@link java.lang.reflect.Modifier} class can be used to decode the
+     * modifiers.
+     *
+     * @return An int value representing the modifiers which can be decoded with <code>java.lang.reflect.Modifier</code>.
+     *
      */
     public int getModifiers()
     {
@@ -144,8 +155,8 @@ public class BMethod
     }
 
     /**
-     * Invoke this method on the given object. Note that this method should
-     * not be called from the AWT/Swing event-dispatching thread.
+     * Invokes this method on the given object. Note that this method should
+     * not be called from the JavaFX (GUI) thread.
      *
      * <p>The arguments passed in the initargs array may have any type,
      * but the type will determine exactly what is passed to the
@@ -170,9 +181,9 @@ public class BMethod
      * as a side-effect, reset the VM used by BlueJ to run user code in this project, and clear the object bench. This
      * behaviour matches the effect of invoking a main method through the BlueJ GUI.
      *
-     * @param onThis The BObject to which the method call should be applied, null if a static method.
-     * @param params an array containing the arguments, or null if there are none
-     * @return the resulting Object. It can be a wrapper for a primitive type or a BObject
+     * @param onThis a {@link BObject} object on which the method call should be applied, null if a static method.
+     * @param params an array of {@link Object} objects containing the arguments, or null if there are none
+     * @return The resulting {@link Object} object. It can be a wrapper for a primitive type or a BObject
      * @throws ProjectNotOpenException if the project to which this object belongs has been closed by the user.
      * @throws PackageNotFoundException if the package to which this object belongs has been deleted by the user.
      * @throws InvocationArgumentException if the <code>params</code> don't match the object's arguments.

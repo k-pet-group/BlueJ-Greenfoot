@@ -26,8 +26,6 @@ package bluej.extensions2;
  * from BlueJ still tries to access methods of the BlueJ class.
  * If the Extension terminates its activities when the Extension.terminate() 
  * method is called then this exception will never be thrown.
- * 
- * @version $Id: ExtensionUnloadedException.java 6215 2009-03-30 13:28:25Z polle $
  */
 
 /*

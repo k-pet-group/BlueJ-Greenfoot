@@ -22,14 +22,14 @@
 package bluej.extensions2.event;
 
 /**
- * This interface allows you to listen for when an invocation has finished.
+ * This interface allows an extension to listen for when an invocation has finished.
  *
  */
 public interface InvocationFinishedListener
 {
     /**
      * This method will be called when an invocation has finished.
-     * If a long operation must be performed you should start a Thread.
+     * If a long operation must be performed the extension should start a Thread.
      */
     public void invocationFinished(InvocationFinishedEvent event);
 }

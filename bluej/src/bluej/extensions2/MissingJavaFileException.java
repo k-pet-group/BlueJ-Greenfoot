@@ -23,8 +23,6 @@ package bluej.extensions2;
 
 /**
  * This exception will be thrown when a new class is created and not java source file is provided.
- * 
- * @version $Id: MissingJavaFileException.java 6215 2009-03-30 13:28:25Z polle $
  */
 
 /*
