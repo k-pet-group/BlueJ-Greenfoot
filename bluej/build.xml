@@ -375,7 +375,7 @@
         </junit>
     </target>
 
-    <target name="doc-extension">
+    <target name="doc-extension" depends="jar-boot, compile-boot">
         <mkdir dir="${extension.doc}"/>
         <javadoc destdir="${extension.doc}"
             packagenames="bluej.extensions.event"
@@ -383,16 +383,21 @@
 
             Windowtitle="BlueJ Extensions API"
             Doctitle="BlueJ Extensions API"
-            bottom="&lt;a href=http://www.bluej.org/&gt;BlueJ homepage&lt;/a&gt;">
+            bottom="&lt;a href=http://www.bluej.org/&gt;BlueJ homepage&lt;/a&gt;"
+            Encoding="utf8">
 
             <fileset dir="src" defaultexcludes="yes">
                 <include name="bluej/extensions2/*.java" />
                 <exclude name="bluej/extensions2/ExtensionBridge.java"/>
                 <include name="bluej/extensions2/editor/*.java"/>
                 <exclude name="bluej/extensions2/editor/EditorBridge.java"/>
+                <include name="bluej/extensions2/event/*.java"/>
             </fileset>
             <classpath>
                 <path refid="bluej.class.path"/>
+                <pathelement location="${threadchecker.build}"/>
+                <pathelement location="${threadchecker.pluginbuild}"/>
+                <path refid="javafx.class.path"/>
                 <pathelement location="${boot.jar}"/>
             </classpath>
         </javadoc>
