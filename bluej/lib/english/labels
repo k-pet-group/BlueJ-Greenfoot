@@ -916,3 +916,8 @@ newProject.prompt=Enter a name for the new project
 classTarget.noSource=no source
 
 bluej.central.msg.title=BlueJ - Latest News
+
+printing.progress.title=Printing
+printing.progress.file=File progress (${cur}/${total} lines)
+printing.progress.project=Project progress (${cur}/${total} items)
+printing.progress.canceling=Canceling...

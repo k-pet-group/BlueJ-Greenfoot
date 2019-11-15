@@ -46,6 +46,7 @@ import java.util.stream.Collectors;
  */
 public class PackagePrintManager extends Thread
 {
+    private final PrintProgressDialog printProgressDialog;
     private final List<FXRunnable> printActions = new ArrayList<>();
     private final PrinterJob job;
 
@@ -58,6 +59,7 @@ public class PackagePrintManager extends Thread
     @OnThread(Tag.FXPlatform)
     public PackagePrintManager(PrinterJob job, PkgMgrFrame pkgMgrFrame, PrintChoices printChoices)
     {
+        this.printProgressDialog = new PrintProgressDialog(pkgMgrFrame.getWindow(), true);
         this.job = job;
 
         if (printChoices.printDiagram) {
@@ -72,7 +74,7 @@ public class PackagePrintManager extends Thread
         {
             printActions.addAll(pkg.getAllClassnamesWithSource().stream()
                     .map(className -> ((ClassTarget) pkg.getTarget(className)).getEditor())
-                    .map(ed -> ed.printTo(job, printChoices.printSize, printChoices.printLineNumbers, printChoices.printHighlighting))
+                    .map(ed -> ed.printTo(job, printChoices.printSize, printChoices.printLineNumbers, printChoices.printHighlighting, printProgressDialog.getWithinFileUpdater()))
                     .collect(Collectors.toList()));
         }
         if (printChoices.printReadme)
@@ -83,7 +85,7 @@ public class PackagePrintManager extends Thread
                 if (readmeTgt.getEditor() != null)
                 {
                     printActions.add(readmeTgt.getEditor().printTo(job, printChoices.printSize, 
-                            printChoices.printLineNumbers, printChoices.printHighlighting));
+                            printChoices.printLineNumbers, printChoices.printHighlighting, printProgressDialog.getWithinFileUpdater()));
                 }
             }
         }
@@ -98,8 +100,13 @@ public class PackagePrintManager extends Thread
     {
         try
         {
-            for (FXRunnable printAction : printActions)
+            for (int i = 0; i < printActions.size(); i++)
             {
+                FXRunnable printAction = printActions.get(i);
+                if (!printProgressDialog.setMultiFileProgress(i, printActions.size()))
+                {
+                    break;
+                }
                 printAction.run();
             }
         }
@@ -108,6 +115,7 @@ public class PackagePrintManager extends Thread
             Debug.reportError(t);
         }
         job.endJob();
+        printProgressDialog.finished();
     }
 
     /**
@@ -121,4 +129,9 @@ public class PackagePrintManager extends Thread
         pkgMgrFrame.printDiagram(printJob);
     }
 
+    @OnThread(Tag.FXPlatform)
+    public void showDialogAndWait()
+    {
+        printProgressDialog.showAndWait();
+    }
 }

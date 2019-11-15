@@ -36,6 +36,8 @@ import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXRunnable;
 import javafx.print.PrinterJob;
 import javafx.scene.image.Image;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 
 /**
@@ -201,9 +203,25 @@ public interface Editor
     boolean isModified();
 
     /**
+     * A callback to update the latest progress when printing a file.  Also allows cancellation
+     * by returning false.  Callers must check and obey the return!
+     */
+    public static interface PrintProgressUpdate
+    {
+        /**
+         * 
+         * @param curProgress Number of lines printed
+         * @param totalProgress Total number of lines to print
+         * @return true to continue printing, false to cancel
+         */
+        @OnThread(Tag.Any)
+        public boolean printProgress(int curProgress, int totalProgress);
+    }
+    
+    /**
      * Returns an action which will print the contents of the editor
      */
-    FXRunnable printTo(PrinterJob printerJob, PrintSize printSize, boolean printLineNumbers, boolean printBackground);
+    FXRunnable printTo(PrinterJob printerJob, PrintSize printSize, boolean printLineNumbers, boolean printScopeBackgrounds, PrintProgressUpdate progressUpdateCallback);
 
     /**
      * Set the 'read-only' property of this editor.

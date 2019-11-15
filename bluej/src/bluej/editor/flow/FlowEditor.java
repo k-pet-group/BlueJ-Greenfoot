@@ -67,6 +67,7 @@ import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.JavadocResolver;
 import bluej.pkgmgr.Project;
+import bluej.pkgmgr.print.PrintProgressDialog;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgr.PrintSize;
 import bluej.stride.framedjava.elements.CallElement;
@@ -2918,7 +2919,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      */
     @Override
     @OnThread(Tag.FXPlatform)
-    public FXRunnable printTo(PrinterJob printerJob, PrintSize printSize, boolean printLineNumbers, boolean printBackground)
+    public FXRunnable printTo(PrinterJob printerJob, PrintSize printSize, boolean printLineNumbers, boolean printScopeBackgrounds, PrintProgressUpdate progressUpdate)
     {
         SimpleDoubleProperty height = new SimpleDoubleProperty();
         Document doc = new HoleDocument();
@@ -3011,7 +3012,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             @Override
             public void applyScopeBackgrounds(Map<Integer, List<BackgroundItem>> scopeBackgrounds)
             {
-                if (printBackground)
+                if (printScopeBackgrounds)
                 {
                     lineDisplay.applyScopeBackgrounds(scopeBackgrounds);
                 }
@@ -3091,7 +3092,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             rootPane.applyCss();
         };
         // Run printing in another thread:
-        return () -> printPages(printerJob, rootPane, updatePageNumber, lineContainer, lineDisplay, allLines, printLineNumbers);
+        return () -> printPages(printerJob, rootPane, updatePageNumber, lineContainer, lineDisplay, allLines, printLineNumbers, progressUpdate);
     }
 
     /**
@@ -3111,7 +3112,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @OnThread(Tag.FX)
     public static void printPages(PrinterJob printerJob,
                                                                                 Node printNode, FXConsumer<Integer> updatePageNumber,
-                                                                                LineContainer lineContainer, LineDisplay lineDisplay, List<List<StyledSegment>> allLines, boolean printLineNumbers)
+                                                                                LineContainer lineContainer, LineDisplay lineDisplay, List<List<StyledSegment>> allLines, boolean printLineNumbers, PrintProgressUpdate progressUpdate)
     {
         // We must manually scroll down the editor, one page's worth at a time.  We keep track of the top line visible:
         int topLine = 0;
@@ -3119,6 +3120,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         int editorLines = allLines.size();
         int pageNumber = 1;
         int lastTopLine = topLine;
+        if (!progressUpdate.printProgress(0, editorLines))
+        {
+            return;
+        }
         while (topLine < editorLines && !lastPage)
         {
             // Scroll to make topLine actually at the top:
@@ -3193,10 +3198,16 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             {
             }
             printerJob.printPage(printNode);
+            if (!progressUpdate.printProgress(topLine, editorLines))
+            {
+                break;
+            }
             pageNumber += 1;
             // Failsafe:
             if (topLine <= lastTopLine)
+            {
                 break;
+            }
             
             lastTopLine = topLine;
         }
@@ -3219,7 +3230,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
         else if (job.showPrintDialog(getWindow()))
         {
-            FXRunnable printAction = printTo(job, choices.get().printSize, choices.get().printLineNumbers, choices.get().printHighlighting);
+            PrintProgressDialog printProgressDialog = new PrintProgressDialog(getWindow(), false);
+            FXRunnable printAction = printTo(job, choices.get().printSize, choices.get().printLineNumbers, choices.get().printHighlighting, printProgressDialog.getWithinFileUpdater());
             new Thread("PRINT")
             {
                 @Override
@@ -3228,8 +3240,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 {
                     printAction.run();
                     job.endJob();
+                    printProgressDialog.finished();
                 }
             }.start();
+            printProgressDialog.showAndWait();
         }
     }
 

@@ -39,6 +39,7 @@ import bluej.editor.flow.LineDisplay;
 import bluej.editor.flow.TextLine;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
+import bluej.pkgmgr.print.PrintProgressDialog;
 import bluej.prefmgr.PrefMgr;
 import bluej.testmgr.record.InvokerRecord;
 import bluej.utility.*;
@@ -485,7 +486,8 @@ public final class Terminal
             root.requestLayout();
             root.layout();
             root.applyCss();
-            
+
+            PrintProgressDialog printProgressDialog = new PrintProgressDialog(window, false);
             // Run in background thread:
             new Thread(new Runnable()
             {
@@ -493,10 +495,12 @@ public final class Terminal
                 @OnThread(value = Tag.FX, ignoreParent = true)
                 public void run()
                 {
-                    FlowEditor.printPages(job, root, n -> {}, lineContainer, lineDisplay, lines, false);
+                    FlowEditor.printPages(job, root, n -> {}, lineContainer, lineDisplay, lines, false, printProgressDialog.getWithinFileUpdater());
                     job.endJob();
+                    printProgressDialog.finished();
                 }
             }).start();
+            printProgressDialog.showAndWait();
         }
     }
 

@@ -514,7 +514,7 @@ public class FrameEditor implements Editor
 
             @Override
             @OnThread(Tag.FXPlatform)
-            public FXRunnable printTo(PrinterJob printerJob, PrintSize printSize, boolean printLineNumbers, boolean printBackground) { return FrameEditor.this.printTo(printerJob, printSize, printLineNumbers, printBackground); }
+            public FXRunnable printTo(PrinterJob printerJob, PrintSize printSize, boolean printLineNumbers, boolean printBackground, PrintProgressUpdate progressUpdate) { return FrameEditor.this.printTo(printerJob, printSize, printLineNumbers, printBackground, progressUpdate); }
 
             @Override
             @OnThread(Tag.FXPlatform)
@@ -964,7 +964,7 @@ public class FrameEditor implements Editor
 
     @Override
     @OnThread(Tag.FXPlatform)
-    public FXRunnable printTo(PrinterJob job, PrintSize printSize, boolean printLineNumbers, boolean printBackground)
+    public FXRunnable printTo(PrinterJob job, PrintSize printSize, boolean printLineNumbers, boolean printBackground, PrintProgressUpdate progressUpdate)
     {
         CompletableFuture<Boolean> inited = new CompletableFuture<>();
         if (panel == null)
