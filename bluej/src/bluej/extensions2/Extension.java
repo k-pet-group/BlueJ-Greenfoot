@@ -34,34 +34,35 @@ import java.net.URL;
  */
 public abstract class Extension
 {
-    /* Version number variables -
-     * 
-     * Do not make them final otherwise the compiler cannot compile it into the extension.
-     * Do not make them static, to prevent an extension from messing with the value
-     * available to other extensions.
-     */
-    
-    /**
-     * The major version number of the Extension API.
-     * Provided so that extensions can check for compatibility.
-     */
-    public int VERSION_MAJOR = 3;
-
-    /**
-     * The minor version number of the Extension API.
-     * Provided so that extensions can check for compatibility.
-     */
-    public int VERSION_MINOR = 0;
-
     /**
      * Determines whether this extension is compatible with a particular version
      * of the extensions API. This method is called before the startup() method.
-     * An extension can use VERSION_MAJOR and VERSION_MINOR as an aid to determine
+     * An extension can use {@link #getExtensionsAPIVersionMajor()} and {@link #getExtensionsAPIVersionMinor()} as an aid to determine
      * whether it is compatible with the current BlueJ release.
      *
      * @return A boolean value indicating if the extension is compatible with the extension API (<code>true</code>).
      */
     public abstract boolean isCompatible();
+
+    /**
+     * Obtains the major version of the Extensions API.
+     *
+     * @return An integer indicating the major version of the Extensions API. Currently 3.
+     */
+    protected static final int getExtensionsAPIVersionMajor()
+    {
+        return 3;
+    }
+
+    /**
+     * Obtains the minor version of the Extensions API.
+     *
+     * @return An integer indicating the minor version of the Extensions API. Currently 0.
+     */
+    protected static final int getExtensionsAPIVersionMinor()
+    {
+        return 0;
+    }
 
     /**
      * Called when the extension can start its activity.
