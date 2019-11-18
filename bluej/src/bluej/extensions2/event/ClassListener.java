@@ -34,6 +34,7 @@ public interface ClassListener
      * This method will be called when a class state changed. This means that the class source was
      * changed so that the class is now uncompiled, or the class was
      * compiled, or the class was renamed.
+     * If a long operation must be performed the extension should start a Thread.
      *
      * @param event a {@link ClassEvent} object of type {@link bluej.extensions2.event.ClassEvent.EventType#STATE_CHANGED}.
      */
@@ -41,6 +42,7 @@ public interface ClassListener
 
     /**
      * This method will be called when a class has been renamed.
+     * If a long operation must be performed the extension should start a Thread.
      *
      * @param event a {@link ClassEvent} object of type {@link bluej.extensions2.event.ClassEvent.EventType#CHANGED_NAME}.
      */
@@ -49,6 +51,7 @@ public interface ClassListener
     /**
      * This method will be called when a class has been removed. The removed class can be acquired from the
      * passed in {@link ClassEvent} object.
+     * If a long operation must be performed the extension should start a Thread.
      *
      * @param event a {@link ClassEvent} object of type {@link bluej.extensions2.event.ClassEvent.EventType#REMOVED}.
      */
