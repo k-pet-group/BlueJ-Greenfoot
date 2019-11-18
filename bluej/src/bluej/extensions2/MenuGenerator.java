@@ -41,7 +41,7 @@ import javafx.scene.control.MenuItem;
  * <ol>
  *     <li>may be called more than once during a BlueJ session, they should return a new set of MenuItems for each invocation.
  *     This is a restriction required by the JavaFX implementation, which does not allow sharing of MenuItems between menus.
- *     Of course, ActionEvents can be shared between all of the appropriate MenuItems.</li>
+ *     Of course, ActionEvent's handlers can be shared between all of the appropriate MenuItems.</li>
  * <li>may not be called between the registration of a new MenuGenerator and the display of a menu.
  * That is to say old menu items may still be active for previously registered menus, despite the registration of a new MenuGenerator.</li>
  * <li>will be called at least once for every menu which is displayed.</li>
