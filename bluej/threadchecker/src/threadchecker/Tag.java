@@ -1,11 +1,30 @@
+/*
+ This file is part of the BlueJ program. 
+ Copyright (C) 2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
+ 
+ This program is free software; you can redistribute it and/or 
+ modify it under the terms of the GNU General Public License 
+ as published by the Free Software Foundation; either version 2 
+ of the License, or (at your option) any later version. 
+ 
+ This program is distributed in the hope that it will be useful, 
+ but WITHOUT ANY WARRANTY; without even the implied warranty of 
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
+ GNU General Public License for more details. 
+ 
+ You should have received a copy of the GNU General Public License 
+ along with this program; if not, write to the Free Software 
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
+ 
+ This file is subject to the Classpath exception as provided in the  
+ LICENSE.txt file that accompanied this code.
+ */
 package threadchecker;
 
 public enum Tag
 {
     // FXPlatform is the FX thread, Swing is the EDT
     // FX means either FX thread or a loader thread for FX
-    // SwingIsFX means designed to work on Swing, now relying on them being same thread.
-    //   (Separate to Swing to identify better what is happening during transition from Swing to FX)
     // Things like Thread.run or FXWorker.construct are tagged as Unique
     // Worker is for background tasks not on any of the other threads.
     // Any means that the method is safe to call from any thread (including FX, Swing, and others)
@@ -22,10 +41,6 @@ public enum Tag
      * Only for use on the Swing event thread (aka EDT)
      */
     Swing,
-    /**
-     * Only for use on the joined Swing/FX thread (valid only because we have set the Java command-line flag)
-     */
-    SwingIsFX,
     /**
      * Only for use on the Greenfoot Simulation thread in the simulation VM.
      */
@@ -53,8 +68,6 @@ public enum Tag
             return true; // FX can override FXPlatform, but not vice versa
         else if (this == Any)
             return true; // Any can override a more-specific parent tag
-        else if (this == SwingIsFX && (parent == FXPlatform || parent == Swing))
-            return true;
         else
             return this == parent;
     }
@@ -71,9 +84,6 @@ public enum Tag
             return true;
         else if (dest == Tag.FX && this == Tag.FXPlatform)
             return true; // FXPlatform can call FX, but not vice versa
-        else if ((dest == Tag.SwingIsFX && (this == Tag.FXPlatform || this == Tag.Swing))
-              || (this == Tag.SwingIsFX && (dest == Tag.FXPlatform || dest == Tag.Swing)))
-            return true;
         else
             return this == dest;
         

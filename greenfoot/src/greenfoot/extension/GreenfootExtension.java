@@ -45,7 +45,6 @@ import threadchecker.Tag;
  * 
  * @author Poul Henriksen
  */
-@OnThread(Tag.SwingIsFX)
 public class GreenfootExtension extends Extension implements ApplicationListener
 {
     private BlueJ theBlueJ;

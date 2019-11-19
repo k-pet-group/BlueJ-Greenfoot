@@ -296,7 +296,6 @@
                 <pathelement location="${boot.jar}"/>
                 <pathelement location="/System/Library/Java"/>
             </classpath>
-            <jvmarg value="-Djavafx.embed.singleThread=true"/>
         </java>
     </target>
 

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2014,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2014,2016,2017,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -294,42 +294,6 @@ public abstract class ClassRole
                     menuItem.setOnAction(e ->
                         il.callConstructor((ConstructorView) m)
                     );
-                    hasEntries = true;
-                }
-            }
-            catch (Exception e) {
-                Debug.reportError("Exception accessing methods: " + e);
-                e.printStackTrace();
-            }
-        }
-        return hasEntries;
-    }
-    // Swing version, for Greenfoot:
-    @OnThread(Tag.SwingIsFX)
-    public static boolean createMenuItems(JPopupMenu menu, CallableView[] members, ViewFilter filter, int first, int last,
-                                          String prefix, InvokeListener il)
-    {
-        // Debug.message("Inside ClassTarget.createMenuItems\n first = " + first
-        // + " last = " + last);
-        boolean hasEntries = false;
-        JMenuItem item;
-
-        for (int i = first; i < last; i++) {
-            try {
-                CallableView m = members[last - i - 1];
-                if (!filter.test(m))
-                    continue;
-                // Debug.message("createSubMenu - creating MenuItem");
-
-                Action callAction = null;
-                if (m instanceof MethodView)
-                    callAction = new InvokeAction((MethodView) m, il, prefix + m.getLongDesc());
-                else if (m instanceof ConstructorView)
-                    callAction = new ConstructAction((ConstructorView) m, il, prefix + m.getLongDesc());
-
-                if (callAction != null) {
-                    item = menu.add(callAction);
-                    item.setFont(PrefMgr.getPopupMenuFont());
                     hasEntries = true;
                 }
             }

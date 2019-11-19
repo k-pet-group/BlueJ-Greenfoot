@@ -328,7 +328,6 @@ public class ClassTarget extends DependentTarget
         }
     }
 
-    @OnThread(Tag.SwingIsFX)
     private BClass singleBClass;  // Every Target has none or one BClass
 
     /**
@@ -336,7 +335,6 @@ public class ClassTarget extends DependentTarget
      * There should be only one BProject object associated with each Project.
      * @return the BProject associated with this Project.
      */
-    @OnThread(Tag.SwingIsFX)
     public final BClass getBClass ()
     {
         if ( singleBClass == null ) {

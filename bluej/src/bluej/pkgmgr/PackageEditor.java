@@ -780,7 +780,6 @@ public final class PackageEditor extends StackPane
      *         <code>target</code> and <code>type</code> or <code>null</code> if
      *         there is no such dependency.
      */
-    @OnThread(Tag.SwingIsFX)
     public synchronized Dependency getDependency(DependentTarget origin, DependentTarget target, Dependency.Type type)
     {
         List<? extends Dependency> dependencies;
