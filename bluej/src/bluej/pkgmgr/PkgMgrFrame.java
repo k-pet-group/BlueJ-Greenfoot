@@ -1914,6 +1914,7 @@ public class PkgMgrFrame
 
         PackagePrintManager printManager = new PackagePrintManager(job, this, choices.get());
         printManager.start();
+        printManager.showDialogAndWait();
     }
 
     /**

@@ -67,6 +67,7 @@ import bluej.parser.symtab.ClassInfo;
 import bluej.parser.symtab.Selection;
 import bluej.pkgmgr.JavadocResolver;
 import bluej.pkgmgr.Project;
+import bluej.pkgmgr.print.PrintProgressDialog;
 import bluej.prefmgr.PrefMgr;
 import bluej.prefmgr.PrefMgr.PrintSize;
 import bluej.stride.framedjava.elements.CallElement;
@@ -2918,7 +2919,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      */
     @Override
     @OnThread(Tag.FXPlatform)
-    public FXRunnable printTo(PrinterJob printerJob, PrintSize printSize, boolean printLineNumbers, boolean printBackground)
+    public FXRunnable printTo(PrinterJob printerJob, PrintSize printSize, boolean printLineNumbers, boolean printScopeBackgrounds, PrintProgressUpdate progressUpdate)
     {
         SimpleDoubleProperty height = new SimpleDoubleProperty();
         Document doc = new HoleDocument();
@@ -3011,7 +3012,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             @Override
             public void applyScopeBackgrounds(Map<Integer, List<BackgroundItem>> scopeBackgrounds)
             {
-                if (printBackground)
+                if (printScopeBackgrounds)
                 {
                     lineDisplay.applyScopeBackgrounds(scopeBackgrounds);
                 }
@@ -3091,7 +3092,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             rootPane.applyCss();
         };
         // Run printing in another thread:
-        return () -> printPages(printerJob, rootPane, updatePageNumber, lineContainer, lineDisplay, allLines, printLineNumbers);
+        return () -> printPages(printerJob, rootPane, updatePageNumber, lineContainer, lineDisplay, allLines, printLineNumbers, progressUpdate);
     }
 
     /**
@@ -3103,15 +3104,15 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      *                  pane that also shows a header and/or footer.
      * @param updatePageNumber A callback to update the header/footer each time
      *                         the page number changes.  Cannot be null.
-     * @param editorPane The editor pane to print
-     * @param virtualFlow The virtual flow inside the editor pane.
-     * @param <T> Parameter type of the VirtualFlow.  Will be inferred.
-     * @param <C> Parameter type of the VirtualFlow.  Will be inferred.
+     * @param lineContainer The line container to change the lines for
+     * @param lineDisplay The line display used to show the line container
+     * @param allLines The full list of lines to print, which will be split up into pages for printing
+     * @param printLineNumbers Whether to print line numbers at the side of the page
+     * @param progressUpdate The callback to call with the current progress after each page
      */
     @OnThread(Tag.FX)
-    public static void printPages(PrinterJob printerJob,
-                                                                                Node printNode, FXConsumer<Integer> updatePageNumber,
-                                                                                LineContainer lineContainer, LineDisplay lineDisplay, List<List<StyledSegment>> allLines, boolean printLineNumbers)
+    public static void printPages(PrinterJob printerJob, Node printNode, FXConsumer<Integer> updatePageNumber,
+        LineContainer lineContainer, LineDisplay lineDisplay, List<List<StyledSegment>> allLines, boolean printLineNumbers, PrintProgressUpdate progressUpdate)
     {
         // We must manually scroll down the editor, one page's worth at a time.  We keep track of the top line visible:
         int topLine = 0;
@@ -3121,6 +3122,11 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         int lastTopLine = topLine;
         while (topLine < editorLines && !lastPage)
         {
+            if (!progressUpdate.printProgress(topLine, editorLines))
+            {
+                return;
+            }
+            
             // Scroll to make topLine actually at the top:
             lineDisplay.scrollTo(topLine, 0);
             List<MarginAndTextLine> lines = lineDisplay.recalculateVisibleLines(allLines, Math::ceil, 0, printerJob.getJobSettings().getPageLayout().getPrintableWidth(), lineContainer.getHeight(), true);
@@ -3196,7 +3202,9 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             pageNumber += 1;
             // Failsafe:
             if (topLine <= lastTopLine)
+            {
                 break;
+            }
             
             lastTopLine = topLine;
         }
@@ -3219,7 +3227,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
         else if (job.showPrintDialog(getWindow()))
         {
-            FXRunnable printAction = printTo(job, choices.get().printSize, choices.get().printLineNumbers, choices.get().printHighlighting);
+            PrintProgressDialog printProgressDialog = new PrintProgressDialog(getWindow(), false);
+            FXRunnable printAction = printTo(job, choices.get().printSize, choices.get().printLineNumbers, choices.get().printHighlighting, printProgressDialog.getWithinFileUpdater());
             new Thread("PRINT")
             {
                 @Override
@@ -3228,8 +3237,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 {
                     printAction.run();
                     job.endJob();
+                    printProgressDialog.finished();
                 }
             }.start();
+            printProgressDialog.showAndWait();
         }
     }
 
