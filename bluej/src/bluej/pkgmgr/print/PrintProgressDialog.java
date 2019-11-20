@@ -55,7 +55,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @OnThread(Tag.FXPlatform)
 public class PrintProgressDialog extends Dialog<Boolean> 
 {
-    @OnThread(Tag.FXPlatform)
     private final ProgressBar fileProgress = new ProgressBar(0.0);
     private final VBox content;
     

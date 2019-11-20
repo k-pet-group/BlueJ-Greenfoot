@@ -3104,15 +3104,15 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      *                  pane that also shows a header and/or footer.
      * @param updatePageNumber A callback to update the header/footer each time
      *                         the page number changes.  Cannot be null.
-     * @param editorPane The editor pane to print
-     * @param virtualFlow The virtual flow inside the editor pane.
-     * @param <T> Parameter type of the VirtualFlow.  Will be inferred.
-     * @param <C> Parameter type of the VirtualFlow.  Will be inferred.
+     * @param lineContainer The line container to change the lines for
+     * @param lineDisplay The line display used to show the line container
+     * @param allLines The full list of lines to print, which will be split up into pages for printing
+     * @param printLineNumbers Whether to print line numbers at the side of the page
+     * @param progressUpdate The callback to call with the current progress after each page
      */
     @OnThread(Tag.FX)
-    public static void printPages(PrinterJob printerJob,
-                                                                                Node printNode, FXConsumer<Integer> updatePageNumber,
-                                                                                LineContainer lineContainer, LineDisplay lineDisplay, List<List<StyledSegment>> allLines, boolean printLineNumbers, PrintProgressUpdate progressUpdate)
+    public static void printPages(PrinterJob printerJob, Node printNode, FXConsumer<Integer> updatePageNumber,
+        LineContainer lineContainer, LineDisplay lineDisplay, List<List<StyledSegment>> allLines, boolean printLineNumbers, PrintProgressUpdate progressUpdate)
     {
         // We must manually scroll down the editor, one page's worth at a time.  We keep track of the top line visible:
         int topLine = 0;
@@ -3120,12 +3120,13 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         int editorLines = allLines.size();
         int pageNumber = 1;
         int lastTopLine = topLine;
-        if (!progressUpdate.printProgress(0, editorLines))
-        {
-            return;
-        }
         while (topLine < editorLines && !lastPage)
         {
+            if (!progressUpdate.printProgress(topLine, editorLines))
+            {
+                return;
+            }
+            
             // Scroll to make topLine actually at the top:
             lineDisplay.scrollTo(topLine, 0);
             List<MarginAndTextLine> lines = lineDisplay.recalculateVisibleLines(allLines, Math::ceil, 0, printerJob.getJobSettings().getPageLayout().getPrintableWidth(), lineContainer.getHeight(), true);
@@ -3198,10 +3199,6 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             {
             }
             printerJob.printPage(printNode);
-            if (!progressUpdate.printProgress(topLine, editorLines))
-            {
-                break;
-            }
             pageNumber += 1;
             // Failsafe:
             if (topLine <= lastTopLine)
