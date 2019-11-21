@@ -450,9 +450,9 @@ class DirectInvoker
         /**
          * Treat termination as an error
          */
-        public void putVMTerminated(InvokerRecord ir)
+        public void putVMTerminated(InvokerRecord ir, boolean terminatedByUserCode)
         {
-            resultType = ExecutionEvent.TERMINATED_EXIT;
+            resultType = terminatedByUserCode ? ExecutionEvent.NORMAL_EXIT : ExecutionEvent.TERMINATED_EXIT;
             putError("Terminated", ir);
         }
 

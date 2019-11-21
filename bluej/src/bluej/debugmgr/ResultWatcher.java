@@ -87,5 +87,5 @@ public interface ResultWatcher
      *
      * @param ir The invocation record
      */
-    void putVMTerminated(InvokerRecord ir);
+    void putVMTerminated(InvokerRecord ir, boolean terminatedByUserCode);
 }

@@ -73,7 +73,8 @@ public abstract class Debugger
     
     public static final int NORMAL_EXIT = 0;
     public static final int EXCEPTION = 2;
-    public static final int TERMINATED = 3;
+    public static final int TERMINATED_BY_USER_SYSTEM_EXIT = 3;
+    public static final int TERMINATED_BY_BLUEJ = 4;
 
     /** Virtual machine states **/
     /** The unknown state can only be the previous state, and only in the first state change */

@@ -810,7 +810,7 @@ public class CodePad extends VBox
          * execution).
          */
         @Override
-        public void putVMTerminated(InvokerRecord ir)
+        public void putVMTerminated(InvokerRecord ir, boolean terminatedByUserCode)
         {
             if (autoInitializedVars != null)
                 autoInitializedVars.clear();
