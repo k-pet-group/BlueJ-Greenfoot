@@ -25,8 +25,6 @@ package bluej.extensions2;
  * This exception will be thrown when an exception occurs during a method or constructor 
  * invocation. The most likely cause of this exception is the user cancelling a 
  * long-running object construction or method invocation from the GUI.
- * 
- * @version $Id: InvocationErrorException.java 6215 2009-03-30 13:28:25Z polle $
  */
 
 /*

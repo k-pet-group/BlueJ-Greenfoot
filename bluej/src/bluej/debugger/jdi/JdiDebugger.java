@@ -708,7 +708,7 @@ public class JdiDebugger extends Debugger
                 return vmr.runShellClass(className);
             }
             else {
-                return new DebuggerResult(Debugger.TERMINATED);
+                return new DebuggerResult(Debugger.TERMINATED_BY_BLUEJ);
             }
         }
     }
@@ -734,7 +734,7 @@ public class JdiDebugger extends Debugger
                     }
                     else
                     {
-                        result.complete(() -> new DebuggerResult(Debugger.TERMINATED));
+                        result.complete(() -> new DebuggerResult(Debugger.TERMINATED_BY_BLUEJ));
                     }
                 }
             }
@@ -760,7 +760,7 @@ public class JdiDebugger extends Debugger
             }
         }
         else {
-            return new DebuggerResult(Debugger.TERMINATED);
+            return new DebuggerResult(Debugger.TERMINATED_BY_BLUEJ);
         }
     }
     
@@ -790,7 +790,7 @@ public class JdiDebugger extends Debugger
             }
         }
         else {
-            return new DebuggerResult(Debugger.TERMINATED);
+            return new DebuggerResult(Debugger.TERMINATED_BY_BLUEJ);
         }
     }
     

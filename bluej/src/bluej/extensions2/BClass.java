@@ -46,7 +46,7 @@ import java.util.WeakHashMap;
  * A wrapper for a class. This is used to represent both classes which have a representation
  * within the BlueJ project, and those that don't.
  * 
- * <p>From an instance of this class you can create BlueJ objects and call their methods.
+ * <p>From an instance of this class, an extension can create BlueJ objects and call their methods.
  * Behaviour is similar to the Java reflection API.
  *
  * @author Damiano Bolla, University of Kent at Canterbury, 2002,2003,2004
@@ -59,7 +59,9 @@ public class BClass
 
     /**
      * Constructor for the BClass.
-     * It is duty of the caller to guarantee that it is a reasonable classId
+     * It is the duty of the caller to guarantee that it is a reasonable classId
+     *
+     * @param thisClassId the identifier of the underlying class.
      */
     BClass(Identifier thisClassId)
     {
@@ -67,8 +69,11 @@ public class BClass
     }
     
     /**
-     * Get a BClass for some class identifier. To be used for classes which don't have a
+     * Gets a BClass for some class identifier. To be used for classes which don't have a
      * representation (ClassTarget) in BlueJ.
+     *
+     * @param classId the identifier of the underlying class.
+     * @return A BClass object with the <code>classId</code> identifier.
      */
     synchronized static BClass getBClass(Identifier classId)
     {
@@ -83,7 +88,7 @@ public class BClass
 
     /**
      * Notification that the name of the class has changed.
-     * @param newName  The new class name, fully qualified.
+     * @param newName the new class name, fully qualified.
      */
     void nameChanged(String newName)
     {
@@ -99,7 +104,7 @@ public class BClass
     /**
      * Returns the name of this BClass.
      * 
-     * @return the fully qualified name of the wrapped BlueJ class.
+     * @return The fully qualified name of the wrapped BlueJ class.
      */
     public final String getName()
     {
@@ -141,6 +146,13 @@ public class BClass
         bluejClass.convertStrideToJava();
     }
 
+    /**
+     * Converts a Java class to Stride.
+     *
+     * @throws ProjectNotOpenException
+     * @throws PackageNotFoundException
+     * @throws ClassNotFoundException
+     */
     public void convertJavaToStride()
         throws ProjectNotOpenException, PackageNotFoundException, ClassNotFoundException
     {
@@ -154,9 +166,9 @@ public class BClass
 
 
     /**
-     * Returns the Java class being wrapped by this BClass.
-     * Use this method when you need more information about the class than
-     * is provided by the BClass interface. E.g.:
+     * Returns the Java Class object being wrapped by this BClass.
+     * An extension uses this method when more information about the class than
+     * is provided by the BClass interface is needed. E.g.:
      * 
      * <ul>
      * <li>What is the real class being hidden?
@@ -164,10 +176,9 @@ public class BClass
      * <li>What is the type of the array element?
      * </ul>
      *
-     * <p>Note that this is for information only. If you want to interact with BlueJ you must
+     * <p>Note that this is for information only. To interact with BlueJ, an extension must
      * use the methods provided in BClass.
      *
-     * @return                           The javaClass value
      * @throws  ProjectNotOpenException  if the project to which this class belongs has been closed by the user.
      * @throws ClassNotFoundException   if the class has been deleted by the user.
      */
@@ -179,10 +190,9 @@ public class BClass
 
 
     /**
-     * Returns the package this class belongs to.
+     * Returns the BPackage this class belongs to.
      * Similar to reflection API.
      *
-     * @return                            The package value
      * @throws  ProjectNotOpenException   if the project to which this class belongs has been closed by the user.
      * @throws  PackageNotFoundException  if the package to which this class belongs has been deleted by the user.
      */
@@ -194,10 +204,11 @@ public class BClass
 
 
     /**
-     * Returns a proxy object that provide an interface to the editor for this BClass.
+     * Returns a proxy object that provide an interface to the <b>Java</b> editor for this BClass.
      * If an editor already exists, a proxy for it is returned. Otherwise, an editor is created but not made visible.
+     * If the class is not a Java class (Stride) the method returns <code>null</code>.
      *
-     * @return                            The proxy editor object or null if it cannot be created
+     * @return                            A proxy {@link JavaEditor} object or null if it cannot be created or if the class is not of type Java
      * @throws  ProjectNotOpenException   if the project to which this class belongs has been closed by the user.
      * @throws  PackageNotFoundException  if the package to which this class belongs has been deleted by the user.
      */
@@ -214,6 +225,8 @@ public class BClass
     
     /**
      * Finds out whether this class has source code available, and whether it's Java or Stride
+     *
+     * @return Either {@link SourceType#Java} or {@link SourceType#Stride} if the type can be found out, otherwise <code>null</code>.
      */
     public SourceType getSourceType() throws ProjectNotOpenException, PackageNotFoundException
     {
@@ -228,7 +241,7 @@ public class BClass
     /**
      * Checks to see if this class has been compiled.
      *
-     * @return                            true if it is compiled false othervise.
+     * @return                            True if it is compiled, false otherwise.
      * @throws  ProjectNotOpenException   if the project to which this class belongs has been closed by the user.
      * @throws  PackageNotFoundException  if the package to which this class belongs has been deleted by the user.
      */
@@ -241,7 +254,7 @@ public class BClass
 
 
     /**
-     * Compile this class, and any dependents.
+     * Compiles this class, and any dependents.
      * 
      * <p>After the compilation has finished the method isCompiled() can be used to determined the class
      * status.
@@ -262,7 +275,7 @@ public class BClass
     }
 
     /**
-     * Compile this class, and any dependents, optionally without showing compilation errors to the user.
+     * Compiles this class, and any dependents, optionally without showing compilation errors to the user.
      * 
      * <p>After the compilation has finished the method isCompiled() can be used to determined the class
      * status.
@@ -325,14 +338,9 @@ public class BClass
 
 
     /**
-     * Returns the superclass of this class.
-     * 
-     * <p>Similar to reflection API.
-     * 
-     * <p>If this class represents either the Object class, an interface,
-     * a primitive type, or void, then null is returned.
+     * Returns the superclass of this class. Similar to reflection API.
      *
-     * @return                            The superclass value
+     * @return The superclass wrapped in a BClass object. If this class represents either the Object class or an interface then <code>null</code> is returned.
      * @throws  ProjectNotOpenException   if the project to which this class belongs has been closed by the user.
      * @throws  PackageNotFoundException  if the package to which this class belongs has been deleted by the user.
      * @throws ClassNotFoundException    if the class has been deleted by the user.
@@ -405,7 +413,7 @@ public class BClass
      * Returns all the constructors of this class.
      * Similar to reflection API.
      *
-     * @return                           The constructors value
+     * @return                           An array of {@link BConstructor} objects wrapping the constructors of this class.
      * @throws  ProjectNotOpenException  if the project to which this class belongs has been closed by the user.
      * @throws ClassNotFoundException   if the class has been deleted by the user.
      */
@@ -429,7 +437,7 @@ public class BClass
      * Similar to reflection API.
      *
      * @param  signature                 the signature of the required constructor.
-     * @return                           the requested constructor of this class, or null if
+     * @return                           The {@link BConstructor} object wrapping the matching constructor of this class, or null if
      * the class has not been compiled or the constructor cannot be found.
      * @throws  ProjectNotOpenException  if the project to which this class belongs has been closed by the user.
      * @throws ClassNotFoundException   if the class has been deleted by the user.
@@ -454,7 +462,7 @@ public class BClass
      * Returns the declared methods of this class.
      * Similar to reflection API.
      *
-     * @return                           The declaredMethods value
+     * @return                           An array of {@link BMethod} objects wrapping the methods of this class.
      * @throws  ProjectNotOpenException  if the project to which this class belongs has been closed by the user.
      * @throws ClassNotFoundException   if the class has been deleted by the user.
      */
@@ -480,7 +488,7 @@ public class BClass
      *
      * @param  methodName                The name of the method.
      * @param  params                    The parameters of the method. Pass a zero length array if the method takes no arguments. 
-     * @return                           The declaredMethod value or <code>null</code> if the method is not found.
+     * @return                           The {@link BMethod} object wrapping the matching method or <code>null</code> if the method is not found.
      * @throws  ProjectNotOpenException  if the project to which this class belongs has been closed by the user.
      * @throws ClassNotFoundException   if the class has been deleted by the user.
      */
@@ -507,7 +515,7 @@ public class BClass
      * That is, it returns all public, private, protected, and package-access methods, inherited or declared.
      * The elements in the array returned are not sorted and are not in any particular order.
      *
-     * @return                           The Methods value
+     * @return                           An array of {@link BMethod} objects wrapping the methods of this class.
      * @throws  ProjectNotOpenException  if the project to which this class belongs has been closed by the user.
      * @throws ClassNotFoundException   if the class has been deleted by the user.
      */
@@ -535,9 +543,9 @@ public class BClass
      *
      * @param  methodName                The name of the method
      * @param  params                    The parameters of the method. Pass a zero length array if the method takes no arguments. 
-     * @return                           The Method value or <code>null</code> if the method is not found.
-     * @throws  ProjectNotOpenException  If the project to which this class belongs has been closed by the user
-     * @throws ClassNotFoundException   If the class has been deleted by the user
+     * @return                           The {@link BMethod} object wrapping the matching method or <code>null</code> if the method is not found.
+     * @throws ProjectNotOpenException  if the project to which this class belongs has been closed by the user
+     * @throws ClassNotFoundException   if the class has been deleted by the user
      */
     public BMethod getMethod(String methodName, Class<?>[] params)
              throws ProjectNotOpenException, ClassNotFoundException
@@ -560,7 +568,7 @@ public class BClass
      * Returns all the fields of this class.
      * Similar to reflection API.
      *
-     * @return                           The fields value
+     * @return                           An array of {@link BField} objects wrapping this class's fields.
      * @throws  ProjectNotOpenException  if the project to which this class belongs has been closed by the user.
      * @throws ClassNotFoundException   if the class has been deleted by the user.
      */
@@ -583,8 +591,8 @@ public class BClass
      * Returns the field of this class which has the given name.
      * Similar to Reflection API.
      *
-     * @param  fieldName                 Description of the Parameter
-     * @return                           The field value
+     * @param  fieldName                 name of the field
+     * @return                           The {@link BField} object wrapping the matching field, or <code>null</code> if no field is found.
      * @throws  ProjectNotOpenException  if the project to which this class belongs has been closed by the user.
      * @throws ClassNotFoundException   if the class has been deleted by the user.
      */
@@ -609,9 +617,9 @@ public class BClass
     }
 
     /**
-     * Returns this class's .class file (or null, if the class no longer exists in the project).
+     * Returns this class's .class file.
      *
-     * @return                            the class .class file.
+     * @return                            A {@link java.io.File} object for the class's .class file, <code>null</code> if the class no longer exists in the project.
      * @throws  ProjectNotOpenException   if the project to which this class belongs has been closed by the user.
      * @throws  PackageNotFoundException  if the package to which this class belongs has been deleted by the user.
      */
@@ -631,7 +639,7 @@ public class BClass
      * Returns this class's .java file.
      * If the file is currently being edited, calling this method will cause it to be saved.
      *
-     * @return                            the class .java file.
+     * @return                            A {@link java.io.File} object for the class's .java file.
      * @throws  ProjectNotOpenException   if the project to which this class belongs has been closed by the user.
      * @throws  PackageNotFoundException  if the package to which this class belongs has been deleted by the user.
      */
@@ -657,8 +665,6 @@ public class BClass
 
     /**
      * Returns a string representation of the Object
-     *
-     * @return    Description of the Return Value
      */
     public String toString()
     {

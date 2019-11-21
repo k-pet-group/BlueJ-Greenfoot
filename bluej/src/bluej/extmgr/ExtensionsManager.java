@@ -107,7 +107,7 @@ public class ExtensionsManager
         loadDirectoryExtensions(systemDir, null);
 
         // Load extensions that are in a user space location.
-        loadDirectoryExtensions(Config.getUserConfigFile("extensions"), null);
+        loadDirectoryExtensions(Config.getUserConfigFile("extensions2"), null);
     }
 
     /**
@@ -247,7 +247,7 @@ public class ExtensionsManager
      */
     public void projectOpening(Project project)
     {
-        File exts = new File(project.getProjectDir(), "extensions");
+        File exts = new File(project.getProjectDir(), "extensions2");
         loadDirectoryExtensions(exts, project);
     }
 

@@ -27,7 +27,7 @@ import java.io.IOException;
 
 /**
  * Proxy object that allows interaction with the BlueJ Editor for a
- * particular Java class.
+ * particular <b>Java</b> class.
  *
  * @author Damiano Bolla, University of Kent at Canterbury, 2004
  */
@@ -39,16 +39,19 @@ public class JavaEditor
 
     /**
      * Constructor must not be public.
-     * You get an Editor object by calling BClass.getJavaEditor(), which
+     * An extension can get an Editor object by calling {@link bluej.extensions2.BClass#getJavaEditor()}, which
      * will create a (non-visible) editor if one does not already exist.
      *
-     * @param  bjEditor  Description of the Parameter
+     * @param  bjEditor  a {@link bluej.editor.TextEditor} object referencing a BlueJ editor for this JavaEditor.
      */
     JavaEditor(bluej.editor.TextEditor bjEditor)
     {
         this.bjEditor = bjEditor;
     }
-    
+
+    /**
+     * @return The {@link bluej.editor.TextEditor} object referencing a BlueJ editor for this JavaEditor.
+     */
     bluej.editor.Editor getEditor()
     {
         return bjEditor;
@@ -56,7 +59,7 @@ public class JavaEditor
 
 
     /**
-     * Request the editor to save the file currently opened.
+     * Requests the editor to save the file currently opened.
      */
     public void saveFile()
     {
@@ -67,7 +70,7 @@ public class JavaEditor
     }
 
     /**
-     * Request the editor to load the file currently opened.
+     * Requests the editor to load the file currently opened.
      */
     public void loadFile()
     {
@@ -75,9 +78,9 @@ public class JavaEditor
     }
 
     /**
-     * Show or hide this Editor.
+     * Shows or hides this editor.
      *
-     * @param  visible  If true, make this editor visible
+     * @param  visible  a boolean value indicating whether to show (<code>true</code>) the editor or hide it (<code>false</code>).
      */
     public void setVisible(boolean visible)
     {
@@ -86,9 +89,9 @@ public class JavaEditor
 
 
     /**
-     * Is this Editor currently visible?
+     * Returns the visibility status of this editor.
      *
-     * @return    true if the Editor is visible, false otherwise.
+     * @return  A boolean value indicating whether this editor is visible (<code>true</code>) or not (<code>false</code>).
      */
     public boolean isVisible()
     {
@@ -99,7 +102,7 @@ public class JavaEditor
     /**
      * Returns the current caret location (the position of the user's cursor) within the edited text.
      *
-     * @return    the textLocation.
+     * @return   A {@link TextLocation} object representing the current caret location of this editor.
      */
     public TextLocation getCaretLocation()
     {
@@ -110,7 +113,7 @@ public class JavaEditor
     /**
      * Sets the current caret location within the edited text.
      *
-     * @param  location                   The location in the text to set the Caret to.
+     * @param  location                   a {@link TextLocation} object representing the location in the text to set the caret to.
      * @throws  IllegalArgumentException  if the specified TextLocation represents a position which does not exist in the text.
      */
     public void setCaretLocation(TextLocation location)
@@ -119,10 +122,10 @@ public class JavaEditor
     }
 
     /**
-     * Request the editor to display the given message in the editor message area.
+     * Requests the editor to display the given message in the editor message area.
      * The message will be cleared using BlueJ's usual rules.
      *
-     * @param  message  The message to display.
+     * @param  message  the message to display.
      */
     public void showMessage(String message)
     {
@@ -132,7 +135,7 @@ public class JavaEditor
     /**
      * Returns the location at which current selection begins.
      *
-     * @return    the current beginning of the selection or null if no text is selected.
+     * @return   A {@link TextLocation} object representing the current beginning location of the selection in this editor, <code>null</code> if no text is selected.
      */
     public TextLocation getSelectionBegin()
     {
@@ -143,7 +146,7 @@ public class JavaEditor
     /**
      * Returns the location at which the current selection ends.
      *
-     * @return    the current end of the selection or null if no text is selected
+     * @return   A {@link TextLocation} object representing the current end location of the selection in this editor, <code>null</code> if no text is selected.
      */
     public TextLocation getSelectionEnd()
     {
@@ -154,8 +157,8 @@ public class JavaEditor
     /**
      * Returns the text which lies between the two TextLocations.
      *
-     * @param  begin                      The beginning of the text to get
-     * @param  end                        The end of the text to get
+     * @param  begin                      a {@link TextLocation} object representing the beginning location of the text to get.
+     * @param  end                        a {@link TextLocation} object representing the end location of the text to get.
      * @return                            The text value
      * @throws  IllegalArgumentException  if either of the specified TextLocations represent a position which does not exist in the text.
      */
@@ -166,12 +169,12 @@ public class JavaEditor
 
 
     /**
-     * Request the editor to replace the text between beginning and end with the given newText
+     * Requests the editor to replace the text between beginning and end with the given newText
      * If begin and end refer to the same location, the text is inserted.
      *
-     * @param  begin                      where to start to replace
-     * @param  end                        where to end to replace
-     * @param  newText                    The new text value
+     * @param  begin                      a {@link TextLocation} object representing the beginning location of the text to replace.
+     * @param  end                        a {@link TextLocation} object representing the end location of the text to replace.
+     * @param  newText                    a {@link String} object containing the new text.
      * @throws  IllegalArgumentException  if either of the specified TextLocations
      * represent a position which does not exist in the text.
      */
@@ -182,10 +185,10 @@ public class JavaEditor
 
 
     /**
-     * Request the editor to mark the text between begin and end as selected.
+     * Requests the editor to mark the text between begin and end as selected.
      *
-     * @param  begin                      where to start the selection
-     * @param  end                        where to end the selection
+     * @param  begin                      a {@link TextLocation} object representing the beginning location of the selection to make.
+     * @param  end                        a {@link TextLocation} object representing the end location of the selection to make.
      * @throws  IllegalArgumentException  if either of the specified TextLocations
      * represent a position which does not exist in the text.
      */
@@ -196,10 +199,10 @@ public class JavaEditor
 
 
     /**
-     * Request the editor to permit or deny editor content modification (via the editor GUI).
-     * Extensions should set readOnly to true before changing the editor content programmatically.
+     * Requests the editor to permit or deny editor content modification (via the editor GUI).
+     * Extensions should set it to <code>true</code>true before changing the editor content programmatically.
      *
-     * @param  readOnly  If true user cannot change the editor content using the GUI, false allows user interaction.
+     * @param  readOnly  a boolean indicating whether the user cannot change the editor content using the GUI (<code>true</code>), (<code>false</code>) otherwise.
      */
     public void setReadOnly(boolean readOnly)
     {
@@ -208,9 +211,9 @@ public class JavaEditor
 
 
     /**
-     * Is the editor currently set to readOnly?.
+     * Returns the readonly status of this.
      *
-     * @return    true if the user cannot change the text using the GUI, false othervise
+     * @return    A boolean indicating whether the user cannot change the editor content using the GUI (<code>true</code>), (<code>false</code>) otherwise.
      */
     public boolean isReadOnly()
     {
@@ -222,8 +225,8 @@ public class JavaEditor
      * Returns a property of the current editor.
      * This allows custom versions of the editor to communicate with extensions.
      *
-     * @param  propertyKey  The propertyKey of the property to retrieve.
-     * @return              the property value or null if it is not found
+     * @param  propertyKey  the property key of the property to retrieve.
+     * @return              An {@link Object} object representing the property value or <code>null</code> if it is not found.
      */
     public Object getProperty(String propertyKey)
     {
@@ -232,11 +235,11 @@ public class JavaEditor
 
 
     /**
-     * Set a property for the current editor. Any existing property with
+     * Sets a property for the current editor. Any existing property with
      * this key will be overwritten.
      *
-     * @param  propertyKey  The property key of the new property
-     * @param  value        The new property value
+     * @param  propertyKey  the property key of the property to set.
+     * @param  value       An {@link Object} object to assign to the new property value.
      */
     public void setProperty(String propertyKey, Object value)
     {
@@ -245,10 +248,10 @@ public class JavaEditor
 
 
     /**
-     * Translates a text location into an offset into the text held by the editor.
+     * Translates a text location into an offset into the text held by this editor.
      *
-     * @param  location                   position to be translated
-     * @return                            the offset into the text of this location
+     * @param  location                   a {@link TextLocation} object representing the location where to apply the translation on.
+     * @return                            an integer representing the offset into the text of this location
      * @throws  IllegalArgumentException  if the specified TextLocation
      * represent a position which does not exist in the text.
      */
@@ -259,10 +262,10 @@ public class JavaEditor
 
 
     /**
-     * Translate an offset in the text held by the editor into a TextLocation.
+     * Translates an offset in the text held by this editor into a TextLocation.
      *
-     * @param  offset  location to be translated
-     * @return         the TextLocation in the text of this offset or null if the offset is invalid
+     * @param  offset  an integer representing the offset to translate.
+     * @return         A {@link TextLocation} object representing the text of this offset, <code>null</code> if the offset is invalid
      */
     public TextLocation getTextLocationFromOffset(int offset)
     {
@@ -273,8 +276,8 @@ public class JavaEditor
     /**
      * Returns the length of the line indicated in the edited text.
      *
-     * @param  line  the line in the text for which the length should be calculated, starting from zero.
-     * @return       the length of the line, -1 if line is invalid
+     * @param  line  an integer representing the line number in the text for which the length should be calculated, starting from zero.
+     * @return       An integer representing the length of the line, <code>-1</code> if line is invalid.
      */
     public int getLineLength(int line)
     {
@@ -285,7 +288,7 @@ public class JavaEditor
     /**
      * Returns the total number of lines in the currently edited text.
      *
-     * @return    The number of lines in the text >= 0
+     * @return    An integer representing the number of lines in the text.
      */
     public int getLineCount()
     {
@@ -298,9 +301,9 @@ public class JavaEditor
      * characters of content that represents the user's data.
      *
      * The line number and column of the last character of text can be obtained by using
-     * the getLineColumnFromOffset(getTextLength()) method.
+     * the {@link bluej.editor.TextEditor#getLineColumnFromOffset(int)} method with {@link #getTextLength()} as argument.
      *
-     * @return the length >= 0
+     * @return  An integer representing the length of the text.
      */
     public int getTextLength ()
     {
@@ -308,11 +311,11 @@ public class JavaEditor
     }
 
     /**
-     * Utility to convert a TextLocation into a LineColumn.
-     * If null is given as parameter then null is returned.
+     * Utility to convert a {@link TextLocation} into a {@link SourceLocation}.
+     * If <code>null</code> is given as parameter then <code>null</code> is returned.
      *
-     * @param  location  The point in the editor to convert to a LineColumn.
-     * @return           The LineColumn object describing a point in the editor.
+     * @param  location  a {@link TextLocation} object representing the location in this editor to convert to a {@link SourceLocation}.
+     * @return           A {@link SourceLocation}  object describing a point in this editor.
      */
     private SourceLocation convertLocation(TextLocation location)
     {
@@ -325,11 +328,11 @@ public class JavaEditor
 
 
     /**
-     * Utility to convert a LineColumn into a TextLocation.
-     * If null is given as parameter then null is returned.
-     * 
-     * @param  location  The point in the editor to convert to a TextLocation.
-     * @return           The TextLocation object describing a point in the editor.
+     * Utility to convert a {@link SourceLocation} into a {@link TextLocation}.
+     * If <code>null</code> is given as parameter then <code>null</code> is returned.
+     *
+     * @param  location  a {@link SourceLocation} object representing the location in this editor to convert to a {@link TextLocation}.
+     * @return           A {@link TextLocation}  object describing a point in this editor.
      */
     private TextLocation convertLocation(SourceLocation location)
     {

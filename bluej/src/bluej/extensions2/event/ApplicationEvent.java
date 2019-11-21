@@ -31,7 +31,10 @@ package bluej.extensions2.event;
   */
 
 public class ApplicationEvent implements ExtensionEvent
-  {
+{
+  /**
+   * Types of application events.
+   */
   public static enum EventType
   {
     /**
@@ -40,7 +43,7 @@ public class ApplicationEvent implements ExtensionEvent
     APP_READY_EVENT,
 
     /**
-     * Event generated when connection to the data collection servers (e.g. Blackbox)
+     * Event generated when connection to the data collection servers (e.g.&nbsp;Blackbox)
      * is broken, or the event generates an error code when sent.  This means that
      * recording will be suspended for the rest of the session.
      */
@@ -50,17 +53,19 @@ public class ApplicationEvent implements ExtensionEvent
   private EventType eventType;
 
   /**
-   * Constructs an ApplicationEvent
+   * @param eventType one of the {@link EventType} values for this ApplicationEvent.
    */
-  public ApplicationEvent(EventType anEventType)
+  public ApplicationEvent(EventType eventType)
     {
-    eventType = anEventType;
+    this.eventType = eventType;
     }
 
   /**
-   * Returns the event type
+   * Gets the event type.
+   *
+   * @return The {@link EventType} value associated with this ApplicationEvent.
    */
-  public EventType getEvent ()
+  public EventType getEventType ()
     {
     return eventType;
     }
@@ -85,4 +90,4 @@ public class ApplicationEvent implements ExtensionEvent
     }
     return msg;
   }
-  }
+}

@@ -520,7 +520,7 @@ public class ProjectManager
                         Debug.message("Greenfoot launch failed due to exception in debug VM: " + result.getException().getText());
                         greenfootLaunchFailed(project);
                     }
-                    else if (status == Debugger.TERMINATED)
+                    else if (status == Debugger.TERMINATED_BY_USER_SYSTEM_EXIT || status == Debugger.TERMINATED_BY_BLUEJ)
                     {
                         Debug.message("Greenfoot launch failed due to debug VM terminating.");
                         greenfootLaunchFailed(project);

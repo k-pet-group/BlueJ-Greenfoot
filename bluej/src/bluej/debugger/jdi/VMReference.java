@@ -190,6 +190,9 @@ public class VMReference
     @OnThread(Tag.Any)
     private ExceptionDescription lastException;
 
+    // Boolean flag indicating if the VM is being closed by BlueJ internally.
+    private boolean queuedForClose = false;
+
     /**
      * Launch a remote debug VM using a TCP/IP socket.
      * 
@@ -451,9 +454,6 @@ public class VMReference
      * Launch the debug VM and set up the I/O connectors to the terminal.
      * @param initDir   the directory which the vm should be started in
      * @param params    the parameters (including executable as first param)
-     * @param line      a buffer which receives the first line of output from
-     *                  the debug vm process
-     * @param term      the terminal to connect to process I/O
      */
     @OnThread(Tag.Any)
     private Process launchVM(File initDir, String [] params)
@@ -582,6 +582,7 @@ public class VMReference
     public synchronized void close()
     {
         if (machine != null) {
+            queuedForClose = true;
             closeIO();
             // cause the debug VM to exit when disposed
             try {
@@ -871,13 +872,8 @@ public class VMReference
     /**
      * "Start" a class (i.e. invoke its main method)
      * 
-     * @param loader
-     *            the class loader to use
-     * @param classname
+     * @param className
      *            the class to start
-     * @param eventParam
-     *            when a BlueJEvent is generated for a breakpoint, this
-     *            parameter is passed as the event parameter
      */
     public DebuggerResult runShellClass(String className)
     {
@@ -913,7 +909,7 @@ public class VMReference
             return new DebuggerResult(JdiObject.getDebuggerObject(objR));
         }
         catch (VMDisconnectedException e) {
-            exitStatus = Debugger.TERMINATED;
+            exitStatus = getDebuggerExitStatus();
             return new DebuggerResult(exitStatus);
         }
         catch (Exception e) {
@@ -926,7 +922,12 @@ public class VMReference
         
         return new DebuggerResult(lastException);
     }
-    
+
+    private int getDebuggerExitStatus()
+    {
+        return queuedForClose ? Debugger.TERMINATED_BY_BLUEJ : Debugger.TERMINATED_BY_USER_SYSTEM_EXIT;
+    }
+
     /**
      * Invoke the default constructor for some class, and return the resulting object.
      */
@@ -938,9 +939,9 @@ public class VMReference
             obj = invokeConstructor(className);
         }
         catch (VMDisconnectedException e) {
-            exitStatus = Debugger.TERMINATED;
+            exitStatus = getDebuggerExitStatus();
             // return null; // debugger state change handled elsewhere
-            return new DebuggerResult(Debugger.TERMINATED);
+            return new DebuggerResult(exitStatus);
         }
         catch (Exception e) {
             // remote invocation failed
@@ -978,7 +979,7 @@ public class VMReference
             obj = invokeConstructor(className, paramTypes, args);
         }
         catch (VMDisconnectedException e) {
-            exitStatus = Debugger.TERMINATED;
+            exitStatus = getDebuggerExitStatus();
             return new DebuggerResult(exitStatus); // debugger state change handled elsewhere
         }
         catch (Exception e) {
@@ -1005,18 +1006,7 @@ public class VMReference
     {
         eventHandler.emitThreadEvent(thread, halted);
     }
-    
-    /**
-     * Return the status of the last invocation. One of (NORMAL_EXIT,
-     * FORCED_EXIT, EXCEPTION, TERMINATED).
-     * 
-     * (?? Question: What is the difference between "FORCED_EXIT" and
-     *  "TERMINATED"? We only seem to use the latter -dm)
-     */
-    public int getExitStatus()
-    {
-        return exitStatus;
-    }
+
 
     /**
      * Return the text of the last exception.
@@ -1048,7 +1038,7 @@ public class VMReference
             // If VM disconnect occurs during invocation, the server thread won't
             // restart in this VM; the method waiting for it to start will hang
             // indefinitely unless we kick it here.
-            exitStatus = Debugger.TERMINATED;
+            exitStatus = getDebuggerExitStatus();
             if (!serverThreadStarted) {
                 notifyAll();
             }
@@ -1591,8 +1581,8 @@ public class VMReference
     /**
      * Restore the previosuly saved breakpoints with the new classloader.
      * 
-     * @param loader
-     *            The new class loader to restore the breakpoints into
+     * @param saved
+     *            The lst of locations to restore the breakpoints into
      */
     public void restoreBreakpoints(List<Location> saved)
     {
@@ -1664,7 +1654,7 @@ public class VMReference
         synchronized(this) {
             try {
                 while (!serverThreadStarted) {
-                    if (exitStatus == Debugger.TERMINATED)
+                    if (exitStatus == Debugger.TERMINATED_BY_BLUEJ || exitStatus == Debugger.TERMINATED_BY_USER_SYSTEM_EXIT)
                         throw new VMDisconnectedException();
                     wait(); // wait for new thread to start
                 }
@@ -1701,7 +1691,7 @@ public class VMReference
     {
         try {
             while (!workerThreadReady || workerThreadReserved) {
-                if (exitStatus == Debugger.TERMINATED) {
+                if (exitStatus == Debugger.TERMINATED_BY_BLUEJ || exitStatus == Debugger.TERMINATED_BY_USER_SYSTEM_EXIT) {
                     throw new VMDisconnectedException();
                 }
                 workerThread.wait();
@@ -1721,7 +1711,7 @@ public class VMReference
     {
         try {
             while (!workerThreadReady) {
-                if (exitStatus == Debugger.TERMINATED) {
+                if (exitStatus == Debugger.TERMINATED_BY_BLUEJ || exitStatus == Debugger.TERMINATED_BY_USER_SYSTEM_EXIT) {
                     throw new VMDisconnectedException();
                 }
                 workerThread.wait();
@@ -1738,9 +1728,9 @@ public class VMReference
             obj = launchFXAppHelper(className);
         }
         catch (VMDisconnectedException e) {
-            exitStatus = Debugger.TERMINATED;
+            exitStatus = getDebuggerExitStatus();
             // return null; // debugger state change handled elsewhere
-            return () -> new DebuggerResult(Debugger.TERMINATED);
+            return () -> new DebuggerResult(exitStatus);
         }
         catch (Exception e) {
             // remote invocation failed
@@ -1972,7 +1962,7 @@ public class VMReference
         setStaticFieldObject(serverClass, ExecServer.CLASS_TO_RUN_NAME, cl);
         setStaticFieldObject(serverClass, ExecServer.METHOD_TO_RUN_NAME, method);
         setStaticFieldValue(serverClass, ExecServer.EXEC_ACTION_NAME, machine.mirrorOf(ExecServer.TEST_RUN));
-        
+
         // Resume the thread, wait for it to finish and the new thread to start
         serverThreadStarted = false;
         resumeServerThread();

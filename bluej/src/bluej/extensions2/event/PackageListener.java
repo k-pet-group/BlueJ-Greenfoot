@@ -22,21 +22,19 @@
 package bluej.extensions2.event;
 
 /**
- * This interface allows you to listen for events on BlueJ packages.
- *
- * @version $Id: PackageListener.java 6215 2009-03-30 13:28:25Z polle $
+ * This interface allows an extension to listen for events on BlueJ packages.
  */
 public interface PackageListener
 {
     /**
      * This method will be called when a package has been opened.
-     * If a long operation must be performed you should start a Thread.
+     * If a long operation must be performed the extension should start a Thread.
      */
     public void packageOpened(PackageEvent event);
 
     /**
      * This method will be called when a package is about to be closed.
-     * If a long operation must be performed you should start a Thread.
+     * If a long operation must be performed the extension should start a Thread.
      */
     public void packageClosing(PackageEvent event);
 

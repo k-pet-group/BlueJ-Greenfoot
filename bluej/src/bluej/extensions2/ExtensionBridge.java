@@ -101,23 +101,8 @@ public final class ExtensionBridge
         aBluej.postMenuItem(attachedObject, onThisItem);
     }
 
-    public static void clearObjectBench(BProject project) throws ProjectNotOpenException
-    {
-        project.clearObjectBench();
-    }
-
     public static Project getProject(BProject bProject) throws ProjectNotOpenException
     {
         return bProject.getProject();
-    }
-
-    public static PkgMgrFrame getPkgMgrFrame(BPackage pkg) throws ProjectNotOpenException, PackageNotFoundException
-    {
-        return pkg.getPkgMgrFrame();
-    }
-
-    public static Object getFieldValue(BField field, BObject bObject, boolean unpackArray) throws ProjectNotOpenException, PackageNotFoundException
-    {
-        return field.getValue(bObject, unpackArray);
     }
 }

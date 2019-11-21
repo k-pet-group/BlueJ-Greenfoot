@@ -22,48 +22,55 @@
 package bluej.extensions2.event;
 
 /**
- * This interface allows you to listen for compile events.
- * The order of occurence of these method calls for a given compilation is:
+ * This interface allows an extension to listen for compile events.
+ * The order of occurrence of these method calls for a given compilation is:
  * <pre>
  *     compileStarted()
  *     compileError()                        # If a compilation error occurs
  *     compileWarning()                      # If a compilation warning occurs
  *     compileFailed() or compileSucceeded()
  * </pre>
- * Note that currently BlueJ only reports the first compilation error or warning.
- *
- * @version $Id: CompileListener.java 6215 2009-03-30 13:28:25Z polle $
  */
 public interface CompileListener
 {
     /**
      * This method will be called when a compilation starts.
-     * If a long operation must be performed you should start a Thread.
+     * If a long operation must be performed the extension should start a Thread.
+     *
+     * @param event a {@link CompileEvent} object of type {@link bluej.extensions2.event.CompileEvent.EventType#COMPILE_START_EVENT}.
      */
     public void compileStarted(CompileEvent event);
 
     /**
      * This method will be called when there is a report of a compile error.
-     * If a long operation must be performed you should start a Thread.
+     * If a long operation must be performed the extension should start a Thread.
+     *
+     * @param event a {@link CompileEvent} object of type {@link bluej.extensions2.event.CompileEvent.EventType#COMPILE_ERROR_EVENT}.
      */
     public void compileError(CompileEvent event);
 
     /**
      * This method will be called when there is a report of a compile warning.
-     * If a long operation must be performed you should start a Thread.
+     * If a long operation must be performed the extension should start a Thread.
+     *
+     * @param event a {@link CompileEvent} object of type {@link bluej.extensions2.event.CompileEvent.EventType#COMPILE_WARNING_EVENT}.
      */
     public void compileWarning(CompileEvent event);
 
     /**
      * This method will be called when the compile ends successfully.
-     * If a long operation must be performed you should start a Thread.
+     * If a long operation must be performed the extension should start a Thread.
+     *
+     * @param event a {@link CompileEvent} object of type {@link bluej.extensions2.event.CompileEvent.EventType#COMPILE_DONE_EVENT}.
      */
     public void compileSucceeded(CompileEvent event);
 
 
     /**
      * This method will be called when the compile fails.
-     * If a long operation must be performed you should start a Thread.
+     * If a long operation must be performed the extension should start a Thread.
+     *
+     * @param event a {@link CompileEvent} object of type {@link bluej.extensions2.event.CompileEvent.EventType#COMPILE_FAILED_EVENT}.
      */
     public void compileFailed(CompileEvent event);
 

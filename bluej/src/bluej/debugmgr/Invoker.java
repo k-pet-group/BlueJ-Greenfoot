@@ -1242,13 +1242,14 @@ public class Invoker
                     watcher.putException(exc, ir);
                     break;
 
-                case Debugger.TERMINATED : // terminated by user
+                case Debugger.TERMINATED_BY_USER_SYSTEM_EXIT : // terminated by user
+                case Debugger.TERMINATED_BY_BLUEJ:
                     if (!codepad)
                     {
                         //Only record this if it wasn't on behalf of the codepad (codepad records separately):
                         DataCollector.invokeMethodTerminated(pkg, commandString);
                     }
-                    watcher.putVMTerminated(ir);
+                    watcher.putVMTerminated(ir, status == Debugger.TERMINATED_BY_USER_SYSTEM_EXIT);
                     break;
 
             } // switch

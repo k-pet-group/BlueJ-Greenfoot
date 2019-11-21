@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2016,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -45,6 +45,8 @@ public interface ResultWatcher
     
     /**
      * Compilation (if needed) was successful, and execution has begun.
+     *
+     * @param ir The invocation record
      */
     void beginExecution(InvokerRecord ir);
     
@@ -65,17 +67,25 @@ public interface ResultWatcher
     
     /**
      * An invocation has failed (compilation error) - here is the error message.
+     *
+     * @param message The message of the error
+     * @param ir The invocation record
      */
     void putError(String message, InvokerRecord ir);
     
     /**
      * A runtime exception occurred - here is the exception text, and stack trace
+     *
+     * @param exception The message of the exception
+     * @param ir The invocation record
      */
     void putException(ExceptionDescription exception, InvokerRecord ir);
     
     /**
      * The debug VM terminated. This may have been due to an explicit user action in
      * the UI, or the executing code called System.exit().
+     *
+     * @param ir The invocation record
      */
-    void putVMTerminated(InvokerRecord ir);
+    void putVMTerminated(InvokerRecord ir, boolean terminatedByUserCode);
 }

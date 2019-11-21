@@ -2040,9 +2040,9 @@ public class PkgMgrFrame
                 }
                 
                 @Override
-                public void putVMTerminated(InvokerRecord ir)
+                public void putVMTerminated(InvokerRecord ir, boolean terminatedByUserCode)
                 {
-                    super.putVMTerminated(ir);
+                    super.putVMTerminated(ir, terminatedByUserCode);
                     setStatus("");
                 }
                 

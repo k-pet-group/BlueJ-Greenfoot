@@ -37,6 +37,9 @@ import java.io.File;
 @OnThread(Tag.Any)
 public class CompileEvent implements ExtensionEvent
 {
+    /**
+     * Types of compilation events.
+     */
     public static enum EventType
     {
         /**
@@ -77,36 +80,46 @@ public class CompileEvent implements ExtensionEvent
     private String errorMessage;
 
     /**
-     * Constructor for a CompileEvent.
+     * Constructor to use for user-generated compilations.
+     *
+     * @param eventType one of the {@link EventType} values for this CompileEvent.
+     * @param aFileNames an array of {@link File} objects referring to the compiled files.
      */
-    public CompileEvent(EventType anEventType, File[] aFileNames)
+    public CompileEvent(EventType eventType, File[] aFileNames)
     {
-        eventType = anEventType;
+        this.eventType = eventType;
         fileNames = aFileNames;
         // Legacy constructor, from when we always used to keep classes:
         this.isUserGeneratedCompilation = true;
     }
 
     /**
-     * Constructor for a CompileEvent.
+     * @param eventType one of the {@link EventType} values for this CompileEvent.
+     * @param isUserGeneratedCompilation  a boolean indicating whether the compilation was triggered by the user (<code>true</code>) or by BlueJ (<code>false</code>).
+     * @param aFileNames an array of {@link File} objects referring the compiled files.
      */
-    public CompileEvent(EventType anEventType, boolean isUserGeneratedCompilation, File[] aFileNames)
+    public CompileEvent(EventType eventType, boolean isUserGeneratedCompilation, File[] aFileNames)
     {
-        eventType = anEventType;
+        this.eventType = eventType;
         this.isUserGeneratedCompilation = isUserGeneratedCompilation;
         fileNames = aFileNames;
     }
 
     /**
-     * Returns the eventType
+     * Returns the eventType associated with this CompileEvent
+     *
+     * @return One of the {@link EventType} values associated with this CompileEvent.
      */
-    public EventType getEvent()
+    public EventType getEventType()
     {
         return eventType;
     }
 
     /**
-     * Returns an array of zero, one or more files related to this event.
+     * Returns the files related to this event.
+     * The array can be empty if no file are related to this event.
+     *
+     * @return The array of {@link File} objects referring to the compiled files related to this event.
      */
     public File[] getFiles()
     {
@@ -115,6 +128,8 @@ public class CompileEvent implements ExtensionEvent
 
     /**
      * Sets the line number where an error or warning occurred.
+     *
+     * @param aLineNumber a Line number to be associated with this CompileEvent.
      */
     public void setErrorLineNumber(int aLineNumber)
     {
@@ -122,7 +137,9 @@ public class CompileEvent implements ExtensionEvent
     }
     
     /**
-     * Set the error position - beginning line [0] and column [1], ending line [2] and column [3]
+     * Sets the error position.
+     *
+     * @param errorPosition an array of four integers for this CompileEvent, containing the error position information: beginning line [0] and column [1], ending line [2] and column [3].
      */
     public void setErrorPosition(int [] errorPosition)
     {
@@ -142,7 +159,9 @@ public class CompileEvent implements ExtensionEvent
     }
     
     /**
-     * Get the error position - beginning line [0] and column [1], ending line [2] and column [3].
+     * Gets the error position.
+     *
+     * @return An array of four integers containing the error position information: beginning line [0] and column [1], ending line [2] and column [3].
      */
     public int[] getErrorPosition()
     {
@@ -156,6 +175,8 @@ public class CompileEvent implements ExtensionEvent
 
     /**
      * Sets the error message for an error or warning event.
+     *
+     * @param anErrorMessage an error message for this CompileEvent.
      */
     public void setErrorMessage(String anErrorMessage)
     {
@@ -172,15 +193,14 @@ public class CompileEvent implements ExtensionEvent
     }
 
     /**
-     * With the addition of auto-compilation into BlueJ, there are now two types of compile.
-     *
-     * One is an automatic check for errors, which does a full compilation (and thus will trigger
-     * these compile events), but discards the resulting class files.  The other is proper
-     * compilations which compile and keep the class files.  This method lets you distinguish
+     * Returns an indicator for user or BlueJ generated compilation.
+     * Two types of compilation can occur when using BlueJ.
+     * One is BlueJ-generated, an internal automatic check for errors, which does a full compilation (and thus will trigger
+     * these compile events), but discards the resulting class files.  The other is a user-generated proper
+     * compilations which compile and keep the class files.  This method lets the extension distinguish
      * between the two.
      *
-     * @return True if the classes generated by this compilation will be retained, false
-     * if they will be discarded (because the compilation is just an internal check for errors)
+     * @return The boolean value indicating whether the compilation associated with this CompileEvent is user-generated (<code>true</code>) or BlueJ-generated (<code>false</code>).
      */
     public boolean isUserGeneratedCompilation()
     {
