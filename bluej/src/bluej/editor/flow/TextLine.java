@@ -21,6 +21,7 @@
  */
 package bluej.editor.flow;
 
+import bluej.utility.Utility;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.ResizableRectangle;
 import com.google.common.collect.Lists;
@@ -159,9 +160,10 @@ public class TextLine extends TextFlow
             }
             else if (rangeShape.length == 0)
             {
-                double rhs = getChildren().stream().filter(t -> t instanceof Text).mapToDouble(n -> n.getBoundsInLocal().getMaxX()).findFirst().orElse(0.0);
+                // Selection begins at the end of the line (including case where line is blank); make the selection ourselves from right edge of text:
+                double rhs = Utility.findLast(getChildren().stream().filter(t -> t instanceof Text).map(n -> n.getBoundsInParent().getMaxX())).orElse(0.0);
                 
-                // Blank line; make the selection ourselves:
+                
                 rangeShape = new PathElement[] {
                     new MoveTo(rhs, 0),
                     new LineTo(width - 1.0, 0),
