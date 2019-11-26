@@ -102,11 +102,9 @@ class VMEventHandler extends Thread
                 EventSet eventSet = queue.remove(1);
                 
                 if (eventSet == null) {
-                    // If no event is currently available, signal anyone waiting for
-                    // the queue to empty, and then block until an event arrives
+                    // If no event is currently available, records this, and then block until an event arrives
                     synchronized (this) {
                         queueEmpty = true;
-                        notifyAll();
                     }
                     
                     // In case a thread event was issued while queueEmpty was still false,
@@ -239,22 +237,6 @@ class VMEventHandler extends Thread
             // or it has just pulled one but has yet to set queueEmpty = false,
             // which it will only do while synched.
             interrupt();
-        }
-    }
-    
-    /**
-     * Wait until the event queue is empty (all pending events have been dispatched).
-     */
-    @OnThread(Tag.Any)
-    public void waitQueueEmpty()
-    {
-        synchronized (this) {
-            try {
-                while (! queueEmpty) {
-                    wait();
-                }
-            }
-            catch (InterruptedException ie) {}
         }
     }
     
