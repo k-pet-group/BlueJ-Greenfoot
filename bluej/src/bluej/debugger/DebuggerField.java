@@ -41,6 +41,7 @@ public abstract class DebuggerField
     /**
      * Get the field type
      */
+    @OnThread(Tag.FXPlatform)
     public abstract JavaType getType();
     
     /**

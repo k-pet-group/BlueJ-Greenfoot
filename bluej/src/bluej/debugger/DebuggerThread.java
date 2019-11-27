@@ -21,6 +21,7 @@
  */
 package bluej.debugger;
 
+import bluej.utility.javafx.FXPlatformSupplier;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -37,14 +38,19 @@ public abstract class DebuggerThread
 {
     public abstract String getName();
 
+    @OnThread(Tag.VMEventHandler)
     public abstract String getStatus();
 
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     public abstract boolean isSuspended();
+    @OnThread(Tag.VMEventHandler)
     public abstract boolean isAtBreakpoint();
 
+    @OnThread(Tag.VMEventHandler)
     public abstract String getClass(int frameNo);
+    @OnThread(Tag.VMEventHandler)
     public abstract String getClassSourceName(int frameNo);
+    @OnThread(Tag.VMEventHandler)
     public abstract int getLineNumber(int frameNo);
     public abstract boolean isKnownSystemThread();
 
@@ -52,12 +58,14 @@ public abstract class DebuggerThread
      * Get the current execution of the stack. This is only reliable if the
      * thread is currently halted.
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     public abstract List<SourceLocation> getStack();
-    
-    @OnThread(Tag.Any)
-    public abstract List<VarDisplayInfo> getLocalVariables(int frameNo);
+
+    @OnThread(Tag.VMEventHandler)
+    public abstract List<FXPlatformSupplier<VarDisplayInfo>> getLocalVariables(int frameNo);
+    @OnThread(Tag.VMEventHandler)
     public abstract boolean varIsObject(int frameNo, int index);
+    @OnThread(Tag.VMEventHandler)
     public abstract DebuggerObject getStackObject(int frameNo, int index);
     
     /**
@@ -65,34 +73,36 @@ public abstract class DebuggerThread
      * The returned object may represent the null reference if the frame
      * is for a static method.
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     public abstract DebuggerObject getCurrentObject(int frameNo);
     
     /**
      * Return the current class of this thread (may return null if the
      * class cannot be determined).
      */
+    @OnThread(Tag.VMEventHandler)
     public abstract DebuggerClass getCurrentClass(int frameNo);
 
     public abstract void setSelectedFrame(int frame);
     public abstract int getSelectedFrame();
 
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     public abstract void halt();
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     public abstract void cont();
 
     /**
      * Step to the next line in the current method. This is only valid when the thread is
      * suspended. It is safe to call this from a DebuggerListener.
      */
+    @OnThread(Tag.VMEventHandler)
     public abstract void step();
 
     /**
      * Step to the next executed line (which might be in a called method). This is only valid when the
      * thread is suspended. It is safe to call this from a DebuggerListener.
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     public abstract void stepInto();
     
     @OnThread(Tag.Any)

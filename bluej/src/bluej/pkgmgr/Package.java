@@ -39,7 +39,6 @@ import javafx.application.Platform;
 import bluej.compiler.CompileInputFile;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
-import bluej.editor.stride.FrameEditor;
 import bluej.pkgmgr.target.CSSTarget;
 import bluej.pkgmgr.target.DependentTarget.State;
 import bluej.pkgmgr.dependency.ExtendsDependency;
@@ -2199,15 +2198,16 @@ public final class Package
      * @return true if the debugger display is already taken care of, or
      * false if you still want to show the ExecControls window afterwards.
      */
-    private boolean showSource(DebuggerThread thread, String sourcename, int lineNo, ShowSourceReason reason, String msg)
+    @OnThread(Tag.FXPlatform)
+    private boolean showSource(DebuggerThread thread, String sourcename, int lineNo, ShowSourceReason reason, String msg, DebuggerObject currentObject)
     {
         boolean bringToFront = !sourcename.equals(lastSourceName);
         lastSourceName = sourcename;
 
         // showEditorMessage:
         Editor targetEditor = editorForTarget(new File(getPath(), sourcename).getAbsolutePath(), bringToFront);
-        if (targetEditor != null) {
-            DebuggerObject currentObject = thread.getCurrentObject(0);
+        if (targetEditor != null)
+        {
             if (getUI() != null)
             {
                 getUI().highlightObject(currentObject);
@@ -2401,7 +2401,8 @@ public final class Package
     /**
      * A breakpoint in this package was hit.
      */
-    public void hitBreakpoint(DebuggerThread thread)
+    @OnThread(Tag.FXPlatform)
+    public void hitBreakpoint(DebuggerThread thread, String classSourceName, int lineNumber, DebuggerObject currentObject)
     {
         String msg = null;
         if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT)) {
@@ -2409,7 +2410,7 @@ public final class Package
             msg = msg.replace("$", thread.getName());
         }
         
-        if (!showSource(thread, thread.getClassSourceName(0), thread.getLineNumber(0), ShowSourceReason.BREAKPOINT_HIT, msg))
+        if (!showSource(thread, classSourceName, lineNumber, ShowSourceReason.BREAKPOINT_HIT, msg, currentObject))
         {
             getProject().getExecControls().show();
             getProject().getExecControls().selectThread(thread);
@@ -2420,18 +2421,17 @@ public final class Package
      * Execution stopped by someone pressing the "halt" button or we have just
      * done a "step".
      */
-    public void hitHalt(DebuggerThread thread)
+    @OnThread(Tag.FXPlatform)
+    public void hitHalt(DebuggerThread thread, String classSourceName, int lineNumber, DebuggerObject currentObject, boolean breakpoint)
     {
-        boolean breakpoint = thread.isAtBreakpoint();
         String msg = null;
         if (PrefMgr.getFlag(PrefMgr.ACCESSIBILITY_SUPPORT)) {
             msg = breakpoint ? Config.getString("debugger.accessibility.breakpoint") : Config.getString("debugger.accessibility.paused");
             msg = msg.replace("$", thread.getName());
         }
         
-        int frame = thread.getSelectedFrame();
         ShowSourceReason reason = breakpoint ? ShowSourceReason.BREAKPOINT_HIT : ShowSourceReason.STEP_OR_HALT;
-        if (!showSource(thread, thread.getClassSourceName(frame), thread.getLineNumber(frame), reason, msg))
+        if (!showSource(thread, classSourceName, lineNumber, reason, msg, currentObject))
         {
             getProject().getExecControls().show();
             getProject().getExecControls().selectThread(thread);
@@ -2441,9 +2441,10 @@ public final class Package
     /**
      * Display a source file from this package at the specified position.
      */
-    public void showSourcePosition(DebuggerThread thread, String sourceName, int lineNumber)
+    @OnThread(Tag.FXPlatform)
+    public void showSourcePosition(DebuggerThread thread, String sourceName, int lineNumber, DebuggerObject currentObject)
     {
-        showSource(thread, sourceName, lineNumber, ShowSourceReason.FRAME_SELECTED, null);
+        showSource(thread, sourceName, lineNumber, ShowSourceReason.FRAME_SELECTED, null, currentObject);
     }
     
     /**

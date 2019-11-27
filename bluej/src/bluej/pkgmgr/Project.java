@@ -37,6 +37,7 @@ import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerThread;
 import bluej.debugger.DebuggerThreadListener;
 import bluej.debugger.RunOnThread;
+import bluej.debugger.SourceLocation;
 import bluej.debugmgr.ExecControls;
 import bluej.debugmgr.ExpressionInformation;
 import bluej.debugmgr.inspector.ClassInspector;
@@ -1895,110 +1896,123 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
      * A debugger event was fired. Analyse which event it was, and take
      * appropriate action.
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     public void processDebuggerEvent(final DebuggerEvent event, boolean skipUpdate)
     {
         if (skipUpdate) {
             return;
         }
+        if (event.getID() == DebuggerEvent.DEBUGGER_STATECHANGED)
+        {
+            Platform.runLater(() -> {
+                int newState = event.getNewState();
+                int oldState = event.getOldState();
 
-        Platform.runLater(new Runnable() {
-            public void run()
-            {
-                if (event.getID() == DebuggerEvent.DEBUGGER_STATECHANGED)
+                if (newState == Debugger.RUNNING)
                 {
-                    int newState = event.getNewState();
-                    int oldState = event.getOldState();
-                    
-                    if (newState == Debugger.RUNNING)
-                    {
-                        getTerminal().activate(true);
-                    }
-                    else if (newState == Debugger.IDLE)
-                    {
-                        getTerminal().activate(false);
-                    }
-                    
-                    PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(Project.this);
-
-                    if (frames != null)
-                    {
-                        for (int i = 0; i < frames.length; i++)
-                        {
-                            frames[i].setDebuggerState(newState);
-                        }
-                    }
-
-                    // check whether we just got a freshly created VM
-                    if ((oldState == Debugger.NOTREADY) &&
-                            (newState == Debugger.IDLE)) {
-                        vmReady();
-                    }
-
-                    // check whether a good VM just disappeared
-                    if ((oldState == Debugger.IDLE) &&
-                            (newState == Debugger.NOTREADY)) {
-                        removeStepMarks();
-                        vmClosed();
-                    }
-
-                    // check whether we failed to create the VM
-                    if (newState == Debugger.LAUNCH_FAILED) {
-                        BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_FAILED, null);
-                    }
-
-                    return;
+                    getTerminal().activate(true);
+                }
+                else if (newState == Debugger.IDLE)
+                {
+                    getTerminal().activate(false);
                 }
 
-                DebuggerThread thr = event.getThread();
-                if (thr == null) {
-                    return; // Not a thread event
-                }
-                String packageName = JavaNames.getPrefix(thr.getClass(0));
-                Package pkg = getPackage(packageName);
 
-                if (pkg != null) {
-                    switch (event.getID()) {
-                        case DebuggerEvent.THREAD_BREAKPOINT:
-                            pkg.hitBreakpoint(thr);
-                            break;
+                PkgMgrFrame[] frames = PkgMgrFrame.getAllProjectFrames(Project.this);
 
-                        case DebuggerEvent.THREAD_HALT_UNKNOWN:
-                        case DebuggerEvent.THREAD_HALT_STEP_INTO:
-                        case DebuggerEvent.THREAD_HALT_STEP_OVER:
-                            pkg.hitHalt(thr);
-                            break;
+                if (frames != null)
+                {
+                    for (int i = 0; i < frames.length; i++)
+                    {
+                        frames[i].setDebuggerState(newState);
                     }
                 }
 
+                // check whether we just got a freshly created VM
+                if ((oldState == Debugger.NOTREADY) &&
+                        (newState == Debugger.IDLE))
+                {
+                    vmReady();
+                }
+
+                // check whether a good VM just disappeared
+                if ((oldState == Debugger.IDLE) &&
+                        (newState == Debugger.NOTREADY))
+                {
+                    removeStepMarks();
+                    vmClosed();
+                }
+
+                // check whether we failed to create the VM
+                if (newState == Debugger.LAUNCH_FAILED)
+                {
+                    BlueJEvent.raiseEvent(BlueJEvent.CREATE_VM_FAILED, null);
+                }
+
+            });
+            return;
+        }
+
+        DebuggerThread thr = event.getThread();
+        if (thr == null) {
+            return; // Not a thread event
+        }
+        // Variables which must be fetched from this thread:
+        String packageName = JavaNames.getPrefix(thr.getClass(0));
+        SourceLocation[] filteredStack = ExecControls.getFilteredStack(thr.getStack());
+        String classSourceName = thr.getClassSourceName(0);
+        int lineNumber = thr.getLineNumber(0);
+        DebuggerObject currentObject = thr.getCurrentObject(0);
+        boolean atBreakpoint = thr.isAtBreakpoint();
+        
+        Platform.runLater(() -> {
+            Package pkg = getPackage(packageName);
+
+            if (pkg != null)
+            {
                 switch (event.getID())
                 {
-                    case DebuggerEvent.THREAD_HALT_UNKNOWN:
-                        DataCollector.debuggerHalt(Project.this, thr.getName(), ExecControls.getFilteredStack(thr.getStack()));
-                        break;
-                    case DebuggerEvent.THREAD_HALT_STEP_INTO:
-                        DataCollector.debuggerStepInto(Project.this, thr.getName(), ExecControls.getFilteredStack(thr.getStack()));
-                        break;
-                    case DebuggerEvent.THREAD_HALT_STEP_OVER:
-                        DataCollector.debuggerStepOver(Project.this, thr.getName(), ExecControls.getFilteredStack(thr.getStack()));
-                        break;
                     case DebuggerEvent.THREAD_BREAKPOINT:
-                        DataCollector.debuggerHitBreakpoint(Project.this, thr.getName(), ExecControls.getFilteredStack(thr.getStack()));
+                        pkg.hitBreakpoint(thr, classSourceName, lineNumber, currentObject);
+                        break;
+
+                    case DebuggerEvent.THREAD_HALT_UNKNOWN:
+                    case DebuggerEvent.THREAD_HALT_STEP_INTO:
+                    case DebuggerEvent.THREAD_HALT_STEP_OVER:
+                        pkg.hitHalt(thr, classSourceName, lineNumber, currentObject, atBreakpoint);
                         break;
                 }
             }
+            
+            switch (event.getID())
+            {
+                case DebuggerEvent.THREAD_HALT_UNKNOWN:
+                    DataCollector.debuggerHalt(Project.this, thr.getName(), filteredStack);
+                    break;
+                case DebuggerEvent.THREAD_HALT_STEP_INTO:
+                    DataCollector.debuggerStepInto(Project.this, thr.getName(), filteredStack);
+                    break;
+                case DebuggerEvent.THREAD_HALT_STEP_OVER:
+                    DataCollector.debuggerStepOver(Project.this, thr.getName(), filteredStack);
+                    break;
+                case DebuggerEvent.THREAD_BREAKPOINT:
+                    DataCollector.debuggerHitBreakpoint(Project.this, thr.getName(), filteredStack);
+                    break;
+            }
+
         });
     }
 
     /**
      * Show the source code at a particular position
      */
-    public void showSource(DebuggerThread thread, String className, String sourceName, int lineNumber)
+    @OnThread(Tag.FXPlatform)
+    public void showSource(DebuggerThread thread, String className, String sourceName, int lineNumber, DebuggerObject currentObject)
     {
         String packageName = JavaNames.getPrefix(className);
         Package pkg = getPackage(packageName);
         if (pkg != null) {
-            pkg.showSourcePosition(thread, sourceName, lineNumber);
+            pkg.showSourcePosition(thread, sourceName, lineNumber, currentObject);
         }
     }
 
@@ -2523,25 +2537,27 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
 
 
     @Override
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     public void threadStateChanged(DebuggerThread thread, boolean shouldDisplay)
     {
         Platform.runLater(() -> {
             for (int i = 0; i < threadListContents.size(); i++)
             {
-                if (threadListContents.get(i).isThread(thread))
+                DebuggerThreadDetails details = threadListContents.get(i);
+                if (details.isThread(thread))
                 {
-                    threadListContents.get(i).update();
+                    getDebugger().runOnEventHandler(() -> details.update());
                     break;
                 }
             }
 
             if (hasExecControls())
             {
-                getExecControls().updateThreadDetails(thread);
+                ExecControls controls = getExecControls();
+                getDebugger().runOnEventHandler(() -> controls.updateThreadDetails(thread));
                 if (shouldDisplay)
                 {
-                    getExecControls().selectThread(thread);
+                    controls.selectThread(thread);
                 }
             }
         });
@@ -2557,7 +2573,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     }
 
     @Override
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     public void addThread(DebuggerThread thread)
     {
         DebuggerThreadDetails details = new DebuggerThreadDetails(thread);
@@ -2567,7 +2583,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     }
 
     @Override
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     public void removeThread(DebuggerThread thread)
     {
         DebuggerThreadDetails details = new DebuggerThreadDetails(thread);
@@ -2608,9 +2624,10 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     {
         private final DebuggerThread debuggerThread;
         private String debuggerThreadDisplay;
+        @OnThread(value = Tag.Any, requireSynchronized = true)
         private boolean suspended;
 
-        @OnThread(Tag.Any)
+        @OnThread(Tag.VMEventHandler)
         public DebuggerThreadDetails(DebuggerThread dt)
         {
             this.debuggerThread = dt;
@@ -2620,8 +2637,8 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         /**
          * Update details based on the current state of the thread.
          */
-        @OnThread(Tag.Any)
-        public void update()
+        @OnThread(Tag.VMEventHandler)
+        public synchronized void update()
         {
             this.debuggerThreadDisplay = debuggerThread.toString();
             this.suspended = debuggerThread.isSuspended();
@@ -2651,6 +2668,7 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
             return debuggerThreadDisplay;
         }
 
+        @OnThread(Tag.Any)
         public boolean isThread(DebuggerThread dt)
         {
             return debuggerThread.equals(dt);
@@ -2659,16 +2677,18 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         /**
          * Gets whether the thread was suspended when this DebuggerThreadDetails
          * object was created.  Should be used in preference to getThread().isSuspended()
-         * because it is set once and will not change, whereas getThread().isSuspended()
+         * because it is set in a controlled manner by update(), whereas getThread().isSuspended()
          * is live and may return in effect a "future" value (i.e. one which has
          * occurred in the debugger but not yet reached the GUI, and is queued
          * to be processed after this event).
          */
-        public boolean isSuspended()
+        @OnThread(Tag.Any)
+        public synchronized boolean isSuspended()
         {
             return suspended;
         }
 
+        @OnThread(Tag.Any)
         public DebuggerThread getThread()
         {
             return debuggerThread;

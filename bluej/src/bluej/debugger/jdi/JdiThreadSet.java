@@ -54,7 +54,7 @@ public class JdiThreadSet extends HashSet<JdiThread>
     {
         for(Iterator<JdiThread> it=iterator(); it.hasNext(); ) {
             JdiThread currentThread = (JdiThread)it.next();
-            if(currentThread.getRemoteThread().equals(thread)) {
+            if(currentThread.sameThread(thread)) {
                 return currentThread;
             }
         }
@@ -69,7 +69,7 @@ public class JdiThreadSet extends HashSet<JdiThread>
     {
         for(Iterator<JdiThread> it=iterator(); it.hasNext(); ) {
             JdiThread jdiThread = it.next();
-            if(jdiThread.getRemoteThread().equals(thread)) {
+            if(jdiThread.sameThread(thread)) {
                 it.remove();
                 return jdiThread;
             }

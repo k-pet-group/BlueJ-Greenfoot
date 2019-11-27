@@ -846,7 +846,7 @@ public class FrameEditor implements Editor
         // Disable Stride debugger:
         if (true)
             return true;
-        
+        /*
         removeStepMark();
         setVisibleFX(true, true, false);
         HashMap<String, DebugVarInfo> vars = new HashMap<String, DebugVarInfo>();
@@ -893,7 +893,7 @@ public class FrameEditor implements Editor
                 curBreakpoint = js.handleStop(lineNumber, debugInfo);
                 if (curBreakpoint.isBreakpointFrame())
                 {
-                    thread.step();
+                    getPackage().getProject().getDebugger().runOnEventHandler(() -> thread.step());
                 }
                 else
                 {
@@ -909,7 +909,7 @@ public class FrameEditor implements Editor
                 Debug.reportError("Exception attempting to save Java source for Stride class", ioe);
             }
         });
-        
+        */
         return true;
     }
 

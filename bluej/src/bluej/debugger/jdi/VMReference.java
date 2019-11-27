@@ -1038,6 +1038,7 @@ public class VMReference
     /**
      * The VM has been disconnected or ended.
      */
+    @OnThread(Tag.VMEventHandler)
     public void vmDisconnectEvent()
     {
         synchronized (this) {
@@ -1070,6 +1071,7 @@ public class VMReference
     /**
      * A thread has started.
      */
+    @OnThread(Tag.VMEventHandler)
     public void threadStartEvent(ThreadStartEvent tse)
     {
         owner.threadStart(tse.thread());
@@ -1078,6 +1080,7 @@ public class VMReference
     /**
      * A thread has died.
      */
+    @OnThread(Tag.VMEventHandler)
     public void threadDeathEvent(ThreadDeathEvent tde)
     {
         ThreadReference tr = tde.thread();
@@ -1094,6 +1097,7 @@ public class VMReference
      * A thread has been suspended (due to a breakpoint, step, or
      * call to DebuggerThread.halt()).
      */
+    @OnThread(Tag.VMEventHandler)
     public void threadHaltedEvent(JdiThread thread)
     {
         owner.threadHalted(thread);
@@ -1102,6 +1106,7 @@ public class VMReference
     /**
      * A thread has been resumed.
      */
+    @OnThread(Tag.VMEventHandler)
     public void threadResumedEvent(JdiThread thread)
     {
         owner.threadResumed(thread);
@@ -1211,6 +1216,7 @@ public class VMReference
     /**
      * A breakpoint has been hit or step completed in a thread.
      */
+    @OnThread(Tag.VMEventHandler)
     public void breakpointEvent(LocatableEvent event, int debuggerEventType, boolean skipUpdate)
     {
         // if the breakpoint is marked as with the SERVER_STARTED property
@@ -1289,6 +1295,7 @@ public class VMReference
             };
     }
 
+    @OnThread(Tag.VMEventHandler)
     public boolean screenBreakpointEvent(LocatableEvent event, int debuggerEventType)
     {
         BreakpointProperties props = makeBreakpointProperties(event.request());
@@ -1591,6 +1598,7 @@ public class VMReference
      * Calls to this method should be synchronized on the serverThreadLock
      * (in JdiDebugger).
      */
+    @SuppressWarnings("threadchecker")
     private void resumeServerThread()
     {
         synchronized (eventHandler) {

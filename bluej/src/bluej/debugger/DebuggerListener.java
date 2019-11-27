@@ -65,6 +65,7 @@ public interface DebuggerListener
      * 
      * @see #processDebuggerEvent(DebuggerEvent, boolean)
      */
+    @OnThread(Tag.VMEventHandler)
     default boolean examineDebuggerEvent(DebuggerEvent e)
     {
         return false;
@@ -77,5 +78,6 @@ public interface DebuggerListener
      *                  the UI not be updated due to this event
      *                 (or another event in this event set).
      */
+    @OnThread(Tag.VMEventHandler)
     void processDebuggerEvent(DebuggerEvent e, boolean skipUpdate);
 }
