@@ -40,6 +40,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import bluej.debugger.Debugger.EventHandlerRunnable;
 import bluej.debugger.RunOnThread;
 import bluej.utility.DialogManager;
 import bluej.utility.javafx.FXPlatformSupplier;
@@ -2162,6 +2163,12 @@ public class VMReference
             workerThreadReadyWait();
             setStaticFieldValue(serverClass, ExecServer.RUN_ON_THREAD_NAME, machine.mirrorOf(fieldValue));
         }
+    }
+
+    @OnThread(Tag.Any)
+    public void runOnEventHandler(EventHandlerRunnable runnable)
+    {
+        eventHandler.queueRunnable(runnable);
     }
 
     /**

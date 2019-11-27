@@ -327,4 +327,13 @@ public abstract class Debugger
      * Sets which thread invoked methods/constructors should be run on.
      */
     public abstract void setRunOnThread(RunOnThread runOnThread);
+    
+    public static interface EventHandlerRunnable
+    {
+        @OnThread(Tag.VMEventHandler)
+        public void run();
+    }
+    
+    @OnThread(Tag.Any)
+    public abstract void runOnEventHandler(EventHandlerRunnable runnable);
 }

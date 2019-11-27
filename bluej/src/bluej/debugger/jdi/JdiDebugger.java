@@ -1289,4 +1289,19 @@ public class JdiDebugger extends Debugger
             getVM().setRunOnThread(runOnThread);
         }
     }
+
+    @OnThread(Tag.Any)
+    @Override
+    public void runOnEventHandler(EventHandlerRunnable runnable)
+    {
+        VMReference vmReference = getVMNoWait();
+        if (vmReference != null)
+        {
+            vmReference.runOnEventHandler(runnable);
+        }
+        else
+        {
+            Debug.printCallStack("Could not run EventHandlerRunnable as VM not initialised");
+        }
+    }
 }
