@@ -332,7 +332,6 @@ sound-line-unavailable=Kan ej f\u00E5 tillg\u00E5ng till ljudkortet. Om du har e
 # MainFrame central messages
 centrePanel.message.openScenario=\u2196 Skapa eller \u00F6ppna ett scenario via scenario-menyn
 centrePanel.message.createWorldClass=Skapa en ny subklass i World
-centrePanel.message.createWorldObject=Initiera ett nytt World-objekt
 centrePanel.message.compile1=World-klassen kan inte kompileras
 centrePanel.message.compile2=En av klasserna har ett fel. Kontrollera dem f\u00F6r att initiera scenariot. \u2197
 centrePanel.message.initialising=V\u00E4rlden konstrueras...

@@ -539,6 +539,7 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         {
             // If we are paused, but no world is visible, the user either
             // needs to instantiate a world (if they have one) or create a world class
+            String possibleWorld;
             if (worldInstantiationError)
             {
                 message = Config.getString("centrePanel.message.error1") + " " + Config.getString("centrePanel.message.error2");
@@ -547,9 +548,11 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
             {
                 message = Config.getString("centrePanel.message.initialising");
             }
-            else if (classDiagram.hasInstantiatableWorld())
+            else if ((possibleWorld = classDiagram.getInstantiatableWorld()) != null)
             {
-                message = Config.getString("centrePanel.message.createWorldObject");
+                Properties props = new Properties();
+                props.put("exampleWorld", possibleWorld);
+                message = Config.getString("centrePanel.message.createWorldObject", null, props);
             }
             else if (classDiagram.hasUserWorld())
             {

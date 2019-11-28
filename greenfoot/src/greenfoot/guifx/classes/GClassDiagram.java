@@ -33,6 +33,7 @@ import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
+import bluej.views.ConstructorView;
 import bluej.views.View;
 import bluej.views.ViewFilter;
 import bluej.views.ViewFilter.StaticOrInstance;
@@ -80,12 +81,12 @@ public class GClassDiagram extends BorderPane
 
     /**
      * Is there a World subclass that we could instantiate using a package-visible
-     * no-args constructor?
+     * no-args constructor?  If so, return its name.  If not, return null.
      */
-    public boolean hasInstantiatableWorld()
+    public String getInstantiatableWorld()
     {
         // We don't need to bother explicitly excluding World as it is abstract:
-        return worldClasses.streamAllClasses().anyMatch(c -> {
+        return worldClasses.streamAllClasses().map(c -> {
             Target t = project.getTarget(c.getQualifiedName());
             if (t instanceof ClassTarget)
             {
@@ -93,7 +94,7 @@ public class GClassDiagram extends BorderPane
                 if (cl == null)
                 {
                     // Can't load class, so rule it out:
-                    return false;
+                    return null;
                 }
                 View view = View.getView(cl);
 
@@ -102,13 +103,18 @@ public class GClassDiagram extends BorderPane
                 {
                     ViewFilter filter = new ViewFilter(StaticOrInstance.INSTANCE, "");
                     // Look for a visible constructor with no parameters:
-                    return Arrays.stream(view.getConstructors())
+                    ConstructorView constructorView = Arrays.stream(view.getConstructors())
                             .filter(filter)
-                            .anyMatch(cv -> !cv.hasParameters());
+                            .filter(cv -> !cv.hasParameters())
+                            .findFirst().orElse(null);
+                    if (constructorView != null)
+                    {
+                        return cl.getName();
+                    }
                 }
             }
-            return false;
-        });
+            return null;
+        }).filter(w -> w != null).findFirst().orElse(null);
     }
 
     public static enum GClassType { ACTOR, WORLD, OTHER }
