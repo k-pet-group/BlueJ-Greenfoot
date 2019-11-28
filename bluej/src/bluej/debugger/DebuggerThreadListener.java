@@ -27,6 +27,7 @@ import threadchecker.Tag;
 /**
  * Created by neil on 15/05/2017.
  */
+@OnThread(Tag.VMEventHandler)
 public interface DebuggerThreadListener
 {
     /**
@@ -35,18 +36,14 @@ public interface DebuggerThreadListener
      * @param shouldDisplay If true, change the debugger to display this thread.
      *                      If false, leave display as-is.
      */
-    @OnThread(Tag.VMEventHandler)
     void threadStateChanged(DebuggerThread thread, boolean shouldDisplay);
 
     /**
      * Called after a VM reset, when the list of threads should be cleared.
      */
-    @OnThread(Tag.VMEventHandler)
     void clearThreads();
 
-    @OnThread(Tag.VMEventHandler)
     void addThread(DebuggerThread thread);
 
-    @OnThread(Tag.VMEventHandler)
     void removeThread(DebuggerThread thread);
 }
