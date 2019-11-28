@@ -404,15 +404,15 @@ public class GreenfootStage extends Stage implements FXCompileObserver,
         updateBackgroundMessage();
         
         JavaFXUtil.addChangeListenerPlatform(focusedProperty(), focused -> {
-            if (focused && project != null)
+            if (focused && this.project != null)
             {
-                DataCollector.recordGreenfootEvent(project, GreenfootInterfaceEvent.WINDOW_ACTIVATED);
+                DataCollector.recordGreenfootEvent(this.project, GreenfootInterfaceEvent.WINDOW_ACTIVATED);
                 // If any classes are uncompiled, compile-all.  If all compiled, may need a reset:
-                if (project.getUnnamedPackage().getClassTargets().stream()
+                if (this.project.getUnnamedPackage().getClassTargets().stream()
                         .anyMatch(ct -> !ct.isCompiled()))
                 {
-                    project.scheduleCompilation(true, CompileReason.USER,
-                        CompileType.INDIRECT_USER_COMPILE, project.getUnnamedPackage());
+                    this.project.scheduleCompilation(true, CompileReason.USER,
+                        CompileType.INDIRECT_USER_COMPILE, this.project.getUnnamedPackage());
                 }
                 else if (worldDisplay.isGreyedOut() && !worldDisplay.isAsking())
                 {
