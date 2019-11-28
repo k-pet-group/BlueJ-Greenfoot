@@ -972,11 +972,11 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         ImageView stepIcon = new ImageView(Config.getFixedImageAsFXImage("step.gif"));
         stepIcon.setRotate(90);
         Button stepButton = new Button("Step", stepIcon);
-        stepButton.setOnAction(e -> thread.step());
+        stepButton.setOnAction(e -> project.getDebugger().runOnEventHandler(() -> thread.step()));
         ImageView continueIcon = new ImageView(Config.getFixedImageAsFXImage("continue.gif"));
         continueIcon.setRotate(90);
         Button continueButton = new Button("Continue", continueIcon);
-        continueButton.setOnAction(e -> {thread.cont(); hideDebuggerControls(); });
+        continueButton.setOnAction(e -> {project.getDebugger().runOnEventHandler(() -> thread.cont()); hideDebuggerControls(); });
         Button haltButton = new Button("Halt", Config.makeStopIcon(true));
         // Halt does nothing at the moment
         Label showVarLabel = new Label("Show variables: ");
