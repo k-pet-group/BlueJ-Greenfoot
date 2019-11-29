@@ -94,6 +94,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Duration;
 import threadchecker.OnThread;
@@ -1585,12 +1586,14 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
         // if there is a breakpoint in a JavaFX class and we are restarting VM
         // before FX launch, then we set the breakpoints before launching the FX app:
         packages.values().forEach(Package::reInitBreakpoints);
+        // The debug VM application steals focus on Mac, so once it's launched, we reclaim the focus to the window in the main VM:
         if (Config.isMacOS())
         {
-            PkgMgrFrame frame = PkgMgrFrame.findFrame(getUnnamedPackage());
-            if (frame != null)
+            PackageUI packageUI = getUnnamedPackage().getUI();
+            Stage stage = packageUI == null ? null : packageUI.getStage();
+            if (stage != null)
             {
-                frame.bringToFront();
+                Utility.bringToFrontFX(stage);
             }
         }
 
