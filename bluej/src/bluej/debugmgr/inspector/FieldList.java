@@ -200,6 +200,7 @@ public class FieldList extends ScrollPane
      * The children are always paired: description then value, description then value.
      * So the number of children is exactly double the number of fields (rows).
      */
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     private static class ContentPane extends Region
     {
         public ContentPane()
