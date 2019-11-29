@@ -54,6 +54,8 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import org.junit.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.api.RepeatedTest;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -67,12 +69,14 @@ import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static bluej.pkgmgr.target.ClassTarget.MENU_STYLE_INBUILT;
 
@@ -85,33 +89,50 @@ public class UnitTestClassRole extends ClassRole
 {
     public static final String UNITTEST_ROLE_NAME = "UnitTestTarget";
     public static final String UNITTEST_ROLE_NAME_JUNIT4 = "UnitTestTargetJunit4";
+    public static final String UNITTEST_ROLE_NAME_JUNIT5 = "UnitTestTargetJunit5";
 
     private static final String testAll = Config.getString("pkgmgr.test.popup.testAll");
     private static final String createTest = Config.getString("pkgmgr.test.popup.createTest");
     private static final String benchToFixture = Config.getString("pkgmgr.test.popup.benchToFixture");
     private static final String fixtureToBench = Config.getString("pkgmgr.test.popup.fixtureToBench");
     
-    /** Whether this is a Junit 4 test class. If false, it's a Junit 3 test class. */
-    private final boolean isJunit4;
+    /** Unit test framework:
+     *  JUnit 5, 4 or 3
+     */
+    public enum UnitTestFramework{
+        JUnit5,
+        JUnit4,
+        JUnit3
+    }
+
+    @OnThread(Tag.Any)
+    private UnitTestFramework unitTestFramework;
     
     /**
      * Create the unit test class role.
      */
-    public UnitTestClassRole(boolean isJunit4)
+    public UnitTestClassRole(UnitTestFramework framework)
     {
-        this.isJunit4 = isJunit4;
+        unitTestFramework = framework;
     }
 
     @Override
     @OnThread(Tag.Any)
     public String getRoleName()
     {
-        if (isJunit4) {
-            return UNITTEST_ROLE_NAME_JUNIT4;
+        String roleName = null;
+        switch (unitTestFramework) {
+            case JUnit5:
+                roleName = UNITTEST_ROLE_NAME_JUNIT5;
+                break;
+            case JUnit4:
+                roleName = UNITTEST_ROLE_NAME_JUNIT4;
+                break;
+            case JUnit3:
+                roleName = UNITTEST_ROLE_NAME;
+                break;
         }
-        else {
-            return UNITTEST_ROLE_NAME;
-        }
+        return roleName;
     }
 
     @Override
@@ -126,38 +147,88 @@ public class UnitTestClassRole extends ClassRole
     @OnThread(Tag.Any)
     private boolean isJUnitTestMethod(Method m)
     {
-        if (isJunit4) {
-            Class<?> cl = m.getDeclaringClass();
-            ClassLoader classLoader = cl.getClassLoader();
-            try {
-                Class<Test> testClass;
-                if (classLoader == null) {
-                    testClass = org.junit.Test.class;
+        Class<?> cl = m.getDeclaringClass();
+        ClassLoader classLoader = cl.getClassLoader();
+
+        switch (unitTestFramework)
+        {
+            case JUnit5:
+                Class<org.junit.jupiter.api.Test> testClassJU5;
+                Class<ParameterizedTest> paramTestClassJU5;
+                Class<RepeatedTest> repeatedTestClassJU5;
+                try
+                {
+                    if (classLoader == null)
+                    {
+                        testClassJU5 = org.junit.jupiter.api.Test.class;
+                        paramTestClassJU5 = ParameterizedTest.class;
+                        repeatedTestClassJU5 = RepeatedTest.class;
+                    }
+                    else
+                    {
+                        testClassJU5 = (Class<org.junit.jupiter.api.Test>) classLoader.loadClass("org.junit.jupiter.api.Test");
+                        paramTestClassJU5 = (Class<ParameterizedTest>) classLoader.loadClass("org.junit.jupiter.params.ParameterizedTest");
+                        repeatedTestClassJU5 = (Class<RepeatedTest>) classLoader.loadClass("org.junit.jupiter.api.RepeatedTest");
+                    }
+
+                    if (m.getAnnotation(testClassJU5) != null || m.getAnnotation(paramTestClassJU5) != null || m.getAnnotation(repeatedTestClassJU5) != null)
+                    {
+                        if (!Modifier.isPublic(m.getModifiers())) return false;
+                        if (m.getAnnotation(paramTestClassJU5) != null && m.getParameterTypes().length == 0) return false;
+                        // A @Test or @RepeatTest test method can be with or without arguments.. No need to check.
+                        return true;
+                    }
                 }
-                else {
-                    testClass = (Class<Test>) classLoader.loadClass("org.junit.Test");
+                catch (ClassNotFoundException cnfe)
+                {
+                }
+                catch (LinkageError le)
+                {
                 }
 
-                if (m.getAnnotation(testClass) != null) {
-                    if (!Modifier.isPublic(m.getModifiers())) return false;
-                    if (m.getParameterTypes().length != 0) return false;
-                    return true;
-                }
-            }
-            catch (ClassNotFoundException cnfe) {}
-            catch (LinkageError le) {}
+                // No suitable annotations found, so not a test class
+                break;
+            case JUnit4:
+                Class<Test> testClassJU4;
+                cl = m.getDeclaringClass();
+                classLoader = cl.getClassLoader();
+                try
+                {
+                    if (classLoader == null)
+                    {
+                        testClassJU4 = org.junit.Test.class;
+                    }
+                    else
+                    {
+                        testClassJU4 = (Class<Test>) classLoader.loadClass("org.junit.Test");
+                    }
 
-            // No suitable annotations found, so not a test class
-            return false;
+                    if (m.getAnnotation(testClassJU4) != null)
+                    {
+                        if (!Modifier.isPublic(m.getModifiers())) return false;
+                        if (m.getParameterTypes().length != 0) return false;
+                        return true;
+                    }
+                }
+                catch (ClassNotFoundException cnfe)
+                {
+                }
+                catch (LinkageError le)
+                {
+                }
+
+                // No suitable annotations found, so not a test class
+                break;
+            case JUnit3:
+                // look for reasons to not include this method as a test case
+                if (!m.getName().startsWith("test")) return false;
+                if (!Modifier.isPublic(m.getModifiers())) return false;
+                if (m.getParameterTypes().length != 0) return false;
+                if (!m.getReturnType().equals(Void.TYPE)) return false;
+                return true;
         }
-        else {
-            // look for reasons to not include this method as a test case
-            if (!m.getName().startsWith("test")) return false;
-            if (!Modifier.isPublic(m.getModifiers())) return false;
-            if (m.getParameterTypes().length != 0) return false;
-            if (!m.getReturnType().equals(Void.TYPE)) return false;
-            return true;
-        }
+
+        return false;
     }
     
     /**
@@ -174,16 +245,9 @@ public class UnitTestClassRole extends ClassRole
     {
         boolean enableTestAll = false;
         if (!ct.getPackage().getProject().inTestMode() && state == State.COMPILED && cl != null && ! ct.isAbstract()) {
-            Method[] allMethods = cl.getMethods();
-
-            for (int i=0; i < allMethods.length; i++) {
-                Method m = allMethods[i];
-
-                if (isJUnitTestMethod(m)) {
-                    enableTestAll = true;
-                    break;
-                }
-            }
+            enableTestAll = (Arrays.stream(cl.getMethods())
+                    .filter(this::isJUnitTestMethod)
+                    .count() > 0);
         }
 
         // add run all tests option
@@ -213,7 +277,9 @@ public class UnitTestClassRole extends ClassRole
     {
         boolean hasEntries = false;
 
-        Method[] allMethods = cl.getMethods();
+        Stream<Method> allMethods = Arrays.stream(cl.getMethods())
+                .filter(this::isJUnitTestMethod)
+                .sorted(Comparator.comparing(Method::getName));
         
         if (! ct.isAbstract()) {
             // If we have a lot of items, we should create a submenu to fold some items in
@@ -222,13 +288,7 @@ public class UnitTestClassRole extends ClassRole
             int itemsOnScreen = (int)Config.screenBounds.getHeight() / itemHeight;
             int sizeLimit = itemsOnScreen / 2;
 
-            for (int i=0; i < allMethods.length; i++) {
-                Method m = allMethods[i];
-                
-                if (!isJUnitTestMethod(m)) {
-                    continue;
-                }
-                
+            for(Method m : allMethods.collect(Collectors.toList())){
                 String rtype;
                 try {
                     rtype = JavaUtils.getJavaUtils().getReturnType(m).toString(true);
@@ -236,8 +296,15 @@ public class UnitTestClassRole extends ClassRole
                 catch (ClassNotFoundException cnfe) {
                     rtype = m.getReturnType().getName();
                 }
-                TargetAbstractAction testAction = new TestAction(rtype + " " + m.getName() + "()",
-                        ct.getPackage().getEditor(), ct, m.getName());
+                // With Junit5, tests can have arguments, so we need to add them in the action name so they can be run properly
+                StringBuilder args = new StringBuilder("(");
+                if (m.getParameterTypes().length > 0)
+                {
+                    args.append(Arrays.stream(m.getParameterTypes()).map(Class::getName).collect(Collectors.joining(", ")));
+                }
+                args.append(")");
+                TargetAbstractAction testAction = new TestAction(rtype + " " + m.getName() + args,
+                        ct.getPackage().getEditor(), ct, m.getName()+args);
 
                 // check whether it's time for a submenu
                 int itemCount = menu.size();
@@ -246,7 +313,7 @@ public class UnitTestClassRole extends ClassRole
                     menu.add(subMenu);
                     menu = subMenu.getItems();
                 }
-                
+
                 menu.add(testAction);
                 hasEntries = true;
             }
@@ -332,36 +399,28 @@ public class UnitTestClassRole extends ClassRole
         TestDisplayFrame.getTestDisplay().startTest(proj, testMethods.size());
         return testMethods;
     }
-    
+
     /**
-     * Get the count of tests in the test class.
+     * Get the count of test methods in the test class.
+     * This only counts the methods per name: if a JUnit 5 test
+     * can run the method several times it is still counted as one.
      * @param ct  The ClassTarget of the unit test class
-     * @return    the number of tests in the unit test class
+     * @return    the number of test methods in the unit test class
      */
     public int getTestCount(ClassTarget ct)
     {
-        if (! ct.isCompiled()) {
+        if (!ct.isCompiled()) {
             return 0;
         }
-        
+
         Class<?> cl = ct.getPackage().loadClass(ct.getQualifiedName());
         if (cl == null) {
             return 0;
         }
-        
-        Method[] allMethods = cl.getMethods();
 
-        int testCount = 0;
-
-        for (int i=0; i < allMethods.length; i++) {
-            if (isJUnitTestMethod(allMethods[i])) {
-                testCount++;
-            }
-        }
-        
-        return testCount;
+        return (int) Arrays.stream(cl.getMethods()).filter(this::isJUnitTestMethod).count();
     }
-    
+
     /**
      * Start the construction of a test method.
      * 
@@ -536,19 +595,25 @@ public class UnitTestClassRole extends ClassRole
                                   new SourceLocation(existingSpan.getEndLine(), existingSpan.getEndColumn()));
                 ed.insertText("{\n" + pmf.getObjectBench().getTestMethod(ts + ts) + ts + "}", false);
             }
-            else {
+            else
+            {
                 // insert a complete method
                 SourceLocation methodInsert = uta.getNewMethodInsertLocation();
 
-                if (methodInsert != null) {
+                if (methodInsert != null)
+                {
                     ed.setSelection(new SourceLocation(methodInsert.getLine(), methodInsert.getColumn()), new SourceLocation(methodInsert.getLine(), methodInsert.getColumn() + 1));
-                    if (isJunit4) {
-                        ed.insertText("\n" + ts + "@Test\n" + ts + "public void " + name + "()\n" + ts + "{\n"
-                                + pmf.getObjectBench().getTestMethod(ts + ts) + ts + "}\n}\n", false);
-                    }
-                    else {
-                        ed.insertText("\n" + ts + "public void " + name + "()\n" + ts + "{\n"
-                                + pmf.getObjectBench().getTestMethod(ts + ts) + ts + "}\n}\n", false);
+                    switch (unitTestFramework)
+                    {
+                        case JUnit5:
+                        case JUnit4:
+                            ed.insertText("\n" + ts + "@Test\n" + ts + "public void " + name + "()\n" + ts + "{\n"
+                                    + pmf.getObjectBench().getTestMethod(ts + ts) + ts + "}\n}\n", false);
+                            break;
+                        case JUnit3:
+                            ed.insertText("\n" + ts + "public void " + name + "()\n" + ts + "{\n"
+                                    + pmf.getObjectBench().getTestMethod(ts + ts) + ts + "}\n}\n", false);
+                            break;
                     }
                 }
             }
@@ -688,13 +753,19 @@ public class UnitTestClassRole extends ClassRole
             } else {
                 // otherwise, we will be inserting a brand new setUp() method
                 ed.setSelection(
-                    new SourceLocation(fixtureInsertLocation.getLine(), fixtureInsertLocation.getColumn()), 
+                    new SourceLocation(fixtureInsertLocation.getLine(), fixtureInsertLocation.getColumn()),
                     new SourceLocation(fixtureInsertLocation.getLine(), fixtureInsertLocation.getColumn() + 1));
-                if (isJunit4) {
-                    ed.insertText("{\n" + ts + "@Before\n" + ts + "public void setUp()\n" + ts, false);
-                }
-                else {
-                    ed.insertText("{\n" + ts + "public void setUp()\n" + ts, false);
+                switch (unitTestFramework)
+                {
+                    case JUnit5:
+                        ed.insertText("{\n" + ts + "@BeforeEach\n" + ts + "public void setUp()\n" + ts, false);
+                        break;
+                    case JUnit4:
+                        ed.insertText("{\n" + ts + "@Before\n" + ts + "public void setUp()\n" + ts, false);
+                        break;
+                    case JUnit3:
+                        ed.insertText("{\n" + ts + "public void setUp()\n" + ts, false);
+                        break;
                 }
             }
             
@@ -833,7 +904,7 @@ public class UnitTestClassRole extends ClassRole
         protected String convert(String newTestName)
         {
             // Junit 3 test methods must start with the word "test"
-            if(!isJunit4 && !newTestName.startsWith("test"))
+            if((unitTestFramework == UnitTestFramework.JUnit3) && !newTestName.startsWith("test"))
             {
                 return "test" + Character.toTitleCase(newTestName.charAt(0)) + newTestName.substring(1);
             }

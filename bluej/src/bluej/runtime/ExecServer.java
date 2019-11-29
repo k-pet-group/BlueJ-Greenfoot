@@ -28,6 +28,8 @@ import java.awt.event.AWTEventListener;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -36,15 +38,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -59,14 +53,20 @@ import javafx.collections.ListChangeListener.Change;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.Stage;
 
-import org.junit.runner.Description;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Request;
-import org.junit.runner.Result;
-import org.junit.runner.notification.Failure;
+import org.junit.jupiter.api.extension.InvocationInterceptor;
+import org.junit.platform.engine.TestExecutionResult;
+import org.junit.platform.engine.TestExecutionResult.Status;
+import org.junit.platform.launcher.Launcher;
+import org.junit.platform.launcher.LauncherDiscoveryRequest;
+import org.junit.platform.launcher.TestIdentifier;
+import org.junit.platform.launcher.TestPlan;
+import org.junit.platform.launcher.TestExecutionListener;
+import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
+import org.junit.platform.launcher.core.LauncherFactory;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass;
+import static org.junit.platform.engine.discovery.DiscoverySelectors.selectMethod;
 
 import bluej.utility.Utility;
-import org.junit.runner.notification.RunListener;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -625,56 +625,91 @@ public class ExecServer
     /**
      * A class to record successes and failures during a JUnit test run.
      */
-    private static class TestRecorder extends RunListener
+    private static class TestRecorder implements TestExecutionListener
     {
         private final List<Object[]> testDetails = new ArrayList<>();
+        private long executionStartTime;
+        private long executionRunTime = -1;
 
-        @Override
-        public void testFinished(Description description) throws Exception
+        public void testPlanExecutionStarted(TestPlan testPlan)
         {
-            // Finished comes after failure.  Don't add another record
-            // if we already just saw a failure for this test:
-            if (!testDetails.isEmpty() && testDetails.get(testDetails.size() - 1)[0].equals(description.getMethodName()))
-            {
-                return;
-            }
-            
-            Object[] r = new Object[8];
-            r[0] = description.getMethodName();
-            r[1] = r[2] = r[3] = r[4] = r[5] = r[6] = "";
-            r[7] = "success";
-            testDetails.add(r);
+            executionStartTime = System.currentTimeMillis();
         }
 
-        @Override
-        public void testFailure(Failure failure) throws Exception
+        public void testPlanExecutionFinished(TestPlan testPlan)
         {
-            Object[] r = new Object[8];
-            r[0] = failure.getDescription().getMethodName();
-            if (java.lang.AssertionError.class.isAssignableFrom(failure.getException().getClass())
-                    || failure.getException().getClass() == junit.framework.AssertionFailedError.class)
+            executionRunTime = System.currentTimeMillis() - executionStartTime;
+        }
+
+        public long getExecutionRunTime()
+        {
+            return executionRunTime;
+        }
+
+        public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult)
+        {
+            // Retrieved tests (not container)
+            if (testIdentifier.isTest())
             {
-                r[7] = "failure";
+                Object[] r = new Object[9];
+                // The name of the method: we remove anything added by JUnit after the arguments brackets
+                // as for Junit 5 the framework may add the index of the test iteration
+                // if any argument value is available, we put it into the brackets
+                // Note: when JUnit 4 methods are reported, they do not contain brackets in their display name.
+                r[0] = (testIdentifier.getLegacyReportingName().contains("(")) ?
+                        testIdentifier.getLegacyReportingName()
+                                .substring(0, testIdentifier.getLegacyReportingName().lastIndexOf('(') + 1)
+                                + String.join(", ", UnitTestExtension.getArgsAsStrList())
+                                + ")" :
+                        (testIdentifier.getLegacyReportingName() + "()");
+                // The display name of the test for that method, if none we set it to an empty String
+                r[1] = (testIdentifier.getDisplayName() != null) ? testIdentifier.getDisplayName() : "";
+
+                // Check if the test was successful or not
+                if (testExecutionResult.getStatus() == Status.SUCCESSFUL)
+                {
+                    r[2] = r[3] = r[4] = r[5] = r[6] = r[7] = "";
+                    r[8] = "success";
+                }
+                else
+                {
+                    if (testExecutionResult.getThrowable().isPresent() && java.lang.AssertionError.class.isAssignableFrom(testExecutionResult.getThrowable().get().getClass()))
+                    {
+                        r[8] = "failure";
+                    }
+                    else
+                    {
+                        r[8] = "error";
+                    }
+                    if (testExecutionResult.getThrowable().isPresent())
+                    {
+                        Throwable throwableRes = testExecutionResult.getThrowable().get();
+
+                        r[2] = throwableRes.getMessage() != null ? throwableRes.getMessage() : "no exception message";
+                        StringWriter sw = new StringWriter();
+                        PrintWriter pw = new PrintWriter(sw);
+                        throwableRes.printStackTrace(pw);
+                        r[3] = throwableRes.getStackTrace().length > 0 ? sw.toString() : "no trace";
+                        // search the stack trace backward until finding a class not
+                        // part of the org.junit framework
+                        StackTraceElement[] ste = throwableRes.getStackTrace();
+                        int k = 0;
+                        while (k < ste.length && ste[k].getClassName().startsWith("org.junit."))
+                        {
+                            k++;
+                        }
+                        r[4] = ste[k].getClassName();
+                        r[5] = ste[k].getFileName();
+                        r[6] = ste[k].getMethodName();
+                        r[7] = String.valueOf(ste[k].getLineNumber());
+                    }
+                    else
+                    {
+                        r[2] = r[3] = r[4] = r[5] = r[6] = r[7] = "";
+                    }
+                }
+                testDetails.add(r);
             }
-            else
-            {
-                r[7] = "error";
-            }
-            r[1] = failure.getMessage() != null ? failure.getMessage() : "no exception message";
-            r[2] = failure.getTrace() != null ? failure.getTrace() : "no trace";
-            // search the stack trace backward until finding a class not
-            // part of the org.junit framework
-            StackTraceElement [] ste = failure.getException().getStackTrace();
-            int k = 0;
-            while(k < ste.length && ste[k].getClassName().startsWith("org.junit."))
-            {
-                k++;
-            }
-            r[3] = ste[k].getClassName();
-            r[4] = ste[k].getFileName();
-            r[5] = ste[k].getMethodName();
-            r[6] = String.valueOf(ste[k].getLineNumber());
-            testDetails.add(r);
         }
     }
 
@@ -682,39 +717,38 @@ public class ExecServer
      * Execute a JUnit test on a single test method or all test methods in a test class
      * and return the result.<p>
      *
-     * The array returned in case of failure/error has a length of [1 + 8*(number of methods tested)].<br>
+     * The array returned in case of failure/error has a length of [1 + 9*(number of methods tested)].<br>
      * The first item of the array contains the runtime of executing all tests in milliseconds expressed  
      * as a decimal integer, then each test has eight consecutive items in the array which 
      * contains:<br>
      *  [0] = the method name<br>
-     *  [1] = the exception message (or "no exception message"), blank if success<br>
-     *  [2] = the stack trace as a string (or "no stack trace"), blank if success<br>
-     *  [3] = the name of the class in which the exception/failure occurred, blank if success<br>
-     *  [4] = the source filename for where the exception/failure occurred, blank if success<br>
-     *  [5] = the name of the method in which the exception/failure occurred, blank if success<br>
-     *  [6] = the line number where the exception/failure occurred (a string), blank if success<br>
-     *  [7] = "failure" or "error" or "success" (string)<br>
+     *  [1] = the method display name (for JUnit 5, empty for other frameworks) <br>
+     *  [2] = the exception message (or "no exception message"), blank if success<br>
+     *  [3] = the stack trace as a string (or "no stack trace"), blank if success<br>
+     *  [4] = the name of the class in which the exception/failure occurred, blank if success<br>
+     *  [5] = the source filename for where the exception/failure occurred, blank if success<br>
+     *  [6] = the name of the method in which the exception/failure occurred, blank if success<br>
+     *  [7] = the line number where the exception/failure occurred (a string), blank if success<br>
+     *  [8] = "failure" or "error" or "success" (string)<br>
      *      
-     * @return an array of length [1 + 8*(number of tests run)]
+     * @return an array of length [1 + 9*(number of tests run)]
      */
     private static Object[] runTestMethod(String className, String methodName)
     {
-        Class<?> cl = loadAndInitClass(className);
-        Result res;
-        JUnitCore jUnitCore = new JUnitCore();
+        LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.request()
+                .selectors((methodName != null) ? selectMethod(className + "#" +  methodName) : selectClass(className))
+                .configurationParameter("junit.jupiter.extensions.autodetection.enabled", "true") //required to use our extension
+                .build();
+
+        // Load the implementation of InvocationInterceptor with Java ServiceLoader.
+        ServiceLoader.load(InvocationInterceptor.class);
+
+        Launcher launcher = LauncherFactory.create();
         TestRecorder recorder = new TestRecorder();
-        jUnitCore.addListener(recorder);
-        if (methodName != null)
-        {
-            res = jUnitCore.run(Request.method(cl, methodName));
-        }
-        else
-        {
-            res = jUnitCore.run(Request.aClass(cl));
-        }
-        
-        return Stream.concat(Stream.of(String.valueOf(res.getRunTime())),
-            recorder.testDetails.stream().flatMap(t -> Arrays.stream(t))).toArray();
+        launcher.registerTestExecutionListeners(recorder);
+        launcher.execute(request);
+        return Stream.concat(Stream.of(String.valueOf(recorder.getExecutionRunTime())),
+                recorder.testDetails.stream().flatMap(t -> Arrays.stream(t))).toArray();
     }
 
     /**

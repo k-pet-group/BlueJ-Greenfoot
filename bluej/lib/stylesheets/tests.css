@@ -44,6 +44,7 @@
 .test-results .test-progress-bar {
     -fx-max-width: 9999.0; /* Allow growth to fill width of window */
     -fx-pref-height: 30.0;
+    -fx-min-height: 10.0;
     -fx-accent: rgb(32, 192, 32);
 }
 .test-results .test-progress-bar:bj-error {
@@ -51,4 +52,10 @@
 }
 .test-results .test-output {
     -fx-max-height: 9999.0; /* Let it grow to take up available space */
+}
+.test-results-tooltip {
+   -fx-text-fill: grey;
+   -fx-background-color: rgba(237, 237, 201, 0.9);
+   -fx-background-radius: 5;
+   -fx-padding: 5 5 5 5;
 }

@@ -569,7 +569,7 @@ terminal.running=Type input and press Enter to send to program
 
 #TestDisplay Window
 testdisplay.title = BlueJ:  Test Results
-testdisplay.counter.runs=Runs:
+testdisplay.counter.runs=Tests:
 testdisplay.counter.errors=Errors:
 testdisplay.counter.failures=Failures:
 testdisplay.counter.totalTime=Total Time:

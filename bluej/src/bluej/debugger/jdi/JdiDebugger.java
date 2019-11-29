@@ -604,7 +604,7 @@ public class JdiDebugger extends Debugger
                 
                 if (arrayRef == null || arrayRef.length() == 0)
                 {
-                    results.add(new JdiTestResultError(className, methodName, "VM returned unknown result",
+                    results.add(new JdiTestResultError(className, methodName, methodName,"VM returned unknown result",
                             "", null, 0));
                     testResultsWithRunTime.setResults(results);
                     testResultsWithRunTime.setTotalRunTime(0);
@@ -617,37 +617,38 @@ public class JdiDebugger extends Debugger
                 {
                     
                     String actualMethodName = ((StringReference) arrayRef.getValue(i)).value();
-                    String failureType = ((StringReference) arrayRef.getValue(i + 7)).value();
+                    String displayTestName = ((StringReference) arrayRef.getValue(i + 1)).value();
+                    String failureType = ((StringReference) arrayRef.getValue(i + 8)).value();
                     
                     if (failureType.equals("success"))
                     {
-                        results.add(new JdiTestResult(className, actualMethodName, 0));
+                        results.add(new JdiTestResult(className, actualMethodName, displayTestName, 0));
                         
                     }
                     else
                     {
-                        String exMsg = ((StringReference) arrayRef.getValue(i)).value();
-                        String traceMsg = ((StringReference) arrayRef.getValue(i + 2)).value();
-                        String failureClass = ((StringReference) arrayRef.getValue(i + 3)).value();
-                        String failureSource = ((StringReference) arrayRef.getValue(i + 4)).value();
-                        String failureMethod = ((StringReference) arrayRef.getValue(i + 5)).value();
-                        int lineNo = Integer.parseInt(((StringReference) arrayRef.getValue(i + 6)).value());
+                        String exMsg = ((StringReference) arrayRef.getValue(i + 2)).value();
+                        String traceMsg = ((StringReference) arrayRef.getValue(i + 3)).value();
+                        String failureClass = ((StringReference) arrayRef.getValue(i + 4)).value();
+                        String failureSource = ((StringReference) arrayRef.getValue(i + 5)).value();
+                        String failureMethod = ((StringReference) arrayRef.getValue(i + 6)).value();
+                        int lineNo = Integer.parseInt(((StringReference) arrayRef.getValue(i + 7)).value());
                         SourceLocation failPoint = new SourceLocation(failureClass, failureSource,
                                 failureMethod, lineNo);
 
                         if (failureType.equals("failure"))
                         {
-                            results.add(new JdiTestResultFailure(className, actualMethodName, exMsg, traceMsg,
+                            results.add(new JdiTestResultFailure(className, actualMethodName, displayTestName, exMsg, traceMsg,
                                     failPoint, 0));
                         }
                         else
                         {
-                            results.add(new JdiTestResultError(className, actualMethodName, exMsg, traceMsg,
+                            results.add(new JdiTestResultError(className, actualMethodName, displayTestName, exMsg, traceMsg,
                                     failPoint, 0));
                         }
                     }
 
-                    i = i + 8;
+                    i = i + 9;
                 }
                 testResultsWithRunTime.setTotalRunTime(runTimeMs);
                 testResultsWithRunTime.setResults(results);
@@ -657,15 +658,15 @@ public class JdiDebugger extends Debugger
         catch (InvocationException ie) 
         {
             // what to do here??
-            results.add(new JdiTestResultError(className, methodName, "Internal invocation error",
-                   "", null, 0));
+            results.add(new JdiTestResultError(className, methodName, methodName, "Internal invocation error",
+                    "", null, 0));
             testResultsWithRunTime.setResults(results);
             testResultsWithRunTime.setTotalRunTime(0);
             return testResultsWithRunTime;
-        } 
+        }
         catch (VMDisconnectedException vmde)
         {
-            results.add(new JdiTestResultError(className, "", "VM restarted", "",
+            results.add(new JdiTestResultError(className, "", "", "VM restarted", "",
                     null, 0));
             testResultsWithRunTime.setResults(results);
             testResultsWithRunTime.setTotalRunTime(0);
@@ -694,7 +695,7 @@ public class JdiDebugger extends Debugger
     /**
      * "Start" a class (i.e. invoke its main method)
      * 
-     * @param classname
+     * @param className
      *            the class to start
      */
     @Override
