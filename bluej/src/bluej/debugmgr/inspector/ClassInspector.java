@@ -132,8 +132,7 @@ public class ClassInspector extends Inspector
         BorderPane mainPanel = new BorderPane();
 
         mainPanel.setCenter(fieldList);
-        Label lab = new Label("  " + noFieldsMsg);
-        fieldList.setPlaceholder(lab);
+        fieldList.setPlaceHolderText("  " + noFieldsMsg);
 
         mainPanel.setRight(createInspectAndGetButtons());
 

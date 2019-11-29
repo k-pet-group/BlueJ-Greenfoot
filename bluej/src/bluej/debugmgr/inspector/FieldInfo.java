@@ -21,6 +21,8 @@
  */
 package bluej.debugmgr.inspector;
 
+import java.util.Objects;
+
 /**
  * Plain old data type for field/value pairs.
  * 
@@ -55,5 +57,21 @@ public class FieldInfo
     public String getValue()
     {
         return value;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FieldInfo fieldInfo = (FieldInfo) o;
+        return Objects.equals(description, fieldInfo.description) &&
+                Objects.equals(value, fieldInfo.value);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(description, value);
     }
 }

@@ -216,7 +216,7 @@ public abstract class Inspector extends Stage
     private void initFieldList()
     {
         fieldList = new FieldList();
-        JavaFXUtil.addChangeListenerPlatform(fieldList.getSelectionModel().selectedIndexProperty(), index -> listElementSelected(index.intValue()));
+        JavaFXUtil.addChangeListenerPlatform(fieldList.selectedIndexProperty(), index -> listElementSelected(index.intValue()));
         
         // add mouse listener to monitor for double clicks to inspect list
         // objects. assumption is made that valueChanged will have selected
@@ -231,11 +231,29 @@ public abstract class Inspector extends Stage
         // To make it possible to close dialogs with the keyboard (ENTER), we
         // grab the key event from the fieldlist which otherwise consumes it
         // as part of the edit action (even though it's not editable)
-        fieldList.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+        addEventFilter(KeyEvent.KEY_PRESSED, e -> {
             // Enter or escape?
-            if (e.getCode() == KeyCode.ENTER) {
+            if (e.getCode() == KeyCode.ESCAPE || e.getCode() == KeyCode.ENTER)
+            {
                 doClose(true);
+                e.consume();
+            }
+            else if (e.getCode() == KeyCode.SPACE && fieldList.isFocused())
+            {
+                doInspect();
                 e.consume();    
+            }
+            else if (e.getCode() == KeyCode.UP)
+            {
+                fieldList.requestFocus();
+                fieldList.up();
+                e.consume();
+            }
+            else if (e.getCode() == KeyCode.DOWN)
+            {
+                fieldList.requestFocus();
+                fieldList.down();
+                e.consume();
             }
         });
     }
@@ -289,14 +307,14 @@ public abstract class Inspector extends Stage
     {
         final List<FieldInfo> listData = getListData();
 
-        int prevSelection = fieldList.getSelectionModel().getSelectedIndex();
+        int prevSelection = fieldList.selectedIndexProperty().get();
         
         fieldList.setData(listData);
         //fieldList.setTableHeader(null);
 
         // Ensures that an element (if any exist) is always selected, preferably previously selected item:
         if (!listData.isEmpty())
-            fieldList.getSelectionModel().select(prevSelection == -1 || prevSelection >= listData.size() ? 0 : prevSelection);
+            fieldList.select(prevSelection == -1 || prevSelection >= listData.size() ? 0 : prevSelection);
     }
 
     /**

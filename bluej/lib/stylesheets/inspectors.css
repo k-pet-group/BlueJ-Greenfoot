@@ -9,10 +9,10 @@
 .inspector-side-buttons .button {
     -fx-max-width: 9999.0;
 }
-.field-list .table-row-cell {
+.field-list > .viewport {
     -fx-background-color: transparent;
-    /*-fx-padding: 0.2em;*/
-}
+} 
+
 .field-list .inspector-field-description, .field-list .inspector-field-value {
     -fx-border-color: transparent;
 }
@@ -23,16 +23,16 @@
 }
 .field-list .inspector-field-value-label {
     -fx-alignment: baseline-center;
-    -fx-background-color: white;
+    -fx-label-padding: 3;
+    -fx-background-color: transparent, white;
+    -fx-background-insets: 0, 3;
     -fx-text-fill: black !important;
 }
 .field-list .inspector-field-value-wrapper {
     -fx-padding:  0 2 0 2;
     -fx-alignment: baseline-center;
-    -fx-background-color: white;
-    -fx-border-width: 1px;
-    -fx-border-color: black;
-    -fx-border-style: solid;
+    -fx-background-color: transparent, black, white;
+    -fx-background-insets: 0, 2, 3;
 }
 
 .inspector {
@@ -57,19 +57,19 @@
     -fx-text-fill: black;
     
 }
-.inspector-object .table-view {
+.inspector-object .field-list {
     -fx-background-color: rgb(244,158,158);
 }
-.inspector-class .table-view {
+.inspector-class .field-list {
     -fx-background-color: rgb(249,230,207);
 }
-.inspector-result .table-view {
+.inspector-result .field-list {
     -fx-background-color: transparent;
 }
 .inspector-result .inspector-result-details {
     -fx-background-color: rgb(230,230,230);
 }
-.inspector .table-view {
+.inspector .field-list-content {
     -fx-padding: 1em;
 }
 .inspector-result-details-header {
@@ -97,9 +97,15 @@
     -fx-opacity: 0.5;
 }
 
-.inspector-object .table-row-cell:selected, .inspector-result .table-row-cell:selected {
-    -fx-background-color: rgb(233, 225, 0); 
+.inspector-object .field-list-content .inspector-field-value-wrapper:bj-selected, .inspector-result .field-list-content  .inspector-field-value-wrapper:bj-selected {
+    -fx-background-color: rgb(233, 225, 0), black, white; 
 }
-.inspector-class .table-row-cell:selected {
+.inspector-object .field-list-content .inspector-field-description:bj-selected, .inspector-result .field-list-content  .inspector-field-description:bj-selected {
+    -fx-background-color: rgb(233, 225, 0);
+}
+.inspector-class .field-list-content .inspector-field-value-wrapper:bj-selected {
+    -fx-background-color: rgb(180, 220, 240), black, white; 
+}
+.inspector-class .field-list-content .inspector-field-description:bj-selected {
     -fx-background-color: rgb(180, 220, 240); 
 }
