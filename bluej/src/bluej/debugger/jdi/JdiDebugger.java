@@ -94,7 +94,7 @@ public class JdiDebugger extends Debugger
     private Object serverThreadLock = new Object();
 
     // a set holding all the JdiThreads in the VM
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     private JdiThreadSet allThreads;
 
     // A listener for changes to debugger threads.
@@ -1276,15 +1276,12 @@ public class JdiDebugger extends Debugger
     }
 
     /**
-     * The server thread has been resumed: updated its internal isSuspended status,
-     * but no need to fire listeners
-     * @param serverThread
+     * Finds the JDI thread corresponding to the given thread reference.
      */
-    @OnThread(Tag.Any)
-    @SuppressWarnings("threadchecker") // Server thread is special case
-    public void serverThreadResumed(ThreadReference serverThread)
+    @OnThread(Tag.VMEventHandler)
+    public JdiThread findThread(ThreadReference thread)
     {
-        allThreads.find(serverThread).notifyResumed();
+        return allThreads.find(thread);
     }
 
     @Override

@@ -167,7 +167,7 @@ public class VMReference
     private ClassType serverClass = null;
 
     // the thread running inside the ExecServer
-    private ThreadReference serverThread = null;
+    private JdiThread serverThread = null;
     private boolean serverThreadStarted = false;
 
     // the worker thread running inside the ExecServer
@@ -1227,7 +1227,7 @@ public class VMReference
             // wake up the waitForStartup() method
             synchronized (this) {
                 serverThreadStarted = true;
-                serverThread = event.thread();
+                serverThread = owner.findThread(event.thread());
                 owner.raiseStateChangeEvent(Debugger.IDLE);
                 notifyAll();
             }
@@ -1254,7 +1254,7 @@ public class VMReference
         }
         else {
             // breakpoint set by user in user code
-            if (serverThread.equals(event.thread())) {
+            if (serverThread.sameThread(event.thread())) {
                 owner.raiseStateChangeEvent(Debugger.SUSPENDED);
             }
             
@@ -1602,8 +1602,7 @@ public class VMReference
     private void resumeServerThread()
     {
         synchronized (eventHandler) {
-            serverThread.resume();
-            owner.serverThreadResumed(serverThread);
+            serverThread.contServerThread();
             owner.raiseStateChangeEvent(Debugger.RUNNING);
         }
         // Note, we do the state change after the resume because the state

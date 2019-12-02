@@ -716,12 +716,14 @@ class JdiThread extends DebuggerThread
     }
 
     /**
-     * Called when we are the serverThread, to let us know we've been resumed
-     * (and should update our internal status accordingly)
+     * Resume, but we are the server thread: updated our internal isSuspended status,
+     * but no need to fire listeners.  Also, can be called from any thread.
      */
-    @OnThread(Tag.VMEventHandler)
-    public synchronized void notifyResumed()
+    @OnThread(Tag.Any)
+    @SuppressWarnings("threadchecker") // The server thread is special, and can be resumed from another thread.
+    public synchronized void contServerThread()
     {
+        rt.resume();
         isSuspended = false;
     }
 }

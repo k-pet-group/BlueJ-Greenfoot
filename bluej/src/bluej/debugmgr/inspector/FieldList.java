@@ -97,7 +97,6 @@ public class FieldList extends ScrollPane
         setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
         setHbarPolicy(ScrollBarPolicy.NEVER);
         setFitToWidth(true);
-        JavaFXUtil.expandScrollPaneContent(this);
     }
 
     /**
