@@ -101,7 +101,7 @@ public class Boot
         "guava-17.0.jar",
         "httpclient-4.1.1.jar", "httpcore-4.1.jar", "httpmime-4.1.1.jar"};
     private static final int greenfootUserBuildJars = 4;
-    public static String GREENFOOT_VERSION = "3.6.0";
+    public static String GREENFOOT_VERSION = "3.6.1";
     public static String GREENFOOT_API_VERSION = "3.0.0";
     // A singleton boot object so the rest of BlueJ can pick up args etc.
     private static Boot instance;
