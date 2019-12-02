@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -92,6 +92,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
@@ -674,8 +675,14 @@ public class JavaFXUtil
         
         Bounds b = scrollPane.getContent().sceneToLocal(target.localToScene(target.getBoundsInLocal()));
         
-        scrollPane.setHvalue(b.getMinX() / scrollWidth);
-        scrollPane.setVvalue(b.getMinY() / scrollHeight);
+        if (scrollPane.getHbarPolicy() != ScrollBarPolicy.NEVER && scrollWidth != 0)
+        {
+            scrollPane.setHvalue(b.getMinX() / scrollWidth);
+        }
+        if (scrollPane.getVbarPolicy() != ScrollBarPolicy.NEVER && scrollHeight != 0)
+        {
+            scrollPane.setVvalue(b.getMinY() / scrollHeight);
+        }
     }
 
     /**

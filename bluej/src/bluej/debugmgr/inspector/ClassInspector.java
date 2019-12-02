@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2013,2014,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2013,2014,2016,2017,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -132,8 +132,7 @@ public class ClassInspector extends Inspector
         BorderPane mainPanel = new BorderPane();
 
         mainPanel.setCenter(fieldList);
-        Label lab = new Label("  " + noFieldsMsg);
-        fieldList.setPlaceholder(lab);
+        fieldList.setPlaceHolderText("  " + noFieldsMsg);
 
         mainPanel.setRight(createInspectAndGetButtons());
 

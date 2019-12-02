@@ -108,6 +108,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     private List<ObjectBenchListener> benchListeners = new ArrayList<>();
     
     private VMCommsMain vmComms;
+    @OnThread(Tag.VMEventHandler)
     private boolean hasLaunched = false;
 
     /**
@@ -136,7 +137,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
         // (We know hasLaunched will be false at this point because we only just made the GreenfootDebugHandler):
         if (project.getDebugger().addDebuggerListener(handler) == Debugger.IDLE)
         {
-            handler.launch(project.getDebugger());
+            project.getDebugger().runOnEventHandler(() -> handler.launch(project.getDebugger()));
         }
         GreenfootStage.makeStage(project, handler).show();
     }
@@ -236,6 +237,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
      * at the top of the class for how it works.
      */
     @Override
+    @OnThread(Tag.VMEventHandler)
     public boolean examineDebuggerEvent(final DebuggerEvent e)
     {
         final Debugger debugger = (Debugger)e.getSource();
@@ -390,6 +392,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
      * 
      * <p>We call threadHalted if necessary.
      */
+    @OnThread(Tag.VMEventHandler)
     @Override
     public void processDebuggerEvent(final DebuggerEvent e, boolean skipUpdate)
     {
@@ -426,6 +429,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
      * Launches Greenfoot on the debug VM.  Only call this once (check the hasLaunched flag before calling)
      * @param debugger The debugger for the project.
      */
+    @OnThread(Tag.VMEventHandler)
     private void launch(Debugger debugger)
     {
         if (! ProjectManager.checkLaunchFailed())
