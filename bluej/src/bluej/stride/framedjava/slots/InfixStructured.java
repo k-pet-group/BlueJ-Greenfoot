@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -854,7 +855,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     public boolean selectNextWord(StructuredSlotField f)
     {
         setAnchorIfUnset(getCurrentPos());
-        if (f.getCurrentPos().equals(f.getEndPos()))
+        if (Objects.equals(f.getCurrentPos(), f.getEndPos()))
         {
             int i = findField(f);
             if (fields.get(i) instanceof StringLiteralExpression)
@@ -878,7 +879,7 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
     public boolean selectPreviousWord(StructuredSlotField f)
     {
         setAnchorIfUnset(getCurrentPos());
-        if (f.getCurrentPos().equals(f.getStartPos()))
+        if (Objects.equals(f.getCurrentPos(), f.getStartPos()))
         {
             int i = findField(f);
             if (fields.get(i) instanceof StringLiteralExpression)
