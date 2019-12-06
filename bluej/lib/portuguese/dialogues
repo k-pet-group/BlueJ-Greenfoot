@@ -455,16 +455,6 @@ A compila\u00E7\u00E3o foi cancelada.
 generic-file-save-error
 Foi encontrado um erro ao tentar salvar um arquivo.
 
-empty-assertion-text
-Voc\u00EA n\u00E3o inseriu um resultado esperado para
-esta chamada de m\u00E9todo. Sem esse resultado, o
-teste \u00E9 incompleto, e sua classe de teste n\u00E3o
-ir\u00E1 compilar. Tem certeza de que deseja continuar sem
-entrar um valor de resultado?
-Voltar
-Continuar
-null
-
 team-update-first
 Houvem mudan\u00E7as feitas nos arquivos no reposit\u00F3rio,
 mas os arquivos foram apagados da sua c\u00F3pia de trabalho.

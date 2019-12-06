@@ -210,18 +210,58 @@
 .call-dialog-content .hanging-flow-pane {
     -bj-row-spacing: 0.5em;
 }
+.call-dialog-content .call-label {
+    -fx-font-weight:bold;
+}
+.call-dialog-content .assert-panel {
+}
+.call-dialog-content .assert-panel .assert-row {
+    -fx-spacing: 0.5em;
+    -fx-padding: 0 0 0 0.5em;
+}
+.call-dialog-content .assert-panel .delta-row {
+    -fx-spacing: 0.5em;
+    -fx-padding: 0.5em 0 0 0.5em;
+}
+.call-dialog-content .assert-panel .assert-checkbox {
+    -fx-padding: 0.2em 0 0 0;
+}
+.call-dialog-content .assert-panel .delta-label {
+    -fx-padding: 0.25em 0 0 0;
+}
+.call-dialog-content .assert-panel .assert-field-data {
+    -fx-pref-width: 10em;
+    -fx-alignment: baseline-left;
+}
+.call-dialog-content .assert-panel .assert-field-delta {
+    -fx-pref-width: 5em;
+}
 .constructor-instance-name-row {
     -fx-spacing: 1em;
 }
 .formatted-print-flow .formatted-print-line {
-    -fx-font-family: "Source Sans Pro";
-    -fx-font-size: 125%;
+    -fx-font-size: 100%;
 }
 .formatted-print-flow .formatted-print-line:bj-bold {
     -fx-font-weight: bold;
 }
 .formatted-print-flow .formatted-print-line:bj-italic {
-    -fx-font-shape: italic;
+    -fx-font-style: italic;
+}
+.formatted-print-flow .formatted-print-line:bj-color-default {
+    -fx-fill: black;
+}
+.formatted-print-flow .formatted-print-line:bj-color-gray {
+    -fx-fill: darkslategrey;
+}
+.formatted-print-flow .formatted-print-line:bj-size-default {
+    -fx-font-size: 100%;
+}
+.formatted-print-flow .formatted-print-line:bj-size-small {
+    -fx-font-size: 90%;
+}
+.formatted-print-flow .formatted-print-line:bj-size-large {
+    -fx-font-size: 110%;
 }
 
 /* Extensions Dialog */

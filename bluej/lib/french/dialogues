@@ -435,15 +435,6 @@ Un ou plusieurs fichiers n'ont pas pu \u00eatre sauv\u00e9, la compilation a \u0
 generic-file-save-error
 Une erreur s'est produite lors de la tentative d'enregistrement d'un fichier.
 
-empty-assertion-text
-Vous n'avez pas entr\u00e9 le r\u00e9sultat attendu pour cet appel de m\u00e9thode.
-Sans ce r\u00e9sultat, votre test est incomplet, et votre classe de test ne
-compilera pas. \u00cates-vous s\u00fbr de vouloir continuer sans entrer
-un r\u00e9sultat attendu?
-Retour
-Continuer
-null
-
 team-update-first
 Il y a eu des modifications apport\u00e9es aux fichiers dans le d\u00e9p\u00f4t, mais les
 fichiers ont \u00e9t\u00e9 supprim\u00e9s dans votre environnement. C'est un conflit. Avant que vous

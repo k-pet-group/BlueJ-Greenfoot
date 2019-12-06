@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016  Michael Kolling and John Rosenberg
+ Copyright (C) 2016,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,12 +21,7 @@
  */
 package bluej.utility.javafx;
 
-import java.io.OutputStream;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
@@ -43,6 +38,8 @@ public class FXFormattedPrintWriter extends FormattedPrintWriter
     private final TextFlow flow = new TextFlow();
     private boolean bold = false;
     private boolean italic = false;
+    private ColorScheme color = ColorScheme.DEFAULT;
+    private SizeScheme size = SizeScheme.DEFAULT;
 
     public FXFormattedPrintWriter()
     {
@@ -66,6 +63,18 @@ public class FXFormattedPrintWriter extends FormattedPrintWriter
     }
 
     @Override
+    public void setColor(ColorScheme color)
+    {
+        this.color = color;
+    }
+
+    @Override
+    public void setSize(SizeScheme size)
+    {
+        this.size = size;
+    }
+
+    @Override
     protected void indentLine()
     {
         flow.getChildren().add(new Text("    "));
@@ -78,6 +87,14 @@ public class FXFormattedPrintWriter extends FormattedPrintWriter
         JavaFXUtil.addStyleClass(t, "formatted-print-line");
         JavaFXUtil.setPseudoclass("bj-bold", bold, t);
         JavaFXUtil.setPseudoclass("bj-italic", italic, t);
+        // set the color
+        JavaFXUtil.setPseudoclass("bj-color-gray", color.equals(ColorScheme.GRAY), t);
+        JavaFXUtil.setPseudoclass("bj-color-default", color.equals(ColorScheme.DEFAULT), t);
+        // set the size
+        JavaFXUtil.setPseudoclass("bj-size-small", size.equals(SizeScheme.SMALL), t);
+        JavaFXUtil.setPseudoclass("bj-size-large", size.equals(SizeScheme.LARGE), t);
+        JavaFXUtil.setPseudoclass("bj-size-default", size.equals(SizeScheme.DEFAULT), t);
+
         flow.getChildren().add(t);
     }
 

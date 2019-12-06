@@ -425,14 +425,6 @@ a proto byl p\u0159eklad stornov\u00e1n.
 generic-file-save-error
 P\u0159i pokusu o ulo\u017een\u00ed souboru nastala chyba.
 
-empty-assertion-text
-Nezadali jste o\u010dek\u00e1van\u00fd v\u00fdsledek tohoto vol\u00e1n\u00ed metody.
-Bez n\u011bj nen\u00ed v\u00e1\u0161 test kompletn\u00ed a testovac\u00ed t\u0159\u00edda se nebude p\u0159ekl\u00e1dat.
-Jste si jisti, \u017ee chcete pokra\u010dovat bez zad\u00e1n\u00ed v\u00fdsledn\u00e9 hodnoty?
-Zp\u011bt
-Pokra\u010duj
-null
-
 team-update-first
 Ve va\u0161\u00ed pracovn\u00ed kopii (working copy) byly smaz\u00e1ny soubory
 jejich\u017e ekvivalenty v \u00falo\u017ei\u0161ti byly mezi t\u00edm zm\u011bn\u011bny.

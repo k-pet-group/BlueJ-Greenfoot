@@ -13,8 +13,7 @@ compiler.warningDialog.title=Avisos do Compilador
 compiler.warningDialog.label=Avisos da \u00FAltima compila\u00E7\u00E3o
 compiler.warningDialog.noWarnings=Sem avisos
 
-debugger.assert.assertThat=Assegure que\:
-debugger.assert.resultIs=resultado \u00E9
+debugger.assert.assertThatResIs=Assegure que\: resultado \u00E9
 debugger.assert.equalTo=igual a
 debugger.assert.equalToFloatingPoint=igual a (double ou float)
 debugger.assert.sameAs=o mesmo que

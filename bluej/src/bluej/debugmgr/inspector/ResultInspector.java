@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015,2016,2017,2018  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,6 +21,7 @@
  */
 package bluej.debugmgr.inspector;
 
+import bluej.BlueJTheme;
 import bluej.Config;
 import bluej.debugger.DebuggerField;
 import bluej.debugger.DebuggerObject;
@@ -100,8 +101,6 @@ public class ResultInspector extends Inspector
      * @param info
      *            The expression used to create the object (ie. the method call
      *            information)
-     * @param parent
-     *            The parent frame of this frame
      */
     public ResultInspector(DebuggerObject obj, InspectorManager inspectorManager, String name,
             Package pkg, InvokerRecord ir, ExpressionInformation info)
@@ -198,16 +197,13 @@ public class ResultInspector extends Inspector
 
     /**
      * Build the GUI
-     * 
-     * @param showAssert
-     *            Indicates if assertions should be shown.
      */
     protected void makeFrame()
     {
         setTitle(resultTitle);
+        BlueJTheme.setWindowIconFX(this);
 
         // Create the header
-
         Pane header = new VBox();
         
         Comment comment = expressionInformation.getComment();
@@ -219,7 +215,6 @@ public class ResultInspector extends Inspector
 
         header.getChildren().add(sig);
         JavaFXUtil.addStyleClass(sig, "inspector-header", "inspector-result-header");
-        //header.getChildren().add(new Separator(Orientation.HORIZONTAL));
 
         // Create the main part that shows the expression and the result
 
@@ -241,63 +236,17 @@ public class ResultInspector extends Inspector
         result.getChildren().add(expression);
         
         result.getChildren().add(fieldList);
-        /*
-        Box resultPanel = new Box(BoxLayout.Y_AXIS) {
-            protected void paintComponent(Graphics g)
-            {
-                super.paintComponent(g);
-                
-                Graphics2D g2d = (Graphics2D)g;
-                int width = getWidth();
-                int height = getHeight();
-                Color color1 = new Color(236,235,234);
-                Color color2 = new Color(220,218,214);
-                if (!Config.isRaspberryPi()){
-                    g2d.setPaint(new GradientPaint(width/4, 0, color1,
-                                                   width*3/4, height, color2));
-                }else{
-                    g2d.setPaint(new Color(228, 227, 224));
-                }
-                g2d.fillRect(0, 0, width, height);
-            }
-        };
-        */
-        
+
         mainPanel.setCenter(result);
 
         mainPanel.setRight(createInspectAndGetButtons());
         // create bottom button pane with "Close" button
         BorderPane buttonPanel = new BorderPane();
-        if (inspectorManager != null && inspectorManager.inTestMode()) {
-            assertPanel = new AssertPanel(resultType);
-            buttonPanel.setTop(assertPanel);
-        }
         Button button = createCloseButton();
         buttonPanel.setRight(button);
 
-        // add the components
-        /*
-        JPanel contentPane = new JPanel() {
-            protected void paintComponent(Graphics g)
-            {
-                super.paintComponent(g);
-                
-                Graphics2D g2d = (Graphics2D)g;
-                int width = getWidth();
-                int height = getHeight();
-                Color color1 = new Color(230,229,228);
-                Color color2 = new Color(191,186,178);
-                if (!Config.isRaspberryPi()){
-                    g2d.setPaint(new GradientPaint(width/4, 0, color1,
-                                                   width*3/4, height, color2));
-                }else{
-                    g2d.setPaint(new Color(214, 217, 223));
-                }
-                g2d.fillRect(0, 0, width, height);
-            }
-        };
-        */
         contentPane = new VBox(header, mainPanel, buttonPanel);
+        Config.addDialogStylesheets(contentPane);
         JavaFXUtil.addStyleClass(contentPane, "inspector", "inspector-result");
 
         button.setDefaultButton(true);

@@ -426,15 +426,6 @@ preto bol preklad zru\u0161en\u00fd.
 generic-file-save-error
 Pri pokuse o\u00a0ulo\u017eenie s\u00faboru nastala chyba.
 
-empty-assertion-text
-Nezadali ste, ak\u00fd je o\u010dak\u00e1van\u00fd v\u00fdsledok po tomto volan\u00ed met\u00f3dy.
-Bez toho nie je v\u00e1\u0161 test kompletn\u00fd a\u00a0testovacia trieda nebude
-prelo\u017een\u00e1. Ste si ist\u00ed, \u017ee chcete pokra\u010dova\u0165 bez zadania o\u010dak\u00e1vanej
-v\u00fdslednej hodnoty?
-Sp\u00e4\u0165
-Pokra\u010dova\u0165
-null
-
 team-update-first
 Z\u00a0va\u0161ej pracovnej k\u00f3pie projektu boli odstr\u00e1nen\u00e9 s\u00fabory, ktor\u00fdch
 ekvivalenty boli zmenen\u00e9 v\u00a0ukladacom priestore. To vyvol\u00e1va konflikt.

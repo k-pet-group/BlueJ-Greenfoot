@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2016,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,6 +30,8 @@ import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -52,7 +54,7 @@ import java.util.function.Function;
  * @author  Andrew Patterson  
  */
 @OnThread(Tag.FXPlatform)
-public class AssertPanel extends VBox
+public class AssertPanel extends HBox
 {
     private static final String equalToLabel =
         Config.getString("debugger.assert.equalTo");
@@ -78,6 +80,8 @@ public class AssertPanel extends VBox
     private TextField deltaData; 
     private ComboBox<AssertInfo> assertCombo;
     protected CheckBox assertCheckbox;
+
+    private BooleanProperty isAssertComplete; // This property can be checked upon by classes using this panel.
     
     private static class AssertInfo
     {
@@ -132,36 +136,51 @@ public class AssertPanel extends VBox
     public AssertPanel(JavaType type)
     {
         JavaFXUtil.addStyleClass(this, "assert-panel");
-        
+
+        isAssertComplete = new SimpleBooleanProperty(false);
+
         boolean isFloat = type.typeIs(JavaType.JT_FLOAT) || type.typeIs(JavaType.JT_DOUBLE);
         
         // a checkbox which enables/disables all the assertion UI
+        assertCheckbox = new CheckBox(Config.getString("debugger.assert.assertThatResIs"));
+        JavaFXUtil.addStyleClass(assertCheckbox, "assert-checkbox");
+        JavaFXUtil.addChangeListenerPlatform(assertCheckbox.selectedProperty(), (b) -> setIsAssertComplete());
 
-        assertCheckbox = new CheckBox(Config.getString("debugger.assert.assertThat"));
-
-        standardPanel = new HBox();
+        // standardPanel contains the logical part of the assertion, and is a VBox made of:
+        // a HBox containing the first row for the assertion itself,
+        // a HBox containing the second row for the float/double delta)
+        standardPanel = new VBox();
         {
-            JavaFXUtil.addStyleClass(standardPanel, "assert-row");
-            assertLabel = new Label(Config.getString("debugger.assert.resultIs"));
-            standardPanel.getChildren().add(assertLabel);
+            // first HBox
+            HBox assertPartHBox = new HBox();
+            JavaFXUtil.addStyleClass(assertPartHBox, "assert-row");
 
-            assertCombo = new ComboBox<>();                 
-            
+            assertCombo = new ComboBox<>();
+            assertPartHBox.getChildren().add(assertCombo);
+
             assertData = new TextField();
             JavaFXUtil.addStyleClass(assertData, "assert-field-data");
+            JavaFXUtil.addChangeListenerPlatform(assertData.textProperty(), (b) -> setIsAssertComplete());
+            assertPartHBox.getChildren().add(assertData);
+
+            standardPanel.getChildren().add(assertPartHBox);
+
+            // second HBox
+            HBox deltaPartHBox = new HBox();
+            JavaFXUtil.addStyleClass(deltaPartHBox, "delta-row");
+
+            deltaLabel = new Label(Config.getString("debugger.assert.delta"));
+            deltaPartHBox.getChildren().add(deltaLabel);
+            JavaFXUtil.addStyleClass(deltaLabel, "delta-label");
+            deltaLabel.setVisible(false);
 
             deltaData = new TextField("0.1");
             JavaFXUtil.addStyleClass(deltaData, "assert-field-delta");
-
-            standardPanel.getChildren().add(assertCombo);
-
-            deltaLabel = new Label(Config.getString("debugger.assert.delta"));
-            standardPanel.getChildren().add(assertData);
-            standardPanel.getChildren().add(deltaLabel);
-            standardPanel.getChildren().add(deltaData);
-
+            JavaFXUtil.addChangeListenerPlatform(deltaData.textProperty(), (b) -> setIsAssertComplete());
+            deltaPartHBox.getChildren().add(deltaData);
             deltaData.setVisible(false);
-            deltaLabel.setVisible(false);
+
+            standardPanel.getChildren().add(deltaPartHBox);
         }
 
         getChildren().add(assertCheckbox);
@@ -191,6 +210,7 @@ public class AssertPanel extends VBox
         deltaData.managedProperty().bind(deltaData.visibleProperty());
         deltaLabel.visibleProperty().bind(deltaData.visibleProperty());
         deltaLabel.managedProperty().bind(deltaData.visibleProperty());
+        deltaLabel.disableProperty().bind(deltaData.disableProperty());
         assertCheckbox.setSelected(true);
         
         assertCombo.setItems(asserts.filtered(a -> {
@@ -203,10 +223,19 @@ public class AssertPanel extends VBox
         }));
         assertCombo.getSelectionModel().select(0);
     }
-    
+
     private static <T> BooleanBinding ofB(ObservableValue<T> t, Function<T, Boolean> accessor)
     {
         return Bindings.createBooleanBinding(() -> accessor.apply(t.getValue()), t);
+    }
+
+
+    /**
+     * Checks whether the assertion condition is complete
+     * (that the assertion evaluation is activated and that the assertions values are filled - or not activated at all)
+     */
+    public final boolean getIsAssertComplete(){
+        return isAssertComplete.getValue();
     }
 
     /**
@@ -216,28 +245,57 @@ public class AssertPanel extends VBox
     {
         return assertCheckbox != null ? assertCheckbox.isSelected() : false;
     }
-    
+
+    /**
+     * Gets the assertion validity property
+     * (that the assertion evaluation is activated and that the assertions values are filled)
+     */
+    public BooleanProperty isAssertCompleteProperty(){
+        return isAssertComplete;
+    }
+
     /**
      * Check whether the necessary fields have been filled in to make a compilable
-     * assert statement.
+     * assert statement, in the case the assertion is required (checkbox checked).
+     * If the assertion isn't required, the method returns true.
      */
-    public boolean isAssertComplete()
+    private void setIsAssertComplete()
     {
-        AssertInfo info = assertCombo.getSelectionModel().getSelectedItem();
-        
-        if (info.needsSecondField()) {
-            if (deltaData.getText().trim().length() == 0) {
-                return false;
+        boolean res = true;
+
+        if (!assertCheckbox.isSelected())
+        {
+            res = true;
+        }
+        else
+        {
+            AssertInfo info = assertCombo.getSelectionModel().getSelectedItem();
+            if (info == null)
+            {
+                res = false;
+            }
+            else
+            {
+                if (info.needsSecondField())
+                {
+                    if (deltaData.getText().trim().length() == 0)
+                    {
+                        res = false;
+                    }
+                }
+
+                if (info.needsFirstField())
+                {
+                    if (assertData.getText().trim().length() == 0)
+                    {
+                        res = false;
+                    }
+                }
             }
         }
-        
-        if (info.needsFirstField()) {
-            if (assertData.getText().trim().length() == 0) {
-                return false;
-            }
-        }
-        
-        return true;
+
+        // assign the value to the property
+        isAssertComplete.setValue(res);
     }
     
     /**

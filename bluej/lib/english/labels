@@ -9,8 +9,7 @@ main.invalidPackage=Package not found
 compileException=Exception during compilation
 compiler.thread.title=BlueJ compiler thread
 
-debugger.assert.assertThat=Assert that:
-debugger.assert.resultIs=result is
+debugger.assert.assertThatResIs=Assert that: result is
 debugger.assert.equalTo=equal to
 debugger.assert.equalToFloatingPoint= equal to (double or float)
 debugger.assert.sameAs=the same as

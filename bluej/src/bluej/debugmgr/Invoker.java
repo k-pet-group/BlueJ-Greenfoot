@@ -320,10 +320,11 @@ public class Invoker
     public void invokeInteractive()
     {
         gotError = false;
-        // check for a method call with no parameter
+        // check for a method call with no parameter (and not in test mode)
         // if so, just do it
-        if ((!constructing || Config.isGreenfoot()) && !member.hasParameters()) {
-            doInvocation(null, (JavaType []) null, null);
+        if ((!constructing || Config.isGreenfoot()) && !member.hasParameters() && !inTestMode())
+        {
+            doInvocation(null, (JavaType[]) null, null);
         }
         else {
 
@@ -547,6 +548,30 @@ public class Invoker
                 endCompile(new CompileInputFile[0], false, CompileType.INTERNAL_COMPILE, -1);
             }
         }
+    }
+
+    /**
+     * Set the assertion statement to the associated invocation record.
+     */
+    public void setAssertionStatement(String statement)
+    {
+        ir.addAssertion(statement);
+    }
+
+    /**
+     * Get the Unique ID of the associated invocation record.
+     */
+    public int getUniqueIRIdentifier()
+    {
+        return ir.getUniqueIdentifier();
+    }
+
+    /**
+     * Get the associated package.
+     */
+    public Package getPackage()
+    {
+        return pkg;
     }
 
     /**
@@ -1098,7 +1123,7 @@ public class Invoker
             dialog.setOKEnabled(true);
         }
     }
-    
+
     @OnThread(Tag.FXPlatform)
     private void closeCallDialog()
     {
@@ -1179,8 +1204,6 @@ public class Invoker
      * 
      * <p>"exitStatus" and "result" fields should be set with appropriate values before
      * calling this.
-     * 
-     * <p>This method is called on the Swing event thread.
      */
     @OnThread(Tag.FXPlatform)
     public void handleResult(DebuggerResult result, boolean unwrap)
@@ -1350,5 +1373,10 @@ public class Invoker
         }
 
         return JavaNames.typeName(typeName);
+    }
+
+    public boolean inTestMode()
+    {
+        return pkg.getProject().inTestMode();
     }
 }

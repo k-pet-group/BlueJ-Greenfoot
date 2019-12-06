@@ -74,23 +74,7 @@
 }
 .inspector-result-details-header {
     -fx-padding: 1em 0.5em 0.5em 0.5em;
-}
-.inspector-result .assert-panel {
-    -fx-spacing: 0.75em;
-    -fx-padding: 2em;
-}
-.inspector-result .assert-panel .assert-row {
-    -fx-spacing: 1.5em;
-    -fx-alignment: baseline-right;
-    -fx-padding: 0 0 0 4em;
-}
-.inspector-result .assert-panel .assert-field-data {
-    -fx-pref-width: 10em;
-    -fx-alignment: baseline-left;
-}
-.inspector-result .assert-panel .assert-field-delta {
-    -fx-pref-width: 5em;
-    -fx-alignment: baseline-left;
+    -fx-font-weight: bold;
 }
 
 .inspector .button:disabled {

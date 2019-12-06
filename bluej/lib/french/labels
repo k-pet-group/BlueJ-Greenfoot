@@ -8,8 +8,7 @@ main.invalidPackage=Paquetage introuvable
 compileException=Exception pendant la compilation
 compiler.thread.title=Fil de compilation BlueJ
 
-debugger.assert.assertThat=Assertion \:
-debugger.assert.resultIs=r\u00E9sultat est
+debugger.assert.assertThatResIs=Assertion \: r\u00E9sultat est
 debugger.assert.equalTo=\u00E9gal \u00E0
 debugger.assert.equalToFloatingPoint=\u00E9gal \u00E0 (double ou float)
 debugger.assert.sameAs=le m\u00EAme que

@@ -418,15 +418,6 @@ UNo o pi\u00f9 file non sono salvati, la compilazione non pu\u00f2 avvenire.
 generic-file-save-error
 E' stato generato un errore mentre si salvava il file.
 
-empty-assertion-text
-Non hai digitato un valore di ritorno per la chiamata al metodo.
-Senza questo valore, il test \u00e8 incompleto, e la classe di test
-non compiler\u00e0. Sei sicuro di voler continuare senza digitare
-un valore di ritorno? 
-Indietro
-Continua
-null
-
 team-update-first
 Ci sono stati cambiamenti sui file nel repository, ma i file
 in locale sono stati cancellati. Questo \u00e8 un conflitto. Prima di fare

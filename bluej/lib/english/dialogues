@@ -434,15 +434,6 @@ One or more files could not be saved, so compilation was cancelled.
 generic-file-save-error
 An error was encountered when trying to save a file.
 
-empty-assertion-text
-You have not entered an expected result for this method call.
-Without this result, your test is incomplete, and your test class will
-not compile. Are you sure you want to continue without entering
-a result value? 
-Go back
-Continue
-null
-
 team-update-first
 There have been changes made to files in the repository, but the files
 have been deleted in your working copy. This is a conflict. Before you can

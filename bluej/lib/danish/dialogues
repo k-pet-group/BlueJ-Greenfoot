@@ -416,15 +416,6 @@ En eller flere filer kunne ikke gemmes, s\u00E5 overs\u00E6ttelsen blev afbrudt.
 generic-file-save-error
 Der opstod en fejl under fors\u00F8get p\u00E5 at gemme en fil.
 
-empty-assertion-text
-Du har ikke indtastet et forventet resultat for dette metode-kald.
-Uden dette resultat er din test ukomplet, og din test-klasse vil
-ikke overs\u00E6ttes. Er du sikker p\u00E5 at du vil forts\u00E6tte uden at indtaste
-en resultat-v\u00E6rdi? 
-Tilbage
-Forts\u00E6t
-null
-
 team-update-first
 Der er foretaget \u00E6ndringer i filer i repository, men filerne er blevet
 slettet i din arbejds-kopi. Dette er en konflikt. F\u00F8r du kan 

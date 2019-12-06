@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2011,2016,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,8 @@ package bluej.views;
 
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.GenTypeDeclTpar;
+import bluej.views.FormattedPrintWriter.ColorScheme;
+import bluej.views.FormattedPrintWriter.SizeScheme;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -128,6 +130,8 @@ public abstract class CallableView extends MemberView
 
         out.setItalic(false);
         out.setBold(true);
+        out.setColor(ColorScheme.DEFAULT);
+        out.setSize(SizeScheme.DEFAULT);
         for(int i=0; i<indents; i++)
             out.indentLine();
         out.println(getLongDesc());

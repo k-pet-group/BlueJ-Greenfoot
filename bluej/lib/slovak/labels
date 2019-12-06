@@ -11,8 +11,7 @@ main.invalidPackage=Bal\u00ed\u010dek nebol nen\u00e1jden\u00fd
 compileException=V\u00fdnimka pri preklade
 compiler.thread.title=Vl\u00e1kno preklada\u010da BlueJ
 
-debugger.assert.assertThat=Predpoklada\u0165, \u017ee:
-debugger.assert.resultIs=v\u00fdsledok
+debugger.assert.assertThatResIs=Predpoklada\u0165, \u017ee: v\u00fdsledok
 debugger.assert.equalTo=je rovn\u00fd
 debugger.assert.equalToFloatingPoint=je rovn\u00fd (double alebo float)
 debugger.assert.sameAs=je zhodn\u00fd s
