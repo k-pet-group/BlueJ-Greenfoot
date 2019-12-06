@@ -416,7 +416,7 @@ public class ExtensionWrapper
         try {
             ExtensionBridge.delegateEvent(extensionBluej,event);
         }
-        catch (Exception exc)  {
+        catch (Throwable exc)  {
             Debug.message("ExtensionWrapper.safeEventOccurred: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
             exc.printStackTrace();
             return;
@@ -436,7 +436,7 @@ public class ExtensionWrapper
         try {
             return extensionInstance.getDescription();
         }
-        catch (Exception exc)  {
+        catch (Throwable exc)  {
             Debug.message("ExtensionWrapper.safeGetExtensionDescription: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
             exc.printStackTrace();
             return null;
@@ -455,7 +455,7 @@ public class ExtensionWrapper
         try {
             return extensionInstance.getName();
         }
-        catch (Exception exc) {
+        catch (Throwable exc) {
             Debug.message("ExtensionWrapper.safeGetExtensionName: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
             exc.printStackTrace();
             return "";
@@ -476,7 +476,7 @@ public class ExtensionWrapper
         try {
             return extensionInstance.getURL();
         }
-        catch (Exception exc) {
+        catch (Throwable exc) {
             Debug.message("ExtensionWrapper.safeGetURL: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
             exc.printStackTrace();
             return null;
@@ -497,7 +497,7 @@ public class ExtensionWrapper
         try {
           return extensionInstance.getVersion();
         }
-        catch (Exception exc) {
+        catch (Throwable exc) {
             Debug.message("ExtensionWrapper.safeGetExtensionVersion: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
             exc.printStackTrace();
             return null;
@@ -518,7 +518,7 @@ public class ExtensionWrapper
         try {
             return extensionInstance.isCompatible();
         }
-        catch (Exception exc) {
+        catch (Throwable exc) {
             Debug.message("ExtensionWrapper.safeIsCompatible: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
             exc.printStackTrace();
             // If one bombs at me it shurely is not compatilbe 
@@ -539,7 +539,7 @@ public class ExtensionWrapper
         try {
             extensionInstance.startup(bluejProxy);
         }
-        catch (Exception exc)  {
+        catch (Throwable exc)  {
             Debug.message("ExtensionWrapper.safeStartup: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
             exc.printStackTrace();
         }
@@ -559,7 +559,7 @@ public class ExtensionWrapper
             // Give a chance to extension to clear up after itself.
             extensionInstance.terminate();
         }
-        catch (Exception exc) {
+        catch (Throwable exc) {
             Debug.message("ExtensionWrapper.safeTerminate: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
             exc.printStackTrace();
         }
@@ -584,7 +584,7 @@ public class ExtensionWrapper
         try {
             aPrefGen.loadValues();
         }
-        catch (Exception exc) {
+        catch (Throwable exc) {
             Debug.message("ExtensionWrapper.safePrefGenLoadValues: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
             exc.printStackTrace();
         }
@@ -607,7 +607,7 @@ public class ExtensionWrapper
         try {
             aPrefGen.saveValues();
         }
-        catch (Exception exc) {
+        catch (Throwable exc) {
             Debug.message("ExtensionWrapper.safePrefGenSaveValues: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
             exc.printStackTrace();
         }
@@ -630,7 +630,7 @@ public class ExtensionWrapper
         try {
             return aPrefGen.getWindow();
         }
-        catch (Exception exc) {
+        catch (Throwable exc) {
             Debug.message("ExtensionWrapper.safePrefGenGetWindow: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
             exc.printStackTrace();
             return null;
@@ -649,7 +649,7 @@ public class ExtensionWrapper
         try {
             return ExtensionBridge.getMenuItem(extensionBluej, attachedObject);
         }
-        catch (Exception exc) {
+        catch (Throwable exc) {
             Debug.message("ExtensionWrapper.safeMenuGenGetMenuItem: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
             exc.printStackTrace();
             return null;
@@ -667,7 +667,7 @@ public class ExtensionWrapper
         try {
             ExtensionBridge.postMenuItem(extensionBluej, attachedObject, onThisItem );
         }
-        catch (Exception exc) {
+        catch (Throwable exc) {
             Debug.message("ExtensionWrapper.safePostGenGetMenuItem: Class="+getExtensionClassName()+" Exception="+exc.getMessage());
             exc.printStackTrace();
         }
