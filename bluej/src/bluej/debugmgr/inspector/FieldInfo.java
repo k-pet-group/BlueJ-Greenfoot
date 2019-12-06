@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 2011,2019  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -20,6 +20,8 @@
  LICENSE.txt file that accompanied this code.
  */
 package bluej.debugmgr.inspector;
+
+import java.util.Objects;
 
 /**
  * Plain old data type for field/value pairs.
@@ -55,5 +57,21 @@ public class FieldInfo
     public String getValue()
     {
         return value;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        FieldInfo fieldInfo = (FieldInfo) o;
+        return Objects.equals(description, fieldInfo.description) &&
+                Objects.equals(value, fieldInfo.value);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(description, value);
     }
 }

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2018  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2016,2018,2019  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,12 +22,14 @@
 package bluej.debugger.jdi;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 import bluej.Config;
 import bluej.debugger.*;
 import bluej.debugger.gentype.JavaType;
 import bluej.utility.Debug;
 
+import bluej.utility.javafx.FXPlatformSupplier;
 import com.sun.jdi.*;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
@@ -87,15 +89,15 @@ class JdiThread extends DebuggerThread
     }
 
     /** the reference to the remote thread */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     private final ThreadReference rt;
     
     /** We track suspension status internally */
-    @OnThread(value = Tag.Any,requireSynchronized = true)
+    @OnThread(Tag.VMEventHandler)
     private boolean isSuspended;
     
     /** Any active step request */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     StepRequest stepRequest;
     
     /*
@@ -109,10 +111,10 @@ class JdiThread extends DebuggerThread
     // thread (selection is done for debugging)
     private int selectedFrame;
 
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     private EventRequestManager eventReqMgr;
     
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     private final JdiDebugger debugger;
 
     // ---- instance: ----
@@ -130,6 +132,8 @@ class JdiThread extends DebuggerThread
     /** 
      * Return the name of this thread.
      */
+    @OnThread(Tag.Any)
+    @SuppressWarnings("threadchecker") // Name is fairly safe to access from any thread
     public String getName()
     {
         String name = null;
@@ -143,17 +147,9 @@ class JdiThread extends DebuggerThread
     }
 
     /** 
-     * Return the reference to the thread object in the remote machine.
-     */
-    @OnThread(Tag.Any)
-    ThreadReference getRemoteThread()
-    {
-        return rt;
-    }
-
-    /** 
      * Return the current status of this thread.
      */
+    @OnThread(Tag.VMEventHandler)
     public String getStatus()
     {
         try {
@@ -195,23 +191,9 @@ class JdiThread extends DebuggerThread
     }
 
     /**
-     * Return true if this is a user thread that is in idle state
-     * (finished).
-     */
-    public boolean isFinished()
-    {
-        try {
-            return  rt.isAtBreakpoint() && VMReference.isAtMainBreakpoint(rt);
-        }
-        catch (VMDisconnectedException vmde) {
-            return true;
-        }
-    }
-
-    /**
      * Return true if this thread is currently suspended.
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     public synchronized boolean isSuspended()
     {
         return isSuspended;
@@ -220,6 +202,7 @@ class JdiThread extends DebuggerThread
     /** 
      * Return true if this thread is currently at a breakpoint.
      */
+    @OnThread(Tag.VMEventHandler)
     public boolean isAtBreakpoint()
     {
         return rt.isAtBreakpoint();
@@ -229,6 +212,8 @@ class JdiThread extends DebuggerThread
      * Return the class this thread was executing in when the
      * specified stack frame was active.
      */
+    @OnThread(Tag.VMEventHandler)
+    @Override
     public String getClass(int frameNo)
     {
         try {
@@ -243,6 +228,8 @@ class JdiThread extends DebuggerThread
      * Return the source name of the class this thread was 
      * executing in when the specified stack frame was active.
      */
+    @OnThread(Tag.VMEventHandler)
+    @Override
     public String getClassSourceName(int frameNo)
     {
         try {
@@ -257,6 +244,7 @@ class JdiThread extends DebuggerThread
      * Return the line number in the source where this thread was 
      * executing when the specified stack frame was active.
      */
+    @OnThread(Tag.VMEventHandler)
     public int getLineNumber(int frameNo)
     {
         try {
@@ -270,6 +258,8 @@ class JdiThread extends DebuggerThread
     // name of the threadgroup that contains user threads
     static final String MAIN_THREADGROUP = "main";
 
+    @OnThread(Tag.Any)
+    @SuppressWarnings("threadchecker") // It's only checking names, so pragmatically it's thread safe.
     public boolean isKnownSystemThread()
     {
         // A finished thread will have a null thread group.
@@ -327,7 +317,7 @@ class JdiThread extends DebuggerThread
      *
      * @return  A List of SourceLocations
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     public List<SourceLocation> getStack()
     {
         return getStack(rt);
@@ -342,7 +332,7 @@ class JdiThread extends DebuggerThread
      * 
      * @return  A List of SourceLocations
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     public static List<SourceLocation> getStack(ThreadReference thr)
     {
         try {
@@ -390,15 +380,15 @@ class JdiThread extends DebuggerThread
      * The thread must be suspended to do this. Otherwise an empty List
      * is returned.
      */
-    @OnThread(Tag.Any)
-    @SuppressWarnings("threadchecker")
-    public List<VarDisplayInfo> getLocalVariables(int frameNo)
+    @OnThread(Tag.VMEventHandler)
+    @Override
+    public List<FXPlatformSupplier<VarDisplayInfo>> getLocalVariables(int frameNo)
     {
         try {
             if(rt.isSuspended()) {
                 StackFrame frame = rt.frame(frameNo);
                 List<LocalVariable> vars = frame.visibleVariables();
-                List<VarDisplayInfo> localVars = new ArrayList<>();
+                List<FXPlatformSupplier<VarDisplayInfo>> localVars = new ArrayList<>();
                 
                 // To work around a JDI bug (probably related to the other one described
                 // below) we collect information we need about the variables on the
@@ -434,11 +424,11 @@ class JdiThread extends DebuggerThread
                     JavaType vartype = JdiReflective.fromLocalVar(localTypes.get(i), genericSigs.get(i),
                             typeNames.get(i), declaringType);
                     int iFinal = i;
-                    localVars.add(new VarDisplayInfo(vartype, var, localVals.get(i),
-                        varIsObject(frameNo, i) ?
+                    Supplier<DebuggerObject> getObjectToInspect = varIsObject(frameNo, i) ?
                             () -> getStackObject(frameNo, iFinal)
-                            : null
-                    ));
+                            : null;
+                    String val = localVals.get(i);
+                    localVars.add(() -> new VarDisplayInfo(vartype, var, val, getObjectToInspect));
                 }
                 return localVars;
             }
@@ -463,6 +453,7 @@ class JdiThread extends DebuggerThread
     /**
      * Return true if the identified slot on the stack contains an object.
      */
+    @OnThread(Tag.VMEventHandler)
     public boolean varIsObject(int frameNo, int index)
     {
         try
@@ -501,8 +492,8 @@ class JdiThread extends DebuggerThread
      * Return an object from this thread's stack. The variable must contain
      * an object.
      */
-    @OnThread(Tag.Any)
-    @SuppressWarnings("threadchecker")
+    @OnThread(Tag.VMEventHandler)
+    // @SuppressWarnings("threadchecker")
     public DebuggerObject getStackObject(int frameNo, int index)
     {
         try {
@@ -526,7 +517,7 @@ class JdiThread extends DebuggerThread
     }
 
     @Override
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     public DebuggerObject getCurrentObject(int frameNo)
     {
         try {
@@ -542,6 +533,7 @@ class JdiThread extends DebuggerThread
     }
 
     @Override
+    @OnThread(Tag.VMEventHandler)
     public DebuggerClass getCurrentClass(int frameNo)
     {
         try {
@@ -575,7 +567,7 @@ class JdiThread extends DebuggerThread
     /**
      * Halt this thread.
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     public synchronized void halt()
     {
         try {
@@ -591,7 +583,7 @@ class JdiThread extends DebuggerThread
     /**
      * Continue a previously halted thread.
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     public synchronized void cont()
     {
         try {
@@ -608,19 +600,20 @@ class JdiThread extends DebuggerThread
      * Inform the JdiThread that the underlying thread has been suspended due to
      * (for example) hitting a breakpoint.
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     public void stopped()
     {
         synchronized (this)
         {
             isSuspended = true;
         }
-        clearPreviousStep(getRemoteThread());
+        clearPreviousStep(rt);
     }
     
     /**
      * Make this thread step a single line.
      */
+    @OnThread(Tag.VMEventHandler)
     public void step()
     {
         boolean doStepOver = true;
@@ -637,22 +630,13 @@ class JdiThread extends DebuggerThread
         doStep(doStepOver ? StepRequest.STEP_OVER : StepRequest.STEP_OUT);
     }
 
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     public void stepInto()
     {
         doStep(StepRequest.STEP_INTO);
     }
-
-    /**
-     * Return the JDI ThreadReference which this JdiThread wraps.
-     */
-    @OnThread(Tag.Any)
-    public ThreadReference getThreadReference()
-    {
-        return rt;
-    }
     
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     private void doStep(int depth)
     {
         clearPreviousStep(rt);
@@ -678,7 +662,7 @@ class JdiThread extends DebuggerThread
      * A previously set step may not have completed yet - find out and
      * if it is so, remove it.
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     private void clearPreviousStep(ThreadReference thread)
     {
         if (eventReqMgr == null)
@@ -690,12 +674,13 @@ class JdiThread extends DebuggerThread
         }
     }
 
-    @OnThread(Tag.Any)
+    @OnThread(Tag.VMEventHandler)
     private void getEventRequestManager()
     {
         eventReqMgr = rt.virtualMachine().eventRequestManager();
     }
     
+    @OnThread(value = Tag.VMEventHandler, ignoreParent = true)
     public String toString()
     {
         try {
@@ -709,22 +694,36 @@ class JdiThread extends DebuggerThread
     }
     
     @OnThread(Tag.Any)
+    @SuppressWarnings("threadchecker") // Unique IDs are thread-safe
     public boolean sameThread(DebuggerThread dt)
     {
         if (dt != null && dt instanceof JdiThread) {
-            return getThreadReference().uniqueID() == ((JdiThread)dt).getThreadReference().uniqueID();
+            return rt.uniqueID() == ((JdiThread)dt).rt.uniqueID();
+        } else {
+            return false;
+        }
+    }
+
+    @OnThread(Tag.Any)
+    @SuppressWarnings("threadchecker") // Unique IDs are thread-safe
+    public boolean sameThread(ThreadReference threadReference)
+    {
+        if (threadReference != null) {
+            return rt.uniqueID() == threadReference.uniqueID();
         } else {
             return false;
         }
     }
 
     /**
-     * Called when we are the serverThread, to let us know we've been resumed
-     * (and should update our internal status accordingly)
+     * Resume, but we are the server thread: updated our internal isSuspended status,
+     * but no need to fire listeners.  Also, can be called from any thread.
      */
     @OnThread(Tag.Any)
-    public synchronized void notifyResumed()
+    @SuppressWarnings("threadchecker") // The server thread is special, and can be resumed from another thread.
+    public synchronized void contServerThread()
     {
+        rt.resume();
         isSuspended = false;
     }
 }

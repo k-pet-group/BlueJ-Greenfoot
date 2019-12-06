@@ -57,6 +57,8 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -628,8 +630,14 @@ public class JavaFXUtil
         
         Bounds b = scrollPane.getContent().sceneToLocal(target.localToScene(target.getBoundsInLocal()));
         
-        scrollPane.setHvalue(b.getMinX() / scrollWidth);
-        scrollPane.setVvalue(b.getMinY() / scrollHeight);
+        if (scrollPane.getHbarPolicy() != ScrollBarPolicy.NEVER && scrollWidth != 0)
+        {
+            scrollPane.setHvalue(b.getMinX() / scrollWidth);
+        }
+        if (scrollPane.getVbarPolicy() != ScrollBarPolicy.NEVER && scrollHeight != 0)
+        {
+            scrollPane.setVvalue(b.getMinY() / scrollHeight);
+        }
     }
 
     /**

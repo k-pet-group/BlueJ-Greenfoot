@@ -22,169 +22,251 @@
 package bluej.debugmgr.inspector;
 
 import bluej.Config;
+import bluej.extensions.BClassTarget;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.IntegerExpression;
+import javafx.beans.binding.ObjectExpression;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.collections.ObservableList;
+import javafx.event.EventType;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableView;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
+import javafx.util.Duration;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static bluej.debugger.DebuggerObject.OBJECT_REFERENCE;
 
 /**
- * A graphical representation of a list of fields from a class or object.
+ * A graphical representation of a list of fields from a class or object or method result, for use in an inspector.
  * 
  * @author Poul Henriksen <polle@mip.sdu.dk>
  *  
  */
 @OnThread(Tag.FXPlatform)
-public class FieldList extends TableView<FieldInfo>
+public class FieldList extends ScrollPane 
 {
-    final static private Image objectrefIcon = Config.getImageAsFXImage("image.inspector.objectref");
-    private static class StringOrRef
-    {
-        private String string; // null if reference
+    private final static Image objectrefIcon = Config.getImageAsFXImage("image.inspector.objectref");
+    private static final double ROW_HEIGHT = 30;
+    
+    // The actual list of fields, inside our ScrollPane:
+    private final ContentPane content = new ContentPane();
+    // The latest data:
+    private final List<FieldInfo> curData = new ArrayList<>();
+    // The currently selected row index:
+    private final IntegerProperty selectedRow = new SimpleIntegerProperty(-1);
+    // A placeholder shown where are no fields:
+    private final Label placeholderLabel = new Label();
 
-        public StringOrRef(String string)
-        {
-            this.string = OBJECT_REFERENCE.equals(string) ? null : string;
-        }
-    }
-
-    /**
-     * Creates a new fieldlist with no data.
-     */
     public FieldList()
     {
-        this.getSelectionModel().setCellSelectionEnabled(false);
-        this.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-        this.setColumnResizePolicy(CONSTRAINED_RESIZE_POLICY);
-        int rowHeight = 30;
-        this.setFixedCellSize(rowHeight);
-        prefHeightProperty().bind(Bindings.min(400.0, fixedCellSizeProperty().multiply(Bindings.size(getItems())).add(JavaFXUtil.ofD(paddingProperty(), Insets::getTop)).add(JavaFXUtil.ofD(paddingProperty(), Insets::getBottom))));
-        setMinHeight(3.5 * (double)rowHeight);
-        JavaFXUtil.addStyleClass(this, "field-list");
-
-        javafx.scene.control.TableColumn<FieldInfo, String> description = new javafx.scene.control.TableColumn<FieldInfo, String>();
-        JavaFXUtil.addStyleClass(description, "inspector-field-description");
-        description.setCellValueFactory(v -> new ReadOnlyStringWrapper(v.getValue().getDescription()));
-        javafx.scene.control.TableColumn<FieldInfo, StringOrRef> value = new javafx.scene.control.TableColumn<>();
-        JavaFXUtil.addStyleClass(value, "inspector-field-value");
-        value.setCellValueFactory(v -> new ReadOnlyObjectWrapper(new StringOrRef(v.getValue().getValue())));
-        value.setCellFactory(col -> new ValueCell());
-        getColumns().setAll(description, value);
-
-        // Apply auto fit size to the fieldList Columns by setting the 
-        // MinWidth and MaxWidth of the description column since it is first column on the left, 
-        // and setting the MinWidth of the value column
-        JavaFXUtil.addChangeListener(widthProperty(), s -> {
-            double descriptionWidth =0;
-            for (int i=0; i < getItems().size();i++) 
-            {
-                Text textDescription = new Text(description.getCellData(i));
-                if (descriptionWidth < textDescription.getLayoutBounds().getWidth()) 
-                {
-                    descriptionWidth = textDescription.getLayoutBounds().getWidth();
-                }
-            }
-            description.setMinWidth(descriptionWidth * 1.5);
-            description.setMaxWidth(descriptionWidth * 2);
-
-            double valueWidth =0;
-            for (int i=0; i< getItems().size();i++) 
-            {
-                if (value.getText() != null)
-                {
-                    Text textValue = new Text(value.getCellData(i).string);
-                    if (valueWidth < textValue.getLayoutBounds().getWidth()) 
-                    {
-                        valueWidth = textValue.getLayoutBounds().getWidth();
-                    }
-                }
-            }
-            value.setMinWidth(valueWidth);
-        });
-        
-        // Turn off header, from https://community.oracle.com/thread/2321823
-        JavaFXUtil.addChangeListener(widthProperty(), ignore -> {
-            //Don't show header
-            Pane header = (Pane) lookup("TableHeaderRow");
-            if (header.isVisible()){
-                header.setMaxHeight(0);
-                header.setMinHeight(0);
-                header.setPrefHeight(0);
-                header.setVisible(false);
-            }
-        });
+        getStyleClass().add("field-list");
+        setContent(new StackPane(content, placeholderLabel));
+        content.managedProperty().bind(content.visibleProperty());
+        placeholderLabel.managedProperty().bind(placeholderLabel.visibleProperty());
+        // With no content at the beginning, only the placeholder label is visible:
+        placeholderLabel.setVisible(true);
+        content.setVisible(false);
+        StackPane.setAlignment(placeholderLabel, Pos.CENTER);
+        setVbarPolicy(ScrollBarPolicy.AS_NEEDED);
+        setHbarPolicy(ScrollBarPolicy.NEVER);
+        setFitToWidth(true);
     }
 
     /**
-     * A list of fields that should be shown in this list.
-     * 
-     * @param listData
-     *            The list of fields
+     * Select the next item down, if possible
+     */
+    public void down()
+    {
+        select(Math.min(curData.size() - 1, selectedRow.get() + 1));
+    }
+
+    /**
+     * Select the next item up, if possible
+     */
+    public void up()
+    {
+        select(Math.max(0, selectedRow.get() - 1));
+    }
+
+    /**
+     * Sets the new fields and values.  If this is identical, the update is skipped.
      */
     public void setData(List<FieldInfo> listData)
     {
-        getItems().setAll(listData);        
+        if (listData.equals(curData))
+            return;
+        
+        List<Node> children = new ArrayList<>();
+        for (int i = 0; i < listData.size(); i++)
+        {
+            FieldInfo field = listData.get(i);
+            Label valueLabel = new Label(field.getValue());
+            if (OBJECT_REFERENCE.equals(valueLabel.getText()))
+            {
+                valueLabel.setGraphic(new ImageView(objectrefIcon));
+                valueLabel.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            }
+            Pane wrapper = new BorderPane(valueLabel);
+            JavaFXUtil.addStyleClass(wrapper, "inspector-field-value-wrapper");
+            JavaFXUtil.addStyleClass(valueLabel, "inspector-field-value-label");
+            Label descriptionLabel = new Label(field.getDescription());
+            JavaFXUtil.addStyleClass(descriptionLabel, "inspector-field-description");
+            children.add(descriptionLabel);
+            children.add(wrapper);
+
+            int iFinal = i;
+            descriptionLabel.setOnMouseClicked(e -> select(iFinal));
+            wrapper.setOnMouseClicked(e -> select(iFinal));
+        }
+        content.getChildren().setAll(children);
+        content.setVisible(!children.isEmpty());
+        placeholderLabel.setVisible(children.isEmpty());
+        curData.clear();
+        curData.addAll(listData);
+        // Make sure graphics are refreshed by changing the selection back and forth:
+        int sel = selectedRow.get();
+        select(-1);
+        select(sel);
+        requestLayout();
+    }
+    
+    /**
+     * Sets the text to show when the list is empty
+     */
+    public void setPlaceHolderText(String text)
+    {
+        placeholderLabel.setText(text);
     }
 
     /**
-     * A TableCell which either shows a label or a graphic.  They are wrapped
-     * in a container to allow a border with padding to be applied.
+     * Gets the selected row index, to be listened to.
      */
-    private static class ValueCell extends TableCell<FieldInfo, StringOrRef>
+    public IntegerExpression selectedIndexProperty()
     {
-        private HBox container = new HBox(); // HBox so that we can use baseline-alignment
-        private Label label = new Label();
-        private ImageView objRefPic;
-        private SimpleBooleanProperty showingLabel = new SimpleBooleanProperty(true);
-        private SimpleBooleanProperty occupied = new SimpleBooleanProperty(true);
+        return selectedRow;
+    }
 
-        public ValueCell()
+    /**
+     * Selects the given row (first is zero)
+     */
+    public void select(int index)
+    {
+        if (index == selectedRow.get())
+            return;
+        
+        selectedRow.set(index);
+        ObservableList<Node> children = content.getChildren();
+        for (int i = 0; i < children.size(); i += 2)
         {
-            objRefPic = new ImageView(objectrefIcon);
-            container.getChildren().addAll(label, objRefPic);
-            JavaFXUtil.addStyleClass(container, "inspector-field-value-wrapper");
-            JavaFXUtil.addStyleClass(label, "inspector-field-value-label");
-            objRefPic.managedProperty().bind(showingLabel.not());
-            objRefPic.visibleProperty().bind(showingLabel.not());
-            label.managedProperty().bind(showingLabel);
-            label.visibleProperty().bind(showingLabel);
-            container.visibleProperty().bind(occupied);
-            setText("");
-            setGraphic(container);
-        }
-
-        @Override
-        @OnThread(value = Tag.FXPlatform, ignoreParent = true)
-        protected void updateItem(StringOrRef v, boolean empty)
-        {
-            super.updateItem(v, empty);
-            occupied.set(!empty);
-            if (v != null && v.string == null)
+            boolean selected = i / 2 == index;
+            JavaFXUtil.setPseudoclass("bj-selected", selected, children.get(i), children.get(i + 1));
+            if (selected && (children.get(i).localToScene(0, 0).getY() < localToScene(0, 0).getY() || children.get(i).localToScene(0, ROW_HEIGHT).getY() > localToScene(0, getHeight()).getY()))
             {
-                showingLabel.set(false);
-            }
-            else
-            {
-                label.setText(v == null || empty ? "" : v.string);
-                showingLabel.set(true);
+                JavaFXUtil.scrollTo(this, children.get(i));
             }
         }
     }
-}
 
+    /**
+     * The content of the ScrollPane; the actual field descriptions and values.
+     * The children are always paired: description then value, description then value.
+     * So the number of children is exactly double the number of fields (rows).
+     */
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
+    private static class ContentPane extends Region
+    {
+        public ContentPane()
+        {
+            getStyleClass().add("field-list-content");
+        }
+        
+        @Override
+        protected void layoutChildren()
+        {
+            Insets outerPadding = getInsets();
+            List<Node> children = getChildren();
+            double largestLeft = 0;
+            double largestRight = 0;
+            for (int i = 0; i < children.size(); i += 2)
+            {
+                largestLeft = Math.max(largestLeft, children.get(i).prefWidth(ROW_HEIGHT));
+                largestRight = Math.max(largestRight, children.get(i + 1).prefWidth(ROW_HEIGHT));
+            }
+            
+            double leftWidth;
+            if (largestLeft + largestRight <= getWidth())
+            {
+                // Share any spare width among both sides equally:
+                leftWidth = largestLeft + (getWidth() - largestLeft - largestRight) * 0.5;
+            }
+            else
+            {
+                // We'll have to truncate, so we truncate the right which can be any width, whereas the left is likely to be smaller:
+                leftWidth = largestLeft;
+            }
+            double rightWidth = getWidth() - leftWidth - outerPadding.getLeft() - outerPadding.getRight();
+            
+            double y = outerPadding.getTop();
+            for (int i = 0; i < children.size(); i += 2)
+            {
+                children.get(i).resizeRelocate(outerPadding.getLeft(), y, leftWidth, ROW_HEIGHT);
+                children.get(i + 1).resizeRelocate(outerPadding.getLeft() + leftWidth, y, rightWidth, ROW_HEIGHT);
+                y += ROW_HEIGHT;
+            }
+        }
+
+        // Make parent method public:
+        @Override
+        public ObservableList<Node> getChildren()
+        {
+            return super.getChildren();
+        }
+
+        @Override
+        protected double computePrefWidth(double height)
+        {
+            List<Node> children = getChildren();
+            double largestLeft = 0;
+            double largestRight = 0;
+            for (int i = 0; i < children.size(); i += 2)
+            {
+                largestLeft = Math.max(largestLeft, children.get(i).prefWidth(height));
+                largestRight = Math.max(largestRight, children.get(i + 1).prefWidth(height));
+            }
+            return Math.min(300.0, largestLeft) + Math.min(500.0, largestRight);
+        }
+
+        @Override
+        protected double computePrefHeight(double width)
+        {
+            return ROW_HEIGHT * (getChildren().size() / 2) + getInsets().getTop() + getInsets().getBottom();
+        }
+    }
+}        
