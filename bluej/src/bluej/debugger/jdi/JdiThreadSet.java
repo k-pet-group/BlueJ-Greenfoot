@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2019  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -54,7 +54,7 @@ public class JdiThreadSet extends HashSet<JdiThread>
     {
         for(Iterator<JdiThread> it=iterator(); it.hasNext(); ) {
             JdiThread currentThread = (JdiThread)it.next();
-            if(currentThread.getRemoteThread().equals(thread)) {
+            if(currentThread.sameThread(thread)) {
                 return currentThread;
             }
         }
@@ -69,7 +69,7 @@ public class JdiThreadSet extends HashSet<JdiThread>
     {
         for(Iterator<JdiThread> it=iterator(); it.hasNext(); ) {
             JdiThread jdiThread = it.next();
-            if(jdiThread.getRemoteThread().equals(thread)) {
+            if(jdiThread.sameThread(thread)) {
                 it.remove();
                 return jdiThread;
             }

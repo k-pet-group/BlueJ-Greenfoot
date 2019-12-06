@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2015,2019  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -65,6 +65,7 @@ public interface DebuggerListener
      * 
      * @see #processDebuggerEvent(DebuggerEvent, boolean)
      */
+    @OnThread(Tag.VMEventHandler)
     default boolean examineDebuggerEvent(DebuggerEvent e)
     {
         return false;
@@ -77,5 +78,6 @@ public interface DebuggerListener
      *                  the UI not be updated due to this event
      *                 (or another event in this event set).
      */
+    @OnThread(Tag.VMEventHandler)
     void processDebuggerEvent(DebuggerEvent e, boolean skipUpdate);
 }

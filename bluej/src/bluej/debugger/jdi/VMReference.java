@@ -40,6 +40,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import bluej.debugger.Debugger.EventHandlerRunnable;
 import bluej.debugger.RunOnThread;
 import bluej.utility.DialogManager;
 import bluej.utility.javafx.FXPlatformSupplier;
@@ -166,7 +167,7 @@ public class VMReference
     private ClassType serverClass = null;
 
     // the thread running inside the ExecServer
-    private ThreadReference serverThread = null;
+    private JdiThread serverThread = null;
     private boolean serverThreadStarted = false;
 
     // the worker thread running inside the ExecServer
@@ -1027,6 +1028,7 @@ public class VMReference
     /**
      * The VM has been disconnected or ended.
      */
+    @OnThread(Tag.VMEventHandler)
     public void vmDisconnectEvent()
     {
         synchronized (this) {
@@ -1059,6 +1061,7 @@ public class VMReference
     /**
      * A thread has started.
      */
+    @OnThread(Tag.VMEventHandler)
     public void threadStartEvent(ThreadStartEvent tse)
     {
         owner.threadStart(tse.thread());
@@ -1067,6 +1070,7 @@ public class VMReference
     /**
      * A thread has died.
      */
+    @OnThread(Tag.VMEventHandler)
     public void threadDeathEvent(ThreadDeathEvent tde)
     {
         ThreadReference tr = tde.thread();
@@ -1083,6 +1087,7 @@ public class VMReference
      * A thread has been suspended (due to a breakpoint, step, or
      * call to DebuggerThread.halt()).
      */
+    @OnThread(Tag.VMEventHandler)
     public void threadHaltedEvent(JdiThread thread)
     {
         owner.threadHalted(thread);
@@ -1091,6 +1096,7 @@ public class VMReference
     /**
      * A thread has been resumed.
      */
+    @OnThread(Tag.VMEventHandler)
     public void threadResumedEvent(JdiThread thread)
     {
         owner.threadResumed(thread);
@@ -1200,6 +1206,7 @@ public class VMReference
     /**
      * A breakpoint has been hit or step completed in a thread.
      */
+    @OnThread(Tag.VMEventHandler)
     public void breakpointEvent(LocatableEvent event, int debuggerEventType, boolean skipUpdate)
     {
         // if the breakpoint is marked as with the SERVER_STARTED property
@@ -1210,7 +1217,7 @@ public class VMReference
             // wake up the waitForStartup() method
             synchronized (this) {
                 serverThreadStarted = true;
-                serverThread = event.thread();
+                serverThread = owner.findThread(event.thread());
                 owner.raiseStateChangeEvent(Debugger.IDLE);
                 notifyAll();
             }
@@ -1237,7 +1244,7 @@ public class VMReference
         }
         else {
             // breakpoint set by user in user code
-            if (serverThread.equals(event.thread())) {
+            if (serverThread.sameThread(event.thread())) {
                 owner.raiseStateChangeEvent(Debugger.SUSPENDED);
             }
             
@@ -1278,6 +1285,7 @@ public class VMReference
             };
     }
 
+    @OnThread(Tag.VMEventHandler)
     public boolean screenBreakpointEvent(LocatableEvent event, int debuggerEventType)
     {
         BreakpointProperties props = makeBreakpointProperties(event.request());
@@ -1510,29 +1518,6 @@ public class VMReference
         }
     }
 
-    /**
-     * Return a list of the Locations of user breakpoints in the VM.
-     */
-    public List<Location> getBreakpoints()
-    {
-        // Debug.message("[VMRef] getBreakpoints()");
-
-        EventRequestManager erm = machine.eventRequestManager();
-        List<Location> breaks = new LinkedList<Location>();
-
-        List<BreakpointRequest> allBreakpoints = erm.breakpointRequests();
-        Iterator<BreakpointRequest> it = allBreakpoints.iterator();
-
-        while (it.hasNext()) {
-            BreakpointRequest bp = (BreakpointRequest) it.next();
-
-            if (bp.location().declaringType().classLoader() == currentLoader) {
-                breaks.add(bp.location());
-            }
-        }
-
-        return breaks;
-    }
     
     /**
      * Remove all user breakpoints
@@ -1577,72 +1562,6 @@ public class VMReference
         
         erm.deleteEventRequests(toDelete);
     }
-
-    /**
-     * Restore the previosuly saved breakpoints with the new classloader.
-     * 
-     * @param saved
-     *            The lst of locations to restore the breakpoints into
-     */
-    public void restoreBreakpoints(List<Location> saved)
-    {
-        // Debug.message("[VMRef] restoreBreakpoints()");
-
-        EventRequestManager erm = machine.eventRequestManager();
-
-        // create the list of locations - converted to the new classloader
-        // this has to be done before we suspend the machine because
-        // loadClassesAndFindLine needs the machine running to work
-        // see bug #526
-        List<Location> newSaved = new ArrayList<Location>();
-
-        Iterator<Location> savedIterator = saved.iterator();
-
-        while (savedIterator.hasNext()) {
-            Location oldLocation = savedIterator.next();
-
-            Location newLocation = loadClassesAndFindLine(oldLocation.declaringType().name(), oldLocation.lineNumber());
-
-            if (newLocation != null) {
-                newSaved.add(newLocation);
-            }
-        }
-
-        // to stop our server thread getting away from us, lets halt the
-        // VM temporarily
-        synchronized(workerThread) {
-            workerThreadReadyWait();
-            
-            // we need to throw away all the breakpoints referring to the old
-            // class loader but then we need to restore our internal breakpoints
-            
-            // Note, we have to be careful when deleting breakpoints. There is
-            // a JDI bug which causes threads to halt indefinitely when hitting
-            // a breakpoint that is being deleted. That's why we wait for the
-            // worker thread to be in a stopped state before we proceed, and we
-            // suspend the machine to prevent problems with the server thread.
-            // Also we make sure any pending breakpoint events are processed before
-            // removing the breakpoints.
-            machine.suspend();
-            eventHandler.waitQueueEmpty();
-            erm.deleteAllBreakpoints();
-            serverClassAddBreakpoints();
-            
-            // add all the new breakpoints we have created
-            Iterator<Location> it = newSaved.iterator();
-            
-            while (it.hasNext()) {
-                Location l = (Location) it.next();
-                
-                BreakpointRequest bpreq = erm.createBreakpointRequest(l);
-                bpreq.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
-                bpreq.putProperty(VMEventHandler.DONT_RESUME, "yes");
-                bpreq.enable();
-            }
-            machine.resume();
-        }
-    }
-
     // -- support methods --
 
     /**
@@ -1669,11 +1588,11 @@ public class VMReference
      * Calls to this method should be synchronized on the serverThreadLock
      * (in JdiDebugger).
      */
+    @SuppressWarnings("threadchecker")
     private void resumeServerThread()
     {
         synchronized (eventHandler) {
-            serverThread.resume();
-            owner.serverThreadResumed(serverThread);
+            serverThread.contServerThread();
             owner.raiseStateChangeEvent(Debugger.RUNNING);
         }
         // Note, we do the state change after the resume because the state
@@ -2241,6 +2160,12 @@ public class VMReference
             workerThreadReadyWait();
             setStaticFieldValue(serverClass, ExecServer.RUN_ON_THREAD_NAME, machine.mirrorOf(fieldValue));
         }
+    }
+
+    @OnThread(Tag.Any)
+    public void runOnEventHandler(EventHandlerRunnable runnable)
+    {
+        eventHandler.queueRunnable(runnable);
     }
 
     /**

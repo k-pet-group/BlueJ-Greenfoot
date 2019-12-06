@@ -35,8 +35,11 @@ import bluej.pkgmgr.Project;
 import bluej.pkgmgr.Project.DebuggerThreadDetails;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.JavaNames;
+import bluej.utility.Utility;
 import bluej.utility.javafx.FXAbstractAction;
+import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -123,6 +126,7 @@ public class ExecControls
     // "single thread" mode is active)
     private ComboBox<DebuggerThreadDetails> threadList;
 
+    @OnThread(Tag.FXPlatform)
     private ListView<SourceLocation> stackList;
     private ListView<VarDisplayInfo> staticList, localList, instanceList;
     private Button stopButton, stepButton, stepIntoButton, continueButton, terminateButton;
@@ -138,6 +142,7 @@ public class ExecControls
      * Fields from these classes (key from map) are only shown if they are in the corresponding whitelist
      * of fields (corresponding value from map)
      */
+    @OnThread(Tag.Any) // Rarely modified
     private Map<String, Set<String>> restrictedClasses = Collections.emptyMap();
 
     private final SimpleBooleanProperty showingProperty = new SimpleBooleanProperty(false);
@@ -146,6 +151,7 @@ public class ExecControls
     private final SimpleBooleanProperty cannotHalt = new SimpleBooleanProperty(true);
     
     // The currently selected thread
+    @OnThread(value = Tag.Any, requireSynchronized = true)
     private DebuggerThreadDetails selectedThread;
 
 
@@ -281,40 +287,59 @@ public class ExecControls
                 threadList.getSelectionModel().select(details);
             }
         }
-        else if (selectedThread == null || ! dt.sameThread(selectedThread.getThread()))
+        else if (getSelectedThreadDetails() == null || ! dt.sameThread(getSelectedThreadDetails().getThread()))
         {
-            selectedThreadChanged(new DebuggerThreadDetails(dt));
+            project.getDebugger().runOnEventHandler(() -> {
+                DebuggerThreadDetails threadDetails = new DebuggerThreadDetails(dt);
+                Platform.runLater(() -> selectedThreadChanged(threadDetails));
+            });
         }
     }
 
     /**
      * Update the details displayed for the given thread (if they are currently displayed).
      */
+    @OnThread(Tag.VMEventHandler)
     public void updateThreadDetails(DebuggerThread dt)
     {
-        if (selectedThread != null && selectedThread.isThread(dt))
+        DebuggerThreadDetails sel = getSelectedThreadDetails();
+        if (sel != null && sel.isThread(dt))
         {
-            if (threadList == null)
+            if (isSingleThreadMode())
             {
-                selectedThread.update();
+                sel.update();
             }
-            setThreadDetails(selectedThread);
+            setThreadDetails(sel);
         }
     }
 
+    @OnThread(Tag.Any)
+    @SuppressWarnings("threadchecker")
+    private boolean isSingleThreadMode()
+    {
+        return threadList == null;
+    }
+
+    @OnThread(Tag.FXPlatform)
     private void selectedThreadChanged(DebuggerThreadDetails dt)
     {
         if (dt == null)
         {
-            selectedThread = null;
+            synchronized (this)
+            {
+                selectedThread = null;
+            }
             cannotHalt.set(true);
             cannotStepOrContinue.set(true);
             stackList.getItems().clear();
         }
         else
         {
-            selectedThread = dt;
-            setThreadDetails(dt);
+            synchronized (this)
+            {
+                selectedThread = dt;
+            }
+            project.getDebugger().runOnEventHandler(() -> setThreadDetails(dt));
         }
     }
 
@@ -323,6 +348,7 @@ public class ExecControls
      * These details include showing the threads stack, and displaying 
      * the details for the top stack frame.
      */
+    @OnThread(Tag.VMEventHandler)
     private void setThreadDetails(DebuggerThreadDetails dt)
     {
         //Copy the list because we may alter it:
@@ -330,19 +356,22 @@ public class ExecControls
         List<SourceLocation> filtered = Arrays.asList(getFilteredStack(stack));
 
         boolean isSuspended = dt.isSuspended();
-        cannotHalt.set(isSuspended);
-        cannotStepOrContinue.set(!isSuspended);
+        Platform.runLater(() -> {
+            cannotHalt.set(isSuspended);
+            cannotStepOrContinue.set(!isSuspended);
 
-        stackList.getItems().setAll(filtered);
-        if (filtered.size() > 0)
-        {
-            // show details of top frame
-            autoSelectionEvent = true;
-            stackList.getSelectionModel().select(0);
-            autoSelectionEvent = false;
-        }
+            stackList.getItems().setAll(filtered);
+            if (filtered.size() > 0)
+            {
+                // show details of top frame
+                autoSelectionEvent = true;
+                stackList.getSelectionModel().select(0);
+                autoSelectionEvent = false;
+            }
+        });
     }
     
+    @OnThread(Tag.Any)
     public static SourceLocation [] getFilteredStack(List<SourceLocation> stack)
     {
         int first = -1;
@@ -401,17 +430,23 @@ public class ExecControls
      * This will cause this frame's details (local variables, etc.) to be
      * displayed, as well as the current source position being marked.
      */
-    private void stackFrameSelectionChanged(DebuggerThread selectedThread, int index)
+    @OnThread(Tag.VMEventHandler)
+    private void stackFrameSelectionChanged(DebuggerThread thread, int index, boolean showSource)
     {
         if (index >= 0) {
-            setStackFrameDetails(selectedThread, index);
-            selectedThread.setSelectedFrame(index);
+            setStackFrameDetails(thread, index);
+            thread.setSelectedFrame(index);
                 
-            if (! autoSelectionEvent) {
-                project.showSource(selectedThread,
-                        selectedThread.getClass(index),
-                        selectedThread.getClassSourceName(index),
-                        selectedThread.getLineNumber(index));
+            if (showSource) {
+                String aClass = thread.getClass(index);
+                String classSourceName = thread.getClassSourceName(index);
+                int lineNumber = thread.getLineNumber(index);
+                DebuggerObject currentObject = thread.getCurrentObject(index);
+                Platform.runLater(() -> project.showSource(thread,
+                        aClass,
+                        classSourceName,
+                        lineNumber,
+                        currentObject));
             }
         }
     }
@@ -420,43 +455,52 @@ public class ExecControls
      * Display the detail information (current object fields and local var's)
      * for a specific stack frame.
      */
-    private void setStackFrameDetails(DebuggerThread selectedThread, int frameNo)
+    @OnThread(Tag.VMEventHandler)
+    private void setStackFrameDetails(DebuggerThread thread, int frameNo)
     {
         try {
-            DebuggerClass currentClass = selectedThread.getCurrentClass(frameNo);
-            DebuggerObject currentObject = selectedThread.getCurrentObject(frameNo);
+            DebuggerClass currentClass = thread.getCurrentClass(frameNo);
+            DebuggerObject currentObject = thread.getCurrentObject(frameNo);
+            List<FXPlatformSupplier<VarDisplayInfo>> staticVars = new ArrayList<>();
             if(currentClass != null) {
                 List<DebuggerField> fields = currentClass.getStaticFields();
-                List<VarDisplayInfo> listData = new ArrayList<>(fields.size());
+                
                 for (DebuggerField field : fields) {
                     String declaringClass = field.getDeclaringClassName();
                     Set<String> whiteList = restrictedClasses.get(declaringClass);
                     if (whiteList == null || whiteList.contains(field.getName())) {
-                        listData.add(new VarDisplayInfo(field));
+                        staticVars.add(() -> new VarDisplayInfo(field));
                     }
                 }
-                staticList.getItems().setAll(listData);
+                
             }
+
+            List<FXPlatformSupplier<VarDisplayInfo>> instanceVars = new ArrayList<>();
     
             if(currentObject != null && !currentObject.isNullObject()) {
                 List<DebuggerField> fields = currentObject.getFields();
-                List<VarDisplayInfo> listData = new ArrayList<>(fields.size());
+                
                 for (DebuggerField field : fields) {
                     if (! Modifier.isStatic(field.getModifiers())) {
                         String declaringClass = field.getDeclaringClassName();
                         Set<String> whiteList = restrictedClasses.get(declaringClass);
                         if (whiteList == null || whiteList.contains(field.getName())) {
-                            listData.add(new VarDisplayInfo(field));
+                            instanceVars.add(() -> new VarDisplayInfo(field));
                         }
                     }
                 }
-                instanceList.getItems().setAll(listData);
-            }
-            else {
-                instanceList.getItems().clear();
+                
             }
             
-            localList.getItems().setAll(selectedThread.getLocalVariables(frameNo));
+            List<FXPlatformSupplier<VarDisplayInfo>> localVariables = thread.getLocalVariables(frameNo);
+            
+            Platform.runLater(() -> {
+                staticList.getItems().setAll(Utility.mapList(staticVars, v -> v.get()));
+                instanceList.getItems().setAll(Utility.mapList(instanceVars, v -> v.get()));
+                localList.getItems().setAll(Utility.mapList(localVariables, v -> v.get()));
+            });
+            
+            
         }
         catch (VMDisconnectedException vmde)
         {
@@ -500,7 +544,13 @@ public class ExecControls
         stackList.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         JavaFXUtil.addStyleClass(stackList, "debugger-stack");
         stackList.styleProperty().bind(PrefMgr.getEditorFontCSS(false));
-        JavaFXUtil.addChangeListenerPlatform(stackList.getSelectionModel().selectedIndexProperty(), index -> stackFrameSelectionChanged((getSelectedThreadDetails() == null ? null : getSelectedThreadDetails().getThread()), index.intValue()));
+        JavaFXUtil.addChangeListenerPlatform(stackList.getSelectionModel().selectedIndexProperty(), index -> {
+            DebuggerThread thread = getSelectedThreadDetails() == null ? null : getSelectedThreadDetails().getThread();
+            boolean showSource = !autoSelectionEvent;
+            project.getDebugger().runOnEventHandler(() -> {
+                stackFrameSelectionChanged(thread, index.intValue(), showSource);
+            });
+        });
         Label placeholder = new Label(removeHTML(Config.getString("debugger.threadRunning")));
         placeholder.setTextAlignment(TextAlignment.CENTER);
         stackList.setPlaceholder(placeholder);
@@ -516,7 +566,7 @@ public class ExecControls
                 filteredThreads.setPredicate(null);
                 filteredThreads.setPredicate(this::showThread);
             });
-            JavaFXUtil.addChangeListenerPlatform(threadList.getSelectionModel().selectedItemProperty(), this::selectedThreadChanged);
+            JavaFXUtil.addChangeListenerPlatform(threadList.getSelectionModel().selectedItemProperty(), t -> selectedThreadChanged(t));
         }
     }
 
@@ -577,13 +627,9 @@ public class ExecControls
         window.hide();
     }
 
-    public DebuggerThreadDetails getSelectedThreadDetails()
+    @OnThread(Tag.Any)
+    public synchronized DebuggerThreadDetails getSelectedThreadDetails()
     {
-        if (threadList != null)
-        {
-            return threadList.getSelectionModel().getSelectedItem();
-        }
-        
         return selectedThread;
     }
 
@@ -609,7 +655,7 @@ public class ExecControls
                 return;
             clearThreadDetails();
             if (!details.isSuspended()) {
-                details.getThread().halt();
+                project.getDebugger().runOnEventHandler(() -> details.getThread().halt());
             }
         }
     }
@@ -632,7 +678,7 @@ public class ExecControls
             clearThreadDetails();
             project.removeStepMarks();
             if (details.isSuspended()) {
-                details.getThread().step();
+                project.getDebugger().runOnEventHandler(() -> details.getThread().step());
             }
             project.updateInspectors();
         }
@@ -692,7 +738,7 @@ public class ExecControls
             clearThreadDetails();
             project.removeStepMarks();
             if (details.isSuspended()) {
-                details.getThread().stepInto();
+                project.getDebugger().runOnEventHandler(() -> details.getThread().stepInto());
             }
         }
     }
@@ -726,7 +772,7 @@ public class ExecControls
             clearThreadDetails();
             project.removeStepMarks();
             if (details.isSuspended()) {
-                details.getThread().cont();
+                project.getDebugger().runOnEventHandler(() -> details.getThread().cont());
                 DataCollector.debuggerContinue(project, details.getThread().getName());
             }
         }

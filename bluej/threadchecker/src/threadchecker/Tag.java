@@ -50,6 +50,10 @@ public enum Tag
      */
     Worker,
     /**
+     * The thread that handles JDI events from the debugger
+     */
+    VMEventHandler,
+    /**
      * May be used on any thread.
      */
     Any;

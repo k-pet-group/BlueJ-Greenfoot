@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2010,2011,2012,2013,2015,2018 Poul Henriksen and Michael Kolling 
+ Copyright (C) 2010,2011,2012,2013,2015,2018,2019 Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -108,6 +108,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
     private List<ObjectBenchListener> benchListeners = new ArrayList<>();
     
     private VMCommsMain vmComms;
+    @OnThread(Tag.VMEventHandler)
     private boolean hasLaunched = false;
 
     /**
@@ -136,7 +137,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
         // (We know hasLaunched will be false at this point because we only just made the GreenfootDebugHandler):
         if (project.getDebugger().addDebuggerListener(handler) == Debugger.IDLE)
         {
-            handler.launch(project.getDebugger());
+            project.getDebugger().runOnEventHandler(() -> handler.launch(project.getDebugger()));
         }
         GreenfootStage.makeStage(project, handler).show();
     }
@@ -236,6 +237,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
      * at the top of the class for how it works.
      */
     @Override
+    @OnThread(Tag.VMEventHandler)
     public boolean examineDebuggerEvent(final DebuggerEvent e)
     {
         final Debugger debugger = (Debugger)e.getSource();
@@ -261,8 +263,8 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
         }
         else if (atBreakpoint && e.getBreakpointProperties().get(NAME_ACTOR_KEY) != null)
         {
-            VarDisplayInfo varDisplayInfo = e.getThread().getLocalVariables(0).get(0);
-            greenfootRecorder.nameActors(fetchArray(varDisplayInfo.getFetchObject().get()));
+            DebuggerObject actorArray = e.getThread().getStackObject(0, 0);
+            greenfootRecorder.nameActors(fetchArray(actorArray));
             e.getThread().cont();
             return true;
         }
@@ -390,6 +392,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
      * 
      * <p>We call threadHalted if necessary.
      */
+    @OnThread(Tag.VMEventHandler)
     @Override
     public void processDebuggerEvent(final DebuggerEvent e, boolean skipUpdate)
     {
@@ -426,6 +429,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
      * Launches Greenfoot on the debug VM.  Only call this once (check the hasLaunched flag before calling)
      * @param debugger The debugger for the project.
      */
+    @OnThread(Tag.VMEventHandler)
     private void launch(Debugger debugger)
     {
         if (! ProjectManager.checkLaunchFailed())
@@ -450,6 +454,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
      * 
      * Returns a task that will run them onwards, which can be scheduled as you like
      */
+    @OnThread(Tag.VMEventHandler)
     private void runToInternalBreakpoint(final Debugger debugger, final DebuggerThread thread)
     {
         // Set a break point where we want them to be:
@@ -554,10 +559,12 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
      */
     public void haltSimulationThread()
     {
-        if (simulationThread != null)
-        {
-            simulationThread.halt();
-        }
+        project.getDebugger().runOnEventHandler(() -> {
+            if (simulationThread != null)
+            {
+                simulationThread.halt();
+            }
+        });
     }
 
     @Override
@@ -770,16 +777,12 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
      */
     public void simulationThreadResumeOnResetClick()
     {
-        if (simulationThread != null && simulationThread.isSuspended())
-        {
-            // This code runs in parallel with GreenfootDebugHandler.examineDebuggerEvent() and
-            // there is theoretically a race condition where the "special" breakpoints are set
-            // before we resume the simulation thread here, meaning that the simulation thread
-            // will get suspended again shortly after the reset (before the world is instantiated).
-            // In practice this seems almost impossible since it would require the user to
-            // "step" or "halt" immediately before "reset", so we'll assume this is safe.
-            simulationThread.cont();
-        }
+        project.getDebugger().runOnEventHandler(() -> {
+            if (simulationThread != null && simulationThread.isSuspended())
+            {
+                simulationThread.cont();
+            }
+        });
         objectBench.clear();
     }
 }
