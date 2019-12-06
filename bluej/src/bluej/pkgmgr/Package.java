@@ -32,7 +32,6 @@ import java.net.URL;
 import java.util.*;
 
 import bluej.debugger.DebuggerObject;
-import bluej.extensions.event.DependencyEvent;
 import bluej.views.CallableView;
 import javafx.application.Platform;
 
