@@ -194,21 +194,24 @@ public final class FlowActions
         // install our own keymap, with the existing one as parent:
         updateKeymap();
         
-        Nodes.addInputMap(getTextComponent(), InputMap.sequence(
-            InputMap.consume(MouseEvent.MOUSE_CLICKED, e -> {
-                if (e.getButton() == MouseButton.PRIMARY)
-                {
-                    if (e.getClickCount() == 2)
-                    {
-                        selectWordAction().actionPerformed(false);
-                    }
-                    else if (e.getClickCount() == 3)
-                    {
-                        selectWholeLine();
-                    }
-                }
-            })
-        ));
+        if (getTextComponent() != null)
+        {
+            Nodes.addInputMap(getTextComponent(), InputMap.sequence(
+                    InputMap.consume(MouseEvent.MOUSE_CLICKED, e -> {
+                        if (e.getButton() == MouseButton.PRIMARY)
+                        {
+                            if (e.getClickCount() == 2)
+                            {
+                                selectWordAction().actionPerformed(false);
+                            }
+                            else if (e.getClickCount() == 3)
+                            {
+                                selectWholeLine();
+                            }
+                        }
+                    })
+            ));
+        }
     }
 
     // package-visible
@@ -1060,7 +1063,10 @@ public final class FlowActions
 
     private FlowEditor getClearedEditor()
     {
-        editor.clearMessage();
+        if (editor != null)
+        {
+            editor.clearMessage();
+        }
         return editor;
     }
 
