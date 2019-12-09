@@ -43,8 +43,8 @@
 }
 .test-results .test-progress-bar {
     -fx-max-width: 9999.0; /* Allow growth to fill width of window */
-    -fx-pref-height: 30.0;
-    -fx-min-height: 10.0;
+    -fx-max-height: 1.75em;
+    -fx-min-height: 1.75em;
     -fx-accent: rgb(32, 192, 32);
 }
 .test-results .test-progress-bar:bj-error {
