@@ -579,7 +579,7 @@ public class TestBasicEditorDisplay extends FXTest
         setText(beforeEnterPoint + afterEnterPoint);
         fx_(() -> flowEditorPane.requestFocus());
         fx_(() -> flowEditorPane.positionCaret(beforeEnterPoint.length()));
-        sleep(500);
+        sleep(300);
         // Find the caret Y:
         Node caret = lookup(".flow-caret").query();
         double y = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
@@ -684,7 +684,7 @@ public class TestBasicEditorDisplay extends FXTest
         setText(beforeEnterPoint + afterEnterPoint);
         fx_(() -> flowEditorPane.requestFocus());
         fx_(() -> flowEditorPane.positionCaret(beforeEnterPoint.length()));
-        sleep(500);
+        sleep(300);
         // Find the caret Y:
         Node caret = lookup(".flow-caret").query();
         double y = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
@@ -763,11 +763,7 @@ public class TestBasicEditorDisplay extends FXTest
         setText(beforeEnterPoint + afterEnterPoint);
         fx_(() -> flowEditorPane.requestFocus());
         fx_(() -> flowEditorPane.positionCaret(beforeEnterPoint.length()));
-        fx_(() -> {
-            PrefMgr.setEditorFontSize(10);
-            PrefMgr.setEditorFontSize(12);
-        });
-        sleep(500);
+        sleep(300);
         // Find the caret Y:
         Node caret = lookup(".flow-caret").query();
         double y = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
@@ -869,7 +865,7 @@ public class TestBasicEditorDisplay extends FXTest
         setText(beforeEnterPoint + afterEnterPoint);
         fx_(() -> flowEditorPane.requestFocus());
         fx_(() -> flowEditorPane.positionCaret(beforeEnterPoint.length()));
-        sleep(500);
+        sleep(300);
         // Find the caret Y:
         Node caret = lookup(".flow-caret").query();
         double mainY = fx(() -> flowEditorPane.sceneToLocal(caret.localToScene(caret.getBoundsInLocal())).getCenterY());
