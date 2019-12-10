@@ -679,6 +679,8 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                     {
                         recalcScopeMarkers(fullWidth, entry.getKey(), entry.getKey(), entry.getValue() + 1);
                     }
+                    else
+                        Debug.message("Giving up on line #" + entry.getKey());
                 }
                 applyPendingScopeBackgrounds();
             });
@@ -1270,6 +1272,10 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                     if (cboundsX.isPresent())
                     {
                         indent = OptionalInt.of(Math.min(indent.isPresent() ? indent.getAsInt() : Integer.MAX_VALUE, cboundsX.getAsInt() - PARAGRAPH_MARGIN));
+                    }
+                    else
+                    {
+                        indent = OptionalInt.empty();
                     }
                     curpos = lineEl.getEndOffset();
                 }
