@@ -959,6 +959,12 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     {
         int napPos = nap.getPosition();
         int napEnd = napPos + nap.getSize();
+        
+        if (napPos == napEnd)
+        {
+            // Empty scope, e.g. because of "{}" in code, don't bother painting
+            return false;
+        }
 
         if (napPos >= info.lines.thisLineEl.getEndOffset()) {
             // The node isn't even on this line, go to the next line
