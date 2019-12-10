@@ -63,6 +63,7 @@ import bluej.pkgmgr.target.role.EnumClassRole;
 import bluej.pkgmgr.target.role.InterfaceClassRole;
 import bluej.pkgmgr.target.role.StdClassRole;
 import bluej.pkgmgr.target.role.UnitTestClassRole;
+import bluej.pkgmgr.target.role.UnitTestClassRole.UnitTestFramework;
 import bluej.prefmgr.PrefMgr;
 import bluej.stride.framedjava.ast.Loader;
 import bluej.stride.framedjava.ast.Parser;
@@ -280,7 +281,7 @@ public class ClassTarget extends DependentTarget
         // successfully analyse/compile the source.
         if (template != null) {
             if (template.startsWith("unittest")) {
-                setRole(new UnitTestClassRole(true));
+                setRole(new UnitTestClassRole(UnitTestFramework.JUnit5));
             }
             else if (template.startsWith("abstract")) {
                 setRole(new AbstractClassRole());
@@ -543,11 +544,13 @@ public class ClassTarget extends DependentTarget
     }
 
     /**
-     * Test if a given class is a Junit 4 test class.
+     * Test if a given class is a JUnit 4 test class.
      * 
      * <p>In Junit4, test classes can be of any type.
      * The only way to test is to check if it has one of the following annotations:
-     * @Before, @Test or @After
+     * @Before, @Test or @After<br/>Note: a test class may only the @Before
+     * and @After annotations when created with BlueJ, so @Test alone is not a reliable
+     * indicator for a test class.
      * 
      * @param cl class to test
      */
@@ -583,7 +586,60 @@ public class ClassTarget extends DependentTarget
         // No suitable annotations found, so not a test class
         return false;
     }
-    
+
+    /**
+     * Test if a given class is a JUnit 5 test class.
+     *
+     * <p>In Junit5, test classes can be of any type.
+     * The only way to test is to check if it has one of the following annotations:
+     * @BeforeEach, @Test or @AfterEach.<br/>Note: a test class may only the @BeforeEach
+     * and @AfterEach annotation when created with BlueJ, so @Test alone is not a reliable
+     * indicator for a test class.
+
+     * @param cl class to test
+     */
+    @SuppressWarnings("unchecked")
+    public static boolean isJunit5TestClass(Class<?> cl)
+    {
+        ClassLoader clLoader = cl.getClassLoader();
+        try
+        {
+            Class<? extends Annotation> beforeClass =
+                    (Class<? extends Annotation>) Class.forName("org.junit.jupiter.api.BeforeEach", false, clLoader);
+            Class<? extends Annotation> afterClass =
+                    (Class<? extends Annotation>) Class.forName("org.junit.jupiter.api.AfterEach", false, clLoader);
+            Class<? extends Annotation> testClass =
+                    (Class<? extends Annotation>) Class.forName("org.junit.jupiter.api.Test", false, clLoader);
+
+            Method[] methods = cl.getDeclaredMethods();
+            for (int i = 0; i < methods.length; i++)
+            {
+                if (methods[i].getAnnotation(beforeClass) != null)
+                {
+                    return true;
+                }
+                if (methods[i].getAnnotation(afterClass) != null)
+                {
+                    return true;
+                }
+                if (methods[i].getAnnotation(testClass) != null)
+                {
+                    return true;
+                }
+            }
+
+        }
+        catch (ClassNotFoundException cnfe)
+        {
+        }
+        catch (LinkageError le)
+        {
+        }
+
+        // No suitable annotations found, so not a test class
+        return false;
+    }
+
     /**
      * Use a variety of tests to determine what our role is.
      * 
@@ -600,7 +656,6 @@ public class ClassTarget extends DependentTarget
             
             ClassLoader clLoader = cl.getClassLoader();
             Class<?> junitClass = null;
-
             // It shouldn't ever be the case that the class is on the bootstrap
             // class path (and was loaded by the bootstrap class loader), unless
             // someone has done something rather strange - but it has happened;
@@ -621,8 +676,9 @@ public class ClassTarget extends DependentTarget
             // As cl is non-null, it is the definitive information
             // source ie. if it thinks its an applet who are we to argue
             // with it.
-            if (junitClass.isAssignableFrom(cl)) {
-                setRole(new UnitTestClassRole(false));
+            if (junitClass.isAssignableFrom(cl))
+            {
+                setRole(new UnitTestClassRole(UnitTestFramework.JUnit3));
             }
             else if (Modifier.isInterface(cl.getModifiers())) {
                 setRole(new InterfaceClassRole());
@@ -634,7 +690,10 @@ public class ClassTarget extends DependentTarget
                 setRole(new AbstractClassRole());
             }
             else if (isJunit4TestClass(cl)) {
-                setRole(new UnitTestClassRole(true));
+                setRole(new UnitTestClassRole(UnitTestFramework.JUnit4));
+            }
+            else if (isJunit5TestClass(cl)) {
+                setRole(new UnitTestClassRole(UnitTestFramework.JUnit5));
             }
             else {
                 setRole(new StdClassRole());
@@ -648,7 +707,7 @@ public class ClassTarget extends DependentTarget
 
             if (classInfo != null) {
                 if (classInfo.isUnitTest()) {
-                    setRole(new UnitTestClassRole(false));
+                    setRole(new UnitTestClassRole(UnitTestFramework.JUnit3));
                 }
                 else if (classInfo.isInterface()) {
                     setRole(new InterfaceClassRole());
@@ -696,10 +755,13 @@ public class ClassTarget extends DependentTarget
         openWithInterface = Boolean.valueOf(intf).booleanValue();
 
         if (UnitTestClassRole.UNITTEST_ROLE_NAME.equals(type)) {
-            setRole(new UnitTestClassRole(false));
+            setRole(new UnitTestClassRole(UnitTestFramework.JUnit3));
         }
         else if (UnitTestClassRole.UNITTEST_ROLE_NAME_JUNIT4.equals(type)) {
-            setRole(new UnitTestClassRole(true));
+            setRole(new UnitTestClassRole(UnitTestFramework.JUnit4));
+        }
+        else if (UnitTestClassRole.UNITTEST_ROLE_NAME_JUNIT5.equals(type)) {
+            setRole(new UnitTestClassRole(UnitTestFramework.JUnit5));
         }
         else if (AbstractClassRole.ABSTRACT_ROLE_NAME.equals(type)) {
             setRole(new AbstractClassRole());

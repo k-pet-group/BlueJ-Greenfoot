@@ -3,13 +3,12 @@
  */
 $PKGLINE
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 
-import static org.junit.Assert.*;
-
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /*******************************************************************************
@@ -66,7 +65,7 @@ public class $CLASSNAME
      * Inicializace předcházející spuštění každého testu a připravující tzv.
      * přípravek (fixture), což je sada objektů, s nimiž budou testy pracovat.
      */
-    @Before
+    @BeforeEach
     public void setUp()
     {
     }
@@ -75,7 +74,7 @@ public class $CLASSNAME
     /***************************************************************************
      * Úklid po testu - tato metoda se spustí po vykonání každého testu.
      */
-    @After
+    @AfterEach
     public void tearDown()
     {
     }

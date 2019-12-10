@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -33,9 +33,9 @@ public class JdiTestResultError extends JdiTestResult
 {
     SourceLocation failPoint;
 
-    JdiTestResultError(String className, String methodName, String exceptionMsg, String traceMsg, SourceLocation failPoint, int runTimeMs)
+    JdiTestResultError(String className, String methodName, String displayName, String exceptionMsg, String traceMsg, SourceLocation failPoint, int runTimeMs)
     {
-        super(className, methodName, runTimeMs);
+        super(className, methodName, displayName, runTimeMs);
 
         this.exceptionMsg = exceptionMsg;
 

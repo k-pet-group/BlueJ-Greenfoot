@@ -55,6 +55,7 @@ import javafx.scene.input.KeyCharacterCombination;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.shape.Polygon;
 import javafx.stage.Screen;
@@ -1887,7 +1888,7 @@ public final class Config
     }
 
     @OnThread(Tag.FX)
-    public static void addDialogStylesheets(DialogPane dialogPane)
+    public static void addDialogStylesheets(Pane dialogPane)
     {
         addStylesheet(dialogPane.getStylesheets(), "dialogs");
         addJavaColorsStylesheet(dialogPane.getStylesheets());

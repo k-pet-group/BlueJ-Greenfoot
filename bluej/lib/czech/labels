@@ -16,8 +16,7 @@ main.invalidPackage=Bal\u00ed\u010dek nenalezen
 compileException=V\u00fdjimka p\u0159i p\u0159ekladu
 compiler.thread.title=Vl\u00e1kno p\u0159eklada\u010de BlueJ
 
-debugger.assert.assertThat=Potvrdit, \u017ee:
-debugger.assert.resultIs=v\u00fdsledek je
+debugger.assert.assertThatResIs=Potvrdit, \u017ee: v\u00fdsledek je
 debugger.assert.equalTo=je rovno
 debugger.assert.equalToFloatingPoint=je rovno (double nebo float)
 debugger.assert.sameAs=je shodn\u00e9 s
@@ -394,7 +393,6 @@ pkgmgr.test.record=z\u00e1znam
 pkgmgr.test.run=Spustit testy
 pkgmgr.test.end=Ukon\u010dit
 pkgmgr.test.succeeded=je OK
-pkgmgr.test.noTestName=Mus\u00edte zadat jm\u00e9no testu
 pkgmgr.test.invalidTestName=Jm\u00e9no testu mus\u00ed b\u00fdt platn\u00fd identifik\u00e1tor Javy
 pkgmgr.test.recording=zaznamen\u00e1v\u00e1m
 

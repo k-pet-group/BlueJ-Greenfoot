@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2014,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2014,2016,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,10 +23,7 @@ package bluej.debugmgr;
 
 import java.util.Map;
 
-import javax.swing.SwingUtilities;
-
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
+import bluej.utility.JavaUtils;
 import javafx.stage.Window;
 
 import bluej.Config;
@@ -74,13 +71,16 @@ public class MethodDialog extends CallDialog
      * @param method       The constructor or method being used
      * @param typeMap      The mapping of type parameter names to runtime types
      *                     (a Map of String -> GenType).
+     * @param invoker      The invoker used to get this method.
      */
     public MethodDialog(Window parentFrame, ObjectBenchInterface ob, CallHistory callHistory,
                         String instanceName, MethodView method, Map<String,GenTypeParameter> typeMap, Invoker invoker)
     {
         super(parentFrame, ob, "");
         this.invoker = invoker;
-        
+        this.showAssertion = (invoker != null && invoker.inTestMode());
+        assertionEvalType = JavaUtils.getJavaUtils().getRawReturnType(method.getMethod());
+
         history = callHistory;
 
         // Find out the type of dialog
@@ -110,7 +110,7 @@ public class MethodDialog extends CallDialog
             if (typeParameterList != null) {
                 typeParameterList.getActualParameter(0).getEditor().requestFocus();
             }
-            else if (parameterList != null) {
+            else if (parameterList != null && parameterList.actualCount() > 0) {
                 parameterList.getActualParameter(0).getEditor().requestFocus();
             }
             //org.scenicview.ScenicView.show(getDialogPane().getScene());
@@ -124,15 +124,20 @@ public class MethodDialog extends CallDialog
     @Override
     public void handleOK()
     {
-        if (!parameterFieldsOk()) {
-            setErrorMessage(emptyFieldMsg);            
+        if (!parameterFieldsOk())
+        {
+            setErrorMessage(emptyFieldMsg);
         }
-        else if(!typeParameterFieldsOk()) {
+        else if (!typeParameterFieldsOk())
+        {
             setErrorMessage(emptyTypeFieldMsg);
-        } 
-        else {
+        }
+        else
+        {
             setWaitCursor(true);
             invoker.callDialogOK();
+            // set the assertion record
+            setAssertionRecord(invoker);
         }
     }
 

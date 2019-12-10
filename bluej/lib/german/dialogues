@@ -456,15 +456,6 @@ wurde die \u00dcbersetzung abgebrochen.
 generic-file-save-error
 W\u00e4hrend des Versuchs, eine Datei zu speichern, ist ein Fehler aufgetreten.
 
-empty-assertion-text
-Sie haben kein Ergebnis f\u00fcr diesen Methodenaufruf eingegeben.
-Ohne dieses Ergebnis ist Ihr Test unvollst\u00e4ndig und Ihre Testklasse
-wird sich nicht \u00fcbersetzen lassen. Sind Sie sicher, dass Sie ohne die
-Eingabe eines Ergebniswertes fortfahren m\u00f6chten?
-Zur\u00fcck
-Fortsetzen
-null
-
 team-update-first
 Es wurden \u00c4nderungen an Dateien im Repository vorgenommen, die
 in Ihrer Arbeitskopie gel\u00f6scht wurden. Das ist ein Konflikt.

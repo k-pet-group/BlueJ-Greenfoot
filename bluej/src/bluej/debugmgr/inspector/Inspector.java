@@ -87,7 +87,6 @@ public abstract class Inspector extends Stage
 
     protected Button inspectButton;
     protected Button getButton;
-    protected AssertPanel assertPanel;
 
     protected DebuggerObject selectedField; // the object currently selected in
                                             // the list
@@ -211,7 +210,6 @@ public abstract class Inspector extends Stage
     /**
      * Initializes the list of fields. This creates the component that shows the
      * fields.
-     * @param valueFieldColor 
      */
     private void initFieldList()
     {
@@ -379,43 +377,11 @@ public abstract class Inspector extends Stage
     /**
      * Close this inspector. The caller should remove it from the list of open
      * inspectors.
-     * 
-     * @param handleAssertions   Whether assertions should be attached to the
-     *                           invoker record. If true, the user may be prompted
-     *                           to fill in assertion data. 
      */
     public void doClose(boolean handleAssertions)
     {
-        boolean closeOk = true;
-
-        if (handleAssertions) {
-            // handleAssertions may veto the close
-            closeOk = handleAssertions();
-        }
-
-        if (closeOk) {
-            hide();
-            remove();
-        }
-    }
-
-    protected boolean handleAssertions()
-    {
-        if (assertPanel != null && assertPanel.isAssertEnabled()) {
-            
-            if (! assertPanel.isAssertComplete()) {
-                int choice = DialogManager.askQuestionFX(this, "empty-assertion-text");
-                
-                if (choice == 0) {
-                    return false;
-                }
-            }
-            
-            ir.addAssertion(assertPanel.getAssertStatement());
-
-            assertPanel.recordAssertion(pkg, () -> Optional.ofNullable(PkgMgrFrame.findFrame(pkg)).map(PkgMgrFrame::getTestIdentifier), ir.getUniqueIdentifier());
-        }
-        return true;
+        hide();
+        remove();
     }
 
     protected Button createCloseButton()

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2014,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2014,2016,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,6 +36,18 @@ import threadchecker.Tag;
 @OnThread(value = Tag.FXPlatform,ignoreParent = true)
 public abstract class FormattedPrintWriter extends PrintWriter
 {
+    protected enum ColorScheme
+    {
+        DEFAULT,
+        GRAY
+    }
+
+    protected enum SizeScheme
+    {
+        SMALL,
+        DEFAULT,
+        LARGE
+    }
     public FormattedPrintWriter(OutputStream out)
     {
         super(out);
@@ -43,6 +55,8 @@ public abstract class FormattedPrintWriter extends PrintWriter
 
     public abstract void setBold(boolean bold);
     public abstract void setItalic(boolean italic);
+    protected abstract void setColor(ColorScheme color);
+    protected abstract void setSize(SizeScheme size);
     protected abstract void indentLine();
     
     public abstract void println(String line);

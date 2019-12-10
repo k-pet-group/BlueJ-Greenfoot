@@ -8,8 +8,7 @@ main.invalidPackage=Paquetage introuvable
 compileException=Exception pendant la compilation
 compiler.thread.title=Fil de compilation BlueJ
 
-debugger.assert.assertThat=Assertion \:
-debugger.assert.resultIs=r\u00E9sultat est
+debugger.assert.assertThatResIs=Assertion \: r\u00E9sultat est
 debugger.assert.equalTo=\u00E9gal \u00E0
 debugger.assert.equalToFloatingPoint=\u00E9gal \u00E0 (double ou float)
 debugger.assert.sameAs=le m\u00EAme que
@@ -357,7 +356,6 @@ pkgmgr.test.record=Enregistrement
 pkgmgr.test.run=Ex\u00E9cuter les tests
 pkgmgr.test.end=Terminer
 pkgmgr.test.succeeded=succ\u00E8s
-pkgmgr.test.noTestName=Vous devez nommer la classe-test (e.g. 'maclasseTest')
 pkgmgr.test.invalidTestName=Le nom de la classe-test doit \u00EAtre un identificateur Java valide
 pkgmgr.test.recording=Enregistrement en cours
 

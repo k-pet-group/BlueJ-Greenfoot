@@ -39,30 +39,37 @@ public class JdiTestResult extends DebuggerTestResult
 {
     protected String className;
     protected String methodName;
+    protected String displayName;
     protected String exceptionMsg, traceMsg;  // null if no failure
     protected int runTimeMs;
 
-    JdiTestResult(String className, String methodName, int runTimeMs)
+    JdiTestResult(String className, String methodName, String displayName, int runTimeMs)
     {
         if (className == null || methodName == null)
             throw new NullPointerException("constructing JdiTestResult");
 
         this.className = className;
         this.methodName = methodName;
+        this.displayName = displayName;
         this.runTimeMs = runTimeMs;
 
         this.exceptionMsg = null;
         this.traceMsg = null;
     }
-    
+
     public String getQualifiedClassName()
     {
         return className;
     }
-    
+
     public String getMethodName()
     {
         return methodName;
+    }
+
+    public String getDisplayName()
+    {
+        return displayName;
     }
 
     /**
@@ -74,8 +81,6 @@ public class JdiTestResult extends DebuggerTestResult
     }
 
     /**
-     * 
-     * 
      * @see bluej.debugger.DebuggerTestResult#getRunTimeMs()
      */
     public int getRunTimeMs()
@@ -84,14 +89,13 @@ public class JdiTestResult extends DebuggerTestResult
     }
 
     /**
-     * 
      * @see bluej.debugger.DebuggerTestResult#getTrace()
      */
     public String getTrace()
     {
         throw new IllegalStateException("getting stack trace from successful test");
     }
-    
+
     /* (non-Javadoc)
      * @see bluej.debugger.DebuggerTestResult#getExceptionLocation()
      */
@@ -131,7 +135,7 @@ public class JdiTestResult extends DebuggerTestResult
     {
         String[] lines = Utility.splitLines(stack);
 
-        int lastLine = lines.length - 1;       
+        int lastLine = lines.length - 1;
         while (lastLine >= 0)
         {
             if (filterLine(lines[lastLine]))
@@ -143,13 +147,13 @@ public class JdiTestResult extends DebuggerTestResult
                 break;
             }
         }
-        
+
         return Arrays.stream(lines, 0, lastLine + 1).collect(Collectors.joining("\n"));
     }
 
     static boolean filterLine(String line)
     {
-        String[] patterns= new String[] {
+        String[] patterns = new String[]{
                 "junit.framework.TestCase",
                 "junit.framework.TestResult",
                 "junit.framework.TestSuite",
@@ -164,7 +168,8 @@ public class JdiTestResult extends DebuggerTestResult
                 "bluej.",
                 "java.lang.reflect.Method.invoke("
         };
-        for (int i= 0; i < patterns.length; i++) {
+        for (int i = 0; i < patterns.length; i++)
+        {
             if (line.indexOf(patterns[i]) > 0)
                 return true;
         }

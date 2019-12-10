@@ -9,8 +9,7 @@ main.invalidPackage=Package not found
 compileException=Exception during compilation
 compiler.thread.title=BlueJ compiler thread
 
-debugger.assert.assertThat=Assert that:
-debugger.assert.resultIs=result is
+debugger.assert.assertThatResIs=Assert that: result is
 debugger.assert.equalTo=equal to
 debugger.assert.equalToFloatingPoint= equal to (double or float)
 debugger.assert.sameAs=the same as
@@ -401,7 +400,6 @@ pkgmgr.test.record=recording
 pkgmgr.test.run=Run Tests
 pkgmgr.test.end=End
 pkgmgr.test.succeeded=succeeded
-pkgmgr.test.noTestName=You must specify a name for the test
 pkgmgr.test.invalidTestName=The test name must be a valid Java identifier
 pkgmgr.test.recording=recording
 
@@ -569,7 +567,7 @@ terminal.running=Type input and press Enter to send to program
 
 #TestDisplay Window
 testdisplay.title = BlueJ:  Test Results
-testdisplay.counter.runs=Runs:
+testdisplay.counter.runs=Tests:
 testdisplay.counter.errors=Errors:
 testdisplay.counter.failures=Failures:
 testdisplay.counter.totalTime=Total Time:

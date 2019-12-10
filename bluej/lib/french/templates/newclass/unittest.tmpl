@@ -1,9 +1,8 @@
 $PKGLINE
 
-import static org.junit.Assert.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Classe-test $CLASSNAME.
@@ -51,7 +50,7 @@ public class $CLASSNAME
      *
      * Méthode appelée avant chaque appel de méthode de test.
      */
-    @Before
+    @BeforeEach
     public void setUp() // throws java.lang.Exception
     {
         // Initialisez ici vos engagements
@@ -64,7 +63,7 @@ public class $CLASSNAME
      *
      * Méthode appelée après chaque appel de méthode de test.
      */
-    @After
+    @AfterEach
     public void tearDown() // throws java.lang.Exception
     {
         //Libérez ici les ressources engagées par setUp()

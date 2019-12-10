@@ -2391,7 +2391,7 @@ public class PkgMgrFrame
                 i.remove();
             }
         }
-        
+
         Iterator<ClassTarget> it = l.iterator();
         int numTestsFinal = numTests;
         Project projFinal = getProject();

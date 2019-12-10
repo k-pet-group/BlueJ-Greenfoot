@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2011,2012,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -39,12 +39,14 @@ public abstract class DebuggerTestResult
      * @return  the name of the test method in the
      *          form ClassName.methodName
      */
-    public String getName()
+    public String getQualifiedMethodName()
     {
-        return getQualifiedClassName() + "." + getMethodName();
+        String methodName = getMethodName();
+        // We remove the method parameters' types that may have been included in the method name for JUnit 5
+        String rawMethodName = (methodName.contains("(")) ? methodName.substring(0, methodName.indexOf("(")) : methodName;
+        return getQualifiedClassName() + "." + rawMethodName;
     }
 
-    
     /**
      * Get the name of the test method.
      */
@@ -54,6 +56,11 @@ public abstract class DebuggerTestResult
      * Get the fully qualified class name which the test method belongs to
      */
     public abstract String getQualifiedClassName();
+
+    /**
+     * Get the display name of the test method.
+     */
+    public abstract String getDisplayName();
 
     /**
      * Return the run time of the test in milliseconds

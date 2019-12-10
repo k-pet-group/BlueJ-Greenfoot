@@ -13,8 +13,7 @@ main.invalidPackage=Package non trovato
 compileException=Eccezione durante la compilazione
 compiler.thread.title=Thread del compilatore di BlueJ
 
-debugger.assert.assertThat=Asserisce che:
-debugger.assert.resultIs=il risultato \u00e8
+debugger.assert.assertThatResIs=Asserisce che: il risultato \u00e8
 debugger.assert.equalTo=uguale a
 debugger.assert.equalToFloatingPoint= uguale a (double o float)
 debugger.assert.sameAs=lo stesso di
@@ -386,7 +385,6 @@ pkgmgr.test.record=registra
 pkgmgr.test.run=Esegui i test
 pkgmgr.test.end=Fine
 pkgmgr.test.succeeded=riusciti
-pkgmgr.test.noTestName=Specifica un nome per il test
 pkgmgr.test.invalidTestName=Il nome del test deve essere un identificatore Java valido
 pkgmgr.test.recording=registro
 

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2016  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2010,2016,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,6 +22,8 @@
 package bluej.views;
 
 import bluej.utility.Utility;
+import bluej.views.FormattedPrintWriter.ColorScheme;
+import bluej.views.FormattedPrintWriter.SizeScheme;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -102,6 +104,9 @@ public final class Comment
     {
         out.setBold(false);
         out.setItalic(true);
+        out.setColor(ColorScheme.GRAY);
+        out.setSize(SizeScheme.SMALL);
+
         if(text != null) {
             String[] lines = Utility.splitLines(text);
 
@@ -121,7 +126,7 @@ public final class Comment
             for(int i = first; i<=last; i++) { 
                 for(int j=0; j<indents; j++)
                     out.indentLine(); 
-                out.println("// " + lines[i]); 
+                out.println(lines[i]);
             } 
         } 
     } 

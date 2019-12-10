@@ -26,10 +26,12 @@ import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.stage.Stage;
+import org.apache.commons.io.filefilter.WildcardFileFilter;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.lang.reflect.InvocationTargetException;
 import java.net.*;
 import java.util.ArrayList;
@@ -81,7 +83,7 @@ public class Boot
     // The second group are available to user code (and to bluej)
     // bluejcore.jar is necessary as it contains the support runtime
     // (bluej.runtime.* classes).
-    private static final String[] bluejUserJars = { "bluejcore.jar", "junit-4.12.jar", "hamcrest-core-1.3.jar", "hamcrest-library-1.3.jar", "lang-stride.jar" };
+    private static final String[] bluejUserJars = { "bluejcore.jar", "junit-*.jar", "hamcrest-core-1.3.jar", "hamcrest-library-1.3.jar", "lang-stride.jar" };
     // The number of jar files in the user jars which are built from the
     // BlueJ classes directory
     private static final int bluejUserBuildJars = 1;
@@ -118,7 +120,7 @@ public class Boot
         "httpcore-4.1.jar",
         "httpmime-4.1.1.jar",
         "jsch-0.1.53.jar",
-        "junit-4.12.jar",
+        "junit-*.jar",
         "lang-stride.jar",
         "nsmenufx-2.1.4.jar",
         "org.eclipse.jgit-4.9.0.jar",
@@ -625,17 +627,32 @@ public class Boot
             }
         }
 
-        for (int i=startJar; i < jars.length; i++) {
-            File toAdd = new File(libDir, jars[i]);
-            
-            // No need to throw exception at this point; we will get
-            // a ClassNotFoundException or similar if there is really a
-            // problem.
-            //if (!toAdd.canRead())
-            //    throw new IllegalStateException("required jar is missing or unreadable: " + toAdd);
+        for (int i = startJar; i < jars.length; i++)
+        {
+            // We may have more than 1 file if the jar name contains a wildcard *,
+            File[] filesToAdd;
+            if (!jars[i].contains("*"))
+            {
+                filesToAdd = new File[]{new File(libDir, jars[i])};
+            }
+            else
+            {
+                File dir = new File(libDir.getPath());
+                FileFilter fileFilter = new WildcardFileFilter(jars[i]);
+                filesToAdd = dir.listFiles(fileFilter);
+            }
 
-            if (toAdd.canRead())
-                urlList.add(toAdd.toURI().toURL());
+            for (File toAdd : filesToAdd)
+            {
+                // No need to throw exception at this point; we will get
+                // a ClassNotFoundException or similar if there is really a
+                // problem.
+                //if (!toAdd.canRead())
+                //    throw new IllegalStateException("required jar is missing or unreadable: " + toAdd);
+
+                if (toAdd.canRead())
+                    urlList.add(toAdd.toURI().toURL());
+            }
         }
     
         if (isForUserVM)

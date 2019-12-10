@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015,2016,2017  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2015,2016,2017,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,7 +28,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javafx.application.Platform;
+import java.util.Optional;
+
+import bluej.debugmgr.inspector.AssertPanel;
+import bluej.pkgmgr.Package;
+import bluej.pkgmgr.PkgMgrFrame;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -93,6 +97,13 @@ public abstract class CallDialog extends Dialog<Void>
     
     protected CallHistory history;
     private DialogPaneAnimateError dialogPane;
+
+    // Flag indicating if the dialog requires to show assertion (for tests).
+    protected boolean showAssertion = false;
+    // Type of the assertion's variable to evaluate.
+    protected JavaType assertionEvalType = null;
+    // The assertion panel to add to the dialog if required.
+    private AssertPanel assertPanel = null;
 
     public CallDialog(Window parent, ObjectBenchInterface objectBench, String title)
     {
@@ -165,9 +176,9 @@ public abstract class CallDialog extends Dialog<Void>
         View clazz = callable.getDeclaringView();
         return clazz.getTypeParams();        
     }
-    
+
     /**
-     * Creates a panel of parameters for a method
+     * Creates a panel of parameters for a method.
      */
     protected Pane createParameterPanel(String prefix)
     {
@@ -208,52 +219,63 @@ public abstract class CallDialog extends Dialog<Void>
      */
     protected Pane createParameterPanel(String startString, String endString, ParameterList parameterList)
     {
-        GridPane parameterPanel = new GridPane();
-        parameterPanel.getStyleClass().add("grid");
+        if (parameterList.actualCount() > 0)
+        {
+            GridPane parameterPanel = new GridPane();
+            parameterPanel.getStyleClass().add("grid");
 
-        Label startParenthesis = new Label(startString); // TODO increase font size?
-        startParenthesis.setAlignment(Pos.BASELINE_LEFT);
-        parameterPanel.add(startParenthesis, 0, 0);
-        GridPane.setValignment(startParenthesis, VPos.BASELINE);
+            Label startParenthesis = new Label(startString);
+            JavaFXUtil.addStyleClass(startParenthesis,"call-label");
+            parameterPanel.add(startParenthesis, 0, 0);
 
-        for (int i = 0; i < parameterList.formalCount(); i++) {
-            ObservableList<? extends Node> components = parameterList.getNodesForFormal(i);
+            for (int i = 0; i < parameterList.formalCount(); i++)
+            {
+                ObservableList<? extends Node> components = parameterList.getNodesForFormal(i);
 
-            if (components.size() == 1) { // One component means it is not Varargs.
-                Node child = components.get(0);
-                parameterPanel.add(child, 1, i);
+                if (components.size() == 1)
+                { // One component means it is not Varargs.
+                    Node child = components.get(0);
+                    parameterPanel.add(child, 1, i);
+                }
+                else
+                { // Varargs.
+                    GridPane varargsPane = new GridPane();
+                    varargsPane.getStyleClass().add("grid");
+                    varargsPane.setAlignment(Pos.BASELINE_LEFT);
+                    GridPane.setValignment(varargsPane, VPos.BASELINE);
+                    arrangeVarargsComponents(varargsPane, components);
+                    components.addListener((ListChangeListener<Node>) c -> {
+                        arrangeVarargsComponents(varargsPane, c.getList());
+                        getDialogPane().getScene().getWindow().sizeToScene();
+                    });
+
+                    // Second column gets any extra width
+                    ColumnConstraints column2 = new ColumnConstraints();
+                    column2.setHgrow(Priority.ALWAYS);
+                    varargsPane.getColumnConstraints().addAll(new ColumnConstraints(), column2, new ColumnConstraints(), new ColumnConstraints());
+
+                    parameterPanel.add(varargsPane, 1, i);
+                }
+
+                Label type = new Label((i == (parameterList.formalCount() - 1)) ? endString : ",");
+                JavaFXUtil.addStyleClass(type,"call-label");
+                parameterPanel.add(type, 2, i);
             }
-            else { // Varargs.
-                GridPane varargsPane = new GridPane();
-                varargsPane.getStyleClass().add("grid");
-                varargsPane.setAlignment(Pos.BASELINE_LEFT);
-                GridPane.setValignment(varargsPane, VPos.BASELINE);
-                arrangeVarargsComponents(varargsPane, components);
-                components.addListener((ListChangeListener<Node>) c -> {
-                    arrangeVarargsComponents(varargsPane, c.getList());
-                    getDialogPane().getScene().getWindow().sizeToScene();
-                });
 
-                // Second column gets any extra width
-                ColumnConstraints column2 = new ColumnConstraints();
-                column2.setHgrow(Priority.ALWAYS);
-                varargsPane.getColumnConstraints().addAll(new ColumnConstraints(), column2, new ColumnConstraints(), new ColumnConstraints() );
 
-                parameterPanel.add(varargsPane, 1, i);
-            }
-
-            Label type = new Label( (i == (parameterList.formalCount() - 1)) ? endString : ",");
-            type.setAlignment(Pos.BOTTOM_LEFT);
-            parameterPanel.add(type, 2, i);
-            GridPane.setValignment(type, VPos.BOTTOM);
+            // Second column gets any extra width 
+            ColumnConstraints column2 = new ColumnConstraints();
+            column2.setHgrow(Priority.ALWAYS);
+            parameterPanel.getColumnConstraints().addAll(new ColumnConstraints(), column2, new ColumnConstraints());
+            return parameterPanel;
         }
-
-        // Second column gets any extra width 
-        ColumnConstraints column2 = new ColumnConstraints();
-        column2.setHgrow(Priority.ALWAYS);
-        parameterPanel.getColumnConstraints().addAll(new ColumnConstraints(), column2, new ColumnConstraints());
-
-        return parameterPanel;
+        else
+        {
+            // There is no parameter to show, we only construct a label with the start and end strings
+            Label emptyPararms = new Label(startString + endString);
+            JavaFXUtil.addStyleClass(emptyPararms,"call-label");
+            return new Pane(emptyPararms);
+        }
     }
 
     /**
@@ -379,7 +401,9 @@ public abstract class CallDialog extends Dialog<Void>
     }
     
     /**
-     * Build the Swing dialog.
+     * Build the dialog.
+     *
+     * @param centerPanel the main pane of this dialog.
      */
     protected void makeDialog(Pane centerPanel)
     {
@@ -388,10 +412,22 @@ public abstract class CallDialog extends Dialog<Void>
         descPanel = new VBox();
         errorLabel = JavaFXUtil.withStyleClass(new Label(" "), "dialog-error-label");
         dialogPanel.getChildren().addAll(descPanel, new Separator(), centerPanel, errorLabel);
+
         dialogPane = new DialogPaneAnimateError(errorLabel, () -> {});
         Config.addDialogStylesheets(dialogPane);
         setDialogPane(dialogPane);
         getDialogPane().getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
+
+        // add the assumption panel.
+        // Note: this must be done *after* the dialog buttons are created
+        // because when the assertion panel is created, it updates the GUI
+        if (showAssertion)
+        {
+            // Add the assertion panel (when recording a test)
+            assertPanel = new AssertPanel(assertionEvalType, this::setOKEnabled);
+            dialogPanel.getChildren().add(assertPanel);
+        }
+
         // The dialog does not get dismissed by OK, only by method call:
         dialogPane.getOKButton().addEventFilter(ActionEvent.ACTION, e -> {
             handleOK();
@@ -404,13 +440,27 @@ public abstract class CallDialog extends Dialog<Void>
     }
 
     /**
+     *  Gets the assertion statement.
+     *  Returns null if no assertion is set.
+     */
+    protected void setAssertionRecord(Invoker invoker)
+    {
+        if (assertPanel != null && assertPanel.isAssertEnabled())
+        {
+            invoker.setAssertionStatement(assertPanel.getAssertStatement());
+            Package pkg = invoker.getPackage();
+            assertPanel.recordAssertion(pkg, () -> Optional.ofNullable(PkgMgrFrame.findFrame(pkg)).map(PkgMgrFrame::getTestIdentifier), invoker.getUniqueIRIdentifier());
+        }
+    }
+
+    /**
      * setDescription - display a new description in the dialog
      */
     protected void setDescription(Node label)
     {
         descPanel.getChildren().setAll(label);
     }
-    
+
     /**
      * Insert text into edit field (JComboBox) that has focus.
      */

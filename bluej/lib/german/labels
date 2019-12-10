@@ -11,8 +11,7 @@ compiler.warningDialog.title=BlueJ:  Compiler Warnungen
 compiler.warningDialog.label=Warnungen der letzten \u00dcbersetzung 
 compiler.warningDialog.noWarnings=Keine Warnungen
 
-debugger.assert.assertThat=Sichere zu, dass:
-debugger.assert.resultIs=Ergebnis ist
+debugger.assert.assertThatResIs=Sichere zu, dass: Ergebnis ist
 debugger.assert.equalTo=gleich
 debugger.assert.equalToFloatingPoint=gleich (double oder float)
 debugger.assert.sameAs=identisch mit
@@ -391,7 +390,6 @@ pkgmgr.test.record=Aufzeichnung
 pkgmgr.test.run=Tests starten
 pkgmgr.test.end=Beenden
 pkgmgr.test.succeeded=erfolgreich
-pkgmgr.test.noTestName=Der Test muss benannt werden
 pkgmgr.test.invalidTestName=Der Testname muss ein g\u00fcltiger Java-Bezeichner sein
 pkgmgr.test.recording=Aufzeichnung von
 

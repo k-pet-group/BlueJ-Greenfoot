@@ -122,22 +122,18 @@ public class TestRunnerThread extends Thread
             }
 
             // State 1 has given us the tests we need to run. Now run them:
-            if (allMethods.size() == 1)
+            // With JUnit 5, a method does not always match to 1 test (parameterized),
+            // so we should not rely on this to assume there are no more than 1 result for 1 single method of test.
+            if (allMethods.size() > 0)
             {
-                TestResultsWithRunTime lastResult = project.getDebugger().runTestMethod(ct.getQualifiedName(), methodName);
-                // Add the test result to the test display frame:
-                Platform.runLater(() -> showNextResult(lastResult.getResults().get(0)));
-            }
-            else
-            {
-                TestResultsWithRunTime lastResults = project.getDebugger().runTestMethod(ct.getQualifiedName(), null);
+                TestResultsWithRunTime lastResults = project.getDebugger().runTestMethod(ct.getQualifiedName(), (allMethods.size() == 1) ? methodName : null);
                 // Add all test results to the test display frame:
-                for(DebuggerTestResult result : lastResults.getResults())
+                for (DebuggerTestResult result : lastResults.getResults())
                 {
                     Platform.runLater(() -> showNextResult(result));
                 }
                 Platform.runLater(() -> TestDisplayFrame.getTestDisplay()
-                        .setTotalTimeMs(lastResults.getTotalRunTime()));
+                        .updateTotalTimeMs(lastResults.getTotalRunTime()));
             }
         }
 
@@ -167,7 +163,6 @@ public class TestRunnerThread extends Thread
         // State 1 is where we confirm that we really do have an executable unit
         // test class, and we delegate to the unit test role to gives us some
         // test methods to executed.
-
         if (ct.isCompiled() && ct.isUnitTest() && ! ct.isAbstract()) {
             UnitTestClassRole utcr = (UnitTestClassRole) ct.getRole();
 

@@ -35,17 +35,11 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.SplitPane;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -121,6 +115,8 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
 
     /** The list of test results which is displayed in testNames */
     private ObservableList<DebuggerTestResult> testEntries;
+    /** The list of test methods which is used to compute the progress status */
+    private ObservableList<String> testEntriesMethodName;
     /** The top list of test names */
     private ListView<DebuggerTestResult> testNames;
     private ProgressBar progressBar;
@@ -149,6 +145,9 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
     public TestDisplayFrame()
     {
         testTotal = new SimpleIntegerProperty(0);
+        // add a listener on this value to update the progress bar accordingly.
+        JavaFXUtil.addChangeListenerPlatform(testTotal, (n) -> updateProgressBar());
+
         errorCount = new SimpleIntegerProperty(0);
         failureCount = new SimpleIntegerProperty(0);
         totalTimeMs = new SimpleIntegerProperty(0);
@@ -199,6 +198,10 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         mainDivider.setOrientation(Orientation.VERTICAL);
 
         testEntries = FXCollections.observableArrayList();
+        testEntriesMethodName = FXCollections.observableArrayList();
+        // add listener on this list to update the progress bar accordingly.
+        testEntriesMethodName.addListener((ListChangeListener<String>) c -> updateProgressBar());
+
         testNames = new ListView();
         testNames.setMinHeight(50.0);
         testNames.setPrefHeight(150.0);
@@ -217,8 +220,8 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         Config.rememberDividerPosition(frame, mainDivider, "bluej.testdisplay.dividerpos");
 
         progressBar = new ProgressBar();
+        progressBar.setProgress(0.0); // inital status of the bar --> 0%
         JavaFXUtil.addStyleClass(progressBar, "test-progress-bar");
-        progressBar.progressProperty().bind(Bindings.add(0.0, Bindings.size(testEntries)).divide(Bindings.max(1, testTotal)));
         hasFailuresOrErrors = Bindings.greaterThan(failureCount.add(errorCount), 0);
         JavaFXUtil.bindPseudoclass(progressBar, "bj-error", hasFailuresOrErrors);
         content.getChildren().add(progressBar);
@@ -235,7 +238,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
 
         fNumberOfErrors.textProperty().bind(errorCount.asString());
         fNumberOfFailures.textProperty().bind(failureCount.asString());
-        fNumberOfRuns.textProperty().bind(Bindings.size(testEntries).asString().concat("/").concat(testTotal.asString()));
+        fNumberOfRuns.textProperty().bind(Bindings.size(testEntries).asString());
         fTotalTime.textProperty().bind(totalTimeMs.asString().concat("ms"));
 
         HBox errorPanel = new HBox(new ImageView(errorIcon), new Label(Config.getString("testdisplay.counter.errors")), fNumberOfErrors);
@@ -302,9 +305,23 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         });
     }
 
+    /**
+     * Updates the progress value of the progress bar as a ratio between
+     * - the number of currently completed test methods,
+     * - the total number of test methods for the tests run.
+     */
+    private void updateProgressBar()
+    {
+        if (progressBar != null)
+        {
+            progressBar.setProgress(testEntriesMethodName.size() / Math.max(1.0, testTotal.getValue()));
+        }
+    }
+
     protected void reset()
     {
         testEntries.clear();
+        testEntriesMethodName.clear();
         
         errorCount.set(0);
         failureCount.set(0);
@@ -384,6 +401,12 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
 
         totalTimeMs.set(totalTimeMs.get() + dtr.getRunTimeMs());
         testEntries.add(dtr);
+
+        // Update the list of the test methods for this test if the method isn't already listed.
+        if (!testEntriesMethodName.contains(dtr.getQualifiedMethodName()))
+        {
+            testEntriesMethodName.add(dtr.getQualifiedMethodName());
+        }
     }
 
     public Window getWindow()
@@ -417,6 +440,7 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
             {
                 imageView.setImage(null);
                 setText("");
+                setTooltip(null);
             }
             else
             {
@@ -432,12 +456,17 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
                 // far to extract the runtime of individual test.
                 if (item.getRunTimeMs() == 0)
                 {
-                    setText(item.getName());
+                    setText(item.getMethodName());
                 }
                 else
                 {
-                    setText(item.getName() + " (" + item.getRunTimeMs() + "ms)");
+                    setText(item.getMethodName() + " (" + item.getRunTimeMs() + "ms)");
                 }
+
+                // Add a tooltip on the entry (display name)
+                Tooltip displayNameToolTip = new Tooltip(item.getDisplayName());
+                JavaFXUtil.addStyleClass(displayNameToolTip, "test-results-tooltip");
+                setTooltip(displayNameToolTip);
             }
         }
     }
@@ -456,15 +485,15 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
             showSourceButton.setDisable(true);
         }
     }
-    
+
     /**
-     * Set the total execution time of tests.
-     * @param value the value to which the totalTimeMs variable will be set to
+     * Increments the total execution time of tests.
+     * @param value the value to which the totalTimeMs variable will be incremented by.
      */
     @OnThread(Tag.FXPlatform)
-    public void setTotalTimeMs(int value)
+    public void updateTotalTimeMs(int value)
     {
-        totalTimeMs.set(value);
+       totalTimeMs.set(totalTimeMs.get() + value);
     }
 
     private void showSource(DebuggerTestResult dtr)
