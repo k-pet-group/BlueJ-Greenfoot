@@ -579,11 +579,6 @@ public class TestBasicEditorDisplay extends FXTest
         setText(beforeEnterPoint + afterEnterPoint);
         fx_(() -> flowEditorPane.requestFocus());
         fx_(() -> flowEditorPane.positionCaret(beforeEnterPoint.length()));
-        // Force refresh:
-        fx_(() -> {
-            PrefMgr.setEditorFontSize(10);
-            PrefMgr.setEditorFontSize(12);
-        });
         sleep(500);
         // Find the caret Y:
         Node caret = lookup(".flow-caret").query();
@@ -689,11 +684,6 @@ public class TestBasicEditorDisplay extends FXTest
         setText(beforeEnterPoint + afterEnterPoint);
         fx_(() -> flowEditorPane.requestFocus());
         fx_(() -> flowEditorPane.positionCaret(beforeEnterPoint.length()));
-        // Force refresh:
-        fx_(() -> {
-            PrefMgr.setEditorFontSize(10);
-            PrefMgr.setEditorFontSize(12);
-        });
         sleep(500);
         // Find the caret Y:
         Node caret = lookup(".flow-caret").query();
@@ -808,11 +798,6 @@ public class TestBasicEditorDisplay extends FXTest
         // There may be auto-indent, but the new line should be there at least:
         assertThat(fx(() -> flowEditorPane.getDocument().getFullContent()), Matchers.startsWith(beforeEnterPoint + "\n"));
         write(" y");
-        // Force refresh:
-        fx_(() -> {
-            PrefMgr.setEditorFontSize(10);
-            PrefMgr.setEditorFontSize(12);
-        });
         sleep(500);
         // Check scopes got pushed left:
         checkScopes(6, scope(Color.GREEN, between(0, 2), between(780, 800)));
@@ -884,11 +869,6 @@ public class TestBasicEditorDisplay extends FXTest
         setText(beforeEnterPoint + afterEnterPoint);
         fx_(() -> flowEditorPane.requestFocus());
         fx_(() -> flowEditorPane.positionCaret(beforeEnterPoint.length()));
-        // Force refresh:
-        fx_(() -> {
-            PrefMgr.setEditorFontSize(10);
-            PrefMgr.setEditorFontSize(12);
-        });
         sleep(500);
         // Find the caret Y:
         Node caret = lookup(".flow-caret").query();
