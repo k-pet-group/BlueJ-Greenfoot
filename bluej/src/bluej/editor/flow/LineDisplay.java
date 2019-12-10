@@ -284,7 +284,7 @@ public class LineDisplay
             // Scroll down:
             double singleLineHeight = lineHeightEstimate;
             int numLinesCanDisplay = (int)Math.ceil(heightProperty.get() / singleLineHeight);
-            firstVisibleLineIndex = line - numLinesCanDisplay + 1;
+            firstVisibleLineIndex = line - numLinesCanDisplay + 2;
             if (firstVisibleLineIndex < 0)
             {
                 // Just scroll to top:
@@ -293,8 +293,7 @@ public class LineDisplay
             }
             else
             {
-                double leftOver = heightProperty.get() - (numLinesCanDisplay * singleLineHeight);
-                firstVisibleLineOffset = -singleLineHeight + leftOver;
+                firstVisibleLineOffset = ((numLinesCanDisplay - 1) * singleLineHeight) - heightProperty.get();
             }
         }
         // Otherwise, it is visible -- nothing to do.
