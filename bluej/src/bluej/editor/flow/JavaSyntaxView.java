@@ -1211,7 +1211,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     private OptionalInt calculateNodeIndent(NodeAndPosition<ParsedNode> nap)
     {
         try {
-            OptionalInt indent = OptionalInt.empty();
+            OptionalInt indent = OptionalInt.of(Integer.MAX_VALUE);
 
             int curpos = nap.getPosition();
             int napEnd = nap.getEnd();
