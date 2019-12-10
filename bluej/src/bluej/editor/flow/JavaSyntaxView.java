@@ -708,8 +708,8 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             }
 
             // Draw the start node
-            int xpos = getNodeIndent(nap, lines.thisLineEl);
-            if (xpos != - 1 && xpos <= fullWidth) {
+            OptionalInt xpos = getNodeIndent(nap, lines.thisLineEl);
+            if (xpos.isPresent() && xpos.getAsInt() <= fullWidth) {
                 boolean starts = nodeSkipsStart(nap, lines.aboveLineEl);
                 boolean ends = nodeSkipsEnd(napPos, napEnd, lines.belowLineEl);
                 int rbound = getNodeRBound(nap, fullWidth - rightMargin, nodeDepth,
@@ -722,7 +722,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 drawInfo.color1 = colors[0];
                 drawInfo.color2 = colors[1];
 
-                drawInfo.addNestedScope(xpos, rbound);
+                drawInfo.addNestedScope(xpos.getAsInt(), rbound);
             }
 
             nodeDepth++;
@@ -764,7 +764,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                     if (drawNode(drawInfo, nextNap)) {
                         // Draw it
                         nodeDepth++;
-                        int xpos = getNodeIndent(nextNap, lines.thisLineEl);
+                        OptionalInt xpos = getNodeIndent(nextNap, lines.thisLineEl);
                         int rbound = getNodeRBound(nextNap, fullWidth - rightMargin, nodeDepth,
                                 lines.thisLineEl);
                         drawInfo.node = nextNap.getNode();
@@ -774,8 +774,8 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                         drawInfo.starts = nodeSkipsStart(nextNap, lines.aboveLineEl);
                         drawInfo.ends = nodeSkipsEnd(napPos, napEnd, lines.belowLineEl);
 
-                        if (xpos != -1 && xpos <= fullWidth) {
-                            drawInfo.addNestedScope(xpos, rbound);
+                        if (xpos.isPresent() && xpos.getAsInt() <= fullWidth) {
+                            drawInfo.addNestedScope(xpos.getAsInt(), rbound);
                         }
                     }
                 }
@@ -1073,52 +1073,47 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 
     /**
      * Get a node's indent amount (in component co-ordinate space, minus left margin) for a given line.
-     * If the node isn't present on the line, returns Integer.MAX_VALUE. A cached value
-     * is used if available.
+     * If the node isn't present on the line, returns OptionalInt.of(Integer.MAX_VALUE).
+     * A cached value is used if available.  If it cannot be calculated (usually because layout is needed) then OptionalInt.empty() is returned.
      */
-    private int getNodeIndent(NodeAndPosition<ParsedNode> nap, Element lineEl)
+    private OptionalInt getNodeIndent(NodeAndPosition<ParsedNode> nap, Element lineEl)
     {
 
         if (lineEl == null) {
-            return Integer.MAX_VALUE;
+            return OptionalInt.of(Integer.MAX_VALUE);
         }
 
         int napPos = nap.getPosition();
         int napEnd = nap.getEnd();
         
         if (napPos >= lineEl.getEndOffset()) {
-            return Integer.MAX_VALUE;
+            return OptionalInt.of(Integer.MAX_VALUE);
         }
 
         if (napEnd <= lineEl.getStartOffset()) {
-            return Integer.MAX_VALUE;
+            return OptionalInt.of(Integer.MAX_VALUE);
         }
 
         if (nodeSkipsStart(nap, lineEl)
                 || nodeSkipsEnd(napPos, napEnd, lineEl)) {
-            return Integer.MAX_VALUE;
+            return OptionalInt.of(Integer.MAX_VALUE);
         }
 
-        // int indent = nap.getNode().getLeftmostIndent(doc, 0, 0);
-        Integer indent = nodeIndents.get(nap.getNode());
+        OptionalInt indent = ofNullableInteger(nodeIndents.get(nap.getNode()));
         // An indent value of zero is only given by getCharacterBoundsOnScreen when the editor
         // hasn't been shown yet, so we recalculate whenever we find that indent value in the
         // hope that the editor is now visible:
-        if (indent == null) {
+        if (indent.isEmpty()) {
             // No point trying to re-calculate the indent if the line isn't on screen:
             if (display != null && (display.isLineVisible(document.getLineFromPosition(lineEl.getStartOffset())) || isPrinting()))
             {
                 indent = calculateNodeIndent(nap);
-                if (indent > 0)
-                    nodeIndents.put(nap.getNode(), indent);
-            }
-            else
-            {
-                indent = -1;
+                if (indent.isPresent() && indent.getAsInt() > 0)
+                    nodeIndents.put(nap.getNode(), indent.getAsInt());
             }
         }
 
-        int xpos = indent;
+        OptionalInt xpos = indent;
 
         // Corner case: node start position is on this line, and is greater than the node indent?
         if (napPos > lineEl.getStartOffset()) {
@@ -1129,12 +1124,18 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 OptionalInt lboundsX = getLeftEdge(lineEl.getStartOffset() + nws + 1);
                 if (lboundsX.isPresent())
                 {
-                    xpos = Math.max(xpos, lboundsX.getAsInt() - PARAGRAPH_MARGIN);
+                    xpos = OptionalInt.of(Math.max(xpos.isPresent() ? xpos.getAsInt() : Integer.MIN_VALUE, lboundsX.getAsInt() - PARAGRAPH_MARGIN));
                 }
             }
         }
 
         return xpos;
+    }
+
+    // Equivalent to Optional.ofNullable, but for OptionalInt. 
+    private static OptionalInt ofNullableInteger(Integer intOrNull)
+    {
+        return intOrNull == null ? OptionalInt.empty() : OptionalInt.of(intOrNull);
     }
 
     private boolean isPrinting()
@@ -1143,12 +1144,13 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     }
 
     /**
-     * Calculate the indent for a node.
+     * Calculate the indent for a node.  If it can't be calculated at the moment
+     * (e.g. because we need layout), OptionalInt.empty() is returned.
      */
-    private int calculateNodeIndent(NodeAndPosition<ParsedNode> nap)
+    private OptionalInt calculateNodeIndent(NodeAndPosition<ParsedNode> nap)
     {
         try {
-            int indent = Integer.MAX_VALUE;
+            OptionalInt indent = OptionalInt.empty();
 
             int curpos = nap.getPosition();
             int napEnd = nap.getEnd();
@@ -1199,7 +1201,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                     OptionalInt cboundsX = getLeftEdge(curpos);
                     if (cboundsX.isPresent())
                     {
-                        indent = Math.min(indent, cboundsX.getAsInt() - PARAGRAPH_MARGIN);
+                        indent = OptionalInt.of(Math.min(indent.isPresent() ? indent.getAsInt() : Integer.MAX_VALUE, cboundsX.getAsInt() - PARAGRAPH_MARGIN));
                     }
                     curpos = lineEl.getEndOffset();
                 }
@@ -1212,11 +1214,11 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 }
             }
 
-            return indent == Integer.MAX_VALUE ? -1 : indent;
+            return indent;
         }
         catch (IndexOutOfBoundsException e)
         {
-            return -1;
+            return OptionalInt.empty();
         }
     }
     
