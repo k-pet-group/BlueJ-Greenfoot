@@ -306,7 +306,6 @@ pkgmgr.test.record=Begin opnemen
 pkgmgr.test.run=Draai testen
 pkgmgr.test.end=Einde
 pkgmgr.test.succeeded=gelukt
-pkgmgr.test.noTestName=Geef de test een naam
 pkgmgr.test.invalidTestName=Naam van test moet een correcte Java identifier zijn
 pkgmgr.test.recording=opnemen
 

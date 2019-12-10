@@ -133,16 +133,7 @@ public abstract class CallDialog extends Dialog<Void>
      */
     public void setOKEnabled(boolean state)
     {
-        // if assertion binding is attached to the button, we remove it to treat the action and restore it later
-        if(showAssertion)
-        {
-            dialogPane.getOKButton().disableProperty().unbind();
-        }
         dialogPane.getOKButton().setDisable(!state);
-        if(showAssertion)
-        {
-            dialogPane.getOKButton().disableProperty().bind(assertPanel.isAssertCompleteProperty().not());
-        }
     }
 
     /**
@@ -228,15 +219,14 @@ public abstract class CallDialog extends Dialog<Void>
      */
     protected Pane createParameterPanel(String startString, String endString, ParameterList parameterList)
     {
-        Pane parameterPanel = null;
         if (parameterList.actualCount() > 0)
         {
-            parameterPanel = new GridPane();
+            GridPane parameterPanel = new GridPane();
             parameterPanel.getStyleClass().add("grid");
 
             Label startParenthesis = new Label(startString);
             JavaFXUtil.addStyleClass(startParenthesis,"call-label");
-            ((GridPane) parameterPanel).add(startParenthesis, 0, 0);
+            parameterPanel.add(startParenthesis, 0, 0);
 
             for (int i = 0; i < parameterList.formalCount(); i++)
             {
@@ -245,7 +235,7 @@ public abstract class CallDialog extends Dialog<Void>
                 if (components.size() == 1)
                 { // One component means it is not Varargs.
                     Node child = components.get(0);
-                    ((GridPane) parameterPanel).add(child, 1, i);
+                    parameterPanel.add(child, 1, i);
                 }
                 else
                 { // Varargs.
@@ -264,28 +254,28 @@ public abstract class CallDialog extends Dialog<Void>
                     column2.setHgrow(Priority.ALWAYS);
                     varargsPane.getColumnConstraints().addAll(new ColumnConstraints(), column2, new ColumnConstraints(), new ColumnConstraints());
 
-                    ((GridPane) parameterPanel).add(varargsPane, 1, i);
+                    parameterPanel.add(varargsPane, 1, i);
                 }
 
                 Label type = new Label((i == (parameterList.formalCount() - 1)) ? endString : ",");
                 JavaFXUtil.addStyleClass(type,"call-label");
-                ((GridPane) parameterPanel).add(type, 2, i);
+                parameterPanel.add(type, 2, i);
             }
 
 
             // Second column gets any extra width 
             ColumnConstraints column2 = new ColumnConstraints();
             column2.setHgrow(Priority.ALWAYS);
-            ((GridPane) parameterPanel).getColumnConstraints().addAll(new ColumnConstraints(), column2, new ColumnConstraints());
+            parameterPanel.getColumnConstraints().addAll(new ColumnConstraints(), column2, new ColumnConstraints());
+            return parameterPanel;
         }
         else
         {
             // There is no parameter to show, we only construct a label with the start and end strings
             Label emptyPararms = new Label(startString + endString);
             JavaFXUtil.addStyleClass(emptyPararms,"call-label");
-            parameterPanel = new Pane(emptyPararms);
+            return new Pane(emptyPararms);
         }
-        return parameterPanel;
     }
 
     /**
@@ -423,21 +413,19 @@ public abstract class CallDialog extends Dialog<Void>
         errorLabel = JavaFXUtil.withStyleClass(new Label(" "), "dialog-error-label");
         dialogPanel.getChildren().addAll(descPanel, new Separator(), centerPanel, errorLabel);
 
-        if (showAssertion)
-        {
-            // Add the assertion panel (when recording a test)
-            assertPanel = new AssertPanel(assertionEvalType);
-            dialogPanel.getChildren().add(assertPanel);
-        }
-
         dialogPane = new DialogPaneAnimateError(errorLabel, () -> {});
         Config.addDialogStylesheets(dialogPane);
         setDialogPane(dialogPane);
         getDialogPane().getButtonTypes().setAll(ButtonType.OK, ButtonType.CANCEL);
 
+        // add the assumption panel.
+        // Note: this must be done *after* the dialog buttons are created
+        // because when the assertion panel is created, it updates the GUI
         if (showAssertion)
         {
-            dialogPane.getOKButton().disableProperty().bind(assertPanel.isAssertCompleteProperty().not());
+            // Add the assertion panel (when recording a test)
+            assertPanel = new AssertPanel(assertionEvalType, this::setOKEnabled);
+            dialogPanel.getChildren().add(assertPanel);
         }
 
         // The dialog does not get dismissed by OK, only by method call:

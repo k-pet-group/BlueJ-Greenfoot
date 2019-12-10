@@ -42,6 +42,7 @@ public abstract class DebuggerTestResult
     public String getQualifiedMethodName()
     {
         String methodName = getMethodName();
+        // We remove the method parameters' types that may have been included in the method name for JUnit 5
         String rawMethodName = (methodName.contains("(")) ? methodName.substring(0, methodName.indexOf("(")) : methodName;
         return getQualifiedClassName() + "." + rawMethodName;
     }

@@ -356,7 +356,6 @@ pkgmgr.test.record=Enregistrement
 pkgmgr.test.run=Ex\u00E9cuter les tests
 pkgmgr.test.end=Terminer
 pkgmgr.test.succeeded=succ\u00E8s
-pkgmgr.test.noTestName=Vous devez nommer la classe-test (e.g. 'maclasseTest')
 pkgmgr.test.invalidTestName=Le nom de la classe-test doit \u00EAtre un identificateur Java valide
 pkgmgr.test.recording=Enregistrement en cours
 

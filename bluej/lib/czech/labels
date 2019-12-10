@@ -393,7 +393,6 @@ pkgmgr.test.record=z\u00e1znam
 pkgmgr.test.run=Spustit testy
 pkgmgr.test.end=Ukon\u010dit
 pkgmgr.test.succeeded=je OK
-pkgmgr.test.noTestName=Mus\u00edte zadat jm\u00e9no testu
 pkgmgr.test.invalidTestName=Jm\u00e9no testu mus\u00ed b\u00fdt platn\u00fd identifik\u00e1tor Javy
 pkgmgr.test.recording=zaznamen\u00e1v\u00e1m
 

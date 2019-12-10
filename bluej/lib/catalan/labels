@@ -265,7 +265,6 @@ pkgmgr.test.record=S'est\u00E0 enregistrant
 pkgmgr.test.run=S'estan executant els tests
 pkgmgr.test.end=Fi
 pkgmgr.test.succeeded=subseg\u00FCent
-pkgmgr.test.noTestName=Heu d'especificar un nom per al test
 pkgmgr.test.invalidTestName=El nom del test ha de ser un identificador v\u00E0lid del Java
 pkgmgr.test.recording=s'est\u00E0 enregistrant
 pkgmgr.test.popup.testAll=Comprova-ho tot

@@ -315,7 +315,6 @@ pkgmgr.test.record=\u6b63\u5728\u8bb0\u5f55
 pkgmgr.test.run=\u8fd0\u884c\u6d4b\u8bd5
 pkgmgr.test.end=\u7ed3\u675f
 pkgmgr.test.succeeded=\u5df2\u6210\u529f
-pkgmgr.test.noTestName=\u4f60\u5fc5\u987b\u8f93\u5165\u8fd9\u4e2a\u6d4b\u8bd5\u7684\u540d\u5b57
 pkgmgr.test.invalidTestName=\u6d4b\u8bd5\u7684\u540d\u5b57\u5fc5\u987b\u662f\u4e00\u4e2a\u5408\u6cd5\u7684java\u6807\u8bc6\u7b26
 pkgmgr.test.recording=\u6b63\u5728\u8bb0\u5f55
 

@@ -35,6 +35,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
@@ -144,6 +145,9 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
     public TestDisplayFrame()
     {
         testTotal = new SimpleIntegerProperty(0);
+        // add a listener on this value to update the progress bar accordingly.
+        JavaFXUtil.addChangeListenerPlatform(testTotal, (n) -> updateProgressBar());
+
         errorCount = new SimpleIntegerProperty(0);
         failureCount = new SimpleIntegerProperty(0);
         totalTimeMs = new SimpleIntegerProperty(0);
@@ -195,6 +199,9 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
 
         testEntries = FXCollections.observableArrayList();
         testEntriesMethodName = FXCollections.observableArrayList();
+        // add listener on this list to update the progress bar accordingly.
+        testEntriesMethodName.addListener((ListChangeListener<String>) c -> updateProgressBar());
+
         testNames = new ListView();
         testNames.setMinHeight(50.0);
         testNames.setPrefHeight(150.0);
@@ -213,8 +220,8 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         Config.rememberDividerPosition(frame, mainDivider, "bluej.testdisplay.dividerpos");
 
         progressBar = new ProgressBar();
+        progressBar.setProgress(0.0); // inital status of the bar --> 0%
         JavaFXUtil.addStyleClass(progressBar, "test-progress-bar");
-        progressBar.progressProperty().bind(Bindings.add(0.0, Bindings.size(testEntriesMethodName)).divide(Bindings.max(1, testTotal)));
         hasFailuresOrErrors = Bindings.greaterThan(failureCount.add(errorCount), 0);
         JavaFXUtil.bindPseudoclass(progressBar, "bj-error", hasFailuresOrErrors);
         content.getChildren().add(progressBar);
@@ -296,6 +303,19 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
                 e.consume();
             }
         });
+    }
+
+    /**
+     * Updates the progress value of the progress bar as a ratio between
+     * - the number of currently completed test methods,
+     * - the total number of test methods for the tests run.
+     */
+    private void updateProgressBar()
+    {
+        if (progressBar != null)
+        {
+            progressBar.setProgress(testEntriesMethodName.size() / Math.max(1.0, testTotal.getValue()));
+        }
     }
 
     protected void reset()

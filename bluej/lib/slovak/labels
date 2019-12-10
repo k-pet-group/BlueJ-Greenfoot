@@ -389,7 +389,6 @@ pkgmgr.test.record=z\u00e1znam
 pkgmgr.test.run=Spusti\u0165 testy
 pkgmgr.test.end=Ukon\u010di\u0165
 pkgmgr.test.succeeded=je OK
-pkgmgr.test.noTestName=Mus\u00edte zada\u0165 n\u00e1zov testu
 pkgmgr.test.invalidTestName=N\u00e1zov testu mus\u00ed by\u0165 platn\u00fd Java identifik\u00e1tor
 pkgmgr.test.recording=zaznamen\u00e1vam
 

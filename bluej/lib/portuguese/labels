@@ -379,7 +379,6 @@ pkgmgr.test.record=gravando
 pkgmgr.test.run=Executar Testes
 pkgmgr.test.end=Fim
 pkgmgr.test.succeeded=realizado
-pkgmgr.test.noTestName=Voc\u00EA deve espexificar um nome para o teste
 pkgmgr.test.invalidTestName=O nome do teste deve ser um identificador Java v\u00E1lido
 pkgmgr.test.recording=gravando
 pkgmgr.test.popup.testAll=Testar Tudo

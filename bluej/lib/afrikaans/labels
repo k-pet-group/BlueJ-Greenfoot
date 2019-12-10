@@ -245,7 +245,6 @@ pkgmgr.test.record=Besig om op te neem
 pkgmgr.test.run=Doen toetse
 pkgmgr.test.end=Be\u00EBindig
 pkgmgr.test.succeeded=Het geslaag
-pkgmgr.test.noTestName=U moet 'n naam vir die toets spesifiseer
 pkgmgr.test.invalidTestName=Die toets se naam moet 'n geldige Java identifiseerder wees
 pkgmgr.test.recording=Besig om op te neem
 pkgmgr.test.popup.testAll=Toets alles

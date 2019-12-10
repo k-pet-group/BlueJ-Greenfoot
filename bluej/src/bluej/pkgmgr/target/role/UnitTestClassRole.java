@@ -898,6 +898,8 @@ public class UnitTestClassRole extends ClassRole
         public TestNameDialog(String dialogLabel, String prompt)
         {
             super(dialogLabel, prompt, "test-name-dialog");
+            // the test method name is blank by default, so the OK button should be disabled
+            setOKEnabled(false);
         }
 
         @Override
@@ -916,7 +918,6 @@ public class UnitTestClassRole extends ClassRole
         protected boolean validate(String oldInput, String newTestName)
         {
             if (newTestName.length() == 0) {
-                setErrorText(Config.getString("pkgmgr.test.noTestName"));
                 setOKEnabled(false);
             }
             // Must be a valid Java identifier:

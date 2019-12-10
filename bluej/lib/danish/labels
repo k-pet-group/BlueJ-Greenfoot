@@ -277,7 +277,6 @@ pkgmgr.test.record=optager
 pkgmgr.test.run=K\u00F8r tests
 pkgmgr.test.end=Slut
 pkgmgr.test.succeeded=lykkedes
-pkgmgr.test.noTestName=Du skal specificere et navn til testen
 pkgmgr.test.invalidTestName=Test navnet skal v\u00E6re en gyldig Java identifier
 pkgmgr.test.recording=optager
 pkgmgr.test.popup.testAll=Test alt

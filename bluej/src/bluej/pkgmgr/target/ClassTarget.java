@@ -544,11 +544,13 @@ public class ClassTarget extends DependentTarget
     }
 
     /**
-     * Test if a given class is a Junit 4 test class.
+     * Test if a given class is a JUnit 4 test class.
      * 
      * <p>In Junit4, test classes can be of any type.
      * The only way to test is to check if it has one of the following annotations:
-     * @Before, @Test or @After
+     * @Before, @Test or @After<br/>Note: a test class may only the @Before
+     * and @After annotations when created with BlueJ, so @Test alone is not a reliable
+     * indicator for a test class.
      * 
      * @param cl class to test
      */
@@ -586,13 +588,15 @@ public class ClassTarget extends DependentTarget
     }
 
     /**
-     * Test if a given class is a Junit 4 test class.
+     * Test if a given class is a JUnit 5 test class.
      *
      * <p>In Junit5, test classes can be of any type.
      * The only way to test is to check if it has one of the following annotations:
-     *
+     * @BeforeEach, @Test or @AfterEach.<br/>Note: a test class may only the @BeforeEach
+     * and @AfterEach annotation when created with BlueJ, so @Test alone is not a reliable
+     * indicator for a test class.
+
      * @param cl class to test
-     * @BeforeEach, @Test or @AfterEach
      */
     @SuppressWarnings("unchecked")
     public static boolean isJunit5TestClass(Class<?> cl)

@@ -12,6 +12,7 @@
 /lib/lang-stride.jar
 /lib/bluejeditor.jar
 /lib/bluejext2.jar
+/lib/userlib/bluej-junit-ext.jar
 
 # Files created by greenfoot build:
 /lib/greenfoot/standalone/**/*.class

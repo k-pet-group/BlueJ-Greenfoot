@@ -248,7 +248,6 @@ pkgmgr.test.record=Spela in
 pkgmgr.test.run=K\u00F6r tester
 pkgmgr.test.end=Slut
 pkgmgr.test.succeeded=Lyckades
-pkgmgr.test.noTestName=Du m\u00E5ste ange ett namn p\u00E5 testet
 pkgmgr.test.invalidTestName=Testets namn m\u00E5ste f\u00F6lja Javas namnkonvention
 pkgmgr.test.recording=Spelar in
 pkgmgr.test.popup.testAll=Testa alla

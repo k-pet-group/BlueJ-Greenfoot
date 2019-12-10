@@ -400,7 +400,6 @@ pkgmgr.test.record=recording
 pkgmgr.test.run=Run Tests
 pkgmgr.test.end=End
 pkgmgr.test.succeeded=succeeded
-pkgmgr.test.noTestName=You must specify a name for the test
 pkgmgr.test.invalidTestName=The test name must be a valid Java identifier
 pkgmgr.test.recording=recording
 

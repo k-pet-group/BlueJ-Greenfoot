@@ -390,7 +390,6 @@ pkgmgr.test.record=Aufzeichnung
 pkgmgr.test.run=Tests starten
 pkgmgr.test.end=Beenden
 pkgmgr.test.succeeded=erfolgreich
-pkgmgr.test.noTestName=Der Test muss benannt werden
 pkgmgr.test.invalidTestName=Der Testname muss ein g\u00fcltiger Java-Bezeichner sein
 pkgmgr.test.recording=Aufzeichnung von
 
