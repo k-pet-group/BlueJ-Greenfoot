@@ -58,6 +58,7 @@ import threadchecker.Tag;
 
 import java.io.Reader;
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * A Swing view implementation that does syntax colouring and adds some utility.
@@ -131,8 +132,9 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     private int latestRenderEndIncl = Integer.MAX_VALUE - 1_000_000;
 
 
-    // The lines to recalculate after the next layout (see rescheduleCalculateAfterNextLayout method)
-    private final BitSet linesToRecalculateAfterLayout = new BitSet();
+    // The lines to recalculate after the next layout (see rescheduleCalculateAfterNextLayout method).
+    // The keys are line numbers, the values are attempts made on this line (at some limit we should give up to avoid an infinite loop).
+    private final Map<Integer, Integer> linesToRecalculateAfterLayout = new HashMap<>();
     // Keep track of whether we've scheduled a recalculation after the next layout (no need for more than one to be scheduled at a time)
     private boolean scheduledRecalculateAfterLayout = false;
 
@@ -523,7 +525,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         recalcScopeMarkers((int) display.getTextDisplayWidth(),
                 //(widthProperty == null || widthProperty.get() == 0) ? 200 :
                         //((int)widthProperty.get() - PARAGRAPH_MARGIN),
-                firstLineIncl, lastLineIncl);
+                firstLineIncl, lastLineIncl, 0);
     }
 
     /*
@@ -592,13 +594,13 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
      * Re-calculate scope margins for the given lines, and add changed margin information to the given
      * map. Line numbers are 0-based.
      * 
-     * @param pendingScopes  a map of (line number : scope information) for updated scope margins
      * @param fullWidth      the full width of the view, used for determining right margin
      * @param firstLine      the first line in the range to process (inclusive).
      * @param lastLine       the last line in the range to process (inclusive).
+     * @param attemptCount the number of attempts already made to recalculate after layout.
      */
     protected void recalcScopeMarkers(int fullWidth,
-            int firstLine, int lastLine)
+            int firstLine, int lastLine, int attemptCount)
     {
         if (rootNode == null)
         {
@@ -633,7 +635,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             DrawInfo scope = drawScopes(fullWidth, lines, prevScopeStack, 0);
             if (scope.someMissing)
             {
-                rescheduleCalculateAfterNextLayout(fullWidth, curLine);
+                rescheduleCalculateAfterNextLayout(fullWidth, curLine, attemptCount);
             }
             else
             {
@@ -657,21 +659,26 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 
     // Reschedules a call to recalcScopeMarkers and applyPendingScopeBackgrounds after the next layout pass.
     // Used when we can't yet determine a scope's position because there is more layout needed on the line first.
-    private void rescheduleCalculateAfterNextLayout(int fullWidth, int line)
+    private void rescheduleCalculateAfterNextLayout(int fullWidth, int line, int attemptCount)
     {
-        linesToRecalculateAfterLayout.set(line);
+        // Add one to the request count:
+        linesToRecalculateAfterLayout.put(line, attemptCount);
         if (!scheduledRecalculateAfterLayout)
         {
             scheduledRecalculateAfterLayout = true;
             JavaFXUtil.runAfterNextLayout(display.sceneProperty().get(), () -> {
                 scheduledRecalculateAfterLayout = false;
                 // Must take a copy because processing the lines may cause another call to reschedule, which will modify the field:
-                BitSet toProcess = (BitSet)linesToRecalculateAfterLayout.clone();
+                HashMap<Integer, Integer> toProcess = new HashMap<>(linesToRecalculateAfterLayout);
                 linesToRecalculateAfterLayout.clear();
-                
-                for (int i = toProcess.nextSetBit(0); i >= 0; i = toProcess.nextSetBit(i+1))
+
+                for (Entry<Integer, Integer> entry : toProcess.entrySet())
                 {
-                    recalcScopeMarkers(fullWidth, i, i);
+                    // Give up at 5 attempts, to avoid looping forever if something goes wrong:
+                    if (entry.getValue() < 5)
+                    {
+                        recalcScopeMarkers(fullWidth, entry.getKey(), entry.getKey(), entry.getValue() + 1);
+                    }
                 }
                 applyPendingScopeBackgrounds();
             });
