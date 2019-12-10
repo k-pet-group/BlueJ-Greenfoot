@@ -624,8 +624,19 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 break;
             }
 
-            List<SingleNestedScope> scope = drawScopes(fullWidth, lines, prevScopeStack, 0);
-            pendingScopeBackgrounds.put(curLine, scope);
+            DrawInfo scope = drawScopes(fullWidth, lines, prevScopeStack, 0);
+            if (scope.someMissing)
+            {
+                int redraw = curLine;
+                JavaFXUtil.runAfterNextLayout(display.sceneProperty().get(), () -> {
+                    recalcScopeMarkers(fullWidth, redraw, redraw);
+                    applyPendingScopeBackgrounds();
+                });
+            }
+            else
+            {
+                pendingScopeBackgrounds.put(curLine, scope.scopes);
+            }
             
             // Next line
             curLine++;
@@ -652,6 +663,8 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
         boolean ends;    // the node ends on the current line
         Color color1;    // Edge colour
         Color color2;    // Fill colour
+        
+        boolean someMissing = false;
 
         // Note -- list will be held by reference and will be added to.
         private DrawInfo(ThreeLines lines)
@@ -677,7 +690,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
      * @param lines          the previous, current and next lines (segments and elements)
      * @param prevScopeStack the stack of nodes (from outermost to innermost) at the beginning of the current line
      */
-    private List<SingleNestedScope> drawScopes(int fullWidth, ThreeLines lines,
+    private DrawInfo drawScopes(int fullWidth, ThreeLines lines,
             List<NodeAndPosition<ParsedNode>> prevScopeStack, int nodeDepth)
     {
         int rightMargin = 2;
@@ -695,7 +708,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 
             if (napPos >= lines.thisLineEl.getEndOffset()) {
                 // The node isn't even on this line, go to the next line
-                return drawInfo.scopes;
+                return drawInfo;
             }
 
             if (! drawNode(drawInfo, nap)) {
@@ -709,7 +722,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
 
             // Draw the start node
             OptionalInt xpos = getNodeIndent(nap, lines.thisLineEl);
-            if (xpos.isPresent() && xpos.getAsInt() <= fullWidth) {
+            if (xpos != null && xpos.isPresent() && xpos.getAsInt() <= fullWidth) {
                 boolean starts = nodeSkipsStart(nap, lines.aboveLineEl);
                 boolean ends = nodeSkipsEnd(napPos, napEnd, lines.belowLineEl);
                 int rbound = getNodeRBound(nap, fullWidth - rightMargin, nodeDepth,
@@ -723,6 +736,10 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 drawInfo.color2 = colors[1];
 
                 drawInfo.addNestedScope(xpos.getAsInt(), rbound);
+            }
+            else if (xpos != null && xpos.isEmpty())
+            {
+                drawInfo.someMissing = true;
             }
 
             nodeDepth++;
@@ -744,7 +761,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 nodeDepth--;
             }
 
-            if (! li.hasPrevious()) return drawInfo.scopes;
+            if (! li.hasPrevious()) return drawInfo;
             NodeAndPosition<ParsedNode> napParent = li.previous();
             li.next();
 
@@ -774,8 +791,12 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                         drawInfo.starts = nodeSkipsStart(nextNap, lines.aboveLineEl);
                         drawInfo.ends = nodeSkipsEnd(napPos, napEnd, lines.belowLineEl);
 
-                        if (xpos.isPresent() && xpos.getAsInt() <= fullWidth) {
+                        if (xpos != null && xpos.isPresent() && xpos.getAsInt() <= fullWidth) {
                             drawInfo.addNestedScope(xpos.getAsInt(), rbound);
+                        }
+                        else if (xpos != null && xpos.isEmpty())
+                        {
+                            drawInfo.someMissing = true;
                         }
                     }
                 }
@@ -784,7 +805,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 nextNap = nextNap.getNode().findNodeAtOrAfter(napPos, napPos);
             }
         }
-        return drawInfo.scopes;
+        return drawInfo;
     }
 
     /**
@@ -1072,9 +1093,12 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     }
 
     /**
-     * Get a node's indent amount (in component co-ordinate space, minus left margin) for a given line.
-     * If the node isn't present on the line, returns OptionalInt.of(Integer.MAX_VALUE).
-     * A cached value is used if available.  If it cannot be calculated (usually because layout is needed) then OptionalInt.empty() is returned.
+     * Get a node's indent amount (in component co-ordinate space, minus left margin) for a given line.  A cached value is used if available.
+     * The return of this method is a bit complex
+     * - If the node isn't present on the line, returns OptionalInt.of(Integer.MAX_VALUE).
+     * - If it cannot be calculate at all at the present time, because the line is not on screen, null is returned.
+     * - If it cannot be calculated temporarily (usually because layout is needed) then OptionalInt.empty() is returned.
+     * - If it is available OptionalInt.of(...) is returned.
      */
     private OptionalInt getNodeIndent(NodeAndPosition<ParsedNode> nap, Element lineEl)
     {
@@ -1112,6 +1136,10 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                 {
                     nodeIndents.put(nap.getNode(), indent.getAsInt());
                 }
+            }
+            else
+            {
+                return null;
             }
         }
 
