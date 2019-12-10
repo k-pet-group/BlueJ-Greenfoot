@@ -130,6 +130,12 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     private int latestRenderStartIncl = 0;
     private int latestRenderEndIncl = Integer.MAX_VALUE - 1_000_000;
 
+
+    // The lines to recalculate after the next layout (see rescheduleCalculateAfterNextLayout method)
+    private final BitSet linesToRecalculateAfterLayout = new BitSet();
+    // Keep track of whether we've scheduled a recalculation after the next layout (no need for more than one to be scheduled at a time)
+    private boolean scheduledRecalculateAfterLayout = false;
+
     public Map<Integer, List<BackgroundItem>> getScopeBackgrounds()
     {
         return scopeBackgrounds.scopeBackgrounds;
@@ -627,11 +633,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             DrawInfo scope = drawScopes(fullWidth, lines, prevScopeStack, 0);
             if (scope.someMissing)
             {
-                int redraw = curLine;
-                JavaFXUtil.runAfterNextLayout(display.sceneProperty().get(), () -> {
-                    recalcScopeMarkers(fullWidth, redraw, redraw);
-                    applyPendingScopeBackgrounds();
-                });
+                rescheduleCalculateAfterNextLayout(fullWidth, curLine);
             }
             else
             {
@@ -650,6 +652,29 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
                     lines.belowLineEl = null;
                 }
             }
+        }
+    }
+
+    // Reschedules a call to recalcScopeMarkers and applyPendingScopeBackgrounds after the next layout pass.
+    // Used when we can't yet determine a scope's position because there is more layout needed on the line first.
+    private void rescheduleCalculateAfterNextLayout(int fullWidth, int line)
+    {
+        linesToRecalculateAfterLayout.set(line);
+        if (!scheduledRecalculateAfterLayout)
+        {
+            scheduledRecalculateAfterLayout = true;
+            JavaFXUtil.runAfterNextLayout(display.sceneProperty().get(), () -> {
+                scheduledRecalculateAfterLayout = false;
+                // Must take a copy because processing the lines may cause another call to reschedule, which will modify the field:
+                BitSet toProcess = (BitSet)linesToRecalculateAfterLayout.clone();
+                linesToRecalculateAfterLayout.clear();
+                
+                for (int i = toProcess.nextSetBit(0); i >= 0; i = toProcess.nextSetBit(i+1))
+                {
+                    recalcScopeMarkers(fullWidth, i, i);
+                }
+                applyPendingScopeBackgrounds();
+            });
         }
     }
 
