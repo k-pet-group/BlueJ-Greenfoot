@@ -786,6 +786,8 @@ public class FlowEditorPane extends Region implements DocumentListener, JavaSynt
         if (lineDisplay.isLineVisible(lineIndex))
         {
             TextLine line = lineDisplay.getVisibleLine(lineIndex).textLine;
+            if (line.isNeedsLayout())
+                return Optional.empty();
             int posInLine = leftOfCharIndex - document.getLineStart(lineIndex);
             PathElement[] elements = line.caretShape(posInLine, true);
             Path path = new Path(elements);
