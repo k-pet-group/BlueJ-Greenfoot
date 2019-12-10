@@ -1108,8 +1108,10 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
             if (display != null && (display.isLineVisible(document.getLineFromPosition(lineEl.getStartOffset())) || isPrinting()))
             {
                 indent = calculateNodeIndent(nap);
-                if (indent.isPresent() && indent.getAsInt() > 0)
+                if (indent.isPresent())
+                {
                     nodeIndents.put(nap.getNode(), indent.getAsInt());
+                }
             }
         }
 
