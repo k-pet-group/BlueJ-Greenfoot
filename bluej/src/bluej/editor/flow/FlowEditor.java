@@ -2942,7 +2942,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 break;
         }
         fontCSS = "-fx-font-size: " + fontSize + ";" + PrefMgr.getEditorFontFamilyCSS();
-        LineDisplay lineDisplay = new LineDisplay(height, new ReadOnlyDoubleWrapper(0), new ReadOnlyStringWrapper(fontCSS), flowEditorPaneListener);
+        LineDisplay lineDisplay = new LineDisplay(height::get, new ReadOnlyDoubleWrapper(0), new ReadOnlyStringWrapper(fontCSS), flowEditorPaneListener);
         // TODO apply syntax highlighting
         LineContainer lineContainer = new LineContainer(lineDisplay, true);
         LineStyler[] lineStylerWrapper = new LineStyler[] {(i, s) -> Collections.singletonList(new StyledSegment(Collections.emptyList(), s.toString()))};

@@ -230,8 +230,15 @@ public class TextLine extends TextFlow
 
     public void showError(int startColumn, int endColumn)
     {
-        errorUnderlineShape.getElements().setAll(makeSquiggle(rangeShape(startColumn, endColumn)));
-        errorUnderlineShape.setVisible(true);
+        if (isNeedsLayout())
+        {
+            JavaFXUtil.runAfterNextLayout(getScene(), () -> showError(startColumn, endColumn));
+        }
+        else
+        {
+            errorUnderlineShape.getElements().setAll(makeSquiggle(rangeShape(startColumn, endColumn)));
+            errorUnderlineShape.setVisible(true);
+        }
     }
 
     // Each item is size 2, start pos incl and end pos excl.  No other highlights of this kind will be shown on the line,
