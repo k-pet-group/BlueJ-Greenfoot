@@ -26,7 +26,6 @@ import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.stage.Stage;
-import org.apache.commons.io.filefilter.WildcardFileFilter;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -638,7 +637,8 @@ public class Boot
             else
             {
                 File dir = new File(libDir.getPath());
-                FileFilter fileFilter = new WildcardFileFilter(jars[i]);
+                String[] beforeAfter = jars[i].split("\\*");
+                FileFilter fileFilter = f -> f.getName().startsWith(beforeAfter[0]) && f.getName().endsWith(beforeAfter[1]);
                 filesToAdd = dir.listFiles(fileFilter);
             }
 
