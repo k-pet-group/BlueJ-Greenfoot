@@ -24,6 +24,7 @@ package bluej.editor.flow;
 import bluej.editor.flow.FlowEditorPane.FlowEditorPaneListener;
 import bluej.editor.flow.TextLine.StyledSegment;
 import bluej.utility.javafx.FXFunction;
+import bluej.utility.javafx.FXSupplier;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.StringExpression;
 import javafx.geometry.Point2D;
@@ -65,14 +66,14 @@ public class LineDisplay
     private final ArrayList<LineDisplayListener> lineDisplayListeners = new ArrayList<>();
     
     private final StringExpression fontCSS;
-    private final DoubleExpression heightProperty;
+    private final FXSupplier<Double> getHeight;
     private final DoubleExpression horizScrollProperty;
     private double lineHeightEstimate = 1.0;    
 
-    public LineDisplay(DoubleExpression heightProperty, DoubleExpression horizScrollProperty, StringExpression fontCSS, FlowEditorPaneListener flowEditorPaneListener)
+    public LineDisplay(FXSupplier<Double> getHeight, DoubleExpression horizScrollProperty, StringExpression fontCSS, FlowEditorPaneListener flowEditorPaneListener)
     {
         this.fontCSS = fontCSS;
-        this.heightProperty = heightProperty;
+        this.getHeight = getHeight;
         this.horizScrollProperty = horizScrollProperty;
         this.flowEditorPaneListener = flowEditorPaneListener;
     }
@@ -123,7 +124,7 @@ public class LineDisplay
             //Debug.message("Line height: " + lineHeight);
 
             // Start at the first visible line:
-            Iterator<List<StyledSegment>> lines = allLines.subList(firstVisibleLineIndex, Math.min((int) Math.ceil(height / lineHeight) + firstVisibleLineIndex + 1, allLines.size())).iterator();
+            Iterator<List<StyledSegment>> lines = allLines.subList(firstVisibleLineIndex, Math.min((int) Math.ceil(height / lineHeight) + firstVisibleLineIndex, allLines.size())).iterator();
             int lineIndex = firstVisibleLineIndex;
             while (lines.hasNext())
             {
@@ -189,7 +190,7 @@ public class LineDisplay
         double newOverallPos = overallPos - deltaY;
         // Important to clamp in this order, as first clamp
         // may clamp too far, into negative:
-        newOverallPos = Math.min(newOverallPos, lineHeightEstimate * documentLines - heightProperty.get());
+        newOverallPos = Math.min(newOverallPos, lineHeightEstimate * documentLines - getHeight.get());
         newOverallPos = Math.max(0, newOverallPos);
         int newTopLine = (int)Math.floor(newOverallPos / lineHeightEstimate);
         double newOffset = (newTopLine * lineHeightEstimate) - newOverallPos;
@@ -283,8 +284,12 @@ public class LineDisplay
         {            
             // Scroll down:
             double singleLineHeight = lineHeightEstimate;
-            int numLinesCanDisplay = (int)Math.ceil(heightProperty.get() / singleLineHeight);
-            firstVisibleLineIndex = line - numLinesCanDisplay + 2;
+            // As an example, imagine each line is 10 pixels high, and the whole pane is 84 pixels high.
+            // You will need to draw nine lines (so ceil(84 / 10) ) because if you only drew 8, there would be 4 pixels undrawn: 
+            int numLinesCanDisplay = (int)Math.ceil(getHeight.get() / singleLineHeight);
+            // Imagine that you're drawing 9 lines, and you want to show line #14, which will be the last one.  You need to render lines 6,7,8,9,10,11,12,13,14
+            // So the top line is 14 - 9 + 1 = 6
+            firstVisibleLineIndex = line - numLinesCanDisplay + 1;
             if (firstVisibleLineIndex < 0)
             {
                 // Just scroll to top:
@@ -293,7 +298,9 @@ public class LineDisplay
             }
             else
             {
-                firstVisibleLineOffset = ((numLinesCanDisplay - 1) * singleLineHeight) - heightProperty.get();
+                // If we are drawing 9 lines with #14 at the bottom, the top line (#6) will be only partially visible.  So
+                // if we have 84 pixels high, we want to slide the top line up 6 pixels, which is 84 - 9*10 = -6.
+                firstVisibleLineOffset = getHeight.get() - (numLinesCanDisplay * singleLineHeight);
             }
         }
         // Otherwise, it is visible -- nothing to do.

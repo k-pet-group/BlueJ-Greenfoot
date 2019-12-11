@@ -126,7 +126,7 @@ public class FlowEditorPane extends Region implements DocumentListener, JavaSynt
         horizontalScroll = new ScrollBar();
         horizontalScroll.setOrientation(Orientation.HORIZONTAL);
         horizontalScroll.setVisible(false);
-        lineDisplay = new LineDisplay(heightProperty(), horizontalScroll.valueProperty(), PrefMgr.getEditorFontCSS(true), listener);
+        lineDisplay = new LineDisplay(this::getLineContainerHeight, horizontalScroll.valueProperty(), PrefMgr.getEditorFontCSS(true), listener);
 
         JavaFXUtil.addChangeListenerPlatform(horizontalScroll.valueProperty(), v -> {
             // Prevent an infinite loop when we update scroll bar ourselves in render method:
@@ -163,7 +163,12 @@ public class FlowEditorPane extends Region implements DocumentListener, JavaSynt
         JavaFXUtil.addChangeListenerPlatform(heightProperty(), h -> updateRender(false));
         JavaFXUtil.addChangeListenerPlatform(focusedProperty(), f -> updateCaretVisibility());
     }
-    
+
+    private double getLineContainerHeight()
+    {
+        return lineContainer.getHeight();
+    }
+
     private void keyTyped(KeyEvent event)
     {
         if (!editable)
@@ -395,7 +400,7 @@ public class FlowEditorPane extends Region implements DocumentListener, JavaSynt
         }
         */
         
-                
+        lineContainer.requestLayout();        
         requestLayout();
     }
 
