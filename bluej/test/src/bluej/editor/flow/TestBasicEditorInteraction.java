@@ -297,7 +297,7 @@ public class TestBasicEditorInteraction extends FXTest
                 case 5:
                     // Cut to end of caret line (ignoring anchor)
                     clearClipboard();
-                    fx_(() -> FlowActions.getActions(flowEditor).getActionByName("cut-end-of-line").actionPerformed(false));
+                    fx_(() -> flowEditor.getActions().getActionByName("cut-end-of-line").actionPerformed(false));
                     assertEquals(content.substring(curPos, curLineEnd), fx(() -> Clipboard.getSystemClipboard().getString()));
                     content = beforeLine + content.substring(curLineStart, curPos) + afterLine;
                     assertEquals(content, fx(() -> flowEditorPane.getDocument().getFullContent()));
@@ -450,7 +450,7 @@ public class TestBasicEditorInteraction extends FXTest
             fx_(() -> {
                 flowEditor.enableParser(true);
                 flowEditor.getSourceDocument().flushReparseQueue();
-                FlowActions.getActions(flowEditor).getActionByName("autoindent").actionPerformed(false);
+                flowEditor.getActions().getActionByName("autoindent").actionPerformed(false);
             });
             sleep(1000);
             assertEquals(BLOCK_TEST, fx(() -> flowEditorPane.getDocument().getFullContent()));
@@ -473,7 +473,7 @@ public class TestBasicEditorInteraction extends FXTest
             flowEditor.enableParser(true);
             flowEditor.getSourceDocument().flushReparseQueue();
             flowEditor.getSourcePane().positionCaret(indexOfMethod);
-            FlowActions.getActions(flowEditor).getActionByName("add-javadoc").actionPerformed(false);
+            flowEditor.getActions().getActionByName("add-javadoc").actionPerformed(false);
         });
         sleep(1000);
         String expected = BLOCK_TEST.substring(0, indexOfMethod - 4) +
@@ -500,7 +500,7 @@ public class TestBasicEditorInteraction extends FXTest
             flowEditor.enableParser(true);
             flowEditor.getSourceDocument().flushReparseQueue();
             flowEditor.getSourcePane().positionCaret(indexOfGap);
-            FlowActions.getActions(flowEditor).getActionByName("insert-method").actionPerformed(false);
+            flowEditor.getActions().getActionByName("insert-method").actionPerformed(false);
         });
         sleep(1000);
         String expected = BLOCK_TEST.substring(0, indexOfGap) +
@@ -548,7 +548,7 @@ public class TestBasicEditorInteraction extends FXTest
 
 
             
-            fx_(() -> FlowActions.getActions(flowEditor).getActionByName(comment ? "comment-block" : "uncomment-block").actionPerformed(false));
+            fx_(() -> flowEditor.getActions().getActionByName(comment ? "comment-block" : "uncomment-block").actionPerformed(false));
             for (int line = startLine; line <= endLine; line++)
             {
                 docLines.set(line, addRemoveComment(docLines.get(line), comment));
@@ -609,7 +609,7 @@ public class TestBasicEditorInteraction extends FXTest
 
 
             boolean indent = r.nextBoolean();
-            fx_(() -> FlowActions.getActions(flowEditor).getActionByName(indent ? "indent-block" : "deindent-block").actionPerformed(false));
+            fx_(() -> flowEditor.getActions().getActionByName(indent ? "indent-block" : "deindent-block").actionPerformed(false));
             for (int line = startLine; line <= endLine; line++)
             {
                 docLines.set(line, addRemoveIndent(docLines.get(line), indent));
@@ -621,7 +621,7 @@ public class TestBasicEditorInteraction extends FXTest
         fx_(() -> {
             flowEditor.enableParser(true);
             flowEditor.getSourceDocument().flushReparseQueue();
-            FlowActions.getActions(flowEditor).getActionByName("autoindent").actionPerformed(false);
+            flowEditor.getActions().getActionByName("autoindent").actionPerformed(false);
         });
         sleep(1000);
         assertEquals(BLOCK_TEST, fx(() -> flowEditorPane.getDocument().getFullContent()));

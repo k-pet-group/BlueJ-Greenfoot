@@ -125,7 +125,7 @@ public class KeyBindingsPanel extends GridPane implements PrefPanelListener
     public KeyBindingsPanel(FXPlatformSupplier<Window> parent)
     {
         this.parent = parent;
-        actions = FlowActions.getActions(null);
+        actions = new FlowActions(null);
         functions = Utility.mapList(actions.getAllActions(), ActionInfo::new);
 
         ColumnConstraints c = new ColumnConstraints();
