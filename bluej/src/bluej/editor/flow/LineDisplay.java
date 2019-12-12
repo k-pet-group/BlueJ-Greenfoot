@@ -123,8 +123,16 @@ public class LineDisplay
             double lineHeight = snapHeight.apply(calculateLineHeight());
             //Debug.message("Line height: " + lineHeight);
 
+            // Here's how we work out how many lines we need to draw.  We'll always need to draw
+            // firstVisibleLineIndex, which we know takes up (lineHeight + firstVisibleLineOffset) pixels
+            // (since the offset is always between -lineHeight and zero, this comes out positive
+            //   in the range zero to lineHeight)
+            // So we subtract that from the height, then divide by lineHeight and take the ceil to
+            // work out how many more lines we need, and add one for the top line.
+            int linesToDraw = 1 + (int)Math.ceil((height - (lineHeight + firstVisibleLineOffset)) / lineHeight);
+            
             // Start at the first visible line:
-            Iterator<List<StyledSegment>> lines = allLines.subList(firstVisibleLineIndex, Math.min((int) Math.ceil(height / lineHeight) + firstVisibleLineIndex, allLines.size())).iterator();
+            Iterator<List<StyledSegment>> lines = allLines.subList(firstVisibleLineIndex, Math.min(linesToDraw + firstVisibleLineIndex, allLines.size())).iterator();
             int lineIndex = firstVisibleLineIndex;
             while (lines.hasNext())
             {
