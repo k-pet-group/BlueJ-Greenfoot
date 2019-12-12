@@ -22,6 +22,8 @@
 package bluej.editor.flow;
 
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXPlatformRunnable;
+import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.utility.javafx.ResizableRectangle;
 import com.google.common.collect.Lists;
@@ -117,6 +119,19 @@ public class TextLine extends TextFlow
         selectionShape.getElements().clear();
         selectionShape.setVisible(false);
     }
+    
+    private void runOnceLaidOut(FXRunnable action)
+    {
+        if (isNeedsLayout())
+        {
+            // We run ourselves, not the action, in case multiple layout passes are needed and we need to defer multiple times:
+            JavaFXUtil.runAfterNextLayout(getScene(), () -> runOnceLaidOut(action));
+        }
+        else
+        {
+            action.run();
+        }
+    }
 
     /**
      * Shows the given selection shape on this line.
@@ -124,14 +139,10 @@ public class TextLine extends TextFlow
      */
     public void showSelection(int start, int end, boolean extendToRight)
     {
-        selectionShape.getElements().setAll(extendShape(extendToRight, rangeShape(start, end)));
-        selectionShape.setVisible(true);
-        if (getScene() != null)
-        {
-            JavaFXUtil.runAfterNextLayout(getScene(), () -> {
-                selectionShape.getElements().setAll(extendShape(extendToRight, rangeShape(start, end)));
-            });
-        }
+        runOnceLaidOut(() -> {
+            selectionShape.getElements().setAll(extendShape(extendToRight, rangeShape(start, end)));
+            selectionShape.setVisible(true);
+        });
     }
 
     /**
@@ -230,15 +241,10 @@ public class TextLine extends TextFlow
 
     public void showError(int startColumn, int endColumn)
     {
-        if (isNeedsLayout())
-        {
-            JavaFXUtil.runAfterNextLayout(getScene(), () -> showError(startColumn, endColumn));
-        }
-        else
-        {
+        runOnceLaidOut(() -> {
             errorUnderlineShape.getElements().setAll(makeSquiggle(rangeShape(startColumn, endColumn)));
             errorUnderlineShape.setVisible(true);
-        }
+        });
     }
 
     // Each item is size 2, start pos incl and end pos excl.  No other highlights of this kind will be shown on the line,
@@ -246,9 +252,11 @@ public class TextLine extends TextFlow
     // To turn off, call with an empty list.
     public void showHighlight(HighlightType highlightType, List<int[]> positions)
     {
-        Path shape = highlightType == HighlightType.FIND_RESULT ? this.findResultShape : this.bracketMatchShape;
-        shape.getElements().setAll(positions.stream().flatMap(p -> Arrays.stream(rangeShape(p[0], p[1]))).toArray(PathElement[]::new));
-        shape.setVisible(!shape.getElements().isEmpty());
+        runOnceLaidOut(() -> {
+            Path shape = highlightType == HighlightType.FIND_RESULT ? this.findResultShape : this.bracketMatchShape;
+            shape.getElements().setAll(positions.stream().flatMap(p -> Arrays.stream(rangeShape(p[0], p[1]))).toArray(PathElement[]::new));
+            shape.setVisible(!shape.getElements().isEmpty());
+        });
     }
 
     private List<PathElement> makeSquiggle(PathElement[] rectShape)
