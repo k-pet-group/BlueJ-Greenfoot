@@ -82,7 +82,6 @@
     <!-- Set up classpath (does not include jar files built by us) -->
     <path id="bluej.class.path">
         <fileset dir="${bluej_home}/lib/" includes="junit-*.jar" />
-        <pathelement location="${bluej_home}/lib/commons-io-2.6.jar"/>
         <pathelement location="${bluej_home}/lib/hamcrest-core-1.3.jar"/>
         <pathelement location="${bluej_home}/lib/httpclient-4.1.1.jar"/>
         <pathelement location="${bluej_home}/lib/httpcore-4.1.jar"/>
@@ -128,7 +127,6 @@
                 <pathelement location="${threadchecker.pluginbuild}"/>
                 <path refid="javafx.class.path"/>
                 <pathelement location="${bluej_home}/lib/nsmenufx-2.1.4.jar"/>
-                <pathelement location="${bluej_home}/lib/commons-io-2.6.jar"/>
             </classpath>
             <compilerarg value="-Xmaxerrs"/><compilerarg value="100"/>
             <compilerarg value="-Xplugin:threadchecker.TCPlugin"/>
@@ -569,7 +567,6 @@
                 <!-- DO NOT add to this list without first ensuring that the above requirements
                      are met! -->
 
-                <exclude name="commons-io-2.6.jar"/>
                 <exclude name="commons-logging-api-1.1.2.jar"/>
                 <exclude name="classgraph-4.2.6.jar"/>
                 <exclude name="diffutils-1.2.1.jar"/>
