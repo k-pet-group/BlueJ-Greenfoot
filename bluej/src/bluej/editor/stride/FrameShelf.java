@@ -22,13 +22,13 @@
 package bluej.editor.stride;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import bluej.pkgmgr.target.role.Kind;
 import bluej.utility.BackgroundConsumer;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformRunnable;
@@ -64,7 +64,7 @@ import bluej.stride.framedjava.frames.GreenfootFrameUtil;
 import bluej.stride.framedjava.frames.StrideCategory;
 import bluej.stride.framedjava.frames.StrideDictionary;
 import bluej.stride.framedjava.slots.ExpressionSlot;
-import bluej.stride.generic.AssistContentThreadSafe;
+import bluej.parser.AssistContentThreadSafe;
 import bluej.stride.generic.CanvasParent;
 import bluej.stride.generic.ExtensionDescription;
 import bluej.stride.generic.Frame;
@@ -76,7 +76,6 @@ import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.RecallableFocus;
 import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.LinkedIdentifier;
-import bluej.stride.slots.SuggestionList;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXSupplier;
 import nu.xom.Element;
@@ -141,19 +140,6 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
     public void withTypes(Class<?> superType, boolean includeSelf, Set<Kind> kinds, BackgroundConsumer<Map<String, AssistContentThreadSafe>> handler)
     {
         Utility.runBackground(() -> handler.accept(Collections.emptyMap()));
-    }
-
-    @Override
-    @OnThread(Tag.Any)
-    public Map<SuggestionList.SuggestionShown, Collection<AssistContentThreadSafe>> getImportSuggestions()
-    {
-        return Collections.emptyMap();
-    }
-
-    @Override
-    public void addImport(String importSrc)
-    {
-
     }
 
     @Override

@@ -32,6 +32,8 @@ import bluej.editor.flow.gen.GenRandom;
 import bluej.editor.flow.gen.GenString;
 import bluej.editor.stride.FrameCatalogue.ShowReason;
 import bluej.parser.InitConfig;
+import bluej.pkgmgr.Package;
+import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.stride.generic.Frame.View;
 import bluej.stride.generic.Frame.ViewChangeReason;

@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 import bluej.compiler.Diagnostic.DiagnosticOrigin;
+import bluej.editor.fixes.FixSuggestion;
 import bluej.stride.framedjava.ast.StringSlotFragment;
 import bluej.stride.framedjava.errors.Correction.SimpleCorrectionInfo;
 import bluej.stride.framedjava.slots.ExpressionSlot;

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2019 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,16 +30,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import bluej.editor.fixes.SuggestionList;
+import bluej.pkgmgr.target.role.Kind;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.StructuredCompletionCalculator;
 import bluej.utility.Utility;
 import bluej.stride.framedjava.ast.JavaFragment.PosInSourceDoc;
 import bluej.stride.framedjava.elements.CodeElement;
-import bluej.stride.framedjava.slots.ExpressionCompletionCalculator;
-import bluej.stride.generic.AssistContentThreadSafe;
+import bluej.parser.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
-import bluej.stride.slots.SuggestionList.SuggestionDetailsWithHTMLDoc;
-import bluej.stride.slots.SuggestionList.SuggestionListListener;
+import bluej.editor.fixes.SuggestionList.SuggestionDetailsWithHTMLDoc;
+import bluej.editor.fixes.SuggestionList.SuggestionListListener;
 import bluej.utility.javafx.FXPlatformConsumer;
 import javafx.application.Platform;
 import threadchecker.OnThread;
@@ -49,7 +50,7 @@ public class TypeCompletionCalculator implements StructuredCompletionCalculator
 {
     private final InteractionManager editor;
     private final Class<?> superType; // null means any
-    private final Set<InteractionManager.Kind> kinds = new HashSet<>();
+    private final Set<Kind> kinds = new HashSet<>();
     private List<AssistContentThreadSafe> acs;
     
     public TypeCompletionCalculator(InteractionManager editor)
@@ -62,13 +63,13 @@ public class TypeCompletionCalculator implements StructuredCompletionCalculator
         this.editor = editor;
         this.superType = superType;
         if (superType == null)
-            kinds.addAll(Arrays.asList(InteractionManager.Kind.values()));
+            kinds.addAll(Arrays.asList(Kind.values()));
         else
             // Leave out enums and primitives:
-            kinds.addAll(Arrays.asList(InteractionManager.Kind.CLASS_FINAL, InteractionManager.Kind.INTERFACE, InteractionManager.Kind.CLASS_NON_FINAL));
+            kinds.addAll(Arrays.asList(Kind.CLASS_FINAL, Kind.INTERFACE, Kind.CLASS_NON_FINAL));
     }
     
-    public TypeCompletionCalculator(InteractionManager editor, InteractionManager.Kind kind)
+    public TypeCompletionCalculator(InteractionManager editor, Kind kind)
     {
         this.editor = editor;
         this.superType = null;
@@ -112,11 +113,11 @@ public class TypeCompletionCalculator implements StructuredCompletionCalculator
     public void withCalculatedSuggestionList(PosInSourceDoc pos, ExpressionSlot<?> completing,
                                              CodeElement codeEl, SuggestionListListener listener, String targetType, boolean completingStartOfSlot, FXPlatformConsumer<SuggestionList> handler) {
 
-        HashSet<InteractionManager.Kind> curKinds = new HashSet<>(kinds);
+        HashSet<Kind> curKinds = new HashSet<>(kinds);
         // We only complete primitives at the start; they can't follow
         // package names or be in generic types
         if (!completingStartOfSlot)
-            curKinds.remove(InteractionManager.Kind.PRIMITIVE);
+            curKinds.remove(Kind.PRIMITIVE);
         editor.withTypes(superType, true, curKinds, acs -> {
             Platform.runLater(() ->
             {

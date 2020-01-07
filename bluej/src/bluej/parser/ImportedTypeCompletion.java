@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import bluej.pkgmgr.JavadocResolver;
-import bluej.stride.generic.InteractionManager.Kind;
+import bluej.pkgmgr.target.role.Kind;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

@@ -27,6 +27,7 @@ import java.util.List;
 import bluej.compiler.CompileType;
 import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerThread;
+import bluej.editor.fixes.EditorFixesManager;
 import bluej.prefmgr.PrefMgr.PrintSize;
 import bluej.editor.stride.FrameEditor;
 import bluej.parser.symtab.ClassInfo;
@@ -48,7 +49,6 @@ import threadchecker.Tag;
  */
 public interface Editor
 {
-
     /**
      * Reload and display the same file that was displayed before.
      * This should generated a modificationEvent followed by a saveEvent.
@@ -332,6 +332,12 @@ public interface Editor
     void removeImports(List<String> importTargets);
 
     /**
+     * Adds the specified import into the editor;
+     */
+    void addImport(String importName);
+
+
+    /**
      * Set the header image (in the tab header) for this editor
      * @param image The image to use (any size).
      */
@@ -342,4 +348,11 @@ public interface Editor
      * @param millisSinceEpoch
      */
     void setLastModified(long millisSinceEpoch);
+
+    /**
+     *  Gets the associated Quick Fixes error manager of an Editor
+     *  Each implementation of an editor is responsible for holding an instance
+     *  of EditorFixesManager.
+     */
+    EditorFixesManager getEditorFixesManager();
 }

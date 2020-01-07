@@ -26,6 +26,7 @@ import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.debugger.DebuggerThread;
+import bluej.parser.AssistContentThreadSafe;
 import bluej.editor.stride.ErrorOverviewBar.ErrorInfo;
 import bluej.editor.stride.ErrorOverviewBar.ErrorState;
 import bluej.editor.stride.FXTabbedEditor.CodeCompletionState;
@@ -34,12 +35,12 @@ import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.AssistContent.ParamInfo;
 import bluej.parser.ConstructorCompletion;
-import bluej.parser.PrimitiveTypeCompletion;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.PackageOrClass;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.Target;
+import bluej.pkgmgr.target.role.Kind;
 import bluej.prefmgr.PrefMgr;
 import bluej.stride.framedjava.ast.ASTUtility;
 import bluej.stride.framedjava.ast.HighlightedBreakpoint;
@@ -67,9 +68,7 @@ import bluej.stride.generic.Frame.View;
 import bluej.stride.operations.UndoRedoManager;
 import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.LinkedIdentifier;
-import bluej.stride.slots.SuggestionList;
-import bluej.stride.slots.SuggestionList.SuggestionListParent;
-import bluej.stride.slots.SuggestionList.SuggestionShown;
+import bluej.editor.fixes.SuggestionList.SuggestionListParent;
 import bluej.utility.BackgroundConsumer;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
@@ -129,7 +128,6 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import javafx.util.Pair;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -137,12 +135,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -157,24 +150,12 @@ import java.util.stream.Stream;
 @OnThread(Tag.FX)
 public class FrameEditorTab extends FXTab implements InteractionManager, SuggestionListParent
 {
-    @OnThread(Tag.Any)
-    private final static List<Future<List<AssistContentThreadSafe>>> popularImports = new ArrayList<>();
-    @OnThread(Tag.Any)
-    private final static List<Future<List<AssistContentThreadSafe>>> rarerImports = new ArrayList<>();
-    // This static field can be accessed by any thread from an instance, but is initialised once
-    // in the FrameEditorTab constructor by the first constructed instance, so is thread safe:
-    @OnThread(Tag.Any) private static Future<List<AssistContentThreadSafe>> javaLangImports;
-    @OnThread(Tag.FX) private static List<AssistContentThreadSafe> prims;
     // We keep track ourselves of which item is focused.  Only focusable things in the editor
     // should be frame cursors and slots:
     private final SimpleObjectProperty<CursorOrSlot> focusedItem = new SimpleObjectProperty<>(null);
     private final TopLevelCodeElement initialSource;
     // Name of the top-level class/interface
     private final StringProperty nameProperty = new SimpleStringProperty();
-    @OnThread(Tag.Any)
-    private final ReadWriteLock importedTypesLock = new ReentrantReadWriteLock();
-    @OnThread(Tag.Any) // but only when the lock is acquired!
-    private final List<Future<List<AssistContentThreadSafe>>> importedTypes;
     private final FrameSelection selection = new FrameSelection(this);
     private final FrameEditor editor;
     private final UndoRedoManager undoRedoManager;
@@ -244,50 +225,13 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         super(true);
         this.project = project;
         this.projectResolver = resolver;
-        this.importedTypes = new ArrayList<>();
         this.editor = editor;
         this.initialSource = initialSource;
         this.undoRedoManager = new UndoRedoManager(new FrameState(initialSource));
         this.menuManager = new FrameMenuManager(this);
 
-        
-        
-        if (javaLangImports == null)
-            javaLangImports = importsUpdated("java.lang.*");
-
-        // This should perhaps be in an external config file:
-        if (popularImports.isEmpty())
-        {
-            popularImports.addAll(Arrays.asList(
-                    "java.io.*",
-                    "java.math.*",
-                    "java.time.*",
-                    "java.util.*",
-                    "java.util.function.*",
-                    "java.util.stream.*",
-                    Config.isGreenfoot() ? "greenfoot.*" : null
-                    ).stream().filter(i -> i != null).map(this::importsUpdated).collect(Collectors.toList()));
-
-            rarerImports.addAll(Arrays.asList(
-                    Config.isGreenfoot() ? null : "java.awt.*",
-                    Config.isGreenfoot() ? null : "java.awt.event.*",
-                    "java.net.*",
-                    "java.text.*",
-                    "java.util.concurrent.*",
-                    Config.isGreenfoot() ? null : "javafx.application.*",
-                    Config.isGreenfoot() ? null : "javafx.beans.*",
-                    Config.isGreenfoot() ? null : "javafx.beans.property.*",
-                    Config.isGreenfoot() ? null : "javafx.collections.*",
-                    Config.isGreenfoot() ? null : "javafx.event.*",
-                    Config.isGreenfoot() ? null : "javafx.scene.*",
-                    Config.isGreenfoot() ? null : "javafx.scene.control.*",
-                    Config.isGreenfoot() ? null : "javafx.scene.input.*",
-                    Config.isGreenfoot() ? null : "javafx.scene.layout.*",
-                    Config.isGreenfoot() ? null : "javafx.stage.*",
-                    Config.isGreenfoot() ? null : "javax.swing.*",
-                    Config.isGreenfoot() ? null : "javax.swing.event.*"
-            ).stream().filter(i -> i != null).map(this::importsUpdated).collect(Collectors.toList()));
-        }
+        // prepare imports
+        this.getFrameEditor().getEditorFixesManager().prepareImports(project);
     }
 
     public static String blockSkipModifierLabel()
@@ -303,38 +247,6 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         else {
             return event.isControlDown();
         }
-    }
-
-    // Exception-safe wrapper for Future.get
-    @OnThread(Tag.Worker)
-    private static <T> List<T> getFutureList(Future<List<T>> f)
-    {
-        try
-        {
-            return f.get(10, TimeUnit.SECONDS);
-        }
-        catch (Exception e) {
-            Debug.reportError("Problem looking up types", e);
-            return Collections.emptyList();
-        }
-    }
-
-    @OnThread(Tag.FXPlatform)
-    private Future<List<AssistContentThreadSafe>> importsUpdated(final String x)
-    {
-        CompletableFuture<List<AssistContentThreadSafe>> f = new CompletableFuture<>();
-        Utility.runBackground(() -> {
-            try
-            {
-                f.complete(project.getImportScanner().getImportedTypes(x));
-            }
-            catch (Throwable t)
-            {
-                Debug.reportError("Exception while scanning for import " + x, t);
-                f.complete(Collections.emptyList());
-            }
-        });
-        return f;
     }
 
     // Must be run on FX thread
@@ -601,6 +513,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         contentRoot.setRight(errorOverviewBar);
 
         loading = true;
+        FrameEditor frameEditor = getFrameEditor();
         new Thread() {
             @OnThread(value = Tag.FX, ignoreParent = true)
             public void run()
@@ -636,11 +549,12 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
                     updateFontSize();
 
                     // When imports change, we provide a new future to calculate the types:
-                    JavaFXUtil.bindMap(FrameEditorTab.this.importedTypes, getTopLevelFrame().getImports(), FrameEditorTab.this::importsUpdated, change ->
+                    List<Future<List<AssistContentThreadSafe>>> importsToUpdate = FrameEditorTab.this.getFrameEditor().getEditorFixesManager().getImportedTypesFutureList();
+                    JavaFXUtil.bindMap(importsToUpdate, getTopLevelFrame().getImports(), FrameEditorTab.this.getFrameEditor().getEditorFixesManager()::importsUpdated, change ->
                     {
-                        importedTypesLock.writeLock().lock();
+                        frameEditor.getEditorFixesManager().getImportedTypesLock().writeLock().lock();
                         change.run();
-                        importedTypesLock.writeLock().unlock();
+                        frameEditor.getEditorFixesManager().getImportedTypesLock().writeLock().unlock();
                     });
 
                     if (getTopLevelFrame() != null)
@@ -2101,14 +2015,6 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         
         ensureNodeVisible(birdseyeManager.getNodeForVisibility());
     }
-    
-    @OnThread(Tag.FXPlatform)
-    private List<AssistContentThreadSafe> getPrimitiveTypes()
-    {
-        if (prims == null)
-            prims = PrimitiveTypeCompletion.allPrimitiveTypes().stream().map(AssistContentThreadSafe::copy).collect(Collectors.toList());
-        return prims;
-    }
 
     @Override
     @OnThread(Tag.FXPlatform)
@@ -2117,10 +2023,11 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         final Map<String, AssistContentThreadSafe> r = new HashMap<>();
 
         if (kinds.contains(Kind.PRIMITIVE))
-            addAllToMap(r, getPrimitiveTypes());
+            addAllToMap(r,editor.getEditorFixesManager().getPrimitiveTypes());
         addAllToMap(r, editor.getLocalTypes(superType, includeSelf, kinds));
+        FrameEditor frameEditor = getFrameEditor();
         Utility.runBackground(() -> {
-            addAllToMap(r, getImportedTypes(superType, includeSelf, kinds));
+            addAllToMap(r, frameEditor.getEditorFixesManager().getImportedTypes(superType, includeSelf, kinds));
             handler.accept(r);
         });
     }
@@ -2230,59 +2137,6 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         getTopLevelFrame().insertAtEnd(method.createFrame(this));
     }
 
-    @OnThread(Tag.Worker)
-    private Stream<AssistContentThreadSafe> getAllImportedTypes()
-    {
-        importedTypesLock.readLock().lock();
-        ArrayList<Future<List<AssistContentThreadSafe>>> importedTypesCopy = new ArrayList<>(importedTypes);
-        importedTypesLock.readLock().unlock();
-        return Stream.concat(Stream.of(javaLangImports), importedTypesCopy.stream()).map(FrameEditorTab::getFutureList).flatMap(List::stream);
-    }
-    
-    @OnThread(Tag.Worker)
-    private List<AssistContentThreadSafe> getImportedTypes(Class<?> superType, boolean includeSelf, Set<Kind> kinds)
-    {
-        if (superType == null)
-            return getAllImportedTypes()
-                     .filter(ac -> kinds.contains(ac.getTypeKind()))
-                     .collect(Collectors.toList());
-        
-        return getAllImportedTypes()
-                    .filter(ac -> kinds.contains(ac.getTypeKind()))
-                    .filter(ac -> ac.getSuperTypes().contains(superType.getName()) || (includeSelf && ac.getPackage() != null && (ac.getPackage() + "." + ac.getName()).equals(superType.getName())))
-                    .collect(Collectors.toList());
-    }
-
-    @Override
-    @OnThread(Tag.Worker)
-    public Map<SuggestionList.SuggestionShown, Collection<AssistContentThreadSafe>> getImportSuggestions()
-    {
-        HashMap<String, Pair<SuggestionList.SuggestionShown, AssistContentThreadSafe>> imports = new HashMap<>();
-        // Add popular:
-        Stream.<Pair<SuggestionShown, AssistContentThreadSafe>>concat(
-            popularImports.stream().flatMap(imps -> getFutureList(imps).stream().map(ac -> new Pair<>(SuggestionList.SuggestionShown.COMMON, ac))),
-            rarerImports.stream().flatMap(imps -> getFutureList(imps).stream().map(ac -> new Pair<>(SuggestionList.SuggestionShown.RARE, ac)))
-        )
-            .filter(imp -> imp.getValue().getPackage() != null)
-            .forEach(imp -> {
-                String fullName = imp.getValue().getPackage() + ".";
-                if (imp.getValue().getDeclaringClass() != null) {
-                    fullName += imp.getValue().getDeclaringClass() + ".";
-                }
-                fullName += imp.getValue().getName();
-                imports.put(fullName, imp);
-            });
-        // Remove what we already import:
-        getAllImportedTypes()
-            .filter(imp -> imp.getPackage() != null)
-            .forEach(imp -> imports.remove(imp.getPackage() + "." + imp.getName()));
-        // And return the result:
-        HashMap<SuggestionList.SuggestionShown, Collection<AssistContentThreadSafe>> ret = new HashMap<>();
-        imports.values().forEach(p -> ret.merge(p.getKey(), new ArrayList<AssistContentThreadSafe>(Arrays.asList(p.getValue())), (BiFunction<Collection<AssistContentThreadSafe>,Collection<AssistContentThreadSafe>,Collection<AssistContentThreadSafe>>)(a, b) -> {a.addAll(b); return a;}));
-        return ret;
-    }
-    
-    @Override
     public void addImport(String importSrc)
     {
         getTopLevelFrame().addImport(importSrc);
@@ -2800,6 +2654,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public FrameEditor getFrameEditor()
     {
         return editor;

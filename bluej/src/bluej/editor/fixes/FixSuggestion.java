@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2019 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,13 +19,14 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.stride.framedjava.errors;
+package bluej.editor.fixes;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 public abstract class FixSuggestion
 {
+    @OnThread(Tag.Any)
     public abstract String getDescription();
 
     @OnThread(Tag.FXPlatform)

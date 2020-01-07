@@ -40,7 +40,7 @@ import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.stride.framedjava.frames.InterfaceFrame;
 import bluej.stride.framedjava.frames.TopLevelFrame;
 import bluej.stride.framedjava.slots.ExpressionSlot;
-import bluej.stride.generic.AssistContentThreadSafe;
+import bluej.parser.AssistContentThreadSafe;
 import bluej.stride.generic.Frame.ShowReason;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;

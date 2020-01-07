@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018,2019 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,6 +30,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.editor.fixes.SuggestionList;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.ObjectProperty;
@@ -59,8 +60,8 @@ import bluej.stride.generic.Frame;
 import bluej.stride.generic.Frame.View;
 import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.InteractionManager;
-import bluej.stride.slots.SuggestionList.SuggestionDetails;
-import bluej.stride.slots.SuggestionList.SuggestionListListener;
+import bluej.editor.fixes.SuggestionList.SuggestionDetails;
+import bluej.editor.fixes.SuggestionList.SuggestionListListener;
 import bluej.utility.Utility;
 import bluej.utility.javafx.ErrorUnderlineCanvas;
 import bluej.utility.javafx.JavaFXUtil;

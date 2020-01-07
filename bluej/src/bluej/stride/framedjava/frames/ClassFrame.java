@@ -22,6 +22,7 @@
 package bluej.stride.framedjava.frames;
 
 import bluej.Config;
+import bluej.parser.AssistContentThreadSafe;
 import bluej.editor.stride.BirdseyeManager;
 import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.AssistContent.ParamInfo;

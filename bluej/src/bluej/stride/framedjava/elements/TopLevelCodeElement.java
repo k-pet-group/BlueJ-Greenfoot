@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 import bluej.debugger.gentype.ConstructorReflective;
 import bluej.stride.framedjava.ast.FrameFragment;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
-import bluej.stride.generic.AssistContentThreadSafe;
+import bluej.parser.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
 import nu.xom.Attribute;
 import nu.xom.Element;

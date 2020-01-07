@@ -30,6 +30,7 @@ import bluej.compiler.Diagnostic;
 import bluej.debugger.DebuggerThread;
 import bluej.editor.EditorWatcher;
 import bluej.editor.TextEditor;
+import bluej.editor.fixes.EditorFixesManager;
 import bluej.editor.flow.FlowActions.FlowAbstractAction;
 import bluej.editor.flow.FlowEditorPane.FlowEditorPaneListener;
 import bluej.editor.flow.FlowEditorPane.LineContainer;
@@ -74,13 +75,13 @@ import bluej.stride.framedjava.elements.CallElement;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.slots.ExpressionCompletionCalculator;
-import bluej.stride.generic.AssistContentThreadSafe;
-import bluej.stride.slots.SuggestionList;
-import bluej.stride.slots.SuggestionList.SuggestionDetails;
-import bluej.stride.slots.SuggestionList.SuggestionDetailsWithHTMLDoc;
-import bluej.stride.slots.SuggestionList.SuggestionListListener;
-import bluej.stride.slots.SuggestionList.SuggestionListParent;
-import bluej.stride.slots.SuggestionList.SuggestionShown;
+import bluej.parser.AssistContentThreadSafe;
+import bluej.editor.fixes.SuggestionList;
+import bluej.editor.fixes.SuggestionList.SuggestionDetails;
+import bluej.editor.fixes.SuggestionList.SuggestionDetailsWithHTMLDoc;
+import bluej.editor.fixes.SuggestionList.SuggestionListListener;
+import bluej.editor.fixes.SuggestionList.SuggestionListParent;
+import bluej.editor.fixes.SuggestionList.SuggestionShown;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
 import bluej.utility.FileUtility;
@@ -181,6 +182,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private final FlowActions actions;
     /** Watcher - provides interface to BlueJ core. May be null (eg for README.txt file). */
     private final EditorWatcher watcher;
+    /** The Editor Quick Fixes manager associated with this Editor */
+    private final EditorFixesManager editorFixesMgr = new EditorFixesManager();
     
     private final boolean sourceIsCode = true;           // true if current buffer is code
     private final List<Menu> fxMenus;
@@ -1252,6 +1255,9 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public void setEditorVisible(boolean vis, boolean openInNewWindow)
     {
         FXTabbedEditor fxTabbedEditor = fetchTabbedEditor.getFXTabbedEditor(openInNewWindow);
+
+        // prepare the imports
+        getEditorFixesManager().prepareImports(fxTabbedEditor.getProject());
 
         if (vis)
         {
@@ -2425,6 +2431,18 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         catch (IOException ioe) {
             DialogManager.showMessageWithTextFX(getWindow(), "generic-file-save-error", ioe.getLocalizedMessage());
         }
+    }
+
+    @Override
+    public EditorFixesManager getEditorFixesManager(){
+        return editorFixesMgr;
+    }
+
+    @Override
+    public void addImport(String importName)
+    {
+        //TODO: pwt
+       System.out.println("IMPORT TO BE IMPORTED");
     }
 
     @Override

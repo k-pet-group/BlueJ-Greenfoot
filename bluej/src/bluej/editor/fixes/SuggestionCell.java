@@ -19,9 +19,9 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.stride.slots;
+package bluej.editor.fixes;
 
-import javafx.animation.FadeTransition;
+import javafx.application.Platform;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -30,11 +30,9 @@ import javafx.scene.control.ListCell;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
-import javafx.util.Duration;
 
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.ScalableHeightLabel;
 
 class SuggestionCell extends ListCell<SuggestionList.SuggestionListItem> implements ChangeListener<Object>
 {
@@ -127,8 +125,7 @@ class SuggestionCell extends ListCell<SuggestionList.SuggestionListItem> impleme
 
         if (item != null && item.index != -1)
         {
-
-            update(item.getDetails().choice, item.getDetails().suffix, item.getDetails().type, item.typeMatch, item.direct, item.eligibleAt.get(), item.eligibleLength.get(), item.eligibleCanTab.get(), item.highlighted.get());
+            Platform.runLater(() -> update(item.getDetails().choice, item.getDetails().suffix, item.getDetails().type, item.typeMatch, item.direct, item.eligibleAt.get(), item.eligibleLength.get(), item.eligibleCanTab.get(), item.highlighted.get()));
         }
         else
         {

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2019 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,10 +22,10 @@
 package bluej.stride.framedjava.errors;
 
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.editor.fixes.FixSuggestion;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
 import threadchecker.OnThread;
@@ -48,6 +48,7 @@ class Correction extends FixSuggestion
     }
 
     @Override
+    @OnThread(Tag.Any)
     public String getDescription()
     {
         return "Correct to: " + display;

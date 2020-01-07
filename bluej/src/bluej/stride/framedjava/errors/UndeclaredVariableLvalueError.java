@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import bluej.compiler.Diagnostic.DiagnosticOrigin;
+import bluej.editor.fixes.FixSuggestion;
 import bluej.stride.framedjava.ast.ASTUtility;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.NameDefSlotFragment;
@@ -88,6 +89,7 @@ public class UndeclaredVariableLvalueError extends DirectSlotError
     private class ChangeAssignmentToDeclarationAndInitialisation extends FixSuggestion
     {
         @Override
+        @OnThread(Tag.Any)
         public String getDescription()
         {
             return "Declare variable here";
@@ -106,6 +108,7 @@ public class UndeclaredVariableLvalueError extends DirectSlotError
     {
 
         @Override
+        @OnThread(Tag.Any)
         public String getDescription()
         {
             return "Declare field in class";

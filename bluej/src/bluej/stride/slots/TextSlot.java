@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2019 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import bluej.collect.StrideEditReason;
+import bluej.editor.fixes.SuggestionList;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import javafx.application.Platform;
@@ -74,7 +75,7 @@ import bluej.stride.generic.Frame;
 import bluej.stride.generic.Frame.View;
 import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.InteractionManager;
-import bluej.stride.slots.SuggestionList.SuggestionListListener;
+import bluej.editor.fixes.SuggestionList.SuggestionListListener;
 import bluej.utility.javafx.AnnotatableTextField;
 import bluej.utility.javafx.ErrorUnderlineCanvas;
 import bluej.utility.javafx.FXPlatformConsumer;

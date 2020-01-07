@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2018 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018,2019 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.stream.Stream;
 
+import bluej.editor.stride.FrameEditor;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.framedjava.errors.*;
@@ -139,8 +140,8 @@ public class TypeSlotFragment extends StructuredSlotFragment
             return f;
         }
 
+        FrameEditor frameEditor = editor.getFrameEditor();
         editor.withTypes(types -> {
-
             if (types.containsKey(content))
             {
                 // Match -- no error
@@ -149,7 +150,7 @@ public class TypeSlotFragment extends StructuredSlotFragment
             }
             // Otherwise, give error and suggest corrections
             final UnknownTypeError error = new UnknownTypeError(this, content, slot::setText, editor,
-                    types.values().stream(), editor.getImportSuggestions().values().stream().
+                    types.values().stream(), frameEditor.getEditorFixesManager().getImportSuggestions().values().stream().
                     flatMap(Collection::stream)) {};
             error.recordPath(rootPathMap.locationFor(this));
             f.complete(Arrays.asList(error));
@@ -172,6 +173,7 @@ public class TypeSlotFragment extends StructuredSlotFragment
     {
         CompletableFuture<List<DirectSlotError>> f = new CompletableFuture<>();
         ArrayList<DirectSlotError> listOfErrors = new ArrayList<>();
+        FrameEditor frameEditor = editor.getFrameEditor();
         editor.withTypes(types -> {
 
             int i = 0;
@@ -188,7 +190,7 @@ public class TypeSlotFragment extends StructuredSlotFragment
                 int endPosInSlot = startPosInSlot + t.length();
                 FXPlatformConsumer<String> replace = s -> slot.replace(startPosInSlot, endPosInSlot, false, s);
                 final UnknownTypeError error = new UnknownTypeError(this, t, replace, editor,
-                        types.values().stream(), editor.getImportSuggestions().values().stream().
+                        types.values().stream(), frameEditor.getEditorFixesManager().getImportSuggestions().values().stream().
                         flatMap(Collection::stream));
                 error.recordPath(rootPathMap.locationFor(this));
                 listOfErrors.add(error);

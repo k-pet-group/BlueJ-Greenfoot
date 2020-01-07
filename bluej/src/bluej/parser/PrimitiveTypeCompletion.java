@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2017 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2017,2019 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,7 +24,7 @@ package bluej.parser;
 import java.util.Arrays;
 import java.util.List;
 
-import bluej.stride.generic.InteractionManager.Kind;
+import bluej.pkgmgr.target.role.Kind;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
