@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2013,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2013,2016,2017,2018,2019  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -120,8 +120,7 @@ public class AboutDialogTemplate extends Dialog<Void>
         aboutPanel.setBottom(bottom);
 
         // Create team names list
-        String teamText = String.join(", ", "Amjad Altadmri", "Neil Brown", "Hamza Hamza",
-                "Michael Kölling", "Davin McCall" + ".");
+        String teamText = String.join(", ", "Neil Brown", "Michael Kölling", "Pierre Weill-Tessier" + ".");
 
         bottom.getChildren().add(JavaFXUtil.withStyleClass(
                 new Label(Config.getString("about.theTeam") + " " + teamText),

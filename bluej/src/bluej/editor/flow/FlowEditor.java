@@ -126,13 +126,17 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.scene.web.WebView;
 import javafx.stage.PopupWindow;
+import javafx.stage.PopupWindow.AnchorLocation;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
+import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.events.EventTarget;
 import threadchecker.OnThread;
@@ -283,6 +287,11 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         return currentStepLineIndex;
     }
 
+    public FlowActions getActions()
+    {
+        return actions;
+    }
+
     public static interface FetchTabbedEditor
     {
         FXTabbedEditor getFXTabbedEditor(boolean newWindow);
@@ -385,7 +394,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         this.watcher = editorWatcher;
         this.info = new Info();
         this.saveState = new StatusLabel(Status.SAVED, this, errorManager);
-        this.actions = FlowActions.getActions(this);
+        this.actions = new FlowActions(this);
         this.htmlPane = new WebView();
         htmlPane.visibleProperty().bind(viewingHTML);
         setCenter(new StackPane(flowEditorPane, htmlPane));
@@ -799,7 +808,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 ErrorDisplay newDisplay = errorDisplay;
 
                 newDisplay.createPopup();
-                newDisplay.popup.setAnchorLocation(PopupWindow.AnchorLocation.WINDOW_TOP_LEFT);
+                newDisplay.popup.setAnchorLocation(AnchorLocation.WINDOW_TOP_LEFT);
                 newDisplay.popup.setAnchorX(xpos);
                 newDisplay.popup.setAnchorY(ypos);
                 newDisplay.popup.show(getWindow());
@@ -1030,7 +1039,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                         if (headerNode != null)
                         {
                             // Make a link, and set a listener for it:
-                            org.w3c.dom.Element newLink = doc.createElement("a");
+                            Element newLink = doc.createElement("a");
                             newLink.setAttribute("style", "padding-left: 2em;cursor:pointer;");
                             newLink.insertBefore(doc.createTextNode("[Show source in BlueJ]"), null);
                             headerNode.insertBefore(newLink, null);
@@ -1212,7 +1221,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             // We want to inform the watcher that the editor content has changed,
             // and then inform it that we are in "saved" state (synced with file).
             // But first set state to saved to avoid unnecessary writes to disk.
-            saveState.setState(StatusLabel.Status.SAVED);
+            saveState.setState(Status.SAVED);
             setChanged(); // contents may have changed - notify watcher
             setSaved();  // notify watcher that we are saved
 
@@ -1363,7 +1372,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     {
         // Don't need to say saved twice:
         //info.message(Config.getString("editor.info.saved"));
-        saveState.setState(StatusLabel.Status.SAVED);
+        saveState.setState(Status.SAVED);
         if (watcher != null) {
             watcher.saveEvent(this);
         }
@@ -1904,13 +1913,13 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         respondingToChange = true;
 
         if (!saveState.isChanged()) {
-            saveState.setState(StatusLabel.Status.CHANGED);
+            saveState.setState(Status.CHANGED);
             setChanged();
         }
 
         if (linesRemoved > 0 || linesAdded > 0) // For a multi-line change, always compile:
         {
-            saveState.setState(StatusLabel.Status.CHANGED);
+            saveState.setState(Status.CHANGED);
             setChanged();
 
             // Note that this compilation will cause a save:
@@ -1991,7 +2000,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public void setReadOnly(boolean readOnly)
     {
         if (readOnly) {
-            saveState.setState(StatusLabel.Status.READONLY);
+            saveState.setState(Status.READONLY);
         }
         getSourcePane().setEditable(!readOnly);
     }
@@ -2328,8 +2337,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         List<String> r = new ArrayList<String>(selections.size());
         for (Selection sel : selections)
         {
-            String text = getText(new bluej.parser.SourceLocation(sel.getLine(), sel.getColumn()),
-                new bluej.parser.SourceLocation(sel.getEndLine(), sel.getEndColumn()));
+            String text = getText(new SourceLocation(sel.getLine(), sel.getColumn()),
+                new SourceLocation(sel.getEndLine(), sel.getEndColumn()));
 
             // check for type arguments: don't include them in the text
             int taIndex = text.indexOf('<');
@@ -2421,10 +2430,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public void removeImports(List<String> importTargets)
     {
-        List<ImportsCollection.LocatableImport> toRemove = new ArrayList<>();
+        List<LocatableImport> toRemove = new ArrayList<>();
         for (String importTarget : importTargets)
         {
-            ImportsCollection.LocatableImport details = getParsedNode().getImports().getImportInfo(importTarget);
+            LocatableImport details = getParsedNode().getImports().getImportInfo(importTarget);
 
             if (details != null)
             {
@@ -2437,7 +2446,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         // Hence we sort by negative start value:
         Collections.sort(toRemove, Comparator.<LocatableImport>comparingInt(t -> -t.getStart()));
 
-        for (ImportsCollection.LocatableImport locatableImport : toRemove)
+        for (LocatableImport locatableImport : toRemove)
         {
             if (locatableImport.getStart() != -1)
             {
@@ -2508,7 +2517,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     }
 
     @OnThread(Tag.FXPlatform)
-    public javafx.stage.Window getWindow()
+    public Window getWindow()
     {
         return fxTabbedEditor.getWindow();
     }
@@ -3169,7 +3178,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 // (too hard to determine if it's fully visible):
                 double limitY = lastCell.getLayoutY();
                 //Debug.message("Limit Y: " + limitY + " vs " + lineContainer.getHeight());
-                lineContainer.setClip(new javafx.scene.shape.Rectangle(lineContainer.getWidth(), limitY));
+                lineContainer.setClip(new Rectangle(lineContainer.getWidth(), limitY));
                 topLine += visibleCells.size() - 1;
             }
             else
@@ -3178,7 +3187,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 // up to the top.  (The editor pane won't show empty space beyond the bottom, so we cannot
                 // scroll as far as we would like.  Instead, we have the bottom of the content at the bottom
                 // of the window, and use translateY to do a fake scroll to move it up to the top of the page.)
-                lineContainer.setClip(new javafx.scene.shape.Rectangle(lineContainer.getWidth(), lineContainer.getHeight()));
+                lineContainer.setClip(new Rectangle(lineContainer.getWidth(), lineContainer.getHeight()));
                 //lineContainer.setTranslateY(-las);
             }
             

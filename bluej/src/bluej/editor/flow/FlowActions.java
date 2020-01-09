@@ -99,10 +99,11 @@ public final class FlowActions
     private static final int tabSize = Config.getPropInteger("bluej.editor.tabsize", 4);
     private static final String spaces = "                                        ";
     private static final char TAB_CHAR = '\t';
-    private static Modifier SHORTCUT_MASK = KeyCombination.SHORTCUT_DOWN;
-    private static Modifier[] SHIFT_SHORTCUT_MASK = { KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN};
-
-    private static final IdentityHashMap<FlowEditor, FlowActions> flowActions = new IdentityHashMap<>();
+    private static final Modifier SHORTCUT_MASK = KeyCombination.SHORTCUT_DOWN;
+    private static final Modifier[] SHIFT_SHORTCUT_MASK = { KeyCombination.SHORTCUT_DOWN, KeyCombination.SHIFT_DOWN};
+    // Must be weak to allow unused actions to be GCed:
+    private static final Set<FlowActions> allActions = Collections.newSetFromMap(new WeakHashMap<>());
+    
     // -------- INSTANCE VARIABLES --------
     private final FlowEditor editor;
     // frequently needed actions
@@ -117,7 +118,7 @@ public final class FlowActions
     private InputMap<javafx.scene.input.KeyEvent> curKeymap; // the editor's keymap
     private boolean lastActionWasCut; // true if last action was a cut action
 
-    private FlowActions(FlowEditor editor)
+    public FlowActions(FlowEditor editor)
     {
         this.editor = editor;
         // sort out modifier keys...
@@ -249,14 +250,6 @@ public final class FlowActions
             }).toArray(InputMap[]::new));
             Nodes.addInputMap(getTextComponent(), curKeymap);
         }
-    }
-
-    /**
-     * Get the actions object for the given editor.
-     */
-    public static FlowActions getActions(FlowEditor editor)
-    {
-        return flowActions.computeIfAbsent(editor, FlowActions::new);
     }
     
     private static int findWordLimit(FlowEditorPane c, int pos, boolean forwards)
@@ -537,7 +530,7 @@ public final class FlowActions
      */
     public static void addKeyCombinationForActionToAllEditors(KeyCodeCombination key, String actionName)
     {
-        flowActions.values().forEach(flowAction -> flowAction.addKeyCombinationForAction(key, actionName));
+        allActions.forEach(flowAction -> flowAction.addKeyCombinationForAction(key, actionName));
     }
 
     /**
