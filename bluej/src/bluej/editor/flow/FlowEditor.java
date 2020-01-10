@@ -319,6 +319,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         {
             return -1;
         }
+
+        @Override
+        public void showErrorPopupForCaretPos(int caretPos, boolean mousePosition)
+        {
+
+        }
     }
 
     class UndoManager
@@ -420,7 +426,6 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 flowEditorPane.showHighlights(HighlightType.BRACKET_MATCH, bracketMatches);
             }
         });
-        Nodes.addInputMap(this, InputMap.consume(MouseEvent.MOUSE_MOVED, this::mouseMoved));
         // create menubar and menus
 
         fxMenus = createMenus();
@@ -582,11 +587,6 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         return interfaceToggle;
     }
 
-    private void mouseMoved(MouseEvent event)
-    {
-        flowEditorPane.getCaretPositionForMouseEvent(event).ifPresent(pos -> showErrorPopupForCaretPos(pos, true));
-    }
-
     /**
      * Create the editor's menu bar.
      */
@@ -718,7 +718,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         return matches;
     }
 
-    private void showErrorPopupForCaretPos(int caretPos, boolean mousePosition)
+    public void showErrorPopupForCaretPos(int caretPos, boolean mousePosition)
     {
         ErrorDetails err = caretPos == -1 ? null : errorManager.getErrorAtPosition(caretPos);
         if (err != null)

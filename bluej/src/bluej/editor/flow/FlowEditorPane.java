@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -156,6 +156,7 @@ public class FlowEditorPane extends Region implements DocumentListener, JavaSynt
             InputMap.consume(KeyEvent.KEY_TYPED, this::keyTyped),
             InputMap.consume(MouseEvent.MOUSE_PRESSED, this::mousePressed),
             InputMap.consume(MouseEvent.MOUSE_DRAGGED, this::mouseDragged),
+            InputMap.consume(MouseEvent.MOUSE_MOVED, this::mouseMoved),
             InputMap.consume(ScrollEvent.SCROLL, this::scroll)
         ));
 
@@ -218,6 +219,11 @@ public class FlowEditorPane extends Region implements DocumentListener, JavaSynt
             return OptionalInt.of(document.getLineStart(position[0]) + position[1]);
         }
         return OptionalInt.empty();
+    }
+
+    private void mouseMoved(MouseEvent event)
+    {
+        getCaretPositionForMouseEvent(event).ifPresent(pos -> listener.showErrorPopupForCaretPos(pos, true));
     }
 
     private void mouseDragged(MouseEvent e)
@@ -991,6 +997,8 @@ public class FlowEditorPane extends Region implements DocumentListener, JavaSynt
 
         // Returns -1 if no step line
         int getStepLine();
+
+        public void showErrorPopupForCaretPos(int caretPos, boolean mousePosition);
     }
 
     // Use an AbstractList rather than pre-calculate, as that means we don't bother
