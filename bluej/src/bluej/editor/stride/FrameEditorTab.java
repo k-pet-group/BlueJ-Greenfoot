@@ -2654,7 +2654,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     }
 
     @Override
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.Any)
     public FrameEditor getFrameEditor()
     {
         return editor;

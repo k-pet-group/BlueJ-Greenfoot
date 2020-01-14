@@ -69,21 +69,10 @@ public class UnknownTypeError extends DirectSlotError
         this.editor = editor;
 
         corrections.addAll(Correction.winnowAndCreateCorrections(typeName, possibleCorrections.map(TypeCorrectionInfo::new), replace));
-
-        CompletableFuture<FrameEditor> frameEditorFuture = new CompletableFuture<>();
-        Platform.runLater(() -> frameEditorFuture.complete(editor.getFrameEditor()));
-        try
-        {
-            FrameEditor frameEditor = frameEditorFuture.get();
-            corrections.addAll(possibleImports
+        corrections.addAll(possibleImports
                     .filter(ac -> ac.getPackage() != null && ac.getName().equals(typeName))
-                    .flatMap(ac -> Stream.of(new ImportSingleFix(frameEditor, ac), new ImportPackageFix(frameEditor, ac)))
+                    .flatMap(ac -> Stream.of(new ImportSingleFix(editor.getFrameEditor(), ac), new ImportPackageFix(editor.getFrameEditor(), ac)))
                     .collect(Collectors.toList()));
-        }
-        catch (InterruptedException | ExecutionException e)
-        {
-            throw new RuntimeException(e);
-        }
     }
 
     @OnThread(Tag.Any)

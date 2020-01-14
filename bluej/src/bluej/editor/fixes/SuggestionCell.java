@@ -33,6 +33,8 @@ import javafx.scene.layout.Region;
 
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.JavaFXUtil;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 class SuggestionCell extends ListCell<SuggestionList.SuggestionListItem> implements ChangeListener<Object>
 {
@@ -97,7 +99,7 @@ class SuggestionCell extends ListCell<SuggestionList.SuggestionListItem> impleme
                 oldItem.highlighted.removeListener(this);
             }
 
-            update(item);
+            JavaFXUtil.runNowOrLater(() -> update(item));
 
             if (item != null)
             {
@@ -111,6 +113,7 @@ class SuggestionCell extends ListCell<SuggestionList.SuggestionListItem> impleme
         setGraphic(pane);
     }
 
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     private void update(SuggestionList.SuggestionListItem item)
     {
         if (item != null && item.index == -1)
@@ -125,7 +128,7 @@ class SuggestionCell extends ListCell<SuggestionList.SuggestionListItem> impleme
 
         if (item != null && item.index != -1)
         {
-            Platform.runLater(() -> update(item.getDetails().choice, item.getDetails().suffix, item.getDetails().type, item.typeMatch, item.direct, item.eligibleAt.get(), item.eligibleLength.get(), item.eligibleCanTab.get(), item.highlighted.get()));
+            update(item.getDetails().choice, item.getDetails().suffix, item.getDetails().type, item.typeMatch, item.direct, item.eligibleAt.get(), item.eligibleLength.get(), item.eligibleCanTab.get(), item.highlighted.get());
         }
         else
         {
@@ -133,6 +136,7 @@ class SuggestionCell extends ListCell<SuggestionList.SuggestionListItem> impleme
         }
     }
 
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     private void update(String text, String unmatchableSuffix, String type, boolean typeMatch, boolean direct, int at, int len, boolean canTab, boolean highlighted)
     {
         this.type.setText(type);
@@ -171,6 +175,7 @@ class SuggestionCell extends ListCell<SuggestionList.SuggestionListItem> impleme
     // We are a change listener on several properties, to update the item each time.
     // Rather than pick out what changed, we just do a full update:
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public void changed(ObservableValue<?> observable, Object oldValue, Object newValue)
     {
         update(itemProperty().get());

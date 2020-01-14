@@ -31,6 +31,7 @@ import bluej.debugger.DebuggerThread;
 import bluej.editor.EditorWatcher;
 import bluej.editor.TextEditor;
 import bluej.editor.fixes.EditorFixesManager;
+import bluej.editor.fixes.FixDisplayManager;
 import bluej.editor.flow.FlowActions.FlowAbstractAction;
 import bluej.editor.flow.FlowEditorPane.FlowEditorPaneListener;
 import bluej.editor.flow.FlowEditorPane.LineContainer;
@@ -52,7 +53,6 @@ import bluej.editor.stride.FrameEditor;
 import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.ParamInfo;
 import bluej.parser.ExpressionTypeInfo;
-import bluej.parser.ImportsCollection;
 import bluej.parser.ImportsCollection.LocatableImport;
 import bluej.parser.ParseUtils;
 import bluej.parser.SourceLocation;
@@ -126,12 +126,10 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 import javafx.scene.web.WebView;
-import javafx.stage.PopupWindow;
 import javafx.stage.PopupWindow.AnchorLocation;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -161,6 +159,7 @@ import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
@@ -426,6 +425,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 flowEditorPane.showHighlights(HighlightType.BRACKET_MATCH, bracketMatches);
             }
         });
+
         // create menubar and menus
 
         fxMenus = createMenus();
@@ -586,7 +586,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
         return interfaceToggle;
     }
-
+    
     /**
      * Create the editor's menu bar.
      */
@@ -639,6 +639,13 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             }
         }
         return menu;
+    }
+
+    /**
+     * Gets the watcher associated with this editor
+     */
+    public EditorWatcher getWatcher(){
+        return watcher;
     }
 
 
@@ -718,22 +725,54 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         return matches;
     }
 
+    public boolean hasQuickFixShown()
+    {
+        return errorDisplay != null && errorDisplay.hasFixes() && errorDisplay.popup.isShowing();
+    }
+
+    public boolean hasQuickFixSelected()
+    {
+        return errorDisplay.hasQuickFixSelected();
+    }
+
     public void showErrorPopupForCaretPos(int caretPos, boolean mousePosition)
     {
         ErrorDetails err = caretPos == -1 ? null : errorManager.getErrorAtPosition(caretPos);
-        if (err != null)
+
+        // Indicator for knowing if a popup is opened and displays quick fixes
+        boolean isPopupOpenedWithFixes = errorDisplay != null && errorDisplay.hasFixes() && errorDisplay.popup.isShowing();
+        // Indicator for knowing if the error at the next location is the same the current error
+        boolean isStillSameError = errorDisplay != null && caretPos >= errorDisplay.details.startPos && caretPos <= errorDisplay.details.endPos;
+        if (err != null && !isStillSameError)
         {
             showErrorOverlay(err, caretPos);
         }
         else
         {
-            // Only hide if it was a keyboard move,
+            // Only hide if it was a keyboard move
             // or it was a mouse move but there is no error at the keyboard position
-            if (errorDisplay != null && (!mousePosition || !errorDisplay.details.containsPosition(caretPos)))
+            // and if the popup with fixes is not opened
+            if (!isPopupOpenedWithFixes && errorDisplay != null && (!mousePosition || !errorDisplay.details.containsPosition(caretPos)))
             {
                 showErrorOverlay(null, caretPos);
             }
         }
+    }
+
+    public void changeQuickFixSelection(boolean changeDownwards)
+    {
+        if (changeDownwards)
+        {
+            errorDisplay.down();
+        }
+        else
+        {
+            errorDisplay.up();
+        }
+    }
+
+    void executeQuickFix(){
+        errorDisplay.executeQuickFix();
     }
 
     public void requestEditorFocus()
@@ -807,7 +846,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                     return;
                 int xpos = (int)(before ? pos.getMaxX() : pos.getMinX());
                 int ypos = (int)(pos.getMinY() + (4*pos.getHeight()/3));
-                errorDisplay = new ErrorDisplay(details);
+                errorDisplay = new ErrorDisplay(this, () -> this.getWatcher(), details);
                 ErrorDisplay newDisplay = errorDisplay;
 
                 newDisplay.createPopup();
@@ -816,7 +855,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 newDisplay.popup.setAnchorY(ypos);
                 newDisplay.popup.show(getWindow());
 
-                if (watcher != null) {
+                if (watcher != null)
+                {
                     watcher.recordShowErrorMessage(details.identifier, Collections.emptyList());
                 }
             }
@@ -828,7 +868,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             errorDisplay = null;
         }
     }
-    
+
     /**
      * Check whether the source file has changed on disk. If it has, reload.
      */
@@ -915,13 +955,13 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         {
             // We can collapse multiple compiles, but we cannot collapse an explicit compilation
             // (resulting class files kept) into a non-explicit compilation (result discarded).
-            if (! compilationQueued )
+            if (!compilationQueued)
             {
                 watcher.scheduleCompilation(true, reason, ctype);
                 compilationQueued = true;
             }
             else if (compilationStarted ||
-                    (ctype != CompileType.ERROR_CHECK_ONLY && ! compilationQueuedExplicit))
+                    (ctype != CompileType.ERROR_CHECK_ONLY && !compilationQueuedExplicit))
             {
                 // Either: a previously queued compilation has already started
                 // Or: we have queued an error-check-only compilation, but are being asked to
@@ -930,7 +970,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 // In either case, we need to queue a second compilation after the current one
                 // finishes. We override any currently queued ERROR_CHECK_ONLY since explicit
                 // compiles should take precedence:
-                if (! requeueForCompilation || ctype == CompileType.ERROR_CHECK_ONLY)
+                if (!requeueForCompilation || ctype == CompileType.ERROR_CHECK_ONLY)
                 {
                     requeueForCompilation = true;
                     requeueReason = reason;
@@ -943,7 +983,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
     public List<Menu> getFXMenu()
     {
-        return fxMenus; 
+        return fxMenus;
     }
 
     @Override
@@ -956,14 +996,17 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         boolean loaded = false;
 
         File file = new File(filename);
-        if (filename != null) {
+        if (filename != null)
+        {
             setupJavadocMangler();
-            try {
+            try
+            {
                 // check for crash file
                 String crashFilename = filename + FlowEditor.CRASHFILE_SUFFIX;
                 String backupFilename = crashFilename + "backup";
                 File crashFile = new File(crashFilename);
-                if (crashFile.exists()) {
+                if (crashFile.exists())
+                {
                     File backupFile = new File(backupFilename);
                     backupFile.delete();
                     crashFile.renameTo(backupFile);
@@ -1207,20 +1250,24 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         removeSearchHighlights();
         Reader reader = null;
 
-        try {
+        try
+        {
             FileInputStream inputStream = new FileInputStream(filename);
             reader = new InputStreamReader(inputStream, characterSet);
             read(reader);
-            try {
+            try
+            {
                 reader.close();
                 inputStream.close();
             }
-            catch (IOException ioe) {}
+            catch (IOException ioe)
+            {
+            }
             File file = new File(filename);
             setLastModified(file.lastModified());
 
             enableParser(false);
-            
+
             // We want to inform the watcher that the editor content has changed,
             // and then inform it that we are in "saved" state (synced with file).
             // But first set state to saved to avoid unnecessary writes to disk.
@@ -1315,20 +1362,22 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public void save() throws IOException
     {
         IOException failureException = null;
-        if (saveState.isChanged() && filename != null) {
+        if (saveState.isChanged() && filename != null)
+        {
             // Record any edits with the data collection system:
             recordEdit(true);
 
             // Play it safe and avoid overwriting code that has been changed outside BlueJ (or at least,
             // outside *this* instance of BlueJ):
             checkForChangeOnDisk();
-            if (! saveState.isChanged())
+            if (!saveState.isChanged())
             {
                 return;
             }
 
             Writer writer = null;
-            try {
+            try
+            {
                 // The crash file is used during writing and will remain in
                 // case of a crash during the write operation.
                 String crashFilename = filename + FlowEditor.CRASHFILE_SUFFIX;
@@ -1339,7 +1388,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 OutputStream ostream = new BufferedOutputStream(new FileOutputStream(filename));
                 writer = new OutputStreamWriter(ostream, characterSet);
                 getSourcePane().write(writer);
-                writer.close(); writer = null;
+                writer.close();
+                writer = null;
                 setLastModified(new File(filename).lastModified());
                 File crashFile = new File(crashFilename);
                 crashFile.delete();
@@ -1347,16 +1397,20 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 // Do this last, as it may trigger further actions in the watcher:
                 setSaved();
             }
-            catch (IOException ex) {
+            catch (IOException ex)
+            {
                 failureException = ex;
                 info.message (Config.getString("editor.info.errorSaving") + " - " + ex.getLocalizedMessage());
             }
-            finally {
-                try {
-                    if(writer != null)
+            finally
+            {
+                try
+                {
+                    if (writer != null)
                         writer.close();
                 }
-                catch (IOException ex) {
+                catch (IOException ex)
+                {
                     failureException = ex;
                 }
             }
@@ -1364,8 +1418,9 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
         // If an error occurred, set a message in the editor status bar, and
         // re-throw the exception.
-        if (failureException != null) {
-            info.message (Config.getString("editor.info.errorSaving")
+        if (failureException != null)
+        {
+            info.message(Config.getString("editor.info.errorSaving")
                     + " - " + failureException.getLocalizedMessage());
             throw failureException;
         }
@@ -1379,13 +1434,15 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         // Don't need to say saved twice:
         //info.message(Config.getString("editor.info.saved"));
         saveState.setState(Status.SAVED);
-        if (watcher != null) {
+        if (watcher != null)
+        {
             watcher.saveEvent(this);
         }
     }
 
     /**
      * Notify the editor watcher of an edit (or save).
+     *
      * @param includeOneLineEdits - will be true if it is considered unlikely that further edits will
      *                     be localised to previous edit locations (line), or if the file has been saved.
      */
@@ -1525,7 +1582,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         try {
             save();
             info.message(Config.getString("editor.info.loadingDoc"));
-            boolean generateDoc = ! docUpToDate();
+            boolean generateDoc = !docUpToDate();
 
             if (generateDoc)
             {
@@ -2439,10 +2496,46 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     }
 
     @Override
-    public void addImport(String importName)
+    public void addImportFromQuickFix(String importName)
     {
-        //TODO: pwt
-       System.out.println("IMPORT TO BE IMPORTED");
+        int importOffset = 0;
+        int currentCaretPos = flowEditorPane.getSelectionStart();
+        List<CharSequence> docLines = document.getLines();
+        boolean isLineAfterImportBlank = docLines.get(0).toString().isBlank();
+
+        // Look for existing imports and package statement to find where the new import needs to be inserted.
+        // We suppose package and import statements may be placed anywhere if the class contains comments...
+        boolean hasImports = docLines.stream().filter(charSequence -> charSequence.toString().startsWith("import ")).count() > 0;
+        boolean hasPackage = docLines.stream().filter(charSequence -> charSequence.toString().startsWith("package ")).count() > 0;
+        if (hasImports || hasPackage)
+        {
+            boolean passedImport = false, passedPackage = false;
+            for (CharSequence charseq : docLines)
+            {
+                boolean isLineImport = charseq.toString().startsWith("import ");
+                boolean isLinePackage = charseq.toString().startsWith("package ");
+                passedImport |= isLineImport;
+                passedPackage |= isLinePackage;
+
+                // We found the place to add the import when we've passed all imports or when we only search for the package and passed it
+                if ((hasImports && !isLineImport && passedImport) || (!hasImports && passedPackage && !isLinePackage))
+                {
+                    isLineAfterImportBlank = charseq.toString().isBlank();
+                    break;
+                }
+
+                // Update the offset when we continue in the loop
+                importOffset += charseq.length() + 1;
+            }
+        }
+
+        String fullImportStr = "import " + importName + ((isLineAfterImportBlank) ? ";\n" : ";\n\n");
+        flowEditorPane.select(importOffset, importOffset);
+        insertText(fullImportStr, false);
+        int newCaretPos = (currentCaretPos >= importOffset) ? (currentCaretPos + fullImportStr.length()) : currentCaretPos;
+        flowEditorPane.select(newCaretPos, newCaretPos);
+
+        refresh();
     }
 
     @Override
@@ -3271,28 +3364,54 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
     }
 
-    private static class ErrorDisplay
+    private static class ErrorDisplay extends FixDisplayManager
     {
-        @OnThread(Tag.Swing)
         private final ErrorDetails details;
+        private final Supplier<EditorWatcher> editorWatcherSupplier;
         private PopupControl popup;
+        private final FlowEditor flowEditor;
 
-        public ErrorDisplay(ErrorDetails details)
+        public ErrorDisplay(FlowEditor flowEditor, Supplier<EditorWatcher> editorWatcherSupplier, ErrorDetails details)
         {
             this.details = details;
+            this.editorWatcherSupplier = editorWatcherSupplier;
+            this.flowEditor = flowEditor;
+        }
+
+        public boolean hasQuickFixSelected()
+        {
+            return highlighted > -1;
+        }
+
+        void executeQuickFix(){
+            super.executeSelectedFix();
+        }
+
+        @Override
+        @OnThread(value=Tag.FX,ignoreParent = true)
+        protected void hide()
+        {
+            this.popup.hide();
+        }
+
+        @Override
+        @OnThread(value=Tag.FXPlatform,ignoreParent = true)
+        protected void postFixError()
+        {
+            flowEditor.compileOrShowNextError();
         }
 
         @OnThread(Tag.FXPlatform)
         public void createPopup()
         {
             this.popup = new PopupControl();
+            VBox errorVBox = new VBox();
 
-            Text text = new Text(ParserMessageHandler.getMessageForCode(details.message));
-            TextFlow flow = new TextFlow(text);
-            flow.setMaxWidth(600.0);
-            JavaFXUtil.addStyleClass(text, "java-error");
-            text.styleProperty().bind(PrefMgr.getEditorFontCSS(true));
-            Pane p = new BorderPane(flow);
+            Label text = new Label(ParserMessageHandler.getMessageForCode(details.message));
+            errorVBox.getChildren().add(text);
+            prepareFixDisplay(errorVBox, details.corrections, editorWatcherSupplier, details.identifier);
+
+            JavaFXUtil.addStyleClass(text, "error-label");
             this.popup.setSkin(new Skin<Skinnable>()
             {
                 @Override
@@ -3306,7 +3425,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 @OnThread(Tag.FX)
                 public Node getNode()
                 {
-                    return p;
+                    return errorVBox;
                 }
 
                 @Override
@@ -3316,10 +3435,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
                 }
             });
-
-            p.getStyleClass().add("java-error-popup");
-            Config.addPopupStylesheets(p);
-            //org.scenicview.ScenicView.show(this.popup.getScene());
+            errorVBox.getStyleClass().add("java-error-popup");
+            Config.addPopupStylesheets(errorVBox);
         }
     }
 }

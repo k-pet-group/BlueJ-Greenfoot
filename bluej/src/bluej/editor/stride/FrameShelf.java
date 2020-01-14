@@ -210,6 +210,7 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
     }
 
     @Override
+    @OnThread(Tag.Any)
     public FrameEditor getFrameEditor()
     {
         return null;

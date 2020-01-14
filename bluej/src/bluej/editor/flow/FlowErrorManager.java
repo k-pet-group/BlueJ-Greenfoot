@@ -22,6 +22,8 @@
 package bluej.editor.flow;
 
 import bluej.editor.fixes.EditorFixesManager;
+import bluej.editor.fixes.EditorFixesManager.ImportPackageFix;
+import bluej.editor.fixes.EditorFixesManager.ImportSingleFix;
 import bluej.parser.AssistContentThreadSafe;
 import bluej.editor.fixes.FixSuggestion;
 import bluej.editor.flow.FlowEditorPane.ErrorQuery;
@@ -192,7 +194,7 @@ public class FlowErrorManager implements ErrorQuery
         public final int endPos;
         public final String message;
         public final int identifier;
-        private final List<FixSuggestion> corrections = new ArrayList<>();
+        public final List<FixSuggestion> corrections = new ArrayList<>();
 
         private ErrorDetails(FlowEditor editor, int startPos, int endPos, String message, int identifier, Stream<AssistContentThreadSafe> possibleImports)
         {
@@ -201,16 +203,14 @@ public class FlowErrorManager implements ErrorQuery
             this.message = message;
             this.identifier = identifier;
 
-            // set the quick fix imports if detected an unknow type error...
+            // set the quick fix imports if detected an unknown type error...
             if (message.contains("cannot find symbol") && message.contains("class"))
             {
                 String typeName = message.substring(message.lastIndexOf(' ') + 1);
-                List<AssistContentThreadSafe> importsForError = possibleImports
-                        .filter(ac -> ac.getPackage() != null && ac.getName().equals(typeName)).collect(Collectors.toList());
-              /*TODO:pwt corrections.addAll(possibleImports
+                corrections.addAll(possibleImports
                         .filter(ac -> ac.getPackage() != null && ac.getName().equals(typeName))
                         .flatMap(ac -> Stream.of(new ImportSingleFix(editor, ac), new ImportPackageFix(editor, ac)))
-                        .collect(Collectors.toList()));*/
+                        .collect(Collectors.toList()));
             }
         }
 

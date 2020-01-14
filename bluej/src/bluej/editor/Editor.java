@@ -334,7 +334,7 @@ public interface Editor
     /**
      * Adds the specified import into the editor;
      */
-    void addImport(String importName);
+    void addImportFromQuickFix(String importName);
 
 
     /**

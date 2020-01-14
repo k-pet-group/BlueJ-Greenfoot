@@ -751,9 +751,9 @@ public class FrameEditor implements Editor
 
             @Override
             @OnThread(Tag.FXPlatform)
-            public void addImport(String importName)
+            public void addImportFromQuickFix(String importName)
             {
-                FrameEditor.this.addImport(importName);
+                FrameEditor.this.addImportFromQuickFix(importName);
             }
 
             @Override
@@ -1297,7 +1297,7 @@ public class FrameEditor implements Editor
     }
 
     @Override
-    public void addImport(String importName)
+    public void addImportFromQuickFix(String importName)
     {
         panel.addImport(importName);
     }

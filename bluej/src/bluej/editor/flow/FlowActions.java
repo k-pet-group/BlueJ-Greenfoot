@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -1421,17 +1421,24 @@ public final class FlowActions
     private FlowAbstractAction newLineAction()
     {
         return action("new-line", Category.EDIT, () -> {
-            if (editor.isReadOnly())
-                return;
-            getClearedEditor().getSourcePane().replaceSelection("\n");
-            getClearedEditor().getSourcePane().ensureCaretShowing();
-
-            if (PrefMgr.getFlag(PrefMgr.AUTO_INDENT))
+            if (editor.hasQuickFixShown() && editor.hasQuickFixSelected())
             {
-                doIndent();
+                editor.executeQuickFix();
             }
-            //TODOFLOW
-            //editor.undoManager.breakEdit();
+            else
+            {
+                if (editor.isReadOnly())
+                    return;
+                getClearedEditor().getSourcePane().replaceSelection("\n");
+                getClearedEditor().getSourcePane().ensureCaretShowing();
+
+                if (PrefMgr.getFlag(PrefMgr.AUTO_INDENT))
+                {
+                    doIndent();
+                }
+                //TODOFLOW
+                //editor.undoManager.breakEdit();
+            }
         });
     }
 
@@ -1803,19 +1810,26 @@ public final class FlowActions
         @Override
         public void actionPerformed(boolean viaContextMenu)
         {
-            SourceLocation pos = getTextComponent().getDocument().makeSourceLocation(getTextComponent().getCaretPosition());
-            int targetColumn = getTextComponent().getTargetColumnForVerticalMove();
-            if (pos.getLine() == 1)
+            if (editor.hasQuickFixShown())
             {
-                moveCaret(0);
+                editor.changeQuickFixSelection(false);
             }
             else
             {
-                if (targetColumn == -1)
-                    targetColumn = pos.getColumn();
-                moveCaret(getTextComponent().getDocument().getPosition(new SourceLocation(pos.getLine() - 1, targetColumn)));
+                SourceLocation pos = getTextComponent().getDocument().makeSourceLocation(getTextComponent().getCaretPosition());
+                int targetColumn = getTextComponent().getTargetColumnForVerticalMove();
+                if (pos.getLine() == 1)
+                {
+                    moveCaret(0);
+                }
+                else
+                {
+                    if (targetColumn == -1)
+                        targetColumn = pos.getColumn();
+                    moveCaret(getTextComponent().getDocument().getPosition(new SourceLocation(pos.getLine() - 1, targetColumn)));
+                }
+                getTextComponent().setTargetColumnForVerticalMove(targetColumn);
             }
-            getTextComponent().setTargetColumnForVerticalMove(targetColumn);
         }
     }
 
@@ -1829,19 +1843,26 @@ public final class FlowActions
         @Override
         public void actionPerformed(boolean viaContextMenu)
         {
-            SourceLocation pos = getTextComponent().getDocument().makeSourceLocation(getTextComponent().getCaretPosition());
-            int targetColumn = getTextComponent().getTargetColumnForVerticalMove();
-            if (pos.getLine() == getTextComponent().getDocument().getLineCount())
+            if (editor.hasQuickFixShown())
             {
-                moveCaret(getTextComponent().getDocument().getLength());
+                editor.changeQuickFixSelection(true);
             }
             else
             {
-                if (targetColumn == -1)
-                    targetColumn = pos.getColumn();
-                moveCaret(getTextComponent().getDocument().getPosition(new SourceLocation(pos.getLine() + 1, targetColumn)));
+                SourceLocation pos = getTextComponent().getDocument().makeSourceLocation(getTextComponent().getCaretPosition());
+                int targetColumn = getTextComponent().getTargetColumnForVerticalMove();
+                if (pos.getLine() == getTextComponent().getDocument().getLineCount())
+                {
+                    moveCaret(getTextComponent().getDocument().getLength());
+                }
+                else
+                {
+                    if (targetColumn == -1)
+                        targetColumn = pos.getColumn();
+                    moveCaret(getTextComponent().getDocument().getPosition(new SourceLocation(pos.getLine() + 1, targetColumn)));
+                }
+                getTextComponent().setTargetColumnForVerticalMove(targetColumn);
             }
-            getTextComponent().setTargetColumnForVerticalMove(targetColumn);
         }
     }
 

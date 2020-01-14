@@ -125,7 +125,7 @@ public interface InteractionManager extends SuggestionListParent
     @OnThread(Tag.FXPlatform)
     List<AssistContentThreadSafe> getThisConstructors();
 
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.Any)
     FrameEditor getFrameEditor();
 
     // See corresponding DataCollector methods for more parameter info.

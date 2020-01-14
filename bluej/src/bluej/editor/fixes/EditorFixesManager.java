@@ -72,7 +72,7 @@ public class EditorFixesManager
     private final ReadWriteLock importedTypesLock;
     @OnThread(Tag.Any) // but only when the lock is acquired!
     private final List<Future<List<AssistContentThreadSafe>>> importedTypes;
-
+    @OnThread(Tag.Any)
     private Project project;
 
     /**
@@ -80,7 +80,7 @@ public class EditorFixesManager
      * so this is where *per editor* variables are initialised.
      */
     @OnThread(Tag.Any)
-    public EditorFixesManager(/*Project project*/)
+    public EditorFixesManager()
     {
         importedTypesLock = new ReentrantReadWriteLock();
         importedTypes = new ArrayList<>();
@@ -91,7 +91,7 @@ public class EditorFixesManager
 
         if (getJavaLangImports() == null)
         {
-            Platform.runLater(() -> setJavaLangImports(importsUpdated("java.lang.*")));
+            setJavaLangImports(importsUpdated("java.lang.*"));
         }
         // This should perhaps be in an external config file:
         if (getPopularImports().isEmpty())
@@ -129,7 +129,6 @@ public class EditorFixesManager
     }
 
 
-    @OnThread(Tag.FXPlatform)
     public Future<List<AssistContentThreadSafe>> importsUpdated(final String x)
     {
         CompletableFuture<List<AssistContentThreadSafe>> f = new CompletableFuture<>();
@@ -219,6 +218,7 @@ public class EditorFixesManager
                 .collect(Collectors.toList());
     }
 
+    @OnThread(Tag.Any)
     public ReadWriteLock getImportedTypesLock()
     {
         return importedTypesLock;
@@ -262,6 +262,7 @@ public class EditorFixesManager
         }
 
         @Override
+        @OnThread(Tag.Any)
         public String getDescription()
         {
             return "Import class " + classInfo.getPackage() + "." + classInfo.getName();
@@ -270,7 +271,7 @@ public class EditorFixesManager
         @Override
         public void execute()
         {
-            editor.addImport(classInfo.getPackage() + "." + classInfo.getName());
+            editor.addImportFromQuickFix(classInfo.getPackage() + "." + classInfo.getName());
         }
     }
 
@@ -287,6 +288,7 @@ public class EditorFixesManager
         }
 
         @Override
+        @OnThread(Tag.Any)
         public String getDescription()
         {
             return "Import package " + classInfo.getPackage() + " (for " + classInfo.getName() + " class)";
@@ -295,7 +297,7 @@ public class EditorFixesManager
         @Override
         public void execute()
         {
-            editor.addImport(classInfo.getPackage() + ".*");
+            editor.addImportFromQuickFix(classInfo.getPackage() + ".*");
         }
     }
 }

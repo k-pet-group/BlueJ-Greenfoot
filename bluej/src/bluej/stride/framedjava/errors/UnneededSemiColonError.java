@@ -53,6 +53,7 @@ public class UnneededSemiColonError extends SyntaxCodeError
     }
 
     @Override
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public List<FixSuggestion> getFixSuggestions()
     {
         return Collections.singletonList(new FixSuggestion() {
