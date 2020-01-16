@@ -1013,6 +1013,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                     DialogManager.showMessageFX(fxTabbedEditor.getWindow(), "editor-crashed");
                 }
 
+                ignoreChanges = true;
                 document.replaceText(0, document.getLength(), Files.readString(file.toPath(), charset).replace("\r", ""));
                 setLastModified(file.lastModified());
                 // Position caret at start, not the end:
@@ -1025,6 +1026,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             catch (IOException ex) {
                 // TODO display user-visible error
                 Debug.reportError("Couldn't open file", ex);
+            }
+            finally
+            {
+                ignoreChanges = false;
             }
         }
         else {
