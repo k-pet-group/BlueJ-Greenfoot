@@ -74,6 +74,8 @@ public class EditorFixesManager
     private final List<Future<List<AssistContentThreadSafe>>> importedTypes;
     @OnThread(Tag.Any)
     private Project project;
+    @OnThread(Tag.Any)
+    private boolean areImportsready = false;
 
     /**
      * The constructor of EditorFixesManager is called by an Editor,
@@ -156,11 +158,13 @@ public class EditorFixesManager
     public Map<SuggestionList.SuggestionShown, Collection<AssistContentThreadSafe>> getImportSuggestions()
     {
         HashMap<String, Pair<SuggestionShown, AssistContentThreadSafe>> imports = new HashMap<>();
-        // Add popular:
-        Stream.concat(
+        if (popularImports.size() > 0 && rarerImports.size() > 0)
+        {
+            // Add popular:
+            Stream.concat(
                 popularImports.stream().flatMap(imps -> Utility.getFutureList(imps).stream().map(ac -> new Pair<>(SuggestionList.SuggestionShown.COMMON, ac))),
                 rarerImports.stream().flatMap(imps -> Utility.getFutureList(imps).stream().map(ac -> new Pair<>(SuggestionList.SuggestionShown.RARE, ac)))
-        )
+            )
                 .filter(imp -> imp.getValue().getPackage() != null)
                 .forEach(imp -> {
                     String fullName = imp.getValue().getPackage() + ".";
@@ -171,14 +175,24 @@ public class EditorFixesManager
                     fullName += imp.getValue().getName();
                     imports.put(fullName, imp);
                 });
-        // Remove what we already import:
-        getAllImportedTypes()
+            // Remove what we already import:
+            getAllImportedTypes()
                 .filter(imp -> imp.getPackage() != null)
                 .forEach(imp -> imports.remove(imp.getPackage() + "." + imp.getName()));
+            // Remove imports we want to hide (for instance that are unused and confusing for users)
+            imports.remove("java.awt.List");
+        }
+
         // And return the result:
         HashMap<SuggestionList.SuggestionShown, Collection<AssistContentThreadSafe>> ret = new HashMap<>();
-        imports.values().forEach(p -> ret.merge(p.getKey(), new ArrayList<AssistContentThreadSafe>(Arrays.asList(p.getValue())), (BiFunction<Collection<AssistContentThreadSafe>,Collection<AssistContentThreadSafe>,Collection<AssistContentThreadSafe>>)(a, b) -> {a.addAll(b); return a;}));
+        imports.values().forEach(p -> ret.merge(p.getKey(), new ArrayList<AssistContentThreadSafe>(Arrays.asList(p.getValue())), (BiFunction<Collection<AssistContentThreadSafe>, Collection<AssistContentThreadSafe>, Collection<AssistContentThreadSafe>>) (a, b) -> {a.addAll(b); return a;}));
+        areImportsready = (ret.size() > 0);
         return ret;
+    }
+
+    @OnThread(Tag.Any)
+    public boolean areImportsready(){
+        return areImportsready;
     }
 
     @OnThread(Tag.FXPlatform)

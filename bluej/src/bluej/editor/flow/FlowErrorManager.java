@@ -78,18 +78,35 @@ public class FlowErrorManager implements ErrorQuery
         sourcePane.getDocument().addLineAttribute(editor.getSourcePane().getDocument().getLineFromPosition(startPos), ParagraphAttribute.ERROR, true);
 
         EditorFixesManager efm = editor.getEditorFixesManager();
+
+        // To avoid the interface to hang to display the errors while errors are retrieved,
+        // we check the status of the imports to either just display errors without quick fixes,
+        // (and launch the imports for a future compilation error highlight) or normal use.
+        boolean areimportsReady = efm.areImportsready();
+        if (!areimportsReady)
+        {
+            // imports not yet ready: first display errors without any quick fix
+            showErrors(editor, sourcePane, startPos, endPos, message, identifier, null);
+        }
+        // prepare for the next compilation (if imports not ready)
+        // or retrieve them (imports are ready)
         Utility.runBackground(() -> {
             Stream<AssistContentThreadSafe> imports = efm.getImportSuggestions().values().stream().
-                    flatMap(Collection::stream);
-
-            Platform.runLater(() -> {
-                errorInfos.add(new FlowErrorManager.ErrorDetails(editor, startPos, endPos, message, identifier, imports));
-                setNextErrorEnabled.accept(true);
-                editor.updateHeaderHasErrors(true);
-                sourcePane.repaint();
-            });
+                flatMap(Collection::stream);
+            if (areimportsReady)
+            {
+                Platform.runLater(() -> showErrors(editor, sourcePane, startPos, endPos, message, identifier, imports));
+            }
         });
     }
+
+    private void showErrors(FlowEditor editor, FlowEditorPane sourcePane, int startPos, int endPos, String message, int identifier, Stream<AssistContentThreadSafe> imports){
+        errorInfos.add(new FlowErrorManager.ErrorDetails(editor, startPos, endPos, message, identifier, imports));
+        setNextErrorEnabled.accept(true);
+        editor.updateHeaderHasErrors(true);
+        sourcePane.repaint();
+    }
+
 
     /**
      * Remove any existing compiler error highlight.
@@ -207,10 +224,13 @@ public class FlowErrorManager implements ErrorQuery
             if (message.contains("cannot find symbol") && message.contains("class"))
             {
                 String typeName = message.substring(message.lastIndexOf(' ') + 1);
-                corrections.addAll(possibleImports
+                if (possibleImports != null)
+                {
+                    corrections.addAll(possibleImports
                         .filter(ac -> ac.getPackage() != null && ac.getName().equals(typeName))
                         .flatMap(ac -> Stream.of(new ImportSingleFix(editor, ac), new ImportPackageFix(editor, ac)))
                         .collect(Collectors.toList()));
+                }
             }
         }
 
