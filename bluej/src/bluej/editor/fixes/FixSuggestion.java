@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2018,2020 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2019,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,21 +19,16 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.stride.slots;
+package bluej.editor.fixes;
 
-import bluej.editor.fixes.SuggestionList;
-import javafx.scene.control.TextField;
-import bluej.stride.framedjava.ast.JavaFragment.PosInSourceDoc;
-import bluej.stride.framedjava.elements.CodeElement;
-import bluej.editor.fixes.SuggestionList.SuggestionListListener;
-import bluej.utility.javafx.FXPlatformConsumer;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-@OnThread(Tag.FXPlatform)
-public interface CompletionCalculator
+public abstract class FixSuggestion
 {
-    public void withCalculatedSuggestionList(PosInSourceDoc pos, CodeElement codeEl, SuggestionListListener clickListener, FXPlatformConsumer<SuggestionList> handler);
-    
-    public boolean execute(TextField field, int highlighted, int startOfCurWord);
+    @OnThread(Tag.Any)
+    public abstract String getDescription();
+
+    @OnThread(Tag.FXPlatform)
+    public abstract void execute();
 }

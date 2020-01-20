@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2012,2013,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -44,7 +44,9 @@ import java.net.URL;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -1419,6 +1421,20 @@ public class Utility
         xml.addNamespaceDeclaration("xml", "http://www.w3.org/XML/1998/namespace");
         s.write(new Document(xml));
         s.flush();
+    }
+
+    // Exception-safe wrapper for Future.get
+    @OnThread(Tag.Worker)
+    public static <T> List<T> getFutureList(Future<List<T>> f)
+    {
+        try
+        {
+            return f.get(10, TimeUnit.SECONDS);
+        }
+        catch (Exception e) {
+            Debug.reportError("Problem looking up types", e);
+            return Collections.emptyList();
+        }
     }
 
     private static class ExternalProcessLogger extends Thread

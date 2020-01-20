@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016,2019,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -41,8 +40,7 @@ import bluej.stride.framedjava.elements.CodeElement.LocalParamInfo;
 import bluej.stride.framedjava.elements.ContainerCodeElement;
 import bluej.stride.framedjava.elements.MethodWithBodyElement;
 import bluej.stride.framedjava.elements.TopLevelCodeElement;
-import bluej.stride.generic.AssistContentThreadSafe;
-import bluej.utility.javafx.FXConsumer;
+import bluej.parser.AssistContentThreadSafe;
 
 public class ASTUtility
 {

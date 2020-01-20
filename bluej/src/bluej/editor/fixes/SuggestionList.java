@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2018,2019 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018,2019,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,7 +19,7 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.stride.slots;
+package bluej.editor.fixes;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +30,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import bluej.utility.Debug;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
@@ -66,7 +65,6 @@ import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import javafx.util.Duration;
 
-import bluej.prefmgr.PrefMgr;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import threadchecker.OnThread;
@@ -79,7 +77,7 @@ import bluej.utility.javafx.ScalableHeightLabel;
 
 
 /**
- * A code completion suggestion list that pops up beneath a slot to offer suggestions
+ * A code completion suggestion list that pops up in an editor to offer suggestions
  * for the user to pick from, using either the arrow keys, the mouse, or by typing more and pressing enter.
  *
  * Suggestions can either be "direct", meaning that what the user has typed so far is
@@ -102,6 +100,7 @@ public class SuggestionList
 
     private final SuggestionListListener listener;
 
+    @OnThread(Tag.FXPlatform)
     private static class SuggestionListView extends ListView<SuggestionListItem>
     {
         private final SimpleStyleableDoubleProperty cssTypeWidthProperty = new SimpleStyleableDoubleProperty(TYPE_WIDTH_META_DATA);
@@ -121,8 +120,12 @@ public class SuggestionList
                   .add(PREF_WIDTH_META_DATA)
                   .build();
 
+        @OnThread(Tag.Any)
         public static List <CssMetaData <? extends Styleable, ? > > getClassCssMetaData() { return cssMetaDataList; }
-        @Override public List<CssMetaData<? extends Styleable, ?>> getControlCssMetaData() { return getClassCssMetaData(); }
+
+        @OnThread(Tag.Any)
+        @Override
+        public List<CssMetaData<? extends Styleable, ?>> getControlCssMetaData() { return getClassCssMetaData(); }
 
         public SuggestionListView(DoubleExpression typeWidth, FXPlatformConsumer<SuggestionListItem> clickListener)
         {
@@ -267,6 +270,7 @@ public class SuggestionList
     }
 
     // package-visible; needs to be seen by SuggestionCell
+    @OnThread(Tag.FXPlatform)
     class SuggestionListItem
     {
         // Index into the choices list
@@ -420,11 +424,9 @@ public class SuggestionList
      * 
      * @param listParent Editor (used to get overlay panes)
      * @param choices The strings of the choices to match the user's input against
-     * @param suffixes Non-matchable bits on the end of a suggestion, e.g. param types.
-     *                 Should either be null or same length as choices, one suffix per choice. 
-     * @param types Should either be null, or the same length as choices, one type per choice
      * @param highlightListener A listener for the highlighted item changing.  Can be null.
-     * @param clickListener A listener for a choice being clicked (and thus selected).  Cannot be null.
+     * @param startShown
+     * @param listener A listener for a choice being selected.  Cannot be null.
      */
     public SuggestionList(SuggestionListParent listParent, List<? extends SuggestionDetails> choices, String targetType,
                           SuggestionShown startShown, Consumer<Integer> highlightListener, final SuggestionListListener listener)
@@ -786,7 +788,7 @@ public class SuggestionList
             down();
     }
 
-    protected void setHighlighted(int newHighlight, boolean scrollTo)
+    public void setHighlighted(int newHighlight, boolean scrollTo)
     {
         if (highlighted == newHighlight)
         {

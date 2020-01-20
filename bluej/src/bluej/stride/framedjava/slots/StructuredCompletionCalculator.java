@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2016,2019,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -25,7 +25,7 @@ import java.util.List;
 
 import bluej.stride.framedjava.ast.JavaFragment;
 import bluej.stride.framedjava.elements.CodeElement;
-import bluej.stride.slots.SuggestionList;
+import bluej.editor.fixes.SuggestionList;
 import bluej.utility.javafx.FXPlatformConsumer;
 import threadchecker.OnThread;
 import threadchecker.Tag;

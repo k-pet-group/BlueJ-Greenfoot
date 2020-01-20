@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2019,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,11 +21,8 @@
  */
 package bluej.stride.framedjava.slots;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -34,14 +31,13 @@ import bluej.stride.framedjava.ast.JavaFragment.PosInSourceDoc;
 import bluej.stride.framedjava.ast.Parser;
 import bluej.stride.framedjava.ast.SuperThis;
 import bluej.stride.framedjava.elements.CodeElement;
-import bluej.stride.generic.AssistContentThreadSafe;
+import bluej.parser.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
-import bluej.stride.slots.SuggestionList;
-import bluej.stride.slots.SuggestionList.SuggestionDetailsWithHTMLDoc;
-import bluej.stride.slots.SuggestionList.SuggestionListListener;
+import bluej.editor.fixes.SuggestionList;
+import bluej.editor.fixes.SuggestionList.SuggestionDetailsWithHTMLDoc;
+import bluej.editor.fixes.SuggestionList.SuggestionListListener;
 import bluej.utility.JavaUtils;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXConsumer;
 import bluej.utility.javafx.FXPlatformConsumer;
 import threadchecker.OnThread;
 import threadchecker.Tag;

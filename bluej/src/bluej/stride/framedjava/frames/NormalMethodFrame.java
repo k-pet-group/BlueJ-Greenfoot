@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2019,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej.stride.framedjava.frames;
 
 import bluej.Config;
 import bluej.debugger.gentype.Reflective;
+import bluej.editor.fixes.SuggestionList;
 import bluej.parser.AssistContent.CompletionKind;
 import bluej.parser.AssistContent.ParamInfo;
 import bluej.stride.framedjava.ast.ASTUtility;
@@ -39,7 +40,7 @@ import bluej.stride.framedjava.elements.MethodProtoElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.slots.ExpressionCompletionCalculator;
 import bluej.stride.framedjava.slots.TypeSlot;
-import bluej.stride.generic.AssistContentThreadSafe;
+import bluej.parser.AssistContentThreadSafe;
 import bluej.stride.generic.ExtensionDescription;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.generic.Frame;
@@ -53,8 +54,8 @@ import bluej.stride.operations.FrameOperation;
 import bluej.stride.operations.ToggleBooleanProperty;
 import bluej.stride.slots.*;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
-import bluej.stride.slots.SuggestionList.SuggestionDetailsWithHTMLDoc;
-import bluej.stride.slots.SuggestionList.SuggestionListListener;
+import bluej.editor.fixes.SuggestionList.SuggestionDetailsWithHTMLDoc;
+import bluej.editor.fixes.SuggestionList.SuggestionListListener;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.HangingFlowPane;

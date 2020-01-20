@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2019 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2019,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,9 +23,7 @@ package bluej.stride.framedjava.ast;
 
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -33,10 +31,10 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.editor.stride.FrameEditor;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.framedjava.errors.UnknownTypeError;
-import bluej.stride.generic.AssistContentThreadSafe;
 import bluej.utility.javafx.FXPlatformConsumer;
 import javafx.application.Platform;
 import bluej.parser.JavaParser;
@@ -232,14 +230,14 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
         else
             return Stream.empty();
     }
-    
-    
+
     @Override
     public Future<List<DirectSlotError>> findLateErrors(InteractionManager editor, CodeElement parent, LocationMap rootPathMap)
     {
         CompletableFuture<List<DirectSlotError>> f = new CompletableFuture<>();
         Platform.runLater(() -> ASTUtility.withLocalsParamsAndFields(parent, editor, getPosInSourceDoc(), includeDirectDecl(), vars -> {
             this.vars = vars;
+            FrameEditor frameEditor = editor.getFrameEditor();
 
             //Debug.message("This: " + getClass() + " " + this + "+" + getPosInSourceDoc().offset);
             //Debug.message("Vars: " + this.vars.keySet().stream().collect(Collectors.joining(", ")));
@@ -275,7 +273,7 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
                     int endPosInSlot = token.getColumn() - 1 + token.getLength();
                     FXPlatformConsumer<String> replace =
                         s -> slot.replace(startPosInSlot, endPosInSlot, true, s);
-                    return (DirectSlotError) new UnknownTypeError(this, typeName, replace, editor, availableTypes.values().stream(), editor.getImportSuggestions().values().stream().flatMap(Collection::stream)) {
+                    return (DirectSlotError) new UnknownTypeError(this, typeName, replace, editor, availableTypes.values().stream(), frameEditor.getEditorFixesManager().getImportSuggestions().values().stream().flatMap(Collection::stream)) {
                         @Override
                         public int getStartPosition()
                         {

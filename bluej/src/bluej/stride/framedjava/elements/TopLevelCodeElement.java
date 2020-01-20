@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2019 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2019,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,7 +29,7 @@ import java.util.stream.Stream;
 import bluej.debugger.gentype.ConstructorReflective;
 import bluej.stride.framedjava.ast.FrameFragment;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
-import bluej.stride.generic.AssistContentThreadSafe;
+import bluej.parser.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
 import nu.xom.Attribute;
 import nu.xom.Element;

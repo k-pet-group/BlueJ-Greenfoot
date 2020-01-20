@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2015,2016,2019,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import bluej.stride.framedjava.errors.EmptyError;
-import bluej.stride.framedjava.errors.FixSuggestion;
+import bluej.editor.fixes.FixSuggestion;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.stride.framedjava.frames.IfFrame;
 import bluej.stride.framedjava.frames.ReturnFrame;
@@ -37,7 +37,6 @@ import bluej.stride.framedjava.frames.ThrowFrame;
 import bluej.stride.framedjava.frames.WhileFrame;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.generic.Frame;
-import threadchecker.OnThread;
 
 /**
  * Created by neil on 04/12/2015.

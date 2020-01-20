@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2019,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,18 +23,22 @@ package bluej.stride.framedjava.errors;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import bluej.compiler.Diagnostic.DiagnosticOrigin;
+import bluej.editor.fixes.EditorFixesManager.ImportPackageFix;
+import bluej.editor.fixes.EditorFixesManager.ImportSingleFix;
+import bluej.editor.fixes.FixSuggestion;
+import bluej.editor.stride.FrameEditor;
 import bluej.stride.framedjava.ast.SlotFragment;
-import bluej.stride.framedjava.ast.TypeSlotFragment;
 import bluej.stride.framedjava.errors.Correction.CorrectionInfo;
-import bluej.stride.framedjava.slots.TypeSlot;
-import bluej.stride.generic.AssistContentThreadSafe;
+import bluej.parser.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
-import bluej.utility.Debug;
 import bluej.utility.javafx.FXPlatformConsumer;
+import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -52,7 +56,7 @@ public class UnknownTypeError extends DirectSlotError
      *
      * @param slotFragment The fragment with the error.
      * @param typeName The name of the type which is used, but was not declared
-     * @param replace An action which takes a replacement type name, and substitutes it for the errorneous type name in the original frame.
+     * @param replace An action which takes a replacement type name, and substitutes it for the erroneous type name in the original frame.
      * @param editor The editor of the class (used to add imports)
      * @param possibleCorrections The possible other type names (unfiltered: all type names which are in scope)
      * @param possibleImports The possible packages that we could import a class of this name from.
@@ -63,12 +67,12 @@ public class UnknownTypeError extends DirectSlotError
         super(slotFragment, DiagnosticOrigin.STRIDE_LATE);
         this.typeName = typeName;
         this.editor = editor;
-        
+
         corrections.addAll(Correction.winnowAndCreateCorrections(typeName, possibleCorrections.map(TypeCorrectionInfo::new), replace));
         corrections.addAll(possibleImports
-                .filter(ac -> ac.getPackage() != null && ac.getName().equals(typeName))
-                .flatMap(ac -> Stream.of(new ImportSingleFix(ac), new ImportPackageFix(ac)))
-                .collect(Collectors.toList()));
+                    .filter(ac -> ac.getPackage() != null && ac.getName().equals(typeName))
+                    .flatMap(ac -> Stream.of(new ImportSingleFix(editor.getFrameEditor(), ac), new ImportPackageFix(editor.getFrameEditor(), ac)))
+                    .collect(Collectors.toList()));
     }
 
     @OnThread(Tag.Any)
@@ -86,47 +90,7 @@ public class UnknownTypeError extends DirectSlotError
                 return ac.getName() + " (" + ac.getPackage() + " package)";
         }
     }
-    
-    private class ImportSingleFix extends FixSuggestion
-    {
-        private final AssistContentThreadSafe classInfo;
 
-        @OnThread(Tag.Any)
-        public ImportSingleFix(AssistContentThreadSafe ac) { this.classInfo = ac; }
-
-        @Override
-        public String getDescription()
-        {
-            return "Import class " + classInfo.getPackage() + "." + classInfo.getName();
-        }
-
-        @Override
-        public void execute()
-        {
-            editor.addImport(classInfo.getPackage() + "." + classInfo.getName());
-        }
-    }
-
-    private class ImportPackageFix extends FixSuggestion
-    {
-        private final AssistContentThreadSafe classInfo;
-
-        @OnThread(Tag.Any)
-        public ImportPackageFix(AssistContentThreadSafe ac) { this.classInfo = ac; }
-
-        @Override
-        public String getDescription()
-        {
-            return "Import package " + classInfo.getPackage() + " (for " + classInfo.getName() + " class)";
-        }
-
-        @Override
-        public void execute()
-        {
-            editor.addImport(classInfo.getPackage() + ".*");
-        }
-    }    
-    
     @Override
     @OnThread(Tag.Any)
     public String getMessage()

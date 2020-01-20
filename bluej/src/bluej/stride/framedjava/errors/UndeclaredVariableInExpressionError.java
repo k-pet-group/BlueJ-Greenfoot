@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2019 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2019,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 import bluej.compiler.Diagnostic.DiagnosticOrigin;
+import bluej.editor.fixes.FixSuggestion;
 import bluej.stride.framedjava.ast.StringSlotFragment;
 import bluej.stride.framedjava.errors.Correction.SimpleCorrectionInfo;
 import bluej.stride.framedjava.slots.ExpressionSlot;

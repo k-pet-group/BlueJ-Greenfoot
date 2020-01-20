@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016,2018 Michael Kölling and John Rosenberg 
+ Copyright (C) 2016,2018,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.pkgmgr.target.role.Kind;
 import javafx.beans.binding.StringExpression;
 import javafx.scene.Node;
 
@@ -89,9 +90,9 @@ public class TypeSlot extends StructuredSlot<TypeSlotFragment, InfixType, TypeCo
             case THROWS_CATCH:
                 return new TypeCompletionCalculator(editor, Throwable.class);
             case INTERFACE:
-                return new TypeCompletionCalculator(editor, InteractionManager.Kind.INTERFACE);
+                return new TypeCompletionCalculator(editor, Kind.INTERFACE);
             case EXTENDS:
-                return new TypeCompletionCalculator(editor, InteractionManager.Kind.CLASS_NON_FINAL);
+                return new TypeCompletionCalculator(editor, Kind.CLASS_NON_FINAL);
         }
         return new TypeCompletionCalculator(editor);
     }

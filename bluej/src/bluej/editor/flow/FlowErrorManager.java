@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,28 +21,38 @@
  */
 package bluej.editor.flow;
 
+import bluej.editor.fixes.EditorFixesManager;
+import bluej.editor.fixes.EditorFixesManager.ImportPackageFix;
+import bluej.editor.fixes.EditorFixesManager.ImportSingleFix;
+import bluej.parser.AssistContentThreadSafe;
+import bluej.editor.fixes.FixSuggestion;
 import bluej.editor.flow.FlowEditorPane.ErrorQuery;
 import bluej.editor.flow.JavaSyntaxView.ParagraphAttribute;
 import bluej.parser.SourceLocation;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.control.IndexRange;
-import org.fxmisc.richtext.model.TwoDimensional.Bias;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class FlowErrorManager implements ErrorQuery
 {
     private final ObservableList<ErrorDetails> errorInfos = FXCollections.observableArrayList();
     private FlowEditor editor;
     private Consumer<Boolean> setNextErrorEnabled;
+
     /**
      * Construct a new FlowErrorManager to manage error display for the specified editor instance.
      * The new manager should be set as the document listener so that it receives notification
@@ -56,8 +66,9 @@ public class FlowErrorManager implements ErrorQuery
 
     /**
      * Add a compiler error highlight.
-     * @param startPos  The document position where the error highlight should begin
-     * @param endPos    The document position where the error highlight should end
+     *
+     * @param startPos The document position where the error highlight should begin
+     * @param endPos   The document position where the error highlight should end
      */
     public void addErrorHighlight(int startPos, int endPos, String message, int identifier)
     {
@@ -65,11 +76,37 @@ public class FlowErrorManager implements ErrorQuery
             throw new IllegalArgumentException("Error ends before it begins: " + startPos + " to " + endPos);
         FlowEditorPane sourcePane = editor.getSourcePane();
         sourcePane.getDocument().addLineAttribute(editor.getSourcePane().getDocument().getLineFromPosition(startPos), ParagraphAttribute.ERROR, true);
-        errorInfos.add(new FlowErrorManager.ErrorDetails(startPos, endPos, message, identifier));
+
+        EditorFixesManager efm = editor.getEditorFixesManager();
+
+        // To avoid the interface to hang to display the errors while errors are retrieved,
+        // we check the status of the imports to either just display errors without quick fixes,
+        // (and launch the imports for a future compilation error highlight) or normal use.
+        boolean areimportsReady = efm.areImportsready();
+        if (!areimportsReady)
+        {
+            // imports not yet ready: first display errors without any quick fix
+            showErrors(editor, sourcePane, startPos, endPos, message, identifier, null);
+        }
+        // prepare for the next compilation (if imports not ready)
+        // or retrieve them (imports are ready)
+        Utility.runBackground(() -> {
+            Stream<AssistContentThreadSafe> imports = efm.getImportSuggestions().values().stream().
+                flatMap(Collection::stream);
+            if (areimportsReady)
+            {
+                Platform.runLater(() -> showErrors(editor, sourcePane, startPos, endPos, message, identifier, imports));
+            }
+        });
+    }
+
+    private void showErrors(FlowEditor editor, FlowEditorPane sourcePane, int startPos, int endPos, String message, int identifier, Stream<AssistContentThreadSafe> imports){
+        errorInfos.add(new FlowErrorManager.ErrorDetails(editor, startPos, endPos, message, identifier, imports));
         setNextErrorEnabled.accept(true);
         editor.updateHeaderHasErrors(true);
         sourcePane.repaint();
     }
+
 
     /**
      * Remove any existing compiler error highlight.
@@ -129,7 +166,7 @@ public class FlowErrorManager implements ErrorQuery
 
     /**
      * Get the error code (or message) at a particular document position.
-     * If there are multiple errors at the same position it will return the 
+     * If there are multiple errors at the same position it will return the
      * right most error at that position.
      */
     public FlowErrorManager.ErrorDetails getErrorAtPosition(int pos)
@@ -157,7 +194,7 @@ public class FlowErrorManager implements ErrorQuery
             return errorInfos.stream().filter(e -> e.startPos <= lineEnd && e.endPos >= lineStart).findFirst().orElse(null);
         }
     }
-    
+
     public List<IndexRange> getErrorUnderlines()
     {
         return Utility.mapList(errorInfos, e -> new IndexRange(e.startPos, e.endPos));
@@ -174,12 +211,27 @@ public class FlowErrorManager implements ErrorQuery
         public final int endPos;
         public final String message;
         public final int identifier;
-        private ErrorDetails(int startPos, int endPos, String message, int identifier)
+        public final List<FixSuggestion> corrections = new ArrayList<>();
+
+        private ErrorDetails(FlowEditor editor, int startPos, int endPos, String message, int identifier, Stream<AssistContentThreadSafe> possibleImports)
         {
             this.startPos = startPos;
             this.endPos = endPos;
             this.message = message;
             this.identifier = identifier;
+
+            // set the quick fix imports if detected an unknown type error...
+            if (message.contains("cannot find symbol") && message.contains("class"))
+            {
+                String typeName = message.substring(message.lastIndexOf(' ') + 1);
+                if (possibleImports != null)
+                {
+                    corrections.addAll(possibleImports
+                        .filter(ac -> ac.getPackage() != null && ac.getName().equals(typeName))
+                        .flatMap(ac -> Stream.of(new ImportSingleFix(editor, ac), new ImportPackageFix(editor, ac)))
+                        .collect(Collectors.toList()));
+                }
+            }
         }
 
         public boolean containsPosition(int pos)

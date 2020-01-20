@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2015,2016,2018,2019 Michael Kölling and John Rosenberg
+ Copyright (C) 2015,2016,2018,2019,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.editor.stride.FrameEditor;
 import bluej.parser.AssistContent.Access;
 import javafx.application.Platform;
 import javafx.beans.binding.StringExpression;
@@ -49,8 +50,8 @@ import bluej.stride.slots.TextSlot;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotTraversalChars;
 import bluej.stride.slots.CompletionCalculator;
-import bluej.stride.slots.SuggestionList;
-import bluej.stride.slots.SuggestionList.SuggestionListListener;
+import bluej.editor.fixes.SuggestionList;
+import bluej.editor.fixes.SuggestionList.SuggestionListListener;
 
 import bluej.editor.stride.FrameCatalogue;
 import bluej.utility.Utility;
@@ -88,8 +89,9 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
                                                      SuggestionListListener clickListener,
                                                      FXPlatformConsumer<SuggestionList> handler)
             {
+                FrameEditor frameEditor = editor.getFrameEditor();
                 Utility.runBackground(() -> {
-                    imports = editor.getImportSuggestions().entrySet().stream().flatMap(e ->
+                    imports = frameEditor.getEditorFixesManager().getImportSuggestions().entrySet().stream().flatMap(e ->
                             e.getValue().stream().filter(ac ->
                                     // Only if visible:
                                     ac.getPackage() == null || ac.getPackage().equals("") || ac.getAccessPermission() == Access.PUBLIC

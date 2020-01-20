@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2014,2015,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -91,8 +91,7 @@ import java.util.List;
 
 
 /**
- * FXTabbedEditor is the editor window that contains all the editors in JavaFX tabs (currently,
- * this is the Stride editors only).
+ * FXTabbedEditor is the editor window that contains all the editors in JavaFX tabs
  *
  * Because you can drag between tabs, it is responsible for handling dragging, rather than the individual editor tabs doing it.
  *

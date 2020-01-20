@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018,2019 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,13 +22,14 @@
 package bluej.stride.generic;
 
 import bluej.collect.StrideEditReason;
+import bluej.parser.AssistContentThreadSafe;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.editor.stride.FrameEditor;
+import bluej.pkgmgr.target.role.Kind;
 import bluej.stride.framedjava.ast.SlotFragment;
 import bluej.stride.slots.LinkedIdentifier;
 import bluej.stride.framedjava.ast.links.PossibleLink;
-import bluej.stride.slots.SuggestionList;
-import bluej.stride.slots.SuggestionList.SuggestionListParent;
+import bluej.editor.fixes.SuggestionList.SuggestionListParent;
 import bluej.utility.BackgroundConsumer;
 import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
@@ -58,9 +59,6 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -95,20 +93,6 @@ public interface InteractionManager extends SuggestionListParent
      */
     @OnThread(Tag.FXPlatform) void withTypes(Class<?> superType, boolean includeSelf, Set<Kind> kinds, BackgroundConsumer<Map<String, AssistContentThreadSafe>> handler);
 
-    /**
-     * Gets a list of classes that are commonly imported in Java programs,
-     * e.g. classes from java.util, java.io, and so on.
-     *
-     * This list will not feature any class that is already imported in the program.
-     */
-    @OnThread(Tag.Worker)
-    Map<SuggestionList.SuggestionShown, Collection<AssistContentThreadSafe>> getImportSuggestions();
-
-    /**
-     * Adds the given import to the import list (if not already present).  Should either be fully qualified
-     * class name or package.name.*
-     */
-    void addImport(String importSrc);
 
     FrameCursor getFocusedCursor();
 
@@ -141,6 +125,7 @@ public interface InteractionManager extends SuggestionListParent
     @OnThread(Tag.FXPlatform)
     List<AssistContentThreadSafe> getThisConstructors();
 
+    @OnThread(Tag.Any)
     FrameEditor getFrameEditor();
 
     // See corresponding DataCollector methods for more parameter info.
@@ -291,15 +276,6 @@ public interface InteractionManager extends SuggestionListParent
     public ReadOnlyObjectProperty<Frame.View> viewProperty();
 
     public void showUndoDeleteBanner(int totalEffort);
-
-    @OnThread(Tag.Any)
-    public static enum Kind
-    {
-        CLASS_NON_FINAL, CLASS_FINAL, INTERFACE, ENUM, PRIMITIVE;
-        private final static Set<InteractionManager.Kind> all = new HashSet<>(Arrays.asList(values()));
-        @OnThread(Tag.Any)
-        public static Set<InteractionManager.Kind> all() { return all; }
-    }
 
     public static interface FileCompletion
     {

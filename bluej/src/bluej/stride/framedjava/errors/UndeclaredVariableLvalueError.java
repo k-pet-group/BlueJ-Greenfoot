@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2019 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2019,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import bluej.compiler.Diagnostic.DiagnosticOrigin;
+import bluej.editor.fixes.FixSuggestion;
 import bluej.stride.framedjava.ast.ASTUtility;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.NameDefSlotFragment;
@@ -88,6 +89,7 @@ public class UndeclaredVariableLvalueError extends DirectSlotError
     private class ChangeAssignmentToDeclarationAndInitialisation extends FixSuggestion
     {
         @Override
+        @OnThread(Tag.Any)
         public String getDescription()
         {
             return "Declare variable here";
@@ -106,6 +108,7 @@ public class UndeclaredVariableLvalueError extends DirectSlotError
     {
 
         @Override
+        @OnThread(Tag.Any)
         public String getDescription()
         {
             return "Declare field in class";

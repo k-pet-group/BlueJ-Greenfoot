@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -83,10 +83,10 @@ import bluej.stride.slots.FocusParent;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.LinkedIdentifier;
 import bluej.stride.slots.SlotLabel;
-import bluej.stride.slots.SuggestionList;
-import bluej.stride.slots.SuggestionList.SuggestionDetails;
-import bluej.stride.slots.SuggestionList.SuggestionDetailsWithCustomDoc;
-import bluej.stride.slots.SuggestionList.SuggestionListListener;
+import bluej.editor.fixes.SuggestionList;
+import bluej.editor.fixes.SuggestionList.SuggestionDetails;
+import bluej.editor.fixes.SuggestionList.SuggestionDetailsWithCustomDoc;
+import bluej.editor.fixes.SuggestionList.SuggestionListListener;
 import bluej.utility.Utility;
 import bluej.utility.javafx.ErrorUnderlineCanvas;
 import bluej.utility.javafx.FXBiConsumer;

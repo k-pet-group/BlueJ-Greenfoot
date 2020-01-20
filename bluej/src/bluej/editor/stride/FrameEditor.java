@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2017,2018,2019 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2017,2018,2019,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,14 +29,14 @@ import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.compiler.Diagnostic;
-import bluej.debugger.DebuggerField;
-import bluej.debugger.DebuggerObject;
 import bluej.debugger.DebuggerThread;
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
 import bluej.editor.TextEditor;
+import bluej.editor.fixes.EditorFixesManager;
 import bluej.parser.nodes.ReparseableDocument;
+import bluej.pkgmgr.target.role.Kind;
 import bluej.prefmgr.PrefMgr.PrintSize;
 import bluej.parser.AssistContent;
 import bluej.parser.AssistContent.CompletionKind;
@@ -63,14 +63,10 @@ import bluej.stride.framedjava.elements.TopLevelCodeElement;
 import bluej.stride.framedjava.errors.DirectSlotError;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.stride.framedjava.frames.DebugInfo;
-import bluej.stride.framedjava.frames.DebugVarInfo;
 import bluej.stride.framedjava.frames.LocalCompletion;
 import bluej.stride.framedjava.frames.LocalTypeCompletion;
-import bluej.stride.framedjava.frames.PrimitiveDebugVarInfo;
-import bluej.stride.framedjava.frames.ReferenceDebugVarInfo;
 import bluej.stride.framedjava.slots.ExpressionSlot;
-import bluej.stride.generic.AssistContentThreadSafe;
-import bluej.stride.generic.InteractionManager.Kind;
+import bluej.parser.AssistContentThreadSafe;
 import bluej.utility.Debug;
 import bluej.utility.JavaReflective;
 import bluej.utility.Utility;
@@ -89,14 +85,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -145,6 +138,9 @@ public class FrameEditor implements Editor
     private final DebugInfo debugInfo = new DebugInfo();
     @OnThread(Tag.FXPlatform) private HighlightedBreakpoint curBreakpoint;
     @OnThread(Tag.FXPlatform) private final List<HighlightedBreakpoint> execHistory = new ArrayList<>();
+    /** The Editor Quick Fixes manager associated with this Editor */
+    @OnThread(Tag.Any)
+    private final EditorFixesManager editorFixesMgr = new EditorFixesManager();
 
     /** Stride source at last save. Assigned on FX thread only, readable on any thread. */
     private volatile TopLevelCodeElement lastSource;
@@ -749,6 +745,18 @@ public class FrameEditor implements Editor
             }
 
             @Override
+            public EditorFixesManager getEditorFixesManager(){
+                return FrameEditor.this.editorFixesMgr;
+            }
+
+            @Override
+            @OnThread(Tag.FXPlatform)
+            public void addImportFromQuickFix(String importName)
+            {
+                FrameEditor.this.addImportFromQuickFix(importName);
+            }
+
+            @Override
             @OnThread(Tag.FXPlatform)
             public void removeImports(List<String> importTargets)
             {
@@ -1280,6 +1288,18 @@ public class FrameEditor implements Editor
         }
         panel.insertMethodCallInConstructor(methodName, after);
         codeModified();
+    }
+
+    @Override
+    @OnThread(Tag.Any)
+    public EditorFixesManager getEditorFixesManager(){
+        return editorFixesMgr;
+    }
+
+    @Override
+    public void addImportFromQuickFix(String importName)
+    {
+        panel.addImport(importName);
     }
 
     @Override

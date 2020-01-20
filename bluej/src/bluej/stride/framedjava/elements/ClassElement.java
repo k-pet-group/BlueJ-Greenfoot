@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2018,2019 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2018,2019,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -53,7 +53,7 @@ import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.stride.framedjava.frames.ClassFrame;
 import bluej.stride.framedjava.frames.ConstructorFrame;
 import bluej.stride.framedjava.slots.ExpressionSlot;
-import bluej.stride.generic.AssistContentThreadSafe;
+import bluej.parser.AssistContentThreadSafe;
 import bluej.stride.generic.Frame.ShowReason;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;

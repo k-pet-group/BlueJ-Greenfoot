@@ -1,8 +1,8 @@
 /*
- This file is part of the BlueJ program. 
- Copyright (C) 2019  Michael Kolling and John Rosenberg
+ This file is part of the BlueJ program.
+ Copyright (C) 2019,2020  Michael Kolling and John Rosenberg
 
- This program is free software; you can redistribute it and/or 
+ This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License 
  as published by the Free Software Foundation; either version 2 
  of the License, or (at your option) any later version. 
@@ -32,6 +32,8 @@ import bluej.editor.flow.gen.GenRandom;
 import bluej.editor.flow.gen.GenString;
 import bluej.editor.stride.FrameCatalogue.ShowReason;
 import bluej.parser.InitConfig;
+import bluej.pkgmgr.Package;
+import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.stride.generic.Frame.View;
 import bluej.stride.generic.Frame.ViewChangeReason;
