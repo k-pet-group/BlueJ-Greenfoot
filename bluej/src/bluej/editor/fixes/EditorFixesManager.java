@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.BiFunction;
@@ -75,7 +76,7 @@ public class EditorFixesManager
     @OnThread(Tag.Any)
     private Project project;
     @OnThread(Tag.Any)
-    private boolean areImportsready = false;
+    private final AtomicBoolean areImportsready = new AtomicBoolean(false);
 
     /**
      * The constructor of EditorFixesManager is called by an Editor,
@@ -186,13 +187,13 @@ public class EditorFixesManager
         // And return the result:
         HashMap<SuggestionList.SuggestionShown, Collection<AssistContentThreadSafe>> ret = new HashMap<>();
         imports.values().forEach(p -> ret.merge(p.getKey(), new ArrayList<AssistContentThreadSafe>(Arrays.asList(p.getValue())), (BiFunction<Collection<AssistContentThreadSafe>, Collection<AssistContentThreadSafe>, Collection<AssistContentThreadSafe>>) (a, b) -> {a.addAll(b); return a;}));
-        areImportsready = (ret.size() > 0);
+        areImportsready.set((ret.size() > 0));
         return ret;
     }
 
     @OnThread(Tag.Any)
     public boolean areImportsready(){
-        return areImportsready;
+        return areImportsready.get();
     }
 
     @OnThread(Tag.FXPlatform)

@@ -21,16 +21,12 @@
  */
 package bluej.editor.fixes;
 
-import bluej.editor.Editor;
 import bluej.editor.EditorWatcher;
 import bluej.utility.Utility;
+import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
-import javafx.event.Event;
 import javafx.scene.control.Label;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
+
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -39,7 +35,6 @@ import threadchecker.Tag;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -59,10 +54,12 @@ public abstract class FixDisplayManager
     {
         private final Label enterHint = new Label("\u21B5");
         private final String displayText;
+        private final FXPlatformRunnable executeFix;
 
-        public FixDisplay(String display)
+        public FixDisplay(String display, FXPlatformRunnable executeFix)
         {
             this.displayText = display;
+            this.executeFix = executeFix;
             enterHint.setVisible(false);
             Label l = new Label(display);
             getChildren().addAll(l, enterHint);
@@ -85,13 +82,18 @@ public abstract class FixDisplayManager
         {
             return displayText;
         }
+
+        @OnThread(Tag.FXPlatform)
+        protected void executeSuggestion(){
+            executeFix.run();
+        }
     }
 
     protected void prepareFixDisplay(VBox vboxContainer, List<FixSuggestion> fixSuggestions, Supplier<EditorWatcher> editorWatcherSupplier, int errorIdentifier){
         this.errorIdentifier = errorIdentifier;
         for (FixSuggestion fix : fixSuggestions)
         {
-            FixDisplay l = new FixDisplay("  Fix: " + fix.getDescription());
+            FixDisplay l = new FixDisplay("  Fix: " + fix.getDescription(), () -> fix.execute());
             l.onMouseClickedProperty().set(e ->
             {
                 recordExecute(editorWatcherSupplier, fixes.indexOf(l));
@@ -108,11 +110,10 @@ public abstract class FixDisplayManager
         vboxContainer.setMinWidth(250.0);
     }
 
+    @OnThread(Tag.FXPlatform)
     protected void executeSelectedFix()
     {
-        Event.fireEvent(fixes.get((highlighted)), new MouseEvent(MouseEvent.MOUSE_CLICKED, 0,
-            0, 0, 0, MouseButton.PRIMARY, 1, true, true, true, true,
-            true, true, true, true, true, true, null));
+        fixes.get(highlighted).executeSuggestion();
     }
 
     @OnThread(Tag.FXPlatform)

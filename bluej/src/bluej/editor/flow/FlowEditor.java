@@ -3388,6 +3388,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             return highlighted > -1;
         }
 
+        @OnThread(Tag.FXPlatform)
         void executeQuickFix(){
             super.executeSelectedFix();
         }
