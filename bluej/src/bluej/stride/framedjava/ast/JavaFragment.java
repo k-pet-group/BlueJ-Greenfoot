@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -41,6 +41,9 @@ public abstract class JavaFragment
     private int lineNumber;
     private int columnNumber;
     private int len;
+    private String errorMessage = null;
+    private int startErrorPos = -1;
+    private int endErrorPos = -1;
 
     public static enum Destination
     {
@@ -163,6 +166,8 @@ public abstract class JavaFragment
     @OnThread(Tag.FX)
     public final void showCompileError(int startLine, int startColumn, int endLine, int endColumn, String message, int identifier)
     {
+        // The message may be required to evaluate actions on some errors, we save it here
+        errorMessage = message;
         // This makes sure we can't end up in a loop; we only ever do one redirect:
         JavaFragment redirect = getCompileErrorRedirect();
         if (redirect != null)
@@ -172,11 +177,26 @@ public abstract class JavaFragment
         }
         else
         {
-            int startPos = getErrorStartPos(startLine, startColumn);
-            int endPos = getErrorEndPos(endLine, endColumn);
+            startErrorPos = getErrorStartPos(startLine, startColumn);
+            endErrorPos = getErrorEndPos(endLine, endColumn);
 
-            new JavaCompileError(this, startPos, endPos, message, identifier);
+            new JavaCompileError(this, startErrorPos, endErrorPos, message, identifier);
         }
+    }
+
+    protected String getErrorMessage()
+    {
+        return errorMessage;
+    }
+
+    protected int getErrorStartPos()
+    {
+        return startErrorPos;
+    }
+
+    protected int getErrorEndPos()
+    {
+        return endErrorPos;
     }
 
     /**

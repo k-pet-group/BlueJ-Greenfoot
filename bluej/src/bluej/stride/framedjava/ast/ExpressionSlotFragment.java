@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 import bluej.editor.stride.FrameEditor;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
+import bluej.stride.framedjava.errors.MissingDoubleEqualsError;
 import bluej.stride.framedjava.errors.UnknownTypeError;
 import bluej.utility.javafx.FXPlatformConsumer;
 import javafx.application.Platform;
@@ -288,7 +289,16 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
                     };
                 }).filter(x -> x != null);
 
-                f.complete(Stream.concat(undeclaredVarErrors.stream(), unknownTypeErrors).peek(e -> e.recordPath(rootPathMap.locationFor(this))).collect(Collectors.toList()));
+                // Find mistake between "=" and "==" in a conditional expression
+                List<DirectSlotError> missingDoubleEqualsErrors = new ArrayList<>();
+                if (getErrorMessage().startsWith("incompatible types:") && getErrorMessage().endsWith("cannot be converted to boolean")
+                    && getJavaCode().charAt(getErrorStartPos()) == '=')
+                {
+                    // corrections.add(new DoubleEqualFix(editor, startPos));
+                    missingDoubleEqualsErrors.add( new MissingDoubleEqualsError(this, getErrorStartPos(), editor.getFrameEditor()));
+                }
+
+                f.complete(Stream.concat(undeclaredVarErrors.stream(), Stream.concat(unknownTypeErrors, missingDoubleEqualsErrors.stream())).peek(e -> e.recordPath(rootPathMap.locationFor(this))).collect(Collectors.toList()));
             });
             // TODO errors for compounds
         }));

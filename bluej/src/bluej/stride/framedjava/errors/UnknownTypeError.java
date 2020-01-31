@@ -28,6 +28,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import bluej.Config;
 import bluej.compiler.Diagnostic.DiagnosticOrigin;
 import bluej.editor.fixes.EditorFixesManager.ImportPackageFix;
 import bluej.editor.fixes.EditorFixesManager.ImportSingleFix;
@@ -95,7 +96,7 @@ public class UnknownTypeError extends DirectSlotError
     @OnThread(Tag.Any)
     public String getMessage()
     {
-        return "Unknown type: " + typeName;
+        return Config.getString("editor.quickfix.unknownType.errorMsg") + typeName;
     }
 
     @Override

@@ -21,7 +21,9 @@
  */
 package bluej.editor.flow;
 
+import bluej.Config;
 import bluej.editor.fixes.EditorFixesManager;
+import bluej.editor.fixes.EditorFixesManager.DoubleEqualFix;
 import bluej.editor.fixes.EditorFixesManager.ImportPackageFix;
 import bluej.editor.fixes.EditorFixesManager.ImportSingleFix;
 import bluej.parser.AssistContentThreadSafe;
@@ -217,13 +219,13 @@ public class FlowErrorManager implements ErrorQuery
         {
             this.startPos = startPos;
             this.endPos = endPos;
-            this.message = message;
             this.identifier = identifier;
 
             // set the quick fix imports if detected an unknown type error...
             if (message.contains("cannot find symbol") && message.contains("class"))
             {
                 String typeName = message.substring(message.lastIndexOf(' ') + 1);
+                this.message = Config.getString("editor.quickfix.unknownType.errorMsg") + typeName;
                 if (possibleImports != null)
                 {
                     corrections.addAll(possibleImports
@@ -231,6 +233,31 @@ public class FlowErrorManager implements ErrorQuery
                         .flatMap(ac -> Stream.of(new ImportSingleFix(editor, ac), new ImportPackageFix(editor, ac)))
                         .collect(Collectors.toList()));
                 }
+            }
+            // set the quick fix "== instead of =" if :
+            // detected the error is either "Incompatible types: xx cannot be converted to boolean"
+            else if (message.startsWith("incompatible types:") && message.endsWith("cannot be converted to boolean")
+                && editor.getText(editor.getLineColumnFromOffset(startPos), editor.getLineColumnFromOffset(startPos + 1)).equals("="))
+            {
+                // Change the error message to a more meaningful message
+                this.message = Config.getString("editor.quickfix.wrongComparisonOperator.errorMsg");
+                int errorLine = editor.getLineColumnFromOffset(startPos).getLine();
+                // Ge the length of this line, but because here the method expects a 0-based value we need to offset.
+                int errorLength = editor.getLineLength(errorLine - 1);
+                SourceLocation startLineSourceLocation = new SourceLocation(errorLine, 1);
+                SourceLocation endLineSourceLocation = new SourceLocation(errorLine, errorLength);
+                String errorLineText = editor.getText(startLineSourceLocation, endLineSourceLocation);
+                String leftCompPart = errorLineText.substring(0, startPos - editor.getOffsetFromLineColumn(startLineSourceLocation));
+                String rightCompPart = errorLineText.substring(startPos - editor.getOffsetFromLineColumn(startLineSourceLocation) + 1);
+                corrections.add(new DoubleEqualFix(() -> {
+                    editor.setText(startLineSourceLocation, endLineSourceLocation, (leftCompPart + "==" + rightCompPart));
+                    editor.refresh();
+                }));
+            }
+            else
+            {
+                // In the default case, we keep the orignial error message.
+                this.message = message;
             }
         }
 

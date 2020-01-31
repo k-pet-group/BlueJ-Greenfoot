@@ -235,6 +235,13 @@ editor.printDialog.fontSize.small=Small
 editor.printDialog.fontSize.standard=Standard
 editor.printDialog.fontSize.large=Large
 
+# Editor quick fix messages
+editor.quickfix.unknownType.errorMsg=Unknown type: \u0020
+editor.quickfix.unknownType.fixMsg.class=Import class\u0020
+editor.quickfix.unknownType.fixMsg.package=Import package\u0020
+editor.quickfix.wrongComparisonOperator.errorMsg=Wrong comparison operator in a boolean expression.
+editor.quickfix.wrongComparisonOperator.fixMsg=Replace "=" by "=="
+
 # Dialog titles and texts
 editor.functions.title = Editor Functions
 editor.functions.editFunctions = Edit Functions
