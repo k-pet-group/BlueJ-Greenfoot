@@ -914,12 +914,18 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @OnThread(Tag.FXPlatform)
     public void cancelFreshState()
     {
-        if (sourceIsCode && saveState.isChanged())
+        if (saveState.isChanged())
         {
-            scheduleCompilation(CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
+            if (sourceIsCode)
+            {
+                // Save will occur as part of the future compilation:
+                scheduleCompilation(CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
+            }
+            else
+            {
+                userSave();
+            }
         }
-
-        // Save will occur as part of compilation scheduled above.
     }
 
     public void setParent(FXTabbedEditor parent, boolean partOfMove)
