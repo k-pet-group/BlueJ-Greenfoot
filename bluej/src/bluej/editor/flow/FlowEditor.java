@@ -2035,6 +2035,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         recordEdit(false);
 
         respondingToChange = false;
+        flowEditorPane.textChanged();
     }
 
     private void setChanged()
