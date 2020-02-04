@@ -30,7 +30,7 @@ import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.role.Kind;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
-import javafx.application.Platform;
+import bluej.utility.javafx.FXPlatformRunnable;
 import javafx.util.Pair;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -259,9 +259,28 @@ public class EditorFixesManager
         this.javaLangImports = javaLangImports;
     }
 
-    @OnThread(Tag.FX)
-    public List<AssistContentThreadSafe> getPrims(){
-        return prims;
+    public static class DoubleEqualFix extends FixSuggestion
+    {
+        private final FXPlatformRunnable executeRunnable;
+
+        @OnThread(Tag.Any)
+        public DoubleEqualFix(FXPlatformRunnable executeRunnable)
+        {
+            this.executeRunnable = executeRunnable;
+        }
+
+        @Override
+        @OnThread(Tag.Any)
+        public String getDescription()
+        {
+            return Config.getString("editor.quickfix.wrongComparisonOperator.fixMsg");
+        }
+
+        @Override
+        public void execute()
+        {
+            executeRunnable.run();
+        }
     }
 
     public static class ImportSingleFix extends FixSuggestion

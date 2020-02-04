@@ -239,8 +239,9 @@ editor.printDialog.fontSize.large=Large
 editor.quickfix.unknownType.errorMsg=Unknown type: \u0020
 editor.quickfix.unknownType.fixMsg.class=Import class\u0020
 editor.quickfix.unknownType.fixMsg.package=Import package\u0020
-editor.quickfix.wrongComparisonOperator.errorMsg=Wrong comparison operator in a boolean expression.
-editor.quickfix.wrongComparisonOperator.fixMsg=Replace "=" by "=="
+editor.quickfix.wrongComparisonOperator.errorMsg=Assignment found instead of boolean expression. \n\
+                                                 Did you mean "=="?
+editor.quickfix.wrongComparisonOperator.fixMsg=Replace "=" with "=="
 
 # Dialog titles and texts
 editor.functions.title = Editor Functions
