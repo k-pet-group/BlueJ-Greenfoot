@@ -344,6 +344,36 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
                 || Modifier.isPrivate(clMods));
     }
     
+    private Class<?> unwrapArrays(String className)
+    {
+        String memberType = className.substring(0, className.length() - 2);
+        if (memberType.endsWith("[]"))
+        {
+            // Nested array:
+            return Array.newInstance(unwrapArrays(memberType), 0).getClass();
+        }
+        switch (memberType)
+        {
+            case "boolean":
+                return boolean[].class;
+            case "byte":
+                return byte[].class;
+            case "short":
+                return short[].class;
+            case "int":
+                return int[].class;
+            case "long":
+                return long[].class;
+            case "float":
+                return float[].class;
+            case "double":
+                return double[].class;
+            case "char":
+                return char[].class;
+        }
+        return Array.newInstance(pkg.loadClass(memberType), 0).getClass();
+    }
+    
     /**
      * Determine an appropriate type to use for this object in shell files.
      * The type must be accessible in the current package.
@@ -359,27 +389,7 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         Class<?> cl = pkg.loadClass(className);
         if (cl == null && obj.isArray() && className.endsWith("[]"))
         {
-            String memberType = className.substring(0, className.length() - 2);
-            switch (memberType)
-            {
-                case "boolean":
-                    return boolean[].class;
-                case "byte":
-                    return byte[].class;
-                case "short":
-                    return short[].class;
-                case "int":
-                    return int[].class;
-                case "long":
-                    return long[].class;
-                case "float":
-                    return float[].class;
-                case "double":
-                    return double[].class;
-                case "char":
-                    return char[].class;
-            }
-            cl = Array.newInstance(pkg.loadClass(memberType), 0).getClass();
+            cl = unwrapArrays(className);
         }
         // If the class is inaccessible, use the invocation type.
         if (cl != null) {

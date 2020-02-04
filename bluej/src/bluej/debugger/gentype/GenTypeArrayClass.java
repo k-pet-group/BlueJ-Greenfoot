@@ -21,6 +21,8 @@
  */
 package bluej.debugger.gentype;
 
+import java.util.HashMap;
+
 /**
  * This class represents array types for which we have a reflective.
  * 
@@ -63,5 +65,17 @@ public class GenTypeArrayClass extends GenTypeClass
     @Override
     public GenTypeClass mapToSuper(String basename) {
         return this;
+    }
+
+    @Override
+    public boolean isRaw()
+    {
+        return false;
+    }
+
+    @Override
+    public HashMap<String, GenTypeParameter> getMap()
+    {
+        return new HashMap<>();
     }
 }

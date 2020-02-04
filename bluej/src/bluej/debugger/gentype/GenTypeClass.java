@@ -607,7 +607,7 @@ public class GenTypeClass extends GenTypeSolid
      * 
      * @return the map (of String -> GenTypeParameterizable).
      */
-    public Map<String,GenTypeParameter> getMap()
+    public HashMap<String,GenTypeParameter> getMap()
     {
         if (isRaw()) {
             return null;
