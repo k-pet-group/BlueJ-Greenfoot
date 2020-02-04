@@ -23,9 +23,7 @@ package bluej.editor.flow;
 
 import bluej.Config;
 import bluej.editor.fixes.EditorFixesManager;
-import bluej.editor.fixes.EditorFixesManager.DoubleEqualFix;
-import bluej.editor.fixes.EditorFixesManager.ImportPackageFix;
-import bluej.editor.fixes.EditorFixesManager.ImportSingleFix;
+import bluej.editor.fixes.EditorFixesManager.FixSuggestionBase;
 import bluej.parser.AssistContentThreadSafe;
 import bluej.editor.fixes.FixSuggestion;
 import bluej.editor.flow.FlowEditorPane.ErrorQuery;
@@ -228,9 +226,11 @@ public class FlowErrorManager implements ErrorQuery
                 this.message = Config.getString("editor.quickfix.unknownType.errorMsg") + typeName;
                 if (possibleImports != null)
                 {
+                    // Add the fixes: import single class then import package
                     corrections.addAll(possibleImports
                         .filter(ac -> ac.getPackage() != null && ac.getName().equals(typeName))
-                        .flatMap(ac -> Stream.of(new ImportSingleFix(editor, ac), new ImportPackageFix(editor, ac)))
+                        .flatMap(ac -> Stream.of(new FixSuggestionBase((Config.getString("editor.quickfix.unknownType.fixMsg.class") + ac.getPackage() + "." + ac.getName()),() -> editor.addImportFromQuickFix(ac.getPackage() + "." + ac.getName()) ),
+                            new FixSuggestionBase((Config.getString("editor.quickfix.unknownType.fixMsg.package") + ac.getPackage() + " (for " + ac.getName() + " class)"), () ->  editor.addImportFromQuickFix(ac.getPackage() + ".*"))))
                         .collect(Collectors.toList()));
                 }
             }
@@ -249,7 +249,7 @@ public class FlowErrorManager implements ErrorQuery
                 String errorLineText = editor.getText(startLineSourceLocation, endLineSourceLocation);
                 String leftCompPart = errorLineText.substring(0, startPos - editor.getOffsetFromLineColumn(startLineSourceLocation));
                 String rightCompPart = errorLineText.substring(startPos - editor.getOffsetFromLineColumn(startLineSourceLocation) + 1);
-                corrections.add(new DoubleEqualFix(() -> {
+                corrections.add(new FixSuggestionBase(Config.getString("editor.quickfix.wrongComparisonOperator.fixMsg"), () -> {
                     editor.setText(startLineSourceLocation, endLineSourceLocation, (leftCompPart + "==" + rightCompPart));
                     editor.refresh();
                 }));

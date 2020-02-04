@@ -23,7 +23,7 @@ package bluej.stride.framedjava.errors;
 
 import bluej.Config;
 import bluej.compiler.Diagnostic.DiagnosticOrigin;
-import bluej.editor.fixes.EditorFixesManager.DoubleEqualFix;
+import bluej.editor.fixes.EditorFixesManager.FixSuggestionBase;
 import bluej.editor.fixes.FixSuggestion;
 import bluej.editor.stride.FrameEditor;
 import bluej.stride.framedjava.ast.ExpressionSlotFragment;
@@ -65,7 +65,7 @@ public class MissingDoubleEqualsError extends DirectSlotError
 
         String leftCompPart = errorLineText.substring(0, startErrorPos - 1);
         String rightCompPart = errorLineText.substring(startErrorPos);
-        corrections.add(new DoubleEqualFix(() -> ((ExpressionSlotFragment) slotFragment).getSlot().setText(leftCompPart + "==" + rightCompPart)));
+        corrections.add(new FixSuggestionBase(Config.getString("editor.quickfix.wrongComparisonOperator.fixMsg"), () -> ((ExpressionSlotFragment) slotFragment).getSlot().setText(leftCompPart + "==" + rightCompPart)));
     }
 
     @Override
