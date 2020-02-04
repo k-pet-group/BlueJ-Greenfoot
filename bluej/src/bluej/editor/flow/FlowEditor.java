@@ -184,7 +184,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     /** The Editor Quick Fixes manager associated with this Editor */
     private final EditorFixesManager editorFixesMgr = new EditorFixesManager();
     
-    private final boolean sourceIsCode = true;           // true if current buffer is code
+    private final boolean sourceIsCode;           // true if current buffer is code
     private final List<Menu> fxMenus;
     private boolean compilationStarted;
     private boolean requeueForCompilation;
@@ -386,7 +386,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     // package-visible:
     final UndoManager undoManager;
 
-    public FlowEditor(FetchTabbedEditor fetchTabbedEditor, String title, EditorWatcher editorWatcher, EntityResolver parentResolver, JavadocResolver javadocResolver, FXPlatformRunnable openCallback, @OnThread(Tag.FXPlatform) BooleanExpression syntaxHighlighting)
+    public FlowEditor(FetchTabbedEditor fetchTabbedEditor, String title, EditorWatcher editorWatcher, EntityResolver parentResolver, JavadocResolver javadocResolver, FXPlatformRunnable openCallback, @OnThread(Tag.FXPlatform) BooleanExpression syntaxHighlighting, boolean sourceIsCode)
     {
         this.fxTab = new FlowFXTab(this, title);
         this.javadocResolver = javadocResolver;
@@ -404,6 +404,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         this.saveState = new StatusLabel(Status.SAVED, this, errorManager);
         this.actions = new FlowActions(this);
         this.htmlPane = new WebView();
+        this.sourceIsCode = sourceIsCode;
         htmlPane.visibleProperty().bind(viewingHTML);
         setCenter(new StackPane(flowEditorPane, htmlPane));
         this.interfaceToggle = createInterfaceSelector();
@@ -913,12 +914,18 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @OnThread(Tag.FXPlatform)
     public void cancelFreshState()
     {
-        if (sourceIsCode && saveState.isChanged())
+        if (saveState.isChanged())
         {
-            scheduleCompilation(CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
+            if (sourceIsCode)
+            {
+                // Save will occur as part of the future compilation:
+                scheduleCompilation(CompileReason.MODIFIED, CompileType.ERROR_CHECK_ONLY);
+            }
+            else
+            {
+                userSave();
+            }
         }
-
-        // Save will occur as part of compilation scheduled above.
     }
 
     public void setParent(FXTabbedEditor parent, boolean partOfMove)
@@ -2028,6 +2035,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         recordEdit(false);
 
         respondingToChange = false;
+        flowEditorPane.textChanged();
     }
 
     private void setChanged()
