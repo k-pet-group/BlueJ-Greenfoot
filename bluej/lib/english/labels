@@ -235,6 +235,14 @@ editor.printDialog.fontSize.small=Small
 editor.printDialog.fontSize.standard=Standard
 editor.printDialog.fontSize.large=Large
 
+# Editor quick fix messages
+editor.quickfix.unknownType.errorMsg=Unknown type:\u0020
+editor.quickfix.unknownType.fixMsg.class=Import class\u0020
+editor.quickfix.unknownType.fixMsg.package=Import package\u0020
+editor.quickfix.wrongComparisonOperator.errorMsg=Assignment found instead of boolean expression. \n\
+                                                 Did you mean "=="?
+editor.quickfix.wrongComparisonOperator.fixMsg=Replace "=" with "=="
+
 # Dialog titles and texts
 editor.functions.title = Editor Functions
 editor.functions.editFunctions = Edit Functions

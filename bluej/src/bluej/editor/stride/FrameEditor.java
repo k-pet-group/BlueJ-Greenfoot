@@ -1156,8 +1156,8 @@ public class FrameEditor implements Editor
         LocationMap rootPathMap = el.toXML().buildLocationMap();
         // We must start these futures going on the FX thread
         List<Future<List<DirectSlotError>>> futures = allElements.flatMap(e -> e.findDirectLateErrors(panel, rootPathMap)).collect(Collectors.toList());
-        // Then wait for them on another thread, and hop back to FX to finish:
-        Utility.runBackground(() -> {
+        // Then wait for them on another thread
+        new Thread(() -> {
             ArrayList<DirectSlotError> allLates = new ArrayList<>();
             try
             {
@@ -1169,12 +1169,10 @@ public class FrameEditor implements Editor
             {
                 Debug.reportError(e);
             }
-            Platform.runLater(() -> {
-                panel.updateErrorOverviewBar(false);
-                List<DiagnosticWithShown> diagnostics = Utility.mapList(allLates, e -> e.toDiagnostic(javaFilename.getName(), frameFilename));
-                watcher.recordLateErrors(diagnostics, compilationIdentifier);
-            });
-        });
+            panel.updateErrorOverviewBar(false);
+            List<DiagnosticWithShown> diagnostics = Utility.mapList(allLates, e -> e.toDiagnostic(javaFilename.getName(), frameFilename));
+            watcher.recordLateErrors(diagnostics, compilationIdentifier);
+        }).start();
     }
         
     @Override
