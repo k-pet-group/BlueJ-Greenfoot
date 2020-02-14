@@ -19,23 +19,23 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.stride.framedjava.errors;
+package bluej.editor.fixes;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import bluej.editor.fixes.FixSuggestion;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-class Correction extends FixSuggestion
+public class Correction extends FixSuggestion
 {
     private final String correction;
     private final String display;
     private final FXPlatformConsumer<String> replacer;
+    private final static int MAX_EDIT_DISTANCE = 2;
 
     // This doesn't have to be private, but in practice you'll only ever use the
     // winnowCorrections method below
@@ -60,8 +60,6 @@ class Correction extends FixSuggestion
     {
         replacer.accept(correction);
     }
-    
-    private final static int MAX_EDIT_DISTANCE = 2;
 
     @OnThread(Tag.Any)
     private static class StringAndDist
@@ -109,6 +107,4 @@ class Correction extends FixSuggestion
                 .map(sd -> new Correction(sd.value.getCorrection(), replacer, sd.value.getDisplay()))
                 .collect(Collectors.toList());
     }
-
-    
 }

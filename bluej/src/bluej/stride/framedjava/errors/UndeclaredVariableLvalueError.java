@@ -26,14 +26,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import bluej.Config;
 import bluej.compiler.Diagnostic.DiagnosticOrigin;
+import bluej.editor.fixes.EditorFixesManager.FixSuggestionBase;
 import bluej.editor.fixes.FixSuggestion;
 import bluej.stride.framedjava.ast.ASTUtility;
 import bluej.stride.framedjava.ast.FilledExpressionSlotFragment;
 import bluej.stride.framedjava.ast.NameDefSlotFragment;
 import bluej.stride.framedjava.ast.StringSlotFragment;
 import bluej.stride.framedjava.ast.TypeSlotFragment;
-import bluej.stride.framedjava.errors.Correction.SimpleCorrectionInfo;
+import bluej.editor.fixes.Correction;
+import bluej.editor.fixes.Correction.SimpleCorrectionInfo;
 import bluej.stride.framedjava.frames.AssignFrame;
 import bluej.stride.framedjava.frames.ClassFrame;
 import bluej.stride.framedjava.frames.VarFrame;
@@ -71,63 +74,38 @@ public class UndeclaredVariableLvalueError extends DirectSlotError
     @OnThread(Tag.Any)
     public String getMessage()
     {
-        return "Undeclared variable: " + varName;
+        return Config.getString("editor.quickfix.undeclaredVar.errorMsg") + varName;
     }
 
     @Override
     public List<FixSuggestion> getFixSuggestions()
     {
         ArrayList<FixSuggestion> fixes = new ArrayList<>();
-        
-        fixes.add(new ChangeAssignmentToDeclarationAndInitialisation());
-        fixes.add(new AddFieldDeclaration());
-        fixes.addAll(corrections);
-        
-        return fixes;
-    }
-    
-    private class ChangeAssignmentToDeclarationAndInitialisation extends FixSuggestion
-    {
-        @Override
-        @OnThread(Tag.Any)
-        public String getDescription()
-        {
-            return "Declare variable here";
-        }
 
-        @Override
-        public void execute()
+        // Add the correction suggestions
+        if (corrections != null)
         {
-            // TODO does access have to be null here?
-            assignFrame.getParentCanvas().replaceBlock(assignFrame, new VarFrame(assignFrame.getEditor(), null, false, false, new TypeSlotFragment("", ""), 
-                        new NameDefSlotFragment(assignFrame.getLHS().getText()), new FilledExpressionSlotFragment(assignFrame.getRHS().getSlotElement()), true));
+            fixes.addAll(corrections);
         }
-    }
-    
-    private class AddFieldDeclaration extends FixSuggestion
-    {
+        // Add the fix for local variable declaration instead of assignment
+        fixes.add(new FixSuggestionBase(Config.getString("editor.quickfix.undeclaredVar.fixMsg.local"), () -> {
+            assignFrame.getParentCanvas().replaceBlock(assignFrame, new VarFrame(assignFrame.getEditor(), null, false, false, new TypeSlotFragment("", ""),
+                new NameDefSlotFragment(assignFrame.getLHS().getText()), new FilledExpressionSlotFragment(assignFrame.getRHS().getSlotElement()), true));
+        }));
 
-        @Override
-        @OnThread(Tag.Any)
-        public String getDescription()
-        {
-            return "Declare field in class";
-        }
-
-        @Override
-        public void execute()
-        {
+        // Add the fix for variable declaration at class level
+        fixes.add(new FixSuggestionBase(Config.getString("editor.quickfix.undeclaredVar.fixMsg.class"), () -> {
             // Add the field before the first non-field in the class:
-            ClassFrame classFrame = (ClassFrame)ASTUtility.getTopLevelElement(assignFrame.getCode()).getFrame();
-            
+            ClassFrame classFrame = (ClassFrame) ASTUtility.getTopLevelElement(assignFrame.getCode()).getFrame();
             List<Frame> members = classFrame.getfieldsCanvas().getBlockContents();
-            
             Optional<Frame> firstNonField = members.stream().filter(f -> !(f instanceof VarFrame)).findFirst();
-            
             FrameCursor cursorAfter = (firstNonField.isPresent()) ? cursorAfter = classFrame.getfieldsCanvas().getCursorBefore(firstNonField.get()) : classFrame.getfieldsCanvas().getLastCursor();
-            classFrame.getfieldsCanvas().insertBlockBefore(new VarFrame(assignFrame.getEditor(), null, false, false, 
-                    new TypeSlotFragment("", ""), new NameDefSlotFragment(assignFrame.getLHS().getText()), null, true), cursorAfter);
-        }
+            classFrame.getfieldsCanvas().insertBlockBefore(new VarFrame(assignFrame.getEditor(), null, false, false,
+                new TypeSlotFragment("", ""), new NameDefSlotFragment(assignFrame.getLHS().getText()), null, true), cursorAfter);
+
+        }));
+
+        return fixes;
     }
 
     @Override

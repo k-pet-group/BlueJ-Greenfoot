@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011,2014,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2011,2014,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -441,6 +441,28 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
         boolean isStaticCtxt = (defaultType.resolveAsType() != null);
         return new ExpressionTypeInfo(atype, atype, null, isStaticCtxt, true);
     }
+
+    public ParsedNode getCurrentPosNode(int pos, int startPos)
+    {
+        NodeAndPosition<ParsedNode> child = getNodeTree().findNode(pos, 0);
+        if (child != null)
+            return child.getNode().getCurrentPosNode(pos - child.getPosition(), child.getPosition());
+
+        // We don't need to go too deep in the tree: retrieve a node that is at deepest a method node.
+        // So we get back to the last named node parent to this leaf.
+        if (this.parentNode == null)
+            return null;
+
+        ParsedNode parentNode = this.parentNode;
+        while (parentNode.getName() == null)
+        {
+            if (parentNode.parentNode != null)
+            {
+                parentNode = parentNode.parentNode;
+            }
+        }
+        return parentNode;
+    }
     
     /**
      * Remove a child node, and notify the NodeStructureListener that the child and
@@ -489,5 +511,20 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
     public void setCommentAttached(boolean commentAttached)
     {
         hasAttachedComment = commentAttached;
+    }
+
+    /**
+     * Gets the absolute position of this node in the editor.
+     */
+    public int getAbsoluteEditorPosition()
+    {
+        int position = 0;
+        ParsedNode parent = getParentNode();
+        while (parent != null)
+        {
+            position += parent.getOffsetFromParent();
+            parent = parent.getParentNode();
+        }
+        return position;
     }
 }
