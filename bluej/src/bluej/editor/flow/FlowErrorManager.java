@@ -272,8 +272,8 @@ public class FlowErrorManager implements ErrorQuery
                 }));
             }
             // set the quick fix correct a wrong variable/declare it:
-            // detected the error is "Cannot resolve symbol"
-            else if (message.startsWith("cannot find symbol"))
+            // detected the error is "cannot find symbol - variable"
+            else if (message.startsWith("cannot find symbol -   variable "))
             {
                 // Change the error message to a more meaningful message
                 String varName = message.substring(message.lastIndexOf(' ') + 1);
