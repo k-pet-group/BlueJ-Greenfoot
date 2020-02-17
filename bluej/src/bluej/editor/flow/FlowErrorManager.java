@@ -422,9 +422,12 @@ public class FlowErrorManager implements ErrorQuery
             if (values == null)
                 return null;
 
+            // We only propose the possible completion of a same kind request,
+            // and distinct values: meaning for variables, the correction is done for a local variable when there is an ambiguity.
             return Arrays.stream(values)
-                .filter((ac -> ac.getKind().equals(kind)))
-                .flatMap(ac -> Stream.of(ac.getName()));
+                .filter(ac -> ac.getKind().equals(kind))
+                .flatMap(ac -> Stream.of(ac.getName()))
+                .distinct();
         }
     }
 
