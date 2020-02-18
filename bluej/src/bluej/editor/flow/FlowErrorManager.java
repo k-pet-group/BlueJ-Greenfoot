@@ -328,6 +328,21 @@ public class FlowErrorManager implements ErrorQuery
                     }));
                 }
             }
+            else if (message.startsWith("cannot find symbol -   method "))
+            {
+                // Change the error message to a more meaningful message
+                String methodName = message.substring(message.lastIndexOf(' ') + 1, message.lastIndexOf('('));
+                this.message = Config.getString("editor.quickfix.undeclaredMethod.errorMsg") + methodName + "(...)";
+
+                // Add a quick fix for correcting to an existing closely spelt variable
+                Stream<String> possibleCorrectionsStream = getPossibleCorrectionsStream(editor, CompletionKind.METHOD);
+                if (possibleCorrectionsStream != null)
+                {
+                    corrections.addAll(bluej.editor.fixes.Correction.winnowAndCreateCorrections(methodName,
+                        possibleCorrectionsStream.map(SimpleCorrectionInfo::new),
+                        s -> editor.setText(editor.getLineColumnFromOffset(startPos), editor.getLineColumnFromOffset(endPos), s)));
+                }
+            }
             else
             {
                 // In the default case, we keep the orignial error message.
