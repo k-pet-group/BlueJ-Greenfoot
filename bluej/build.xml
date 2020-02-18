@@ -13,12 +13,12 @@
     <!-- 
      This is the only place you need to change the version number.
      After changing the version number the target "update-version-number" should be run -->
-    <property name="bluej.version.major" value="4" />
-    <property name="bluej.version.minor" value="5" />
+    <property name="bluej.version.major" value="5" />
+    <property name="bluej.version.minor" value="0" />
     <property name="bluej.version.release" value="0" />
-    <property name="bluej.version.suffix" value="internal" />
+    <property name="bluej.version.suffix" value="preview" />
     <!-- suffix with no spaces, eg "pre2" -->
-    <property name="bluej.version.nonspace.suffix" value="internal" />
+    <property name="bluej.version.nonspace.suffix" value="preview" />
     <!-- Suffix added after version number in output files -->
     <property name="bluej.rcsuffix" value="-rc1"/>
     
@@ -314,7 +314,7 @@
         </java>
     </target>
 
-    <target name="dist" depends="ready-to-run,check-licences">
+    <target name="dist" depends="ready-to-run">
         <ant dir="package" target="dist"/>
     </target>
 
