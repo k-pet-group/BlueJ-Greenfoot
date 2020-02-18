@@ -337,7 +337,7 @@
     <!-- The simple targets for doing a complete build: -->
     <target name="mac" description="Clean, update version number and build Mac installer" depends="clean,update-version-number,mac-dist"/>
     <target name="windows" description="Clean, update version number and build Windows installers" depends="clean,update-version-number,windows-msi-bundled-dist,windows-standalone"/>
-    <target name="debian" description="Clean, update version number and build Debian/Ubuntu installer (run with fakeroot ant)" depends="clean,update-version-number,debian-dist"/>
+    <target name="debian" description="Clean, update version number and build Debian/Ubuntu installer (run with fakeroot ant)" depends="clean,update-version-number,debian-dist,debian-bundled-dist"/>
 
     <target name="urls-rc" description="Check and print RC links">
         <ant dir="package" target="urls-rc"/>
@@ -350,6 +350,9 @@
     <!-- build *.deb package -->
     <target name="debian-dist" description="Build the .deb Debian/Ubuntu package" depends="check-fakeroot,dist">
         <ant dir="package" target="debian-dist"/>
+    </target>
+    <target name="debian-bundled-dist" description="Build the .deb Debian/Ubuntu package" depends="check-fakeroot,dist">
+        <ant dir="package" target="debian-bundled-dist"/>
     </target>
 
     <target name="test" depends="compile-boot, compile-core, compile-test">
