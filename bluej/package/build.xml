@@ -629,6 +629,119 @@
         <exec executable="dpkg-deb" searchpath="true">
             <arg value="-b" />
             <arg file="bluejdeb" />
+            <arg value="${dist.linux}-unbundled.deb" />
+        </exec>
+        
+        <delete dir="bluejdeb" />
+    </target>
+
+    <target name="debian-bundled-dist">
+        <mkdir dir="bluejdeb" />
+        <copy todir="bluejdeb">
+            <fileset dir="debianfiles-bundled" includes="DEBIAN/**" />
+        </copy>
+        <copy todir="bluejdeb" overwrite="true">
+            <fileset dir="debianfiles-bundled" includes="DEBIAN/**" />
+        </copy>
+        
+        <mkdir dir="bluejdeb/usr" />
+        <mkdir dir="bluejdeb/usr/bin" />
+        <copy todir="bluejdeb/usr/bin" file="debianfiles-bundled/bluej" />
+        <chmod perm="ugo+x" file="bluejdeb/usr/bin/bluej" verbose="true" />
+        
+        <!-- lib files -->
+        <mkdir dir="bluejdeb/usr/share/bluej" />
+        <mkdir dir="bluejdeb-lib-tmp" />
+        <copy todir="bluejdeb-lib-tmp">
+            <fileset dir="${bluej_home}">
+                <patternset refid="bluej.libdirs" />
+                <patternset refid="bluej.libfiles" />
+            </fileset>
+        </copy>
+        <mkdir dir="bluejdeb-lib-tmp/lib/javafx"/>
+        <copy todir="bluejdeb-lib-tmp/lib/javafx">
+            <fileset dir="${openjfx_path}"/>
+        </copy>
+        <move todir="bluejdeb/usr/share/bluej">
+            <fileset dir="bluejdeb-lib-tmp/lib">
+                <patternset includes="**" />
+            </fileset>
+        </move>
+        <delete dir="bluejdeb-lib-tmp" />
+
+        <mkdir dir="bluejdeb/usr/share/bluej/jdk" />
+        <!-- Need to preserve permissions, which requires cp instead of copy task: -->
+        <exec executable="cp">
+            <arg value="-r"/>
+            <arg value="${deb_bundled_jdk_path}/."/>
+            <arg value="bluejdeb/usr/share/bluej/jdk"/>
+        </exec>
+
+        
+        <!-- examples and documentation -->
+        <mkdir dir="bluej-examples-tmp" />
+        <copy todir="bluej-examples-tmp">
+            <fileset dir="${bluej_home}">
+                <patternset refid="bluej.examples" />
+            </fileset>
+        </copy>
+        <mkdir dir="bluejdeb/usr/share/doc/BlueJ" />
+        <move todir="bluejdeb/usr/share/doc/BlueJ">
+            <fileset dir="bluej-examples-tmp/examples">
+                <patternset includes="**" />
+            </fileset>
+        </move>
+        <delete dir="bluej-examples-tmp" />
+        <copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/LICENSE.txt" />
+        <copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/THIRDPARTYLICENSE.txt" />
+        <copy todir="bluejdeb/usr/share/doc/BlueJ" file="../doc/README.TXT" />
+
+        <!-- desktop app extras -->
+        <copy todir="bluejdeb/usr/share">
+            <fileset dir="debianfiles">
+                <patternset includes="applications/**,icons/**,pixmaps/**" />
+            </fileset>
+        </copy>
+
+        <!-- update version number -->
+        <replaceregexp byline="true">
+            <regexp pattern="VERSION" />
+            <substitution expression="${bluej.version.debian}" />
+            <fileset dir="bluejdeb/DEBIAN" includes="control" />
+        </replaceregexp>
+        
+        <!-- you must do this as root, sigh -->
+                <!-- (but we can also do it using fakeroot -->
+        <chown owner="root">
+            <fileset dir="bluejdeb">
+                <patternset includes="**" />
+            </fileset>
+            <dirset dir="bluejdeb">
+                <patternset includes="**" />
+            </dirset>            
+        </chown>
+        <chgrp group="root">
+            <fileset dir="bluejdeb">
+                <patternset includes="**" />
+            </fileset>
+            <dirset dir="bluejdeb">
+                <patternset includes="**" />
+            </dirset>            
+        </chgrp>
+                <chmod perm="g-w">
+            <fileset dir="bluejdeb">
+                <patternset includes="**" />
+            </fileset>
+            <dirset dir="bluejdeb">
+                <patternset includes="**" />
+            </dirset>            
+                </chmod>
+        
+        <chmod perm="755" file="bluejdeb/DEBIAN/postinst" />
+        <chmod perm="755" file="bluejdeb/DEBIAN/postrm" />
+        <exec executable="dpkg-deb" searchpath="true">
+            <arg value="-b" />
+            <arg file="bluejdeb" />
             <arg value="${dist.linux}.deb" />
         </exec>
         
