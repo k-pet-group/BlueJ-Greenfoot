@@ -39,9 +39,9 @@ import threadchecker.Tag;
  */
 public abstract class NonCodeEditableTarget extends EditableTarget
 {
-    protected NonCodeEditableTarget(Package pkg, String name)
+    protected NonCodeEditableTarget(Package pkg, String name, String accessibleTargetType)
     {
-        super(pkg, name);
+        super(pkg, name, accessibleTargetType);
     }
 
     @Override

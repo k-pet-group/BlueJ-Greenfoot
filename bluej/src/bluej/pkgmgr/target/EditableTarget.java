@@ -42,9 +42,9 @@ public abstract class EditableTarget extends Target
 {
     protected Editor editor;
 
-    protected EditableTarget(Package pkg, String name)
+    protected EditableTarget(Package pkg, String name, String accessibleTargetType)
     {
-        super(pkg, name);
+        super(pkg, name, accessibleTargetType);
     }
 
     /**

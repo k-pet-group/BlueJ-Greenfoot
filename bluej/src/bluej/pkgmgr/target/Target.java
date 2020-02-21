@@ -115,7 +115,7 @@ public abstract class Target
      * Create a new target with default size.
      */
     @OnThread(Tag.FXPlatform)
-    public Target(Package pkg, String identifierName)
+    public Target(Package pkg, String identifierName, String accessibleTargetType)
     {
         pane.setPrefWidth(calculateWidth(new Label(), identifierName));
         pane.setPrefHeight(DEF_HEIGHT);
@@ -125,7 +125,7 @@ public abstract class Target
         pane.setEffect(new DropShadow(SHADOW_RADIUS, SHADOW_RADIUS/2.0, SHADOW_RADIUS/2.0, javafx.scene.paint.Color.GRAY));
 
         pane.setFocusTraversable(true);
-        pane.setAccessibleText(identifierName);
+        pane.setAccessibleText(identifierName + (accessibleTargetType != null && !accessibleTargetType.isEmpty() ? " " + accessibleTargetType : ""));
         pane.setAccessibleRole(AccessibleRole.NODE);
         JavaFXUtil.addFocusListener(pane, hasFocus -> {
             PackageEditor pkgEditor = pkg.getEditor();

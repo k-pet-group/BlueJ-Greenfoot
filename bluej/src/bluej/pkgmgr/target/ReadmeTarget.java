@@ -64,7 +64,7 @@ public class ReadmeTarget extends NonCodeEditableTarget
     {
         // create the target with an identifier name that cannot be
         // a valid java name
-        super(pkg, README_ID);
+        super(pkg, README_ID, "" /* Already named README... */);
 
         if (readmeImage == null)
             readmeImage = Config.getImageAsFXImage("image.readme");

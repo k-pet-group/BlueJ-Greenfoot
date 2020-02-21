@@ -73,9 +73,9 @@ public abstract class DependentTarget extends EditableTarget
     /**
      * Create a new target belonging to the specified package.
      */
-    public DependentTarget(Package pkg, String identifierName)
+    public DependentTarget(Package pkg, String identifierName, String accessibleTargetType)
     {
-        super(pkg, identifierName);
+        super(pkg, identifierName, accessibleTargetType);
 
         inUses = new ArrayList<>();
         outUses = new ArrayList<>();

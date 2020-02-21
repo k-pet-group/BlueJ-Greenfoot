@@ -63,7 +63,7 @@ public class PackageTarget extends Target
 
     public PackageTarget(Package pkg, String baseName)
     {
-        super(pkg, baseName);
+        super(pkg, baseName, "Package");
 
         JavaFXUtil.addStyleClass(pane, "package-target");
 
