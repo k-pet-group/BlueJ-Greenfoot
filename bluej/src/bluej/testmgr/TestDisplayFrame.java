@@ -27,6 +27,7 @@ import bluej.debugger.DebuggerTestResult;
 import bluej.debugger.SourceLocation;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.JavaNames;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
@@ -269,9 +270,10 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         exceptionMessageField = new TextArea("");
         JavaFXUtil.addStyleClass(exceptionMessageField, "test-output");
         VBox.setVgrow(exceptionMessageField, Priority.ALWAYS);
-        exceptionMessageField.setEditable(false);
+        // If in accessible mode, allow editing the exception message, which permits better keyboard navigation
+        // (even if we don't really want the user to be able to edit)
+        exceptionMessageField.editableProperty().bind(PrefMgr.flagProperty(PrefMgr.ACCESSIBILITY_SUPPORT));
         // exceptionMessageField.setLineWrap(true);
-        exceptionMessageField.setFocusTraversable(false);
 
         content.getChildren().add(exceptionMessageField);
 
