@@ -359,6 +359,7 @@ public class LineDisplay
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     public Bounds[] getBoundsForRange(Document document, int startOffset, int endOffset)
     {
         int firstLine = document.getLineFromPosition(startOffset);
