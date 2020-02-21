@@ -220,6 +220,12 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
             case OFFSET_AT_POINT:
                 Point2D screenPoint = (Point2D)objects[0];
                 return getCaretPositionForLocalPoint(screenToLocal(screenPoint));
+            case HELP:
+                String err = listener.getErrorForPosition(caret.position);
+                if (err != null)
+                    return "Error: " + err;
+                else
+                    break;
         }
         return super.queryAccessibleAttribute(accessibleAttribute, objects);
     }
@@ -1064,6 +1070,8 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         int getStepLine();
 
         public void showErrorPopupForCaretPos(int caretPos, boolean mousePosition);
+
+        public String getErrorForPosition(int caretPos);
     }
 
     // Use an AbstractList rather than pre-calculate, as that means we don't bother
