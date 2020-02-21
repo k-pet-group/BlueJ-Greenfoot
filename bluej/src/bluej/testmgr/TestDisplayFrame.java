@@ -38,6 +38,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
+import javafx.scene.AccessibleRole;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -441,15 +442,26 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
                 imageView.setImage(null);
                 setText("");
                 setTooltip(null);
+                setAccessibleText("");
             }
             else
             {
+                String acc;
                 if (item.isSuccess())
+                {
                     imageView.setImage(okIcon);
+                    acc = "Pass ";
+                }
                 else if (item.isFailure())
+                {
                     imageView.setImage(failureIcon);
+                    acc = "Fail ";
+                }
                 else
+                {
                     imageView.setImage(errorIcon);
+                    acc = "Error ";
+                }
                 
                 // This checks if the JUnit executes all tests at the same time,
                 // We have used zero execution time for individual test as there is no way so
@@ -467,6 +479,14 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
                 Tooltip displayNameToolTip = new Tooltip(item.getDisplayName());
                 JavaFXUtil.addStyleClass(displayNameToolTip, "test-results-tooltip");
                 setTooltip(displayNameToolTip);
+                acc += item.getDisplayName();
+                setAccessibleText(acc);
+                setAccessibleRole(AccessibleRole.LIST_ITEM);
+                // It's not clear why but at least on Mac, the screen-reader reads out the image not the
+                // list cell, even though it's the list cell that is focused.  We work around this by copying
+                // our accessible text on to the image view so that it still gets read out:
+                imageView.setAccessibleText(acc);
+                imageView.setAccessibleRole(AccessibleRole.LIST_ITEM);
             }
         }
     }
