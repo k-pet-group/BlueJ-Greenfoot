@@ -28,6 +28,7 @@ import bluej.utility.javafx.JavaFXUtil;
 import java.util.Properties;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
+import javafx.scene.AccessibleRole;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
@@ -124,6 +125,8 @@ public abstract class Target
         pane.setEffect(new DropShadow(SHADOW_RADIUS, SHADOW_RADIUS/2.0, SHADOW_RADIUS/2.0, javafx.scene.paint.Color.GRAY));
 
         pane.setFocusTraversable(true);
+        pane.setAccessibleText(identifierName);
+        pane.setAccessibleRole(AccessibleRole.NODE);
         JavaFXUtil.addFocusListener(pane, hasFocus -> {
             PackageEditor pkgEditor = pkg.getEditor();
 
