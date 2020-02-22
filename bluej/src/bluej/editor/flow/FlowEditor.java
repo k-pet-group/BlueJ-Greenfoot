@@ -1021,7 +1021,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 }
 
                 ignoreChanges = true;
-                document.replaceText(0, document.getLength(), Files.readString(file.toPath(), charset).replace("\r", ""));
+                document.replaceText(0, document.getLength(), Files.readString(file.toPath(), charset).replace("\r", "").replace("\t", "    "));
                 setLastModified(file.lastModified());
                 // Position caret at start, not the end:
                 getSourcePane().positionCaret(0);

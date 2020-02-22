@@ -13,7 +13,7 @@
  GNU General Public License for more details. 
  
  You should have received a copy of the GNU General Public License 
- along with this program; if not, write to the Free Software 
+ along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
  
  This file is subject to the Classpath exception as provided in the  
@@ -105,10 +105,6 @@ class Job
             for (int i = 0; i < sources.length; i++)
             {
                 actualSourceFiles[i] = sources[i].getJavaCompileInputFile();
-                // Tabs are creating problems in the column count, we correct this problem here.
-                String actualSourceFileContent = new String(Files.readAllBytes(actualSourceFiles[i].toPath()), fileCharset);
-                Files.write(actualSourceFiles[i].toPath(), actualSourceFileContent.replaceAll("\\t", "    ").getBytes(fileCharset));
-                actualSourceFileContent = null;
             }
 
             boolean successful = compiler.compile(actualSourceFiles, observer, internal, userCompileOptions, fileCharset, type);

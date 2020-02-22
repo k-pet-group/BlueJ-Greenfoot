@@ -317,8 +317,8 @@ public class FlowErrorManager implements ErrorQuery
                             editor.setText(editor.getLineColumnFromOffset(newClassFieldPos), editor.getLineColumnFromOffset(newClassFieldPos),
                                 (newLineIndentStr + indentationStr + "private " + typePlaceholder + " " + varName + ";\n"));
                             // Select the type placeholder for suggesting the user to fill it...
-                            editor.setSelection(new SourceLocation(prevLine + 1, newLineIndentStr.length() + indentationStr.length() + 9),
-                                new SourceLocation(prevLine + 1, newLineIndentStr.length() + indentationStr.length() + 9 + typePlaceholder.length()));
+                            editor.setSelection(new SourceLocation(prevLine + 1, newLineIndentStr.length() + indentationStr.length() + "private ".length() + 1),
+                                new SourceLocation(prevLine + 1, newLineIndentStr.length() + indentationStr.length() + "private ".length() + 1 + typePlaceholder.length()));
                             editor.refresh();
                         }
                         else
