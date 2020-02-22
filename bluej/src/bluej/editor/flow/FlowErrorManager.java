@@ -317,8 +317,8 @@ public class FlowErrorManager implements ErrorQuery
                             editor.setText(editor.getLineColumnFromOffset(newClassFieldPos), editor.getLineColumnFromOffset(newClassFieldPos),
                                 (newLineIndentStr + indentationStr + "private " + typePlaceholder + " " + varName + ";\n"));
                             // Select the type placeholder for suggesting the user to fill it...
-                            editor.setSelection(new SourceLocation(prevLine + 1, newLineIndentStr.length() + indentationStr.length() + 9),
-                                new SourceLocation(prevLine + 1, newLineIndentStr.length() + indentationStr.length() + 9 + typePlaceholder.length()));
+                            editor.setSelection(new SourceLocation(prevLine + 1, newLineIndentStr.length() + indentationStr.length() + "private ".length() + 1),
+                                new SourceLocation(prevLine + 1, newLineIndentStr.length() + indentationStr.length() + "private ".length() + 1 + typePlaceholder.length()));
                             editor.refresh();
                         }
                         else
@@ -326,6 +326,21 @@ public class FlowErrorManager implements ErrorQuery
                             throw new RuntimeException("Cannot find the position for declaring a new class field.");
                         }
                     }));
+                }
+            }
+            else if (message.startsWith("cannot find symbol -   method "))
+            {
+                // Change the error message to a more meaningful message
+                String methodName = message.substring(message.lastIndexOf(' ') + 1, message.lastIndexOf('('));
+                this.message = Config.getString("editor.quickfix.undeclaredMethod.errorMsg") + methodName + "(...)";
+
+                // Add a quick fix for correcting to an existing closely spelt variable
+                Stream<String> possibleCorrectionsStream = getPossibleCorrectionsStream(editor, CompletionKind.METHOD);
+                if (possibleCorrectionsStream != null)
+                {
+                    corrections.addAll(bluej.editor.fixes.Correction.winnowAndCreateCorrections(methodName,
+                        possibleCorrectionsStream.map(SimpleCorrectionInfo::new),
+                        s -> editor.setText(editor.getLineColumnFromOffset(startPos), editor.getLineColumnFromOffset(endPos), s)));
                 }
             }
             else

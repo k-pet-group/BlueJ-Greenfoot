@@ -62,6 +62,7 @@ public class UndeclaredVariableInExpressionError extends DirectSlotError
         this.endPosInSlot = endPosInSlot;
 
         corrections.addAll(Correction.winnowAndCreateCorrections(varName, possibleCorrections.stream().map(SimpleCorrectionInfo::new), s -> slot.replace(startPosInSlot, endPosInSlot, isJavaPos(), s)));
+        slot.updateError(this);
     }
 
     @Override
