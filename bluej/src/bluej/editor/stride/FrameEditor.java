@@ -74,7 +74,6 @@ import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
-import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.print.PrinterJob;
 import javafx.scene.image.Image;
@@ -1210,7 +1209,7 @@ public class FrameEditor implements Editor
         ArrayList<AssistContent> joined = new ArrayList<>();
         if (suggests != null)
         {
-            AssistContent[] assists = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null);
+            AssistContent[] assists = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null, null);
             if (assists != null)
                 joined.addAll(Arrays.asList(assists));
         }
@@ -1227,7 +1226,7 @@ public class FrameEditor implements Editor
                 // TODO in future, only do this if we are importing Greenfoot classes.
                 JavaReflective greenfootClassRef = new JavaReflective(pkg.loadClass("greenfoot.Greenfoot"));
                 ExpressionTypeInfo greenfootClass = new ExpressionTypeInfo(new GenTypeClass(greenfootClassRef), null, null, true, false);
-                AssistContent[] greenfootStatic = ParseUtils.getPossibleCompletions(greenfootClass, javadocResolver, null);
+                AssistContent[] greenfootStatic = ParseUtils.getPossibleCompletions(greenfootClass, javadocResolver, null, null);
                 Arrays.stream(greenfootStatic).filter(ac -> ac.getKind() == CompletionKind.METHOD).forEach(ac -> joined.add(new PrefixCompletionWrapper(ac, "Greenfoot.")));
             }
 
@@ -1252,11 +1251,11 @@ public class FrameEditor implements Editor
         {
             members = new ArrayList<>();
             // Add it whether overridden or not:
-            ParseUtils.getPossibleCompletions(suggests, javadocResolver, (ac, isOverridden) -> members.add(ac));
+            ParseUtils.getPossibleCompletions(suggests, javadocResolver, (ac, isOverridden) -> members.add(ac), null);
         }
         else
         {
-            AssistContent[] result = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null);
+            AssistContent[] result = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null, null);
             if (result == null)
                 members = Collections.emptyList();
             else

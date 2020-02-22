@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2016,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -23,6 +23,7 @@ package bluej.compiler;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -102,7 +103,13 @@ class Job
 
             File[] actualSourceFiles = new File[sources.length];
             for (int i = 0; i < sources.length; i++)
+            {
                 actualSourceFiles[i] = sources[i].getJavaCompileInputFile();
+                // Tabs are creating problems in the column count, we correct this problem here.
+                String actualSourceFileContent = new String(Files.readAllBytes(actualSourceFiles[i].toPath()), fileCharset);
+                Files.write(actualSourceFiles[i].toPath(), actualSourceFileContent.replaceAll("\\t", "    ").getBytes(fileCharset));
+                actualSourceFileContent = null;
+            }
 
             boolean successful = compiler.compile(actualSourceFiles, observer, internal, userCompileOptions, fileCharset, type);
 
