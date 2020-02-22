@@ -1,12 +1,9 @@
-Package: bluej-unbundled
+Package: bluej
 Priority: extra
 Section: Programming
-Installed-Size: 21648
+Installed-Size: 420000
 Maintainer: BlueJ Team <bluej-support@bluej.org>
-Architecture: all
-Replaces: bluej (<< 5.0.0)
-Breaks: bluej (<< 5.0.0)
+Architecture: amd64
 Version: VERSION
-Depends: openjdk-11-jdk (>= 11), openjfx (>= 11)
 Description: A simple but powerful Java IDE.
   Go to <bluej.org> for more details.

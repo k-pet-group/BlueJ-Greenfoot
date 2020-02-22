@@ -257,7 +257,7 @@ public class TestBasicEditorDisplay extends FXTest
             {
 
             }
-        }, null, null, null, new ReadOnlyBooleanWrapper(true));
+        }, null, null, null, new ReadOnlyBooleanWrapper(true), true);
         flowEditorPane = flowEditor.getSourcePane();
         flowEditorPane.setPrefWidth(800.0 + MarginAndTextLine.TEXT_LEFT_EDGE);
         flowEditorPane.setMaxWidth(Region.USE_PREF_SIZE);

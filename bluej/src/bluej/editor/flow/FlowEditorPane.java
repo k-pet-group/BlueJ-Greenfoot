@@ -65,7 +65,7 @@ import java.util.*;
  * as a virtualised container.  Scrolling re-renders the currently visible line set.
  */
 @OnThread(value = Tag.FXPlatform, ignoreParent = true)
-public class FlowEditorPane extends Region implements DocumentListener, JavaSyntaxView.Display
+public class FlowEditorPane extends Region implements JavaSyntaxView.Display
 {
     private final LineDisplay lineDisplay;
     private final FlowEditorPaneListener listener;
@@ -109,7 +109,6 @@ public class FlowEditorPane extends Region implements DocumentListener, JavaSynt
         setSnapToPixel(true);
         document = new HoleDocument();
         document.replaceText(0, 0, content);
-        document.addListener(this);
         caret = document.trackPosition(0, Bias.FORWARD);
         // Important that the anchor is a different object to the caret, as they will move independently:
         anchor = document.trackPosition(0, Bias.FORWARD);
@@ -233,8 +232,7 @@ public class FlowEditorPane extends Region implements DocumentListener, JavaSynt
         updateRender(true);
     }
 
-    @Override
-    public void textReplaced(int start, String oldText, String newText, int linesRemoved, int linesAdded)
+    public void textChanged()
     {
         updateRender(false);
         targetColumnForVerticalMovement = -1;
