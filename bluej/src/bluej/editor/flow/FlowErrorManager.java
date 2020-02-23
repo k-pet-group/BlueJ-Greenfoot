@@ -23,7 +23,10 @@ package bluej.editor.flow;
 
 import bluej.Config;
 import bluej.editor.TextEditor;
+import bluej.editor.fixes.Correction;
+import bluej.editor.fixes.Correction.CorrectionInfo;
 import bluej.editor.fixes.Correction.SimpleCorrectionInfo;
+import bluej.editor.fixes.Correction.TypeCorrectionInfo;
 import bluej.editor.fixes.EditorFixesManager;
 import bluej.editor.fixes.EditorFixesManager.FixSuggestionBase;
 import bluej.parser.AssistContent;
@@ -40,6 +43,8 @@ import bluej.parser.nodes.MethodNode;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.parser.nodes.ParsedCUNode;
 import bluej.parser.nodes.ParsedNode;
+import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.role.Kind;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
 import javafx.application.Platform;
@@ -54,8 +59,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -115,7 +122,8 @@ public class FlowErrorManager implements ErrorQuery
         });
     }
 
-    private void showErrors(FlowEditor editor, FlowEditorPane sourcePane, int startPos, int endPos, String message, int identifier, Stream<AssistContentThreadSafe> imports){
+    private void showErrors(FlowEditor editor, FlowEditorPane sourcePane, int startPos, int endPos, String message, int identifier, Stream<AssistContentThreadSafe> imports)
+    {
         errorInfos.add(new FlowErrorManager.ErrorDetails(editor, startPos, endPos, message, identifier, imports));
         setNextErrorEnabled.accept(true);
         editor.updateHeaderHasErrors(true);
@@ -157,12 +165,12 @@ public class FlowErrorManager implements ErrorQuery
             final int dist = err.startPos - from;
 
             if (next == null
-                    // If the current best is before the position, ours is better if either
-                    // it's after the position, or it's even further before
-                    || (lowestDist <= 0 && (dist > 0 || dist <= lowestDist))
-                    // If the current best is after the position, ours is better only if
-                    // we are earlier
-                    || (lowestDist > 0 && dist > 0 && dist <= lowestDist))
+                // If the current best is before the position, ours is better if either
+                // it's after the position, or it's even further before
+                || (lowestDist <= 0 && (dist > 0 || dist <= lowestDist))
+                // If the current best is after the position, ours is better only if
+                // we are earlier
+                || (lowestDist > 0 && dist > 0 && dist <= lowestDist))
             {
                 next = err;
                 lowestDist = dist;
@@ -187,9 +195,9 @@ public class FlowErrorManager implements ErrorQuery
     public FlowErrorManager.ErrorDetails getErrorAtPosition(int pos)
     {
         return errorInfos.stream()
-                .filter(e -> e.containsPosition(pos))
-                .reduce((first, second) -> second)
-                .orElse(null);
+            .filter(e -> e.containsPosition(pos))
+            .reduce((first, second) -> second)
+            .orElse(null);
     }
 
     /**
@@ -248,12 +256,52 @@ public class FlowErrorManager implements ErrorQuery
                 this.message = Config.getString("editor.quickfix.unknownType.errorMsg") + typeName;
                 if (possibleImports != null)
                 {
+                    List<AssistContentThreadSafe> possibleCorrectionsList = possibleImports
+                        .filter(ac -> ac.getPackage() != null).collect(Collectors.toList());
+
                     // Add the fixes: import single class then import package
-                    corrections.addAll(possibleImports
-                        .filter(ac -> ac.getPackage() != null && ac.getName().equals(typeName))
+                    corrections.addAll(possibleCorrectionsList.stream()
+                        .filter(ac -> ac.getName().equals(typeName))
                         .flatMap(ac -> Stream.of(new FixSuggestionBase((Config.getString("editor.quickfix.unknownType.fixMsg.class") + ac.getPackage() + "." + ac.getName()), () -> editor.addImportFromQuickFix(ac.getPackage() + "." + ac.getName())),
                             new FixSuggestionBase((Config.getString("editor.quickfix.unknownType.fixMsg.package") + ac.getPackage() + " (for " + ac.getName() + " class)"), () -> editor.addImportFromQuickFix(ac.getPackage() + ".*"))))
                         .collect(Collectors.toList()));
+
+                    // Add a quick fix for correcting to an existing closely spelt type
+                    Stream<CorrectionInfo> possibleCorrectionsStream = getPossibleCorrectionsStream(editor, CompletionKind.TYPE, possibleCorrectionsList, typeName);
+                    if (possibleCorrectionsStream != null)
+                    {
+                        corrections.addAll(Correction.winnowAndCreateCorrections(typeName,
+                            possibleCorrectionsStream,
+                            s -> {
+                                // We replace the current error with the simple type name, and if the package is in the name, we add the class in imports.
+                                if (!s.contains("."))
+                                {
+                                    // This case applies to java.lang and classes in the empty package
+                                    editor.setText(editor.getLineColumnFromOffset(startPos), editor.getLineColumnFromOffset(endPos), s);
+                                }
+                                else
+                                {
+                                    String simpleTypeName = s.substring(s.lastIndexOf('.') + 1);
+                                    String packageName = s.substring(0, s.lastIndexOf('.'));
+                                    // in the editor, the class name may be preceeded by the package explicitely, if that's the case, we need to maintain the "." before the class name.
+                                    if (editor.getText(editor.getLineColumnFromOffset(startPos), editor.getLineColumnFromOffset(startPos + 1)).equals("."))
+                                    {
+                                        editor.setText(editor.getLineColumnFromOffset(startPos), editor.getLineColumnFromOffset(endPos), "." + simpleTypeName);
+                                    }
+                                    else
+                                    {
+                                        editor.setText(editor.getLineColumnFromOffset(startPos), editor.getLineColumnFromOffset(endPos), simpleTypeName);
+                                    }
+                                    if (!editor.getText(new SourceLocation(1, 1), editor.getLineColumnFromOffset(startPos)).contains("import " + s + ";")
+                                        && !editor.getText(new SourceLocation(1, 1), editor.getLineColumnFromOffset(startPos)).contains("import " + packageName + ".*;"))
+                                    {
+                                        editor.addImportFromQuickFix(s);
+                                    }
+                                }
+                                editor.refresh();
+                            },
+                            true));
+                    }
                 }
             }
             // set the quick fix "== instead of =" if :
@@ -280,11 +328,11 @@ public class FlowErrorManager implements ErrorQuery
                 this.message = Config.getString("editor.quickfix.undeclaredVar.errorMsg") + varName;
 
                 // Add a quick fix for correcting to an existing closely spelt variable
-                Stream<String> possibleCorrectionsStream = getPossibleCorrectionsStream(editor, CompletionKind.FIELD);
+                Stream<CorrectionInfo> possibleCorrectionsStream = getPossibleCorrectionsStream(editor, CompletionKind.FIELD);
                 if (possibleCorrectionsStream != null)
                 {
                     corrections.addAll(bluej.editor.fixes.Correction.winnowAndCreateCorrections(varName,
-                        possibleCorrectionsStream.map(SimpleCorrectionInfo::new),
+                        possibleCorrectionsStream,
                         s -> editor.setText(editor.getLineColumnFromOffset(startPos), editor.getLineColumnFromOffset(endPos), s)));
                 }
                 // If the variable is in a single line assignment (i.e. a line starting with "<var> = " then we propose declaration
@@ -334,13 +382,14 @@ public class FlowErrorManager implements ErrorQuery
                 String methodName = message.substring(message.lastIndexOf(' ') + 1, message.lastIndexOf('('));
                 this.message = Config.getString("editor.quickfix.undeclaredMethod.errorMsg") + methodName + "(...)";
 
-                // Add a quick fix for correcting to an existing closely spelt variable
-                Stream<String> possibleCorrectionsStream = getPossibleCorrectionsStream(editor, CompletionKind.METHOD);
+                // Add a quick fix for correcting to an existing closely spelt method
+                Stream<CorrectionInfo> possibleCorrectionsStream = getPossibleCorrectionsStream(editor, CompletionKind.METHOD);
                 if (possibleCorrectionsStream != null)
                 {
                     corrections.addAll(bluej.editor.fixes.Correction.winnowAndCreateCorrections(methodName,
-                        possibleCorrectionsStream.map(SimpleCorrectionInfo::new),
+                        possibleCorrectionsStream,
                         s -> editor.setText(editor.getLineColumnFromOffset(startPos), editor.getLineColumnFromOffset(endPos), s)));
+                    editor.refresh();
                 }
             }
             else
@@ -413,7 +462,10 @@ public class FlowErrorManager implements ErrorQuery
             }
         }
 
-        private Stream<String> getPossibleCorrectionsStream(FlowEditor editor, CompletionKind kind)
+        private Stream<CorrectionInfo> getPossibleCorrectionsStream(FlowEditor editor, CompletionKind kind){
+            return getPossibleCorrectionsStream(editor, kind, null, null);
+        }
+        private Stream<CorrectionInfo> getPossibleCorrectionsStream(FlowEditor editor, CompletionKind kind, List<AssistContentThreadSafe> possibleCorrectionAlImports, String errorStr)
         {
             if (editor == null)
                 return null;
@@ -432,18 +484,92 @@ public class FlowErrorManager implements ErrorQuery
             if (positionNode == null)
                 return null;
 
-            AssistContent[] values = ParseUtils.getPossibleCompletions(suggests, editor.getProject().getJavadocResolver(), null,
-                (kind.equals(CompletionKind.FIELD) || kind.equals(CompletionKind.LOCAL_VAR)) ? positionNode : null);
-            if (values == null)
-                return null;
+            // Completions are used to get methods and fields/variables;
+            // for types we use another method
+            if (kind.equals(CompletionKind.TYPE))
+            {
+                List<AssistContentThreadSafe> types = new ArrayList<>();
+                int errorLine = editor.getLineColumnFromOffset(startPos).getLine();
+                int errorLineLength = editor.getLineLength(errorLine-1);
+                String errorLineStr = editor.getText(new SourceLocation(errorLine  , 1),new SourceLocation(errorLine,errorLineLength));
+                String errorFulltypeStrRegeix = "([^ ]*)("+errorStr+")([^ ]*)";
+                Pattern pattern = Pattern.compile(errorFulltypeStrRegeix);
+                Matcher matcher = pattern.matcher(errorLineStr);
+                matcher.find();
+                String errorFullTypeStrPrefix = matcher.group(1);
+                String errorFullTypeStrSuffix = matcher.group(3);
 
-            // We only propose the possible completion of a same kind request,
-            // and distinct values: meaning for variables, the correction is done for a local variable when there is an ambiguity.
-            return Arrays.stream(values)
-                .filter(ac -> ac.getKind().equals(kind))
-                .flatMap(ac -> Stream.of(ac.getName()))
-                .distinct();
+                // First get project's (package) classes
+                if(editor.getWatcher() instanceof ClassTarget)
+                {
+                    ClassTarget ct = ((ClassTarget) editor.getWatcher());
+                    List<AssistContentThreadSafe> projPackClasses = ParseUtils.getLocalTypes(ct.getPackage(), null, Kind.all());
+                    //We need to check that the class can actually be added, for example, if the error is on "java.io.tes" (at "tes") and that we have Test class somewhere in the project,
+                    //it should not be proposed as a correction because the java.io.Test does not exit...
+                    removeCorrectionsTriggeringError(projPackClasses, errorFullTypeStrPrefix);
+                    projPackClasses.sort(Comparator.comparing(AssistContentThreadSafe::getName));
+                    types.addAll(projPackClasses);
+                }
+                // Get primitives and "common" classes
+                List<AssistContentThreadSafe> commmonTypes = new ArrayList<>();
+                // if the type has a prefix (like "java.io") or a suffix, we do not add primitives since they cannot be used
+                if (errorFullTypeStrPrefix.length() == 0 && errorFullTypeStrSuffix.length() == 0)
+                    commmonTypes.addAll(editor.getEditorFixesManager().getPrimitiveTypes());
+                if (possibleCorrectionAlImports !=null){
+                    // We manually add java.lang classes as they are not included in the imports
+                    try
+                    {
+                        commmonTypes.addAll(editor.getEditorFixesManager().getJavaLangImports().get().stream().filter(ac -> ac.getPackage() != null).collect(Collectors.toList()));
+                    }
+                    catch (InterruptedException | ExecutionException ex)
+                    {
+                        throw new RuntimeException(ex);
+                    }
+                    // We filter the imports to : commonly used classes and classes imported in the class explicitly
+                    commmonTypes.addAll(possibleCorrectionAlImports.stream()
+                        .filter(ac -> Correction.isClassInUsualPackagesForCorrections(ac) || editor.getText(new SourceLocation(1,1), editor.getLineColumnFromOffset(startPos)).contains("import "+ac.getPackage()+"."+ac.getName()+";")
+                        || editor.getText(new SourceLocation(1,1), editor.getLineColumnFromOffset(startPos)).contains("import "+ac.getPackage()+".*;"))
+                        .collect(Collectors.toList()));
+                    //We need to check that the class can actually be added, for example, if the error is on "java.io.Strin" (at "Strin") "String" is a possible correction ,
+                    //it should not be proposed as a correction because the java.io.String does not exit...
+                    removeCorrectionsTriggeringError(commmonTypes, errorFullTypeStrPrefix);
+                }
+                commmonTypes.sort(Comparator.comparing(AssistContentThreadSafe::getName));
+                types.addAll(commmonTypes);
+            return types.stream()
+                .map(TypeCorrectionInfo::new);
+            }
+            else
+            {
+                AssistContent[] values = ParseUtils.getPossibleCompletions(suggests, editor.getProject().getJavadocResolver(), null,
+                   (kind.equals(CompletionKind.FIELD) || kind.equals(CompletionKind.LOCAL_VAR)) ? positionNode : null);
+                if (values == null)
+                    return null;
+
+                // We only propose the possible completion of a same kind request,
+                // and distinct values: meaning for variables, the correction is done for a local variable when there is an ambiguity.
+                return Arrays.stream(values)
+                    .filter(ac -> ac.getKind().equals(kind))
+                    .distinct()
+                    .flatMap(ac -> Stream.of(ac.getName()))
+                    .map(SimpleCorrectionInfo::new);
+            }
         }
     }
+
+    /**
+     * Removes the types from the list for which a correction in the editor would end up with an error
+     * because the correction is a part of type that may mismatch (ex. "java.io.Strin" would be corrected
+     * as "java.io.String" and triggers an error). It only checks the prefix.
+     *
+     * @param possibleCorrectionsList the list of types to work with
+     * @param errorFullTypeStrPrefix the prefix of the error type
+     */
+    private static void removeCorrectionsTriggeringError(List<AssistContentThreadSafe> possibleCorrectionsList, String errorFullTypeStrPrefix)
+    {
+        if (errorFullTypeStrPrefix.length() > 0)
+            possibleCorrectionsList.removeIf(ac -> !(ac.getPackage() + ".").equals(errorFullTypeStrPrefix));
+    }
+
 
 }

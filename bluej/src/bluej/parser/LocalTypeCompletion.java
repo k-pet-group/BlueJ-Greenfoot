@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2017 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2017,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,13 +19,12 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.stride.framedjava.frames;
+package bluej.parser;
 
 import java.util.List;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
-import bluej.parser.AssistContent;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.stride.framedjava.ast.Parser;
 
