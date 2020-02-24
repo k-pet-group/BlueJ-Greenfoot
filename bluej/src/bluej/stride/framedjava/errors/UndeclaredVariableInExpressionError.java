@@ -25,10 +25,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import bluej.Config;
 import bluej.compiler.Diagnostic.DiagnosticOrigin;
+import bluej.editor.fixes.Correction;
 import bluej.editor.fixes.FixSuggestion;
 import bluej.stride.framedjava.ast.StringSlotFragment;
-import bluej.stride.framedjava.errors.Correction.SimpleCorrectionInfo;
+import bluej.editor.fixes.Correction.SimpleCorrectionInfo;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -60,6 +62,7 @@ public class UndeclaredVariableInExpressionError extends DirectSlotError
         this.endPosInSlot = endPosInSlot;
 
         corrections.addAll(Correction.winnowAndCreateCorrections(varName, possibleCorrections.stream().map(SimpleCorrectionInfo::new), s -> slot.replace(startPosInSlot, endPosInSlot, isJavaPos(), s)));
+        slot.updateError(this);
     }
 
     @Override
@@ -78,7 +81,7 @@ public class UndeclaredVariableInExpressionError extends DirectSlotError
     @OnThread(Tag.Any)
     public String getMessage()
     {
-        return "Undeclared variable: " + varName;
+        return Config.getString("editor.quickfix.undeclaredVar.errorMsg") + varName;
     }
 
     @Override

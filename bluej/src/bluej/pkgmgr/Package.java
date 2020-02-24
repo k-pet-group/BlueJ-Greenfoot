@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -2716,112 +2716,6 @@ public final class Package
             }
         }
     }
-    
-    private static class MisspeltMethodChecker implements MessageCalculator
-    {
-        private static final int MAX_EDIT_DISTANCE = 2;
-        private final String message;
-        private int lineNumber;
-        private int column;
-        private Project project;
-
-        public MisspeltMethodChecker(String message, int column, int lineNumber, Project project)
-        {
-            this.message = message;
-            this.column = column;
-            this.lineNumber = lineNumber;
-            this.project = project;
-        }
-        
-        private static String chopAtOpeningBracket(String name)
-        {
-            int openingBracket = name.indexOf('(');
-            if (openingBracket >= 0)
-                return name.substring(0,openingBracket);
-            else
-                return name;
-        }
-
-        private String getLine(TextEditor e)
-        {
-            return e.getText(new bluej.parser.SourceLocation(lineNumber, 1), new bluej.parser.SourceLocation(lineNumber, e.getLineLength(lineNumber-1)));
-        }
-        
-        private int getLineStart(TextEditor e)
-        {
-            return e.getOffsetFromLineColumn(new bluej.parser.SourceLocation(lineNumber, 1));
-        }
-        
-        @Override
-        public String calculateMessage(Editor e0)
-        {
-            if (e0 == null) {
-                return message;
-            }
-            TextEditor e = e0.assumeText();
-            
-            String missing = chopAtOpeningBracket(message.substring(message.lastIndexOf(' ') + 1));
-
-            ParsedCUNode pcuNode = e.getParsedNode();
-            if (pcuNode == null) {
-                return message;
-            }
-
-            // If it is a frameEditor, pcuNode above will be null, so the next lines won't be reached. If this change,
-            // i.e. pcuNode is not null for frameEditor, next lines should be fixed
-
-            // The column from the diagnostic object assumes tabs are 8 spaces; convert to a line position:
-            int pos = convertColumn(getLine(e), column) + getLineStart(e);
-
-            TreeSet<String> maybeTheyMeant = new TreeSet<>();
-            ExpressionTypeInfo suggests = pcuNode.getExpressionType(pos, e.getSourceDocument());
-            AssistContent[] values = ParseUtils.getPossibleCompletions(suggests, project.getJavadocResolver(), null);
-            if (values != null) {
-                for (AssistContent a : values) {
-                    String name = a.getName();
-
-                    if (a.getKind() == CompletionKind.METHOD && Utility.editDistance(name.toLowerCase(), missing.toLowerCase()) <= MAX_EDIT_DISTANCE) {
-                        maybeTheyMeant.add(a.getName());
-                    }
-                }
-            }
-
-            if (maybeTheyMeant.isEmpty()) {
-                return message;
-            } else {
-                String augmentedMessage = message + "; maybe you meant: " + maybeTheyMeant.pollFirst();
-                for (String sugg : maybeTheyMeant) {
-                    augmentedMessage += " or " + sugg;
-                }
-                return augmentedMessage;
-            }
-        }
-        
-        /** 
-         * Convert a column where a tab is counted as 8 to a column where a tab is counted
-         * as 1
-         */
-        private static int convertColumn(String string, int column)
-        {
-            int ccount = 0; // count of characters
-            int lpos = 0;   // count of columns (0 based)
-
-            int tabIndex = string.indexOf('\t');
-            while (tabIndex != -1 && lpos < column - 1) {
-                lpos += tabIndex - ccount;
-                ccount = tabIndex;
-                if (lpos >= column - 1) {
-                    break;
-                }
-                lpos = ((lpos + 8) / 8) * 8;  // tab!
-                ccount += 1;
-                tabIndex = string.indexOf('\t', ccount);
-            }
-
-            ccount += column - lpos;
-            return ccount;
-        }
-    }
 
     /**
      * The same, but also display error/warning messages for the user
@@ -2874,31 +2768,21 @@ public final class Package
                 showMessageWithText("compiler-error", diagnostic.getMessage());
                 return true;
             }
-                
+
             String message = diagnostic.getMessage();
-            // See if we can help the user a bit more if they've mis-spelt a method:
-            if (message.contains("cannot find symbol") && message.contains("method")) {
-                messageShown = showEditorDiagnostic(diagnostic,
-                        new MisspeltMethodChecker(message,
-                                (int) diagnostic.getStartColumn(),
-                                (int) diagnostic.getStartLine(),
-                                project), numErrors - 1, type);
-            }
-            else
-            {
-                messageShown = showEditorDiagnostic(diagnostic, null, numErrors - 1, type);
-            }
+            messageShown = showEditorDiagnostic(diagnostic, null, numErrors - 1, type);
+
             // Display the error message in the source editor
             switch (messageShown)
             {
-            case EDITOR_NOT_FOUND:
-                showMessageWithText("error-in-file", diagnostic.getFileName() + ":" +
+                case EDITOR_NOT_FOUND:
+                    showMessageWithText("error-in-file", diagnostic.getFileName() + ":" +
                         diagnostic.getStartLine() + "\n" + message);
-                return true;
-            case ERROR_SHOWN:
-                return true;
-            default:
-                return false;
+                    return true;
+                case ERROR_SHOWN:
+                    return true;
+                default:
+                    return false;
             }
         }
 

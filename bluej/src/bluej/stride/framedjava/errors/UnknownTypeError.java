@@ -23,17 +23,16 @@ package bluej.stride.framedjava.errors;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import bluej.Config;
 import bluej.compiler.Diagnostic.DiagnosticOrigin;
+import bluej.editor.fixes.Correction;
 import bluej.editor.fixes.EditorFixesManager.FixSuggestionBase;
 import bluej.editor.fixes.FixSuggestion;
 import bluej.stride.framedjava.ast.SlotFragment;
-import bluej.stride.framedjava.errors.Correction.CorrectionInfo;
+import bluej.editor.fixes.Correction.CorrectionInfo;
 import bluej.parser.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.FXPlatformConsumer;

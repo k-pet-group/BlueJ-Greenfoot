@@ -106,4 +106,15 @@ public class ASTUtility
             handler.accept(r);
         });
     }
+
+    @OnThread(Tag.FXPlatform)
+    public static void withMethods(CodeElement el, InteractionManager editor, PosInSourceDoc pos, boolean includeCurDecl, FXPlatformConsumer<List<String>> handler)
+    {
+        editor.withAccessibleMembers(pos, Collections.singleton(CompletionKind.METHOD), false,
+            x ->
+            {
+                Stream<String> methodStream = x.stream().map(AssistContentThreadSafe::getName);
+                handler.accept(methodStream.collect(Collectors.toList()));
+            });
+    }
 }

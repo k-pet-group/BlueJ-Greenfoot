@@ -267,7 +267,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
         return false;
     }
-    
+
     public void toggleBreakpoint()
     {
         toggleBreakpointForLine(flowEditorPane.getDocument().getLineFromPosition(flowEditorPane.getCaretPosition()));
@@ -288,6 +288,13 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public FlowActions getActions()
     {
         return actions;
+    }
+
+    public Project getProject()
+    {
+        if (fxTabbedEditor != null)
+            return fxTabbedEditor.getProject();
+        return null;
     }
 
     public static interface FetchTabbedEditor
@@ -349,12 +356,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         {
             return cannotUndo;
         }
-        
+
         public BooleanExpression cannotRedo()
         {
             return cannotRedo;
         }
-        
+
         public void undo()
         {
             int pos = undoStack.undo();
@@ -363,7 +370,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 flowEditorPane.positionCaret(pos);
             }
         }
-        
+
         public void redo()
         {
             int pos = undoStack.redo();
@@ -377,13 +384,13 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         {
             undoStack.clear();
         }
-        
+
         public void compoundEdit(FXPlatformRunnable action)
         {
             undoStack.compoundEdit(action);
         }
     }
-    
+
     // package-visible:
     final UndoManager undoManager;
 
@@ -588,7 +595,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
         return interfaceToggle;
     }
-    
+
     /**
      * Create the editor's menu bar.
      */
@@ -664,12 +671,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         showErrorPopupForCaretPos(caretPos, false);
 
         actions.userAction();
-        
+
         if (matchBrackets)
         {
             doBracketMatch();
         }
-        
+
         // Only send caret moved event if we are open; caret moves while loading
         // but we don't want to send an edit event because of that:
         if (oldCaretLineNumber != document.getLineFromPosition(caretPos) && isOpen())
@@ -1028,7 +1035,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 }
 
                 ignoreChanges = true;
-                document.replaceText(0, document.getLength(), Files.readString(file.toPath(), charset).replace("\r", ""));
+                document.replaceText(0, document.getLength(), Files.readString(file.toPath(), charset).replace("\r", "").replace("\t", "    "));
                 setLastModified(file.lastModified());
                 // Position caret at start, not the end:
                 getSourcePane().positionCaret(0);
@@ -1256,7 +1263,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         document.replaceText(0, document.getLength(), CharStreams.toString(reader).replace("\r", ""));
         // Position caret at start, not the end:
         getSourcePane().positionCaret(0);
-        
+
         undoManager.forgetHistory();
     }
 
@@ -1330,7 +1337,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             fxTabbedEditor.addTab(fxTab, vis, true);
         }
         fxTabbedEditor.setWindowVisible(vis, fxTab);
-        
+
         if (vis)
         {
             fxTabbedEditor.bringToFront(fxTab);
@@ -1506,7 +1513,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             watcher.closeEvent(this);
         }
     }
-    
+
     @Override
     public void refresh()
     {
@@ -2055,7 +2062,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             watcher.modificationEvent(this);
         }
     }
-    
+
     @Override
     public boolean isModified()
     {
@@ -2603,7 +2610,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         else
             switchToInterfaceView();
     }
-    
+
     @Override
     public void setLastModified(long millisSinceEpoch)
     {
@@ -2676,7 +2683,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             setSelection(new SourceLocation(n , 1), new SourceLocation(n, 1));
         });
     }
-    
+
     // package visible
     void updateHeaderHasErrors(boolean hasErrors)
     {
@@ -2795,7 +2802,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     }
 
     /**
-     * Removes the selected highlights (in both the source/doc pane) 
+     * Removes the selected highlights (in both the source/doc pane)
      * Note: the other highlights such as the brackets etc remain
      */
     public void removeSearchHighlights()
@@ -2805,9 +2812,9 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     }
 
     /**
-     * Sets the find panel to be visible and if there is a selection/or previous search 
-     * it starts a automatic find of what was selected in the text/or previous search. If 
-     * it is the source pane then the replace button is enabled; if it is the interface pane 
+     * Sets the find panel to be visible and if there is a selection/or previous search
+     * it starts a automatic find of what was selected in the text/or previous search. If
+     * it is the source pane then the replace button is enabled; if it is the interface pane
      * then the replace button and replace panel are set to disabled and invisible
      */
     public void initFindPanel()
@@ -2870,7 +2877,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         if (suggests != null)
         {
             LocatableToken suggestToken = suggests.getSuggestionToken();
-            AssistContent[] possibleCompletions = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null);
+            AssistContent[] possibleCompletions = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null, parser.getCurrentPosNode(flowEditorPane.getCaretPosition(), 0));
             Arrays.sort(possibleCompletions, AssistContent.getComparator());
             List<SuggestionDetails> suggestionDetails = Arrays.stream(possibleCompletions)
                     .map(AssistContentThreadSafe::new)
@@ -3167,7 +3174,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         javaSyntaxView.enableParser(true);
         StyledLines allLines = new StyledLines(doc, lineStylerWrapper[0]);
         lineContainer.getChildren().setAll(lineDisplay.recalculateVisibleLines(allLines, Math::ceil, 0, printerJob.getJobSettings().getPageLayout().getPrintableWidth(), height.get(), true));
-        
+
         // Note: very important we make this call before copyFrom, as copyFrom is what triggers
         // the run-later that marking as printing suppresses:
         //doc.markAsForPrinting();
@@ -3184,7 +3191,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
         header.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
         header.setPadding(new Insets(5));
-        
+
         BorderPane rootPane = new BorderPane(lineContainer, header, null, flowEditorPaneListener, null);
         // The scopeColorsPane needs to be in the scene to access the CSS colors.
         // But we don't actually want it visible:
@@ -3266,7 +3273,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             {
                 return;
             }
-            
+
             // Scroll to make topLine actually at the top:
             lineDisplay.scrollTo(topLine, 0);
             List<MarginAndTextLine> lines = lineDisplay.recalculateVisibleLines(allLines, Math::ceil, 0, printerJob.getJobSettings().getPageLayout().getPrintableWidth(), lineContainer.getHeight(), true);
@@ -3321,7 +3328,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 lineContainer.setClip(new Rectangle(lineContainer.getWidth(), lineContainer.getHeight()));
                 //lineContainer.setTranslateY(-las);
             }
-            
+
             // NCCB: I have investigated the printing bug seen in 4.1.2rc2 for
             // a long time, but my best guess is that the bug is not in our code.
             // The way it now manifests, with the page cut off at an arbitrary
@@ -3345,7 +3352,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             {
                 break;
             }
-            
+
             lastTopLine = topLine;
         }
     }
