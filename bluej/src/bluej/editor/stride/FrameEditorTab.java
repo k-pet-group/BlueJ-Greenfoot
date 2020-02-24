@@ -2024,7 +2024,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
 
         if (kinds.contains(Kind.PRIMITIVE))
             addAllToMap(r,editor.getEditorFixesManager().getPrimitiveTypes());
-        addAllToMap(r, editor.getLocalTypes(superType, includeSelf, kinds));
+        addAllToMap(r, editor.getLocalTypes(superType, kinds));
         FrameEditor frameEditor = getFrameEditor();
         Utility.runBackground(() -> {
             addAllToMap(r, frameEditor.getEditorFixesManager().getImportedTypes(superType, includeSelf, kinds));
@@ -2135,6 +2135,11 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     private void insertMethodElementAtTheEnd(MethodWithBodyElement method)
     {
         getTopLevelFrame().insertAtEnd(method.createFrame(this));
+    }
+
+    public boolean containsImport(String importSrc)
+    {
+        return getTopLevelFrame().getImports().contains(importSrc);
     }
 
     public void addImport(String importSrc)

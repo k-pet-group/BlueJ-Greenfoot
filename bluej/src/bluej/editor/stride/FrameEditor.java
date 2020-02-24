@@ -64,7 +64,6 @@ import bluej.stride.framedjava.errors.DirectSlotError;
 import bluej.stride.framedjava.errors.SyntaxCodeError;
 import bluej.stride.framedjava.frames.DebugInfo;
 import bluej.stride.framedjava.frames.LocalCompletion;
-import bluej.stride.framedjava.frames.LocalTypeCompletion;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.parser.AssistContentThreadSafe;
 import bluej.utility.Debug;
@@ -1293,6 +1292,11 @@ public class FrameEditor implements Editor
         return editorFixesMgr;
     }
 
+    public boolean containsImport(String importName)
+    {
+        return panel.containsImport(importName);
+    }
+
     @Override
     public void addImportFromQuickFix(String importName)
     {
@@ -1337,35 +1341,9 @@ public class FrameEditor implements Editor
     }
 
     @OnThread(Tag.FXPlatform)
-    public List<AssistContentThreadSafe> getLocalTypes(Class<?> superType, boolean includeSelf, Set<Kind> kinds)
+    public List<AssistContentThreadSafe> getLocalTypes(Class<?> superType, Set<Kind> kinds)
     {
-        return pkg.getClassTargets()
-                  .stream()
-                  .filter(ct -> {
-                      if (superType != null)
-                      {
-                          ClassInfo info = ct.getSourceInfo().getInfoIfAvailable();
-                          if (info == null)
-                              return false;
-                          // This code won't pick up the case where A extends B, and B has "superType"
-                          // as a super type, but I'm not sure how we can easily tell that.
-                          boolean hasSuperType = false;
-                          hasSuperType |= superType.getName().equals(info.getSuperclass());
-                          // Check interfaces:
-                          hasSuperType |= info.getImplements().stream().anyMatch(s -> superType.getName().equals(s));
-                          if (!hasSuperType)
-                              return false;
-                      }
-                      
-                      if (ct.isInterface())
-                          return kinds.contains(Kind.INTERFACE);
-                      else if (ct.isEnum())
-                          return kinds.contains(Kind.ENUM);
-                      else 
-                          return kinds.contains(Kind.CLASS_FINAL) || kinds.contains(Kind.CLASS_NON_FINAL);
-                  })
-                  .map(ct -> new AssistContentThreadSafe(LocalTypeCompletion.getCompletion(ct)))
-                  .collect(Collectors.toList());
+        return ParseUtils.getLocalTypes(pkg, superType, kinds);
     }
 
     public void showNextError()

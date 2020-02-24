@@ -149,7 +149,15 @@ public class TypeSlotFragment extends StructuredSlotFragment
                 return;
             }
             // Otherwise, give error and suggest corrections
-            final UnknownTypeError error = new UnknownTypeError(this, content, slot::setText, editor,
+            FXPlatformConsumer<String> replacer = s -> {
+                // The type is always replaced by its "simple" name form, if the import doesn't exist, then we add it
+                slot.setText((s.contains(".") ? s.substring(s.lastIndexOf('.') + 1) : s));
+                if (s.contains(".") && !editor.getFrameEditor().containsImport(s) && !editor.getFrameEditor().containsImport(s.substring(0, s.lastIndexOf(".")) + ".*"))
+                {
+                    editor.getFrameEditor().addImportFromQuickFix(s);
+                }
+            };
+            final UnknownTypeError error = new UnknownTypeError(this, content, replacer, editor,
                     types.values().stream(), frameEditor.getEditorFixesManager().getImportSuggestions().values().stream().
                     flatMap(Collection::stream)) {};
             error.recordPath(rootPathMap.locationFor(this));

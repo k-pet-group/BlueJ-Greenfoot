@@ -29,13 +29,14 @@ import java.util.stream.Stream;
 import bluej.Config;
 import bluej.compiler.Diagnostic.DiagnosticOrigin;
 import bluej.editor.fixes.Correction;
+import bluej.editor.fixes.Correction.TypeCorrectionInfo;
 import bluej.editor.fixes.EditorFixesManager.FixSuggestionBase;
 import bluej.editor.fixes.FixSuggestion;
 import bluej.stride.framedjava.ast.SlotFragment;
-import bluej.editor.fixes.Correction.CorrectionInfo;
 import bluej.parser.AssistContentThreadSafe;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.FXPlatformConsumer;
+import javafx.application.Platform;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -66,28 +67,16 @@ public class UnknownTypeError extends DirectSlotError
         this.editor = editor;
 
         // Add the fixes: correction, import class and import package
-        corrections.addAll(Correction.winnowAndCreateCorrections(typeName, possibleCorrections.map(TypeCorrectionInfo::new), replace));
-        corrections.addAll(possibleImports
-                    .filter(ac -> ac.getPackage() != null && ac.getName().equals(typeName))
-                    .flatMap(ac -> Stream.of(new FixSuggestionBase((Config.getString("editor.quickfix.unknownType.fixMsg.class") + ac.getPackage() + "." + ac.getName()), () -> editor.getFrameEditor().addImportFromQuickFix(ac.getPackage() + "." + ac.getName()) ),
-                        new FixSuggestionBase((Config.getString("editor.quickfix.unknownType.fixMsg.package") + ac.getPackage() + " (for " + ac.getName() + " class)"), () -> editor.getFrameEditor().addImportFromQuickFix(ac.getPackage() + ".*"))))
-                    .collect(Collectors.toList()));
-    }
-
-    @OnThread(Tag.Any)
-    private static class TypeCorrectionInfo implements CorrectionInfo
-    {
-        private AssistContentThreadSafe ac;
-        public TypeCorrectionInfo(AssistContentThreadSafe ac) { this.ac = ac; }
-        public String getCorrection() { return ac.getName(); }
-        public String getDisplay()
-        {
-            String pkg = ac.getPackage();
-            if (pkg == null)
-                return ac.getName();
-            else
-                return ac.getName() + " (" + ac.getPackage() + " package)";
-        }
+        List<AssistContentThreadSafe> possibleImportsList = possibleImports.collect(Collectors.toList());
+        List<AssistContentThreadSafe> possibleCorrectionsList = possibleCorrections.collect(Collectors.toList());
+        // For the corrections, we also include some potential classes from packages we consider to be usual.
+        possibleCorrectionsList.addAll(possibleImportsList.stream().filter(ac -> Correction.isClassInUsualPackagesForCorrections(ac) && !possibleCorrectionsList.contains(ac)).collect(Collectors.toList()));
+        Platform.runLater(() -> corrections.addAll(Correction.winnowAndCreateCorrections(typeName, possibleCorrectionsList.stream().map(TypeCorrectionInfo::new), replace, true)));
+        corrections.addAll(possibleImportsList.stream()
+            .filter(ac -> ac.getPackage() != null && ac.getName().equals(typeName))
+            .flatMap(ac -> Stream.of(new FixSuggestionBase((Config.getString("editor.quickfix.unknownType.fixMsg.class") + ac.getPackage() + "." + ac.getName()), () -> editor.getFrameEditor().addImportFromQuickFix(ac.getPackage() + "." + ac.getName())),
+                new FixSuggestionBase((Config.getString("editor.quickfix.unknownType.fixMsg.package") + ac.getPackage() + " (for " + ac.getName() + " class)"), () -> editor.getFrameEditor().addImportFromQuickFix(ac.getPackage() + ".*"))))
+            .collect(Collectors.toList()));
     }
 
     @Override

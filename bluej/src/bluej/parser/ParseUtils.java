@@ -29,6 +29,9 @@ import bluej.parser.entity.*;
 import bluej.parser.nodes.FieldNode;
 import bluej.parser.nodes.MethodNode;
 import bluej.parser.nodes.ParsedNode;
+import bluej.parser.symtab.ClassInfo;
+import bluej.pkgmgr.Package;
+import bluej.pkgmgr.target.role.Kind;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 import bluej.debugger.gentype.FieldReflective;
@@ -80,6 +83,38 @@ public class ParseUtils
             return completions.toArray(new AssistContent[completions.size()]);
         }
         return null;
+    }
+
+    @OnThread(Tag.FXPlatform)
+    public static List<AssistContentThreadSafe> getLocalTypes(Package pkg, Class<?> superType, Set<Kind> kinds)
+    {
+        return pkg.getClassTargets()
+            .stream()
+            .filter(ct -> {
+                if (superType != null)
+                {
+                    ClassInfo info = ct.getSourceInfo().getInfoIfAvailable();
+                    if (info == null)
+                        return false;
+                    // This code won't pick up the case where A extends B, and B has "superType"
+                    // as a super type, but I'm not sure how we can easily tell that.
+                    boolean hasSuperType = false;
+                    hasSuperType |= superType.getName().equals(info.getSuperclass());
+                    // Check interfaces:
+                    hasSuperType |= info.getImplements().stream().anyMatch(s -> superType.getName().equals(s));
+                    if (!hasSuperType)
+                        return false;
+                }
+
+                if (ct.isInterface())
+                    return kinds.contains(Kind.INTERFACE);
+                else if (ct.isEnum())
+                    return kinds.contains(Kind.ENUM);
+                else
+                    return kinds.contains(Kind.CLASS_FINAL) || kinds.contains(Kind.CLASS_NON_FINAL);
+            })
+            .map(ct -> new AssistContentThreadSafe(LocalTypeCompletion.getCompletion(ct)))
+            .collect(Collectors.toList());
     }
 
     /**
