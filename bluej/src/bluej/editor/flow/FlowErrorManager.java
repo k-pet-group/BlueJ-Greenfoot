@@ -490,22 +490,19 @@ public class FlowErrorManager implements ErrorQuery
             {
                 List<AssistContentThreadSafe> types = new ArrayList<>();
                 int errorLine = editor.getLineColumnFromOffset(startPos).getLine();
-                int errorLineLength = editor.getLineLength(errorLine-1);
-                String errorLineStr = editor.getText(new SourceLocation(errorLine  , 1),new SourceLocation(errorLine,errorLineLength));
-                String errorFulltypeStrRegeix = "([^ ]*)("+errorStr+")([^ ]*)";
-                Pattern pattern = Pattern.compile(errorFulltypeStrRegeix);
-                Matcher matcher = pattern.matcher(errorLineStr);
+                int errorLineLength = editor.getLineLength(errorLine - 1);
+                String errorLineStr = editor.getText(new SourceLocation(errorLine, 1), new SourceLocation(errorLine, errorLineLength));
+                Matcher matcher = Pattern.compile("([^ ]*)(" + errorStr + ")([^ ]*)").matcher(errorLineStr);
                 matcher.find();
                 String errorFullTypeStrPrefix = matcher.group(1);
                 String errorFullTypeStrSuffix = matcher.group(3);
 
                 // First get project's (package) classes
-                if(editor.getWatcher() instanceof ClassTarget)
+                if (editor.getWatcher().getPackage() != null)
                 {
-                    ClassTarget ct = ((ClassTarget) editor.getWatcher());
-                    List<AssistContentThreadSafe> projPackClasses = ParseUtils.getLocalTypes(ct.getPackage(), null, Kind.all());
+                    List<AssistContentThreadSafe> projPackClasses = ParseUtils.getLocalTypes(editor.getWatcher().getPackage(), null, Kind.all());
                     //We need to check that the class can actually be added, for example, if the error is on "java.io.tes" (at "tes") and that we have Test class somewhere in the project,
-                    //it should not be proposed as a correction because the java.io.Test does not exit...
+                    //it should not be proposed as a correction because the java.io.Test does not exist...
                     removeCorrectionsTriggeringError(projPackClasses, errorFullTypeStrPrefix);
                     projPackClasses.sort(Comparator.comparing(AssistContentThreadSafe::getName));
                     types.addAll(projPackClasses);
@@ -550,8 +547,8 @@ public class FlowErrorManager implements ErrorQuery
                 // and distinct values: meaning for variables, the correction is done for a local variable when there is an ambiguity.
                 return Arrays.stream(values)
                     .filter(ac -> ac.getKind().equals(kind))
-                    .distinct()
                     .flatMap(ac -> Stream.of(ac.getName()))
+                    .distinct()
                     .map(SimpleCorrectionInfo::new);
             }
         }

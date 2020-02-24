@@ -29,6 +29,7 @@ import bluej.collect.StrideEditReason;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
 import bluej.editor.stride.FrameCatalogue;
+import bluej.pkgmgr.Package;
 import bluej.stride.generic.Frame;
 
 /**
@@ -77,6 +78,11 @@ public interface EditorWatcher
      * Gets a property
      */
     String getProperty(String key);
+
+    /**
+     * Gets the associated package with the editor
+     */
+    Package getPackage();
 
     /**
      * Schedule compilation due to reload or modification
