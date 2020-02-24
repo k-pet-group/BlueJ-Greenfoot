@@ -41,6 +41,7 @@ import javafx.beans.binding.When;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.geometry.Side;
+import javafx.scene.AccessibleRole;
 import javafx.scene.Cursor;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -232,6 +233,8 @@ public class ObjectWrapper extends StackPane implements InvokeListener, NamedVal
         JavaFXUtil.addStyleClass(this, "object-wrapper");
 
         Label label = new Label(getName() + ":\n" + displayClassName);
+        setAccessibleText(label.getText() + " Object");
+        setAccessibleRole(AccessibleRole.NODE);
         JavaFXUtil.addStyleClass(label, "object-wrapper-text");
         createComponent(label);
         highlight.setMouseTransparent(true);

@@ -234,7 +234,7 @@ public class ClassTarget extends DependentTarget
      */
     public ClassTarget(Package pkg, String baseName, String template)
     {
-        super(pkg, baseName);
+        super(pkg, baseName, "Class");
 
         if (pseudos == null)
         {

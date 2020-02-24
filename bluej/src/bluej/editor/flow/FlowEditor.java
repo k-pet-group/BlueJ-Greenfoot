@@ -118,11 +118,9 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.TilePane;
@@ -133,8 +131,6 @@ import javafx.scene.web.WebView;
 import javafx.stage.PopupWindow.AnchorLocation;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-import org.fxmisc.wellbehaved.event.InputMap;
-import org.fxmisc.wellbehaved.event.Nodes;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.events.EventTarget;
@@ -329,7 +325,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         @Override
         public void showErrorPopupForCaretPos(int caretPos, boolean mousePosition)
         {
+        }
 
+        @Override
+        public String getErrorAtPosition(int caretPos)
+        {
+            return null;
         }
     }
 
@@ -656,6 +657,11 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         return watcher;
     }
 
+    @Override
+    public String getErrorAtPosition(int caretPos)
+    {
+        return errorManager.getErrorAtPosition(caretPos).message;
+    }
 
     /**
      * Notification (from the caret) that the caret position has moved.
@@ -743,6 +749,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         return errorDisplay.hasQuickFixSelected();
     }
 
+    @Override
     public void showErrorPopupForCaretPos(int caretPos, boolean mousePosition)
     {
         ErrorDetails err = caretPos == -1 ? null : errorManager.getErrorAtPosition(caretPos);

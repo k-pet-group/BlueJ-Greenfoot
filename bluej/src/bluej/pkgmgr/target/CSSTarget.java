@@ -55,7 +55,7 @@ public class CSSTarget extends NonCodeEditableTarget
 
     public CSSTarget(Package aPackage, File file)
     {
-        super(aPackage, file.getName());
+        super(aPackage, file.getName(), "" /* CSS already in name */);
         this.file = file;
 
         JavaFXUtil.addStyleClass(pane, "css-target");
