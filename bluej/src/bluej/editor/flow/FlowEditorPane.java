@@ -221,7 +221,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
                 Point2D screenPoint = (Point2D)objects[0];
                 return getCaretPositionForLocalPoint(screenToLocal(screenPoint));
             case HELP:
-                String err = listener.getErrorForPosition(caret.position);
+                String err = listener.getErrorAtPosition(caret.position);
                 if (err != null)
                     return "Error: " + err;
                 else
@@ -1071,7 +1071,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
 
         public void showErrorPopupForCaretPos(int caretPos, boolean mousePosition);
 
-        public String getErrorForPosition(int caretPos);
+        public String getErrorAtPosition(int caretPos);
     }
 
     // Use an AbstractList rather than pre-calculate, as that means we don't bother

@@ -328,7 +328,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         }
 
         @Override
-        public String getErrorForPosition(int caretPos)
+        public String getErrorAtPosition(int caretPos)
         {
             return null;
         }
@@ -658,7 +658,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     }
 
     @Override
-    public String getErrorForPosition(int caretPos)
+    public String getErrorAtPosition(int caretPos)
     {
         return errorManager.getErrorAtPosition(caretPos).message;
     }
