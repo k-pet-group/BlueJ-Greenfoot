@@ -31,6 +31,8 @@ import bluej.compiler.CompileType;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.pkgmgr.Package;
 import bluej.stride.generic.Frame;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Interface between the editor and the rest of BlueJ
@@ -82,6 +84,7 @@ public interface EditorWatcher
     /**
      * Gets the associated package with the editor
      */
+    @OnThread(Tag.Any)
     Package getPackage();
 
     /**

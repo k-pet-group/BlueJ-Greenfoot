@@ -445,6 +445,7 @@ public class ClassTarget extends DependentTarget
         return getBaseName() + getTypeParameters();
     }
 
+    @OnThread(Tag.Any)
     public Package getPackage(){
         return super.getPackage();
     }
