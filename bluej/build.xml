@@ -314,7 +314,7 @@
         </java>
     </target>
 
-    <target name="dist" depends="ready-to-run">
+    <target name="dist" depends="ready-to-run,check-licences">
         <ant dir="package" target="dist"/>
     </target>
 
@@ -581,6 +581,7 @@
                 <exclude name="httpmime-4.1.1.jar"/>
                 <exclude name="junit-*.jar"/>
                 <exclude name="nsmenufx-2.1.4.jar"/>
+                <exclude name="opentest4j-1.2.0.jar"/>
                 <exclude name="richtextfx-fat-0.9.0.jar"/>
                 <exclude name="xom-1.2.9.jar"/>
                 <exclude name="jsch-0.1.53.jar"/>

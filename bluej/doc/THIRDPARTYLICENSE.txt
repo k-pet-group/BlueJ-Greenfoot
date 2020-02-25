@@ -122,11 +122,11 @@ which is used by Bluej. It is distributed under the terms of a BSD-style license
 as found in the "jsch-BSD.txt" file.
 
 
-JUnit (Common Public License v1.0)
+JUnit (Eclipse Public License v1.0)
 ----------------------------------
-"junit-4.12.jar" is part of the JUnit unit testing library (http://junit.org/) which is
-used by BlueJ. It is distributed under the terms of the Common Public License
-version 1.0, as found in the "CPL-v1.0.txt" file.
+"junit-*.jar" are part of the JUnit unit testing library (http://junit.org/) which is
+used by BlueJ. It is distributed under the terms of the Eclipse Public License
+version 2.0, as found in the "EPL-v2.0.txt" file.
 
 JUnit QuickCheck (MIT License)
 ------------------------------
@@ -146,6 +146,12 @@ OGNL library (Apache License version 2.0)
 "ognl-3.1.12.jar", the OGNL library is a library supporting a small DSL for object
 queries.  It is a dependency of JUnit-Quickcheck.  The library is distributed under
 the Apache License version 2.0, as found in the "Apache-License-2.0.txt" file.
+
+OpenTest4J (Apache License version 2.0)
+-----------------------------------------------------
+"opentest4j-1.2.0.jar" is a utility library used by JUnit 5.
+The library is distributed under the Apache License version 2.0. A copy of this
+license can be found in the "Apache-License-2.0.txt" file.
 
 
 RichTextFX (GPLv2 with classpath exception, and 2-clause BSD licenses)
