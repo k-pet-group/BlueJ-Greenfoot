@@ -138,6 +138,7 @@ prefmgr.accessibility.support=Accessibility Mode [only for use with screen reade
 # Extensions Manager Help panel
 extmgr.title=BlueJ:  Installed Extensions
 extmgr.extensions=Extensions
+extmgr.noExtensionInstalled=No extension installed.
 extmgr.systemExtensionShort=System
 extmgr.systemExtensionLong=System extension (active for all projects)
 extmgr.projectExtensionShort=Project
