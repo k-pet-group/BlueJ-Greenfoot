@@ -317,6 +317,18 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         {
             lineDisplay.ensureLineVisible(caret.getLine());
         }
+
+        // Must calculate horizontal scroll before rendering, in case it updates the horizontal scroll:
+        double width = lineDisplay.calculateLineWidth(document.getLongestLine());
+        horizontalScroll.setMax(width + 100 - getWidth());
+        if (horizontalScroll.getValue() > horizontalScroll.getMax())
+        {
+            updatingScrollBarDirectly = true;
+            horizontalScroll.setValue(Math.max(Math.min(horizontalScroll.getValue(), horizontalScroll.getMax()), horizontalScroll.getMin()));
+            updatingScrollBarDirectly = false;
+        }
+        horizontalScroll.setVisibleAmount(getWidth() / (horizontalScroll.getMax() + getWidth()) * horizontalScroll.getMax());
+        horizontalScroll.setVisible(allowScrollBars && width + 100 >= getWidth());
         
         List<Node> prospectiveChildren = new ArrayList<>();
         // Use an AbstractList rather than pre-calculate, as that means we don't bother
@@ -336,11 +348,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         updatingScrollBarDirectly = true;
         verticalScroll.setValue(lineDisplay.getLineRangeVisible()[0] - (lineDisplay.getFirstVisibleLineOffset() / lineDisplay.getLineHeight()));
         updatingScrollBarDirectly = false;
-        
-        double width = lineDisplay.calculateLineWidth(document.getLongestLine());
-        horizontalScroll.setMax(width + 100.0 - getWidth());
-        horizontalScroll.setVisibleAmount(getWidth() / (horizontalScroll.getMax() + getWidth()) * horizontalScroll.getMax());
-        horizontalScroll.setVisible(allowScrollBars && width + 100 >= getWidth());
+
         
         // This will often avoid changing the children, if the window has not been resized:
         boolean needToChangeLinesAndCaret = false;
