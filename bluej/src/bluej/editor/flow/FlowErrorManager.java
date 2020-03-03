@@ -262,8 +262,16 @@ public class FlowErrorManager implements ErrorQuery
                     // Add the fixes: import single class then import package
                     corrections.addAll(possibleCorrectionsList.stream()
                         .filter(ac -> ac.getName().equals(typeName))
-                        .flatMap(ac -> Stream.of(new FixSuggestionBase((Config.getString("editor.quickfix.unknownType.fixMsg.class") + ac.getPackage() + "." + ac.getName()), () -> editor.addImportFromQuickFix(ac.getPackage() + "." + ac.getName())),
-                            new FixSuggestionBase((Config.getString("editor.quickfix.unknownType.fixMsg.package") + ac.getPackage() + " (for " + ac.getName() + " class)"), () -> editor.addImportFromQuickFix(ac.getPackage() + ".*"))))
+                        .flatMap(ac -> Stream.of(new FixSuggestionBase((Config.getString("editor.quickfix.unknownType.fixMsg.class") + ac.getPackage() + "." + ac.getName()),
+                                () -> {
+                            editor.setSelection(startErrorPosSourceLocation,startErrorPosSourceLocation);
+                            editor.addImportFromQuickFix(ac.getPackage() + "." + ac.getName());
+                                }),
+                            new FixSuggestionBase((Config.getString("editor.quickfix.unknownType.fixMsg.package") + ac.getPackage() + " (for " + ac.getName() + " class)"),
+                                () -> {
+                                    editor.setSelection(startErrorPosSourceLocation,startErrorPosSourceLocation);
+                                    editor.addImportFromQuickFix(ac.getPackage() + ".*");
+                                })))
                         .collect(Collectors.toList()));
 
                     // Add a quick fix for correcting to an existing closely spelt type
@@ -273,6 +281,7 @@ public class FlowErrorManager implements ErrorQuery
                         corrections.addAll(Correction.winnowAndCreateCorrections(typeName,
                             possibleCorrectionsStream,
                             s -> {
+                                editor.setSelection(startErrorPosSourceLocation,startErrorPosSourceLocation);
                                 // We replace the current error with the simple type name, and if the package is in the name, we add the class in imports.
                                 if (!s.contains("."))
                                 {
@@ -315,6 +324,7 @@ public class FlowErrorManager implements ErrorQuery
                 String leftCompPart = errorLineText.substring(0, startPos - editor.getOffsetFromLineColumn(startErrorLineSourceLocation));
                 String rightCompPart = errorLineText.substring(startPos - editor.getOffsetFromLineColumn(startErrorLineSourceLocation) + 1);
                 corrections.add(new FixSuggestionBase(Config.getString("editor.quickfix.wrongComparisonOperator.fixMsg"), () -> {
+                    editor.setSelection(startErrorPosSourceLocation,startErrorPosSourceLocation);
                     editor.setText(startErrorLineSourceLocation, endErrorLineSourceLocation, (leftCompPart + "==" + rightCompPart));
                     editor.refresh();
                 }));
@@ -333,7 +343,10 @@ public class FlowErrorManager implements ErrorQuery
                 {
                     corrections.addAll(bluej.editor.fixes.Correction.winnowAndCreateCorrections(varName,
                         possibleCorrectionsStream,
-                        s -> editor.setText(editor.getLineColumnFromOffset(startPos), editor.getLineColumnFromOffset(endPos), s)));
+                        s -> {
+                            editor.setSelection(startErrorPosSourceLocation,startErrorPosSourceLocation);
+                            editor.setText(editor.getLineColumnFromOffset(startPos), editor.getLineColumnFromOffset(endPos), s);
+                        }));
                 }
                 // If the variable is in a single line assignment (i.e. a line starting with "<var> = " then we propose declaration
                 // locally and at the class level; the type cannot be inferred so we used a placeholder: "_type_".
@@ -388,7 +401,10 @@ public class FlowErrorManager implements ErrorQuery
                 {
                     corrections.addAll(bluej.editor.fixes.Correction.winnowAndCreateCorrections(methodName,
                         possibleCorrectionsStream,
-                        s -> editor.setText(editor.getLineColumnFromOffset(startPos), editor.getLineColumnFromOffset(endPos), s)));
+                        s -> {
+                            editor.setSelection(startErrorPosSourceLocation,startErrorPosSourceLocation);
+                            editor.setText(editor.getLineColumnFromOffset(startPos), editor.getLineColumnFromOffset(endPos), s);
+                        }));
                     editor.refresh();
                 }
             }
