@@ -483,7 +483,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      */
     private Region createToolbar(DoubleExpression buttonHeight)
     {
-        TilePane tilePane = new TilePane(Orientation.HORIZONTAL,
+        // We use a tile pane because it makes all the buttons the same size as each other.
+        // But we don't actually want any wrapping that TilePane gives us.  The easiest way to
+        // prevent this is to make it vertical, and then restrict it to one row in height.
+        // This means it "wraps" all the buttons horizontally, and won't change it's behaviour
+        // if the window gets too narrow to display all the buttons.
+        TilePane tilePane = new TilePane(Orientation.VERTICAL,
             createToolbarButton("compile", buttonHeight),
             createToolbarButton("undo", buttonHeight),
             createToolbarButton("cut", buttonHeight),
@@ -492,7 +497,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             createToolbarButton("find", buttonHeight),
             createToolbarButton("close", buttonHeight)
         );
+        tilePane.setPrefRows(1);
         tilePane.setPrefColumns(tilePane.getChildren().size());
+        tilePane.prefWidthProperty().bind(tilePane.maxWidthProperty());
+        tilePane.prefHeightProperty().bind(tilePane.minHeightProperty());
         return JavaFXUtil.withStyleClass(tilePane, "flow-top-bar-buttons");
     }
 
