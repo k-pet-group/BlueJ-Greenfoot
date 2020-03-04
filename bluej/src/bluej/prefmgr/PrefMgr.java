@@ -337,6 +337,11 @@ public class PrefMgr
         return "-fx-font-family: \"" + editorStandardFont.get() + "\", " + editorFallbackFont.get() + ";";
     }
 
+    public static String getEditorFontFamily()
+    {
+        return editorStandardFont.get();
+    }
+
     @OnThread(Tag.FXPlatform)
     public static ObservableIntegerValue getScopeHighlightStrength()
     {
