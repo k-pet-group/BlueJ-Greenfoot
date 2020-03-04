@@ -569,7 +569,7 @@ public class ClassTarget extends DependentTarget
      * 
      * <p>In Junit4, test classes can be of any type.
      * The only way to test is to check if it has one of the following annotations:
-     * @Before, @Test or @After<br/>Note: a test class may only the @Before
+     * @Before, @Test or @After<br/>Note: a test class may only contain the @Before
      * and @After annotations when created with BlueJ, so @Test alone is not a reliable
      * indicator for a test class.
      * 
@@ -613,9 +613,22 @@ public class ClassTarget extends DependentTarget
      *
      * <p>In Junit5, test classes can be of any type.
      * The only way to test is to check if it has one of the following annotations:
-     * @BeforeEach, @Test or @AfterEach.<br/>Note: a test class may only the @BeforeEach
+     * @BeforeEach, @Test or @AfterEach.<br/>Note: a test class may only contain the @BeforeEach
      * and @AfterEach annotation when created with BlueJ, so @Test alone is not a reliable
      * indicator for a test class.
+     * For JUnit 5 we extend the detection of test classes to these common annotations:
+     * @RepeatedTest.
+     * @DisplayName.
+     * @BeforeAll.
+     * @AfterAll.
+     * @Tag.
+     * @Disabled.
+     * @ParameterizedTest
+     * @TestFactory
+     * @Nested
+     * @TestInstance
+     * @SelectPackages (class)
+     * @SelectClasses (class)
 
      * @param cl class to test
      */
@@ -625,30 +638,46 @@ public class ClassTarget extends DependentTarget
         ClassLoader clLoader = cl.getClassLoader();
         try
         {
-            Class<? extends Annotation> beforeClass =
-                    (Class<? extends Annotation>) Class.forName("org.junit.jupiter.api.BeforeEach", false, clLoader);
-            Class<? extends Annotation> afterClass =
-                    (Class<? extends Annotation>) Class.forName("org.junit.jupiter.api.AfterEach", false, clLoader);
-            Class<? extends Annotation> testClass =
-                    (Class<? extends Annotation>) Class.forName("org.junit.jupiter.api.Test", false, clLoader);
+            Class[] matchingMethodAnnotationsClassArray = {
+                Class.forName("org.junit.jupiter.api.BeforeEach", false, clLoader),
+                Class.forName("org.junit.jupiter.api.BeforeAll", false, clLoader),
+                Class.forName("org.junit.jupiter.api.AfterEach", false, clLoader),
+                Class.forName("org.junit.jupiter.api.AfterAll", false, clLoader),
+                Class.forName("org.junit.jupiter.api.Test", false, clLoader),
+                Class.forName("org.junit.jupiter.api.RepeatedTest", false, clLoader),
+                Class.forName("org.junit.jupiter.api.DisplayName", false, clLoader),
+                Class.forName("org.junit.jupiter.api.Tag", false, clLoader),
+                Class.forName("org.junit.jupiter.api.TestFactory", false, clLoader),
+                Class.forName("org.junit.jupiter.api.Disabled", false, clLoader),
+                Class.forName("org.junit.jupiter.params.ParameterizedTest", false, clLoader),
+                Class.forName("org.junit.jupiter.api.Nested", false, clLoader),
+                Class.forName("org.junit.jupiter.api.TestInstance", false, clLoader)
+            };
+
+            Class[] matchingClassAnnotationsClassArray = {
+                Class.forName("org.junit.platform.suite.api.SelectPackages", false, clLoader),
+                Class.forName("org.junit.platform.suite.api.SelectClasses", false, clLoader)
+            };
 
             Method[] methods = cl.getDeclaredMethods();
             for (int i = 0; i < methods.length; i++)
             {
-                if (methods[i].getAnnotation(beforeClass) != null)
+                for (Class matchingClass : matchingMethodAnnotationsClassArray)
                 {
-                    return true;
+                    if (methods[i].getAnnotation(matchingClass) != null)
+                    {
+                        return true;
+                    }
                 }
-                if (methods[i].getAnnotation(afterClass) != null)
-                {
-                    return true;
-                }
-                if (methods[i].getAnnotation(testClass) != null)
+            }
+
+            for (Class matchingClass : matchingClassAnnotationsClassArray)
+            {
+                if (cl.getAnnotation(matchingClass) != null)
                 {
                     return true;
                 }
             }
-
         }
         catch (ClassNotFoundException cnfe)
         {
