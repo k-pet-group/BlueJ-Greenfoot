@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2014,2016,2017,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2014,2016,2017,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -54,6 +54,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.api.RepeatedTest;
 import threadchecker.OnThread;
@@ -156,6 +157,7 @@ public class UnitTestClassRole extends ClassRole
                 Class<org.junit.jupiter.api.Test> testClassJU5;
                 Class<ParameterizedTest> paramTestClassJU5;
                 Class<RepeatedTest> repeatedTestClassJU5;
+                Class<Disabled> disabledTestClassJU5;
                 try
                 {
                     if (classLoader == null)
@@ -163,15 +165,19 @@ public class UnitTestClassRole extends ClassRole
                         testClassJU5 = org.junit.jupiter.api.Test.class;
                         paramTestClassJU5 = ParameterizedTest.class;
                         repeatedTestClassJU5 = RepeatedTest.class;
+                        disabledTestClassJU5 = Disabled.class;
                     }
                     else
                     {
                         testClassJU5 = (Class<org.junit.jupiter.api.Test>) classLoader.loadClass("org.junit.jupiter.api.Test");
                         paramTestClassJU5 = (Class<ParameterizedTest>) classLoader.loadClass("org.junit.jupiter.params.ParameterizedTest");
                         repeatedTestClassJU5 = (Class<RepeatedTest>) classLoader.loadClass("org.junit.jupiter.api.RepeatedTest");
+                        disabledTestClassJU5 = (Class<Disabled>) classLoader.loadClass("org.junit.jupiter.api.Disabled");
                     }
 
-                    if (m.getAnnotation(testClassJU5) != null || m.getAnnotation(paramTestClassJU5) != null || m.getAnnotation(repeatedTestClassJU5) != null)
+                    // Disabled methods are excluded from the tests
+                    if (m.getAnnotation(disabledTestClassJU5) == null &&
+                        (m.getAnnotation(testClassJU5) != null || m.getAnnotation(paramTestClassJU5) != null || m.getAnnotation(repeatedTestClassJU5) != null))
                     {
                         if (!Modifier.isPublic(m.getModifiers())) return false;
                         if (m.getAnnotation(paramTestClassJU5) != null && m.getParameterTypes().length == 0) return false;
@@ -384,16 +390,16 @@ public class UnitTestClassRole extends ClassRole
     public List<String> startRunTest(PkgMgrFrame pmf, ClassTarget ct, TestRunnerThread trt)
     {
         Class<?> cl = pmf.getPackage().loadClass(ct.getQualifiedName());
-        
+
         if (cl == null)
             return null;
-        
+
         // Test the whole class:
         List<String> testMethods = Arrays.stream(cl.getMethods())
-                .filter(this::isJUnitTestMethod)
-                .map(Method::getName)
-                .sorted()
-                .collect(Collectors.toList());
+            .filter(this::isJUnitTestMethod)
+            .map(Method::getName)
+            .sorted()
+            .collect(Collectors.toList());
 
         Project proj = pmf.getProject();
         TestDisplayFrame.getTestDisplay().startTest(proj, testMethods.size());

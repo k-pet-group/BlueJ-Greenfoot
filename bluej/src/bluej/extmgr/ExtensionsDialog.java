@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2016,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2016,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -81,19 +81,27 @@ public class ExtensionsDialog
         Config.addDialogStylesheets(mainFrame.getDialogPane());
         mainFrame.getDialogPane().setContent(extensionsPane);
         mainFrame.getDialogPane().getButtonTypes().setAll(ButtonType.CLOSE);
-        
-        extensionsList.forEach(wrapper -> {
-            // We must get details on the Swing thread...
-            String extensionName = wrapper.safeGetExtensionName();
-            String extensionStatus = wrapper.getExtensionStatus();
-            String extensionVersion = wrapper.safeGetExtensionVersion();
-            String extensionDescription = wrapper.safeGetExtensionDescription();
-            boolean isProject = wrapper.getProject() != null;
-            String extensionFileName = wrapper.getExtensionFileName();
-            URL url = wrapper.safeGetURL();
-            // But create the TitledPane on the FX thread:
-            extensionsVBox.getChildren().add(makeDisplay(extensionName, extensionStatus, extensionVersion, extensionDescription, isProject, extensionFileName, url));
-        });
+
+        // If no extension is installed, we show a message in the dialog.
+        if (extensionsList.size() == 0)
+        {
+            extensionsVBox.getChildren().add(new Text(Config.getString("extmgr.noExtensionInstalled")));
+        }
+        else
+        {
+            extensionsList.forEach(wrapper -> {
+                // We must get details on the Swing thread...
+                String extensionName = wrapper.safeGetExtensionName();
+                String extensionStatus = wrapper.getExtensionStatus();
+                String extensionVersion = wrapper.safeGetExtensionVersion();
+                String extensionDescription = wrapper.safeGetExtensionDescription();
+                boolean isProject = wrapper.getProject() != null;
+                String extensionFileName = wrapper.getExtensionFileName();
+                URL url = wrapper.safeGetURL();
+                // But create the TitledPane on the FX thread:
+                extensionsVBox.getChildren().add(makeDisplay(extensionName, extensionStatus, extensionVersion, extensionDescription, isProject, extensionFileName, url));
+            });
+        }
     }
     
     public void showAndWait()
