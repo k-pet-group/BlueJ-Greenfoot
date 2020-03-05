@@ -489,7 +489,7 @@ debugger.execControls.terminateButtonText=Terminer
 
 debugger.options=Options
 debugger.hideSystemThreads=Cacher les fils syst\u00E8me
-debugger.threadRunning=<html><center>Fil en cours d'ex&eacute;cution.<br>Les fils doivent &ecirc;tre stopp&eacute;s pour pouvoir &ecirc;tre examin&eacute;s.</html>
+debugger.threadRunning=<html><center>Fil en cours d'ex\u00E9cution.<br>Les fils doivent \u00EAtre stopp\u00E9s pour pouvoir \u00EAtre examin\u00E9s.</html>
 
 # DialogManager labels
 
