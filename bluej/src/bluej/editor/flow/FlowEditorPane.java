@@ -323,7 +323,10 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
 
         // Must calculate horizontal scroll before rendering, in case it updates the horizontal scroll:
         double width = lineDisplay.calculateLineWidth(document.getLongestLine());
-        horizontalScroll.setMax(width + 100 - getWidth());
+        // It doesn't look nice if the width the scroll bar shows is exactly the longest line,
+        // as then it feels like it shows "too soon".  So we allow an extra 100 pixels before showing:
+        int EXTRA_WIDTH = 100;
+        horizontalScroll.setMax(width + EXTRA_WIDTH - getWidth());
         if (horizontalScroll.getValue() > horizontalScroll.getMax())
         {
             updatingScrollBarDirectly = true;
@@ -331,7 +334,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
             updatingScrollBarDirectly = false;
         }
         horizontalScroll.setVisibleAmount(getWidth() / (horizontalScroll.getMax() + getWidth()) * horizontalScroll.getMax());
-        horizontalScroll.setVisible(allowScrollBars && width + 100 >= getWidth());
+        horizontalScroll.setVisible(allowScrollBars && width + EXTRA_WIDTH >= getWidth());
         
         List<Node> prospectiveChildren = new ArrayList<>();
         // Use an AbstractList rather than pre-calculate, as that means we don't bother
