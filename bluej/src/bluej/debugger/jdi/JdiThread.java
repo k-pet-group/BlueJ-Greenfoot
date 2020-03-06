@@ -518,6 +518,31 @@ class JdiThread extends DebuggerThread
         return null;
     }
 
+    /**
+     * Gets the stack object, but without fetching its type, allowing it to be done from the VMEventHandler thread.
+     */
+    @OnThread(Tag.VMEventHandler)
+    public DebuggerObject getStackObjectUntyped(int frameNo, int index)
+    {
+        try {
+            if(rt.isSuspended()) {
+                StackFrame frame = rt.frame(frameNo);
+                List<LocalVariable> vars = frame.visibleVariables();
+                LocalVariable var = vars.get(index);
+                ObjectReference val = (ObjectReference)frame.getValue(var);
+                return JdiObject.getDebuggerObject(val);
+            }
+            else
+                return null;
+        }
+        catch(Exception e) {
+            // nothing can be done...
+            Debug.reportError("could not get local variable info: " + e);
+            e.printStackTrace(System.out);
+        }
+        return null;
+    }
+
     @Override
     @OnThread(Tag.VMEventHandler)
     public DebuggerObject getCurrentObject(int frameNo)

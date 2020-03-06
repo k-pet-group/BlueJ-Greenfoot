@@ -67,6 +67,11 @@ public abstract class DebuggerThread
     public abstract boolean varIsObject(int frameNo, int index);
     @OnThread(Tag.VMEventHandler)
     public abstract FXPlatformSupplier<DebuggerObject> getStackObject(int frameNo, int index);
+    /**
+     * Gets the stack object, but without fetching its type, allowing it to be done from the VMEventHandler thread.
+     */
+    @OnThread(Tag.VMEventHandler)
+    public abstract DebuggerObject getStackObjectUntyped(int frameNo, int index);
     
     /**
      * Return the current instance object of some frame on this thread.

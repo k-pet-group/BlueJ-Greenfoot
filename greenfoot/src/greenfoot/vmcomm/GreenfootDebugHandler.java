@@ -263,7 +263,7 @@ public class GreenfootDebugHandler implements DebuggerListener, ObjectBenchInter
         }
         else if (atBreakpoint && e.getBreakpointProperties().get(NAME_ACTOR_KEY) != null)
         {
-            DebuggerObject actorArray = e.getThread().getStackObject(0, 0);
+            DebuggerObject actorArray = e.getThread().getStackObjectUntyped(0, 0);
             greenfootRecorder.nameActors(fetchArray(actorArray));
             e.getThread().cont();
             return true;

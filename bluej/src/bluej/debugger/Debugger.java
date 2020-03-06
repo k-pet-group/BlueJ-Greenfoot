@@ -249,7 +249,7 @@ public abstract class Debugger
      * @param args       The arguments
      * @return   The result of the constructor call
      */
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.NOTVMEventHandler)
     public abstract DebuggerResult instantiateClass(String className, String [] paramTypes,
             DebuggerObject [] args);
     
@@ -322,7 +322,7 @@ public abstract class Debugger
      * @return           a string of the error message generated performing
      *                   this operation or null
      */
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.Any)
     public abstract String toggleBreakpoint(DebuggerClass debuggerClass, String method, boolean set,
             Map<String, String> properties);
 

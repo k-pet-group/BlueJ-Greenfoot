@@ -976,7 +976,7 @@ public class VMReference
      * @return  The newly constructed object (or null if error/exception
      *          occurs)
      */
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.NOTVMEventHandler)
     public DebuggerResult instantiateClass(String className, String [] paramTypes, ObjectReference [] args)
     {
         ObjectReference obj = null;
@@ -1742,7 +1742,7 @@ public class VMReference
      * 
      * @return  The newly constructed object
      */
-    @OnThread(Tag.FXPlatform)
+    @OnThread(Tag.NOTVMEventHandler)
     private ObjectReference invokeConstructor(String className, String [] paramTypes, ObjectReference [] args)
     {
         // Calls to this method are serialized via serverThreadLock in JdiDebugger
