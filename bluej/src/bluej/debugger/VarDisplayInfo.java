@@ -19,8 +19,8 @@ public class VarDisplayInfo
     private final String name;
     private final String value;
     // If null, means item was not an inspectable object (probably null or primitive):
-    @OnThread(Tag.Any)
-    private final Supplier<DebuggerObject> getObjectToInspect;
+    @OnThread(Tag.FXPlatform)
+    private final FXPlatformSupplier<DebuggerObject> getObjectToInspect;
 
     @OnThread(Tag.FXPlatform)
     public VarDisplayInfo(DebuggerField field)
@@ -57,7 +57,7 @@ public class VarDisplayInfo
     }
 
     @OnThread(Tag.FXPlatform)
-    public VarDisplayInfo(JavaType vartype, LocalVariable var, String value, Supplier<DebuggerObject> getObjectToInspect)
+    public VarDisplayInfo(JavaType vartype, LocalVariable var, String value, FXPlatformSupplier<DebuggerObject> getObjectToInspect)
     {
         access = null;
         type = vartype.toString(true);
@@ -86,8 +86,8 @@ public class VarDisplayInfo
         return value;
     }
 
-    @OnThread(Tag.Any)
-    public Supplier<DebuggerObject> getFetchObject()
+    @OnThread(Tag.FXPlatform)
+    public FXPlatformSupplier<DebuggerObject> getFetchObject()
     {
         return getObjectToInspect;
     }

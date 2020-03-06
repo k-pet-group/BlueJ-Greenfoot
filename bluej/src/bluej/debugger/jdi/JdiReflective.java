@@ -52,6 +52,7 @@ import bluej.debugger.gentype.TextType;
 import bluej.utility.Debug;
 import bluej.utility.JavaNames;
 
+import bluej.utility.javafx.FXPlatformSupplier;
 import com.sun.jdi.ArrayType;
 import com.sun.jdi.BooleanType;
 import com.sun.jdi.ByteType;
@@ -899,6 +900,7 @@ public class JdiReflective extends Reflective
      *            The declaring type of the variable
      * @return The type of the field value
      */
+    @OnThread(Tag.FXPlatform)
     public static JavaType fromLocalVar(Type t, String genericSignature, String typeName, ReferenceType declaringType)
     {
         if (t == null) {
@@ -925,10 +927,11 @@ public class JdiReflective extends Reflective
      *            The local variable
      * @return The type of the field value
      */
-    public static JavaType fromLocalVar(StackFrame sf, LocalVariable var)
+    @OnThread(Tag.VMEventHandler)
+    public static FXPlatformSupplier<JavaType> fromLocalVar(StackFrame sf, LocalVariable var)
     {
-        Type t = null;
-        
+        Type t;
+
         // For a variable whose value is unset/null, the corresponding class
         // type may not have been loaded. In this case "var.type()" throws a
         // ClassNotLoadedException.
@@ -940,20 +943,13 @@ public class JdiReflective extends Reflective
             t = var.type();
         }
         catch (ClassNotLoadedException cnle) {
-            t = findClass(typeNameToBinaryName(var.typeName()), declType.classLoader(), sf.virtualMachine());
+            // pass null to next method, which will call findClass
+            t = null;
         }
-
-        final String gensig = JdiUtils.getJdiUtils().genericSignature(var);
-
-        if (gensig == null) {
-            return getNonGenericType(var.typeName(), t, declType.classLoader(), sf.virtualMachine());
-        }
-
-        // if the generic signature wasn't null, get the type from it.
-        StringIterator iterator = new StringIterator(gensig);
-        Map<String,GenTypeParameter> tparams = new HashMap<String,GenTypeParameter>();
-        addDefaultParamBases(tparams, new JdiReflective(declType));
-        return typeFromSignature(iterator, tparams, declType).getTparCapture();
+        String gensig = JdiUtils.getJdiUtils().genericSignature(var);
+        String typeName = var.typeName();
+        Type tFinal = t;
+        return () -> fromLocalVar(tFinal, gensig, typeName, declType);
     }
 
     /**

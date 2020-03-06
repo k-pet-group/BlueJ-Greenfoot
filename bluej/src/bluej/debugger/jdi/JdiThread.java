@@ -423,8 +423,8 @@ class JdiThread extends DebuggerThread
                     // Add "type name = value" to the list
 
                     final int iFinal = i;
-                    Supplier<DebuggerObject> getObjectToInspect = varIsObject(frameNo, i) ?
-                            () -> getStackObject(frameNo, iFinal)
+                    FXPlatformSupplier<DebuggerObject> getObjectToInspect = varIsObject(frameNo, i) ?
+                            getStackObject(frameNo, iFinal)
                             : null;
                     localVars.add(() -> {
                         JavaType vartype = JdiReflective.fromLocalVar(localTypes.get(iFinal), genericSigs.get(iFinal),
@@ -496,16 +496,16 @@ class JdiThread extends DebuggerThread
      */
     @OnThread(Tag.VMEventHandler)
     // @SuppressWarnings("threadchecker")
-    public DebuggerObject getStackObject(int frameNo, int index)
+    public FXPlatformSupplier<DebuggerObject> getStackObject(int frameNo, int index)
     {
         try {
             if(rt.isSuspended()) {
                 StackFrame frame = rt.frame(frameNo);
                 List<LocalVariable> vars = frame.visibleVariables();
                 LocalVariable var = vars.get(index);
-                JavaType vartype = JdiReflective.fromLocalVar(frame, var);
+                FXPlatformSupplier<JavaType> vartype = JdiReflective.fromLocalVar(frame, var);
                 ObjectReference val = (ObjectReference)frame.getValue(var);
-                return JdiObject.getDebuggerObject(val, vartype);
+                return () -> JdiObject.getDebuggerObject(val, vartype.get());
             }
             else
                 return null;
