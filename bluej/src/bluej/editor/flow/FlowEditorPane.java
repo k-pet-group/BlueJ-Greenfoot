@@ -50,6 +50,8 @@ import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.PathElement;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.util.Duration;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
@@ -60,6 +62,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * A FlowEditorPane is a component with (optional) horizontal and vertical scroll bars.
@@ -317,6 +320,18 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         {
             lineDisplay.ensureLineVisible(caret.getLine());
         }
+
+        // Must calculate horizontal scroll before rendering, in case it updates the horizontal scroll:
+        double width = lineDisplay.calculateLineWidth(document.getLongestLine());
+        horizontalScroll.setMax(width + 100 - getWidth());
+        if (horizontalScroll.getValue() > horizontalScroll.getMax())
+        {
+            updatingScrollBarDirectly = true;
+            horizontalScroll.setValue(Math.max(Math.min(horizontalScroll.getValue(), horizontalScroll.getMax()), horizontalScroll.getMin()));
+            updatingScrollBarDirectly = false;
+        }
+        horizontalScroll.setVisibleAmount(getWidth() / (horizontalScroll.getMax() + getWidth()) * horizontalScroll.getMax());
+        horizontalScroll.setVisible(allowScrollBars && width + 100 >= getWidth());
         
         List<Node> prospectiveChildren = new ArrayList<>();
         // Use an AbstractList rather than pre-calculate, as that means we don't bother
@@ -336,11 +351,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         updatingScrollBarDirectly = true;
         verticalScroll.setValue(lineDisplay.getLineRangeVisible()[0] - (lineDisplay.getFirstVisibleLineOffset() / lineDisplay.getLineHeight()));
         updatingScrollBarDirectly = false;
-        
-        double width = lineDisplay.calculateLineWidth(document.getLongestLine());
-        horizontalScroll.setMax(width + 100.0 - getWidth());
-        horizontalScroll.setVisibleAmount(getWidth() / (horizontalScroll.getMax() + getWidth()) * horizontalScroll.getMax());
-        horizontalScroll.setVisible(allowScrollBars && width + 100 >= getWidth());
+
         
         // This will often avoid changing the children, if the window has not been resized:
         boolean needToChangeLinesAndCaret = false;
@@ -868,7 +879,15 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         if (lineDisplay.isLineVisible(lineIndex))
         {
             TextLine line = lineDisplay.getVisibleLine(lineIndex).textLine;
+            // If the line needs layout, the positions won't be accurate:
             if (line.isNeedsLayout())
+                return Optional.empty();
+            // Sometimes, it seems that the line can have the CSS for the font,
+            // and claim it doesn't need layout, but the font on the Text items
+            // has not actually been switched to the right font.  In this case
+            // the positions will be inaccurate, so we should not calculate:
+            Font curFont = line.getChildren().stream().flatMap(n -> n instanceof Text ? Stream.of(((Text)n).getFont()) : Stream.empty()).findFirst().orElse(null);
+            if (curFont != null && !curFont.getFamily().equals(PrefMgr.getEditorFontFamily()))
                 return Optional.empty();
             int posInLine = leftOfCharIndex - document.getLineStart(lineIndex);
             PathElement[] elements = line.caretShape(posInLine, true);
