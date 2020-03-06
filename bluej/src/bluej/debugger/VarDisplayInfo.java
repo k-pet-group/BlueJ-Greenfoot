@@ -1,3 +1,24 @@
+/*
+ This file is part of the BlueJ program.
+ Copyright (C) 2017,2018,2020  Michael Kolling and John Rosenberg
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+ This file is subject to the Classpath exception as provided in the
+ LICENSE.txt file that accompanied this code.
+ */
 package bluej.debugger;
 
 import bluej.debugger.gentype.JavaType;
@@ -19,8 +40,8 @@ public class VarDisplayInfo
     private final String name;
     private final String value;
     // If null, means item was not an inspectable object (probably null or primitive):
-    @OnThread(Tag.Any)
-    private final Supplier<DebuggerObject> getObjectToInspect;
+    @OnThread(Tag.FXPlatform)
+    private final FXPlatformSupplier<DebuggerObject> getObjectToInspect;
 
     @OnThread(Tag.FXPlatform)
     public VarDisplayInfo(DebuggerField field)
@@ -57,7 +78,7 @@ public class VarDisplayInfo
     }
 
     @OnThread(Tag.FXPlatform)
-    public VarDisplayInfo(JavaType vartype, LocalVariable var, String value, Supplier<DebuggerObject> getObjectToInspect)
+    public VarDisplayInfo(JavaType vartype, LocalVariable var, String value, FXPlatformSupplier<DebuggerObject> getObjectToInspect)
     {
         access = null;
         type = vartype.toString(true);
@@ -86,8 +107,8 @@ public class VarDisplayInfo
         return value;
     }
 
-    @OnThread(Tag.Any)
-    public Supplier<DebuggerObject> getFetchObject()
+    @OnThread(Tag.FXPlatform)
+    public FXPlatformSupplier<DebuggerObject> getFetchObject()
     {
         return getObjectToInspect;
     }

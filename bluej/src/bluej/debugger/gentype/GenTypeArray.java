@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2015  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2015,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Set;
 
 import bluej.utility.JavaReflective;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A specialization of GenTypeClass for arrays.
@@ -61,12 +63,14 @@ public class GenTypeArray extends GenTypeSolid
         return toString(nt);
     }
 
+    @OnThread(Tag.FXPlatform)
     public String arrayComponentName()
     {
         return "[" + baseType.getUpperBound().arrayComponentName();
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public JavaType getCapture()
     {
         JavaType baseCap = baseType.getCapture();
@@ -87,12 +91,14 @@ public class GenTypeArray extends GenTypeSolid
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean equals(JavaType other)
     {
         return baseType.equals(other.getArrayComponent());
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public void erasedSuperTypes(Set<Reflective> s)
     {
         GenTypeSolid baseSolid = baseType.getUpperBound().asSolid();
@@ -142,6 +148,7 @@ public class GenTypeArray extends GenTypeSolid
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public JavaType getErasedType()
     {
         JavaType baseErased = baseType.getErasedType();
@@ -154,6 +161,7 @@ public class GenTypeArray extends GenTypeSolid
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public void getParamsFromTemplate(Map<String, GenTypeParameter> map,
             GenTypeParameter template)
     {
@@ -171,6 +179,7 @@ public class GenTypeArray extends GenTypeSolid
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public GenTypeParameter mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
     {
         GenTypeParameter mappedBase = baseType.mapTparsToTypes(tparams);
@@ -190,6 +199,7 @@ public class GenTypeArray extends GenTypeSolid
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean isAssignableFrom(JavaType t)
     {
         JavaType componentType = t.getArrayComponent();
@@ -200,6 +210,7 @@ public class GenTypeArray extends GenTypeSolid
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean isAssignableFromRaw(JavaType t)
     {
         JavaType componentType = t.getArrayComponent();

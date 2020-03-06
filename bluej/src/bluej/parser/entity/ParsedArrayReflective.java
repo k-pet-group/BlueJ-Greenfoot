@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2011,2014,2015,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 2010,2011,2014,2015,2018,2019,2020  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -102,12 +102,14 @@ public class ParsedArrayReflective extends Reflective
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public Reflective getRelativeClass(String name)
     {
         return component.getRelativeClass(name);
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public List<GenTypeClass> getSuperTypes()
     {
         List<GenTypeClass> componentSupers = component.getSuperTypes();
@@ -139,24 +141,28 @@ public class ParsedArrayReflective extends Reflective
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean isInterface()
     {
         return false;
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean isPublic()
     {
         return component.isPublic();
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean isStatic()
     {
         return component.isStatic();
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean isFinal()
     {
         return component.isFinal();

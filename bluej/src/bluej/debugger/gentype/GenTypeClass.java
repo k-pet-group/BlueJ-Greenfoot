@@ -21,6 +21,9 @@
  */
 package bluej.debugger.gentype;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.util.*;
 
 /**
@@ -98,6 +101,7 @@ public class GenTypeClass extends GenTypeSolid
      *                 type parameters. The map may be modified (if it is not
      *                 empty) by this constructor.
      */
+    @OnThread(Tag.FXPlatform)
     public GenTypeClass(Reflective r, Map<String,GenTypeParameter> mparams)
     {
         reflective = r;
@@ -141,7 +145,8 @@ public class GenTypeClass extends GenTypeSolid
     {
         return this;
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public GenTypeClass getErasedType()
     {
         return new GenTypeClass(reflective);
@@ -216,6 +221,7 @@ public class GenTypeClass extends GenTypeSolid
      * 
      * @return  true if the type is a raw type
      */
+    @OnThread(Tag.FXPlatform)
     public boolean isRaw()
     {
         // Outer class should only have been specified if it is generic -
@@ -242,6 +248,7 @@ public class GenTypeClass extends GenTypeSolid
         return true;
     }
 
+    @OnThread(Tag.FXPlatform)
     public boolean isInterface()
     {
         return reflective.isInterface();
@@ -278,7 +285,8 @@ public class GenTypeClass extends GenTypeSolid
     {
         return toString(nt);
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public boolean equals(JavaType other)
     {
         if (other == this)
@@ -349,6 +357,7 @@ public class GenTypeClass extends GenTypeSolid
      *  (non-Javadoc)
      * @see bluej.debugger.gentype.JavaType#isAssignableFrom(bluej.debugger.gentype.JavaType)
      */
+    @OnThread(Tag.FXPlatform)
     public boolean isAssignableFrom(JavaType t)
     {
         if (t.isNull())
@@ -405,7 +414,8 @@ public class GenTypeClass extends GenTypeSolid
         
         return false;
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public boolean isAssignableFrom(GenTypeClass c)
     {
         Reflective r = c.reflective;
@@ -438,7 +448,8 @@ public class GenTypeClass extends GenTypeSolid
 
         return false;
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public boolean isAssignableFromRaw(JavaType t)
     {
         if (! (t instanceof GenTypeClass))
@@ -467,6 +478,7 @@ public class GenTypeClass extends GenTypeSolid
      * 
      * @throws BadInheritanceChainException
      */
+    @OnThread(Tag.FXPlatform)
     public GenTypeClass mapToSuper(String basename)
     {
         if( classloaderName().equals(basename))
@@ -501,6 +513,7 @@ public class GenTypeClass extends GenTypeSolid
      * @param subType   the derived type
      * @param baseType  the base type
      */
+    @OnThread(Tag.FXPlatform)
     private static GenTypeClass mapGenericParamsToDirectBase(Map<String,? extends GenTypeParameter> tparams,
             Reflective subType, Reflective baseType)
     {
@@ -522,6 +535,7 @@ public class GenTypeClass extends GenTypeSolid
      *                 can be null to return the raw type.
      * @return the corresponding type structure, with parameters mapped.
      */
+    @OnThread(Tag.FXPlatform)
     public GenTypeClass mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
     {
         // If there are no generic parameters, there's nothing to map...
@@ -548,7 +562,8 @@ public class GenTypeClass extends GenTypeSolid
         
         return new GenTypeClass(reflective, retlist, newOuter);
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public GenTypeClass mapToDerived(Reflective derivedType)
     {        
         // Get a map (parameter name -> type) for this class.
@@ -607,6 +622,7 @@ public class GenTypeClass extends GenTypeSolid
      * 
      * @return the map (of String -> GenTypeParameterizable).
      */
+    @OnThread(Tag.FXPlatform)
     public HashMap<String,GenTypeParameter> getMap()
     {
         if (isRaw()) {
@@ -624,6 +640,7 @@ public class GenTypeClass extends GenTypeSolid
      * 
      * The returned does not indicate if this type is a raw type.
      */
+    @OnThread(Tag.FXPlatform)
     public void mergeMap(Map<String, GenTypeParameter> m)
     {
         if (outer != null)
@@ -660,6 +677,7 @@ public class GenTypeClass extends GenTypeSolid
      * 
      * returns a Stack of Reflective.
      */
+    @OnThread(Tag.FXPlatform)
     private static Stack<Reflective> getInheritanceChain(Reflective top, String bottom)
     {
         Stack<Reflective> r = new Stack<Reflective>();
@@ -684,6 +702,7 @@ public class GenTypeClass extends GenTypeSolid
     /*
      * see bluej.debugger.gentype.GenTypeSolid#getParamsFromTemplate(java.util.Map, bluej.debugger.gentype.GenTypeParameterizable)
      */
+    @OnThread(Tag.FXPlatform)
     public void getParamsFromTemplate(Map<String,GenTypeParameter> r, GenTypeParameter template)
     {
         // We are classA<...>, template could be anything.
@@ -719,7 +738,9 @@ public class GenTypeClass extends GenTypeSolid
 
         return;
     }
-    
+
+    @Override
+    @OnThread(Tag.FXPlatform)
     public void erasedSuperTypes(Set<Reflective> s)
     {
         Stack<Reflective> refs = new Stack<Reflective>();
@@ -742,6 +763,7 @@ public class GenTypeClass extends GenTypeSolid
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public GenTypeClass getArray()
     {
         return new GenTypeArrayClass(reflective.getArrayOf(), this);
