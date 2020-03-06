@@ -158,6 +158,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, FlowEditorPaneListener, SelectionListener, BlueJEventListener, DocumentListener
 {
@@ -260,6 +261,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         if (watcher.breakpointToggleEvent(lineIndex + 1, !breakpoints.get(lineIndex)) == null)
         {
             breakpoints.flip(lineIndex);
+            if(breakpoints.get(lineIndex))
+            {
+                mayHaveBreakpoints = true;
+            }
             flowEditorPane.setLineMarginGraphics(lineIndex, calculateMarginDisplay(lineIndex));
             // We also reapply scopes:
             flowEditorPane.applyScopeBackgrounds(javaSyntaxView.getScopeBackgrounds());
@@ -1953,7 +1958,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     {
         if (mayHaveBreakpoints)
         {
-            document.removeLineAttributeThroughout(ParagraphAttribute.BREAKPOINT);
+            breakpoints.clear();
+            IntStream.range(0, document.getLineCount()).forEachOrdered(lineIndex -> {
+                flowEditorPane.setLineMarginGraphics(lineIndex, calculateMarginDisplay(lineIndex));
+            });
             mayHaveBreakpoints = false;
         }
     }
@@ -1964,21 +1972,16 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         if (mayHaveBreakpoints) {
             mayHaveBreakpoints = false;
             for (int i = 1; i <= numberOfLines(); i++) {
-                if (lineHasBreakpoint(i)) {
+                if (breakpoints.get(i)) {
                     if (watcher != null)
-                        watcher.breakpointToggleEvent(i, true);
+                        watcher.breakpointToggleEvent(i + 1, true);
                     mayHaveBreakpoints = true;
                 }
             }
         }
     }
 
-    private boolean lineHasBreakpoint(int i)
-    {
-        return document.hasLineAttribute(i, ParagraphAttribute.BREAKPOINT);
-    }
-
-    /**
+     /**
      * User requests "save"
      */
     public void userSave()
