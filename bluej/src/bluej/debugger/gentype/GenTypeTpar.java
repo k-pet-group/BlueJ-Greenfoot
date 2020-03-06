@@ -21,6 +21,9 @@
  */
 package bluej.debugger.gentype;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.util.Map;
 import java.util.Set;
 
@@ -38,7 +41,8 @@ public class GenTypeTpar extends GenTypeSolid
     {
         return name;
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public String toString(boolean stripPrefix)
     {
         return name;
@@ -53,7 +57,8 @@ public class GenTypeTpar extends GenTypeSolid
     {
         return name;
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public String arrayComponentName()
     {
         // We don't know the erased type.
@@ -70,7 +75,8 @@ public class GenTypeTpar extends GenTypeSolid
         // For tpars to be equal, they must be the *same* tpar.
         return other == this;
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public GenTypeParameter mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
     {
         if (tparams == null)
@@ -84,7 +90,9 @@ public class GenTypeTpar extends GenTypeSolid
             return newType;
         }
     }
-    
+
+    @Override
+    @OnThread(Tag.FXPlatform)
     public void getParamsFromTemplate(Map<String,GenTypeParameter> map, GenTypeParameter template)
     {
         // If a mapping already exists, precisify it against the template.
@@ -133,18 +141,21 @@ public class GenTypeTpar extends GenTypeSolid
         // We don't know the erased type.
         throw new UnsupportedOperationException();
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public JavaType getErasedType()
     {
         // We don't know the erased type.
         throw new UnsupportedOperationException();
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public void erasedSuperTypes(Set<Reflective> s)
     {
         throw new UnsupportedOperationException();
     }
 
+    @OnThread(Tag.FXPlatform)
     public GenTypeClass [] getReferenceSupertypes()
     {
         throw new UnsupportedOperationException();

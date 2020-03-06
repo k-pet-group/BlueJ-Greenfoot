@@ -26,6 +26,8 @@ import java.util.List;
 
 import bluej.debugger.gentype.GenTypeClass;
 import bluej.debugger.gentype.JavaType;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A class representing an object, and its type, in the debugged VM. The "null" value
@@ -114,6 +116,7 @@ public abstract class DebuggerObject
     /**
      * Return the array element object for the specified index.
      */
+    @OnThread(Tag.FXPlatform)
     public abstract DebuggerObject getElementObject(int index);
     
     /**

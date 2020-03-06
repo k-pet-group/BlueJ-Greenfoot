@@ -64,7 +64,8 @@ public class JdiObject extends DebuggerObject
             return new JdiObject(obj);
         }
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public static JdiObject getDebuggerObject(ObjectReference obj, JavaType expectedType)
     {
         if( obj instanceof ArrayReference ) {
@@ -87,6 +88,7 @@ public class JdiObject extends DebuggerObject
      * @param parent The parent object containing the field.
      * @return
      */
+    @OnThread(Tag.FXPlatform)
     public static JdiObject getDebuggerObject(ObjectReference obj, Field field, JdiObject parent)
     {
         JavaType expectedType = JdiReflective.fromField(field, parent);
@@ -131,6 +133,7 @@ public class JdiObject extends DebuggerObject
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     private JdiObject(ObjectReference obj, GenTypeClass expectedType)
     {
         this.obj = obj;
@@ -239,6 +242,7 @@ public class JdiObject extends DebuggerObject
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public DebuggerObject getElementObject(int index)
     {
         return null;

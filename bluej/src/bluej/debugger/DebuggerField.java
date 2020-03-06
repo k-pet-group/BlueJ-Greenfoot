@@ -65,6 +65,7 @@ public abstract class DebuggerField
      * @param expectedType   the known type of the field, which may be more precise than the declared type.
      *                       May be null.
      */
+    @OnThread(Tag.FXPlatform)
     public abstract DebuggerObject getValueObject(JavaType expectedType);
 
     /**

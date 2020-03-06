@@ -54,6 +54,10 @@ public enum Tag
      */
     VMEventHandler,
     /**
+     * Any thread except VMEventHandler
+     */
+    NOTVMEventHandler,
+    /**
      * May be used on any thread.
      */
     Any;
@@ -88,6 +92,8 @@ public enum Tag
             return true;
         else if (dest == Tag.FX && this == Tag.FXPlatform)
             return true; // FXPlatform can call FX, but not vice versa
+        else if (dest == NOTVMEventHandler)
+            return this != VMEventHandler;
         else
             return this == dest;
         

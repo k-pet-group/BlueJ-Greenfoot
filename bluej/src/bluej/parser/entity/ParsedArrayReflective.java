@@ -102,12 +102,14 @@ public class ParsedArrayReflective extends Reflective
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public Reflective getRelativeClass(String name)
     {
         return component.getRelativeClass(name);
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public List<GenTypeClass> getSuperTypes()
     {
         List<GenTypeClass> componentSupers = component.getSuperTypes();
@@ -139,24 +141,28 @@ public class ParsedArrayReflective extends Reflective
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean isInterface()
     {
         return false;
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean isPublic()
     {
         return component.isPublic();
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean isStatic()
     {
         return component.isStatic();
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean isFinal()
     {
         return component.isFinal();

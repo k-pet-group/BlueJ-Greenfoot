@@ -699,7 +699,8 @@ public class TextParser extends JavaParser
 
         valueStack.push(new ValueEntity(chosenMethod.retType));
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     private static boolean checkOverrideEquivalence(List<GenTypeDeclTpar> firstTpars, List<JavaType> firstParamTypes,
             List<GenTypeDeclTpar> secondTpars, List<JavaType> secondParamTypes)
     {

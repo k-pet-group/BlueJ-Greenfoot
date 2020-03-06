@@ -61,6 +61,7 @@ public class JdiField extends DebuggerField
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public JavaType getType()
     {
         if (object != null) {
@@ -94,6 +95,7 @@ public class JdiField extends DebuggerField
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public DebuggerObject getValueObject(JavaType expectedType)
     {
         Value value;

@@ -21,6 +21,9 @@
  */
 package bluej.debugger.gentype;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -75,6 +78,7 @@ public class GenTypeWildcard extends GenTypeParameter
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public GenTypeWildcard mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
     {
         GenTypeSolid newUpper = null;
@@ -112,6 +116,7 @@ public class GenTypeWildcard extends GenTypeParameter
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean equals(GenTypeParameter other)
     {
         if (this == other)
@@ -141,6 +146,7 @@ public class GenTypeWildcard extends GenTypeParameter
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public JavaType getErasedType()
     {
         return upperBound.getErasedType();

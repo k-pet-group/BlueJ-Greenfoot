@@ -22,6 +22,8 @@
 package bluej.views;
 
 import bluej.debugger.gentype.GenTypeDeclTpar;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * Represents a formal type parameter for a generic class
@@ -69,6 +71,7 @@ public class TypeParamView
      * Returns a string describing this type parameter. This includes name and bound as written in Java. <br>
      * Eaxample: T extends Integer
      */
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public String toString() {
         return paramType.toString(true);
     }

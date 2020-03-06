@@ -22,6 +22,9 @@
 package bluej.debugger.gentype;
 
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.util.*;
 
 /**
@@ -49,6 +52,7 @@ public class IntersectionType extends GenTypeSolid
      * @param types   The types to create an intersection of
      * @return        The intersection of the given types
      */
+    @OnThread(Tag.FXPlatform)
     public static GenTypeSolid getIntersection(GenTypeSolid [] types)
     {
         // A quick optimization for a common case.
@@ -101,6 +105,7 @@ public class IntersectionType extends GenTypeSolid
      * @param b  The second type
      * @return  The intersection of the two types
      */
+    @OnThread(Tag.FXPlatform)
     public static GenTypeSolid getIntersection(GenTypeSolid a, GenTypeSolid b)
     {
         return getIntersection(new GenTypeSolid [] {a, b});
@@ -112,6 +117,7 @@ public class IntersectionType extends GenTypeSolid
      * @param b  The second class
      * @return The intersection (as a single class)
      */
+    @OnThread(Tag.FXPlatform)
     public static GenTypeClass combineClasses(GenTypeClass a, GenTypeClass b)
     {
         // One class must be derived from the other
@@ -186,7 +192,8 @@ public class IntersectionType extends GenTypeSolid
     {
         return new GenTypeSolid[] {this};
     }
-        
+
+    @OnThread(Tag.FXPlatform)
     public GenTypeSolid mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams)
     {
         GenTypeSolid [] newIsect = new GenTypeSolid[intersectTypes.length];
@@ -196,6 +203,7 @@ public class IntersectionType extends GenTypeSolid
         return new IntersectionType(newIsect);
     }
 
+    @OnThread(Tag.FXPlatform)
     public boolean equals(JavaType other)
     {
         if (other == null)
@@ -221,16 +229,19 @@ public class IntersectionType extends GenTypeSolid
         throw new UnsupportedOperationException();
     }
 
+    @OnThread(Tag.FXPlatform)
     public String arrayComponentName()
     {
         return getErasedType().arrayComponentName();
     }
 
+    @OnThread(Tag.FXPlatform)
     public JavaType getErasedType()
     {
         return intersectTypes[0].getErasedType();
     }
 
+    @OnThread(Tag.FXPlatform)
     public boolean isAssignableFrom(JavaType t)
     {
         for (int i = 0; i < intersectTypes.length; i++) {
@@ -240,6 +251,7 @@ public class IntersectionType extends GenTypeSolid
         return false;
     }
 
+    @OnThread(Tag.FXPlatform)
     public boolean isAssignableFromRaw(JavaType t)
     {
         for (int i = 0; i < intersectTypes.length; i++) {
@@ -248,14 +260,16 @@ public class IntersectionType extends GenTypeSolid
         }
         return false;
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public void erasedSuperTypes(Set<Reflective> s)
     {
         for (int i = 0; i < intersectTypes.length; i++) {
             intersectTypes[i].erasedSuperTypes(s);
         }
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public GenTypeClass [] getReferenceSupertypes()
     {
         ArrayList<GenTypeClass> rsupTypes = new ArrayList<GenTypeClass>();

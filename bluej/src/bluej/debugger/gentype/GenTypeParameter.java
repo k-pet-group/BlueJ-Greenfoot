@@ -57,8 +57,10 @@ public abstract class GenTypeParameter
      *            A map of (String name -> GenType type).
      * @return An equivalent type with parameters mapped.
      */
+    @OnThread(Tag.FXPlatform)
     abstract public GenTypeParameter mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams);
 
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     public boolean equals(Object other)
     {
         if (other instanceof GenTypeParameter) {
@@ -67,7 +69,8 @@ public abstract class GenTypeParameter
             return false;
         }
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     abstract public boolean equals(GenTypeParameter other);
 
     /**
@@ -81,6 +84,7 @@ public abstract class GenTypeParameter
      * @return  The most precise determinable type, or null if this comparison
      *          is meaningless for the given type (incompatible types).
      */
+    @OnThread(Tag.FXPlatform)
     public GenTypeParameter precisify(GenTypeParameter other)
     {
         GenTypeSolid upperBound = getUpperBound().asSolid();
@@ -140,6 +144,7 @@ public abstract class GenTypeParameter
      * @param other  The other type to test against
      * @return True if this type contains the other type
      */
+    @OnThread(Tag.FXPlatform)
     public final boolean contains(GenTypeParameter other)
     {
         GenTypeSolid myLower = getLowerBound();
@@ -181,6 +186,7 @@ public abstract class GenTypeParameter
     /**
      * Get a string representation of the type, optionally stripping package prefixes
      */
+    @OnThread(Tag.FXPlatform)
     public String toString(boolean stripPrefix)
     {
         if (stripPrefix) {
@@ -233,6 +239,7 @@ public abstract class GenTypeParameter
     /**
      * Get the erased type of this type.
      */
+    @OnThread(Tag.FXPlatform)
     abstract public JavaType getErasedType();
     
     /**

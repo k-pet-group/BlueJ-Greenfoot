@@ -229,7 +229,7 @@ public abstract class Debugger
     /**
      * "Run" a class (i.e. invoke its main method without arguments)
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.NOTVMEventHandler)
     public abstract DebuggerResult runClassMain(String className)
         throws ClassNotFoundException;
 
@@ -238,7 +238,7 @@ public abstract class Debugger
      * @param className  The name of the class to instantiate
      * @return   The result of the constructor call
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.NOTVMEventHandler)
     public abstract DebuggerResult instantiateClass(String className);
 
     /**
@@ -249,7 +249,7 @@ public abstract class Debugger
      * @param args       The arguments
      * @return   The result of the constructor call
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public abstract DebuggerResult instantiateClass(String className, String [] paramTypes,
             DebuggerObject [] args);
     
@@ -264,7 +264,7 @@ public abstract class Debugger
      * 
      * @throws ClassNotFoundException if the class couldn't be located.
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.NOTVMEventHandler)
     public abstract FXPlatformSupplier<DebuggerClass> getClass(String className, boolean initialize)
         throws ClassNotFoundException;
 
@@ -279,6 +279,7 @@ public abstract class Debugger
      * @param value  The string value to mirror
      * @return       The remote object with the same value, or null
      */
+    @OnThread(Tag.FXPlatform)
     public abstract DebuggerObject getMirror(String value);
 
     /**
@@ -291,6 +292,7 @@ public abstract class Debugger
      * @return           a string of the error message generated performing
      *                   this operation or null
      */
+    @OnThread(Tag.FXPlatform)
     public abstract String toggleBreakpoint(String className, int line,
                                             boolean set, Map<String, String> properties);
 
@@ -304,7 +306,7 @@ public abstract class Debugger
      * @return           a string of the error message generated performing
      *                   this operation or null
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public abstract String toggleBreakpoint(String className, String method, boolean set,
                                             Map<String,String> properties);
     
@@ -320,7 +322,7 @@ public abstract class Debugger
      * @return           a string of the error message generated performing
      *                   this operation or null
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public abstract String toggleBreakpoint(DebuggerClass debuggerClass, String method, boolean set,
             Map<String, String> properties);
 

@@ -21,6 +21,9 @@
  */
 package bluej.debugger.gentype;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.util.Map;
 
 /**
@@ -71,6 +74,7 @@ public class GenTypeCapture extends GenTypeTpar
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public JavaType getErasedType()
     {
         if (wildcard.getUpperBound() != null) {
@@ -85,6 +89,7 @@ public class GenTypeCapture extends GenTypeTpar
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public GenTypeClass[] getReferenceSupertypes()
     {
         if (wildcard.getUpperBound() != null) {

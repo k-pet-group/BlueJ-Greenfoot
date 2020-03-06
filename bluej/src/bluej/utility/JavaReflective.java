@@ -42,6 +42,8 @@ import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.MethodReflective;
 import bluej.debugger.gentype.Reflective;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A reflective for GenTypeClass which uses the standard java reflection API.  
@@ -408,6 +410,7 @@ public class JavaReflective extends Reflective
      * @param c        The type, whose enclosing entities type parameters are required
      * @param tparMap  The map, into which the mappings from name to type parameter are to be stored
      */
+    @OnThread(Tag.FXPlatform)
     private void getTparMapping(Class<?> c, Map<String,GenTypeDeclTpar> tparMap)
     {
         JavaUtils ju = JavaUtils.getJavaUtils();

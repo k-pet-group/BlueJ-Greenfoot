@@ -58,6 +58,7 @@ public class JdiArray extends JdiObject
      * @param obj           The reference to the the remote object
      * @param expectedType  The known type of the object
      */
+    @OnThread(Tag.FXPlatform)
     protected JdiArray(ArrayReference obj, JavaType expectedType)
     {
         this.obj = obj;
@@ -190,6 +191,7 @@ public class JdiArray extends JdiObject
      * @return       The InstanceFieldObject value
      */
     @Override
+    @OnThread(Tag.FXPlatform)
     public DebuggerObject getElementObject(int index)
     {
         Value val = ((ArrayReference) obj).getValue(index);

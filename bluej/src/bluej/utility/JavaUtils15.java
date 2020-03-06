@@ -48,6 +48,7 @@ public class JavaUtils15 extends JavaUtils
      * Get a short or long method description which maps type parameters to types using
      * the supplied map. 
      */
+    @OnThread(Tag.FXPlatform)
     public String getDescription(Method method, String [] paramnames,
             Map<String,? extends GenTypeParameter> tparams, boolean longDesc)
         throws ClassNotFoundException
@@ -85,6 +86,7 @@ public class JavaUtils15 extends JavaUtils
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public String getShortDesc(Method method, String [] paramnames, Map<String,GenTypeParameter> tparams)
         throws ClassNotFoundException
     {
@@ -92,6 +94,7 @@ public class JavaUtils15 extends JavaUtils
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public String getLongDesc(Method method, String [] paramnames, Map<String,GenTypeParameter> tparams)
         throws ClassNotFoundException
     {
@@ -201,6 +204,7 @@ public class JavaUtils15 extends JavaUtils
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public JavaType getReturnType(Method method) throws ClassNotFoundException
     {
         try {
@@ -213,6 +217,7 @@ public class JavaUtils15 extends JavaUtils
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public JavaType getRawReturnType(Method method)
     {
         Class<?> c = method.getReturnType();
@@ -220,6 +225,7 @@ public class JavaUtils15 extends JavaUtils
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public JavaType getFieldType(Field field) throws ClassNotFoundException
     {
         try {
@@ -231,6 +237,7 @@ public class JavaUtils15 extends JavaUtils
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public JavaType getRawFieldType(Field field)
     {
         Class<?> c = field.getType();
@@ -238,24 +245,28 @@ public class JavaUtils15 extends JavaUtils
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public List<GenTypeDeclTpar> getTypeParams(Method method)
     {
         return getTypeParams((GenericDeclaration) method);
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public List<GenTypeDeclTpar> getTypeParams(Constructor<?> cons)
     {
         return getTypeParams((GenericDeclaration) cons);
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public List<GenTypeDeclTpar> getTypeParams(Class<?> cl)
     {
         return getTypeParams((GenericDeclaration) cl);
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public GenTypeClass getSuperclass(Class<?> cl) throws ClassNotFoundException
     {
         try {
@@ -271,6 +282,7 @@ public class JavaUtils15 extends JavaUtils
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public GenTypeClass [] getInterfaces(Class<?> cl) throws ClassNotFoundException
     {
         try {
@@ -302,6 +314,7 @@ public class JavaUtils15 extends JavaUtils
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public JavaType[] getParamGenTypes(Method method, boolean raw) throws ClassNotFoundException
     {
         try {
@@ -338,6 +351,7 @@ public class JavaUtils15 extends JavaUtils
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public JavaType[] getParamGenTypes(Constructor<?> constructor) throws ClassNotFoundException
     {
         try {
@@ -359,6 +373,7 @@ public class JavaUtils15 extends JavaUtils
      * Get the type parameters for any GenericDeclaration implementor. This
      * includes Methods, Constructors and Classes.
      */
+    @OnThread(Tag.FXPlatform)
     private List<GenTypeDeclTpar> getTypeParams(GenericDeclaration decl)
     {
         List<GenTypeDeclTpar> rlist = new ArrayList<GenTypeDeclTpar>();
@@ -583,6 +598,7 @@ public class JavaUtils15 extends JavaUtils
     /**
      * Build a GenType structure from a "Type" object.
      */
+    @OnThread(Tag.FXPlatform)
     private static JavaType genTypeFromType(Type t)
     {
         return (JavaType) genTypeFromType(t, new HashMap<String,GenTypeParameter>());
@@ -592,6 +608,7 @@ public class JavaUtils15 extends JavaUtils
      * Build a GenType structure from a "Type" object, using the given backTrace
      * stack to avoid infinite recursion.
      */
+    @OnThread(Tag.FXPlatform)
     private static GenTypeParameter genTypeFromType(Type t, Map<String,? extends GenTypeParameter> tvars)
     {
         if (t instanceof Class<?>) {

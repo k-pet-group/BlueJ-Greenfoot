@@ -141,16 +141,8 @@ public class JdiReflective extends Reflective
         this.sourceVM = vm;
     }
     
-    /**
-     * Get the JDI ReferenceType this reflective represents.
-     */
-    public ReferenceType getJdiType()
-    {
-        checkLoaded();
-        return rclass;
-    }
-    
     @Override
+    @OnThread(Tag.FXPlatform)
     public Reflective getRelativeClass(String name)
     {
         ClassLoaderReference cl;
@@ -175,6 +167,7 @@ public class JdiReflective extends Reflective
     /**
      * Try to make sure we have a valid reference to the actual type
      */
+    @OnThread(Tag.FXPlatform)
     protected void checkLoaded()
     {
         if (rclass == null) {
@@ -206,6 +199,7 @@ public class JdiReflective extends Reflective
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean isInterface()
     {
         checkLoaded();
@@ -213,6 +207,7 @@ public class JdiReflective extends Reflective
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean isStatic()
     {
         checkLoaded();
@@ -220,6 +215,7 @@ public class JdiReflective extends Reflective
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean isPublic()
     {
         checkLoaded();
@@ -227,12 +223,14 @@ public class JdiReflective extends Reflective
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public boolean isFinal()
     {
         checkLoaded();
         return rclass.isFinal();
     }
 
+    @OnThread(Tag.FXPlatform)
     public Reflective getArrayOf()
     {
         if (rclass != null) {
@@ -242,7 +240,8 @@ public class JdiReflective extends Reflective
             return new JdiArrayReflective(new GenTypeClass(this), sourceLoader, sourceVM);
         }
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public List<GenTypeDeclTpar> getTypeParams()
     {
         // Make sure we are loaded and a generic signature is present.
@@ -268,6 +267,7 @@ public class JdiReflective extends Reflective
      * @return  A list of GenTypeDeclTpar, representing the type parameters of
      *          this class.
      */
+    @OnThread(Tag.FXPlatform)
     private List<GenTypeDeclTpar> getTypeParams(StringIterator s)
     {
         List<GenTypeDeclTpar> rlist = new ArrayList<GenTypeDeclTpar>();
@@ -306,7 +306,9 @@ public class JdiReflective extends Reflective
         s.next();
         return rlist;
     }
-    
+
+    @Override
+    @OnThread(Tag.FXPlatform)
     public List<Reflective> getSuperTypesR()
     {
         checkLoaded();
@@ -337,6 +339,7 @@ public class JdiReflective extends Reflective
             return new LinkedList<Reflective>();
     }
 
+    @OnThread(Tag.FXPlatform)
     public List<GenTypeClass> getSuperTypes()
     {
         checkLoaded();
@@ -400,7 +403,8 @@ public class JdiReflective extends Reflective
         }
         return rlist;
     }
-    
+
+    @OnThread(Tag.FXPlatform)
     public boolean isAssignableFrom(Reflective r)
     {
         if (this.equals(r))
@@ -497,6 +501,7 @@ public class JdiReflective extends Reflective
      *            Virtual Machine
      * @return A ClassType object representing the found class (or null)
      */
+    @OnThread(Tag.FXPlatform)
     private static ReferenceType findClass(String name, ClassLoaderReference cl, VirtualMachine vm)
     {
         if (cl != null) {
@@ -562,6 +567,7 @@ public class JdiReflective extends Reflective
      *            loader of this type is used to locate embedded types.
      * @return The GenType structure determined from the signature.
      */
+    @OnThread(Tag.FXPlatform)
     private static GenTypeParameter fromSignature(StringIterator i,
             Map<String,? extends GenTypeParameter> tparams, ReferenceType parent)
     {
@@ -610,6 +616,7 @@ public class JdiReflective extends Reflective
      *                 may be null.
      * @param parent   The parent type
      */
+    @OnThread(Tag.FXPlatform)
     public static GenTypeParameter typeFromSignature(StringIterator i,
             Map<String,? extends GenTypeParameter> tparams, ReferenceType parent)
     {
@@ -704,6 +711,7 @@ public class JdiReflective extends Reflective
         return result;
     }
 
+    @OnThread(Tag.FXPlatform)
     private static GenTypeClass innerFromSignature(StringIterator i, String outerName, GenTypeClass outer,
             Map<String,? extends GenTypeParameter> tparams, ReferenceType parent)
     {
@@ -741,6 +749,7 @@ public class JdiReflective extends Reflective
         }
     }
 
+    @OnThread(Tag.FXPlatform)
     private static JavaType getNonGenericType(String typeName, Type t, ClassLoaderReference clr, VirtualMachine vm)
     {
         if (t instanceof BooleanType)
@@ -810,6 +819,7 @@ public class JdiReflective extends Reflective
      *            The object in which the field is located
      * @return The type of the field value
      */
+    @OnThread(Tag.FXPlatform)
     public static JavaType fromField(Field f, JdiObject parent)
     {
         Type t = null;
@@ -859,9 +869,10 @@ public class JdiReflective extends Reflective
      *            The field
      * @return The type of the field value
      */
+    @OnThread(Tag.FXPlatform)
     public static JavaType fromField(Field f)
     {
-        Type t = null;
+        Type t;
         ReferenceType parent = f.declaringType();
 
         // For a field whose value is unset/null, the corresponding class
@@ -959,6 +970,7 @@ public class JdiReflective extends Reflective
      * @param tparams       The map (String -> GenTypeClass)
      * @param declaringType the type for which to add default mappings
      */
+    @OnThread(Tag.FXPlatform)
     private static void addDefaultParamBases(Map<String,GenTypeParameter> tparams,
             JdiReflective declaringType)
     {
@@ -984,6 +996,7 @@ public class JdiReflective extends Reflective
      * Get the reflective representing the outer class of this reflective,
      * or null if none.
      */
+    @OnThread(Tag.FXPlatform)
     private JdiReflective getOuterType()
     {
         checkLoaded();
@@ -998,6 +1011,7 @@ public class JdiReflective extends Reflective
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public Map<String,FieldReflective> getDeclaredFields()
     {
         checkLoaded();
@@ -1021,6 +1035,7 @@ public class JdiReflective extends Reflective
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     public Map<String,Set<MethodReflective>> getDeclaredMethods()
     {
         checkLoaded();
@@ -1073,6 +1088,7 @@ public class JdiReflective extends Reflective
     }
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public List<ConstructorReflective> getDeclaredConstructors()
     {
         checkLoaded();
@@ -1110,6 +1126,7 @@ public class JdiReflective extends Reflective
 
 
     @Override
+    @OnThread(Tag.FXPlatform)
     public Reflective getInnerClass(String name)
     {
         checkLoaded();

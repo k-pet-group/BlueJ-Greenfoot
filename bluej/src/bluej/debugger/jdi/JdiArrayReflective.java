@@ -26,6 +26,8 @@ import bluej.debugger.gentype.*;
 import com.sun.jdi.ClassLoaderReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.VirtualMachine;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 /**
  * A proxy-type reflective for arrays.
@@ -48,6 +50,7 @@ public class JdiArrayReflective extends JdiReflective
      * @param classLoader  The classloader used to load the component type (or the array)
      * @param vm           The virtual machine holding the type
      */
+    @OnThread(Tag.FXPlatform)
     public JdiArrayReflective(JavaType t, ClassLoaderReference classLoader, VirtualMachine vm)
     {
         super("[" + t.arrayComponentName(), classLoader, vm);
@@ -61,6 +64,7 @@ public class JdiArrayReflective extends JdiReflective
     }
     
     @Override
+    @OnThread(Tag.FXPlatform)
     protected void checkLoaded()
     {
         name = "[" + componentType.arrayComponentName();

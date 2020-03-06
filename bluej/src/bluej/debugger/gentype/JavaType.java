@@ -21,6 +21,9 @@
  */
 package bluej.debugger.gentype;
 
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.util.Map;
 
 /**
@@ -82,6 +85,7 @@ public abstract class JavaType extends GenTypeParameter
      * as "Lpkg1.pkg2.classname;" ie the fully qualified name preceded by
      * "L" and with ";" appended.
      */
+    @OnThread(Tag.FXPlatform)
     abstract public String arrayComponentName();
 
     /**
@@ -96,6 +100,7 @@ public abstract class JavaType extends GenTypeParameter
      * @param map   A map to which mappings should be added
      * @param template   The template to use
      */
+    @OnThread(Tag.FXPlatform)
     abstract public void getParamsFromTemplate(Map<String,GenTypeParameter> map, GenTypeParameter template);
 
     /**
@@ -162,8 +167,10 @@ public abstract class JavaType extends GenTypeParameter
         return this;
     }
 
+    @OnThread(Tag.FXPlatform)
     abstract public boolean equals(JavaType other);
-    
+
+    @OnThread(Tag.FXPlatform)
     public boolean equals(GenTypeParameter other)
     {
         if (other instanceof JavaType) {
@@ -179,6 +186,7 @@ public abstract class JavaType extends GenTypeParameter
      * @param t  The type to check against
      * @return   true if the type is assignable to this type
      */
+    @OnThread(Tag.FXPlatform)
     abstract public boolean isAssignableFrom(JavaType t);
     
     /**
@@ -189,6 +197,7 @@ public abstract class JavaType extends GenTypeParameter
      * @param t  The type to check against
      * @return   true if the type is assignable to this type
      */
+    @OnThread(Tag.FXPlatform)
     abstract public boolean isAssignableFromRaw(JavaType t);
     
     /**
@@ -201,6 +210,7 @@ public abstract class JavaType extends GenTypeParameter
      *                to the raw type.
      * @return A type with parameters mapped
      */
+    @OnThread(Tag.FXPlatform)
     abstract public GenTypeParameter mapTparsToTypes(Map<String, ? extends GenTypeParameter> tparams);
     
     /**
@@ -215,6 +225,7 @@ public abstract class JavaType extends GenTypeParameter
     /**
      * Get an array type whose component type is this type.
      */
+    @OnThread(Tag.FXPlatform)
     abstract public GenTypeSolid getArray();
     
     /**
@@ -229,6 +240,7 @@ public abstract class JavaType extends GenTypeParameter
     /**
      * Perform capture conversion (JLS 7 chapter 5.1.0) on this type and return the result.
      */
+    @OnThread(Tag.FXPlatform)
     public JavaType getCapture()
     {
         return this;
