@@ -158,7 +158,6 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, FlowEditorPaneListener, SelectionListener, BlueJEventListener, DocumentListener
 {
@@ -1959,9 +1958,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         if (mayHaveBreakpoints)
         {
             breakpoints.clear();
-            IntStream.range(0, document.getLineCount()).forEachOrdered(lineIndex -> {
+            for (int lineIndex = 0; lineIndex < document.getLineCount(); lineIndex++)
+            {
                 flowEditorPane.setLineMarginGraphics(lineIndex, calculateMarginDisplay(lineIndex));
-            });
+            }
             mayHaveBreakpoints = false;
         }
     }
@@ -1971,8 +1971,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     {
         if (mayHaveBreakpoints) {
             mayHaveBreakpoints = false;
-            for (int i = 1; i <= numberOfLines(); i++) {
-                if (breakpoints.get(i)) {
+            for (int i = 1; i <= numberOfLines(); i++)
+            {
+                if (breakpoints.get(i))
+                {
                     if (watcher != null)
                         watcher.breakpointToggleEvent(i + 1, true);
                     mayHaveBreakpoints = true;
