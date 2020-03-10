@@ -141,6 +141,11 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     private final BooleanProperty disabledRoot = new SimpleBooleanProperty(true);
     private final String stylePrefix;
 
+    //cherry
+    public String getAccessibleText(){
+        return "shiba inu";
+    }
+
     public final String getStylePrefix()
     {
         return stylePrefix;

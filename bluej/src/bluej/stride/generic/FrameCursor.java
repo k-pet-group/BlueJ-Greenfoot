@@ -99,6 +99,11 @@ public class FrameCursor implements RecallableFocus
     
     private final Button node = new Button();
 
+    //cherry
+    public void setAccessibleText(String message){
+        getNode().setAccessibleText(message);
+    }
+
     @OnThread(Tag.FXPlatform)
     public boolean keyTyped(final InteractionManager editor, final FrameCanvas parentCanvas, char key, boolean ctrlDown)
     {
