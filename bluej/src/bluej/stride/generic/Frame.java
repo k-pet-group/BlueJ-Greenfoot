@@ -45,6 +45,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.effect.Effect;
 import javafx.scene.image.Image;
@@ -142,8 +143,33 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     private final String stylePrefix;
 
     //cherry
-    public String getAccessibleText(){
-        return "shiba inu";
+    public String getAccessibleText(String frameAfterOrBeforeFrame){
+        /*if(headerCaptionLabel!=null)
+            System.out.println(headerCaptionLabel.getText());
+        
+        Stream<HeaderItem> stream = header.getHeaderItemsDeep();
+
+        for (HeaderItem item : (Iterable<HeaderItem>) stream::iterator) {
+            for(Node node : item.getComponents()){
+                System.out.println(node.getAccessibleRole());
+            }
+        }
+
+        for(FrameContentItem item : contents){
+            System.out.println(item.getNode().getAccessibleRole());
+        }*/
+        switch(frameAfterOrBeforeFrame) {
+            case "frame after":
+                System.out.println("frame inserted after");
+                return "frame inserted after";
+            case "before frame":
+                System.out.println("inserted before frame");
+                return "inserted before frame";
+            default:
+                System.out.println("none of the above");
+                return "none of above";
+        }
+
     }
 
     public final String getStylePrefix()

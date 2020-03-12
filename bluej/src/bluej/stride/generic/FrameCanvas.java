@@ -250,15 +250,13 @@ public class FrameCanvas implements FrameContentItem
         canvas.getChildren().add(childIndex, special); // Then special before that..
         canvas.getChildren().add(childIndex, newCursor.getNode()); // Then add new cursor before it
         cursors.add(index, newCursor);
-        //cherry
-//        if(newCursor.getFrameAfter()!=null)
-//        newCursor.setAccessibleText("hello world");
-//            newCursor.setAccessibleText(newCursor.getFrameAfter().getAccessibleText());
-
         blockContents.add(index, toAdd);
         specials.add(index, special);
         toAdd.setParentCanvas(this);
         validate(cursor, index + 1);
+        //cherry
+        newCursor.setAccessibleText("before frame");
+
     }
     
     /**
@@ -297,10 +295,7 @@ public class FrameCanvas implements FrameContentItem
         toAdd.setParentCanvas(this);
         validate(cursor, index);
         //cherry
-        if(newCursor.getFrameAfter()!=null)
-//            newCursor.setAccessibleText("hello world");
-
-        newCursor.setAccessibleText(newCursor.getFrameAfter().getAccessibleText());
+        cursor.setAccessibleText("frame after");
 
     }
 

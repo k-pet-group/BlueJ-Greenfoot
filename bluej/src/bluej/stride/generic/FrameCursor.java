@@ -100,8 +100,8 @@ public class FrameCursor implements RecallableFocus
     private final Button node = new Button();
 
     //cherry
-    public void setAccessibleText(String message){
-        getNode().setAccessibleText(message);
+    public void setAccessibleText(String frameAfterOrBeforeFrame){
+        getNode().setAccessibleText(getFrameAfter().getAccessibleText(frameAfterOrBeforeFrame));
     }
 
     @OnThread(Tag.FXPlatform)
