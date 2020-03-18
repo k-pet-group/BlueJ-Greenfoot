@@ -255,7 +255,9 @@ public class FrameCanvas implements FrameContentItem
         toAdd.setParentCanvas(this);
         validate(cursor, index + 1);
         //cherry
-        newCursor.setAccessibleText("before frame");
+        newCursor.setAccessibleTextForFrame("before frame");
+        newCursor.setAccessibleRoleDescription("");
+
 
     }
     
@@ -295,7 +297,9 @@ public class FrameCanvas implements FrameContentItem
         toAdd.setParentCanvas(this);
         validate(cursor, index);
         //cherry
-        cursor.setAccessibleText("frame after");
+        cursor.setAccessibleTextForFrame("frame after");
+        cursor.setAccessibleRoleDescription("");
+
 
     }
 

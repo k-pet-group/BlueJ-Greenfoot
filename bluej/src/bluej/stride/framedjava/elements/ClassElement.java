@@ -308,7 +308,36 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
     {
         frame = new ClassFrame(editor, projectResolver, packageName, imports, documentation, abstractModifier, className, extendsName, implementsList, isEnable());
         fields.forEach(member -> frame.getfieldsCanvas().insertBlockAfter(member.createFrame(editor), null));
-        constructors.forEach(member -> frame.getConstructorsCanvas().insertBlockAfter(member.createFrame(editor), null));
+        constructors.forEach(member -> {
+                frame.getConstructorsCanvas().insertBlockAfter(member.createFrame(editor), null);
+                //cherry
+                if(member.toJavaSource().toTemporaryJavaCodeString().contains("public")) {
+                    StringBuilder constructorAccessibleText = new StringBuilder("Constructor ");
+                    String[] splitByBracketArr = member.toJavaSource().toTemporaryJavaCodeString().split("\\(",2);
+                    String constructorName = splitByBracketArr[0].split("\\*/")[1].split(" ")[1];
+                    constructorAccessibleText.append(constructorName+" ");
+                    String param = splitByBracketArr[1].split("\\)")[0];
+                    if(!param.equals("")) {
+                        constructorAccessibleText.append("with parameter(s) ");
+                        String[] paramArr = param.split(",");
+                        for (String paramPair : paramArr) {
+                            String[] paramPairArr = paramPair.split(" ");
+                            String paramName = paramPairArr[1];
+                            String paramType = paramPairArr[0];
+                            constructorAccessibleText.append(paramName+ " of type "+paramType);
+                        }
+                    }
+                    int secondLastIndex = frame.getConstructorsCanvas().getCursors().size() - 2;
+                    frame.getConstructorsCanvas().getCursors().get(secondLastIndex).setAccessibleText(constructorAccessibleText.toString());
+                    System.out.println(constructorAccessibleText.toString());
+                }
+            }
+
+        );
+        //cherry
+        frame.getConstructorsCanvas().getFirstCursor().setAccessibleText("Constructors");
+        frame.getConstructorsCanvas().getFirstCursor().setAccessibleRoleDescription("");
+
         methods.forEach(member -> frame.getMethodsCanvas().insertBlockAfter(member.createFrame(editor), null));
         return frame;
     }

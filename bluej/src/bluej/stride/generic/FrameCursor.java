@@ -100,9 +100,22 @@ public class FrameCursor implements RecallableFocus
     private final Button node = new Button();
 
     //cherry
-    public void setAccessibleText(String frameAfterOrBeforeFrame){
-        getNode().setAccessibleText(getFrameAfter().getAccessibleText(frameAfterOrBeforeFrame));
+    public void setAccessibleTextForFrame(String message){
+        getNode().setAccessibleText(getFrameAfter().getAccessibleText(message)); //for this cursor, read from frame after it
     }
+    //cherry
+    public void setAccessibleTextForFrame(){
+        getNode().setAccessibleText(getFrameAfter().getAccessibleText());
+    }
+    //cherry
+    public void setAccessibleText(String message){
+        getNode().setAccessibleText(message); //set what is read for this cursor directly
+    }
+    //cherry
+    public void setAccessibleRoleDescription(String message){
+        getNode().setAccessibleRoleDescription(message);
+    }
+
 
     @OnThread(Tag.FXPlatform)
     public boolean keyTyped(final InteractionManager editor, final FrameCanvas parentCanvas, char key, boolean ctrlDown)
