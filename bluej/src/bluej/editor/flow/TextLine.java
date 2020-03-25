@@ -29,6 +29,7 @@ import bluej.utility.javafx.ResizableRectangle;
 import com.google.common.collect.Lists;
 import javafx.beans.binding.StringExpression;
 import javafx.scene.Node;
+import javafx.scene.control.IndexRange;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
@@ -47,6 +48,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 /**
@@ -67,6 +69,8 @@ public class TextLine extends TextFlow
     private final Path findResultShape = new Path();
     private final Path bracketMatchShape = new Path();
     private final Path errorUnderlineShape = new Path();
+    // Ranges are column locations relative to start of line, 0 is beginning.
+    private final ArrayList<IndexRange> errorLocations = new ArrayList<>();
     
     private List<BackgroundItem> backgroundNodes = Collections.emptyList();
     private List<StyledSegment> latestContent = Collections.emptyList();
@@ -241,9 +245,12 @@ public class TextLine extends TextFlow
 
     public void showError(int startColumn, int endColumn)
     {
+        errorLocations.add(new IndexRange(startColumn, endColumn));
         runOnceLaidOut(() -> {
-            errorUnderlineShape.getElements().setAll(makeSquiggle(rangeShape(startColumn, endColumn)));
-            errorUnderlineShape.setVisible(true);
+            // Note: it is possible between the call and the lay out that the errorLocations
+            // change.  That's fine, we just use the latest one (which may be empty):
+            errorUnderlineShape.getElements().setAll(errorLocations.stream().flatMap(r -> makeSquiggle(rangeShape(r.getStart(), r.getEnd())).stream()).collect(Collectors.toList()));
+            errorUnderlineShape.setVisible(!errorUnderlineShape.getElements().isEmpty());
         });
     }
 
@@ -292,6 +299,7 @@ public class TextLine extends TextFlow
 
     public void hideErrorUnderline()
     {
+        errorLocations.clear();
         errorUnderlineShape.getElements().clear();
         errorUnderlineShape.setVisible(false);
     }
