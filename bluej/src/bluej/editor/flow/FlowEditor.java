@@ -406,7 +406,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         this.callbackOnOpen = openCallback;
         this.flowEditorPane = new FlowEditorPane("", this);
         this.document = flowEditorPane.getDocument();
-        this.document.addListener(this);
+        this.document.addListener(false, this);
         this.javaSyntaxView = new JavaSyntaxView(document, flowEditorPane, this, parentResolver, syntaxHighlighting);
         this.flowEditorPane.setErrorQuery(errorManager);
         this.undoManager = new UndoManager(document);
@@ -1053,7 +1053,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 getSourcePane().positionCaret(0);
                 undoManager.forgetHistory();
 
-                javaSyntaxView.enableParser(false);
+                if (sourceIsCode)
+                {
+                    javaSyntaxView.enableParser(false);
+                }
                 loaded = true;
             }
             catch (IOException ex) {
@@ -1304,7 +1307,10 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             File file = new File(filename);
             setLastModified(file.lastModified());
 
-            enableParser(false);
+            if (sourceIsCode)
+            {
+                enableParser(false);
+            }
 
             // We want to inform the watcher that the editor content has changed,
             // and then inform it that we are in "saved" state (synced with file).

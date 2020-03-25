@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -136,9 +136,10 @@ public interface Document
 
     /**
      * Adds a listener for changes to the document.
-     * @param listener
+     * @param atStart If true, add at the start
+     * @param listener The document listener
      */
-    void addListener(DocumentListener listener);
+    void addListener(boolean atStart, DocumentListener listener);
 
     /**
      * Gets an arbitrary piece of content from the document.
