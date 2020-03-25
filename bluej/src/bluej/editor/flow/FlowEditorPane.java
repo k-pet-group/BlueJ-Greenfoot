@@ -180,7 +180,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
                 oldCaretPos = caretPosition;
             }
         });
-        document.addListener((origStartIncl, replaced, replacement, linesRemoved, linesAdded) -> {
+        document.addListener(false, (origStartIncl, replaced, replacement, linesRemoved, linesAdded) -> {
             notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
         });
 

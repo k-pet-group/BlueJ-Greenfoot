@@ -406,7 +406,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         this.callbackOnOpen = openCallback;
         this.flowEditorPane = new FlowEditorPane("", this);
         this.document = flowEditorPane.getDocument();
-        this.document.addListener(this);
+        this.document.addListener(false, this);
         this.javaSyntaxView = new JavaSyntaxView(document, flowEditorPane, this, parentResolver, syntaxHighlighting);
         this.flowEditorPane.setErrorQuery(errorManager);
         this.undoManager = new UndoManager(document);

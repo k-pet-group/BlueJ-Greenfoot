@@ -136,9 +136,10 @@ public interface Document
 
     /**
      * Adds a listener for changes to the document.
-     * @param listener
+     * @param atStart If true, add at the start
+     * @param listener The document listener
      */
-    void addListener(DocumentListener listener);
+    void addListener(boolean atStart, DocumentListener listener);
 
     /**
      * Gets an arbitrary piece of content from the document.

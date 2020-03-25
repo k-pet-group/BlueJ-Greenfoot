@@ -143,9 +143,12 @@ public class SlowDocument implements Document
     }
 
     @Override
-    public void addListener(DocumentListener listener)
+    public void addListener(boolean atStart, DocumentListener listener)
     {
-        listeners.add(listener);
+        if (atStart)
+            listeners.add(0, listener);
+        else
+            listeners.add(listener);
     }
 
     @Override

@@ -66,7 +66,7 @@ public class DocumentUndoStack implements DocumentListener
     public DocumentUndoStack(Document document)
     {
         this.document = document;
-        document.addListener(this);
+        document.addListener(false, this);
     }
 
     @Override
