@@ -1258,6 +1258,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     @Override
     public ParsedCUNode getParsedNode()
     {
+        javaSyntaxView.flushReparseQueue();
         return javaSyntaxView.getParser();
     }
 
