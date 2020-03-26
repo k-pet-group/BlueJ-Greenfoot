@@ -2350,6 +2350,7 @@ public class JavaSyntaxView implements ReparseableDocument, LineDisplayListener
     @Override
     public ParsedCUNode getParser()
     {
+        flushReparseQueue();
         return rootNode;
     }
 
