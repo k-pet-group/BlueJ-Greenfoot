@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2010,2014,2016,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 2010,2014,2016,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,11 +29,7 @@ import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.collections.FXCollections;
 import javafx.geometry.Pos;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -82,7 +78,7 @@ public class PrintDialog extends Dialog<PrintDialog.PrintChoices>
      * @param pkg The Package, if printing a whole package.
      *            Null if printing a single class.
      */
-    public PrintDialog(Window owner, Package pkg)
+    public PrintDialog(Window owner, Package pkg, boolean largePrintJob)
     {
         setTitle(Config.getString("editor.printDialog.title"));
         initOwner(owner);
@@ -102,8 +98,17 @@ public class PrintDialog extends Dialog<PrintDialog.PrintChoices>
 
         CheckBox checkHighlighting = new CheckBox(Config.getString("editor.printDialog.printHighlighting"));
         checkHighlighting.setSelected(PrefMgr.getFlag(PrefMgr.PRINT_SCOPE_HIGHLIGHTING));
+        // Disabled items cannot show a tooltip.  So we wrap the checkbox (which may get disabled)
+        // in an HBox and set the tooltip on the HBox instead.
+        HBox checkHighlightingWrapper = new HBox(checkHighlighting);
+        Tooltip.install(checkHighlightingWrapper, new Tooltip(Config.getString("editor.printDialog.printHighlighting.tooltip")));
+        if (largePrintJob)
+        {
+            checkHighlighting.setSelected(false);
+            checkHighlighting.setDisable(true);
+        }
 
-        VBox vBox = new VBox(sizeRow, checkLineNumbers, checkHighlighting);
+        VBox vBox = new VBox(sizeRow, checkLineNumbers, checkHighlightingWrapper);
         vBox.setSpacing(8);
 
         final CheckBox checkReadme;
