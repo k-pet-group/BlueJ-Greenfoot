@@ -231,6 +231,7 @@ editor.preferencesLabel = Preferences...
 editor.printDialog.title=BlueJ:  Print Source Code
 editor.printDialog.printLineNumbers=Print Line Numbers
 editor.printDialog.printHighlighting=Print with Scope Highlighting
+editor.printDialog.printHighlighting.tooltip=This slows down printing and is not supported for large print jobs
 editor.printDialog.fontSize=Font size
 editor.printDialog.fontSize.small=Small
 editor.printDialog.fontSize.standard=Standard

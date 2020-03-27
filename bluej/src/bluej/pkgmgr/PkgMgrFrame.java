@@ -1898,7 +1898,7 @@ public class PkgMgrFrame
      */
     public void doPrint()
     {
-        Optional<PrintChoices> choices = new PrintDialog(getWindow(), getPackage()).showAndWait();
+        Optional<PrintChoices> choices = new PrintDialog(getWindow(), getPackage(), true).showAndWait();
         if (!choices.isPresent())
             return;
 

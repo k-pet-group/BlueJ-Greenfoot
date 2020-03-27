@@ -3384,7 +3384,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
      */
     public void print()
     {
-        Optional<PrintChoices> choices = new PrintDialog(getWindow(), null).showAndWait();
+        Optional<PrintChoices> choices = new PrintDialog(getWindow(), null, document.getLineCount() >= 200).showAndWait();
         if (!choices.isPresent())
             return;
         PrinterJob job = JavaFXUtil.createPrinterJob();
