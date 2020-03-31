@@ -1725,7 +1725,22 @@ public final class FlowActions
             }
             else
             {
-                moveCaret(document.getLineStart(curLine));
+                int lineStart = document.getLineStart(curLine);
+                int contentStart = lineStart;
+                int lineEnd = document.getLineEnd(curLine);
+                // Move it to the first non-whitespace character:
+                while (Character.isWhitespace(getTextComponent().getDocument().getContent(contentStart, contentStart + 1).charAt(0)) && contentStart < lineEnd)
+                    contentStart += 1;
+
+                if (getTextComponent().getCaretPosition() == contentStart)
+                {
+                    moveCaret(lineStart);
+                }
+                else
+                {
+                    moveCaret(contentStart);
+                }
+
             }
         }
     }
