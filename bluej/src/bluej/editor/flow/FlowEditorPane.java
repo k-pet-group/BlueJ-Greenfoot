@@ -269,8 +269,8 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     private void mousePressed(MouseEvent e)
     {
         requestFocus();
-        positionCaretAtDestination(e, true);
-        anchor.position = caret.position;
+        // If shift pressed, don't move anchor; form selection instead:
+        positionCaretAtDestination(e, !e.isShiftDown());
         updateRender(true);
     }
 
