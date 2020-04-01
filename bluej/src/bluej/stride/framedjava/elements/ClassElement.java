@@ -54,6 +54,7 @@ import bluej.stride.framedjava.frames.ClassFrame;
 import bluej.stride.framedjava.frames.ConstructorFrame;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.parser.AssistContentThreadSafe;
+import bluej.stride.generic.Frame;
 import bluej.stride.generic.Frame.ShowReason;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;
@@ -311,25 +312,14 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         constructors.forEach(member -> {
                 frame.getConstructorsCanvas().insertBlockAfter(member.createFrame(editor), null);
                 //cherry
-                if(member.toJavaSource().toTemporaryJavaCodeString().contains("public")) {
-                    StringBuilder constructorAccessibleText = new StringBuilder("Constructor ");
-                    String[] splitByBracketArr = member.toJavaSource().toTemporaryJavaCodeString().split("\\(",2);
-                    String constructorName = splitByBracketArr[0].split("\\*/")[1].split(" ")[1];
-                    constructorAccessibleText.append(constructorName+" ");
-                    String param = splitByBracketArr[1].split("\\)")[0];
-                    if(!param.equals("")) {
-                        constructorAccessibleText.append("with parameter(s) ");
-                        String[] paramArr = param.split(",");
-                        for (String paramPair : paramArr) {
-                            String[] paramPairArr = paramPair.split(" ");
-                            String paramName = paramPairArr[1];
-                            String paramType = paramPairArr[0];
-                            constructorAccessibleText.append(paramName+ " of type "+paramType);
-                        }
-                    }
+            String code = member.toJavaSource().toTemporaryJavaCodeString();
+//            System.out.println(code);
+                if(code.contains("public")) {
+                    // accessible text for constructor header
+                    String constructorAccessibleText = getMethodHeaderText(code);
                     int secondLastIndex = frame.getConstructorsCanvas().getCursors().size() - 2;
-                    frame.getConstructorsCanvas().getCursors().get(secondLastIndex).setAccessibleText(constructorAccessibleText.toString());
-                    System.out.println(constructorAccessibleText.toString());
+                    frame.getConstructorsCanvas().getCursors().get(secondLastIndex).setAccessibleText("Constructor "+constructorAccessibleText);
+//                    System.out.println(constructorAccessibleText.toString());
                 }
             }
 
@@ -338,8 +328,46 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
         frame.getConstructorsCanvas().getFirstCursor().setAccessibleText("Constructors");
         frame.getConstructorsCanvas().getFirstCursor().setAccessibleRoleDescription("");
 
-        methods.forEach(member -> frame.getMethodsCanvas().insertBlockAfter(member.createFrame(editor), null));
+        methods.forEach(member -> {
+            frame.getMethodsCanvas().insertBlockAfter(member.createFrame(editor), null);
+            //cherry
+            String code = member.toJavaSource().toTemporaryJavaCodeString();
+            String methodAccessibleText = getMethodHeaderText(code);
+            int secondLastIndex = frame.getConstructorsCanvas().getCursors().size() - 2;
+            frame.getConstructorsCanvas().getCursors().get(secondLastIndex).setAccessibleText("Method "+methodAccessibleText);
+            System.out.println(methodAccessibleText.toString());
+                }
+
+        );
         return frame;
+    }
+
+    //cherry
+    private String getMethodHeaderText(String code) {
+        String[] splitByBracketArr = code.split("\\(",2);
+        String constructorName = splitByBracketArr[0].split("\\*/")[1].split(" ")[1];
+        String param = splitByBracketArr[1].split("\\)")[0];
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(constructorName+" ");
+        if(!param.equals("")) {
+            stringBuilder.append("with parameter(s) ");
+            String[] paramArr = param.split(",");
+            for(int i=0;i<paramArr.length;i++){
+                String[] paramPairArr = paramArr[i].split(" ");
+                String paramName = paramPairArr[1];
+                String paramType = paramPairArr[0];
+                if(i==paramArr.length-1 && i>0) {
+                    stringBuilder.append(" and "+paramName+ " of type "+paramType);
+
+                } else if(i==0) {
+                    stringBuilder.append(paramName+ " of type "+paramType);
+                } else {
+                    stringBuilder.append(", "+paramName+ " of type "+paramType);
+                }
+
+            }
+        }
+        return stringBuilder.toString();
     }
     
     @Override
