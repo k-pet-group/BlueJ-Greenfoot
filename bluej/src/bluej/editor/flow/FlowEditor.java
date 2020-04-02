@@ -2765,7 +2765,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                     selectNext(true);
                 }
                 int pos = flowEditorPane.getSelectionStart();
-                document.replaceText(pos, searchFor.length(), replacement);
+                document.replaceText(pos, pos + searchFor.length(), replacement);
                 flowEditorPane.positionCaret(pos + searchFor.length());
                 return doFind(searchFor, ignoreCase);
             }
@@ -2775,7 +2775,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 // Sort all the found positions in descending order, so we can replace them
                 // in order without affecting the later positions in the list (earlier in file):
                 foundStarts.stream().sorted(Comparator.reverseOrder()).forEach(pos ->
-                    document.replaceText(pos, searchFor.length(), replacement)
+                    document.replaceText(pos, pos + searchFor.length(), replacement)
                 );
             }
 

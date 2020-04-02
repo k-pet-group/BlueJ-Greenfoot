@@ -13,18 +13,23 @@
 }
 .margin-and-text-line {
     -fx-background-color: white;
+    -fx-cursor: text;
 }
 .flow-margin-line {
     -fx-stroke: grey;
 }
 .flow-margin-background {
     -fx-background-color: white;
+    -fx-cursor: default;
 }
 .margin-and-text-line:bj-margin-uncompiled .flow-margin-background {
     -fx-background-color: hsb(0, 0%, 75%);
 }
 .margin-and-text-line:bj-margin-error .flow-margin-background {
     -fx-background-color: hsb(0, 70%, 50%);
+}
+.moe-breakpoint-icon, .moe-step-mark-icon {
+    -fx-cursor: default;
 }
 
 .flow-line-label {
@@ -33,6 +38,7 @@
     -fx-graphic-text-gap: 0;
     -fx-label-padding: 0 2 0 0;
     -fx-text-fill: black;
+    -fx-cursor: default;
 }
 .margin-and-text-line:bj-margin-error .flow-line-label {
     -fx-text-fill: white;

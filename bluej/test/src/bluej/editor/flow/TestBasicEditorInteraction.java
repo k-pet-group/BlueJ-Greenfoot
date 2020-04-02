@@ -677,9 +677,25 @@ public class TestBasicEditorInteraction extends FXTest
             String curContent = fx(() -> flowEditorPane.getDocument().getFullContent());
             int prevNewLine = curContent.lastIndexOf('\n', pos - 1);
             if (prevNewLine == -1)
+            {
                 return 0;
+            }
             else
-                return prevNewLine + 1;
+            {
+                // Smart-home; moves to first non-whitespace unless already there
+                int firstContent = prevNewLine + 1;
+                // Don't go beyond end of document or end of line:
+                while (firstContent < curContent.length() && Character.isWhitespace(curContent.charAt(firstContent)) &&  curContent.charAt(firstContent) != '\n')
+                    firstContent += 1;
+                if (pos == firstContent)
+                {
+                    return prevNewLine + 1;
+                }
+                else
+                {
+                    return firstContent;
+                }
+            }
         }));
         movers.add(new NamedKeyboardMover("End", (pos, len, tgt) -> {
             push(KeyCode.END);
