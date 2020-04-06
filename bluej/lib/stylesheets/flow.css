@@ -55,3 +55,7 @@
     -fx-fill: hsb(0, 0%, 70%);
     -fx-stroke: null;
 }
+
+.line-container {
+    -fx-background-color: white;
+}
