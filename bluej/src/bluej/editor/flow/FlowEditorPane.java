@@ -778,6 +778,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         {
             this.lineDisplay = lineDisplay;
             this.lineWrapping = lineWrapping;
+            JavaFXUtil.addStyleClass(this,"line-container");
         }
         
         @Override
