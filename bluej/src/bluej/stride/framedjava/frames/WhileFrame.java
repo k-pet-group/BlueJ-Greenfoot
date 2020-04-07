@@ -135,7 +135,15 @@ public class WhileFrame extends SingleCanvasFrame
         this(editor);
         getCanvas().getFirstCursor().insertFramesAfter(contents);
     }
-    
+
+    //cherry
+    public String getScreenReaderText() {
+        String text = "while frame with condition " + paramCondition.getText();
+        System.out.println(text);
+        return text;
+    }
+
+
     /**
      * Replace statement with a "for" loop, transferring over loop body and header.
      */

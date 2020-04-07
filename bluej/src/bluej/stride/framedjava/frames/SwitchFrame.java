@@ -110,6 +110,13 @@ public class SwitchFrame extends MultiCanvasFrame
         frameEnabledProperty.set(enabled);
     }
 
+    //cherry
+    public String getScreenReaderText() {
+        String text = "";
+        return text;
+    }
+
+
     public boolean addDefault()
     {
         if (defaultCanvas != null) {

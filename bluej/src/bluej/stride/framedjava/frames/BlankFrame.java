@@ -42,6 +42,13 @@ public class BlankFrame extends SingleLineFrame implements CodeFrame<BlankElemen
         super(editor, "", "blank-");
     }
 
+    //cherry
+    public String getScreenReaderText() {
+        String text = "";
+        return text;
+    }
+
+
     @Override
     public void regenerateCode()
     {

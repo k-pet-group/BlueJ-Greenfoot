@@ -87,7 +87,14 @@ public class BreakFrame extends SingleLineFrame
         this(editor);
         frameEnabledProperty.set(enabled);
     }
-        
+
+    //cherry
+    public String getScreenReaderText() {
+        String text = "";
+        return text;
+    }
+
+
     @Override
     public void updateAppearance(FrameCanvas c)
     {

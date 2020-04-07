@@ -222,6 +222,14 @@ public class VarFrame extends SingleLineFrame
         frameEnabledProperty.set(enabled);
     }
 
+    //cherry
+    public String getScreenReaderText() {
+        String text = "variable " + slotName.getText() + " of type " + slotType.getText() + " equals " + slotValue.getText();
+        System.out.println(text);
+        return text;
+    }
+
+
     @Override
     public void regenerateCode()
     {

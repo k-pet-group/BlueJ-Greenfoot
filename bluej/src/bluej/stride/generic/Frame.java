@@ -96,7 +96,7 @@ import threadchecker.Tag;
  * 
  * Frames often implement the CodeFrame interface, from which you can generate a CodeElement
  * (e.g. for saving and compiling).  Most CodeElements are also frame factories (e.g. for loading).
- * 
+ *
  * @author Fraser McKay
  */
 public abstract class Frame implements CursorFinder, FocusParent<FrameContentItem>, ErrorShower
@@ -172,6 +172,9 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     public String getAccessibleText(){
         return "shiba";
     }
+
+    //cherry
+    protected abstract String getScreenReaderText();
 
     public final String getStylePrefix()
     {

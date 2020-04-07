@@ -224,28 +224,7 @@ public abstract class MethodWithBodyElement extends DocumentContainerCodeElement
         frame.setDocumentation(documentation.toString());
         
         params.forEach(item -> frame.getParamsPane().addFormal(item.getParamType(), item.getParamName()));
-        contents.forEach(c -> {
-            Frame contentFrame = c.createFrame(editor); //cherry
-            frame.getCanvas().insertBlockAfter(c.createFrame(editor), null); //cherry replaced c.createFrame
-            //cherry
-            String code = c.toJavaSource().toTemporaryJavaCodeString();
-            String accessibleText = code;
-//            System.out.println(code+"\n ============== \n");
-//            contentFrame.ge
-            if(code.contains("if (") || code.contains("while (") || code.contains("for (")) {
-                String[] splitByBracketArr = code.split("\\(",2);
-                String headerName = splitByBracketArr[0].trim();
-                String param = splitByBracketArr[1].split("\\)")[0];
-                if(!param.equals("")) {
-                    accessibleText = headerName+" "+param;
-                }
-            }
-
-            int secondLastIndex = frame.getCanvas().getCursors().size() - 2;
-            frame.getCanvas().getCursors().get(secondLastIndex).setAccessibleText(accessibleText);
-        }
-
-        );
+        contents.forEach(c -> frame.getCanvas().insertBlockAfter(c.createFrame(editor), null));
         throwsTypes.forEach(t -> frame.addThrows(t.getType()));
     }
 

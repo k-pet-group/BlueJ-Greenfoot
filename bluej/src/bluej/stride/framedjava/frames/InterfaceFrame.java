@@ -95,6 +95,13 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
         ));
     }
 
+    //cherry
+    public String getScreenReaderText() {
+        String text = "";
+        return text;
+    }
+
+
     protected Frame findASpecialMethod()
     {
         return null;

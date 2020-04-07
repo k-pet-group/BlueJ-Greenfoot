@@ -65,6 +65,13 @@ public class BreakpointFrame extends SingleLineFrame implements CodeFrame<Breakp
         };
     }
 
+    //cherry
+    public String getScreenReaderText() {
+        String text = "";
+        return text;
+    }
+
+
     @Override
     public BreakpointElement getCode()
     {

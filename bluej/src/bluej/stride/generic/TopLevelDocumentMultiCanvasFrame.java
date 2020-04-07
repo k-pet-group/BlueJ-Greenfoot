@@ -230,9 +230,6 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
                 Config.getString("frame.editor.toplevel.doc.prompt", null, localProperties)));
 
         this.fieldsCanvas = new FrameCanvas(editor, this, stylePrefix + "fields-");
-        //cherry
-        fieldsCanvas.getFirstCursor().setAccessibleText("Fields");
-        fieldsCanvas.getFirstCursor().setAccessibleRoleDescription("");
         fieldsLabelRow = new FrameContentRow(this, fieldsLabel);
         addCanvas(fieldsLabelRow, fieldsCanvas);
 
@@ -365,10 +362,6 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
             }
 
         }.startListening();
-
-        //cherry
-        importCanvas.getLastCursor().setAccessibleText("End of imports. To edit the class documentation header, press tab. To go to class fields, press down arrow.");
-        importCanvas.getLastCursor().setAccessibleRoleDescription("");
         return importCanvas;
     }
 

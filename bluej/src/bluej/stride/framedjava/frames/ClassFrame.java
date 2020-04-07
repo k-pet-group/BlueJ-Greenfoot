@@ -179,6 +179,12 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         addCanvas(constructorsLabelRow, constructorsCanvas, 1);
     }
 
+    //cherry
+    public String getScreenReaderText() {
+        String text = "class frame text";
+        return text;
+    }
+
     @Override
     public Stream<EditableSlot> getPossiblyHiddenSlotsDirect()
     {

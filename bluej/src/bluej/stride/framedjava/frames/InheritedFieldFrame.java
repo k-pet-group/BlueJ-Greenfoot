@@ -36,7 +36,14 @@ public class InheritedFieldFrame extends SingleLineFrame
     {
         super(editor, access + " \t" + type + " " + name, "inherited-field-");
     }
-    
+
+    //cherry
+    public String getScreenReaderText() {
+        String text = "";
+        return text;
+    }
+
+
     @Override
     public boolean canDrag()
     {

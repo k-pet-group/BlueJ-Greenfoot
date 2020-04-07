@@ -120,7 +120,14 @@ public class CaseFrame extends SingleCanvasFrame
         paramCondition.setText(condition);
         frameEnabledProperty.set(enabled);
     }
-    
+
+    //cherry
+    public String getScreenReaderText() {
+        String text = "";
+        return text;
+    }
+
+
     /**
      * Replace statement with a "for" loop, transferring over loop body and header.
      */

@@ -123,6 +123,13 @@ public class ReturnFrame extends SingleLineFrame
         frameEnabledProperty.set(enabled);
     }
 
+    //cherry
+    public String getScreenReaderText() {
+        String text = "return " + value.getText();
+        return text;
+    }
+
+
     @Override
     public void regenerateCode()
     {

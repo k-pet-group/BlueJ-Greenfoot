@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import bluej.stride.framedjava.elements.ClassElement;
 import javafx.beans.binding.DoubleExpression;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -108,6 +109,17 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
         }
         frameEnabledProperty.set(enabled);
     }
+
+    //cherry
+    public String getScreenReaderText() {
+        StringBuilder paramString = new StringBuilder();
+        for(ParamFragment pair : paramsPane.getSlotElement()) {
+            paramString.append(pair.getParamType().getSlot().getText() + " " +  pair.getParamName().getSlot().getText() + " ");
+        }
+        String text = "Constructor " + getEditor().nameProperty().get() + " with parameters " + paramString.toString();
+        return text;
+    }
+
 
     public static FrameFactory<ConstructorFrame> getFactory() {
         return new FrameFactory<ConstructorFrame>() {

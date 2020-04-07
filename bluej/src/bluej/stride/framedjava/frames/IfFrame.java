@@ -120,6 +120,13 @@ public class IfFrame extends SandwichCanvasesFrame
         frameEnabledProperty.set(enabled);
     }
 
+    //cherry
+    public String getScreenReaderText() {
+        String text = "if frame with condition " + ifCondition.getText();
+        return text;
+    }
+
+
     @Override
     protected FrameContentRow getFrameContentRow(List<SlotFragment> slots, JavaCanvas canvas, int at)
     {

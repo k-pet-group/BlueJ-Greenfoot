@@ -88,6 +88,13 @@ public class CallFrame extends SingleLineFrame
         frameEnabledProperty.set(enabled);
     }
 
+    //cherry
+    public String getScreenReaderText() {
+        String text = "call " + content.getText();
+        return text;
+    }
+
+
     @Override
     public void regenerateCode()
     {

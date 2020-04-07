@@ -254,10 +254,6 @@ public class FrameCanvas implements FrameContentItem
         specials.add(index, special);
         toAdd.setParentCanvas(this);
         validate(cursor, index + 1);
-        //cherry
-        newCursor.setAccessibleTextForFrame("before frame");
-        newCursor.setAccessibleRoleDescription("");
-
 
     }
     
@@ -296,9 +292,6 @@ public class FrameCanvas implements FrameContentItem
         specials.add(index, special);
         toAdd.setParentCanvas(this);
         validate(cursor, index);
-        //cherry
-        cursor.setAccessibleTextForFrame("frame after");
-        cursor.setAccessibleRoleDescription("");
 
 
     }
@@ -816,7 +809,7 @@ public class FrameCanvas implements FrameContentItem
     /**
      * Empty the canvas of block contents, and move them all to the target canvas, starting at the specified index (in that canvas's children)
      * @param targetCanvas canvas to export contents to
-     * @param index  starting index in other canvas to insert at
+     * @param after  starting index in other canvas to insert at
      */
     public void emptyTo(FrameCanvas targetCanvas, Frame after)
     {

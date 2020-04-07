@@ -99,24 +99,6 @@ public class FrameCursor implements RecallableFocus
     
     private final Button node = new Button();
 
-    //cherry
-    public void setAccessibleTextForFrame(String message){
-        getNode().setAccessibleText(getFrameAfter().getAccessibleText(message)); //for this cursor, read from frame after it
-    }
-    //cherry
-    public void setAccessibleTextForFrame(){
-        getNode().setAccessibleText(getFrameAfter().getAccessibleText());
-    }
-    //cherry
-    public void setAccessibleText(String message){
-        getNode().setAccessibleText(message); //set what is read for this cursor directly
-    }
-    //cherry
-    public void setAccessibleRoleDescription(String message){
-        getNode().setAccessibleRoleDescription(message);
-    }
-
-
     @OnThread(Tag.FXPlatform)
     public boolean keyTyped(final InteractionManager editor, final FrameCanvas parentCanvas, char key, boolean ctrlDown)
     {
@@ -428,6 +410,14 @@ public class FrameCursor implements RecallableFocus
             if (node.getScene() != null)
             {
                 animateShowHide(nowFocused, false);
+            }
+            //cherry
+            if (nowFocused)
+            {
+                if (getFrameAfter() != null)
+                {
+                    node.setAccessibleText(getFrameAfter().getScreenReaderText());
+                }
             }
         });
         JavaFXUtil.addChangeListener(node.localToSceneTransformProperty(), t -> JavaFXUtil.runNowOrLater(() -> adjustDragTargetPosition()));

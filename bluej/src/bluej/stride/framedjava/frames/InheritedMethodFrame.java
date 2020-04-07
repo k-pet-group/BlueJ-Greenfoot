@@ -121,6 +121,13 @@ public class InheritedMethodFrame extends SingleLineFrame
         });
     }
 
+    //cherry
+    public String getScreenReaderText() {
+        String text = "";
+        return text;
+    }
+
+
     @Override
     public boolean canDrag()
     {

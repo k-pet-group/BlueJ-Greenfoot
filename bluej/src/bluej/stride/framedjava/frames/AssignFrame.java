@@ -126,7 +126,14 @@ public class AssignFrame extends SingleLineFrame
             }
         };
     }
-    
+
+    //cherry
+    public String getScreenReaderText() {
+        String text = "assign " + slotLHS.getText() + " with " + slotRHS.getText();
+        return text;
+    }
+
+
     public ExpressionSlot<? extends ExpressionSlotFragment> getLHS()
     {
         return slotLHS;

@@ -170,6 +170,17 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         frameEnabledProperty.set(enabled);
     }
 
+    //cherry
+    public String getScreenReaderText() {
+        StringBuilder paramString = new StringBuilder();
+        for(ParamFragment pair : paramsPane.getSlotElement()) {
+            paramString.append(pair.getParamType().getSlot().getText() + " " +  pair.getParamName().getSlot().getText() + " ");
+        }
+        String text = "Method " + methodName.getText() + " with parameters " + paramString.toString() + " with " + access.getValue(AccessPermission.PUBLIC).toString() + " access and " + returnType.getText() + " return type ";
+        return text;
+    }
+
+
     @Override
     public boolean focusWhenJustAdded()
     {

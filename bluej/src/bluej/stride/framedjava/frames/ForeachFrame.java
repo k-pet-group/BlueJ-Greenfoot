@@ -106,6 +106,13 @@ public class ForeachFrame extends SingleCanvasFrame
         getCanvas().getFirstCursor().insertFramesAfter(contents);
     }
 
+    //cherry
+    public String getScreenReaderText() {
+        String text = "for each " + type.getText() + " " + var.getText() + " in " + collection.getText();
+        return text;
+    }
+
+
     @Override
     @OnThread(Tag.FXPlatform)
     public List<FrameOperation> getContextOperations()

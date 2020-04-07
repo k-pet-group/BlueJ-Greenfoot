@@ -107,7 +107,14 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         setDocumentation(documentation);
         frameEnabledProperty.set(enabled);
     }
-    
+
+    //cherry
+    public String getScreenReaderText() {
+        String text = "";
+        return text;
+    }
+
+
     private void bindHeader()
     {
         getHeaderRow().bindContentsConcat(FXCollections.observableArrayList(

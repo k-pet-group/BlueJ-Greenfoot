@@ -136,7 +136,15 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
             }
         };
     }
-    
+
+    //cherry
+    public String getScreenReaderText() {
+        String text = "comment " + comment.getText();
+//        System.out.println(text);
+        return text;
+    }
+
+
     private Canvas getDiagonalLineCanvas()
     {
         if (diagonalLinesCanvas == null)

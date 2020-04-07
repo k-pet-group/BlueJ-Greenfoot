@@ -72,6 +72,13 @@ public class ThrowFrame extends SingleLineFrame
         frameEnabledProperty.set(enabled);
     }
 
+    //cherry
+    public String getScreenReaderText() {
+        String text = "";
+        return text;
+    }
+
+
     @Override
     public void regenerateCode()
     {
