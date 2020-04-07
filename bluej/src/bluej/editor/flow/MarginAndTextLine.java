@@ -241,6 +241,7 @@ public class MarginAndTextLine extends Region
     /**
      * Asks the relevant parent to repaint the editor in order to show the changes
      */
+    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     private void repaint()
     {
         Node parent=this;
