@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -160,19 +160,19 @@ public class ClassTarget extends DependentTarget
     // automatically becomes invalidated when the source code is
     // edited
     private SourceInfo sourceInfo = new SourceInfo();
-    
+
     // caches whether the class is abstract. Only accurate when the
     // classtarget state is normal (ie. the class is compiled).
     private boolean isAbstract;
-    
+
     // a flag indicating whether an editor should have the naviview expanded/collapsed
     private Optional<Boolean> isNaviviewExpanded = Optional.empty();
 
     private final List<Integer> cachedBreakpoints = new ArrayList<>();
-    
+
     // flag to prevent recursive calls to analyseDependancies()
     private boolean analysing = false;
-    
+
     // Whether the current compilation is invalid due to edits since compilation began
     private boolean compilationInvalid = false;
 
@@ -182,9 +182,9 @@ public class ClassTarget extends DependentTarget
     private boolean hasBeenOpened = false;
 
     private String typeParameters = "";
-    
+
     //properties map to store values used in the editor from the props (if necessary)
-    private Map<String,String> properties = new HashMap<String,String>();
+    private Map<String, String> properties = new HashMap<String, String>();
     // Keep track of whether the editor is open or not; we get a lot of
     // potential open events, and don't want to keep recording ourselves as re-opening
     private boolean recordedAsOpen = false;
@@ -216,8 +216,8 @@ public class ClassTarget extends DependentTarget
 
     /**
      * Create a new class target in package 'pkg'.
-     * 
-     * @param pkg Description of the Parameter
+     *
+     * @param pkg      Description of the Parameter
      * @param baseName Description of the Parameter
      */
     public ClassTarget(Package pkg, String baseName)
@@ -227,14 +227,14 @@ public class ClassTarget extends DependentTarget
 
     /**
      * Create a new class target in package 'pkg'.
-     * 
-     * @param pkg Description of the Parameter
+     *
+     * @param pkg      Description of the Parameter
      * @param baseName Description of the Parameter
      * @param template Description of the Parameter
      */
     public ClassTarget(Package pkg, String baseName, String template)
     {
-        super(pkg, baseName);
+        super(pkg, baseName, "Class");
 
         if (pseudos == null)
         {
@@ -253,7 +253,8 @@ public class ClassTarget extends DependentTarget
         stereotypeLabel.managedProperty().bind(stereotypeLabel.textProperty().isNotEmpty());
         JavaFXUtil.addStyleClass(stereotypeLabel, "class-target-extra");
         pane.setTop(new VBox(stereotypeLabel, nameLabel));
-        canvas = new ResizableCanvas() {
+        canvas = new ResizableCanvas()
+        {
             @Override
             @OnThread(value = Tag.FXPlatform, ignoreParent = true)
             public void resize(double width, double height)
@@ -279,20 +280,26 @@ public class ClassTarget extends DependentTarget
         // object based on the start of the template name. If we get this
         // wrong, its no great shame as it'll be fixed the first time they
         // successfully analyse/compile the source.
-        if (template != null) {
-            if (template.startsWith("unittest")) {
+        if (template != null)
+        {
+            if (template.startsWith("unittest"))
+            {
                 setRole(new UnitTestClassRole(UnitTestFramework.JUnit5));
             }
-            else if (template.startsWith("abstract")) {
+            else if (template.startsWith("abstract"))
+            {
                 setRole(new AbstractClassRole());
             }
-            else if (template.startsWith("interface")) {
+            else if (template.startsWith("interface"))
+            {
                 setRole(new InterfaceClassRole());
             }
-            else if (template.startsWith("enum")) {
+            else if (template.startsWith("enum"))
+            {
                 setRole(new EnumClassRole());
             }
-            else {
+            else
+            {
                 setRole(new StdClassRole());
             }
 
@@ -304,7 +311,7 @@ public class ClassTarget extends DependentTarget
             });
         });
     }
-    
+
     /**
      * Check whether the class has source, and of what type.
      */
@@ -334,21 +341,23 @@ public class ClassTarget extends DependentTarget
     /**
      * Return the extensions BProject associated with this Project.
      * There should be only one BProject object associated with each Project.
+     *
      * @return the BProject associated with this Project.
      */
-    public final BClass getBClass ()
+    public final BClass getBClass()
     {
-        if ( singleBClass == null ) {
+        if (singleBClass == null)
+        {
             singleBClass = ExtensionBridge.newBClass(this);
         }
-          
+
         return singleBClass;
     }
 
     /**
      * Return the target's name, including the package name. eg.
      * bluej.pkgmgr.Target
-     * 
+     *
      * @return The qualifiedName value
      */
     @OnThread(Tag.Any)
@@ -360,7 +369,7 @@ public class ClassTarget extends DependentTarget
     /**
      * Return the target's base name (ie the name without the package name). eg.
      * Target
-     * 
+     *
      * @return The baseName value
      */
     @OnThread(Tag.Any)
@@ -371,7 +380,7 @@ public class ClassTarget extends DependentTarget
 
     /**
      * Return information about the source of this class.
-     * 
+     *
      * @return The source info object.
      */
     public SourceInfo getSourceInfo()
@@ -381,52 +390,64 @@ public class ClassTarget extends DependentTarget
 
     /**
      * Get a reflective for the type represented by this target.
-     * 
-     * @return  A suitable reflective, or null.
+     *
+     * @return A suitable reflective, or null.
      */
     public Reflective getTypeReflective()
     {
         // If compiled, return a reflective based on actual reflection
-        if (isCompiled()) {
+        if (isCompiled())
+        {
             Class<?> cl = getPackage().loadClass(getQualifiedName());
-            if (cl != null) {
+            if (cl != null)
+            {
                 return new JavaReflective(cl);
             }
-            else {
+            else
+            {
                 return null;
             }
         }
-        
+
         // Not compiled; try to get a reflective from the parser
         ParsedCUNode node = null;
-        if (getEditor() != null) {
+        if (getEditor() != null)
+        {
             TextEditor textEditor = editor.assumeText();
-            if (textEditor != null) {
+            if (textEditor != null)
+            {
                 node = textEditor.getParsedNode();
             }
         }
-        
-        if (node != null) {
+
+        if (node != null)
+        {
             ParsedTypeNode ptn = (ParsedTypeNode) node.getTypeNode(getBaseName());
-            if (ptn != null) {
+            if (ptn != null)
+            {
                 return new ParsedReflective(ptn);
             }
         }
-        
+
         return null;
     }
-    
+
     /**
      * Returns the text which the target is displaying as its label. For normal
      * classes this is just the identifier name. For generic classes the generic
      * parameters are shown as well
-     * 
+     *
      * @return The displayName value
      */
     @Override
     public String getDisplayName()
     {
         return getBaseName() + getTypeParameters();
+    }
+
+    @OnThread(Tag.Any)
+    public Package getPackage(){
+        return super.getPackage();
     }
 
     /**
@@ -1249,7 +1270,7 @@ public class ClassTarget extends DependentTarget
                     {
                         return project.getDefaultFXTabbedEditor();
                     }
-                }, getBaseName(), this, resolver, project.getJavadocResolver(), openCallback, PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING));
+                }, getBaseName(), this, resolver, project.getJavadocResolver(), openCallback, PrefMgr.flagProperty(PrefMgr.HIGHLIGHTING), true);
                 ((TextEditor)editor).showFile(filename, project.getProjectCharset(), isCompiled(), docFilename);
             }
             else if (sourceAvailable == SourceType.Stride) {

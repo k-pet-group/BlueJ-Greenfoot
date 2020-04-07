@@ -293,7 +293,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         // to those of javac, and then preferring shorter errors (as probably being more specific)
         List<CodeError> sortedErrors = allErrors.stream()
             .sorted((a, b) -> CodeError.compareErrors(a, b)).collect(Collectors.toList());
-        
+
         sortedErrors.forEach(e -> {
             // Add the error if it doesn't overlap:
             if (shownErrors.stream().allMatch(shown -> !shown.overlaps(e)))
@@ -397,6 +397,18 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         err.bindFresh(getFreshExtra(err).or(getParentFrame().freshProperty()), editor);
         recalculateShownErrors();
     }
+
+    @OnThread(Tag.FXPlatform)
+    /**
+     * Updates an error in the error list, required when errors are first added without being
+     * fully ready : when there are several errors in a slot, not updating them may cause issues
+     */
+    public void updateError(CodeError err)
+    {
+        allErrors.removeIf(codeError -> codeError.getIdentifier()==err.getIdentifier());
+        addError(err);
+    }
+
 
     protected BooleanExpression getFreshExtra(CodeError err)
     {

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2011,2014,2016,2017,2018,2019  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2011,2014,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -27,6 +27,7 @@ import bluej.debugger.DebuggerTestResult;
 import bluej.debugger.SourceLocation;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.Project;
+import bluej.prefmgr.PrefMgr;
 import bluej.utility.JavaNames;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
@@ -38,6 +39,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
+import javafx.scene.AccessibleRole;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -268,9 +270,10 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
         exceptionMessageField = new TextArea("");
         JavaFXUtil.addStyleClass(exceptionMessageField, "test-output");
         VBox.setVgrow(exceptionMessageField, Priority.ALWAYS);
-        exceptionMessageField.setEditable(false);
+        // If in accessible mode, allow editing the exception message, which permits better keyboard navigation
+        // (even if we don't really want the user to be able to edit)
+        exceptionMessageField.editableProperty().bind(PrefMgr.flagProperty(PrefMgr.ACCESSIBILITY_SUPPORT));
         // exceptionMessageField.setLineWrap(true);
-        exceptionMessageField.setFocusTraversable(false);
 
         content.getChildren().add(exceptionMessageField);
 
@@ -441,15 +444,26 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
                 imageView.setImage(null);
                 setText("");
                 setTooltip(null);
+                setAccessibleText("");
             }
             else
             {
+                String acc;
                 if (item.isSuccess())
+                {
                     imageView.setImage(okIcon);
+                    acc = "Pass ";
+                }
                 else if (item.isFailure())
+                {
                     imageView.setImage(failureIcon);
+                    acc = "Fail ";
+                }
                 else
+                {
                     imageView.setImage(errorIcon);
+                    acc = "Error ";
+                }
                 
                 // This checks if the JUnit executes all tests at the same time,
                 // We have used zero execution time for individual test as there is no way so
@@ -467,6 +481,14 @@ public @OnThread(Tag.FXPlatform) class TestDisplayFrame
                 Tooltip displayNameToolTip = new Tooltip(item.getDisplayName());
                 JavaFXUtil.addStyleClass(displayNameToolTip, "test-results-tooltip");
                 setTooltip(displayNameToolTip);
+                acc += item.getDisplayName();
+                setAccessibleText(acc);
+                setAccessibleRole(AccessibleRole.LIST_ITEM);
+                // It's not clear why but at least on Mac, the screen-reader reads out the image not the
+                // list cell, even though it's the list cell that is focused.  We work around this by copying
+                // our accessible text on to the image view so that it still gets read out:
+                imageView.setAccessibleText(acc);
+                imageView.setAccessibleRole(AccessibleRole.LIST_ITEM);
             }
         }
     }

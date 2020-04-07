@@ -32,6 +32,9 @@ import bluej.utility.javafx.JavaFXUtil;
 import javafx.collections.ObservableList;
 import javafx.geometry.Bounds;
 import javafx.geometry.Orientation;
+import javafx.geometry.Point2D;
+import javafx.scene.AccessibleAttribute;
+import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.IndexRange;
@@ -65,7 +68,7 @@ import java.util.*;
  * as a virtualised container.  Scrolling re-renders the currently visible line set.
  */
 @OnThread(value = Tag.FXPlatform, ignoreParent = true)
-public class FlowEditorPane extends Region implements DocumentListener, JavaSyntaxView.Display
+public class FlowEditorPane extends Region implements JavaSyntaxView.Display
 {
     private final LineDisplay lineDisplay;
     private final FlowEditorPaneListener listener;
@@ -109,7 +112,6 @@ public class FlowEditorPane extends Region implements DocumentListener, JavaSynt
         setSnapToPixel(true);
         document = new HoleDocument();
         document.replaceText(0, 0, content);
-        document.addListener(this);
         caret = document.trackPosition(0, Bias.FORWARD);
         // Important that the anchor is a different object to the caret, as they will move independently:
         anchor = document.trackPosition(0, Bias.FORWARD);
@@ -152,6 +154,33 @@ public class FlowEditorPane extends Region implements DocumentListener, JavaSynt
         updateRender(false);
         JavaFXUtil.addChangeListenerPlatform(lineContainer.heightProperty(), h -> JavaFXUtil.runAfterCurrent(() -> updateRender(false)));
 
+        setAccessibleRole(AccessibleRole.TEXT_AREA);
+        selectionListeners.add(new SelectionListener() {
+            int oldCaretPos = 0;
+            int oldAnchorPos = 0;
+            @Override
+            public void selectionChanged(int caretPosition, int anchorPosition)
+            {
+                if (caretPosition != oldCaretPos)
+                {
+                    notifyAccessibleAttributeChanged(AccessibleAttribute.CARET_OFFSET);
+                }
+                if (Math.min(caretPosition, anchorPosition) != Math.min(oldCaretPos, oldAnchorPos))
+                {
+                    notifyAccessibleAttributeChanged(AccessibleAttribute.SELECTION_START);
+                }
+                if (Math.max(caretPosition, anchorPosition) != Math.max(oldCaretPos, oldAnchorPos))
+                {
+                    notifyAccessibleAttributeChanged(AccessibleAttribute.SELECTION_END);
+                }
+                oldAnchorPos = anchorPosition;
+                oldCaretPos = caretPosition;
+            }
+        });
+        document.addListener((origStartIncl, replaced, replacement, linesRemoved, linesAdded) -> {
+            notifyAccessibleAttributeChanged(AccessibleAttribute.TEXT);
+        });
+
         Nodes.addInputMap(this, InputMap.sequence(
             InputMap.consume(KeyEvent.KEY_TYPED, this::keyTyped),
             InputMap.consume(MouseEvent.MOUSE_PRESSED, this::mousePressed),
@@ -163,6 +192,42 @@ public class FlowEditorPane extends Region implements DocumentListener, JavaSynt
         JavaFXUtil.addChangeListenerPlatform(widthProperty(), w -> updateRender(false));
         JavaFXUtil.addChangeListenerPlatform(heightProperty(), h -> updateRender(false));
         JavaFXUtil.addChangeListenerPlatform(focusedProperty(), f -> updateCaretVisibility());
+    }
+
+    @Override
+    public Object queryAccessibleAttribute(AccessibleAttribute accessibleAttribute, Object... objects)
+    {
+        switch (accessibleAttribute)
+        {
+            case EDITABLE:
+                return true;
+            case TEXT:
+                return getDocument().getFullContent();
+            case CARET_OFFSET:
+                return caret.position;
+            case SELECTION_START:
+                return getSelectionStart();
+            case SELECTION_END:
+                return getSelectionEnd();
+            case LINE_FOR_OFFSET:
+                return document.getLineFromPosition((Integer)objects[0]);
+            case LINE_START:
+                return document.getLineStart((Integer)objects[0]);
+            case LINE_END:
+                return document.getLineEnd((Integer)objects[0]);
+            case BOUNDS_FOR_RANGE:
+                return lineDisplay.getBoundsForRange(document, (Integer)objects[0], (Integer)objects[1]);
+            case OFFSET_AT_POINT:
+                Point2D screenPoint = (Point2D)objects[0];
+                return getCaretPositionForLocalPoint(screenToLocal(screenPoint));
+            case HELP:
+                String err = listener.getErrorAtPosition(caret.position);
+                if (err != null)
+                    return "Error: " + err;
+                else
+                    break;
+        }
+        return super.queryAccessibleAttribute(accessibleAttribute, objects);
     }
 
     private double getLineContainerHeight()
@@ -213,7 +278,12 @@ public class FlowEditorPane extends Region implements DocumentListener, JavaSynt
     
     OptionalInt getCaretPositionForMouseEvent(MouseEvent e)
     {
-        int[] position = lineDisplay.getCaretPositionForMouseEvent(e);
+        return getCaretPositionForLocalPoint(new Point2D(e.getX(), e.getY()));
+    }
+
+    OptionalInt getCaretPositionForLocalPoint(Point2D localPoint)
+    {
+        int[] position = lineDisplay.getCaretPositionForLocalPoint(localPoint);
         if (position != null)
         {
             return OptionalInt.of(document.getLineStart(position[0]) + position[1]);
@@ -233,8 +303,7 @@ public class FlowEditorPane extends Region implements DocumentListener, JavaSynt
         updateRender(true);
     }
 
-    @Override
-    public void textReplaced(int start, String oldText, String newText, int linesRemoved, int linesAdded)
+    public void textChanged()
     {
         updateRender(false);
         targetColumnForVerticalMovement = -1;
@@ -300,6 +369,8 @@ public class FlowEditorPane extends Region implements DocumentListener, JavaSynt
         if (getScene() != null)
         {
             scheduleCaretUpdate(ensureCaretVisible);
+            String lineText = getDocument().getLines().get(document.getLineFromPosition(caret.position)).toString();
+            setAccessibleText(lineText);
         }
         updateCaretVisibility();
 
@@ -999,6 +1070,8 @@ public class FlowEditorPane extends Region implements DocumentListener, JavaSynt
         int getStepLine();
 
         public void showErrorPopupForCaretPos(int caretPos, boolean mousePosition);
+
+        public String getErrorAtPosition(int caretPos);
     }
 
     // Use an AbstractList rather than pre-calculate, as that means we don't bother

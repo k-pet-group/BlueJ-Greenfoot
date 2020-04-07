@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2013,2016,2017,2018  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2013,2016,2017,2018,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -28,6 +28,7 @@ import bluej.utility.javafx.JavaFXUtil;
 import java.util.Properties;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
+import javafx.scene.AccessibleRole;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
@@ -114,7 +115,7 @@ public abstract class Target
      * Create a new target with default size.
      */
     @OnThread(Tag.FXPlatform)
-    public Target(Package pkg, String identifierName)
+    public Target(Package pkg, String identifierName, String accessibleTargetType)
     {
         pane.setPrefWidth(calculateWidth(new Label(), identifierName));
         pane.setPrefHeight(DEF_HEIGHT);
@@ -124,6 +125,8 @@ public abstract class Target
         pane.setEffect(new DropShadow(SHADOW_RADIUS, SHADOW_RADIUS/2.0, SHADOW_RADIUS/2.0, javafx.scene.paint.Color.GRAY));
 
         pane.setFocusTraversable(true);
+        pane.setAccessibleText(identifierName + (accessibleTargetType != null && !accessibleTargetType.isEmpty() ? " " + accessibleTargetType : ""));
+        pane.setAccessibleRole(AccessibleRole.NODE);
         JavaFXUtil.addFocusListener(pane, hasFocus -> {
             PackageEditor pkgEditor = pkg.getEditor();
 

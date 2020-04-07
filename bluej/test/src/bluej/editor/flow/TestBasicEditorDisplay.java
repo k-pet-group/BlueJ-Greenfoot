@@ -33,7 +33,6 @@ import bluej.editor.flow.gen.GenString;
 import bluej.editor.stride.FrameCatalogue.ShowReason;
 import bluej.parser.InitConfig;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.Project;
 import bluej.prefmgr.PrefMgr;
 import bluej.stride.generic.Frame.View;
 import bluej.stride.generic.Frame.ViewChangeReason;
@@ -143,6 +142,9 @@ public class TestBasicEditorDisplay extends FXTest
             {
                 return null;
             }
+
+            @Override
+            public Package getPackage() { return null; }
 
             @Override
             public void scheduleCompilation(boolean immediate, CompileReason reason, CompileType type)
@@ -257,7 +259,7 @@ public class TestBasicEditorDisplay extends FXTest
             {
 
             }
-        }, null, null, null, new ReadOnlyBooleanWrapper(true));
+        }, null, null, null, new ReadOnlyBooleanWrapper(true), true);
         flowEditorPane = flowEditor.getSourcePane();
         flowEditorPane.setPrefWidth(800.0 + MarginAndTextLine.TEXT_LEFT_EDGE);
         flowEditorPane.setMaxWidth(Region.USE_PREF_SIZE);

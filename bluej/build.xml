@@ -13,12 +13,12 @@
     <!-- 
      This is the only place you need to change the version number.
      After changing the version number the target "update-version-number" should be run -->
-    <property name="bluej.version.major" value="4" />
-    <property name="bluej.version.minor" value="5" />
+    <property name="bluej.version.major" value="5" />
+    <property name="bluej.version.minor" value="0" />
     <property name="bluej.version.release" value="0" />
-    <property name="bluej.version.suffix" value="internal" />
+    <property name="bluej.version.suffix" value="preview" />
     <!-- suffix with no spaces, eg "pre2" -->
-    <property name="bluej.version.nonspace.suffix" value="internal" />
+    <property name="bluej.version.nonspace.suffix" value="preview" />
     <!-- Suffix added after version number in output files -->
     <property name="bluej.rcsuffix" value="-rc1"/>
     
@@ -337,7 +337,7 @@
     <!-- The simple targets for doing a complete build: -->
     <target name="mac" description="Clean, update version number and build Mac installer" depends="clean,update-version-number,mac-dist"/>
     <target name="windows" description="Clean, update version number and build Windows installers" depends="clean,update-version-number,windows-msi-bundled-dist,windows-standalone"/>
-    <target name="debian" description="Clean, update version number and build Debian/Ubuntu installer (run with fakeroot ant)" depends="clean,update-version-number,debian-dist"/>
+    <target name="debian" description="Clean, update version number and build Debian/Ubuntu installer (run with fakeroot ant)" depends="clean,update-version-number,debian-dist,debian-bundled-dist"/>
 
     <target name="urls-rc" description="Check and print RC links">
         <ant dir="package" target="urls-rc"/>
@@ -350,6 +350,9 @@
     <!-- build *.deb package -->
     <target name="debian-dist" description="Build the .deb Debian/Ubuntu package" depends="check-fakeroot,dist">
         <ant dir="package" target="debian-dist"/>
+    </target>
+    <target name="debian-bundled-dist" description="Build the .deb Debian/Ubuntu package" depends="check-fakeroot,dist">
+        <ant dir="package" target="debian-bundled-dist"/>
     </target>
 
     <target name="test" depends="compile-boot, compile-core, compile-test">
@@ -578,6 +581,7 @@
                 <exclude name="httpmime-4.1.1.jar"/>
                 <exclude name="junit-*.jar"/>
                 <exclude name="nsmenufx-2.1.4.jar"/>
+                <exclude name="opentest4j-1.2.0.jar"/>
                 <exclude name="richtextfx-fat-0.9.0.jar"/>
                 <exclude name="xom-1.2.9.jar"/>
                 <exclude name="jsch-0.1.53.jar"/>

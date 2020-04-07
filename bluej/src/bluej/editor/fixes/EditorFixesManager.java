@@ -30,7 +30,7 @@ import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.role.Kind;
 import bluej.utility.Debug;
 import bluej.utility.Utility;
-import javafx.application.Platform;
+import bluej.utility.javafx.FXPlatformRunnable;
 import javafx.util.Pair;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -259,60 +259,34 @@ public class EditorFixesManager
         this.javaLangImports = javaLangImports;
     }
 
-    @OnThread(Tag.FX)
-    public List<AssistContentThreadSafe> getPrims(){
-        return prims;
-    }
-
-    public static class ImportSingleFix extends FixSuggestion
+    /**
+     * Base class for a quick fix suggestion.
+     * The class contains a description (that will be indicated in the fix label)
+     * and an executable to run when the fix is to be executed.
+     */
+    public static class FixSuggestionBase  extends FixSuggestion
     {
-        private final AssistContentThreadSafe classInfo;
-        private final Editor editor;
+        private final String description;
+        private final FXPlatformRunnable executeRunnable;
 
         @OnThread(Tag.Any)
-        public ImportSingleFix(Editor editor, AssistContentThreadSafe ac)
+        public FixSuggestionBase (String description, FXPlatformRunnable executeRunnable)
         {
-            this.editor = editor;
-            this.classInfo = ac;
+            this.description = description;
+            this.executeRunnable = executeRunnable;
         }
 
         @Override
         @OnThread(Tag.Any)
         public String getDescription()
         {
-            return "Import class " + classInfo.getPackage() + "." + classInfo.getName();
+            return description;
         }
 
         @Override
         public void execute()
         {
-            editor.addImportFromQuickFix(classInfo.getPackage() + "." + classInfo.getName());
-        }
-    }
-
-    public static class ImportPackageFix extends FixSuggestion
-    {
-        private final AssistContentThreadSafe classInfo;
-        private final Editor editor;
-
-        @OnThread(Tag.Any)
-        public ImportPackageFix(Editor editor, AssistContentThreadSafe ac)
-        {
-            this.editor = editor;
-            this.classInfo = ac;
-        }
-
-        @Override
-        @OnThread(Tag.Any)
-        public String getDescription()
-        {
-            return "Import package " + classInfo.getPackage() + " (for " + classInfo.getName() + " class)";
-        }
-
-        @Override
-        public void execute()
-        {
-            editor.addImportFromQuickFix(classInfo.getPackage() + ".*");
+            executeRunnable.run();
         }
     }
 }

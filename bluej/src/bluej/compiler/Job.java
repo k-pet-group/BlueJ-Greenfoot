@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2011,2012,2016,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -13,7 +13,7 @@
  GNU General Public License for more details. 
  
  You should have received a copy of the GNU General Public License 
- along with this program; if not, write to the Free Software 
+ along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
  
  This file is subject to the Classpath exception as provided in the  
@@ -23,6 +23,7 @@ package bluej.compiler;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -102,7 +103,9 @@ class Job
 
             File[] actualSourceFiles = new File[sources.length];
             for (int i = 0; i < sources.length; i++)
+            {
                 actualSourceFiles[i] = sources[i].getJavaCompileInputFile();
+            }
 
             boolean successful = compiler.compile(actualSourceFiles, observer, internal, userCompileOptions, fileCharset, type);
 
