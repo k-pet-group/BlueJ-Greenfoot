@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -51,6 +51,8 @@ import java.util.concurrent.Flow;
 /**
  * A graphical item that contains a margin (used for line numbers and/or breakpoint symbols, step marks, etc)
  * and a text line.
+ *
+ * @Author Charalampos Kyfonidis
  */
 @OnThread(Tag.FX)
 public class MarginAndTextLine extends Region
