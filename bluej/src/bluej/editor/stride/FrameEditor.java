@@ -73,6 +73,7 @@ import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.print.PrinterJob;
 import javafx.scene.image.Image;
@@ -1155,22 +1156,29 @@ public class FrameEditor implements Editor
         // We must start these futures going on the FX thread
         List<Future<List<DirectSlotError>>> futures = allElements.flatMap(e -> e.findDirectLateErrors(panel, rootPathMap)).collect(Collectors.toList());
         // Then wait for them on another thread
-        new Thread(() -> {
-            ArrayList<DirectSlotError> allLates = new ArrayList<>();
-            try
+        new Thread() {
+            @Override
+            @OnThread(Tag.Worker)
+            public void run()
             {
-                // Wait for all futures:
-                for (Future<List<DirectSlotError>> f : futures)
-                    allLates.addAll(f.get());
+                ArrayList<DirectSlotError> allLates = new ArrayList<>();
+                try
+                {
+                    // Wait for all futures:
+                    for (Future<List<DirectSlotError>> f : futures)
+                        allLates.addAll(f.get());
+                }
+                catch (ExecutionException | InterruptedException e)
+                {
+                    Debug.reportError(e);
+                }
+                Platform.runLater(() -> {
+                    panel.updateErrorOverviewBar(false);
+                    List<DiagnosticWithShown> diagnostics = Utility.mapList(allLates, e -> e.toDiagnostic(javaFilename.getName(), frameFilename));
+                    watcher.recordLateErrors(diagnostics, compilationIdentifier);
+                });
             }
-            catch (ExecutionException | InterruptedException e)
-            {
-                Debug.reportError(e);
-            }
-            panel.updateErrorOverviewBar(false);
-            List<DiagnosticWithShown> diagnostics = Utility.mapList(allLates, e -> e.toDiagnostic(javaFilename.getName(), frameFilename));
-            watcher.recordLateErrors(diagnostics, compilationIdentifier);
-        }).start();
+        }.start();
     }
         
     @Override
