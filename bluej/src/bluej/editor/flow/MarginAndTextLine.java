@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2019  Michael Kolling and John Rosenberg
+ Copyright (C) 2019,2020  Michael Kolling and John Rosenberg
 
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -22,10 +22,13 @@
 package bluej.editor.flow;
 
 import bluej.Config;
+import bluej.prefmgr.PrefMgr;
+import bluej.utility.Debug;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.StringExpression;
 import javafx.scene.Node;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.OverrunStyle;
 import javafx.scene.control.Tooltip;
@@ -56,6 +59,7 @@ public class MarginAndTextLine extends Region
     private final Line dividerLine;
     private final int lineNumberToDisplay;
     private boolean hoveringMargin = false;
+
     // Does not include the hover icon, which is added dynamically:
     private final EnumSet<MarginDisplay> displayItems = EnumSet.noneOf(MarginDisplay.class);
     private final Tooltip breakpointHoverTooltip;
@@ -126,6 +130,28 @@ public class MarginAndTextLine extends Region
             breakpointHoverTooltip.setShowDelay(Duration.seconds(1));
             setMarginGraphics(EnumSet.copyOf(displayItems));
         });
+
+        // Context menu to show or hide line numbers
+        ContextMenu contextMenu = new ContextMenu();
+        // If they right-click on us, we show new-class and import-class actions:
+        contextMenu.getItems().add(
+            JavaFXUtil.makeMenuItem(
+                Config.getString("prefmgr.edit.displaylinenumbers"),
+                () -> {PrefMgr.setFlag(PrefMgr.LINENUMBERS, !PrefMgr.getFlag(PrefMgr.LINENUMBERS)); },
+                null
+            )
+        );
+
+        setOnContextMenuRequested(e -> {
+            if (contextMenu.isShowing())
+            {
+                contextMenu.hide();
+            }
+            contextMenu.show(this, e.getScreenX(), e.getScreenY());
+            e.consume();
+        });
+
+
     }
 
     @Override
