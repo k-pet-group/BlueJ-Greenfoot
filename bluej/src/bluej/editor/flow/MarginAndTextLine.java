@@ -116,8 +116,8 @@ public class MarginAndTextLine extends Region
                         breakpointHoverTooltip.setText(breakpointHoverUsualText);
                         breakpointHoverTooltip.setShowDelay(Duration.seconds(1));
                     }
+                    e.consume();
                 }
-                e.consume();
             }
         });
         addEventHandler(MouseEvent.MOUSE_MOVED, e -> {
@@ -258,6 +258,7 @@ public class MarginAndTextLine extends Region
                         label.setEllipsisString("\u2026");
                         label.setTextOverrun(OverrunStyle.LEADING_ELLIPSIS);
                         JavaFXUtil.addStyleClass(label, "flow-line-label");
+                        label.setMouseTransparent(true);
                         return label;
                     case STEP_MARK:
                         return makeStepMarkIcon();
@@ -304,6 +305,7 @@ public class MarginAndTextLine extends Region
     {
         Node icon = Config.makeStopIcon(false);
         JavaFXUtil.addStyleClass(icon, "moe-breakpoint-icon");
+        icon.setMouseTransparent(true);
         return icon;
     }
 
@@ -311,6 +313,7 @@ public class MarginAndTextLine extends Region
     {
         Shape arrow = Config.makeArrowShape(false);
         JavaFXUtil.addStyleClass(arrow, "moe-step-mark-icon");
+        arrow.setMouseTransparent(true);
         return arrow;
     }
 }
