@@ -37,9 +37,11 @@ import javafx.scene.AccessibleAttribute;
 import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.IndexRange;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.BackgroundFill;
@@ -269,9 +271,12 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     private void mousePressed(MouseEvent e)
     {
         requestFocus();
-        // If shift pressed, don't move anchor; form selection instead:
-        positionCaretAtDestination(e, !e.isShiftDown());
-        updateRender(true);
+        if (e.getButton() == MouseButton.PRIMARY)
+        {
+            // If shift pressed, don't move anchor; form selection instead:
+            positionCaretAtDestination(e, !e.isShiftDown());
+            updateRender(true);
+        }
     }
 
     private void positionCaretAtDestination(MouseEvent e, boolean setAnchor)
@@ -301,9 +306,12 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
 
     private void mouseDragged(MouseEvent e)
     {
-        positionCaretAtDestination(e, false);
-        // Don't update the anchor, though
-        updateRender(true);
+        if (e.getButton() == MouseButton.PRIMARY)
+        {
+            positionCaretAtDestination(e, false);
+            // Don't update the anchor, though
+            updateRender(true);
+        }
     }
 
     public void textChanged()
@@ -1095,6 +1103,12 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         public void showErrorPopupForCaretPos(int caretPos, boolean mousePosition);
 
         public String getErrorAtPosition(int caretPos);
+
+        /**
+         * Gets the context menu to show.  If necessary, should be hidden before being returned
+         * by this method.
+         */
+        ContextMenu getContextMenuToShow();
     }
 
     // Use an AbstractList rather than pre-calculate, as that means we don't bother

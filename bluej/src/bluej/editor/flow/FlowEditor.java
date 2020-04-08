@@ -237,6 +237,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     private boolean showingChangedOnDiskDialog = false;
     private FXPlatformRunnable callbackOnOpen;
 
+    private final ContextMenu editorContextMenu;
+
     public boolean containsSourceCode()
     {
         return sourceIsCode;
@@ -252,6 +254,14 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public boolean marginClickedForLine(int lineIndex)
     {
         return toggleBreakpointForLine(lineIndex);
+    }
+
+    @Override
+    public ContextMenu getContextMenuToShow()
+    {
+        // It may already be showing; if so, hide and re-show at new click position:
+        editorContextMenu.hide();
+        return editorContextMenu;
     }
 
     // Returns true if successfully flipped, false if not.
@@ -306,6 +316,9 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         FXTabbedEditor getFXTabbedEditor(boolean newWindow);
     }
 
+    /**
+     * An implementation of FlowEditorPaneListener that is only used for printing.
+     */
     public static class OffScreenFlowEditorPaneListener extends ScopeColorsBorderPane implements FlowEditorPaneListener
     {
         @Override
@@ -333,6 +346,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
 
         @Override
         public String getErrorAtPosition(int caretPos)
+        {
+            return null;
+        }
+
+        @Override
+        public ContextMenu getContextMenuToShow()
         {
             return null;
         }
@@ -465,6 +484,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         bottomArea.setBottom(commentsPanel);
         bottomArea.setTop(finder);
         setBottom(bottomArea);
+
+        this.editorContextMenu = new ContextMenu(
+            getActions().getActionByName(DefaultEditorKit.cutAction).makeContextMenuItem(Config.getString("editor.cutLabel")),
+            getActions().getActionByName(DefaultEditorKit.copyAction).makeContextMenuItem(Config.getString("editor.copyLabel")),
+            getActions().getActionByName(DefaultEditorKit.pasteAction).makeContextMenuItem(Config.getString("editor.pasteLabel"))
+        );
 
         JavaFXUtil.addChangeListenerPlatform(PrefMgr.getEditorFontSize(), s -> {
             javaSyntaxView.fontSizeChanged();

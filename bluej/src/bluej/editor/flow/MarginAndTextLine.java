@@ -87,7 +87,7 @@ public class MarginAndTextLine extends Region
     private final EnumMap<MarginDisplay, Node> cachedIcons = new EnumMap<MarginDisplay, Node>(MarginDisplay.class);
     final TextLine textLine;
 
-    public MarginAndTextLine(int lineNumberToDisplay, TextLine textLine, FXPlatformSupplier<Boolean> onClick)
+    public MarginAndTextLine(int lineNumberToDisplay, TextLine textLine, FXPlatformSupplier<Boolean> onClick, FXPlatformSupplier<ContextMenu> getContextMenuToShow)
     {
         this.dividerLine = new Line(LINE_X, 0.5, LINE_X, 1);
         dividerLine.getStyleClass().add("flow-margin-line");
@@ -116,8 +116,8 @@ public class MarginAndTextLine extends Region
                         breakpointHoverTooltip.setText(breakpointHoverUsualText);
                         breakpointHoverTooltip.setShowDelay(Duration.seconds(1));
                     }
+                    e.consume();
                 }
-                e.consume();
             }
         });
         addEventHandler(MouseEvent.MOUSE_MOVED, e -> {
@@ -142,16 +142,21 @@ public class MarginAndTextLine extends Region
             )
         );
 
-        setOnContextMenuRequested(e -> {
+        // Right-clicks/control-clicks in the left margin show this menu:
+        backgroundNode.setOnContextMenuRequested(e -> {
             if (contextMenu.isShowing())
             {
                 contextMenu.hide();
             }
-            contextMenu.show(this, e.getScreenX(), e.getScreenY());
+            contextMenu.show(backgroundNode, e.getScreenX(), e.getScreenY());
             e.consume();
         });
 
-
+        // Right-clicks/control-clicks anywhere else in the line show this menu:
+        this.setOnContextMenuRequested(e -> {
+            getContextMenuToShow.get().show(this, e.getScreenX(), e.getScreenY());
+            e.consume();
+        });
     }
 
     @Override
@@ -258,6 +263,7 @@ public class MarginAndTextLine extends Region
                         label.setEllipsisString("\u2026");
                         label.setTextOverrun(OverrunStyle.LEADING_ELLIPSIS);
                         JavaFXUtil.addStyleClass(label, "flow-line-label");
+                        label.setMouseTransparent(true);
                         return label;
                     case STEP_MARK:
                         return makeStepMarkIcon();
@@ -304,6 +310,7 @@ public class MarginAndTextLine extends Region
     {
         Node icon = Config.makeStopIcon(false);
         JavaFXUtil.addStyleClass(icon, "moe-breakpoint-icon");
+        icon.setMouseTransparent(true);
         return icon;
     }
 
@@ -311,6 +318,7 @@ public class MarginAndTextLine extends Region
     {
         Shape arrow = Config.makeArrowShape(false);
         JavaFXUtil.addStyleClass(arrow, "moe-step-mark-icon");
+        arrow.setMouseTransparent(true);
         return arrow;
     }
 }
