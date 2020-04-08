@@ -87,7 +87,7 @@ public class MarginAndTextLine extends Region
     private final EnumMap<MarginDisplay, Node> cachedIcons = new EnumMap<MarginDisplay, Node>(MarginDisplay.class);
     final TextLine textLine;
 
-    public MarginAndTextLine(int lineNumberToDisplay, TextLine textLine, FXPlatformSupplier<Boolean> onClick)
+    public MarginAndTextLine(int lineNumberToDisplay, TextLine textLine, FXPlatformSupplier<Boolean> onClick, FXPlatformSupplier<ContextMenu> getContextMenuToShow)
     {
         this.dividerLine = new Line(LINE_X, 0.5, LINE_X, 1);
         dividerLine.getStyleClass().add("flow-margin-line");
@@ -142,16 +142,21 @@ public class MarginAndTextLine extends Region
             )
         );
 
-        setOnContextMenuRequested(e -> {
+        // Right-clicks/control-clicks in the left margin show this menu:
+        backgroundNode.setOnContextMenuRequested(e -> {
             if (contextMenu.isShowing())
             {
                 contextMenu.hide();
             }
-            contextMenu.show(this, e.getScreenX(), e.getScreenY());
+            contextMenu.show(backgroundNode, e.getScreenX(), e.getScreenY());
             e.consume();
         });
 
-
+        // Right-clicks/control-clicks anywhere else in the line show this menu:
+        this.setOnContextMenuRequested(e -> {
+            getContextMenuToShow.get().show(this, e.getScreenX(), e.getScreenY());
+            e.consume();
+        });
     }
 
     @Override

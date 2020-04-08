@@ -37,6 +37,7 @@ import javafx.scene.AccessibleAttribute;
 import javafx.scene.AccessibleRole;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.IndexRange;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.input.KeyEvent;
@@ -1102,6 +1103,12 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         public void showErrorPopupForCaretPos(int caretPos, boolean mousePosition);
 
         public String getErrorAtPosition(int caretPos);
+
+        /**
+         * Gets the context menu to show.  If necessary, should be hidden before being returned
+         * by this method.
+         */
+        ContextMenu getContextMenuToShow();
     }
 
     // Use an AbstractList rather than pre-calculate, as that means we don't bother

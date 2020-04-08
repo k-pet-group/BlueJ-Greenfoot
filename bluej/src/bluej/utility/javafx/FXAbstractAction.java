@@ -176,10 +176,12 @@ public abstract class FXAbstractAction
 
     /**
      * Makes a MenuItem which will run this action, but without an accelerator.
+     *
+     * @param nameOverride If non-null, will be used as the text on the menu item.  If localised, caller is responsible for calling Config.getString
      */
-    public MenuItem makeContextMenuItem()
+    public MenuItem makeContextMenuItem(String nameOverride)
     {
-        MenuItem menuItem = new MenuItem(name);
+        MenuItem menuItem = new MenuItem(nameOverride != null ? nameOverride : name);
         setMenuActionAndDisable(menuItem, true);
         return menuItem;
     }
