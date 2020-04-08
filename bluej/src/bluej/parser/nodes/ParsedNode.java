@@ -538,7 +538,7 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
      */
     public int getAbsoluteEditorPosition()
     {
-        int position = 0;
+        int position = getOffsetFromParent();
         ParsedNode parent = getParentNode();
         while (parent != null)
         {
