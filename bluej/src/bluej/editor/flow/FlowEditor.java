@@ -470,6 +470,11 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             javaSyntaxView.fontSizeChanged();
             flowEditorPane.fontSizeChanged();
         });
+
+        // Repaint the flowEditorPane whenever the line numbers are shown or hidden
+        JavaFXUtil.addChangeListenerPlatform(PrefMgr.flagProperty(PrefMgr.LINENUMBERS), b -> {
+            flowEditorPane.repaint();
+        });
     }
 
     /**

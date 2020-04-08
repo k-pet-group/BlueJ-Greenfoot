@@ -22,17 +22,16 @@
 package bluej.editor.flow;
 
 import bluej.Config;
-import bluej.editor.Editor;
-import bluej.groupwork.LogHistoryListener;
 import bluej.prefmgr.PrefMgr;
 import bluej.utility.Debug;
 import bluej.utility.javafx.FXPlatformSupplier;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.StringExpression;
 import javafx.scene.Node;
-import javafx.scene.control.*;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.DataFormat;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
+import javafx.scene.control.OverrunStyle;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
@@ -43,16 +42,12 @@ import threadchecker.OnThread;
 import threadchecker.Tag;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.EnumSet;
-import java.util.concurrent.Flow;
 
 /**
  * A graphical item that contains a margin (used for line numbers and/or breakpoint symbols, step marks, etc)
  * and a text line.
- *
- * @Author Charalampos Kyfonidis
  */
 @OnThread(Tag.FX)
 public class MarginAndTextLine extends Region
@@ -142,10 +137,7 @@ public class MarginAndTextLine extends Region
         contextMenu.getItems().add(
             JavaFXUtil.makeMenuItem(
                 Config.getString("prefmgr.edit.displaylinenumbers"),
-                () -> {PrefMgr.setFlag(PrefMgr.LINENUMBERS, !PrefMgr.getFlag(PrefMgr.LINENUMBERS));
-                        // The present change requires repaint in order to be shown immediately to the user
-                       this.repaint();
-                    },
+                () -> {PrefMgr.setFlag(PrefMgr.LINENUMBERS, !PrefMgr.getFlag(PrefMgr.LINENUMBERS)); },
                 null
             )
         );
@@ -238,27 +230,6 @@ public class MarginAndTextLine extends Region
     public void fontSizeChanged(StringExpression fontCSS)
     {
         textLine.fontSizeChanged(fontCSS);
-    }
-
-    /**
-     * Asks the relevant parent to repaint the editor in order to show the changes
-     */
-    @OnThread(value = Tag.FXPlatform, ignoreParent = true)
-    private void repaint()
-    {
-        Node parent=this;
-        try
-        {
-            while(parent!=null && !(parent instanceof FlowEditorPane))
-            {
-                parent = parent.getParent();
-            }
-            ((FlowEditorPane)parent).repaint();
-        }
-        catch(NullPointerException e)
-        {
-            Debug.reportError("Error while looking to find a parent to repaint the editor "+e);
-        }
     }
 
     @OnThread(Tag.FX)
