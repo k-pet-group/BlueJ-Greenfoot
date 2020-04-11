@@ -90,7 +90,7 @@ public class BreakFrame extends SingleLineFrame
 
     //cherry
     public String getScreenReaderText() {
-        String text = "";
+        String text = "break";
         return text;
     }
 

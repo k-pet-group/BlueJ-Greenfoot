@@ -176,7 +176,19 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         for(ParamFragment pair : paramsPane.getSlotElement()) {
             paramString.append(pair.getParamType().getSlot().getText() + " " +  pair.getParamName().getSlot().getText() + " ");
         }
-        String text = "Method " + methodName.getText() + " with parameters " + paramString.toString() + " with " + access.getValue(AccessPermission.PUBLIC).toString() + " access and " + returnType.getText() + " return type ";
+        String text;
+        if (paramString.length() != 0) {
+            text = "Method " + methodName.getText() + " with parameters " + paramString.toString() + " with " + access.getValue(AccessPermission.PUBLIC).toString() + " access and " + returnType.getText() + " return type ";
+        } else {
+            text = "Method " + methodName.getText() + " with "   + access.getValue(AccessPermission.PUBLIC).toString() + " access and "+ returnType.getText() + " return type ";
+        }
+        if (finalModifier.get()) {
+            text = finalLabel.getText() + " " + text;
+        }
+        if (staticModifier.get()) {
+            text = staticLabel.getText() + " " + text;
+        }
+//        System.out.println(text);
         return text;
     }
 

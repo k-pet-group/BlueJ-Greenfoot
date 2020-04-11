@@ -224,7 +224,24 @@ public class VarFrame extends SingleLineFrame
 
     //cherry
     public String getScreenReaderText() {
-        String text = "variable " + slotName.getText() + " of type " + slotType.getText() + " equals " + slotValue.getText();
+        String text;
+        if (accessModifier.get()) { // class field
+            text = "field " + slotName.getText() + " of type " + slotType.getText() + " with " + access.getValue(AccessPermission.PRIVATE).toString() + " access ";
+            if (finalModifier.get()) {
+                text = finalLabel.getText() + " " + text;
+            }
+            if (staticModifier.get()) {
+                text = staticLabel.getText() + " " + text;
+            }
+        } else if (finalModifier.get()) { // local constant
+            text = "constant " + slotName.getText() + " of type " + slotType.getText();
+        } else { // local variable
+            text = "variable " + slotName.getText() + " of type " + slotType.getText();
+        }
+
+        if (showingValue.get()) {
+            text += " equals " + slotValue.getText();
+        }
         System.out.println(text);
         return text;
     }

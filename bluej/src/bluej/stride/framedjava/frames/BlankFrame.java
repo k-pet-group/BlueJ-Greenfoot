@@ -44,7 +44,7 @@ public class BlankFrame extends SingleLineFrame implements CodeFrame<BlankElemen
 
     //cherry
     public String getScreenReaderText() {
-        String text = "";
+        String text = "blank frame";
         return text;
     }
 

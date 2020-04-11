@@ -116,7 +116,10 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
         for(ParamFragment pair : paramsPane.getSlotElement()) {
             paramString.append(pair.getParamType().getSlot().getText() + " " +  pair.getParamName().getSlot().getText() + " ");
         }
-        String text = "Constructor " + getEditor().nameProperty().get() + " with parameters " + paramString.toString();
+        String text = "Constructor " + getEditor().nameProperty().get();
+        if (paramString.length() != 0) {
+            text += " with parameters " + paramString.toString();
+        }
         return text;
     }
 

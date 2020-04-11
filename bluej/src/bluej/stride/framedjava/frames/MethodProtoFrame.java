@@ -110,7 +110,20 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
 
     //cherry
     public String getScreenReaderText() {
-        String text = "";
+        StringBuilder paramString = new StringBuilder();
+        for(ParamFragment pair : paramsPane.getSlotElement()) {
+            paramString.append(pair.getParamType().getSlot().getText() + " " +  pair.getParamName().getSlot().getText() + " ");
+        }
+        String text;
+        if (paramString.length() != 0) {
+            text = "Method " + methodName.getText() + " with parameters " + paramString.toString() + " and " + returnType.getText() + " return type ";
+        } else {
+            text = "Method " + methodName.getText() + " with " + returnType.getText() + " return type ";
+        }
+        if (parentIsClass.get()) {
+            text = abstractLabel.getText() + " " + text;
+        }
+//        System.out.println(text);
         return text;
     }
 

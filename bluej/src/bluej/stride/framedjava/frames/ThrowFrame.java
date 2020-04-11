@@ -74,7 +74,7 @@ public class ThrowFrame extends SingleLineFrame
 
     //cherry
     public String getScreenReaderText() {
-        String text = "";
+        String text = "throw " + param1.getText();
         return text;
     }
 

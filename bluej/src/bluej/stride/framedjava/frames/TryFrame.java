@@ -110,7 +110,7 @@ public class TryFrame extends SandwichCanvasesFrame
 
     //cherry
     public String getScreenReaderText() {
-        String text = "";
+        String text = "try frame ";
         return text;
     }
 
