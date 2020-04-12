@@ -90,7 +90,10 @@ public class CallFrame extends SingleLineFrame
 
     //cherry
     public String getScreenReaderText() {
-        String text = "call " + content.getText();
+        String contentString;
+        if (content.getText().trim().isEmpty()) { contentString = "blank"; } else { contentString = content.getText(); }
+        String text = "call " + contentString;
+        System.out.println(text);
         return text;
     }
 

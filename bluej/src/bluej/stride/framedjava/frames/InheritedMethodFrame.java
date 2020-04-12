@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import bluej.stride.framedjava.ast.*;
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.stride.framedjava.ast.links.PossibleKnownMethodLink;
 import bluej.stride.framedjava.slots.UnderlineContainer;
@@ -43,10 +44,6 @@ import javafx.scene.Node;
 import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.Label;
 import bluej.parser.AssistContent.ParamInfo;
-import bluej.stride.framedjava.ast.AccessPermission;
-import bluej.stride.framedjava.ast.AccessPermissionFragment;
-import bluej.stride.framedjava.ast.NameDefSlotFragment;
-import bluej.stride.framedjava.ast.TypeSlotFragment;
 import bluej.stride.framedjava.slots.TextOverlayPosition;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
@@ -123,7 +120,23 @@ public class InheritedMethodFrame extends SingleLineFrame
 
     //cherry
     public String getScreenReaderText() {
-        String text = "";
+        StringBuilder paramString = new StringBuilder();
+        for(ParamInfo pair : params) {
+            paramString.append(pair.getUnqualifiedType() + " " +  pair.getDummyName() + " ");
+        }
+        String text;
+        if (paramString.length() != 0) {
+            text = "Method " + methodName + " with parameters " + paramString.toString() + " with " + access.toString() + " access and " + returnType + " return type ";
+        } else {
+            text = "Method " + methodName + " with "   + access.toString() + " access and "+ returnType + " return type ";
+        }
+        /*if (finalModifier.get()) {
+            text = finalLabel.getText() + " " + text;
+        }
+        if (staticModifier.get()) {
+            text = staticLabel.getText() + " " + text;
+        }*/
+//        System.out.println(text);
         return text;
     }
 
