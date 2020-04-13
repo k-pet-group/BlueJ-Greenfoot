@@ -413,6 +413,7 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
         throwsPane.addTypeSlotAtEnd(type, true);
     }
 
+    @OnThread(Tag.FX)
     public boolean hasThrowsForType(String type)
     {
         try

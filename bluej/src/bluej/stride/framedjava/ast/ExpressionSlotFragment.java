@@ -321,17 +321,18 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
                     // Find unreported exception of a method
                     List<DirectSlotError> unreportedExceptionErrors = new ArrayList<>();
                     String exceptionType = getErrorMessage().substring("unreported exception ".length(), getErrorMessage().indexOf(';'));
-                    boolean hasAlreadyThrowsForType = ((MethodFrameWithBody) frameEditor.getSource().getFrame().getAllFrames()
-                            .filter(frame ->  (((Frame)frame).getAllFrames()
-                                    .filter(innerF -> innerF.equals(this.getSlot().getParentFrame()))
-                                    .toArray().length > 0) && (frame instanceof MethodFrameWithBody))
-                            .toArray()[0]).hasThrowsForType(exceptionType);
-
-                    // The error is still seen by BlueJ when a throw statement is added, so we avoid an infinite loop
-                    if (getErrorMessage().startsWith("unreported exception ") && !hasAlreadyThrowsForType)
-                    {
-                        unreportedExceptionErrors.add(new UnreportedExceptionError(this, getErrorStartPos(), frameEditor, exceptionType, vars.keySet()));
-                    }
+                    Platform.runLater(() -> {
+                        boolean hasAlreadyThrowsForType = ((MethodFrameWithBody) frameEditor.getSource().getFrame().getAllFrames()
+                                .filter(frame -> (((Frame) frame).getAllFrames()
+                                        .filter(innerF -> innerF.equals(this.getSlot().getParentFrame()))
+                                        .toArray().length > 0) && (frame instanceof MethodFrameWithBody))
+                                .toArray()[0]).hasThrowsForType(exceptionType);
+                        // The error is still seen by BlueJ when a throw statement is added, so we avoid an infinite loop
+                        if (getErrorMessage().startsWith("unreported exception ") && !hasAlreadyThrowsForType)
+                        {
+                            unreportedExceptionErrors.add(new UnreportedExceptionError(this, getErrorStartPos(), frameEditor, exceptionType, vars.keySet()));
+                        }
+                    });
 
                     f.complete(Stream.concat(undeclaredVarErrors.stream(),
                             Stream.concat(undeclaredMethodErrors.stream(),

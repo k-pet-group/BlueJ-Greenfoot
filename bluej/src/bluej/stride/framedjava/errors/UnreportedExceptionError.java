@@ -69,7 +69,7 @@ public class UnreportedExceptionError extends DirectSlotError
      *
      * @param slotFragment The fragment with the error.
      */
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FX)
     public UnreportedExceptionError(SlotFragment slotFragment, int startErrorPos, FrameEditor editor, String exceptionType, Set<String> vars)
     {
         super(slotFragment, DiagnosticOrigin.STRIDE_LATE);
@@ -92,8 +92,6 @@ public class UnreportedExceptionError extends DirectSlotError
 
         // get frame informations for updates
         String finalExceptionVarName = exceptionVarName;
-        String finalSlotStr = ((ExpressionSlotFragment) slotFragment).getSlot().getText();
-        Frame finalParentFrame = ((ExpressionSlotFragment) slotFragment).getSlot().getParentFrame();
         final String catchStrideExpression = exceptionVarName + ".printStackTrace()";
         final InteractionManager finalInteractionMgr = editor.getSource().getEditor();
         final Frame errorFrame = ((CallExpressionSlotFragment) slotFragment).getSlot().getParentFrame();
