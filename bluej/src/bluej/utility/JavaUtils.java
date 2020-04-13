@@ -807,4 +807,56 @@ public abstract class JavaUtils
         return sig.replace("<", "&lt;").replace(">", "&gt;");
     }
 
+    /**
+     * Obfuscate comments in a java code portion, replacing the content of the comment by the a repetition of specified character.
+     * @param codeStr The code for which comments should be obfuscated
+     * @param obfCar The character chosen to obfuscate the content of the comments
+     * @return the obfuscated code.
+     */
+    public static String obfuscatedComments(String codeStr, char obfCar){
+        // we need to use a temp copy of the initial code string to hide string literal in the search
+        // because they can contains comments token that would then be erroneously replaced
+        String codeStrForSearch = obfuscatedStringLiterals(codeStr,obfCar);
+
+        // replace in-line comments
+        Matcher matcher = Pattern.compile("//.*").matcher(codeStrForSearch);
+        while(matcher.find()){
+            int replaceStartIndex = matcher.start() + 2; //we look up right after the "//" comment token
+            int replaceEndIndex = matcher.end();
+            String replacementString = String.valueOf(obfCar).repeat(replaceEndIndex - replaceStartIndex);
+            codeStr = codeStr.substring(0, replaceStartIndex) + replacementString + codeStr.substring(replaceEndIndex);
+            codeStrForSearch = codeStrForSearch.substring(0, replaceStartIndex) + replacementString + codeStrForSearch.substring(replaceEndIndex);
+        }
+
+        //replace multi-line comments
+        matcher = Pattern.compile("(?s)/\\*(.)*?\\*/").matcher(codeStrForSearch);
+        while(matcher.find())
+        {
+            int replaceStartIndex = matcher.start() + 2; //we look up right after the "/*" comment token
+            int replaceEndIndex = matcher.end() - 2; //we stop before the closing comment token
+            String replacementString = String.valueOf(obfCar).repeat(replaceEndIndex - replaceStartIndex);
+            codeStr = codeStr.substring(0, replaceStartIndex) + replacementString + codeStr.substring(replaceEndIndex);
+        }
+        return codeStr;
+    }
+
+    /**
+     * Obfuscate string literals in a java code portion, replacing the content of the String by the a repetition of specified character.
+     * @param codeStr The code for which comments should be obfuscated
+     * @param obfCar The character chosen to obfuscate the content of the comments
+     * @return the obfuscated code.
+     */
+    public static String obfuscatedStringLiterals(String codeStr, char obfCar){
+        //first we use a z
+        // replace in-line comments
+        Matcher matcher = Pattern.compile("\\\".*\\\"").matcher(codeStr);
+        while(matcher.find())
+        {
+            int replaceStartIndex = matcher.start() + 1; //we look up right after the opening double quote literal token
+            int replaceEndIndex = matcher.end() - 1;//we stop before the closing double quote token
+            String replacementString = String.valueOf(obfCar).repeat(replaceEndIndex - replaceStartIndex);
+            codeStr = codeStr.substring(0, replaceStartIndex) + replacementString + codeStr.substring(replaceEndIndex);
+        }
+        return codeStr;
+    }
 }

@@ -41,6 +41,7 @@ import bluej.parser.SourceLocation;
 import bluej.parser.nodes.*;
 import bluej.parser.nodes.NodeTree.NodeAndPosition;
 import bluej.pkgmgr.target.role.Kind;
+import bluej.utility.JavaUtils;
 import bluej.utility.Utility;
 import bluej.utility.javafx.FXPlatformConsumer;
 import javafx.application.Platform;
@@ -414,15 +415,8 @@ public class FlowErrorManager implements ErrorQuery
                 {
                     // Add a quick fix for surrounding the current line with try/catch
                     // first we search for a non existing variable name for the exception var in the catch statement
-                    char[] exceptionClassName = exceptionType.substring(exceptionType.lastIndexOf(".") + 1).toCharArray();
-                    String exceptionVarNameRoot = "";
-                    for (char c : exceptionClassName)
-                    {
-                        if (Character.isUpperCase(c))
-                        {
-                            exceptionVarNameRoot += Character.toLowerCase(c);
-                        }
-                    }
+                    String exceptionVarNameRoot =  exceptionType.substring(exceptionType.lastIndexOf(".") + 1).replaceAll("[^A-Z]", "").toLowerCase();
+
                     boolean foundVarName = false;
                     String fileContent = editor.getText(new SourceLocation(1, 1), editor.getLineColumnFromOffset(editor.getTextLength()));
                     int posOfClass = fileContent.indexOf('{', fileContent.substring(0, startPos).lastIndexOf(" class ")) + 1; //The position of the class node is after the opening bracket
@@ -452,15 +446,20 @@ public class FlowErrorManager implements ErrorQuery
 
                     // then we can build up the surrounding try/catch string
                     // We find where is the beginning of the statement
-                    String fileContentBeforeErrorPart = fileContent.substring(0, startPos);
+                    // IMPORTANT NOTE: the string parts fileContentxxx is a modified version of the source code: comments are obfuscated so be careful when using it.
+                    String fileContentBeforeErrorPart = JavaUtils.obfuscatedComments(fileContent.substring(0, startPos),'0');
                     int prevStatementPos = Math.max(fileContentBeforeErrorPart.lastIndexOf('{'), fileContentBeforeErrorPart.lastIndexOf(';'));
                     int statementStartPos = prevStatementPos +1;
                     while(Character.isWhitespace(fileContentBeforeErrorPart.charAt(statementStartPos)))
                         statementStartPos++;
-                    String fileContentAfterErrorPart = fileContent.substring(startPos);
-                    int statementEndPos = startPos + fileContentAfterErrorPart.indexOf(';') + 1;
+                    String fileContentAfterErrorPart = JavaUtils.obfuscatedComments(fileContent.substring(startPos), '0');
+                    int statementEndPos = 0;
+
                     boolean needNewLine = (editor.getLineColumnFromOffset(prevStatementPos).getLine() == errorLine);
                     boolean needSurroundingBrackets = false;
+                    boolean foundEnd = false;
+                    int searchIndex = 0;
+                    int openedBracket = 0;
                     if(fileContentBeforeErrorPart.substring(prevStatementPos,startPos).contains("->")){
                         //if we have a lambda expression without curly brackets, we add them and force a line return
                         //and surround with try catch the all right hand part of the lambda
@@ -469,27 +468,47 @@ public class FlowErrorManager implements ErrorQuery
                         statementStartPos = fileContentBeforeErrorPart.lastIndexOf("->") + "->".length();
                         // the error position is just before the '(' of the method throwing an exception
                         // so we look up for either an ending ')' without opening match or a comma or a semicolon or a colon
-                        boolean foundEnding = false;
-                        int searchIndex = 0;
-                        int openedBracket = 0;
-                        while (!foundEnding)
+                        while (!foundEnd)
                         {
                             char c = fileContentAfterErrorPart.charAt(searchIndex);
                             if (c == '(')
                                 openedBracket++;
                             else if (c == ',' || c == ',' || c == ':')
                             {
-                                foundEnding = true;
+                                foundEnd = true;
                             } else if (c == ')')
                             {
                                 openedBracket--;
-                                foundEnding = (openedBracket < 0);
+                                foundEnd = (openedBracket < 0);
                             }
-                            if (foundEnding)
+                            if (foundEnd)
                                 statementEndPos = startPos + searchIndex;
                             searchIndex++;
                         }
+                    } else
+                    {
+                        // the error position is just before the '(' of the method throwing an exception
+                        // so we look up for a semi colon that is not somewhere inside the method (if lambdas in)
+                        while (!foundEnd)
+                        {
+                            char c = fileContentAfterErrorPart.charAt(searchIndex);
+                            if (c == '(')
+                                openedBracket++;
+                            else if (c == ')')
+                            {
+                                openedBracket--;
+                            }
+                            else if (c == ';')
+                            {
+                                foundEnd = (openedBracket == 0);
+                            }
+                            if (foundEnd)
+                                statementEndPos = startPos + searchIndex + 1;
+                            searchIndex++;
+                        }
+
                     }
+
                     String initIdent = errorLineText.substring(0, errorLineLength - 1  - (errorLineText.replaceAll("^\\s*", "").length()));
                     String newIndentSpacing = "    ";
                     if(needSurroundingBrackets)
@@ -531,13 +550,13 @@ public class FlowErrorManager implements ErrorQuery
                         boolean methodHasThrows = fileContentBeforeErrorPart.substring(posOfClosingMethodParamsBracket, posOfOpeningMethodBodyBracket).contains(" throws ");
                         SourceLocation methodSourceLocation = editor.getLineColumnFromOffset(posOfContainingMethod);
                         boolean openingMethodBodyBracketOnSameLine = (editor.getLineColumnFromOffset(posOfOpeningMethodBodyBracket).getLine() == methodSourceLocation.getLine());
-                        String methodSignNoIdent = fileContentBeforeErrorPart.substring(posOfContainingMethod, posOfOpeningMethodBodyBracket);
+                        String methodSignNoIdent = fileContent.substring(posOfContainingMethod, posOfOpeningMethodBodyBracket);
                         final int posOfNewThrowsAddition = (methodHasThrows)
                                 ? posOfContainingMethod + methodSignNoIdent.indexOf(" throws ") + " throws ".length()
                                 : (openingMethodBodyBracketOnSameLine) ? posOfOpeningMethodBodyBracket : posOfContainingMethod + methodSignNoIdent.replaceAll("\\s*$", "").length();
                         String throwsStatement =
                                 ((Character.isWhitespace(fileContentBeforeErrorPart.charAt(posOfNewThrowsAddition - 1))) ? "" : " ")
-                                        + ((methodHasThrows) ? (exceptionType + ", ") : ("throws " + exceptionType))
+                                        + ((methodHasThrows) ? (exceptionType + ",") : ("throws " + exceptionType))
                                         + ((openingMethodBodyBracketOnSameLine) ? " " : "");
 
                         // and prepare the quick fix

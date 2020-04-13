@@ -34,19 +34,14 @@ import java.util.stream.Stream;
 import bluej.editor.stride.FrameEditor;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
-import bluej.stride.framedjava.errors.MissingDoubleEqualsError;
-import bluej.stride.framedjava.errors.UndeclaredMethodInExpressionError;
-import bluej.stride.framedjava.errors.UnknownTypeError;
+import bluej.stride.framedjava.errors.*;
+import bluej.stride.framedjava.frames.MethodFrameWithBody;
+import bluej.stride.generic.Frame;
 import bluej.utility.javafx.FXPlatformConsumer;
 import javafx.application.Platform;
 import bluej.parser.JavaParser;
 import bluej.parser.lexer.LocatableToken;
 import bluej.stride.framedjava.elements.CodeElement;
-import bluej.stride.framedjava.errors.DirectSlotError;
-import bluej.stride.framedjava.errors.SyntaxCodeError;
-import bluej.stride.framedjava.errors.UndeclaredVariableInExpressionError;
-import bluej.stride.framedjava.errors.UndeclaredVariableLvalueError;
-import bluej.stride.framedjava.errors.UnneededSemiColonError;
 import bluej.stride.framedjava.frames.AssignFrame;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.generic.InteractionManager;
@@ -73,7 +68,7 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
     {
         super(content, javaCode);
         this.slot = slot;
-        
+
         Parser.parseAsExpression(new JavaParser(new StringReader(wrapForParse(this.getJavaCode())), false)
         {
             // Used to ignore the method name following the "::" method reference operator:
@@ -174,13 +169,13 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
 
         });
     }
-    
+
     // Constructor when deserialised from XML
     public ExpressionSlotFragment(String content, String javaCode)
     {
         this(content, javaCode, null);
     }
-    
+
     // Copy constructor
     public ExpressionSlotFragment(ExpressionSlotFragment f)
     {
@@ -197,7 +192,7 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
             // This is syntactically valid but semantically invalid so will do:
             return "0!=true";
     }
-    
+
     @Override
     public ExpressionSlot getSlot()
     {
@@ -213,15 +208,17 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
     /**
      * Returns false if this expression can be empty and still valid for compilation,
      * or true if this expression is required for compilation
+     *
      * @return
      */
     protected abstract boolean isRequired();
-    
+
     // By default, no modification:
     protected String wrapForParse(String orig)
     {
         return orig;
     }
+
     // By default, no unwrapping:
     protected LocatableToken unwrapForParse(LocatableToken token)
     {
@@ -266,7 +263,7 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
                         return new UndeclaredVariableLvalueError(this, assignmentLHSParent, vars.keySet());
                     }
                     return new UndeclaredVariableInExpressionError(this, identToken.getText(), identToken.getColumn() - 1,
-                        identToken.getColumn() - 1 + identToken.getLength(), slot, vars.keySet());
+                            identToken.getColumn() - 1 + identToken.getLength(), slot, vars.keySet());
                 }
                 return null;
             }).filter(x -> x != null).collect(Collectors.toList());
@@ -278,7 +275,7 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
                     if (!methods.contains(identToken.getText()))
                     {
                         return new UndeclaredMethodInExpressionError(this, identToken.getText(), identToken.getColumn() - 1,
-                            identToken.getColumn() - 1 + identToken.getLength(), slot, methods);
+                                identToken.getColumn() - 1 + identToken.getLength(), slot, methods);
                     }
                     return null;
                 }).filter(x -> x != null).collect(Collectors.toList());
@@ -296,7 +293,7 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
                         int startPosInSlot = token.getColumn() - 1;
                         int endPosInSlot = token.getColumn() - 1 + token.getLength();
                         FXPlatformConsumer<String> replace =
-                            s -> slot.replace(startPosInSlot, endPosInSlot, true, s);
+                                s -> slot.replace(startPosInSlot, endPosInSlot, true, s);
                         return (DirectSlotError) new UnknownTypeError(this, typeName, replace, editor, availableTypes.values().stream(), frameEditor.getEditorFixesManager().getImportSuggestions().values().stream().flatMap(Collection::stream))
                         {
                             @Override
@@ -316,16 +313,31 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
                     // Find mistake between "=" and "==" in a conditional expression
                     List<DirectSlotError> missingDoubleEqualsErrors = new ArrayList<>();
                     if (getErrorMessage().startsWith("incompatible types:") && getErrorMessage().endsWith("cannot be converted to boolean")
-                        && getJavaCode().charAt(getErrorStartPos()) == '=')
+                            && getJavaCode().charAt(getErrorStartPos()) == '=')
                     {
-                        // corrections.add(new DoubleEqualFix(editor, startPos));
-                        missingDoubleEqualsErrors.add(new MissingDoubleEqualsError(this, getErrorStartPos(), editor.getFrameEditor()));
+                        missingDoubleEqualsErrors.add(new MissingDoubleEqualsError(this, getErrorStartPos(), frameEditor));
+                    }
+
+                    // Find unreported exception of a method
+                    List<DirectSlotError> unreportedExceptionErrors = new ArrayList<>();
+                    String exceptionType = getErrorMessage().substring("unreported exception ".length(), getErrorMessage().indexOf(';'));
+                    boolean hasAlreadyThrowsForType = ((MethodFrameWithBody) frameEditor.getSource().getFrame().getAllFrames()
+                            .filter(frame ->  (((Frame)frame).getAllFrames()
+                                    .filter(innerF -> innerF.equals(this.getSlot().getParentFrame()))
+                                    .toArray().length > 0) && (frame instanceof MethodFrameWithBody))
+                            .toArray()[0]).hasThrowsForType(exceptionType);
+
+                    // The error is still seen by BlueJ when a throw statement is added, so we avoid an infinite loop
+                    if (getErrorMessage().startsWith("unreported exception ") && !hasAlreadyThrowsForType)
+                    {
+                        unreportedExceptionErrors.add(new UnreportedExceptionError(this, getErrorStartPos(), frameEditor, exceptionType, vars.keySet()));
                     }
 
                     f.complete(Stream.concat(undeclaredVarErrors.stream(),
-                        Stream.concat(undeclaredMethodErrors.stream(),
-                            Stream.concat(unknownTypeErrors, missingDoubleEqualsErrors.stream())))
-                        .peek(e -> e.recordPath(rootPathMap.locationFor(this))).collect(Collectors.toList()));
+                            Stream.concat(undeclaredMethodErrors.stream(),
+                                    Stream.concat(unknownTypeErrors,
+                                            Stream.concat(missingDoubleEqualsErrors.stream(), unreportedExceptionErrors.stream()))))
+                            .peek(e -> e.recordPath(rootPathMap.locationFor(this))).collect(Collectors.toList()));
                 });
                 // TODO errors for compounds
             });

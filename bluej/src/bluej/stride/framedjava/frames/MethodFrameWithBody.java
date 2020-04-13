@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,6 +30,7 @@ import bluej.Config;
 import bluej.stride.framedjava.ast.AccessPermission;
 import bluej.stride.framedjava.ast.HighlightedBreakpoint;
 import bluej.stride.framedjava.ast.ParamFragment;
+import bluej.stride.framedjava.ast.ThrowsTypeFragment;
 import bluej.stride.framedjava.canvases.JavaCanvas;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.elements.MethodWithBodyElement;
@@ -410,6 +411,24 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
     public void addThrows(String type)
     {
         throwsPane.addTypeSlotAtEnd(type, true);
+    }
+
+    public boolean hasThrowsForType(String type)
+    {
+        try
+        {
+            Class<?> typeCls = Class.forName(type);
+            for (ThrowsTypeFragment ttf : throwsPane.getTypes())
+            {
+                Class<?> inThrowsCls = Class.forName(ttf.getType());
+                if (typeCls.isAssignableFrom(typeCls))
+                    return true;
+            }
+        } catch (ClassNotFoundException e)
+        {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     @Override
