@@ -112,7 +112,9 @@ public class SwitchFrame extends MultiCanvasFrame
 
     //cherry
     public String getScreenReaderText() {
-        String text = "switch " + expression.getText();
+        String expressionStr;
+        if (expression.getText().equals("")) { expressionStr = "blank"; } else { expressionStr = expression.getText(); }
+        String text = "switch " + expressionStr;
         return text;
     }
 

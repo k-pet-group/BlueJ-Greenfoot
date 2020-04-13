@@ -139,7 +139,9 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
 
     //cherry
     public String getScreenReaderText() {
-        String text = "comment " + comment.getText();
+        String commentString;
+        if (comment.getText().equals("")) { commentString = "blank"; } else { commentString = comment.getText(); }
+        String text = "comment " + commentString;
 //        System.out.println(text);
         return text;
     }

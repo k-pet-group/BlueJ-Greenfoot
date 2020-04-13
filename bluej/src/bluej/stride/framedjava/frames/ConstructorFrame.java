@@ -114,7 +114,11 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
     public String getScreenReaderText() {
         StringBuilder paramString = new StringBuilder();
         for(ParamFragment pair : paramsPane.getSlotElement()) {
-            paramString.append(pair.getParamType().getSlot().getText() + " " +  pair.getParamName().getSlot().getText() + " ");
+            String name, type;
+            if (pair.getParamName().getSlot().getText().equals("")) { name = "blank"; } else { name = pair.getParamName().getSlot().getText(); }
+            if (pair.getParamType().getSlot().getText().equals("")) { type = "blank"; } else { type = pair.getParamType().getSlot().getText(); }
+
+            paramString.append(type + " " +  name + " ");
         }
         String text = "Constructor " + getEditor().nameProperty().get();
         if (paramString.length() != 0) {

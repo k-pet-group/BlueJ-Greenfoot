@@ -112,14 +112,22 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
     public String getScreenReaderText() {
         StringBuilder paramString = new StringBuilder();
         for(ParamFragment pair : paramsPane.getSlotElement()) {
-            paramString.append(pair.getParamType().getSlot().getText() + " " +  pair.getParamName().getSlot().getText() + " ");
+            String name, type;
+            if (pair.getParamName().getSlot().getText().equals("")) { name = "blank"; } else { name = pair.getParamName().getSlot().getText(); }
+            if (pair.getParamType().getSlot().getText().equals("")) { type = "blank"; } else { type = pair.getParamType().getSlot().getText(); }
+
+            paramString.append(type + " " +  name + " ");
         }
-        String text;
+        // make method text
+        String text, nameString, returnString;
+        if (methodName.getText().equals("")) { nameString = "blank"; } else { nameString = methodName.getText(); }
+        if (returnType.getText().equals("")) { returnString = "blank"; } else { returnString = returnType.getText(); }
         if (paramString.length() != 0) {
-            text = "Method " + methodName.getText() + " with parameters " + paramString.toString() + " and " + returnType.getText() + " return type ";
+            text = "Method " + nameString + " with parameters " + paramString.toString() + " and " + returnString + " return type ";
         } else {
-            text = "Method " + methodName.getText() + " with " + returnType.getText() + " return type ";
+            text = "Method " + nameString + " with " + returnString + " return type ";
         }
+        // add abstract if this method is in a class (not interface)
         if (parentIsClass.get()) {
             text = abstractLabel.getText() + " " + text;
         }

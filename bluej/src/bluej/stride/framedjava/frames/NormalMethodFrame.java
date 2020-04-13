@@ -172,16 +172,26 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
 
     //cherry
     public String getScreenReaderText() {
+        // build string out of all params
         StringBuilder paramString = new StringBuilder();
         for(ParamFragment pair : paramsPane.getSlotElement()) {
-            paramString.append(pair.getParamType().getSlot().getText() + " " +  pair.getParamName().getSlot().getText() + " ");
+            String name, type;
+            if (pair.getParamName().getSlot().getText().equals("")) { name = "blank"; } else { name = pair.getParamName().getSlot().getText(); }
+            if (pair.getParamType().getSlot().getText().equals("")) { type = "blank"; } else { type = pair.getParamType().getSlot().getText(); }
+
+            paramString.append(type + " " +  name + " ");
         }
-        String text;
+        // make method text
+        String text, nameString, returnString;
+        if (methodName.getText().equals("")) { nameString = "blank"; } else { nameString = methodName.getText(); }
+        if (returnType.getText().equals("")) { returnString = "blank"; } else { returnString = returnType.getText(); }
+
         if (paramString.length() != 0) {
-            text = "Method " + methodName.getText() + " with parameters " + paramString.toString() + " with " + access.getValue(AccessPermission.PUBLIC).toString() + " access and " + returnType.getText() + " return type ";
+            text = "Method " + nameString + " with parameters " + paramString.toString() + " with " + access.getValue(AccessPermission.PUBLIC).toString() + " access and " + returnString + " return type ";
         } else {
-            text = "Method " + methodName.getText() + " with "   + access.getValue(AccessPermission.PUBLIC).toString() + " access and "+ returnType.getText() + " return type ";
+            text = "Method " + nameString + " with "   + access.getValue(AccessPermission.PUBLIC).toString() + " access and "+ returnString + " return type ";
         }
+        // add static final if present
         if (finalModifier.get()) {
             text = finalLabel.getText() + " " + text;
         }

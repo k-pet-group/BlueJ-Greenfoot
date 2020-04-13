@@ -123,7 +123,9 @@ public class CaseFrame extends SingleCanvasFrame
 
     //cherry
     public String getScreenReaderText() {
-        String text = "case " + paramCondition.getText();
+        String condition;
+        if (paramCondition.getText().equals("")) { condition = "blank"; } else { condition = paramCondition.getText(); }
+        String text = "case " + condition;
         return text;
     }
 

@@ -125,7 +125,9 @@ public class ReturnFrame extends SingleLineFrame
 
     //cherry
     public String getScreenReaderText() {
-        String text = "return " + value.getText();
+        String valueString;
+        if (value.getText().equals("")) { valueString = "blank"; } else { valueString = value.getText(); }
+        String text = "return " + valueString;
         return text;
     }
 
