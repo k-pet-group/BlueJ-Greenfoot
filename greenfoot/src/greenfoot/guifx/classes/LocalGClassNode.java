@@ -29,6 +29,7 @@ import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.DependentTarget.State;
 import bluej.pkgmgr.target.DependentTarget.TargetListener;
+import bluej.utility.DialogManager;
 import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.guifx.GreenfootStage;
 import greenfoot.guifx.classes.GClassDiagram.GClassType;
@@ -305,13 +306,17 @@ public class LocalGClassNode extends GClassNode implements TargetListener
         }
 
         // Delete:
-        contextMenu.getItems().add(GClassDiagram.contextInbuilt(Config.getString("remove.class"), () -> {
-            classTarget.remove();
-            // Recalculate class contents after deletion:
-            classDiagram.recalculateGroups();
-            // Check after updating class diagram, as that will
-            // check if any user classes remain:
-            greenfootStage.fireWorldRemovedCheck(classTarget);
+        contextMenu.getItems().add(GClassDiagram.contextInbuilt(Config.getString("remove.class"), () ->  {
+            //Display a dialog box asking if the user if sure about the deletion
+            if (DialogManager.askQuestionFX(classDiagram.getGreenfootStage().getScene().getWindow(), "really-remove-class") == 0)
+            {
+                classTarget.remove();
+                // Recalculate class contents after deletion:
+                classDiagram.recalculateGroups();
+                // Check after updating class diagram, as that will
+                // check if any user classes remain:
+                greenfootStage.fireWorldRemovedCheck(classTarget);
+            }
         }));
 
 
