@@ -21,19 +21,13 @@
  */
 package bluej.stride.framedjava.slots;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+import bluej.stride.framedjava.slots.StructuredSlot.SplitInfo;
+import bluej.stride.generic.Frame.View;
+import bluej.stride.generic.InteractionManager;
+import bluej.utility.Debug;
+import bluej.utility.Utility;
+import bluej.utility.javafx.*;
+import bluej.utility.javafx.binding.DeepListBinding;
 import javafx.beans.binding.StringExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -45,29 +39,16 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.DataFormat;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.Region;
-
-import bluej.stride.framedjava.slots.StructuredSlot.SplitInfo;
-import bluej.stride.generic.Frame.View;
-import bluej.stride.generic.InteractionManager;
-import bluej.utility.Debug;
-import bluej.utility.Utility;
-import bluej.utility.javafx.FXConsumer;
-import bluej.utility.javafx.FXFunction;
-import bluej.utility.javafx.FXPlatformConsumer;
-import bluej.utility.javafx.FXPlatformFunction;
-import bluej.utility.javafx.FXPlatformRunnable;
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.SharedTransition;
-import bluej.utility.javafx.TextFieldDelegate;
-import bluej.utility.javafx.binding.DeepListBinding;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * This class is the major part of the display and logic for expressions.  Here's how the architecture works:
@@ -2336,8 +2317,17 @@ public abstract class InfixStructured<SLOT extends StructuredSlot<?, INFIX, ?>, 
 
                     // We use a runLater as we need to request focus after the suggestion window has been hidden:
                     JavaFXUtil.runAfterCurrent(() ->
-                        b.focusAtStart()
-                    );
+                    {
+                        //In a method call with no params, focus the cursor after the parenthesis
+                        if(params.size()==0)
+                        {
+                            b.focusAfter();
+                        }
+                        else //otherwise focus inside the parentesis
+                        {
+                            b.focusAtStart();
+                        }
+                    });
                 }
                 else
                 {
