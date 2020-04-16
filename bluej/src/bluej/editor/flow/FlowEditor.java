@@ -127,6 +127,8 @@ import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.scene.web.WebView;
 import javafx.stage.PopupWindow.AnchorLocation;
 import javafx.stage.Stage;
@@ -3485,11 +3487,24 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             this.popup = new PopupControl();
             VBox errorVBox = new VBox();
 
-            Label text = new Label(ParserMessageHandler.getMessageForCode(details.message));
-            errorVBox.getChildren().add(text);
+            String errorMessage = ParserMessageHandler.getMessageForCode(details.message);
+            TextFlow tf = null;
+            if (details.italicMessageStartIndex == -1 || details.italicMessageEndIndex == -1)
+            {
+                tf = new TextFlow(new Text(errorMessage));
+            } else
+            {
+                Label beforeItalicText = (details.italicMessageStartIndex > 0) ? new Label(errorMessage.substring(0, details.italicMessageStartIndex)) : new Label("");
+                Label italicText = new Label(errorMessage.substring(details.italicMessageStartIndex, details.italicMessageEndIndex));
+                JavaFXUtil.withStyleClass(italicText, "error-fix-display-italic");
+                Label afterItalicText = (details.italicMessageEndIndex < errorMessage.length() - 1) ? new Label(errorMessage.substring(details.italicMessageEndIndex)) : new Label("");
+                tf = new TextFlow(beforeItalicText, italicText, afterItalicText);
+            }
+
+            errorVBox.getChildren().add(tf);
             prepareFixDisplay(errorVBox, details.corrections, editorWatcherSupplier, details.identifier);
 
-            JavaFXUtil.addStyleClass(text, "error-label");
+            JavaFXUtil.addStyleClass(tf, "error-label");
             this.popup.setSkin(new Skin<Skinnable>()
             {
                 @Override

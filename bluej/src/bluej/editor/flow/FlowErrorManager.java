@@ -229,6 +229,8 @@ public class FlowErrorManager implements ErrorQuery
         public final int startPos;
         public final int endPos;
         public final String message;
+        public final int italicMessageStartIndex;
+        public final int italicMessageEndIndex;
         public final int identifier;
         public final List<FixSuggestion> corrections = new ArrayList<>();
 
@@ -237,6 +239,7 @@ public class FlowErrorManager implements ErrorQuery
             this.startPos = startPos;
             this.endPos = endPos;
             this.identifier = identifier;
+            int italicMessageStartIndex = -1, italicMessageEndIndex = -1;
 
             int errorLine = editor.getLineColumnFromOffset(startPos).getLine();
             int errorLineLength = editor.getLineLength(errorLine - 1);
@@ -409,6 +412,8 @@ public class FlowErrorManager implements ErrorQuery
                 // Change the error message to a more meaningful message
                 String exceptionType = message.substring("unreported exception ".length(), message.indexOf(';'));
                 this.message = Config.getString("editor.quickfix.unreportedException.errorMsg.part1") + exceptionType + Config.getString("editor.quickfix.unreportedException.errorMsg.part2");
+                italicMessageStartIndex = this.message.indexOf(exceptionType);
+                italicMessageEndIndex = italicMessageStartIndex + exceptionType.length();
 
                 // Corrections need be done once the editor is opened --> if not yet we don't do anything at this stage
                 if (editor.getProject() != null)
@@ -572,9 +577,12 @@ public class FlowErrorManager implements ErrorQuery
                 }
             } else
             {
-                // In the default case, we keep the orignial error message.
+                // In the default case, we keep the original error message.
                 this.message = message;
             }
+
+            this.italicMessageStartIndex = italicMessageStartIndex;
+            this.italicMessageEndIndex = italicMessageEndIndex;
         }
 
         public boolean containsPosition(int pos)

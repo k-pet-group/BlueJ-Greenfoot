@@ -11,6 +11,10 @@
     -fx-text-fill: white;
 }
 
+.error-fix-display-italic {
+    -fx-font-style: italic;
+}
+
 .error-fix-display .error-label {
     -fx-padding: 0 0 3 0;
     -fx-wrap-text: true;

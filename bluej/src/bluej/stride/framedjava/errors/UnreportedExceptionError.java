@@ -23,28 +23,15 @@ package bluej.stride.framedjava.errors;
 
 import bluej.Config;
 import bluej.compiler.Diagnostic.DiagnosticOrigin;
-import bluej.editor.fixes.Correction;
 import bluej.editor.fixes.EditorFixesManager.FixSuggestionBase;
 import bluej.editor.fixes.FixSuggestion;
 import bluej.editor.stride.FrameEditor;
-import bluej.parser.AssistContent;
-import bluej.parser.ParseUtils;
-import bluej.parser.SourceLocation;
 import bluej.stride.framedjava.ast.*;
 import bluej.stride.framedjava.elements.CodeElement;
-import bluej.stride.framedjava.elements.LocatableElement;
-import bluej.stride.framedjava.elements.TryElement;
 import bluej.stride.framedjava.frames.*;
-import bluej.stride.framedjava.slots.OptionalExpressionSlot;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameContentRow;
-import bluej.stride.generic.FrameCursor;
 import bluej.stride.generic.InteractionManager;
-import bluej.stride.slots.EditableSlot;
-import bluej.utility.JavaUtils;
-import bluej.utility.javafx.JavaFXUtil;
-import javafx.application.Platform;
-import javafx.scene.Node;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -52,11 +39,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
 
 public class UnreportedExceptionError extends DirectSlotError
 {
@@ -144,6 +127,20 @@ public class UnreportedExceptionError extends DirectSlotError
     {
         return Config.getString("editor.quickfix.unreportedException.errorMsg.part1") + exceptionType
                 + Config.getString("editor.quickfix.unreportedException.errorMsg.part2");
+    }
+
+    @Override
+    @OnThread(Tag.Any)
+    public int getItalicMessageStartIndex()
+    {
+        return getMessage().indexOf(exceptionType);
+    }
+
+    @Override
+    @OnThread(Tag.Any)
+    public int getItalicMessageEndIndex()
+    {
+        return getMessage().indexOf(exceptionType) + exceptionType.length();
     }
 
     @Override
