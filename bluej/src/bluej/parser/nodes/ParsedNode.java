@@ -461,11 +461,11 @@ public abstract class ParsedNode extends RBTreeNode<ParsedNode>
         return new ExpressionTypeInfo(atype, atype, null, isStaticCtxt, true);
     }
 
-    public ParsedNode getCurrentPosNode(int pos, int startPos)
+    public ParsedNode getContainingMethodOrClassNode(int pos)
     {
         NodeAndPosition<ParsedNode> child = getNodeTree().findNode(pos, 0);
         if (child != null)
-            return child.getNode().getCurrentPosNode(pos - child.getPosition(), child.getPosition());
+            return child.getNode().getContainingMethodOrClassNode(pos - child.getPosition());
 
         // We don't need to go too deep in the tree: retrieve a node that is at deepest a method node.
         // So we get back to the last named node parent to this leaf.

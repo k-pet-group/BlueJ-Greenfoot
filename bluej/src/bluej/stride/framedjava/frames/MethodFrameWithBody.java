@@ -413,21 +413,15 @@ public abstract class MethodFrameWithBody<T extends MethodWithBodyElement>
         throwsPane.addTypeSlotAtEnd(type, true);
     }
 
-    @OnThread(Tag.FX)
+    @OnThread(Tag.FXPlatform)
     public boolean hasThrowsForType(String type)
     {
-        try
+        Class<?> typeCls = getEditor().loadClass(type);
+        for (ThrowsTypeFragment ttf : throwsPane.getTypes())
         {
-            Class<?> typeCls = Class.forName(type);
-            for (ThrowsTypeFragment ttf : throwsPane.getTypes())
-            {
-                Class<?> inThrowsCls = Class.forName(ttf.getType());
-                if (typeCls.isAssignableFrom(typeCls))
-                    return true;
-            }
-        } catch (ClassNotFoundException e)
-        {
-            e.printStackTrace();
+            Class<?> inThrowsCls = getEditor().loadClass(ttf.getType());
+            if (inThrowsCls.isAssignableFrom(typeCls))
+                return true;
         }
         return false;
     }

@@ -111,7 +111,7 @@ public class FlowErrorManager implements ErrorQuery
         // or retrieve them (imports are ready)
         Utility.runBackground(() -> {
             Stream<AssistContentThreadSafe> imports = efm.getImportSuggestions().values().stream().
-                    flatMap(Collection::stream);
+                flatMap(Collection::stream);
             if (areimportsReady)
             {
                 Platform.runLater(() -> showErrors(editor, sourcePane, startPos, endPos, message, identifier, imports));
@@ -365,7 +365,7 @@ public class FlowErrorManager implements ErrorQuery
                         // We try to find the right location to declare the field in the class (last of the fields or just after class declaration if no fields)
                         NewFieldInfos newFieldInfos = getNewClassFieldPos(editor);
                         int newClassFieldPos = newFieldInfos.getPos();
-                        String indentationForNewField = newFieldInfos.getIdentation();
+                        String indentationForNewField = newFieldInfos.getIndentation();
                         if (newClassFieldPos > -1)
                         {
                             // We need to find the correction indentation based on the current last field
@@ -420,28 +420,29 @@ public class FlowErrorManager implements ErrorQuery
                 {
                     // Add a quick fix for surrounding the current line with try/catch
                     // first we search for a non existing variable name for the exception var in the catch statement
+                    // the initial variable name we choose is a gathering of the caps letters of the type, i.e. FileNotFoundException --> fnfe
+                    // if the variable name is not available, we append a numerical suffix, starting from 1, until we find a name that hasn't been used.
+                    // The search is case insensitive to "force" different variable names and avoid confusion from the user.
                     String exceptionVarNameRoot =  exceptionType.substring(exceptionType.lastIndexOf(".") + 1).replaceAll("[^A-Z]", "").toLowerCase();
 
                     boolean foundVarName = false;
                     String fileContent = editor.getText(new SourceLocation(1, 1), editor.getLineColumnFromOffset(editor.getTextLength()));
-                    int posOfClass = fileContent.indexOf('{', fileContent.substring(0, startPos).lastIndexOf(" class ")) + 1; //The position of the class node is after the opening bracket
-                    int posOfContainingMethod = editor.assumeText().getParsedNode().getCurrentPosNode(startPos, 0).getAbsoluteEditorPosition();
+                    int posOfClass = getNewClassFieldPos(editor).pos;
+                    int posOfContainingMethod = editor.assumeText().getParsedNode().getContainingMethodOrClassNode(startPos).getAbsoluteEditorPosition();
 
                     int varSuffix = 0;
                     String exceptionVarName = exceptionVarNameRoot;
                     do
                     {
                         final String exceptionVarNameFinal = exceptionVarName;
-                        // look within local variables (need to indicate the search of corrections for the current method position
+                        // look within local variables (need to indicate the search of corrections for the current method position)
                         // and within fields (need to indicate the search of corrections for the class itself)
                         Stream<CorrectionInfo> localVarsCorrInStream = getPossibleCorrectionsStream(editor, CompletionKind.LOCAL_VAR, null, null, posOfContainingMethod);
                         Stream<CorrectionInfo> fieldsCorrInStream = getPossibleCorrectionsStream(editor, CompletionKind.FIELD, null, null, posOfClass);
                         foundVarName = (localVarsCorrInStream.filter(ci -> ci.getCorrectionToCompareWith().equalsIgnoreCase(exceptionVarNameFinal))
-                                .collect(Collectors.toList())
-                                .size() != 0)
-                                || (fieldsCorrInStream.filter(ci -> ci.getCorrectionToCompareWith().equalsIgnoreCase(exceptionVarNameFinal))
-                                .collect(Collectors.toList())
-                                .size() != 0);
+                            .findFirst().isPresent())
+                            || (fieldsCorrInStream.filter(ci -> ci.getCorrectionToCompareWith().equalsIgnoreCase(exceptionVarNameFinal))
+                            .findFirst().isPresent());
                         if (foundVarName)
                         {
                             varSuffix++;
@@ -451,13 +452,16 @@ public class FlowErrorManager implements ErrorQuery
 
                     // then we can build up the surrounding try/catch string
                     // We find where is the beginning of the statement
-                    // IMPORTANT NOTE: the string parts fileContentxxx is a modified version of the source code: comments are obfuscated so be careful when using it.
-                    String fileContentBeforeErrorPart = JavaUtils.obfuscatedComments(fileContent.substring(0, startPos),'0');
+                    // IMPORTANT NOTE: the string parts fileContentxxx is a modified version of the source code:
+                    //    comments and string literals are obfuscated so be careful when using it.
+                    // The reason to do so is to avoid special Java characters (such as ';') contained in a comment or a string literal
+                    // to be matched when searching those characters in a code portion.
+                    String fileContentBeforeErrorPart = JavaUtils.blankCodeCommentsAndStringLiterals(fileContent.substring(0, startPos),'0');
                     int prevStatementPos = Math.max(fileContentBeforeErrorPart.lastIndexOf('{'), fileContentBeforeErrorPart.lastIndexOf(';'));
                     int statementStartPos = prevStatementPos +1;
                     while(Character.isWhitespace(fileContentBeforeErrorPart.charAt(statementStartPos)))
                         statementStartPos++;
-                    String fileContentAfterErrorPart = JavaUtils.obfuscatedComments(fileContent.substring(startPos), '0');
+                    String fileContentAfterErrorPart = JavaUtils.blankCodeCommentsAndStringLiterals(fileContent.substring(startPos), '0');
                     int statementEndPos = 0;
 
                     boolean needNewLine = (editor.getLineColumnFromOffset(prevStatementPos).getLine() == errorLine);
@@ -478,7 +482,7 @@ public class FlowErrorManager implements ErrorQuery
                             char c = fileContentAfterErrorPart.charAt(searchIndex);
                             if (c == '(')
                                 openedBracket++;
-                            else if (c == ',' || c == ',' || c == ':')
+                            else if (c == ',' || c == ';' || c == ':')
                             {
                                 foundEnd = true;
                             } else if (c == ')')
@@ -611,7 +615,7 @@ public class FlowErrorManager implements ErrorQuery
                 return pos;
             }
 
-            public String getIdentation()
+            public String getIndentation()
             {
                 return indentation;
             }
@@ -634,7 +638,7 @@ public class FlowErrorManager implements ErrorQuery
             if (pcuNode == null)
                 return new NewFieldInfos(-1, null);
 
-            ParsedNode positionNode = pcuNode.getCurrentPosNode(startPos, 0);
+            ParsedNode positionNode = pcuNode.getContainingMethodOrClassNode(startPos);
             if (positionNode == null)
                 return new NewFieldInfos(-1, null);
 
@@ -709,7 +713,7 @@ public class FlowErrorManager implements ErrorQuery
             if (suggests == null)
                 return null;
 
-            ParsedNode positionNode = pcuNode.getCurrentPosNode(startPos, 0);
+            ParsedNode positionNode = pcuNode.getContainingMethodOrClassNode(startPos);
             if (positionNode == null)
                 return null;
 
@@ -747,7 +751,8 @@ public class FlowErrorManager implements ErrorQuery
                     try
                     {
                         commmonTypes.addAll(editor.getEditorFixesManager().getJavaLangImports().get().stream().filter(ac -> ac.getPackage() != null).collect(Collectors.toList()));
-                    } catch (InterruptedException | ExecutionException ex)
+                    }
+                    catch (InterruptedException | ExecutionException ex)
                     {
                         throw new RuntimeException(ex);
                     }
@@ -766,7 +771,7 @@ public class FlowErrorManager implements ErrorQuery
                         .map(TypeCorrectionInfo::new);
             }
             // we distinguish between class fields and method local var: completion as implemented in BlueJ doesn't look up for local fields
-            else if (kind.equals(CompletionKind.FIELD))
+            else if (kind.equals(CompletionKind.FIELD) || kind.equals(CompletionKind.METHOD))
             {
                 if (editor.getProject() == null)
                     return null;
@@ -783,27 +788,33 @@ public class FlowErrorManager implements ErrorQuery
                         .distinct()
                         .map(SimpleCorrectionInfo::new);
             }
-            else {
+            else
+            {
                 // for local variables, we only look up directly into the method node
-                 Iterator<NodeTree.NodeAndPosition<ParsedNode>> methodContentIterator = positionNode.getChildren(0);
-                 if(methodContentIterator.hasNext()){
-                     NodeTree.NodeAndPosition methodChild = methodContentIterator.next();
-                     if(methodChild.getNode() instanceof MethodBodyNode){
-                         // the method should have a body: we look for the variables
-                         Iterator<NodeTree.NodeAndPosition<ParsedNode>> methodBodyIterator =  ((MethodBodyNode) methodChild.getNode()).getChildren(0);
-                         List<String> varNameList = new ArrayList<>();
-                         while(methodBodyIterator.hasNext()){
-                             NodeTree.NodeAndPosition methodBodyChild = methodBodyIterator.next();
-                             if(methodBodyChild.getNode() instanceof FieldNode){
-                                    varNameList.add(((FieldNode) methodBodyChild.getNode()).getName());
-                             }
-                         }
-                         //return the variables we found
-                         return varNameList.stream()
-                                 .distinct()
-                                 .map(SimpleCorrectionInfo::new);
-                     }
-                 }
+                Iterator<NodeTree.NodeAndPosition<ParsedNode>> methodContentIterator = positionNode.getChildren(0);
+                if (methodContentIterator.hasNext())
+                {
+                    NodeTree.NodeAndPosition methodChild = methodContentIterator.next();
+                    if (methodChild.getNode() instanceof MethodBodyNode)
+                    {
+                        // the method should have a body: we look for the variables
+                        Iterator<NodeTree.NodeAndPosition<ParsedNode>> methodBodyIterator = ((MethodBodyNode) methodChild.getNode()).getChildren(0);
+                        List<String> varNameList = new ArrayList<>();
+                        while (methodBodyIterator.hasNext())
+                        {
+                            NodeTree.NodeAndPosition methodBodyChild = methodBodyIterator.next();
+                            // (Note: the FieldNode class actually covers both fields and variables objects)
+                            if (methodBodyChild.getNode() instanceof FieldNode)
+                            {
+                                varNameList.add(((FieldNode) methodBodyChild.getNode()).getName());
+                            }
+                        }
+                        //return the variables we found
+                        return varNameList.stream()
+                            .distinct()
+                            .map(SimpleCorrectionInfo::new);
+                    }
+                }
                  // if we didn't find anything, then we return an empty stream.
                  return Stream.empty();
             }

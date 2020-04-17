@@ -28,9 +28,13 @@ import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
+import bluej.parser.lexer.JavaLexer;
+import bluej.parser.lexer.JavaTokenTypes;
+import bluej.parser.lexer.LocatableToken;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -808,55 +812,61 @@ public abstract class JavaUtils
     }
 
     /**
-     * Obfuscate comments in a java code portion, replacing the content of the comment by the a repetition of specified character.
-     * @param codeStr The code for which comments should be obfuscated
-     * @param obfCar The character chosen to obfuscate the content of the comments
-     * @return the obfuscated code.
+     * Blanks comments and String literals in a java code portion, replacing the content of the comment by the a repetition of specified character.
+     *
+     * @param codeStr The code for which comments should be blanked
+     * @param obfChar The character chosen to blank the content of the comments
+     * @return the blanked code.
      */
-    public static String obfuscatedComments(String codeStr, char obfCar){
-        // we need to use a temp copy of the initial code string to hide string literal in the search
-        // because they can contains comments token that would then be erroneously replaced
-        String codeStrForSearch = obfuscatedStringLiterals(codeStr,obfCar);
-
-        // replace in-line comments
-        Matcher matcher = Pattern.compile("//.*").matcher(codeStrForSearch);
-        while(matcher.find()){
-            int replaceStartIndex = matcher.start() + 2; //we look up right after the "//" comment token
-            int replaceEndIndex = matcher.end();
-            String replacementString = String.valueOf(obfCar).repeat(replaceEndIndex - replaceStartIndex);
-            codeStr = codeStr.substring(0, replaceStartIndex) + replacementString + codeStr.substring(replaceEndIndex);
-            codeStrForSearch = codeStrForSearch.substring(0, replaceStartIndex) + replacementString + codeStrForSearch.substring(replaceEndIndex);
-        }
-
-        //replace multi-line comments
-        matcher = Pattern.compile("(?s)/\\*(.)*?\\*/").matcher(codeStrForSearch);
-        while(matcher.find())
+    @OnThread(Tag.FXPlatform)
+    public static String blankCodeCommentsAndStringLiterals(String codeStr, char obfChar)
+    {
+        JavaLexer l = new JavaLexer(new StringReader(codeStr));
+        StringBuilder sb = new StringBuilder();
+        int currReaderPosition = 0;
+        for (LocatableToken t = l.nextToken(); t.getType() != JavaTokenTypes.EOF; t = l.nextToken())
         {
-            int replaceStartIndex = matcher.start() + 2; //we look up right after the "/*" comment token
-            int replaceEndIndex = matcher.end() - 2; //we stop before the closing comment token
-            String replacementString = String.valueOf(obfCar).repeat(replaceEndIndex - replaceStartIndex);
-            codeStr = codeStr.substring(0, replaceStartIndex) + replacementString + codeStr.substring(replaceEndIndex);
-        }
-        return codeStr;
-    }
+            // Because the parser ignores spaces between tokens, we need preserve these (to match positions)
+            // and fill up with spaces when there is a mismatch between the current reading position and the token
+            if (t.getPosition() > currReaderPosition)
+            {
+                sb.append(" ".repeat(t.getPosition() - currReaderPosition));
+            }
+            currReaderPosition = t.getEndPosition();
 
-    /**
-     * Obfuscate string literals in a java code portion, replacing the content of the String by the a repetition of specified character.
-     * @param codeStr The code for which comments should be obfuscated
-     * @param obfCar The character chosen to obfuscate the content of the comments
-     * @return the obfuscated code.
-     */
-    public static String obfuscatedStringLiterals(String codeStr, char obfCar){
-        //first we use a z
-        // replace in-line comments
-        Matcher matcher = Pattern.compile("\\\".*\\\"").matcher(codeStr);
-        while(matcher.find())
-        {
-            int replaceStartIndex = matcher.start() + 1; //we look up right after the opening double quote literal token
-            int replaceEndIndex = matcher.end() - 1;//we stop before the closing double quote token
-            String replacementString = String.valueOf(obfCar).repeat(replaceEndIndex - replaceStartIndex);
-            codeStr = codeStr.substring(0, replaceStartIndex) + replacementString + codeStr.substring(replaceEndIndex);
+
+            int tokenStartOffset, tokenEndOffset;
+            switch (t.getType())
+            {
+                case JavaTokenTypes.ML_COMMENT:
+                    tokenStartOffset = 2; //for /*
+                    tokenEndOffset = 2; //for */
+                    break;
+                case JavaTokenTypes.SL_COMMENT:
+                    tokenStartOffset = 2; //for //
+                    tokenEndOffset = 0; //none
+                    break;
+                case JavaTokenTypes.STRING_LITERAL:
+                    tokenStartOffset = 1; //for "
+                    tokenEndOffset = 1; //for "
+                    break;
+                case JavaTokenTypes.CHAR_LITERAL:
+                    tokenStartOffset = 1; //for '
+                    tokenEndOffset = 1; //for '
+                    // break;
+                default:
+                    // if we are in a case we do not need to blank,
+                    // we just keep append the token in the StringBuilder
+                    // and move to the next token.
+                    sb.append(codeStr, t.getPosition(), t.getPosition() + t.getLength());
+                    continue;
+            }
+
+            // At this point we need to blank the code, preserving the token indicators (i.e. "/*")
+            sb.append(codeStr.substring(t.getPosition(), t.getPosition() + tokenStartOffset)
+                + String.valueOf(obfChar).repeat(t.getLength() - tokenStartOffset - tokenEndOffset)
+                + codeStr.substring(t.getEndPosition() - tokenEndOffset, t.getEndPosition()));
         }
-        return codeStr;
+        return sb.toString();
     }
 }

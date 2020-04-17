@@ -2929,7 +2929,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         if (suggests != null)
         {
             LocatableToken suggestToken = suggests.getSuggestionToken();
-            AssistContent[] possibleCompletions = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null, parser.getCurrentPosNode(flowEditorPane.getCaretPosition(), 0));
+            AssistContent[] possibleCompletions = ParseUtils.getPossibleCompletions(suggests, javadocResolver, null, parser.getContainingMethodOrClassNode(flowEditorPane.getCaretPosition()));
             Arrays.sort(possibleCompletions, AssistContent.getComparator());
             List<SuggestionDetails> suggestionDetails = Arrays.stream(possibleCompletions)
                     .map(AssistContentThreadSafe::new)
@@ -3491,7 +3491,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
             TextFlow tf = null;
             if (details.italicMessageStartIndex == -1 || details.italicMessageEndIndex == -1)
             {
-                tf = new TextFlow(new Text(errorMessage));
+                tf = new TextFlow(new Label(errorMessage));
             } else
             {
                 Label beforeItalicText = (details.italicMessageStartIndex > 0) ? new Label(errorMessage.substring(0, details.italicMessageStartIndex)) : new Label("");

@@ -30,6 +30,7 @@ import bluej.stride.framedjava.ast.*;
 import bluej.stride.framedjava.elements.CodeElement;
 import bluej.stride.framedjava.frames.*;
 import bluej.stride.generic.Frame;
+import bluej.stride.generic.FrameCanvas;
 import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.InteractionManager;
 import threadchecker.OnThread;
@@ -111,14 +112,20 @@ public class UnreportedExceptionError extends DirectSlotError
                 }));
 
         // Prepare the second correction: throws statement
-        final MethodFrameWithBody methodFrame = (MethodFrameWithBody) editor.getSource().getFrame().getAllFrames()
-                .filter(f -> (((Frame) f).getAllFrames()
-                        .filter(innerF -> innerF.equals(errorFrame))
-                        .toArray().length > 0) && (f instanceof MethodFrameWithBody))
-                .toArray()[0];
+        MethodFrameWithBody methodFrame = null;
+        FrameCanvas c = errorFrame.getParentCanvas();
+        while (c != null && c.getParent() != null && c.getParent().getFrame() != null)
+        {
+            if (c.getParent().getFrame() instanceof MethodFrameWithBody)
+            {
+                methodFrame = (MethodFrameWithBody) c.getParent().getFrame();
+            }
+            c = c.getParent().getFrame().getParentCanvas();
+        }
+        final MethodFrameWithBody finalMethodFrame = methodFrame;
 
         corrections.add(new FixSuggestionBase(Config.getString("editor.quickfix.unreportedException.fixMsg.throws"),
-                () -> methodFrame.addThrows(exceptionType)));
+                () -> finalMethodFrame.addThrows(exceptionType)));
     }
 
     @Override

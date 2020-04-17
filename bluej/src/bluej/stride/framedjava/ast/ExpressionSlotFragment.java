@@ -36,7 +36,7 @@ import bluej.parser.lexer.JavaTokenTypes;
 import bluej.stride.framedjava.elements.LocatableElement.LocationMap;
 import bluej.stride.framedjava.errors.*;
 import bluej.stride.framedjava.frames.MethodFrameWithBody;
-import bluej.stride.generic.Frame;
+import bluej.stride.generic.FrameCanvas;
 import bluej.utility.javafx.FXPlatformConsumer;
 import javafx.application.Platform;
 import bluej.parser.JavaParser;
@@ -322,11 +322,22 @@ public abstract class ExpressionSlotFragment extends StructuredSlotFragment
                     List<DirectSlotError> unreportedExceptionErrors = new ArrayList<>();
                     String exceptionType = getErrorMessage().substring("unreported exception ".length(), getErrorMessage().indexOf(';'));
                     Platform.runLater(() -> {
-                        boolean hasAlreadyThrowsForType = ((MethodFrameWithBody) frameEditor.getSource().getFrame().getAllFrames()
-                                .filter(frame -> (((Frame) frame).getAllFrames()
-                                        .filter(innerF -> innerF.equals(this.getSlot().getParentFrame()))
-                                        .toArray().length > 0) && (frame instanceof MethodFrameWithBody))
-                                .toArray()[0]).hasThrowsForType(exceptionType);
+                        boolean hasAlreadyThrowsForType = false;
+                        // look for the containing method's throws content
+                        // --> we leave the loop either when we found the type or when we passed the method (break statement)
+                        FrameCanvas c = this.getSlot().getParentFrame().getParentCanvas();
+                        while (c != null && c.getParent() != null && c.getParent().getFrame() != null)
+                        {
+                            if (c.getParent().getFrame() instanceof MethodFrameWithBody)
+                            {
+                                MethodFrameWithBody methodFrame = (MethodFrameWithBody) c.getParent().getFrame();
+                                if (methodFrame.hasThrowsForType(exceptionType))
+                                {
+                                    hasAlreadyThrowsForType = true;
+                                }
+                            }
+                            c = c.getParent().getFrame().getParentCanvas();
+                        }
                         // The error is still seen by BlueJ when a throw statement is added, so we avoid an infinite loop
                         if (getErrorMessage().startsWith("unreported exception ") && !hasAlreadyThrowsForType)
                         {
