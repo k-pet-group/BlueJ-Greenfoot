@@ -1088,8 +1088,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
         return topLevel;
     }
 
-    //package-visible
-    FocusParent<HeaderItem> getSlotParent()
+    public FocusParent<HeaderItem> getSlotParent()
     {
         return row;
     }

@@ -249,6 +249,10 @@ editor.quickfix.undeclaredMethod.errorMsg=Undeclared method:\u0020
 editor.quickfix.wrongComparisonOperator.errorMsg=Assignment found instead of boolean expression. \n\
                                                  Did you mean "=="?
 editor.quickfix.wrongComparisonOperator.fixMsg=Replace "=" with "=="
+editor.quickfix.unreportedException.errorMsg.part1=The possible exception of type\u0020
+editor.quickfix.unreportedException.errorMsg.part2=\u0020needs to be handled
+editor.quickfix.unreportedException.fixMsg.trycatch=Surround this line with try/catch
+editor.quickfix.unreportedException.fixMsg.throws=Add throws statement for this exception in the containing method
 
 # Dialog titles and texts
 editor.functions.title = Editor Functions

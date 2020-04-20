@@ -135,6 +135,8 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -2663,6 +2665,13 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     public FrameEditor getFrameEditor()
     {
         return editor;
+    }
+
+    @Override
+    @OnThread(Tag.FXPlatform)
+    public Class loadClass(String className)
+    {
+        return project.loadClass(className);
     }
 
     @Override

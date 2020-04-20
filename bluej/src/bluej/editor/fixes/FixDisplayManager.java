@@ -66,7 +66,6 @@ public abstract class FixDisplayManager
             HBox.setHgrow(l, Priority.ALWAYS);
             l.setMaxWidth(9999);
         }
-
         private void setHighlight(boolean highlight)
         {
             if (highlight)
@@ -95,7 +94,7 @@ public abstract class FixDisplayManager
         {
             for (FixSuggestion fix : fixSuggestions)
             {
-                FixDisplay l = new FixDisplay("  Fix: " + fix.getDescription(), () -> fix.execute());
+                FixDisplay l = new FixDisplay("  \u2022 Fix: " + fix.getDescription(), () -> fix.execute());
                 l.onMouseClickedProperty().set(e ->
                 {
                     recordExecute(editorWatcherSupplier, fixes.indexOf(l));

@@ -28,9 +28,13 @@ import bluej.debugger.gentype.GenTypeSolid;
 import bluej.debugger.gentype.JavaPrimitiveType;
 import bluej.debugger.gentype.JavaType;
 import bluej.debugger.gentype.Reflective;
+import bluej.parser.lexer.JavaLexer;
+import bluej.parser.lexer.JavaTokenTypes;
+import bluej.parser.lexer.LocatableToken;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -807,4 +811,62 @@ public abstract class JavaUtils
         return sig.replace("<", "&lt;").replace(">", "&gt;");
     }
 
+    /**
+     * Blanks comments and String literals in a java code portion, replacing the content of the comment by the a repetition of specified character.
+     *
+     * @param codeStr The code for which comments should be blanked
+     * @param obfChar The character chosen to blank the content of the comments
+     * @return the blanked code.
+     */
+    @OnThread(Tag.FXPlatform)
+    public static String blankCodeCommentsAndStringLiterals(String codeStr, char obfChar)
+    {
+        JavaLexer l = new JavaLexer(new StringReader(codeStr));
+        StringBuilder sb = new StringBuilder();
+        int currReaderPosition = 0;
+        for (LocatableToken t = l.nextToken(); t.getType() != JavaTokenTypes.EOF; t = l.nextToken())
+        {
+            // Because the parser ignores spaces between tokens, we need preserve these (to match positions)
+            // and fill up with spaces when there is a mismatch between the current reading position and the token
+            if (t.getPosition() > currReaderPosition)
+            {
+                sb.append(" ".repeat(t.getPosition() - currReaderPosition));
+            }
+            currReaderPosition = t.getEndPosition();
+
+
+            int tokenStartOffset, tokenEndOffset;
+            switch (t.getType())
+            {
+                case JavaTokenTypes.ML_COMMENT:
+                    tokenStartOffset = 2; //for /*
+                    tokenEndOffset = 2; //for */
+                    break;
+                case JavaTokenTypes.SL_COMMENT:
+                    tokenStartOffset = 2; //for //
+                    tokenEndOffset = 0; //none
+                    break;
+                case JavaTokenTypes.STRING_LITERAL:
+                    tokenStartOffset = 1; //for "
+                    tokenEndOffset = 1; //for "
+                    break;
+                case JavaTokenTypes.CHAR_LITERAL:
+                    tokenStartOffset = 1; //for '
+                    tokenEndOffset = 1; //for '
+                    // break;
+                default:
+                    // if we are in a case we do not need to blank,
+                    // we just keep append the token in the StringBuilder
+                    // and move to the next token.
+                    sb.append(codeStr, t.getPosition(), t.getPosition() + t.getLength());
+                    continue;
+            }
+
+            // At this point we need to blank the code, preserving the token indicators (i.e. "/*")
+            sb.append(codeStr.substring(t.getPosition(), t.getPosition() + tokenStartOffset)
+                + String.valueOf(obfChar).repeat(t.getLength() - tokenStartOffset - tokenEndOffset)
+                + codeStr.substring(t.getEndPosition() - tokenEndOffset, t.getEndPosition()));
+        }
+        return sb.toString();
+    }
 }
