@@ -2668,20 +2668,10 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
     }
 
     @Override
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     public Class loadClass(String className)
     {
-        CompletableFuture<Class> futureCls = new CompletableFuture<>();
-        Platform.runLater(() -> futureCls.complete(project.loadClass(className)));
-        try
-        {
-            return futureCls.get();
-        }
-        catch (InterruptedException | ExecutionException e)
-        {
-            Debug.reportError(e);
-            return null;
-        }
+        return project.loadClass(className);
     }
 
     @Override

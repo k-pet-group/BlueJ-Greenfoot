@@ -217,8 +217,8 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
     }
 
     @Override
-    @OnThread(Tag.Any)
-    public  Class loadClass(String className)
+    @OnThread(Tag.FXPlatform)
+    public Class loadClass(String className)
     {
         return null;
     }

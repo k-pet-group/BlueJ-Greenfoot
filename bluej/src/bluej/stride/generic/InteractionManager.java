@@ -128,7 +128,7 @@ public interface InteractionManager extends SuggestionListParent
     @OnThread(Tag.Any)
     FrameEditor getFrameEditor();
 
-    @OnThread(Tag.Any)
+    @OnThread(Tag.FXPlatform)
     Class loadClass(String className);
 
     // See corresponding DataCollector methods for more parameter info.
