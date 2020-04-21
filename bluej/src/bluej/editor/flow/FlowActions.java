@@ -42,15 +42,9 @@ import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.DataFormat;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
+import javafx.scene.input.*;
 import javafx.scene.input.KeyCombination.Modifier;
 import javafx.scene.input.KeyCombination.ModifierValue;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import org.fxmisc.wellbehaved.event.EventPattern;
 import org.fxmisc.wellbehaved.event.InputMap;
 import org.fxmisc.wellbehaved.event.Nodes;
@@ -60,13 +54,7 @@ import threadchecker.Tag;
 import javax.swing.*;
 import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -74,6 +62,7 @@ import java.util.List;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -1919,6 +1908,23 @@ public final class FlowActions
         @Override
         public void actionPerformed(boolean viaContextMenu)
         {
+            int lineIndex = getCurrentLineIndex();
+            if (lineIndex != 0)
+            {
+                // first line
+                ReparseableDocument doc = editor.getSourceDocument();
+                ReparseableDocument.Element line = doc.getDefaultRootElement().getElement(lineIndex);
+                int lineStart = line.getStartOffset();
+                //get the text from the line start to the caret
+                String textBeforeCaret = getTextComponent().getDocument().getContent(lineStart,getTextComponent().getCaretPosition()).toString();
+                // If it's only tabs and spaces delete them and go the above line
+                if(Pattern.compile("[    ]+[ ]*").matcher(textBeforeCaret).matches())
+                {
+                    getTextComponent().select(getTextComponent().getCaretPosition(),lineStart);
+                    getTextComponent().replaceSelection("");
+                }
+            }
+            //If no selection has been made
             if (getTextComponent().getCaretPosition() == getTextComponent().getAnchorPosition())
             {
                 getTextComponent().moveCaret(Math.max(0, getTextComponent().getCaretPosition() - 1));
