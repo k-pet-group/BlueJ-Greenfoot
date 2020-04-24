@@ -824,8 +824,12 @@ public abstract class JavaUtils
         JavaLexer l = new JavaLexer(new StringReader(codeStr));
         StringBuilder sb = new StringBuilder();
         int currReaderPosition = 0;
+        LocatableToken lastToken = null;
         for (LocatableToken t = l.nextToken(); t.getType() != JavaTokenTypes.EOF; t = l.nextToken())
         {
+            //save the last token (cf after the for loop)
+            lastToken = t;
+
             // Because the parser ignores spaces between tokens, we need preserve these (to match positions)
             // and fill up with spaces when there is a mismatch between the current reading position and the token
             if (t.getPosition() > currReaderPosition)
@@ -867,6 +871,14 @@ public abstract class JavaUtils
                 + String.valueOf(obfChar).repeat(t.getLength() - tokenStartOffset - tokenEndOffset)
                 + codeStr.substring(t.getEndPosition() - tokenEndOffset, t.getEndPosition()));
         }
+
+        //trailing spaces: if there are more blank spaces after the last token fill up the string
+        //with spaces to maintain the same string size.
+        if (lastToken != null && (lastToken.getEndPosition() < codeStr.length() - 1))
+        {
+            sb.append(" ".repeat(codeStr.length() - lastToken.getEndPosition()));
+        }
+
         return sb.toString();
     }
 }
