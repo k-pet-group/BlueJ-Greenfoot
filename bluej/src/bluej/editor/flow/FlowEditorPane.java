@@ -110,6 +110,8 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
     private double pendingScrollY;
     // Have we currently scheduled an update of the caret graphics?  If so, no need to schedule another.
     private boolean caretUpdateScheduled;
+    // If we have currently scheduled an update of the caret graphics, will we ensure caret is visible?
+    private boolean caretUpdateEnsureVisible;
 
     public FlowEditorPane(String content, FlowEditorPaneListener listener)
     {
@@ -506,10 +508,12 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
 
     /**
      * Schedules an update of the caret graphics after the next scene layout.
-     * @param ensureCaretVisible True if we want to scroll to make sure the caret is on-screen.
+     * @param ensureCaretVisibleRequestedThisTime True if we want to scroll to make sure the caret is on-screen.
      */
-    private void scheduleCaretUpdate(boolean ensureCaretVisible)
+    private void scheduleCaretUpdate(boolean ensureCaretVisibleRequestedThisTime)
     {
+        // Passing true overrides false:
+        this.caretUpdateEnsureVisible = caretUpdateEnsureVisible || ensureCaretVisibleRequestedThisTime;
         Scene scene = getScene();
         if (scene == null || caretUpdateScheduled)
         {
@@ -517,7 +521,11 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
         }
         
         JavaFXUtil.runAfterNextLayout(scene, () -> {
+            // Important that we pick up the value from the field, as an intervening request since we were scheduled
+            // may have changed the value:
+            boolean ensureCaretVisible = caretUpdateEnsureVisible;
             caretUpdateScheduled = false;
+            caretUpdateEnsureVisible = false;
             if (lineDisplay.isLineVisible(caret.getLine()))
             {
                 MarginAndTextLine line = lineDisplay.getVisibleLine(caret.getLine());
