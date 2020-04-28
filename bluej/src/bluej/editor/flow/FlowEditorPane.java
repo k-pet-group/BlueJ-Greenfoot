@@ -264,6 +264,7 @@ public class FlowEditorPane extends Region implements JavaSyntaxView.Display
             && character.charAt(0) != 0x7F
             && !event.isMetaDown()) { // Not sure about this one -- NCCB note this comment is from the original source
             replaceSelection(character);
+            JavaFXUtil.runAfterCurrent(() -> scheduleCaretUpdate(true));
         }
         
     }
