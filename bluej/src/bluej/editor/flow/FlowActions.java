@@ -1912,18 +1912,21 @@ public final class FlowActions
             if (lineIndex != 0)
             {
                 // first line
-                ReparseableDocument doc = editor.getSourceDocument();
-                ReparseableDocument.Element line = doc.getDefaultRootElement().getElement(lineIndex);
-                int lineStart = line.getStartOffset();
+                Document doc = getTextComponent().getDocument();
+                int lineStart = doc.getLineStart(lineIndex);
                 //get the text from the line start to the caret
-                String textBeforeCaret = getTextComponent().getDocument().getContent(lineStart,getTextComponent().getCaretPosition()).toString();
+                int caretPos = getTextComponent().getCaretPosition();
+                String textBeforeCaret = doc.getContent(lineStart, caretPos).toString();
                 // If it's only tabs and spaces delete them and go the above line
-                if(Pattern.compile("[    ]+[ ]*").matcher(textBeforeCaret).matches())
+                if (textBeforeCaret.length() > 0 && textBeforeCaret.isBlank())
                 {
-                    getTextComponent().select(getTextComponent().getCaretPosition(),lineStart);
-                    getTextComponent().replaceSelection("");
+                    int lastTabStopDist = textBeforeCaret.length() % 4;
+                    if (lastTabStopDist == 0)
+                        lastTabStopDist = 4;
+                    getTextComponent().select(caretPos, caretPos - lastTabStopDist);
                 }
             }
+                
             //If no selection has been made
             if (getTextComponent().getCaretPosition() == getTextComponent().getAnchorPosition())
             {
