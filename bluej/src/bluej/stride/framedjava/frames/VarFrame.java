@@ -253,7 +253,7 @@ public class VarFrame extends SingleLineFrame
     public String getScreenReaderHelp() {
         String helpText = "";
 
-        helpText = getParentCanvas().getParent().getLocationDescription();
+        helpText = getParentCanvas().getParentLocationDescription();
 
         return helpText;
     }

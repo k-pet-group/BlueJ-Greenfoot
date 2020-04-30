@@ -317,7 +317,7 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
 
             // cherry
             @Override
-            public String getLocationDescription() {
+            public String getLocationDescription(FrameCanvas c) {
                 return null;
             }
 

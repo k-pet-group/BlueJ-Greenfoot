@@ -35,11 +35,7 @@ import bluej.stride.framedjava.elements.IfElement;
 import bluej.stride.framedjava.elements.SandwichCanvasesElement;
 import bluej.stride.framedjava.slots.ExpressionSlot;
 import bluej.stride.framedjava.slots.FilledExpressionSlot;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.FrameContentRow;
-import bluej.stride.generic.FrameFactory;
-import bluej.stride.generic.InteractionManager;
-import bluej.stride.generic.SandwichCanvasesFrame;
+import bluej.stride.generic.*;
 import bluej.stride.operations.PullUpContentsOperation;
 import bluej.stride.slots.SlotLabel;
 import bluej.utility.Debug;
@@ -135,8 +131,21 @@ public class IfFrame extends SandwichCanvasesFrame
     }
 
     //cherry
-    public String getLocationDescription() {
+    public String getLocationDescription(FrameCanvas c) {
         String text = "";
+        text = "you are in an if frame";
+        int sectionIndex = canvases.indexOf(c);
+        if (sectionIndex==0) {
+            // "then" section
+            text += ", in the 'then' section.";
+        } else if (sectionIndex > 0 && sectionIndex < canvases.size()-1) {
+            // "elseif" section
+            text += ", in the 'elseif' section.";
+        } else {
+            // "else" section
+            text += ", in the 'else' section.";
+        }
+//        System.out.println(text);
         return text;
     }
 

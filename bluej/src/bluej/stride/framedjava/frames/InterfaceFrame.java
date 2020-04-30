@@ -108,7 +108,7 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
     }
 
     //cherry
-    public String getLocationDescription() {
+    public String getLocationDescription(FrameCanvas c) {
         String text = "";
         return text;
     }

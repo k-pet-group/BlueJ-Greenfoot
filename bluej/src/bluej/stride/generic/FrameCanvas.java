@@ -182,6 +182,12 @@ public class FrameCanvas implements FrameContentItem
         return parentBlock;
     }
 
+    //cherry
+    public String getParentLocationDescription()
+    {
+        return getParent().getLocationDescription(this);
+    }
+
     public VBox getSpecialBefore(FrameCursor cursor)
     {
         int index = 0;

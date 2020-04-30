@@ -134,7 +134,7 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
     }
 
     //cherry
-    public String getLocationDescription() {
+    public String getLocationDescription(FrameCanvas c) {
         String text = "";
         return text;
     }

@@ -103,7 +103,7 @@ class InheritedCanvas
 
             //cherry
             @Override
-            public String getLocationDescription() {
+            public String getLocationDescription(FrameCanvas c) {
                 return null;
             }
 
