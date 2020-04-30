@@ -1090,4 +1090,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         // We put a ceiling of 4 keypresses, approximating code completion:
         return Math.min(4, getText().length());
     }
+
+    //Manvi jain
+    public void setAccessibility(String text){this.getComponents().get(0).setAccessibleText(text);}
 }

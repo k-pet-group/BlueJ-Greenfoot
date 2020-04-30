@@ -374,4 +374,7 @@ public interface EditableSlot extends HeaderItem, RecallableFocus, UnderlineInfo
      * @return True if this is editable
      */
     public boolean isEditable();
+
+    //Manvi Jain
+    // public void setAccessibleText(String text);
 }

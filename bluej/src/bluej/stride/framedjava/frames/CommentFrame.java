@@ -95,6 +95,8 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
         });
         // Make sure diagonal line canvas is created and drawn on:
         getDiagonalLineCanvas();
+        //Manvi jain
+        comment.setAccessibleText("This is manvi's comment" + COMMENT_STYLE_PREFIX + getComment());
     }
 
     /**
@@ -117,6 +119,9 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
         //    Debug.reportError("Setting text: \"" + comment + "\"", e);
         //}
         //Thread.currentThread().setUncaughtExceptionHandler(oldHandler);
+
+        //Manvi jain
+        this.comment.setAccessibleText(COMMENT_STYLE_PREFIX + "this is a comment. Write a comment");
     }
 
     public static FrameFactory<CommentFrame> getFactory()
@@ -227,6 +232,8 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
 
     public RecallableFocus getFocusable()
     {
+        //Manvi Jain
+        comment.setAccessibleText("This is manvi's comment");
         return comment;
     }
 

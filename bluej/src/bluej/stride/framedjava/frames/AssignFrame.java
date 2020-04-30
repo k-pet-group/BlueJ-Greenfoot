@@ -75,6 +75,10 @@ public class AssignFrame extends SingleLineFrame
         
         slotLHS.addClosingChar('=');
         slotLHS.addClosingChar(' ');
+
+        //Manvi jain
+        slotLHS.setAccessibility("existing variable name");
+        slotRHS.setAccessibility("new value of variable");
     }
     
     // For replacement of a method call frame:
@@ -87,6 +91,10 @@ public class AssignFrame extends SingleLineFrame
         {
             JavaFXUtil.runPlatformLater(() -> slotRHS.requestFocus(Focus.LEFT));
         }
+
+        //Manvi jain
+        slotLHS.setAccessibility("existing variable name" + slotLHS.getText());
+        slotRHS.setAccessibility("new value of variable" + slotRHS.getText());
     }
     
     public AssignFrame(InteractionManager editor, FilledExpressionSlotFragment lhs, FilledExpressionSlotFragment rhs, boolean enabled)
@@ -95,6 +103,11 @@ public class AssignFrame extends SingleLineFrame
         slotLHS.setText(lhs);
         slotRHS.setText(rhs);
         frameEnabledProperty.set(enabled);
+
+
+        //Manvi jain
+        slotLHS.setAccessibility("existing variable name" + slotLHS.getText());
+        slotRHS.setAccessibility("new value of variable" + slotRHS.getText());
     }
 
     @Override

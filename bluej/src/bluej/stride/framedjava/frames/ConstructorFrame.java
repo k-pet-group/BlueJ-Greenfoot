@@ -95,6 +95,10 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
                 paramsPane.getSlots(),
                 throwsPane.getHeaderItems()
         ));
+
+        //Manvi jain
+         //superThisParams.setAccessibility("super constructor's parameters");
+         //superThis.setAccessibility("super constructor options");
     }
 
     public ConstructorFrame(InteractionManager editor, AccessPermissionFragment access, String documentation,

@@ -101,6 +101,8 @@ public class SwitchFrame extends MultiCanvasFrame
         expression.setSimplePromptText("expression");
         setHeaderRow(new SlotLabel("("), expression, new SlotLabel(")"));
         expression.onTextPropertyChange(updateSidebarCurried("switch "));
+        //Manvi jain
+        expression.setAccessibility("switch statement condition");
     }
     
     public SwitchFrame(InteractionManager editor, ExpressionSlotFragment expression, boolean enabled)
@@ -108,6 +110,9 @@ public class SwitchFrame extends MultiCanvasFrame
         this(editor);
         this.expression.setText(expression);
         frameEnabledProperty.set(enabled);
+
+        //manvi jain
+        this.expression.setAccessibility("switch statement expression ");
     }
 
     public boolean addDefault()

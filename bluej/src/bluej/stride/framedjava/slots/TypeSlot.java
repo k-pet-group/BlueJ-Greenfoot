@@ -30,6 +30,11 @@ import java.util.stream.Stream;
 
 import bluej.pkgmgr.target.role.Kind;
 import javafx.beans.binding.StringExpression;
+
+//MANVI CODE
+import javafx.scene.AccessibleRole;
+//
+
 import javafx.scene.Node;
 
 import bluej.Config;
@@ -267,4 +272,10 @@ public class TypeSlot extends StructuredSlot<TypeSlotFragment, InfixType, TypeCo
     {
         return topLevel.makeDisplayClone(editor);
     }
+
+
+    public void extendsAccesibility(){
+        this.getComponents().get(0).setAccessibleText("parent class name");
+    }
+
 }

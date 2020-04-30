@@ -90,6 +90,11 @@ public class ForeachFrame extends SingleCanvasFrame
         type.onTextPropertyChange(updateTriple);
         JavaFXUtil.addChangeListener(var.textProperty(), updateTriple);
         collection.onTextPropertyChange(updateTriple);
+
+        //Manvi jain
+        type.setAccessibility("for each condition variable type");
+        var.setAccessibility("for each condition variable name");
+        collection.setAccessibility("for each collection");
     }
     
     public ForeachFrame(InteractionManager editor, TypeSlotFragment type, NameDefSlotFragment var, ExpressionSlotFragment collection, boolean enabled) {
@@ -98,12 +103,22 @@ public class ForeachFrame extends SingleCanvasFrame
         this.var.setText(var);
         this.collection.setText(collection);
         frameEnabledProperty.set(enabled);
+
+        //Manvi jain
+        this.type.setAccessibility("for each condition variable type");
+        this.var.setAccessibility("for each condition variable name");
+        this.collection.setAccessibility("for each collection");
     }
     
     public ForeachFrame(InteractionManager editor, List<Frame> contents)
     {
         this(editor);
         getCanvas().getFirstCursor().insertFramesAfter(contents);
+
+        //Manvi jain
+        type.setAccessibility("for each condition variable type");
+        var.setAccessibility("for each condition variable name");
+        collection.setAccessibility("for each collection");
     }
 
     @Override

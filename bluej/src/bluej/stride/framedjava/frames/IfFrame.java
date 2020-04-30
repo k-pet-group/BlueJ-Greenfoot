@@ -81,6 +81,10 @@ public class IfFrame extends SandwichCanvasesFrame
         ifCondition.setTargetType("boolean");
         ifCondition.onTextPropertyChange(updateSidebarCurried("if "));
         setHeaderRow(new SlotLabel(" (", "if-bracket-opening"), ifCondition, new SlotLabel(")"));
+
+
+        //Manvi Jain
+        ifCondition.setAccessibility("if statement condition");
     }
     
     /**
@@ -90,6 +94,9 @@ public class IfFrame extends SandwichCanvasesFrame
     {
         this(editor);
         getFirstCanvas().getFirstCursor().insertFramesAfter(contents);
+
+        //Manvi Jain
+        ifCondition.setAccessibility("if statement condition");
     }
 
     /**
@@ -118,6 +125,9 @@ public class IfFrame extends SandwichCanvasesFrame
             elseContents.forEach(f -> getTailCanvas().insertBlockAfter(f, null));
         }
         frameEnabledProperty.set(enabled);
+
+        //Manvi Jain
+        ifCondition.setAccessibility("if statement condition");
     }
 
     @Override
@@ -160,6 +170,11 @@ public class IfFrame extends SandwichCanvasesFrame
 //        addCanvas(divider, elseIfCanvas);
 
         elseIfConditions.add(at, elseIfCondition); //add condition to the main ifFrame.
+
+        //Manvi jain
+     //   foreach(ExpressionSlot<>condition: elseIfConditions){
+   // }
+        elseIfCondition.setAccessibility("else if statement condition");
         return row;
     }
 

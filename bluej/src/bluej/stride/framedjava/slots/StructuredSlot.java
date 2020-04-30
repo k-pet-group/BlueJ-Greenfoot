@@ -498,7 +498,8 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     {
         textMirror.addListener((a, oldVal, newVal) -> listener.accept(oldVal, newVal));
     }
-    
+
+    //TO BE USED
     public String getText()
     {
         return topLevel.getCopyText(null, null);
@@ -509,7 +510,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     {
         return topLevel.isFocused();
     }
-
+    //TO BE USED
     @Override
     public int getFocusInfo()
     {
@@ -1159,6 +1160,9 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     {
         lostFocusActions.add(action);
     }
+
+    //Manvi jain
+    public void setAccessibility(String text){this.getComponents().get(0).setAccessibleText(text);}
 
     public void addFocusListener(Frame frame)
     {

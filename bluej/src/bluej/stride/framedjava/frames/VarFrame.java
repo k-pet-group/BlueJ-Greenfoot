@@ -86,11 +86,16 @@ public class VarFrame extends SingleLineFrame
     private static final String TOGGLE_FINAL_VAR = "toggleFinalVar";
 
     private final BooleanProperty accessModifier = new SimpleBooleanProperty(false);
+
     private final ChoiceSlot<AccessPermission> access; // present only when it is a class field
+    //manvi jain
     private final SlotLabel staticLabel = new SlotLabel(STATIC_NAME + " ");
+
     private final BooleanProperty staticModifier = new SimpleBooleanProperty(false);
+    //manvi jain
     private final SlotLabel finalLabel = new SlotLabel(FINAL_NAME + " ");
     private final BooleanProperty finalModifier = new SimpleBooleanProperty(false);
+    //manvi jain
     private final TypeSlot slotType;
     private final VariableNameDefTextSlot slotName;
     private final BooleanProperty showingValue = new SimpleBooleanProperty(false);
@@ -107,9 +112,10 @@ public class VarFrame extends SingleLineFrame
      * @param editor 
      */
     VarFrame(final InteractionManager editor, boolean isFinal, boolean isStatic)
-    {
+        {
         super(editor, "var ", "var-");
         //Parameters
+
 
         staticModifier.set(isStatic);
         finalModifier.set(isFinal);
@@ -122,7 +128,7 @@ public class VarFrame extends SingleLineFrame
         // Renaming fields is more difficult (could be accesses in other classes)
         // so for now we stick to renaming local vars:
         slotName = new VariableNameDefTextSlot(editor, this, getHeaderRow(), () -> isField(getParentCanvas()), "var-name-");
-        
+
         slotName.addValueListener(new SlotValueListener()
         {
 
@@ -149,10 +155,14 @@ public class VarFrame extends SingleLineFrame
         });
         
         slotName.setPromptText("name");
-        
+
         slotType = new TypeSlot(editor, this, this, getHeaderRow(), TypeSlot.Role.DECLARATION, "var-type-");
         slotType.setSimplePromptText("type");
+
+
         slotType.addClosingChar(' ');
+
+
 
         access = new AccessPermissionSlot(editor, this, getHeaderRow(), "var-access-");
         access.setValue(AccessPermission.PRIVATE);
@@ -175,7 +185,7 @@ public class VarFrame extends SingleLineFrame
         };
         slotName.addValueListener(new SlotTraversalChars(runAddValSlot, SlotTraversalChars.ASSIGN_LHS.getChars()));
 
-        
+
 
         getHeaderRow().bindContentsConcat(FXCollections.<ObservableList<? extends HeaderItem>>observableArrayList(
                 FXCollections.observableArrayList(headerCaptionLabel),
@@ -198,11 +208,19 @@ public class VarFrame extends SingleLineFrame
                 );
 
         slotValue.onTextPropertyChange(s -> slotValueBlank.set(s.isEmpty()));
+
+
         // We must make the showing immediate when you get keyboard focus, as otherwise there
         // are problems with focusing the slot and then it disappears:
         ReadOnlyBooleanProperty keyFocusDelayed = JavaFXUtil.delay(hasKeyboardFocus, Duration.ZERO, Duration.millis(100));
         showingValue.bind(inInterfaceProperty.or(keyFocusDelayed).or(slotValueBlank.not()));
-    }
+
+
+            //Manvi jain
+            slotType.setAccessibility("variable type, " + slotType.getText());
+            slotName.setAccessibility("variable name");
+            slotValue.setAccessibility("variable value, " + slotValue.getText());
+        }
     
     // If varValue is null, that means the slot is not shown
     // If accessValue is null, that means the slot is not shown
@@ -220,6 +238,12 @@ public class VarFrame extends SingleLineFrame
             slotValue.setText(varValue);
         }
         frameEnabledProperty.set(enabled);
+
+
+        //Manvi jain
+        slotType.setAccessibility("variable type, " + slotType.getText());
+        slotName.setAccessibility("variable name");
+        slotValue.setAccessibility("variable value, " + slotValue.getText());
     }
 
     @Override

@@ -121,6 +121,9 @@ public class WhileFrame extends SingleCanvasFrame
         replaceMenu.getItems().addAll(forMenu, new SeparatorMenuItem(), ifMenu, ifElseMenu);
         */
         paramCondition.onTextPropertyChange(updateSidebarCurried("while "));
+
+        //Manvi jain
+        paramCondition.setAccessibility("While loop parameter condition");
     }
     
     public WhileFrame(InteractionManager editor, ExpressionSlotFragment condition, boolean enabled)
@@ -128,12 +131,16 @@ public class WhileFrame extends SingleCanvasFrame
         this(editor);
         paramCondition.setText(condition);
         frameEnabledProperty.set(enabled);
+        //Manvi jain
+        paramCondition.setAccessibility("While loop parameter condition");
     }
     
     public WhileFrame(InteractionManager editor, List<Frame> contents)
     {
         this(editor);
         getCanvas().getFirstCursor().insertFramesAfter(contents);
+        //Manvi jain
+        paramCondition.setAccessibility("While loop parameter condition");
     }
     
     /**

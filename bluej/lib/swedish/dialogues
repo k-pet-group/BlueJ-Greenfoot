@@ -1,306 +1,100 @@
-compile-while-executing
-Du kan inte kompilera medans maskinen
-exekverar. Det skulle kunna skapa konstiga
-problem!
+editor-crashed
+Det verkar som att Greenfoot kraschade n\u00E4r man skrev denna klass
+till disken senast. K\u00E4llkoden kanske
+saknas eller \u00E4r inkomplett.
+Det borde finnas en backup av denna klass
+i projektets mapp. Om den h\u00E4r klassen verkar skadad:
+   1 - Avsluta Greenfoot
+   2 - Backa upp din projektmapp (bara i fall att)
+   3 - Leta efter en backup p\u00E5 denna java-fil
+       i projektets mapp. D\u00F6p om den till dess
+       originalnamn (med '.java' som \u00E4ndelse)
 
-exception-thrown
-Ett undantag intr\u00e4ffade:
+error-create-vm
+Greenfoot kunde inte skapa en virtual machine (VM) f\u00F6r att exekvera
+scenario. Detta orsakas ofta av \u00F6verdrivet restriktiva brandv\u00E4ggs.
+inst\u00E4llningar. Se[ http://www.greenfoot.org/doc/firewall ] f\u00F6r
+mer information.
 
-break-no-source
-Brytpunkt hittad i en fil vars k\u00e4llkod inte
-kunde hittas. Filnamn:
+project-is-readonly
+Detta scenario \u00F6ppnas i nedast l\u00E4s-l\u00E4ge:
+:
+    $
+:
+F\u00F6r att anv\u00E4nda detta scenario beh\u00F6ver du f\u00F6rst v\u00E4lja
+en ny plats att spara det till.
 
-error-in-file
-Ett fel intr\u00e4ffade i en fil vars k\u00e4llkod inte
-kunde hittas.
-Filnamn:radnummer / felmeddelande:
+cannot-save-project
+Scenariot kunde inte sparas till den valda platsen.
+Kontrollera att du har r\u00E4ttighet att skriva till
+platsen eller v\u00E4lj en annan plats.
 
-system-exit
-Metoden avslutades genom en explicit "exit"
-instruktion. Inget resultat returnerades.
-utg\u00e5ngskoden \u00e4r:
+cannot-create-project
+Scenariot kunde inte skapas. Kontrollera att
+mappen som inneh\u00E5ller projetet \u00E4r skrivbar.
 
-no-help
-Ingen hj\u00e4lp tillg\u00e4nglig f\u00f6r det h\u00e4r meddelandet.
-Var v\u00e4nlig e-posta felmeddelandet till
-mik@bluej.org - vi kommer d\u00e5 l\u00e4gga till en
-hj\u00e4lptext i v\u00e5r hj\u00e4lpdatabas. Tack!
+error-saving-project
+Ett fel uppstod n\u00E4r scenariot skulle sparas till disken.
+Projektet kanske inte sparades korrekt!
 
-cannot-run-compiler
-Kan inte k\u00f6ra kompilatorn. Finns den i
-din s\u00f6kv\u00e4g?
-Kompilatorns namn:
+project-already-exists
+Det valda projektets mapp existerar redan. F\u00F6r att skapa
+ett nytt scenario, v\u00E4lj en plats och anv\u00E4nd ett unikt
+namn (du m\u00E5ste specifiera namnet i fildialogen).
 
-compiler-error
-Kompilatorfel
+could-not-open-project
+Scenariot kunde inte \u00F6ppnas. Kontrollera att du har
+r\u00E4ttigheter att skriva till mappen som har filerna i sig.
 
-stream-incomplete
-Kompilatorfel. Felstr\u00f6mmen \u00e4r ej komplett.
+archive-not-greenfoot-project
+Arkivet du valde verkar inte inneh\u00E5lla ett
+Greenfoot-scenariot. F\u00F6rs\u00F6k extrahera akrivet
+med ett annat verktyg.
 
-out-of-bounds
-Det angivna elementet \u00e4r
-ej inom arrayens gr\u00e4nser.
+no-clipboard-image-data
+Det finns ingen bild i urklipp s\u00E5 ingen bild kan klistras in.
 
-cannot-access-element
-Kunde ej n\u00e5 det angivna
-arrrayelementet.
-
-appletviewer-error
-Fel under k\u00f6rning av applet i Appletviewer
-
-error-no-name
-Du m\u00e5ste ange ett godk\u00e4nt namn.
-
-error-save-file
-Ett fel intr\u00e4ffade n\u00e4r filen f\u00f6rs\u00f6kte sparas.
-Filen sparades inte.
-
-cannot-save-keys
-Ett fel intr\u00e4ffade n\u00e4r tangentbordskommandona
-f\u00f6rs\u00f6kte sparas. Kommandona sparades inte.
-
-error-no-templates
-Den valda mappen f\u00F6r mallar (mappen d\u00E4r BlueJ hittar
-klassmallarna) existerar inte. Den defineras med
-egenskapen "bluej.templatePath" i
-<bluej-home>/lib/bluej/defs. Kontrollera denna egenskap.
-
-skeleton-error
-Klassens default-mall kunde inte skapas.
-Detta kan bero p\u00e5 ett konfigurationsfel
-i Bluej's "setup", eller p\u00e5 grund av
-tilltr\u00e4desproblem i filsystemet.
-
-error-open-source
-Det gick inte att \u00f6ppna k\u00e4llfilen till den
-h\u00e4r klassen. Allvarligt problem!
-
-error-open-readme
-Det gick inte att \u00f6ppna textnoteringarna f\u00f6r det
-h\u00e4r projektet. En ny, tom textnotering
-har skapats.
-
-error-writing-readme
-README filen f\u00f6r det h\u00e4r projektet kunde inte
-uppdateras med information om huvudklassen.
-Ett fel uppstod vid \u00e4ndring av den h\u00e4r filen.
-
-error-exporting
-Ett fel uppstod vid f\u00f6rs\u00f6k att exportera
-applikationen. Det \u00e4r m\u00f6jligt att n\u00e5gra eller
-alla filer inte har blivit korrekt kopierade.
-
-error-writing-jar
-Jar-filen kunde inte skrivas korrekt.
-Kontrollera filsystemet f\u00F6r r\u00E4ttigheter och
-diskutrymme.
-
-error-file-exists
-Jar-filen du valt existerar redan.
-Vill du forts\u00E4tta?
+file-exists-overwrite
+Filen "$" existerar redan. Vill du skriva \u00F6ver den?
 Skriv \u00F6ver
 Avbryt
 null
 
-invalid-class-name
-Icke godk\u00e4nt klassnamn.
-
-invalid-package-name
-Icke godk\u00e4nt paketnamn.
-
-directory-exists
-En fil eller katalog med det h\u00e4r namnet
-existerar redan.
-
-cannot-copy-package
-Det uppstod problem vid kopiering av
-n\u00e5gra av paketets filer. Paketet kan
-vara inkomplett.
-
-file-does-not-exist
-Den angivna filen
-existerar inte.
-
-cannot-import
-Den h\u00e4r filen kunde inte
-importeras. Filen m\u00e5ste
-vara en Java k\u00e4llkodsfil
-(namnet m\u00e5ste sluta med ".java")
-
-docdir-blocked-by-file
-Mappen f\u00F6r dokumentation kunde
-inte skapas i projektets mapp f\u00F6r att
-det redan finns en fil med samma namn.
-
-docdir-not-created
-Mappen f\u00F6r dokumentation kunde inte skapas
-i projektets mapp.
-
-no-permission-for-docdir
-Mappen f\u00F6r dokumentation kunde inte skapas
-i projektets mapp pga otillr\u00E4ckliga
-r\u00E4ttigheter.
-
-show-or-generate
-Vill du visa dokumentationen som
-genererats tidigare eller vill du
-skapa om hela dokumentationen?
-Visa endast
-Skapa om
-Avbryt
-
-doctool-error
-Javadoc rapporterade ett fel. Det kan bero p\u00E5 ett
-syntax-fel i en av filerna som du f\u00F6rs\u00F6kte generera
-dokumentation f\u00F6r. Det kan ocks\u00E5 bero p\u00E5 att JDK-
-dokumentationens URL i inst\u00E4llningar \u00E4r felaktig.
-Kontrollera att dina Java-filer \u00E4r kompilerade
-och att dokumentationens URL \u00E4r tillg\u00E4nglig eller avaktiverad.
-F\u00F6rs\u00F6k sedan igen. Om detta meddelande uppkommer igen,
-kolla i logg-filen med Javadoc-felmeddelanden:
-
-severe-doc-trouble
-Ett undantag intr\u00E4ffade n\u00E4r det
-externa dokumentationsverktyget kallades.
-
-no-java-sources-found
-Inga Java k\u00e4llkodsfiler kunde
-hittas i den h\u00e4r katalogen
-
-duplicate-name
-En klass med det h\u00e4r namnet existerar redan
-i det h\u00e4r paketet. Man kan inte ha tv\u00e5 klasser
-med samma namn i ett paket.
-
-error-in-import
-Ett fel uppstod vid f\u00f6rs\u00f6k att importera
-den h\u00e4r filen. Kontrollera tilltr\u00e4desr\u00e4ttigheter
-och minnesutrymme.
-
-no-class-selected
-Ingen klass markerad f\u00f6r borttagning.
-V\u00e4lj klass genom att klicka p\u00e5 den
-och f\u00f6rs\u00f6k igen.
-
-really-remove-class
-Borttagning av den har klassen betyder
-permanent radering av k\u00e4llfilen.
-Vill du forts\u00e4tta?
+imagelib-delete-confirm
+Vill du verkligen ta bort "$"?
 Ta bort
 Avbryt
 null
 
-really-remove-package
-Att ta bort detta paket kommer permanent
-att ta bort paketets mapp (inklusive ALLT
-inneh\u00E5ll i den mappen).
-Vill du forts\u00E4tta?
-Ta bort
-Avbryt
+import-image-exists
+Projektet inneh\u00E5ller redan en bildfil med namnet $.
+Den importerade klassen kommer att anv\u00E4nda den existerande bilden.
+
+import-class-exists
+Projektet inneh\u00E5ller redan en klass med namnet $.
+En klass med samma namn kan inte importeras.
+
+imagelib-writing-image-failed
+Kan ej skriva bildfilen till disken. Kontrollera att disken
+har utrymme och inte \u00E4r skrivskyddad.
+
+cannot-read-apidoc
+API-dokumentationen saknas eller kan ej l\u00E4sas:
+
+export-compile-not-compiled
+Alla klasser i scenariot \u00E4r inte kompilerade. F\u00F6r att
+forts\u00E4tta exportera, kolla efter fel f\u00F6rst.
+
+error-open-readme
+Scenarioinformationen (README) kunde inte \u00F6ppnas. Den kanske har
+tagits bort eller har felaktiga r\u00E4ttigheter.
+
+greenfoot-importfix-question
+VIll du automatiskt uppdatera koden f\u00F6r att matcha denna \u00E4ndring?
+Ja, uppdatera koden
+Nej, jag uppdaterar manuellt
 null
 
-remove-package-open
-Paketet du valt f\u00F6r borttagning har
-n\u00E5gra sub-paket \u00F6ppnade i BlueJ. Du
-m\u00E5ste st\u00E4nga dessa subpaket innan
-du kan ta bort detta paket.
-
-package-does-not-exist
-Fel vid \u00f6ppning av paket.
-Paketet existerar inte:
-
-no-bluej-package
-Fel vid \u00f6ppning av paket.
-Filen/Katalogen \u00e4r inte ett
-Bluej paket:
-
-applet-height-width
-Appletens h\u00f6jd och bredd
-m\u00e5ste specificeras.
-
-not-yet-implemented
-Inte implementerat \u00e4nnu - tyv\u00e4rr
-
-quit-all
-Avsluta alla \u00f6ppna paket?
-Avsluta allt
-Avbryt
-null
-
-really-print
-Texten ar bredare \u00e4n papperet. L\u00e5nga rader kommer
-klippas av. Du kan undvika detta genom att g\u00f6ra
-textf\u00f6nstret smalare. Vill du skriva ut iallafall?
-Skriv ut
-Avbryt
-null
-
-open-non-bluej-already-bluej
-Mappen du valt \u00E4r redan
-ett BlueJ-projekt.
-
-open-non-bluej-invalid
-Du har indikerat att du vill \u00F6ppna denna
-mapp som ett BlueJ-projekt men en fil
-har hittats med ett paket som \u00E4r
-inkompatibelt med nuvarnade mappstruktur.
-Till exempel, om Java-klassen Shape har
-en paket-rad com.aa s\u00E5 m\u00E5ste filen
-Shape-java ligga i mappen aa som i sin tur
-ligger i mappen com. Denna com-mapp m\u00E5ste i
-sin tur ligga i en annan mapp. Det \u00E4r den
-mappen som du borde meka BlueJ till n\u00E4r
-du f\u00F6rs\u00F6ker \u00F6ppna.
-
-import-into-current
-Du har redan ett paket \u00f6ppet i det h\u00e4r f\u00f6nstret.
-Vill du importera till det \u00f6ppna paketet eller
-vill du skapa ett nytt projekt och importera till
-det.
-Till \u00d6ppet
-Nytt Projekt
-null
-
-package-name-invalid
-Du har \u00E4ndrat paketets uttryck till ett paket som
-inte existerar i det h\u00E4r projektet.
-Om du \u00F6nskar flytta denna klass till ett annat paket
-s\u00E5 m\u00E5ste du skapa destinationspaketet f\u00F6rst.
-Paketets uttryck har \u00E5terst\u00E4llts till
-dess originalform.
-
-package-name-changed
-Du har \u00E4ndrat paketets uttryck som s\u00E4ger till
-Java vilket paket klassen ligger i. Vill du
-flytta denna klass till det indikerade paketet
-eller vill du l\u00E4mna klassen d\u00E4r den \u00E4r?
-(paketets uttryck kommer att \u00E5terst\u00E4llas till
-dess originalform).
-Flytta
-\u00E5terst\u00E4ll
-null
-
-ask-index
-Ange arrayelementindex [...]
-Inspektera Array
-null
-
-classmgr-changes-no-effect
-\u00E4ndringarna du gjort till klassens bibliotek
-kommer inte att g\u00E4lla f\u00F6rr\u00E4n n\u00E4sta g\u00E5ng du
-startar BlueJ.
-
-# editor:
-#########
-
-no-search-string
-Ingen s\u00f6kstr\u00e4ng \u00e4r angiven.
-(Markera en text eller anv\u00e4nd 'Hitta' f\u00f6rst.)
-
-default-keys
-Vill du verkligen ta bort alla dina
-tangentbindningar och \u00E5terst\u00E4lla
-standardtangenterna?
-\u00E5terst\u00E4ll standard
-Avbryt
-null
+cannot-save-world
+Det g\u00E5r inte att spara v\u00E4rlden efter anv\u00E4ndning av Agera/K\u00F6r.
+\u00E5terst\u00E4ll, starta v\u00E4rlden och spara innan du anv\u00E4nder Agera/K\u00F6r.

@@ -409,6 +409,10 @@ public class FrameCatalogue extends VBox
                     newFrame.focusWhenJustAdded();
                     editor.recordEdits(StrideEditReason.SELECTION_WRAP_CHEAT);
                 }
+
+
+                //Manvi Jain
+               // ifCondition.setAccessibility("Manvi if statement constructor one");
             }
             e.consume();
         });

@@ -661,4 +661,7 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
         // Not much effort to select choice, and often left as-is; approximate as one keypress:
         return 1;
     }
+
+    //Manvi jain
+    public void setAccessibility(String text) { this.getComponents().get(0).setAccessibleText(text);}
 }
