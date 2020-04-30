@@ -136,6 +136,12 @@ public class AssignFrame extends SingleLineFrame
         return text;
     }
 
+    //cherry
+    public String getScreenReaderHelp() {
+        String helpText = "";
+        return helpText;
+    }
+
 
     public ExpressionSlot<? extends ExpressionSlotFragment> getLHS()
     {

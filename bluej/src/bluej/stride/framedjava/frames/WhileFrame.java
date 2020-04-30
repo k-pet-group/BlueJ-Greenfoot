@@ -145,6 +145,19 @@ public class WhileFrame extends SingleCanvasFrame
         return text;
     }
 
+    //cherry
+    public String getScreenReaderHelp() {
+        String helpText = "";
+        return helpText;
+    }
+
+    //cherry
+    public String getLocationDescription() {
+        String text = "you are now in a while frame";
+//        System.out.println(text);
+        return text;
+    }
+
 
     /**
      * Replace statement with a "for" loop, transferring over loop body and header.

@@ -202,6 +202,17 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         return text;
     }
 
+    //cherry
+    public String getScreenReaderHelp() {
+        String helpText = "";
+        return helpText;
+    }
+
+    //cherry
+    public String getLocationDescription() {
+        String text = "";
+        return text;
+    }
 
     @Override
     public boolean focusWhenJustAdded()

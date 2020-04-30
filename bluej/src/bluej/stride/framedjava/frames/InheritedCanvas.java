@@ -101,6 +101,12 @@ class InheritedCanvas
                 return classFrame;
             }
 
+            //cherry
+            @Override
+            public String getLocationDescription() {
+                return null;
+            }
+
             @Override
             public InteractionManager getEditor()
             {

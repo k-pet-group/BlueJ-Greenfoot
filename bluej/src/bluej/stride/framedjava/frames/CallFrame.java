@@ -97,6 +97,12 @@ public class CallFrame extends SingleLineFrame
         return text;
     }
 
+    //cherry
+    public String getScreenReaderHelp() {
+        String helpText = "";
+        return helpText;
+    }
+
 
     @Override
     public void regenerateCode()

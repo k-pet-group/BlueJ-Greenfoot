@@ -59,7 +59,7 @@ public abstract class MultiCanvasFrame extends Frame implements CanvasParent
         //canvas.getChildren().add(0, new CursorBlock());
         //header.getChildren().add(new ParameterSlot(prevRedirect, canvas.getChildren().get(0), b));
     }
-    
+
     /**
      * 
      * @param divider Divider to go above the canvas.  Can be null.

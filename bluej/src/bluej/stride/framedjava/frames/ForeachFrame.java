@@ -118,6 +118,18 @@ public class ForeachFrame extends SingleCanvasFrame
         return text;
     }
 
+    //cherry
+    public String getScreenReaderHelp() {
+        String helpText = "";
+        return helpText;
+    }
+
+    //cherry
+    public String getLocationDescription() {
+        String text = "";
+        return text;
+    }
+
 
     @Override
     @OnThread(Tag.FXPlatform)

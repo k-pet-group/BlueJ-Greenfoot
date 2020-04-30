@@ -48,6 +48,11 @@ public class BlankFrame extends SingleLineFrame implements CodeFrame<BlankElemen
         return text;
     }
 
+    //cherry
+    public String getScreenReaderHelp() {
+        String helpText = "";
+        return helpText;
+    }
 
     @Override
     public void regenerateCode()

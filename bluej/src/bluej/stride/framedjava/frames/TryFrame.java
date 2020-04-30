@@ -114,6 +114,18 @@ public class TryFrame extends SandwichCanvasesFrame
         return text;
     }
 
+    //cherry
+    public String getScreenReaderHelp() {
+        String helpText = "";
+        return helpText;
+    }
+
+    //cherry
+    public String getLocationDescription() {
+        String text = "";
+        return text;
+    }
+
 
     @Override
     protected FrameContentRow getFrameContentRow(List<SlotFragment> slots, JavaCanvas canvas, int at)

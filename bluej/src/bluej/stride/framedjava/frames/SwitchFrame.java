@@ -118,6 +118,18 @@ public class SwitchFrame extends MultiCanvasFrame
         return text;
     }
 
+    //cherry
+    public String getScreenReaderHelp() {
+        String helpText = "";
+        return helpText;
+    }
+
+    //cherry
+    public String getLocationDescription() {
+        String text = "";
+        return text;
+    }
+
 
     public boolean addDefault()
     {

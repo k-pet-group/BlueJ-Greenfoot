@@ -417,6 +417,7 @@ public class FrameCursor implements RecallableFocus
                 if (getFrameAfter() != null)
                 {
                     node.setAccessibleText(getFrameAfter().getScreenReaderText());
+                    node.setAccessibleHelp(getFrameAfter().getScreenReaderHelp());
                 }
             }
         });

@@ -103,6 +103,9 @@ public interface CanvasParent extends CursorFinder
 
     Frame getFrame();
 
+    //cherry
+    String getLocationDescription();
+
     enum CanvasKind
     {
         FIELDS, CONSTRUCTORS, METHODS, STATEMENTS, IMPORTS;

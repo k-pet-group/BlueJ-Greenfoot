@@ -143,38 +143,10 @@ public abstract class Frame implements CursorFinder, FocusParent<FrameContentIte
     private final String stylePrefix;
 
     //cherry
-    public String getAccessibleText(String message){
-        /*if(headerCaptionLabel!=null)
-            System.out.println(headerCaptionLabel.getText());
-        
-        Stream<HeaderItem> stream = header.getHeaderItemsDeep();
-
-        for (HeaderItem item : (Iterable<HeaderItem>) stream::iterator) {
-            for(Node node : item.getComponents()){
-                System.out.println(node.getAccessibleRole());
-            }
-        }
-
-        for(FrameContentItem item : contents){
-            System.out.println(item.getNode().getAccessibleRole());
-        }*/
-        switch(message) {
-            case "frame after":
-                return "frame inserted after";
-            case "before frame":
-                return "inserted before frame";
-            default:
-                return message;
-        }
-
-    }
-    //cherry
-    public String getAccessibleText(){
-        return "shiba";
-    }
-
-    //cherry
     protected abstract String getScreenReaderText();
+
+    //cherry
+    protected abstract String getScreenReaderHelp();
 
     public final String getStylePrefix()
     {

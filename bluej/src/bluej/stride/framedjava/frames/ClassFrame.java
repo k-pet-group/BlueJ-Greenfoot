@@ -181,8 +181,20 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
 
     //cherry
     public String getScreenReaderText() {
-        String text = "class frame text";
-        System.out.println(text);
+        String text = "class frame";
+//        System.out.println(text);
+        return text;
+    }
+
+    //cherry
+    public String getScreenReaderHelp() {
+        String helpText = "";
+        return helpText;
+    }
+
+    //cherry
+    public String getLocationDescription() {
+        String text = "";
         return text;
     }
 

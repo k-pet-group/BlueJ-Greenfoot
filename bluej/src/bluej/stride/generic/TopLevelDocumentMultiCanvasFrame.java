@@ -315,6 +315,12 @@ public abstract class TopLevelDocumentMultiCanvasFrame<ELEMENT extends CodeEleme
                 return TopLevelDocumentMultiCanvasFrame.this;
             }
 
+            // cherry
+            @Override
+            public String getLocationDescription() {
+                return null;
+            }
+
             @Override
             public InteractionManager getEditor()
             {

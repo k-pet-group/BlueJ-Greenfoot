@@ -245,9 +245,20 @@ public class VarFrame extends SingleLineFrame
         if (showingValue.get()) {
             text += " equals " + slotValue.getText();
         }
-        System.out.println(text);
+//        System.out.println(text);
         return text;
     }
+
+    //cherry
+    public String getScreenReaderHelp() {
+        String helpText = "";
+
+        helpText = getParentCanvas().getParent().getLocationDescription();
+
+        return helpText;
+    }
+
+
 
 
     @Override

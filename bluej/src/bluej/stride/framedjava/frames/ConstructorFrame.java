@@ -127,6 +127,18 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
         return text;
     }
 
+    //cherry
+    public String getScreenReaderHelp() {
+        String helpText = "";
+        return helpText;
+    }
+
+    //cherry
+    public String getLocationDescription() {
+        String text = "";
+        return text;
+    }
+
 
     public static FrameFactory<ConstructorFrame> getFactory() {
         return new FrameFactory<ConstructorFrame>() {

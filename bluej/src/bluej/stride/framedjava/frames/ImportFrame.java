@@ -218,6 +218,11 @@ public class ImportFrame extends SingleLineFrame implements CodeFrame<ImportElem
         return text;
     }
 
+    //cherry
+    public String getScreenReaderHelp() {
+        String helpText = "";
+        return helpText;
+    }
 
     public String getImport()
     {

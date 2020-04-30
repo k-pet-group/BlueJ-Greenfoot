@@ -135,6 +135,12 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         return text;
     }
 
+    //cherry
+    public String getScreenReaderHelp() {
+        String helpText = "";
+        return helpText;
+    }
+
 
     private void bindHeader()
     {

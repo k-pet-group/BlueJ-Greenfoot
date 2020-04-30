@@ -112,6 +112,7 @@ public abstract class SingleCanvasFrame extends Frame implements CanvasParent
             //gc.strokeOval(0, 0, getWidth(), getHeight());
         }
     }
+
     
     protected void setCollapsible(boolean collapsible)
     {

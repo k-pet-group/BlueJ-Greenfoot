@@ -140,6 +140,12 @@ public class InheritedMethodFrame extends SingleLineFrame
         return text;
     }
 
+    //cherry
+    public String getScreenReaderHelp() {
+        String helpText = "";
+        return helpText;
+    }
+
 
     @Override
     public boolean canDrag()
