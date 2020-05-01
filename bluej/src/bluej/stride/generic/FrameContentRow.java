@@ -224,6 +224,7 @@ public class FrameContentRow implements FrameContentItem, SlotParent<HeaderItem>
     @Override
     public void focusRight(HeaderItem src)
     {
+
         int index = headerRowComponents.indexOf(src);
         if (index < 0) {
             throw new IllegalStateException("Child slot not found in slot parent");

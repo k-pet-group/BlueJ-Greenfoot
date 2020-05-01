@@ -21,16 +21,15 @@
  */
 package bluej.stride.generic;
 
-import javafx.scene.Node;
-
 import bluej.utility.javafx.SharedTransition;
+import javafx.scene.Node;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 public abstract class DocumentedSingleLineFrame extends SingleLineFrame
 {
     protected DocumentationTextArea documentationPane;
-    
+
     protected DocumentedSingleLineFrame(InteractionManager editor, String caption, String stylePrefix)
     {
         super(editor, caption, stylePrefix);
@@ -87,4 +86,5 @@ public abstract class DocumentedSingleLineFrame extends SingleLineFrame
         else
             return super.getBottomMarginFor(n);
     }
+
 }

@@ -21,44 +21,27 @@
  */
 package bluej.stride.framedjava.frames;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.collections.FXCollections;
-
 import bluej.Config;
-import bluej.stride.framedjava.ast.AccessPermission;
-import bluej.stride.framedjava.ast.AccessPermissionFragment;
-import bluej.stride.framedjava.ast.JavadocUnit;
-import bluej.stride.framedjava.ast.NameDefSlotFragment;
-import bluej.stride.framedjava.ast.ParamFragment;
-import bluej.stride.framedjava.ast.ThrowsTypeFragment;
-import bluej.stride.framedjava.ast.TypeSlotFragment;
+import bluej.stride.framedjava.ast.*;
 import bluej.stride.framedjava.elements.MethodProtoElement;
 import bluej.stride.framedjava.elements.NormalMethodElement;
 import bluej.stride.framedjava.slots.TypeSlot;
-import bluej.stride.generic.DocumentedSingleLineFrame;
-import bluej.stride.generic.ExtensionDescription;
+import bluej.stride.generic.*;
 import bluej.stride.generic.ExtensionDescription.ExtensionSource;
-import bluej.stride.generic.FrameCanvas;
-import bluej.stride.generic.FrameCursor;
-import bluej.stride.generic.FrameFactory;
-import bluej.stride.generic.InteractionManager;
 import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
-import bluej.stride.slots.EditableSlot;
+import bluej.stride.slots.*;
 import bluej.stride.slots.EditableSlot.MenuItemOrder;
-import bluej.stride.slots.FormalParameters;
-import bluej.stride.slots.MethodNameDefTextSlot;
-import bluej.stride.slots.SlotLabel;
-import bluej.stride.slots.SlotTraversalChars;
-import bluej.stride.slots.Throws;
 import bluej.utility.javafx.JavaFXUtil;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeFrame<MethodProtoElement>
 {
@@ -76,15 +59,15 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
 
         methodName = new MethodNameDefTextSlot(editor, this, getHeaderRow(), null, "method-name-");
         methodName.setPromptText("name");
-        methodName.addValueListener(SlotTraversalChars.METHOD_NAME);
+        methodName.addValueListener( SlotTraversalChars.METHOD_NAME);
         
         returnType = new TypeSlot(editor, this, this, getHeaderRow(), TypeSlot.Role.RETURN, "method-return-type-");
         returnType.setSimplePromptText("type");
         returnType.addClosingChar(' ');
 
         paramsPane = new FormalParameters(editor, this, this, getHeaderRow(), "method-param-");
-        setDocumentationPromptText("Describe your method here...");
-        
+        setDocumentationPromptText(Config.getString("frame.class.method.doc.prompt"));
+
         throwsPane = new Throws(this, () -> {
             TypeSlot s = new TypeSlot(editor, this, this, getHeaderRow(), TypeSlot.Role.THROWS_CATCH, "method-");
             s.setSimplePromptText("thrown type");
@@ -111,12 +94,12 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
     private void bindHeader()
     {
         getHeaderRow().bindContentsConcat(FXCollections.observableArrayList(
-                JavaFXUtil.listBool(parentIsClass, abstractLabel),
-                FXCollections.observableArrayList(returnType, methodName),
-                paramsPane.getSlots(),
-                throwsPane.getHeaderItems(),
-                FXCollections.observableArrayList(previewSemi)
-                ));
+            JavaFXUtil.listBool(parentIsClass, abstractLabel),
+            FXCollections.observableArrayList(returnType, methodName),
+            paramsPane.getSlots(),
+            throwsPane.getHeaderItems(),
+            FXCollections.observableArrayList(previewSemi)
+        ));
     }
     
     public static FrameFactory<MethodProtoFrame> getFactory()
@@ -199,5 +182,93 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
     public EditableSlot getErrorShowRedirect()
     {
         return methodName;
+    }
+
+
+    /**
+     * TODO: The following solution reuses code from MethodFrameWithBody and NormalMethodFrame
+     * We are using the same inner class in both MethodFrameWithBody and THIS class.
+     * The originates form the fact that the inner class needs to access paramsPane,
+     * in order to effectively override the *focusRight* method.
+     */
+    // Copied from MethodFrameWithBody
+    protected class MethodHeaderRow extends FrameContentRow
+    {
+        public MethodHeaderRow(Frame parentFrame, String stylePrefix)
+        {
+            super(parentFrame, stylePrefix);
+        }
+
+        protected EditableSlot getSlotAfterParams()
+        {
+            return throwsPane.getTypeSlots().findFirst().orElse(null);
+        }
+
+        // Returns null if and only if the params are the last focusable slot
+        protected EditableSlot getSlotBeforeParams()
+        {
+            return methodName;
+        }
+
+        @Override
+        public void focusRight(HeaderItem src)
+        {
+            if (src == getSlotBeforeParams())
+            {
+                paramsPane.ensureAtLeastOneParameter();
+            }
+            super.focusRight(src);
+        }
+
+        @Override
+        public void focusLeft(HeaderItem src)
+        {
+            if (src == getSlotAfterParams())
+            {
+                if (paramsPane.ensureAtLeastOneParameter())
+                {
+                    // If we did add a new parameter, focus the left part:
+                    paramsPane.focusBeginning();
+                    return;
+                }
+            }
+            super.focusLeft(src);
+        }
+
+        @Override
+        public boolean focusRightEndFromNext()
+        {
+            // Only make a parameter ready, if params are actually the last item:
+            if (getSlotAfterParams() == null)
+            {
+                if (paramsPane.ensureAtLeastOneParameter())
+                {
+                    // If we did add a new parameter, focus the left part:
+                    paramsPane.focusBeginning();
+                    return true;
+                }
+            }
+            return super.focusRightEndFromNext();
+        }
+
+        @Override
+        @OnThread(Tag.FXPlatform)
+        public void escape(HeaderItem src)
+        {
+            if (paramsPane.findFormal(src) != null){
+                paramsPane.escape(src);
+            }
+            else {
+                super.escape(src);
+            }
+        }
+    }
+
+    //Copied from NormalMethodFrame
+    //Overrides makeHeader of the Frame class, and returns a MethodHeaderRow (above inner class), which has access to the paramsPane
+    @Override
+    protected FrameContentRow makeHeader(String stylePrefix)
+    {
+        return new MethodHeaderRow(this, stylePrefix);
     }
 }

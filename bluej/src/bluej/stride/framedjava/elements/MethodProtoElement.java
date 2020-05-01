@@ -75,11 +75,10 @@ public class MethodProtoElement extends DocumentContainerCodeElement
         throwsTypes = new ArrayList<>();
         for (int i = 0; i < el.getChildElements().size(); i++) {
             final Element child = el.getChildElements().get(i);
-            switch (child.getLocalName()) {
+            switch (child.getLocalName())
+            {
                 case "params":
-                    for (int j = 0; j < child.getChildElements().size(); j++) {
-                        params.add(new ParamFragment(child.getChildElements().get(j)));
-                    }
+                    params.add(new ParamFragment(child));
                     break;
                 case "throws":
                     for (int j = 0; j < child.getChildElements().size(); j++) {
