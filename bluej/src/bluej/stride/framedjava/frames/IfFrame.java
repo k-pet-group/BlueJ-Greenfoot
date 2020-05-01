@@ -126,14 +126,17 @@ public class IfFrame extends SandwichCanvasesFrame
 
     //cherry
     public String getScreenReaderHelp() {
-        String helpText = "";
+        String helpText = "you are ";
+        helpText += getParentCanvas().getParentLocationDescription();
+
         return helpText;
     }
 
     //cherry
     public String getLocationDescription(FrameCanvas c) {
-        String text = "";
-        text = "you are in an if frame";
+        String condition, text;
+        if (ifCondition.getText().equals("")) { condition = "blank"; } else { condition = ifCondition.getText(); }
+        text = " in an if frame with condition " + condition;
         int sectionIndex = canvases.indexOf(c);
         if (sectionIndex==0) {
             // "then" section
@@ -145,6 +148,7 @@ public class IfFrame extends SandwichCanvasesFrame
             // "else" section
             text += ", in the 'else' section.";
         }
+        text += getParentCanvas().getParentLocationDescription();
 //        System.out.println(text);
         return text;
     }

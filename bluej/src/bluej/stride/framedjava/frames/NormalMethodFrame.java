@@ -204,13 +204,19 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
 
     //cherry
     public String getScreenReaderHelp() {
-        String helpText = "";
+        String helpText = "you are ";
+        helpText += getParentCanvas().getParentLocationDescription();
+
         return helpText;
     }
 
     //cherry
     public String getLocationDescription(FrameCanvas c) {
-        String text = "";
+        String text, nameString;
+        if (methodName.getText().equals("")) { nameString = "blank"; } else { nameString = methodName.getText(); }
+        text = " in the method " + nameString + ",";
+        text += getParentCanvas().getParentLocationDescription();
+
         return text;
     }
 

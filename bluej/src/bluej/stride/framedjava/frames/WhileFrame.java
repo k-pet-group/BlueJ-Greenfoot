@@ -147,13 +147,19 @@ public class WhileFrame extends SingleCanvasFrame
 
     //cherry
     public String getScreenReaderHelp() {
-        String helpText = "";
+        String helpText = "you are ";
+        helpText += getParentCanvas().getParentLocationDescription();
+
         return helpText;
     }
 
     //cherry
     public String getLocationDescription(FrameCanvas c) {
-        String text = "you are now in a while frame";
+        String condition, text;
+        if (paramCondition.getText().equals("")) { condition = "blank"; } else { condition = paramCondition.getText(); }
+        text = " in a while frame with condition " + condition + ",";
+        text += getParentCanvas().getParentLocationDescription();
+
 //        System.out.println(text);
         return text;
     }
