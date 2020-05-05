@@ -123,9 +123,9 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         if (methodName.getText().equals("")) { nameString = "blank"; } else { nameString = methodName.getText(); }
         if (returnType.getText().equals("")) { returnString = "blank"; } else { returnString = returnType.getText(); }
         if (paramString.length() != 0) {
-            text = "Method " + nameString + " with parameters " + paramString.toString() + " and " + returnString + " return type ";
+            text = "method " + nameString + " with parameters " + paramString.toString() + " and " + returnString + " return type ";
         } else {
-            text = "Method " + nameString + " with " + returnString + " return type ";
+            text = "method " + nameString + " with " + returnString + " return type ";
         }
         // add abstract if this method is in a class (not interface)
         if (parentIsClass.get()) {
@@ -136,8 +136,17 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
     }
 
     //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
     public String getScreenReaderHelp() {
-        String helpText = "";
+        String helpText = "you are ";
+
+        helpText += getParentCanvas().getParentLocationDescription();
+
+//        System.out.println(helpText);
         return helpText;
     }
 

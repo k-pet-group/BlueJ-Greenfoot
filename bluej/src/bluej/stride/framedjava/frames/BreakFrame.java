@@ -95,8 +95,17 @@ public class BreakFrame extends SingleLineFrame
     }
 
     //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
     public String getScreenReaderHelp() {
-        String helpText = "";
+        String helpText = "you are ";
+
+        helpText += getParentCanvas().getParentLocationDescription();
+
+//        System.out.println(helpText);
         return helpText;
     }
 

@@ -119,14 +119,30 @@ public class ForeachFrame extends SingleCanvasFrame
     }
 
     //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
     public String getScreenReaderHelp() {
-        String helpText = "";
+        String helpText = "you are ";
+
+        helpText += getParentCanvas().getParentLocationDescription();
+
+//        System.out.println(helpText);
         return helpText;
     }
 
     //cherry
     public String getLocationDescription(FrameCanvas c) {
-        String text = "";
+        String text, typeString, varString, collectionString;
+        if (type.getText().equals("")) { typeString = "blank"; } else { typeString = type.getText(); }
+        if (var.getText().equals("")) { varString = "blank"; } else { varString = var.getText(); }
+        if (collection.getText().equals("")) { collectionString = "blank"; } else { collectionString = collection.getText(); }
+
+        text = " in a 'for each' frame that loops through every " + varString + " of type " + typeString + " in collection " + collectionString + ",";
+        text += getParentCanvas().getParentLocationDescription();
+
         return text;
     }
 

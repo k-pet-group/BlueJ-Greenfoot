@@ -119,14 +119,28 @@ public class SwitchFrame extends MultiCanvasFrame
     }
 
     //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
     public String getScreenReaderHelp() {
-        String helpText = "";
+        String helpText = "you are ";
+
+        helpText += getParentCanvas().getParentLocationDescription();
+
+//        System.out.println(helpText);
         return helpText;
     }
 
     //cherry
     public String getLocationDescription(FrameCanvas c) {
-        String text = "";
+        String expressionStr, text;
+        if (expression.getText().equals("")) { expressionStr = "blank"; } else { expressionStr = expression.getText(); }
+
+        text = " in a 'switch' frame for expression " + expressionStr + ",";
+        text += getParentCanvas().getParentLocationDescription();
+
         return text;
     }
 

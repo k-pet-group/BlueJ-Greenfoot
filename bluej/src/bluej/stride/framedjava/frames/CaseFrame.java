@@ -125,19 +125,31 @@ public class CaseFrame extends SingleCanvasFrame
     public String getScreenReaderText() {
         String condition;
         if (paramCondition.getText().equals("")) { condition = "blank"; } else { condition = paramCondition.getText(); }
-        String text = "case " + condition;
+        String text = "'case' frame with value" + condition;
         return text;
     }
 
     //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
     public String getScreenReaderHelp() {
-        String helpText = "";
+        String helpText = "you are ";
+
+        helpText += getParentCanvas().getParentLocationDescription();
+
+//        System.out.println(helpText);
         return helpText;
     }
 
     //cherry
     public String getLocationDescription(FrameCanvas c) {
-        String text = "";
+        String condition, text;
+        if (paramCondition.getText().equals("")) { condition = "blank"; } else { condition = paramCondition.getText(); }
+        text = " in a 'case' frame with value " + condition + ",";
+        text += getParentCanvas().getParentLocationDescription();
         return text;
     }
 

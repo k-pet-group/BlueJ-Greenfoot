@@ -128,14 +128,36 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
     }
 
     //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
     public String getScreenReaderHelp() {
-        String helpText = "";
+        String helpText = "you are ";
+
+        helpText += getParentCanvas().getParentLocationDescription();
+
+//        System.out.println(helpText);
         return helpText;
     }
 
     //cherry
     public String getLocationDescription(FrameCanvas c) {
-        String text = "";
+        StringBuilder paramString = new StringBuilder();
+        for(ParamFragment pair : paramsPane.getSlotElement()) {
+            String name, type;
+            if (pair.getParamName().getSlot().getText().equals("")) { name = "blank"; } else { name = pair.getParamName().getSlot().getText(); }
+            if (pair.getParamType().getSlot().getText().equals("")) { type = "blank"; } else { type = pair.getParamType().getSlot().getText(); }
+
+            paramString.append(type + " " +  name + " ");
+        }
+        String text = " in the constructor " + getEditor().nameProperty().get();
+        if (paramString.length() != 0) {
+            text += " with parameters " + paramString.toString();
+        }
+        text += getParentCanvas().getParentLocationDescription();
+
         return text;
     }
 

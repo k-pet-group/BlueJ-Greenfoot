@@ -125,10 +125,17 @@ public class IfFrame extends SandwichCanvasesFrame
     }
 
     //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
     public String getScreenReaderHelp() {
         String helpText = "you are ";
+
         helpText += getParentCanvas().getParentLocationDescription();
 
+//        System.out.println(helpText);
         return helpText;
     }
 
@@ -136,18 +143,18 @@ public class IfFrame extends SandwichCanvasesFrame
     public String getLocationDescription(FrameCanvas c) {
         String condition, text;
         if (ifCondition.getText().equals("")) { condition = "blank"; } else { condition = ifCondition.getText(); }
-        text = " in an if frame with condition " + condition;
         int sectionIndex = canvases.indexOf(c);
         if (sectionIndex==0) {
             // "then" section
-            text += ", in the 'then' section.";
+            text = " in the 'then' section,";
         } else if (sectionIndex > 0 && sectionIndex < canvases.size()-1) {
             // "elseif" section
-            text += ", in the 'elseif' section.";
+            text = " in the 'elseif' section with condition " + elseIfConditions.get(sectionIndex-1).getText() + ",";
         } else {
             // "else" section
-            text += ", in the 'else' section.";
+            text = " in the 'else' section,";
         }
+        text += " in an if frame with condition " + condition + ",";
         text += getParentCanvas().getParentLocationDescription();
 //        System.out.println(text);
         return text;

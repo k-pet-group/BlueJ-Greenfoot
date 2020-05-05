@@ -115,14 +115,34 @@ public class TryFrame extends SandwichCanvasesFrame
     }
 
     //cherry
+    /**
+     * Get the help text of this frame, to pass to setAccessibilityHelp().
+     * Calls the parent frame if there is one, to get the parent's description
+     * plus the descriptions of that parent's parents.
+     */
     public String getScreenReaderHelp() {
-        String helpText = "";
+        String helpText = "you are ";
+
+        helpText += getParentCanvas().getParentLocationDescription();
+
+//        System.out.println(helpText);
         return helpText;
     }
 
     //cherry
     public String getLocationDescription(FrameCanvas c) {
         String text = "";
+        int sectionIndex = canvases.indexOf(c);
+        if (sectionIndex==0) {
+            // "try" section
+            text = " in the 'try' section,";
+        } else {
+            // "catch" section
+            text = " in the 'catch' section with parameter " + catchVars.get(sectionIndex-1) + " of type " + catchTypes.get(sectionIndex-1) + ",";
+        }
+        text += " in a 'try-catch' frame,";
+        text += getParentCanvas().getParentLocationDescription();
+
         return text;
     }
 
