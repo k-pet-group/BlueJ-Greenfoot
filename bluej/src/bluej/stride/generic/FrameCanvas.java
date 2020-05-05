@@ -185,7 +185,10 @@ public class FrameCanvas implements FrameContentItem
     //cherry
     public String getParentLocationDescription()
     {
-        return getParent().getLocationDescription(this);
+        // if this canvas has no parent, (if i'm not wrong) it means this
+        // canvas is exposed in the class, so the parent is the class
+        if (getParent()!=null) { return " in the class " + editorFrm.nameProperty().get(); }
+        else return getParent().getLocationDescription(this);
     }
 
     public VBox getSpecialBefore(FrameCursor cursor)
