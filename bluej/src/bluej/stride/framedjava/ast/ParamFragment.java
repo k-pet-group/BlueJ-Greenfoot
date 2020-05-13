@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -32,7 +32,7 @@ import bluej.stride.generic.Frame;
 
 public class ParamFragment
 {
-    public static final String ELEMENT = "param";
+    public static final String ELEMENT = "params";
     private final TypeSlotFragment paramType;
     private final NameDefSlotFragment paramName;
     
@@ -47,7 +47,7 @@ public class ParamFragment
         paramType = new TypeSlotFragment(el.getAttributeValue("type"), el.getAttributeValue("type-java"));
         paramName = new NameDefSlotFragment(el.getAttributeValue("name"));
     }
-    
+
     public Element toXML()
     {
         LocatableElement paramEl = new LocatableElement(null, ELEMENT);

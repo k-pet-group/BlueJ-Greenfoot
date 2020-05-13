@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -21,16 +21,15 @@
  */
 package bluej.stride.generic;
 
-import javafx.scene.Node;
-
 import bluej.utility.javafx.SharedTransition;
+import javafx.scene.Node;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
 public abstract class DocumentedSingleLineFrame extends SingleLineFrame
 {
     protected DocumentationTextArea documentationPane;
-    
+
     protected DocumentedSingleLineFrame(InteractionManager editor, String caption, String stylePrefix)
     {
         super(editor, caption, stylePrefix);
@@ -87,4 +86,5 @@ public abstract class DocumentedSingleLineFrame extends SingleLineFrame
         else
             return super.getBottomMarginFor(n);
     }
+
 }
