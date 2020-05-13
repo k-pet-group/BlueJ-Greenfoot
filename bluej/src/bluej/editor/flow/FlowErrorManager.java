@@ -459,7 +459,7 @@ public class FlowErrorManager implements ErrorQuery
                     String fileContentBeforeErrorPart = JavaUtils.blankCodeCommentsAndStringLiterals(fileContent.substring(0, startPos),'0');
                     int prevStatementPos = Math.max(fileContentBeforeErrorPart.lastIndexOf('{'), fileContentBeforeErrorPart.lastIndexOf(';'));
                     int statementStartPos = prevStatementPos +1;
-                    while(Character.isWhitespace(fileContentBeforeErrorPart.charAt(statementStartPos)))
+                    while(statementStartPos < fileContentBeforeErrorPart.length() && Character.isWhitespace(fileContentBeforeErrorPart.charAt(statementStartPos)))
                         statementStartPos++;
                     String fileContentAfterErrorPart = JavaUtils.blankCodeCommentsAndStringLiterals(fileContent.substring(startPos), '0');
                     int statementEndPos = 0;
