@@ -26,7 +26,6 @@ import java.util.List;
 
 import bluej.Config;
 import bluej.collect.StrideEditReason;
-import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
 import threadchecker.OnThread;

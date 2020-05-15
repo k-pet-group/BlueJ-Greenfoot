@@ -24,8 +24,6 @@ package bluej.stride.operations;
 import java.util.List;
 import java.util.function.Consumer;
 
-import bluej.stride.slots.EditableSlot.MenuItemOrder;
-import javafx.beans.value.ObservableValue;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.Utility;

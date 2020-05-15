@@ -26,7 +26,6 @@ import java.util.List;
 import javafx.scene.control.CustomMenuItem;
 
 import bluej.Config;
-import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
 

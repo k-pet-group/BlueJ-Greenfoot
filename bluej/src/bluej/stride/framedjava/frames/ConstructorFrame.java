@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import bluej.utility.javafx.AbstractOperation;
 import javafx.beans.binding.DoubleExpression;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -59,7 +60,6 @@ import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.ChoiceSlot;
 import bluej.stride.slots.EditableSlot;
-import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import bluej.stride.slots.FormalParameters;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
@@ -229,7 +229,7 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
 
         r.add(new CustomFrameOperation(getEditor(), "constructor->method",
                 Arrays.asList(Config.getString("frame.operation.change"), Config.getString("frame.operation.change.to.method")),
-                MenuItemOrder.TRANSFORM, this, () -> {
+                AbstractOperation.MenuItemOrder.TRANSFORM, this, () -> {
                     // TODO AA enhance the code
                     Frame parent = getParentCanvas().getParent().getFrame();
                     if (parent instanceof ClassFrame) {

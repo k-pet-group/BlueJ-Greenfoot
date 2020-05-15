@@ -38,7 +38,7 @@ import bluej.collect.StrideEditReason;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.stride.framedjava.frames.StrideCategory;
 import bluej.stride.framedjava.frames.StrideDictionary;
-import bluej.stride.slots.EditableSlot.MenuItemOrder;
+import bluej.utility.javafx.AbstractOperation;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -842,7 +842,7 @@ public class FrameCursor implements RecallableFocus
     public EditableSlot.MenuItems getMenuItems(boolean contextMenu)
     {
         boolean selection = !editor.getSelection().isEmpty();
-        EditableSlot.MenuItems menuItems = new EditableSlot.MenuItems(FXCollections.observableArrayList(new PasteFrameOperation(editor).getMenuItem(contextMenu)));
+        EditableSlot.MenuItems menuItems = new EditableSlot.MenuItems(FXCollections.observableArrayList(new PasteFrameOperation(editor).getMenuItem(contextMenu, () -> editor.getSelection().getSelected())));
         if (!editor.getSelection().isEmpty())
         {
             menuItems = EditableSlot.MenuItems.concat( editor.getSelection().getMenuItems(contextMenu), menuItems);
@@ -852,7 +852,7 @@ public class FrameCursor implements RecallableFocus
         {
             Menu insertMenu = new Menu("Insert");
             insertMenu.getItems().addAll(getAcceptedFramesMenuItems());
-            menuItems = EditableSlot.MenuItems.concat( new EditableSlot.MenuItems(FXCollections.observableArrayList(MenuItemOrder.INSERT_FRAME.item(insertMenu))), menuItems);
+            menuItems = EditableSlot.MenuItems.concat( new EditableSlot.MenuItems(FXCollections.observableArrayList(AbstractOperation.MenuItemOrder.INSERT_FRAME.item(insertMenu))), menuItems);
         }
 
         return menuItems;

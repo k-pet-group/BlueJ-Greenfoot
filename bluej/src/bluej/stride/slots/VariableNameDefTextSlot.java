@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
+import bluej.utility.javafx.AbstractOperation;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.collections.FXCollections;
 import javafx.geometry.Bounds;
@@ -158,7 +159,7 @@ public class VariableNameDefTextSlot extends TextSlot<NameDefSlotFragment>
             {
                 if (allUsesCanvas != null)
                 {
-                    items.setAll(MenuItemOrder.SHOW_HIDE_USES.item(JavaFXUtil.makeMenuItem("Hide uses of \"" + getText() + "\"", () -> hideUsesOverlay(), null)));
+                    items.setAll(AbstractOperation.MenuItemOrder.SHOW_HIDE_USES.item(JavaFXUtil.makeMenuItem("Hide uses of \"" + getText() + "\"", () -> hideUsesOverlay(), null)));
                 }
                 else
                 {
@@ -166,7 +167,7 @@ public class VariableNameDefTextSlot extends TextSlot<NameDefSlotFragment>
                     
                     if (!refFinder.refs.isEmpty())
                     {
-                        items.setAll(MenuItemOrder.SHOW_HIDE_USES.item(JavaFXUtil.makeMenuItem("See uses of \"" + getText() + "\"", () -> showUsesOverlay(refFinder.refs), null)));
+                        items.setAll(AbstractOperation.MenuItemOrder.SHOW_HIDE_USES.item(JavaFXUtil.makeMenuItem("See uses of \"" + getText() + "\"", () -> showUsesOverlay(refFinder.refs), null)));
                     }
                     else
                         items.clear();

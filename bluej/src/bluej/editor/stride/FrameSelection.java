@@ -27,11 +27,11 @@ import bluej.stride.generic.Frame;
 import bluej.stride.generic.FrameCanvas;
 import bluej.stride.generic.FrameCursor;
 import bluej.stride.generic.InteractionManager;
-import bluej.stride.operations.AbstractOperation;
-import bluej.stride.operations.AbstractOperation.ItemLabel;
+import bluej.utility.javafx.AbstractOperation;
+import bluej.utility.javafx.AbstractOperation.ItemLabel;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.EditableSlot.MenuItems;
-import bluej.stride.slots.EditableSlot.SortedMenuItem;
+import bluej.utility.javafx.AbstractOperation.SortedMenuItem;
 import bluej.stride.slots.EditableSlot.TopLevelMenu;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
@@ -296,7 +296,7 @@ public class FrameSelection
         return Collections.singletonMap(TopLevelMenu.EDIT, getMenuItems(contextMenu));
     }
 
-    private static MenuItems asMenuItems(List<FrameOperation> originalOps, int depth, boolean contextMenu)
+    private MenuItems asMenuItems(List<FrameOperation> originalOps, int depth, boolean contextMenu)
     {
         // Only keep ones that fit context menu flag:
         List<FrameOperation> ops = originalOps.stream().filter(op -> contextMenu || !op.onlyOnContextMenu()).collect(Collectors.toList());
@@ -307,7 +307,7 @@ public class FrameSelection
             final MenuItems menuItems = asMenuItems(ops.stream().filter(op -> op.getLabels().get(depth).equals(subMenuName)).collect(Collectors.toList()), depth + 1, contextMenu);
             Menu subMenu = menuItems.makeSubMenu();
             subMenu.textProperty().bind(subMenuName.getLabel());
-            r.add(subMenuName.getOrder().item(subMenu));
+            r.add(new SortedMenuItem(subMenu, subMenuName.getOrder()));
         });
         
         List<FrameOperation> opsAtRightLevel = ops.stream().filter(op -> op.getLabels().size() == depth + 1).collect(Collectors.toList());
@@ -316,7 +316,7 @@ public class FrameSelection
 
         for (FrameOperation op : opsAtRightLevel)
         {
-            SortedMenuItem item = op.getMenuItem(contextMenu);
+            SortedMenuItem item = op.getMenuItem(contextMenu, () -> getSelected());
             r.add(item);
             opsAtRightLevelItems.put(op, item);
         }

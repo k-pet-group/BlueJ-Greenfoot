@@ -37,6 +37,7 @@ import bluej.stride.framedjava.ast.StructuredSlotFragment;
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.stride.framedjava.slots.InfixStructured.RangeType;
 import bluej.stride.generic.ExtensionDescription;
+import bluej.utility.javafx.*;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.BooleanExpression;
 import javafx.beans.binding.StringExpression;
@@ -88,15 +89,6 @@ import bluej.editor.fixes.SuggestionList.SuggestionDetails;
 import bluej.editor.fixes.SuggestionList.SuggestionDetailsWithCustomDoc;
 import bluej.editor.fixes.SuggestionList.SuggestionListListener;
 import bluej.utility.Utility;
-import bluej.utility.javafx.ErrorUnderlineCanvas;
-import bluej.utility.javafx.FXBiConsumer;
-import bluej.utility.javafx.FXConsumer;
-import bluej.utility.javafx.FXFunction;
-import bluej.utility.javafx.FXPlatformConsumer;
-import bluej.utility.javafx.FXPlatformFunction;
-import bluej.utility.javafx.FXRunnable;
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -1239,10 +1231,10 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             }
         });
 
-        final ObservableList<SortedMenuItem> originalItems = FXCollections.observableArrayList();
-        final FXConsumer<ObservableList<SortedMenuItem>> setToOriginal = l -> {
+        final ObservableList<AbstractOperation.SortedMenuItem> originalItems = FXCollections.observableArrayList();
+        final FXConsumer<ObservableList<AbstractOperation.SortedMenuItem>> setToOriginal = l -> {
             if (contextMenu)
-                l.setAll(MenuItemOrder.RECENT_VALUES.item(recentMenu));
+                l.setAll(AbstractOperation.MenuItemOrder.RECENT_VALUES.item(recentMenu));
             else
                 l.clear();
         };
@@ -1271,9 +1263,9 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
 
                     setToOriginal.accept(items);
                     items.addAll(
-                        MenuItemOrder.CUT.item(cut),
-                        MenuItemOrder.COPY.item(copy),
-                        MenuItemOrder.PASTE.item(paste)
+                        AbstractOperation.MenuItemOrder.CUT.item(cut),
+                        AbstractOperation.MenuItemOrder.COPY.item(copy),
+                        AbstractOperation.MenuItemOrder.PASTE.item(paste)
                     );
                 }
                 if (hoverErrorCurrentlyShown != null ){
@@ -1284,7 +1276,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
 
         if (contextMenu)
         {
-            final SortedMenuItem scanningItem = MenuItemOrder.GOTO_DEFINITION.item(new MenuItem("Scanning..."));
+            final AbstractOperation.SortedMenuItem scanningItem = AbstractOperation.MenuItemOrder.GOTO_DEFINITION.item(new MenuItem("Scanning..."));
             scanningItem.getItem().setDisable(true);
 
             itemMap.put(TopLevelMenu.VIEW, new MenuItems(FXCollections.observableArrayList())
@@ -1306,7 +1298,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
                     FXPlatformConsumer<Optional<LinkedIdentifier>> withLink = optLink -> {
                         removeScanning();
                         optLink.ifPresent(defLink -> {
-                            items.add(MenuItemOrder.GOTO_DEFINITION.item(JavaFXUtil.makeMenuItem(Config.getString("frame.slot.goto")
+                            items.add(AbstractOperation.MenuItemOrder.GOTO_DEFINITION.item(JavaFXUtil.makeMenuItem(Config.getString("frame.slot.goto")
                                     .replace("$", defLink.getName()), defLink.getOnClick(), null)));
                         });
                     };

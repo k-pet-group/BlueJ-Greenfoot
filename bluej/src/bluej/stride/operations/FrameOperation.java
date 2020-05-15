@@ -24,8 +24,7 @@ package bluej.stride.operations;
 import java.util.Collections;
 import java.util.List;
 
-import bluej.stride.slots.EditableSlot.SortedMenuItem;
-import javafx.application.Platform;
+import bluej.utility.javafx.AbstractOperation;
 import javafx.scene.control.CustomMenuItem;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
@@ -33,13 +32,11 @@ import bluej.stride.generic.RecallableFocus;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import javafx.scene.control.MenuItem;
 import javafx.scene.input.KeyCombination;
 
-public abstract class FrameOperation extends AbstractOperation
+public abstract class FrameOperation extends AbstractOperation<Frame>
 {
-
-    private KeyCombination shortcut;
+    protected final InteractionManager editor;
 
     public FrameOperation(InteractionManager editor, String identifier, Combine combine)
     {
@@ -48,15 +45,9 @@ public abstract class FrameOperation extends AbstractOperation
 
     public FrameOperation(InteractionManager editor, String identifier, Combine combine, KeyCombination shortcut)
     {
-        super(editor, identifier, combine);
-        this.shortcut = shortcut;
+        super(identifier, combine, shortcut);
+        this.editor = editor;
     }
-
-    @OnThread(Tag.FXPlatform)
-    protected void enablePreview() { }
-
-    @OnThread(Tag.FXPlatform)
-    protected void disablePreview() { }
 
     @OnThread(Tag.FXPlatform)
     public void onMenuShowing(CustomMenuItem item) { }
@@ -106,35 +97,6 @@ public abstract class FrameOperation extends AbstractOperation
     public boolean onlyOnContextMenu()
     {
         return false;
-    }
-
-    public SortedMenuItem getMenuItem(boolean contextMenu)
-    {
-        MenuItem item;
-        if (contextMenu)
-        {
-            CustomMenuItem customItem = initializeCustomItem();
-
-            customItem.getContent().setOnMouseEntered(e -> enablePreview());
-            customItem.getContent().setOnMouseExited(e -> disablePreview());
-
-            item = customItem;
-        }
-        else
-        {
-            item = initializeNormalItem();
-        }
-
-        item.setOnAction(e -> {
-            activate(editor.getSelection().getSelected());
-            e.consume();
-        });
-
-        if (shortcut != null) {
-            item.setAccelerator(shortcut);
-        }
-
-        return getLabels().get(0).getOrder().item(item);
     }
 
     public KeyCombination getShortcut()
