@@ -23,21 +23,21 @@ package bluej.pkgmgr.target;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Properties;
 
 import bluej.editor.flow.FlowEditor;
-import bluej.prefmgr.PrefMgr;
+import bluej.pkgmgr.target.actions.EditAction;
+import bluej.pkgmgr.target.actions.RemoveAction;
+import bluej.utility.javafx.AbstractOperation;
 import javafx.beans.property.ReadOnlyBooleanWrapper;
 import javafx.geometry.Pos;
-import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 
 import bluej.Config;
 import bluej.editor.Editor;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PackageEditor;
 import bluej.utility.javafx.JavaFXUtil;
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -79,42 +79,10 @@ public class CSSTarget extends NonCodeEditableTarget
         }
     }
 
-    /**
-     * Disply the context menu.
-     */
     @Override
-    @OnThread(Tag.FXPlatform)
-    public void popupMenu(int x, int y, PackageEditor graphEditor)
+    public List<? extends AbstractOperation<Target>> getContextOperations()
     {
-        ContextMenu menu = createMenu();
-        if (menu != null) {
-            showingMenu(menu);
-            menu.show(pane, x, y);
-        }
-    }
-
-    /**
-     * Construct a popup menu which displays all our parent packages.
-     */
-    @OnThread(Tag.FXPlatform)
-    private ContextMenu createMenu()
-    {
-        MenuItem open = new MenuItem(openStr);
-        open.setOnAction(e -> {
-            open();
-        });
-        JavaFXUtil.addStyleClass(open, "class-action-inbuilt");
-        ContextMenu contextMenu = new ContextMenu(open);
-
-        MenuItem remove = new MenuItem(removeStr);
-        remove.setOnAction(e ->
-        {
-            remove();
-        });
-        JavaFXUtil.addStyleClass(remove, "class-action-inbuilt");
-        contextMenu.getItems().add(remove);
-
-        return contextMenu;
+        return List.of(new EditAction(), new RemoveAction());
     }
 
     @Override

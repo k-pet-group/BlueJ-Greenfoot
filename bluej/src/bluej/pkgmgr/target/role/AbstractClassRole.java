@@ -22,9 +22,12 @@
 package bluej.pkgmgr.target.role;
 
 import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.actions.ClassTargetOperation;
 import javafx.collections.ObservableList;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.List;
 
 /**
  * A role object to represent the behaviour of abstract classes.
@@ -60,14 +63,12 @@ public class AbstractClassRole extends ClassRole
      * <p>Because we are an abstract class we cannot have any constructors
      * so we override this method to do nothing.
      *
-     * @param menu the popup menu to add the class menu items to
      * @param cl Class object associated with this class target
      */
     @Override
-    @OnThread(Tag.FXPlatform)
-    public boolean createClassConstructorMenu(ObservableList<javafx.scene.control.MenuItem> menu, ClassTarget ct, Class<?> cl)
+    public @OnThread(Tag.FXPlatform) List<ClassTargetOperation> getClassConstructorOperations(ClassTarget ct, Class<?> cl)
     {
-        return false;
+        return List.of();
     }
 
     @Override

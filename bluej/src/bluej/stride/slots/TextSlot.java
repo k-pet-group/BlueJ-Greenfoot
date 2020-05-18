@@ -514,7 +514,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             
             // Need to allow parent's constructor to execute, and
             // need to be in the scene:
-            JavaFXUtil.onceInScene(getNode(), () -> setContextMenu(MenuItems.makeContextMenu(getMenuItems(true))));
+            JavaFXUtil.onceInScene(getNode(), () -> setContextMenu(AbstractOperation.MenuItems.makeContextMenu(getMenuItems(true))));
         }
 
         public final int getCaretPosition()
@@ -970,14 +970,14 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         }
     }
         
-    protected Map<TopLevelMenu, MenuItems> getExtraContextMenuItems()
+    protected Map<TopLevelMenu, AbstractOperation.MenuItems> getExtraContextMenuItems()
     {
         return Collections.emptyMap();
     }
 
     @Override
-    public final Map<TopLevelMenu, MenuItems> getMenuItems(boolean contextMenu) {
-        Map<TopLevelMenu, MenuItems> itemMap = new HashMap<>(getExtraContextMenuItems());
+    public final Map<TopLevelMenu, AbstractOperation.MenuItems> getMenuItems(boolean contextMenu) {
+        Map<TopLevelMenu, AbstractOperation.MenuItems> itemMap = new HashMap<>(getExtraContextMenuItems());
         final ObservableList<AbstractOperation.SortedMenuItem> menuItems = FXCollections.observableArrayList();
         if (contextMenu)
         {
@@ -996,8 +996,8 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             AbstractOperation.MenuItemOrder.CUT.item(cutItem),
             AbstractOperation.MenuItemOrder.COPY.item(copyItem),
             AbstractOperation.MenuItemOrder.PASTE.item(pasteItem));
-        itemMap.put(TopLevelMenu.EDIT, MenuItems.concat(
-                new MenuItems(menuItems) {
+        itemMap.put(TopLevelMenu.EDIT, AbstractOperation.MenuItems.concat(
+                new AbstractOperation.MenuItems(menuItems) {
 
             @Override
             @OnThread(Tag.FXPlatform)

@@ -23,8 +23,10 @@ package bluej.pkgmgr.target;
 
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
+import bluej.utility.javafx.AbstractOperation;
 import bluej.utility.javafx.JavaFXUtil;
 
+import java.util.Map;
 import java.util.Properties;
 import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
@@ -52,7 +54,7 @@ import threadchecker.Tag;
  * @author Michael Cahill
  */
 public abstract class Target
-    implements Comparable<Target>
+    implements Comparable<Target>, AbstractOperation.ContextualItem<Target>
 {
     static final int DEF_WIDTH = 80;
     static final int DEF_HEIGHT = 50;
@@ -312,8 +314,10 @@ public abstract class Target
         });
 
         JavaFXUtil.listenForContextMenu(pane, (x, y) -> {
-            pkg.getEditor().selectOnly(this);
-            popupMenu(x.intValue(), y.intValue(), pkg.getEditor());
+            AbstractOperation.MenuItems menuItems = AbstractOperation.getMenuItems(pkg.getEditor().getSelection(), true);
+            AbstractOperation.MenuItems.makeContextMenu(Map.of("", menuItems)).show(pkg.getEditor(), x.intValue(), y.intValue());
+            //pkg.getEditor().selectOnly(this);
+            //popupMenu(x.intValue(), y.intValue(), pkg.getEditor());
             return true;
         }, KeyCode.SPACE, KeyCode.ENTER);
 
@@ -624,9 +628,6 @@ public abstract class Target
 
     @OnThread(Tag.FXPlatform)
     public abstract void doubleClick(boolean openInNewWindow);
-
-    @OnThread(Tag.FXPlatform)
-    public abstract void popupMenu(int x, int y, PackageEditor editor);
 
     public abstract void remove();
 

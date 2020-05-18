@@ -28,10 +28,7 @@ import bluej.stride.generic.FrameCanvas;
 import bluej.stride.generic.FrameCursor;
 import bluej.stride.generic.InteractionManager;
 import bluej.utility.javafx.AbstractOperation;
-import bluej.utility.javafx.AbstractOperation.ItemLabel;
-import bluej.stride.operations.FrameOperation;
-import bluej.stride.slots.EditableSlot.MenuItems;
-import bluej.utility.javafx.AbstractOperation.SortedMenuItem;
+import bluej.utility.javafx.AbstractOperation.MenuItems;
 import bluej.stride.slots.EditableSlot.TopLevelMenu;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.FXRunnable;
@@ -43,11 +40,8 @@ import threadchecker.Tag;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -60,9 +54,6 @@ import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.CustomMenuItem;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.FillRule;
 
@@ -251,112 +242,20 @@ public class FrameSelection
     }
 
     /**
-     * Gets the context menu items which are valid across the whole selection
-     */
-    @OnThread(Tag.FXPlatform)
-    public MenuItems getMenuItems(boolean contextMenu)
-    {
-        if (selection.size() == 0) {
-            return new MenuItems(FXCollections.observableArrayList());
-        }
-        else if (selection.size() == 1) {
-            // Everything appears as-is in a selection of size 1:
-            return asMenuItems(selection.get(0).getContextOperations(), 0, contextMenu);
-        }
-
-        HashMap<String, List<FrameOperation>> ops = new HashMap<>();
-        for (Frame f : selection) {
-            for (FrameOperation op : f.getContextOperations()) {
-                if (!ops.containsKey(op.getIdentifier())) {
-                    ops.put(op.getIdentifier(), new ArrayList<>());
-                }
-                ops.get(op.getIdentifier()).add(op);
-            }
-        }
-
-        List<FrameOperation> r = new ArrayList<>();
-
-        for (final List<FrameOperation> opEntry : ops.values()) {
-            // If all blocks had this operation:
-            FrameOperation frameOperation = opEntry.get(0);
-            if ((frameOperation.combine() == AbstractOperation.Combine.ALL && opEntry.size() == selection.size())
-                    || frameOperation.combine() == AbstractOperation.Combine.ANY
-                    || (frameOperation.combine() == AbstractOperation.Combine.ONE && selection.size() == 1)) {
-                r.add(frameOperation);
-            }
-        }
-        return asMenuItems(r, 0, contextMenu);
-    }
-
-    /**
      * Gets the edit menu items for selected frames
      */
     public Map<TopLevelMenu, MenuItems> getEditMenuItems(boolean contextMenu)
     {
-        return Collections.singletonMap(TopLevelMenu.EDIT, getMenuItems(contextMenu));
-    }
-
-    private MenuItems asMenuItems(List<FrameOperation> originalOps, int depth, boolean contextMenu)
-    {
-        // Only keep ones that fit context menu flag:
-        List<FrameOperation> ops = originalOps.stream().filter(op -> contextMenu || !op.onlyOnContextMenu()).collect(Collectors.toList());
-
-        List<SortedMenuItem> r = new ArrayList<>();
-        Set<ItemLabel> subMenuNames = ops.stream().filter(op -> op.getLabels().size() > depth + 1).map(op -> op.getLabels().get(depth)).collect(Collectors.toSet());
-        subMenuNames.forEach(subMenuName -> {
-            final MenuItems menuItems = asMenuItems(ops.stream().filter(op -> op.getLabels().get(depth).equals(subMenuName)).collect(Collectors.toList()), depth + 1, contextMenu);
-            Menu subMenu = menuItems.makeSubMenu();
-            subMenu.textProperty().bind(subMenuName.getLabel());
-            r.add(new SortedMenuItem(subMenu, subMenuName.getOrder()));
-        });
-        
-        List<FrameOperation> opsAtRightLevel = ops.stream().filter(op -> op.getLabels().size() == depth + 1).collect(Collectors.toList());
-
-        Map<FrameOperation, SortedMenuItem> opsAtRightLevelItems = new IdentityHashMap<>();
-
-        for (FrameOperation op : opsAtRightLevel)
-        {
-            SortedMenuItem item = op.getMenuItem(contextMenu, () -> getSelected());
-            r.add(item);
-            opsAtRightLevelItems.put(op, item);
-        }
-        
-        return new MenuItems(FXCollections.observableArrayList(r)) {
-
-            @Override
-            @OnThread(Tag.FXPlatform)
-            public void onShowing()
-            {
-                opsAtRightLevel.forEach(op -> {
-                    final SortedMenuItem sortedMenuItem = opsAtRightLevelItems.get(op);
-                    final MenuItem item = sortedMenuItem.getItem();
-                    if (item instanceof CustomMenuItem)
-                        op.onMenuShowing((CustomMenuItem) item);
-                });
-            }
-
-            @Override
-            @OnThread(Tag.FXPlatform)
-            public void onHidden()
-            {
-                opsAtRightLevel.forEach(op -> {
-                    final SortedMenuItem sortedMenuItem = opsAtRightLevelItems.get(op);
-                    final MenuItem item = sortedMenuItem.getItem();
-                    if (item instanceof CustomMenuItem)
-                        op.onMenuHidden((CustomMenuItem) item);
-                });
-            }
-            
-        };
+        return Collections.singletonMap(TopLevelMenu.EDIT, AbstractOperation.getMenuItems(this.selection, contextMenu));
     }
 
     public ContextMenu getContextMenu()
     {
-        MenuItems ops = getMenuItems(true);
+        MenuItems ops = AbstractOperation.getMenuItems(this.selection, true);
         if (ops.isEmpty()) {
             return null;
         }
-        return MenuItems.makeContextMenu(Collections.singletonMap(TopLevelMenu.EDIT, ops));
+        return AbstractOperation.MenuItems.makeContextMenu(Collections.singletonMap(TopLevelMenu.EDIT, ops));
     }
 
     @OnThread(Tag.FXPlatform)

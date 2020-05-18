@@ -24,10 +24,10 @@ package greenfoot.guifx.classes;
 import bluej.Config;
 import bluej.debugger.gentype.Reflective;
 import bluej.extensions2.ClassNotFoundException;
-import bluej.extensions2.PackageNotFoundException;
 import bluej.extensions2.ProjectNotOpenException;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.EditableTarget;
 import bluej.pkgmgr.target.Target;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
@@ -406,7 +406,7 @@ public class GClassDiagram extends BorderPane
     public static MenuItem contextInbuilt(String text, FXPlatformRunnable action)
     {
         MenuItem menuItem = JavaFXUtil.makeMenuItem(text, action, null);
-        JavaFXUtil.addStyleClass(menuItem, ClassTarget.MENU_STYLE_INBUILT);
+        JavaFXUtil.addStyleClass(menuItem, EditableTarget.MENU_STYLE_INBUILT);
         return menuItem;
     }
 

@@ -21,17 +21,16 @@
  */
 package bluej.pkgmgr.target.role;
 
-import javax.swing.JPopupMenu;
-
 import bluej.pkgmgr.target.DependentTarget.State;
-import javafx.collections.ObservableList;
-import javafx.scene.control.MenuItem;
+import bluej.pkgmgr.target.actions.ClassTargetOperation;
+import bluej.pkgmgr.target.actions.CreateTestAction;
 import javafx.scene.control.SeparatorMenuItem;
 
 import bluej.pkgmgr.target.ClassTarget;
-import bluej.prefmgr.PrefMgr;
 import threadchecker.OnThread;
 import threadchecker.Tag;
+
+import java.util.List;
 
 /**
  * A role object which a class target uses to delegate behaviour to.
@@ -65,14 +64,13 @@ public class StdClassRole extends ClassRole
      */
     @Override
     @OnThread(Tag.FXPlatform)
-    public boolean createRoleMenuEnd(ObservableList<MenuItem> menu, ClassTarget ct, State state)
+    public List<ClassTargetOperation> getRoleOperationsEnd(ClassTarget ct, State state)
     {
-       if (ct.getAssociation() == null)
+        if (ct.getAssociation() == null)
         {
-                menu.add(new SeparatorMenuItem());
-                menu.add(ct.new CreateTestAction());
+            return List.of(new CreateTestAction());
         }
-        return true;
+        return List.of();
     }
 
     @Override

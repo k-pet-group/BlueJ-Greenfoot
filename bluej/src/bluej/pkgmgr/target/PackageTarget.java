@@ -27,15 +27,19 @@ import bluej.pkgmgr.PackageEditor;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
+import bluej.utility.javafx.AbstractOperation;
 import bluej.utility.javafx.JavaFXUtil;
 
 import java.io.File;
 import java.lang.reflect.Array;
+import java.util.List;
 import java.util.Properties;
 
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 
@@ -200,46 +204,13 @@ public class PackageTarget extends Target
         getPackage().getEditor().openPackage(getOpenPkgName());
     }
 
-    /**
-     * Disply the context menu.
-     */
     @Override
-    @OnThread(Tag.FXPlatform)
-    public void popupMenu(int x, int y, PackageEditor graphEditor)
+    public List<? extends AbstractOperation<Target>> getContextOperations()
     {
-        ContextMenu menu = createMenu();
-        if (menu != null) {
-            showingMenu(menu);
-            menu.show(pane, x, y);
-        }
-    }
-
-    /**
-     * Construct a popup menu which displays all our parent packages.
-     */
-    @OnThread(Tag.FXPlatform)
-    private ContextMenu createMenu()
-    {
-        MenuItem open = new MenuItem(openStr);
-        open.setOnAction(e -> {
-            getPackage().getEditor().openPackage(getOpenPkgName());
-        });
-        JavaFXUtil.addStyleClass(open, "class-action-inbuilt");
-        ContextMenu contextMenu = new ContextMenu(open);
-
         if (isRemovable())
-        {
-            MenuItem remove = new MenuItem(removeStr);
-            remove.setOnAction(e ->
-            {
-                remove();
-            });
-            JavaFXUtil.addStyleClass(remove, "class-action-inbuilt");
-            contextMenu.getItems().add(remove);
-        }
-
-
-        return contextMenu;
+            return List.of(new OpenPkgAction(), new RemovePkgAction());
+        else
+            return List.of(new OpenPkgAction());
     }
 
     @OnThread(Tag.Any)
@@ -257,6 +228,9 @@ public class PackageTarget extends Target
     @Override
     public void remove()
     {
+        if (!isRemovable())
+            return;
+        
         PkgMgrFrame pmf = PkgMgrFrame.findFrame(getPackage());
         String name = getQualifiedName();
         PkgMgrFrame[] f = PkgMgrFrame.getAllProjectFrames(pmf.getProject(), name);
@@ -307,5 +281,56 @@ public class PackageTarget extends Target
     public void setIsMoveable(boolean isMoveable)
     {
         this.isMoveable = isMoveable;
+    }
+    
+    private static class OpenPkgAction extends AbstractOperation<Target>
+    {
+        public OpenPkgAction()
+        {
+            super("openPkg", Combine.ALL, null);
+        }
+
+        @Override
+        protected void activate(List<Target> targets)
+        {
+            for (Target target : targets)
+            {
+                if (target instanceof PackageTarget)
+                {
+                    PackageTarget packageTarget = (PackageTarget) target;
+                    packageTarget.getPackage().getEditor().openPackage(packageTarget.getOpenPkgName());
+                }
+            }
+        }
+
+        @Override
+        public List<ItemLabel> getLabels()
+        {
+            return List.of(new ItemLabel(new ReadOnlyStringWrapper(openStr), MenuItemOrder.EDIT));
+        }
+    }
+
+    private static class RemovePkgAction extends AbstractOperation<Target>
+    {
+        public RemovePkgAction()
+        {
+            super("removePkg", Combine.ALL, null);
+        }
+
+        @Override
+        protected void activate(List<Target> targets)
+        {
+            for (Target target : targets)
+            {
+                if (target instanceof PackageTarget)
+                    ((PackageTarget)target).remove();
+            }
+        }
+
+        @Override
+        public List<ItemLabel> getLabels()
+        {
+            return List.of(new ItemLabel(new ReadOnlyStringWrapper(removeStr), MenuItemOrder.REMOVE));
+        }
     }
 }

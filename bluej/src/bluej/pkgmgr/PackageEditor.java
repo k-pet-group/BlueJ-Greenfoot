@@ -521,6 +521,11 @@ public final class PackageEditor extends StackPane
         return creatingExtends;
     }
 
+    public List<Target> getSelection()
+    {
+        return selectionController.getSelection();
+    }
+
     /**
      * A class caching the vital details needed to draw an extends dependency line,
      * which could be either real and finished, or in-progress of being created.

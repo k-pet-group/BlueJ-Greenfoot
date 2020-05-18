@@ -27,7 +27,6 @@ import bluej.prefmgr.PrefMgr;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.Frame.View;
 import bluej.stride.slots.EditableSlot;
-import bluej.utility.javafx.AbstractOperation.MenuItemOrder;
 import bluej.utility.javafx.AbstractOperation.SortedMenuItem;
 import bluej.utility.DialogManager;
 import bluej.utility.Utility;
@@ -76,9 +75,9 @@ class FrameMenuManager extends TabMenuManager
     // An action to unbind the current binding on extraViewItems.  May be null if no binding.
     private FXRunnable unbindViewItems;
     // A listener for when the edit menu is shown:
-    private EditableSlot.MenuItems editMenuListener;
+    private AbstractOperation.MenuItems editMenuListener;
     // A listener for when the view menu is shown:
-    private EditableSlot.MenuItems viewMenuListener;
+    private AbstractOperation.MenuItems viewMenuListener;
     // A list of all the menus to display in the menu bar
     private List<Menu> menus = null;
     // Keeps track of whether Java preview mode is currently enabled:
@@ -118,8 +117,8 @@ class FrameMenuManager extends TabMenuManager
             // The edit menu consists of defaultEditItems plus contextualEditItems:
             Menu editMenu = JavaFXUtil.makeMenu(Config.getString("frame.editmenu.title"));
             JavaFXUtil.bindList(editMenu.getItems(), AbstractOperation.SortedMenuItem.sortAndAddDividers(contextualEditItems, defaultEditItems));
-            editMenu.setOnShowing(e -> Utility.ifNotNull(editMenuListener, EditableSlot.MenuItems::onShowing));
-            editMenu.setOnHidden(e -> Utility.ifNotNull(editMenuListener, EditableSlot.MenuItems::onHidden));
+            editMenu.setOnShowing(e -> Utility.ifNotNull(editMenuListener, AbstractOperation.MenuItems::onShowing));
+            editMenu.setOnHidden(e -> Utility.ifNotNull(editMenuListener, AbstractOperation.MenuItems::onHidden));
 
             MenuItem birdsEyeItem = JavaFXUtil.makeMenuItem("", editor::enableCycleBirdseyeView, new KeyCharacterCombination("d", KeyCombination.SHORTCUT_DOWN));
             birdsEyeItem.textProperty().bind(new StringBinding()
@@ -153,8 +152,8 @@ class FrameMenuManager extends TabMenuManager
             Menu viewMenu = new Menu(Config.getString("frame.viewmenu.title"));
             //ConcatListBinding.bind(viewMenu.getItems(), FXCollections.observableArrayList(standardViewMenuItems /*, extraViewItems*/));
             JavaFXUtil.bindList(viewMenu.getItems(), standardViewMenuItems);
-            viewMenu.setOnShowing(e -> Utility.ifNotNull(viewMenuListener, EditableSlot.MenuItems::onShowing));
-            viewMenu.setOnHidden(e -> Utility.ifNotNull(viewMenuListener, EditableSlot.MenuItems::onHidden));
+            viewMenu.setOnShowing(e -> Utility.ifNotNull(viewMenuListener, AbstractOperation.MenuItems::onShowing));
+            viewMenu.setOnHidden(e -> Utility.ifNotNull(viewMenuListener, AbstractOperation.MenuItems::onHidden));
 
             updateMoveMenus();
 
@@ -207,7 +206,7 @@ class FrameMenuManager extends TabMenuManager
     }
 
     // Updates our menu items using binding.
-    void setMenuItems(Map<EditableSlot.TopLevelMenu, EditableSlot.MenuItems> items)
+    void setMenuItems(Map<EditableSlot.TopLevelMenu, AbstractOperation.MenuItems> items)
     {
         if (unbindEditItems != null)
         {
@@ -217,7 +216,7 @@ class FrameMenuManager extends TabMenuManager
             editMenuListener = null;
         }
 
-        EditableSlot.MenuItems editItems = items.get(EditableSlot.TopLevelMenu.EDIT);
+        AbstractOperation.MenuItems editItems = items.get(EditableSlot.TopLevelMenu.EDIT);
         if (editItems != null) {
             editMenuListener = editItems;
             unbindEditItems = JavaFXUtil.bindList(contextualEditItems, editItems.getItems());
@@ -231,7 +230,7 @@ class FrameMenuManager extends TabMenuManager
             viewMenuListener = null;
         }
 
-        EditableSlot.MenuItems viewItems = items.get(EditableSlot.TopLevelMenu.VIEW);
+        AbstractOperation.MenuItems viewItems = items.get(EditableSlot.TopLevelMenu.VIEW);
         if (viewItems != null)
         {
             viewMenuListener = viewItems;

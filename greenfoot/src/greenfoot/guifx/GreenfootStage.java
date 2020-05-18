@@ -135,7 +135,7 @@ import java.net.URL;
 import java.nio.IntBuffer;
 import java.util.*;
 
-import static bluej.pkgmgr.target.ClassTarget.MENU_STYLE_INBUILT;
+import static bluej.pkgmgr.target.EditableTarget.MENU_STYLE_INBUILT;
 import static greenfoot.vmcomm.Command.*;
 
 /**

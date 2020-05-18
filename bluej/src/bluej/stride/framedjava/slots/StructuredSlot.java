@@ -1202,9 +1202,9 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     }
     
     @Override
-    public Map<TopLevelMenu, MenuItems> getMenuItems(boolean contextMenu)
+    public Map<TopLevelMenu, AbstractOperation.MenuItems> getMenuItems(boolean contextMenu)
     {
-        HashMap<TopLevelMenu, MenuItems> itemMap = new HashMap<>();
+        HashMap<TopLevelMenu, AbstractOperation.MenuItems> itemMap = new HashMap<>();
 
         // We must have at least one dummy item for the menu to be shown:
         final Menu recentMenu = new Menu(Config.getString("frame.slot.recent"));
@@ -1239,7 +1239,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
                 l.clear();
         };
         setToOriginal.accept(originalItems);
-        itemMap.put(TopLevelMenu.EDIT, new MenuItems(originalItems) {
+        itemMap.put(TopLevelMenu.EDIT, new AbstractOperation.MenuItems(originalItems) {
             @OnThread(Tag.FXPlatform)
             public void onShowing()
             {
@@ -1279,7 +1279,7 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
             final AbstractOperation.SortedMenuItem scanningItem = AbstractOperation.MenuItemOrder.GOTO_DEFINITION.item(new MenuItem("Scanning..."));
             scanningItem.getItem().setDisable(true);
 
-            itemMap.put(TopLevelMenu.VIEW, new MenuItems(FXCollections.observableArrayList())
+            itemMap.put(TopLevelMenu.VIEW, new AbstractOperation.MenuItems(FXCollections.observableArrayList())
             {
 
                 private void removeScanning()

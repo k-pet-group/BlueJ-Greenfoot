@@ -21,24 +21,24 @@
  */
 package bluej.utility.javafx;
 
-import bluej.stride.slots.EditableSlot;
+import bluej.editor.stride.FrameSelection;
+import bluej.stride.generic.Frame;
+import bluej.stride.operations.FrameOperation;
+import bluej.utility.Utility;
+import bluej.utility.javafx.binding.ConcatListBinding;
 import bluej.utility.javafx.binding.DeepListBinding;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.CustomMenuItem;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCombination;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -46,9 +46,105 @@ import java.util.stream.Stream;
  * to show a context menu with the appropriate operations depending on whether it's a single
  * selection, or a multi-selection.
  */
-public abstract class AbstractOperation<ITEM>
+public abstract class AbstractOperation<ITEM extends AbstractOperation.ContextualItem<ITEM>>
 {
     protected final KeyCombination shortcut;
+    
+    public static interface ContextualItem<ITEM extends ContextualItem<ITEM>>
+    {
+        public List<? extends AbstractOperation<ITEM>> getContextOperations();
+    }
+
+    private static <ITEM extends ContextualItem<ITEM>> MenuItems asMenuItems(Supplier<List<ITEM>> getSelected, List<? extends AbstractOperation<ITEM>> originalOps, int depth, boolean contextMenu)
+    {
+        // Only keep ones that fit context menu flag:
+        List<AbstractOperation<ITEM>> ops = originalOps.stream().filter(op -> contextMenu || !op.onlyOnContextMenu()).collect(Collectors.toList());
+
+        List<SortedMenuItem> r = new ArrayList<>();
+        Set<ItemLabel> subMenuNames = ops.stream().filter(op -> op.getLabels().size() > depth + 1).map(op -> op.getLabels().get(depth)).collect(Collectors.toSet());
+        subMenuNames.forEach(subMenuName -> {
+            final MenuItems menuItems = asMenuItems(getSelected, ops.stream().filter(op -> op.getLabels().get(depth).equals(subMenuName)).collect(Collectors.toList()), depth + 1, contextMenu);
+            Menu subMenu = menuItems.makeSubMenu();
+            subMenu.textProperty().bind(subMenuName.getLabel());
+            r.add(new SortedMenuItem(subMenu, subMenuName.getOrder()));
+        });
+        
+        List<AbstractOperation<ITEM>> opsAtRightLevel = ops.stream().filter(op -> op.getLabels().size() == depth + 1).collect(Collectors.toList());
+
+        Map<AbstractOperation<ITEM>, SortedMenuItem> opsAtRightLevelItems = new IdentityHashMap<>();
+
+        for (AbstractOperation<ITEM> op : opsAtRightLevel)
+        {
+            SortedMenuItem item = op.getMenuItem(contextMenu, getSelected);
+            r.add(item);
+            opsAtRightLevelItems.put(op, item);
+        }
+        
+        return new MenuItems(FXCollections.observableArrayList(r)) {
+
+            @Override
+            @OnThread(Tag.FXPlatform)
+            public void onShowing()
+            {
+                opsAtRightLevel.forEach(op -> {
+                    final SortedMenuItem sortedMenuItem = opsAtRightLevelItems.get(op);
+                    final MenuItem item = sortedMenuItem.getItem();
+                    if (item instanceof CustomMenuItem)
+                        op.onMenuShowing((CustomMenuItem) item);
+                });
+            }
+
+            @Override
+            @OnThread(Tag.FXPlatform)
+            public void onHidden()
+            {
+                opsAtRightLevel.forEach(op -> {
+                    final SortedMenuItem sortedMenuItem = opsAtRightLevelItems.get(op);
+                    final MenuItem item = sortedMenuItem.getItem();
+                    if (item instanceof CustomMenuItem)
+                        op.onMenuHidden((CustomMenuItem) item);
+                });
+            }
+            
+        };
+    }
+
+    /**
+     * Gets the context menu items which are valid across the whole selection
+     */
+    @OnThread(Tag.FXPlatform)
+    public static <ITEM extends ContextualItem<ITEM>> MenuItems getMenuItems(List<ITEM> selection, boolean contextMenu)
+    {
+        if (selection.size() == 0) {
+            return new MenuItems(FXCollections.observableArrayList());
+        }
+        else if (selection.size() == 1) {
+            // Everything appears as-is in a selection of size 1:
+            return asMenuItems(() -> selection, selection.get(0).getContextOperations(), 0, contextMenu);
+        }
+
+        HashMap<String, List<AbstractOperation<ITEM>>> ops = new HashMap<>();
+        for (ITEM f : selection)
+        {
+            for (AbstractOperation<ITEM> op : f.getContextOperations())
+            {
+                ops.computeIfAbsent(op.identifier, k -> new ArrayList<>()).add(op);
+            }
+        }
+
+        List<AbstractOperation<ITEM>> r = new ArrayList<>();
+
+        for (final List<AbstractOperation<ITEM>> opEntry : ops.values()) {
+            // If all blocks had this operation:
+            AbstractOperation<ITEM> frameOperation = opEntry.get(0);
+            if ((frameOperation.combine() == Combine.ALL && opEntry.size() == selection.size())
+                    || frameOperation.combine() == Combine.ANY
+                    || (frameOperation.combine() == Combine.ONE && selection.size() == 1)) {
+                r.add(frameOperation);
+            }
+        }
+        return asMenuItems(() -> selection, r, 0, contextMenu);
+    }
 
     public SortedMenuItem getMenuItem(boolean contextMenu, Supplier<List<ITEM>> getSelection)
     {
@@ -79,6 +175,12 @@ public abstract class AbstractOperation<ITEM>
         return new SortedMenuItem(item, getLabels().get(0).getOrder());
     }
 
+    @OnThread(Tag.FXPlatform)
+    public void onMenuShowing(CustomMenuItem item) { }
+
+    @OnThread(Tag.FXPlatform)
+    public void onMenuHidden(CustomMenuItem item) { }
+
     protected abstract void activate(List<ITEM> items);
 
     @OnThread(Tag.FXPlatform)
@@ -86,6 +188,11 @@ public abstract class AbstractOperation<ITEM>
 
     @OnThread(Tag.FXPlatform)
     protected void disablePreview() { }
+
+    public boolean onlyOnContextMenu()
+    {
+        return false;
+    }
 
     /**
      * If you select multiple items, and right click, each will have
@@ -104,7 +211,8 @@ public abstract class AbstractOperation<ITEM>
         ANY, ALL, ONE;
     }
 
-    // This is an ordering across all menus
+    // This is an ordering across all menus.  Really it's a sort of merge between frame menus and class target menus, but that's much easier
+    // than having two separate enums and making everything generic on the enum
     public static enum MenuItemOrder
     {
         // The integer is a block number, which is used to group and add dividers.
@@ -117,7 +225,22 @@ public abstract class AbstractOperation<ITEM>
         DELETE(40), ENABLE_FRAME(40), DISABLE_FRAME(40),
         INSERT_FRAME(60),
         TRANSFORM(70), TOGGLE_BOOLEAN(70), TOGGLE_ABSTRACT(70), TOGGLE_EXTENDS(70), TOGGLE_IMPLEMENTS(70), OVERRIDE(70),
-        GOTO_DEFINITION(80), GOTO_OVERRIDE(80), SHOW_HIDE_USES(80);
+        GOTO_DEFINITION(80), GOTO_OVERRIDE(80), SHOW_HIDE_USES(80),
+        
+        TEST_ALL(100),
+        RUN_FX(100),
+        CREATE_TEST(100),
+        RUN_METHOD(105),
+        EDIT(110),
+        COMPILE(110),
+        INSPECT(110),
+        REMOVE(110),
+        DUPLICATE(120),
+        CONVERT_TO_STRIDE(120),
+        CONVERT_TO_JAVA(120),
+        MAKE_TEST_CASE(130),
+        BENCH_TO_FIXTURE(130),
+        FIXTURE_TO_BENCH(130);
 
         private final int block;
 
@@ -146,11 +269,6 @@ public abstract class AbstractOperation<ITEM>
         this.identifier = identifier;
         this.combine = combine;
         this.shortcut = shortcut;
-    }
-
-    public String getIdentifier()
-    {
-        return identifier;
     }
 
     public Combine combine()
@@ -238,6 +356,7 @@ public abstract class AbstractOperation<ITEM>
         CustomMenuItem item = new CustomMenuItem(d);
         // TODO next line is added due to a bug in Mac SystemMenuBar where MenuItem text showed as blank. 
         item.textProperty().bind(d.textProperty());
+        item.getStyleClass().addAll(getStyleClasses());
         return item;
     }
 
@@ -250,7 +369,20 @@ public abstract class AbstractOperation<ITEM>
     {
         MenuItem item = new MenuItem();
         item.textProperty().bind(getLabels().get(getLabels().size() - 1).label);
+        item.getStyleClass().addAll(getStyleClasses());
+        item.setDisable(!isEnabled());
         return item;
+    }
+
+    // Can be over-ridden in subclasses
+    protected boolean isEnabled()
+    {
+        return true;
+    }
+
+    protected List<String> getStyleClasses()
+    {
+        return List.of();
     }
 
     public static class SortedMenuItem
@@ -314,6 +446,75 @@ public abstract class AbstractOperation<ITEM>
                 }
             }
             return all.stream().map(SortedMenuItem::getItem);
+        }
+    }
+
+    /**
+     * A class to keep track of items to display in a top-level/context menu.  If you want to listen
+     * for the menu containing the items being shown or hidden, override the class and implement
+     * onShowing/onHidden.
+     */
+    public static class MenuItems
+    {
+        protected final ObservableList<SortedMenuItem> items;
+        
+        public MenuItems(ObservableList<SortedMenuItem> items) { this.items = items; }
+
+        @OnThread(Tag.FXPlatform)
+        public void onShowing() {}
+
+        @OnThread(Tag.FXPlatform)
+        public void onHidden() {}
+        
+        public static MenuItems concat(MenuItems... src)
+        {
+            List<MenuItems> nonNull = Arrays.stream(src).filter(m -> m != null).collect(Collectors.toList());
+            ObservableList<SortedMenuItem> joinedItems = FXCollections.observableArrayList();
+            ConcatListBinding.bind(joinedItems, FXCollections.observableArrayList(nonNull.stream().map(m -> m.items).collect(Collectors.toList())));
+            return new MenuItems(joinedItems) {
+                @Override
+                public void onShowing() {nonNull.forEach(MenuItems::onShowing);}
+                @Override
+                public void onHidden() {nonNull.forEach(MenuItems::onHidden);}
+            };
+        }
+        
+        public Menu makeSubMenu()
+        {
+            Menu menu = new Menu();
+            JavaFXUtil.bindMap(menu.getItems(), items, SortedMenuItem::getItem, FXRunnable::run);
+            menu.onShowingProperty().set(e -> onShowing());
+            menu.onHiddenProperty().set(e -> onHidden());
+            return menu;
+        }
+        
+        public static <T extends Comparable<T>> ContextMenu makeContextMenu(Map<T, MenuItems> allItems)
+        {
+            return makeContextMenu(allItems.entrySet().stream().sorted((a, b) -> a.getKey().compareTo(b.getKey())).map(e -> e.getValue()).collect(Collectors.toList()));
+        }
+        
+        private static ContextMenu makeContextMenu(List<MenuItems> allItems)
+        {
+            ContextMenu menu = new ContextMenu();
+
+            ObservableList<SortedMenuItem> sorted = FXCollections.observableArrayList();
+            ConcatListBinding.bind(sorted, FXCollections.observableArrayList(Utility.mapList(allItems, MenuItems::getItems)));
+            JavaFXUtil.bindList(menu.getItems(), SortedMenuItem.sortAndAddDividers(sorted, Collections.emptyList()));
+            
+            menu.onShowingProperty().set(e -> allItems.forEach(MenuItems::onShowing));
+            menu.onHiddenProperty().set(e -> allItems.forEach(MenuItems::onHidden));
+
+            return menu;
+        }
+
+        public boolean isEmpty()
+        {
+            return items.isEmpty();
+        }
+
+        public ObservableList<SortedMenuItem> getItems()
+        {
+            return items;
         }
     }
 }

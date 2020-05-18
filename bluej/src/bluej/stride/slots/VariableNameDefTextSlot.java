@@ -152,9 +152,9 @@ public class VariableNameDefTextSlot extends TextSlot<NameDefSlotFragment>
     }
 
     @Override
-    protected Map<TopLevelMenu, MenuItems> getExtraContextMenuItems()
+    protected Map<TopLevelMenu, AbstractOperation.MenuItems> getExtraContextMenuItems()
     {
-        return Collections.singletonMap(TopLevelMenu.VIEW, new MenuItems(FXCollections.observableArrayList()) {
+        return Collections.singletonMap(TopLevelMenu.VIEW, new AbstractOperation.MenuItems(FXCollections.observableArrayList()) {
             public void onShowing()
             {
                 if (allUsesCanvas != null)

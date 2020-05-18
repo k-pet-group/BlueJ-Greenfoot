@@ -30,6 +30,7 @@ import bluej.stride.generic.FrameCursor;
 import bluej.stride.generic.RecallableFocus;
 import bluej.stride.slots.EditableSlot;
 import bluej.utility.Utility;
+import bluej.utility.javafx.AbstractOperation;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -89,7 +90,7 @@ class CursorOrSlot
      * Gets the menu items for this slot/cursor (for window menu when focused, or right-click menu)
      */
     @OnThread(Tag.FXPlatform)
-    public Map<EditableSlot.TopLevelMenu, EditableSlot.MenuItems> getMenuItems(boolean contextMenu)
+    public Map<EditableSlot.TopLevelMenu, AbstractOperation.MenuItems> getMenuItems(boolean contextMenu)
     {
         return slot != null ? slot.getMenuItems(contextMenu) : Collections.singletonMap(EditableSlot.TopLevelMenu.EDIT, cursor.getMenuItems(false));
     }

@@ -830,7 +830,7 @@ public class FrameCursor implements RecallableFocus
         if (menu != null) {
             menu.hide();
         }
-        menu = EditableSlot.MenuItems.makeContextMenu(Collections.singletonMap(EditableSlot.TopLevelMenu.EDIT, getMenuItems(true)));
+        menu = AbstractOperation.MenuItems.makeContextMenu(Collections.singletonMap(EditableSlot.TopLevelMenu.EDIT, getMenuItems(true)));
         if (menu.getItems().size() > 0) {
             menu.show(node, screenX, screenY);
             return true;
@@ -839,20 +839,20 @@ public class FrameCursor implements RecallableFocus
     }
 
     @OnThread(Tag.FXPlatform)
-    public EditableSlot.MenuItems getMenuItems(boolean contextMenu)
+    public AbstractOperation.MenuItems getMenuItems(boolean contextMenu)
     {
         boolean selection = !editor.getSelection().isEmpty();
-        EditableSlot.MenuItems menuItems = new EditableSlot.MenuItems(FXCollections.observableArrayList(new PasteFrameOperation(editor).getMenuItem(contextMenu, () -> editor.getSelection().getSelected())));
+        AbstractOperation.MenuItems menuItems = new AbstractOperation.MenuItems(FXCollections.observableArrayList(new PasteFrameOperation(editor).getMenuItem(contextMenu, () -> editor.getSelection().getSelected())));
         if (!editor.getSelection().isEmpty())
         {
-            menuItems = EditableSlot.MenuItems.concat( editor.getSelection().getMenuItems(contextMenu), menuItems);
+            menuItems = AbstractOperation.MenuItems.concat( AbstractOperation.getMenuItems(editor.getSelection().getSelected(), contextMenu), menuItems);
         }
 
         if (canInsert() && contextMenu && !selection)
         {
             Menu insertMenu = new Menu("Insert");
             insertMenu.getItems().addAll(getAcceptedFramesMenuItems());
-            menuItems = EditableSlot.MenuItems.concat( new EditableSlot.MenuItems(FXCollections.observableArrayList(AbstractOperation.MenuItemOrder.INSERT_FRAME.item(insertMenu))), menuItems);
+            menuItems = AbstractOperation.MenuItems.concat( new AbstractOperation.MenuItems(FXCollections.observableArrayList(AbstractOperation.MenuItemOrder.INSERT_FRAME.item(insertMenu))), menuItems);
         }
 
         return menuItems;

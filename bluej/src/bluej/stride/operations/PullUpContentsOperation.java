@@ -60,7 +60,7 @@ public class PullUpContentsOperation extends FrameOperation
     @OnThread(Tag.FXPlatform)
     public void disablePreview()
     {
-        editor.getSelection().setPullUpPreview(false);
+        editor.getSelection().setPullUpPreview(super.onlyOnContextMenu());
     }
 
     @Override

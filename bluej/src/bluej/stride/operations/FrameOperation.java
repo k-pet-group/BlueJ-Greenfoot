@@ -50,12 +50,6 @@ public abstract class FrameOperation extends AbstractOperation<Frame>
     }
 
     @OnThread(Tag.FXPlatform)
-    public void onMenuShowing(CustomMenuItem item) { }
-
-    @OnThread(Tag.FXPlatform)
-    public void onMenuHidden(CustomMenuItem item) { }
-
-    @OnThread(Tag.FXPlatform)
     public final void activate(Frame frame)
     {
         // TODO "editor.getSelection().getSelected()" fired a NPE, make next line activate(frame, null);
@@ -93,11 +87,6 @@ public abstract class FrameOperation extends AbstractOperation<Frame>
      */
     @OnThread(Tag.FXPlatform)
     protected abstract void execute(List<Frame> frames);
-
-    public boolean onlyOnContextMenu()
-    {
-        return false;
-    }
 
     public KeyCombination getShortcut()
     {

@@ -29,6 +29,9 @@ import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.DependentTarget.State;
 import bluej.pkgmgr.target.DependentTarget.TargetListener;
+import bluej.pkgmgr.target.actions.ConvertToJavaAction;
+import bluej.pkgmgr.target.actions.ConvertToStrideAction;
+import bluej.pkgmgr.target.actions.InspectAction;
 import bluej.utility.DialogManager;
 import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.guifx.GreenfootStage;
@@ -295,7 +298,7 @@ public class LocalGClassNode extends GClassNode implements TargetListener
                     () -> greenfootStage.setImageFor(this)));
         }
         // Inspect:
-        contextMenu.getItems().add(classTarget.new InspectAction(cl != null, display));
+        contextMenu.getItems().add(new InspectAction(cl != null, display));
         contextMenu.getItems().add(new SeparatorMenuItem());
 
         // Duplicate:
@@ -323,12 +326,12 @@ public class LocalGClassNode extends GClassNode implements TargetListener
         // Convert to Java/Stride
         if (classTarget.getSourceType() == SourceType.Stride)
         {
-            contextMenu.getItems().add(classTarget.new ConvertToJavaAction(greenfootStage));
+            contextMenu.getItems().add(new ConvertToJavaAction(greenfootStage));
         }
         else if (classTarget.getSourceType() == SourceType.Java &&
                 classTarget.getRole() != null && classTarget.getRole().canConvertToStride())
         {
-            contextMenu.getItems().add(classTarget.new ConvertToStrideAction(greenfootStage));
+            contextMenu.getItems().add(new ConvertToStrideAction(greenfootStage));
         }
 
         // Show "new subclass" only if the class is not final:
