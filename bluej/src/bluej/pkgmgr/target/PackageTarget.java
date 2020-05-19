@@ -23,7 +23,6 @@ package bluej.pkgmgr.target;
 
 import bluej.Config;
 import bluej.pkgmgr.Package;
-import bluej.pkgmgr.PackageEditor;
 import bluej.pkgmgr.PkgMgrFrame;
 import bluej.utility.Debug;
 import bluej.utility.DialogManager;
@@ -36,10 +35,7 @@ import java.util.List;
 import java.util.Properties;
 
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 
@@ -291,7 +287,7 @@ public class PackageTarget extends Target
         }
 
         @Override
-        protected void activate(List<Target> targets)
+        public void activate(List<Target> targets)
         {
             for (Target target : targets)
             {
@@ -318,7 +314,7 @@ public class PackageTarget extends Target
         }
 
         @Override
-        protected void activate(List<Target> targets)
+        public void activate(List<Target> targets)
         {
             for (Target target : targets)
             {

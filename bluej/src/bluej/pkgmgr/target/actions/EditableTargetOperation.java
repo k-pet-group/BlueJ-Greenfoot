@@ -2,10 +2,8 @@ package bluej.pkgmgr.target.actions;
 
 import bluej.pkgmgr.target.EditableTarget;
 import bluej.pkgmgr.target.Target;
-import bluej.utility.Utility;
 import bluej.utility.javafx.AbstractOperation;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.input.KeyCombination;
 
 import java.util.Arrays;
@@ -26,7 +24,7 @@ public abstract class EditableTargetOperation extends AbstractOperation<Target>
     }
 
     @Override
-    protected final void activate(List<Target> targets)
+    public final void activate(List<Target> targets)
     {
         for (Target target : targets)
         {
@@ -46,7 +44,7 @@ public abstract class EditableTargetOperation extends AbstractOperation<Target>
     }
 
     @Override
-    protected List<String> getStyleClasses()
+    public List<String> getStyleClasses()
     {
         return styleClasses;
     }

@@ -907,7 +907,7 @@ public class UnitTestClassRole extends ClassRole
         }
     }
 
-    private class DummyDisabledOperation extends ClassTargetOperation
+    public static class DummyDisabledOperation extends ClassTargetOperation
     {
         public DummyDisabledOperation(String label, MenuItemOrder menuItemOrder)
         {

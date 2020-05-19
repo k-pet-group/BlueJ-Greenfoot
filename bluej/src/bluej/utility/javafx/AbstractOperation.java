@@ -21,9 +21,6 @@
  */
 package bluej.utility.javafx;
 
-import bluej.editor.stride.FrameSelection;
-import bluej.stride.generic.Frame;
-import bluej.stride.operations.FrameOperation;
 import bluej.utility.Utility;
 import bluej.utility.javafx.binding.ConcatListBinding;
 import bluej.utility.javafx.binding.DeepListBinding;
@@ -49,7 +46,7 @@ import java.util.stream.Stream;
 public abstract class AbstractOperation<ITEM extends AbstractOperation.ContextualItem<ITEM>>
 {
     protected final KeyCombination shortcut;
-    
+
     public static interface ContextualItem<ITEM extends ContextualItem<ITEM>>
     {
         public List<? extends AbstractOperation<ITEM>> getContextOperations();
@@ -181,7 +178,7 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
     @OnThread(Tag.FXPlatform)
     public void onMenuHidden(CustomMenuItem item) { }
 
-    protected abstract void activate(List<ITEM> items);
+    public abstract void activate(List<ITEM> items);
 
     @OnThread(Tag.FXPlatform)
     protected void enablePreview() { }
@@ -235,12 +232,14 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
         COMPILE(110),
         INSPECT(110),
         REMOVE(110),
+        SET_IMAGE(110),
         DUPLICATE(120),
         CONVERT_TO_STRIDE(120),
         CONVERT_TO_JAVA(120),
         MAKE_TEST_CASE(130),
         BENCH_TO_FIXTURE(130),
-        FIXTURE_TO_BENCH(130);
+        FIXTURE_TO_BENCH(130),
+        NEW_SUBCLASS(140);
 
         private final int block;
 
@@ -380,7 +379,17 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
         return true;
     }
 
-    protected List<String> getStyleClasses()
+    public KeyCombination getShortcut()
+    {
+        return shortcut;
+    }
+
+    public String getIdentifier()
+    {
+        return identifier;
+    }
+
+    public List<String> getStyleClasses()
     {
         return List.of();
     }

@@ -29,6 +29,8 @@ import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.EditableTarget;
 import bluej.pkgmgr.target.Target;
+import bluej.utility.javafx.AbstractOperation;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.ConstructorView;
@@ -36,6 +38,7 @@ import bluej.views.View;
 import bluej.views.ViewFilter;
 import bluej.views.ViewFilter.StaticOrInstance;
 import greenfoot.guifx.GreenfootStage;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
@@ -408,6 +411,30 @@ public class GClassDiagram extends BorderPane
         MenuItem menuItem = JavaFXUtil.makeMenuItem(text, action, null);
         JavaFXUtil.addStyleClass(menuItem, EditableTarget.MENU_STYLE_INBUILT);
         return menuItem;
+    }
+
+    public static AbstractOperation<LocalGClassNode> contextInbuiltOp(String identifier, String text, AbstractOperation.MenuItemOrder menuItemOrder, FXPlatformConsumer<LocalGClassNode> action)
+    {
+        return new AbstractOperation<LocalGClassNode>(identifier, AbstractOperation.Combine.ONE, null)
+        {
+            @Override
+            public void activate(List<LocalGClassNode> localGClassNodes)
+            {
+                localGClassNodes.forEach(action::accept);
+            }
+
+            @Override
+            public List<String> getStyleClasses()
+            {
+                return List.of(EditableTarget.MENU_STYLE_INBUILT);
+            }
+
+            @Override
+            public List<ItemLabel> getLabels()
+            {
+                return List.of(new ItemLabel(new ReadOnlyStringWrapper(text), menuItemOrder));
+            }
+        };
     }
 
     /**

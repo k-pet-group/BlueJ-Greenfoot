@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 
 import bluej.utility.javafx.AbstractOperation;
-import javafx.scene.control.CustomMenuItem;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.RecallableFocus;

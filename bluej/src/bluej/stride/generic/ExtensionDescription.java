@@ -24,7 +24,6 @@ package bluej.stride.generic;
 import bluej.stride.operations.ToggleBooleanProperty;
 import bluej.utility.Debug;
 import bluej.utility.javafx.FXPlatformRunnable;
-import bluej.utility.javafx.FXRunnable;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
