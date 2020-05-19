@@ -5,10 +5,13 @@ import bluej.pkgmgr.target.Target;
 import bluej.utility.javafx.AbstractOperation;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.scene.input.KeyCombination;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.Arrays;
 import java.util.List;
 
+@OnThread(Tag.FXPlatform)
 public abstract class EditableTargetOperation extends AbstractOperation<Target>
 {
     private final MenuItemOrder menuItemOrder;

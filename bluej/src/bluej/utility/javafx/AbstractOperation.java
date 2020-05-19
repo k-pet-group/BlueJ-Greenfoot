@@ -72,10 +72,12 @@ import java.util.stream.Stream;
  *  they arise from).  An operation acts on the instances passed to the activate method,
  *  not just the ContextualItem that created them.
  */
+@OnThread(Tag.FXPlatform)
 public abstract class AbstractOperation<ITEM extends AbstractOperation.ContextualItem<ITEM>>
 {
     protected final KeyCombination shortcut;
 
+    @OnThread(Tag.FXPlatform)
     public static interface ContextualItem<ITEM extends ContextualItem<ITEM>>
     {
         /**
@@ -305,6 +307,7 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
     
     protected final String identifier;
     protected final Combine combine;
+    @OnThread(Tag.FX)
     private boolean wideCustomItem = false;
     
     public AbstractOperation(String identifier, Combine combine, KeyCombination shortcut)
@@ -368,6 +371,7 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
     public abstract List<ItemLabel> getLabels();
     
     // Helper function:
+    @OnThread(Tag.FX)
     protected ItemLabel l(String s, MenuItemOrder order)
     {
         return new ItemLabel(new ReadOnlyStringWrapper(s){
@@ -404,6 +408,7 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
         return item;
     }
 
+    @OnThread(Tag.FX)
     public void setWideCustomItem(boolean wide)
     {
         wideCustomItem = wide;

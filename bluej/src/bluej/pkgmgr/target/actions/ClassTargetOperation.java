@@ -3,9 +3,12 @@ package bluej.pkgmgr.target.actions;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.EditableTarget;
 import javafx.scene.input.KeyCombination;
+import threadchecker.OnThread;
+import threadchecker.Tag;
 
 import java.util.List;
 
+@OnThread(Tag.FXPlatform)
 public abstract class ClassTargetOperation extends EditableTargetOperation
 {
     public ClassTargetOperation(String identifier, Combine combine, KeyCombination shortcut, String label, MenuItemOrder menuItemOrder, String... styleClasses)

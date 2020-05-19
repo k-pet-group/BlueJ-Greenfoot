@@ -141,11 +141,10 @@ public class InheritedMethodFrame extends SingleLineFrame
             @Override
             protected void execute(List<Frame> frames) {}
 
-            public SortedMenuItem getMenuItem(boolean contextMenu)
+            @Override
+            protected boolean isEnabled()
             {
-                CustomMenuItem item = initializeCustomItem();
-                item.setDisable(true);
-                return MenuItemOrder.GOTO_DEFINITION.item(item);
+                return false;
             }
 
             @Override
