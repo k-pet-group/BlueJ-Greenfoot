@@ -42,6 +42,35 @@ import java.util.stream.Stream;
  * This is a base class that is useful for when you have a possible multi-select and you want
  * to show a context menu with the appropriate operations depending on whether it's a single
  * selection, or a multi-selection.
+ * 
+ * This class ultimately maps to an item in the context menu.  The details held by this class
+ * are to support combining or eliminating menu items in a multi-select.  When a context menu
+ * is triggered, we ask all selected "things" (which all extend the ContextualItem inner class)
+ * for their supported operations.  These operations can have one of three possible Combine enum values:
+ *  - ANY: will appear in the context menu if any selected items support it,
+ *      e.g. Compile.  Useful if you want to be able to do it on multiple items
+ *      but it's not a problem if there's an item in the selection which doesn't support it.
+ *  - ALL: will appear in the context menu only if all selected items support it,
+ *      e.g. Cut.  Useful if you want to be able to do it on multiple items, but it
+ *      only makes sense if the whole selection supports it.
+ *  - ONE: will appear in the context menu only if there is exactly one item selected,
+ *      e.g. Set Image.  Useful for operations where a manual follow-up is needed
+ *      (such as picking the image) per-item, and thus it doesn't make sense to do it
+ *      in bulk, or for operations like Inspect where the user is quite unlikely to
+ *      want to do it on a large selection of objects.  Also for things like invoking
+ *      constructors, where it will never be shared between objects.
+ *      
+ *  Sometimes the combine value is a bit of a heuristic, based on guesses at what users
+ *  would expect.  For example, Compile could be ALL or ANY, the choice of ANY is
+ *  mainly convenience (it it was ALL and you accidentally select the README, then
+ *  you wouldn't see Compile in the list, which is a bit frustrating).
+ *  
+ *  AbstractOperation instances are identified by their identifier for purposes of combining.
+ *  If two AbstractOperation instances have the same identifier, they are assumed to be
+ *  totally interchangeable.  So in general instances should not keep outer state
+ *  (unless they use Combine.ONE which means they will only be used for the single instance
+ *  they arise from).  An operation acts on the instances passed to the activate method,
+ *  not just the ContextualItem that created them.
  */
 public abstract class AbstractOperation<ITEM extends AbstractOperation.ContextualItem<ITEM>>
 {
@@ -49,6 +78,9 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
 
     public static interface ContextualItem<ITEM extends ContextualItem<ITEM>>
     {
+        /**
+         * Get the list of operations supported by this item.
+         */
         public List<? extends AbstractOperation<ITEM>> getContextOperations();
     }
 
@@ -178,6 +210,12 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
     @OnThread(Tag.FXPlatform)
     public void onMenuHidden(CustomMenuItem item) { }
 
+    /**
+     * Actually performs the operation on the selected list.  For Combine.ONE items
+     * this list will always be length 1.  For ANY and ALL, it could be any length,
+     * and for ANY it may contain items that do not support this operation, so you
+     * may need to filter accordingly (e.g. with instanceof checks or other guards)
+     */
     public abstract void activate(List<ITEM> items);
 
     @OnThread(Tag.FXPlatform)
@@ -186,6 +224,9 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
     @OnThread(Tag.FXPlatform)
     protected void disablePreview() { }
 
+    /**
+     * Should this item appear only on context menus?
+     */
     public boolean onlyOnContextMenu()
     {
         return false;
@@ -215,6 +256,8 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
         // The integer is a block number, which is used to group and add dividers.
         // The ordering of the block numbers doesn't matter, it just needs to be a different number for each block,
         // and blocks should only be of adjacent enum values.
+        // Dividers will be shown between items that don't have the same integer value
+        // The menu will be ordered by the order in this enum.
         CLOSE(0),
         UNDO(10), REDO(10),
         RECENT_VALUES(20),
@@ -389,6 +432,7 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
         return identifier;
     }
 
+    // Can be over-ridden in subclasses
     public List<String> getStyleClasses()
     {
         return List.of();
