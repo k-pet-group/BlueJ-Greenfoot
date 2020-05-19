@@ -21,6 +21,9 @@
  */
 package bluej.pkgmgr.target;
 
+import bluej.extmgr.ClassExtensionMenu;
+import bluej.extmgr.ExtensionsManager;
+import bluej.extmgr.ExtensionsMenuManager;
 import bluej.pkgmgr.Package;
 import bluej.pkgmgr.PackageEditor;
 import bluej.utility.javafx.AbstractOperation;
@@ -315,9 +318,15 @@ public abstract class Target
 
         JavaFXUtil.listenForContextMenu(pane, (x, y) -> {
             AbstractOperation.MenuItems menuItems = AbstractOperation.getMenuItems(pkg.getEditor().getSelection(), true);
-            AbstractOperation.MenuItems.makeContextMenu(Map.of("", menuItems)).show(pkg.getEditor(), x.intValue(), y.intValue());
-            //pkg.getEditor().selectOnly(this);
-            //popupMenu(x.intValue(), y.intValue(), pkg.getEditor());
+            ContextMenu contextMenu = AbstractOperation.MenuItems.makeContextMenu(Map.of("", menuItems));
+            if (pkg.getEditor().getSelection().size() == 1 && pkg.getEditor().getSelection().get(0) instanceof ClassTarget)
+            {
+                ClassTarget classTarget = (ClassTarget)pkg.getEditor().getSelection().get(0);
+                ExtensionsMenuManager menuManager = new ExtensionsMenuManager(contextMenu, ExtensionsManager.getInstance(), new ClassExtensionMenu(classTarget));
+                menuManager.addExtensionMenu(getPackage().getProject());
+            }
+            showingMenu(contextMenu);
+            contextMenu.show(pane, x.intValue(), y.intValue());
             return true;
         }, KeyCode.SPACE, KeyCode.ENTER);
 

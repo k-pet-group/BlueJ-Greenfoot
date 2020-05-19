@@ -2147,26 +2147,6 @@ public class ClassTarget extends DependentTarget
         return ops;
     }
 
-    /**
-     * Creates a popup menu for this class target.
-     * 
-     * @param extMgr
-     * @param cl class object associated with this class target
-     * @return the created popup menu object
-     */
-    protected void withMenu(Class<?> cl, ClassRole roleRef, SourceType source, boolean docExists, FXPlatformConsumer<ContextMenu> withMenu, ExtensionsManager extMgr)
-    {
-        final ContextMenu menu = new ContextMenu();
-
-        
-        
-
-        ExtensionsMenuManager menuManager = new ExtensionsMenuManager(menu, extMgr, new ClassExtensionMenu(this));
-        menuManager.addExtensionMenu(getPackage().getProject());
-
-        withMenu.accept(menu);
-    }
-
     private void putFXLaunchResult(PackageEditor ed, Window fxWindow, CompletableFuture<FXPlatformSupplier<DebuggerResult>> result)
     {
         result.thenAccept(new Consumer<FXPlatformSupplier<DebuggerResult>>()

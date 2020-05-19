@@ -269,20 +269,21 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
         
         TEST_ALL(100),
         RUN_FX(100),
-        CREATE_TEST(100),
+        RUN_CONSTRUCTOR(103),
         RUN_METHOD(105),
         EDIT(110),
         COMPILE(110),
         INSPECT(110),
         REMOVE(110),
         SET_IMAGE(110),
-        DUPLICATE(120),
-        CONVERT_TO_STRIDE(120),
-        CONVERT_TO_JAVA(120),
+        DUPLICATE(110),
+        CONVERT_TO_STRIDE(110),
+        CONVERT_TO_JAVA(110),
         MAKE_TEST_CASE(130),
         BENCH_TO_FIXTURE(130),
         FIXTURE_TO_BENCH(130),
-        NEW_SUBCLASS(140);
+        NEW_SUBCLASS(140),
+        CREATE_TEST(140),;
 
         private final int block;
 

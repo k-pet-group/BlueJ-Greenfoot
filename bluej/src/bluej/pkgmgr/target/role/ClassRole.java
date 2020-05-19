@@ -341,7 +341,7 @@ public abstract class ClassRole
 
         public CallConstructorAction(String label, InvokeListener il, ConstructorView c)
         {
-            super(label, Combine.ONE, null, label, MenuItemOrder.RUN_METHOD);
+            super(label, Combine.ONE, null, label, MenuItemOrder.RUN_CONSTRUCTOR);
             this.il = il;
             this.c = c;
         }
