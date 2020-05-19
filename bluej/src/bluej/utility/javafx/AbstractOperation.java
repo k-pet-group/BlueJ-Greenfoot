@@ -400,6 +400,7 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
         // TODO next line is added due to a bug in Mac SystemMenuBar where MenuItem text showed as blank. 
         item.textProperty().bind(d.textProperty());
         item.getStyleClass().addAll(getStyleClasses());
+        item.setDisable(!isEnabled());
         return item;
     }
 
