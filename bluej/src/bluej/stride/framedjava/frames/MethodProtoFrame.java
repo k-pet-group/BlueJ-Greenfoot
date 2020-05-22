@@ -40,7 +40,6 @@ import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.*;
-import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
