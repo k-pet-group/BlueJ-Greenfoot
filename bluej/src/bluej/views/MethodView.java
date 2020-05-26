@@ -227,6 +227,7 @@ public class MethodView extends CallableView implements Comparable<MethodView>
     /**
      * Check whether this is method returns void
      */
+    @Override
     public boolean isVoid()
     {
         return method.getReturnType() == void.class;

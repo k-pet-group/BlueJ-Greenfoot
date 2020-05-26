@@ -78,7 +78,7 @@ public class MethodDialog extends CallDialog
     {
         super(parentFrame, ob, "");
         this.invoker = invoker;
-        this.showAssertion = (invoker != null && invoker.inTestMode());
+        this.showAssertion = (invoker != null && invoker.inTestMode() && !invoker.isVoidReturn());
         assertionEvalType = JavaUtils.getJavaUtils().getRawReturnType(method.getMethod());
 
         history = callHistory;

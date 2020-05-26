@@ -82,6 +82,13 @@ public final class ConstructorView extends CallableView
         return true;
     }
 
+    @Override
+    public boolean isVoid()
+    {
+        // Constructor can't return void, by definition:
+        return false;
+    }
+
     /**
      * Returns a signature string in the format
      *  name(type,type,type)

@@ -64,6 +64,11 @@ public abstract class CallableView extends MemberView
      * Indicates whether the callable view represents a constructor.
      */
     public abstract boolean isConstructor();
+
+    /**
+     * Check whether this method returns void
+     */
+    public abstract boolean isVoid();
     
     /**
      * Count of parameters
