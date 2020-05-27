@@ -87,4 +87,13 @@ public class DeclaredVar implements NamedValue
     {
         return isFinal;
     }
+
+    /**
+     * Sets the declared type.  Used when the "var" keyword is present, to set the
+     * type once we've seen the initializer expression.
+     */
+    public void setDeclType(JavaType type)
+    {
+        this.declVarType = type;
+    }
 }

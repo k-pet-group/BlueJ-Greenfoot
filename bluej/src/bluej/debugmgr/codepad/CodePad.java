@@ -962,6 +962,14 @@ public class CodePad extends VBox
                     DeclaredVar dv = i.next();
                     String declaredName = dv.getName();
                     
+                    // If they used var and we couldn't work out the type, give an error:
+                    if (dv.getDeclaredType() == null)
+                    {
+                        showErrorMsg("Could not determine variable type");
+                        removeNewlyDeclareds();
+                        return;
+                    }
+                    
                     if (getLocalVar(declaredName) != null) {
                         // The variable has already been declared
                         String errMsg = Config.getString("pkgmgr.codepad.redefinedVar");

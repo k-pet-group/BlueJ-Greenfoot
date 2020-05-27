@@ -141,7 +141,7 @@ public class TextAnalyzer
             }
             catch (ParseFailure e) {}
 
-            CodepadVarParser vparser = new CodepadVarParser(resolver, command);
+            CodepadVarParser vparser = new CodepadVarParser(resolver, command, accessType);
             try {
                 if (vparser.parseVariableDeclarations() != null) {
                     declVars = vparser.getVariables();
