@@ -307,6 +307,7 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
     
     protected final String identifier;
     protected final Combine combine;
+    protected boolean enabled = true;
     @OnThread(Tag.FX)
     private boolean wideCustomItem = false;
     
@@ -424,9 +425,9 @@ public abstract class AbstractOperation<ITEM extends AbstractOperation.Contextua
     }
 
     // Can be over-ridden in subclasses
-    protected boolean isEnabled()
+    protected final boolean isEnabled()
     {
-        return true;
+        return enabled;
     }
 
     public KeyCombination getShortcut()

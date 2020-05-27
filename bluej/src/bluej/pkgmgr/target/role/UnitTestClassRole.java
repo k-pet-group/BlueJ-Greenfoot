@@ -912,12 +912,7 @@ public class UnitTestClassRole extends ClassRole
         public DummyDisabledOperation(String label, MenuItemOrder menuItemOrder)
         {
             super(label, Combine.ONE, null, label, menuItemOrder);
-        }
-
-        @Override
-        protected boolean isEnabled()
-        {
-            return false;
+            this.enabled = false;
         }
 
         @Override

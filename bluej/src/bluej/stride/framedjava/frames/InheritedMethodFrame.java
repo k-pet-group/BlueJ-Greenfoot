@@ -128,6 +128,9 @@ public class InheritedMethodFrame extends SingleLineFrame
         List<FrameOperation> operations = new ArrayList<>();
         
         operations.add(new FrameOperation(getEditor(), "GO TO " + originatingClass + "." + methodName, Combine.ONE) {
+            {
+                this.enabled = false;
+            }
 
             // Spaces make sure menu is wide enough:
             private StringProperty text = new SimpleStringProperty("Scanning...                   ");
@@ -140,12 +143,6 @@ public class InheritedMethodFrame extends SingleLineFrame
 
             @Override
             protected void execute(List<Frame> frames) {}
-
-            @Override
-            protected boolean isEnabled()
-            {
-                return false;
-            }
 
             @Override
             @OnThread(Tag.FXPlatform)
