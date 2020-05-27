@@ -21,6 +21,15 @@
  */
 package bluej.stride.framedjava.frames;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import bluej.utility.javafx.AbstractOperation;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.FXCollections;
+
 import bluej.Config;
 import bluej.stride.framedjava.ast.*;
 import bluej.stride.framedjava.elements.MethodProtoElement;
@@ -31,7 +40,6 @@ import bluej.stride.generic.ExtensionDescription.ExtensionSource;
 import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.*;
-import bluej.stride.slots.EditableSlot.MenuItemOrder;
 import bluej.utility.javafx.JavaFXUtil;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -128,7 +136,7 @@ public class MethodProtoFrame extends DocumentedSingleLineFrame implements CodeF
         if (parentIsClass.get()) 
         {
             r.add(new CustomFrameOperation(getEditor(), "abstract->concrete",
-                    Arrays.asList("Change", "to Concrete"), MenuItemOrder.TRANSFORM, this, () -> {
+                    Arrays.asList("Change", "to Concrete"), AbstractOperation.MenuItemOrder.TRANSFORM, this, () -> {
                         FrameCursor c = getCursorBefore();
 
                         NormalMethodElement el = new NormalMethodElement(null, new AccessPermissionFragment(AccessPermission.PUBLIC),

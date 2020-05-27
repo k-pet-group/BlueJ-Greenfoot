@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,7 +24,6 @@ package bluej.stride.generic;
 import bluej.stride.operations.ToggleBooleanProperty;
 import bluej.utility.Debug;
 import bluej.utility.javafx.FXPlatformRunnable;
-import bluej.utility.javafx.FXRunnable;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 

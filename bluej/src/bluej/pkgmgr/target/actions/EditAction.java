@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016,2020 Michael Kölling and John Rosenberg 
+ Copyright (C) 2020 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,35 +19,28 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.stride.operations;
+package bluej.pkgmgr.target.actions;
 
-import java.util.Arrays;
-import java.util.List;
-
-import bluej.Config;
-import bluej.stride.framedjava.frames.GreenfootFrameUtil;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.InteractionManager;
+import bluej.pkgmgr.target.EditableTarget;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-public class CopyFrameAsJavaOperation extends FrameOperation
+import java.util.List;
+
+/**
+ * Action to open the editor for a classtarget
+ */
+@OnThread(Tag.FXPlatform)
+public class EditAction extends EditableTargetOperation
 {
-    public CopyFrameAsJavaOperation(InteractionManager editor)
+    public EditAction()
     {
-        super(editor, "COPY-JAVA", Combine.ALL);
-    }
-    
-    @Override
-    @OnThread(Tag.FXPlatform)
-    protected void execute(List<Frame> frames)
-    {
-        GreenfootFrameUtil.doCopyAsJava(frames);
+        super("edit", Combine.ANY, null, EditableTarget.editStr, MenuItemOrder.EDIT, EditableTarget.MENU_STYLE_INBUILT);
     }
 
     @Override
-    public List<ItemLabel> getLabels()
+    protected void executeEditable(EditableTarget target)
     {
-        return Arrays.asList(l(Config.getString("frame.operation.copy.as.java"), MenuItemOrder.COPY));
+        target.open();
     }
 }

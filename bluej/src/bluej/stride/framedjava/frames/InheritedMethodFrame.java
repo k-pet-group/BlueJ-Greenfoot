@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg 
+ Copyright (C) 2014,2015,2016,2020 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -30,11 +30,9 @@ import java.util.stream.Collectors;
 import bluej.stride.framedjava.ast.links.PossibleLink;
 import bluej.stride.framedjava.ast.links.PossibleKnownMethodLink;
 import bluej.stride.framedjava.slots.UnderlineContainer;
-import bluej.stride.slots.EditableSlot.MenuItemOrder;
-import bluej.stride.slots.EditableSlot.SortedMenuItem;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.WrappableSlotLabel;
-import bluej.utility.javafx.ErrorUnderlineCanvas;
+import bluej.utility.javafx.*;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -51,16 +49,11 @@ import bluej.stride.framedjava.slots.TextOverlayPosition;
 import bluej.stride.generic.Frame;
 import bluej.stride.generic.InteractionManager;
 import bluej.stride.generic.SingleLineFrame;
-import bluej.stride.operations.AbstractOperation.Combine;
+import bluej.utility.javafx.AbstractOperation.Combine;
 import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
 import bluej.stride.slots.EditableSlot;
 import bluej.utility.Utility;
-import bluej.utility.javafx.FXPlatformRunnable;
-import bluej.utility.javafx.FXRunnable;
-import bluej.utility.javafx.HangingFlowPane;
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -135,6 +128,9 @@ public class InheritedMethodFrame extends SingleLineFrame
         List<FrameOperation> operations = new ArrayList<>();
         
         operations.add(new FrameOperation(getEditor(), "GO TO " + originatingClass + "." + methodName, Combine.ONE) {
+            {
+                this.enabled = false;
+            }
 
             // Spaces make sure menu is wide enough:
             private StringProperty text = new SimpleStringProperty("Scanning...                   ");
@@ -147,13 +143,6 @@ public class InheritedMethodFrame extends SingleLineFrame
 
             @Override
             protected void execute(List<Frame> frames) {}
-
-            public SortedMenuItem getMenuItem(boolean contextMenu)
-            {
-                CustomMenuItem item = initializeCustomItem();
-                item.setDisable(true);
-                return MenuItemOrder.GOTO_DEFINITION.item(item);
-            }
 
             @Override
             @OnThread(Tag.FXPlatform)
@@ -187,7 +176,7 @@ public class InheritedMethodFrame extends SingleLineFrame
 
         if (override == null)
         {
-            operations.add(new CustomFrameOperation(editor, "OVERRIDE", Arrays.asList("Override"), MenuItemOrder.OVERRIDE, this, () ->
+            operations.add(new CustomFrameOperation(editor, "OVERRIDE", Arrays.asList("Override"), AbstractOperation.MenuItemOrder.OVERRIDE, this, () ->
             {
                 NormalMethodFrame methodFrame = new NormalMethodFrame(editor, new AccessPermissionFragment(access), false, false, returnType, methodName, "", true);
                 params.forEach(p -> methodFrame.paramsPane.addFormal(new TypeSlotFragment(p.getUnqualifiedType(), p.getUnqualifiedType()), new NameDefSlotFragment((p.getFormalName() == null ? "" : p.getFormalName()))));
@@ -198,7 +187,7 @@ public class InheritedMethodFrame extends SingleLineFrame
         }
         else
         {
-            operations.add(new CustomFrameOperation(editor, "GO TO " + methodName, Arrays.asList("Show override"), MenuItemOrder.GOTO_OVERRIDE, this, () -> {
+            operations.add(new CustomFrameOperation(editor, "GO TO " + methodName, Arrays.asList("Show override"), AbstractOperation.MenuItemOrder.GOTO_OVERRIDE, this, () -> {
                 override.focusName();
             }));
         }

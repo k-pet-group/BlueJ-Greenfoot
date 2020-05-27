@@ -1,6 +1,6 @@
 /*
  This file is part of the Greenfoot program. 
- Copyright (C) 2017,2018,2019  Poul Henriksen and Michael Kolling 
+ Copyright (C) 2017,2018,2019,2020  Poul Henriksen and Michael Kolling 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -24,11 +24,13 @@ package greenfoot.guifx.classes;
 import bluej.Config;
 import bluej.debugger.gentype.Reflective;
 import bluej.extensions2.ClassNotFoundException;
-import bluej.extensions2.PackageNotFoundException;
 import bluej.extensions2.ProjectNotOpenException;
 import bluej.pkgmgr.Project;
 import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.EditableTarget;
 import bluej.pkgmgr.target.Target;
+import bluej.utility.javafx.AbstractOperation;
+import bluej.utility.javafx.FXPlatformConsumer;
 import bluej.utility.javafx.FXPlatformRunnable;
 import bluej.utility.javafx.JavaFXUtil;
 import bluej.views.ConstructorView;
@@ -36,6 +38,7 @@ import bluej.views.View;
 import bluej.views.ViewFilter;
 import bluej.views.ViewFilter.StaticOrInstance;
 import greenfoot.guifx.GreenfootStage;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
@@ -406,8 +409,32 @@ public class GClassDiagram extends BorderPane
     public static MenuItem contextInbuilt(String text, FXPlatformRunnable action)
     {
         MenuItem menuItem = JavaFXUtil.makeMenuItem(text, action, null);
-        JavaFXUtil.addStyleClass(menuItem, ClassTarget.MENU_STYLE_INBUILT);
+        JavaFXUtil.addStyleClass(menuItem, EditableTarget.MENU_STYLE_INBUILT);
         return menuItem;
+    }
+
+    public static AbstractOperation<LocalGClassNode> contextInbuiltOp(String identifier, String text, AbstractOperation.MenuItemOrder menuItemOrder, FXPlatformConsumer<LocalGClassNode> action)
+    {
+        return new AbstractOperation<LocalGClassNode>(identifier, AbstractOperation.Combine.ONE, null)
+        {
+            @Override
+            public void activate(List<LocalGClassNode> localGClassNodes)
+            {
+                localGClassNodes.forEach(action::accept);
+            }
+
+            @Override
+            public List<String> getStyleClasses()
+            {
+                return List.of(EditableTarget.MENU_STYLE_INBUILT);
+            }
+
+            @Override
+            public List<ItemLabel> getLabels()
+            {
+                return List.of(new ItemLabel(new ReadOnlyStringWrapper(text), menuItemOrder));
+            }
+        };
     }
 
     /**

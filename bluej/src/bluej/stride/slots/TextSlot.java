@@ -39,6 +39,7 @@ import bluej.collect.StrideEditReason;
 import bluej.editor.fixes.SuggestionList;
 import bluej.editor.stride.FrameCatalogue;
 import bluej.stride.framedjava.ast.links.PossibleLink;
+import bluej.utility.javafx.*;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.BooleanExpression;
@@ -76,11 +77,6 @@ import bluej.stride.generic.Frame.View;
 import bluej.stride.generic.FrameContentRow;
 import bluej.stride.generic.InteractionManager;
 import bluej.editor.fixes.SuggestionList.SuggestionListListener;
-import bluej.utility.javafx.AnnotatableTextField;
-import bluej.utility.javafx.ErrorUnderlineCanvas;
-import bluej.utility.javafx.FXPlatformConsumer;
-import bluej.utility.javafx.JavaFXUtil;
-import bluej.utility.javafx.SharedTransition;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
@@ -518,7 +514,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             
             // Need to allow parent's constructor to execute, and
             // need to be in the scene:
-            JavaFXUtil.onceInScene(getNode(), () -> setContextMenu(MenuItems.makeContextMenu(getMenuItems(true))));
+            JavaFXUtil.onceInScene(getNode(), () -> setContextMenu(AbstractOperation.MenuItems.makeContextMenu(getMenuItems(true))));
         }
 
         public final int getCaretPosition()
@@ -974,15 +970,15 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         }
     }
         
-    protected Map<TopLevelMenu, MenuItems> getExtraContextMenuItems()
+    protected Map<TopLevelMenu, AbstractOperation.MenuItems> getExtraContextMenuItems()
     {
         return Collections.emptyMap();
     }
 
     @Override
-    public final Map<TopLevelMenu, MenuItems> getMenuItems(boolean contextMenu) {
-        Map<TopLevelMenu, MenuItems> itemMap = new HashMap<>(getExtraContextMenuItems());
-        final ObservableList<SortedMenuItem> menuItems = FXCollections.observableArrayList();
+    public final Map<TopLevelMenu, AbstractOperation.MenuItems> getMenuItems(boolean contextMenu) {
+        Map<TopLevelMenu, AbstractOperation.MenuItems> itemMap = new HashMap<>(getExtraContextMenuItems());
+        final ObservableList<AbstractOperation.SortedMenuItem> menuItems = FXCollections.observableArrayList();
         if (contextMenu)
         {
             menuItems.add(getRecentValuesMenu());
@@ -997,11 +993,11 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
             Config.isMacOS() ? null : new KeyCodeCombination(KeyCode.V, KeyCodeCombination.SHORTCUT_DOWN));
 
         menuItems.addAll(
-            MenuItemOrder.CUT.item(cutItem),
-            MenuItemOrder.COPY.item(copyItem),
-            MenuItemOrder.PASTE.item(pasteItem));
-        itemMap.put(TopLevelMenu.EDIT, MenuItems.concat(
-                new MenuItems(menuItems) {
+            AbstractOperation.MenuItemOrder.CUT.item(cutItem),
+            AbstractOperation.MenuItemOrder.COPY.item(copyItem),
+            AbstractOperation.MenuItemOrder.PASTE.item(pasteItem));
+        itemMap.put(TopLevelMenu.EDIT, AbstractOperation.MenuItems.concat(
+                new AbstractOperation.MenuItems(menuItems) {
 
             @Override
             @OnThread(Tag.FXPlatform)
@@ -1023,7 +1019,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
         return itemMap;
     }
 
-    private SortedMenuItem getRecentValuesMenu()
+    private AbstractOperation.SortedMenuItem getRecentValuesMenu()
     {
         final Menu recent = new Menu(Config.getString("frame.slot.recent"));
         recent.setDisable(true);
@@ -1047,7 +1043,7 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
                 });
             }
         });
-        return MenuItemOrder.RECENT_VALUES.item(recent);
+        return AbstractOperation.MenuItemOrder.RECENT_VALUES.item(recent);
     }
 
     @Override

@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016 Michael Kölling and John Rosenberg
+ Copyright (C) 2014,2015,2016,2020 Michael Kölling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -44,12 +44,12 @@ import bluej.stride.operations.CopyFrameAsJavaOperation;
 import bluej.stride.operations.CopyFrameAsStrideOperation;
 import bluej.stride.operations.CustomFrameOperation;
 import bluej.stride.operations.FrameOperation;
-import bluej.stride.slots.EditableSlot;
 import bluej.stride.slots.ExtendsList;
 import bluej.stride.slots.Focus;
 import bluej.stride.slots.HeaderItem;
 import bluej.stride.slots.SlotLabel;
 import bluej.utility.Utility;
+import bluej.utility.javafx.AbstractOperation;
 import bluej.utility.javafx.SharedTransition;
 
 import java.util.ArrayList;
@@ -126,7 +126,7 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
         ops.add(new CopyFrameAsImageOperation(editor));
         ops.add(new CopyFrameAsJavaOperation(editor));
         ops.add(new CustomFrameOperation(getEditor(), "addExtends", Arrays.asList(Config.getString("frame.class.add.extends")),
-                EditableSlot.MenuItemOrder.TOGGLE_EXTENDS, this, () -> extendsList.addTypeSlotAtEnd("", true)));
+                AbstractOperation.MenuItemOrder.TOGGLE_EXTENDS, this, () -> extendsList.addTypeSlotAtEnd("", true)));
 
         final List<TypeSlotFragment> types = extendsList.getTypes();
         for (int i = 0; i < types.size(); i++)
@@ -134,7 +134,7 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
             final int index = i;
             TypeSlotFragment type = types.get(i);
             CustomFrameOperation removeOp = new CustomFrameOperation(getEditor(), "removeExtends",
-                    Arrays.asList(Config.getString("frame.class.remove.extends.from").replace("$", type.getContent())), EditableSlot.MenuItemOrder.TOGGLE_EXTENDS,
+                    Arrays.asList(Config.getString("frame.class.remove.extends.from").replace("$", type.getContent())), AbstractOperation.MenuItemOrder.TOGGLE_EXTENDS,
                     this, () -> extendsList.removeIndex(index));
             removeOp.setWideCustomItem(true);
             ops.add(removeOp);

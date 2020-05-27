@@ -29,7 +29,14 @@ import bluej.pkgmgr.Package;
 import bluej.pkgmgr.target.ClassTarget;
 import bluej.pkgmgr.target.DependentTarget.State;
 import bluej.pkgmgr.target.DependentTarget.TargetListener;
+import bluej.pkgmgr.target.Target;
+import bluej.pkgmgr.target.actions.ConvertToJavaAction;
+import bluej.pkgmgr.target.actions.ConvertToStrideAction;
+import bluej.pkgmgr.target.actions.InspectAction;
+import bluej.pkgmgr.target.role.UnitTestClassRole;
 import bluej.utility.DialogManager;
+import bluej.utility.Utility;
+import bluej.utility.javafx.AbstractOperation;
 import bluej.utility.javafx.JavaFXUtil;
 import greenfoot.guifx.GreenfootStage;
 import greenfoot.guifx.classes.GClassDiagram.GClassType;
@@ -46,6 +53,7 @@ import threadchecker.Tag;
 
 import java.io.File;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,7 +61,7 @@ import java.util.List;
  * (i.e. classes that are in this project, rather than Actor and World
  * which are imported).
  */
-public class LocalGClassNode extends GClassNode implements TargetListener
+public class LocalGClassNode extends GClassNode implements TargetListener, AbstractOperation.ContextualItem<LocalGClassNode>
 {
     private final GClassType type;
     private GClassDiagram classDiagram;
@@ -243,7 +251,23 @@ public class LocalGClassNode extends GClassNode implements TargetListener
             classDiagram.hideContextMenu();
         }
         ContextMenu contextMenu = new ContextMenu();
+
+        // Update mouse position from menu, so that if the user clicks new Crab(),
+        // it appears where the mouse is now, rather than where the mouse was before the menu was shown.
+        // We must use screen X/Y here, because the scene is the menu, not GreenfootStage,
+        // so scene X/Y wouldn't mean anything useful to GreenfootStage:
+        contextMenu.getScene().setOnMouseMoved(ev -> greenfootStage.setLatestMousePosOnScreen(ev.getScreenX(), ev.getScreenY()));
         
+        contextMenu.getItems().addAll(AbstractOperation.SortedMenuItem.sortAndAddDividers(AbstractOperation.getMenuItems(List.of(this), true).getItems(), List.of()));
+
+        // Select item when we show context menu for it:
+        classDiagram.getSelectionManager().select(display);
+        contextMenu.show(display, e.getScreenX(), e.getScreenY());
+        curContextMenu = contextMenu;
+    }
+    
+    public List<AbstractOperation<LocalGClassNode>> getContextOperations()
+    {
         Class<?> cl = null;
         if (classTarget.isCompiled())
         {
@@ -251,71 +275,58 @@ public class LocalGClassNode extends GClassNode implements TargetListener
             cl = classTarget.getPackage().loadClass(classTarget.getQualifiedName());
         }
         
-        // Update mouse position from menu, so that if the user clicks new Crab(),
-        // it appears where the mouse is now, rather than where the mouse was before the menu was shown.
-        // We must use screen X/Y here, because the scene is the menu, not GreenfootStage,
-        // so scene X/Y wouldn't mean anything useful to GreenfootStage:
-        contextMenu.getScene().setOnMouseMoved(ev -> greenfootStage.setLatestMousePosOnScreen(ev.getScreenX(), ev.getScreenY()));
-
+        ArrayList<AbstractOperation<LocalGClassNode>> ops = new ArrayList<>();
+        
         if (cl != null)
         {
-            if (classTarget.getRole().createClassConstructorMenu(contextMenu.getItems(), classTarget, cl))
-            {
-                // If any items were added, add divider afterwards:
-                contextMenu.getItems().add(new SeparatorMenuItem());
-            }
-
-            if (classTarget.getRole().createClassStaticMenu(contextMenu.getItems(), classTarget, cl))
-            {
-                // If any items were added, add divider afterwards:
-                contextMenu.getItems().add(new SeparatorMenuItem());
-            }
+            ops.addAll(proxyAll(classTarget.getRole().getClassConstructorOperations(classTarget, cl)));
+            ops.addAll(proxyAll(classTarget.getRole().getClassStaticOperations(classTarget, cl)));
         }
         else
         {
-            MenuItem menuItem = new MenuItem(Config.getString("classPopup.needsCompile"));
-            menuItem.setDisable(true);
-            contextMenu.getItems().add(menuItem);
-            contextMenu.getItems().add(new SeparatorMenuItem());
+            ops.add(proxy(new UnitTestClassRole.DummyDisabledOperation(Config.getString("classPopup.needsCompile"), AbstractOperation.MenuItemOrder.COMPILE)));
         }
 
 
         // Open editor:
         if (classTarget.hasSourceCode() || classTarget.getDocumentationFile().exists())
         {
-            contextMenu.getItems().add(GClassDiagram.contextInbuilt(
+            ops.add(GClassDiagram.contextInbuiltOp("open",
                     Config.getString(classTarget.hasSourceCode() ? "edit.class" : "show.apidoc"),
-                    classTarget::open));
+                    AbstractOperation.MenuItemOrder.EDIT,
+                    n -> n.classTarget.open()));
         }
 
         // Set image:
         if (type == GClassType.ACTOR || type == GClassType.WORLD)
         {
-            contextMenu.getItems().add(GClassDiagram.contextInbuilt(Config.getString("select.image"),
-                    () -> greenfootStage.setImageFor(this)));
+            ops.add(GClassDiagram.contextInbuiltOp("setImage", Config.getString("select.image"),
+                    AbstractOperation.MenuItemOrder.SET_IMAGE,
+                    n -> n.classDiagram.getGreenfootStage().setImageFor(n)));
         }
         // Inspect:
-        contextMenu.getItems().add(classTarget.new InspectAction(cl != null, display));
-        contextMenu.getItems().add(new SeparatorMenuItem());
+        if (cl != null)
+            ops.add(proxy(new InspectAction(display)));
 
         // Duplicate:
         if (classTarget.hasSourceCode())
         {
-            contextMenu.getItems().add(GClassDiagram.contextInbuilt(Config.getString("duplicate.class"),
-                    () -> greenfootStage.duplicateClass(this, classTarget)));
+            ops.add(GClassDiagram.contextInbuiltOp("duplicate", Config.getString("duplicate.class"),
+                    AbstractOperation.MenuItemOrder.DUPLICATE,
+                    n -> n.classDiagram.getGreenfootStage().duplicateClass(n, n.classTarget)));
         }
 
         // Delete:
-        contextMenu.getItems().add(GClassDiagram.contextInbuilt(Config.getString("remove.class"), () ->  {
+        ops.add(GClassDiagram.contextInbuiltOp("remove", Config.getString("remove.class"), AbstractOperation.MenuItemOrder.REMOVE, n ->  {
             //Display a dialog box asking if the user if sure about the deletion
-            if (DialogManager.askQuestionFX(classDiagram.getGreenfootStage().getScene().getWindow(), "really-remove-class") == 0)
+            if (DialogManager.askQuestionFX(n.classDiagram.getGreenfootStage().getScene().getWindow(), "really-remove-class") == 0)
             {
-                classTarget.remove();
+                n.classTarget.remove();
                 // Recalculate class contents after deletion:
-                classDiagram.recalculateGroups();
+                n.classDiagram.recalculateGroups();
                 // Check after updating class diagram, as that will
                 // check if any user classes remain:
-                greenfootStage.fireWorldRemovedCheck(classTarget);
+                n.classDiagram.getGreenfootStage().fireWorldRemovedCheck(n.classTarget);
             }
         }));
 
@@ -323,12 +334,12 @@ public class LocalGClassNode extends GClassNode implements TargetListener
         // Convert to Java/Stride
         if (classTarget.getSourceType() == SourceType.Stride)
         {
-            contextMenu.getItems().add(classTarget.new ConvertToJavaAction(greenfootStage));
+            ops.add(proxy(new ConvertToJavaAction(classDiagram.getGreenfootStage())));
         }
         else if (classTarget.getSourceType() == SourceType.Java &&
                 classTarget.getRole() != null && classTarget.getRole().canConvertToStride())
         {
-            contextMenu.getItems().add(classTarget.new ConvertToStrideAction(greenfootStage));
+            ops.add(proxy(new ConvertToStrideAction(classDiagram.getGreenfootStage())));
         }
 
         // Show "new subclass" only if the class is not final:
@@ -349,14 +360,12 @@ public class LocalGClassNode extends GClassNode implements TargetListener
         // New subclass:
         if (! isFinal)
         {
-            contextMenu.getItems().add(GClassDiagram.contextInbuilt(Config.getString("new.sub.class"),
-                    () -> greenfootStage.newSubClassOf(classTarget.getQualifiedName(), type)));
+            ops.add(GClassDiagram.contextInbuiltOp("newSubclass", Config.getString("new.sub.class"),
+                    AbstractOperation.MenuItemOrder.NEW_SUBCLASS,
+                    n -> n.classDiagram.getGreenfootStage().newSubClassOf(n.classTarget.getQualifiedName(), n.type)));
         }
-
-        // Select item when we show context menu for it:
-        classDiagram.getSelectionManager().select(display);
-        contextMenu.show(display, e.getScreenX(), e.getScreenY());
-        curContextMenu = contextMenu;
+        
+        return ops;
     }
     
     @Override
@@ -390,5 +399,34 @@ public class LocalGClassNode extends GClassNode implements TargetListener
     public ClassTarget getClassTarget()
     {
         return classTarget;
+    }
+    
+    private AbstractOperation<LocalGClassNode> proxy(AbstractOperation<? super ClassTarget> op)
+    {
+        return new AbstractOperation<LocalGClassNode>(op.getIdentifier(), op.combine(), op.getShortcut())
+        {
+            @Override
+            public void activate(List<LocalGClassNode> localGClassNodes)
+            {
+                op.activate(Utility.mapList(localGClassNodes, n -> n.classTarget));
+            }
+
+            @Override
+            public List<ItemLabel> getLabels()
+            {
+                return op.getLabels();
+            }
+
+            @Override
+            public List<String> getStyleClasses()
+            {
+                return op.getStyleClasses();
+            }
+        };
+    }
+
+    private List<AbstractOperation<LocalGClassNode>> proxyAll(List<? extends AbstractOperation<? super ClassTarget>> ops)
+    {
+        return Utility.mapList(ops, this::proxy);
     }
 }

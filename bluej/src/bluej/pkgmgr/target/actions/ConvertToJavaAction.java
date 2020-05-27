@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2016,2020 Michael Kölling and John Rosenberg 
+ Copyright (C) 2020 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,35 +19,33 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.stride.operations;
+package bluej.pkgmgr.target.actions;
 
-import java.util.Arrays;
-import java.util.List;
-
-import bluej.Config;
-import bluej.stride.framedjava.frames.GreenfootFrameUtil;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.InteractionManager;
+import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.EditableTarget;
+import bluej.utility.javafx.JavaFXUtil;
+import javafx.event.ActionEvent;
+import javafx.stage.Window;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
-public class CopyFrameAsJavaOperation extends FrameOperation
+@OnThread(Tag.FXPlatform)
+public class ConvertToJavaAction extends ClassTargetOperation
 {
-    public CopyFrameAsJavaOperation(InteractionManager editor)
-    {
-        super(editor, "COPY-JAVA", Combine.ALL);
-    }
+    private final Window parentWindow;
     
-    @Override
-    @OnThread(Tag.FXPlatform)
-    protected void execute(List<Frame> frames)
+    public ConvertToJavaAction(Window parentWindow)
     {
-        GreenfootFrameUtil.doCopyAsJava(frames);
+        super("convertToJava", Combine.ONE, null, ClassTarget.convertToJavaStr, MenuItemOrder.CONVERT_TO_JAVA, EditableTarget.MENU_STYLE_INBUILT);
+        this.parentWindow = parentWindow;
     }
 
     @Override
-    public List<ItemLabel> getLabels()
+    protected void execute(ClassTarget target)
     {
-        return Arrays.asList(l(Config.getString("frame.operation.copy.as.java"), MenuItemOrder.COPY));
+        if (JavaFXUtil.confirmDialog("convert.to.java.title", "convert.to.java.message", parentWindow, true))
+        {
+            target.convertStrideToJava();
+        }
     }
 }

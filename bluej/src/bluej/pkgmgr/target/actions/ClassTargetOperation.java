@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 2014,2015,2016,2020 Michael Kölling and John Rosenberg 
+ Copyright (C) 2020 Michael Kölling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -19,36 +19,30 @@
  This file is subject to the Classpath exception as provided in the  
  LICENSE.txt file that accompanied this code.
  */
-package bluej.stride.operations;
+package bluej.pkgmgr.target.actions;
 
-import java.util.Arrays;
+import bluej.pkgmgr.target.ClassTarget;
+import bluej.pkgmgr.target.EditableTarget;
+import javafx.scene.input.KeyCombination;
+import threadchecker.OnThread;
+import threadchecker.Tag;
+
 import java.util.List;
 
-import bluej.Config;
-import bluej.stride.framedjava.frames.GreenfootFrameUtil;
-import bluej.stride.generic.Frame;
-import bluej.stride.generic.InteractionManager;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
-import javafx.scene.input.KeyCombination;
-
-public class CopyFrameAsStrideOperation extends FrameOperation
+@OnThread(Tag.FXPlatform)
+public abstract class ClassTargetOperation extends EditableTargetOperation
 {
-
-    public CopyFrameAsStrideOperation(InteractionManager editor)
+    public ClassTargetOperation(String identifier, Combine combine, KeyCombination shortcut, String label, MenuItemOrder menuItemOrder, String... styleClasses)
     {
-        super(editor, "COPY-STRIDE", Combine.ALL, new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN));
+        super(identifier, combine, shortcut, label, menuItemOrder, styleClasses);
+    }
+
+    @Override
+    protected final void executeEditable(EditableTarget target)
+    {
+        if (target instanceof ClassTarget)
+            execute((ClassTarget)target);
     }
     
-    @Override
-    protected void execute(List<Frame> frames)
-    {
-        GreenfootFrameUtil.doCopyAsStride(frames);
-    }
-
-    @Override
-    public List<ItemLabel> getLabels()
-    {
-        return Arrays.asList(l(Config.getString("frame.operation.copy"), MenuItemOrder.COPY));
-    }
+    protected abstract void execute(ClassTarget target);
 }
