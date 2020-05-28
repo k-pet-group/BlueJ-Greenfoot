@@ -2876,21 +2876,25 @@ public class PkgMgrFrame
         teamPanel.setContent(new StackPane(teamPanelItemsUnshared, teamPanelItemsOnceShared));
 
         updateButton = new Button();
+        updateButton.setFocusTraversable(false);
         updateAction.useButton(this, updateButton);
         updateButton.visibleProperty().bind(updateButton.disableProperty().not());
         teamPanelItemsOnceShared.getChildren().add(updateButton);
 
         commitButton = new Button();
+        commitButton.setFocusTraversable(false);
         commitCommentAction.useButton(this, commitButton);
         commitButton.visibleProperty().bind(commitButton.disableProperty().not());
         teamPanelItemsOnceShared.getChildren().add(commitButton);
 
         teamStatusButton = new Button();
+        teamStatusButton.setFocusTraversable(false);
         statusAction.useButton(this, teamStatusButton);
         teamStatusButton.visibleProperty().bind(teamStatusButton.disableProperty().not());
         teamPanelItemsOnceShared.getChildren().add(teamStatusButton);
 
         teamShareButton = new Button();
+        teamShareButton.setFocusTraversable(false);
         shareAction.useButton(this, teamShareButton);
         teamShareButton.visibleProperty().bind(teamShareButton.disableProperty().not());
         teamPanelItemsUnshared.getChildren().add(teamShareButton);

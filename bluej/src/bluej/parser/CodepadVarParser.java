@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2016  Michael Kolling and John Rosenberg
+ Copyright (C) 1999-2009,2010,2016,2020  Michael Kolling and John Rosenberg
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -31,6 +31,7 @@ import bluej.debugger.gentype.JavaType;
 import bluej.debugmgr.codepad.DeclaredVar;
 import bluej.parser.entity.EntityResolver;
 import bluej.parser.entity.JavaEntity;
+import bluej.parser.entity.ValueEntity;
 import bluej.parser.lexer.JavaTokenTypes;
 import bluej.parser.lexer.LocatableToken;
 import threadchecker.OnThread;
@@ -42,7 +43,7 @@ import threadchecker.Tag;
  * @author Davin McCall
  */
 @OnThread(Tag.FXPlatform)
-public class CodepadVarParser extends JavaParser
+public class CodepadVarParser extends TextParser
 {
     private EntityResolver resolver;
     
@@ -50,18 +51,19 @@ public class CodepadVarParser extends JavaParser
     private int modifiers = 0;
     private boolean gotFirstVar = false;
     private JavaType baseType;
+    private boolean varKeyword;
     private List<DeclaredVar> variables = new ArrayList<DeclaredVar>();
     
     
-    public CodepadVarParser(EntityResolver resolver, Reader reader)
+    public CodepadVarParser(EntityResolver resolver, Reader reader, JavaEntity accessType)
     {
-        super(reader);
+        super(resolver, reader, accessType, true);
         this.resolver = resolver;
     }
 
-    public CodepadVarParser(EntityResolver resolver, String text)
+    public CodepadVarParser(EntityResolver resolver, String text, JavaEntity accessType)
     {
-        this(resolver, new StringReader(text));
+        this(resolver, new StringReader(text), accessType);
     }
     
     /**
@@ -77,14 +79,24 @@ public class CodepadVarParser extends JavaParser
     @OnThread(value = Tag.FXPlatform, ignoreParent = true)
     protected void gotTypeSpec(List<LocatableToken> tokens)
     {
+        super.gotTypeSpec(tokens);
         if (! gotFirstVar) {
             JavaEntity bent = ParseUtils.getTypeEntity(resolver, null, tokens);
-            if (bent == null) {
+            if (bent == null)
+            {
                 return;
             }
-            bent = bent.resolveAsType();
-            if (bent != null) {
-                baseType = bent.getType();
+            if (bent.getName() != null && bent.getName().equals("var"))
+            {
+                varKeyword = true;
+            }
+            else
+            {
+                bent = bent.resolveAsType();
+                if (bent != null)
+                {
+                    baseType = bent.getType();
+                }
             }
         }
     }
@@ -99,9 +111,9 @@ public class CodepadVarParser extends JavaParser
     protected void gotVariableDecl(LocatableToken first, LocatableToken idToken, boolean inited)
     {
         gotFirstVar = true;
-        if (baseType != null) {
+        if (baseType != null || varKeyword) {
             JavaType vtype = baseType;
-            while (arrayCount > 0) {
+            while (!varKeyword && arrayCount > 0) {
                 vtype = vtype.getArray();
                 arrayCount--;
             }
@@ -113,9 +125,9 @@ public class CodepadVarParser extends JavaParser
     @Override
     protected void gotSubsequentVar(LocatableToken first, LocatableToken idToken, boolean inited)
     {
-        if (baseType != null) {
+        if (baseType != null || varKeyword) {
             JavaType vtype = baseType;
-            while (arrayCount > 0) {
+            while (!varKeyword && arrayCount > 0) {
                 vtype = vtype.getArray();
                 arrayCount--;
             }
@@ -133,5 +145,32 @@ public class CodepadVarParser extends JavaParser
             }
         }
     }
-    
+
+    @Override
+    protected void endVariableDecls(LocatableToken token, boolean included)
+    {
+        super.endVariableDecls(token, included);
+        // If they used var, we must try to infer the type from the expression they gave:
+        if (varKeyword)
+        {
+            for (DeclaredVar variable : variables)
+            {
+                JavaEntity expressionType = getExpressionType();
+                if (expressionType != null)
+                {
+                    ValueEntity entity = expressionType.resolveAsValue();
+                    if (entity != null)
+                    {
+                        JavaType type = entity.getType();
+                        // Don't give things a null type if they were initialised with null; leave as unknown type
+                        // which will rightly give an error to the user that type couldn't be inferred:
+                        if (type != null && (!type.isPrimitive() || !type.typeIs(JavaType.JT_NULL)))
+                        {
+                            variable.setDeclType(type);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
