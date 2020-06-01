@@ -231,9 +231,6 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
         this.initialSource = initialSource;
         this.undoRedoManager = new UndoRedoManager(new FrameState(initialSource));
         this.menuManager = new FrameMenuManager(this);
-
-        // prepare imports
-        this.getFrameEditor().getEditorFixesManager().prepareImports(project);
     }
 
     public static String blockSkipModifierLabel()
@@ -552,7 +549,7 @@ public class FrameEditorTab extends FXTab implements InteractionManager, Suggest
 
                     // When imports change, we provide a new future to calculate the types:
                     List<Future<List<AssistContentThreadSafe>>> importsToUpdate = FrameEditorTab.this.getFrameEditor().getEditorFixesManager().getImportedTypesFutureList();
-                    JavaFXUtil.bindMap(importsToUpdate, getTopLevelFrame().getImports(), FrameEditorTab.this.getFrameEditor().getEditorFixesManager()::importsUpdated, change ->
+                    JavaFXUtil.bindMap(importsToUpdate, getTopLevelFrame().getImports(), FrameEditorTab.this.getFrameEditor().getEditorFixesManager()::scanImports, change ->
                     {
                         frameEditor.getEditorFixesManager().getImportedTypesLock().writeLock().lock();
                         change.run();

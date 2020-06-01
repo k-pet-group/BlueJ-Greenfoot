@@ -98,24 +98,12 @@ public class FlowErrorManager implements ErrorQuery
 
         EditorFixesManager efm = editor.getEditorFixesManager();
 
-        // To avoid the interface to hang to display the errors while errors are retrieved,
-        // we check the status of the imports to either just display errors without quick fixes,
-        // (and launch the imports for a future compilation error highlight) or normal use.
-        boolean areimportsReady = efm.areImportsready();
-        if (!areimportsReady)
-        {
-            // imports not yet ready: first display errors without any quick fix
-            showErrors(editor, sourcePane, startPos, endPos, message, identifier, null);
-        }
         // prepare for the next compilation (if imports not ready)
         // or retrieve them (imports are ready)
         Utility.runBackground(() -> {
             Stream<AssistContentThreadSafe> imports = efm.getImportSuggestions().values().stream().
                 flatMap(Collection::stream);
-            if (areimportsReady)
-            {
-                Platform.runLater(() -> showErrors(editor, sourcePane, startPos, endPos, message, identifier, imports));
-            }
+            Platform.runLater(() -> showErrors(editor, sourcePane, startPos, endPos, message, identifier, imports));
         });
     }
 
@@ -748,14 +736,8 @@ public class FlowErrorManager implements ErrorQuery
                 if (possibleCorrectionAlImports != null)
                 {
                     // We manually add java.lang classes as they are not included in the imports
-                    try
-                    {
-                        commmonTypes.addAll(editor.getEditorFixesManager().getJavaLangImports().get().stream().filter(ac -> ac.getPackage() != null).collect(Collectors.toList()));
-                    }
-                    catch (InterruptedException | ExecutionException ex)
-                    {
-                        throw new RuntimeException(ex);
-                    }
+                    commmonTypes.addAll(editor.getEditorFixesManager().getJavaLangImports().stream().filter(ac -> ac.getPackage() != null).collect(Collectors.toList()));
+                    
                     // We filter the imports to : commonly used classes and classes imported in the class explicitly
                     commmonTypes.addAll(possibleCorrectionAlImports.stream()
                             .filter(ac -> Correction.isClassInUsualPackagesForCorrections(ac) || editor.getText(new SourceLocation(1, 1), editor.getLineColumnFromOffset(startPos)).contains("import " + ac.getPackage() + "." + ac.getName() + ";")

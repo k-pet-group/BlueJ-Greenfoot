@@ -180,7 +180,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     /** Watcher - provides interface to BlueJ core. May be null (eg for README.txt file). */
     private final EditorWatcher watcher;
     /** The Editor Quick Fixes manager associated with this Editor */
-    private final EditorFixesManager editorFixesMgr = new EditorFixesManager();
+    private final EditorFixesManager editorFixesMgr;
     
     private final boolean sourceIsCode;           // true if current buffer is code
     private final List<Menu> fxMenus;
@@ -438,6 +438,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         this.actions = new FlowActions(this);
         this.htmlPane = new WebView();
         this.sourceIsCode = sourceIsCode;
+        this.editorFixesMgr = new EditorFixesManager(watcher.getPackage().getProject().getImports());
         htmlPane.visibleProperty().bind(viewingHTML);
         setCenter(new StackPane(flowEditorPane, htmlPane));
         this.interfaceToggle = createInterfaceSelector();
@@ -1379,9 +1380,6 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public void setEditorVisible(boolean vis, boolean openInNewWindow)
     {
         FXTabbedEditor fxTabbedEditor = fetchTabbedEditor.getFXTabbedEditor(openInNewWindow);
-
-        // prepare the imports
-        getEditorFixesManager().prepareImports(fxTabbedEditor.getProject());
 
         if (vis)
         {
