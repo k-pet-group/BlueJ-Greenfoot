@@ -807,6 +807,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         {
             showErrorOverlay(err, caretPos);
         }
+        else if (!mousePosition && !isStillSameError)
+        {
+            // If the keyboard moves to a different error (or out of an error)
+            // always do that update:
+            showErrorOverlay(err, caretPos);
+        }
         else
         {
             // Only hide if it was a keyboard move
