@@ -86,6 +86,11 @@ public class TryFrame extends SandwichCanvasesFrame
     {
         this(editor);
         getFirstCanvas().getFirstCursor().insertFramesAfter(contents);
+        for(int i=0; i<catchTypes.size(); i++)
+        {
+            catchTypes.get(i).setAccessibility("catch type in try block");
+            catchVars.get(i).setAccessibility("catch variable name in try block");
+        }
     }
 
     /**
@@ -112,6 +117,14 @@ public class TryFrame extends SandwichCanvasesFrame
             finallyContents.forEach(f -> getTailCanvas().insertBlockAfter(f, null));
         }
         frameEnabledProperty.set(enabled);
+
+        for(int i=0; i<catchTypes.size(); i++)
+        {
+            //TODO look over these meanings
+            catchNames.get(i).getSlot().setAccessibility("catch variables i think? Im not sure");
+            catchTypes.get(i).getSlot().setAccessibility("catch type in try block");
+            catchVars.get(i).setAccessibility("catch variable name in try block");
+        }
     }
 
     @Override

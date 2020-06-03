@@ -179,8 +179,11 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         addCanvas(constructorsLabelRow, constructorsCanvas, 1);
 
         //Manvi jain
-        //extendsSlot.setAccesibility("class");
-        extendsSlot.extendsAccesibility();
+        extendsSlot.setAccessibility("parent class name" );
+        for(int i=0; i<implementsList.size(); i++)
+        {
+            implementsList.get(i).getSlot().setAccessibility("interface name");
+        }
     }
 
     @Override

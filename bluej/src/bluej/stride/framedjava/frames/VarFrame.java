@@ -237,6 +237,11 @@ public class VarFrame extends SingleLineFrame
             slotValue.setText(varValue);
         }
         frameEnabledProperty.set(enabled);
+
+        //Manvi jain
+        slotType.setAccessibility("variable type, " + slotType.getText());
+        slotName.setAccessibility("variable name" + slotName.getText());
+        slotValue.setAccessibility("variable value, " + slotValue.getText());
     }
 
     @Override

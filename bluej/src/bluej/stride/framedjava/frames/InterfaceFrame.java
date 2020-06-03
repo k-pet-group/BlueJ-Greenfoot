@@ -93,6 +93,11 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
                 FXCollections.observableArrayList(paramName),
                 extendsList.getHeaderItems()
         ));
+
+        for(int i=0; i<extendsTypes.size(); i++)
+        {
+            extendsTypes.get(i).getSlot().setAccessibility("parent class name ");
+        }
     }
 
     protected Frame findASpecialMethod()

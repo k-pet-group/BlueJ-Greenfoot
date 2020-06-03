@@ -119,7 +119,8 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
         //    Debug.reportError("Setting text: \"" + comment + "\"", e);
         //}
         //Thread.currentThread().setUncaughtExceptionHandler(oldHandler);
-
+        //Manvi jain
+        this.comment.setAccessibleText("comment text " + getComment());
     }
 
     public static FrameFactory<CommentFrame> getFactory()

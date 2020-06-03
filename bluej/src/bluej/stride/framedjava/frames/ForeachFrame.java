@@ -103,12 +103,22 @@ public class ForeachFrame extends SingleCanvasFrame
         this.var.setText(var);
         this.collection.setText(collection);
         frameEnabledProperty.set(enabled);
+
+        //Manvi jain
+        this.type.setAccessibility("condition variable type in for each loop");
+        this.var.setAccessibility("condition variable name in for each loop");
+        this.collection.setAccessibility("collection name in for each loop");
     }
     
     public ForeachFrame(InteractionManager editor, List<Frame> contents)
     {
         this(editor);
         getCanvas().getFirstCursor().insertFramesAfter(contents);
+
+        //Manvi jain
+        this.type.setAccessibility("condition variable type in for each loop");
+        this.var.setAccessibility("condition variable name in for each loop");
+        this.collection.setAccessibility("collection name in for each loop");
     }
 
     @Override

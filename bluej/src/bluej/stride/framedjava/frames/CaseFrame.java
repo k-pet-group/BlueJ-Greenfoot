@@ -122,6 +122,9 @@ public class CaseFrame extends SingleCanvasFrame
         this(editor);
         paramCondition.setText(condition);
         frameEnabledProperty.set(enabled);
+
+        //Manvi jain
+        paramCondition.setAccessibility("condition in case statement");
     }
     
     /**

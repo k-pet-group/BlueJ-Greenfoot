@@ -93,6 +93,9 @@ public class IfFrame extends SandwichCanvasesFrame
     {
         this(editor);
         getFirstCanvas().getFirstCursor().insertFramesAfter(contents);
+
+      // Manvi Jain
+        ifCondition.setAccessibility("condition in if statement ");
     }
 
     /**
@@ -121,6 +124,9 @@ public class IfFrame extends SandwichCanvasesFrame
             elseContents.forEach(f -> getTailCanvas().insertBlockAfter(f, null));
         }
         frameEnabledProperty.set(enabled);
+
+       // Manvi Jain
+        ifCondition.setAccessibility("condition in if statement ");
     }
 
     @Override

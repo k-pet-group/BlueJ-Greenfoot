@@ -270,9 +270,4 @@ public class TypeSlot extends StructuredSlot<TypeSlotFragment, InfixType, TypeCo
         return topLevel.makeDisplayClone(editor);
     }
 
-
-    public void extendsAccesibility(){
-        this.getComponents().get(0).setAccessibleText("parent class name");
-    }
-
 }

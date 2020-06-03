@@ -113,6 +113,7 @@ public class SwitchFrame extends MultiCanvasFrame
 
         //manvi jain
         this.expression.setAccessibility("switch statement expression ");
+
     }
 
     public boolean addDefault()

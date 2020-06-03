@@ -71,6 +71,9 @@ public class CallFrame extends SingleLineFrame
 
         content.onTextPropertyChange(s -> checkForTopLevelEquals());
         content.addFocusListener(this);
+
+        //Manvi jain
+        content.setAccessibility("method name in call " + content.getText());
     }
     
     // For replacement of AssignFrame:
@@ -79,6 +82,8 @@ public class CallFrame extends SingleLineFrame
     {
         this(editor);
         this.content.setSplitText(beforeCursor, afterCursor);
+        //Manvi jain
+        content.setAccessibility("method name in call " + content.getText());
     }
     
     public CallFrame(InteractionManager editor, ExpressionSlotFragment e, boolean enabled)
@@ -86,6 +91,8 @@ public class CallFrame extends SingleLineFrame
         this(editor);
         this.content.setText(e);
         frameEnabledProperty.set(enabled);
+        //Manvi jain
+        content.setAccessibility("method name in call " + content.getText());
     }
 
     @Override
