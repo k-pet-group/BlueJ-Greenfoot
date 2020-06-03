@@ -1164,6 +1164,8 @@ public abstract class StructuredSlot<SLOT_FRAGMENT extends StructuredSlotFragmen
     //Manvi jain
     public void setAccessibility(String text){this.getComponents().get(0).setAccessibleText(text);}
 
+    public void setAccessibilityHelpSlots(String text){this.getComponents().get(0).setAccessibleHelp(text);}
+
     public void addFocusListener(Frame frame)
     {
         onLostFocus(frame::checkForEmptySlot);

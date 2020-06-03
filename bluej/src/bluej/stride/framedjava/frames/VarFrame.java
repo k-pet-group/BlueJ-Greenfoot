@@ -215,11 +215,10 @@ public class VarFrame extends SingleLineFrame
         ReadOnlyBooleanProperty keyFocusDelayed = JavaFXUtil.delay(hasKeyboardFocus, Duration.ZERO, Duration.millis(100));
         showingValue.bind(inInterfaceProperty.or(keyFocusDelayed).or(slotValueBlank.not()));
 
-
-            //Manvi jain
-            slotType.setAccessibility("variable type, " + slotType.getText());
-            slotName.setAccessibility("variable name");
-            slotValue.setAccessibility("variable value, " + slotValue.getText());
+        //Manvi jain
+        slotType.setAccessibility("variable type, " + slotType.getText());
+        slotName.setAccessibility("variable name" + slotName.getText());
+        slotValue.setAccessibility("variable value, " + slotValue.getText());
         }
     
     // If varValue is null, that means the slot is not shown
@@ -238,12 +237,6 @@ public class VarFrame extends SingleLineFrame
             slotValue.setText(varValue);
         }
         frameEnabledProperty.set(enabled);
-
-
-        //Manvi jain
-        slotType.setAccessibility("variable type, " + slotType.getText());
-        slotName.setAccessibility("variable name");
-        slotValue.setAccessibility("variable value, " + slotValue.getText());
     }
 
     @Override
@@ -362,6 +355,17 @@ public class VarFrame extends SingleLineFrame
             headerCaptionLabel.setText("var ");
             JavaFXUtil.setPseudoclass("bj-transparent", isAfterVarFrame(parentCanvas), headerCaptionLabel.getNode());
         }
+
+        //Manvi jain
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            System.out.println("variable type " + getParentCanvas().getParent().getHelpContext());
+            System.out.println("variable name " + getParentCanvas().getParent().getHelpContext());
+            System.out.println("variable name " + getParentCanvas().getParent().getHelpContext());
+            slotType.setAccessibilityHelpSlots("variable type " + getParentCanvas().getParent().getHelpContext());
+            slotName.setAccessibilityHelpSlots("variable name " + getParentCanvas().getParent().getHelpContext());
+            slotValue.setAccessibilityHelpSlots("variable name " + getParentCanvas().getParent().getHelpContext());
+        }
     }
 
     private boolean isAfterVarFrame(FrameCanvas parentCanvas)
@@ -415,6 +419,8 @@ public class VarFrame extends SingleLineFrame
     @Override
     public void focusName() {
         slotName.requestFocus(Focus.LEFT);
+       // System.out.println("focussing");
+       // slotName.setHelpAccessibility("manvi jain focus");
     }
 
     @Override
@@ -486,4 +492,5 @@ public class VarFrame extends SingleLineFrame
     {
         return Stream.of(access, slotValue);
     }
+
 }

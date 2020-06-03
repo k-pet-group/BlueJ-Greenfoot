@@ -154,6 +154,10 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
 
         JavaFXUtil.addChangeListener(staticModifier, b -> editor.modifiedFrame(this, false));
         JavaFXUtil.addChangeListener(finalModifier, b -> editor.modifiedFrame(this, false));
+
+        returnType.setAccessibility("return type in signature of method " +getName());
+        methodName.setText("method name in signature of " +getName());
+
     }
     
     public NormalMethodFrame(InteractionManager editor, AccessPermissionFragment access, boolean staticModifier,
@@ -414,4 +418,21 @@ public class NormalMethodFrame extends MethodFrameWithBody<NormalMethodElement> 
         }
         return false;
     }
+
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas)
+    {
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            System.out.println("return type in signature of method " +getName() + " " + getParentCanvas().getParent().getHelpContext());
+            System.out.println("method name in signature of " +getName() + " " + getParentCanvas().getParent().getHelpContext());
+            returnType.setAccessibilityHelpSlots("return type in signature of method " +getName() + " " + getParentCanvas().getParent().getHelpContext());
+            methodName.setAccessibilityHelpSlots("method name in signature of " +getName() + " " + getParentCanvas().getParent().getHelpContext());
+        }
+    }
+
+
+    //Manvi jain
+    @Override
+    public String getHelpContext(){ return "in method " +getName() + " "; }
 }

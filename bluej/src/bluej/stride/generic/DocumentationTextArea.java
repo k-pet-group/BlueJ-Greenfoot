@@ -422,11 +422,7 @@ public class DocumentationTextArea extends ScrollFreeTextArea implements Editabl
         return !isDisable();
     }
 
-    //Manvi Jain
-    //@Override
-    public void setAccessibleText(String text) {
-        this.getNode().setAccessibleText(text);
-    }
+
 
     @Override
     public void setEditable(boolean editable)

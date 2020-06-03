@@ -599,4 +599,11 @@ public class FrameShelf implements InteractionManager, CanvasParent, FrameTypeCh
             canvas.insertBlockAfter(Loader.loadElement(framesElement.getChildElements().get(i)).createFrame(this), null);
         }
     }
+
+    //Manvi jain
+    @Override
+    public String getHelpContext(){
+        //not applicable
+        return "";
+    }
 }

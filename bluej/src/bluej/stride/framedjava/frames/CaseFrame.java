@@ -112,6 +112,9 @@ public class CaseFrame extends SingleCanvasFrame
         replaceMenu.getItems().addAll(forMenu, new SeparatorMenuItem(), ifMenu, ifElseMenu);
         */
         paramCondition.onTextPropertyChange(updateSidebarCurried("case "));
+
+        //Manvi jain
+        paramCondition.setAccessibility("condition in case statement");
     }
     
     public CaseFrame(InteractionManager editor, FilledExpressionSlotFragment condition, boolean enabled)
@@ -237,5 +240,27 @@ public class CaseFrame extends SingleCanvasFrame
     {
         return getEditableSlotsDirect().allMatch(EditableSlot::isAlmostBlank) &&
                 canvas.getBlockContents().stream().allMatch(f -> (f instanceof BlankFrame || f instanceof BreakFrame));
+    }
+
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas)
+    {
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            System.out.println("Condition in case statement " + getParentCanvas().getParent().getHelpContext());
+            paramCondition.setAccessibilityHelpSlots("Condition in case statement" + getParentCanvas().getParent().getHelpContext());
+        }
+    }
+
+    //Manvi jain
+    @Override
+    public String getHelpContext()
+    {
+        String parent = "";
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            parent = getParentCanvas().getParent().getHelpContext();
+        }
+        return "in case statement " + parent ;
     }
 }

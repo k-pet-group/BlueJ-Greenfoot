@@ -39,6 +39,7 @@ public abstract class MultiCanvasFrame extends Frame implements CanvasParent
     // Each canvas is potentially preceded by a divider.
     // Should always be same size as canvases, but may have null entries:
     protected final List<FrameContentItem> dividers = new ArrayList<>();
+
     
     // TODO do we want several sidebars, one per canvas?
     protected final Sidebar sidebar;
@@ -155,4 +156,5 @@ public abstract class MultiCanvasFrame extends Frame implements CanvasParent
     {
         return this;
     }
+
 }

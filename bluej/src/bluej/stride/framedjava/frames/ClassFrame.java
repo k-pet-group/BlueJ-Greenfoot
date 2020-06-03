@@ -906,4 +906,10 @@ public class ClassFrame extends TopLevelDocumentMultiCanvasFrame<ClassElement>
         }
         return super.backspaceAtStart(srcRow, src);
     }
+    //Manvi jain
+    @Override
+    public String getHelpContext()
+    {
+        return "in class " ;
+    }
 }

@@ -663,5 +663,14 @@ public class ChoiceSlot<T extends Enum<T>> implements EditableSlot, CopyableHead
     }
 
     //Manvi jain
-    public void setAccessibility(String text) { this.getComponents().get(0).setAccessibleText(text);}
+    public void setAccessibility(String text)
+    {
+        this.getComponents().get(0).setAccessibleText(text);
+    }
+
+    //Manvi Jain
+    public void setAccessibilityHelpSlots(String helpText)
+    {
+        this.getComponents().get(0).setAccessibleRoleDescription(helpText);
+    }
 }

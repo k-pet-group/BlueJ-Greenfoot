@@ -1092,7 +1092,13 @@ public abstract class TextSlot<SLOT_FRAGMENT extends TextSlotFragment> implement
     }
 
     //Manvi jain
-    //public void setAccessibility(String text){this.getComponents().get(0).setAccessibleText(text);}
+    public void setAccessibility(String text)
+    {
+        field.getFocusableNode().setAccessibleText(text);
+    }
 
-    public void setAccessibility(String text){field.getFocusableNode().setAccessibleText(text);}
+    public void setAccessibilityHelpSlots(String text)
+    {
+        field.getFocusableNode().setAccessibleHelp(text);
+    }
 }

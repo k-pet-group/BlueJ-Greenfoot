@@ -1,22 +1,22 @@
 /*
- This file is part of the BlueJ program. 
- Copyright (C) 2015,2016 Michael Kölling and John Rosenberg 
- 
- This program is free software; you can redistribute it and/or 
- modify it under the terms of the GNU General Public License 
- as published by the Free Software Foundation; either version 2 
- of the License, or (at your option) any later version. 
- 
- This program is distributed in the hope that it will be useful, 
- but WITHOUT ANY WARRANTY; without even the implied warranty of 
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the 
- GNU General Public License for more details. 
- 
- You should have received a copy of the GNU General Public License 
- along with this program; if not, write to the Free Software 
- Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA. 
- 
- This file is subject to the Classpath exception as provided in the  
+ This file is part of the BlueJ program.
+ Copyright (C) 2015,2016 Michael Kölling and John Rosenberg
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License
+ as published by the Free Software Foundation; either version 2
+ of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+ This file is subject to the Classpath exception as provided in the
  LICENSE.txt file that accompanied this code.
  */
 package bluej.utility.javafx;
@@ -179,7 +179,7 @@ public class ScrollFreeTextArea
         offScreen.setMinHeight(0);
         offScreen.styleProperty().bind(editor.getFontCSS());
         JavaFXUtil.addChangeListener(editor.getFontCSS(), this::recalculateOneTwoLineHeights);
-        
+
         // Given the way we are currently doing the sizes, that we bind the preferred height,
         // we run into a problem that the width may change during a layout pass, but the
         // preferred height binding is not recalculated.  To do this we must request another
@@ -201,7 +201,7 @@ public class ScrollFreeTextArea
         double extraLine = threeLine - twoLine;
         suggestedOneLineHeight = twoLine - extraLine + 2 /* fudge factor */;
     }
-    
+
     private double calculateHeight(String fontCSS, String text)
     {
         if (calculationAid == null || calculationAidScene == null)
@@ -366,7 +366,7 @@ public class ScrollFreeTextArea
         scale.bind(animate.getProgress());
         animate.addOnStopped(scale::unbind);
     }
-    
+
     public Bounds getSceneBounds()
     {
         return textArea.localToScene(textArea.getBoundsInLocal());
@@ -374,5 +374,17 @@ public class ScrollFreeTextArea
 
     static {
         Config.addEditorStylesheets(scene);
+    }
+
+    //Manvi Jain
+    public void setAccessibleText(String text)
+    {
+        this.textArea.setAccessibleText(text);
+    }
+
+
+    public void setAccessibilityHelpSlots(String helpText)
+    {
+        this.textArea.setAccessibleHelp(helpText);
     }
 }

@@ -71,6 +71,12 @@ public class TryFrame extends SandwichCanvasesFrame
     private TryFrame(InteractionManager editor)
     {
         super(editor, "try", "catch", "finally", TRY_STYLE_PREFIX);
+
+        for(int i=0; i<catchTypes.size(); i++)
+        {
+            catchTypes.get(i).setAccessibility("catch type in try block");
+            catchVars.get(i).setAccessibility("catch variable name in try block");
+        }
     }
 
     /**
@@ -208,4 +214,31 @@ public class TryFrame extends SandwichCanvasesFrame
                 Utility.mapList(catchVars, VariableNameDefTextSlot::getSlotElement), intermediateCanvasesContents,
                 tailCanvasContents, enabled);
     }
+
+
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas)
+    {
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            for(int i=0; i<catchTypes.size(); i++)
+            {
+                catchTypes.get(i).setAccessibilityHelpSlots("catch type in try block " + getParentCanvas().getParent().getHelpContext());
+                System.out.println("Condition " + getParentCanvas().getParent().getHelpContext());
+                catchVars.get(i).setAccessibilityHelpSlots("catch name in try block " + getParentCanvas().getParent().getHelpContext());
+            }
+        }
+    }
+    //Manvi jain
+    @Override
+    public String getHelpContext()
+    {
+        String parent = "";
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            parent = getParentCanvas().getParent().getHelpContext();
+        }
+        return "in try block " + parent;
+    }
+
 }

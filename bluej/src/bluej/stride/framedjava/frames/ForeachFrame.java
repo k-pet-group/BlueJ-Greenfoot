@@ -92,9 +92,9 @@ public class ForeachFrame extends SingleCanvasFrame
         collection.onTextPropertyChange(updateTriple);
 
         //Manvi jain
-        type.setAccessibility("for each condition variable type");
-        var.setAccessibility("for each condition variable name");
-        collection.setAccessibility("for each collection");
+        type.setAccessibility("condition variable type in for each loop");
+        var.setAccessibility("condition variable name in for each loop");
+        collection.setAccessibility("collection name in for each loop");
     }
     
     public ForeachFrame(InteractionManager editor, TypeSlotFragment type, NameDefSlotFragment var, ExpressionSlotFragment collection, boolean enabled) {
@@ -103,22 +103,12 @@ public class ForeachFrame extends SingleCanvasFrame
         this.var.setText(var);
         this.collection.setText(collection);
         frameEnabledProperty.set(enabled);
-
-        //Manvi jain
-        this.type.setAccessibility("for each condition variable type");
-        this.var.setAccessibility("for each condition variable name");
-        this.collection.setAccessibility("for each collection");
     }
     
     public ForeachFrame(InteractionManager editor, List<Frame> contents)
     {
         this(editor);
         getCanvas().getFirstCursor().insertFramesAfter(contents);
-
-        //Manvi jain
-        type.setAccessibility("for each condition variable type");
-        var.setAccessibility("for each condition variable name");
-        collection.setAccessibility("for each collection");
     }
 
     @Override
@@ -239,4 +229,30 @@ public class ForeachFrame extends SingleCanvasFrame
         return super.backspaceAtStart(srcRow, src);
     }
 
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas)
+    {
+
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            System.out.println("condition variable type in foreach loop " + getParentCanvas().getParent().getHelpContext());
+            System.out.println("condition variable name in foreach loop " + getParentCanvas().getParent().getHelpContext());
+            System.out.println("collection name in foreach loop " + getParentCanvas().getParent().getHelpContext());
+            type.setAccessibilityHelpSlots("condition variable type in foreach loop " + getParentCanvas().getParent().getHelpContext());
+            var.setAccessibilityHelpSlots("condition variable name in foreach loop " + getParentCanvas().getParent().getHelpContext());
+            type.setAccessibilityHelpSlots("collection name in foreach loop " + getParentCanvas().getParent().getHelpContext());
+        }
+    }
+
+    //Manvi jain
+    @Override
+    public String getHelpContext()
+    {
+        String parent = "";
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            parent = getParentCanvas().getParent().getHelpContext();
+        }
+        return "in for each loop " + parent;
+    }
 }

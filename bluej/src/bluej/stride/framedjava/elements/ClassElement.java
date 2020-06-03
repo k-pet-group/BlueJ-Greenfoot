@@ -308,8 +308,15 @@ public class ClassElement extends DocumentContainerCodeElement implements TopLev
     {
         frame = new ClassFrame(editor, projectResolver, packageName, imports, documentation, abstractModifier, className, extendsName, implementsList, isEnable());
         fields.forEach(member -> frame.getfieldsCanvas().insertBlockAfter(member.createFrame(editor), null));
-        constructors.forEach(member -> frame.getConstructorsCanvas().insertBlockAfter(member.createFrame(editor), null));
-        methods.forEach(member -> frame.getMethodsCanvas().insertBlockAfter(member.createFrame(editor), null));
+        constructors.forEach(member ->{
+                    System.out.println();
+                    frame.getConstructorsCanvas().insertBlockAfter(member.createFrame(editor), null);
+                }
+                );
+        methods.forEach(member -> {
+            System.out.println();
+            frame.getMethodsCanvas().insertBlockAfter(member.createFrame(editor), null);
+        });
         return frame;
     }
     

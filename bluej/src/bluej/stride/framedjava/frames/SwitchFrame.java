@@ -456,4 +456,27 @@ public class SwitchFrame extends MultiCanvasFrame
 
         defaultLabel.setText(newView == View.JAVA_PREVIEW ? "default :" : "default");
     }
+
+
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas)
+    {
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            System.out.println("Condition in switch statement " + getParentCanvas().getParent().getHelpContext());
+            expression.setAccessibilityHelpSlots("Condition in switch statement " + getParentCanvas().getParent().getHelpContext());
+        }
+    }
+
+    //Manvi jain
+    @Override
+    public String getHelpContext()
+    {
+        String parent = "";
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            parent = getParentCanvas().getParent().getHelpContext();
+        }
+        return "in switch statement " + parent;
+    }
 }

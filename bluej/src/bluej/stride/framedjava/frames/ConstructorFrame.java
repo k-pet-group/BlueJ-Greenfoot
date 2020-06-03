@@ -97,8 +97,15 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
         ));
 
         //Manvi jain
-         //superThisParams.setAccessibility("super constructor's parameters");
-         //superThis.setAccessibility("super constructor options");
+        if(superThisParams != null)
+        {
+            superThisParams.setAccessibility("super constructor's parameters");
+        }
+
+        if(superThis != null)
+        {
+            superThis.setAccessibility("super constructor options");
+        }
     }
 
     public ConstructorFrame(InteractionManager editor, AccessPermissionFragment access, String documentation,
@@ -371,5 +378,39 @@ public class ConstructorFrame extends MethodFrameWithBody<ConstructorElement> {
                 });
             }
         }
+    }
+
+
+    @Override
+    public void updateAppearance(FrameCanvas parentCanvas)
+    {
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            //Manvi jain
+            if(superThisParams != null)
+            {
+                System.out.println("super constructor's parameters " + getParentCanvas().getParent().getHelpContext());
+                superThisParams.setAccessibilityHelpSlots("super constructor's parameters " + getParentCanvas().getParent().getHelpContext());
+            }
+
+            if(superThis != null)
+            {
+                System.out.println("super constructor options " + getParentCanvas().getParent().getHelpContext());
+                superThis.setAccessibilityHelpSlots("super constructor options " + getParentCanvas().getParent().getHelpContext());
+            }
+        }
+    }
+
+
+    //Manvi jain
+    @Override
+    public String getHelpContext()
+    {
+        String parent = "";
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            parent = getParentCanvas().getParent().getHelpContext();
+        }
+        return "in constructor " + parent;
     }
 }

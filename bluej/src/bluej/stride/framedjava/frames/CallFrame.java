@@ -160,6 +160,11 @@ public class CallFrame extends SingleLineFrame
         }
     }
 
+    @Override
+    public void focusName() {
+        super.focusName();
+    }
+
     private void deleteOurselves()
     {
         FrameCanvas parentCanvas = getParentCanvas();

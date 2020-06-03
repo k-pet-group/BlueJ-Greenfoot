@@ -293,4 +293,11 @@ public class InterfaceFrame extends TopLevelDocumentMultiCanvasFrame<InterfaceEl
     {
         return Arrays.asList(importsLabel, fieldsLabel, methodsLabel);
     }
+
+    //Manvi jain
+    @Override
+    public String getHelpContext()
+    {
+        return "in interface " ;
+    }
 }

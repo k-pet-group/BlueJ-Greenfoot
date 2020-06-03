@@ -31,9 +31,6 @@ import java.util.stream.Stream;
 import bluej.pkgmgr.target.role.Kind;
 import javafx.beans.binding.StringExpression;
 
-//MANVI CODE
-import javafx.scene.AccessibleRole;
-//
 
 import javafx.scene.Node;
 

@@ -96,7 +96,7 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
         // Make sure diagonal line canvas is created and drawn on:
         getDiagonalLineCanvas();
         //Manvi jain
-        comment.setAccessibleText("This is manvi's comment" + COMMENT_STYLE_PREFIX + getComment());
+        comment.setAccessibleText("comment text " + getComment());
     }
 
     /**
@@ -120,8 +120,6 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
         //}
         //Thread.currentThread().setUncaughtExceptionHandler(oldHandler);
 
-        //Manvi jain
-        this.comment.setAccessibleText(COMMENT_STYLE_PREFIX + "this is a comment. Write a comment");
     }
 
     public static FrameFactory<CommentFrame> getFactory()
@@ -178,6 +176,13 @@ public class CommentFrame extends SingleLineFrame implements CodeFrame<CommentEl
         else
         {
             removeStyleClass(isInInterface(parentCanvas) ? "interface-comment-frame" : "class-comment-frame");
+        }
+
+
+        if(getParentCanvas() != null && getParentCanvas().getParent() != null)
+        {
+            System.out.println("comment in " + getParentCanvas().getParent().getHelpContext());
+            comment.setAccessibilityHelpSlots("comment in " + getParentCanvas().getParent().getHelpContext());
         }
     }
 

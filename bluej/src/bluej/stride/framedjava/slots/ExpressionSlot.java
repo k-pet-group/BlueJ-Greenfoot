@@ -153,6 +153,4 @@ public abstract class ExpressionSlot<SLOT_FRAGMENT extends ExpressionSlotFragmen
         return topLevel.findLinks(Optional.empty(), getSlotElement().getVars(), offset -> getSlotElement().getPosInSourceDoc(offset), 0);
     }
 
-
-    //public void setAccessibility(String text){this.getComponents().get(0).setAccessibleText(text);}
   }
