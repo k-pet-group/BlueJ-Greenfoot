@@ -156,6 +156,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
@@ -180,7 +181,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     /** Watcher - provides interface to BlueJ core. May be null (eg for README.txt file). */
     private final EditorWatcher watcher;
     /** The Editor Quick Fixes manager associated with this Editor */
-    private final EditorFixesManager editorFixesMgr = new EditorFixesManager();
+    private final EditorFixesManager editorFixesMgr;
     
     private final boolean sourceIsCode;           // true if current buffer is code
     private final List<Menu> fxMenus;
@@ -438,6 +439,7 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         this.actions = new FlowActions(this);
         this.htmlPane = new WebView();
         this.sourceIsCode = sourceIsCode;
+        this.editorFixesMgr = new EditorFixesManager(watcher == null || watcher.getPackage() == null ? new CompletableFuture<>() : watcher.getPackage().getProject().getImports());
         htmlPane.visibleProperty().bind(viewingHTML);
         setCenter(new StackPane(flowEditorPane, htmlPane));
         this.interfaceToggle = createInterfaceSelector();
@@ -804,6 +806,12 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
         boolean isStillSameError = errorDisplay != null && caretPos >= errorDisplay.details.startPos && caretPos <= errorDisplay.details.endPos;
         if (err != null && !isStillSameError)
         {
+            showErrorOverlay(err, caretPos);
+        }
+        else if (!mousePosition && !isStillSameError)
+        {
+            // If the keyboard moves to a different error (or out of an error)
+            // always do that update:
             showErrorOverlay(err, caretPos);
         }
         else
@@ -1379,9 +1387,6 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
     public void setEditorVisible(boolean vis, boolean openInNewWindow)
     {
         FXTabbedEditor fxTabbedEditor = fetchTabbedEditor.getFXTabbedEditor(openInNewWindow);
-
-        // prepare the imports
-        getEditorFixesManager().prepareImports(fxTabbedEditor.getProject());
 
         if (vis)
         {

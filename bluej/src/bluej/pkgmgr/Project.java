@@ -1,6 +1,6 @@
 /*
  This file is part of the BlueJ program. 
- Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019  Michael Kolling and John Rosenberg 
+ Copyright (C) 1999-2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020  Michael Kolling and John Rosenberg 
  
  This program is free software; you can redistribute it and/or 
  modify it under the terms of the GNU General Public License 
@@ -29,15 +29,6 @@ import bluej.classmgr.ClassMgrPrefPanel;
 import bluej.collect.DataCollector;
 import bluej.compiler.CompileReason;
 import bluej.compiler.CompileType;
-import bluej.debugger.Debugger;
-import bluej.debugger.DebuggerClass;
-import bluej.debugger.DebuggerEvent;
-import bluej.debugger.DebuggerListener;
-import bluej.debugger.DebuggerObject;
-import bluej.debugger.DebuggerThread;
-import bluej.debugger.DebuggerThreadListener;
-import bluej.debugger.RunOnThread;
-import bluej.debugger.SourceLocation;
 import bluej.debugger.*;
 import bluej.debugmgr.ExecControls;
 import bluej.debugmgr.ExpressionInformation;
@@ -45,6 +36,7 @@ import bluej.debugmgr.inspector.*;
 import bluej.debugmgr.objectbench.ObjectBench;
 import bluej.debugmgr.objectbench.ObjectWrapper;
 import bluej.editor.Editor;
+import bluej.editor.fixes.ProjectImportInformation;
 import bluej.editor.stride.FXTabbedEditor;
 import bluej.editor.stride.FrameShelfStorage;
 import bluej.extensions2.BProject;
@@ -98,6 +90,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * A BlueJ Project.
@@ -228,6 +221,8 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     private final BooleanProperty debuggerShowing = new SimpleBooleanProperty(false);
     // Which thread to run on.  null means we have never asked the user about it.
     private RunOnThread runOnThread;
+    @OnThread(Tag.Any)
+    private final CompletableFuture<ProjectImportInformation> projectImportInformation;
 
     /* ------------------- end of field declarations ------------------- */
 
@@ -335,6 +330,10 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
                 else
                     execControls.hide();
             }
+        });
+        this.projectImportInformation = new CompletableFuture<>();
+        Utility.runBackground(() -> {
+            projectImportInformation.complete(new ProjectImportInformation(this));
         });
     }
 
@@ -2603,6 +2602,12 @@ public class Project implements DebuggerListener, DebuggerThreadListener, Inspec
     {
         this.runOnThread = runOnThread;
         debugger.setRunOnThread(runOnThread == null ? RunOnThread.DEFAULT : runOnThread);
+    }
+
+    @OnThread(Tag.Any)
+    public CompletableFuture<ProjectImportInformation> getImports()
+    {
+        return projectImportInformation;
     }
 
     /**

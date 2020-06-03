@@ -139,7 +139,7 @@ public class FrameEditor implements Editor
     @OnThread(Tag.FXPlatform) private final List<HighlightedBreakpoint> execHistory = new ArrayList<>();
     /** The Editor Quick Fixes manager associated with this Editor */
     @OnThread(Tag.Any)
-    private final EditorFixesManager editorFixesMgr = new EditorFixesManager();
+    private final EditorFixesManager editorFixesMgr;
 
     /** Stride source at last save. Assigned on FX thread only, readable on any thread. */
     private volatile TopLevelCodeElement lastSource;
@@ -213,6 +213,7 @@ public class FrameEditor implements Editor
         this.pkg = pkg;
         this.javaSource = new SimpleObjectProperty<>();
         this.callbackOnOpen = callbackOnOpen;
+        this.editorFixesMgr = new EditorFixesManager(watcher.getPackage().getProject().getImports());
         lastSource = Loader.loadTopLevelElement(frameFilename, resolver, pkg.getQualifiedName());
     }
 
