@@ -53,6 +53,9 @@ abstract class FXTab extends Tab
     public FXTab(boolean showCatalogue)
     {
         this.showCatalogue = showCatalogue;
+        setOnSelectionChanged(e -> {
+            JavaFXUtil.runAfterCurrent(this::focusWhenShown);
+        });
     }
 
     /**
