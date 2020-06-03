@@ -3534,6 +3534,8 @@ public class FlowEditor extends ScopeColorsBorderPane implements TextEditor, Flo
                 }
             });
             errorVBox.getStyleClass().add("java-error-popup");
+            // No need to bind as only matters if user increases font size while error showing:
+            tf.setStyle(PrefMgr.getEditorFontCSS(false).get());
             Config.addPopupStylesheets(errorVBox);
         }
     }
