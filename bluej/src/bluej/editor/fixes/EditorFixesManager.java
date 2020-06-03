@@ -114,30 +114,29 @@ public class EditorFixesManager
         {
             List<AssistContentThreadSafe> popularImports = projectImportInformation.get().getPopularImports();
             List<AssistContentThreadSafe> rarerImports = projectImportInformation.get().getRarerImports();
-            if (popularImports.size() > 0 && rarerImports.size() > 0)
-            {
-                // Add popular:
-                Stream.concat(
-                        popularImports.stream().map(ac -> new Pair<>(SuggestionList.SuggestionShown.COMMON, ac)),
-                        rarerImports.stream().map(ac -> new Pair<>(SuggestionList.SuggestionShown.RARE, ac))
-                )
-                        .filter(imp -> imp.getValue().getPackage() != null)
-                        .forEach(imp -> {
-                            String fullName = imp.getValue().getPackage() + ".";
-                            if (imp.getValue().getDeclaringClass() != null)
-                            {
-                                fullName += imp.getValue().getDeclaringClass() + ".";
-                            }
-                            fullName += imp.getValue().getName();
-                            imports.put(fullName, imp);
-                        });
-                // Remove what we already import:
-                getAllImportedTypes()
-                        .filter(imp -> imp.getPackage() != null)
-                        .forEach(imp -> imports.remove(imp.getPackage() + "." + imp.getName()));
-                // Remove imports we want to hide (for instance that are unused and confusing for users)
-                imports.remove("java.awt.List");
-            }
+        
+            // Add popular:
+            Stream.concat(
+                    popularImports.stream().map(ac -> new Pair<>(SuggestionList.SuggestionShown.COMMON, ac)),
+                    rarerImports.stream().map(ac -> new Pair<>(SuggestionList.SuggestionShown.RARE, ac))
+            )
+                .filter(imp -> imp.getValue().getPackage() != null)
+                .forEach(imp -> {
+                    String fullName = imp.getValue().getPackage() + ".";
+                    if (imp.getValue().getDeclaringClass() != null)
+                    {
+                        fullName += imp.getValue().getDeclaringClass() + ".";
+                    }
+                    fullName += imp.getValue().getName();
+                    imports.put(fullName, imp);
+                });
+            // Remove what we already import:
+            getAllImportedTypes()
+                    .filter(imp -> imp.getPackage() != null)
+                    .forEach(imp -> imports.remove(imp.getPackage() + "." + imp.getName()));
+            // Remove imports we want to hide (for instance that are unused and confusing for users)
+            imports.remove("java.awt.List");
+        
         }
         catch (InterruptedException | ExecutionException ex)
         {
