@@ -446,6 +446,12 @@ public class FlowErrorManager implements ErrorQuery
                     // to be matched when searching those characters in a code portion.
                     String fileContentBeforeErrorPart = JavaUtils.blankCodeCommentsAndStringLiterals(fileContent.substring(0, startPos),'0');
                     int prevStatementPos = Math.max(fileContentBeforeErrorPart.lastIndexOf('{'), fileContentBeforeErrorPart.lastIndexOf(';'));
+                    if (prevStatementPos == -1)
+                    {
+                        this.italicMessageStartIndex = italicMessageStartIndex;
+                        this.italicMessageEndIndex = italicMessageEndIndex;
+                        return;
+                    }
                     int statementStartPos = prevStatementPos +1;
                     while(statementStartPos < fileContentBeforeErrorPart.length() && Character.isWhitespace(fileContentBeforeErrorPart.charAt(statementStartPos)))
                         statementStartPos++;
@@ -465,7 +471,7 @@ public class FlowErrorManager implements ErrorQuery
                         statementStartPos = fileContentBeforeErrorPart.lastIndexOf("->") + "->".length();
                         // the error position is just before the '(' of the method throwing an exception
                         // so we look up for either an ending ')' without opening match or a comma or a semicolon or a colon
-                        while (!foundEnd)
+                        while (!foundEnd && searchIndex < fileContentAfterErrorPart.length())
                         {
                             char c = fileContentAfterErrorPart.charAt(searchIndex);
                             if (c == '(')
@@ -486,7 +492,7 @@ public class FlowErrorManager implements ErrorQuery
                     {
                         // the error position is just before the '(' of the method throwing an exception
                         // so we look up for a semi colon that is not somewhere inside the method (if lambdas in)
-                        while (!foundEnd)
+                        while (!foundEnd && searchIndex < fileContentAfterErrorPart.length())
                         {
                             char c = fileContentAfterErrorPart.charAt(searchIndex);
                             if (c == '(')
@@ -510,7 +516,7 @@ public class FlowErrorManager implements ErrorQuery
                     String newIndentSpacing = "    ";
                     if(needSurroundingBrackets)
                         initIdent += newIndentSpacing;
-                    String tryCatchString =
+                    StringBuffer tryCatchString = new StringBuffer(
                             ((needNewLine) ? "\n" : "")
                             + ((needSurroundingBrackets) ? initIdent.substring(0, initIdent.length() - newIndentSpacing.length()) + "{\n" : "")
                             + ((needSurroundingBrackets) ? initIdent : "") + "try\n"
@@ -519,20 +525,20 @@ public class FlowErrorManager implements ErrorQuery
                             + initIdent + "}\n"
                             + initIdent + "catch (" + exceptionType + " " + exceptionVarName + ")\n"
                             + initIdent + "{\n"
-                            + initIdent + newIndentSpacing + exceptionVarName +".printStackTrace();\n"
+                            + initIdent + newIndentSpacing);
+                    int posOfCatchStatement = tryCatchString.length();
+                    String catchStatement = exceptionVarName + ".printStackTrace();";
+                    tryCatchString.append(catchStatement + "\n"
                             + initIdent + "}" + ((needSurroundingBrackets) ? "\n" : "")
-                            + ((needSurroundingBrackets) ? initIdent.substring(0, initIdent.length() - newIndentSpacing.length()) + "}" : "");
+                            + ((needSurroundingBrackets) ? initIdent.substring(0, initIdent.length() - newIndentSpacing.length()) + "}" : ""));
 
                     // and prepare the quick fix
                     int finalStatementEndPos = statementEndPos;
                     int finalStatementStartPos = statementStartPos;
-                    String finalExceptionVarName = exceptionVarName;
                     corrections.add(new FixSuggestionBase(Config.getString("editor.quickfix.unreportedException.fixMsg.trycatch"), () -> {
-                        String catchStatement = finalExceptionVarName + ".printStackTrace();";
-                        int posOfCatchStatement = tryCatchString.indexOf(catchStatement);
                         editor.setSelection(editor.getLineColumnFromOffset(finalStatementStartPos), editor.getLineColumnFromOffset(finalStatementEndPos));
                         editor.setText(editor.getLineColumnFromOffset(finalStatementStartPos), editor.getLineColumnFromOffset(finalStatementEndPos),
-                                tryCatchString);
+                                tryCatchString.toString());
                         editor.refresh();
                         //select the catch statement
                         editor.setSelection(editor.getLineColumnFromOffset(finalStatementStartPos + posOfCatchStatement), editor.getLineColumnFromOffset(finalStatementStartPos + posOfCatchStatement + catchStatement.length()));
@@ -544,6 +550,12 @@ public class FlowErrorManager implements ErrorQuery
                         // first the throws statement is created all if none exist, otherwise we just append the exception
                         int posOfClosingMethodParamsBracket = fileContentBeforeErrorPart.indexOf(")", posOfContainingMethod);
                         int posOfOpeningMethodBodyBracket = fileContentBeforeErrorPart.indexOf('{', posOfContainingMethod);
+                        if (posOfClosingMethodParamsBracket == -1 || posOfOpeningMethodBodyBracket == -1)
+                        {
+                            this.italicMessageStartIndex = italicMessageStartIndex;
+                            this.italicMessageEndIndex = italicMessageEndIndex;
+                            return;
+                        }
                         boolean methodHasThrows = fileContentBeforeErrorPart.substring(posOfClosingMethodParamsBracket, posOfOpeningMethodBodyBracket).contains(" throws ");
                         SourceLocation methodSourceLocation = editor.getLineColumnFromOffset(posOfContainingMethod);
                         boolean openingMethodBodyBracketOnSameLine = (editor.getLineColumnFromOffset(posOfOpeningMethodBodyBracket).getLine() == methodSourceLocation.getLine());
@@ -567,7 +579,8 @@ public class FlowErrorManager implements ErrorQuery
                         }));
                     }
                 }
-            } else
+            }
+            else
             {
                 // In the default case, we keep the original error message.
                 this.message = message;
